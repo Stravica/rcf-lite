@@ -38,5 +38,6 @@
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no US-6109-specific failure paths beyond runner-missing (covered generically by AC-6102-3 unknown-executable refusal) and gate-aggregation gaps (covered by AC-6108-1 required-gate listing); this story owns the shipped GHA illustrative assets and the alternate-provider mapping documentation (per REQ-009 and assets/ci-provider-examples/notes.md)."
 }

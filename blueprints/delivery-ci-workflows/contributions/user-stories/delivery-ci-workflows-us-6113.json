@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-6113-3",
-      "description": "A workflowShape configuration that combines a named profile alias with an inline override for the same field fails at expansion time with WORKFLOW_SHAPE_CONFLICT naming the field and the two sources; the materialiser refuses ambiguity.",
+      "description": "A workflowShape configuration that combines a named profile alias with an inline override for the same field fails at expansion time with WORKFLOW_SHAPE_CONFLICT naming the field and the two sources; the materialiser refuses ambiguity. Template values the applying agent sets: The applying agent sets the elicited workflowShape (the profile alias name and any inline field override); the AC substitutes the project's alias and inline pair for the illustrative trunk-lite profile paired with branchModel=feature.",
       "given": "a workflowShape configuration with profile=trunk-lite AND branchModel=feature (the alias sets trunk, the inline sets feature)",
       "when": "the expander runs",
       "then": "the expander refuses with WORKFLOW_SHAPE_CONFLICT naming branchModel and the two sources",

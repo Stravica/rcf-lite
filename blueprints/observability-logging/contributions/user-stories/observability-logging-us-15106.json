@@ -38,5 +38,6 @@
     "TAC-1601-observability-logging-logger-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. ADR-1604 and TAC-1601 name no US-15106-specific failure paths beyond unknown-level-value (AC-15106-1) and wrong-case (AC-15106-2); further boundary classes for construction-time level validation are not documented on this mechanism."
 }

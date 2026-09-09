@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 - Closes F-2 (release entity creation and artefact publication had only success cases): adds AC-6121-4 (RELEASE_CREATE_FAILED naming step + provider status; no downstream publication or promote) and AC-6122-4 (RELEASE_PUBLISH_FAILED naming artefact + provider response; no promote step).
 - Closes F-3 (missing/malformed workflow config): adds AC-6112-3 (absent .rcf/config/delivery-ci-workflows.json -> WORKFLOW_CONFIG_MISSING; no workflow file written) and AC-6112-4 (unparseable JSON -> WORKFLOW_CONFIG_UNPARSEABLE naming file + parser error).
 - Re-sweeps every existing AC's `disposition` per section 7b: ACs referencing workflowShape values, provider hint, elicited check catalogue, report directory, and deployHandoff target flipped to `template` with `templateFillIns`; the remaining ACs stay `fixed`.
+- Review fix pass (F-1): flips AC-6104-3, AC-6106-3, AC-6119-2 to `disposition: fixed` (three ACs describe blueprint-invariant semantics with no elicited substitution in the assertion); adds the section 7b fill-in sentence naming the elicited values the applying agent sets to the remaining eight template ACs (AC-6111-3, AC-6113-3, AC-6115-3, AC-6116-2, AC-6118-3, AC-6120-2, AC-6123-3, AC-6124-2).
+- Review fix pass (F-6): extends REQ-011 description with a runtime clause naming the literal `providerHint: githubActions` value (the one shipped-asset provider hint in v2 per ADR-708); AC-6113-1 already binds the four-field expansion including `providerHint: githubActions`.
+- Review fix pass (F-8): adds section 7a coverage-note descriptions to US-6109, US-6116, US-6117, US-6119, US-6120, US-6124 recording the guide-and-TAC trace outcome per story (none had mechanism-specific failure paths named in the guide or TAC beyond the ACs each story already binds; runner-missing and gate-aggregation gaps route generically through AC-6102-3 and AC-6108-1).
 
 ## [2.0.0] - 2026-08-31
 

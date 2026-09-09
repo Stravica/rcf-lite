@@ -38,5 +38,6 @@
     "TAC-1602-observability-logging-redaction-boundary"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. ADR-1603 and TAC-1602 name no US-15108-specific failure paths beyond grammar-invalid shape (AC-15108-1 already binds the shape refusal at construction) and grammar-valid-but-empty entries (AC-15108-2); further boundary classes for redaction-category validation are not documented on this mechanism."
 }

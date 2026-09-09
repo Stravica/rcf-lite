@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-6123-3",
-      "description": "The scheduled-audit workflow refuses to write when the check-set is empty (a workflowShape with scheduled-audit=on but checkSet all-false): the materialiser emits SCHEDULED_AUDIT_EMPTY_CHECKSET naming the empty checkSet; no cron workflow is written.",
+      "description": "The scheduled-audit workflow refuses to write when the check-set is empty (a workflowShape with scheduled-audit=on but checkSet all-false): the materialiser emits SCHEDULED_AUDIT_EMPTY_CHECKSET naming the empty checkSet; no cron workflow is written. Template values the applying agent sets: The applying agent sets the elicited workflowShape (scheduledAudit and checkSet); the AC substitutes the project's workflowShape for the illustrative scheduled-audit-on with checkSet all-false case.",
       "given": "a workflowShape with scheduled-audit=on and every checkSet flag false",
       "when": "the materialiser runs",
       "then": "the materialiser exits with SCHEDULED_AUDIT_EMPTY_CHECKSET; no scheduled-audit.yml is written",

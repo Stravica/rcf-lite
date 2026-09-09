@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-6118-3",
-      "description": "A typecheck configured on a project that has no typechecker at all skips with checkKind=typecheck and verdict=skipped (with a stable reason `no-typechecker-configured`); the aggregate treats skipped as pass for the aggregate report only when the required set does not include typecheck, else refuses pipeline pass.",
+      "description": "A typecheck configured on a project that has no typechecker at all skips with checkKind=typecheck and verdict=skipped (with a stable reason `no-typechecker-configured`); the aggregate treats skipped as pass for the aggregate report only when the required set does not include typecheck, else refuses pipeline pass. Template values the applying agent sets: The applying agent sets the elicited workflowShape.checkSet (specifically the typecheck flag) and the required-set membership; the AC substitutes the project's checkSet for the illustrative typecheck-required configuration.",
       "given": "a project with checkSet.typecheck true but no tsconfig or equivalent",
       "when": "the gate runs",
       "then": "the per-gate report writes verdict=skipped with reason=no-typechecker-configured; the aggregate refuses pass when typecheck is in the required set",

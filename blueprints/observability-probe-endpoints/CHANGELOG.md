@@ -10,3 +10,4 @@
 - Closes F-2 (systemd + TCP transport families with no AC): adds AC-14105-4 (systemd Type=notify: exactly-once READY=1 plus periodic WATCHDOG=1 at cadence; supervisor pull when the watchdog cadence lapses), AC-14105-5 (TCP transport: accept on pass, refuse on fail, zero bytes on the connection), AC-14105-6 (missing platform adapter refused at boot with PROBE_ADAPTER_MISSING).
 - Closes the pass-1 lint finding on AC-14106-3: `then` now uses the canonical lowercase `content-length` string owned by TAC-1502.responsibilities[2].
 - Re-sweeps every existing AC's `disposition` per section 7b: ACs whose text references profile names, dependency names, or the elicited separate-port option flipped to `template` with `templateFillIns`; the remaining ACs stay `fixed`.
+- Review fix pass (register scan): replaces `HQ-lane` (twice, on the band-spacing paragraph) in `docs/topics.md` with `shelf-lane`/`shelf lane` so shipped content carries no internal team labels.

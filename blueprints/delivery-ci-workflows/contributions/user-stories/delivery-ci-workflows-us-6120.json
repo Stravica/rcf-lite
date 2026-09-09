@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-6120-2",
-      "description": "The security-scan gate reads the project severity threshold and fails at or above it; a finding one severity level below the threshold does not fail the gate but is written to the per-gate report so the operator sees the near-miss.",
+      "description": "The security-scan gate reads the project severity threshold and fails at or above it; a finding one severity level below the threshold does not fail the gate but is written to the per-gate report so the operator sees the near-miss. Template values the applying agent sets: The applying agent supplies the project's severity threshold and the scanner's finding shape; the AC substitutes them for the illustrative threshold=high paired with a medium finding and a high finding.",
       "given": "a security scanner configured with threshold=high and a run that yields a medium finding and a high finding",
       "when": "the gate runs",
       "then": "the per-gate report writes verdict=failed on the high finding; the medium finding appears under `belowThreshold[]` with severity=medium; the report is written even when the gate fails",
@@ -39,5 +39,6 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no security-scan-specific failure paths beyond runner-missing (AC-6102-3), gate-aggregation gaps (AC-6108-1), and the severity-threshold path bound by AC-6120-2; this story owns the security-scan-specific gate mechanics (per-gate report at .rcf/reports/ci/security.json with belowThreshold[] carrying near-misses)."
 }

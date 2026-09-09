@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-6124-2",
-      "description": "A project with `checkSet.e2e: true` but no application-spa (or other browserSurface-declaring) blueprint applied fails materialise with E2E_CHECK_UNBACKED naming the missing browserSurface. Prevents shipping an e2e job without an application under test. Template on the elicited checkSet.",
+      "description": "A project with `checkSet.e2e: true` but no application-spa (or other browserSurface-declaring) blueprint applied fails materialise with E2E_CHECK_UNBACKED naming the missing browserSurface. Prevents shipping an e2e job without an application under test. Template on the elicited checkSet. Template values the applying agent sets: The applying agent sets the elicited workflowShape.checkSet (specifically the e2e flag) and the applied blueprint set; the AC substitutes them for the illustrative checkSet.e2e=true paired with no browserSurface-declaring blueprint.",
       "given": "a workflowShape with checkSet.e2e=true and no applied blueprint declaring a browserSurface",
       "when": "the materialiser runs",
       "then": "the materialiser exits with E2E_CHECK_UNBACKED naming the missing browserSurface; no e2e job is written into the pull-request-checks workflow",
@@ -39,5 +39,6 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Per spec amendment A2 (2026-09-03) this story is documentation-only at v2.3.0; the runtime iff wiring lands in a follow-up train. Guide and TAC-701 name no e2e-specific runtime failure paths beyond the E2E_CHECK_UNBACKED refusal bound by AC-6124-2; runner-missing and gate-aggregation gaps route generically through AC-6102-3 and AC-6108-1 when the runtime wiring lands."
 }

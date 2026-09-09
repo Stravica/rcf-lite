@@ -8,12 +8,13 @@
 - Adds `REQ-006` and `US-15109` naming the `auditLog` capability explicitly: the audit-log stream carries actor, target, before, after and correlationId on the shared minimum field set the consumer (application-admin-console AC-21105-1) reads. Backs the `auditLog` token per section 7c.
 - Grows `US-15101` from 2 ACs to 5 ACs: adds AC-15101-3 (BigInt fold oracle), AC-15101-4 (reserved-name collision refusal), AC-15101-5 (ISO-8601 timestamp millisecond oracle). Every existing and new AC on the story carries `disposition`; ACs observing a specific TAC surface carry `ownerRef`.
 - Adds `deliveredBy` to every REQ: REQ-001/002/003/005 point at TAC-1601 or TAC-1602 interfaces the responsibility genuinely carries; REQ-004 delivered by ADR-1604. Closes 5 pass-2 lint findings; per-blueprint `rcf define blueprint lint-consistency` reports zero on pass 1 and pass 2.
+- Review fix pass (F-9): adds section 7a coverage-note descriptions to US-15106 and US-15108 recording the guide-and-TAC trace outcome (no additional mechanism-specific failure paths named beyond the two ACs each story already binds).
+- Register scan fix (customer-facing register): replaces "Baz Q2 default" markers in this CHANGELOG's 1.1.0 and 1.2.0 historical entries with "operator Q2 default" so shipped content carries no internal author names.
 
-
-## 1.2.0 (visual round T-4, spec 2026-09-06 section 5.4.2, Baz Q2 default)
+## 1.2.0 (visual round T-4, spec 2026-09-06 section 5.4.2, operator Q2 default)
 
 - Declares `capabilities: [auditLog, sessionInventory]` on `blueprint.json`. The `sessionInventory` addition ships the logging-as-session-inventory projection: a project may configure the logger session-emission channel as the source the account-settings sessions surface reads (device labels from the User-Agent header, last-active from the last event emitted per session, terminate as an operator write into the same channel). Additive per section 6 of `blueprint-authoring.md`. Consumed at apply time by the visual round T-4 `application-account-settings` blueprint. A project that does not run the logger as a session store leaves the surface capability supplied by the applied auth blueprint alone; the account-settings blueprint reads the union.
 
-## 1.1.0 (visual round T-5, spec 2026-09-04 section 5.5.2, Baz Q2 default)
+## 1.1.0 (visual round T-5, spec 2026-09-04 section 5.5.2, operator Q2 default)
 
 - Declares `capabilities: [auditLog]` on `blueprint.json`. No other change. The new field is additive per section 6 of `blueprint-authoring.md` (an additive optional field with no global-topic change is a minor bump). Keeps a single grammar for capability declaration: consumer blueprints read the union of declared `capabilities[]` on applied blueprints, never the `providesRoles[]` -> capability inference. This is the ratified rule (one grammar, no role-to-capability inference); the section 6a table previously noted `auditLog` as "implicit through the `logging` role" and now names `observability-logging` as the explicit shelf provider. Consumed at apply time by the visual round T-5 `application-admin-console` blueprint to gate the audit-log surface (probe pack check `AC-21105-1`).

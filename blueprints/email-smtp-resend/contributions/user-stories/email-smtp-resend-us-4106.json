@@ -44,7 +44,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
-        "field": "interfaces.verify"
+        "field": "interfaces.secretResolver"
       }
     }
   ],

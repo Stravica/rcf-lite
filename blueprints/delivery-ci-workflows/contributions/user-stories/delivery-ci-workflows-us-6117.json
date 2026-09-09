@@ -39,5 +39,6 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no formatter-specific failure paths beyond runner-missing (AC-6102-3), gate-aggregation gaps (AC-6108-1), and the mutation-refusal path bound by AC-6117-2; this story owns the formatter-specific gate mechanics (check-mode invocation, unformatted-file exit-code semantic)."
 }

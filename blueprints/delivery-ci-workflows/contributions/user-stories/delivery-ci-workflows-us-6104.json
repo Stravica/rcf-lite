@@ -37,7 +37,7 @@
       "then": "the gate exits non-zero, the per-gate report names AC-999-x under uncovered, and the aggregate carries verdict=failed",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
         "field": "interfaces.runGates"

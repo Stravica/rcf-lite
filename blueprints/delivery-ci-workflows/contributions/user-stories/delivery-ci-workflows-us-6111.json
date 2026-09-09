@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-6111-3",
-      "description": "A workflowShape configuration whose branchModel is `trunk` but whose materialised outputs still write a pull-request-checks workflow (drift from ADR-706 defaults) fails a materialiser self-check: the writer refuses with WORKFLOW_SHAPE_MISMATCH naming branchModel and the extra file. Prevents silent divergence from the ratified shape mapping.",
+      "description": "A workflowShape configuration whose branchModel is `trunk` but whose materialised outputs still write a pull-request-checks workflow (drift from ADR-706 defaults) fails a materialiser self-check: the writer refuses with WORKFLOW_SHAPE_MISMATCH naming branchModel and the extra file. Prevents silent divergence from the ratified shape mapping. Template values the applying agent sets: The applying agent sets the elicited workflowShape.branchModel; the AC substitutes the project's branch model for the illustrative trunk and the writer-refused file for pull-request-checks.yml.",
       "given": "a materialiser invoked with branchModel=trunk and a stub that would still emit pull-request-checks.yml",
       "when": "the materialiser runs its self-check",
       "then": "the writer refuses with WORKFLOW_SHAPE_MISMATCH naming branchModel=trunk and the pull-request-checks.yml file; nothing is written",

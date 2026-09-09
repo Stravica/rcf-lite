@@ -27,7 +27,7 @@
       "then": "the per-gate report writes verdict=failed naming the failing test id and pointing at the tap artefact",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
         "field": "interfaces.runGates"
@@ -39,5 +39,6 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no unit-test-specific failure paths beyond runner-missing (AC-6102-3), gate-aggregation gaps (AC-6108-1), and the exit-zero-but-parsed-failures path bound by AC-6119-2; this story owns the unit-test-specific gate mechanics (per-gate report at .rcf/reports/ci/test.json with checkKind=unitTest, tap-parsed strict verdict)."
 }

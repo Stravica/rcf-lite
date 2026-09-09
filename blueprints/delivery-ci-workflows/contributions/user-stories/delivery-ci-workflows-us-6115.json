@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-6115-3",
-      "description": "A trunk-shape workflow whose optional pull-request-checks sub-shape is disabled does not write pull-request-checks.yml, even when the elicited providerHint would otherwise ship it; the materialiser refuses to write an unreferenced file.",
+      "description": "A trunk-shape workflow whose optional pull-request-checks sub-shape is disabled does not write pull-request-checks.yml, even when the elicited providerHint would otherwise ship it; the materialiser refuses to write an unreferenced file. Template values the applying agent sets: The applying agent sets the elicited workflowShape trunk sub-shape (branchModel=trunk and the trunkPullRequests toggle); the AC substitutes the project's sub-shape for the illustrative trunk-with-pull-requests-disabled case.",
       "given": "a trunk shape with pull-request-checks disabled",
       "when": "the materialiser runs",
       "then": "no pull-request-checks.yml is written; the default-branch-checks.yml still writes; the run reports zero extra artefacts",

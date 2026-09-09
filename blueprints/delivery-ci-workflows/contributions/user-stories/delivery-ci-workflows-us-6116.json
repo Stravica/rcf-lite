@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-6116-2",
-      "description": "The linter gate's per-gate report at the elicited report-dir path carries a stable shape (fields verdict, exitCode, checkKind, findings[], reportedAt) even when the underlying linter produces no findings; a zero-finding run writes findings=[] rather than omitting the array.",
+      "description": "The linter gate's per-gate report at the elicited report-dir path carries a stable shape (fields verdict, exitCode, checkKind, findings[], reportedAt) even when the underlying linter produces no findings; a zero-finding run writes findings=[] rather than omitting the array. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's report path for the illustrative .rcf/reports/ci/lint.json default.",
       "given": "the linter gate runs against a tree that produces zero lint findings",
       "when": "the gate report is written",
       "then": "the report file exists at the elicited path with verdict=passed, exitCode=0, checkKind=linter, findings=[] and a valid reportedAt timestamp",
@@ -39,5 +39,6 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no linter-specific failure paths beyond runner-missing (AC-6102-3) and gate-aggregation gaps (AC-6108-1); this story owns the linter-specific gate mechanics (per-gate report at .rcf/reports/ci/lint.json with checkKind=linter, zero-finding runs writing findings=[])."
 }

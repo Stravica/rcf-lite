@@ -37,7 +37,7 @@
       "then": "the writer refuses with AGGREGATE_PATH_ESCAPE naming the offending resolution; no bytes are written to the target",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
         "field": "interfaces.writeAggregateReport"

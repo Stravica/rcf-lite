@@ -2,7 +2,7 @@
   "reqId": "observability-essentials-REQ-006",
   "prdId": "PRD-001",
   "title": "Every notification the application sends records an outcome on a durable sink that operators can query by recipient and window",
-  "description": "The application records the outcome of every notification it attempts to send (email, SMS, push, webhook, or any other channel the project ships) as a structured record on a durable outcome sink. Each record carries a notification identifier, a channel name from a fixed enum, a recipient identifier, an outcome from a fixed enum (delivered, failed, pending, suppressed), an attemptedAt ISO-8601 timestamp, and an optional errorCode string when the outcome is failed. An operator queries the sink by recipient identifier and time window and receives the outcome records that match. Notifications never succeed silently: an attempt with no recorded outcome is a defect the project must gate against.",
+  "description": "The application records the outcome of every notification it attempts to send (email, SMS, push, webhook, or any other channel the project ships) as a structured record on a durable outcome sink. Each record carries a notification identifier, a channel name from a fixed enum, a recipient identifier, an outcome from a fixed enum (delivered, failed, pending, suppressed), an attemptedAt ISO-8601 timestamp, and an optional errorCode string when the outcome is failed. An operator queries the sink by recipient identifier and time window and receives the outcome records that match. Notifications never succeed silently: an attempt with no recorded outcome is a defect the project must gate against. The elicited notification-outcome-substrate is one of three named values whose runtime behaviour this blueprint pins: `sqlite` persists outcome records to a process-local SQLite file at the project-configured path and MUST survive a process restart (AC-7106-4 exercises the restart path against a sqlite path); `postgres` persists outcome records to a PostgreSQL server the project connects to and MUST survive a stop-and-start of that server (AC-7106-4 exercises the restart path against a postgres server); `custom` accepts a project-supplied substrate module conforming to the sink interface on TAC-804 whose implementation guarantees the same restart-survival semantics as the shipped `sqlite` and `postgres` branches (AC-7106-4 and AC-7106-5 exercise the branch through the same TAC-804 interface). Every substrate value the elicit accepts is backed by this runtime clause; a substrate not named here is not accepted at boot.",
   "deliveredBy": {
     "tacId": "TAC-804-observability-essentials-notification-outcome",
     "field": "interfaces.createOutcomeSink"
@@ -18,5 +18,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
