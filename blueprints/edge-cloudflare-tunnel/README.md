@@ -13,7 +13,6 @@ when applied without it the tunnel serves in public-hostname mode.
 - Capabilities: `["tunnelBridge"]`
 - Mints global topic: `edgeIngressBridge`
 - Contribution count: 5 REQs, 8 USs, 3 TACs, 3 ADRs, 5 probes
-- Consumers: ops-01 has no consumer today (SSH is the only inbound path). Estate consumer is the follow-on make-the-librarian-API-and-workspace-viewer-reachable-without-Mullvad work that `w-2026-09-06-dave-010` is expected to green-light. Blueprint acceptance never depends on that consumer; the ops-01 migration mints as a separate work item at that point (`w-2026-09-07-dave-004`).
 
 ## Five REQs
 

@@ -1,6 +1,6 @@
 // Probe: real-account-tunnel-hostname-routes.
 //
-// anchorAcId list (unchanged per H-2 C4 ruling; the AC-tunnel-* ids
+// anchorAcId list (the AC-tunnel-* ids
 // ARE the shipped AC ids in the US-39104 / US-39106 contribution
 // bodies):
 // - AC-tunnel-hostnameRoutes (public-hostname sub-case: ingress rule
