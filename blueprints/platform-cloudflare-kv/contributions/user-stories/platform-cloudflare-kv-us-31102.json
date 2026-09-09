@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31102-2",
+      "description": "Non-facade module leaks: SIMULATE_NON_FACADE_KV_LEAK=true adds a scratch src/leak.mjs that dereferences env.CACHE directly (bypassing the facade). The grep-based scan surfaces the leak with the full relative path \"src/leak.mjs\" and returns aggregateVerdict:\"fail\" naming the leak.",
+      "given": "the cf-platform fixture with SIMULATE_NON_FACADE_KV_LEAK=true and a scratch src/leak.mjs",
+      "when": "the sole-reader scan walks the tree",
+      "then": "the scan reports src/leak.mjs as a leak; aggregateVerdict is \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.solereader"
+      }
+    },
+    {
+      "id": "AC-31102-3",
+      "description": "Comment-only mention: a JSDoc block or a line comment on any non-facade module that mentions env.CACHE (for documentation) does not trip the scan. The probe strips /* ... */ and // ... comments before matching. A synthetic file with only a commented mention returns zero leaks.",
+      "given": "a scratch src/notes.mjs whose only env.CACHE mention is inside a JSDoc block",
+      "when": "the sole-reader scan walks the tree",
+      "then": "the file is not reported as a leak",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.solereader"
+      }
+    },
+    {
+      "id": "AC-31102-4",
+      "description": "Nested-directory recursion: a leak at a nested path (src/deep/inner/kv-leak.mjs) with a real env.CACHE dereference is caught. The scan walks recursively and reports the full relative path.",
+      "given": "a scratch src/deep/inner/kv-leak.mjs carrying env.CACHE.get(...)",
+      "when": "the sole-reader scan walks the tree",
+      "then": "the scan reports src/deep/inner/kv-leak.mjs and returns aggregateVerdict \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.solereader"
+      }
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

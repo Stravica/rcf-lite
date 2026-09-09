@@ -18,11 +18,75 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31104-2",
+      "description": "F-5 cursor pagination: with 20 keys under the prefix flags/ and facade.list({prefix:\"flags/\", limit:5}), the first call returns 5 entries and list_complete:false plus a cursor value. A follow-up facade.list({prefix:\"flags/\", limit:5, cursor:<value>}) returns the next 5 entries; four calls in total drain the 20 keys and the last call returns list_complete:true.",
+      "given": "a facade with 20 keys put under the prefix flags/",
+      "when": "facade.list({prefix, limit:5, cursor?}) is called four times threading the cursor",
+      "then": "each of the first three calls returns 5 entries with list_complete:false and a cursor; the fourth returns 5 entries with list_complete:true",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.list"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/api/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31104-3",
+      "description": "Empty-prefix list: facade.list({prefix:\"\"}) on a driver with 3 keys returns all 3 entries; the empty prefix is a valid input meaning \"match all keys\". The returned entry names preserve the storage-side keys verbatim.",
+      "given": "a facade with 3 keys",
+      "when": "facade.list({prefix:\"\"}) runs",
+      "then": "the result carries all 3 entries with the storage-side names",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.list"
+      }
+    },
+    {
+      "id": "AC-31104-4",
+      "description": "No-match list: facade.list({prefix:\"missing/\"}) on a driver where no key carries the prefix returns {keys:[], list_complete:true}. The kvHit or kvMiss vocabulary does not apply to list; the sink emits no per-entry record.",
+      "given": "a facade with no keys carrying the prefix \"missing/\"",
+      "when": "facade.list({prefix:\"missing/\"}) runs",
+      "then": "the result is {keys:[], list_complete:true}; the sink emits no per-entry records",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.list"
+      }
+    },
+    {
+      "id": "AC-31104-5",
+      "description": "list_complete indicator on the last page: the final page of a paginated list carries list_complete:true (and no cursor); every non-final page carries list_complete:false plus a cursor. A caller that iterates until list_complete:true always drains the collection.",
+      "given": "a facade with 6 keys under the prefix flags/ and limit:5",
+      "when": "facade.list({prefix, limit:5, cursor?}) drains the collection",
+      "then": "the first page carries list_complete:false plus a cursor; the second page carries list_complete:true and no cursor",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.list"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/api/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

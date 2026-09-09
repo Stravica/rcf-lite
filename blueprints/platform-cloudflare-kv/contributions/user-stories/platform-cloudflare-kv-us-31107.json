@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31107-2",
+      "description": "Additional field mutation: a wrapper sink that adds a top-level \"requestId\" key onto every record trips the whitelist scan; the probe surfaces \"requestId\" as a forbidden key and returns aggregateVerdict:\"fail\". Under the shipped path (no wrapper) the scan returns zero forbidden hits.",
+      "given": "a facade wired to a wrapper sink that appends \"requestId\" onto every record",
+      "when": "a mix of put/get/delete/list operations run",
+      "then": "the whitelist scan surfaces \"requestId\" as a forbidden key; aggregateVerdict is \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
+    },
+    {
+      "id": "AC-31107-3",
+      "description": "Causal event ordering: a facade.put(k, v) followed synchronously by a facade.get(k) emits records on the sink in the order kvWrite(k,size:<n>), kvHit(k,size:<n>). Interleaved sequences preserve issue order per TAC-3203 responsibility (serialise events in emit order).",
+      "given": "a facade with a spy sink",
+      "when": "facade.put(k, v) then facade.get(k) run synchronously",
+      "then": "the sink records kvWrite(k) at index i and kvHit(k) at index i+1 (adjacent, in that order)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.ordering"
+      }
+    },
+    {
+      "id": "AC-31107-4",
+      "description": "Vocabulary is closed to the four kinds: the shipped facade emits event kinds exactly from the set {facadeReady, kvHit, kvMiss, kvWrite}. A probe that runs put/get/delete/list against a fresh facade and inspects the emitted record.event values asserts every value is in the set; no unexpected kind (e.g. \"kvList\" or \"kvBatch\") is emitted.",
+      "given": "a fresh facade with a spy sink",
+      "when": "facadeReady, put, get on a hit, get on a miss, delete and list run",
+      "then": "every record.event value is in {facadeReady, kvHit, kvMiss, kvWrite}",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
     }
   ],
   "tacIds": [
     "TAC-3203-platform-cloudflare-kv-event-sink"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

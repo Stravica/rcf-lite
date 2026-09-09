@@ -28,11 +28,75 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31103-3",
+      "description": "F-5 getWithMetadata verb: facade.getWithMetadata(key) returns {value, metadata} on a key put with metadata; the value equals the put value and metadata equals the {v:<number>} shape per the kv-metadata-field-pattern elicit. A miss returns {value:null, metadata:null} and emits a kvMiss record on the sink.",
+      "given": "a facade wired to the in-memory driver with a key put via facade.put(k, v, {metadata:{v:1}})",
+      "when": "facade.getWithMetadata(k) then facade.getWithMetadata(\"no-such-key\") run",
+      "then": "the hit returns {value, metadata:{v:1}} and emits kvHit; the miss returns {value:null, metadata:null} and emits kvMiss",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.getWithMetadata"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/api/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31103-4",
+      "description": "F-5 per-call TTL propagation: facade.put(k, v, {expirationTtl:5}) writes with the per-call TTL. A fake-clock advance past 5000ms and a subsequent facade.get(k) returns null and emits kvMiss (the TTL has expired from the driver's perspective). The kvWrite record on the initial put carries ttl:5.",
+      "given": "a facade with a fake-clock driver",
+      "when": "facade.put(k, v, {expirationTtl:5}) then clock advances 5001ms and facade.get(k) runs",
+      "then": "the kvWrite record carries ttl:5; the subsequent facade.get returns null and emits kvMiss",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.ttl"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/api/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31103-5",
+      "description": "F-7 write failure boundary: facade.put(k, v) whose underlying driver put throws (simulated by a stubbed driver that rejects on put) surfaces the error unwrapped with a stable error kind KV_WRITE_FAILED naming the key k in the wrapped message. No kvWrite record emits on the sink for the failed put.",
+      "given": "a facade wired to a driver whose put rejects synthetically",
+      "when": "facade.put(k, v) is called",
+      "then": "the call rejects with KV_WRITE_FAILED naming the key; the sink records zero kvWrite for this call",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.errorSurface"
+      }
+    },
+    {
+      "id": "AC-31103-6",
+      "description": "F-7 read failure boundary: facade.get(k) whose underlying driver get throws (simulated by a stubbed driver that rejects on get) surfaces the error unwrapped with a stable error kind KV_READ_FAILED naming the key. No kvHit or kvMiss record emits on the sink for the failed get.",
+      "given": "a facade wired to a driver whose get rejects synthetically",
+      "when": "facade.get(k) is called",
+      "then": "the call rejects with KV_READ_FAILED naming the key; the sink records zero kvHit and zero kvMiss for this call",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.errorSurface"
+      }
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

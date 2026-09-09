@@ -36,11 +36,57 @@
         "url": "https://developers.cloudflare.com/kv/concepts/how-kv-works/",
         "verifiedOn": "2026-09-09"
       }
+    },
+    {
+      "id": "AC-31109-3",
+      "description": "Vendor propagation window named in the guide: a doc-string test greps guide/platform-cloudflare-kv.md for the phrase \"up to 60 seconds or more\" (the vendor-documented propagation window from https://developers.cloudflare.com/kv/concepts/how-kv-works/ per today's verifiedOn date) and asserts the phrase is present in the eventual-consistency section.",
+      "given": "the shipped guide file at guide/platform-cloudflare-kv.md",
+      "when": "a grep of the guide runs",
+      "then": "the phrase \"up to 60 seconds or more\" appears in the eventual-consistency section",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/concepts/how-kv-works/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31109-4",
+      "description": "DO as strong-consistency alternative: the guide's decision tree names platform-cloudflare-durable-objects as the answer for the \"every read must reflect the most recent write\" case. A doc-string test greps guide/platform-cloudflare-kv.md for the substrings \"platform-cloudflare-durable-objects\" and \"most recent write\" and asserts both are present in the decision-tree section.",
+      "given": "the shipped guide file",
+      "when": "a grep runs for the two decision-tree substrings",
+      "then": "both are present in the decision-tree section",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
+    },
+    {
+      "id": "AC-31109-5",
+      "description": "No cross-region propagation claim on any AC in this blueprint: a scan of contributions/user-stories/*.json for the substrings \"cross-region\", \"global staleness ceiling\" and \"same-location read is guaranteed\" finds zero hits. The blueprint's ACs stay within the local-clock domain; vendor-side propagation is guide-only, per US-31109 F-3 closure.",
+      "given": "the contributions/user-stories/*.json files",
+      "when": "a substring scan runs",
+      "then": "zero hits for the forbidden phrases",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
     }
   ],
   "tacIds": [
     "TAC-3202-platform-cloudflare-kv-cache-aside"
   ],
   "createdAt": "2026-09-09T20:25:00.000Z",
-  "updatedAt": "2026-09-09T20:25:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

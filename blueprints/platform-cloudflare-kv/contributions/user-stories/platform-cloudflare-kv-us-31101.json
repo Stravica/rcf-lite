@@ -18,11 +18,67 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31101-2",
+      "description": "F-7 binding-unbound at boot: createKvFacade({binding: undefined, sink}) throws a named error kind KV_BINDING_UNBOUND naming the missing binding argument before any operation runs; no facadeReady record lands on the sink. Same for binding omitted or explicitly null.",
+      "given": "a createKvFacade call whose binding argument is undefined",
+      "when": "the factory is invoked",
+      "then": "the factory throws KV_BINDING_UNBOUND naming the missing binding; no facadeReady emits",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-31101-3",
+      "description": "Invalid sink at boot: createKvFacade({binding, sink: null}) throws KV_FACADE_INVALID_SINK before the ready-check runs. Same for sink omitted or not a function.",
+      "given": "a createKvFacade call whose sink is not a function",
+      "when": "the factory is invoked",
+      "then": "the factory throws KV_FACADE_INVALID_SINK; no ready-check runs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-31101-4",
+      "description": "Repeat-boot idempotency: two independent createKvFacade({binding, sink}).ready() calls against the same binding emit two facadeReady records on the sink, each with identical shape {event:\"facadeReady\", key:null, size:0, ttl:null, timestamp:<number>} and independent timestamps. No queue state leaks between facade instances.",
+      "given": "two independent createKvFacade instances against the same binding",
+      "when": "ready() is called on each",
+      "then": "the sink receives two facadeReady records with identical shape and independent timestamps",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-31101-5",
+      "description": "F-7 ready-check rejects: createKvFacade({binding, sink}) whose bounded ready-check (a list(limit:1) call against the binding) rejects rejects the returned ready() promise with a named error kind KV_FACADE_NOT_READY carrying the wrapped underlying error message. No facadeReady record lands on the sink; the facade instance is unusable (subsequent get/put reject with KV_FACADE_NOT_READY per US-31111 AC-31111-2).",
+      "given": "a createKvFacade call whose binding.list(limit:1) rejects",
+      "when": "ready() is awaited",
+      "then": "ready() rejects with KV_FACADE_NOT_READY wrapping the underlying error; no facadeReady record emits",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "interfaces.default export"
+      }
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

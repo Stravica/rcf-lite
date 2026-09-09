@@ -18,11 +18,67 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31105-2",
+      "description": "F-6 TTL floor: cacheAside.getOr(key, originFn, {ttl:0.5}) with a per-call TTL below the 1-second floor per ADR-3202 clamps the effective TTL to 1 second before it reaches the facade. The kvWrite record on the write-back carries ttl:1 (not 0.5). A subsequent read at 500ms elapsed still returns cache (source cache); a read at 1001ms elapsed returns origin.",
+      "given": "a cache-aside helper with a fake clock and getOr({ttl:0.5})",
+      "when": "the write-back happens and reads land at 500ms and 1001ms",
+      "then": "the kvWrite record carries ttl:1; the 500ms read is cache; the 1001ms read is origin",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttlFloor"
+      }
+    },
+    {
+      "id": "AC-31105-3",
+      "description": "Origin throws: cacheAside.getOr(key, originFn) where originFn rejects with an application error surfaces the rejection unwrapped to the caller. No cache write happens; no kvWrite record emits; a subsequent getOr with the same key still finds nothing in cache and re-invokes originFn.",
+      "given": "a cache-aside helper and an originFn that rejects on every call",
+      "when": "getOr runs twice",
+      "then": "both calls reject with the origin error unwrapped; no kvWrite emits; the invocation counter reaches 2",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.errorSurface"
+      }
+    },
+    {
+      "id": "AC-31105-4",
+      "description": "Concurrent misses (single-flight): two concurrent cacheAside.getOr(key, originFn) calls on a fresh key with the same originFn invoke origin exactly once; both callers receive the same value; the invocation counter reaches 1 (not 2). The single-flight boundary lives on the cache-aside helper, not on the facade.",
+      "given": "a cache-aside helper and a fresh key",
+      "when": "two concurrent getOr(key, originFn) calls fire",
+      "then": "origin is invoked once; both callers receive the same value; invocation counter is 1",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.singleFlight"
+      }
+    },
+    {
+      "id": "AC-31105-5",
+      "description": "source classification present on every return: every cacheAside.getOr return value is wrapped in {value, source} where source is exactly \"cache\" on a hit and \"origin\" on a miss-then-fetch. A caller that inspects the source field can distinguish cache from origin without extra bookkeeping.",
+      "given": "a cache-aside helper with one miss followed by two hits",
+      "when": "the return values are inspected",
+      "then": "the miss carries source:\"origin\"; both hits carry source:\"cache\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.source"
+      }
     }
   ],
   "tacIds": [
     "TAC-3202-platform-cloudflare-kv-cache-aside"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

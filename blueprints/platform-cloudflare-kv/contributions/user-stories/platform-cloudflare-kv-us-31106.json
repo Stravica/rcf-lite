@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-31106-2",
+      "description": "F-6 per-call TTL override: cacheAside.getOr(key, originFn, {ttl:120}) writes back with the per-call TTL (120 seconds) even when the elicited default is 60. A subsequent read at 90 seconds elapsed returns cache (source cache); a read at 121 seconds returns origin (source origin). The elicited default is a fallback, never a ceiling.",
+      "given": "a cache-aside helper with elicited default TTL 60 and a fake clock",
+      "when": "getOr(key, originFn, {ttl:120}) writes and reads land at 90s and 121s elapsed",
+      "then": "the 90s read is cache; the 121s read is origin; the kvWrite record carries ttl:120",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
+    },
+    {
+      "id": "AC-31106-3",
+      "description": "Per-call TTL below floor clamps: cacheAside.getOr(key, originFn, {ttl:0.5}) is subject to the 1-second floor per ADR-3202 (AC-31105-2). The effective TTL clamps to 1; behaviour then matches the TTL-floor AC.",
+      "given": "a cache-aside helper with a fake clock and a per-call TTL of 0.5 seconds",
+      "when": "getOr runs and reads land at 500ms and 1001ms elapsed",
+      "then": "the 500ms read is cache; the 1001ms read is origin (behaviour identical to a per-call TTL of 1)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttlFloor"
+      }
+    },
+    {
+      "id": "AC-31106-4",
+      "description": "TTL boundary is strict less-than: with per-call TTL of 5 seconds, a read at EXACTLY 5000ms elapsed returns origin (source origin), not cache. The boundary treats the TTL as an inclusive expiry: at t=ttl the entry is expired.",
+      "given": "a cache-aside helper with a fake clock and per-call TTL 5",
+      "when": "a read lands at exactly 5000ms elapsed",
+      "then": "the read is origin (source origin); the entry has expired at the boundary",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
     }
   ],
   "tacIds": [
     "TAC-3202-platform-cloudflare-kv-cache-aside"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }
