@@ -18,7 +18,7 @@
   "elicits": [
     {
       "id": "reverse-proxy",
-      "prompt": "Reverse proxy in front of the compose services. caddy is the shipped default per Baz decision 19 (matches dev-01 and ops-01); traefik is the alternative for docker-label auto-discovery; none is the alternative for projects fronted only by the round-7 tunnel.",
+      "prompt": "Reverse proxy in front of the compose services. caddy is the shipped default (a platform decision matching a common Linux-host baseline that already runs Caddy); traefik is the alternative for docker-label auto-discovery; none is the alternative for projects fronted only by a Cloudflare-tunnel sibling.",
       "kind": "enum",
       "options": [
         "caddy",
@@ -195,7 +195,7 @@
       "topic": "containerHostContract",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Docker Compose file reference AND Docker Engine install-on-Ubuntu docs"
     },
     {
       "id": "ADR-3902-platform-docker-compose-host-reverse-proxy",
@@ -203,7 +203,7 @@
       "path": "adrs/adr-3902-platform-docker-compose-host-reverse-proxy.json",
       "recommendedDefault": true,
       "elicited": true,
-      "standardsTraceClause": "Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Caddy docs AND Traefik docs"
     },
     {
       "id": "ADR-3903-platform-docker-compose-host-reject-coolify",

@@ -74,8 +74,8 @@ async function greppedWranglerToml() {
   const hubClassHit = /class_name = "HubObject"/.test(toml);
   const tagHit = /tag = "v1"/.test(toml);
   const newClassesHit = /new_sqlite_classes = \["SingleCellObject", "HubObject"\]/.test(toml);
-  // Cloudflare closed the key-value backend to new namespaces on 2026-07-09; the
-  // deprecated new_classes migration keyword is refused with HTTP 403 code 10099.
+  // Per the Cloudflare Durable Objects migrations page, key-value backed
+  // namespaces can no longer be created; only new_sqlite_classes mints one.
   // The probe refuses a wrangler.toml that still asserts the deprecated keyword,
   // so a re-shipped blueprint cannot silently regress to the old shape.
   // Vendor: https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/

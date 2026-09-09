@@ -15,6 +15,11 @@ All notable changes to `platform-cloudflare-cron-triggers` are recorded here. Th
 - Every story on this blueprint now reaches the section 7a AC-set-sufficiency floor. 26 new hand-authored ACs cover the documented failure paths named in the guide and TAC records, per-story range 4-6 (from the 1-2 shipped in the first 1.1.0 pass): US-32101 gains four failure-path ACs (empty routes, invalid sink, repeat-boot idempotency, sole-reader source-tree scan closing F-5); US-32102 gains four ACs (single-handler mode closing F-2, malformed event, duplicate expressions, empty routes at construction); US-32103 gains three ACs (exact-boundary at skewToleranceMs, one millisecond past, early-fire negative delta); US-32104 gains four ACs (handler-throw pre-budget closing F-3 first half, handler-throw post-budget closing F-3 second half, exact-boundary at softBudgetMs, single-cronStalled idempotency); US-32105 gains four ACs (CI gate on bind/fire failures closing F-4, bounded-wait timeout, mid-run crash, teardown discipline); US-32106 gains four ACs (allow-list forbidden-key mutation, empty-payload boundary, expression-literal-is-not-PII exclusion, closure-over-fixture); US-32107 gains three ACs (bounded-wait timeout, partial env-var configuration, non-2xx API response). Every new AC carries `disposition`, most carry `ownerRef` into the owning TAC, and vendor-fact ACs carry `vendorCitation` (scheduled handler, cron triggers, wrangler CLI, workers platform limits) with today's verifiedOn date.
 - `rcf define blueprint lint-consistency` still reports zero pass-1 and pass-2 findings. Blueprint stays at v1.1.0 on the same unreleased minor.
 
+### Fixed (review fix pass, 2026-09-09)
+
+- `AC-32105-1` reworded so the warn branch stays a describable probe outcome but no longer states the CI gate behaviour; `AC-32105-2` alone owns the harness gate on non-pass verdicts, resolving the two-AC single-definition-ownership contradiction on US-32105 (review F-1 blocker).
+- Enum-branch dispositions on the `cron-dispatcher-mode` elicit set correctly: `AC-32102-1` and `AC-32102-2` (expression-routed branch) and `AC-32102-3` (single-handler branch) flip from `fixed` to `template`; the applying project chooses the mode. Factory-invariant refusal ACs (`AC-32102-4/5/6`) stay `fixed` (review F-4).
+
 ## 1.0.0 (2026-09-07)
 
 ### Added

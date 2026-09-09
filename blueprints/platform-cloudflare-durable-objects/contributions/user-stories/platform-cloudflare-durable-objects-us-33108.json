@@ -17,7 +17,15 @@
       "then": "every string is present and the migrations tag \"v1\" carries the two class names",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      },
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      }
     },
     {
       "id": "AC-33108-2",
@@ -75,7 +83,7 @@
     },
     {
       "id": "AC-33108-5",
-      "description": "Stale keyword refuses: a wrangler.toml whose [[migrations]] tag uses new_classes = [...] instead of new_sqlite_classes = [...] refuses at the anatomy assertion with DO_MIGRATION_KEYWORD_STALE naming the deprecated keyword and the vendor URL. Cloudflare closed the key-value backend to new namespaces on 2026-07-09 (HTTP 403 code 10099); only new_sqlite_classes mints a fresh namespace.",
+      "description": "Stale keyword refuses: a wrangler.toml whose [[migrations]] tag uses new_classes = [...] instead of new_sqlite_classes = [...] refuses at the anatomy assertion with DO_MIGRATION_KEYWORD_STALE naming the deprecated keyword and the vendor URL. Per the cited Cloudflare migrations page, key-value backed namespaces can no longer be created; only new_sqlite_classes mints a fresh namespace.",
       "given": "a wrangler.toml whose migrations tag uses the deprecated new_classes keyword",
       "when": "the anatomy assertion runs",
       "then": "the assertion refuses with DO_MIGRATION_KEYWORD_STALE naming the vendor page and today's verifiedOn date",
@@ -96,5 +104,5 @@
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-09T23:00:00.000Z"
 }

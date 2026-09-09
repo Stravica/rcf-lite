@@ -17,7 +17,7 @@
       "then": "the first read returns source cache (kvHit), the second returns source origin (kvMiss), and no cross-region propagation claim is made",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
+      "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
         "field": "responsibilities.ttl"
@@ -88,5 +88,5 @@
     "TAC-3202-platform-cloudflare-kv-cache-aside"
   ],
   "createdAt": "2026-09-09T20:25:00.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-09T23:00:00.000Z"
 }

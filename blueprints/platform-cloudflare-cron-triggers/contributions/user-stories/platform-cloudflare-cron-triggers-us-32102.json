@@ -21,7 +21,7 @@
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
         "field": "interfaces.dispatch"
       },
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-32102-2",
@@ -31,7 +31,7 @@
       "then": "no spy is called, a cronUnmatched event fires, and dispatch returns without side effect",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-32102-3",
@@ -41,7 +41,7 @@
       "then": "the single handler is invoked with the incoming expression as bounded context; no cronUnmatched event fires",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
+      "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
         "field": "interfaces.dispatch"
@@ -94,5 +94,5 @@
     "TAC-3302-platform-cloudflare-cron-triggers-expression-router"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-09T23:00:00.000Z"
 }

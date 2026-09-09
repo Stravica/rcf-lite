@@ -4,7 +4,7 @@ A container-orchestration facade over docker compose running on a Linux `cloudHo
 
 ## What it commits
 
-Six REQs, nine USs, four TACs, four ADRs and five Node-only probes. Round-7 T-2 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Six REQs, nine USs, four TACs, four ADRs and five Node-only probes. Ships the containerHostContract topic on top of a cloudHost provider.
 
 | REQ | Contract |
 |---|---|
@@ -26,7 +26,7 @@ Six REQs, nine USs, four TACs, four ADRs and five Node-only probes. Round-7 T-2 
 
 ## Elicits (via `elicits[]`)
 
-- `reverse-proxy`: `caddy` (default per Baz decision 19, matches dev-01 and ops-01) | `traefik` (alternative for docker-label auto-discovery) | `none` (alternative for projects fronted only by the round-7 tunnel).
+- `reverse-proxy`: `caddy` (the shipped default, matching a common Linux-host baseline that already runs Caddy) | `traefik` (alternative for docker-label auto-discovery) | `none` (alternative for projects fronted only by a Cloudflare-tunnel sibling).
 - `docker-engine-channel`: `stable` (default) | `test`.
 - `compose-file-location`: `repo-root` (default) | `compose/compose.yaml`.
 - `healthcheck-default-kind`: `http` (default) | `tcp` | `command`.
@@ -35,9 +35,9 @@ Six REQs, nine USs, four TACs, four ADRs and five Node-only probes. Round-7 T-2 
 
 ## ADR shape
 
-- ADR-3901 container host contract: scope `global` on new topic `containerHostContract`; standards trace clause `Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md`.
-- ADR-3902 reverse proxy: elicited, `caddy` default; standards trace clause `Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md`.
-- ADR-3903 reject Coolify: decision quoted verbatim from Baz ruling 20 ("reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state"); standards trace clause `generic enterprise practice`.
+- ADR-3901 container host contract: scope `global` on new topic `containerHostContract`; standards trace clause `Docker Compose file reference AND Docker Engine install-on-Ubuntu docs`.
+- ADR-3902 reverse proxy: elicited, `caddy` default; standards trace clause `Caddy docs AND Traefik docs`.
+- ADR-3903 reject Coolify: rejected by platform decision ("it shadows what the blueprints contract and adds its own DB and UI as a second source of state"); standards trace clause `generic enterprise practice`.
 - ADR-3904 log driver: elicited, `journald` default; standards trace clause `generic enterprise practice`.
 
 ## Probes

@@ -18,7 +18,7 @@
 //
 // The mutation-run that swaps the shipped sink for one that
 // forwards the body / userId / ssn onto every record is provided
-// by the fixture-side H-2 shim (h2-cf-kv-event-secrecy-shim.mjs,
+// by the fixture-side shim (h2-cf-kv-event-secrecy-shim.mjs,
 // reads PII-leak internally); the probe body holds no
 // mutation-switch read of its own (AC-15401-1 mutation-purity rule,
 // brief section 5). A reviewer running with the switch off gets
