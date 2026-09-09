@@ -20,7 +20,7 @@ At apply time the blueprint elicits four values:
 
 ## 3. Client widget mount snippet
 
-Paste the following into the public form surface. The mount injects Cloudflare Turnstile JS from `https://challenges.cloudflare.com` and populates the `cf-turnstile-response` hidden input on submit.
+Paste the following into the public form surface. The mount injects Cloudflare Turnstile JS from `https://challenges.cloudflare.com` and populates the `Cf-Turnstile-Response` hidden input on submit.
 
 ```html
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -34,11 +34,11 @@ Paste the following into the public form surface. The mount injects Cloudflare T
 <script>
 window.onTurnstileToken = function (token) {
   var f = document.querySelector('form');
-  var i = f.querySelector('input[name="cf-turnstile-response"]');
+  var i = f.querySelector('input[name="Cf-Turnstile-Response"]');
   if (!i) {
     i = document.createElement('input');
     i.type = 'hidden';
-    i.name = 'cf-turnstile-response';
+    i.name = 'Cf-Turnstile-Response';
     f.appendChild(i);
   }
   i.value = token;
@@ -72,7 +72,7 @@ Response on fail:
 
 ## 5. Refuse-if-token-missing guard
 
-Every elicited surface is registered under the token-required guard. A submit whose payload has no `cf-turnstile-response` field is refused with `400 {"errorCode":"turnstile.token-missing"}` before any downstream handler runs. The pack fixture (`packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/server.js`) is the reference wiring; the applied Worker mirrors the shape.
+Every elicited surface is registered under the token-required guard. A submit whose payload has no `Cf-Turnstile-Response` field is refused with `400 {"errorCode":"turnstile.token-missing"}` before any downstream handler runs. The pack fixture (`packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/server.js`) is the reference wiring; the applied Worker mirrors the shape.
 
 ## 6. Composition with security-auth-magic-link
 
@@ -82,7 +82,7 @@ When `security-auth-magic-link` is also applied, the composition hook (`TAC-3603
 POST /api/magic-link
 Content-Type: application/x-www-form-urlencoded
 
-email=alice@example.com&cf-turnstile-response=<TOKEN>
+email=alice@example.com&Cf-Turnstile-Response=<TOKEN>
 ```
 
 - Missing token: `400 {"errorCode":"turnstile.token-missing"}` with no mint side-effect.

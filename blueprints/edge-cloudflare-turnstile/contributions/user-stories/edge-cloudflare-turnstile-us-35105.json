@@ -16,7 +16,8 @@
       "when": "the composition wire is walked in the source tree",
       "then": "the magic-link mint surface reads the Turnstile guard before invoking the mint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-35105-2",
@@ -25,12 +26,17 @@
       "when": "a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token",
       "then": "the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
+        "field": "responsibilities.guardMint"
+      }
     }
   ],
   "tacIds": [
     "TAC-3603-edge-cloudflare-turnstile-magic-link-hook"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

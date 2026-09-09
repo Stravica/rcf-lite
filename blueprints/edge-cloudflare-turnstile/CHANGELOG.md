@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 - 2026-09-09
+
+Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+
+- Normalised the `Cf-Turnstile-Response` token casing across the shipped guide to match the owning TAC-3601 responsibility declaration (closes specimen F-1). The consistency-lint AC-3 spec test is updated to assert the specimen is now closed on the shipped blueprint.
+- Added failure-path ACs to US-35102 (AC-35102-2..4 close F-3: missing sitekey, missing secret, only-one-of-pair boot refusal) and US-35103 (AC-35103-2..6 close F-2: siteverify timeout, network failure, non-2xx upstream, invalid JSON, missing success-field fail-closed).
+- Every REQ now carries `deliveredBy`; every AC carries `disposition` (`AC-35102-1` and `AC-35103-1` marked `fixed` with vendor citations to the Cloudflare Turnstile testing docs); ACs referencing owner-owned literals carry `ownerRef`.
+- Chain-consistency lint reports 0 findings on both passes.
+
+
 All notable changes to `edge-cloudflare-turnstile` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.0.0 (2026-09-07)

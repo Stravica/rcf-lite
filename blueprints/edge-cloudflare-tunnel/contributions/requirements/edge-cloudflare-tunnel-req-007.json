@@ -1,0 +1,22 @@
+{
+  "reqId": "edge-cloudflare-tunnel-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Public-hostname template expansion at apply: inputs, output, malformed refusal and duplicate refusal",
+  "description": "The elicited public-hostname-template (default <service>.<zone>) is expanded per ingress rule at apply time. Substitution inputs are exactly two placeholders: <service> (the ingress rule service name) and <zone> (the resolved zone domain). The output is a fully-qualified DNS name committed to the ingress rule and to the applied sidecar. A template with an undefined placeholder, an unclosed brace, or a rendered value that violates DNS label rules (labels longer than 63 chars, empty labels, characters outside [a-z0-9-]) refuses apply with code apply.hostname-template-malformed. Two ingress rules expanding to the same concrete hostname refuses apply with code apply.hostname-template-duplicate.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Closes review P0 F-2 (hostname-template elicit collected and ignored). Names the substitution inputs, the output, the malformed refusal and the duplicate refusal so apply can bind each failure mode to an AC.",
+  "tags": [
+    "blueprint:edge-cloudflare-tunnel",
+    "capability:tunnelBridge"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+    "field": "responsibilities.hostnameTemplateExpand"
+  }
+}

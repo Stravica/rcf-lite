@@ -1,0 +1,60 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39110",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Apply expands the elicited public-hostname template per ingress rule and refuses on malformed templates and duplicate expansions",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel with two or more ingress rules",
+  "iWant": "apply to expand <service>.<zone> per rule and refuse on malformed templates or duplicate expansions",
+  "soThat": "a template that would silently collide two rules on the same hostname is caught at apply rather than at first inbound request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-hostnameTemplateExpand",
+      "description": "Given the default template <service>.<zone> and two ingress rules (service names \"api\" and \"web\") under the resolved zone \"example.com\", when apply runs, the applied sidecar records ingress rules with concrete hostnames \"api.example.com\" and \"web.example.com\"; every rule's hostname field matches ^[a-z0-9-]+(\\.[a-z0-9-]+)+$.",
+      "given": "the fixture apply harness with the default template and two ingress rules",
+      "when": "apply runs and expands the template",
+      "then": "the applied sidecar carries the two concrete hostnames matching the DNS-label regex",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.hostnameTemplateExpand"
+      }
+    },
+    {
+      "id": "AC-tunnel-hostnameTemplateMalformed",
+      "description": "Given a template with an undefined placeholder (e.g. <unknown>), an unclosed brace (e.g. <service.<zone>), or a rendered value that violates DNS label rules (labels longer than 63 chars or characters outside [a-z0-9-]), when apply runs, apply refuses with code apply.hostname-template-malformed naming the offending template and no applied sidecar is written.",
+      "given": "the fixture apply harness with one of the malformed templates",
+      "when": "apply runs and expands the template",
+      "then": "apply refuses with code apply.hostname-template-malformed and no applied sidecar is written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.hostnameTemplateExpand"
+      }
+    },
+    {
+      "id": "AC-tunnel-hostnameTemplateDuplicate",
+      "description": "Given two ingress rules whose distinct service names expand under the elicited template to the same concrete hostname (for example a template with the <service> placeholder omitted or replaced by a constant), when apply runs, apply refuses with code apply.hostname-template-duplicate naming the collided hostname and both offending rule indices; no applied sidecar is written.",
+      "given": "the fixture apply harness with two ingress rules expanding to the same hostname",
+      "when": "apply runs and computes the expansion table",
+      "then": "apply refuses with code apply.hostname-template-duplicate and no applied sidecar is written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.hostnameTemplateExpand"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply"
+  ],
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z"
+}

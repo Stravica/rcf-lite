@@ -16,12 +16,17 @@
       "when": "the widget renders and the operator submits",
       "then": "the Turnstile widget is mounted, its iframe origin is Cloudflare Turnstile only, and the submit payload contains the Cf-Turnstile-Response token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
+        "field": "responsibilities.tokenFieldPopulate"
+      }
     }
   ],
   "tacIds": [
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

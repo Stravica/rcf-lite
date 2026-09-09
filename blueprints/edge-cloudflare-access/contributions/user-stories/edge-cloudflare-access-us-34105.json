@@ -16,12 +16,17 @@
       "when": "the anatomy test greps for the two section headings, the curl example and the vendor URL",
       "then": "each string matches at least once in the file",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+        "field": "interfaces.applicationDeclaration"
+      }
     }
   ],
   "tacIds": [
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

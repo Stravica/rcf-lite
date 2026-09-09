@@ -16,12 +16,17 @@
       "when": "the request dispatches through the validator",
       "then": "the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with the reduced principal reflected on the response body",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

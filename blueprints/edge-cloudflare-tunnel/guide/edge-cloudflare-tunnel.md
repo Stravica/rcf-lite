@@ -71,9 +71,15 @@ authorisation lives at the origin). The tunnel still terminates
 ingress at the CF edge; no origin port is opened; the difference is
 that cloudflared does not check for a JWT before forwarding.
 
-Graceful degrade: when Access is not applied, the blueprint still ships
-in public-hostname mode. The `aud-presence-check` probe runs on both
-fixture variants and asserts the shape flips correctly.
+Mode selection is a pure function of the applied capability set. When
+`zeroTrustGate` is present on the applied capabilities, the elicited
+`access-aud` value is **mandatory**: apply refuses with code
+`apply.tunnel-aud-missing` if the value is blank, and every ingress
+rule attaches an `originRequest.access` block. There is no silent
+degrade to public-hostname mode under an applied gate. When
+`zeroTrustGate` is absent, the tunnel serves in the deliberate
+public-hostname mode per ADR-4003; the `aud-presence-check` probe
+runs on both fixture variants and asserts the shape flips correctly.
 
 ## Tunnel manifest walkthrough
 
@@ -83,7 +89,7 @@ The applying project ships one tunnel manifest per named tunnel at
 ```yaml
 tunnel: 12345678-90ab-4cde-8f12-3456789abcde
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080
@@ -96,7 +102,7 @@ non-catch-all rule:
 ```yaml
 tunnel: 12345678-90ab-4cde-8f12-3456789abcde
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080

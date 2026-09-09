@@ -16,7 +16,68 @@
       "when": "the request dispatches through the validator",
       "then": "the validator returns 401 and emits one audit event whose outcome is drawn from {missing, expired, invalid} with the allowed-key shape",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34102-2",
+      "description": "Given a well-formed JWT whose aud claim does not match the elicited access-audience, when the validator checks the token, the request is refused with HTTP 401, no downstream handler runs, and exactly one metadata-only audit event with outcome:\"reject\" reason:\"aud-mismatch\" fires; the audit record carries no token substring.",
+      "given": "the fixture applied source with the validator wired and the elicited access-audience configured",
+      "when": "a request presents a well-formed JWT whose aud claim does not match the elicited access-audience",
+      "then": "the validator returns 401 with reason \"aud-mismatch\" and emits one metadata-only audit event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34102-3",
+      "description": "Given a malformed JWT (three-segment shape violated, base64url decode fails, or JSON parse fails on any segment), when the validator inspects the token, the request is refused with HTTP 401 outcome:\"reject\" reason:\"jwt-malformed\" and one metadata-only audit event fires; no downstream handler runs.",
+      "given": "the fixture applied source with the validator wired",
+      "when": "a request presents a malformed Cf-Access-Jwt-Assertion (not three dot-separated segments, or base64url/JSON parse fails)",
+      "then": "the validator returns 401 reason \"jwt-malformed\" and emits one metadata-only audit event; no downstream handler runs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34102-4",
+      "description": "Given a JWT whose kid header does not resolve to any key in the current JWKS after a single forced refresh, when the validator attempts signature verification, the request is refused with HTTP 401 outcome:\"reject\" reason:\"kid-unknown\" and one metadata-only audit event fires; no downstream handler runs and no more than one JWKS refresh fires per request.",
+      "given": "the fixture applied source with the validator wired and a JWKS whose current keys do not include the token kid",
+      "when": "a request presents a JWT whose kid header is absent from JWKS both before and after a forced refresh",
+      "then": "the validator returns 401 reason \"kid-unknown\", emits one metadata-only audit event, and no more than one JWKS refresh fires per request",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34102-5",
+      "description": "Given the JWKS endpoint returns a non-2xx or a network error on both the initial fetch and the forced refresh, when the validator attempts verification, the request is refused with HTTP 503 outcome:\"reject\" reason:\"jwks-unavailable\" fail-closed and one metadata-only audit event fires; no downstream handler runs; the response carries no upstream body echo.",
+      "given": "the fixture applied source with the validator wired and an injected fetch that fails the JWKS endpoint on both attempts",
+      "when": "a request presents a well-formed JWT and the validator attempts to load the JWKS",
+      "then": "the validator returns 503 reason \"jwks-unavailable\" (fail-closed) and emits one metadata-only audit event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
     }
   ],
   "tacIds": [
@@ -24,5 +85,5 @@
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

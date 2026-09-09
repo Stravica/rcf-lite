@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "title": "Real-account gated URL round-trip against a scheduled Access-configured hostname",
-  "asA": "HQ operator running the real-account gated-URL smoke against a scheduled Access-configured hostname",
+  "asA": "operator running the real-account gated-URL smoke against a scheduled Access-configured hostname",
   "iWant": "the probe to fire against the hostname when the env vars are present and record accountBoundSkipped when not",
   "soThat": "the mechanism-reach claim is proven on a real Cloudflare Access instance without ever failing the shelf gate on the absence of an account",
   "acceptanceCriteria": [
@@ -16,12 +16,13 @@
       "when": "the probe runs",
       "then": "in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

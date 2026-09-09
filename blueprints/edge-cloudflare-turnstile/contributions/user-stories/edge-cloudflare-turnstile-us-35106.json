@@ -16,12 +16,13 @@
       "when": "each variant renders",
       "then": "each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

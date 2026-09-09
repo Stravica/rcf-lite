@@ -16,12 +16,13 @@
       "when": "the anatomy test scans the guide for the wrangler headings, the dashboard headings and the vendor URL",
       "then": "both flow headings are present and the vendor URL appears",
       "testable": true,
-      "scope": "documentation"
+      "scope": "documentation",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0 - 2026-09-09
+
+Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+
+- Added REQ-007 and US-34110: the shipped guide names, per policy-shape option, the required dashboard-owned inputs (email domain, group name, identity provider, application-vs-path scope) and every shipped elicit alongside its runtime effect (closes F-1).
+- Added failure-path ACs to US-34102 (AC-34102-2..5 close F-2: wrong audience, malformed JWT, unknown kid after refresh, JWKS-unavailable fail-closed); US-34104 (AC-34104-2..3 close F-3: neither and both application identifiers refuse apply); US-34107 (AC-34107-2..5 close F-4: break-glass disabled, wrong id, wrong secret via constant-time compare, and partial-pair fall-through).
+- Every REQ now carries `deliveredBy`; every AC carries `disposition`; ACs referencing owner-owned literals carry `ownerRef`.
+- De-identified in-house references in US-34109.
+- Chain-consistency lint reports 0 findings on both passes.
+
+
 All notable changes to `edge-cloudflare-access` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.0.0 (2026-09-07)

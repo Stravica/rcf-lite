@@ -16,12 +16,13 @@
       "when": "the source-tree AST scan runs over the fixture",
       "then": "the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

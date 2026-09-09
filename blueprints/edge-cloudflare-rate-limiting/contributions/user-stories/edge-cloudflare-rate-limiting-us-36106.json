@@ -16,12 +16,17 @@
       "when": "the manifest-schema-validate probe validates every manifest file",
       "then": "every valid file passes; the SIMULATE_SCHEMA_INVALID=true switch surfaces the missing threshold field and the aggregate verdict is fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+        "field": "interfaces.rate-limit-rule"
+      }
     }
   ],
   "tacIds": [
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

@@ -16,12 +16,17 @@
       "when": "a submit reaches /api/submit without a Cf-Turnstile-Response value",
       "then": "the guard rejects with 400 with an error-code body and no downstream handler runs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.guard"
+      }
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

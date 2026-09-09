@@ -1,0 +1,74 @@
+{
+  "usId": "edge-cloudflare-tunnel-US-39109",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-tunnel-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Apply resolves the elicited cloudflare-zone-secret via the vault seam and refuses under the documented failure paths; enforces AUD-mandatory when zeroTrustGate is applied",
+  "asA": "shelf consumer applying edge-cloudflare-tunnel with a real Cloudflare zone secret and (optionally) edge-cloudflare-access",
+  "iWant": "apply to resolve the elicited zone secretRef via security-secrets-management, refuse on unresolved and unauthorised paths, and refuse when zeroTrustGate is applied but access-aud is blank",
+  "soThat": "a project that never wires the zone into the vault, or that has no Cloudflare authority on the resolved zone, or that turns on the gate without an AUD, fails at apply rather than at first inbound request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-tunnel-zoneResolve",
+      "description": "Given the elicited cloudflare-zone-secret is a resolvable security-secrets-management reference, when apply runs, the resolver returns a zone id via the vault seam, no plaintext zone id lands in the applying tree (a grep on the tracked tree for the resolved value finds zero matches), and the applied sidecar carries only the secretRef.",
+      "given": "the fixture apply harness with a resolvable secretRef for cloudflare-zone-secret",
+      "when": "apply runs against the fixture project",
+      "then": "the resolver returns a zone id, the applied sidecar records only the secretRef, and a grep on the tracked tree for the resolved zone id finds zero matches",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.zoneResolve"
+      }
+    },
+    {
+      "id": "AC-tunnel-zoneUnresolved",
+      "description": "Given the elicited cloudflare-zone-secret does not resolve via the vault seam (the reference is missing, or the vault seam returns an error), when apply runs, apply refuses with code apply.zone-unresolved naming the elicit id and no applied sidecar is written.",
+      "given": "the fixture apply harness with an unresolvable secretRef for cloudflare-zone-secret",
+      "when": "apply runs",
+      "then": "apply refuses with code apply.zone-unresolved and no applied sidecar is written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.zoneResolve"
+      }
+    },
+    {
+      "id": "AC-tunnel-zoneUnauthorised",
+      "description": "Given the injected Cloudflare API returns 401 or 403 on the tunnel-route call for the resolved zone id, when apply runs, apply refuses with code apply.zone-unauthorised naming the resolved zone id metadata (never the token) and no applied sidecar is written.",
+      "given": "the fixture apply harness with an injected Cloudflare API that returns 401/403",
+      "when": "apply runs against the resolved zone",
+      "then": "apply refuses with code apply.zone-unauthorised and no applied sidecar is written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.zoneResolve"
+      }
+    },
+    {
+      "id": "AC-tunnel-audMandatoryWhenGated",
+      "description": "Given zeroTrustGate is present on the applied capability set and the elicited access-aud is blank, when apply runs, apply refuses with code apply.tunnel-aud-missing naming the elicit id; when access-aud is non-blank apply proceeds and the aud-presence-check probe asserts every ingress rule attaches originRequest.access.aud.",
+      "given": "the fixture apply harness with zeroTrustGate applied and access-aud successively blank and non-blank",
+      "when": "apply runs",
+      "then": "blank access-aud refuses with code apply.tunnel-aud-missing; non-blank access-aud proceeds and every ingress rule attaches originRequest.access.aud",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+        "field": "responsibilities.audMandatoryWhenGated"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply"
+  ],
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z"
+}

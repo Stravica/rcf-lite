@@ -4,24 +4,25 @@
   "reqId": "edge-cloudflare-rate-limiting-REQ-004",
   "version": "1.0.0",
   "status": "approved",
-  "title": "Drift-audit records carry metadata-only fields (ruleId, clientIpHash, outcome, timestamp) with no full IP, no body, no user agent",
+  "title": "Drift-audit records carry {ruleId, outcome, timestamp, diff} (no clientIpHash); request-event records carry {ruleId, clientIpHash, outcome, timestamp} on the runtime path, hashed prefix only",
   "asA": "operator on the applying project reading drift-audit reports and rate-limit event records through the applied logging companion",
-  "iWant": "every drift-audit record and every rate-limit event record to carry only metadata-safe fields (ruleId, clientIpHash, outcome, timestamp, plus the drift diff fields where applicable), never a full client IP, never a request body, never a user agent string",
+  "iWant": "the drift-audit runner to emit records without clientIpHash (no client on the API path) and the runtime request-event path to emit records with a clientIpHash hashed prefix only; both classes never carry a full client IP, never a request body, never a user agent",
   "soThat": "the audit trail is safe to store, forward and read without additional PII scrubbing at the audit sink",
   "acceptanceCriteria": [
     {
       "id": "AC-36107-1",
-      "description": "The event-secrecy probe drives a synthetic drift-audit payload constructed from a fixture rule and a fake live-zone response; every record on the sink carries only {ruleId, clientIpHash, outcome, timestamp} plus (for drift records) a diff array with the schema-safe fields; the probe asserts NO full IP (regex 4-octet dotted quad or v6 group), NO request body key, NO user-agent key; the SIMULATE_EVENT_LEAK_IP=true switch injects a full IP into the drift record and the probe returns aggregateVerdict: fail with the leaked key named in the detail.",
+      "description": "The event-secrecy probe drives a synthetic drift-audit payload constructed from a fixture rule and a fake live-zone response; every drift record on the sink carries only {ruleId, outcome, timestamp, diff} with the schema-safe diff fields and NEVER a clientIpHash key, NEVER a full IP (regex 4-octet dotted quad or v6 group), NEVER a request-body key, NEVER a user-agent key; a separate runtime request-event synthetic payload produces records with {ruleId, clientIpHash, outcome, timestamp} where clientIpHash is a bounded hashed prefix (32 hex chars max), never a full IP; the SIMULATE_EVENT_LEAK_IP=true switch injects a full IP into any record and the probe returns aggregateVerdict: fail with the leaked key named.",
       "given": "the shipped drift-audit runner and a synthetic input pair",
       "when": "the event-secrecy probe drives the runner and inspects the resulting records",
       "then": "every record carries only the metadata-safe fields; SIMULATE_EVENT_LEAK_IP=true surfaces a leaked key and the aggregate verdict is fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

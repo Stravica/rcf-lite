@@ -13,12 +13,17 @@
       "id": "AC-tunnel-accessGatedRefuse",
       "description": "aud-presence-check FAILS under SIMULATE_AUD_DROP when the gated fixture ingress drifts to omit the originRequest.access block. The finding names the affected rule and the missing AUD value.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.audAttach"
+      }
     }
   ],
   "tacIds": [
     "TAC-4003-edge-cloudflare-tunnel-access-binding"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

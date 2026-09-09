@@ -13,12 +13,17 @@
       "id": "AC-tunnel-manifestSchema",
       "description": "manifest-schema-validate probe passes on the canonical fixture and fails when the fixture is mutated (SIMULATE_MANIFEST_INVALID_TUNNEL_ID, SIMULATE_MANIFEST_CREDENTIALS_INLINE, SIMULATE_MANIFEST_MISSING_CATCHALL) naming the offending field.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "interfaces.schema"
+      }
     }
   ],
   "tacIds": [
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

@@ -16,12 +16,13 @@
       "when": "the manifest-presence probe scans the fixture manifest directory",
       "then": "the probe returns aggregateVerdict: fail and the missing file basename is present in the detail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

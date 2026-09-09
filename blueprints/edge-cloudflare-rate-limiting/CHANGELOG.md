@@ -1,5 +1,16 @@
 # edge-cloudflare-rate-limiting changelog
 
+## 1.1.0 - 2026-09-09
+
+Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+
+- Added failure-path ACs to US-36103 (origin-not-executed AC-36103-2 closes F-1: 429 refuses before origin), US-36104 (AC-36104-2 fake-clock cadence assertion closes F-2; AC-36104-3..7 close F-5 drift-runner failure paths for missing zone id, API auth, throttled, malformed and timeout).
+- Split the drift-audit record shape from the runtime request-event record shape: drift records carry `{ruleId, outcome, timestamp, diff}` (no `clientIpHash`, no client on the API path); request-event records carry `{ruleId, clientIpHash, outcome, timestamp}` with a hashed prefix. REQ-004, TAC-3703 responsibilities, AC-36104-1 and AC-36107-1 all now use these exact shapes (closes specimen F-3).
+- Clarified TAC-3701 and REQ-001 that the manifest schema has seven required fields plus one optional `description` field (aligns TAC with the shipped schema; closes specimen F-4).
+- Every REQ now carries `deliveredBy`; every AC carries `disposition`; ACs referencing owner-owned literals carry `ownerRef`.
+- Chain-consistency lint reports 0 findings on both passes.
+
+
 ## 1.0.0 (round 6 T-6, 2026-09-07)
 
 - First shipped version. Zone-level rate limiting as an edge gate in front of Worker handlers per the ratified `cloudflare-round-6-spec-2026-09-06.md` section 5.6.

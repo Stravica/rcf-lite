@@ -16,12 +16,13 @@
       "when": "the sole-reader-scan probe walks src/**/*.mjs",
       "then": "the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

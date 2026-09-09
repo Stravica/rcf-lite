@@ -11,17 +11,102 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36104-1",
-      "description": "Given a synthetic drift scenario (a fixture manifest file that names threshold 10 and a fake live-zone response that reports threshold 20 on the same rule id), the drift-audit runner's diff step constructs one drift record per mismatched rule; the record carries {ruleId, outcome: driftDetected, timestamp, diff: [field: threshold, manifestValue: 10, liveValue: 20]} and NO full IP, NO request body, NO user agent; when the cadence elicit is off the runner is not wired and no report is written.",
+      "description": "Given a synthetic drift scenario (a fixture manifest file that names threshold 10 and a fake live-zone response that reports threshold 20 on the same rule id), the drift-audit runner's diff step constructs one drift record per mismatched rule; the record carries {ruleId, outcome: driftDetected, timestamp, diff: [{field: threshold, manifestValue: 10, liveValue: 20}]} and NEVER a clientIpHash key, NEVER a full IP, NEVER a request body, NEVER a user agent; when the cadence elicit is off the runner is not wired and no report is written.",
       "given": "the cf-edge fixture with the committed manifest and a synthetic Cloudflare API response with one mismatched rule",
       "when": "the drift-audit runner's diff step runs against the pair",
       "then": "one drift record is constructed per mismatched rule with the metadata-only shape and the report writes to .rcf/reports/blueprints/edge-cloudflare-rate-limiting/",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-36104-2",
+      "description": "Given a fake clock and cadence \"daily\", when the runner is scheduled and 25 hours of virtual time elapse, the drift-audit runOnce fires exactly once; cadence \"hourly\" fires 25 times; cadence \"off\" fires zero times and produces no scheduled timer; stopping and restarting the runner never leaves a duplicate timer.",
+      "given": "the fake-clock harness with cadence set successively to off, daily and hourly",
+      "when": "the runner is scheduled with the harness clock and virtual time advances 25 hours",
+      "then": "daily fires exactly once, hourly exactly 25 times, off fires zero times, and stop+restart yields exactly one timer per active cadence",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
+    },
+    {
+      "id": "AC-36104-3",
+      "description": "Given the elicited rate-limit-zone-id is empty at apply, when the runner attempts a runOnce, the runner refuses with outcome:\"error\" reason:\"zone-id-missing\" on exactly one audit event, no live API call is issued, and no false no-drift result is written.",
+      "given": "the fake-fetch harness with rate-limit-zone-id set to empty string",
+      "when": "the runner attempts runOnce",
+      "then": "the runner emits one audit event with outcome \"error\" reason \"zone-id-missing\"; no fetch call fires and no no-drift audit is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
+    },
+    {
+      "id": "AC-36104-4",
+      "description": "Given the injected fetch returns status 401 or 403 on the Cloudflare API endpoint, when the runner runs runOnce, the runner emits one audit event with outcome:\"error\" reason:\"api-auth\" carrying the upstream status but no token, header or body echo, and no no-drift audit is emitted.",
+      "given": "the fake-fetch harness returning 401 or 403 on GET /client/v4/zones/{zone_id}/rulesets",
+      "when": "the runner runs runOnce",
+      "then": "the runner emits one audit event outcome \"error\" reason \"api-auth\" with the upstream status and no leaked token/header/body",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
+    },
+    {
+      "id": "AC-36104-5",
+      "description": "Given the injected fetch returns status 429 (Cloudflare API-side rate limit), when the runner runs runOnce, the runner emits one audit event with outcome:\"error\" reason:\"api-throttled\" carrying the Retry-After metadata value only, and no no-drift audit is emitted.",
+      "given": "the fake-fetch harness returning 429 with Retry-After",
+      "when": "the runner runs runOnce",
+      "then": "the runner emits one audit event outcome \"error\" reason \"api-throttled\" carrying only the Retry-After metadata and no no-drift audit",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
+    },
+    {
+      "id": "AC-36104-6",
+      "description": "Given the injected fetch resolves with status 200 but the body is not valid JSON, or the JSON body omits the expected result field, when the runner parses the response, the runner emits one audit event with outcome:\"error\" reason:\"api-malformed\" and no no-drift audit is emitted.",
+      "given": "the fake-fetch harness returning 200 with an unparseable body or a missing result field",
+      "when": "the runner parses the response",
+      "then": "the runner emits one audit event outcome \"error\" reason \"api-malformed\" and never emits a no-drift audit",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
+    },
+    {
+      "id": "AC-36104-7",
+      "description": "Given the injected fetch never resolves within the bounded timeout, when the runner runs runOnce, the runner aborts and emits one audit event with outcome:\"error\" reason:\"api-timeout\" and no no-drift audit is emitted.",
+      "given": "the fake-fetch harness that never resolves",
+      "when": "the runner runs runOnce within the bounded timeout window",
+      "then": "the runner aborts and emits one audit event outcome \"error\" reason \"api-timeout\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+        "field": "interfaces.createDriftAuditRunner"
+      }
     }
   ],
   "tacIds": [
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

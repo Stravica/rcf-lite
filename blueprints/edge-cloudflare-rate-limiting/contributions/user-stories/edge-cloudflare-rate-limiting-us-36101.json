@@ -16,12 +16,17 @@
       "when": "the manifest-presence probe scans the fixture directory",
       "then": "every manifest file parses, every file carries the seven required fields, and no file references a secret in plaintext",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+        "field": "interfaces.rate-limits"
+      }
     }
   ],
   "tacIds": [
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

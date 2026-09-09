@@ -1,0 +1,32 @@
+{
+  "usId": "edge-cloudflare-access-US-34110",
+  "prdId": "PRD-001",
+  "reqId": "edge-cloudflare-access-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Guide walk-through names every dashboard-owned policy input per policy-shape and every shipped elicit",
+  "asA": "operator issuing an Access policy from the dashboard side",
+  "iWant": "the guide to name every input the dashboard needs per policy shape (email domain for email-domain; group name and identity provider for group-membership; service-token id and secret elicits for service-token-only and service-token-plus-email-domain; application/path scope for every shape) and every shipped elicit",
+  "soThat": "a policy issued from the guide walk-through is complete without back-and-forth between the guide and the vendor docs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-34110-1",
+      "description": "The shipped guide (guide/<slug>.md within this blueprint) contains a section Policy shape enum that names, per policy-shape option, the required dashboard-owned inputs: email-domain names the required email-domain input; group-membership names the required group-name input and the required identity-provider selection; service-token-only names the required service-token id and paired secret (linked to the bypass-service-auth-id elicit); service-token-plus-email-domain names both the email-domain and the service-token pair; every shape names the required application-vs-path scope input. The guide additionally names every shipped elicit (application-host, selfhosted-app-id, audience, jwks-url, policy-shape, bypass-service-auth-id) with its runtime effect.",
+      "given": "the shipped guide file",
+      "when": "a source-tree grep asserts the required substrings per shape and elicit",
+      "then": "every required substring is present; a fixture that omits any of them refuses the probe with a stable code guide.policy-inputs-missing naming which substring is absent",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
+        "field": "responsibilities.policyIssueGuide"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-3503-edge-cloudflare-access-policy-shape"
+  ],
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z"
+}

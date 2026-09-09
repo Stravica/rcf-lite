@@ -28,7 +28,7 @@
 //
 // The shim seams (cloudflaredTunnelInfo, event capture) allow the
 // driver path and mutation switches to be exercised locally without
-// a real Cloudflare account; the real-account run happens at HQ
+// a real Cloudflare account; the real-account run happens in the operator account
 // gate time.
 
 import { runShim, accountBoundSkippedResult } from './probe-utils.mjs';

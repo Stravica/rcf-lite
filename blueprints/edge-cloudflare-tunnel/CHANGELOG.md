@@ -1,5 +1,20 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.1.0 - 2026-09-09
+
+Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+
+- Added REQ-006 (zone resolution via the vault seam; AUD-mandatory-when-gated) and REQ-007 (public-hostname template expansion at apply with malformed and duplicate refusals). Closes review P0 findings F-1 (cloudflare-zone-secret elicit had no covering requirement) and F-2 (public-hostname-template elicit had no covering requirement). Neither elicit or capability token was removed; both are now backed by a `must`-priority requirement.
+- Added TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply naming the apply-time responsibilities for zone resolution, hostname expansion and AUD-mandatory refusals.
+- Added user stories US-39109 (four apply-time ACs across the zone-resolution and AUD-mandatory-when-gated paths) and US-39110 (three apply-time ACs across the hostname-template expansion, malformed and duplicate paths).
+- Added the following failure-path ACs to existing stories: AC-tunnel-cloudflaredReady on US-39102 (boot event observation; closes F-4 event-name inconsistency by naming both `cloudflaredReady` (process boot) and `tunnelConnectorUp` (per-connector) as distinct events); AC-tunnel-connectorPrecedence on US-39101 (four-combination precedence with two apply-refusal codes; closes F-5); four `AC-tunnel-accessGatedReject*/Accept*` ACs on US-39106 covering missing, invalid and wrong-audience JWT paths plus the valid-audience accept path (closes F-6); AC-tunnel-credentialsHostMode and AC-tunnel-credentialsTrackedTreeScan on US-39108 (closes F-7).
+- Every REQ now carries `deliveredBy` into the owning TAC or ADR; every AC carries `disposition` (`fixed` or `template`); ACs referencing owner-owned literals carry `ownerRef`. Vendor citations added where an AC rests on a mechanism-invariant vendor fact.
+- Tightened the `access-aud` elicit prompt: when `zeroTrustGate` is applied the value is mandatory (apply refuses with `apply.tunnel-aud-missing`); when absent, the tunnel serves in the deliberate public-hostname mode per ADR-4003 (closes specimen F-3).
+- Guide updated in the "Hostname mode: when to reach for Access-gated vs public-hostname" section to name the AUD-mandatory-when-gated rule; the earlier "Graceful degrade" wording is retired.
+- De-identified operator-internal names across the blueprint (`hq-estate/*` renamed to `vault/*`; other in-house references neutralised) to keep the shipped package customer-facing.
+- Chain-consistency lint (`rcf define blueprint lint-consistency`) reports 0 findings on both passes for this blueprint.
+
+
 ## 1.0.1 - 2026-09-08
 
 H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.

@@ -66,7 +66,7 @@ Example (compose-service, public-hostname mode):
 ```yaml
 tunnel: 00000000-0000-4000-8000-0000000012ab
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080
@@ -140,7 +140,7 @@ numeric IP, or an unresolvable shape.
 
 - `tunnel-name` (string; default `probe`): the Cloudflare Tunnel name
   and the manifest filename under `cloudflare/tunnels/<name>.yaml`.
-- `cloudflare-zone-secret` (string; default `hq-estate/CLOUDFLARE_ZONE_ID`):
+- `cloudflare-zone-secret` (string; default `vault/CLOUDFLARE_ZONE_ID`):
   `security-secrets-management` reference to the Cloudflare zone the
   tunnel serves under.
 - `public-hostname-template` (string; default `<service>.<zone>`):

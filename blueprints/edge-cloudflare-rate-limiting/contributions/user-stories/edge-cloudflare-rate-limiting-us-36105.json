@@ -16,12 +16,13 @@
       "when": "the anatomy test scans the guide for the composition section and ADR-3702 reference",
       "then": "the section heading, ADR-3702 reference, both characteristic strings and the copy-paste example are present",
       "testable": true,
-      "scope": "documentation"
+      "scope": "documentation",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

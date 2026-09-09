@@ -16,12 +16,63 @@
       "when": "a submit hits /api/submit with any response token",
       "then": "the server-side POST to siteverify returns success:true and the handler responds 200",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-35102-2",
+      "description": "Given the pack fixture with an empty TURNSTILE_SITEKEY in the environment, when the applying project boots, the widget mount refuses to render with a stable turnstile.sitekey-missing error and no submit surface is reachable until the sitekey is set.",
+      "given": "the pack fixture running with TURNSTILE_SITEKEY unset or empty",
+      "when": "the applying project boots and a client loads a guarded surface",
+      "then": "the widget mount refuses to render, the guarded surface returns 503 with body {\"errorCode\":\"turnstile.sitekey-missing\"} and no downstream handler runs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
+        "field": "interfaces.mountTurnstile"
+      }
+    },
+    {
+      "id": "AC-35102-3",
+      "description": "Given the pack fixture with an empty TURNSTILE_SECRET in the environment, when the verifier is constructed at boot, createTurnstileVerifier refuses with a stable turnstile.secret-missing error before any siteverify traffic can fire.",
+      "given": "the pack fixture running with TURNSTILE_SECRET unset or empty",
+      "when": "the verifier factory runs at boot and no downstream handler is registered",
+      "then": "createTurnstileVerifier throws {code:\"turnstile.secret-missing\"} and no siteverify network call is issued",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.createTurnstileVerifier"
+      }
+    },
+    {
+      "id": "AC-35102-4",
+      "description": "Given the pack fixture with only one of the pair present (TURNSTILE_SITEKEY set and TURNSTILE_SECRET unset, or vice versa), when boot runs, the config refuses with a stable turnstile.pair-incomplete error naming which half is missing.",
+      "given": "the pack fixture running with exactly one of the sitekey/secret pair set",
+      "when": "boot runs and the elicited pair is inspected",
+      "then": "boot refuses with {code:\"turnstile.pair-incomplete\", missing:\"sitekey\"|\"secret\"} and no verifier or widget mount initialises",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.createTurnstileVerifier"
+      }
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

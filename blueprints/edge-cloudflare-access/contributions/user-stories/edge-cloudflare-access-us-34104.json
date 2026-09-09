@@ -16,12 +16,45 @@
       "when": "the apply verb runs against a fixture project",
       "then": "rcf/blueprints/edge-cloudflare-access.applied.json carries the elicited values plus appliedCapabilities=[zeroTrustGate]",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+        "field": "interfaces.applicationDeclaration"
+      }
+    },
+    {
+      "id": "AC-34104-2",
+      "description": "Given neither access-application-host nor access-selfhosted-app-id is supplied at apply time, when the applying agent runs apply, the apply verb refuses with a stable validation code apply.application-declaration-missing naming both elicit ids and writes no sidecar.",
+      "given": "blueprint.json elicits access-application-host and access-selfhosted-app-id, both empty at apply time",
+      "when": "the applying agent runs apply",
+      "then": "apply refuses with code apply.application-declaration-missing and rcf/blueprints/edge-cloudflare-access.applied.json is not written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+        "field": "responsibilities.applicationDeclaration"
+      }
+    },
+    {
+      "id": "AC-34104-3",
+      "description": "Given both access-application-host AND access-selfhosted-app-id are supplied at apply time, when the applying agent runs apply, the apply verb refuses with a stable validation code apply.application-declaration-ambiguous naming both elicit ids and writes no sidecar.",
+      "given": "blueprint.json elicits access-application-host and access-selfhosted-app-id, both non-empty at apply time",
+      "when": "the applying agent runs apply",
+      "then": "apply refuses with code apply.application-declaration-ambiguous and rcf/blueprints/edge-cloudflare-access.applied.json is not written",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+        "field": "responsibilities.applicationDeclaration"
+      }
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

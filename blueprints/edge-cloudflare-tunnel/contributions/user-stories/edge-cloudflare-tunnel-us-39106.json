@@ -13,12 +13,73 @@
       "id": "AC-tunnel-accessGated",
       "description": "aud-presence-check probe reads each variant sidecar and asserts the ingress rules attach originRequest.access.aud on the access-gated variant and omit the block on the public-hostname variant. The shape flip is a pure function of the sidecar contents.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.audAttach"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectMissing",
+      "description": "Given the access-gated variant on an account-bound run, when a request reaches the gated hostname with no Cf-Access-Jwt-Assertion header, cloudflared refuses at the edge and the origin never sees the request (the origin origin-hit counter stays at zero across N+1 requests).",
+      "given": "the account-bound fixture with an origin counter behind a gated hostname",
+      "when": "a client fires N+1 requests without a Cf-Access-Jwt-Assertion header",
+      "then": "every request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectInvalid",
+      "description": "Given the access-gated variant, when a request reaches the gated hostname with a malformed or expired Cf-Access-Jwt-Assertion, cloudflared refuses at the edge and the origin origin-hit counter stays at zero across N+1 requests.",
+      "given": "the account-bound fixture with an origin counter behind a gated hostname",
+      "when": "a client fires N+1 requests with a malformed or expired Cf-Access-Jwt-Assertion",
+      "then": "every request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectWrongAud",
+      "description": "Given the access-gated variant with an elicited AUD tag, when a request presents a well-signed Cf-Access-Jwt-Assertion whose aud claim does not match the elicited AUD, cloudflared refuses at the edge and the origin origin-hit counter stays at zero.",
+      "given": "the account-bound fixture with the elicited AUD tag configured",
+      "when": "a client fires a request with a well-signed JWT whose aud claim mismatches the elicited AUD",
+      "then": "the request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedAcceptValid",
+      "description": "Given the access-gated variant, when a request presents a well-signed Cf-Access-Jwt-Assertion whose aud claim matches the elicited AUD, the request reaches the origin exactly once and the origin origin-hit counter increments by one per accepted request.",
+      "given": "the account-bound fixture with the elicited AUD tag configured and an origin counter",
+      "when": "a client fires N requests each with a well-signed JWT whose aud matches the elicited AUD",
+      "then": "each request reaches the origin and the origin counter reads exactly N",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      }
     }
   ],
   "tacIds": [
     "TAC-4003-edge-cloudflare-tunnel-access-binding"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

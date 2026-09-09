@@ -11,7 +11,7 @@
   "alternativesConsidered": [
     {
       "name": "Fold into edge-cloudflare-access as an adapter",
-      "reason": "Access is an authorisation gate on top of an ingress; Tunnel is an ingress bridge. One applies without the other. Folding conflated two decisions the operator ships separately. Rejected per Baz ruling decision 21."
+      "reason": "Access is an authorisation gate on top of an ingress; Tunnel is an ingress bridge. One applies without the other. Folding conflated two decisions the operator ships separately. Rejected per operator ruling on decision 21."
     },
     {
       "name": "Ship a Tailscale Funnel or Fly.io proxy sibling in the same PR",
