@@ -113,10 +113,10 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
       section 7e.
 - [ ] Every REQ that promises an externally observable property carries
       a `deliveredBy` link into a TAC responsibility or an ADR decision
-      that delivers it, and the blueprint passes `rcf blueprint
-      lint-consistency <source>` (or every finding is named in
-      `README.md` under "Known chain-consistency-lint suppressions" with
-      a one-sentence reason; pass-2 findings are not suppressible).
+      that delivers it, and the blueprint passes the chain-consistency lint the standard
+      names in section 7e (or every finding is named in `README.md`
+      under "Known chain-consistency-lint suppressions" with a
+      one-sentence reason; pass-2 findings are not suppressible).
       Section 7e.
 
 ## 7. Documentation

@@ -575,8 +575,8 @@ refuses the ship otherwise. This is the same shape as RULE 15's
 mechanism catches the shortcut, not that the author never takes it.
 
 **Where the machine-checkable enforcement lands.** A new lint verb
-`rcf blueprint lint-consistency <source>` runs two passes over a
-blueprint's own JSON and markdown. Pass 1 (single-definition
+lands under the `blueprint` group (`lint-consistency <source>`) and
+runs two passes over a blueprint's own JSON and markdown. Pass 1 (single-definition
 ownership): walk every TAC's `interfaces[]` and `internalStructure` to
 collect the owned literals; walk every REQ, US, AC, ADR and guide
 surface for restatements; refuse any literal restated outside its owner
