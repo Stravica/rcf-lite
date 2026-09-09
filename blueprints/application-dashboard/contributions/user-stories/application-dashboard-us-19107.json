@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19107",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-002",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The applying agent reads the packaged design-guidance asset and honours its ratified surface rules",
   "asA": "agent applying the application-dashboard blueprint on a shipped surface",
@@ -28,6 +28,44 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-19107-3",
+      "description": "Given the applying project's rendered dashboard, when the pack inspects the surface against every rule the packaged guidance ratifies (primary-kpi top-left placement, tile density under the guidance's cap, one-of-four state visibility, timeframe presets from the elicited set, fan-out share of the as-of stamp, export handle presence, WCAG 1.4.1 non-colour distinction on tile state), a rule violation fails the pack check naming the guidance section that ratified the rule.",
+      "given": "an applying project's rendered dashboard checked against the packaged guidance rules",
+      "when": "the pack inspects each ratified rule",
+      "then": "a violation fails naming the guidance section responsible",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19107-4",
+      "description": "Given the design-guidance asset shipped at `assets/guidance/dashboard-design.md`, when the applying agent's pack inspects the manifest, the file is present, non-empty, and carries H2 headings for the eight sections named in spec 5.3.1; a missing file, an empty file or a file missing any of the eight sections fails the pack check.",
+      "given": "the packaged design-guidance asset",
+      "when": "the pack inspects the asset",
+      "then": "the file is present, non-empty and carries H2 headings for the eight ratified sections; a missing or short-of-sections file fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19107-5",
+      "description": "Given an applying project that ships a surface deviating from a ratified rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side review.",
+      "given": "an applying project surface deviating from a ratified guidance rule",
+      "when": "the review inspects the project's CALLS MADE section",
+      "then": "the deviation is documented with the guidance section quoted verbatim and the project's reason; an undocumented deviation fails review",
+      "testable": true,
+      "scope": "unclassified",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -37,5 +75,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

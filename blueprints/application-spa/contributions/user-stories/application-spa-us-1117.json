@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1117-1",
-      "description": "Every data-bearing route renders designed loading, empty, error, and success states; a state matrix over the route inventory has no unspecified applicable cell.",
+      "description": "Every data-bearing route renders designed loading, empty, error, and success states; a state matrix over the route inventory has no unspecified applicable cell. Applying agent sets: the project route inventory the state matrix covers.",
       "given": "the route inventory",
       "when": "each applicable state is induced per route",
       "then": "every applicable cell renders a designed state",
@@ -21,7 +21,7 @@
         "tacId": "TAC-201-application-spa-app-shell",
         "field": "interfaces[0].name"
       },
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1117-2",
@@ -35,13 +35,13 @@
     },
     {
       "id": "AC-1117-3",
-      "description": "Empty states are per-context, naming the specific absent content and its filling action; a single generic empty component text is not reused verbatim across unrelated routes.",
+      "description": "Empty states are per-context, naming the specific absent content and its filling action; a single generic empty component text is not reused verbatim across unrelated routes. Applying agent sets: the per-context empty-state text unique per route.",
       "given": "each empty state",
       "when": "copy and action are compared across routes",
       "then": "each names its own content and action",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1117-4",
@@ -79,5 +79,5 @@
     "TAC-204-application-spa-client-data-layer"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

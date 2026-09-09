@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19105",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-004",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The filter chrome exposes accessible controls and refetches every tile with the same boundary",
   "asA": "operator narrowing the dashboard with a filter chip or a filter input",
@@ -28,6 +28,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-19105-3",
+      "description": "Given a rendered dashboard with a filter input, when the operator types a value that violates the input's `pattern` or exceeds its `maxlength`, the shell does NOT fire a refetch; the filter chrome surfaces an accessible inline validation message (`aria-describedby` on the input pointing at the message region) and the tile grid retains its last successful state.",
+      "given": "an operator typing an invalid value into a filter input (pattern/maxlength violation)",
+      "when": "the shell validates the input",
+      "then": "no refetch fires, an accessible inline validation message announces the failure, and the tile grid retains its last successful state",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2002-application-dashboard-filter-chrome",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-19105-4",
+      "description": "Given a filter change that fires a fan-out refetch and a subset of tile fetches reject (2 of 6 return 5xx or time out), the shared `as of <ISO-8601>` stamp advances after every tile has SETTLED (succeeded or failed) and the failed tiles enter the error state with the shared stamp; a shell whose stamp advances only after successful tiles fails the pack check.",
+      "given": "a filter change fan-out where a subset of tile fetches reject",
+      "when": "every fetch has settled",
+      "then": "the shared as-of stamp advances after every tile has settled and the failed tiles are in the error state carrying the shared stamp",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2002-application-dashboard-filter-chrome",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-19105-5",
+      "description": "Given a filter reset action (a `Clear filters` control on the chrome), when the operator activates it, every filter control reverts to its default value, one refetch fires per tile and per chart with no filter parameters, and the tile grid re-renders on the response; the reset action is keyboard-reachable and carries an accessible name matching `Clear filters` or an equivalent.",
+      "given": "an operator activating the Clear filters control",
+      "when": "the shell handles the reset",
+      "then": "every filter control reverts to default, one refetch fires per tile and per chart without filter parameters, and the reset control is keyboard-reachable with an accessible name",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2002-application-dashboard-filter-chrome",
+        "field": "responsibilities[0]"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +79,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

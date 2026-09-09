@@ -11,23 +11,23 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1123-1",
-      "description": "Every checkpoint in the journey inventory emits its declared event with the ADR-209 naming scheme; emitted names match the registry exactly.",
+      "description": "Every checkpoint in the journey inventory emits its declared event with the ADR-209 naming scheme; emitted names match the registry exactly. Applying agent sets: the declared journey checkpoint events (event name per checkpoint on the applied journey inventory).",
       "given": "each declared journey",
       "when": "walked end to end",
       "then": "every checkpoint event fires with its registered name",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1123-2",
-      "description": "Events carry the declared minimal context (route, journey step, outcome) and never include personal data beyond the declared allow-list.",
+      "description": "Events carry the declared minimal context (route, journey step, outcome) and never include personal data beyond the declared allow-list. Applying agent sets: the declared minimal context and the personal-data allow-list per event.",
       "given": "captured events",
       "when": "payloads are audited",
       "then": "context is present and no disallowed personal data appears",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1123-3",
@@ -61,13 +61,13 @@
     },
     {
       "id": "AC-1123-6",
-      "description": "Given the offline telemetry buffer's configured bound N and (N + 5) events emitted while offline, when the transport comes back online, then only the newest N events survive the buffer's drop-oldest policy and flush to the transport in emission order; the drop count is observable via a `telemetryBuffered` boot record on reconnect and the pre-overflow events are absent from the delivered stream.",
+      "description": "Given the offline telemetry buffer's configured bound N and (N + 5) events emitted while offline, when the transport comes back online, then only the newest N events survive the buffer's drop-oldest policy and flush to the transport in emission order; the drop count is observable via a `telemetryBuffered` boot record on reconnect and the pre-overflow events are absent from the delivered stream. Applying agent sets: the offline telemetry buffer bound N configured by the applying project.",
       "given": "an offline session with (N + 5) telemetry events emitted against a buffer bound of N",
       "when": "the transport reconnects",
       "then": "the newest N events flush in emission order and the drop count is observable on reconnect",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
+      "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-206-application-spa-telemetry",
         "field": "responsibilities[0]"
@@ -78,5 +78,5 @@
     "TAC-206-application-spa-telemetry"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

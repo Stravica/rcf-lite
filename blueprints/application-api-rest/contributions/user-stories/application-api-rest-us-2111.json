@@ -17,7 +17,11 @@
       "then": "the body carries the five base fields and the content type is application/problem+json",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2111-2",
@@ -31,7 +35,11 @@
         "tacId": "TAC-303-application-api-rest-contract-surface",
         "field": "interfaces[0].name"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2111-3",
@@ -41,7 +49,11 @@
       "then": "they are equal",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2111-4",
@@ -51,7 +63,11 @@
       "then": "the 4xx names the client-side correction; the 5xx exposes the correlation instance and no internals",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2111-5",
@@ -61,7 +77,11 @@
       "then": "the response is a 500 with the declared envelope, not a framework default body",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2111-6",
@@ -71,12 +91,16 @@
       "then": "each carries the declared problem-details envelope with the appropriate 4xx status",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc7807",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-301-application-api-rest-request-pipeline"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

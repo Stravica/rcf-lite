@@ -31,13 +31,13 @@
     },
     {
       "id": "AC-2117-3",
-      "description": "An inbound X-Request-Id failing the documented format or length constraints is replaced with a generated id rather than propagated, so hostile header values never flow into logs and downstream systems.",
+      "description": "An inbound X-Request-Id failing the documented format or length constraints is replaced with a generated id rather than propagated, so hostile header values never flow into logs and downstream systems. Applying agent sets: the documented X-Request-Id format and length constraints.",
       "given": "a request with an oversized or malformed X-Request-Id",
       "when": "the response and logs are inspected",
       "then": "a fresh generated id is used and the malformed inbound value is not propagated",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2117-4",
@@ -65,5 +65,5 @@
     "TAC-305-application-api-rest-observability"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

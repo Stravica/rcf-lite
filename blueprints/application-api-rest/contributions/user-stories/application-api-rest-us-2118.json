@@ -61,7 +61,7 @@
     },
     {
       "id": "AC-2118-6",
-      "description": "The /v1/_meta endpoint declares an auth class like any other endpoint (service or admin by default), and startup readiness (AC-2108-4) gates on migrations being current.",
+      "description": "The /v1/_meta endpoint declares an auth class like any other endpoint (service or admin by default), and startup readiness (AC-2108-4) gates on migrations being current. Applying agent sets: the auth class declared on the /_meta endpoint (service or admin) and the migrations-current gate condition.",
       "given": "the generated spec and a booting instance behind on migrations",
       "when": "the _meta declaration and the startup probe are inspected",
       "then": "_meta carries its declared auth class, and the startup probe withholds 200 until migrations are current",
@@ -71,12 +71,12 @@
         "tacId": "TAC-303-application-api-rest-contract-surface",
         "field": "interfaces[0].name"
       },
-      "disposition": "fixed"
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-306-application-api-rest-operability"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

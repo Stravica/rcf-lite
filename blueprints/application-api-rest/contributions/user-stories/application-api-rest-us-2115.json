@@ -21,13 +21,13 @@
     },
     {
       "id": "AC-2115-2",
-      "description": "Duration is recorded as a histogram with declared buckets so latency percentiles are computable, not as an average-only gauge.",
+      "description": "Duration is recorded as a histogram with declared buckets so latency percentiles are computable, not as an average-only gauge. Applying agent sets: the histogram bucket boundaries declared for duration.",
       "given": "recorded duration metrics",
       "when": "the metric type is inspected",
       "then": "durations are histograms with the declared bucket boundaries",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2115-3",
@@ -64,5 +64,5 @@
     "TAC-305-application-api-rest-observability"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

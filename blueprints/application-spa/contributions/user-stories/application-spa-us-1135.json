@@ -21,5 +21,6 @@
     }
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-03T17:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "7a note: this e2e is a single-assertion probe with a fixed success signal; the guide names no additional failure paths on the owning mechanism (the render or redirect fires as declared), so one AC is at the section 7a floor."
 }

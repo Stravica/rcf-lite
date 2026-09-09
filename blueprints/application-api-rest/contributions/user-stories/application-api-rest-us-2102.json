@@ -41,7 +41,11 @@
       "then": "it parses as RFC-3339, is in UTC, and carries the offset designator",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://datatracker.ietf.org/doc/html/rfc3339",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-2102-4",
@@ -79,5 +83,5 @@
     "TAC-304-application-api-rest-resource-layer"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

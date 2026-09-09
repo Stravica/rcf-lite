@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16104",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-002",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The record's context field is redacted at record construction, not at emission",
   "asA": "operator concerned about PII in error records",
@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-16104-2",
+      "description": "Given `createErrorRecord({context: <value>})` called with a context value that is not a plain object (a string, a number, a Date, null), the factory refuses with a controlled error naming the invalid context type; no record is constructed and no partial context leaks. The check enumerates the non-object inputs and inspects the thrown error.",
+      "given": "createErrorRecord called with a context that is not a plain object (string, number, Date, null)",
+      "when": "the factory validates its arguments",
+      "then": "it throws a controlled error naming the invalid context type; no record is constructed and no partial context is returned",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16104-3",
+      "description": "Given `createErrorRecord({context: nested})` where `nested` carries redactable fields at depth (`user.email`, `payment.card.pan`, an array containing an object with an `ip`), the returned record has every redactable field replaced by `[REDACTED:<category>]` at every depth including array elements; sibling fields at each depth are untouched. The check builds a nested-and-array-mixed context and walks the returned record asserting the redaction shape.",
+      "given": "a context carrying redactable fields at nested depths and inside arrays",
+      "when": "the factory constructs the record",
+      "then": "every redactable field at every depth (including inside arrays) reads `[REDACTED:<category>]`; sibling fields at each depth remain unchanged and the caller's original context object is not mutated",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16104-4",
+      "description": "Given `createErrorRecord({context: circular})` where the context object contains a cyclic reference, the factory returns a record whose context serialises safely (the cycle is broken with a controlled marker such as `[CIRCULAR]`) and the redaction pass still fires on the reachable fields; no stack overflow, no unbounded recursion.",
+      "given": "a context object containing a circular reference",
+      "when": "the factory constructs the record",
+      "then": "the returned record's context serialises without stack overflow, the cycle is broken with a controlled marker, and redaction still applies to the reachable fields",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "responsibilities[0]"
+      }
     }
   ],
   "tacIds": [
     "TAC-1702-application-error-handling-record-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

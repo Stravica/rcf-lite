@@ -28,6 +28,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-19104-3",
+      "description": "Given a rendered dashboard mid-refetch (a preset change fired 200ms ago; some tile fetches have returned, others are pending), when the operator activates a SECOND preset change, the shell cancels the in-flight fetches for the first preset and issues a fresh fan-out for the second preset; the pack asserts no tile renders data from the abandoned preset alongside data from the new one.",
+      "given": "an operator activating a second preset change while the first fan-out is still in flight",
+      "when": "the shell handles the second change",
+      "then": "the in-flight first-preset fetches are cancelled and a fresh fan-out issues for the second preset; no mixed-preset data appears on tiles",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2002-application-dashboard-filter-chrome",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-19104-4",
+      "description": "Given a preset change that fires a fan-out and every tile's fetch rejects (a network partition, a downstream outage), when every fetch has settled as a failure, then the shared `as of <ISO-8601>` stamp still advances (settled includes failed), every tile enters the error state carrying the shared stamp, and one aria-live polite announcement names the whole-surface failure so the operator hears the state change.",
+      "given": "a preset change fan-out where every tile fetch rejects",
+      "when": "every fetch has settled as a failure",
+      "then": "the shared as-of stamp advances, every tile is in the error state carrying the shared stamp, and one aria-live announcement names the whole-surface failure",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2002-application-dashboard-filter-chrome",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-19104-5",
+      "description": "Given a rendered dashboard whose elicited timeframe presets include an operator-authored addition (per the elicited `timeframe-presets`), when the operator activates the elicited preset, the fan-out contract fires unchanged (same from/to/preset boundary on every fetch); a preset that fails to fire the fan-out because the shell does not recognise the elicited name fails the pack check. Applying agent sets: the elicited preset tokens.",
+      "given": "an operator-elicited additional timeframe preset activated on the dashboard",
+      "when": "the shell handles the change",
+      "then": "the fan-out fires with the elicited preset name unchanged; a shell that ignores the elicited preset fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "adrId": "ADR-2002-application-dashboard-timeframe-presets",
+        "field": "decision"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +79,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

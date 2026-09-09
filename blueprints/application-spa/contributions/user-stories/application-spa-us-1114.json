@@ -41,25 +41,25 @@
     },
     {
       "id": "AC-1114-4",
-      "description": "Re-entry into a journey restores or gracefully resets context per the journey specification; expired-session re-entry routes through the application-spa-US-1116 flow back to the same step.",
+      "description": "Re-entry into a journey restores or gracefully resets context per the journey specification; expired-session re-entry routes through the application-spa-US-1116 flow back to the same step. Applying agent sets: the journey re-entry restore-or-reset behaviour per journey.",
       "given": "a user mid-journey who leaves and returns",
       "when": "re-entry occurs, including with an expired session",
       "then": "the declared restore-or-reset behaviour happens and no entered data is silently lost",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1114-5",
-      "description": "Journey checkpoint telemetry per application-spa-REQ-016 fires at each declared checkpoint across all six states, so abandoned journeys are observable.",
+      "description": "Journey checkpoint telemetry per application-spa-REQ-016 fires at each declared checkpoint across all six states, so abandoned journeys are observable. Applying agent sets: the declared checkpoint set per journey inventory.",
       "given": "a journey walked through each state",
       "when": "telemetry is captured",
       "then": "the declared checkpoint events fire with correct names",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

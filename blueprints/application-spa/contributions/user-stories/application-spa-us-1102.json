@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1102-1",
-      "description": "Top navigation renders on every route from the route inventory; sections the signed-in user cannot access are absent, not disabled.",
+      "description": "Top navigation renders on every route from the route inventory; sections the signed-in user cannot access are absent, not disabled. Applying agent sets: the top-navigation section inventory (per applied route inventory).",
       "given": "any declared route",
       "when": "the route renders",
       "then": "the top navigation is present and reflects the route inventory for the current user",
@@ -21,7 +21,7 @@
         "tacId": "TAC-201-application-spa-app-shell",
         "field": "interfaces[0].name"
       },
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1102-2",
@@ -68,5 +68,5 @@
     "TAC-201-application-spa-app-shell"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -1,6 +1,6 @@
 {
   "slug": "application-charts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -10,6 +10,27 @@
     {
       "role": "errorHandling",
       "reason": "A chart that fails to load surfaces a client-side error record; an error-handling companion supplies the boundary and the record factory."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "chart-engine",
+      "prompt": "Chart engine the applying project ships. One of recharts, echarts, chart-js, d3-primitives or hand-authored-svg. A canvas-only engine that offers no text-alternative surface is refused at project-side review (ADR-1901).",
+      "kind": "enum",
+      "options": [
+        "recharts",
+        "echarts",
+        "chart-js",
+        "d3-primitives",
+        "hand-authored-svg"
+      ],
+      "default": "recharts"
+    },
+    {
+      "id": "palette-overrides",
+      "prompt": "Optional brand-token overrides for the categorical palette, supplied through the shell palette accessor. Missing tokens fall back to the accessible-defaults palette (light and dark) at the same index and the render log records a warning (ADR-1902).",
+      "kind": "string",
+      "default": ""
     }
   ],
   "contributions": [

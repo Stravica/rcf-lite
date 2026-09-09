@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16102",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "A framework-level exception thrown from handler code is caught, mapped to the wire, and never leaks a raw stack trace",
   "asA": "consumer of an application endpoint",
@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-16102-2",
+      "description": "Given a handler that throws a JavaScript Error with a stack trace containing a filesystem path, when the framework-level boundary catches the exception, then the wire response body carries no stack, no filesystem path substring, and no file:// URL; the response's error envelope is populated only through ADR-1703's transport mapping. The check drives a fixture endpoint that throws a synthetic Error with a stack containing /Users/, /home/ and file:// prefixes and inspects the response body substrings.",
+      "given": "a fixture endpoint whose handler throws an Error carrying a stack with filesystem paths and file:// URLs",
+      "when": "the framework-level boundary catches the exception and writes the wire response",
+      "then": "the response body carries no stack, no /Users/, no /home/ and no file:// substring; only the transport envelope fields populate",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-16102-3",
+      "description": "Given a handler that throws a plain object literal (not an Error instance) and one that throws a primitive (string, number), when the framework-level boundary catches, then the constructed record's category defaults to `unknown` when no code pattern maps, message defaults to a controlled placeholder (never the raw thrown value), and the wire response follows ADR-1703's transport mapping the same as for an Error. The check drives fixture endpoints that throw `{foo: 1}` and `'string thrown'` and inspects the emitted record and the wire response.",
+      "given": "fixture endpoints that throw non-Error values (a plain object and a bare string)",
+      "when": "the framework-level boundary catches",
+      "then": "the record's category resolves to `unknown` (no code pattern), the message is a controlled placeholder (not the raw thrown value), and the wire response is written via ADR-1703's transport mapping",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-16102-4",
+      "description": "Given a handler that throws AFTER the response body has already begun streaming to the client (headers flushed, partial body written), when the framework-level boundary observes the exception, then the connection is closed without attempting to rewrite the wire response, exactly one error record emits through the logging companion at error level naming the streaming-in-progress condition, and the boundary contract records the emitted record with category `unknown` unless the throwing site supplied one.",
+      "given": "a handler that has flushed headers and started streaming when an exception fires",
+      "when": "the framework-level boundary observes the mid-stream exception",
+      "then": "the connection is closed cleanly, one record emits through the logging companion at error level naming the streaming-in-progress condition, and no further bytes are written to the wire",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[1]"
+      }
     }
   ],
   "tacIds": [
     "TAC-1701-application-error-handling-boundary"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

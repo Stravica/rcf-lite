@@ -1,5 +1,10 @@
 # application-charts CHANGELOG
 
+## 1.0.2 (B6a application core completion pass, 2026-09-09)
+
+- Adds top-level elicits[] block on blueprint.json declaring the two apply-time answers (chart-engine, palette-overrides); each option value backed by a must REQ description with a runtime clause per section 7c. REQ-001 gains the chart-engine token set (recharts, echarts, chart-js, d3-primitives, hand-authored-svg) and the canvas-only refusal clause.
+- Adds refusal-path ACs to US-18101 (per-form binder check, specialised-form CALLS MADE, empty-data-set labelled block), US-18102 (deuteranopia simulation check, direct-label rule vs legend-only, unique colour+pattern combination), US-18103 (cell-value match check, same-landmark rule, visually-hidden-vs-display:none), US-18104 (announced-string field order, series-by-series traversal, prefers-reduced-motion), US-18105 (dark-background contrast, undersupplied palette warning, runtime theme flip). Every story now at the 7a floor (4-5 ACs per story, 29 ACs total).
+
 ## 1.0.1 (B6a application core hardening, 2026-09-09)
 
 - B6a hardening pass: chain-consistency lint zero (pass1 + pass2 already clean at baseline); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b.

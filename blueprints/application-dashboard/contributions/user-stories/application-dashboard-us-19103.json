@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19103",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-003",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Every tile honours the four-state contract with distinct visuals, role region, aria-live polite and non-colour distinction",
   "asA": "screen-reader user and colour-blind reader on the shipped dashboard",
@@ -28,6 +28,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-19103-3",
+      "description": "Given a rendered tile whose state is conveyed only through colour (a red border for error, a grey wash for loading, no text label or role), the pack fails the check per WCAG 1.4.1; a passing tile combines a non-colour visual cue (a shape, a text label, a spinner motion) and the accessible name reads `<tile title>, <state>`.",
+      "given": "a rendered tile whose state distinction is colour-only",
+      "when": "the pack inspects the tile's visual and accessible name",
+      "then": "the check fails; a passing tile combines a non-colour visual cue with a labelled state announcement",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-19103-4",
+      "description": "Given a rendered tile in the `error` state, the tile carries the recorded reason (an error record's `code` or a short message) visible in the DOM within the tile's region; a tile in the error state with no visible reason (an empty error block, an icon-only error indicator) fails the check.",
+      "given": "a rendered tile in the error state",
+      "when": "the pack inspects the tile's region content",
+      "then": "the tile carries a visible reason (error code or short message); an empty or icon-only error tile fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-19103-5",
+      "description": "Given a tile transitioning rapidly across states (loading -> error -> loading -> populated within a 250ms window during a retry loop), the aria-live polite announcer coalesces or throttles announcements so assistive tech does not read four transitions in that window; the pack drives the fixture that fires the transitions and inspects the announcer's queued text at settle.",
+      "given": "a tile transitioning across four states within a 250ms window",
+      "when": "the aria-live polite announcer queues the transition text",
+      "then": "announcements are coalesced or throttled so the reader hears the settled state, not every intermediate flip",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "responsibilities[2]"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +79,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

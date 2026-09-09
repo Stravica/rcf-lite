@@ -51,13 +51,13 @@
     },
     {
       "id": "AC-2107-5",
-      "description": "Every admin-class request is audit-logged with the acting identity, the endpoint, the outcome, and the request id.",
+      "description": "Every admin-class request is audit-logged with the acting identity, the endpoint, the outcome, and the request id. Applying agent sets: the audit-log destination and retention window applied to admin-class requests.",
       "given": "an admin-class request, successful or rejected",
       "when": "the audit log is read",
       "then": "an entry records identity, endpoint, outcome, and request id",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2107-6",
@@ -71,13 +71,13 @@
     },
     {
       "id": "AC-2107-7",
-      "description": "Every service-class request is audit-logged with the calling service principal, and service-class traffic is counted under its own rate limit separate from user traffic.",
+      "description": "Every service-class request is audit-logged with the calling service principal, and service-class traffic is counted under its own rate limit separate from user traffic. Applying agent sets: the audit-log destination and the service principal namespace for service-class traffic; the per-service rate-limit tier.",
       "given": "service-class traffic at volume alongside user traffic",
       "when": "audit logs and rate-limit counters are inspected",
       "then": "service calls are attributed to the service principal and limited under the service-class limit, independent of user-class counters",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2107-8",
@@ -94,5 +94,5 @@
     "TAC-302-application-api-rest-auth-middleware"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

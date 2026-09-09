@@ -28,11 +28,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-16103-3",
+      "description": "Given a call to `createErrorRecord({code, category, cause: <deeply-nested cause 5 levels deep>})`, the returned record's `record.cause.cause.cause.cause.cause` chain is fully traversable and each level preserves its own `code`, `category` and `message`; the factory does NOT truncate the chain at an arbitrary depth (or if it does, the truncation is documented on the factory's contract as a maximum depth constant).",
+      "given": "createErrorRecord called with a 5-level nested cause chain",
+      "when": "the pack traverses the cause chain",
+      "then": "each level preserves its own code, category and message; the chain is either fully traversable or truncation is documented on the factory's contract",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16103-4",
+      "description": "Given `createErrorRecord({code, category, cause: <cause carrying its own context field with redactable fields>})`, the redaction pass applies to the cause's `context` at every level of the chain (not only the top-level record); a record whose top-level context is redacted but whose cause.context leaks PII fails the pack check.",
+      "given": "createErrorRecord with a cause carrying its own context with redactable fields",
+      "when": "the pack inspects the returned record's cause chain",
+      "then": "the redaction pass has applied to every level's context; unredacted cause context fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1702-application-error-handling-record-factory",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16103-5",
+      "description": "Given `createErrorRecord({code, category, cause: null})`, the returned record has `record.cause === null` (not undefined, not omitted); a record whose cause is undefined when the caller passed null fails the pack check because it breaks the schema contract on ADR-1701.",
+      "given": "createErrorRecord called with cause explicitly null",
+      "when": "the pack inspects the returned record",
+      "then": "record.cause is exactly null (not undefined, not omitted)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1701-application-error-handling-record-shape",
+        "field": "decision"
+      }
     }
   ],
   "tacIds": [
     "TAC-1702-application-error-handling-record-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

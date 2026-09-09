@@ -51,13 +51,13 @@
     },
     {
       "id": "AC-2109-5",
-      "description": "The declared maximum limit is enforced: a request exceeding it receives 400 with a problem-details body naming the maximum, and a request without a limit receives the declared default page size.",
+      "description": "The declared maximum limit is enforced: a request exceeding it receives 400 with a problem-details body naming the maximum, and a request without a limit receives the declared default page size. Applying agent sets: the declared maximum limit value and the declared default page size per collection.",
       "given": "requests with an oversized limit and with no limit",
       "when": "each is submitted",
       "then": "the oversized request receives 400 naming the maximum; the limitless request returns the default page size",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2109-6",
@@ -74,5 +74,5 @@
     "TAC-304-application-api-rest-resource-layer"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

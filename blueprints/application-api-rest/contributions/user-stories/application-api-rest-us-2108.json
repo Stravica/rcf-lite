@@ -21,23 +21,23 @@
     },
     {
       "id": "AC-2108-2",
-      "description": "GET on the resolved readiness path returns 200 only when every declared downstream dependency check (database, cache, queues) passes.",
+      "description": "GET on the resolved readiness path returns 200 only when every declared downstream dependency check (database, cache, queues) passes. Applying agent sets: the declared downstream dependency set (database, cache, queues) the readiness probe registers with.",
       "given": "an instance with all declared dependencies reachable and the readiness path resolved (Kubernetes profile default /ready) or supplied by project configuration",
       "when": "the resolved readiness path is called",
       "then": "it returns 200 with the specified schema listing each check as passing",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2108-3",
-      "description": "GET on the resolved readiness path returns 503 with a body enumerating the failed checks by name when any declared dependency is unreachable.",
+      "description": "GET on the resolved readiness path returns 503 with a body enumerating the failed checks by name when any declared dependency is unreachable. Applying agent sets: the declared dependency set whose names appear in the 503 body when unreachable.",
       "given": "an instance with one declared dependency down and the readiness path resolved as above",
       "when": "the resolved readiness path is called",
       "then": "it returns 503 and the body names the failing check while still listing the passing ones",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2108-4",
@@ -51,13 +51,13 @@
     },
     {
       "id": "AC-2108-5",
-      "description": "All three probes sit outside the auth middleware and outside rate limiting: the auth-middleware installer consumes exactly the resolved probe path set (the same list observability-probe-endpoints emits via TAC-1501 getExemptPathSet, or the exact set derived from `probeInterface.paths` in the essentials-alone case), so each probe succeeds with no credentials and is never 401, 403, or 429; adjacent routes never fall under the same exemption.",
+      "description": "All three probes sit outside the auth middleware and outside rate limiting: the auth-middleware installer consumes exactly the resolved probe path set (the same list observability-probe-endpoints emits via TAC-1501 getExemptPathSet, or the exact set derived from `probeInterface.paths` in the essentials-alone case), so each probe succeeds with no credentials and is never 401, 403, or 429; adjacent routes never fall under the same exemption. Applying agent sets: the resolved probe path set the composed application ships (observability-probe-endpoints TAC-1501 getExemptPathSet output or the derived set).",
       "given": "a running instance with the resolved probe path set exposed to the auth-middleware installer",
       "when": "each probe is called with no credentials at sustained frequency AND an adjacent user-traffic route is also called unauthenticated",
       "then": "every probe call is answered on probe semantics alone, never with an auth or rate-limit status; the adjacent route returns the auth middleware unauthenticated response",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2108-6",
@@ -71,13 +71,13 @@
     },
     {
       "id": "AC-2108-7",
-      "description": "The generated OpenAPI document names the three probe surfaces (liveness, readiness, startup) and their resolved paths, plus each probes success and failure schemas and its documented failure mode; the resolved paths are computed at documentation-generation time from the composed observability-probe-endpoints blueprint or from project configuration.",
+      "description": "The generated OpenAPI document names the three probe surfaces (liveness, readiness, startup) and their resolved paths, plus each probes success and failure schemas and its documented failure mode; the resolved paths are computed at documentation-generation time from the composed observability-probe-endpoints blueprint or from project configuration. Applying agent sets: the resolved probe path values named in the OpenAPI document at documentation-generation time.",
       "given": "the generated OpenAPI document produced for a project that has resolved its probe paths",
       "when": "the three probe entries are read",
       "then": "each declares its success and failure schemas and its documented failure mode; every entry path is the resolved path (no legacy literal probe-path prefix appears in the generated document)",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2108-8",
@@ -108,5 +108,5 @@
     "TAC-306-application-api-rest-operability"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-09-04T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

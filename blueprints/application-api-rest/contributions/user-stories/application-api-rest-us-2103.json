@@ -45,28 +45,28 @@
     },
     {
       "id": "AC-2103-4",
-      "description": "Every response from a deprecated version carries Deprecation and Sunset headers with the retirement date.",
+      "description": "Every response from a deprecated version carries Deprecation and Sunset headers with the retirement date. Applying agent sets: the retirement date on Deprecation and Sunset headers per deprecated version.",
       "given": "a version marked deprecated",
       "when": "any of its endpoints responds",
       "then": "Deprecation and Sunset headers are present and the Sunset date matches the declared policy",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2103-5",
-      "description": "The version-drop policy is stated in the served documentation: minimum notice period and the response clients receive after drop (410 with a problem-details body pointing at the successor version).",
+      "description": "The version-drop policy is stated in the served documentation: minimum notice period and the response clients receive after drop (410 with a problem-details body pointing at the successor version). Applying agent sets: the minimum notice period and the successor version name in the served documentation.",
       "given": "the served documentation and a dropped version",
       "when": "a request reaches a dropped version",
       "then": "the service responds 410 with the declared error envelope naming the successor, matching the documented policy",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-304-application-api-rest-resource-layer"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-09-04T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

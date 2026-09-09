@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18103",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-003",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Every chart ships a paired text-alternative table with the same data, focus-reachable in the same landmark",
   "asA": "screen-reader user using the shipped surface",
@@ -28,6 +28,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-18103-3",
+      "description": "Given a rendered chart, when the pack inspects each cell of the paired text-alternative `<table>`, every cell's text value matches the chart's rendered value for the same (x, series) coordinate to the same precision the chart renders; a mismatched or missing cell fails the pack check.",
+      "given": "a rendered chart and its paired text-alternative table",
+      "when": "the pack walks each cell",
+      "then": "every cell's text value matches the chart's rendered value for the same (x, series) coordinate; mismatch or missing cell fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-18103-4",
+      "description": "Given a rendered chart whose paired `<table>` is missing from the same landmark (the `<table>` renders in an unrelated section, or under a different `role=\"region\"`), the pack fails the check per REQ-003; a passing chart has both the chart and the table under the same landmark element (a shared `role=\"region\"` or the same `<section>`).",
+      "given": "a rendered chart whose paired table is outside the chart's landmark",
+      "when": "the pack inspects the landmark boundaries",
+      "then": "the check fails; a passing chart has both chart and table inside the same landmark",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-18103-5",
+      "description": "Given a rendered chart whose text-alternative table is visually-hidden with `display: none` (making it inert for assistive tech), the pack fails the check; a passing visually-hidden table uses a technique that keeps the table in the accessibility tree (`clip-path` or the `sr-only` pattern with `position: absolute; width: 1px; height: 1px; overflow: hidden`) so screen readers can reach the cells.",
+      "given": "a rendered chart whose text-alternative table is hidden with display:none",
+      "when": "the pack inspects the accessibility tree",
+      "then": "the check fails; a passing hidden table uses a technique that keeps the cells in the accessibility tree",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[2]"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +79,5 @@
     "blueprint:application-charts"
   ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

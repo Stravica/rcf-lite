@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18101",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Every chart on the shipped surface names one of the six committed forms and honours the render-shell contract",
   "asA": "product owner responsible for the shipped surface's data affordances",
@@ -28,6 +28,44 @@
       "testable": true,
       "scope": "library",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-18101-3",
+      "description": "Given a rendered chart, when the chart's declared form matches one of the six committed forms (bar, line, area, pie, donut, single-value, sparkline, heatmap), the shell exposes a per-form binder resolving the values to the form's DOM primitives (rects for bar, path for line and area, arcs for pie or donut, one text node for single-value, mini-path for sparkline, grid cells for heatmap); a form whose binder is absent fails the pack check.",
+      "given": "a rendered chart of one of the six committed forms",
+      "when": "the pack inspects the shell's form binder",
+      "then": "the shell exposes the per-form binder resolving values to the form's DOM primitives; a missing binder fails the check",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-18101-4",
+      "description": "Given a specialised form the applying project needs (a candlestick, a Sankey), the project's README carries a CALLS MADE entry naming the deviation and the project supersedes REQ-001 with a project-authored REQ that names the deviating form; a specialised form without a documented CALLS MADE + superseding REQ fails project-side review.",
+      "given": "an applying project shipping a form outside the six committed",
+      "when": "review inspects the project's CALLS MADE and REQ set",
+      "then": "the deviation is documented with a project-authored superseding REQ; an undocumented deviation fails review",
+      "testable": true,
+      "scope": "unclassified",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-18101-5",
+      "description": "Given a rendered chart whose form is declared correctly but whose data set is empty (no series values), the shell renders a labelled empty-state block (`role=\"region\"` with an accessible name naming the empty condition) inside the same landmark as the chart; a shell that renders a blank chart canvas with no announcement fails the pack check.",
+      "given": "a rendered chart with an empty data set",
+      "when": "the pack inspects the shell's render",
+      "then": "the shell renders a labelled empty-state block with an accessible name inside the chart's landmark; a silent blank chart fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[0]"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +75,5 @@
     "blueprint:application-charts"
   ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

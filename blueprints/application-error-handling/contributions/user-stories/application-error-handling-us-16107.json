@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16107",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The boundary is substitutable via the framework interface so tests exercise it without booting the whole stack",
   "asA": "test author verifying that a specific exception produces the expected record",
@@ -22,11 +22,53 @@
         "field": "interfaces[0].name"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-16107-2",
+      "description": "Given `boundaryFor({ loggerFactory: null, transportWriter: <stub> })` called with a null or undefined loggerFactory, the constructor refuses with a controlled error naming the missing dependency; no partial boundary is returned. Symmetric refusal for `boundaryFor({ loggerFactory: <stub>, transportWriter: null })`. The check enumerates the two null-injection shapes and inspects the thrown error.",
+      "given": "boundaryFor called with a null or undefined loggerFactory or transportWriter",
+      "when": "the constructor validates its arguments",
+      "then": "it throws a controlled error naming the missing dependency; no partial boundary is returned",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0]"
+      }
+    },
+    {
+      "id": "AC-16107-3",
+      "description": "Given a constructed boundary with a stub loggerFactory, when `boundary.handle(err, context)` is called with a synthetic error, then the stub loggerFactory's `error()` receives exactly one call whose first argument is the constructed record (record.code, record.category, record.correlationId present), the stub transportWriter receives exactly one call carrying the same record, and no direct process.stderr.write fires during the call.",
+      "given": "a boundary constructed with stub loggerFactory and transportWriter, invoked on a synthetic error",
+      "when": "handle(err, context) is called",
+      "then": "the stubs each receive exactly one call carrying the constructed record; no process.stderr.write fires during the call",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0]"
+      }
+    },
+    {
+      "id": "AC-16107-4",
+      "description": "Given a constructed boundary, when `boundary.handle(err, context)` is called and the stub transportWriter throws, then the boundary contract catches the transport failure, emits one additional record through the stub loggerFactory naming the transport failure, and does not re-throw; the caller (the framework) sees a clean return.",
+      "given": "a boundary whose stub transportWriter throws when called",
+      "when": "boundary.handle fires",
+      "then": "the boundary catches the transport throw, emits one additional record through the loggerFactory naming the transport failure, and returns cleanly to the caller",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0]"
+      }
     }
   ],
   "tacIds": [
     "TAC-1701-application-error-handling-boundary"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

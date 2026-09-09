@@ -1,6 +1,6 @@
 {
   "slug": "application-error-handling",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "category": "application",
   "providesRoles": [
     "errorHandling"
@@ -9,6 +9,14 @@
     {
       "role": "logging",
       "reason": "The internal error record emits through the logging companion, not direct stdout or stderr writes; a logging companion supplies the factory the boundary calls."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "classification-additions",
+      "prompt": "Additional error classification categories the project adds to the recommended default set (transient, permanent, unknown). Comma-separated kebab or dotted-namespace tokens (rate-limited, quota-exceeded, dependency-degraded); refused at boot otherwise. Applied alongside the defaults.",
+      "kind": "string",
+      "default": ""
     }
   ],
   "contributions": [

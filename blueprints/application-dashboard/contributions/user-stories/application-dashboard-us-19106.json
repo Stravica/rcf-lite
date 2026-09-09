@@ -42,6 +42,34 @@
         "tacId": "TAC-2003-application-dashboard-export-handle",
         "field": "interfaces[0].name"
       }
+    },
+    {
+      "id": "AC-19106-4",
+      "description": "Given the export handle's format list is open, when the operator presses Escape, the list closes and focus returns to the labelled `<button>` that opened it (not to the document body); a list that returns focus elsewhere fails the pack check per WCAG 2.4.3 focus return.",
+      "given": "the export format list open and the operator pressing Escape",
+      "when": "the list closes",
+      "then": "focus returns to the labelled button that opened the list; a focus return to elsewhere fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2003-application-dashboard-export-handle",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19106-5",
+      "description": "Given an elicited `export-formats` list that adds an operator-authored format token (an XLSX, an SVG), when the operator opens the export list, the operator-authored formats append AFTER the shipped set (csv, pdf, png-chart) in the accessible list; each carries an operator-supplied `label` and the `data-export-format` value the operator elicited. Applying agent sets: the elicited format tokens and their labels.",
+      "given": "an elicited export-formats list adding operator-authored tokens",
+      "when": "the pack inspects the export list DOM",
+      "then": "operator-authored formats appear after the shipped set, each carrying an operator label and data-export-format value",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "adrId": "ADR-2003-application-dashboard-export-formats",
+        "field": "decision"
+      }
     }
   ],
   "tacIds": [
@@ -51,5 +79,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

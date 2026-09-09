@@ -1,6 +1,6 @@
 {
   "slug": "application-dashboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -10,6 +10,45 @@
     {
       "role": "errorHandling",
       "reason": "A tile whose fetch fails renders the error-state visual per REQ-003; the error-state contract needs a project-side error-record factory the application-error-handling companion provides."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "primary-kpi-kind",
+      "prompt": "Primary KPI kind for the top-left tile: revenue, active-users, error-rate, throughput or custom. The elicited value lands on the primary tile as data-kpi-kind.",
+      "kind": "enum",
+      "options": [
+        "revenue",
+        "active-users",
+        "error-rate",
+        "throughput",
+        "custom"
+      ],
+      "default": "revenue"
+    },
+    {
+      "id": "primary-kpi-custom-name",
+      "prompt": "Custom primary KPI short name. Applies only when primary-kpi-kind is custom; the value lands on the primary tile as data-kpi-name. Ignored otherwise.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "timeframe-presets",
+      "prompt": "Timeframe presets the timeframe picker offers, comma separated (missing presets from the shipped set are ignored, extra presets append). Recommended default: last-7-days, last-30-days, quarter-to-date.",
+      "kind": "string",
+      "default": "last-7-days,last-30-days,quarter-to-date"
+    },
+    {
+      "id": "auto-refresh-interval-seconds",
+      "prompt": "Auto-refresh interval in seconds for the whole dashboard fan-out. 0 keeps auto-refresh off (the ship default); a positive integer sets data-auto-refresh on the shell root and refetches on the same fan-out contract at that interval.",
+      "kind": "string",
+      "default": "0"
+    },
+    {
+      "id": "export-formats",
+      "prompt": "Export formats the export handle offers, comma separated (missing formats from the shipped set are ignored, extra formats append with an operator-supplied label). Recommended default: csv, pdf, png-chart.",
+      "kind": "string",
+      "default": "csv,pdf,png-chart"
     }
   ],
   "contributions": [

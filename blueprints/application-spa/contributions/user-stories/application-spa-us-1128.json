@@ -41,15 +41,15 @@
     },
     {
       "id": "AC-1128-4",
-      "description": "Route-level code splitting keeps any single route's initial JavaScript payload within the budget declared in the project; no route loads the whole application to render itself.",
+      "description": "Route-level code splitting keeps any single route's initial JavaScript payload within the budget declared in the project; no route loads the whole application to render itself. Applying agent sets: the per-route initial JavaScript payload budget declared by the applying project.",
       "given": "the production bundle map",
       "when": "per-route payloads are measured",
       "then": "each route loads only its declared chunks within budget",
       "testable": true,
       "scope": "deployed",
-      "disposition": "fixed"
+      "disposition": "template"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

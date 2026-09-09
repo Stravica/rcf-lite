@@ -1,5 +1,10 @@
 # application-dashboard CHANGELOG
 
+## 1.0.2 (B6a application core completion pass, 2026-09-09)
+
+- Adds top-level elicits[] block on blueprint.json declaring the five apply-time answers (primary-kpi-kind, primary-kpi-custom-name, timeframe-presets, auto-refresh-interval-seconds, export-formats); each option value backed by a must REQ description with a runtime clause per section 7c. REQ-002 gains a data-kpi-name clause when kind is custom; REQ-004 gains an auto-refresh-interval-seconds clause; REQ-005 gains the lowercase csv/pdf/png-chart format tokens.
+- Adds refusal-path ACs to US-19101 (silent region omission, duplicate region names, empty chart region), US-19102 (360 row-start conflict, custom kind requires data-kpi-name, invalid enum value), US-19103 (colour-only distinction refusal, error state requires visible reason, rapid-transition announcement throttling), US-19105 (invalid filter input, subset-reject fan-out stamp advancement, Clear filters reset), US-19107 (per-rule guidance check, design-guidance asset present, documented CALLS MADE deviation). US-19104 and US-19106 also extended with concurrent-preset cancellation, whole-surface failure announcement, elicited preset support and Escape focus return plus operator-authored export formats. Every story now at the 7a floor (3-5 ACs per story, 35 ACs total).
+
 ## 1.0.1 (B6a application core hardening, 2026-09-09)
 
 - B6a hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b, closed `primary-KPI` case drifts in AC-19107-2, ADR-2001 and the guide body to match the `primary-kpi` spelling owned by TAC-2001.responsibilities[0].

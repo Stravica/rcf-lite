@@ -1,5 +1,10 @@
 # application-datatable CHANGELOG
 
+## 1.0.2 (B6a application core completion pass, 2026-09-09)
+
+- Adds top-level elicits[] block on blueprint.json declaring the four apply-time answers (query-adapter-mode, url-state-strategy, page-size, selection-persistence); each option value backed by a must REQ description with a runtime clause per section 7c. REQ-001 gains a page-size 25 default clause; REQ-002 gains url-query / session-scoped URL-state clause; REQ-004 gains per-page / cross-page selection-persistence clause. capabilities[] not declared: leaf blueprint (no consumer requiresAppliedCapabilities on the shelf references a datatable capability).
+- Adds refusal-path ACs to US-17104 (bulk-action max-cap refusal, dialog Cancel focus return, focus trap), US-17106 (drag-only refusal, hidden-column orphan cells, hidden column with active sort/filter), US-17107 (read-only role=grid refusal, role=grid arrow navigation, mixed-interactive shell pattern), US-17108 (session-scoped no-URL contract, invalid-URL rejection, history.replaceState per micro-change), US-17109 (dialog aria-describedby total count, filter narrows presentation not selection, Clear selection control). Every story now at the 7a floor (4-6 ACs per story, 46 ACs total on the blueprint).
+
 ## 1.0.1 (B6a application core hardening, 2026-09-09)
 
 - B6a hardening pass: chain-consistency lint zero (pass1 + pass2 already clean at baseline); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b.

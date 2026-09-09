@@ -31,13 +31,13 @@
     },
     {
       "id": "AC-2114-3",
-      "description": "The declared log level per auth class is honoured: request completion lines are emitted at the class's declared level, and level configuration changes take effect without a code change.",
+      "description": "The declared log level per auth class is honoured: request completion lines are emitted at the class's declared level, and level configuration changes take effect without a code change. Applying agent sets: the declared log level per auth class.",
       "given": "the declared per-class log levels",
       "when": "traffic flows through each class",
       "then": "completion lines appear at the declared level per class",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2114-4",
@@ -64,5 +64,5 @@
     "TAC-305-application-api-rest-observability"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

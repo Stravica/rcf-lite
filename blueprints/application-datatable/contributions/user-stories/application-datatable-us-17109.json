@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17109",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Selection persistence across pages holds the elicited contract and announces the running count",
   "asA": "operator selecting rows across several pages before running a bulk action",
@@ -38,6 +38,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-17109-4",
+      "description": "Given `selectionPersistence=cross-page` and the operator selects rows across pages then activates a bulk action, when the confirmation dialog opens the dialog's `aria-describedby` region names the total selected count (across pages) and the counts per page in a way the operator can verify before confirming; a dialog naming only the current page's count fails the pack check.",
+      "given": "cross-page selection and an operator opening the bulk-action confirmation dialog",
+      "when": "the pack inspects the dialog's aria-describedby content",
+      "then": "the region names the total selected count across pages and per-page counts; a per-page-only count fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1803-application-datatable-selection-model",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17109-5",
+      "description": "Given `selectionPersistence=cross-page` and the operator selects rows on pages 1 and 2 then filters the visible rows down to a set that excludes some selected rows, when the pack inspects the selection model, the previously selected but now filtered-out row ids remain in the selection model (filter narrows presentation, not selection); the accessible chrome names the retained-but-hidden count so the operator can see the total.",
+      "given": "cross-page selection followed by a filter that hides some selected rows",
+      "when": "the pack inspects the selection model and accessible chrome",
+      "then": "the hidden-but-selected row ids remain in the model and the chrome names the retained-but-hidden count",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1803-application-datatable-selection-model",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17109-6",
+      "description": "Given the selection model, when the operator invokes a `Clear selection` control, all selected row ids are removed, the running-count region announces zero, and every selection checkbox on the visible page returns to its unchecked state; the Clear selection control is keyboard-reachable and named `Clear selection` or an equivalent accessible name.",
+      "given": "the operator activating the Clear selection control",
+      "when": "the pack inspects the selection model and the visible checkboxes",
+      "then": "all selected row ids are removed, the running-count region announces zero, visible checkboxes are unchecked, and the control is keyboard-reachable with an accessible name",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1803-application-datatable-selection-model",
+        "field": "purpose"
+      }
     }
   ],
   "tacIds": [
@@ -47,5 +89,5 @@
     "blueprint:application-datatable"
   ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

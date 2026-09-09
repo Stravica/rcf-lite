@@ -25,13 +25,13 @@
     },
     {
       "id": "AC-2112-2",
-      "description": "An operation declared key-required rejects a request without the header: 400 with a problem-details body naming the missing header.",
+      "description": "An operation declared key-required rejects a request without the header: 400 with a problem-details body naming the missing header. Applying agent sets: the set of operations declared key-required.",
       "given": "a key-required operation",
       "when": "a request without idempotency-key is submitted",
       "then": "the service responds 400 with the error envelope naming the header",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-2112-3",
@@ -65,18 +65,18 @@
     },
     {
       "id": "AC-2112-6",
-      "description": "The de-duplication cache honours its declared TTL: within it replays occur, after it a reused key is treated as a fresh request, and the TTL value is documented.",
+      "description": "The de-duplication cache honours its declared TTL: within it replays occur, after it a reused key is treated as a fresh request, and the TTL value is documented. Applying agent sets: the de-duplication cache TTL value.",
       "given": "the declared TTL",
       "when": "a keyed request is repeated inside and after the TTL window",
       "then": "the inside repeat replays; the after repeat executes as new; the TTL matches its documentation",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-301-application-api-rest-request-pipeline"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

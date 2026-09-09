@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18104",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-004",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Interactive charts expose a keyboard traversal path with a stable announced-string contract",
   "asA": "keyboard-only user reading an interactive chart",
@@ -28,6 +28,48 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-18104-3",
+      "description": "Given an interactive chart, when the keyboard focus reaches a data point, the announced string contract reads `<series name>, <x value>, <y value> <unit>` in that order (comma or space separated); a chart whose announcement omits the series name on a multi-series chart or omits the unit fails the pack check.",
+      "given": "keyboard focus on a data point in an interactive multi-series chart",
+      "when": "the pack captures the announced string",
+      "then": "the string reads `<series name>, <x value>, <y value> <unit>`; an omitted series or unit fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1902-application-charts-keyboard-traversal",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-18104-4",
+      "description": "Given an interactive multi-series chart, the keyboard traversal moves series-by-series (all points on series 1 in x order, then all points on series 2 in x order, and so on); a chart whose traversal moves in x-first order across all series (a zig-zag pattern) fails the pack check per REQ-004's series-by-series reading order.",
+      "given": "keyboard traversal on an interactive multi-series chart",
+      "when": "the pack captures the focus order",
+      "then": "traversal is series-by-series in x order; an x-first zig-zag fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1902-application-charts-keyboard-traversal",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-18104-5",
+      "description": "Given an interactive chart under `prefers-reduced-motion: reduce`, the entry and update transitions of the chart honour zero-duration (no animated tween, no easing curve); a chart whose entry animation still fires under reduced-motion fails the pack check per REQ-004 and ADR-1903.",
+      "given": "an interactive chart under prefers-reduced-motion: reduce",
+      "when": "the pack inspects entry and update transitions",
+      "then": "transitions honour zero duration; an animated entry under reduced-motion fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1903-application-charts-motion",
+        "field": "decision"
+      }
     }
   ],
   "tacIds": [
@@ -38,5 +80,5 @@
     "blueprint:application-charts"
   ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

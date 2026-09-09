@@ -1,5 +1,9 @@
 # application-spa CHANGELOG
 
+## 1.5.2 (B6a application core completion pass, 2026-09-09)
+
+- Donor hand-sweep on all 197 ACs: flipped 17 additional ACs from fixed to template where the assertion carries a project-set literal (per-project section inventories, viewport table widths, journey-inventory checkpoints and events, per-route empty-state text, cache-invalidation entry sets, canonical URL shapes cache keys derive from, offline telemetry buffer bound N, per-route payload budgets, external-dependency inventory, deferral-record path and metadata, core-flow definitions). Each flipped AC carries an Applying agent sets: <specific values> clause. Final split: 175 fixed / 22 template.
+
 ## 1.5.1 (B6a application core hardening, 2026-09-09)
 
 - B6a hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ pointing at a TAC responsibility or interface, added ownerRef and disposition to every AC per section 7b, closed case drifts on `content-security-policy` in REQ-018, AC-1125-1 and AC-1131-1 to match the owner spelling on TAC-209.

@@ -1,6 +1,6 @@
 {
   "slug": "application-datatable",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -10,6 +10,44 @@
     {
       "role": "errorHandling",
       "reason": "A partial-load failure or a bulk-action refusal constructs an internal error record; an error-handling companion supplies the factory and the boundary."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "query-adapter-mode",
+      "prompt": "Query adapter mode: server-side (the shell issues sort, filter and pagination requests against the query adapter) or client-side (the shell filters and sorts an in-memory collection). Recommended default: server-side.",
+      "kind": "enum",
+      "options": [
+        "server-side",
+        "client-side"
+      ],
+      "default": "server-side"
+    },
+    {
+      "id": "url-state-strategy",
+      "prompt": "URL state strategy: url-query (sort, filter and page write to the URL via history.replaceState so reload and share preserve the view) or session-scoped (state is kept in memory for the shell mount lifetime). Recommended default: url-query.",
+      "kind": "enum",
+      "options": [
+        "url-query",
+        "session-scoped"
+      ],
+      "default": "url-query"
+    },
+    {
+      "id": "page-size",
+      "prompt": "Default page size in rows. The operator elicits an override at apply; a pageSize in the URL still overrides for one view. Recommended default: 25.",
+      "kind": "string",
+      "default": "25"
+    },
+    {
+      "id": "selection-persistence",
+      "prompt": "Selection persistence: per-page (selection resets on pagination advance and the shell surfaces the reset near the bulk action controls) or cross-page (selection persists across pagination for the shell mount lifetime). Recommended default: per-page.",
+      "kind": "enum",
+      "options": [
+        "per-page",
+        "cross-page"
+      ],
+      "default": "per-page"
     }
   ],
   "contributions": [

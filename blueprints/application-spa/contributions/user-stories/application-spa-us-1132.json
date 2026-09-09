@@ -11,13 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1132-1",
-      "description": "Every external-service dependency the application declares (email transports, payment providers, third-party API adapters, transactional-mail senders, SMS gateways, storage providers, and any other network dependency the runtime reaches for at request-time) is enumerated in a stable, discoverable manifest at ship-time. The manifest names, per dependency, the dependency id, the purpose, the credential field name, the intended provider, and a status of either 'verified' or 'deferred'. A dependency the app calls at runtime but does NOT declare in the manifest is a hard refusal.",
+      "description": "Every external-service dependency the application declares (email transports, payment providers, third-party API adapters, transactional-mail senders, SMS gateways, storage providers, and any other network dependency the runtime reaches for at request-time) is enumerated in a stable, discoverable manifest at ship-time. The manifest names, per dependency, the dependency id, the purpose, the credential field name, the intended provider, and a status of either 'verified' or 'deferred'. A dependency the app calls at runtime but does NOT declare in the manifest is a hard refusal. Applying agent sets: the enumerated external-service dependency set the applying project ships.",
       "given": "the application boot topology at ship",
       "when": "the external-service-dependency manifest is inspected",
       "then": "the manifest exists at the stable path the probe reads, enumerates every runtime-reached external service, and names a status per dependency; any runtime-reached external service missing from the manifest refuses ship",
       "testable": true,
       "scope": "deployed",
-      "disposition": "fixed",
+      "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
         "field": "interfaces[3].name"
@@ -53,13 +53,13 @@
     },
     {
       "id": "AC-1132-4",
-      "description": "A dependency at status 'deferred' requires an operator-ratified deferral record persisted at a stable project-owned path. The record names the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. A README note, a status.md 'quirk' or 'known-issue' line, a code comment, a commit message, or a work-item link on its own does NOT satisfy the deferral requirement. Absence of a ratified record for a 'deferred' dependency refuses ship.",
+      "description": "A dependency at status 'deferred' requires an operator-ratified deferral record persisted at a stable project-owned path. The record names the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. A README note, a status.md 'quirk' or 'known-issue' line, a code comment, a commit message, or a work-item link on its own does NOT satisfy the deferral requirement. Absence of a ratified record for a 'deferred' dependency refuses ship. Applying agent sets: the deferral-record path, the acknowledging operator identifier, the acknowledgement timestamp and the intended re-verification deadline.",
       "given": "a dependency declared with status 'deferred' on the external-service-dependency manifest",
       "when": "the probe checks for the deferral record at the manifest-named path",
       "then": "the record exists at the stable path, carries the required fields, and is not stale beyond the ratified window; the run refuses ship on any missing, malformed, or expired record",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
+      "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
         "field": "interfaces[3].name"
@@ -98,5 +98,5 @@
     "TAC-210-application-spa-external-dependency-provisioning-probe"
   ],
   "createdAt": "2026-08-24T13:00:00Z",
-  "updatedAt": "2026-08-24T13:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
