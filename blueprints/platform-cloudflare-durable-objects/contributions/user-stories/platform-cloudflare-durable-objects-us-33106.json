@@ -16,12 +16,16 @@
       "when": "the event-secrecy probe runs on the shipped code path",
       "then": "every record contains only allowed keys; the forbidden-key scan finds zero hits; SIMULATE_PII_LEAK=true surfaces the injected fields",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
     }
   ],
   "tacIds": [
     "TAC-3405-platform-cloudflare-durable-objects-event-sink"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:00:00.000Z"
 }

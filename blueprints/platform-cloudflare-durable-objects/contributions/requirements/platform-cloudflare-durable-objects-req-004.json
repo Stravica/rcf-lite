@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+    "field": "responsibilities.doAlarmFired"
+  }
 }

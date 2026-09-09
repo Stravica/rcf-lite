@@ -16,12 +16,16 @@
       "when": "alarm() is driven once and then again after the fire",
       "then": "the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm() returns null after the first fire",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.alarm"
+      }
     }
   ],
   "tacIds": [
     "TAC-3403-platform-cloudflare-durable-objects-alarm-handler"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:00:00.000Z"
 }

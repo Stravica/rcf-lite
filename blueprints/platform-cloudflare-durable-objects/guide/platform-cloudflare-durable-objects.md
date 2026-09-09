@@ -5,7 +5,7 @@
 You reach for `platform-cloudflare-durable-objects` when your
 Worker needs strongly consistent authoritative state, coordinated
 multiplayer websocket connections, or both on the same DO namespace
-mechanic. Two shapes ship in one blueprint: the SINGLE-CELL shape
+mechanic. Two shapes ship in one blueprint: the single-cell shape
 (counter, session store, lock, coordinator) and the WEBSOCKET-HUB
 shape (rooms, presence, live cursors).
 
@@ -19,7 +19,7 @@ v1.1.0 (round-6 minor bump per spec section 5.7).
 ## Decision tree
 
 - Strongly consistent authoritative cell (counter, session store,
-  lock, coordinator) -> SINGLE-CELL shape (this blueprint,
+  lock, coordinator) -> single-cell shape (this blueprint,
   `platform-cloudflare-durable-objects` v1.0.0).
 - Coordinated multiplayer websocket connections in one authoritative
   hub (rooms, live cursors, presence) -> WEBSOCKET-HUB shape (this

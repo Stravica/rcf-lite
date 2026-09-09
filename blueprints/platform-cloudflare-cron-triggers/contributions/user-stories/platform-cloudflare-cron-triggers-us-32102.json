@@ -11,12 +11,16 @@
   "acceptanceCriteria": [
     {
       "id": "AC-32102-1",
-      "description": "createDispatcher({routes, eventSink, skewToleranceMs, softBudgetMs, clock?}) returns a dispatch(event) function. Calling dispatch({cron, scheduledTime}) invokes exactly the handler whose expression string-equals the cron field, passes {expression, scheduledTime, sink} to it, and returns without invoking any other route's handler.",
+      "description": "createDispatcher({routes, sink, skewToleranceMs, softBudgetMs, clock?}) returns a dispatch(event) function. Calling dispatch({cron, scheduledTime}) invokes exactly the handler whose expression string-equals the cron field, passes {expression, scheduledTime, sink} to it, and returns without invoking any other route's handler.",
       "given": "a dispatcher wired with two routes and two spy handlers",
       "when": "dispatch is called with a specific expression matching one route",
       "then": "only the matched spy handler is invoked exactly once with the bounded context",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "interfaces.dispatch"
+      }
     },
     {
       "id": "AC-32102-2",
@@ -28,7 +32,9 @@
       "scope": "runtime"
     }
   ],
-  "tacIds": ["TAC-3302-platform-cloudflare-cron-triggers-expression-router"],
+  "tacIds": [
+    "TAC-3302-platform-cloudflare-cron-triggers-expression-router"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T20:00:00.000Z"
 }
