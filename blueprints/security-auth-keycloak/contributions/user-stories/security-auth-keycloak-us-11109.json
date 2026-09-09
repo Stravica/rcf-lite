@@ -16,7 +16,8 @@
       "when": "the request is dispatched and the resolved `request.auth` object is inspected for keys",
       "then": "the object contains exactly `principalId`, `provider`, `email`, `roles`, `organisationIds`; no `accessToken`, `idToken`, `refreshToken`, or raw-claims field is present; `principalId` is a stable string starting with the realmSlug followed by a colon",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11109-2",
@@ -25,7 +26,8 @@
       "when": "the request is dispatched",
       "then": "the mechanism verifies the token, populates the reduced Principal, and does not create a session-record entry (the session-record store's `put` port is not invoked); `request.auth` carries only the fields listed in AC-11109-1; no `Set-Cookie` is emitted by the mechanism on this response",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

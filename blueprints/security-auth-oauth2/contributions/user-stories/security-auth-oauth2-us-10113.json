@@ -1,0 +1,68 @@
+{
+  "usId": "security-auth-oauth2-US-10113",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-012",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A signed-in caller reaches account, password and recovery through the provider's self-service surface",
+  "asA": "operator signed in through an OAuth2 provider who wants to change their password or set up MFA",
+  "iWant": "the project to send me to the provider's hosted account surface rather than owning a credential-change form",
+  "soThat": "credential material never leaves the identity source",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10113-1",
+      "description": "A provider record with `credentialSelfService: true` and no `accountUrl` refuses at boot.",
+      "given": "a provider record whose `credentialSelfService` is `true` and whose `accountUrl` is absent",
+      "when": "the provider adapter runs its boot-time validation",
+      "then": "boot refuses with stable-coded `OAUTH2_ACCOUNT_URL_MISSING` naming the provider id; the audit sink records one `oauth2.account_url_missing` event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10113-2",
+      "description": "`getCredentialSelfServiceUrl(principal)` returns the resolved provider `accountUrl` for the caller's provider. Applying-agent responsibility: The applying agent sets each provider record's `accountUrl` value against the provider's documented self-service origin. The AC binds the shape; the value belongs to the applied project.",
+      "given": "a caller signed in through provider `google` and a provider record for `google` whose `accountUrl` is `https://myaccount.google.com`",
+      "when": "a project route calls `getCredentialSelfServiceUrl(request.auth)`",
+      "then": "the return value is exactly `https://myaccount.google.com`; the helper appends no query parameters, no fragment, and no additional path segment",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-10113-3",
+      "description": "A provider record whose `accountUrl` origin does not match the provider's documented sign-in origin is refused at boot. Applying-agent responsibility: The origin-check compares against the provider record's documented self-service origin; the applying agent sets the expected origin for each provider they configure.",
+      "given": "a provider record for `google` whose `accountUrl` is `https://example.com/account`",
+      "when": "the provider adapter runs its boot-time validation",
+      "then": "boot refuses with stable-coded `OAUTH2_ACCOUNT_URL_ORIGIN` naming the provider id and the observed origin; the record is not loaded",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-10113-4",
+      "description": "A provider that offers no self-service surface carries `accountUrl: null` and `credentialSelfService: false`; the applied capability set reflects `credentialSelfService` as absent for callers signed in through that provider.",
+      "given": "a provider record whose `accountUrl` is `null` and whose `credentialSelfService` is `false`",
+      "when": "a caller signed in through that provider invokes `getCredentialSelfServiceUrl`",
+      "then": "the helper returns `null`; the applied capability set does not report `credentialSelfService` as active for that caller's provider",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10113-5",
+      "description": "No project route renders a credential-change form of its own.",
+      "given": "the applied blueprint at v1.3.0 and a source-tree scan of the project's contributed pages",
+      "when": "a static scan looks for `type=password` inputs or MFA-enrolment DOM shapes owned by the project",
+      "then": "the scan reports zero credential-input controls owned by the project; every credential moment resolves to a link out through `getCredentialSelfServiceUrl`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1102-security-auth-oauth2-provider-adapter"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

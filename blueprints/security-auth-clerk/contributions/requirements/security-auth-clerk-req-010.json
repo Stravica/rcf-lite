@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-clerk-REQ-010",
+  "prdId": "PRD-001",
+  "title": "The caller's active sessions are enumerable, revocable one at a time, and revocable in bulk-except-current",
+  "description": "The blueprint contributes the `sessionInventory` capability through the session verifier: an authenticated caller can list their active Clerk sessions, revoke one non-current session by id, and revoke every active session except the one being used to make the call. Each list row carries `{ sessionId, deviceLabel, lastActive, currentSession }`; the current session is the one whose id matches the caller's active `__session` cookie. Every operation refuses an unauthenticated caller with a stable-coded `SESSION_INVENTORY_UNAUTHENTICATED` error and no side effect. A revoke against an unknown or already-revoked session id refuses with `SESSION_INVENTORY_UNKNOWN_SESSION` and no side effect. Every operation emits one structured audit event carrying operation, session id prefix and wall-clock timestamp; no field carries a cookie value or a full session id. The consumer contract in `application-account-settings` TAC-2604 reads this interface verbatim.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "The capability declaration on `blueprint.json:capabilities[]` promises consumer blueprints a session-management surface the applying agent can bind against. Without a REQ describing list, revoke-one and revoke-all-except-current, a consumer that gates on `sessionInventory` will render an inventory screen against a contract the provider blueprint never wrote down, and no chain link will fail when the surface returns empty or the revoke is a no-op.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:10-session-inventory"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+    "field": "interfaces.sessionInventory"
+  }
+}

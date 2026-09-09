@@ -16,7 +16,8 @@
       "when": "the role adapter is invoked on the verified claim record",
       "then": "the resulting reduced Principal's `roles[]` equals `['admin', 'editor']` in insertion order; no other role source is consulted; no `keycloak.roles_refused` event is emitted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11107-2",
@@ -25,7 +26,8 @@
       "when": "the role adapter is invoked",
       "then": "the reduced Principal's `roles[]` equals `[]`; no error class is emitted; the audit log records no `keycloak.roles_refused` event; the mechanism does not decide whether an empty roles set is acceptable - that is the project's authoriser above the Principal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11107-3",
@@ -34,7 +36,8 @@
       "when": "the role adapter is invoked",
       "then": "the response is a 4xx with body error code `KEYCLOAK_ROLES_MALFORMED`; the reduced Principal is not produced; the audit log records one `keycloak.roles_refused` event carrying realmSlug and reason class `malformed`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

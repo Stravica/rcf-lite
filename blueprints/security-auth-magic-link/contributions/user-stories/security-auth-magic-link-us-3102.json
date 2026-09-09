@@ -16,7 +16,8 @@
       "when": "GET /login/verify is called again with the same token value",
       "then": "the response status is 401 and no Set-Cookie header is emitted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3102-2",
@@ -25,7 +26,8 @@
       "when": "GET /login/verify is called with that token",
       "then": "the response status is 401 and no Set-Cookie header is emitted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3102-3",
@@ -34,7 +36,8 @@
       "when": "the manager records the expiry",
       "then": "the recorded expiresAt is fifteen minutes after the mint clock; when a project supplies expiryMs the recorded expiry matches the override",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3102-4",
@@ -43,7 +46,8 @@
       "when": "GET /login/verify is called with T1",
       "then": "the response status is 401 and no Set-Cookie header is emitted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

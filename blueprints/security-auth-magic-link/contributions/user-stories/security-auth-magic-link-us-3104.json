@@ -16,7 +16,8 @@
       "when": "the Set-Cookie header is parsed",
       "then": "the Secure attribute is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3104-2",
@@ -25,7 +26,8 @@
       "when": "the Set-Cookie header is parsed",
       "then": "the HttpOnly attribute is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3104-3",
@@ -34,7 +36,8 @@
       "when": "the Set-Cookie header is parsed",
       "then": "the SameSite attribute is present with value Lax",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3104-4",
@@ -43,7 +46,8 @@
       "when": "document.cookie is queried by page script",
       "then": "the returned string contains no substring matching the issued session handle",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

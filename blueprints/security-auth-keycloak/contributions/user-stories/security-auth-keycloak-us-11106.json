@@ -16,7 +16,12 @@
       "when": "a request carrying the marker is dispatched through the mechanism",
       "then": "the verifier resolves against `r2`'s JWKS, not `r1`'s; the reduced Principal's `provider` field equals `'r2'`; the audit log records one `keycloak.route_decided` event carrying `realmSlug='r2'`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "interfaces.routeFn.name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-11106-2",
@@ -25,7 +30,12 @@
       "when": "a request is dispatched",
       "then": "the response is a 4xx with body error code `KEYCLOAK_REALM_UNKNOWN`; no verifier is invoked against any realm; the audit log records one `keycloak.route_decided` event followed by one `keycloak.jwt_refused` (or equivalent) event with reason class `unknown-realm`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "interfaces.routeFn.name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-11106-3",
@@ -34,7 +44,12 @@
       "when": "a request is dispatched through the mechanism",
       "then": "the mechanism returns the sentinel `notThisIssuer` to its caller (the project's own middleware chain); no JWKS fetch, no introspection call, and no session verification is observed; the audit log records one `keycloak.route_decided` event carrying `realmSlug='notThisIssuer'`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "interfaces.routeFn.name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

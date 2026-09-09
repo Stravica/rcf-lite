@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-clerk-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Every session verification and every sessionInventory operation produces one structured audit event on an allow-list of fields",
+  "description": "The session verifier emits exactly one structured audit event per verification attempt (success or refusal) and per `sessionInventory` operation. Each event carries fields drawn from a fixed allow-list: `outcome`, `operation`, `reasonClass`, `sessionIdPrefix`, `at`, `principalIdPrefix?`. No event may carry the `__session` cookie value, the full session id, a raw Clerk claim, or a substring of any of the above. The `sessionIdPrefix` field is a substring of length no greater than eight characters. Every event is written to the audit sink synchronously with the verification result; a sink failure logs a `clerk.audit_sink_failed` warning event and never causes the verification to succeed spuriously. The blueprint's data-retention boundary is: audit events survive process restart when the sink is durable, and are treated as retained per the project's wider observability policy; the blueprint does not itself expire them.",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The audit-surface responsibilities on TAC-1003 (verification events and sessionInventory events) are only observable if a REQ names the allow-list, the prefix boundary, and the sink-failure posture. Without a REQ, a reviewer cannot decide whether an event that carries an unexpected field violates the blueprint's contract.",
+  "tags": [
+    "blueprint:security-auth-clerk",
+    "category:11-audit-surface"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+    "field": "responsibilities.audit"
+  }
+}
