@@ -1,24 +1,25 @@
 // Websocket-hub-broadcast probe for platform-cloudflare-durable-objects v1.0.0.
 //
-// Wires a HubObject to a fake state, accepts two fake sockets
-// (createFakeSocketPair), drives a broadcast from client A and
-// asserts B receives within the elicited window (default 500ms).
-// Then drives hibernate-and-wake round-trip: hibernate, wake once
-// (doWakeUp emitted, lastBroadcast returned), wake again (no
-// second doWakeUp). Finally scans every emitted record on the sink
-// against the allowed key set {event, key, size, ttl, timestamp,
-// objectName, scheduledTime} and asserts zero forbidden-key hits
-// (AC-33106-1); under SIMULATE_PII_LEAK=true a wrapped sink forwards
-// a synthetic body-bearing record and the probe surfaces it,
-// returning fail on the secrecy result.
+// Wires a HubObject to an in-process state stub, accepts two
+// in-process paired sockets (createInProcessSocketPair), drives a
+// broadcast from client A and asserts B receives within the
+// elicited window (default 500ms). Then drives hibernate-and-wake
+// round-trip: hibernate, wake once (doWakeUp emitted,
+// lastBroadcast returned), wake again (no second doWakeUp).
+// Finally scans every emitted record on the sink against the
+// allowed key set {event, key, size, ttl, timestamp, objectName,
+// scheduledTime} and asserts zero forbidden-key hits (AC-33106-1).
 //
-// Under SIMULATE_HUB_HANG=true the broadcast handler is wrapped
-// with an artificial delay past the elicited window; the probe
-// surfaces the hang and returns fail on the broadcast-within-
-// window check.
+// Two mutation switches are triggered fixture-side by the H-2
+// shim h2-cf-do-websocket-hub-shim.mjs: a PII-leak wrapper on the
+// sink adapter that injects forbidden fields on every emitted
+// record, and a broadcast-hang gate that pauses the probe past
+// the elicited window before it fires the broadcast. Under either
+// mutation the corresponding result trips fail.
 //
-// anchorAcId: AC-33105-1 (primary; AC-33110-1 and AC-33106-1
-// covered as additional results).
+// anchorAcId: AC-33105-1.
+// Additional-result anchors: AC-33110-1 (hibernate-and-wake round
+// trip), AC-33106-1 (event-secrecy over every emitted record).
 // accountBound: false.
 
 export const anchorAcId = 'AC-33105-1';
@@ -30,23 +31,19 @@ const FORBIDDEN_KEYS = ['body', 'ssn', 'userId', 'headers', 'cookies', 'request'
 export default async function runProbe() {
   const { createInMemoryDoStorage } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/do-storage.mjs');
   const { HubObject } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/do-hub.mjs');
-  const { createFakeState, createFakeSocketPair } = await import('./probe-utils.mjs');
+  const { createInProcessDoState, createInProcessSocketPair } = await import('./probe-utils.mjs');
+  const { prepareHubBroadcastSeams } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-do-websocket-hub-shim.mjs');
 
+  const seams = prepareHubBroadcastSeams();
   const events = [];
-  const cleanSink = (rec) => events.push(rec);
-  const leakySink = (rec) => events.push({
-    ...rec,
-    body: 'Hello, world (leaked test body)',
-    ssn: '123-45-6789',
-    userId: 'user_leaked_test_uid',
-  });
-  const eventSink = process.env.SIMULATE_PII_LEAK === 'true' ? leakySink : cleanSink;
+  const baseSink = (rec) => events.push(rec);
+  const eventSink = seams.wrapSink(baseSink);
   const storage = createInMemoryDoStorage({ backend: 'sql' });
-  const state = createFakeState();
+  const state = createInProcessDoState();
   const hub = new HubObject({ state, storage, eventSink, name: 'lobby', hibernateAfterIdleMs: 500 });
 
-  const sockA = createFakeSocketPair('A');
-  const sockB = createFakeSocketPair('B');
+  const sockA = createInProcessSocketPair('A');
+  const sockB = createInProcessSocketPair('B');
   await hub.accept(sockA);
   await hub.accept(sockB);
 
@@ -55,8 +52,8 @@ export default async function runProbe() {
   // AC-33105-1: broadcast from A reaches both A and B within 500ms.
   const started = Date.now();
   const payload = 'ping';
-  if (process.env.SIMULATE_HUB_HANG === 'true') {
-    await new Promise((r) => setTimeout(r, 750));
+  if (seams.hangBeforeBroadcastMs > 0) {
+    await new Promise((r) => setTimeout(r, seams.hangBeforeBroadcastMs));
   }
   await hub.webSocketMessage(sockA, JSON.stringify({ type: 'broadcast', payload }));
   const elapsed = Date.now() - started;
@@ -68,8 +65,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-33105-1',
     verdict: broadcastOk ? 'pass' : 'fail',
     detail: broadcastOk
-      ? `broadcast fan-out: A received ${gotA} B received ${gotB}; elapsed ${elapsed}ms within 500ms window; storage.lastBroadcast persisted`
-      : `broadcast fault: gotA=${!!gotA} gotB=${!!gotB} elapsed=${elapsed}ms persisted=${!!persisted}`,
+      ? `broadcast fan-out (mutation-switches off): A received ${gotA} B received ${gotB}; elapsed ${elapsed}ms within 500ms window; storage.lastBroadcast persisted`
+      : `broadcast fault${seams.hangOn ? ' (mutation-run active: fixture shim reports broadcast-hang on)' : ''}: gotA=${!!gotA} gotB=${!!gotB} elapsed=${elapsed}ms persisted=${!!persisted}`,
   });
 
   // AC-33110-1: hibernate-and-wake round-trip preserves storage and doWakeUp fires exactly once.
@@ -105,7 +102,7 @@ export default async function runProbe() {
     verdict: secrecyOk ? 'pass' : 'fail',
     detail: secrecyOk
       ? `event-secrecy scan across ${events.length} records: allowed-key set {${[...ALLOWED_KEYS].join(', ')}}; forbidden-key hits 0; extra-key hits 0`
-      : `event-secrecy fault: forbiddenHits=${JSON.stringify(forbiddenHits.slice(0, 5))} extraKeyHits=${JSON.stringify(extraKeyHits.slice(0, 5))}`,
+      : `event-secrecy fault${seams.leakOn ? ' (mutation-run active: fixture shim reports PII-leak on)' : ''}: forbiddenHits=${JSON.stringify(forbiddenHits.slice(0, 5))} extraKeyHits=${JSON.stringify(extraKeyHits.slice(0, 5))}`,
   });
 
   return { results };

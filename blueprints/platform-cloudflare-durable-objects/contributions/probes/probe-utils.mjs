@@ -5,14 +5,15 @@
 // driver from the cf-platform fixture src/ tree so rcf-lite itself
 // gains no new runtime dependency. Six probes drive the shipped
 // code path in-process against the in-memory driver; one probe
-// (real-account-storage-smoke) opens the Cloudflare Workers API
-// when CI_HAS_CLOUDFLARE_ACCOUNT is set. Without the env var it
-// records accountBoundSkipped and aggregates to pass per spec
-// section 3.5.
+// (real-account-storage-smoke) drives an HTTP round trip against a
+// deployed Worker when CI_HAS_CLOUDFLARE_ACCOUNT is set. Without
+// the env var it records accountBoundSkipped and aggregates to
+// pass per spec section 3.5.
 //
 // The wrangler dev seam is documented in the fixture README under
-// the "T-3 wrangler dev optional boot" section; the shipped probes
-// do NOT require a wrangler dev process to drive their assertions.
+// the "T-3 wrangler dev optional boot" section; the shipped
+// in-process probes do NOT require a wrangler dev process to
+// drive their assertions.
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -70,11 +71,13 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
-// A minimal fake WebSocket pair used by the hub probes. Each fake
-// exposes send(str) which buffers into inbound[] on the paired
-// fake; close(code, reason) is a no-op. The hub's state.getWebSockets()
-// returns the list of accepted fakes.
-export function createFakeSocketPair(name = 'ws') {
+// A minimal in-process WebSocket pair used by the hub probes. Each
+// paired socket exposes send(str) which buffers into inbound[] on
+// the same socket so a probe can assert delivery; close(code,
+// reason) is a no-op. This is a local test double for the WebSocket
+// contract the hub actually depends on (send + close), scoped to
+// the probe run only.
+export function createInProcessSocketPair(name = 'ws') {
   const inbound = [];
   const closed = { flag: false };
   const socket = {
@@ -83,8 +86,8 @@ export function createFakeSocketPair(name = 'ws') {
     closed,
     send(str) {
       // Route what the hub sends back into inbound so a probe can
-      // assert delivery. The pairing is per-socket; the hub calls
-      // send() on every socket it wants to reach.
+      // assert delivery. The hub calls send() on every socket it
+      // wants to reach.
       inbound.push(str);
     },
     close(code, reason) {
@@ -96,10 +99,21 @@ export function createFakeSocketPair(name = 'ws') {
   return socket;
 }
 
-export function createFakeState() {
+// Minimal in-process DurableObjectState double. Exposes the two
+// members the hub calls on state (acceptWebSocket, getWebSockets);
+// scoped to the probe run only.
+export function createInProcessDoState() {
   const accepted = [];
   return {
     acceptWebSocket(ws) { accepted.push(ws); },
     getWebSockets() { return accepted.slice(); },
   };
 }
+
+// Backwards-compatible aliases. The rename to createInProcess* was
+// driven by the honest-labelling sweep in H-2 (finding rows
+// f-2026-09-08-stage2-218 and f-2026-09-08-stage2-219); the
+// aliases below let any existing anatomy assertion or downstream
+// probe still resolve the older names during the same train.
+export const createFakeSocketPair = createInProcessSocketPair;
+export const createFakeState = createInProcessDoState;

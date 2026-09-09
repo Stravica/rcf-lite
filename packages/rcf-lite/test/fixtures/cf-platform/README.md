@@ -149,6 +149,24 @@ Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
 `accountBoundSkipped: true`, aggregates to `pass`, and exits 0 per
 spec section 3.5.
 
+The sweep-safety test carries a live-inventory variant alongside
+its mock-only variants:
+
+```
+node --test packages/rcf-lite/test/fixtures/cf-platform/test/h2-cf-sweep-safety.test.mjs
+```
+
+Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
+`CF_API_TOKEN`) the live-inventory subtest records
+`accountBoundSkipped: true` naming the required env var and passes;
+the mock-only variants still run unconditionally. With the env set,
+the variant reads the account's Workers, KV namespaces and Queues
+via the paginated listers and runs the shims' pure
+`selectSweepCandidates` / `selectWorkerSweepCandidates` /
+`selectQueueSweepCandidates` / `selectTelemetryKvSweepCandidates`
+selection functions over the live listings, asserting each selects
+zero. No delete path is exercised.
+
 ## Induced-failure switches
 
 T-0 (assets-manifest-scan):
@@ -235,6 +253,40 @@ Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
 `CF_DO_NAMESPACE_ID`, `CF_API_TOKEN`) the probe records
 `accountBoundSkipped: true`, aggregates to `pass`, and exits 0
 per spec section 3.5.
+
+## Declared env vars (real-account probes)
+
+Every real-account probe on this fixture declares the env vars it
+reads. A first-tier env var gates entry into the driver path; a
+second-tier env var, when unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`,
+records `accountBoundSkipped: true` naming the missing variable and
+still passes per spec section 3.5. That keeps the positive-evidence
+gate row honest: a probe either produces real-engine evidence or a
+declared skip; a hard fail without evidence is never accepted.
+
+First-tier (required to enter any real-account driver):
+
+- `CI_HAS_CLOUDFLARE_ACCOUNT` (unset -> pass-with-skip on every
+  real-account probe).
+- `CF_ACCOUNT_ID`, `CF_API_TOKEN` (paired with the CI gate;
+  unset -> hard fail naming the missing pair).
+
+Second-tier (declared skips when unset with the CI gate set):
+
+- `CF_DO_WORKER_URL` — deployed-Worker origin the DO
+  `real-account-storage-smoke` probe HTTP round-trips against. Not
+  yet self-provisioned by this fixture (follow-up work item
+  `w-2026-09-09-dave-005`); until it is, the probe records
+  `accountBoundSkipped: true` with `reason` naming `CF_DO_WORKER_URL`
+  and passes with a declared skip rather than failing without
+  real-engine evidence.
+- `CF_QUEUE_MESSAGE_COUNT` — optional message-count override on the
+  queue `real-account-concurrency-smoke` probe (default 500). Not a
+  skip trigger; enumerated for completeness in the shim's
+  `DECLARED_ENV` export.
+- `CF_API_BASE_URL` — optional test override pointing the shims at a
+  local mock CF REST API. Not a skip trigger; enumerated for
+  completeness.
 
 ## T-3 wrangler dev boot
 

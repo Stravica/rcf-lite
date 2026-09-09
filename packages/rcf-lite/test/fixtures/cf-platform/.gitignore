@@ -7,3 +7,8 @@
 !dist/**
 .rcf/reports/
 .wrangler/
+# H-2 real-account fixture scratch: minted-resource records live here
+# so a mid-run crash surfaces the id to a follow-up teardown call. The
+# sweep-orphans path does not depend on the scratch file - it lists
+# over the account and filters by prefix.
+scratch/

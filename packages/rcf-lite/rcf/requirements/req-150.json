@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-08T12:16:28.007Z",
+  "updatedAt": "2026-09-08T12:16:28.158Z",
+  "description": "The rcf-lite platform-cloudflare-kv blueprint ships eight approved user stories (US-31101..US-31108) with nine ACs (AC-31101-1, AC-31102-1, AC-31103-1, AC-31103-2, AC-31104-1, AC-31105-1, AC-31106-1, AC-31107-1, AC-31108-1). Its five contributed probes and the README still anchor the defunct AC-5001..AC-5401 id band that never became chain rows on this repo. This train re-anchors every probe result and the README chain-slice pointers to the shipped AC-31xxx band per Dave ruling 4 (2026-09-08 relay 582c2bca): do NOT resurrect the AC-5xxx stories, move the probes to the shipped band. Every one of the nine shipped kv ACs must appear as an anchor (primary or additional result) on at least one probe with a runtime observable; the two ACs no shipped probe currently covers (AC-31102-1 sole-reader grep, AC-31107-1 whitelist-only lifecycle event scan) are added as additional results on facade-round-trip and event-secrecy per the dispatch addendum. Anatomy-test assertions move with the re-anchor per dispatch addendum ruling 1. No capability change; 0.25.x patch scope; runtime surface unchanged.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-150",
+  "prdId": "PRD-001",
+  "title": "H-2 kv re-anchor and observability: five kv probes and the README re-anchor from AC-5xxx to the shipped AC-31xxx band; every shipped kv AC gains a runtime observable",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T12:16:28.156Z"
+  }
+}

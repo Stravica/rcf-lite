@@ -1,7 +1,7 @@
 {
   "slug": "messaging-queue-cloudflare",
   "probeName": "real-account-concurrency-smoke",
-  "runAt": "2026-09-07T06:57:48.389Z",
+  "runAt": "2026-09-08T13:38:12.520Z",
   "engine": {
     "kind": "queues",
     "image": "cloudflare/queues (accountBound)",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-29108-2",
       "verdict": "pass",
-      "detail": "accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)",
+      "detail": "accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_QUEUE_WORKER_URL (deployed Worker origin binding a live Cloudflare Queues queue). Cap under test: 250 concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: 500.",
       "accountBoundSkipped": true
     }
   ],

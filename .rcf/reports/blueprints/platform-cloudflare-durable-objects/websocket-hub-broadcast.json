@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-durable-objects",
   "probeName": "websocket-hub-broadcast",
-  "runAt": "2026-09-07T16:08:52.649Z",
+  "runAt": "2026-09-08T13:29:10.395Z",
   "engine": {
     "kind": "in-process",
     "image": "in-process HubObject on cf-platform fixture",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-33105-1",
       "verdict": "pass",
-      "detail": "broadcast fan-out: A received {\"type\":\"broadcast\",\"payload\":\"ping\"} B received {\"type\":\"broadcast\",\"payload\":\"ping\"}; elapsed 0ms within 500ms window; storage.lastBroadcast persisted"
+      "detail": "broadcast fan-out (mutation-switches off): A received {\"type\":\"broadcast\",\"payload\":\"ping\"} B received {\"type\":\"broadcast\",\"payload\":\"ping\"}; elapsed 1ms within 500ms window; storage.lastBroadcast persisted"
     },
     {
       "anchorAcId": "AC-33110-1",

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-520",
+  "path": "../../blueprints/platform-cloudflare-kv/blueprint.json",
+  "implementsAcIds": [
+    "AC-15001-1",
+    "AC-15001-2",
+    "AC-15401-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T12:22:33.507Z",
+  "updatedAt": "2026-09-08T12:23:01.646Z"
+}

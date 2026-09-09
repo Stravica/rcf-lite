@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-525",
+  "path": "../../blueprints/messaging-queue-cloudflare/blueprint.json",
+  "implementsAcIds": [
+    "AC-15201-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T13:01:58.602Z",
+  "updatedAt": "2026-09-08T13:01:58.602Z"
+}

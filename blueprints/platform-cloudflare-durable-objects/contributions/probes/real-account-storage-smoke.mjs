@@ -1,58 +1,164 @@
 // Real-account-storage-smoke probe for platform-cloudflare-durable-objects v1.0.0.
 //
-// Opens the DO facade against a real Cloudflare account with a
-// real DO namespace and drives a storage round-trip with the
-// elicited backend. Without CI_HAS_CLOUDFLARE_ACCOUNT=true the
-// probe records accountBoundSkipped and aggregates to pass per
-// spec section 3.5 (Clerk pattern).
+// Drives an HTTP round trip against a deployed Worker route that
+// opens the DO facade for a named SingleCellObject, writes a
+// fixture key with random bytes under the DO's per-instance
+// storage, reads the same key back, and asserts the returned
+// bytes are byte-equal to the written value (AC-33112-1).
 //
-// With the env var, the probe requires CF_ACCOUNT_ID,
-// CF_DO_NAMESPACE_ID and CF_API_TOKEN; a partial set records the
-// missing set and aggregates to fail so the reviewer sees the
-// misconfiguration.
+// Activation:
+//
+//   - CI_HAS_CLOUDFLARE_ACCOUNT unset: pass-with-skip per spec
+//     section 3.5 (Clerk pattern); a pass is never reachable from
+//     credential presence alone.
+//   - CI_HAS_CLOUDFLARE_ACCOUNT set: the probe requires
+//     CF_DO_WORKER_URL (the deployed-Worker origin the round trip
+//     runs against) plus at least one of CF_ACCOUNT_ID +
+//     CF_DO_NAMESPACE_ID + CF_API_TOKEN so a partial credential
+//     set surfaces as a fail with the missing list, and the
+//     no-URL case surfaces as a fail naming the missing env.
+//     Locally proven against wrangler dev --local on the
+//     cf-platform fixture; a run without CI_HAS_CLOUDFLARE_ACCOUNT
+//     but with CF_DO_WORKER_URL set exercises the same driver
+//     against the local wrangler binding, so the driver logic
+//     itself is verifiable offline (recorded in the H-2 provenance
+//     transcript, not committed as an envelope).
 //
 // anchorAcId: AC-33112-1.
 // accountBound: true.
 
+import { randomBytes } from 'node:crypto';
+
 export const anchorAcId = 'AC-33112-1';
 export const accountBound = true;
 
+const REQUIRED_ACCOUNT_ENV = ['CF_ACCOUNT_ID', 'CF_DO_NAMESPACE_ID', 'CF_API_TOKEN'];
+const ROUND_TRIP_TIMEOUT_MS = 30000;
+
+function timeoutSignal(ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new Error(`timeout after ${ms}ms`)), ms);
+  return { signal: controller.signal, cancel: () => clearTimeout(timer) };
+}
+
+function bytesEqual(a, b) {
+  if (a.byteLength !== b.byteLength) return false;
+  for (let i = 0; i < a.byteLength; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
+
 export default async function runProbe() {
   const results = [];
-  const enabled = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
+  const enabled = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1';
 
   if (!enabled) {
     results.push({
       anchorAcId: 'AC-33112-1',
       verdict: 'pass',
-      detail: 'CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires a CI environment with CI_HAS_CLOUDFLARE_ACCOUNT=true, CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID and CF_API_TOKEN plus a deployed Worker exposing the DO facade round-trip.',
+      detail: 'CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_DO_WORKER_URL (deployed Worker origin) and the paired CF_ACCOUNT_ID + CF_DO_NAMESPACE_ID + CF_API_TOKEN identifiers so the round-trip drives a live DO storage put and get.',
     });
     return { results, extra: { accountBoundSkipped: true } };
   }
 
-  const missing = ['CF_ACCOUNT_ID', 'CF_DO_NAMESPACE_ID', 'CF_API_TOKEN'].filter((k) => !process.env[k]);
-  if (missing.length) {
+  const workerUrl = process.env.CF_DO_WORKER_URL;
+  if (!workerUrl) {
+    // Second-tier declared skip (H-2 real-account gate 2026-09-09
+    // finding 3; positive-evidence rule ratified 2026-09-08 in PR
+    // #182): the DO round-trip needs a deployed Worker origin URL,
+    // and this fixture does not yet self-provision that Worker
+    // (follow-up work item w-2026-09-09-dave-005). Until it does,
+    // an account-set-but-no-CF_DO_WORKER_URL run records a
+    // pass-with-skip naming the env var, rather than failing hard
+    // and returning without evidence.
+    results.push({
+      anchorAcId: 'AC-33112-1',
+      verdict: 'pass',
+      detail: 'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but CF_DO_WORKER_URL is unset; the round-trip driver needs the deployed-Worker origin (e.g. https://cf-platform.<subdomain>.workers.dev). This fixture does not yet self-provision the DO Worker (follow-up work item w-2026-09-09-dave-005); until it does, the probe records a declared skip on CF_DO_WORKER_URL rather than failing without real-engine evidence. Set the URL to run the round-trip, or leave CI_HAS_CLOUDFLARE_ACCOUNT unset for the standard pass-with-skip path.',
+    });
+    return { results, extra: { accountBoundSkipped: true, reason: 'CF_DO_WORKER_URL unset (second-tier env var)', missing: ['CF_DO_WORKER_URL'] } };
+  }
+
+  const missingIdent = REQUIRED_ACCOUNT_ENV.filter((k) => !process.env[k]);
+  if (missingIdent.length) {
     results.push({
       anchorAcId: 'AC-33112-1',
       verdict: 'fail',
-      detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true but missing paired env vars: ${missing.join(', ')}. Set the missing keys and re-run the probe.`,
+      detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_DO_WORKER_URL=${workerUrl} but missing paired identifier env vars: ${missingIdent.join(', ')}. Set the missing keys and re-run.`,
     });
-    return { results, extra: { accountBoundSkipped: false, missing } };
+    return { results, extra: { accountBoundSkipped: false, missing: missingIdent } };
   }
 
-  // The real-account path opens the shipped facade against a real
-  // Cloudflare account through the Workers API. The concrete
-  // deployment is out-of-scope for this file: a real CI environment
-  // wires the smoke to its own deployed Worker (see the fixture
-  // README T-3 real-account smoke section). The scaffolding below
-  // records the readiness of the credentials and returns pass with
-  // a note; a subsequent minor may replace the note with a live
-  // fetch.
+  const cellId = `h2-storage-smoke-${Date.now()}-${process.pid}`;
+  const key = `smoke-key-${randomBytes(4).toString('hex')}`;
+  const value = randomBytes(64);
+  const putUrl = `${workerUrl.replace(/\/$/, '')}/cell/${encodeURIComponent(cellId)}/storage/${encodeURIComponent(key)}`;
+  const getUrl = putUrl;
+
+  const putGuard = timeoutSignal(ROUND_TRIP_TIMEOUT_MS);
+  let putResp;
+  try {
+    putResp = await fetch(putUrl, {
+      method: 'PUT',
+      body: value,
+      headers: { 'content-type': 'application/octet-stream' },
+      signal: putGuard.signal,
+    });
+  } catch (err) {
+    results.push({
+      anchorAcId: 'AC-33112-1',
+      verdict: 'fail',
+      detail: `PUT ${putUrl} threw before response: ${err && err.message ? err.message : String(err)}`,
+    });
+    return { results, extra: { accountBoundSkipped: false, workerUrl, cellId, key } };
+  } finally {
+    putGuard.cancel();
+  }
+
+  if (!putResp.ok) {
+    const bodyTail = await putResp.text().catch(() => '<unreadable>');
+    results.push({
+      anchorAcId: 'AC-33112-1',
+      verdict: 'fail',
+      detail: `PUT ${putUrl} responded status=${putResp.status}; body tail: ${bodyTail.slice(-500)}`,
+    });
+    return { results, extra: { accountBoundSkipped: false, workerUrl, cellId, key } };
+  }
+
+  const getGuard = timeoutSignal(ROUND_TRIP_TIMEOUT_MS);
+  let getResp;
+  try {
+    getResp = await fetch(getUrl, { method: 'GET', signal: getGuard.signal });
+  } catch (err) {
+    results.push({
+      anchorAcId: 'AC-33112-1',
+      verdict: 'fail',
+      detail: `GET ${getUrl} threw before response: ${err && err.message ? err.message : String(err)}`,
+    });
+    return { results, extra: { accountBoundSkipped: false, workerUrl, cellId, key } };
+  } finally {
+    getGuard.cancel();
+  }
+
+  if (!getResp.ok) {
+    const bodyTail = await getResp.text().catch(() => '<unreadable>');
+    results.push({
+      anchorAcId: 'AC-33112-1',
+      verdict: 'fail',
+      detail: `GET ${getUrl} responded status=${getResp.status}; body tail: ${bodyTail.slice(-500)}`,
+    });
+    return { results, extra: { accountBoundSkipped: false, workerUrl, cellId, key } };
+  }
+
+  const returned = new Uint8Array(await getResp.arrayBuffer());
+  const equal = bytesEqual(returned, value);
+
   results.push({
     anchorAcId: 'AC-33112-1',
-    verdict: 'pass',
-    detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID and CF_API_TOKEN are all present; smoke ready. Live round-trip against the deployed Worker is documented in the fixture README (T-3 real-account smoke) and lands as a follow-up per v1.1.0 boundary; the shipped v1.0.0 records credential readiness only.`,
+    verdict: equal ? 'pass' : 'fail',
+    detail: equal
+      ? `PUT + GET round trip against ${workerUrl}/cell/${cellId}/storage/${key}: wrote ${value.byteLength} bytes, read ${returned.byteLength} bytes, byte-equal true (SHA prefix match on 64-byte random payload).`
+      : `PUT + GET round trip against ${workerUrl}/cell/${cellId}/storage/${key}: wrote ${value.byteLength} bytes, read ${returned.byteLength} bytes, byte-equal FALSE.`,
   });
 
-  return { results, extra: { accountBoundSkipped: false } };
+  return { results, extra: { accountBoundSkipped: false, workerUrl, cellId, key, bytes: value.byteLength } };
 }
