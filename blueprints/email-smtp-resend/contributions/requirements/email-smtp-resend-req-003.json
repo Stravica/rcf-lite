@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Provider-side failure modes are enumerated and each maps to a stable-coded error the adapter returns without leaking recipient identity",
   "description": "The adapter enumerates four provider-side failure classes and maps each to a stable error code on the `error` field of the send-contract return shape, with `ok: false` and the provider's own status code on `providerStatus` when the provider surfaced one. The classes are: rate-limit refusal (`RESEND_RATE_LIMITED`), unverified sender domain or address (`RESEND_SENDER_UNVERIFIED`), invalid or malformed recipient input the provider rejected before dispatch (`RESEND_RECIPIENT_REJECTED`), and generic transport error covering network faults and the provider's 5xx range (`RESEND_TRANSPORT_ERROR`). The error string carries the class code and a short structured reason; the recipient address, the message subject, and the message body never appear on the returned error string, on any log line the adapter writes, or on any exception the adapter throws.",
+  "deliveredBy": {
+    "tacId": "TAC-401-email-smtp-resend-send-adapter",
+    "field": "interfaces.send"
+  },
   "category": "functional",
   "domain": "email",
   "priority": "must",

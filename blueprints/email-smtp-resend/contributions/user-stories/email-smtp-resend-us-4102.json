@@ -16,7 +16,8 @@
       "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
       "then": "the returned object matches the shape with `ok === false`, `providerMessageId === null`, `providerStatus` a positive integer, and `error` starting with `RESEND_SENDER_UNVERIFIED`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4102-2",
@@ -25,7 +26,8 @@
       "when": "the magic-link route calls `adapter.send({ to: distinctiveRecipient, subject: distinctiveSubject, textBody: distinctiveBody, htmlBody })` and the call resolves",
       "then": "the returned `error` string, every line the adapter emitted during the call, and every exception message caught contain none of the distinctive recipient, subject, or body substrings",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

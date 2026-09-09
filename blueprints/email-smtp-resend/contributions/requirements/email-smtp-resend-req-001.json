@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The adapter satisfies the mail-adapter interface named by the shipped magic-link blueprint's TAC-504",
   "description": "The Resend send adapter exposes exactly the `send({ to, subject, textBody, htmlBody })` method the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter` names, and resolves the fixed outcome shape `{ ok, providerStatus, providerMessageId, error }` on every call. No other method is added to the auth-facing surface; provider status codes and provider message ids are normalised into the four declared fields inside the adapter. A project composing this blueprint alongside the magic-link blueprint wires the adapter reference into the auth routes at composition time and calls `adapter.send` directly.",
+  "deliveredBy": {
+    "tacId": "TAC-401-email-smtp-resend-send-adapter",
+    "field": "interfaces.send"
+  },
   "category": "functional",
   "domain": "email",
   "priority": "must",

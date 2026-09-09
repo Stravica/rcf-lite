@@ -16,16 +16,38 @@
       "when": "an import-graph scan enumerates every module of the application that imports the SMTP client library",
       "then": "the scan returns exactly one module and that module is the adapter module",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4106-2",
-      "description": "The adapter resolves the SMTP username, the SMTP password, the from-address, and the webhook signing secret through the project's configured secret-reference resolver (a Secrets Manager client, a project-authored resolver, or an environment shim); no literal for any of the four values appears in the adapter's own source.",
-      "given": "the adapter module source and the four configuration references `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, `RESEND_FROM_ADDRESS`, `RESEND_WEBHOOK_SIGNING_SECRET`",
-      "when": "the adapter source is scanned for literals and the reference names are cross-checked against the resolver invocation shape",
-      "then": "the source contains no literal for any of the four values, and each of the four reference names appears exactly at the resolver invocation site the adapter calls at boot",
+      "description": "The send adapter (TAC-401) resolves the SMTP host, username, password and the from-address through the project's configured secret-reference resolver at boot; no literal for any of these four values appears in the send adapter's own source.",
+      "given": "the send-adapter module source and the four configuration references RESEND_SMTP_HOST, RESEND_SMTP_USERNAME, RESEND_SMTP_PASSWORD, RESEND_VERIFIED_SENDER_ADDRESS",
+      "when": "the send adapter source is scanned for literals and the reference names are cross-checked against the resolver invocation shape at TAC-401.responsibilities[8]",
+      "then": "the send adapter source contains no literal for any of the four values, and each of the four reference names appears exactly at the resolver invocation site the send adapter calls at boot",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the four placeholder references (RESEND_SMTP_HOST, RESEND_SMTP_USERNAME, RESEND_SMTP_PASSWORD, RESEND_VERIFIED_SENDER_ADDRESS) on the elicited slots; the AC substitutes those names.",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "interfaces.secretResolver"
+      }
+    },
+    {
+      "id": "AC-4106-3",
+      "description": "The webhook verifier (TAC-402) resolves the webhook signing secret through the project's configured secret-reference resolver at boot; no literal for the webhook secret appears in the verifier's own source. The send adapter does not carry the webhook secret.",
+      "given": "the webhook-verifier module source and the reference RESEND_WEBHOOK_SIGNING_SECRET",
+      "when": "the verifier source is scanned for literals and the reference name is cross-checked against the resolver invocation shape at TAC-402.responsibilities[5]; the send adapter's source is scanned to confirm the webhook secret name does NOT appear there",
+      "then": "the verifier source contains no literal for the webhook secret, RESEND_WEBHOOK_SIGNING_SECRET appears exactly at the verifier's resolver invocation site, and the send adapter's source does not reference RESEND_WEBHOOK_SIGNING_SECRET at all",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the RESEND_WEBHOOK_SIGNING_SECRET placeholder reference on the verifier's elicited slot; the AC substitutes that name.",
+      "ownerRef": {
+        "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
+        "field": "interfaces.verify"
+      }
     }
   ],
   "tacIds": [
@@ -33,5 +55,5 @@
     "TAC-402-email-smtp-resend-webhook-verifier"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

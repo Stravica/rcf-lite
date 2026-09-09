@@ -16,7 +16,8 @@
       "when": "the magic-link route triggers one adapter send",
       "then": "the submission counter after the adapter returns equals `1 + observed_retries`, `observed_retries` is at least one and at most the configured budget, and the returned object has `ok === true`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4103-2",
@@ -25,7 +26,8 @@
       "when": "the magic-link route triggers one adapter send",
       "then": "the adapter returns once, `ok === false`, `error` starts with `RESEND_RATE_LIMITED`, and the SMTP submission counter equals 3",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4103-3",
@@ -34,12 +36,56 @@
       "when": "the magic-link route triggers one adapter send",
       "then": "the submission counter equals 1 and the returned object has `ok === false` with `error` starting with the terminal class code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-4103-4",
+      "description": "A generic transport failure (a TCP reset, a DNS resolution error, an SMTP handshake timeout) is classified as retryable per REQ-003; the adapter retries up to the bounded attempt count, and on eventual success within the attempt budget resolves with the message envelope id returned by Resend.",
+      "given": "a send call to the adapter with the SMTP client forced to reject on the first attempt with ECONNRESET and accept on the second attempt with envelope id \"smtp-envelope-777\"",
+      "when": "the caller invokes send()",
+      "then": "send() resolves with envelope id \"smtp-envelope-777\"; the adapter records exactly two attempts on the internal counter; no RESEND_TRANSPORT_ERROR is returned to the caller",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "responsibilities[5]"
+      }
+    },
+    {
+      "id": "AC-4103-5",
+      "description": "A generic transport failure that persists across the full attempt budget rejects with RESEND_TRANSPORT_ERROR naming the final transport class and the final attempt count (two per ADR-402); the caller sees no fabricated success envelope.",
+      "given": "a send call with the SMTP client forced to reject on every attempt with ECONNRESET",
+      "when": "the caller invokes send()",
+      "then": "send() rejects with RESEND_TRANSPORT_ERROR naming ECONNRESET and attemptCount 2; no envelope id is returned",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "responsibilities[5]"
+      }
+    },
+    {
+      "id": "AC-4103-6",
+      "description": "A provider 5xx response (a Resend server-side error) is classified as retryable per REQ-003 and REQ-004; the adapter retries with exponential full-jitter backoff and asserts that the scheduled delay before attempt 2 lies in [0, 250] milliseconds (base 250ms, first attempt) and before attempt 3 (if reached in a longer budget) would lie in [0, 500] milliseconds (2x base, capped at 8000ms).",
+      "given": "a send call with a deterministic jitter source (jitter() -> 0.5) and a deterministic clock, the SMTP client forced to return 5xx on every attempt, and the ADR-402 baseline (2 attempts, base 250ms, cap 8000ms, exponential full-jitter)",
+      "when": "the caller invokes send()",
+      "then": "the adapter schedules exactly one retry; the delay before the retry equals 125ms (0.5 * 250 * 1); send() rejects with RESEND_TRANSPORT_ERROR naming the provider 5xx and attemptCount 2; no delay exceeds 8000ms and no delay is negative",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the deterministic jitter source and clock; the AC substitutes the ADR-402 baseline retry parameters (base, cap, attempts).",
+      "ownerRef": {
+        "adrId": "ADR-402-email-smtp-resend-retry-and-backoff-posture",
+        "field": "decision.retryBackoff"
+      }
     }
   ],
   "tacIds": [
     "TAC-401-email-smtp-resend-send-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
