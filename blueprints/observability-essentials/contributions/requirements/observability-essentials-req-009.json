@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The public status page never leaks internal identifiers, metric values, or dependency detail beyond the declared surface",
   "description": "The public status page renders only the declared component list and their per-component states, plus the active incident notices. It never renders internal identifiers (host names, replica ids, database identifiers, queue names), never renders raw metric values (request counts, latency numbers, error rates), and never names the specific dependencies that failed a readiness check. The status enum values, the component names, and the incident notice fields are the public vocabulary; anything more granular is operator-only surface, exposed through the readiness probe body or an authenticated operator dashboard.",
+  "deliveredBy": {
+    "adrId": "ADR-803-observability-essentials-status-page-contract",
+    "field": "decision.statusPageContract"
+  },
   "category": "security",
   "domain": "observability",
   "priority": "must",

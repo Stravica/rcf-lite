@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Every notification the application sends records an outcome on a durable sink that operators can query by recipient and window",
   "description": "The application records the outcome of every notification it attempts to send (email, SMS, push, webhook, or any other channel the project ships) as a structured record on a durable outcome sink. Each record carries a notification identifier, a channel name from a fixed enum, a recipient identifier, an outcome from a fixed enum (delivered, failed, pending, suppressed), an attemptedAt ISO-8601 timestamp, and an optional errorCode string when the outcome is failed. An operator queries the sink by recipient identifier and time window and receives the outcome records that match. Notifications never succeed silently: an attempt with no recorded outcome is a defect the project must gate against.",
+  "deliveredBy": {
+    "tacId": "TAC-804-observability-essentials-notification-outcome",
+    "field": "interfaces.createOutcomeSink"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The status page surfaces active incident notices with a stable structure and stable field names",
   "description": "When the operator has posted one or more active incident notices, the status page renders them above the component list. Each notice carries a title (short human string), a body (longer human string), a severity from a fixed enum (info, warning, critical), a startedAt ISO-8601 timestamp, and an optional componentIds array naming which declared components the notice relates to. When no notices are active, the notice region is either absent from the rendered page or clearly labelled as empty; no phantom notices, no stale notices carried over from a previous incident.",
+  "deliveredBy": {
+    "tacId": "TAC-803-observability-essentials-status-page",
+    "field": "interfaces.noticeReader"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

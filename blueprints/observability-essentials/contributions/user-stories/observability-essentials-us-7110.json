@@ -16,7 +16,9 @@
       "when": "a GET is issued against the readiness path and the response time is measured",
       "then": "the response arrives within the declared readiness evaluation budget (default 1 second) and the response's checks entry for the hanging dependency shows state fail with a checkedAt that reflects the last background evaluation attempt, not the current probe-hit time",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
     },
     {
       "id": "AC-7110-2",
@@ -25,7 +27,9 @@
       "when": "the process runs for at least 3 * C seconds and each dependency's checkedAt timestamp is sampled from the readiness body",
       "then": "every non-hanging dependency's checkedAt advances at least twice within the window; the hanging dependency's checkedAt advances or its state transitions to fail with a checkedAt that reflects the evaluator's own attempt time, and no other dependency's evaluation is starved by the hanging one",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
     },
     {
       "id": "AC-7110-3",
@@ -34,7 +38,8 @@
       "when": "a GET is issued against the liveness path and the response time is measured",
       "then": "the response status is 200, the response body's status field is pass, and the response arrives within 250 milliseconds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

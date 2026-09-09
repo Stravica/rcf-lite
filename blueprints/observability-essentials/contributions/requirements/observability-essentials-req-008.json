@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Probes and the public status page are served without an authentication gate",
   "description": "The liveness probe, the readiness probe, and the public status page respond to unauthenticated HTTP requests. No cookie, no header, no source-IP allowlist gates access to these three surfaces. The three paths are declared at boot as auth-exempt in whatever authentication middleware the application uses, and that exemption is the only auth policy the surfaces run under.",
+  "deliveredBy": {
+    "adrId": "ADR-804-observability-essentials-probe-secrecy",
+    "field": "decision.probeSecrecy"
+  },
   "category": "nonFunctional",
   "domain": "observability",
   "priority": "must",

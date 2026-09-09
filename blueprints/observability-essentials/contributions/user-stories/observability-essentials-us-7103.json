@@ -16,7 +16,9 @@
       "when": "the readiness probe is hit after successful boot",
       "then": "the JSON body's checks object contains one entry per declared dependency, keyed by the dependency name from the declaration, with no additional keys and no missing keys",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
     },
     {
       "id": "AC-7103-2",
@@ -25,7 +27,8 @@
       "when": "the response body is inspected",
       "then": "every entry in the checks object has a state field valued pass or fail and a checkedAt field valued as a parseable ISO-8601 timestamp no older than the readiness evaluation budget declared in configuration",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7103-3",
@@ -34,12 +37,57 @@
       "when": "the readiness probe is hit while an undeclared downstream service is offline",
       "then": "the undeclared service name never appears as a key in the checks object, and the aggregate status field remains pass so long as every declared dependency is passing",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
+    },
+    {
+      "id": "AC-7103-4",
+      "description": "The readiness probe refuses to boot when the dependency-set declaration is absent from the applied configuration; the process exits with a non-zero code and emits READINESS_DEPS_MISSING naming the missing configuration key.",
+      "given": "a running application with no declared-dependency-set entry on the applied configuration",
+      "when": "the readiness handler boots",
+      "then": "the process exits with a non-zero code and emits a READINESS_DEPS_MISSING error naming the missing configuration key; no readiness listener binds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-802-observability-essentials-readiness-probe",
+        "field": "interfaces.dependencyRegistry"
+      }
+    },
+    {
+      "id": "AC-7103-5",
+      "description": "The readiness probe refuses to boot when the declared dependency set contains a duplicate name; the process exits with a non-zero code and emits READINESS_DEPS_DUPLICATE naming the offending duplicate.",
+      "given": "a running application with the elicited declared-dependency-set including two dependencies with the same name",
+      "when": "the readiness handler boots",
+      "then": "the process exits with a non-zero code and emits READINESS_DEPS_DUPLICATE naming the duplicate name; no readiness listener binds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the declared-dependency-set (which will contain the duplicate the AC exercises); the AC substitutes those names.",
+      "ownerRef": {
+        "tacId": "TAC-802-observability-essentials-readiness-probe",
+        "field": "interfaces.dependencyRegistry"
+      }
+    },
+    {
+      "id": "AC-7103-6",
+      "description": "The readiness probe refuses to boot when a declared dependency has a blank name or a name that fails the accepted grammar; the process exits with a non-zero code and emits READINESS_DEPS_MALFORMED naming the offending value.",
+      "given": "a running application with a declared dependency name set to the empty string OR containing a whitespace character",
+      "when": "the readiness handler boots",
+      "then": "the process exits with a non-zero code and emits READINESS_DEPS_MALFORMED naming the offending value; no readiness listener binds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-802-observability-essentials-readiness-probe",
+        "field": "interfaces.dependencyRegistry"
+      }
     }
   ],
   "tacIds": [
     "TAC-802-observability-essentials-readiness-probe"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
