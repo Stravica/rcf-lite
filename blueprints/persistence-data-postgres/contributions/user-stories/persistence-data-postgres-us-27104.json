@@ -20,7 +20,8 @@
       "ownerRef": {
         "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
         "field": "interfaces.withTransaction"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

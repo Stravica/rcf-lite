@@ -1,3 +1,9 @@
+# Changelog
+
+## 1.1.0 - 2026-09-09
+
+Adds the elicits block (queue-binding-name, queue-name, max-attempts, dead-letter-queue, batch-size, batch-timeout-seconds) that the REQs and guide were already describing in prose. Adds deliveredBy on REQ-002 and REQ-006. Closes chain-contradiction specimens F-2 (retry count off by one: REQ-004 and AC-29104-1 now name maxDeliveries and map to the vendor max_retries as maxDeliveries - 1; new AC-29104-2 asserts the maxDeliveries=1 boundary case), F-3 (REQ-006 and AC-29106-1 standardise on ts as the wall-clock milliseconds-since-epoch field name, aligning with TAC-3001, TAC-3003 and the guide), F-6 (REQ-002 replaces the "idempotent" label with an explicit at-least-once semantics naming ADR-3002 as the ratified delivery decision). Adds disposition to every AC.
+
 # messaging-queue-cloudflare changelog
 
 ## 1.0.2 - 2026-09-08

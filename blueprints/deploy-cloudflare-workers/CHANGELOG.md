@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.0 - 2026-09-09
+
+Adds deliveredBy on nine REQs (001, 003, 005, 006, 007, 010, 011, 013, 014). Adds ownerRef on AC-12102-2/3 and AC-12109-1 (deployAdapter) and AC-12105-1 (productionUrl). Closes chain-contradiction specimens F-1 (AC-12101-4 rewritten around the boolean run_worker_first = true form; vendor citation https://developers.cloudflare.com/workers/static-assets/binding/ verified 2026-09-09), F-2 (TAC-1302 gains responsibilities for the [assets].directory branches, the boolean and array-of-patterns run_worker_first mappings, and the pages_build_output_dir mutual-exclusion refusal), and F-5 (REQ-002 and TAC-1301 gain the stable deployStatus verb that composes production URL, preview alias URL, and currently serving version id). Closes chain-contradiction on per-version-id (ADR-1303 spelling aligned with TAC-1303). Adds disposition to every AC.
+
 All notable changes to the `deploy-cloudflare-workers` blueprint are recorded here.
 The format follows Keep a Changelog. Versions are semver, per
 `packages/rcf-lite/docs/blueprint-authoring.md` section 6.

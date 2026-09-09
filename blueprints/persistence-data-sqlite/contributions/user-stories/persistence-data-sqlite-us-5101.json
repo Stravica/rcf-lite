@@ -16,7 +16,8 @@
       "when": "the boot sequence runs",
       "then": "the store event log contains exactly one opened event whose timestamp precedes the timestamp of the first served request",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5101-2",
@@ -25,7 +26,8 @@
       "when": "the boot sequence runs the open entry point",
       "then": "the store event log's opened event carries the same store identifier the configuration supplied, and a grep of the source tree finds the identifier resolved from configuration rather than hard-coded",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5101-3",
@@ -34,7 +36,8 @@
       "when": "consumer code queries the schema version via the store facade",
       "then": "the reported version equals the build's max known migration version",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-602-persistence-data-sqlite-migration-runner"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -17,7 +17,22 @@
       "ownerRef": {
         "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
         "field": "interfaces.firewallRules"
-      }
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37106-2",
+      "description": "Firewall applied at provision time. Given a manifest carrying the shape-valid firewallRules array, when the provisioner runs createServer + applyFirewall, then hcloud firewall list --output json shows a firewall bound to the new server whose rules match the manifest shape (ssh restricted, 80/443 open, all else denied); a mutation SIMULATE_FIREWALL_DRIFT=true edits one rule out-of-band and the probe FAILS naming the drifted rule.",
+      "given": "a manifest with shape-valid firewallRules and no pre-existing firewall bound",
+      "when": "the provisioner runs against the throwaway account",
+      "then": "hcloud firewall list shows the bound firewall matching the manifest; a drift mutation FAILS the probe naming the drifted rule",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+        "field": "interfaces.firewallRules"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

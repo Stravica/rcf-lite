@@ -16,10 +16,13 @@
       "when": "presignGetUrl(key, ttl=60) then fetch(url) immediately, then wait ttl+2 seconds and fetch(url) again",
       "then": "first fetch returns 200 with body bytes equal to the put payload; second fetch returns 403; the events list contains a presignedIssued record with key, ttl=60, timestamp; no URL or credential material appears in any event record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

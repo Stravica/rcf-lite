@@ -16,7 +16,8 @@
       "when": "the migration runner attempts v_k+1",
       "then": "the thrown error's code is a stable string identifier documented in the store facade, and its message contains the integer v_k+1 and the description string configured on that migration",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5109-2",
@@ -25,16 +26,18 @@
       "when": "the caller catches the error thrown by the open entry point",
       "then": "the caught error is the same error the migration runner threw, with the same code and message, unwrapped or wrapped in a chain that preserves the original code and message",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5109-3",
-      "description": "A store whose migration failed at v_k+1 opens cleanly on a subsequent boot after v_k+1 is fixed and the build is redeployed; no manual recovery step is required against the on-disk artifact.",
-      "given": "the failing v_k+1 statement is corrected in the migration catalog and the same store artifact is opened by the corrected build",
-      "when": "the boot sequence invokes the open entry point",
-      "then": "the migration runner applies v_k+1 and any later pending migrations, the migrated event fires, and consumer code sees the store at the build's max known version",
+      "description": "Recovery from a defective committed migration goes through a new numbered forward-only migration. Given a numbered migration file already committed and applied to at least one environment whose body carries a defect, when the operator recovers, then the recovery ships as a new numbered forward-only file; the committed file is never edited in place, per the migration catalog's forward-only rule; the store-open lint refuses any edit of a committed migration body.",
+      "given": "a numbered migration file already committed and applied to at least one environment, whose body carries a defect (for example a wrong column name)",
+      "when": "the operator recovers from the defect",
+      "then": "the recovery ships as a NEW numbered forward-only migration file (never editing the committed file in place); the store advances to the new version on next open, and the migration catalog's forward-only rule is preserved. A mutation that edits the committed file in place FAILS the store-open lint with a named error naming the edited file.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-601-persistence-data-sqlite-store"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

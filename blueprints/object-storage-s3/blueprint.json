@@ -1,10 +1,14 @@
 {
   "slug": "object-storage-s3",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "object-storage",
-  "capabilities": ["objectStorage"],
+  "capabilities": [
+    "objectStorage"
+  ],
   "requiresAppliedCapabilities": {
-    "capabilities": ["secretsProvider"],
+    "capabilities": [
+      "secretsProvider"
+    ],
     "allowSkipFlag": "allow-no-secrets-yet",
     "refusalMessageId": "object-storage-s3-no-secrets"
   },
@@ -19,23 +23,91 @@
     }
   ],
   "contributions": [
-    { "id": "object-storage-s3-REQ-001", "kind": "req", "path": "requirements/object-storage-s3-req-001.json" },
-    { "id": "object-storage-s3-REQ-002", "kind": "req", "path": "requirements/object-storage-s3-req-002.json" },
-    { "id": "object-storage-s3-REQ-003", "kind": "req", "path": "requirements/object-storage-s3-req-003.json" },
-    { "id": "object-storage-s3-REQ-004", "kind": "req", "path": "requirements/object-storage-s3-req-004.json" },
-    { "id": "object-storage-s3-REQ-005", "kind": "req", "path": "requirements/object-storage-s3-req-005.json" },
-    { "id": "object-storage-s3-REQ-006", "kind": "req", "path": "requirements/object-storage-s3-req-006.json" },
-    { "id": "object-storage-s3-US-28101", "kind": "us", "path": "user-stories/object-storage-s3-us-28101.json" },
-    { "id": "object-storage-s3-US-28102", "kind": "us", "path": "user-stories/object-storage-s3-us-28102.json" },
-    { "id": "object-storage-s3-US-28103", "kind": "us", "path": "user-stories/object-storage-s3-us-28103.json" },
-    { "id": "object-storage-s3-US-28104", "kind": "us", "path": "user-stories/object-storage-s3-us-28104.json" },
-    { "id": "object-storage-s3-US-28105", "kind": "us", "path": "user-stories/object-storage-s3-us-28105.json" },
-    { "id": "object-storage-s3-US-28106", "kind": "us", "path": "user-stories/object-storage-s3-us-28106.json" },
-    { "id": "object-storage-s3-US-28107", "kind": "us", "path": "user-stories/object-storage-s3-us-28107.json" },
-    { "id": "object-storage-s3-US-28108", "kind": "us", "path": "user-stories/object-storage-s3-us-28108.json" },
-    { "id": "TAC-2901-object-storage-s3-facade", "kind": "tac", "path": "tacs/tac-2901-object-storage-s3-facade.json" },
-    { "id": "TAC-2902-object-storage-s3-multipart-uploader", "kind": "tac", "path": "tacs/tac-2902-object-storage-s3-multipart-uploader.json" },
-    { "id": "TAC-2903-object-storage-s3-event-sink", "kind": "tac", "path": "tacs/tac-2903-object-storage-s3-event-sink.json" },
+    {
+      "id": "object-storage-s3-REQ-001",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-001.json"
+    },
+    {
+      "id": "object-storage-s3-REQ-002",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-002.json"
+    },
+    {
+      "id": "object-storage-s3-REQ-003",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-003.json"
+    },
+    {
+      "id": "object-storage-s3-REQ-004",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-004.json"
+    },
+    {
+      "id": "object-storage-s3-REQ-005",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-005.json"
+    },
+    {
+      "id": "object-storage-s3-REQ-006",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-006.json"
+    },
+    {
+      "id": "object-storage-s3-US-28101",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28101.json"
+    },
+    {
+      "id": "object-storage-s3-US-28102",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28102.json"
+    },
+    {
+      "id": "object-storage-s3-US-28103",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28103.json"
+    },
+    {
+      "id": "object-storage-s3-US-28104",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28104.json"
+    },
+    {
+      "id": "object-storage-s3-US-28105",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28105.json"
+    },
+    {
+      "id": "object-storage-s3-US-28106",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28106.json"
+    },
+    {
+      "id": "object-storage-s3-US-28107",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28107.json"
+    },
+    {
+      "id": "object-storage-s3-US-28108",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28108.json"
+    },
+    {
+      "id": "TAC-2901-object-storage-s3-facade",
+      "kind": "tac",
+      "path": "tacs/tac-2901-object-storage-s3-facade.json"
+    },
+    {
+      "id": "TAC-2902-object-storage-s3-multipart-uploader",
+      "kind": "tac",
+      "path": "tacs/tac-2902-object-storage-s3-multipart-uploader.json"
+    },
+    {
+      "id": "TAC-2903-object-storage-s3-event-sink",
+      "kind": "tac",
+      "path": "tacs/tac-2903-object-storage-s3-event-sink.json"
+    },
     {
       "id": "ADR-2901-object-storage-s3-adapter",
       "kind": "adr",
@@ -68,9 +140,21 @@
       "topic": "objectStorageContract",
       "standardsTraceClause": "AWS S3 API and Cloudflare R2 S3-compatibility notes"
     },
-    { "id": "object-storage-s3-REQ-101", "kind": "req", "path": "requirements/object-storage-s3-req-101.json" },
-    { "id": "object-storage-s3-US-28110", "kind": "us", "path": "user-stories/object-storage-s3-us-28110.json" },
-    { "id": "TAC-2904-object-storage-s3-hetzner-endpoint-helper", "kind": "tac", "path": "tacs/tac-2904-object-storage-s3-hetzner-endpoint-helper.json" },
+    {
+      "id": "object-storage-s3-REQ-101",
+      "kind": "req",
+      "path": "requirements/object-storage-s3-req-101.json"
+    },
+    {
+      "id": "object-storage-s3-US-28110",
+      "kind": "us",
+      "path": "user-stories/object-storage-s3-us-28110.json"
+    },
+    {
+      "id": "TAC-2904-object-storage-s3-hetzner-endpoint-helper",
+      "kind": "tac",
+      "path": "tacs/tac-2904-object-storage-s3-hetzner-endpoint-helper.json"
+    },
     {
       "id": "ADR-2905-object-storage-s3-hetzner-object-storage-provider",
       "kind": "adr",
@@ -78,6 +162,53 @@
       "recommendedDefault": false,
       "elicited": true,
       "standardsTraceClause": "Hetzner Object Storage S3 compatibility documented endpoint shape"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "s3-endpoint-url",
+      "prompt": "S3-compatible endpoint URL: an AWS S3 URL, a Cloudflare R2 URL, a MinIO URL, or any S3-compatible remote (including Hetzner Object Storage under the endpoint-shape helper). The facade opens the client against this at boot.",
+      "kind": "string",
+      "default": "https://s3.amazonaws.com"
+    },
+    {
+      "id": "s3-bucket-name",
+      "prompt": "Bucket name the facade opens against. The applied project asserts a real bucket at apply; the facade dereferences the elicited value once at boot.",
+      "kind": "string",
+      "default": "app-bucket"
+    },
+    {
+      "id": "s3-adapter",
+      "prompt": "S3 client adapter per ADR-2901. aws-sdk-client-s3 is the AWS SDK v3 client for Node targets; aws4fetch is the small SigV4 fetch adapter for Workers targets.",
+      "kind": "enum",
+      "options": [
+        "aws-sdk-client-s3",
+        "aws4fetch"
+      ],
+      "default": "aws-sdk-client-s3"
+    },
+    {
+      "id": "presigned-ttl-ceiling-seconds",
+      "prompt": "Ceiling on the TTL a presignGetUrl verb may accept, in seconds. Floor is 60 seconds; default cap is 3600 seconds; the shipped default TTL is 900 seconds per ADR-2902.",
+      "kind": "string",
+      "default": "3600"
+    },
+    {
+      "id": "multipart-threshold-bytes",
+      "prompt": "Payload size at or above which the put path switches to multipart-upload. Default 8388608 bytes (8 MiB) per ADR-2903.",
+      "kind": "string",
+      "default": "8388608"
+    },
+    {
+      "id": "hetzner-location-code",
+      "prompt": "Hetzner Object Storage location code per the Hetzner storage overview: fsn1 Falkenstein, hel1 Helsinki, nbg1 Nuremberg. Only meaningful when the endpoint composes through the Hetzner endpoint-shape helper (TAC-2904).",
+      "kind": "enum",
+      "options": [
+        "fsn1",
+        "hel1",
+        "nbg1"
+      ],
+      "default": "fsn1"
     }
   ]
 }

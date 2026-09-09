@@ -16,10 +16,14 @@
       "when": "the fake clock advances 60 seconds",
       "then": "one jobStarted event fires within fireToleranceMs; one jobCompleted event fires within timeoutMs; both records match the whitelist",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3102-jobs-background-scheduler", "TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3102-jobs-background-scheduler",
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

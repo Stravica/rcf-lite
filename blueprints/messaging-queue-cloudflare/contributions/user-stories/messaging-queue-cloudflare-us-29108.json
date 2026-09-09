@@ -16,10 +16,14 @@
       "when": "the real-account-concurrency-smoke run-shim executes",
       "then": "with the env var set, 500 messages round-trip with observed concurrency below or equal to 250; with the env var unset, the report carries accountBoundSkipped true and aggregateVerdict pass; the shim exits 0 in both paths",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade",
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

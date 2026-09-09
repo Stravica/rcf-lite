@@ -16,7 +16,8 @@
       "when": "the backup runner completes and the served-request log for the snapshot window is inspected",
       "then": "an artifact file exists at P and every request served during the snapshot window reports its normal outcome, with no request marked failed on account of the backup operation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5108-2",
@@ -25,7 +26,8 @@
       "when": "the fresh process's boot sequence completes and consumer code reads through the facade",
       "then": "the fresh process's opened event names P as its store identifier, the reported schema version equals the source store's schema version at snapshot completion, and reads of rows committed at or before the snapshot completion timestamp return the committed values",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5108-3",
@@ -34,7 +36,8 @@
       "when": "the event log is inspected",
       "then": "the log contains exactly one backupCheckpoint event whose artifact path field equals P and whose completion timestamp field equals T",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-601-persistence-data-sqlite-store"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

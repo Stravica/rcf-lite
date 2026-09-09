@@ -16,7 +16,8 @@
       "when": "the consumer processes the queue batch",
       "then": "all 5 messages are received with body byte-equal, message-id present and stable per message across the delivery, and the producer-supplied trace-id present on the message headers",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-29102-2",
@@ -25,10 +26,14 @@
       "when": "the consumer returns success",
       "then": "a messageAcked event fires with messageId and queueName; the message is not redelivered",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade",
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

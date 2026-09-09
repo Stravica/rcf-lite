@@ -16,7 +16,8 @@
       "when": "the import graph and source tree are inspected for the D1 binding reference (`env.<BINDING_NAME>` where BINDING_NAME is the value configured on `d1_databases[].binding` in the project's wrangler config)",
       "then": "the reference appears in exactly one file (the facade module) and no other file in the source tree contains the reference, verified by an import-graph query or a targeted grep against the configured binding name",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13101-2",
@@ -25,7 +26,8 @@
       "when": "the surface is inspected",
       "then": "every exported symbol is either a named domain verb with typed parameters or an event-sink registration; no exported symbol is the D1 binding itself, and no exported function accepts a raw SQL string as a call argument from consumer code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13101-3",
@@ -34,12 +36,13 @@
       "when": "the domain code runs against the double in place of the facade",
       "then": "the domain code executes to completion with no reference to the D1 binding on its call path, and its behaviour is unchanged from a facade-backed run for the operations under test",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-1401-persistence-data-d1-facade"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

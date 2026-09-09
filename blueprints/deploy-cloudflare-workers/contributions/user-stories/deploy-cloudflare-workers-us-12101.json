@@ -16,7 +16,8 @@
       "when": "a manifest loader parses the file",
       "then": "the loader returns a config object whose `name` is a non-empty string, `main` resolves to an existing entry file, `compatibility_date` matches `\\d{4}-\\d{2}-\\d{2}`, and every non-secret binding name referenced from the Worker's source appears as a declaration key in the config; the config carries no `[secrets]` block",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12101-2",
@@ -25,7 +26,8 @@
       "when": "the CI gate runs on the change",
       "then": "the run fails with a stable-coded `WRANGLER_BINDING_UNDECLARED` error naming the offending source path and the missing binding name",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12101-3",
@@ -34,21 +36,31 @@
       "when": "a redaction-scanner runs against `wrangler.toml`, any committed environment file, and the CI workflows",
       "then": "no file in the scanned set contains any byte sequence in `V`",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12101-4",
-      "description": "When the manifest declares an `[assets]` block AND the Worker's fetch handler installs an auth gate on any route whose path could be shadowed by a file under the assets `directory`, the manifest MUST declare `[assets] run_worker_first` naming every gated route (glob-matched); a deployed request to any listed path is answered by the fetch handler before the assets pipeline runs. Without the listing, the assets pipeline serves the shadowing file directly and the auth gate is silently bypassed at the edge.",
-      "given": "a Worker whose fetch handler installs an auth middleware on `/notes` and a `./public/notes.html` file present at build time; the deployed Worker is reachable at production URL P",
-      "when": "an unauthenticated HTTP GET hits `P/notes`",
-      "then": "the response is the auth middleware's unauthenticated response (a redirect to sign-in, a 401, or the middleware's declared shape); the response is NOT the byte content of `./public/notes.html`; a manifest that omits `/notes` from `[assets] run_worker_first` fails the deployed observation because the assets pipeline answered before the fetch handler ran",
+      "description": "The wrangler manifest [assets] block, when the elicited run-worker-first answer is true, carries the boolean literal run_worker_first = true (and only that literal). Every application shipped under this shape asserts that an unauthenticated request to any protected route (for example /notes) reaches the Worker fetch handler before the static-asset pipeline runs, and the Worker's auth middleware gates it. The array-of-patterns form on the same field is a vendor-supported alternative recorded on TAC-1302 but not the shape this AC binds.",
+      "given": "wrangler manifest [assets].directory non-empty and run_worker_first = true",
+      "when": "an unauthenticated request lands on a Worker route the auth middleware protects",
+      "then": "the fetch handler runs before the static-asset pipeline, the auth middleware refuses, and no static asset is served",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "interfaces.manifestFile"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/static-assets/binding/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -16,12 +16,13 @@
       "when": "a reader opens the guide and grep locates the section heading, the verbatim quote and the two URLs",
       "then": "the section heading appears once; the verbatim landing-page quote appears once; both Cloudflare URLs appear at least once each; a curl -fsSI on each URL returns HTTP 200",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

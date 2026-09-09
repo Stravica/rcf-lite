@@ -16,10 +16,13 @@
       "when": "the migration runner applies the directory with SIMULATE_MIGRATION_FAILURE=true",
       "then": "the first file's transaction commits and its row lands in the bookkeeping table; the second file's transaction rolls back; the runner exits non-zero with the failing filename in its stderr; the third file is not attempted; the bookkeeping table shows exactly one applied row",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "tacIds": [
+    "TAC-2802-persistence-data-postgres-migration-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

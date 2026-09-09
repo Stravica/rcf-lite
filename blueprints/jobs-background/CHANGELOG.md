@@ -1,3 +1,9 @@
+# Changelog
+
+## 1.1.0 - 2026-09-09
+
+Adds the elicits block (jobs-directory, scheduler-mode, max-attempts, retry-backoff, handler-timeout-seconds, operator-surface) that the REQs and guide were already describing in prose. Adds a runtime clause naming the backgroundJobs applied capability on REQ-002. Adds deliveredBy on REQ-001 (pointing at ADR-3103 for the refusalMessageId decision), REQ-002 and REQ-004. Adds disposition to every AC.
+
 # jobs-background changelog
 
 ## 1.0.0 - 2026-09-06

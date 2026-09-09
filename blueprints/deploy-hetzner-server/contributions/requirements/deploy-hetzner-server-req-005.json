@@ -2,7 +2,7 @@
   "reqId": "deploy-hetzner-server-REQ-005",
   "prdId": "PRD-001",
   "title": "Snapshot cadence elicited (weekly default, daily and off alternatives), snapshot-on-demand fires a tagged snapshot",
-  "description": "The applying project elicits a snapshot cadence per ADR-3802 with an enum of weekly (recommended default), daily and off. The value lives on hetzner/servers/name.json as snapshotCadence. When the cadence is non-off, a scheduled snapshot runner in the applying project fires the snapshot verb on the provisioner facade against every server whose cadence matches, and tags each snapshot with the server name and wall-clock time. A snapshot-on-demand verb on the provisioner fires the same shape without a schedule. Under provisioningTool=hcloud the facade shells to hcloud image create-image and tags via hcloud image update; under raw-api it posts to POST /servers/{id}/actions/create_image and PATCH /images/{id}. The hetznerSnapshotTaken lifecycle event carries snapshot id and wall-clock time. Hetzner-managed backups are a separately elicited paid opt-in (approximately 20 percent of monthly server price per https://docs.hetzner.com/cloud/servers/backups-snapshots/overview) and compose with the scheduled snapshot runner.",
+  "description": "The applying project elicits a snapshot cadence per ADR-3802 with an enum of weekly (recommended default), daily and off. The value lives on hetzner/servers/name.json as snapshotCadence. When the cadence is non-off, a scheduled snapshot runner in the applying project fires the snapshot verb on the provisioner facade against every server whose cadence matches, and tags each snapshot with the server name and wall-clock time. A snapshot-on-demand verb on the provisioner fires the same shape without a schedule. Under provisioningTool=hcloud the facade shells to hcloud image create-image and tags via hcloud image update; under raw-api it posts to POST /servers/{id}/actions/create_image and PATCH /images/{id}. The hetznerSnapshotTaken lifecycle event carries snapshot id and wall-clock time. Hetzner-managed backups are a separately elicited paid opt-in (approximately 20 percent of monthly server price per https://docs.hetzner.com/cloud/servers/backups-snapshots/overview) and compose with the scheduled snapshot runner. Hetzner-managed backups are elicited true or false: false is the shipped default (the scheduled snapshot runner carries the recovery-point objective through Hetzner Cloud snapshots); true opts in to Hetzner-managed backups per ADR-3802 (paid, approximately 20 percent of monthly server price).",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,5 +14,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

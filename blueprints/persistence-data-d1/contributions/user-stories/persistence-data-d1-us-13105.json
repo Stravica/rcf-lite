@@ -16,7 +16,8 @@
       "when": "every verb whose responsibility involves writing to two or more rows across two or more statements is inspected",
       "then": "each such verb issues its statements as one `db.batch([...])` call whose array contains every statement the atomicity claim covers, and no such verb chains sequential independent facade calls to fake atomicity",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-13105-2",
@@ -25,7 +26,8 @@
       "when": "the verb is invoked and the batch fails",
       "then": "the caller receives an error, and a follow-up read against table A shows no row corresponding to the first statement of the failed batch (D1 rolled the batch back)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-13105-3",
@@ -34,12 +36,13 @@
       "when": "the surface is inspected for begin/commit primitives, transaction-block wrappers, or documentation promising cross-call atomicity",
       "then": "no such surface exists on the facade, and every atomicity claim in facade documentation is scoped to a single verb whose implementation uses `db.batch([...])`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-1401-persistence-data-d1-facade"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

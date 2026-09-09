@@ -16,7 +16,8 @@
       "when": "run-facade-round-trip.mjs, run-put-get-round-trip.mjs, run-presigned-url.mjs, run-multipart-upload.mjs, run-event-secrecy.mjs run in sequence",
       "then": "each shim exits 0; each per-blueprint report at .rcf/reports/blueprints/object-storage-s3/<probe>.json carries aggregateVerdict pass; every result carries an anchorAcId matching a contributed AC id",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-28107-2",
@@ -25,10 +26,15 @@
       "when": "each induced-failure switch is set in turn and the paired probe runs",
       "then": "the paired probe exits non-zero and the aggregate verdict lands as fail on the anchored AC; the fixture README documents the paired switch and probe for each of the four wired switches",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade", "TAC-2902-object-storage-s3-multipart-uploader", "TAC-2903-object-storage-s3-event-sink"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade",
+    "TAC-2902-object-storage-s3-multipart-uploader",
+    "TAC-2903-object-storage-s3-event-sink"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -16,7 +16,8 @@
       "when": "the resulting Worker's runtime code reads the provenance surface",
       "then": "the surface returns an object whose `versionSha` equals C's short sha, whose `builtAt` equals T formatted as ISO 8601, and whose `ciRunUrl` equals R",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-12112-2",
@@ -25,7 +26,8 @@
       "when": "an HTTP GET hits the project's declared health-probe path",
       "then": "the response body is JSON with fields `versionSha`, `builtAt`, `ciRunUrl`; all three fields are populated with non-empty strings; the response status is in the success set",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12112-3",
@@ -34,7 +36,8 @@
       "when": "the verifier's post-promote probe returns a body whose `versionSha` reads `sha-P` (a stale prior version)",
       "then": "the verifier records the mismatch as `PROMOTE_VERIFY_FAILED` with the observed `sha-P` and the expected `sha-W`; the release is not marked successful",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

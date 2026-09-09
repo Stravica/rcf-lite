@@ -1,3 +1,9 @@
+# Changelog
+
+## 1.2.0 - 2026-09-09
+
+Adds the elicits block (s3-endpoint-url, s3-bucket-name, s3-adapter, presigned-ttl-ceiling-seconds, multipart-threshold-bytes, hetzner-location-code) that the REQs and guide were already describing in prose. Adds a runtime clause naming the objectStorage applied capability on REQ-001. Adds deliveredBy on REQ-003, REQ-005 and REQ-006. Closes chain-contradiction specimens F-2 (REQ-006 boundary tightened: the facade factory accepts only { secretRef, resolver } and refuses a resolved { accessKeyId, secretAccessKey } object at the boundary with error kind rejectedResolvedCredentials; AC-28106-1 asserts the refusal), F-3 (REQ-005 and AC-28105-1 standardise on ts as the wall-clock milliseconds-since-epoch field name, aligning with TAC-2903), F-5 (REQ-002 gains the shipped key-shape check on the facade's public verbs; new AC-28102-3 asserts the invalidKey refusal for empty keys, leading-slash, ".." or "//" segments, and keys longer than 1024 bytes). Adds disposition to every AC.
+
 # object-storage-s3 changelog
 
 ## 1.1.0 - 2026-09-08

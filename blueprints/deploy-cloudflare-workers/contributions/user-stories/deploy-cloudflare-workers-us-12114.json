@@ -16,12 +16,13 @@
       "when": "the applied sidecar records the operator's answers and a wrangler.toml is generated",
       "then": "appliedElicitations.assets-directory equals ./public; the generated wrangler.toml carries [assets] directory = \"./public\" and no run_worker_first field; the manifest carries no pages_build_output_dir field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

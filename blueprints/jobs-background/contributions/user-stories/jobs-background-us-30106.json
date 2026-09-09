@@ -16,10 +16,13 @@
       "when": "grep queries walk the guide and README",
       "then": "guide/jobs-background.md contains the substring operator-facing surface and names all three values cli, httpEndpoint, none; README.md names the same three values; neither ships a CLI binary nor an HTTP router",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

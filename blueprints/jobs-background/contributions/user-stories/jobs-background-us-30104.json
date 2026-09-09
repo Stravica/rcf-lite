@@ -16,10 +16,14 @@
       "when": "the failing job is scheduled",
       "then": "three jobStarted records with the same jobId and attempts 1,2,3; one jobFailed with a terminalErrorCode; no fourth jobStarted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3101-jobs-background-job-definition", "TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3101-jobs-background-job-definition",
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

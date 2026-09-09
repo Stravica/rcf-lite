@@ -2,7 +2,7 @@
   "reqId": "messaging-queue-cloudflare-REQ-002",
   "prdId": "PRD-001",
   "title": "Publish, consume and ack with stable message-id and producer-supplied trace-id",
-  "description": "The producer facade publishes messages with a stable message-id assigned by the Cloudflare Queues platform on send and a producer-supplied trace-id carried in the message headers. The consumer, registered on the Worker's queue handler, reads a batch of messages, dispatches each to the registered handler, acknowledges each per message on successful return, and returns retry when the handler throws a retryable error. The received body equals the published body byte-for-byte; the received headers include both the stable message-id and the producer-supplied trace-id. Publish is idempotent from the producer's point of view within a single facade instance (an application layer that reissues a publish for the same domain event gets a new message-id, per the at-least-once shape).",
+  "description": "The producer facade publishes messages with a stable message-id assigned by the Cloudflare Queues platform on send and a producer-supplied trace-id carried in the message headers. The consumer, registered on the Worker's queue handler, reads a batch of messages, dispatches each to the registered handler, acknowledges each per message on successful return, and returns retry when the handler throws a retryable error. The received body equals the published body byte-for-byte; the received headers include both the stable message-id and the producer-supplied trace-id. Publish is at-least-once (never idempotent; ADR-3002 records the ratified delivery semantics) from the producer's point of view within a single facade instance (an application layer that reissues a publish for the same domain event gets a new message-id, per the at-least-once shape).",
   "category": "functional",
   "domain": "messaging",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "adrId": "ADR-3002-messaging-queue-cloudflare-delivery-semantics",
+    "field": "decision.at-least-once"
+  }
 }

@@ -20,7 +20,8 @@
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
         "field": "interfaces.deployAdapter"
-      }
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-12109-2",
@@ -29,7 +30,8 @@
       "when": "a scan searches for verbs named `rollback` (or synonyms `revert`, `undoPromote`) that spawn the vendor CLI or issue a vendor deploy call outside the Deploy Adapter",
       "then": "no such verb exists; every rollback path routes through the `promote` workflow and the Deploy Adapter",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12109-3",
@@ -38,7 +40,8 @@
       "when": "the `promote` workflow completes",
       "then": "the workflow exits non-zero with `PROMOTE_VERIFY_FAILED`; the failing probe path and the response status are recorded; the deploy-log record does not mark the release successful",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     }
   ],
   "tacIds": [

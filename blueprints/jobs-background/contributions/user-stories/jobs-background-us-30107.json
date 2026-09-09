@@ -16,10 +16,13 @@
       "when": "rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet runs",
       "then": "exit code is 0; rcf/blueprints/jobs-background.applied.json exists; slug is jobs-background; allowNoAuthYet is true; appliedCapabilities is []; notes contains 'no queue yet', '--allow-no-queue-yet' and 'queue'; notes does NOT contain 'no auth yet' nor 'no secrets-management yet'",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3101-jobs-background-job-definition"],
+  "tacIds": [
+    "TAC-3101-jobs-background-job-definition"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

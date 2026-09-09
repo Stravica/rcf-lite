@@ -16,10 +16,13 @@
       "when": "the publish-to-delivery probe publishes 5 messages",
       "then": "the consumer receives them in one batch; per-message ack fires 5 times; the messageAcked events on the sink number 5",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

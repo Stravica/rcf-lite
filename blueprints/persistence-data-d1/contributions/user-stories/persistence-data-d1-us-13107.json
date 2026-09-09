@@ -16,7 +16,8 @@
       "when": "every event record captured on the sink is inspected",
       "then": "every field on every record matches one of the metadata field types listed above, and no field's value equals a value read from any domain table",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13107-2",
@@ -29,7 +30,8 @@
       "ownerRef": {
         "tacId": "TAC-1401-persistence-data-d1-facade",
         "field": "interfaces.onEvent"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

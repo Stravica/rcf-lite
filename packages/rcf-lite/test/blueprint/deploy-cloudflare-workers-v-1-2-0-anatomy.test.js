@@ -39,7 +39,7 @@ const SCHEMAS_ROOT = join(
 test('blueprint.json declares 41 contributions with v1.2.0, delta shape and unchanged v1.1.0 companions (TC-073-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'deploy-cloudflare-workers');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.3.0');
   assert.equal(doc.category, 'deploy');
   assert.equal(doc.contributions.length, 41);
   const kinds = doc.contributions.reduce((acc, c) => {
@@ -160,7 +160,7 @@ test('elicits[] declares assets-directory string default empty and run-worker-fi
   // without a when block this round).
   const loaded = await loadBlueprint(BLUEPRINT_ROOT);
   assert.equal(loaded.slug, 'deploy-cloudflare-workers');
-  assert.equal(loaded.version, '1.2.0');
+  assert.equal(loaded.version, '1.3.0');
   assert.equal(loaded.elicits.length, 2);
 });
 
@@ -334,7 +334,7 @@ test('apply deploy-cloudflare-workers v1.2.0 lands 41 contributions and records 
     const sidecar = JSON.parse(
       await readFile(join(scratch, 'rcf', 'blueprints', 'deploy-cloudflare-workers.applied.json'), 'utf8'),
     );
-    assert.equal(sidecar.version, '1.2.0');
+    assert.equal(sidecar.version, '1.3.0');
     assert.deepEqual(sidecar.appliedElicitations, {
       'assets-directory': './public',
       'run-worker-first': false,

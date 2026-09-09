@@ -20,7 +20,8 @@
       "ownerRef": {
         "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
         "field": "interfaces.productionUrl"
-      }
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-12105-2",
@@ -29,7 +30,8 @@
       "when": "the adapter loads the manifest",
       "then": "the load throws a `DEPLOY_URL_COLLAPSED` error naming both URLs; no deploy verb accepts the manifest",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12105-3",
@@ -38,7 +40,8 @@
       "when": "a health probe hits the production URL and a second health probe hits A",
       "then": "the production response body carries `versionSha` of P and the preview response body carries `versionSha` of W; the two values are not equal",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     }
   ],
   "tacIds": [

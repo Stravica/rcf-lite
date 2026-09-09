@@ -13,7 +13,36 @@
       "id": "AC-37103-1",
       "description": "The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) applies the ci-throwaway.json manifest via provision.mjs, asserts (a) hcloud server list --output json shows the new server whose id is written to the fixture scratch file, (b) hetznerServerProvisioned fired with id, primaryIpv4, location=fsn1, serverType=cx23; teardown via destroy.mjs runs regardless of probe verdict.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37103-2",
+      "description": "Provisioner failure surfaces (upstream non-2xx). Given the hetzner API returns a non-2xx response (for example 429 rate-limited on the account) during a createServer call, when provision.mjs runs, then the facade catches the failure, emits provisionerFailed with { verb: \"createServer\", apiStatus, retryable: boolean } on the event sink, no hetznerServerProvisioned fires, and no orphan server survives on the account after the run.",
+      "given": "the hetzner API returns 429 on createServer",
+      "when": "provision.mjs runs the fixture manifest",
+      "then": "the facade emits provisionerFailed with { verb, apiStatus, retryable }; no hetznerServerProvisioned fires; no orphan server survives after the run",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37103-3",
+      "description": "Repeat-apply idempotency. Given a manifest already applied once and matching a live server on the account, when provision.mjs runs the same manifest a second time, then the facade emits no second hetznerServerProvisioned, the run exits zero, and the live server id remains unchanged; a subsequent destroy tears the single server down.",
+      "given": "a manifest already applied once against a live matching server",
+      "when": "provision.mjs runs the same manifest again",
+      "then": "no second hetznerServerProvisioned fires; the run exits zero; the live server id remains unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -21,5 +50,5 @@
     "TAC-3802-deploy-hetzner-server-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

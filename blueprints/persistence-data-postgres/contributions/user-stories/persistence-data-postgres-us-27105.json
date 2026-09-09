@@ -16,10 +16,13 @@
       "when": "the recovery runner runs pg_dump against the source and a second Postgres is primed from the artefact",
       "then": "the runner exits 0, backupExported fires with the artefact path and completion timestamp, the artefact file exists at the elicited destination, and a query against the restored Postgres returns the same row count and same checksum of the fixture rowset as the source",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2804-persistence-data-postgres-recovery-runner"],
+  "tacIds": [
+    "TAC-2804-persistence-data-postgres-recovery-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

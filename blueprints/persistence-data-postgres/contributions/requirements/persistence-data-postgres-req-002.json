@@ -2,7 +2,7 @@
   "reqId": "persistence-data-postgres-REQ-002",
   "prdId": "PRD-001",
   "title": "Schema evolution ships as numbered forward-only .sql migrations applied one file one transaction",
-  "description": "Schema evolution is expressed as a directory of numbered .sql migration files under the elicited migrations directory (default ./migrations/). Each filename begins with a monotonically increasing integer that is unique across the directory; the file body is engine-native SQL. An in-tree migration runner applies each file inside its own transaction (BEGIN, run the file body, COMMIT on success or ROLLBACK on error); the runner tracks applied filenames in a schema_version bookkeeping table it maintains inside the same database. There are no down migrations. Which runner tool the project reaches for is elicited (a node-pg-migrate wrap, a sqitch invocation, a flyway process, or a bespoke Node runner over pg); the discipline is what is fixed here, not the tool.",
+  "description": "Schema evolution is expressed as a directory of numbered .sql migration files under the elicited migrations directory (default ./migrations/). Each filename begins with a monotonically increasing integer that is unique across the directory; the file body is engine-native SQL. An in-tree migration runner applies each file inside its own transaction (BEGIN, run the file body, COMMIT on success or ROLLBACK on error); the runner tracks applied filenames in a schema_version bookkeeping table it maintains inside the same database. There are no down migrations. Which runner tool the project reaches for is elicited (a node-pg-migrate wrap, a sqitch invocation, a flyway process, or a bespoke Node runner over pg); the discipline is what is fixed here, not the tool. The migration-runner-tool is elicited between node-pg-migrate, sqitch, flyway and a custom Node runner; the discipline (numbered forward-only, one file one transaction) is fixed, the tool is not.",
   "category": "technical",
   "domain": "persistence",
   "priority": "must",
@@ -14,5 +14,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

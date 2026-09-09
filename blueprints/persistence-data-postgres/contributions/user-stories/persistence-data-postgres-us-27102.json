@@ -16,10 +16,13 @@
       "when": "the migration runner applies the directory against the database",
       "then": "each file runs inside a BEGIN/COMMIT pair; after all three succeed a migrationsApplied event fires with the filename list ['001_*.sql', '002_*.sql', '003_*.sql'] and the schema_version table (or the runner's configured bookkeeping table name) carries a row per applied filename",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "tacIds": [
+    "TAC-2802-persistence-data-postgres-migration-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -2,7 +2,7 @@
   "reqId": "object-storage-s3-REQ-002",
   "prdId": "PRD-001",
   "title": "Put, get, delete, list contract on typed keys",
-  "description": "The facade exposes named domain verbs (putObject, getObject, deleteObject, listObjects) that take a typed key (a project-defined key namespace, not a raw string on the public surface where a typed alternative fits), a content-type string on put, and return either the object body (get), a boolean success (put, delete), or a paginated key listing (list). Every read and write goes through the S3 client's public request surface; no facade verb accepts a raw request object or a general-purpose passthrough from consumer code. The put verb emits objectPut with key, size, contentType, timestamp; the delete verb emits objectDeleted with key, timestamp.",
+  "description": "The facade exposes named domain verbs (putObject, getObject, deleteObject, listObjects) that take a typed key (a project-defined key namespace, not a raw string on the public surface where a typed alternative fits), a content-type string on put, and return either the object body (get), a boolean success (put, delete), or a paginated key listing (list). Every read and write goes through the S3 client's public request surface; no facade verb accepts a raw request object or a general-purpose passthrough from consumer code. The put verb emits objectPut with key, size, contentType, timestamp; the delete verb emits objectDeleted with key, timestamp. Keys reach the facade as strings; the facade validates them at the boundary against a shipped key-shape check: reject empty keys, keys with a leading slash, keys that contain the literal traversal segments \"..\" or \"//\", and keys longer than 1024 bytes. The applying project may layer a stricter project-typed key on top of the string, but the facade's public verbs accept the shape-validated string as the primitive.",
   "category": "functional",
   "domain": "object-storage",
   "priority": "must",
@@ -14,5 +14,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

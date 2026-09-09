@@ -14,7 +14,8 @@
     "Expose `describeVersion({ versionId })` returning provenance (`versionSha`, `builtAt`, `ciRunUrl`) and URLs (`versionIdUrl`) for the named version; `versionSha` is the git commit sha baked into the version's bundle by `build-and-upload`, distinct from the version UUID `versionId` names (AC-12112-1, AC-12112-2).",
     "Expose `resolveSubdomain()` that returns the account's workers.dev subdomain string every URL-assembly path needs; reads the `WORKERS_DEV_SUBDOMAIN` env var when set (project pin) and otherwise queries the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint; caches the value for the process's lifetime (AC-12105-1).",
     "Refuse a manifest whose production route resolves to the same host as the preview alias URL with `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
-    "Route every CLI invocation through a redactor that scrubs the vendor API token and account id from every emitted log line (AC-12107-3, AC-12106-2)."
+    "Route every CLI invocation through a redactor that scrubs the vendor API token and account id from every emitted log line (AC-12107-3, AC-12106-2).",
+    "Expose a stable deployStatus verb that composes the manifest-declared production URL, the preview alias URL (via the Preview URL Resolver TAC-1303), and the currently serving version id (via the Cloudflare Deployments API); every AC that observes an addressable served surface reads it through this verb (AC-12105-1)."
   ],
   "internalStructure": "One stateless class per process with an injected vendor binding and an injected redactor. The vendor binding is a project-authored module implementing the port in the interfaces block; the default vendor binding shells to the `wrangler` CLI and lives under the same package as the adapter. Every verb is a thin translation from the named surface to a vendor CLI invocation (or SDK call) plus response parsing plus provenance-URL assembly.",
   "interfaces": [
@@ -50,5 +51,5 @@
   ],
   "tradeoffs": "The adapter is process-local and stateless; every call reaches the vendor. That means a chain of adapter calls in one CI step costs one vendor round-trip per call rather than a shared session. The trade keeps the adapter easy to reason about and easy to reimplement against a different vendor. A project that wants a session-shared invocation supplies a vendor binding whose backing is a long-lived process rather than a CLI spawn per call; the port shape does not change.",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

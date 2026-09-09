@@ -13,7 +13,10 @@
     "Refuse a manifest that carries any inline secret value; scan the parsed object for keys under the vendor's secret-declaration primitive whose value is not an empty declaration (AC-12101-3, AC-12106-1).",
     "Refuse a manifest whose production route stanza resolves to the same host as the preview alias URL with `DEPLOY_URL_COLLAPSED` (AC-12105-2).",
     "Expose a `bindings()` accessor listing every declared binding (kind, name) for downstream consumers.",
-    "Expose a `productionUrl()` accessor deriving the production URL from the `routes`/`route`/`workers_dev`/custom-domain declaration."
+    "Expose a `productionUrl()` accessor deriving the production URL from the `routes`/`route`/`workers_dev`/custom-domain declaration.",
+    "Load and expose the [assets] block per the current Cloudflare Workers static-assets contract (https://developers.cloudflare.com/workers/static-assets/binding/): an empty or absent [assets].directory answer keeps the bare-Worker shape and emits no [assets] block; a non-empty answer emits [assets].directory verbatim and enables the static-asset pipeline (AC-12113-1, AC-12114-1).",
+    "Map the elicited run-worker-first answer to the wrangler literal on the emitted [assets] block: false or absent omits the field; true emits run_worker_first = true; the array-of-patterns form (up to 100 entries per the vendor page) is accepted on load and surfaced through the manifest reader unchanged (AC-12115-1).",
+    "Refuse a wrangler manifest that declares both an [assets] block and a legacy pages_build_output_dir field (their meanings collide on the same deploy). The refusal names the collision and points the operator at the [assets] block as the ratified shape."
   ],
   "internalStructure": "One parser module per format (TOML and JSONC), one validator that walks the parsed object against the shape rules, one binding-usage scanner that walks the Worker source AST for env-accessor patterns, and one URL-derivation module that inspects the routes stanza. All pure functions; no I/O outside the initial file read.",
   "interfaces": [
@@ -41,5 +44,5 @@
   "dependencies": [],
   "tradeoffs": "The loader owns validation but does not own the vendor's own manifest-level validation (which happens later at the vendor CLI). Two-stage validation means a manifest that passes this loader can still fail the vendor's own load; the trade keeps the loader project-local and fast (no vendor round-trip on every CI step) while catching the classes this blueprint cares about (undeclared bindings, inline secrets, collapsed URLs) before the vendor call. A project can point the loader at a project-authored TOML dialect (a preprocessor step) by wrapping the manifestFile interface.",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -16,7 +16,8 @@
       "when": "a lint scan walks every workflow file and inspects the trigger set of each and the deploy verb it invokes",
       "then": "no workflow file both matches trigger `push` on branch `main` (or a linear-history proxy) AND invokes a promote verb; the scan reports zero offenders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12104-2",
@@ -25,7 +26,8 @@
       "when": "the trigger stanza is parsed",
       "then": "the only trigger present is the platform's explicit-manual-trigger primitive (`workflow_dispatch` on GitHub Actions or the equivalent) and no `push`, `pull_request`, or `schedule` trigger appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12104-3",
@@ -34,7 +36,8 @@
       "when": "the deploy log store is inspected after the run",
       "then": "a new record exists whose fields include `promotedVersionId`, `promotedBy`, `previousVersionId`, and `promotedAt`; every field is populated and no field carries a secret value",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

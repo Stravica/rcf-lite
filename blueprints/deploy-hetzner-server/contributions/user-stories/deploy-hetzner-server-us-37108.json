@@ -13,12 +13,27 @@
       "id": "AC-37108-1",
       "description": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the snapshot verb on the throwaway server, then asserts hcloud image list --type=snapshot --output json shows a snapshot tagged with the server name and current wall-clock time; hetznerSnapshotTaken event carries snapshot id and time. Teardown via destroy.mjs.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-37108-2",
+      "description": "Snapshot-on-demand upstream failure. Given the hetzner API returns a non-2xx response on hcloud image create-image (for example 429 rate-limited or 503 upstream), when the snapshot-on-demand verb runs, then the facade emits provisionerFailed with { verb: \"createImage\", apiStatus, retryable } on the event sink and no hetznerSnapshotTaken fires; no orphan snapshot resource remains on the account.",
+      "given": "the hetzner API returns 429 or 503 on hcloud image create-image",
+      "when": "the snapshot-on-demand verb runs",
+      "then": "the facade emits provisionerFailed with { verb, apiStatus, retryable }; no hetznerSnapshotTaken fires; no orphan snapshot remains",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3801-deploy-hetzner-server-provisioner"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

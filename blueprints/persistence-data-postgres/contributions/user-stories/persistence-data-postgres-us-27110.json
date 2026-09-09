@@ -16,10 +16,13 @@
       "when": "the drill primes a fresh Postgres from the artefact and runs SELECT count(*) and a checksum aggregate on the fixture table against both databases",
       "then": "the two counts are equal; the two checksums are equal; recoveryDrillPassed fires on the event sink with { count, checksum }; the fresh Postgres and its artefact primer are torn down on exit",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2804-persistence-data-postgres-recovery-runner"],
+  "tacIds": [
+    "TAC-2804-persistence-data-postgres-recovery-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

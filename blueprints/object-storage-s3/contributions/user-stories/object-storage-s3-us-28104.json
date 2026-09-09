@@ -16,7 +16,8 @@
       "when": "putObject(key, contentType, body=<10 MiB Buffer>) then getObject(key)",
       "then": "the getObject returns a body of exact size 10485760 with byte equality to the put payload; the events list contains one objectPut record with size=10485760; no ListMultipartUploads on the bucket surfaces an in-flight upload after completion",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-28104-2",
@@ -25,10 +26,13 @@
       "when": "putObject(key, contentType, body=<10 MiB Buffer>) rejects mid-upload",
       "then": "the rejection propagates to the caller; a probe-side ListMultipartUploads(prefix=key) returns zero uploads; no completed object appears at key",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2902-object-storage-s3-multipart-uploader"],
+  "tacIds": [
+    "TAC-2902-object-storage-s3-multipart-uploader"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

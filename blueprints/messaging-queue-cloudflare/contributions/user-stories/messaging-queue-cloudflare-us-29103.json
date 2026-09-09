@@ -16,10 +16,13 @@
       "when": "the consumer is invoked across successive deliveries",
       "then": "the message-id is stable across attempts 1 to 3; the attempt counter increments on each delivery; body, headers and producer-supplied trace-id remain byte-equal across attempts",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

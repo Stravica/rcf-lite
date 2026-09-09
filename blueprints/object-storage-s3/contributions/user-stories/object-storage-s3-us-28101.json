@@ -16,7 +16,8 @@
       "when": "the process boots and the facade's ready-check returns",
       "then": "a facadeReady event fires on the injected event sink with a payload containing endpointHost and bucketName, and the client is ready to accept verbs; the facade exposes named domain verbs and does not re-export the raw S3 client",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-28101-2",
@@ -25,10 +26,13 @@
       "when": "grep 'from \\'@aws-sdk/client-s3\\'' or 'from \\'aws4fetch\\'' walks the tree outside the facade directory",
       "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw S3 client reference",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -2,7 +2,7 @@
   "reqId": "object-storage-s3-REQ-001",
   "prdId": "PRD-001",
   "title": "One facade module is the sole reader of the S3 client and opens on boot",
-  "description": "The application accesses object storage through a single facade module in the project's source tree that is the ONLY module in the tree that imports the S3 client (either @aws-sdk/client-s3 on Node targets or aws4fetch on Workers targets per ADR-2901). Every other module that touches object storage imports the facade and calls its named domain verbs; no other module holds the raw S3 client, an S3Client instance, or an aws4fetch AwsClient instance. On process boot, the facade opens the client against the elicited endpoint URL and bucket name, and once the first successful ready-check completes, emits a facadeReady lifecycle event carrying endpoint host and bucket name. The endpoint URL (a Cloudflare R2 URL, an AWS S3 URL, a MinIO URL, or any S3-compatible remote) and the bucket name are elicited at apply time.",
+  "description": "The application accesses object storage through a single facade module in the project's source tree that is the ONLY module in the tree that imports the S3 client (either @aws-sdk/client-s3 on Node targets or aws4fetch on Workers targets per ADR-2901). Every other module that touches object storage imports the facade and calls its named domain verbs; no other module holds the raw S3 client, an S3Client instance, or an aws4fetch AwsClient instance. On process boot, the facade opens the client against the elicited endpoint URL and bucket name, and once the first successful ready-check completes, emits a facadeReady lifecycle event carrying endpoint host and bucket name. The endpoint URL (a Cloudflare R2 URL, an AWS S3 URL, a MinIO URL, or any S3-compatible remote) and the bucket name are elicited at apply time. This blueprint declares the objectStorage applied capability at runtime: the facade module is the sole channel through which consumer code sees the S3-shaped store, and any downstream blueprint whose requiresAppliedCapabilities lists objectStorage is satisfied by an applied object-storage-s3 pinning the facade to its client and the elicited endpoint URL and bucket name. The s3-endpoint-url and s3-bucket-name are elicited at apply time and dereferenced once at boot. The s3-adapter is elicited between aws-sdk-client-s3 (AWS SDK v3 client for Node targets) and aws4fetch (small SigV4 fetch adapter for Workers targets). The presigned-ttl-ceiling-seconds is elicited within the ADR-2902 default cap.",
   "category": "functional",
   "domain": "object-storage",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2901-object-storage-s3-facade",
+    "field": "responsibilities.facade"
+  }
 }

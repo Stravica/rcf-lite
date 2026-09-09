@@ -16,10 +16,13 @@
       "when": "the fixture jobs runtime boots and reads the jobs/ directory",
       "then": "both toy job modules load without throwing; the runtime's registry has entries keyed by name whose values carry handler, inputSchema, retryPolicy and timeoutMs; dispatch by message.name calls the matching handler",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3101-jobs-background-job-definition"],
+  "tacIds": [
+    "TAC-3101-jobs-background-job-definition"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

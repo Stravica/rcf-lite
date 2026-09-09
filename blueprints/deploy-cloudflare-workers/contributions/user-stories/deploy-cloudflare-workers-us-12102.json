@@ -16,7 +16,8 @@
       "when": "the source tree is scanned for spawns of `wrangler` (or the vendor's CLI binary name) and for imports of the vendor's deploy SDK identifier",
       "then": "the only source file that matches either scan is the Deploy Adapter module; no other module names an alternative deploy call path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12102-2",
@@ -29,7 +30,8 @@
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
         "field": "interfaces.deployAdapter"
-      }
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-12102-3",
@@ -42,7 +44,8 @@
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
         "field": "interfaces.deployAdapter"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

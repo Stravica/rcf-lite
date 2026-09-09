@@ -16,10 +16,13 @@
       "when": "the surface is inspected and the helper is invoked with a valid integer key on a supported answer",
       "then": "the surface exposes withAdvisoryLock only when the answer is session or transaction; the helper acquires the correct lock verb per the answer, runs the callback, and releases (session) or lets COMMIT release (transaction); the sidecar records the elicited answer for later validation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "tacIds": [
+    "TAC-2801-persistence-data-postgres-facade"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

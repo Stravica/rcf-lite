@@ -16,7 +16,8 @@
       "when": "the process boots and the facade ready-check returns",
       "then": "a producerReady event fires on the injected event sink with a payload containing queueName; the facade exposes named domain verbs (publish, publishBatch) and does not re-export the raw Queues binding",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-29101-2",
@@ -25,10 +26,13 @@
       "when": "grep for a Queues binding dereference walks the tree outside the facade directory",
       "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw binding reference",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

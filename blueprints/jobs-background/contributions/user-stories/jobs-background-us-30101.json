@@ -16,10 +16,13 @@
       "when": "rcf define blueprint add ./blueprints/jobs-background runs",
       "then": "exit code is 3; stderr first-line grep matches [jobs-background-no-queue]; stderr grep matches messaging-queue-cloudflare; stderr grep matches --allow-no-queue-yet; the manifest has no jobs-background entry",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3101-jobs-background-job-definition"],
+  "tacIds": [
+    "TAC-3101-jobs-background-job-definition"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

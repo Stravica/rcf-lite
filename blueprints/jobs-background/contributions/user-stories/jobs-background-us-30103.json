@@ -16,10 +16,13 @@
       "when": "the fake clock advances one POSIX cron minute or past a scheduled delayMs",
       "then": "one message per fire lands on the applied in-memory queue with the target job.name and an ISO-8601 timestamp",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3102-jobs-background-scheduler"],
+  "tacIds": [
+    "TAC-3102-jobs-background-scheduler"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

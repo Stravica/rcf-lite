@@ -16,10 +16,13 @@
       "when": "node blueprints/object-storage-s3/contributions/probes/run-hetzner-object-storage-round-trip.mjs runs",
       "then": "the probe either round-trips a byte-equal 1 KiB payload via put/get/delete against the composed <bucket>.<location>.your-objectstorage.com endpoint or records accountBoundSkipped true; SIMULATE_HETZNER_ENDPOINT_MISSHAPEN true composes an invalid endpoint via the fixture-side shim and the probe FAILS naming the missing subdomain",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2904-object-storage-s3-hetzner-endpoint-helper"],
+  "tacIds": [
+    "TAC-2904-object-storage-s3-hetzner-endpoint-helper"
+  ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

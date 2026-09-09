@@ -16,7 +16,8 @@
       "when": "the probe module assets-manifest-scan.mjs parses the fixture wrangler.toml",
       "then": "the parsed structure contains an assets table whose directory string equals ./dist and no top-level pages_build_output_dir key; the probe returns verdict pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12113-2",
@@ -25,12 +26,13 @@
       "when": "the probe module parses the fixture wrangler.toml",
       "then": "the parsed [assets] table carries run_worker_first equal to true; when the fixture is switched with SIMULATE_EMPTY_ASSETS=true the run_worker_first field is absent (the whole [assets] block is absent) and the probe still returns verdict pass because the bare-Worker shape is legal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

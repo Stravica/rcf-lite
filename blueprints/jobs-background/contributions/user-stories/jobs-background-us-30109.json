@@ -16,10 +16,13 @@
       "when": "the retry-and-fail probe runs to completion",
       "then": "the probe report carries dlqInvoked true; the sink shows jobFailed with terminalErrorCode; the retry-and-fail run report at .rcf/reports/blueprints/jobs-background/retry-and-fail.json carries aggregateVerdict pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

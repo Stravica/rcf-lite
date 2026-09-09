@@ -20,7 +20,8 @@
       "ownerRef": {
         "tacId": "TAC-601-persistence-data-sqlite-store",
         "field": "interfaces.onEvent"
-      }
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-5106-2",
@@ -29,7 +30,8 @@
       "when": "the migrated event fires",
       "then": "the event record contains a from field equal to v_k, a to field equal to v_n, and an applied field whose value is the array of integers v_k+1 through v_n in ascending order",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-5106-3",
@@ -38,7 +40,8 @@
       "when": "the opened and backupCheckpoint events fire",
       "then": "the opened event's store identifier field equals I and the backupCheckpoint event's artifact path field equals B, both as strings the operator can pass back into their tooling verbatim",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [

@@ -2,7 +2,7 @@
   "reqId": "persistence-data-postgres-REQ-001",
   "prdId": "PRD-001",
   "title": "One facade module is the sole reader of the pg client and opens on boot",
-  "description": "The application accesses Postgres through a single facade module in the project's source tree that is the ONLY module in the tree that imports and reads the pg (node-postgres) client. Every other module that touches persistence imports the facade and calls its named domain verbs; no other module holds the raw pg client, a pg.Pool reference, or a pg.PoolClient reference. On process boot, the facade opens a pg.Pool against the elicited connection URL and, once the first successful ready-check completes, emits a facadeReady lifecycle event carrying the database name. The connection URL is elicited (project-config file by default; a security-secrets-management-applied project passes a secretRef).",
+  "description": "The application accesses Postgres through a single facade module in the project's source tree that is the ONLY module in the tree that imports and reads the pg (node-postgres) client. Every other module that touches persistence imports the facade and calls its named domain verbs; no other module holds the raw pg client, a pg.Pool reference, or a pg.PoolClient reference. On process boot, the facade opens a pg.Pool against the elicited connection URL and, once the first successful ready-check completes, emits a facadeReady lifecycle event carrying the database name. The connection URL is elicited (project-config file by default; a security-secrets-management-applied project passes a secretRef). This blueprint declares the relationalStore applied capability against a project through this facade: any downstream blueprint whose requiresAppliedCapabilities lists relationalStore is satisfied by an applied persistence-data-postgres pinning the facade module to its Pool client and the elicited connection URL.",
   "category": "functional",
   "domain": "persistence",
   "priority": "must",
@@ -14,5 +14,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
