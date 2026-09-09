@@ -14,7 +14,14 @@
       "description": "The applied fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service on the same web-net network as the T-2 web and caddy services with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
+        "field": "responsibilities.compose-service"
+      },
+      "given": "the applied fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/ with the compose-service and systemd-unit variants both present",
+      "when": "the anatomy test walks the fixture tree and reads each variant shape",
+      "then": "the compose-service variant defines a cloudflared service on the web-net network with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs"
     },
     {
       "id": "AC-tunnel-connectorPrecedence",
@@ -24,7 +31,7 @@
       "then": "the two compatible combinations select the matching variant and the two incompatible combinations refuse with apply.connector-runtime-incompatible",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
         "field": "interfaces.default"
@@ -35,5 +42,5 @@
     "TAC-4001-edge-cloudflare-tunnel-connector-shape"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

@@ -14,7 +14,7 @@
       "description": "manifest-schema-validate refuses under SIMULATE_ORIGIN_PORT_OPEN when an ingress rule service URL binds to 0.0.0.0 or a host public interface; the T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "responsibilities.originPortRefusal"
@@ -25,5 +25,6 @@
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single documented failure path (a service URL bound to 0.0.0.0 or a host public interface) is bound by this AC via SIMULATE_ORIGIN_PORT_OPEN; the guide names no additional public-origin failure path, so a single AC is sufficient per section 7a."
 }

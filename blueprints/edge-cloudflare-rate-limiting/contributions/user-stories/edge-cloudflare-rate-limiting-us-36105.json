@@ -17,12 +17,13 @@
       "then": "the section heading, ADR-3702 reference, both characteristic strings and the copy-paste example are present",
       "testable": true,
       "scope": "documentation",
-      "disposition": "template"
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the guide's Composition with security-auth-magic-link section presence assertion; the compositional runtime effects are covered by security-auth-magic-link's own ACs and the guide has no additional failure path for this story, so a single AC is sufficient per section 7a."
 }

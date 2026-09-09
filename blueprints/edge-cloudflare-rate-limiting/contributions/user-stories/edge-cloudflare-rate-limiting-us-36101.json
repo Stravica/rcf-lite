@@ -17,10 +17,14 @@
       "then": "every manifest file parses, every file carries the seven required fields, and no file references a secret in plaintext",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
         "field": "interfaces.rate-limits"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/waf/rate-limiting-rules/",
+        "verifiedOn": "2026-09-09"
       }
     }
   ],
@@ -28,5 +32,6 @@
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the manifest-directory shape assertion; the schema failure branches (SIMULATE_SCHEMA_INVALID) live on US-36106 AC-36106-1 and the missing-manifest branch on US-36108 AC-36108-1, so a single AC on this story is sufficient per section 7a."
 }

@@ -17,7 +17,7 @@
       "then": "every required substring is present; a fixture that omits any of them refuses the probe with a stable code guide.policy-inputs-missing naming which substring is absent",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
         "field": "responsibilities.policyIssueGuide"
@@ -28,5 +28,6 @@
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-09T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the guide's Policy shape enum section presence assertion; the guide has no documented runtime failure path for this story, so a single AC is sufficient per section 7a."
 }

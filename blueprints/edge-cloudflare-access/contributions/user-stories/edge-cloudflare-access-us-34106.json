@@ -17,7 +17,7 @@
       "then": "10 sink records, each with allowed keys only, none containing forbidden substrings",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -28,5 +28,6 @@
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the audit-event record-shape assertion (10 records, exact key set, no token substring); reject-branch outcomes are covered by US-34102 AC-34102-1..5, so a single AC on this story is sufficient per section 7a."
 }

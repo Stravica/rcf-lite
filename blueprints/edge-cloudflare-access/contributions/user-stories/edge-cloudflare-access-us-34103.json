@@ -17,12 +17,13 @@
       "then": "the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the sole-reader source-scan probe, whose documented failure path (SIMULATE_NON_VALIDATOR_HEADER) is exercised inside the same AC; the guide names no additional sole-reader failure path, so a single AC is sufficient per section 7a."
 }

@@ -14,7 +14,7 @@
       "description": "The fixture credentials placeholder documents the 0o400 host mode and secretRef pattern; the manifest references the credentials via a secretRef; the grep-refuse pattern is documented in the guide; every cloudflaredReady, tunnelConnectorUp and ingressRuleReloaded event body captured by the in-process facade carries metadata only, and SIMULATE_EVENT_SECRECY_LEAK inserts the credentials literal into a lifecycle event body and the scan FAILS naming the leaked field.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "responsibilities.credentialsSecretRef"
@@ -28,7 +28,7 @@
       "then": "the file at mode 0o400 owned by the cloudflared user passes; induced 0o600/0o644 refuses with credentials.host-mode-drift",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "responsibilities.credentialsDiscipline"
@@ -42,7 +42,7 @@
       "then": "no tracked file matches on the canonical fixture and the fixture-induced committed-credentials variant refuses with credentials.tracked-tree-leak",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "responsibilities.credentialsDiscipline"
@@ -53,5 +53,5 @@
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

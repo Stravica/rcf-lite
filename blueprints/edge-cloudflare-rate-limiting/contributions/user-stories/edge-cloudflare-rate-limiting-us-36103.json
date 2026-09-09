@@ -17,7 +17,11 @@
       "then": "the probe returns 429 with the two required headers on the over-threshold requests, or records accountBoundSkipped: true and aggregates to pass",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/waf/rate-limiting-rules/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-36103-2",
@@ -27,7 +31,7 @@
       "then": "the client observes 429 on the (N+1)th and subsequent requests and the origin counter reads exactly N",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "adrId": "ADR-3701-edge-cloudflare-rate-limiting-throttle-contract",
         "field": "decision.overThresholdBehaviour"
@@ -38,5 +42,5 @@
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

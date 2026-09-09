@@ -12,6 +12,8 @@ Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set suffic
 
 
 All notable changes to `edge-cloudflare-access` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
+- Review fix pass (2026-09-09): re-marked every AC as `fixed` (refusal reasons `aud-mismatch`/`jwt-malformed`/`kid-unknown`/`jwks-unavailable`/`bypass-id-mismatch`/`bypass-secret-mismatch`/`jwt-missing`, audit-record keys, guide-section presence assertions are all blueprint-owned) with `vendorCitation` where the AC rests on a Cloudflare Access-documented literal: US-34101 (Cf-Access-Jwt-Assertion header shape), US-34105 (Zero Trust dashboard vendor URL), US-34107 (CF-Access-Client-Id / CF-Access-Client-Secret service-token pair), US-34109 (cloudflareaccess.com redirect chain); added `coverageNote` per section 7a to US-34101, US-34103, US-34105, US-34106, US-34108, US-34109 and US-34110 (single-AC stories whose reject paths live on sibling stories or whose mechanism has no documented failure path).
+
 
 ## 1.0.0 (2026-09-07)
 

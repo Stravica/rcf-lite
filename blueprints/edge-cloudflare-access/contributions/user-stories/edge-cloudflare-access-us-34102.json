@@ -17,7 +17,7 @@
       "then": "the validator returns 401 and emits one audit event whose outcome is drawn from {missing, expired, invalid} with the allowed-key shape",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -31,7 +31,7 @@
       "then": "the validator returns 401 with reason \"aud-mismatch\" and emits one metadata-only audit event",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -45,7 +45,7 @@
       "then": "the validator returns 401 reason \"jwt-malformed\" and emits one metadata-only audit event; no downstream handler runs",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -59,7 +59,7 @@
       "then": "the validator returns 401 reason \"kid-unknown\", emits one metadata-only audit event, and no more than one JWKS refresh fires per request",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -73,7 +73,7 @@
       "then": "the validator returns 503 reason \"jwks-unavailable\" (fail-closed) and emits one metadata-only audit event",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -85,5 +85,5 @@
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

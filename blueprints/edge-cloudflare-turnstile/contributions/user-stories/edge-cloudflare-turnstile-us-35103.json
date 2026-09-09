@@ -35,7 +35,7 @@
       "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-timeout\"} and one audit event with metadata only",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
         "field": "interfaces.verifier.verify"
@@ -49,7 +49,7 @@
       "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-network\"} and one metadata-only audit event",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
         "field": "interfaces.verifier.verify"
@@ -63,7 +63,7 @@
       "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-upstream\",\"upstreamStatus\":500}",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
         "field": "interfaces.verifier.verify"
@@ -77,7 +77,7 @@
       "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-malformed\"}",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
         "field": "interfaces.verifier.verify"
@@ -91,7 +91,7 @@
       "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-malformed\"} and treats the outcome as failure",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
         "field": "interfaces.verifier.verify"
@@ -102,5 +102,5 @@
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

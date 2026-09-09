@@ -14,7 +14,7 @@
       "description": "manifest-schema-validate probe passes on the canonical fixture and fails when the fixture is mutated (SIMULATE_MANIFEST_INVALID_TUNNEL_ID, SIMULATE_MANIFEST_CREDENTIALS_INLINE, SIMULATE_MANIFEST_MISSING_CATCHALL) naming the offending field.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "interfaces.schema"
@@ -25,5 +25,6 @@
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "Failure paths for the tunnel manifest (invalid tunnel id, credentials inline, missing catch-all, public-origin bind, event-secrecy leak) are exercised by the SIMULATE_* mutations named in the single AC's description; the story reports one aggregate probe verdict and its failure modes live in the same probe, so a single AC is sufficient per section 7a."
 }

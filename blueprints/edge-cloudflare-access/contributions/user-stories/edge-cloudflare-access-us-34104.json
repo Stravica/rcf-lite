@@ -17,7 +17,7 @@
       "then": "rcf/blueprints/edge-cloudflare-access.applied.json carries the elicited values plus appliedCapabilities=[zeroTrustGate]",
       "testable": true,
       "scope": "library",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
         "field": "interfaces.applicationDeclaration"
@@ -31,7 +31,7 @@
       "then": "apply refuses with code apply.application-declaration-missing and rcf/blueprints/edge-cloudflare-access.applied.json is not written",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
         "field": "responsibilities.applicationDeclaration"
@@ -45,7 +45,7 @@
       "then": "apply refuses with code apply.application-declaration-ambiguous and rcf/blueprints/edge-cloudflare-access.applied.json is not written",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
         "field": "responsibilities.applicationDeclaration"
@@ -56,5 +56,5 @@
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

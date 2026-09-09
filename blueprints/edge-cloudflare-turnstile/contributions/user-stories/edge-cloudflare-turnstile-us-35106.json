@@ -17,12 +17,17 @@
       "then": "each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the widget-mode enum shape and its three-value coverage against the pinned Cloudflare test sitekeys; the guide names no additional mode-specific failure path (any missing-value error surfaces via US-35102 AC-35102-2), so a single AC is sufficient per section 7a."
 }

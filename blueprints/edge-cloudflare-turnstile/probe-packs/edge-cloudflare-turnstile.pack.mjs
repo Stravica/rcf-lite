@@ -27,7 +27,7 @@ export default {
     {
       id: 'AC-turnstile-widgetRendered',
       severity: 'block',
-      description: 'Turnstile client widget mounts with the pinned always-pass sitekey; the mount injects Cloudflare Turnstile JS from the Cloudflare Turnstile origin only, populates the Cf-Turnstile-Response token input, and no third-party script from any other origin is loaded on the page.',
+      description: 'Turnstile client widget mounts with the pinned always-pass sitekey; the mount injects Cloudflare Turnstile JS from the Cloudflare Turnstile origin only, populates the cf-turnstile-response token input, and no third-party script from any other origin is loaded on the page.',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
         await browser.goto(withUrl(runtimeUrl, '/?sitekey=pass'));

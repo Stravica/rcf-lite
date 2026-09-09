@@ -9,6 +9,7 @@ Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set suffic
 - Clarified TAC-3701 and REQ-001 that the manifest schema has seven required fields plus one optional `description` field (aligns TAC with the shipped schema; closes specimen F-4).
 - Every REQ now carries `deliveredBy`; every AC carries `disposition`; ACs referencing owner-owned literals carry `ownerRef`.
 - Chain-consistency lint reports 0 findings on both passes.
+- Review fix pass (2026-09-09): finished the split of the drift-audit record shape from the request-event shape by rewriting the TAC-3703 purpose second sentence and the guide's `## Drift audit` section to state the drift record as `{ruleId, outcome, timestamp, diff}` and the request-event record as `{ruleId, clientIpHash, outcome, timestamp}` (closes F-2); the README event-secrecy row assertion now names both shapes; re-marked every AC as `fixed` (refusal codes, record-shape keys, probe names are blueprint-owned; vendor citation on US-36101 and US-36103 for the seven WAF rate-limiting-rules fields and the `Retry-After`/`Cf-Ray` header names); added `coverageNote` per section 7a to US-36101, US-36102, US-36105, US-36106, US-36107 and US-36108.
 
 
 ## 1.0.0 (round 6 T-6, 2026-09-07)

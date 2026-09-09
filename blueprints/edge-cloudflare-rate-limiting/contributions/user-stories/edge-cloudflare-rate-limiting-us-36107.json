@@ -17,12 +17,13 @@
       "then": "every record carries only the metadata-safe fields; SIMULATE_EVENT_LEAK_IP=true surfaces a leaked key and the aggregate verdict is fail",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the event-secrecy probe, whose documented failure path (SIMULATE_EVENT_LEAK_IP) is exercised inside the same AC; the drift-runner API/timeout/malformed reject branches live on US-36104 AC-36104-3..7, so a single AC on this story is sufficient per section 7a."
 }

@@ -4,13 +4,15 @@
 
 Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
 
-- Normalised the `Cf-Turnstile-Response` token casing across the shipped guide to match the owning TAC-3601 responsibility declaration (closes specimen F-1). The consistency-lint AC-3 spec test is updated to assert the specimen is now closed on the shipped blueprint.
+- Normalised the `cf-turnstile-response` token casing across the shipped guide, README, REQs, TACs and user stories to the lowercase form-field literal Cloudflare's client-side rendering and server-side validation docs specify verbatim (closes specimen F-1 in the vendor-fact direction under 7b; earlier interim pass mistakenly took the pre-existing TAC-3601 title-case as canonical). TAC-3601 owns the literal with a `vendorCitation` and US-35101 AC-35101-1 is re-marked `fixed` with the same citation. The consistency-lint AC-3 spec test continues to assert the specimen is closed on the shipped blueprint.
 - Added failure-path ACs to US-35102 (AC-35102-2..4 close F-3: missing sitekey, missing secret, only-one-of-pair boot refusal) and US-35103 (AC-35103-2..6 close F-2: siteverify timeout, network failure, non-2xx upstream, invalid JSON, missing success-field fail-closed).
 - Every REQ now carries `deliveredBy`; every AC carries `disposition` (`AC-35102-1` and `AC-35103-1` marked `fixed` with vendor citations to the Cloudflare Turnstile testing docs); ACs referencing owner-owned literals carry `ownerRef`.
 - Chain-consistency lint reports 0 findings on both passes.
 
 
 All notable changes to `edge-cloudflare-turnstile` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
+- Review fix pass (2026-09-09): re-marked every AC as `fixed`, added `vendorCitation` on US-35101 AC-35101-1 (`cf-turnstile-response` client-side-rendering literal; closes F-1 blocker in the vendor-fact direction), US-35102 AC-35102-1 (always-pass test key), US-35103 AC-35103-1 (always-fail test key), US-35105 AC-35105-2 (siteverify server-side-validation), and US-35106 AC-35106-1 (invisible-widget test sitekeys); added `AC-35101-2` for the always-fail client-mount branch per section 7a (widget mounts, cf-turnstile-response populated, server-side rejects); added `coverageNote` per section 7a to US-35101, US-35104, US-35106, US-35107 and US-35108 (single-AC stories whose reject paths live on US-35102, US-35103 or the widget-mode enum coverage).
+
 
 ## 1.0.0 (2026-09-07)
 

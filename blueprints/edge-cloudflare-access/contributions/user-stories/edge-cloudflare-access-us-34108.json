@@ -17,12 +17,13 @@
       "then": "AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own checks pass",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the two applied capability-set combinations that flip the admin-console sign-in surface; the deeper admin-console packaging is owned by application-admin-console and the guide names no additional surface-flip failure path, so a single AC is sufficient per section 7a."
 }

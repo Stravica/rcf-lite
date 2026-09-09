@@ -14,10 +14,14 @@
       "description": "cloudflared-config-lint probe runs cloudflared tunnel ingress validate against the fixture manifest (through the cloudflare/cloudflared:2026.8.3 container image when the binary is not on PATH) and exits 0 on the canonical fixture; SIMULATE_INGRESS_INVALID rewrites the service URL to an unresolvable scheme and the probe FAILS.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
         "field": "interfaces.schema"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/configuration-file/",
+        "verifiedOn": "2026-09-09"
       }
     }
   ],
@@ -25,5 +29,6 @@
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single documented failure path for the cloudflared-config-lint probe (SIMULATE_INGRESS_INVALID) is bound by this AC; the guide's Tunnel manifest walkthrough names no additional ingress-lint failure path, so a single AC is sufficient per section 7a."
 }

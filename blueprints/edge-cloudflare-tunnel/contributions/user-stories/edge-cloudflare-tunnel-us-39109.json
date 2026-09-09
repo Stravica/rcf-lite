@@ -17,7 +17,7 @@
       "then": "the resolver returns a zone id, the applied sidecar records only the secretRef, and a grep on the tracked tree for the resolved zone id finds zero matches",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
         "field": "responsibilities.zoneResolve"
@@ -31,7 +31,7 @@
       "then": "apply refuses with code apply.zone-unresolved and no applied sidecar is written",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
         "field": "responsibilities.zoneResolve"
@@ -45,7 +45,7 @@
       "then": "apply refuses with code apply.zone-unauthorised and no applied sidecar is written",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
         "field": "responsibilities.zoneResolve"
@@ -59,7 +59,7 @@
       "then": "blank access-aud refuses with code apply.tunnel-aud-missing; non-blank access-aud proceeds and every ingress rule attaches originRequest.access.aud",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
         "field": "responsibilities.audMandatoryWhenGated"
@@ -70,5 +70,5 @@
     "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply"
   ],
   "createdAt": "2026-09-09T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

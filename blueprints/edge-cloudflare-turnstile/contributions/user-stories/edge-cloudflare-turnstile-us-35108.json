@@ -17,12 +17,13 @@
       "then": "every emitted event carries only sitekeyHash, outcome and timestamp",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the event-secrecy probe (record-shape keys only, no token or secret substring); verifier-error record shapes are covered by US-35103 AC-35103-1..6, so a single AC on this story is sufficient per section 7a."
 }

@@ -17,10 +17,14 @@
       "then": "the handler receives request.auth with the service principal and the audit sink records outcome=bypass with allowed keys only",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/identity/service-tokens/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -31,7 +35,7 @@
       "then": "the validator refuses 401 with outcome \"reject\" reason \"jwt-missing\"; no bypass principal is set and no outcome \"bypass\" audit event fires",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -45,7 +49,7 @@
       "then": "the validator refuses 401 with outcome \"reject\" reason \"bypass-id-mismatch\" and no bypass principal is set",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -59,7 +63,7 @@
       "then": "the validator refuses 401 with outcome \"reject\" reason \"bypass-secret-mismatch\" and no bypass principal is set",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -73,7 +77,7 @@
       "then": "the validator falls through to JWT validation; no bypass principal is set and no bypass audit event fires",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
         "field": "interfaces.createAccessValidator"
@@ -84,5 +88,5 @@
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

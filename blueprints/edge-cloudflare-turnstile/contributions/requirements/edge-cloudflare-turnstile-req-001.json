@@ -2,7 +2,7 @@
   "reqId": "edge-cloudflare-turnstile-REQ-001",
   "prdId": "PRD-001",
   "title": "Client widget mount: an elicited sitekey renders the Turnstile widget and the mount injects no third-party script beyond Cloudflare Turnstile JS host",
-  "description": "The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. On submit the widget populates a hidden Cf-Turnstile-Response token field the form payload carries.",
+  "description": "The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. On submit the widget populates a hidden cf-turnstile-response token field the form payload carries.",
   "category": "functional",
   "domain": "edge",
   "priority": "must",

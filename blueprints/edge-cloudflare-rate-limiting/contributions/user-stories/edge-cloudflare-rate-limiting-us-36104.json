@@ -17,7 +17,7 @@
       "then": "one drift record is constructed per mismatched rule with the metadata-only shape and the report writes to .rcf/reports/blueprints/edge-cloudflare-rate-limiting/",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed"
     },
     {
       "id": "AC-36104-2",
@@ -27,7 +27,7 @@
       "then": "daily fires exactly once, hourly exactly 25 times, off fires zero times, and stop+restart yields exactly one timer per active cadence",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -41,7 +41,7 @@
       "then": "the runner emits one audit event with outcome \"error\" reason \"zone-id-missing\"; no fetch call fires and no no-drift audit is emitted",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -55,7 +55,7 @@
       "then": "the runner emits one audit event outcome \"error\" reason \"api-auth\" with the upstream status and no leaked token/header/body",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -69,7 +69,7 @@
       "then": "the runner emits one audit event outcome \"error\" reason \"api-throttled\" carrying only the Retry-After metadata and no no-drift audit",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -83,7 +83,7 @@
       "then": "the runner emits one audit event outcome \"error\" reason \"api-malformed\" and never emits a no-drift audit",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -97,7 +97,7 @@
       "then": "the runner aborts and emits one audit event outcome \"error\" reason \"api-timeout\"",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
         "field": "interfaces.createDriftAuditRunner"
@@ -108,5 +108,5 @@
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

@@ -17,12 +17,17 @@
       "then": "in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/policies/access/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z",
+  "coverageNote": "The single AC binds the account-bound redirect probe with the accountBoundSkipped fall-through; the guide names no additional redirect-shape failure path, so a single AC is sufficient per section 7a."
 }

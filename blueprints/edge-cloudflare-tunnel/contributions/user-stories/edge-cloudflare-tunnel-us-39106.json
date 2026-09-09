@@ -14,11 +14,18 @@
       "description": "aud-presence-check probe reads each variant sidecar and asserts the ingress rules attach originRequest.access.aud on the access-gated variant and omit the block on the public-hostname variant. The shape flip is a pure function of the sidecar contents.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
         "field": "responsibilities.audAttach"
-      }
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      },
+      "given": "the fixture ships the access-gated and public-hostname sidecar variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/ with the access-gated sidecar carrying an elicited AUD",
+      "when": "the aud-presence-check probe reads each variant sidecar's ingress rules",
+      "then": "the access-gated variant ingress rules all carry originRequest.access.aud and the public-hostname variant ingress rules all omit the originRequest.access block; the shape flip is a pure function of the sidecar contents"
     },
     {
       "id": "AC-tunnel-accessGatedRejectMissing",
@@ -28,10 +35,14 @@
       "then": "every request is refused at the edge and the origin counter stays at zero",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
         "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -42,10 +53,14 @@
       "then": "every request is refused at the edge and the origin counter stays at zero",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
         "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -56,10 +71,14 @@
       "then": "the request is refused at the edge and the origin counter stays at zero",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
         "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -70,10 +89,14 @@
       "then": "each request reaches the origin and the origin counter reads exactly N",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
+      "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
         "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
       }
     }
   ],
@@ -81,5 +104,5 @@
     "TAC-4003-edge-cloudflare-tunnel-access-binding"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }
