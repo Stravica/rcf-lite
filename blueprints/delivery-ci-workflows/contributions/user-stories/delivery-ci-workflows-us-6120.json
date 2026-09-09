@@ -11,14 +11,27 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6120-1",
-      "description": "When `checkSet.securityScan` is true, the gate-runner runs the project-realised security-scan runner. A non-zero exit code (indicating one or more findings at or above the project-configured severity threshold) flips the gate outcome to `failed`. Findings below the threshold are recorded in the per-gate report without flipping the exit code. The per-gate report at `.rcf/reports/ci/security.json` carries `checkKind: \"securityScan\"`.",
+      "description": "When `checkSet.securityScan` is true, the gate-runner runs the project-realised security-scan runner. A non-zero exit code (indicating one or more findings at or above the project-configured severity threshold) flips the gate outcome to `failed`. Findings below the threshold are recorded in the per-gate report without flipping the exit code. The per-gate report at `.rcf/reports/ci/security.json` carries `checkKind: \"securityScan\"`. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a project with `checkSet.securityScan: true` and a realised security-scan runner configured with the project's severity threshold",
       "when": "a CI workflow invokes the gate-runner",
       "then": "a report file at `.rcf/reports/ci/security.json` is written with `checkKind: \"securityScan\"`, and the gate outcome tracks the runner exit code",
       "testable": true,
       "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6120-2",
+      "description": "The security-scan gate reads the project severity threshold and fails at or above it; a finding one severity level below the threshold does not fail the gate but is written to the per-gate report so the operator sees the near-miss.",
+      "given": "a security scanner configured with threshold=high and a run that yields a medium finding and a high finding",
+      "when": "the gate runs",
+      "then": "the per-gate report writes verdict=failed on the high finding; the medium finding appears under `belowThreshold[]` with severity=medium; the report is written even when the gate fails",
+      "testable": true,
+      "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
@@ -26,5 +39,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

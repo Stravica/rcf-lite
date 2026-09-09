@@ -21,18 +21,17 @@
     },
     {
       "id": "AC-7107-2",
-      "description": "The readiness body carries a checks object keyed by declared dependency name; the liveness body has no checks field.",
+      "description": "The readiness body carries a checks object keyed by declared dependency name; the liveness body has no checks field. Template values the applying agent sets: The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens.",
       "given": "the process has declared a readiness dependency set and both probes are reachable",
       "when": "the two probe response bodies are compared",
       "then": "the readiness body contains a checks object with one entry per declared readiness dependency, and the liveness body contains no checks field",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
+      "disposition": "template"
     },
     {
       "id": "AC-7107-3",
-      "description": "The probe response JSON body shape is snapshot-locked against the v2 baseline captured at 2026-09-09: any candidate release comparing against the current v2 baseline SHALL keep every documented field name and JSON type on the /live and /ready responses, and any field addition SHALL preserve the shape of every earlier v2.x release. A candidate that renames or removes a documented field fails the check with a stable code naming the offending field.",
+      "description": "The probe response JSON body shape is snapshot-locked against the v2 baseline captured at 2026-09-09: any candidate release comparing against the current v2 baseline SHALL keep every documented field name and JSON type on the /live and /ready responses, and any field addition SHALL preserve the shape of every earlier v2.x release. A candidate that renames or removes a documented field fails the check with a stable code naming the offending field. Template values the applying agent sets: The applying agent sets the elicited liveness-probe-path; the AC substitutes it for the illustrative /live.",
       "given": "the v2 baseline snapshot at packages/rcf-lite/test/blueprint/observability-essentials-response-baseline.v2.json and a candidate release's /live and /ready JSON body samples on the same profile",
       "when": "the release-time compatibility check runs the candidate samples against the v2 baseline snapshot",
       "then": "every field name and JSON type present on the v2 baseline is present on the candidate at the same top-level path; a rename or removal fails with the stable code PROBE_BODY_SHAPE_DRIFT naming the offending field; a candidate that adds fields without renaming or removing any passes",
@@ -42,8 +41,7 @@
       "ownerRef": {
         "adrId": "ADR-803-observability-essentials-status-page-contract",
         "field": "decision.probeBodyShape"
-      },
-      "templateFillIns": "The applying agent sets the elicited liveness-probe-path; the AC substitutes it for the illustrative /live."
+      }
     }
   ],
   "tacIds": [

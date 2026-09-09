@@ -18,11 +18,39 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-15107-2",
+      "description": "The in-memory capture mode maintains insertion order; emissions issued in the order A, B, C appear in the returned array as A, B, C at indexes 0, 1, 2, with the same shape a stdout sink would have written.",
+      "given": "a factory in capture mode with no ambient correlation context and a caller issuing three distinct emissions in order",
+      "when": "capturedLines() is read",
+      "then": "the returned array has length 3 with emissions in insertion order and each entry's shape matches the shared minimum field set",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
+    },
+    {
+      "id": "AC-15107-3",
+      "description": "Constructing the factory in capture mode does not open stdout: an assertion that captures the process's stdout file descriptor writes across the same test finds zero bytes written by the factory. The mechanism has no documented failure path beyond a caller misusing the capture-mode flag; the standard stdout-vs-capture confusion is caught by AC-15107-1.",
+      "given": "a test that constructs the factory in capture mode and intercepts stdout for the entire scope",
+      "when": "the code under test emits any number of lines",
+      "then": "the intercepted stdout carries zero bytes attributable to the factory; every emission is on the returned capture array",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
     }
   ],
   "tacIds": [
     "TAC-1601-observability-logging-logger-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

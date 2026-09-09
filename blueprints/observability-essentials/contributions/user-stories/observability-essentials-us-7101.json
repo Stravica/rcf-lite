@@ -21,14 +21,13 @@
     },
     {
       "id": "AC-7101-2",
-      "description": "The liveness probe handler evaluates entirely in-process; a probe hit issues zero network calls to any declared dependency, verifiable by observing the network egress from the probe path.",
+      "description": "The liveness probe handler evaluates entirely in-process; a probe hit issues zero network calls to any declared dependency, verifiable by observing the network egress from the probe path. Template values the applying agent sets: The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens.",
       "given": "the process is running and a network-egress observer is attached to the probe path",
       "when": "a GET is issued against the liveness path",
       "then": "the observer records zero egress connections attributable to the probe handler between request receipt and response send",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
+      "disposition": "template"
     },
     {
       "id": "AC-7101-3",
@@ -52,14 +51,13 @@
     },
     {
       "id": "AC-7101-5",
-      "description": "A liveness handler on a process whose in-process self-check predicate returns fail (a scheduled watchdog tick that has not fired within its budget) answers HTTP 503 with content-length 0 and an empty body, so the orchestrator restarts the process on the next probe interval. The predicate is response-capable by design: it observes a boolean the handler reads without I/O.",
+      "description": "A liveness handler on a process whose in-process self-check predicate returns fail (a scheduled watchdog tick that has not fired within its budget) answers HTTP 503 with content-length 0 and an empty body, so the orchestrator restarts the process on the next probe interval. The predicate is response-capable by design: it observes a boolean the handler reads without I/O. Template values the applying agent sets: The applying agent supplies the elicited liveness-probe-path and the project-owned self-check predicate; the AC substitutes both.",
       "given": "a running application with an operator-declared watchdog tick scheduled every 1 second and a 5-second budget; the tick has not fired for 6 seconds so the predicate is fail",
       "when": "the orchestrator issues HTTP GET on the elicited liveness-probe-path",
       "then": "the response is HTTP 503 with content-length 0 and an empty body; a follow-up GET while the predicate stays fail continues to answer 503; a GET after the predicate returns pass answers 200",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the elicited liveness-probe-path and the project-owned self-check predicate; the AC substitutes both.",
       "ownerRef": {
         "tacId": "TAC-801-observability-essentials-liveness-probe",
         "field": "interfaces.createLivenessHandler"

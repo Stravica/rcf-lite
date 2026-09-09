@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15109-1",
-      "description": "An audit event emission at info with a payload carrying { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'admin' } produces one stdout line whose parsed object holds those four fields at the top level alongside message, level, timestamp, correlationId, environment, serviceName and serviceVersion; the correlationId equals the ambient request context's value.",
+      "description": "An audit event emission at info with a payload carrying { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'admin' } produces one stdout line whose parsed object holds those four fields at the top level alongside message, level, timestamp, correlationId, environment, serviceName and serviceVersion; the correlationId equals the ambient request context's value. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "a running application in an ambient request context with correlationId 'req-777' and a caller issuing logger.info('role.granted', { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'admin' })",
       "when": "the emission passes through the factory",
       "then": "stdout carries one line, JSON.parse yields an object with actor === 'principal:1', target === 'role:2', before === 'reader', after === 'admin', correlationId === 'req-777' and the shared minimum field set present",
@@ -21,12 +21,11 @@
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
         "field": "interfaces.Logger"
-      },
-      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
+      }
     },
     {
       "id": "AC-15109-2",
-      "description": "An audit event emitted at debug with the elicited minimum-log-level set to info produces no stdout line, so the audit stream in production does not carry sub-threshold audit noise.",
+      "description": "An audit event emitted at debug with the elicited minimum-log-level set to info produces no stdout line, so the audit stream in production does not carry sub-threshold audit noise. Template values the applying agent sets: The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info.",
       "given": "a running application with minimum-log-level info and a caller issuing logger.debug('role.hover', { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'reader' })",
       "when": "the emission is issued",
       "then": "stdout carries no line for this emission",
@@ -36,8 +35,7 @@
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
         "field": "interfaces.Logger"
-      },
-      "templateFillIns": "The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info."
+      }
     },
     {
       "id": "AC-15109-3",
@@ -60,7 +58,7 @@
       "when": "the guide is opened",
       "then": "the guide names the mechanism-reach gap explicitly and states at least one project-side workaround by name",
       "testable": true,
-      "scope": "buildtime",
+      "scope": "library",
       "disposition": "fixed"
     }
   ],

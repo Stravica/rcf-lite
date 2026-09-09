@@ -11,25 +11,37 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6115-1",
-      "description": "With `workflowShape.branchModel: trunk` and `trunkPullRequests` absent or `never`, the materialiser produces `default-branch-checks` only, triggered by pushes to the configured trunk branch (`workflowShape.trunkBranch`, default `main`). The `pull-request-checks` workflow does not ship in this shape.",
+      "description": "With `workflowShape.branchModel: trunk` and `trunkPullRequests` absent or `never`, the materialiser produces `default-branch-checks` only, triggered by pushes to the configured trunk branch (`workflowShape.trunkBranch`, default `main`). The `pull-request-checks` workflow does not ship in this shape. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `branchModel: trunk`, `trunkBranch: trunk`, and no `trunkPullRequests` field",
       "when": "the workflow-materialiser runs",
       "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `trunk` (the configured trunk branch), no `pull-request-checks` workflow file lands, and the merge-policy AC binds to the trunk-branch push-protection property",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6115-2",
-      "description": "With `branchModel: trunk` and `trunkPullRequests: sometimes`, the materialiser additionally produces `pull-request-checks` on the same required check set as `default-branch-checks`, both triggered against the configured trunk branch.",
+      "description": "With `branchModel: trunk` and `trunkPullRequests: sometimes`, the materialiser additionally produces `pull-request-checks` on the same required check set as `default-branch-checks`, both triggered against the configured trunk branch. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `branchModel: trunk`, `trunkBranch: trunk`, and `trunkPullRequests: sometimes`",
       "when": "the workflow-materialiser runs",
       "then": "both workflow files land at the provider's workflow path with their trigger branch lists naming `trunk`, and the merge-policy AC binds to the trunk-branch protection property that admits only PRs whose `pull-request-checks` aggregate passed",
       "testable": true,
       "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6115-3",
+      "description": "A trunk-shape workflow whose optional pull-request-checks sub-shape is disabled does not write pull-request-checks.yml, even when the elicited providerHint would otherwise ship it; the materialiser refuses to write an unreferenced file.",
+      "given": "a trunk shape with pull-request-checks disabled",
+      "when": "the materialiser runs",
+      "then": "no pull-request-checks.yml is written; the default-branch-checks.yml still writes; the run reports zero extra artefacts",
+      "testable": true,
+      "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces.materialise"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +49,5 @@
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

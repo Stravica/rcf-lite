@@ -28,11 +28,25 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6102-3",
+      "description": "A gate that names an unknown executable in its command array (a `command[0]` that does not resolve on the PATH) is refused at gate spawn with a stable-coded GATE_SPAWN_FAILED naming the executable and the gate name; the runner does not continue with other gates until the operator resolves.",
+      "given": "a gate descriptor with command [\"nonexistent-bin\",\"arg\"] and a runner invoked against the descriptor",
+      "when": "the runner attempts to spawn the gate",
+      "then": "the gate reports failed with GATE_SPAWN_FAILED naming the executable and the gate; the per-gate report is written failed; the aggregate reflects the failure",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

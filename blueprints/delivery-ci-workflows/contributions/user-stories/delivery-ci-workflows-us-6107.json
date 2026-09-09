@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6107-1",
-      "description": "On any gate failure, the Node entry point writes an operator-readable failure summary to its own stderr naming the failing gate, its exit code, and the relative path to the per-gate report file.",
+      "description": "On any gate failure, the Node entry point writes an operator-readable failure summary to its own stderr naming the failing gate, its exit code, and the relative path to the per-gate report file. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "an invocation of the suite whose `validate` (or any) gate fails",
       "when": "the reviewer reads the runner-log tail (the Node process's own stderr)",
       "then": "the tail contains a single-line summary matching the shape `[delivery-ci-workflows] gate '<gate>' failed (exit <n>); report: <reportDir>/<gate>.json`, and the reference report file exists at the named path",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
+      "disposition": "template"
     },
     {
       "id": "AC-6107-2",
@@ -29,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6107-3",
+      "description": "The operator-visible message on a gate failure names the failing gate first line, the failing command second line, and the per-gate report path third line; the format is stable across runs so downstream log parsers key on the shape.",
+      "given": "a run in which the linter gate fails",
+      "when": "the runner writes to stderr",
+      "then": "stderr's last three non-empty lines match the pattern gate:<name>, command:<argv>, report:<path>",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
@@ -36,5 +49,5 @@
     "TAC-703-delivery-ci-workflows-aggregate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

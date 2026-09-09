@@ -11,14 +11,27 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6124-1",
-      "description": "The illustrative pull-request-checks.yml under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/ carries a documented e2e job block whose header comment names the four points a browser-facing project's e2e job satisfies: (a) runs the project's testLevel: e2e cases against a local preview or a --parity-env runtime, (b) uploads screenshots and HTML captures as workflow artefacts, (c) writes a distinct row to the aggregate pipeline report at .rcf/reports/ci/pipeline.json, (d) writes a per-gate report at .rcf/reports/ci/e2e.json with checkKind: 'e2e'. The header also tells a non-browser project to delete the e2e job before committing. The elicited checkSet.e2e entry exists in the delivery-ci-workflows check catalogue (blueprint.json) so a project that turns the check off does so through a supported knob. The runtime iff wiring (materialiser adds or omits the job based on manifest.blueprints[].source.browserSurface.declared and .rcf/config/delivery-ci-workflows.json:checkSet.e2e) lands in a follow-up train with its own TS entry; this AC is documentation-only per spec amendment A2 (2026-09-03).",
+      "description": "The illustrative pull-request-checks.yml under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/ carries a documented e2e job block whose header comment names the four points a browser-facing project's e2e job satisfies: (a) runs the project's testLevel: e2e cases against a local preview or a --parity-env runtime, (b) uploads screenshots and HTML captures as workflow artefacts, (c) writes a distinct row to the aggregate pipeline report at .rcf/reports/ci/pipeline.json, (d) writes a per-gate report at .rcf/reports/ci/e2e.json with checkKind: 'e2e'. The header also tells a non-browser project to delete the e2e job before committing. The elicited checkSet.e2e entry exists in the delivery-ci-workflows check catalogue (blueprint.json) so a project that turns the check off does so through a supported knob. The runtime iff wiring (materialiser adds or omits the job based on manifest.blueprints[].source.browserSurface.declared and .rcf/config/delivery-ci-workflows.json:checkSet.e2e) lands in a follow-up train with its own TS entry; this AC is documentation-only per spec amendment A2 (2026-09-03). Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "the delivery-ci-workflows blueprint at v2.2.0",
       "when": "blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml and blueprint.json are inspected",
       "then": "the illustrative pull-request-checks.yml declares an e2e job; the block above it names the four points and the delete-me note for non-browser projects; blueprint.json's check catalogue carries checkSet.e2e",
       "testable": true,
       "scope": "library",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6124-2",
+      "description": "A project with `checkSet.e2e: true` but no application-spa (or other browserSurface-declaring) blueprint applied fails materialise with E2E_CHECK_UNBACKED naming the missing browserSurface. Prevents shipping an e2e job without an application under test. Template on the elicited checkSet.",
+      "given": "a workflowShape with checkSet.e2e=true and no applied blueprint declaring a browserSurface",
+      "when": "the materialiser runs",
+      "then": "the materialiser exits with E2E_CHECK_UNBACKED naming the missing browserSurface; no e2e job is written into the pull-request-checks workflow",
+      "testable": true,
+      "scope": "library",
       "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces.materialise"
+      }
     }
   ],
   "tacIds": [
@@ -26,5 +39,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-03T18:30:50Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

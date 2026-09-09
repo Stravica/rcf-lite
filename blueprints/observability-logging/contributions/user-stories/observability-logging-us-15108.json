@@ -18,11 +18,25 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-15108-2",
+      "description": "The factory refuses to construct when the redaction categories list contains an entry that is a valid grammar shape but empty; the thrown error names the offending index and treats empty as invalid.",
+      "given": "a factory configured with redaction categories including an empty string entry ([\"credential\", \"\"])",
+      "when": "the factory is constructed",
+      "then": "construction throws with a message naming the offending index and the empty value",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1602-observability-logging-redaction-boundary",
+        "field": "interfaces.createRedactionBoundary"
+      }
     }
   ],
   "tacIds": [
     "TAC-1602-observability-logging-redaction-boundary"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

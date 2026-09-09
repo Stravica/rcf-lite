@@ -31,14 +31,13 @@
     },
     {
       "id": "AC-7109-3",
-      "description": "The readiness probe body may name declared dependencies (that is its purpose); the status page must not name them. The declared-component vocabulary and the declared-readiness-dependency vocabulary are distinct sets, and no declared readiness dependency name appears on the public status page.",
+      "description": "The readiness probe body may name declared dependencies (that is its purpose); the status page must not name them. The declared-component vocabulary and the declared-readiness-dependency vocabulary are distinct sets, and no declared readiness dependency name appears on the public status page. Template values the applying agent sets: The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens.",
       "given": "the process declares a readiness dependency set with distinct names from the declared status-page component set",
       "when": "the public status page is fetched and grepped for each declared readiness dependency name",
       "then": "every grep returns zero matches; a grep of the readiness probe body for the same names returns non-zero matches, demonstrating the surfaces are distinct",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens."
+      "disposition": "template"
     }
   ],
   "tacIds": [

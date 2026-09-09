@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6103-1",
-      "description": "The suite invokes `rcf define validate` before any other gate. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path.",
+      "description": "The suite invokes `rcf define validate` before any other gate. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "the pipeline has run against the head commit",
       "when": "the reviewer opens the per-gate report file at `<reportDir>/validate.json`",
       "then": "the file exists, its `gate` field is `validate`, its `command` field names the `rcf define validate` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
+      "disposition": "template"
     },
     {
       "id": "AC-6103-2",
@@ -29,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6103-3",
+      "description": "The validate gate exit code carries through to the pipeline: a validate command that returns exit 5 marks the gate failed with a per-gate report that records the exit code and the failing command; the aggregate refuses pipeline pass.",
+      "given": "a validate gate configured to run a stub that exits 5",
+      "when": "the runner invokes it",
+      "then": "the per-gate report writes verdict=failed with exitCode=5 and the command name; the aggregate refuses pipeline pass",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-702-delivery-ci-workflows-gate-report",
+        "field": "interfaces.writeGateReport"
+      }
     }
   ],
   "tacIds": [
@@ -36,5 +49,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

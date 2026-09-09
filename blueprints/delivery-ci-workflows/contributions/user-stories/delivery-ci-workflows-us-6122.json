@@ -11,47 +11,43 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6122-1",
-      "description": "When `workflowShape.releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is present in `manifest.blueprints[]`, the release workflow invokes the deploy blueprint's `promote` workflow via `workflow_dispatch` after the artefact-publish step succeeds. The invocation passes the just-published version identifier as the `versionId` input.",
+      "description": "When `workflowShape.releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is present in `manifest.blueprints[]`, the release workflow invokes the deploy blueprint's `promote` workflow via `workflow_dispatch` after the artefact-publish step succeeds. The invocation passes the just-published version identifier as the `versionId` input. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `releaseMode: deployHandoff:deploy-cloudflare-workers`, the named deploy blueprint applied, and an artefact-publish step that succeeded",
       "when": "the release trigger fires",
       "then": "the release workflow dispatches the promote workflow with `versionId` set to the just-published version identifier and waits on the promote workflow's outcome",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6122-2",
-      "description": "The release workflow's aggregate outcome is `passed` only when the promote workflow's outcome is `passed`. A failed promote workflow flips the release workflow's aggregate to `failed`.",
+      "description": "The release workflow's aggregate outcome is `passed` only when the promote workflow's outcome is `passed`. A failed promote workflow flips the release workflow's aggregate to `failed`. Template values the applying agent sets: The applying agent sets the elicited deployHandoff target blueprint name; the AC substitutes that name for the illustrative slug.",
       "given": "a release workflow in `deployHandoff` mode whose promote workflow returned a failed outcome",
       "when": "the release workflow aggregates its outcome",
       "then": "the release workflow's aggregate report at `.rcf/reports/ci/release.json` records `verdict: failed` and names the promote workflow's failure in its `gates[]` array",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited deployHandoff target blueprint name; the AC substitutes that name for the illustrative slug."
+      "disposition": "template"
     },
     {
       "id": "AC-6122-3",
-      "description": "When `releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is not present in `manifest.blueprints[]`, the workflow-materialiser boot-check refuses with a stable-coded error naming the missing blueprint slug and pointing at `rcf define blueprint add <deploy-slug>`.",
+      "description": "When `releaseMode` is `deployHandoff:<slug>` and the named deploy blueprint is not present in `manifest.blueprints[]`, the workflow-materialiser boot-check refuses with a stable-coded error naming the missing blueprint slug and pointing at `rcf define blueprint add <deploy-slug>`. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `releaseMode: deployHandoff:deploy-cloudflare-workers` and no such blueprint in the manifest",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero with a stable-coded error naming the missing slug and pointing at the resolution command, and no release workflow file lands on disk",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6122-4",
-      "description": "A failed artefact publication step (a checksum mismatch, an upload rejection, a permissions error) fails the release aggregate with a stable-coded RELEASE_PUBLISH_FAILED naming the artefact and the provider response; the deployHandoff promote workflow is not invoked.",
+      "description": "A failed artefact publication step (a checksum mismatch, an upload rejection, a permissions error) fails the release aggregate with a stable-coded RELEASE_PUBLISH_FAILED naming the artefact and the provider response; the deployHandoff promote workflow is not invoked. Template values the applying agent sets: The applying agent supplies the elicited providerHint, releaseMode and artefact set; the AC substitutes those.",
       "given": "a release workflow at releaseMode=tagPlusArtefact with the artefact upload forced to fail on a specific artefact",
       "when": "the release workflow runs",
       "then": "the release aggregate is failed with RELEASE_PUBLISH_FAILED naming the artefact and the provider response; no promote step runs; the workflow exit code is non-zero",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the elicited providerHint, releaseMode and artefact set; the AC substitutes those.",
       "ownerRef": {
         "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
         "field": "interfaces.runRelease"

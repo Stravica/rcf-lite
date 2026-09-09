@@ -11,30 +11,42 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15105-1",
-      "description": "The logger factory refuses to construct when environment, serviceName or serviceVersion is missing or blank; construction failure throws with a message naming the missing field.",
+      "description": "The logger factory refuses to construct when environment, serviceName or serviceVersion is missing or blank; construction failure throws with a message naming the missing field. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "an application booting with one of the three fields absent",
       "when": "the logger factory is constructed",
       "then": "the construction throws, the error message names the missing field, and the process exits before any emission is possible",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
+      "disposition": "template"
     },
     {
       "id": "AC-15105-2",
-      "description": "Every emitted line carries environment, serviceName and serviceVersion at fixed field names and equal to the values the operator supplied at boot.",
+      "description": "Every emitted line carries environment, serviceName and serviceVersion at fixed field names and equal to the values the operator supplied at boot. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "a running application constructed with the three fields set",
       "when": "any emission is issued",
       "then": "the stdout line's three fields equal the operator-supplied values verbatim",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
+      "disposition": "template"
+    },
+    {
+      "id": "AC-15105-3",
+      "description": "The factory refuses to construct when environment, serviceName or serviceVersion is set to a whitespace-only string; the thrown error names the offending field and treats blank as absent.",
+      "given": "an application booting with serviceName equal to \"  \" (two spaces)",
+      "when": "the factory is constructed",
+      "then": "construction throws with a message naming serviceName as the offending blank field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
     }
   ],
   "tacIds": [
     "TAC-1601-observability-logging-logger-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

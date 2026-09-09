@@ -11,36 +11,33 @@
   "acceptanceCriteria": [
     {
       "id": "AC-4105-1",
-      "description": "A webhook POST whose timestamp header is older than the configured tolerance window is refused with HTTP 401 and an empty body; the downstream handler is not invoked and a `webhookReplayStale` audit event is emitted.",
+      "description": "A webhook POST whose timestamp header is older than the configured tolerance window is refused with HTTP 401 and an empty body; the downstream handler is not invoked and a `webhookReplayStale` audit event is emitted. Template values the applying agent sets: The applying agent sets the elicited replay tolerance window; the AC substitutes the project's window for the illustrative value.",
       "given": "a running project with a configured tolerance window of 300 seconds and a POST whose timestamp header is set to a value 301 or more seconds in the past",
       "when": "the POST is delivered to the webhook route",
       "then": "the response status is 401, the response body is empty, the handler invocation counter is unchanged, and the audit sink observes exactly one `webhookReplayStale` event",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited replay tolerance window; the AC substitutes the project's window for the illustrative value."
+      "disposition": "template"
     },
     {
       "id": "AC-4105-2",
-      "description": "A signature-valid webhook POST whose delivery event id already appears in the bounded event-id store is acknowledged with HTTP 200 without invoking the downstream handler; a `webhookReplayDuplicate` audit event is emitted.",
+      "description": "A signature-valid webhook POST whose delivery event id already appears in the bounded event-id store is acknowledged with HTTP 200 without invoking the downstream handler; a `webhookReplayDuplicate` audit event is emitted. Template values the applying agent sets: The applying agent sets the elicited replay tolerance window; the AC substitutes the project's window for the illustrative value.",
       "given": "a running project with a signature-valid POST that has already been processed once (event id recorded in the store) and a second POST carrying the same event id inside the tolerance window",
       "when": "the second POST is delivered to the webhook route",
       "then": "the response status is 200, the handler invocation counter is unchanged from before the second POST, and the audit sink observes exactly one `webhookReplayDuplicate` event on the second POST",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited replay tolerance window; the AC substitutes the project's window for the illustrative value."
+      "disposition": "template"
     },
     {
       "id": "AC-4105-3",
-      "description": "On accepting a delivery event, the verifier calls putIfAbsentWithExpiry(eventId, expiryMs) with expiryMs equal to the configured replay tolerance window; a re-post of the same event id BEFORE the window expires is refused as a duplicate; a re-post of the same event id AFTER the window expires is accepted normally.",
+      "description": "On accepting a delivery event, the verifier calls putIfAbsentWithExpiry(eventId, expiryMs) with expiryMs equal to the configured replay tolerance window; a re-post of the same event id BEFORE the window expires is refused as a duplicate; a re-post of the same event id AFTER the window expires is accepted normally. Template values the applying agent sets: The applying agent supplies the elicited replay tolerance window; the AC substitutes it for the illustrative 300000ms value.",
       "given": "a webhook verifier configured with tolerance window 300000ms (5 minutes), a deterministic clock, and a first event with id \"evt-42\" accepted at T0",
       "when": "the same event id is re-posted at T0+150000ms (inside window) and again at T0+400000ms (after window)",
       "then": "the first re-post is refused with EVENT_REPLAY_DUPLICATE; the second re-post is accepted normally; the eventIdStore's putIfAbsentWithExpiry recorded expiryMs=300000 for the initial entry",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the elicited replay tolerance window; the AC substitutes it for the illustrative 300000ms value.",
       "ownerRef": {
         "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
         "field": "interfaces.eventIdStore"

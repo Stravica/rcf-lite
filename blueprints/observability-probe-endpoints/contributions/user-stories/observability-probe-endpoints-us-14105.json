@@ -41,14 +41,13 @@
     },
     {
       "id": "AC-14105-4",
-      "description": "A systemd-profile process under Type=notify emits sd_notify(READY=1) exactly once after boot completes and sd_notify(WATCHDOG=1) at the configured watchdog cadence for the process lifetime; a process that fails to send WATCHDOG within the cadence budget is signalled fail by the systemd supervisor.",
+      "description": "A systemd-profile process under Type=notify emits sd_notify(READY=1) exactly once after boot completes and sd_notify(WATCHDOG=1) at the configured watchdog cadence for the process lifetime; a process that fails to send WATCHDOG within the cadence budget is signalled fail by the systemd supervisor. Template values the applying agent sets: The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
       "given": "a process configured with probe-interface-profile=systemd, watchdog cadence 10 seconds, and a project-owned readiness predicate returning pass",
       "when": "the process boots and runs for 30 seconds under a mock systemd notify sink",
       "then": "the sink records exactly one READY=1 line after boot and at least two WATCHDOG=1 lines within the 30-second window; if the process is paused past the watchdog budget, the sink records no further WATCHDOG=1 lines and the supervisor pull is signalled",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
       "ownerRef": {
         "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
         "field": "interfaces.notifyImplementation"
@@ -56,14 +55,13 @@
     },
     {
       "id": "AC-14105-5",
-      "description": "A TCP-transport probe profile answers a TCP socket connect on the configured probe port with an accept on pass and a refuse (RST) on fail; the response is the accept/refuse itself and no bytes are exchanged on the connection.",
+      "description": "A TCP-transport probe profile answers a TCP socket connect on the configured probe port with an accept on pass and a refuse (RST) on fail; the response is the accept/refuse itself and no bytes are exchanged on the connection. Template values the applying agent sets: The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
       "given": "a process configured with a TCP-transport profile (a custom profile or a supervising system that reads TCP accept/refuse), probe port 9091, and a readiness predicate returning pass then fail",
       "when": "a supervisor issues one TCP connect while pass, then one TCP connect after the predicate flips to fail",
       "then": "the pass connect completes the three-way handshake and reads zero bytes on the connection before close; the fail connect is refused (RST or connection refused) within the connect timeout; no application-layer data crosses the connection in either case",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
       "ownerRef": {
         "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
         "field": "interfaces.selectAdapter"

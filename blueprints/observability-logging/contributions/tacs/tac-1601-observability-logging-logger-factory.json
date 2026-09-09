@@ -37,12 +37,6 @@
       "kind": "tac",
       "tacId": "TAC-1602-observability-logging-redaction-boundary",
       "description": "The factory calls the redaction boundary on every serialised payload before the line is written to the sink; the boundary encapsulates the category vocabulary and the [REDACTED:<category>] rewriting."
-    },
-    {
-      "name": "Serialisation refusal decision",
-      "kind": "adr",
-      "adrId": "ADR-1605-observability-logging-serialisation-refusal",
-      "description": "The BigInt fold and the circular/function drop semantics are owned by ADR-1605; TAC-1601 references the decision, does not restate it."
     }
   ],
   "tradeoffs": "The factory owns the field vocabulary; a project that wants an additional top-level field beyond the shared minimum authors it as a payload field (which appears on the line) rather than as a factory-side hook. Capture mode is a first-class interface, not a test-only afterthought: the runtime sink is one strategy the same interface serves, so the capture path exercises the same serialisation logic as the runtime path. The v1 blueprint does not ship a dynamic level-change interface; the level is fixed for the process lifetime (REQ-004).",

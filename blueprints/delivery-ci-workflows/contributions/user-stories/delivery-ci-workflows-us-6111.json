@@ -11,30 +11,42 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6111-1",
-      "description": "The workflow-materialiser reads its input `workflowShape` from the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The reader path is documented in the blueprint guide and does not vary with CI provider.",
+      "description": "The workflow-materialiser reads its input `workflowShape` from the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The reader path is documented in the blueprint guide and does not vary with CI provider. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a project that has applied delivery-ci-workflows v2 and populated `.rcf/config/delivery-ci-workflows.json`",
       "when": "the workflow-materialiser runs (locally or in CI)",
       "then": "the materialiser reads the file at the documented path and treats its `workflowShape` as authoritative",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6111-2",
-      "description": "The three required fields (`branchModel`, `checkSet`, `providerHint`), the optional `releaseMode` field (absent has the same effect as `releaseMode: none`, per Q6-B ratification), the optional `scheduledAudit` field, the optional `trunkPullRequests` sub-field, and the optional substitution-surface fields `defaultBranch` (default `main`), `trunkBranch` (default `main`), and `packageManager` (default `pnpm`; recognised set `pnpm`, `npm`, `yarn`, `bun`) are the complete surface the workflow-materialiser reads. No other field the file carries is interpreted at this version; unknown fields are ignored (forward-compatibility).",
+      "description": "The three required fields (`branchModel`, `checkSet`, `providerHint`), the optional `releaseMode` field (absent has the same effect as `releaseMode: none`, per Q6-B ratification), the optional `scheduledAudit` field, the optional `trunkPullRequests` sub-field, and the optional substitution-surface fields `defaultBranch` (default `main`), `trunkBranch` (default `main`), and `packageManager` (default `pnpm`; recognised set `pnpm`, `npm`, `yarn`, `bun`) are the complete surface the workflow-materialiser reads. No other field the file carries is interpreted at this version; unknown fields are ignored (forward-compatibility). Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` declaration carrying the three required fields, the optional fields, and additional unknown fields",
       "when": "the workflow-materialiser reads the file",
       "then": "the materialiser processes the recognised fields (including the substitution-surface trio) and ignores the unknown fields without failing the boot-check",
       "testable": true,
       "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6111-3",
+      "description": "A workflowShape configuration whose branchModel is `trunk` but whose materialised outputs still write a pull-request-checks workflow (drift from ADR-706 defaults) fails a materialiser self-check: the writer refuses with WORKFLOW_SHAPE_MISMATCH naming branchModel and the extra file. Prevents silent divergence from the ratified shape mapping.",
+      "given": "a materialiser invoked with branchModel=trunk and a stub that would still emit pull-request-checks.yml",
+      "when": "the materialiser runs its self-check",
+      "then": "the writer refuses with WORKFLOW_SHAPE_MISMATCH naming branchModel=trunk and the pull-request-checks.yml file; nothing is written",
+      "testable": true,
+      "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces.materialise"
+      }
     }
   ],
   "tacIds": [
     "TAC-704-delivery-ci-workflows-workflow-materialiser"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

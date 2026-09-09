@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6104-1",
-      "description": "The suite invokes `rcf audit coverage --strict` as a required gate after `rcf define validate`. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path.",
+      "description": "The suite invokes `rcf audit coverage --strict` as a required gate after `rcf define validate`. The gate's exit code, captured stdout, and captured stderr are written to a per-gate report at the configured stable path. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "the pipeline has run against the head commit",
       "when": "the reviewer opens the per-gate report file at `<reportDir>/coverage-strict.json`",
       "then": "the file exists, its `gate` field is `coverage-strict`, its `command` field names the `rcf audit coverage --strict` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
+      "disposition": "template"
     },
     {
       "id": "AC-6104-2",
@@ -29,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6104-3",
+      "description": "The strict coverage gate refuses to declare a pass when an AC has no resolving TC even if every other AC is covered; the per-gate report names the uncovered AC id and the aggregate refuses pipeline pass.",
+      "given": "a project tree where AC-999-x has no resolving TC and every other AC does",
+      "when": "the strict coverage gate runs",
+      "then": "the gate exits non-zero, the per-gate report names AC-999-x under uncovered, and the aggregate carries verdict=failed",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
@@ -36,5 +49,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15101-1",
-      "description": "A log emission at any level from any call site produces exactly one line on stdout, that line parses as valid JSON, and the parsed object carries every field of the shared minimum set: message, level, timestamp, correlationId, environment, serviceName, serviceVersion.",
+      "description": "A log emission at any level from any call site produces exactly one line on stdout, that line parses as valid JSON, and the parsed object carries every field of the shared minimum set: message, level, timestamp, correlationId, environment, serviceName, serviceVersion. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "a running application with the logger factory constructed and an ambient correlation context",
       "when": "any call site emits at any level",
       "then": "one stdout line results, JSON.parse succeeds, and the object has all seven minimum fields present with the correct types",
@@ -21,8 +21,7 @@
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
         "field": "interfaces.Logger"
-      },
-      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
+      }
     },
     {
       "id": "AC-15101-2",
@@ -54,7 +53,7 @@
     },
     {
       "id": "AC-15101-4",
-      "description": "The seven shared minimum fields (message, level, timestamp, correlationId, environment, serviceName, serviceVersion) never collide with a caller-supplied payload field of the same name: a caller payload field named 'level' or 'timestamp' does not overwrite the factory-authored value on the emitted line. The factory-authored value wins; the caller-supplied value with the same name is dropped with one stderr notice naming the offending key.",
+      "description": "The seven shared minimum fields (message, level, timestamp, correlationId, environment, serviceName, serviceVersion) never collide with a caller-supplied payload field of the same name: a caller payload field named 'level' or 'timestamp' does not overwrite the factory-authored value on the emitted line. The factory-authored value wins; the caller-supplied value with the same name is dropped with one stderr notice naming the offending key. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "a running application and a caller issuing logger.info('m', { level: 'boom', timestamp: 'yesterday' })",
       "when": "the emission is attempted",
       "then": "the stdout line's level equals the factory-computed level string and timestamp equals the factory-supplied ISO-8601 stamp; stderr names 'level' and 'timestamp' as reserved keys",
@@ -64,8 +63,7 @@
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
         "field": "interfaces.Logger"
-      },
-      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
+      }
     },
     {
       "id": "AC-15101-5",

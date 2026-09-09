@@ -11,19 +11,32 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15106-1",
-      "description": "The factory refuses to construct when the elicited minimum level is not one of the recommended-default vocabulary (trace, debug, info, warn, error, fatal); the thrown error names the offending value and lists the accepted set.",
+      "description": "The factory refuses to construct when the elicited minimum level is not one of the recommended-default vocabulary (trace, debug, info, warn, error, fatal); the thrown error names the offending value and lists the accepted set. Template values the applying agent sets: The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info.",
       "given": "an application booting with minimum level set to 'verbose'",
       "when": "the factory is constructed",
       "then": "the construction throws with a message naming 'verbose' as the offending value and listing the accepted vocabulary",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info."
+      "disposition": "template"
+    },
+    {
+      "id": "AC-15106-2",
+      "description": "The factory refuses to construct when the elicited minimum level is provided in the wrong case (e.g. \"INFO\", \"Warn\"); the thrown error names the offending value and lists the accepted lower-case vocabulary. The vocabulary is case-sensitive by design.",
+      "given": "an application booting with minimum level set to \"INFO\"",
+      "when": "the factory is constructed",
+      "then": "construction throws with a message naming \"INFO\" as the offending value and listing the accepted lower-case vocabulary trace/debug/info/warn/error/fatal",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
     }
   ],
   "tacIds": [
     "TAC-1601-observability-logging-logger-factory"
   ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

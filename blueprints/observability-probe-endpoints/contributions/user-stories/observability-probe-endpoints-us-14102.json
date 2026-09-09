@@ -41,25 +41,23 @@
     },
     {
       "id": "AC-14102-4",
-      "description": "When the operator sets probeInterface.options.kubernetes.startup.enabled: true on the shipped Kubernetes profile, the resolver returns a three-path set including the startup path (default /startup) and the handler-set builder generates a startup handler that answers pass once the operator-declared startup predicate returns pass and fail otherwise.",
+      "description": "When the operator sets probeInterface.options.kubernetes.startup.enabled: true on the shipped Kubernetes profile, the resolver returns a three-path set including the startup path (default /startup) and the handler-set builder generates a startup handler that answers pass once the operator-declared startup predicate returns pass and fail otherwise. Template values the applying agent sets: The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens.",
       "given": "a process on the shipped kubernetes profile with probeInterface.options.kubernetes.startup.enabled set to true, a startup predicate wired against a stubbed initialisation state, and the paths option left at its default",
       "when": "the resolver runs at boot, and then GETs are issued against /startup with the stubbed state first fail then pass",
       "then": "the resolver returns { profile: kubernetes, paths: [/live, /ready, /startup] }; the first GET on /startup returns 503 with body {\"status\":\"fail\"}; the second GET on /startup returns 200 with body {\"status\":\"pass\"}; without the enable flag the resolver returns two paths and no /startup handler is registered",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
+      "disposition": "template"
     },
     {
       "id": "AC-14102-5",
-      "description": "A Kubernetes-profile liveness handler on a process whose in-process liveness self-check predicate returns fail answers HTTP 503 with an empty body, so a kubelet restart is triggered on the next probe interval; the predicate is response-capable by design (a watchdog-style tick that runs on a scheduled interval and sets a boolean the handler reads without I/O).",
+      "description": "A Kubernetes-profile liveness handler on a process whose in-process liveness self-check predicate returns fail answers HTTP 503 with an empty body, so a kubelet restart is triggered on the next probe interval; the predicate is response-capable by design (a watchdog-style tick that runs on a scheduled interval and sets a boolean the handler reads without I/O). Template values the applying agent sets: The applying agent supplies the liveness self-check predicate the AC observes (the scheduled heartbeat and its budget); the AC exercises the failure branch of that predicate rather than proving the predicate itself.",
       "given": "a process on the shipped Kubernetes default with a project-owned liveness self-check predicate (a scheduled 1-second heartbeat that has not fired within its 5-second budget flips the predicate to fail) and no dependency coupling on this handler",
       "when": "kubelet issues HTTP GET /live while the predicate is in the fail state",
       "then": "the response is HTTP 503 with content-length 0 and an empty body; a follow-up GET while the predicate is still fail continues to answer 503; a GET after the predicate returns to pass answers 200",
       "testable": true,
       "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent supplies the liveness self-check predicate the AC observes (the scheduled heartbeat and its budget); the AC exercises the failure branch of that predicate rather than proving the predicate itself.",
       "ownerRef": {
         "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
         "field": "interfaces.readinessPredicate"

@@ -11,25 +11,23 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6112-1",
-      "description": "A `workflowShape` missing any of the three required fields (`branchModel`, `checkSet`, `providerHint`) causes the workflow-materialiser to exit non-zero with a stable error code and a message naming the missing field. `releaseMode` being absent does NOT fail the boot-check (per Q6-B ratification): the materialiser treats absent `releaseMode` as `releaseMode: none` and ships no release workflow. No workflow file is written when the boot-check does fail.",
+      "description": "A `workflowShape` missing any of the three required fields (`branchModel`, `checkSet`, `providerHint`) causes the workflow-materialiser to exit non-zero with a stable error code and a message naming the missing field. `releaseMode` being absent does NOT fail the boot-check (per Q6-B ratification): the materialiser treats absent `releaseMode` as `releaseMode: none` and ships no release workflow. No workflow file is written when the boot-check does fail. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` declaration whose `providerHint` field is absent (or any of the three required fields)",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero, prints an error naming the missing field with a stable code, and leaves the provider's workflow directory unchanged",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6112-2",
-      "description": "A required field whose value is not in the recognised enumeration for that field causes the same failure shape: non-zero exit, stable-coded error, no workflow file written.",
+      "description": "A required field whose value is not in the recognised enumeration for that field causes the same failure shape: non-zero exit, stable-coded error, no workflow file written. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` carrying `branchModel: hybrid` (a value the enumeration does not include)",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero, prints an error naming the field, the value received, and the recognised set, with a stable code",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6112-3",

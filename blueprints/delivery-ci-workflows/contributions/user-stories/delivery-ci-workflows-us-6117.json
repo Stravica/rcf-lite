@@ -11,14 +11,27 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6117-1",
-      "description": "When `checkSet.formatter` is true, the gate-runner runs the project-realised formatter runner in check mode. A non-zero exit code from the runner (indicating one or more files would be rewritten) flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/format.json` carries `checkKind: \"formatter\"`.",
+      "description": "When `checkSet.formatter` is true, the gate-runner runs the project-realised formatter runner in check mode. A non-zero exit code from the runner (indicating one or more files would be rewritten) flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/format.json` carries `checkKind: \"formatter\"`. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a project with `checkSet.formatter: true` and a realised formatter runner in check mode",
       "when": "a CI workflow invokes the gate-runner",
       "then": "a report file at `.rcf/reports/ci/format.json` is written with `checkKind: \"formatter\"`, and the gate outcome tracks the runner exit code",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6117-2",
+      "description": "The formatter gate refuses to write files (it runs in --check mode); a formatter that mutates files during its run flips the gate to failed with FORMATTER_MUTATED_TREE naming the offending file, so a misconfigured hook never rewrites the tree on the CI runner.",
+      "given": "a formatter gate configured with a hook that mutates files under packages/",
+      "when": "the gate runs",
+      "then": "the gate exits non-zero with FORMATTER_MUTATED_TREE naming the mutated file; the tree is captured pre-run and compared post-run to detect the mutation",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
@@ -26,5 +39,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

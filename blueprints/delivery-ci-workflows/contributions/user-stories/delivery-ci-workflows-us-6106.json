@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6106-1",
-      "description": "The suite writes an aggregate report at `<reportDir>/pipeline.json` on every run. The aggregate carries `verdict`, `trigger`, `startedAt`, `endedAt`, `durationMs`, `runner.entryPoint`, and `gates[]` (each entry naming `gate`, `outcome`, `durationMs`, and `reportPath`).",
+      "description": "The suite writes an aggregate report at `<reportDir>/pipeline.json` on every run. The aggregate carries `verdict`, `trigger`, `startedAt`, `endedAt`, `durationMs`, `runner.entryPoint`, and `gates[]` (each entry naming `gate`, `outcome`, `durationMs`, and `reportPath`). Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "the suite has run against any tree",
       "when": "the reviewer opens `<reportDir>/pipeline.json`",
       "then": "the file exists, its top-level keys are exactly the fixed set above, `verdict` is one of `passed` or `failed`, `gates[]` is a non-empty array in fixed configured order, and every `reportPath` value resolves to an existing per-gate report file at that relative path",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
+      "disposition": "template"
     },
     {
       "id": "AC-6106-2",
@@ -29,11 +28,25 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6106-3",
+      "description": "The aggregate report writer refuses to overwrite a report path that resolves outside the elicited report directory (an attempted path traversal) with the stable code AGGREGATE_PATH_ESCAPE naming the offending path; the target file is not written.",
+      "given": "an aggregate writer invoked with a computed path that resolves outside the elicited report-dir (a symlink loop, a path traversal ../)",
+      "when": "the writer runs",
+      "then": "the writer refuses with AGGREGATE_PATH_ESCAPE naming the offending resolution; no bytes are written to the target",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
+        "field": "interfaces.writeAggregateReport"
+      }
     }
   ],
   "tacIds": [
     "TAC-703-delivery-ci-workflows-aggregate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6101-1",
-      "description": "The CI provider's jobs for the commit-triggered workflows are triggered by the trigger events the branch model defines: for feature-branch, pushes to the default branch and pull requests opened, synchronised, or reopened against the default branch; for trunk-based, pushes to the trunk branch and (in the `trunkPullRequests: sometimes` sub-shape) pull requests targeting the trunk branch. The trigger configuration is committed under source control, not set through a provider UI.",
+      "description": "The CI provider's jobs for the commit-triggered workflows are triggered by the trigger events the branch model defines: for feature-branch, pushes to the default branch and pull requests opened, synchronised, or reopened against the default branch; for trunk-based, pushes to the trunk branch and (in the `trunkPullRequests: sometimes` sub-shape) pull requests targeting the trunk branch. The trigger configuration is committed under source control, not set through a provider UI. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "the project's materialised workflow files and repository state at the head commit",
       "when": "a trigger event fires that the elicited branch model names",
       "then": "the aggregate pipeline report at the configured stable path (default `.rcf/reports/ci/pipeline.json`) is written by the resulting CI job, and its `trigger` field records the event kind and the workflow that ran",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
+      "disposition": "template"
     },
     {
       "id": "AC-6101-2",
@@ -29,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-6101-3",
+      "description": "A workflow whose trigger set omits one of the required events (a pull-request-checks workflow with only `push`) is refused at materialise-time with WORKFLOW_TRIGGER_INCOMPLETE naming the missing trigger; no workflow file is written.",
+      "given": "a workflowShape configuration whose materialised trigger set for a required workflow drops one of the required triggers",
+      "when": "the materialiser runs",
+      "then": "the process exits with a non-zero code and emits WORKFLOW_TRIGGER_INCOMPLETE naming the missing trigger and the workflow name; the workflow directory is unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces.materialise"
+      }
     }
   ],
   "tacIds": [
@@ -36,5 +49,5 @@
     "TAC-703-delivery-ci-workflows-aggregate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

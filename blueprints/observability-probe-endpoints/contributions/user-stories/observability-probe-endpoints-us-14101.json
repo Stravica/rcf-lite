@@ -11,14 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-14101-1",
-      "description": "A process configured with `probeInterface.profile: kubernetes` boots and binds probe handlers whose paths and port topology match the resolved Kubernetes profile.",
+      "description": "A process configured with `probeInterface.profile: kubernetes` boots and binds probe handlers whose paths and port topology match the resolved Kubernetes profile. Template values the applying agent sets: The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens.",
       "given": "a process configuration whose profile declaration resolves to `kubernetes` with default paths and fused-listener topology",
       "when": "the process boots and its probe-binding step completes",
       "then": "the running listener answers GET on the profile-declared liveness path (default /live) with 200 and on the profile-declared readiness path (default /ready) with 200 or 503, and no probe handler is bound at any path outside the profile-declared set",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
+      "disposition": "template"
     },
     {
       "id": "AC-14101-2",

@@ -11,25 +11,37 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6123-1",
-      "description": "When `workflowShape.scheduledAudit` is `true`, the workflow-materialiser produces a `scheduled-audit` workflow triggered by the provider's cron surface, running the same required check set the pull-request and default-branch workflows run. The aggregate report writes to `.rcf/reports/ci/scheduled-audit.json` (distinct from the commit-triggered `pipeline.json`).",
+      "description": "When `workflowShape.scheduledAudit` is `true`, the workflow-materialiser produces a `scheduled-audit` workflow triggered by the provider's cron surface, running the same required check set the pull-request and default-branch workflows run. The aggregate report writes to `.rcf/reports/ci/scheduled-audit.json` (distinct from the commit-triggered `pipeline.json`). Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `scheduledAudit: true`",
       "when": "the workflow-materialiser runs",
       "then": "a `scheduled-audit` workflow file lands at the provider's workflow path, its trigger set names a cron schedule, and its command line invokes the Node gate-runner entry point with the required check set writing to the distinct report path",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "disposition": "template"
     },
     {
       "id": "AC-6123-2",
-      "description": "When `scheduledAudit` is `false` or absent, no scheduled workflow ships and no `.rcf/reports/ci/scheduled-audit.json` file path is populated.",
+      "description": "When `scheduledAudit` is `false` or absent, no scheduled workflow ships and no `.rcf/reports/ci/scheduled-audit.json` file path is populated. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `scheduledAudit` absent (default `false`)",
       "when": "the workflow-materialiser runs",
       "then": "no `scheduled-audit` workflow file is created and no `.rcf/reports/ci/scheduled-audit.json` file path is written",
       "testable": true,
       "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6123-3",
+      "description": "The scheduled-audit workflow refuses to write when the check-set is empty (a workflowShape with scheduled-audit=on but checkSet all-false): the materialiser emits SCHEDULED_AUDIT_EMPTY_CHECKSET naming the empty checkSet; no cron workflow is written.",
+      "given": "a workflowShape with scheduled-audit=on and every checkSet flag false",
+      "when": "the materialiser runs",
+      "then": "the materialiser exits with SCHEDULED_AUDIT_EMPTY_CHECKSET; no scheduled-audit.yml is written",
+      "testable": true,
+      "scope": "runtime",
       "disposition": "template",
-      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+      "ownerRef": {
+        "tacId": "TAC-706-delivery-ci-workflows-scheduled-audit",
+        "field": "interfaces.runScheduledAudit"
+      }
     }
   ],
   "tacIds": [
@@ -37,5 +49,5 @@
     "TAC-706-delivery-ci-workflows-scheduled-audit"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
