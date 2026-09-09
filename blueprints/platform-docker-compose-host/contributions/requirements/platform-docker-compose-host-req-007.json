@@ -1,0 +1,22 @@
+{
+  "reqId": "platform-docker-compose-host-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Docker Engine installation follows the elicited apt channel: stable (shipped default) or test (pre-release verification)",
+  "description": "The applying project elicits an apt channel for Docker Engine per the Docker Engine install-on-Ubuntu docs (docker-engine-channel): stable is the shipped default and installs from the stable repository; test is the pre-release channel and installs from the test repository. The installer script MUST (must) resolve the elicited channel into the apt sources entry and the observable installed repository/package source; on any other elicited value the installer refuses with a named error kind. Nightly builds documented separately by the vendor are out of scope for the elicit and are not offered here.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Closes criterion a on the docker-engine-channel elicit (F-1); the previously silent stable/test option now traces through a must-level requirement.",
+  "tags": [
+    "blueprint:platform-docker-compose-host",
+    "category:007-docker-engine-channel"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T20:20:00.000Z",
+  "updatedAt": "2026-09-09T20:20:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+    "field": "responsibilities.topology"
+  }
+}

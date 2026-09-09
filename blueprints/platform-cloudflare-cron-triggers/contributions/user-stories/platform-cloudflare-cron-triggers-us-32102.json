@@ -20,7 +20,8 @@
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
         "field": "interfaces.dispatch"
-      }
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-32102-2",
@@ -29,12 +30,13 @@
       "when": "dispatch is called with an expression not in the routes",
       "then": "no spy is called, a cronUnmatched event fires, and dispatch returns without side effect",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3302-platform-cloudflare-cron-triggers-expression-router"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

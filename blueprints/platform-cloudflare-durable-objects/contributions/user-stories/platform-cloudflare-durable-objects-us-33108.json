@@ -11,17 +11,18 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33108-1",
-      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_classes = [\"SingleCellObject\", \"HubObject\"]. An anatomy assertion greps the toml for each of the four literal strings (name = \"CELL\", class_name = \"SingleCellObject\", name = \"HUB\", class_name = \"HubObject\") and the tag/new_classes pair. A rename in a real project ships as a new migrations tag entry, never a silent edit of the class name.",
+      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_sqlite_classes = [\"SingleCellObject\", \"HubObject\"]. An anatomy assertion greps the toml for each of the four literal strings (name = \"CELL\", class_name = \"SingleCellObject\", name = \"HUB\", class_name = \"HubObject\") and the tag/new_sqlite_classes pair. A rename in a real project ships as a new migrations tag entry, never a silent edit of the class name.",
       "given": "the cf-platform fixture wrangler.toml",
       "when": "the anatomy assertion greps for the four literal strings and the migrations pair",
       "then": "every string is present and the migrations tag \"v1\" carries the two class names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

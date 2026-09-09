@@ -11,21 +11,22 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33113-1",
-      "description": "The wrangler-seam probe, when the fixture has been prepared with `pnpm install --ignore-workspace` so the wrangler devDependency is on the tree, spawns `wrangler dev --local --port 0` from the cf-platform fixture, waits bounded 45 seconds for the CLI to bind, then (a) issues two concurrent POST /cell/<id>/increment requests against a fetch route in src/index.mjs that calls createDoFacade({env, sink}).cellFetch(<id>, request), asserting the two responses observe per-instance serialisation (sorted counters == [1, 2], sorted witnesses == [0, 1], each request read the other's write) and (b) opens one WebSocket upgrade against /hub/<id>/connect via createDoFacade({env, sink}).hubFetch(<id>, request), asserting one broadcast frame arrives on connect with payload 'hello-from-hub'. The probe kills wrangler cleanly on exit. Warn semantics per section 3.1 pass-with-skip: if wrangler is not installed or fails to bind within the cap, the probe returns aggregateVerdict warn (never fail); a handler thrown at the workerd boundary is a genuine fail. The additional result on the same probe run covers AC-33108-1 by grepping the fixture wrangler.toml for the two [[durable_objects.bindings]] pairs and the [[migrations]] tag/new_classes pair; the grep result is deterministic and does not require wrangler.",
+      "description": "The wrangler-seam probe, when the fixture has been prepared with `pnpm install --ignore-workspace` so the wrangler devDependency is on the tree, spawns `wrangler dev --local --port 0` from the cf-platform fixture, waits bounded 45 seconds for the CLI to bind, then (a) issues two concurrent POST /cell/<id>/increment requests against a fetch route in src/index.mjs that calls createDoFacade({env, sink}).cellFetch(<id>, request), asserting the two responses observe per-instance serialisation (sorted counters == [1, 2], sorted witnesses == [0, 1], each request read the other's write) and (b) opens one WebSocket upgrade against /hub/<id>/connect via createDoFacade({env, sink}).hubFetch(<id>, request), asserting one broadcast frame arrives on connect with payload 'hello-from-hub'. The probe kills wrangler cleanly on exit. Warn semantics per section 3.1 pass-with-skip: if wrangler is not installed or fails to bind within the cap, the probe returns aggregateVerdict warn (never fail); a handler thrown at the workerd boundary is a genuine fail. The additional result on the same probe run covers AC-33108-1 by grepping the fixture wrangler.toml for the two [[durable_objects.bindings]] pairs and the [[migrations]] tag/new_sqlite_classes pair; the grep result is deterministic and does not require wrangler.",
       "given": "the cf-platform fixture with the wrangler devDependency installed and the shipped DO classes exported from src/index.mjs",
       "when": "the wrangler-seam probe runs",
-      "then": "wrangler dev binds; two concurrent increments through env.CELL observe per-instance serialisation; one WebSocket upgrade through env.HUB receives a broadcast frame; the wrangler.toml grep confirms both binding pairs and the migrations tag/new_classes; wrangler exits cleanly",
+      "then": "wrangler dev binds; two concurrent increments through env.CELL observe per-instance serialisation; one WebSocket upgrade through env.HUB receives a broadcast frame; the wrangler.toml grep confirms both binding pairs and the migrations tag/new_sqlite_classes; wrangler exits cleanly",
       "testable": true,
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
         "field": "interfaces.createDoFacade"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

@@ -1,0 +1,22 @@
+{
+  "reqId": "platform-cloudflare-kv-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Pre-ready operations serialise behind facadeReady; sink events emit in causal order",
+  "description": "Every facade verb call issued before facadeReady has fired MUST (must) serialise behind the ready-check: the facade queues the call and executes it only after ready() resolves, so no vendor put/get lands on an unbound binding. Every sink record emitted per operation (kvHit, kvMiss, kvWrite) MUST (must) reach the sink in the same order the facade emitted them, so a downstream logging companion observes causal ordering per key. A pre-ready call whose ready-check subsequently fails is rejected with a named error kind and no record reaches the sink.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Backs pre-ready operation serialisation (TAC-3201.responsibilities) and causal event ordering (TAC-3203.responsibilities), previously requirement-free (F-4).",
+  "tags": [
+    "blueprint:platform-cloudflare-kv",
+    "category:007-pre-ready-and-ordering"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T20:20:00.000Z",
+  "updatedAt": "2026-09-09T20:20:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+    "field": "responsibilities.facadeReady"
+  }
+}

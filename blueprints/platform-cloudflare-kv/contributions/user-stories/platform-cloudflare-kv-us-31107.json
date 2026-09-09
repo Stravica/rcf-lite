@@ -16,12 +16,13 @@
       "when": "the operations run",
       "then": "the sink records each event with only the whitelist keys; any extra key trips the probe",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3203-platform-cloudflare-kv-event-sink"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

@@ -11,15 +11,26 @@
   "acceptanceCriteria": [
     {
       "id": "AC-32101-1",
-      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink; the ready() call fires cronReady on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference other bindings on env; env.CACHE (the T-1 KV binding) is not read by this module.",
+      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected sink; the ready() call fires cronReady on the sink with a payload of exactly {event, expression, scheduledTime, outcome, duration} per TAC-3303 where expression is null, scheduledTime is null, outcome is 'ready' and duration is 0. The scheduled handler module (src/scheduled.mjs) does NOT dereference env.CACHE (the T-1 KV binding) or any other env binding; a source-tree grep of that file returns zero hits for env.CACHE.",
       "given": "a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration",
       "when": "the process boots and the scheduled handler ready() call resolves",
-      "then": "a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE",
+      "then": "a cronReady event fires on the injected sink carrying the cron-vocabulary metadata payload {event, expression, scheduledTime, outcome, duration}; the scheduled.mjs source has zero env.CACHE references",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.cronReady"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
-  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "tacIds": [
+    "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T20:11:00.000Z"
 }

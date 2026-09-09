@@ -16,12 +16,13 @@
       "when": "grep -rn env.CACHE walks the src/ tree",
       "then": "the search returns one file src/kv-facade.mjs and no other match",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

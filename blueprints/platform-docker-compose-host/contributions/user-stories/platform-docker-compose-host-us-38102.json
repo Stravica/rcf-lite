@@ -13,12 +13,13 @@
       "id": "AC-composeHost-secretShape",
       "description": "The applied compose.yaml declares at least one secret under the top-level secrets: key with a file: source and references it from the consuming service through the service-level secrets: array. The mounted secret file lands at mode 0o400 inside the container.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3902-platform-docker-compose-host-secrets-mount"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

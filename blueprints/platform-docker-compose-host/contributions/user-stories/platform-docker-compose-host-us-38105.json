@@ -13,7 +13,8 @@
       "id": "AC-composeHost-upClean",
       "description": "The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps the compose.yaml to the throwaway server, runs docker compose up -d --wait, asserts every declared service reaches healthy inside the elicited timeout, and tears the stack plus the server down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -21,5 +22,5 @@
     "TAC-3903-platform-docker-compose-host-healthcheck-lint"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

@@ -20,12 +20,13 @@
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
         "field": "interfaces.createDoFacade"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3405-platform-cloudflare-durable-objects-event-sink"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

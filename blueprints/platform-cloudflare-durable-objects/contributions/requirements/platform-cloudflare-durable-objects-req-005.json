@@ -2,7 +2,7 @@
   "reqId": "platform-cloudflare-durable-objects-REQ-005",
   "prdId": "PRD-001",
   "title": "The hibernatable WebSocket hub accepts clients via state.acceptWebSocket and the wake handler runs from cold reading the same storage",
-  "description": "A named hub object accepts websocket clients via state.acceptWebSocket per Cloudflare's hibernatable WebSockets shape (https://developers.cloudflare.com/durable-objects/), routes each message to per-message handlers by JSON type field, and broadcasts to all connected sockets. On hibernate-and-wake the wake handler runs from a cold start and reads the same storage; the shipped hub class re-emits doWakeUp on the injected event sink on the first message after hibernation.",
+  "description": "A named hub object accepts websocket clients via state.acceptWebSocket per Cloudflare's hibernatable WebSockets shape (https://developers.cloudflare.com/durable-objects/), routes each message to per-message handlers by JSON type field, and broadcasts to all connected sockets. On hibernate-and-wake the wake handler runs from a cold start and reads the same storage; the shipped hub class re-emits doWakeUp on the injected event sink on the first message after hibernation. The applying project elicits the broadcast delivery window in milliseconds (do-hub-broadcast-window-ms; recommended default 500): every fan-out from a hub broadcast MUST (must) settle to every connected client, or record a partial delivery on the sink, within the elicited window. The applying project also elicits the hibernate-after-idle window per ADR-3405 (do-hub-hibernate-after-idle-ms; recommended default 30000): every hub instance MUST (must) enter the hibernated state after the elicited idle window elapses with no client activity, and MUST (must) wake from cold on the first post-hibernation message without losing lastBroadcast state. The hub shape realises the hibernatableWebSocket capability token: every consumer that selects hibernatableWebSocket inherits the accept-hibernate-wake cycle this REQ describes.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -13,7 +13,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "updatedAt": "2026-09-09T20:35:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
     "field": "responsibilities.doWakeUp"

@@ -16,10 +16,13 @@
       "when": "the probe runs",
       "then": "with the account: a scheduled event is observed within 90s and the probe passes. Without the account: the probe records accountBoundSkipped: true and exits 0.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "tacIds": [
+    "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

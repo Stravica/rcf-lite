@@ -13,12 +13,13 @@
       "id": "AC-composeHost-zeroDowntimeReload",
       "description": "The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici GETs against the proxy service on the throwaway server while docker compose exec caddy caddy reload runs, asserts every request returns a 2xx status inside the elicited window (10 s default), asserts no dropped connection, and tears the stack down in always(). Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and the aggregate flips to pass.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

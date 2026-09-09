@@ -16,12 +16,13 @@
       "when": "put/get/delete operations run on the PII key with the mutation-run switch off then on",
       "then": "the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3203-platform-cloudflare-kv-event-sink"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

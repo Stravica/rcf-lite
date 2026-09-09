@@ -2,6 +2,14 @@
 
 All notable changes to `platform-cloudflare-cron-triggers` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.0 (2026-09-09)
+
+### Changed
+
+- Bring criterion b (AC set to the 7a standard with 7b marking) and criterion c (chain consistency, lint clean) up to the September 2026 hardening target on top of shipped v1.0.0. Every acceptance criterion now carries `disposition` (`fixed` or `template`); `AC-32101-1` carries `ownerRef` into TAC-3301 and `vendorCitation` for the Cloudflare Workers scheduled handler contract; `AC-32102-1` carries `ownerRef` into TAC-3302. Every REQ carries `deliveredBy` (four TAC-scoped links). `rcf define blueprint lint-consistency` reports zero pass-1 and pass-2 findings.
+- Close chain-contradiction specimen F-1: `AC-32101-1` and the fixture `src/scheduled.mjs` now emit `cronReady` with the cron-vocabulary metadata payload `{event, expression, scheduledTime, outcome, duration}` per TAC-3303's allow-list. The previous KV-shaped payload `{event, key, size, ttl, timestamp}` on the boot ready-check is retired; `TS-090` on the anatomy test asserts the new shape.
+- `AC-32102-1` reworded to describe the injected `sink` parameter (no longer restates the literal owned by TAC-3303's interface); no behavioural change in the shipped code path.
+
 ## 1.0.0 (2026-09-07)
 
 ### Added

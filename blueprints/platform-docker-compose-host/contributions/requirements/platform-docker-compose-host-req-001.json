@@ -2,7 +2,7 @@
   "reqId": "platform-docker-compose-host-REQ-001",
   "prdId": "PRD-001",
   "title": "The compose.yaml at the applying repo root is the single-source runtime topology, with service-per-container, named networks and volumes, and .env for non-secret config",
-  "description": "The applying project runs its containerised services from a single compose.yaml at the repo root. Every entry under services: is one image running as one container (service-per-container). Networks and volumes are declared with explicit names under the top-level networks: and volumes: keys. Non-secret configuration values live in a colocated .env file loaded by compose, never inlined into service environment blocks. The container host reads compose.yaml as the topology source of truth and refuses to bring the stack up on layout drift.",
+  "description": "The applying project runs its containerised services from a single compose.yaml at the repo root. Every entry under services: is one image running as one container (service-per-container). Networks and volumes are declared with explicit names under the top-level networks: and volumes: keys. Non-secret configuration values live in a colocated .env file loaded by compose, never inlined into service environment blocks. The container host reads compose.yaml as the topology source of truth and refuses to bring the stack up on layout drift. The compose.yaml location is elicited (compose-file-location): the shipped default is the repo-root path; the alternative compose/compose.yaml is chosen when the project already owns a repo-root compose.yaml for another purpose. Both branches must (must) point docker compose config at the elicited file, and the layout invariants (service-per-container, named networks and volumes, .env-backed non-secret config) hold regardless of which location the elicit resolves. The blueprint declares the containerHost capability token: every downstream blueprint that selects containerHost expects the layout invariants this REQ names.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,7 +14,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "updatedAt": "2026-09-09T20:35:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
     "field": "responsibilities.topology"

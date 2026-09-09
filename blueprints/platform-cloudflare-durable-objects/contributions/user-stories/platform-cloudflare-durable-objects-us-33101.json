@@ -16,12 +16,13 @@
       "when": "the process boots and the facade ready() call resolves",
       "then": "a namespaceReady event fires on the injected event sink with the metadata-only payload; no other module dereferences env.CELL or env.HUB",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

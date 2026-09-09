@@ -16,12 +16,13 @@
       "when": "facade.list({prefix: flags/}) runs",
       "then": "the result carries 10 entries with correct name and metadata fields; the decoy is absent; the aggregate probe verdict is pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

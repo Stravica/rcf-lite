@@ -16,10 +16,13 @@
       "when": "the shipped code path runs without the switch; the mutation path runs with SIMULATE_PII_LEAK=true",
       "then": "shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "tacIds": [
+    "TAC-3303-platform-cloudflare-cron-triggers-event-sink"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

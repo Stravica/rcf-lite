@@ -28,12 +28,18 @@ export function createScheduledHandler({ routes, eventSink, skewToleranceMs, sof
   });
 
   async function ready() {
+    // cronReady uses the cron-vocabulary metadata shape per REQ-001 and
+    // TAC-3303's allow-list. expression and scheduledTime carry null on
+    // boot (no vendor-scheduled fire has landed yet); outcome is
+    // 'ready'; duration is 0. Every other cron lifecycle record on the
+    // sink shares this shape so a downstream logging companion never
+    // has to switch on event kind to know the record family.
     eventSink({
       event: 'cronReady',
-      key: null,
-      size: 0,
-      ttl: null,
-      timestamp: new Date().toISOString(),
+      expression: null,
+      scheduledTime: null,
+      outcome: 'ready',
+      duration: 0,
     });
   }
 

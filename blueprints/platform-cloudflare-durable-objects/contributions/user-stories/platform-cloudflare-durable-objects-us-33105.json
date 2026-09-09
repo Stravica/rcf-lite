@@ -16,12 +16,13 @@
       "when": "a broadcast message is sent from A",
       "then": "both A and B receive the same broadcast within 500ms and storage.get(\"lastBroadcast\") returns the serialised payload",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

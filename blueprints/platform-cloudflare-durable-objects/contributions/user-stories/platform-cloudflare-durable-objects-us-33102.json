@@ -16,12 +16,13 @@
       "when": "two increment(1) invocations fire concurrently and a read follows",
       "then": "the two increments resolve with counters {1, 2} in FIFO order, witnesses {0, 1}, and the final read returns 2",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

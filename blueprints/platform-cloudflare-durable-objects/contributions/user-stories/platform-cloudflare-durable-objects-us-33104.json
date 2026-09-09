@@ -20,12 +20,13 @@
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
         "field": "interfaces.alarm"
-      }
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3403-platform-cloudflare-durable-objects-alarm-handler"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

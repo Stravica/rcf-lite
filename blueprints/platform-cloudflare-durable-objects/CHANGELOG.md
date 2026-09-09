@@ -2,6 +2,16 @@
 
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.0 (2026-09-09)
+
+### Changed
+
+- Family ruling (2026-09-09): Cloudflare closed the key-value backend to new Durable Object namespaces (HTTP 403 code 10099 per the Cloudflare Durable Objects migrations page verified 2026-09-09). Every surface owned by this blueprint that named the deprecated `new_classes` migration keyword moves to `new_sqlite_classes`: the guide (blocks around lines 110-124 and 206), `AC-33108-1` on US-33108, `AC-33113-1` on US-33113, the README probe row for `wrangler-seam`, the anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js`, the test fixture `packages/rcf-lite/test/fixtures/cf-platform/wrangler.toml`, and the probe literal at `contributions/probes/wrangler-seam.mjs` (the probe now refuses a wrangler.toml that still carries the deprecated `new_classes` keyword). The committed `.rcf/reports` envelope and `packages/rcf-lite/test/view/fixtures/phase-3-6-static.html` also bind the old literal and are not touched by this pass; they are named under NOT VERIFIED on the accompanying evidence summary.
+- `platform-cloudflare-durable-objects-REQ-005` extended to name the elicited `do-hub-broadcast-window-ms` delivery window and the elicited `do-hub-hibernate-after-idle-ms` window; closes criterion a on the previously unbacked elicits (F-1, F-2).
+- `AC-33113-1` reworded to call the injected facade parameter `sink` (no longer restates `eventSink` owned by TAC-3405's interface); no behavioural change in the shipped code path. `AC-33104-1`, `AC-33106-1` and `AC-33113-1` carry `ownerRef`; every existing AC carries `disposition`. Every REQ carries `deliveredBy` (eight links, seven TAC-scoped and one ADR-scoped).
+- Guide casing correction: `SINGLE-CELL` -> `single-cell` (contract-drift against TAC-3402.purpose per pass-1 lint).
+- `rcf define blueprint lint-consistency` reports zero pass-1 and pass-2 findings.
+
 ## 1.0.1 (2026-09-08)
 
 H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.

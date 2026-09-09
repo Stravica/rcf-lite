@@ -1,8 +1,10 @@
 {
   "slug": "platform-cloudflare-cron-triggers",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "platform",
-  "capabilities": ["scheduledTrigger"],
+  "capabilities": [
+    "scheduledTrigger"
+  ],
   "suggestedCompanions": [
     {
       "role": "logging",
@@ -24,7 +26,10 @@
       "id": "cron-dispatcher-mode",
       "prompt": "Dispatcher mode: single-handler routes every fire to one handler; expression-routed maps each expression to a distinct handler (per ADR-3302; recommended default expression-routed when more than one cron expression is elicited).",
       "kind": "enum",
-      "options": ["single-handler", "expression-routed"],
+      "options": [
+        "single-handler",
+        "expression-routed"
+      ],
       "default": "expression-routed"
     },
     {
@@ -41,20 +46,76 @@
     }
   ],
   "contributions": [
-    { "id": "platform-cloudflare-cron-triggers-REQ-001", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-001.json" },
-    { "id": "platform-cloudflare-cron-triggers-REQ-002", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-002.json" },
-    { "id": "platform-cloudflare-cron-triggers-REQ-003", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-003.json" },
-    { "id": "platform-cloudflare-cron-triggers-REQ-004", "kind": "req", "path": "requirements/platform-cloudflare-cron-triggers-req-004.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32101", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32101.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32102", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32102.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32103", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32103.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32104", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32104.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32105", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32105.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32106", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32106.json" },
-    { "id": "platform-cloudflare-cron-triggers-US-32107", "kind": "us", "path": "user-stories/platform-cloudflare-cron-triggers-us-32107.json" },
-    { "id": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler", "kind": "tac", "path": "tacs/tac-3301-platform-cloudflare-cron-triggers-scheduled-handler.json" },
-    { "id": "TAC-3302-platform-cloudflare-cron-triggers-expression-router", "kind": "tac", "path": "tacs/tac-3302-platform-cloudflare-cron-triggers-expression-router.json" },
-    { "id": "TAC-3303-platform-cloudflare-cron-triggers-event-sink", "kind": "tac", "path": "tacs/tac-3303-platform-cloudflare-cron-triggers-event-sink.json" },
+    {
+      "id": "platform-cloudflare-cron-triggers-REQ-001",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-cron-triggers-req-001.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-REQ-002",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-cron-triggers-req-002.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-REQ-003",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-cron-triggers-req-003.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-REQ-004",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-cron-triggers-req-004.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32101",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32101.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32102",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32102.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32103",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32103.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32104",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32104.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32105",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32105.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32106",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32106.json"
+    },
+    {
+      "id": "platform-cloudflare-cron-triggers-US-32107",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-cron-triggers-us-32107.json"
+    },
+    {
+      "id": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+      "kind": "tac",
+      "path": "tacs/tac-3301-platform-cloudflare-cron-triggers-scheduled-handler.json"
+    },
+    {
+      "id": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+      "kind": "tac",
+      "path": "tacs/tac-3302-platform-cloudflare-cron-triggers-expression-router.json"
+    },
+    {
+      "id": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+      "kind": "tac",
+      "path": "tacs/tac-3303-platform-cloudflare-cron-triggers-event-sink.json"
+    },
     {
       "id": "ADR-3301-platform-cloudflare-cron-triggers-scheduled-trigger-contract",
       "kind": "adr",

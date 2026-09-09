@@ -16,10 +16,13 @@
       "when": "the probe runs from the fixture directory",
       "then": "wrangler dev --test-scheduled binds, the scheduled-fire route drives a cronFired event, wrangler exits cleanly, and the probe returns pass (or warn on a documented CLI regression)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "tacIds": [
+    "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

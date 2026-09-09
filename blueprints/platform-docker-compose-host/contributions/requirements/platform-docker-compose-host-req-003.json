@@ -2,7 +2,7 @@
   "reqId": "platform-docker-compose-host-REQ-003",
   "prdId": "PRD-001",
   "title": "Every HTTP-terminating compose service declares a healthcheck; docker compose config refuses on missing",
-  "description": "Every service under services: whose image terminates HTTP declares a healthcheck: block. The compose-config-lint refuses at docker compose config time on any HTTP-terminating service missing the block, naming the service. Healthcheck defaults per service kind are elicited (http default, tcp and command alternatives). The stack is not considered up until every declared service reaches healthy inside the elicited timeout.",
+  "description": "Every service under services: whose image terminates HTTP declares a healthcheck: block. The compose-config-lint refuses at docker compose config time on any HTTP-terminating service missing the block, naming the service. Healthcheck defaults per service kind are elicited (http default, tcp and command alternatives). The stack is not considered up until every declared service reaches healthy inside the elicited timeout. The applied healthcheck kind is elicited per service default (healthcheck-default-kind): http covers the common web service, tcp covers a database or plain socket service (a TCP connect to a named port must (must) succeed inside the healthcheck window), and command lets the operator supply a bespoke test string. Each kind must (must) refuse on a missing block or an invalid target and pass on a bound target within the same docker compose config gate.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,7 +14,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "updatedAt": "2026-09-09T20:20:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
     "field": "responsibilities.healthcheck"

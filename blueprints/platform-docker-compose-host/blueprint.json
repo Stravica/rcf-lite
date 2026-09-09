@@ -1,6 +1,6 @@
 {
   "slug": "platform-docker-compose-host",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "platform",
   "capabilities": [
     "containerHost"
@@ -107,6 +107,11 @@
       "path": "requirements/platform-docker-compose-host-req-006.json"
     },
     {
+      "id": "platform-docker-compose-host-REQ-007",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-007.json"
+    },
+    {
       "id": "platform-docker-compose-host-US-38101",
       "kind": "us",
       "path": "user-stories/platform-docker-compose-host-us-38101.json"
@@ -150,6 +155,11 @@
       "id": "platform-docker-compose-host-US-38109",
       "kind": "us",
       "path": "user-stories/platform-docker-compose-host-us-38109.json"
+    },
+    {
+      "id": "platform-docker-compose-host-US-38110",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38110.json"
     },
     {
       "id": "TAC-3901-platform-docker-compose-host-compose-layout",

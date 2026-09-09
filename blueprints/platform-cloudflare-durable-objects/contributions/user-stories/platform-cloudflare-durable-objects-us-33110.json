@@ -16,12 +16,13 @@
       "when": "wake() is called once, then again",
       "then": "the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

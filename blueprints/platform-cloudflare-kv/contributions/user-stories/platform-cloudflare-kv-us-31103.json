@@ -16,7 +16,8 @@
       "when": "the facade-round-trip probe puts a fixture key/value and reads it back",
       "then": "the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-31103-2",
@@ -25,12 +26,13 @@
       "when": "facade.delete(key) then facade.get(key)",
       "then": "the delete emits kvWrite; the get returns null and emits kvMiss",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T20:05:00.000Z"
 }

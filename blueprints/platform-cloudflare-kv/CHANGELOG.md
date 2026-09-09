@@ -2,6 +2,19 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.0 (2026-09-09)
+
+### Added
+
+- `platform-cloudflare-kv-REQ-006` (`must`): the elicited `kv-key-naming-convention` answer (`prefixed` or `flat`) flows through every facade verb; `prefixed` applies the elicited `keyPrefix` transparently, `flat` passes keys through untouched. Closes criterion a on the previously unbacked elicit (F-1).
+- `platform-cloudflare-kv-REQ-007` (`must`): pre-ready operations queue behind `facadeReady`; sink events emit in causal per-operation order. Closes the previously unbacked `TAC-3201` pre-ready responsibility and `TAC-3203` ordering responsibility (F-4).
+- `platform-cloudflare-kv-US-31109` (traces REQ-005 after prior gap F-2), `US-31110` (traces REQ-006), `US-31111` (traces REQ-007). Every AC carries `disposition` and `ownerRef`; the vendor-fact ACs carry `vendorCitation`.
+
+### Changed
+
+- `platform-cloudflare-kv-REQ-005` reworded to separate the applied cache-aside TTL (LOCAL expiry) from the KV eventual-consistency propagation window (vendor-owned, up to 60 seconds or more per the Cloudflare KV documentation). The v1.0.x wording that called the elicited TTL a "global staleness ceiling" is retired; the guide surfaces the two clocks separately and cross-references `platform-cloudflare-durable-objects` as the strong-consistency answer (F-3).
+- Every existing REQ carries a `deliveredBy` link into a TAC or ADR (five links). Every existing AC carries `disposition`. `rcf define blueprint lint-consistency` reports zero pass-1 and pass-2 findings.
+
 ## 1.0.2 (2026-09-08)
 
 H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the real-account KV probe now self-provisions its own throwaway namespace, closing the second-tier undeclared-env skip HQ hit at the real-account gate on 2026-09-08 (`REAL RUN: PARTIAL`, `MERGE DECISION: HOLD`). No shipped-code capability change.
