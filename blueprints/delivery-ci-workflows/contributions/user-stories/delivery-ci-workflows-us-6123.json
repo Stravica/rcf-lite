@@ -16,7 +16,9 @@
       "when": "the workflow-materialiser runs",
       "then": "a `scheduled-audit` workflow file lands at the provider's workflow path, its trigger set names a cron schedule, and its command line invokes the Node gate-runner entry point with the required check set writing to the distinct report path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6123-2",
@@ -25,7 +27,9 @@
       "when": "the workflow-materialiser runs",
       "then": "no `scheduled-audit` workflow file is created and no `.rcf/reports/ci/scheduled-audit.json` file path is written",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

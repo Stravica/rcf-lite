@@ -16,7 +16,9 @@
       "when": "the workflow-materialiser runs",
       "then": "a `pull-request-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `develop` (the configured default branch, not the placeholder marker and not a hard-coded `main`), and its command line invokes the Node gate-runner entry point with the required check set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6114-2",
@@ -25,7 +27,9 @@
       "when": "the workflow-materialiser runs",
       "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `develop`, and its command line invokes the Node gate-runner entry point with the required check set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6114-3",
@@ -34,7 +38,8 @@
       "when": "a pull request whose most recent `pull-request-checks` aggregate report records `verdict: failed` is submitted for merge",
       "then": "the platform refuses the merge and the refusal reason references the failed `pull-request-checks` required check",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

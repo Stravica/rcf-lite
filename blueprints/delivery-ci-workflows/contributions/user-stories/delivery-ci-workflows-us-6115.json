@@ -16,7 +16,9 @@
       "when": "the workflow-materialiser runs",
       "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `trunk` (the configured trunk branch), no `pull-request-checks` workflow file lands, and the merge-policy AC binds to the trunk-branch push-protection property",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6115-2",
@@ -25,7 +27,9 @@
       "when": "the workflow-materialiser runs",
       "then": "both workflow files land at the provider's workflow path with their trigger branch lists naming `trunk`, and the merge-policy AC binds to the trunk-branch protection property that admits only PRs whose `pull-request-checks` aggregate passed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

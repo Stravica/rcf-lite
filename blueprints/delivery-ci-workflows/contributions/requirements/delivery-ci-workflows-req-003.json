@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The suite runs the schema-and-reference validation gate and refuses on non-zero exit",
   "description": "The Node entry point invokes `rcf define validate` as a required gate. The gate runs with the project's tree at the pull request's head commit. A non-zero exit code from `rcf define validate` terminates the suite and marks the aggregate result as failed. The failing invocation's stdout and stderr are captured to the gate report file so the reviewer can read the specific schema or reference issue without re-running the gate.",
+  "deliveredBy": {
+    "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+    "field": "interfaces.runGates"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

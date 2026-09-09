@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The release workflow shape scales with the releaseMode dimension across four discrete modes",
   "description": "When `workflowShape.releaseMode` is `none`, no release workflow ships. When `tagOnly`, a release workflow fires on the project-declared release trigger (a `release` event, a `workflow_dispatch`, or both) and creates a release entity on the CI provider's own release surface (a GitHub Release, a GitLab release, whatever the provider ships). When `tagPlusArtefact`, the release workflow also runs the project-realised artefact-publish step and uploads its output to the release entity; the AC contract requires the artefact-publish step to produce a verified artefact reachable at a stable identifier. When `deployHandoff:<slug>`, the release workflow additionally invokes the named deploy blueprint's promote workflow per REQ-022. The release workflow does not run the required check set; the check set already ran on the default-branch-checks workflow at the commit the release points at.",
+  "deliveredBy": {
+    "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+    "field": "interfaces.runRelease"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

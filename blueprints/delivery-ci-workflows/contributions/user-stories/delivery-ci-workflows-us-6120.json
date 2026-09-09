@@ -16,7 +16,9 @@
       "when": "a CI workflow invokes the gate-runner",
       "then": "a report file at `.rcf/reports/ci/security.json` is written with `checkKind: \"securityScan\"`, and the gate outcome tracks the runner exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

@@ -16,7 +16,9 @@
       "when": "the release trigger fires",
       "then": "the release workflow dispatches the promote workflow with `versionId` set to the just-published version identifier and waits on the promote workflow's outcome",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6122-2",
@@ -25,7 +27,9 @@
       "when": "the release workflow aggregates its outcome",
       "then": "the release workflow's aggregate report at `.rcf/reports/ci/release.json` records `verdict: failed` and names the promote workflow's failure in its `gates[]` array",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited deployHandoff target blueprint name; the AC substitutes that name for the illustrative slug."
     },
     {
       "id": "AC-6122-3",
@@ -34,7 +38,24 @@
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero with a stable-coded error naming the missing slug and pointing at the resolution command, and no release workflow file lands on disk",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
+    },
+    {
+      "id": "AC-6122-4",
+      "description": "A failed artefact publication step (a checksum mismatch, an upload rejection, a permissions error) fails the release aggregate with a stable-coded RELEASE_PUBLISH_FAILED naming the artefact and the provider response; the deployHandoff promote workflow is not invoked.",
+      "given": "a release workflow at releaseMode=tagPlusArtefact with the artefact upload forced to fail on a specific artefact",
+      "when": "the release workflow runs",
+      "then": "the release aggregate is failed with RELEASE_PUBLISH_FAILED naming the artefact and the provider response; no promote step runs; the workflow exit code is non-zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the elicited providerHint, releaseMode and artefact set; the AC substitutes those.",
+      "ownerRef": {
+        "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+        "field": "interfaces.runRelease"
+      }
     }
   ],
   "tacIds": [
@@ -42,5 +63,5 @@
     "TAC-705-delivery-ci-workflows-release-workflow"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

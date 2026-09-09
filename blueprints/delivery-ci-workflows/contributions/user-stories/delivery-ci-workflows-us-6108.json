@@ -16,7 +16,9 @@
       "when": "the aggregate report is written at the end of the run",
       "then": "the aggregate report's `gates[]` array contains a `coverage-strict` entry with `outcome: missing`, its `reason` field carries a non-empty string, and the aggregate `verdict` is `failed`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6108-2",
@@ -25,7 +27,23 @@
       "when": "the Node entry point completes",
       "then": "the process exit code is non-zero, and the aggregate report's `verdict` is `failed`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-6108-3",
+      "description": "An interrupted aggregate report rewrite (SIGKILL of the aggregate step mid-write) never leaves a stale passing aggregate standing for the current run: after interruption, the aggregate is either the current run's fully-written value OR absent; the pipeline treats an absent aggregate as missing per REQ-008 and refuses a pipeline pass.",
+      "given": "a reportDir containing a passing aggregate from a previous run and an aggregate step about to write for the current run",
+      "when": "the aggregate writer is SIGKILLed mid-way through writing, then the pipeline evaluates the aggregate",
+      "then": "the aggregate is either the new run's fully-written value or absent; the pipeline refuses the pass when absent; the previous run's aggregate never survives",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the elicited reportDir path; the AC substitutes it for the illustrative default.",
+      "ownerRef": {
+        "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
+        "field": "responsibilities[3]"
+      }
     }
   ],
   "tacIds": [
@@ -33,5 +51,5 @@
     "TAC-703-delivery-ci-workflows-aggregate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

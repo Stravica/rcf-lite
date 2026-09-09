@@ -16,7 +16,9 @@
       "when": "the workflow-materialiser runs (locally or in CI)",
       "then": "the materialiser reads the file at the documented path and treats its `workflowShape` as authoritative",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6111-2",
@@ -25,7 +27,9 @@
       "when": "the workflow-materialiser reads the file",
       "then": "the materialiser processes the recognised fields (including the substitution-surface trio) and ignores the unknown fields without failing the boot-check",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

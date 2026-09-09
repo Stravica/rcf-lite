@@ -16,7 +16,9 @@
       "when": "a trigger event fires that the elicited branch model names",
       "then": "the aggregate pipeline report at the configured stable path (default `.rcf/reports/ci/pipeline.json`) is written by the resulting CI job, and its `trigger` field records the event kind and the workflow that ran",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6101-2",
@@ -25,7 +27,8 @@
       "when": "the operator or an automated merge tool attempts to admit the change through the standard merge or push path",
       "then": "the platform refuses the change, and the refusal reason references the failed required check that corresponds to the workflow that ran",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

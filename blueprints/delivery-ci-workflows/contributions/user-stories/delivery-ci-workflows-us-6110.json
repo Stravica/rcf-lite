@@ -16,7 +16,9 @@
       "when": "a developer runs the same command line the CI job's invocation step records against their local checkout at the same commit",
       "then": "the aggregate report the local run writes at the configured report directory carries the same `runner.entryPoint`, the same `gates[]` ordering, and the same per-gate outcomes as the CI run's aggregate report for that commit, given the same rcf CLI version installed locally",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6110-2",
@@ -25,7 +27,9 @@
       "when": "the reviewer greps the entry point's source and its dependency modules for reads against known CI-provider environment variables (`GITHUB_ACTIONS`, `GITLAB_CI`, `CIRCLECI`, `BUILDKITE`, `JENKINS_URL`)",
       "then": "no read of any of those variables gates the entry point's control flow or its gate set; if any such variable is read it is only for reporting into the aggregate report's `runner.environment` metadata field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited providerHint; the AC substitutes the project's provider assets for the illustrative GitHub-Actions asset set."
     }
   ],
   "tacIds": [

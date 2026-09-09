@@ -16,7 +16,9 @@
       "when": "the reviewer opens `<reportDir>/pipeline.json`",
       "then": "the file exists, its top-level keys are exactly the fixed set above, `verdict` is one of `passed` or `failed`, `gates[]` is a non-empty array in fixed configured order, and every `reportPath` value resolves to an existing per-gate report file at that relative path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6106-2",
@@ -25,7 +27,8 @@
       "when": "the reviewer reads the aggregate report",
       "then": "the aggregate report's `verdict` field is `failed`, and the aggregate does not record `passed` while any per-gate entry recorded a non-`passed` outcome",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

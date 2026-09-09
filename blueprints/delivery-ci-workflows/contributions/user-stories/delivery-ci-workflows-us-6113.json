@@ -16,7 +16,9 @@
       "when": "the workflow-materialiser boots",
       "then": "the materialiser expands the alias to the four-field composition, records the expansion in its own log, and treats the four-field form as authoritative for materialisation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6113-2",
@@ -25,7 +27,9 @@
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero with a stable-coded error naming the alias, the shipped-set list, and the four-field form as the fallback",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

@@ -16,7 +16,9 @@
       "when": "blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/pull-request-checks.yml and blueprint.json are inspected",
       "then": "the illustrative pull-request-checks.yml declares an e2e job; the block above it names the four points and the delete-me note for non-browser projects; blueprint.json's check catalogue carries checkSet.e2e",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

@@ -16,7 +16,9 @@
       "when": "the reviewer opens the per-gate report file at `<reportDir>/coverage-strict.json`",
       "then": "the file exists, its `gate` field is `coverage-strict`, its `command` field names the `rcf audit coverage --strict` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6104-2",
@@ -25,7 +27,8 @@
       "when": "the suite completes",
       "then": "the aggregate report's `verdict` field is `failed`, its `gates[]` entry for `coverage-strict` records `outcome: failed` with the underlying exit code preserved, and no gate report on disk records a shallow-any invocation for coverage",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

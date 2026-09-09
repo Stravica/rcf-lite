@@ -16,7 +16,9 @@
       "when": "the reviewer opens the per-gate report file at `<reportDir>/validate.json`",
       "then": "the file exists, its `gate` field is `validate`, its `command` field names the `rcf define validate` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6103-2",
@@ -25,7 +27,8 @@
       "when": "the suite completes",
       "then": "the aggregate report's `verdict` field is `failed`, its `gates[]` entry for `validate` records `outcome: failed`, and the Node entry point's process exit code is non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

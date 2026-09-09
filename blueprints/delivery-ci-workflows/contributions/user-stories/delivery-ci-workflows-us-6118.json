@@ -16,7 +16,9 @@
       "when": "a CI workflow invokes the gate-runner",
       "then": "a report file at `.rcf/reports/ci/typecheck.json` is written with `checkKind: \"typecheck\"`, and the gate outcome tracks the runner exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     },
     {
       "id": "AC-6118-2",
@@ -25,7 +27,9 @@
       "when": "a CI workflow invokes the gate-runner",
       "then": "no `typecheck` gate is included in the aggregate report and no `.rcf/reports/ci/typecheck.json` file is written",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values."
     }
   ],
   "tacIds": [

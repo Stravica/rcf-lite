@@ -16,7 +16,9 @@
       "when": "the reviewer reads the runner-log tail (the Node process's own stderr)",
       "then": "the tail contains a single-line summary matching the shape `[delivery-ci-workflows] gate '<gate>' failed (exit <n>); report: <reportDir>/<gate>.json`, and the reference report file exists at the named path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default."
     },
     {
       "id": "AC-6107-2",
@@ -25,7 +27,8 @@
       "when": "the suite completes",
       "then": "the aggregate report's `gates[]` array contains both `validate` and `coverage-strict` entries, each with `outcome: failed`, and each with a `reportPath` value pointing to an existing per-gate report file",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
