@@ -2,7 +2,7 @@
   "tacId": "TAC-303-application-api-rest-contract-surface",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Contract surface: OpenAPI generation, serving, and drift defence",
   "purpose": "Owns the generated OpenAPI 3.1 document as a build artefact: generation from source, serving at /openapi.json, /openapi.yaml, and /docs, and the three-axis drift validation that keeps implementation and contract provably identical.",

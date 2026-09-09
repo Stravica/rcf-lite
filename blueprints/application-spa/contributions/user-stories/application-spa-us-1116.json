@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1116",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-009",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Session expiry, password recovery, and unauthenticated deep links",
   "asA": "user whose session lapsed or who lost a password",
@@ -16,7 +16,8 @@
       "when": "the next request fails with 401",
       "then": "the designed session-expired surface renders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1116-2",
@@ -25,7 +26,8 @@
       "when": "they re-authenticate",
       "then": "they land back on the same route with declared preservation honoured",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1116-3",
@@ -34,7 +36,8 @@
       "when": "a known and an unknown address are submitted",
       "then": "both render the same designed confirmation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1116-4",
@@ -43,7 +46,8 @@
       "when": "each is visited",
       "then": "valid proceeds; invalid and expired render the designed state with a restart path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1116-5",
@@ -52,7 +56,8 @@
       "when": "sign-in completes",
       "then": "the originally requested route renders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1116-6",
@@ -61,7 +66,8 @@
       "when": "sign-in completes",
       "then": "the user lands on the default route, never an external URL",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

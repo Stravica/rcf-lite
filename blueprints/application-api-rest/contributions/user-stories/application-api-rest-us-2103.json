@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2103",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-003",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "status": "approved",
   "title": "Path-versioned contract with announced deprecation and a stated drop policy",
   "asA": "API consumer maintaining a long-lived integration",
@@ -16,7 +16,12 @@
       "when": "paths are checked for the version prefix",
       "then": "every path is version-prefixed except the resolved probe paths, /openapi.*, and /docs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[1].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2103-2",
@@ -25,7 +30,8 @@
       "when": "the request is submitted",
       "then": "the service responds 404 with the declared error envelope listing supported versions",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2103-3",
@@ -34,7 +40,8 @@
       "when": "their generated specs are diffed",
       "then": "no field is removed or retyped and no endpoint's contract narrows within the version",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2103-4",
@@ -43,7 +50,8 @@
       "when": "any of its endpoints responds",
       "then": "Deprecation and Sunset headers are present and the Sunset date matches the declared policy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2103-5",
@@ -52,7 +60,8 @@
       "when": "a request reaches a dropped version",
       "then": "the service responds 410 with the declared error envelope naming the successor, matching the documented policy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

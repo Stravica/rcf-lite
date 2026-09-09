@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1128",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-021",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Performance budget enforced on production builds",
   "asA": "user on a mid-range phone and a slow connection",
@@ -16,7 +16,8 @@
       "when": "each key route cold-loads",
       "then": "first meaningful paint is under 2 seconds",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1128-2",
@@ -25,7 +26,8 @@
       "when": "Lighthouse runs per key route",
       "then": "each scores at least 90",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1128-3",
@@ -34,7 +36,8 @@
       "when": "main-thread work is measured",
       "then": "the total is under 3 seconds per route",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1128-4",
@@ -43,7 +46,8 @@
       "when": "per-route payloads are measured",
       "then": "each route loads only its declared chunks within budget",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1132",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-018",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "External-service-dependency provisioning adherence probe refuses ship on placeholder credentials or unratified deferrals",
   "asA": "operator responsible for the deployed application's dependence on external services",
@@ -16,7 +16,12 @@
       "when": "the external-service-dependency manifest is inspected",
       "then": "the manifest exists at the stable path the probe reads, enumerates every runtime-reached external service, and names a status per dependency; any runtime-reached external service missing from the manifest refuses ship",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      }
     },
     {
       "id": "AC-1132-2",
@@ -25,7 +30,12 @@
       "when": "the placeholder-shape detector is applied to each value",
       "then": "no manifest-named credential field carries a placeholder-shape value; a positive match refuses ship",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      }
     },
     {
       "id": "AC-1132-3",
@@ -34,7 +44,12 @@
       "when": "the probe replays the manifest-declared handshake against the shipped runtime",
       "then": "the provider returns a live acknowledgement whose id or timestamp is captured on the probe report; the run refuses ship on any absent or synthesised evidence",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      }
     },
     {
       "id": "AC-1132-4",
@@ -43,7 +58,12 @@
       "when": "the probe checks for the deferral record at the manifest-named path",
       "then": "the record exists at the stable path, carries the required fields, and is not stale beyond the ratified window; the run refuses ship on any missing, malformed, or expired record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      }
     },
     {
       "id": "AC-1132-5",
@@ -52,7 +72,12 @@
       "when": "the report file is inspected on disk",
       "then": "the JSON at 'reports/external-dependency-provisioning.json' matches the shape declared by TAC-210 and its aggregate 'verdict' field agrees with the process exit code (0 for 'ok', non-zero for 'deployed-with-defects')",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-1132-6",
@@ -61,7 +86,12 @@
       "when": "the probe reports 'deployed-with-defects' on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
+        "field": "interfaces[3].name"
+      }
     }
   ],
   "tacIds": [

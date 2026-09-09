@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2118",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-014",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Forward-only migrations with named reverts and a live schema-version report",
   "asA": "platform operator deploying schema changes",
@@ -16,7 +16,8 @@
       "when": "migration is attempted",
       "then": "the tool refuses with an error naming the ordering violation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2118-2",
@@ -25,16 +26,18 @@
       "when": "it is applied and its named revert executed",
       "then": "the schema returns to its prior state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2118-3",
-      "description": "The deploy order between migrations and application rollout is stated in the project documentation, including which schema versions each application version tolerates.",
+      "description": "The deploy order between migrations and application rollout is stated in the project documentation, including which schema versions each application version tolerates. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the project's deploy documentation",
       "when": "the migration-versus-rollout order is looked up",
       "then": "the order and the tolerated schema-version window are stated",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2118-4",
@@ -43,7 +46,8 @@
       "when": "/v1/_meta is fetched",
       "then": "the response conforms to the declared meta schema carrying schema version and application version",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2118-5",
@@ -52,7 +56,8 @@
       "when": "/v1/_meta and the migration tool's recorded version are compared",
       "then": "they are equal, and change together when the next migration applies",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2118-6",
@@ -61,7 +66,12 @@
       "when": "the _meta declaration and the startup probe are inspected",
       "then": "_meta carries its declared auth class, and the startup probe withholds 200 until migrations are current",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

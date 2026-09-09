@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2108",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-006",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "status": "approved",
   "title": "Liveness, readiness, and startup probes that tell the orchestrator the truth, at the resolved paths",
   "asA": "platform operator running the service under Kubernetes",
@@ -16,7 +16,8 @@
       "when": "the resolved liveness path is called",
       "then": "it returns 200 against the specified schema, unaffected by the dependency outage",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-2",
@@ -25,7 +26,8 @@
       "when": "the resolved readiness path is called",
       "then": "it returns 200 with the specified schema listing each check as passing",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-3",
@@ -34,16 +36,18 @@
       "when": "the resolved readiness path is called",
       "then": "it returns 503 and the body names the failing check while still listing the passing ones",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-4",
-      "description": "GET on the resolved startup path returns 200 only after initialisation (migrations applied, cache warmed, config loaded) completes, and a non-200 with the pending steps before that. The startup path is available when the composed observability-probe-endpoints blueprint enables it via `probeInterface.options.kubernetes.startup.enabled: true` or the project supplies `probeInterface.paths.startup` in configuration.",
+      "description": "GET on the resolved startup path returns 200 only after initialisation (migrations applied, cache warmed, config loaded) completes, and a non-200 with the pending steps before that. The startup path is available when the composed observability-probe-endpoints blueprint enables it via `probeInterface.options.kubernetes.startup.enabled: true` or the project supplies `probeInterface.paths.startup` in configuration. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "an instance mid-initialisation and the same instance after initialisation, with the startup path resolved (Kubernetes profile default /startup when enabled) or supplied by project configuration",
       "when": "the resolved startup path is called in each state",
       "then": "the mid-initialisation call is non-200 naming pending steps; the post-initialisation call is 200",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2108-5",
@@ -52,7 +56,8 @@
       "when": "each probe is called with no credentials at sustained frequency AND an adjacent user-traffic route is also called unauthenticated",
       "then": "every probe call is answered on probe semantics alone, never with an auth or rate-limit status; the adjacent route returns the auth middleware unauthenticated response",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-6",
@@ -61,7 +66,8 @@
       "when": "info-level logs and endpoint metrics are inspected",
       "then": "probe requests appear in neither, and the dedicated probe-outcome metric carries their results",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-7",
@@ -70,7 +76,8 @@
       "when": "the three probe entries are read",
       "then": "each declares its success and failure schemas and its documented failure mode; every entry path is the resolved path (no legacy literal probe-path prefix appears in the generated document)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2108-8",
@@ -79,7 +86,22 @@
       "when": "the resolved readiness path is called after restoration",
       "then": "it returns 200 without the process having restarted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-2108-9",
+      "description": "Given a readiness check whose downstream dependency never responds and a per-check deadline configured on the readiness registry, when the deadline elapses, then the aggregate readiness response is 503 with a body listing that check as `failed: deadline-exceeded` (naming the check id and the configured deadline in milliseconds); liveness continues to answer 200 throughout, unaffected by the readiness-side timeout.",
+      "given": "a readiness check whose dependency will not respond within the configured deadline and a live liveness probe",
+      "when": "the deadline elapses on the pending check",
+      "then": "readiness returns 503 naming the failed check id and the deadline value, and liveness continues answering 200",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-306-application-api-rest-operability",
+        "field": "interfaces[0].name"
+      }
     }
   ],
   "tacIds": [

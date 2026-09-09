@@ -2,7 +2,7 @@
   "adrId": "ADR-302-application-api-rest-auth-model",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Four declared auth classes enforced by middleware as the service's authentication model",
   "context": "A project has one authentication model; endpoints, clients, and operators all reason against it. The server half of that model must make every endpoint's auth posture declared, enumerable, and enforced in one place. A client-tier blueprint applied to the same project contributes its own decision on this topic (how the client authenticates and holds session), and blueprint composition surfaces the pairing at add time for the operator to reconcile into one project-level model. That surfacing is intended.",

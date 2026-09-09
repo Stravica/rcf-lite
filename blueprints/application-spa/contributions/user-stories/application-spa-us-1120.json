@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1120",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-013",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Cache discipline: stale-while-revalidate reads and explicit write invalidation",
   "asA": "user working against live data",
@@ -16,7 +16,8 @@
       "when": "stores are audited",
       "then": "the separation holds with no view state in the query cache",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-2",
@@ -25,7 +26,8 @@
       "when": "the user returns",
       "then": "content is instant, then silently refreshed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-3",
@@ -34,7 +36,8 @@
       "when": "it succeeds",
       "then": "the collection view shows the change on next render",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-4",
@@ -43,7 +46,8 @@
       "when": "the failure lands",
       "then": "the optimistic change reverts and the user is told why",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-5",
@@ -52,7 +56,8 @@
       "when": "both request data",
       "then": "one network request serves both",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-6",
@@ -61,7 +66,8 @@
       "when": "the resource is mutated from one",
       "then": "both routes show the new value on next render",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

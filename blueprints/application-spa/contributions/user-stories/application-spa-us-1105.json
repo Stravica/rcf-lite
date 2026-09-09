@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1105",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Reflow without horizontal overflow at every baseline breakpoint",
   "asA": "user on a small phone, a tablet, or a desktop",
@@ -16,7 +16,8 @@
       "when": "rendered at each baseline breakpoint",
       "then": "document scroll width does not exceed viewport width",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1105-2",
@@ -25,7 +26,8 @@
       "when": "rendered at 360",
       "then": "columns stack or reorganise; content is not proportionally shrunk",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1105-3",
@@ -34,7 +36,8 @@
       "when": "images load at each breakpoint",
       "then": "no layout shift from late image sizing and no container overflow",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1105-4",
@@ -43,7 +46,8 @@
       "when": "rendered below 768",
       "then": "the table is card-formatted or contained in its own scroll region",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1105-5",
@@ -52,7 +56,8 @@
       "when": "the viewport is resized across the baseline range",
       "then": "text wraps or scales without clipping or unintended truncation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1105-6",
@@ -61,7 +66,8 @@
       "when": "measured at 360",
       "then": "its target area is at least 24x24 CSS pixels",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

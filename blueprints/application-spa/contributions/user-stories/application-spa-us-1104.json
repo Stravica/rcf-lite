@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1104",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-003",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Grid, spacing scale, container widths, and safe areas",
   "asA": "user on any device",
@@ -16,7 +16,8 @@
       "when": "spacing declarations are audited",
       "then": "every margin, padding, and gap value maps to a spacing token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1104-2",
@@ -25,7 +26,8 @@
       "when": "the main container is measured",
       "then": "its maximum width matches the declared value for that breakpoint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1104-3",
@@ -34,7 +36,8 @@
       "when": "section edges are compared against the grid",
       "then": "content aligns to grid columns and gutters",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1104-4",
@@ -43,7 +46,8 @@
       "when": "shell and route content render",
       "then": "all content and controls clear the unsafe regions",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1104-5",
@@ -52,7 +56,8 @@
       "when": "inter-section spacing is compared",
       "then": "the same structural relationships use the same spacing tokens",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

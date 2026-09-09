@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2107",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-005",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Per-class behaviour: the four auth classes each honour their declared contract",
   "asA": "platform operator running the service for multiple caller populations",
@@ -16,7 +16,8 @@
       "when": "requests with and without auth headers are submitted",
       "then": "both succeed with identical behaviour and no resolved identity appears in logs or context",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-2",
@@ -25,7 +26,8 @@
       "when": "the burst is submitted",
       "then": "requests beyond the limit receive 429 per the rate-limiting contract",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-3",
@@ -34,7 +36,8 @@
       "when": "requests with a valid token, an expired token, and no token are submitted",
       "then": "the valid token resolves an identity available to the handler; the other two receive 401 with the error envelope",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-4",
@@ -43,7 +46,8 @@
       "when": "an authenticated non-admin and an authenticated admin each call it",
       "then": "the non-admin receives 403 with the error envelope; the admin succeeds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-5",
@@ -52,7 +56,8 @@
       "when": "the audit log is read",
       "then": "an entry records identity, endpoint, outcome, and request id",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-6",
@@ -61,7 +66,8 @@
       "when": "a correctly signed or mTLS-authenticated peer calls it, and an unauthenticated caller attempts it",
       "then": "the peer succeeds with a service principal and no user identity; the unauthenticated caller receives 401",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-7",
@@ -70,7 +76,8 @@
       "when": "audit logs and rate-limit counters are inspected",
       "then": "service calls are attributed to the service principal and limited under the service-class limit, independent of user-class counters",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2107-8",
@@ -79,7 +86,8 @@
       "when": "it is presented to a service-class endpoint",
       "then": "the request is rejected with 403 and the error envelope; the admin token grants nothing outside its classes",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

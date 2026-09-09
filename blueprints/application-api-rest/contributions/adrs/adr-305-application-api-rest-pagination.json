@@ -2,7 +2,7 @@
   "adrId": "ADR-305-application-api-rest-pagination",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Cursor-based pagination as the collection traversal default",
   "context": "Every collection needs a pagination story, and the story must be the same everywhere or clients write one traversal routine per collection. The realistic candidates are offset/limit and cursor-based.",

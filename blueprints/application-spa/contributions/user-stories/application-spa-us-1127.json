@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1127",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-020",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Modular type scale with size and line-height floors",
   "asA": "user reading the interface for hours",
@@ -16,7 +16,8 @@
       "when": "font-size declarations are audited",
       "then": "every size maps to a scale token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1127-2",
@@ -25,7 +26,8 @@
       "when": "computed sizes are measured",
       "then": "the minimums hold",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1127-3",
@@ -34,7 +36,8 @@
       "when": "body and heading sizes are sampled",
       "then": "sizes interpolate smoothly within the declared bounds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1127-4",
@@ -43,7 +46,8 @@
       "when": "computed line heights are measured",
       "then": "the declared values hold",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1127-5",
@@ -52,7 +56,8 @@
       "when": "rendered at 200% zoom",
       "then": "all content remains readable and operable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

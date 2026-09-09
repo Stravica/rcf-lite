@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1133",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-008",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Core-flow end-to-end adherence probe refuses ship without captured evidence every core flow completes against the shipped runtime",
   "asA": "operator relying on the journey-completeness discipline the application-spa blueprint declares",
@@ -11,12 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1133-1",
-      "description": "The application enumerates its core user flows in a stable, discoverable manifest at ship-time. Each enumerated flow names a flow id, an entry-point route, an ordered sequence of user-driven steps that reach a terminal success state, and a terminal success assertion (a DOM signal, a URL, or an authenticated-session signal). When the application declares any authentication surface (application-spa-REQ-009), authentication is ALWAYS enumerated as a core flow; the probe refuses ship when the manifest omits an authentication flow while application-spa-REQ-009 surfaces are present.",
+      "description": "The application enumerates its core user flows in a stable, discoverable manifest at ship-time. Each enumerated flow names a flow id, an entry route, an ordered sequence of user-driven steps that reach a terminal success state, and a terminal success assertion (a DOM signal, a URL, or an authenticated-session signal). When the application declares any authentication surface (application-spa-REQ-009), authentication is ALWAYS enumerated as a core flow; the probe refuses ship when the manifest omits an authentication flow while application-spa-REQ-009 surfaces are present.",
       "given": "the application boot topology at ship",
       "when": "the core-flow manifest is inspected",
       "then": "the manifest exists at the stable path the probe reads, enumerates every declared core flow with the required fields, and includes an authentication flow whenever the application has a application-spa-REQ-009 authentication surface",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
+        "field": "interfaces[3].name"
+      }
     },
     {
       "id": "AC-1133-2",
@@ -25,7 +30,12 @@
       "when": "every enumerated core flow is executed by a real browser against the shipped construction",
       "then": "every flow runs through the production entry-point path with real providers; any flow executed against a mocked provider or a bypassed header path refuses ship",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[1].name"
+      }
     },
     {
       "id": "AC-1133-3",
@@ -34,7 +44,8 @@
       "when": "the probe assembles its report",
       "then": "the flow is recorded as 'fail' (or 'skip') and the probe refuses ship; no workaround note, README caveat, or documented quirk overrides the refusal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1133-4",
@@ -43,7 +54,12 @@
       "when": "the probe run terminates",
       "then": "the probe report carries a structured refusal entry naming the flow, the divergence step, and the failing assertion; stdout names the flow id and the report path; the process exit is non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[1].name"
+      }
     },
     {
       "id": "AC-1133-5",
@@ -52,7 +68,12 @@
       "when": "the report file is inspected on disk",
       "then": "the JSON at 'reports/core-flow-e2e-adherence.json' matches the shape declared by TAC-211 and its aggregate 'verdict' agrees with the process exit code (0 for 'ok', non-zero for 'deployed-with-defects')",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
+        "field": "interfaces[3].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-1133-6",
@@ -61,7 +82,12 @@
       "when": "the probe reports 'deployed-with-defects' on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
+        "field": "interfaces[3].name"
+      }
     }
   ],
   "tacIds": [

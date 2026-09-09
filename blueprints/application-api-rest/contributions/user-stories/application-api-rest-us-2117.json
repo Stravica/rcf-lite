@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2117",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-013",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "One request id from edge to every hop",
   "asA": "support engineer holding a single id from a bug report",
@@ -16,7 +16,8 @@
       "when": "the response and logs are inspected",
       "then": "the inbound value is echoed in the response and present on every request-scoped log line",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2117-2",
@@ -25,7 +26,8 @@
       "when": "the response is inspected",
       "then": "a generated id in the documented format is present in the response header",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2117-3",
@@ -34,7 +36,8 @@
       "when": "the response and logs are inspected",
       "then": "a fresh generated id is used and the malformed inbound value is not propagated",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2117-4",
@@ -43,7 +46,8 @@
       "when": "the outbound request is captured",
       "then": "it carries the same X-Request-Id value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2117-5",
@@ -52,7 +56,8 @@
       "when": "the response is inspected",
       "then": "the header and the envelope's instance field both carry the request id",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

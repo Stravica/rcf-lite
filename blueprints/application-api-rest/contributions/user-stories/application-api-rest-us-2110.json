@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2110",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-008",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Documented filters, one sort convention, and strict rejection of unknown parameters",
   "asA": "API consumer querying collections",
@@ -16,7 +16,12 @@
       "when": "its declared filters are compared with the parameters the implementation honours",
       "then": "the sets are identical",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2110-2",
@@ -25,7 +30,8 @@
       "when": "?sort=fieldA,-fieldB is requested",
       "then": "results order by fieldA ascending then fieldB descending",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2110-3",
@@ -34,7 +40,8 @@
       "when": "a request carries an undeclared query parameter",
       "then": "the service responds 400 with the declared error envelope naming the parameter, and no handler logic runs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2110-4",
@@ -43,7 +50,8 @@
       "when": "?sort= names an undeclared key",
       "then": "the service responds 400 with the error envelope naming the key and the sortable fields",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2110-5",
@@ -52,7 +60,8 @@
       "when": "a value of the wrong type is submitted",
       "then": "the service responds 400 with the error envelope naming parameter and expected type",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2110-6",
@@ -61,7 +70,8 @@
       "when": "the next cursor is followed",
       "then": "subsequent pages honour the same filter and sort without restating them incorrectly or losing them",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

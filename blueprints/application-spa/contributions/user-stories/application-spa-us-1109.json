@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1109",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Selection controls: select, checkbox, radio, switch, combobox",
   "asA": "user making choices in forms and filters",
@@ -16,7 +16,8 @@
       "when": "operated by keyboard only",
       "then": "the full open, navigate, commit, cancel grammar works",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-2",
@@ -25,7 +26,8 @@
       "when": "toggled by pointer and keyboard",
       "then": "state changes render and announce correctly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-3",
@@ -34,7 +36,8 @@
       "when": "Tab and arrows are pressed",
       "then": "Tab exits the group, arrows move the selection",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-4",
@@ -43,7 +46,8 @@
       "when": "toggled",
       "then": "semantics announce on and off and the effect applies immediately",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-5",
@@ -52,7 +56,8 @@
       "when": "operated by keyboard only",
       "then": "the full filter, traverse, commit, cancel grammar works with correct ARIA state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-6",
@@ -61,7 +66,8 @@
       "when": "the listbox renders",
       "then": "a designed no-matches message is shown",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-7",
@@ -70,7 +76,8 @@
       "when": "each state is induced in both themes",
       "then": "states are distinct and token-driven",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1109-8",
@@ -79,7 +86,8 @@
       "when": "target areas are measured",
       "then": "each is at least 24x24 CSS pixels",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

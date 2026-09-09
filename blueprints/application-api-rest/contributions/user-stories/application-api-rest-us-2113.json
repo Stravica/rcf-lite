@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2113",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-011",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Class-scoped rate limits with mechanical back-off signals",
   "asA": "platform operator protecting the service from overload",
@@ -16,7 +16,8 @@
       "when": "traffic flows to endpoints of each class",
       "then": "each request decrements its class's budget and no other's",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-2",
@@ -25,7 +26,8 @@
       "when": "the next request arrives",
       "then": "the response is 429 with Retry-After and the error envelope naming limit and window",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-3",
@@ -34,7 +36,8 @@
       "when": "the second caller sends a request",
       "then": "the second caller is served while the first receives 429",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-4",
@@ -43,7 +46,8 @@
       "when": "traffic exceeds the override but not the class default (or vice versa)",
       "then": "enforcement follows the declared override exactly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-5",
@@ -52,7 +56,8 @@
       "when": "the caller waits the advertised delay and retries",
       "then": "the retry succeeds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-6",
@@ -61,7 +66,8 @@
       "when": "metrics and logs are inspected",
       "then": "the 429s appear in RED and class counters, and no error-level log line per rejection exists",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

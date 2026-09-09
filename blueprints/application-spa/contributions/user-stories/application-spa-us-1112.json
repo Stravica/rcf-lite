@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1112",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Feedback and status components: alerts, banners, empty, loading, error, skeleton",
   "asA": "user needing to know what the application is doing and what needs attention",
@@ -16,7 +16,8 @@
       "when": "rendered",
       "then": "intent styling and icon are correct and token-driven",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-2",
@@ -25,7 +26,8 @@
       "when": "it appears",
       "then": "assistive technology announces it without focus theft",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-3",
@@ -34,7 +36,8 @@
       "when": "the banner renders",
       "then": "content reflows below it and dismissal follows the declared rule",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-4",
@@ -43,7 +46,8 @@
       "when": "the empty state renders",
       "then": "all three elements are present and the action works",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-5",
@@ -52,7 +56,8 @@
       "when": "the skeleton renders",
       "then": "its silhouette matches the loaded layout and it exposes busy state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-6",
@@ -61,7 +66,8 @@
       "when": "the error state renders",
       "then": "the copy is actionable per application-spa-REQ-017 and a retry affordance is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1112-7",
@@ -70,7 +76,8 @@
       "when": "its spinner renders",
       "then": "the spinner has an accessible name and is not used where a skeleton was possible",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

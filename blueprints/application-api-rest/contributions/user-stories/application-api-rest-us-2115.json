@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2115",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-012",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "RED metrics per endpoint with per-class and probe-outcome series",
   "asA": "platform operator watching service health",
@@ -16,7 +16,8 @@
       "when": "the metrics endpoint or exporter output is read",
       "then": "RED series exist per path template and method, and no label carries a raw resource id",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2115-2",
@@ -25,7 +26,8 @@
       "when": "the metric type is inspected",
       "then": "durations are histograms with the declared bucket boundaries",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2115-3",
@@ -34,7 +36,8 @@
       "when": "per-class counters are read",
       "then": "each class's requests and errors are counted under its own label",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2115-4",
@@ -43,7 +46,8 @@
       "when": "the probe metric is read",
       "then": "per-probe success and failure counts reflect the induced states",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2115-5",
@@ -52,7 +56,8 @@
       "when": "the metric series are enumerated",
       "then": "every declared endpoint's path template appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

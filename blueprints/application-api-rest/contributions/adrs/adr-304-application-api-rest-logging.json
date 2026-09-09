@@ -2,7 +2,7 @@
   "adrId": "ADR-304-application-api-rest-logging",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "status": "accepted",
   "title": "Historical: structured JSON lines with request-scoped correlation as the project's primary logging shape (superseded by observability-logging-ADR-1601 as the shelf-canonical logging global-topic owner from api-rest v2.1.0)",
   "context": "A project has one primary logging shape; aggregation, alerting, retention, and redaction tooling are all built against it, and mixed shapes halve the value of every query. The decision covers the line format, the mandatory fields, and where correlation ids live.",

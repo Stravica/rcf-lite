@@ -2,7 +2,7 @@
   "tacId": "TAC-204-application-spa-client-data-layer",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Client data layer",
   "purpose": "Owns server-state caching, request lifecycle, invalidation, optimistic updates, and offline queueing; the seam between the UI and the wire.",

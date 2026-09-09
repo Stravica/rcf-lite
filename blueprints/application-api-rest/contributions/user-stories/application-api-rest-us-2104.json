@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2104",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "OpenAPI 3.1 generated from source and served alongside interactive documentation",
   "asA": "API consumer evaluating and integrating the service",
@@ -16,7 +16,8 @@
       "when": "the build runs",
       "then": "the OpenAPI document is emitted as a build artefact derived from source annotations or route definitions, and no hand-maintained duplicate exists",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2104-2",
@@ -25,7 +26,12 @@
       "when": "both documentation URLs are fetched",
       "then": "both return 200 with correct content types and parse to the same specification",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2104-3",
@@ -34,7 +40,12 @@
       "when": "/docs is loaded",
       "then": "the documentation UI renders from the served spec and every endpoint in the spec is browsable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2104-4",
@@ -43,7 +54,8 @@
       "when": "an OpenAPI 3.1 validator runs against it",
       "then": "validation passes with zero errors",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2104-5",
@@ -52,16 +64,26 @@
       "when": "each operation is inspected",
       "then": "operationId, summary, schemas, and x-auth-class are present on every operation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2104-6",
-      "description": "The documentation endpoints (/openapi.json, /openapi.yaml, /docs) respond according to the project's declared exposure policy, and in non-production environments they are always available.",
+      "description": "The documentation endpoints (/openapi.json, /openapi.yaml, /docs) respond according to the project's declared exposure policy, and in non-production environments they are always available. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the declared exposure policy and a non-production deployment",
       "when": "the documentation URLs are fetched",
       "then": "responses match the declared policy, and the non-production deployment serves all three",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[1].name"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

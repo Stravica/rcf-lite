@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1123",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-016",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Journey events, error-boundary reports, and performance marks",
   "asA": "product team member reading dashboards",
@@ -16,7 +16,8 @@
       "when": "walked end to end",
       "then": "every checkpoint event fires with its registered name",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1123-2",
@@ -25,7 +26,8 @@
       "when": "payloads are audited",
       "then": "context is present and no disallowed personal data appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1123-3",
@@ -34,7 +36,8 @@
       "when": "the boundary catches",
       "then": "the designed error state renders and one report is emitted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1123-4",
@@ -43,7 +46,8 @@
       "when": "marks are captured",
       "then": "both marks fire once each with correct names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1123-5",
@@ -52,7 +56,22 @@
       "when": "the application is used normally",
       "then": "no telemetry-related errors surface",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-1123-6",
+      "description": "Given the offline telemetry buffer's configured bound N and (N + 5) events emitted while offline, when the transport comes back online, then only the newest N events survive the buffer's drop-oldest policy and flush to the transport in emission order; the drop count is observable via a `telemetryBuffered` boot record on reconnect and the pre-overflow events are absent from the delivered stream.",
+      "given": "an offline session with (N + 5) telemetry events emitted against a buffer bound of N",
+      "when": "the transport reconnects",
+      "then": "the newest N events flush in emission order and the drop count is observable on reconnect",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-206-application-spa-telemetry",
+        "field": "responsibilities[0]"
+      }
     }
   ],
   "tacIds": [

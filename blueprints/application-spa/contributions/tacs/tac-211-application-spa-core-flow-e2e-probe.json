@@ -2,7 +2,7 @@
   "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Core-flow end-to-end adherence probe",
   "purpose": "The runtime-observable enforcement handle for application-spa-REQ-008 (journey completeness) at ship. Watchpost first production (w-2026-08-24-005) demonstrated the deployment-gate class defect this probe cures: the app was signed off as DEPLOYED, admin access was reachable only via ssh-minted tokens because magic-link email never worked in production, and the authentication core flow was never proven end-to-end in the shipped runtime. This TAC is the project-realised probe that (a) enumerates the app's core flows from a stable manifest and refuses when authentication is absent from the manifest while application-spa-REQ-009 surfaces are present, (b) drives a real browser through every enumerated flow against the shipped runtime and real external-service providers, (c) captures per-flow evidence sufficient to reconstruct the run, (d) refuses on any skipped, timed-out, absent, or failed flow (a documented workaround does NOT satisfy), and (e) writes a stable JSON report the delivery-ci-workflows aggregate report can name.",

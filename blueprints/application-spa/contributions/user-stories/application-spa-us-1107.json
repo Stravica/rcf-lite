@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1107",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-005",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Theme toggle with session and per-user persistence",
   "asA": "signed-in user",
@@ -16,7 +16,8 @@
       "when": "the toggle is located and operated by keyboard",
       "then": "the theme switches and the control announces its new state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1107-2",
@@ -25,7 +26,8 @@
       "when": "the toggle is activated",
       "then": "all visible surfaces switch in the same frame",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1107-3",
@@ -34,7 +36,8 @@
       "when": "the page is reloaded in the same session",
       "then": "the chosen theme renders from first paint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1107-4",
@@ -43,7 +46,8 @@
       "when": "they sign in on another browser",
       "then": "dark renders once their profile loads, without re-toggling",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1107-5",
@@ -52,7 +56,22 @@
       "when": "the application loads",
       "then": "light renders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-1107-6",
+      "description": "Given the profile or session persistence write for the theme choice rejects (a storage quota error, a network failure on the profile endpoint, or a rejected session write), when the operator selects a new theme, then the visible theme reflects the selection for the current session, an `aria-live=\"polite\"` region announces that the choice is unsaved, no persisted preference records the new value, and the next boot renders the previously persisted theme rather than the failed one.",
+      "given": "a profile or session persistence write that will reject on the current theme selection",
+      "when": "the operator picks a new theme",
+      "then": "the theme applies for the session, an announced region names it unsaved, no persisted preference records it, and the next boot renders the previously persisted theme",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-202-application-spa-theme-system",
+        "field": "interfaces[0].name"
+      }
     }
   ],
   "tacIds": [

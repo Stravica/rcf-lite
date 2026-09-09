@@ -2,7 +2,7 @@
   "adrId": "ADR-203-application-spa-client-state",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Server-state cache separated from UI state, stale-while-revalidate by default",
   "context": "application-spa-REQ-013 requires a client cache discipline. Whether client state is one store or two regimes is a whole-project decision; mixing regimes per feature produces stale lists, flicker, and phantom optimistic state.",

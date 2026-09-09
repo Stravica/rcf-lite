@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1114",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-008",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Every declared journey specified and rendering across its six states",
   "asA": "user anywhere in a journey",
@@ -11,12 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1114-1",
-      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states.",
+      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the journey inventory",
       "when": "each journey is walked against the specifications",
       "then": "all six states are specified for every step",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1114-2",
@@ -25,7 +26,8 @@
       "when": "first render is observed",
       "then": "designed arrival content is visible without user action",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1114-3",
@@ -34,7 +36,8 @@
       "when": "the error state renders",
       "then": "a forward path is present and operable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1114-4",
@@ -43,7 +46,8 @@
       "when": "re-entry occurs, including with an expired session",
       "then": "the declared restore-or-reset behaviour happens and no entered data is silently lost",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1114-5",
@@ -52,7 +56,8 @@
       "when": "telemetry is captured",
       "then": "the declared checkpoint events fire with correct names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

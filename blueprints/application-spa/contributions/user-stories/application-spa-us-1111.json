@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1111",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Data display: cards, tables, tabs, pagination",
   "asA": "user reading and working through collections of content",
@@ -16,7 +16,8 @@
       "when": "inspected and operated",
       "then": "the card is one coherent target and secondary actions remain independently operable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-2",
@@ -25,7 +26,8 @@
       "when": "the accessibility tree is inspected",
       "then": "headers associate to their cells",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-3",
@@ -34,7 +36,8 @@
       "when": "its header is activated repeatedly",
       "then": "sort order cycles and both exposures update",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-4",
@@ -43,7 +46,8 @@
       "when": "rendered",
       "then": "the designed state fills the table region",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-5",
@@ -52,7 +56,8 @@
       "when": "operated by keyboard",
       "then": "the pattern grammar works with correct ARIA wiring",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-6",
@@ -61,7 +66,8 @@
       "when": "the user leaves and returns",
       "then": "the previously active tab is selected",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-7",
@@ -70,7 +76,8 @@
       "when": "the controls render",
       "then": "previous is disabled with state exposed, position is visible",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1111-8",
@@ -79,7 +86,8 @@
       "when": "the user moves to page three and reloads",
       "then": "page three renders from the URL",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

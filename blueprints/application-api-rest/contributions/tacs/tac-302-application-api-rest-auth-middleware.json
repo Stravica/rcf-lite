@@ -2,7 +2,7 @@
   "tacId": "TAC-302-application-api-rest-auth-middleware",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Auth middleware: the four class slots",
   "purpose": "Implements the four auth classes as distinct middleware slots (public, user, admin, service) so every endpoint's auth posture is a declared class membership enforced in one place, not handler-by-handler discipline.",

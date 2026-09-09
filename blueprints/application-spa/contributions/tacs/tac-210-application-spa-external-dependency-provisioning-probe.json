@@ -2,7 +2,7 @@
   "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "External-service-dependency provisioning adherence probe",
   "purpose": "The runtime-observable enforcement handle for the deployment-gate class defect the watchpost first-production review caught (w-2026-08-24-005, w-2026-08-24-006): the only login path (magic-link email) shipped inert because RESEND_API_KEY was a placeholder, the gap was filed as a 'quirk' in status.md rather than blocked at sign-off, and a real key existed in the estate all along. This TAC is the project-realised probe that (a) refuses any placeholder-shape value in a credential field named on the application's external-service-dependency manifest, (b) requires captured live-handshake evidence for every dependency at status 'verified', (c) requires an operator-ratified persistent deferral record for every dependency at status 'deferred' (a README note, a status.md quirk line, or a code comment does NOT satisfy), and (d) writes a stable JSON report the delivery-ci-workflows aggregate report can name.",
