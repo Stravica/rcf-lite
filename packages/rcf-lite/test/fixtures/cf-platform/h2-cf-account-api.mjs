@@ -15,8 +15,8 @@
 //   - Workers scripts: upload (multipart), delete, list. Per
 //     https://developers.cloudflare.com/api/operations/worker-script-
 //     upload-worker-module.
-//   - Workers subdomain: enable workers.dev on a script so the fixture
-//     driver has an origin to hit.
+//   (The Workers subdomain surface is deliberately absent - see NOTE
+//   below the workerList export. Dave ruling 376b4f30.)
 //
 // Every method reads the account id and token from process.env at call
 // time so a test can boot the process without them (envAssert throws
@@ -328,17 +328,33 @@ export async function queuePublishBatch({ queueId, messages }) {
 }
 
 // ----- KV list keys within a namespace -----
-// GET /accounts/<aid>/storage/kv/namespaces/<nsid>/keys?prefix=<p>
+// GET /accounts/<aid>/storage/kv/namespaces/<nsid>/keys?prefix=<p>&limit=<n>&cursor=<c>
 // returns { result: [{ name, expiration?, metadata? }], result_info: { cursor } }
 // per https://developers.cloudflare.com/api/operations/workers-kv-namespace-list-a-namespace-s-keys.
+// Paginated with the documented cursor loop (Dave ruling 4e9ff62d
+// item 5, extended): the queue probe's readTelemetryRecords feeds on
+// this listing, so completeness must hold at any size. `limit` is the
+// per-page limit (CF max 1000); we cursor to completion and stop when
+// the server returns an empty next cursor. Hard-capped page count
+// against a runaway server response.
+const KV_LIST_KEYS_MAX_PAGES = 1000;
 export async function kvListKeys({ namespaceId, prefix, limit = 1000 }) {
   const accountId = assertEnv('CF_ACCOUNT_ID');
-  const qs = new URLSearchParams();
-  if (prefix) qs.set('prefix', prefix);
-  qs.set('limit', String(limit));
-  const { json } = await callJson('GET', `/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/keys?${qs.toString()}`);
-  const list = (json && Array.isArray(json.result)) ? json.result : [];
-  return list.map((k) => ({ name: k.name, expiration: k.expiration || null, metadata: k.metadata || null }));
+  const out = [];
+  let cursor = '';
+  for (let page = 0; page < KV_LIST_KEYS_MAX_PAGES; page++) {
+    const qs = new URLSearchParams();
+    if (prefix) qs.set('prefix', prefix);
+    qs.set('limit', String(limit));
+    if (cursor) qs.set('cursor', cursor);
+    const { json } = await callJson('GET', `/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/keys?${qs.toString()}`);
+    const list = (json && Array.isArray(json.result)) ? json.result : [];
+    for (const k of list) out.push({ name: k.name, expiration: k.expiration || null, metadata: k.metadata || null });
+    const nextCursor = (json && json.result_info && json.result_info.cursor) || '';
+    if (!nextCursor) break;
+    cursor = nextCursor;
+  }
+  return out;
 }
 
 // Convenience for tests / the mock server: expose the resolved base

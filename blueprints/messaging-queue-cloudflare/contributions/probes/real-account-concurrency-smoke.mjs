@@ -28,9 +28,9 @@
  *      cap (https://developers.cloudflare.com/queues/platform/limits/).
  *
  * Local proof is a mock of Cloudflare's REST contract, not the wire.
- * The local run exercises our lifecycle logic against a mock of the
- * shipped contract; the real-account gate is the only surface that
- * proves the wire format (Dave ruling 376b4f30). This probe is
+ * The local run exercises OUR lifecycle logic against a mock of
+ * Cloudflare's contract; the real-account gate is the only surface
+ * that proves the wire format (Dave ruling 376b4f30). This probe is
  * therefore never described as "locally verified" - the local runs
  * are our own lifecycle-logic proof; wire correctness is proven at
  * the HQ real-account gate.
