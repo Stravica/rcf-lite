@@ -244,7 +244,7 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   assert.deepEqual([...kc.capabilities].sort(), ['credentialSelfService', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ox = JSON.parse(await readFile(join(OAUTH2_BP, 'blueprint.json'), 'utf8'));
   assert.equal(ox.version, '1.3.0');
-  assert.deepEqual([...ox.capabilities].sort(), ['credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
+  assert.deepEqual([...ox.capabilities].sort(), ['authorisationCodeFlow', 'credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ml = JSON.parse(await readFile(join(MAGIC_LINK_BP, 'blueprint.json'), 'utf8'));
   assert.equal(ml.version, '1.2.1');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);

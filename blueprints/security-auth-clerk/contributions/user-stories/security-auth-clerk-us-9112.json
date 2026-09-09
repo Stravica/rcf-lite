@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-9112-1",
-      "description": "A `list()` call from an authenticated caller returns one row per active Clerk session for that caller, each row carrying `sessionId`, `deviceLabel`, `lastActive` and `currentSession`.",
+      "description": "A `list()` call from an authenticated caller returns one row per active project session, each row shaped per `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow`.",
       "given": "a caller signed in on two browsers, browser A holding the active `__session` cookie for session S1 and browser B for session S2",
       "when": "browser A calls the session verifier's `sessionInventory.list()` interface",
       "then": "the return value is an array of exactly two rows, one with `sessionId=S1` and `currentSession=true`, one with `sessionId=S2` and `currentSession=false`; each row carries a non-empty `deviceLabel` string and a `lastActive` ISO-8601 timestamp not in the future",

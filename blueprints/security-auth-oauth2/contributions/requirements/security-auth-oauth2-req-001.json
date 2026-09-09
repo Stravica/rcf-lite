@@ -2,7 +2,7 @@
   "reqId": "security-auth-oauth2-REQ-001",
   "prdId": "PRD-001",
   "title": "Authorisation-code flow with PKCE is the sole delegated-identity flow",
-  "description": "The project's authentication model is delegated identity via OAuth2 authorisation-code flow (RFC 6749 section 4.1) hardened with Proof Key for Code Exchange (RFC 7636). The implicit flow, the resource-owner password credentials flow, and the client credentials flow are refused at the flow-controller boundary. The `response_type` on the authorisation request is fixed to `code`; the token exchange is a back-channel POST that presents the `code_verifier`. The mechanism is vendor-neutral: any provider that speaks authorisation-code + PKCE plugs in through the provider-abstraction contract; no provider name appears in the flow controller's code path. The redirect to the provider's `authorizeUrl` is the mechanism by which the blueprint contributes the `hostedIdentityUi` capability: no project route renders a credential-input form of its own; the browser lives at the provider's hosted sign-in surface for every credential moment, and the project sees only the callback plus the code exchange.",
+  "description": "The project's authentication model is delegated identity via OAuth2 authorisation-code flow (RFC 6749 section 4.1) hardened with Proof Key for Code Exchange (RFC 7636). This blueprint publishes the flow to consumers under the capability token `authorisationCodeFlow` (declared on `blueprint.json:capabilities[]`); a superseding blueprint that owns the flow and the session-bridge declares the same token to remain composable with keycloak and its siblings. The implicit flow, the resource-owner password credentials flow, and the client credentials flow are refused at the flow-controller boundary. The `response_type` on the authorisation request is fixed to `code`; the token exchange is a back-channel POST that presents the `code_verifier`. The mechanism is vendor-neutral: any provider that speaks authorisation-code + PKCE plugs in through the provider-abstraction contract; no provider name appears in the flow controller's code path. The redirect to the provider's `authorizeUrl` is the mechanism by which the blueprint contributes the `hostedIdentityUi` capability: no project route renders a credential-input form of its own; the browser lives at the provider's hosted sign-in surface for every credential moment, and the project sees only the callback plus the code exchange. Runtime behaviour is asserted by `US-10101` and its refusal-path siblings (`US-10102`, `US-10103`, `US-10104`).",
   "category": "functional",
   "domain": "authentication",
   "priority": "must",
@@ -14,7 +14,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "adrId": "ADR-1101-security-auth-oauth2-auth-model"
   }

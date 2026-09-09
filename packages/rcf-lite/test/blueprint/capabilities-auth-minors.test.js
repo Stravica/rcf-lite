@@ -22,7 +22,7 @@ const REPO_ROOT = resolve(here, '..', '..', '..', '..');
 const EXPECTED = [
   { slug: 'security-auth-magic-link', version: '1.2.1', capabilities: ['principalDirectory'] },
   { slug: 'security-auth-clerk', version: '1.4.0', capabilities: ['principalDirectory', 'roleModel', 'sessionInventory', 'hostedIdentityUi'] },
-  { slug: 'security-auth-oauth2', version: '1.3.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi'] },
+  { slug: 'security-auth-oauth2', version: '1.3.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi', 'authorisationCodeFlow'] },
   { slug: 'security-auth-keycloak', version: '1.3.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory'] },
 ];
 

@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-10114-1",
-      "description": "A `list()` call from an authenticated caller returns one row per active project session, each row carrying `sessionId`, `deviceLabel`, `lastActive`, and `currentSession`.",
+      "description": "A `list()` call from an authenticated caller returns one row per active project session, each row shaped per `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow`.",
       "given": "a caller with two active project sessions S1 (current) and S2, both issued through provider `google`",
       "when": "the current browser calls `sessionInventory.list()`",
       "then": "the return is exactly two rows shaped per the ownerRef interface, one with `currentSession=true` for S1 and one with `currentSession=false` for S2",

@@ -2,6 +2,13 @@
   "slug": "security-auth-keycloak",
   "version": "1.3.0",
   "category": "security",
+  "requiresAppliedCapabilities": {
+    "capabilities": [
+      "authorisationCodeFlow"
+    ],
+    "allowSkipFlag": "allow-no-auth-yet",
+    "refusalMessageId": "security-auth-keycloak-flow-required"
+  },
   "capabilities": [
     "principalDirectory",
     "roleModel",
@@ -215,6 +222,26 @@
       "id": "security-auth-keycloak-REQ-015",
       "kind": "req",
       "path": "requirements/security-auth-keycloak-req-015.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-016",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-016.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-017",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-017.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-018",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-018.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-019",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-019.json"
     }
   ],
   "elicits": [

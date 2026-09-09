@@ -7,7 +7,8 @@
     "roleModel",
     "credentialSelfService",
     "sessionInventory",
-    "hostedIdentityUi"
+    "hostedIdentityUi",
+    "authorisationCodeFlow"
   ],
   "contributions": [
     {
