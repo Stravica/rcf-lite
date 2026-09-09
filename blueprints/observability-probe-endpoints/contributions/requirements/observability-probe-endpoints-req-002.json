@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "A default Kubernetes profile ships with liveness /live and readiness /ready served over HTTP GET",
   "description": "When the operator selects the `kubernetes` target integration (the shipped default), the profile wires two HTTP GET probe handlers: a liveness handler at path `/live` and a readiness handler at path `/ready`. Both handlers return HTTP 200 for pass and HTTP 503 for fail. The liveness handler answers strictly on in-process event-loop responsiveness and never depends on any external condition. The readiness handler answers on the operator-declared readiness predicate for the profile (default: strict-any-fail over the declared dependency set). Both paths and the port topology are overridable at boot; the defaults hold when the operator does not override.",
+  "deliveredBy": {
+    "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "field": "interfaces.profileLoader"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

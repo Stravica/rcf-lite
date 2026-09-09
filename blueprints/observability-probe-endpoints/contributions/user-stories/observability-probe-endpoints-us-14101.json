@@ -16,16 +16,23 @@
       "when": "the process boots and its probe-binding step completes",
       "then": "the running listener answers GET on the profile-declared liveness path (default /live) with 200 and on the profile-declared readiness path (default /ready) with 200 or 503, and no probe handler is bound at any path outside the profile-declared set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
     },
     {
       "id": "AC-14101-2",
-      "description": "A process configured without a `probeInterface.profile` declaration and no shipped default refuses to boot with a stable-coded error naming the missing declaration.",
-      "given": "a process configuration whose profile declaration is absent and whose environment has removed the shipped default",
-      "when": "the process boots and its profile-resolution step runs",
-      "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_MISSING` error naming the declaration field the operator must set",
+      "description": "A process configured without a `probeInterface.profile` declaration falls back to the shipped Kubernetes default per ADR-1503 and boots normally on the kubernetes profile handlers.",
+      "given": "a process with no `probeInterface.profile` declaration on the applied configuration and the shipped Kubernetes default present",
+      "when": "the process boots",
+      "then": "the process boots without error, the resolved profile is `kubernetes`, and the running listener answers GET on `/live` and `/ready` with 200",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1503-observability-probe-endpoints-kubernetes-default",
+        "field": "decision.kubernetesDefault"
+      }
     },
     {
       "id": "AC-14101-3",
@@ -34,7 +41,22 @@
       "when": "the process boots and its profile-resolution step runs",
       "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_UNKNOWN` error whose message contains the offending value and the enumerated valid profile names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-14101-4",
+      "description": "A process configured with a `probeInterface` declaration that is syntactically malformed (not an object, or an object missing the required per-profile keys) refuses to boot with the stable-coded PROBE_PROFILE_MALFORMED error naming the offending shape.",
+      "given": "a process with `probeInterface` set to a non-object value (a bare string, an array), OR to an object that names a valid profile but omits per-profile required keys",
+      "when": "the process boots",
+      "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_MALFORMED` error whose message names the offending shape (the type it received and the required keys it expected); no listener binds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+        "field": "interfaces.contractValidator"
+      }
     }
   ],
   "tacIds": [
@@ -42,5 +64,5 @@
     "TAC-1502-observability-probe-endpoints-handler-set"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

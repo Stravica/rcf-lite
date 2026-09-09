@@ -16,7 +16,8 @@
       "when": "an HTTP GET is issued against the resolved health path in each state",
       "then": "the pass response has status 200 with content-length 0 and no body; the fail response has status 503 with content-length 0 and no body",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14105-2",
@@ -25,7 +26,8 @@
       "when": "an HTTP GET is issued against `/live` and `/ready` in each state and the parsed JSON body key set is inspected",
       "then": "the parsed body is exactly a one-key object whose only key is `status` and whose value is `pass` or `fail` matching the resolved answer",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14105-3",
@@ -34,7 +36,52 @@
       "when": "the profile's healthcheck command entry point is invoked in each state",
       "then": "the pass invocation exits with code 0; the fail invocation exits with a non-zero code; the process opens no HTTP probe listener when this profile is selected",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-14105-4",
+      "description": "A systemd-profile process under Type=notify emits sd_notify(READY=1) exactly once after boot completes and sd_notify(WATCHDOG=1) at the configured watchdog cadence for the process lifetime; a process that fails to send WATCHDOG within the cadence budget is signalled fail by the systemd supervisor.",
+      "given": "a process configured with probe-interface-profile=systemd, watchdog cadence 10 seconds, and a project-owned readiness predicate returning pass",
+      "when": "the process boots and runs for 30 seconds under a mock systemd notify sink",
+      "then": "the sink records exactly one READY=1 line after boot and at least two WATCHDOG=1 lines within the 30-second window; if the process is paused past the watchdog budget, the sink records no further WATCHDOG=1 lines and the supervisor pull is signalled",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
+      "ownerRef": {
+        "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
+        "field": "interfaces.notifyImplementation"
+      }
+    },
+    {
+      "id": "AC-14105-5",
+      "description": "A TCP-transport probe profile answers a TCP socket connect on the configured probe port with an accept on pass and a refuse (RST) on fail; the response is the accept/refuse itself and no bytes are exchanged on the connection.",
+      "given": "a process configured with a TCP-transport profile (a custom profile or a supervising system that reads TCP accept/refuse), probe port 9091, and a readiness predicate returning pass then fail",
+      "when": "a supervisor issues one TCP connect while pass, then one TCP connect after the predicate flips to fail",
+      "then": "the pass connect completes the three-way handshake and reads zero bytes on the connection before close; the fail connect is refused (RST or connection refused) within the connect timeout; no application-layer data crosses the connection in either case",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent supplies the elicited probe-interface-profile value (systemd or a TCP-transport profile), the systemd watchdog cadence, and the TCP probe port; the AC substitutes those for the illustrative values.",
+      "ownerRef": {
+        "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
+        "field": "interfaces.selectAdapter"
+      }
+    },
+    {
+      "id": "AC-14105-6",
+      "description": "A process configured with a target-integration profile whose platform adapter is missing (the project has not supplied the systemd notify sink for the systemd profile, or the TCP listener factory for a TCP-transport profile) refuses to boot with the stable-coded PROBE_ADAPTER_MISSING error naming the missing adapter and the profile that requires it.",
+      "given": "a process configured with a systemd profile but without an sd_notify implementation supplied on TAC-1504 selectAdapter",
+      "when": "the process boots",
+      "then": "the process exits with a non-zero code and emits PROBE_ADAPTER_MISSING naming the profile (systemd) and the missing adapter (notify implementation); no listener binds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
+        "field": "interfaces.selectAdapter"
+      }
     }
   ],
   "tacIds": [
@@ -42,5 +89,5 @@
     "TAC-1504-observability-probe-endpoints-non-http-adapters"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

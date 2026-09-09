@@ -16,7 +16,8 @@
       "when": "the profile resolver runs at boot",
       "then": "the resolved profile object has non-null `transport`, non-empty `paths` or its transport-appropriate equivalent, non-null `responseContract`, and non-null `semanticModel`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14103-2",
@@ -25,7 +26,8 @@
       "when": "the profile resolver runs at boot",
       "then": "the process exits with a non-zero code and emits a `PROBE_PROFILE_INCOMPLETE` error naming the missing field and the profile name",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14103-3",
@@ -34,7 +36,8 @@
       "when": "the profile resolver runs and the handler set binds",
       "then": "exactly one HTTP GET handler is bound at the profile's resolved path (default `/health`), no handler is bound at `/live` or `/ready`, and the resolved profile's `semanticModel` equals `singleHealthSignal`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

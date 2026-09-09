@@ -16,7 +16,9 @@
       "when": "the process boots and the topology binds",
       "then": "a GET against `/live` on port 9091 returns 200, a GET against `/live` on the user-traffic port returns 404 (or the project's default not-found response), and a GET against `/ready` on the user-traffic port returns 404",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
     },
     {
       "id": "AC-14104-2",
@@ -25,7 +27,9 @@
       "when": "a GET against `/api/orders` is issued against port 9091",
       "then": "the response status is 404 (or the profile's declared not-found), and the request is not routed to the `/api/orders` handler",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
     },
     {
       "id": "AC-14104-3",
@@ -34,7 +38,9 @@
       "when": "the process boots and the topology binds",
       "then": "GET `/live` on the user-traffic listener returns 200 and no additional listener is opened",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited target-integration-profile (or its equivalent target-integration elicit); the AC substitutes the project's profile name for the illustrative Kubernetes / loadBalancer / reverseProxy / systemd tokens."
     }
   ],
   "tacIds": [
