@@ -18,11 +18,61 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-32107-2",
+      "description": "Bounded-wait timeout on the real-account probe: if the 90-second poll observes no scheduled event, the probe returns aggregateVerdict:\"fail\" with a reason field naming CRON_REAL_ACCOUNT_NO_FIRE, the observed poll count and the last response body from the Cloudflare observability API.",
+      "given": "a real Cloudflare account with the paired env vars, and a Worker whose cron trigger fails to fire for 90+ seconds",
+      "when": "the probe polls the Analytics or observability API every 5 seconds up to 90 seconds",
+      "then": "the probe returns aggregateVerdict:\"fail\" naming CRON_REAL_ACCOUNT_NO_FIRE and the last response body",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/configuration/cron-triggers/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-32107-3",
+      "description": "Partial env-var configuration: with CI_HAS_CLOUDFLARE_ACCOUNT=true set but CF_API_TOKEN missing, the probe refuses BEFORE making any API request with a named error kind CF_MISSING_TOKEN naming the missing env var. Same for CF_ACCOUNT_ID or CF_WORKER_NAME missing.",
+      "given": "CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_API_TOKEN unset",
+      "when": "the probe runs",
+      "then": "the probe refuses with CF_MISSING_TOKEN naming the missing variable and exits non-zero",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-32107-4",
+      "description": "Non-2xx API response: if the Cloudflare Analytics or observability API returns a non-2xx status (401, 403, 429 or 5xx) during polling, the probe surfaces the observed status and response body and returns aggregateVerdict:\"fail\" with reason CF_ANALYTICS_HTTP_ERROR. The probe does not retry on 4xx; it retries once on 5xx before failing.",
+      "given": "a real-account probe run where the Analytics API returns 403",
+      "when": "the probe polls",
+      "then": "aggregateVerdict:\"fail\" with reason CF_ANALYTICS_HTTP_ERROR, HTTP status and body in the record",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/platform/limits/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

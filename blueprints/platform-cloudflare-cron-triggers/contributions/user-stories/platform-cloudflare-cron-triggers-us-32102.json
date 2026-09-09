@@ -32,11 +32,67 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-32102-3",
+      "description": "Single-handler mode: createDispatcher({routes:[{expression:\"*/5 * * * *\", handler}], mode:\"single-handler\", sink, ...}) invokes the single handler on EVERY dispatch regardless of the incoming event.cron value. A dispatch({cron:\"1 2 3 4 5\", scheduledTime}) still invokes the single handler with bounded context {expression:\"1 2 3 4 5\", scheduledTime, sink}; no cronUnmatched event fires because unmatched has no meaning in single-handler mode.",
+      "given": "a dispatcher with mode:\"single-handler\" and exactly one route",
+      "when": "dispatch is called with an expression different from the routed one",
+      "then": "the single handler is invoked with the incoming expression as bounded context; no cronUnmatched event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "interfaces.dispatch"
+      }
+    },
+    {
+      "id": "AC-32102-4",
+      "description": "Malformed event: dispatch({cron:null, scheduledTime}) or dispatch({}) does NOT invoke any handler, fires a cronMalformed event on the sink with metadata {event:\"cronMalformed\", expression:null, scheduledTime, outcome:\"malformed\", duration:0} and returns without side effect.",
+      "given": "a dispatcher wired with two routes",
+      "when": "dispatch is called with a missing or null cron field",
+      "then": "no handler is invoked, a cronMalformed event fires on the sink, and dispatch returns without side effect",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "interfaces.dispatch"
+      }
+    },
+    {
+      "id": "AC-32102-5",
+      "description": "Duplicate expressions refuse: createDispatcher({routes:[{expression:\"* * * * *\", handler:h1}, {expression:\"* * * * *\", handler:h2}], ...}) throws a named error kind CRON_DISPATCHER_DUPLICATE_EXPRESSION at construction time, naming the duplicated expression string. No route is registered.",
+      "given": "a call to createDispatcher with two routes carrying the same expression",
+      "when": "the factory is invoked",
+      "then": "the factory throws CRON_DISPATCHER_DUPLICATE_EXPRESSION naming the duplicated expression",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-32102-6",
+      "description": "Empty routes refuse: createDispatcher({routes:[], sink, ...}) throws a named error kind CRON_DISPATCHER_EMPTY_ROUTES at construction time; no dispatch function is returned.",
+      "given": "a call to createDispatcher with an empty routes array",
+      "when": "the factory is invoked",
+      "then": "the factory throws CRON_DISPATCHER_EMPTY_ROUTES",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "interfaces.default export"
+      }
     }
   ],
   "tacIds": [
     "TAC-3302-platform-cloudflare-cron-triggers-expression-router"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

@@ -18,11 +18,71 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-32105-2",
+      "description": "CI gate on bind or fire failures: the probe harness at packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js treats aggregateVerdict !== \"pass\" (including \"warn\" AND \"fail\") as a hard gate failure and exits non-zero. The prior \"the CI does not gate on warn\" clause is removed from AC-32105-1. A wrangler regression that would otherwise return warn now surfaces as a red CI check on the branch, per the operator ruling that documented failure paths are ACs, not warnings.",
+      "given": "the probe harness invoked from packages/rcf-lite/test/blueprint under Node 24",
+      "when": "the probe returns aggregateVerdict warn or fail",
+      "then": "the anatomy test asserts verdict === \"pass\" and exits non-zero on any other value",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-32105-3",
+      "description": "Bounded-wait timeout: if wrangler dev --test-scheduled does not bind within the 30-second cap, the probe kills the child, records the observed stderr and returns aggregateVerdict:\"fail\" with a reason field naming CRON_WRANGLER_BIND_TIMEOUT. Under AC-32105-2 the CI harness treats this as a hard failure.",
+      "given": "a probe run where wrangler cannot bind within 30 seconds (simulated by an invalid PORT or a stubbed missing binary)",
+      "when": "the probe caps the wait at 30 seconds",
+      "then": "the probe returns aggregateVerdict \"fail\" with reason CRON_WRANGLER_BIND_TIMEOUT and the observed stderr",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-32105-4",
+      "description": "Wrangler exits non-zero mid-run: if the wrangler child exits with a non-zero code during the probe (crash after bind), the probe surfaces the observed exit code and stderr and returns aggregateVerdict:\"fail\". Under AC-32105-2 the CI harness treats this as a hard failure.",
+      "given": "a probe run where wrangler crashes after binding (simulated by SIGTERM injection)",
+      "when": "the probe observes the child exit",
+      "then": "aggregateVerdict is \"fail\" with the exit code and stderr in the reason field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-32105-5",
+      "description": "Probe teardown: the probe kills the wrangler child on exit (normal or exceptional) via SIGTERM followed by SIGKILL after a 2-second grace period. A test that interrupts the probe with a rejection at the assertion step still observes the wrangler child terminated within 3 seconds.",
+      "given": "a probe run that is interrupted by an assertion rejection after the CLI binds",
+      "when": "the probe teardown runs",
+      "then": "the wrangler child is terminated within 3 seconds; no orphan process remains",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      }
     }
   ],
   "tacIds": [
     "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

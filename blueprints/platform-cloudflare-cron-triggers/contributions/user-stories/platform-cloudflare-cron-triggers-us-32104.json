@@ -28,6 +28,62 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-32104-3",
+      "description": "Handler throws BEFORE the soft-budget crossing: with softBudgetMs=100 and a spy handler that rejects at 50ms of fake-clock time with an application error, the dispatcher fires exactly one cronFailed event on the sink with {event:\"cronFailed\", expression, scheduledTime, outcome:\"failed\", duration:>=50}; no cronStalled and no cronFired emits for that dispatch. The error propagates through the returned dispatch promise.",
+      "given": "a dispatcher with softBudgetMs=100 and a spy handler that rejects at 50ms of fake-clock time",
+      "when": "an event is dispatched",
+      "then": "exactly one cronFailed event fires with outcome:\"failed\"; no cronStalled or cronFired emits",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.softBudget"
+      }
+    },
+    {
+      "id": "AC-32104-4",
+      "description": "Handler throws AFTER the soft-budget crossing: with softBudgetMs=100 and a spy handler that rejects at 250ms of fake-clock time, the dispatcher fires cronStalled at the 100ms crossing then cronFailed at the 250ms rejection with {outcome:\"failed\", duration:>=250}; no cronFired emits for that dispatch.",
+      "given": "a dispatcher with softBudgetMs=100 and a spy handler that rejects at 250ms of fake-clock time",
+      "when": "an event is dispatched",
+      "then": "cronStalled fires at 100ms, cronFailed fires at 250ms, and no cronFired emits",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.softBudget"
+      }
+    },
+    {
+      "id": "AC-32104-5",
+      "description": "Exact-boundary at softBudgetMs: with softBudgetMs=100 and a spy handler that resolves at EXACTLY 100ms of fake-clock time, the dispatcher fires cronFired only (no cronStalled). The soft-budget observer treats the crossing as strict greater-than: a duration equal to softBudgetMs does not trip the stall record.",
+      "given": "a dispatcher with softBudgetMs=100 and a spy handler that resolves at 100ms of fake-clock time",
+      "when": "an event is dispatched",
+      "then": "only cronFired emits; no cronStalled record fires at the boundary",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.softBudget"
+      }
+    },
+    {
+      "id": "AC-32104-6",
+      "description": "Idempotency: a single dispatch produces exactly one cronStalled record even if the internal soft-budget observer re-arms or the setTimeout is re-scheduled. A test that observes the sink after a stall-then-complete cycle finds cronStalled.length === 1 and cronFired.length === 1 for that dispatch.",
+      "given": "a dispatcher with softBudgetMs=100 and a spy handler that resolves at 500ms",
+      "when": "an event is dispatched and the sink is inspected after completion",
+      "then": "cronStalled records for that dispatch count exactly one; cronFired records count exactly one",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.softBudget"
+      }
     }
   ],
   "tacIds": [
@@ -35,5 +91,5 @@
     "TAC-3303-platform-cloudflare-cron-triggers-event-sink"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

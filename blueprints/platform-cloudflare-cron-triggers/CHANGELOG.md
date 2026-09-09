@@ -10,6 +10,11 @@ All notable changes to `platform-cloudflare-cron-triggers` are recorded here. Th
 - Close chain-contradiction specimen F-1: `AC-32101-1` and the fixture `src/scheduled.mjs` now emit `cronReady` with the cron-vocabulary metadata payload `{event, expression, scheduledTime, outcome, duration}` per TAC-3303's allow-list. The previous KV-shaped payload `{event, key, size, ttl, timestamp}` on the boot ready-check is retired; `TS-090` on the anatomy test asserts the new shape.
 - `AC-32102-1` reworded to describe the injected `sink` parameter (no longer restates the literal owned by TAC-3303's interface); no behavioural change in the shipped code path.
 
+### Added (criterion b completion, second pass 2026-09-09)
+
+- Every story on this blueprint now reaches the section 7a AC-set-sufficiency floor. 26 new hand-authored ACs cover the documented failure paths named in the guide and TAC records, per-story range 4-6 (from the 1-2 shipped in the first 1.1.0 pass): US-32101 gains four failure-path ACs (empty routes, invalid sink, repeat-boot idempotency, sole-reader source-tree scan closing F-5); US-32102 gains four ACs (single-handler mode closing F-2, malformed event, duplicate expressions, empty routes at construction); US-32103 gains three ACs (exact-boundary at skewToleranceMs, one millisecond past, early-fire negative delta); US-32104 gains four ACs (handler-throw pre-budget closing F-3 first half, handler-throw post-budget closing F-3 second half, exact-boundary at softBudgetMs, single-cronStalled idempotency); US-32105 gains four ACs (CI gate on bind/fire failures closing F-4, bounded-wait timeout, mid-run crash, teardown discipline); US-32106 gains four ACs (allow-list forbidden-key mutation, empty-payload boundary, expression-literal-is-not-PII exclusion, closure-over-fixture); US-32107 gains three ACs (bounded-wait timeout, partial env-var configuration, non-2xx API response). Every new AC carries `disposition`, most carry `ownerRef` into the owning TAC, and vendor-fact ACs carry `vendorCitation` (scheduled handler, cron triggers, wrangler CLI, workers platform limits) with today's verifiedOn date.
+- `rcf define blueprint lint-consistency` still reports zero pass-1 and pass-2 findings. Blueprint stays at v1.1.0 on the same unreleased minor.
+
 ## 1.0.0 (2026-09-07)
 
 ### Added
