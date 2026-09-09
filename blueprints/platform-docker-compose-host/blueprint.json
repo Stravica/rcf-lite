@@ -59,6 +59,12 @@
       "default": "http"
     },
     {
+      "id": "healthcheck-timeout-seconds",
+      "prompt": "Elicited healthcheck timeout in seconds (per REQ-003 the stack is not considered up until every declared service reaches healthy inside this window; docker compose up -d --wait respects the compose healthcheck timeout: field). Default 30, floor 5, ceiling 300.",
+      "kind": "string",
+      "default": "30"
+    },
+    {
       "id": "log-driver",
       "prompt": "Container log driver per ADR-3904. journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baseline T-1 sets up; loki is the opt-in alternative when the project runs Grafana.",
       "kind": "enum",

@@ -15,6 +15,52 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-38105-2",
+      "description": "Real-account timeout: with docker compose up -d --wait invoked with a timeout that expires before every service reaches healthy, the real-account-minimal-stack-up probe FAILS naming the service that did not reach healthy and quoting the observed docker compose error output. Tear-down still runs in always().",
+      "given": "a real-account probe run against a fixture whose web service delays past the timeout",
+      "when": "docker compose up -d --wait exits with a timeout error",
+      "then": "aggregateVerdict is \"fail\" naming the unhealthy service; the always() block tears the stack down",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.healthcheckTimeout"
+      }
+    },
+    {
+      "id": "AC-38105-3",
+      "description": "Teardown discipline: the probe tears down (docker compose down -v AND the throwaway server destroy) inside an always() block that runs whether the assertion passed or failed. A probe test that asserts a fixture failure still leaves zero long-lived resources on the account; a subsequent hcloud server list on the same account returns no leftover throwaway server.",
+      "given": "a real-account probe that fails on the healthcheck assertion",
+      "when": "the probe teardown runs",
+      "then": "docker compose down -v runs and the throwaway server is destroyed; hcloud server list shows no leftover",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.teardown"
+      }
+    },
+    {
+      "id": "AC-38105-4",
+      "description": "Dependency ordering: a service with depends_on: <parent>: {condition: service_healthy} waits for the parent healthcheck to reach healthy before compose starts it. The compose-config-lint asserts this shape on the fixture (a \"web\" service depends_on \"db\" with condition service_healthy); SIMULATE_MISSING_DEPENDS_ON=true removes the depends_on and the lint FAILS naming the missing dependency.",
+      "given": "a fixture with a web service depending on a db service under condition service_healthy",
+      "when": "the compose-config-lint runs and SIMULATE_MISSING_DEPENDS_ON=true trips",
+      "then": "the shipped path passes; the mutation FAILS naming the missing dependency",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.dependsOn"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
@@ -22,5 +68,5 @@
     "TAC-3903-platform-docker-compose-host-healthcheck-lint"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

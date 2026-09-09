@@ -15,11 +15,67 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-38103-2",
+      "description": "F-10 wrong-mode probe: SIMULATE_WRONG_MODE_SECRET=true sets the service-level secrets mode to 0o644. The secrets-as-files-scan probe FAILS naming the service and the mode value; the probe pattern matches the compose mode: field in the service secrets block.",
+      "given": "a fixture with SIMULATE_WRONG_MODE_SECRET=true",
+      "when": "the probe runs",
+      "then": "aggregateVerdict is \"fail\" naming the service and the disallowed mode",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.mountMode"
+      }
+    },
+    {
+      "id": "AC-38103-3",
+      "description": "F-10 orphan-secret probe: SIMULATE_ORPHAN_SECRET=true adds a top-level secret entry no service references. The secrets-as-files-scan probe FAILS naming the orphan secret; the probe walks the compose service list and matches every top-level secret against a service-level secrets: array entry.",
+      "given": "a fixture with SIMULATE_ORPHAN_SECRET=true",
+      "when": "the probe runs",
+      "then": "aggregateVerdict is \"fail\" naming the orphan secret",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.serviceReference"
+      }
+    },
+    {
+      "id": "AC-38103-4",
+      "description": "Plaintext secret in .env: SIMULATE_PLAINTEXT_SECRET_IN_ENV=true writes a token literal (e.g. HCLOUD_TOKEN=... with a real-shaped value) into .env; the secrets-as-files-scan probe walks compose.yaml AND .env AND every referenced service config, and FAILS naming the .env file and the line number carrying the token pattern.",
+      "given": "a fixture with SIMULATE_PLAINTEXT_SECRET_IN_ENV=true writing a token into .env",
+      "when": "the probe runs",
+      "then": "aggregateVerdict is \"fail\" naming .env and the line with the token pattern",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.grepRefuse"
+      }
+    },
+    {
+      "id": "AC-38103-5",
+      "description": "Clean fixture passes with zero findings: the shipped cf fixture (no SIMULATE_* flags) passes the secrets-as-files-scan with zero findings; the probe report aggregates to pass and lists the files scanned (compose.yaml plus every service-referenced config).",
+      "given": "the shipped fixture with no simulate switches",
+      "when": "the probe runs",
+      "then": "aggregateVerdict is \"pass\" with zero findings and the scanned-files list",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.grepRefuse"
+      }
     }
   ],
   "tacIds": [
     "TAC-3902-platform-docker-compose-host-secrets-mount"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

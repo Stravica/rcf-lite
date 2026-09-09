@@ -32,11 +32,61 @@
       "testable": true,
       "scope": "deployed",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-38110-3",
+      "description": "Sources file content probe: after the installer script runs on the fixture VM, a shell probe reads /etc/apt/sources.list.d/docker.list and asserts (a) the file exists, (b) the URI resolves to https://download.docker.com/linux/ubuntu (or /linux/debian) matching the OS, and (c) the pool component equals the elicited docker-engine-channel answer (\"stable\" or \"test\"). SIMULATE_STALE_SOURCES=true writes an incorrect pool value and the probe FAILS naming the observed and expected components.",
+      "given": "a fresh VM after the installer runs with docker-engine-channel=stable",
+      "when": "the probe reads the sources file",
+      "then": "the file exists, the URI matches, and the pool component equals \"stable\"",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/engine/install/ubuntu/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38110-4",
+      "description": "Keyring probe: /etc/apt/keyrings/docker.gpg exists after the installer runs (the Docker Engine install steps place the keyring here per the Ubuntu install doc). SIMULATE_MISSING_KEYRING=true removes the file and the installer refuses on the next apt-get update with a stable error kind DOCKER_ENGINE_KEYRING_MISSING.",
+      "given": "a fresh VM after the installer runs",
+      "when": "the probe reads /etc/apt/keyrings/docker.gpg",
+      "then": "the file exists; SIMULATE_MISSING_KEYRING=true removes it and the installer refuses with DOCKER_ENGINE_KEYRING_MISSING",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/engine/install/ubuntu/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38110-5",
+      "description": "Idempotent install: running the installer script twice on the same VM does NOT duplicate the sources entry (a subsequent grep of /etc/apt/sources.list.d/docker.list finds exactly one URI line), does NOT re-add the keyring, and returns exit 0 on the second run. The installer detects the existing install and short-circuits (docker-ce is up to date).",
+      "given": "a fresh VM after the installer has already run once",
+      "when": "the installer script runs a second time",
+      "then": "the sources file has exactly one URI line; the keyring is unchanged; the second run exits 0",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      }
     }
   ],
   "tacIds": [
     "TAC-3901-platform-docker-compose-host-compose-layout"
   ],
   "createdAt": "2026-09-09T20:25:00.000Z",
-  "updatedAt": "2026-09-09T20:25:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

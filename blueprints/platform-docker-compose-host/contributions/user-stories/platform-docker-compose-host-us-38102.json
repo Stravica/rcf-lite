@@ -15,11 +15,75 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-38102-2",
+      "description": "F-10 security-secrets-management integration: when the applied project has security-secrets-management applied (per the companion), a top-level secret's file: source resolves through the companion's vault-fetch script rather than a plain file path. A fixture with SIMULATE_SSM_APPLIED=true rewrites the source to a script call and asserts the mounted content still lands at 0o400 inside the container.",
+      "given": "a fixture with SIMULATE_SSM_APPLIED=true routing the secret file source through the companion",
+      "when": "the mount is observed inside the container",
+      "then": "the file at /run/secrets/<name> has content and mode 0o400",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.ssmIntegration"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/compose/how-tos/use-secrets/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38102-3",
+      "description": "F-10 file-based fallback: when security-secrets-management is NOT applied, the fallback path lands the secret in secrets/<name> under the applying repo with a .gitignore line naming the file. A fixture assertion greps .gitignore for \"secrets/<name>\" and asserts the entry is present; SIMULATE_SECRETS_UNIGNORED=true removes the .gitignore line and the assertion FAILS naming the unignored file.",
+      "given": "a fixture without SSM applied, with a secret at secrets/<name>",
+      "when": "the .gitignore assertion runs",
+      "then": "the .gitignore contains a line matching \"secrets/<name>\"; SIMULATE_SECRETS_UNIGNORED=true trips the assertion",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.fallback"
+      }
+    },
+    {
+      "id": "AC-38102-4",
+      "description": "F-10 wrong mode: SIMULATE_WRONG_MODE_SECRET=true mounts the secret with mode: 0o644 in the service-level secrets: block (a compose-supported permissions override). The compose-config-lint probe FAILS naming the service and the wrong mode; the lint asserts every mounted secret carries mode 0o400 or the compose default (which resolves to 0o400).",
+      "given": "a fixture with SIMULATE_WRONG_MODE_SECRET=true setting mode: 0o644 on a service-mounted secret",
+      "when": "the compose-config-lint probe runs",
+      "then": "the lint FAILS naming the service and the disallowed mode",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.mountMode"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/compose/how-tos/use-secrets/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38102-5",
+      "description": "Unreferenced top-level secret: a top-level secrets: block whose entry no service references is a defect (an orphan secret file that lands nowhere). The compose-config-lint FAILS naming the orphan secret; SIMULATE_ORPHAN_SECRET=true adds an entry no service consumes and the lint catches it.",
+      "given": "a fixture with SIMULATE_ORPHAN_SECRET=true adding an unreferenced top-level secret",
+      "when": "the lint runs",
+      "then": "the lint FAILS naming the orphan secret",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
+        "field": "responsibilities.serviceReference"
+      }
     }
   ],
   "tacIds": [
     "TAC-3902-platform-docker-compose-host-secrets-mount"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

@@ -15,11 +15,83 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-38104-2",
+      "description": "F-4 healthcheck-timeout-seconds elicit: with the elicited answer set to 45 (default 30, floor 5, ceiling 300), the applied compose.yaml healthcheck: block on every HTTP-terminating service carries timeout: 45s. The compose-config-lint asserts (a) every healthcheck: block declares a timeout field, (b) the value equals the elicited answer with the \"s\" suffix, and (c) SIMULATE_MISSING_TIMEOUT=true strips the timeout field from the web service and the lint FAILS naming the service.",
+      "given": "an applied fixture with healthcheck-timeout-seconds=45",
+      "when": "the compose-config-lint runs and SIMULATE_MISSING_TIMEOUT=true trips",
+      "then": "the shipped path shows timeout: 45s on every healthcheck block; the mutation FAILS naming the web service",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.healthcheckTimeout"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38104-3",
+      "description": "F-6 tcp kind: with elicited healthcheck-default-kind=tcp, the applied healthcheck: test field for a database or plain-socket service carries CMD [\"nc\", \"-z\", \"127.0.0.1\", \"<port>\"] where <port> is the service's declared listen port. docker compose config exits 0; SIMULATE_TCP_MISSING_PORT=true omits the port arg and the lint FAILS naming the service.",
+      "given": "an applied fixture with healthcheck-default-kind=tcp",
+      "when": "docker compose config runs and SIMULATE_TCP_MISSING_PORT=true trips",
+      "then": "the shipped path shows CMD [\"nc\", \"-z\", ...]; the mutation FAILS naming the service",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.healthcheckKind"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38104-4",
+      "description": "F-6 command kind: with elicited healthcheck-default-kind=command, the applied healthcheck: test field carries a CMD array whose first element is a shell binary (e.g. \"sh\") and whose subsequent elements are the operator-supplied test string. docker compose config exits 0; SIMULATE_COMMAND_EMPTY=true sets an empty command string and the lint FAILS naming the service.",
+      "given": "an applied fixture with healthcheck-default-kind=command and an operator-supplied test string",
+      "when": "docker compose config runs and SIMULATE_COMMAND_EMPTY=true trips",
+      "then": "the shipped path shows the CMD array; the mutation FAILS naming the empty command",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.healthcheckKind"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38104-5",
+      "description": "F-6 http kind (default): with elicited healthcheck-default-kind=http (default), the applied healthcheck: test carries CMD [\"wget\", \"--quiet\", \"--spider\", \"http://localhost:<port>/health\"] where <port> is the declared listen port. docker compose config exits 0; SIMULATE_HTTP_MISSING_PATH=true removes the /health path and the lint FAILS naming the service.",
+      "given": "an applied fixture with healthcheck-default-kind=http",
+      "when": "docker compose config runs and SIMULATE_HTTP_MISSING_PATH=true trips",
+      "then": "the shipped path shows CMD [\"wget\",\"--quiet\",\"--spider\",\"http://localhost:<port>/health\"]; the mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.healthcheckKind"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3903-platform-docker-compose-host-healthcheck-lint"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

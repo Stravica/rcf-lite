@@ -15,11 +15,57 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-38108-2",
+      "description": "F-5 Traefik reload verb: with reverseProxy=traefik, the reload-burst probe issues the Traefik documented reload verb (docker compose kill -s USR1 traefik) while an undici burst hits the proxy. The probe asserts every request returns 2xx inside the elicited reload-window-seconds. SIMULATE_MISSING_TRAEFIK_KILL=true skips the kill and the probe still asserts no non-2xx (reload without kill is a no-op for Traefik).",
+      "given": "a fixture with reverseProxy=traefik and CI_HAS_HETZNER_ACCOUNT=true",
+      "when": "the probe issues the reload verb and the burst",
+      "then": "every response is 2xx inside the elicited window; the probe passes",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.reloadVerb"
+      },
+      "vendorCitation": {
+        "url": "https://doc.traefik.io/traefik/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38108-3",
+      "description": "F-5 none topology reload is a no-op: with reverseProxy=none, the reload-burst probe records \"reverseProxy=none: not applicable\" and aggregates to pass without attempting a reload. A CI_HAS_HETZNER_ACCOUNT=true run under reverseProxy=none still exits 0 with the \"not applicable\" record.",
+      "given": "a fixture with reverseProxy=none",
+      "when": "the reload-burst probe runs",
+      "then": "the probe records \"not applicable\" and aggregateVerdict is \"pass\"",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.noneTopology"
+      }
+    },
+    {
+      "id": "AC-38108-4",
+      "description": "Reload window shorter than reload duration: SIMULATE_SHORT_RELOAD_WINDOW=true sets the elicited reload-window-seconds to 1 (below the actual reload duration on the throwaway server, typically 2-3 seconds). The probe FAILS naming the observed dropped or non-2xx count and the elapsed millis outside the window.",
+      "given": "a fixture with SIMULATE_SHORT_RELOAD_WINDOW=true and a reload-window-seconds=1",
+      "when": "the reload-burst probe runs",
+      "then": "the probe FAILS naming dropped or non-2xx count and the observed elapsed millis",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.reloadWindow"
+      }
     }
   ],
   "tacIds": [
     "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }
