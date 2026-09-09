@@ -29,6 +29,20 @@
         "field": "interfaces.default"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-37108-3",
+      "description": "Snapshot payload shape check. Given a successful snapshot-on-demand, when the hetznerSnapshotTaken event record is inspected, then the record carries exactly { serverName, snapshotId, ts } (ts is wall-clock milliseconds since epoch) and no additional field; a mutation SIMULATE_SNAPSHOT_EVENT_LEAK=true injects a token substring into the record and the sink observer FAILS.",
+      "given": "a successful snapshot-on-demand event fired",
+      "when": "the record is inspected",
+      "then": "the record carries exactly {serverName, snapshotId, ts} and no additional field; the leak mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

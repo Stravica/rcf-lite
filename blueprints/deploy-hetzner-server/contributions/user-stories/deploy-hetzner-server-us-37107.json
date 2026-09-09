@@ -29,6 +29,20 @@
         "field": "interfaces.default"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-37107-3",
+      "description": "Enum drift refusal on snapshot-cadence. Given a manifest snapshotCadence value outside the shipped enum {weekly, daily, off}, when manifest-schema-validate.mjs runs, then the probe FAILS naming the offending value and the shipped enum; the provisioner refuses to apply the manifest.",
+      "given": "snapshotCadence value outside {weekly, daily, off}",
+      "when": "manifest-schema-validate.mjs runs",
+      "then": "the probe FAILS naming the offending value and the shipped enum; the provisioner refuses to apply",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+        "field": "interfaces.hetzner-server.schema.json"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

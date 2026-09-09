@@ -22,6 +22,20 @@
         "field": "interfaces.withTransaction"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-27104-2",
+      "description": "Mid-transaction error rolls back. Given a two-statement withTransaction callback where the second statement throws, when the helper catches the throw, then client.query('ROLLBACK') runs before the client is released, transactionRolledBack fires with the failing statement index on the event sink, and a subsequent SELECT on the transaction's target rows shows the pre-transaction state.",
+      "given": "a two-statement withTransaction callback whose second statement throws",
+      "when": "the helper catches the throw",
+      "then": "client.query(ROLLBACK) runs; transactionRolledBack fires with failing statement index; target rows show pre-transaction state",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+        "field": "interfaces.withTransaction"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

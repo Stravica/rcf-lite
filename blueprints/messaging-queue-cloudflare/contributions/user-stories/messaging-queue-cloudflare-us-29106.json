@@ -22,6 +22,20 @@
         "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
         "field": "interfaces.createSinkAdapter"
       }
+    },
+    {
+      "id": "AC-29106-2",
+      "description": "Secret exclusion by grep-across-source. Given the producer facade source, the consumer registration source, and the event sink source, when a source-tree scan searches every onEvent call site for header values, message body bytes, and any elicited binding name substring, then no match is found; a mutation SIMULATE_HEADER_VALUE_IN_EVENT=true injects a header value into one event record and the scan FAILS naming the leaked event id.",
+      "given": "the producer, consumer and sink source files",
+      "when": "a source-tree scan runs across every onEvent call site",
+      "then": "no header-value, body-byte, or binding-name match is found; the header-leak mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

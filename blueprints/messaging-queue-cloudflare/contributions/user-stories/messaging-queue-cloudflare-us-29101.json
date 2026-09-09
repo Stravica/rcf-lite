@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-29101-3",
+      "description": "Binding missing at boot. Given the elicited queue-binding-name resolves to no binding on env (the wrangler.toml [[queues.producers]] block is absent, or the binding name is mistyped), when the producer facade opens on boot, then the facade refuses with a named error kind (missingQueueBinding); no producerReady fires on the sink.",
+      "given": "env[queue-binding-name] is undefined",
+      "when": "the producer facade opens on boot",
+      "then": "the facade refuses with missingQueueBinding; no producerReady fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.createProducer"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

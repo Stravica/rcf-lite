@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "library",
       "disposition": "template"
+    },
+    {
+      "id": "AC-12115-2",
+      "description": "One-line note: this story is documentation-only. The mechanism (guide prose linking Cloudflare's migrate-from-Pages walkthrough) has no documented failure path in the blueprint's own guide or TAC records, per section 7a; a broken link is a doc-drift finding surfaced by the shipped link-check probe rather than a mechanism failure.",
+      "given": "guide prose linking Cloudflare's migrate-from-Pages walkthrough",
+      "when": "the shipped link-check probe runs",
+      "then": "a broken link is surfaced as a doc-drift finding; there is no additional mechanism failure path to bind",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.assets"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

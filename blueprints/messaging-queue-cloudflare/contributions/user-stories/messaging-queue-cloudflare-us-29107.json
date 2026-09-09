@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-29107-2",
+      "description": "wrangler dev absent surfaces cleanly. Given wrangler is not on PATH on the runner's process shell, when the wrangler-dev round-trip probe runs, then the probe skips with accountBoundSkipped: true and a non-empty reason naming the missing wrangler binary; no partial round-trip is asserted.",
+      "given": "wrangler is not on PATH",
+      "when": "the wrangler-dev round-trip probe runs",
+      "then": "the probe skips with accountBoundSkipped: true and a non-empty reason naming missing wrangler; no partial round-trip is asserted",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.producer.verbs"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

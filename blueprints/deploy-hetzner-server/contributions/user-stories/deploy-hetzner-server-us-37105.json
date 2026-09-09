@@ -19,6 +19,20 @@
         "field": "interfaces.cloud-init.yaml.tmpl"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-37105-2",
+      "description": "Cloud-init timeout surfaces as a probe failure. Given the cloud-init boot process exceeds the vendor timeout (approximately 10 minutes), when cloud-init status --wait returns a non-done status, then the probe FAILS naming the non-done status; the throwaway server is torn down via destroy.mjs regardless.",
+      "given": "cloud-init boot exceeds the vendor timeout",
+      "when": "cloud-init status --wait returns non-done",
+      "then": "the probe FAILS naming the non-done status; teardown via destroy.mjs runs regardless",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+        "field": "interfaces.cloud-init.yaml.tmpl"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

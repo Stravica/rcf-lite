@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-5111-3",
+      "description": "No-op boot: the artefact bytes on disk are unchanged. Given the store artefact on disk at the target schema version and a byte-hash captured before boot, when the process boots and closes without any consumer write, then the byte-hash after boot equals the byte-hash before boot; a mutation SIMULATE_PHANTOM_WRITE=true triggers a metadata write during the no-op boot and the byte-hash assertion FAILS.",
+      "given": "store artefact at target version; byte-hash captured before boot",
+      "when": "process boots and closes without consumer writes",
+      "then": "byte-hash after boot equals byte-hash before boot; the phantom-write mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "interfaces.createStore"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

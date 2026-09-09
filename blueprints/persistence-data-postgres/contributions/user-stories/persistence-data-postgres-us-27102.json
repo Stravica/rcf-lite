@@ -18,6 +18,34 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27102-2",
+      "description": "Malformed migration filename. Given a file under the elicited migrations directory whose name does not match the numbered forward-only pattern (for example a file without the numeric prefix, or a duplicate number), when the migration runner walks the directory, then the runner refuses with a named error kind (malformedMigrationName), the run exits non-zero, and schema_version does not advance.",
+      "given": "a file in the elicited migrations directory that does not match the numbered forward-only pattern",
+      "when": "the migration runner walks the directory",
+      "then": "the runner refuses with malformedMigrationName; the run exits non-zero; schema_version does not advance",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-3",
+      "description": "Repeat-apply idempotency. Given the migrations set already applied to the target database, when the runner is invoked a second time against the same set, then no migration file re-runs, schema_version is unchanged and the run exits zero.",
+      "given": "the migrations set already applied to the target database",
+      "when": "the runner is invoked again",
+      "then": "no migration re-runs; schema_version unchanged; run exits zero",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

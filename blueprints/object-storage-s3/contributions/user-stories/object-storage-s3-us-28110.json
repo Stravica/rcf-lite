@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-28110-2",
+      "description": "Unknown Hetzner location refused. Given the elicited hetzner-location-code answered as a value outside the shipped enum {fsn1, hel1, nbg1}, when the endpoint-shape helper composes the endpoint URL, then the helper refuses with a named error kind (unknownHetznerLocation) naming the offending value and the shipped enum; the facade does not open against the unknown location.",
+      "given": "hetzner-location-code answered outside {fsn1, hel1, nbg1}",
+      "when": "the endpoint-shape helper composes the URL",
+      "then": "the helper refuses with unknownHetznerLocation naming the offending value and the shipped enum; the facade does not open",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2904-object-storage-s3-hetzner-endpoint-helper",
+        "field": "interfaces.composeHetznerEndpoint"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

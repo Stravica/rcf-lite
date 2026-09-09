@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27110-2",
+      "description": "Recovery drill upstream failure. Given the pg_dump artefact is corrupt (or the target restore database is not empty), when the recovery-drill verb runs, then the drill refuses with a named error kind (recoveryDrillFailed) carrying the psql restore exit code and a sample of the first failing statement; recoveryDrillCompleted does not fire; the corrupt input is not silently accepted.",
+      "given": "a corrupt pg_dump artefact or a non-empty restore target",
+      "when": "the recovery-drill verb runs",
+      "then": "the drill refuses with recoveryDrillFailed carrying psql exit code and first failing statement sample; recoveryDrillCompleted does not fire",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
+        "field": "interfaces.recoveryDrill"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

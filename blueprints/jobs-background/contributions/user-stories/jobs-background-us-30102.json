@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30102-2",
+      "description": "Malformed job-definition module refused at load. Given a job module in the elicited jobs-directory whose default export is missing one of the shape fields ({name, handler, inputSchema, retryPolicy, timeoutMs}), when registerJobs walks the directory at boot, then it refuses with a named error kind (malformedJobDefinition) naming the missing field and the module path; no job registers into the runtime.",
+      "given": "a job module missing one shape field",
+      "when": "registerJobs walks the elicited jobs-directory at boot",
+      "then": "registerJobs refuses with malformedJobDefinition naming the missing field and the module path; no job registers",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "interfaces.jobModule.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

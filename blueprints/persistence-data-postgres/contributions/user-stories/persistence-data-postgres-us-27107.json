@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27107-2",
+      "description": "Off default: helper genuinely absent. Given the elicited advisory-lock-helper answer off, when the facade opens, then no advisory-lock helper is exposed on the facade's public surface (a call site that attempts to reach for it fails at the module surface, not at a lock acquisition); a source-tree grep finds no pg_advisory_lock or pg_advisory_xact_lock call outside a helper module gated by the elicited enabled value.",
+      "given": "advisory-lock-helper = off",
+      "when": "the facade opens",
+      "then": "no advisory-lock helper appears on the facade surface; grep finds no pg_advisory_lock outside a gated helper",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

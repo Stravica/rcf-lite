@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30109-2",
+      "description": "Retry chain observability. Given a handler that throws retryable on every delivery up to maxAttempts, when the chain completes, then the run-log carries a jobStarted plus jobFailed pair per delivery attempt and one final jobDeadLettered event; the run-log ordering is stable and each event carries the same jobId; a mutation SIMULATE_JOB_LOG_DUPLICATE=true fires an extra jobStarted and the observer FAILS.",
+      "given": "a handler throwing retryable up to maxAttempts",
+      "when": "the retry chain completes",
+      "then": "the run-log has jobStarted/jobFailed pairs per attempt and one jobDeadLettered; ordering stable; jobId consistent; the duplicate mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3103-jobs-background-run-log",
+        "field": "interfaces.runLog.fire"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

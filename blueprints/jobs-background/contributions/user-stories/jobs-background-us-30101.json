@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30101-2",
+      "description": "--allow-no-queue-yet override lands sidecar note. Given a bare project without an applied queue capability, when apply runs with --allow-no-queue-yet, then apply succeeds with exit 0, writes rcf/blueprints/jobs-background.applied.json with allowNoAuthYet: true, appliedCapabilities: [], notes matching /no queue yet/ and /--allow-no-queue-yet/, and the operator can then apply a queue provider to lift the sidecar note on the next apply cycle.",
+      "given": "a bare project without an applied queue capability",
+      "when": "apply runs with --allow-no-queue-yet",
+      "then": "apply exits 0; sidecar written with allowNoAuthYet: true, empty appliedCapabilities, notes naming \"no queue yet\" and the flag",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-3103-jobs-background-requires-applied-capabilities",
+        "field": "decision.allowSkipFlag"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

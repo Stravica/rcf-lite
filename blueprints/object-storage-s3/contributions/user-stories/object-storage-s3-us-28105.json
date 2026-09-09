@@ -22,6 +22,20 @@
         "tacId": "TAC-2903-object-storage-s3-event-sink",
         "field": "interfaces.onEvent"
       }
+    },
+    {
+      "id": "AC-28105-2",
+      "description": "Repeat-emission secrecy at high fanout. Given every facade verb exercised across N iterations, when the accumulated event stream is inspected, then every one of the N records is restricted to the metadata whitelist on AC-28105-1 with no body bytes, no user id and no PII; a mutation SIMULATE_BODY_BYTES_IN_EVENT=true injects payload bytes into a putCompleted record and the sink observer FAILS naming the leaked field.",
+      "given": "every facade verb exercised N times",
+      "when": "the accumulated event stream is inspected",
+      "then": "every record is restricted to metadata whitelist; the body-byte mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2903-object-storage-s3-event-sink",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

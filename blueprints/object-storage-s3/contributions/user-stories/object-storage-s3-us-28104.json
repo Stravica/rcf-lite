@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-28104-3",
+      "description": "Multipart aborted on part failure. Given a multipart-upload with N parts where part K uploadPart returns a non-2xx (a mid-stream 5xx or client abort), when the uploader catches the failure, then it calls AbortMultipartUpload against the upload id, no CompleteMultipartUpload runs, no partial object survives at the target key, and the facade emits multipartAborted with { key, uploadId, failedPartNumber } on the event sink.",
+      "given": "a multipart-upload with N parts where uploadPart K returns non-2xx",
+      "when": "the uploader catches the failure",
+      "then": "AbortMultipartUpload runs; no CompleteMultipartUpload runs; no partial object survives; multipartAborted fires with {key, uploadId, failedPartNumber}",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2902-object-storage-s3-multipart-uploader",
+        "field": "interfaces.putMultipart"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

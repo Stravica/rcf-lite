@@ -33,6 +33,20 @@
         "field": "interfaces.firewallRules"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-37106-3",
+      "description": "Reuse existing firewall-id path. Given the elicited firewall-id names an existing Hetzner Cloud firewall id, when the provisioner runs createServer, then it attaches the existing firewall (no new firewall is created), and hcloud firewall list --output json shows no duplicate; a mutation that supplies a firewall-id absent from the account FAILS provision with a named error kind (missingFirewallId).",
+      "given": "firewall-id names an existing account firewall id",
+      "when": "the provisioner runs createServer",
+      "then": "the existing firewall attaches; no new firewall is created; the missing-id mutation FAILS provision with missingFirewallId",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

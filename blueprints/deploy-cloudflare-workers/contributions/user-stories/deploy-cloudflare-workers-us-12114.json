@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-12114-2",
+      "description": "Malformed assets-directory refusal. Given the elicited assets-directory answer that names a path outside the Worker source root (an absolute path, or a path with .. segments), when the deploy adapter validates the elicited answer, then the adapter refuses with a named error kind (invalidAssetsDirectory), the wrangler manifest is not rendered, and no upload runs.",
+      "given": "assets-directory answer names a path outside the Worker source root",
+      "when": "the deploy adapter validates",
+      "then": "the adapter refuses with invalidAssetsDirectory; no manifest is rendered; no upload runs",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.assets"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

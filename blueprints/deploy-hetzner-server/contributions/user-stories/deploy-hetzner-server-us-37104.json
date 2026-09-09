@@ -29,6 +29,20 @@
         "field": "interfaces.cloud-init.yaml.tmpl"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-37104-3",
+      "description": "Fixture renderer refuses on unknown placeholder. Given the fixture renderer given a template with an unknown placeholder tag (a tag not in the two-placeholder shape {{name}} and {{sshAuthorizedKeysBlock}}), when the renderer runs, then it refuses with a named error kind (unknownPlaceholder); no rendered YAML is written to disk.",
+      "given": "a template with an unknown placeholder tag",
+      "when": "the fixture renderer runs",
+      "then": "the renderer refuses with unknownPlaceholder; no rendered YAML is written",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+        "field": "interfaces.cloud-init.yaml.tmpl"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

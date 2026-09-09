@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-29102-3",
+      "description": "Publish upstream refusal surfaces. Given the Cloudflare Queues API returns a non-2xx response to a publish call (throttled 429, or 5xx), when the producer's publish verb runs, then the facade catches the failure and emits publishFailed on the event sink carrying { queueName, tracelId, httpStatus, retryable: boolean }, the caller receives the error, and no messageAcked fires downstream for that trace-id.",
+      "given": "the Queues API returns non-2xx on publish",
+      "when": "the publish verb runs",
+      "then": "publishFailed fires with {queueName, traceId, httpStatus, retryable}; the caller receives the error; no messageAcked fires downstream",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.producer.verbs"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

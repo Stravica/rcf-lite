@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27103-2",
+      "description": "Consumer-supplied SQL rejected at the facade edge. Given a facade verb whose parameter is a raw SQL string (or a general query object), when the verb is called from consumer code, then the facade refuses at the boundary with a named error kind (rejectedRawSql) and no pg.query call issues; a source-tree grep finds no pg.query first argument outside a static string literal in the facade module.",
+      "given": "a facade verb called with a raw SQL string as its parameter",
+      "when": "the verb runs",
+      "then": "the facade refuses at the boundary with rejectedRawSql; no pg.query issues; the source-tree grep is clean",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

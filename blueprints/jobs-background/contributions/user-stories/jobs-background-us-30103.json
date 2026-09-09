@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30103-2",
+      "description": "Malformed cron string refused. Given a job definition scheduled with a cron string that does not match a POSIX cron shape (missing a field, or an out-of-range value), when the scheduler validates the schedule, then the scheduler refuses with a named error kind (malformedCronExpression) and the job does not register into the schedule; jobScheduled does not fire.",
+      "given": "a job scheduled with a malformed cron string",
+      "when": "the scheduler validates",
+      "then": "the scheduler refuses with malformedCronExpression; the job does not register; jobScheduled does not fire",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3102-jobs-background-scheduler",
+        "field": "interfaces.scheduler.schedule"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

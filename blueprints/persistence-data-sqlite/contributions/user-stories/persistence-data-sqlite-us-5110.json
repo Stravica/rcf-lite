@@ -32,6 +32,20 @@
         "field": "interfaces.onEvent"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-5110-3",
+      "description": "Repeat-emission secrecy under maximum event volume. Given the store exercised through a run that fires every lifecycle event N times, when the event stream is inspected, then every one of the N event records is restricted to store metadata; a mutation SIMULATE_DOMAIN_ROW_IN_EVENT=true injects a domain value into one event and the sink observer FAILS the run.",
+      "given": "the store run under load that fires every lifecycle event N times",
+      "when": "the event stream is inspected",
+      "then": "every one of the N records carries only store metadata; the injection mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

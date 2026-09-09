@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30107-2",
+      "description": "Sidecar note references the flag verbatim. Given the --allow-no-queue-yet override applied, when the sidecar is inspected, then its notes field contains the exact substring \"--allow-no-queue-yet\" (so an operator later dropping the note can grep for the flag) and does not carry an \"auth\"-family phrasing that would misdirect the operator to a different override.",
+      "given": "the --allow-no-queue-yet override applied",
+      "when": "the sidecar is inspected",
+      "then": "the notes field contains the exact --allow-no-queue-yet substring and no auth-family phrasing",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-3103-jobs-background-requires-applied-capabilities",
+        "field": "decision.allowSkipFlag"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

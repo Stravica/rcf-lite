@@ -18,6 +18,34 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-28103-2",
+      "description": "Presigned URL beyond TTL returns 403. Given a presigned GET URL issued with TTL of 60 seconds, when a fetch runs against it more than 60 seconds after issuance, then the vendor returns HTTP 403 (SignatureDoesNotMatch or expired-URL family), and the facade's subsequent presign call for the same key issues a fresh URL with a fresh TTL boundary.",
+      "given": "a presigned GET URL issued with a 60-second TTL",
+      "when": "a fetch runs against it more than 60 seconds after issuance",
+      "then": "the vendor returns HTTP 403 (expired-URL family); a subsequent presign issues a fresh URL",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-28103-3",
+      "description": "Presigned TTL above ceiling refused at the facade edge. Given a presignGetUrl call with a TTL argument above the elicited presigned-ttl-ceiling-seconds, when the verb runs, then the facade refuses with a named error kind (presignTtlAboveCeiling); no vendor call issues.",
+      "given": "presignGetUrl call with TTL above the elicited ceiling",
+      "when": "the verb runs",
+      "then": "the facade refuses with presignTtlAboveCeiling; no vendor call issues",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

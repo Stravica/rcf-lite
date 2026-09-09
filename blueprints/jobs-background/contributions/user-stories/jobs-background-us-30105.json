@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30105-2",
+      "description": "Secret exclusion by grep-across-source. Given the runtime source, the scheduler source and the run-log source, when a source-tree scan searches every runLog.fire call site for job-input fields other than the whitelist {jobId, jobName, startedAt, finishedAt, attempts, duration, resultDigest, errorKind}, then no match is found; a mutation SIMULATE_PII_IN_JOB_INPUT=true forces a PII field onto an event and the scan FAILS naming the leaked field.",
+      "given": "runtime, scheduler and run-log source",
+      "when": "a scan runs across every runLog.fire call site",
+      "then": "no non-whitelist field is found; the PII mutation FAILS naming the leaked field",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3103-jobs-background-run-log",
+        "field": "interfaces.eventEnvelope"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

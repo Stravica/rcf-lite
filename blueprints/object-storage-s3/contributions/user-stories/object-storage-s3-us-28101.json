@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-28101-3",
+      "description": "Facade refuses at boot when the elicited endpoint is unreachable. Given the elicited s3-endpoint-url resolves to a host the runner cannot reach (or refuses a ready-check inside the connection timeout), when the facade opens on boot, then the facade refuses with a named error kind (endpointUnreachable) carrying the endpoint host but no credential material, and facadeReady does not fire.",
+      "given": "s3-endpoint-url resolves to an unreachable host or times out on ready-check",
+      "when": "the facade opens on boot",
+      "then": "the facade refuses with endpointUnreachable carrying host but no credentials; facadeReady does not fire",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.createObjectStore"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

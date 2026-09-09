@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-5103-3",
+      "description": "Repeat-boot after a same-version store is a no-op that emits no migrated event. Given the store artefact on disk at exactly the build's max known version, when the process boots and closes and boots again, then each boot completes with schemaOpened but no migrated event fires; a mutation SIMULATE_DOUBLE_MIGRATE=true forces a spurious migrated event on the second boot and the sink observer FAILS with the leaked event id.",
+      "given": "the store artefact at exactly the build's max known version",
+      "when": "the process boots, closes, and boots again",
+      "then": "each boot fires schemaOpened but no migrated event; the double-migrate mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

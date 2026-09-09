@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27105-2",
+      "description": "pg_dump upstream failure. Given the pg_dump process exits non-zero (for example the elicited connection-url is unreachable or the destination path is not writable), when the recovery runner runs, then the runner refuses with the pg_dump exit code and a named error kind (recoveryExportFailed), no partial artefact is left at the destination path, and backupExported does not fire on the event sink.",
+      "given": "pg_dump exits non-zero",
+      "when": "the recovery runner runs",
+      "then": "the runner refuses with recoveryExportFailed carrying the pg_dump exit code; no partial artefact remains; backupExported does not fire",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
+        "field": "interfaces.exportDatabase"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

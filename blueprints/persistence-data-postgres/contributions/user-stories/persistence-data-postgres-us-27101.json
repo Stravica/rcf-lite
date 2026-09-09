@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-27101-3",
+      "description": "Credential missing at boot. Given the elicited connection-url resolves to a rejected value (an empty string or a secretRef the resolver refuses), when the facade opens on boot, then the facade refuses with a named error kind (missingConnectionUrl) and no facadeReady fires on the event sink; the error record carries no fragment of the connection URL substring.",
+      "given": "connection-url resolves to an empty string or the secretRef resolver refuses",
+      "when": "the facade opens on boot",
+      "then": "facade refuses with missingConnectionUrl; no facadeReady fires; the error record carries no URL substring",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "interfaces.createStore"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

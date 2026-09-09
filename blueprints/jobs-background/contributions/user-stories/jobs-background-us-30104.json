@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30104-2",
+      "description": "Handler timeout raises a retryable error. Given a handler exceeding the elicited handler-timeout-seconds without completing, when the runtime wall-clock reaches the timeout, then the runtime raises a retryable timeout error routed through the applied queue redelivery, jobFailed fires with { jobId, reason: \"timeout\" }, and the message is redelivered against maxAttempts.",
+      "given": "a handler exceeding the elicited handler-timeout-seconds",
+      "when": "the wall-clock reaches the timeout",
+      "then": "a retryable timeout error routes through the queue; jobFailed fires with reason: timeout; the message is redelivered",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "responsibilities.retry"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

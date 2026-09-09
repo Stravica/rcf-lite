@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-12113-3",
+      "description": "Empty assets-directory keeps the bare-Worker shape. Given the elicited assets-directory answered as the empty string, when the deploy adapter renders the wrangler manifest, then no [assets] block is emitted (the file has no assets header), no static-asset probe fires, and the deploy runs as a bare Worker; a mutation SIMULATE_UNWANTED_ASSETS_BLOCK=true forces an [assets] block into the generated manifest and the ship gate FAILS naming the unwanted block.",
+      "given": "assets-directory answered as the empty string",
+      "when": "the deploy adapter renders the wrangler manifest",
+      "then": "no [assets] block is emitted; the deploy runs as a bare Worker; the unwanted-block mutation FAILS the ship gate",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.assets"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

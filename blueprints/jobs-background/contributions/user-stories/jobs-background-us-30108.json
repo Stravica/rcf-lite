@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-30108-2",
+      "description": "Cron tick outside tolerance FAILS. Given a job scheduled on a cron string and the elicited fire tolerance window, when the cron tick fires more than tolerance seconds past the scheduled boundary, then the scheduler emits jobFireOutsideTolerance on the event sink carrying the observed delay; a mutation SIMULATE_CRON_JITTER=true delays the tick past tolerance and the sink observer FAILS the run.",
+      "given": "a scheduled cron string and the elicited fire tolerance",
+      "when": "the cron tick fires beyond tolerance",
+      "then": "jobFireOutsideTolerance fires with the observed delay; the jitter mutation FAILS the run",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3102-jobs-background-scheduler",
+        "field": "interfaces.scheduler.schedule"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
