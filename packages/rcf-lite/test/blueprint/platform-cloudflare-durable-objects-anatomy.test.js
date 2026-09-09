@@ -328,7 +328,13 @@ test('H-2 DO AC-15101-1 real-account-storage-smoke drives byte-equal round-trip 
   } finally {
     if (saved !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = saved;
   }
-  // Env-set-no-URL branch: fail with missing env named. Pass unreachable from credential presence alone.
+  // Env-set-no-URL branch: pass-with-skip naming CF_DO_WORKER_URL
+  // (H-2 real-account gate 2026-09-09 finding 3; positive-evidence
+  // rule ratified 2026-09-08 in PR #182). The DO Worker is not yet
+  // self-provisioned by this fixture (follow-up work item
+  // w-2026-09-09-dave-005), so until it is, an account-set run
+  // without CF_DO_WORKER_URL records a declared second-tier skip
+  // rather than failing without real-engine evidence.
   const savedUrl = process.env.CF_DO_WORKER_URL;
   delete process.env.CF_DO_WORKER_URL;
   process.env.CI_HAS_CLOUDFLARE_ACCOUNT = 'true';
@@ -336,8 +342,11 @@ test('H-2 DO AC-15101-1 real-account-storage-smoke drives byte-equal round-trip 
     const out = await mod.default();
     const r = out.results.find((x) => x.anchorAcId === 'AC-33112-1');
     assert.ok(r, 'account-set branch must still include an AC-33112-1 result');
-    assert.equal(r.verdict, 'fail', `account-set-no-URL branch must fail; detail=${r.detail}`);
-    assert.match(r.detail, /CF_DO_WORKER_URL/, 'fail detail names the missing URL env');
+    assert.equal(r.verdict, 'pass', `account-set-no-URL branch must pass-with-skip; detail=${r.detail}`);
+    assert.equal(out.extra && out.extra.accountBoundSkipped, true, 'account-set-no-URL branch records accountBoundSkipped true');
+    assert.match(String(out.extra && out.extra.reason), /CF_DO_WORKER_URL/, 'skip reason names CF_DO_WORKER_URL exactly');
+    assert.deepEqual(out.extra && out.extra.missing, ['CF_DO_WORKER_URL'], 'skip surfaces CF_DO_WORKER_URL as the missing env');
+    assert.match(r.detail, /CF_DO_WORKER_URL/, 'result detail names the missing URL env');
   } finally {
     if (savedUrl !== undefined) process.env.CF_DO_WORKER_URL = savedUrl;
     delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;

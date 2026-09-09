@@ -81,8 +81,17 @@ test('Queue shim: mint (telemetry KV + queue + worker + consumer) then destroy l
     const kvBinding = w.bindings.find((b) => b.type === 'kv_namespace');
     assert.equal(kvBinding.name, 'RCF_TEST_TELEMETRY_KV');
     assert.equal(kvBinding.namespace_id, rec.telemetryKv.id);
-    // Consumer attached to the queue.
-    assert.equal(mock.state.workerConsumers.get(rec.queue.id), rec.worker.name);
+    // Consumer attached to the queue; the mock stores
+    // { consumer_id, scriptName } per the vendor consumer object
+    // shape enforced on the DELETE consumer path.
+    const consumerRec = mock.state.workerConsumers.get(rec.queue.id);
+    assert.equal(consumerRec && consumerRec.scriptName, rec.worker.name);
+    assert.ok(consumerRec && consumerRec.consumer_id, 'mock consumer record carries a consumer_id');
+    // Shim mint records the consumer_id so destroy can detach
+    // BEFORE deleting the worker (vendor teardown order proven by
+    // the 2026-09-09 H-2 gate; CF error 10064 on out-of-order).
+    assert.equal(rec.consumer && rec.consumer.id, consumerRec.consumer_id);
+    assert.equal(rec.consumer && rec.consumer.scriptName, rec.worker.name);
     // Destroy
     const td = await shim.destroyScratchQueueAndWorker(rec);
     assert.equal(td.destroyed.queue, rec.queue.id);
@@ -180,5 +189,48 @@ test('Queue shim: sweep-safety - ten LIVE production Worker script names survive
       const survivor = [...mock.state.kvNamespaces.values()].find((n) => n.title === t);
       assert.ok(survivor, `live KV namespace survived sweep: ${t}`);
     }
+  });
+});
+
+// Vendor teardown-order precondition proof (H-2 real-account gate
+// 2026-09-09, CF error 10064): the mock now enforces the same 403
+// the real API returns when a Worker delete is attempted while the
+// script is still bound as a queue consumer. Two properties are
+// proven here so the mock can never again pass an order the real
+// API rejects:
+//   1) the account-api's workerDelete throws { status: 403, ...
+//      code: 10064 } when called out of order,
+//   2) the shim's destroyScratchQueueAndWorker (which now detaches
+//      the consumer first) succeeds where the naked worker delete
+//      fails.
+test('Mock CF API enforces vendor precondition: Worker delete refuses 403 while script is a consumer', async () => {
+  await withMock(async (mock) => {
+    const shim = await import('../h2-cf-queue-real-account-shim.mjs');
+    const api = await import('../h2-cf-account-api.mjs');
+    const rec = await shim.mintScratchQueueAndWorker({ runId: 'precond-1' });
+    // Out-of-order worker delete fails with the exact vendor code.
+    let caught;
+    try {
+      await api.workerDelete({ name: rec.worker.name });
+    } catch (err) {
+      caught = err;
+    }
+    assert.ok(caught, 'workerDelete must throw while the script is still a consumer');
+    assert.equal(caught.status, 403, `expected HTTP 403, got ${caught && caught.status}`);
+    assert.match(caught.message, /10064/, 'error body carries CF code 10064');
+    // The worker and queue and KV all still exist (delete was refused).
+    assert.ok(mock.state.workers.has(rec.worker.name));
+    assert.ok(mock.state.queues.has(rec.queue.id));
+    assert.ok(mock.state.kvNamespaces.has(rec.telemetryKv.id));
+    // The shim's destroy path detaches the consumer first, then
+    // proceeds through the correct order.
+    const td = await shim.destroyScratchQueueAndWorker(rec);
+    assert.equal(td.destroyed.worker, rec.worker.name);
+    assert.equal(td.destroyed.queue, rec.queue.id);
+    assert.equal(td.destroyed.telemetryKv, rec.telemetryKv.id);
+    assert.ok(Array.isArray(td.destroyed.consumers) && td.destroyed.consumers.length >= 1, 'destroy reports at least one consumer detached');
+    assert.equal(mock.state.workers.size, 0);
+    assert.equal(mock.state.queues.size, 0);
+    assert.equal(mock.state.kvNamespaces.size, 0);
   });
 });

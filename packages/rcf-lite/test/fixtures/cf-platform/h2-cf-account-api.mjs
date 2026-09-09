@@ -310,21 +310,76 @@ export async function workerList() {
 // below and reads consumer telemetry via the scratch KV namespace the
 // consumer Worker writes to.
 
-// ----- Cloudflare Queues REST publish -----
-// POST /accounts/<aid>/queues/<qid>/messages accepts a body of
+// ----- Cloudflare Queues REST publish (batch) -----
+// POST /accounts/<aid>/queues/<qid>/messages/batch accepts a body of
 // { messages: [{ body: <string|json>, content_type: 'json'|'text', ... }] }
-// per https://developers.cloudflare.com/api/operations/queue-publish-messages
-// and enqueues the batch onto the queue for the push consumer.
+// per https://developers.cloudflare.com/api/resources/queues/subresources/messages/methods/bulk_push/
+// (verified 2026-09-09) and enqueues the batch onto the queue for the
+// push consumer. The sibling POST .../messages endpoint accepts a
+// SINGLE message shape ({ body, content_type }) and rejects the batch
+// wrapper with HTTP 400 code 10207 "Validation error: Required at
+// body"; the H-2 2026-09-09 real-account gate proved that failure and
+// the delta review folded in the batch endpoint fix.
 export async function queuePublishBatch({ queueId, messages }) {
   const accountId = assertEnv('CF_ACCOUNT_ID');
+  // The vendor batch endpoint expects each message's body typed by
+  // content_type: for "text" the body is a string, for "json" the
+  // body is the raw JSON value (object/array/number/boolean) - NOT
+  // a stringified JSON. Live-proven against the real endpoint on
+  // 2026-09-09; a stringified body under content_type=json returns
+  // HTTP 400 "Expected object, received string at messages[i].body".
   const body = {
-    messages: messages.map((m) => ({
-      body: typeof m.body === 'string' ? m.body : JSON.stringify(m.body),
-      content_type: typeof m.body === 'string' ? 'text' : 'json',
-    })),
+    messages: messages.map((m) => (
+      typeof m.body === 'string'
+        ? { body: m.body, content_type: 'text' }
+        : { body: m.body, content_type: 'json' }
+    )),
   };
-  const { json } = await callJson('POST', `/accounts/${accountId}/queues/${queueId}/messages`, { body });
+  const { json } = await callJson('POST', `/accounts/${accountId}/queues/${queueId}/messages/batch`, { body });
   return { count: messages.length, api: json };
+}
+
+// ----- Cloudflare Queues: consumer detach + list -----
+// The Worker delete endpoint refuses (HTTP 403, CF error 10064,
+// "Cannot delete this Worker as it is a consumer for a Queue") while
+// the script is still bound as a queue consumer. The correct
+// teardown order is: detach the consumer from the queue, then delete
+// the Worker, then delete the queue, then delete the telemetry KV.
+// Endpoints per
+// https://developers.cloudflare.com/api/resources/queues/subresources/consumers/
+// (verified 2026-09-09).
+export async function queueConsumerDelete({ queueId, consumerId }) {
+  if (!queueId) throw new Error('queueConsumerDelete: queueId is required');
+  if (!consumerId) throw new Error('queueConsumerDelete: consumerId is required');
+  const accountId = assertEnv('CF_ACCOUNT_ID');
+  try {
+    const { json } = await callJson('DELETE', `/accounts/${accountId}/queues/${queueId}/consumers/${consumerId}`);
+    return { queueId, consumerId, detached: true, api: json };
+  } catch (err) {
+    // Idempotency (Dave ruling 4e9ff62d items 3+4): a 404 on detach
+    // means the consumer binding is already gone; treat as success
+    // so a botched-retry teardown proceeds to the Worker delete
+    // rather than stranding siblings.
+    if (err && err.status === 404) return { queueId, consumerId, detached: true, alreadyGone: true };
+    throw err;
+  }
+}
+
+export async function queueConsumerList({ queueId }) {
+  if (!queueId) throw new Error('queueConsumerList: queueId is required');
+  const accountId = assertEnv('CF_ACCOUNT_ID');
+  try {
+    const { json } = await callJson('GET', `/accounts/${accountId}/queues/${queueId}/consumers`);
+    const list = (json && Array.isArray(json.result)) ? json.result : [];
+    return list.map((c) => ({
+      consumerId: c.consumer_id || null,
+      scriptName: c.script_name || null,
+      type: c.type || null,
+    }));
+  } catch (err) {
+    if (err && err.status === 404) return [];
+    throw err;
+  }
 }
 
 // ----- KV list keys within a namespace -----

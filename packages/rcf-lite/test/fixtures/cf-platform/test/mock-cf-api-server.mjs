@@ -111,7 +111,9 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
   // record per invocation into the RCF_TEST_TELEMETRY_KV binding
   // target so the driver's KV-list poll observes it.
   const startDrainer = (qid) => {
-    const scriptName = state.workerConsumers.get(qid);
+    const rec = state.workerConsumers.get(qid);
+    if (!rec) return;
+    const scriptName = typeof rec === 'string' ? rec : rec.scriptName;
     if (!scriptName) return;
     const worker = state.workers.get(scriptName);
     if (!worker) return;
@@ -225,27 +227,71 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
       }
 
       // ------- Queues: list / create / delete / consumers / messages -------
+      // Vendor batch endpoint (H-2 real-account gate 2026-09-09):
+      // POST /queues/<qid>/messages/batch accepts { messages: [...] }.
+      // The sibling single-message endpoint POST /queues/<qid>/messages
+      // takes { body, content_type } and rejects the batch wrapper
+      // with HTTP 400 code 10207; the mock enforces the same
+      // discrimination so the shim tests catch a regression.
+      const qBatchMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/messages\/batch$/);
+      if (qBatchMatch && req.method === 'POST') {
+        const qid = qBatchMatch[1];
+        if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
+        const body = JSON.parse((await readBody(req)).toString() || '{}');
+        if (!Array.isArray(body.messages)) {
+          return send(res, 400, { success: false, errors: [{ code: 10207, message: 'Validation error: Required at "messages"' }] });
+        }
+        const q = state.queueMessages.get(qid) || [];
+        for (const m of body.messages) q.push({ body: m.body, ts: Date.now() });
+        state.queueMessages.set(qid, q);
+        setImmediate(() => startDrainer(qid));
+        return success(res, { count: body.messages.length });
+      }
       const qMessagesMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/messages$/);
       if (qMessagesMatch && req.method === 'POST') {
         const qid = qMessagesMatch[1];
         if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
         const body = JSON.parse((await readBody(req)).toString() || '{}');
-        const messages = Array.isArray(body.messages) ? body.messages : [];
+        if (typeof body.body === 'undefined') {
+          // Mirrors the real API's HTTP 400 code 10207 that the
+          // 2026-09-09 gate hit when the batch wrapper was sent to
+          // the single-message endpoint.
+          return send(res, 400, { success: false, errors: [{ code: 10207, message: 'Validation error: Required at "body"' }] });
+        }
         const q = state.queueMessages.get(qid) || [];
-        for (const m of messages) q.push({ body: m.body, ts: Date.now() });
+        q.push({ body: body.body, ts: Date.now() });
         state.queueMessages.set(qid, q);
         setImmediate(() => startDrainer(qid));
-        return success(res, { count: messages.length });
+        return success(res, { count: 1 });
+      }
+      const qConsumerByIdMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/consumers\/([^/]+)$/);
+      if (qConsumerByIdMatch && req.method === 'DELETE') {
+        const qid = qConsumerByIdMatch[1];
+        const consumerId = qConsumerByIdMatch[2];
+        const rec = state.workerConsumers.get(qid);
+        if (!rec || rec.consumer_id !== consumerId) return notFound(res, `consumer ${consumerId} on queue ${qid}`);
+        state.workerConsumers.delete(qid);
+        return success(res, null);
       }
       const qConsumersMatch = path.match(/^\/accounts\/[^/]+\/queues\/([^/]+)\/consumers$/);
+      if (qConsumersMatch && req.method === 'GET') {
+        const qid = qConsumersMatch[1];
+        if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
+        const rec = state.workerConsumers.get(qid);
+        const list = rec
+          ? [{ consumer_id: rec.consumer_id, script_name: rec.scriptName, type: 'worker' }]
+          : [];
+        return success(res, list);
+      }
       if (qConsumersMatch && req.method === 'POST') {
         const qid = qConsumersMatch[1];
         if (!state.queues.has(qid)) return notFound(res, `queue ${qid}`);
         const body = JSON.parse((await readBody(req)).toString() || '{}');
         const scriptName = body.script_name;
         if (!state.workers.has(scriptName)) return send(res, 400, { success: false, errors: [{ message: `no such script ${scriptName}` }] });
-        state.workerConsumers.set(qid, scriptName);
-        return success(res, { consumer_id: `c-${Math.random().toString(36).slice(2, 10)}` });
+        const consumer_id = `c-${Math.random().toString(36).slice(2, 10)}`;
+        state.workerConsumers.set(qid, { consumer_id, scriptName });
+        return success(res, { consumer_id });
       }
       const qMatch = path.match(/^\/accounts\/[^/]+\/queues(?:\/([^/]+))?$/);
       if (qMatch) {
@@ -314,10 +360,24 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
         }
         if (scriptName && req.method === 'DELETE') {
           if (!state.workers.has(scriptName)) return notFound(res, `script ${scriptName}`);
-          state.workers.delete(scriptName);
-          for (const [qid, s] of [...state.workerConsumers.entries()]) {
-            if (s === scriptName) state.workerConsumers.delete(qid);
+          // Vendor precondition (H-2 real-account gate 2026-09-09,
+          // CF error 10064): a Worker that is still bound as a queue
+          // consumer refuses delete with HTTP 403 until the consumer
+          // is detached. Enforced here so the mock cannot pass an
+          // order the real API rejects.
+          for (const [qid, rec] of state.workerConsumers.entries()) {
+            const boundName = typeof rec === 'string' ? rec : (rec && rec.scriptName);
+            if (boundName === scriptName) {
+              return send(res, 403, {
+                success: false,
+                errors: [{
+                  code: 10064,
+                  message: `Cannot delete this Worker as it is a consumer for a Queue ${qid}. Remove it from the Queue's consumers first, then retry.`,
+                }],
+              });
+            }
           }
+          state.workers.delete(scriptName);
           return success(res, null);
         }
       }

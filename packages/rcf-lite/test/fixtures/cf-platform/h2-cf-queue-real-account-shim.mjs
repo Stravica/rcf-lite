@@ -34,7 +34,8 @@ import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  queueCreate, queueDelete, queueList, queueConsumerAttach,
+  queueCreate, queueDelete, queueList,
+  queueConsumerAttach, queueConsumerDelete, queueConsumerList,
   workerUpload, workerDelete, workerList,
   kvCreateNamespace, kvDeleteNamespace, kvListNamespaces,
 } from './h2-cf-account-api.mjs';
@@ -152,8 +153,9 @@ export async function mintScratchQueueAndWorker({ runId } = {}) {
     throw err;
   }
 
+  let consumerAttach;
   try {
-    await queueConsumerAttach({ queueId: queue.id, scriptName: workerName });
+    consumerAttach = await queueConsumerAttach({ queueId: queue.id, scriptName: workerName });
   } catch (err) {
     await workerDelete({ name: workerName }).catch(() => {});
     await queueDelete({ id: queue.id, name: queue.name }).catch(() => {});
@@ -165,6 +167,7 @@ export async function mintScratchQueueAndWorker({ runId } = {}) {
     queue: { id: queue.id, name: queue.name },
     worker: { name: workerName },
     telemetryKv: { id: telemetryKv.id, title: telemetryKv.title },
+    consumer: { id: (consumerAttach && consumerAttach.consumerId) || null, scriptName: workerName },
     createdAt: new Date().toISOString(),
     runId: String(runId || process.env.GITHUB_RUN_ID || 'local'),
     uploadResponse: upload.response || null,
@@ -202,9 +205,34 @@ export async function destroyScratchQueueAndWorker(record) {
   const observedKv = liveKv.find((n) => n.id === target.telemetryKv.id);
   if (observedKv) assertTelemetryKvPrefix(observedKv.title, 'destroyScratchQueueAndWorker(kv live)');
 
-  // Delete worker FIRST so the queue has no consumer at delete time;
-  // then queue; then telemetry KV (nothing points at it after the
-  // worker is gone).
+  // Correct teardown order (vendor contract per
+  // https://developers.cloudflare.com/api/resources/queues/subresources/consumers/
+  // verified 2026-09-09; H-2 real-account gate 2026-09-09 proved that
+  // the Worker delete endpoint rejects with HTTP 403 code 10064
+  // "Cannot delete this Worker as it is a consumer for a Queue"
+  // while the script is still bound as a queue consumer):
+  //   1) detach the consumer from the queue,
+  //   2) delete the Worker,
+  //   3) delete the queue,
+  //   4) delete the telemetry KV.
+  // If the mint record was written before this order was in force
+  // (target.consumer missing or without an id), fall back to a live
+  // consumer list against the queue so a legacy record still tears
+  // down cleanly. Detach is 404-tolerant via queueConsumerDelete.
+  const consumerResults = [];
+  const consumerIdsToDetach = new Set();
+  if (target.consumer && target.consumer.id) consumerIdsToDetach.add(target.consumer.id);
+  try {
+    const liveConsumers = await queueConsumerList({ queueId: target.queue.id });
+    for (const c of liveConsumers) {
+      if (c.scriptName === target.worker.name && c.consumerId) consumerIdsToDetach.add(c.consumerId);
+    }
+  } catch (_err) { /* queue may already be gone; downstream deletes are idempotent */ }
+  for (const consumerId of consumerIdsToDetach) {
+    const r = await queueConsumerDelete({ queueId: target.queue.id, consumerId });
+    consumerResults.push(r);
+  }
+
   const workerResult = await workerDelete({ name: target.worker.name });
   const queueResult = await queueDelete({ id: target.queue.id, name: target.queue.name });
   const kvResult = await kvDeleteNamespace({ id: target.telemetryKv.id, title: target.telemetryKv.title });
@@ -215,8 +243,9 @@ export async function destroyScratchQueueAndWorker(record) {
       queue: target.queue.id,
       worker: target.worker.name,
       telemetryKv: target.telemetryKv.id,
+      consumers: consumerResults.map((r) => r.consumerId),
     },
-    api: { worker: workerResult, queue: queueResult, telemetryKv: kvResult },
+    api: { consumers: consumerResults, worker: workerResult, queue: queueResult, telemetryKv: kvResult },
   };
 }
 
@@ -245,6 +274,36 @@ export function selectTelemetryKvSweepCandidates(kvNamespaces) {
 }
 
 export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvNamespaces: lk } = {}) {
+  const queues = Array.isArray(lq) ? lq : await queueList();
+  const queueCandidates = selectQueueSweepCandidates(queues);
+  // Correct vendor teardown order (H-2 real-account gate 2026-09-09):
+  // detach the consumer from every scratch queue BEFORE deleting the
+  // scratch worker; a scratch worker that is still bound to a queue
+  // as a consumer refuses delete with HTTP 403 code 10064 (per
+  // https://developers.cloudflare.com/api/resources/queues/subresources/consumers/
+  // verified 2026-09-09). Same prefix filter as the destroy path -
+  // the SELECTION is unchanged from d-2026-09-09-011 (queue prefix
+  // constant, per-iteration assert), only the ORDER changes.
+  const consumerSwept = [];
+  for (const q of queueCandidates) {
+    assertQueuePrefix(q.name, 'sweepOrphans(queue for consumer detach)');
+    let liveConsumers = [];
+    try {
+      liveConsumers = await queueConsumerList({ queueId: q.id });
+    } catch (err) {
+      process.stderr.write(`sweepOrphans: consumer list on queue ${q.name} failed: ${err.message}\n`);
+      continue;
+    }
+    for (const c of liveConsumers) {
+      if (!c.consumerId) continue;
+      try {
+        await queueConsumerDelete({ queueId: q.id, consumerId: c.consumerId });
+        consumerSwept.push({ queueId: q.id, consumerId: c.consumerId, scriptName: c.scriptName });
+      } catch (err) {
+        process.stderr.write(`sweepOrphans: consumer detach ${c.consumerId} on queue ${q.name} failed: ${err.message}\n`);
+      }
+    }
+  }
   const workers = Array.isArray(lw) ? lw : await workerList();
   const workerCandidates = selectWorkerSweepCandidates(workers);
   const workerSwept = [];
@@ -257,8 +316,6 @@ export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvName
       process.stderr.write(`sweepOrphans: worker delete ${w.name} failed: ${err.message}\n`);
     }
   }
-  const queues = Array.isArray(lq) ? lq : await queueList();
-  const queueCandidates = selectQueueSweepCandidates(queues);
   const queueSwept = [];
   for (const q of queueCandidates) {
     assertQueuePrefix(q.name, 'sweepOrphans(queue)');
@@ -282,6 +339,7 @@ export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvName
     }
   }
   return {
+    consumerSwept, consumerSweptCount: consumerSwept.length,
     workerSwept, workerSweptCount: workerSwept.length, workerCandidatesConsidered: workerCandidates.length, workersListed: workers.length,
     queueSwept, queueSweptCount: queueSwept.length, queueCandidatesConsidered: queueCandidates.length, queuesListed: queues.length,
     kvSwept, kvSweptCount: kvSwept.length, kvCandidatesConsidered: kvCandidates.length, kvNamespacesListed: kvNamespaces.length,

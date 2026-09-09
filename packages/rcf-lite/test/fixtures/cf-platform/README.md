@@ -254,6 +254,40 @@ Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
 `accountBoundSkipped: true`, aggregates to `pass`, and exits 0
 per spec section 3.5.
 
+## Declared env vars (real-account probes)
+
+Every real-account probe on this fixture declares the env vars it
+reads. A first-tier env var gates entry into the driver path; a
+second-tier env var, when unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`,
+records `accountBoundSkipped: true` naming the missing variable and
+still passes per spec section 3.5. That keeps the positive-evidence
+gate row honest: a probe either produces real-engine evidence or a
+declared skip; a hard fail without evidence is never accepted.
+
+First-tier (required to enter any real-account driver):
+
+- `CI_HAS_CLOUDFLARE_ACCOUNT` (unset -> pass-with-skip on every
+  real-account probe).
+- `CF_ACCOUNT_ID`, `CF_API_TOKEN` (paired with the CI gate;
+  unset -> hard fail naming the missing pair).
+
+Second-tier (declared skips when unset with the CI gate set):
+
+- `CF_DO_WORKER_URL` — deployed-Worker origin the DO
+  `real-account-storage-smoke` probe HTTP round-trips against. Not
+  yet self-provisioned by this fixture (follow-up work item
+  `w-2026-09-09-dave-005`); until it is, the probe records
+  `accountBoundSkipped: true` with `reason` naming `CF_DO_WORKER_URL`
+  and passes with a declared skip rather than failing without
+  real-engine evidence.
+- `CF_QUEUE_MESSAGE_COUNT` — optional message-count override on the
+  queue `real-account-concurrency-smoke` probe (default 500). Not a
+  skip trigger; enumerated for completeness in the shim's
+  `DECLARED_ENV` export.
+- `CF_API_BASE_URL` — optional test override pointing the shims at a
+  local mock CF REST API. Not a skip trigger; enumerated for
+  completeness.
+
 ## T-3 wrangler dev boot
 
 The eighth T-3 probe (`wrangler-seam.mjs`) spawns `wrangler dev
