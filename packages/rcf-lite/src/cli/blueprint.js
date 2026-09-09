@@ -36,6 +36,12 @@ import {
 } from '../blueprint/index.js';
 import { conflictReportJson, renderConflictReport } from '../blueprint/conflicts.js';
 import { handleLibraryVerb, LIBRARY_HELP } from './blueprint-library.js';
+import {
+  loadForLint,
+  loadSuppressions,
+  runLint,
+  renderDispositions,
+} from '../blueprint/index.js';
 
 export const HELP = `Usage: rcf define blueprint <verb> [options]
 
@@ -115,6 +121,23 @@ Verbs:
                          'rcf define blueprint library --help' for the
                          full surface. Phase 2b covers local sources;
                          network fetchers land in Phase 2c.
+  lint-consistency <source>
+                         Run the single-definition ownership and REQ
+                         delivery lint over one blueprint source (pass 1
+                         catches literals restated outside their owning
+                         TAC; pass 2 catches REQs promising properties
+                         with no delivering TAC or ADR). Exit 0 on
+                         clean, exit 3 on unsuppressed findings, exit 2
+                         on usage error. --json emits the machine
+                         envelope; pass-1 findings are suppressible via
+                         a "Known chain-consistency-lint suppressions"
+                         section in the blueprint README (see spec
+                         section 5.8).
+  dispositions <slug>    Read the per-slug disposition ledger at
+                         rcf/blueprints/<slug>.disposition.json. Prints
+                         one line per contributed AC with its recorded
+                         disposition; --json emits the raw ledger.
+                         Read-only.
 
 Options:
   --namespace <slug>     Override the blueprint's default namespace
@@ -204,6 +227,11 @@ const OPTION_SPEC = {
   'allow-no-queue-yet': { type: 'boolean' },
   answer: { type: 'string', multiple: true },
   answers: { type: 'string' },
+  // Integration and contradiction protocol (spec 2026-09-09 section
+  // 3.6 and 7.1): the operator (or the wrapping harness) can suppress
+  // the disposition prompt printed after a fresh apply. The ledger is
+  // still written; only the human-facing prompt line is skipped.
+  'no-disposition-prompt': { type: 'boolean' },
 };
 
 /**
@@ -242,6 +270,14 @@ export async function main(argv, deps = {}) {
   // against a `library` add invocation.
   if (verb === 'library') {
     return handleLibraryVerb(parsed, rest, { stdout, stderr, cwd, now, stdin: deps.stdin });
+  }
+
+  // `lint-consistency <source>` runs over a blueprint source directory
+  // and does not require an rcf/ tree; wire it before the projectRoot
+  // walk so it stays usable from a fresh clone (and from the shipping
+  // CI gate).
+  if (verb === 'lint-consistency') {
+    return handleLintConsistencyVerb({ rest, parsed, cwd, stdout, stderr });
   }
 
   const projectRoot = await findProjectRoot(cwd);
@@ -433,6 +469,13 @@ export async function main(argv, deps = {}) {
     }
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint] applied '${result.slug}' at ${result.version} (${result.contributions.length} contribution(s)).\n`);
+      // Disposition prompt (spec section 3.6 + 3.7). Printed once per
+      // fresh apply; a re-apply on the same slug omits it because the
+      // ledger is left untouched. Suppressible with the CLI flag
+      // --no-disposition-prompt.
+      if (result.dispositionPrompt && parsed.values['no-disposition-prompt'] !== true) {
+        stdout.write(`${result.dispositionPrompt}\n`);
+      }
     }
     // Companion-suggestion mechanism (spec 2.6). Runs AFTER the apply
     // writes so a failed apply never produces a suggestion block.
@@ -612,6 +655,17 @@ export async function main(argv, deps = {}) {
       stdout,
       stderr,
     });
+  }
+
+  if (verb === 'dispositions') {
+    if (rest.length === 0) {
+      stderr.write('[error] blueprint dispositions: missing <slug>\n');
+      return 2;
+    }
+    const slug = rest[0];
+    const rendered = await renderDispositions({ projectRoot, slug, asJson: parsed.values.json === true });
+    stdout.write(rendered.output);
+    return rendered.exitCode;
   }
 
   stderr.write(`[error] blueprint: unknown verb '${verb}'\n`);
@@ -850,6 +904,55 @@ function parseResolveOptions(rawList, reason) {
  * @param {{ stdin: NodeJS.ReadableStream, stdout: NodeJS.WritableStream }} deps
  * @returns {Promise<(prompt: string) => Promise<string>>}
  */
+/**
+ * `rcf define blueprint lint-consistency <source>` handler. Resolves
+ * <source> (path or shelf slug), loads the blueprint via loadForLint,
+ * reads any suppressions in the blueprint's README, runs both passes,
+ * and prints either a human summary or a JSON envelope.
+ *
+ * Exit codes:
+ *   0 clean (or every finding suppressed)
+ *   2 usage error / cannot resolve source
+ *   3 unsuppressed findings
+ */
+async function handleLintConsistencyVerb({ rest, parsed, cwd, stdout, stderr }) {
+  if (rest.length === 0) {
+    stderr.write('[error] blueprint lint-consistency: missing <source>\n');
+    return 2;
+  }
+  const rawSource = rest[0];
+  // Reuse the shipping shelf resolver so a bare slug (edge-cloudflare-turnstile)
+  // or a @stock/<slug> reference resolves to the packaged shelf, and a
+  // path resolves relative to cwd.
+  const resolved = await resolveBlueprintSource(rawSource, { projectRoot: cwd });
+  if (isRcfError(resolved)) {
+    stderr.write(`[error] blueprint lint-consistency: ${resolved.message}\n`);
+    return 2;
+  }
+  const sourcePath = resolved.resolved;
+  const loaded = await loadForLint(sourcePath);
+  if ('error' in loaded) {
+    stderr.write(`[error] blueprint lint-consistency: ${loaded.error}\n`);
+    return 2;
+  }
+  const suppressions = await loadSuppressions(sourcePath);
+  const result = runLint(loaded, suppressions);
+  const asJson = parsed.values.json === true;
+  if (asJson) {
+    stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  } else {
+    stdout.write(`[blueprint] lint-consistency '${result.blueprint}': ${result.verdict} `
+      + `(pass1=${result.passCounts.pass1}, pass2=${result.passCounts.pass2}, `
+      + `suppressed=${result.passCounts.suppressed})\n`);
+    for (const f of result.findings) {
+      const tag = f.suppressed ? '[suppressed]' : '[finding]';
+      stdout.write(`  ${tag} ${f.id} (${f.pass}, ${f.kind}): ${f.message}\n`);
+      if (f.suppressed && f.suppressionReason) stdout.write(`     reason: ${f.suppressionReason}\n`);
+    }
+  }
+  return result.verdict === 'pass' ? 0 : 3;
+}
+
 async function createCustomAuthReadLine({ stdin, stdout }) {
   const { createInterface } = await import('node:readline');
   const rl = createInterface({ input: stdin, output: stdout, terminal: true });
