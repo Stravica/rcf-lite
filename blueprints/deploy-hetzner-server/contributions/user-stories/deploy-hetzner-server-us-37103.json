@@ -43,6 +43,34 @@
         "field": "interfaces.default"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-37103-4",
+      "description": "Server-type elicit accepts every shipped SKU. Given the elicited server-type answers one of { cx23, cx33, cx43, cpx11, cpx21, cpx31, cpx41, cax11, cax21, cax31 }, when the manifest applies, then the createServer call carries `\"server_type\": \"<answer>\"` verbatim in the JSON body (raw-api mode) or `--type <answer>` on the hcloud CLI (hcloud mode) and the hetznerServerProvisioned event's serverType field equals the answer; a value outside the enum refuses at manifest load with an unknownServerType error kind and no createServer call is issued.",
+      "given": "server-type answered one of the ten shipped SKUs",
+      "when": "provision.mjs runs the manifest",
+      "then": "createServer carries the answer verbatim (server_type JSON field or hcloud --type flag); hetznerServerProvisioned.serverType equals the answer; a value outside the enum refuses with unknownServerType and no createServer fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37103-5",
+      "description": "Location elicit accepts every shipped datacentre. Given the elicited location answers one of { fsn1, nbg1, hel1, ash, hil }, when the manifest applies, then the createServer call carries `\"location\": \"<answer>\"` verbatim in the JSON body (raw-api mode) or `--location <answer>` on the hcloud CLI (hcloud mode) and the hetznerServerProvisioned event's location field equals the answer; a value outside the enum refuses at manifest load with an unknownLocation error kind and no createServer call is issued.",
+      "given": "location answered one of the five shipped datacentre codes",
+      "when": "provision.mjs runs the manifest",
+      "then": "createServer carries the answer verbatim (location JSON field or hcloud --location flag); hetznerServerProvisioned.location equals the answer; a value outside the enum refuses with unknownLocation and no createServer fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

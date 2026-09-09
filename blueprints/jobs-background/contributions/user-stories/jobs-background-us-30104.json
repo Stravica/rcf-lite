@@ -32,6 +32,48 @@
         "field": "responsibilities.retry"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-30104-3",
+      "description": "Retry backoff exponential effective-delay per attempt is base * 2^(attempts-1) capped at 10 minutes. Given a job with retryPolicy.backoff='exponential' and base=1 second, when the runtime issues retries for attempts 1..15, then the effective inter-attempt delay observed on the sink is 1s, 2s, 4s, 8s, 16s, ..., 512s, then capped at 600s (10 minutes) for every subsequent attempt; a probe measuring the schedule spacing FAILS if any attempt spacing exceeds 10 minutes or does not follow the 2^(n-1) curve until the cap.",
+      "given": "retryPolicy.backoff='exponential' with base=1s and maxAttempts sufficient to reach the cap",
+      "when": "the runtime issues retries",
+      "then": "inter-attempt delays observed on the sink follow base*2^(attempts-1) up to 600s then cap at 600s; the cap probe FAILS on any spacing above 10 minutes",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "responsibilities.backoffExponential"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30104-4",
+      "description": "Retry backoff constant effective-delay per attempt equals base seconds. Given a job with retryPolicy.backoff='constant' and base=5 seconds, when the runtime issues retries for attempts 1..N, then every observed inter-attempt delay on the sink equals 5 seconds and the probe measuring the schedule spacing FAILS on any observed delay that deviates from base by more than the sink's tick resolution.",
+      "given": "retryPolicy.backoff='constant' with base=5s",
+      "when": "the runtime issues retries",
+      "then": "every observed inter-attempt delay equals 5 seconds; probe FAILS on any deviation beyond the sink tick",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "responsibilities.backoffConstant"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30104-5",
+      "description": "Retry backoff linear effective-delay per attempt is base * attempts. Given a job with retryPolicy.backoff='linear' and base=2 seconds, when the runtime issues retries for attempts 1..N, then the observed inter-attempt delay on the sink is 2s, 4s, 6s, 8s, ..., growing linearly; a probe measuring the schedule spacing FAILS on any spacing that does not equal base*attempts within the sink tick resolution.",
+      "given": "retryPolicy.backoff='linear' with base=2s",
+      "when": "the runtime issues retries",
+      "then": "observed inter-attempt delays follow base*attempts (2s, 4s, 6s, ...); probe FAILS on any deviation",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "responsibilities.backoffLinear"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

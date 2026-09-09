@@ -18,7 +18,11 @@
         "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
         "field": "interfaces.cloud-init.yaml.tmpl"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://cloudinit.readthedocs.io/en/latest/topics/format.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-37105-2",

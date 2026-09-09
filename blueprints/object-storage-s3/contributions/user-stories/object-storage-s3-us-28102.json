@@ -17,7 +17,11 @@
       "then": "the returned body's byte length equals 1024 and the returned content-type equals application/octet-stream; the events list captured on the sink contains an objectPut record with matching key, size 1024, contentType, timestamp; no body bytes appear in any event record",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28102-2",
@@ -27,7 +31,11 @@
       "then": "the getObject rejects with a not-found shape (NoSuchKey on S3/R2/MinIO); an objectDeleted event fires on the sink with matching key and timestamp",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28102-3",

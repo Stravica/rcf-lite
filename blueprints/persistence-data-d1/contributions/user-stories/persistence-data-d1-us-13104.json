@@ -37,7 +37,11 @@
       "then": "the invocation completes without side-effect against tables other than the one the verb legitimately touches, and a follow-up `SELECT COUNT(*) FROM domainTable` returns the same count as before the invocation (no DROP), and the probe value round-trips as an ordinary string wherever the verb persisted or returned it",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/worker-api/prepared-statements/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [

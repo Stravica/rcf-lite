@@ -38,6 +38,34 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-13101-4",
+      "description": "Dependency not ready: D1 binding absent from the Worker env. Given a Worker whose wrangler manifest omits the configured d1_databases binding name (or whose deployed environment has not provisioned the binding), when the facade opens on isolate boot and reads env[<bindingName>], then the read returns undefined, the facade refuses with a named error kind d1BindingMissing carrying the expected binding name (never carrying the account id or API token), and no facadeReady fires on the sink.",
+      "given": "the Worker env has no property under the configured D1 binding name",
+      "when": "the facade opens on isolate boot",
+      "then": "the facade refuses with d1BindingMissing naming the expected binding; no credentials leak; no facadeReady fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1401-persistence-data-d1-facade",
+        "field": "responsibilities.readBinding"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-13101-5",
+      "description": "Rate limit from D1: the vendor 429 surfaces as queryFailed with retryAfterMs. Given the D1 vendor returns a 429 rate-limit response on a prepare-and-bind or batch call (simulated in the fixture via SIMULATE_D1_RATE_LIMIT=true), when the facade issues the query, then the facade catches the vendor error, surfaces a queryFailed event on the sink carrying { errorKind: 'rateLimited', retryAfterMs: <parsed from vendor headers or a default>, verb: <domain verb name> } and re-throws a d1RateLimited error the consumer catches; a probe FAILS if the event's errorKind is anything other than rateLimited.",
+      "given": "the D1 vendor returns 429 on a facade query (SIMULATE_D1_RATE_LIMIT=true)",
+      "when": "the facade issues the query",
+      "then": "queryFailed fires with { errorKind: 'rateLimited', retryAfterMs, verb }; the facade re-throws d1RateLimited; the probe FAILS on any other errorKind",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1401-persistence-data-d1-facade",
+        "field": "responsibilities.queryFailedRateLimit"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

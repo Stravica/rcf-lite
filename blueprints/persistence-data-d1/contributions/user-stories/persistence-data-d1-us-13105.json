@@ -27,7 +27,11 @@
       "then": "the caller receives an error, and a follow-up read against table A shows no row corresponding to the first statement of the failed batch (D1 rolled the batch back)",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/worker-api/d1-database/#batch",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-13105-3",

@@ -71,3 +71,5 @@ Notes
   `packages/rcf-lite/test/fixtures/cf-platform/` ships alongside this
   bump as the probe target. T-1 (KV), T-2 (cron), T-3 (Durable Objects)
   and T-5's Turnstile sub-fixture extend the same fixture later.
+
+Review-fix (2026-09-09): Widens the run-worker-first elicit from kind boolean to kind string so both wrangler-side shapes accepted by the Cloudflare Workers static-assets binding (the boolean form and the array-of-patterns form) round-trip through the operator surface without silent narrowing. TAC-1302 responsibility 8 is rewritten to name both shapes with the emitted wrangler literal for each. Adds AC-12113-4 binding the array-of-patterns form on US-12113 with vendorCitation, and adds vendorCitation to AC-12113-2 (boolean form). README and guide teach both shapes. Adds deliveredBy on REQ-002, REQ-004, REQ-008, REQ-009, REQ-012. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-12102-2, AC-12102-3, AC-12108-1, AC-12108-3, AC-12111-1, AC-12112-3).

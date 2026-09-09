@@ -87,7 +87,7 @@ test('assets-manifest-scan probe module contract and cf-platform fixture scan-pa
   assert.equal(parsed.pages_build_output_dir, undefined);
   const report = await probe.scan({
     fixtureRoot: FIXTURE_ROOT,
-    elicited: { 'assets-directory': './dist', 'run-worker-first': true },
+    elicited: { 'assets-directory': './dist', 'run-worker-first': 'true' },
   });
   assert.equal(report.aggregateVerdict, 'pass');
   assert.equal(report.anchorAcId, 'AC-12113-1');
@@ -151,8 +151,8 @@ test('elicits[] declares assets-directory string default empty and run-worker-fi
   assert.equal(assetsDir.providesCapability, undefined);
   const runFirst = doc.elicits.find((e) => e.id === 'run-worker-first');
   assert.ok(runFirst, 'run-worker-first elicit present');
-  assert.equal(runFirst.kind, 'boolean');
-  assert.equal(runFirst.default, false);
+  assert.equal(runFirst.kind, 'string');
+  assert.equal(runFirst.default, 'false');
   assert.equal(runFirst.providesCapability, undefined);
   // Loader accepts the blueprint (validation is shape-only for the top-
   // level elicits[] block; the loader-side when-elicitedNonEmpty
@@ -260,7 +260,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   // Canonical state: pass.
   const canonical = await probe.scan({
     fixtureRoot: FIXTURE_ROOT,
-    elicited: { 'assets-directory': './dist', 'run-worker-first': true },
+    elicited: { 'assets-directory': './dist', 'run-worker-first': 'true' },
   });
   assert.equal(canonical.aggregateVerdict, 'pass');
   // SIMULATE_MIXED_SHAPE: prepend pages_build_output_dir and expect fail.
@@ -275,7 +275,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   const mixed = await probe.scan({
     fixtureRoot: scratchDir,
     manifestPath: mixedManifestPath,
-    elicited: { 'assets-directory': './dist', 'run-worker-first': true },
+    elicited: { 'assets-directory': './dist', 'run-worker-first': 'true' },
   });
   assert.equal(mixed.aggregateVerdict, 'fail');
   const offending = mixed.results.find((r) => r.verdict === 'fail');
@@ -303,7 +303,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   const empty = await probe.scan({
     fixtureRoot: scratchDir,
     manifestPath: emptyManifestPath,
-    elicited: { 'assets-directory': '', 'run-worker-first': false },
+    elicited: { 'assets-directory': '', 'run-worker-first': 'false' },
   });
   assert.equal(empty.aggregateVerdict, 'pass');
   assert.ok(
@@ -327,7 +327,7 @@ test('apply deploy-cloudflare-workers v1.2.0 lands 41 contributions and records 
       projectRoot: scratch,
       tree,
       source: BLUEPRINT_ROOT,
-      elicitAnswers: { 'assets-directory': './public', 'run-worker-first': false },
+      elicitAnswers: { 'assets-directory': './public', 'run-worker-first': 'false' },
     });
     assert.equal(result.applied, true, JSON.stringify(result));
     assert.equal(result.slug, 'deploy-cloudflare-workers');
@@ -337,7 +337,7 @@ test('apply deploy-cloudflare-workers v1.2.0 lands 41 contributions and records 
     assert.equal(sidecar.version, '1.3.0');
     assert.deepEqual(sidecar.appliedElicitations, {
       'assets-directory': './public',
-      'run-worker-first': false,
+      'run-worker-first': 'false',
     });
   } finally {
     await rm(scratch, { recursive: true, force: true });

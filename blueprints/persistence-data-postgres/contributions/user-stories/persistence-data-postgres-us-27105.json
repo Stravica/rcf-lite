@@ -32,6 +32,48 @@
         "field": "interfaces.exportDatabase"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-27105-3",
+      "description": "Recovery cadence daily. Given the elicited recovery-cadence answers daily, when the sidecar records the answer, then the recorded schedule descriptor the project-side scheduler consumes is `0 3 * * *` (a cron string firing once per day at 03:00 in the elicited timezone) and one backupExported event fires per day on the sink carrying { artefactPath, completedAt } inside the daily window.",
+      "given": "recovery-cadence = daily",
+      "when": "the sidecar records the answer and the scheduler ticks over a 24-hour window",
+      "then": "the recorded schedule is `0 3 * * *` and exactly one backupExported fires per 24-hour window",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2804-persistence-data-postgres-recovery",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27105-4",
+      "description": "Recovery cadence hourly. Given the elicited recovery-cadence answers hourly, when the sidecar records the answer, then the recorded schedule descriptor is `0 * * * *` (a cron string firing at minute zero of every hour) and backupExported fires 24 times per 24-hour window on the sink, each carrying a distinct completedAt inside its hour.",
+      "given": "recovery-cadence = hourly",
+      "when": "the sidecar records the answer and the scheduler ticks over a 24-hour window",
+      "then": "the recorded schedule is `0 * * * *` and 24 backupExported events fire per 24-hour window",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2804-persistence-data-postgres-recovery",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27105-5",
+      "description": "Recovery cadence weekly. Given the elicited recovery-cadence answers weekly, when the sidecar records the answer, then the recorded schedule descriptor is `0 3 * * 0` (a cron string firing at 03:00 every Sunday) and exactly one backupExported fires per seven-day window on the sink carrying { artefactPath, completedAt } inside that window.",
+      "given": "recovery-cadence = weekly",
+      "when": "the sidecar records the answer and the scheduler ticks over a seven-day window",
+      "then": "the recorded schedule is `0 3 * * 0` and exactly one backupExported fires per seven-day window",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2804-persistence-data-postgres-recovery",
+        "field": "decision"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

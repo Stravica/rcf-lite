@@ -32,6 +32,20 @@
         "field": "interfaces.jobModule.default"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-30102-3",
+      "description": "retryPolicy.maxAttempts above applied queue ceiling refused at load. Given a job-definition module whose retryPolicy.maxAttempts exceeds the applied queue's max-attempts ceiling (Cloudflare Queues caps at 100 per ADR-3003 in the messaging-queue-cloudflare blueprint), when the job-definition loader validates the module against the applied queue's ceiling, then the loader refuses with a named error kind (retryPolicyExceedsQueueCeiling) carrying { requested: <maxAttempts>, ceiling: <queueCap> } and the job does not register on the scheduler; no jobScheduled fires.",
+      "given": "a job-definition module with retryPolicy.maxAttempts > applied queue's ceiling",
+      "when": "the job-definition loader validates the module against the applied queue",
+      "then": "loader refuses with retryPolicyExceedsQueueCeiling carrying { requested, ceiling }; the job does not register; no jobScheduled fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "responsibilities.respectMaxAttemptsCeiling"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

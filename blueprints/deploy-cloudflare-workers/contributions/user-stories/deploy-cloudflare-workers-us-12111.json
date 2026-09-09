@@ -17,7 +17,11 @@
       "then": "the gate reports the binding as `DEPLOY_DEV_MODE_INADMISSIBLE`, refuses to count it toward the AC's coverage, and lists the offending TC and its target URL",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/#dev",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-12111-2",

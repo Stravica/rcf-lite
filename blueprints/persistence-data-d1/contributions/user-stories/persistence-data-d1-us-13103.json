@@ -17,7 +17,11 @@
       "then": "the migrations-apply step appears before the deploy step in that job, and any parallelism configuration is such that the deploy cannot start until the apply has exited zero",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/reference/migrations/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-13103-2",

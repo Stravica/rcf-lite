@@ -32,6 +32,34 @@
         "field": "interfaces.recoveryDrill"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-27110-3",
+      "description": "PITR provider hosted. Given the elicited pitr-provider answers hosted, when the recovery-drill verb completes, then the drill report carries pitrArtefactCitation of shape { provider: 'hosted', vendorPitrWindowHours: <number>, vendorConsoleUrl: <string> } naming the managed cluster's own PITR window setting; the drill refuses if the vendor PITR window is not set on the cluster (vendorPitrDisabled error kind).",
+      "given": "pitr-provider = hosted against a live managed cluster",
+      "when": "the recovery-drill verb runs",
+      "then": "the drill report carries pitrArtefactCitation.provider='hosted' with vendorPitrWindowHours and vendorConsoleUrl; a cluster with PITR unset refuses with vendorPitrDisabled",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2804-persistence-data-postgres-recovery",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27110-4",
+      "description": "PITR provider self-managed. Given the elicited pitr-provider answers self-managed, when the recovery-drill verb completes, then the drill report carries pitrArtefactCitation of shape { provider: 'self-managed', walArchivePath: <string>, basebackupPath: <string>, retainedHours: <number> } naming the WAL-archive destination and the pg_basebackup artefact the drill primed from; the drill refuses if either walArchivePath or basebackupPath is missing (walArchiveUnavailable error kind).",
+      "given": "pitr-provider = self-managed with a WAL archive configured",
+      "when": "the recovery-drill verb runs",
+      "then": "the drill report carries pitrArtefactCitation.provider='self-managed' with walArchivePath, basebackupPath, retainedHours; a missing WAL archive refuses with walArchiveUnavailable",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2804-persistence-data-postgres-recovery",
+        "field": "decision"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

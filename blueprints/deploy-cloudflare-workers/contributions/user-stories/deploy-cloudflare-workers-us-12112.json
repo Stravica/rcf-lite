@@ -37,7 +37,11 @@
       "then": "the verifier records the mismatch as `PROMOTE_VERIFY_FAILED` with the observed `sha-P` and the expected `sha-W`; the release is not marked successful",
       "testable": true,
       "scope": "deployed",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/versions-and-deployments/#version-metadata",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [

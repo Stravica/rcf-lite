@@ -14,7 +14,11 @@
       "description": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the snapshot verb on the throwaway server, then asserts hcloud image list --type=snapshot --output json shows a snapshot tagged with the server name and current wall-clock time; hetznerSnapshotTaken event carries snapshot id and time. Teardown via destroy.mjs.",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.hetzner.cloud/#images-create-image-from-a-server",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-37108-2",
@@ -28,7 +32,11 @@
         "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
         "field": "interfaces.default"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.hetzner.cloud/#errors",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-37108-3",
@@ -42,7 +50,11 @@
         "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
         "field": "interfaces.default"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.hetzner.cloud/#images-create-image-from-a-server",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [

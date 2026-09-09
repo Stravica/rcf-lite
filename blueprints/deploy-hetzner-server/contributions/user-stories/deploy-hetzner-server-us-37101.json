@@ -28,7 +28,11 @@
         "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
         "field": "interfaces.default"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.hetzner.cloud/#authentication",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-37101-3",
@@ -57,6 +61,20 @@
         "field": "interfaces.default"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-37101-5",
+      "description": "Provisioning tool raw-api. Given the elicited provisioning-tool answers raw-api, when the provisioner opens on process boot, then the facade constructs a fetch-based HTTP client against https://api.hetzner.cloud/v1 with Bearer HETZNER_ACCOUNT_API_KEY on every request (no hcloud binary invocation; grep across the fixture source refuses any child_process.execFile / spawn of hcloud); the provisionerReady payload carries tool='raw-api' and apiHost='api.hetzner.cloud'; a subsequent createServer verb issues one POST https://api.hetzner.cloud/v1/servers with the JSON body per the Hetzner Cloud API server-create schema.",
+      "given": "provisioning-tool = raw-api",
+      "when": "the provisioner opens on process boot",
+      "then": "the facade uses fetch against api.hetzner.cloud/v1 with Bearer auth; no hcloud spawn; provisionerReady carries tool='raw-api' and apiHost='api.hetzner.cloud'; createServer POSTs /v1/servers with the documented JSON body",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

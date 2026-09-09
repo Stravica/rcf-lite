@@ -38,6 +38,34 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-5101-4",
+      "description": "Permission denied on the store file refuses open. Given the configured store file path resides in a directory the process user cannot read or write (chmod 000, or a file owned by a different uid without read permission), when the store facade opens, then the underlying engine surfaces a SQLITE_CANTOPEN-family error and the facade re-throws a named storePermissionDenied error carrying the resolved path (never carrying any credential material or file contents), and no opened event fires on the sink.",
+      "given": "store file path unreadable or unwritable by the process user",
+      "when": "the store facade opens",
+      "then": "the underlying engine surfaces SQLITE_CANTOPEN; the facade re-throws storePermissionDenied naming the resolved path; no opened event fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "responsibilities.open"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-5101-5",
+      "description": "Concurrent WAL writer against the same store file. Given two processes both opening the same SQLite file in WAL mode against the same on-disk artifact, when both invoke a write verb concurrently, then the SQLite WAL semantics serialise the writes (one commits, the other retries the transaction via the busy handler up to the configured busy timeout) and no writer is silently dropped; a busy-timeout exhaustion surfaces as a storeBusy error carrying the elapsed wait, and neither writer observes partial state from the other.",
+      "given": "two processes opening the same on-disk store file in WAL mode with concurrent write verbs",
+      "when": "both invoke a write concurrently",
+      "then": "WAL serialises the writes via the busy handler; a busy-timeout exhaustion surfaces storeBusy naming the elapsed wait; no writer observes partial cross-process state",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-601-persistence-data-sqlite-store-model",
+        "field": "decision.walCrashSafety"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

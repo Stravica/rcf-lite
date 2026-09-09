@@ -10,7 +10,7 @@
  * and a throwaway consumer Worker under `h2-cf-probe-integrity-
  * scratch-w-` bound to the queue (consumer) with RCF_TEST_QUEUE
  * (shipped queue producer binding name) + RCF_TEST_TELEMETRY_KV
- * bindings. NO workers.dev subdomain is enabled (Dave ruling
+ * bindings. NO workers.dev subdomain is enabled (operator ruling
  * 376b4f30): the consumer is invoked BY THE QUEUE, not over HTTP.
  *
  * Driver:
@@ -30,10 +30,10 @@
  * Local proof is a mock of Cloudflare's REST contract, not the wire.
  * The local run exercises OUR lifecycle logic against a mock of
  * Cloudflare's contract; the real-account gate is the only surface
- * that proves the wire format (Dave ruling 376b4f30). This probe is
+ * that proves the wire format (operator ruling). This probe is
  * therefore never described as "locally verified" - the local runs
  * are our own lifecycle-logic proof; wire correctness is proven at
- * the HQ real-account gate.
+ * the the operator estate real-account gate.
  *
  * Declared env (dispatch requirement 4):
  *   CI_HAS_CLOUDFLARE_ACCOUNT   required to enter the driver path.
@@ -109,7 +109,7 @@ async function readTelemetryRecords({ namespaceId }) {
 export default async function runProbe() {
   const hasAccount = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
   if (!hasAccount) {
-    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker + telemetry KV namespace under the H-2 prefixes; publishes via the CF Queues REST publish endpoint (no workers.dev subdomain enabled); reads telemetry via the KV REST list + get endpoints. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
+    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker + telemetry KV namespace under the CI scratch prefixes; publishes via the CF Queues REST publish endpoint (no workers.dev subdomain enabled); reads telemetry via the KV REST list + get endpoints. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
   }
   if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
     return [{

@@ -127,7 +127,7 @@ The blueprint ships the contract these shims build against; the shim itself is t
 
 ## Reserved v1.1.0 Workflows adapter
 
-The `workflows` scheduler mode arrives at v1.1.0 per Baz section 5.7 and round-6 decision (b). It wraps the same job-definition contract with Cloudflare Workflows `step.do` orchestration, adding durable multi-step execution without changing the outward job-definition shape. What changes:
+The `workflows` scheduler mode arrives at v1.1.0 per spec section 5.7 and round-6 decision (b). It wraps the same job-definition contract with Cloudflare Workflows `step.do` orchestration, adding durable multi-step execution without changing the outward job-definition shape. What changes:
 
 - One new enum value at ADR-3102: `scheduler: "workflows"`.
 - One new section in this guide covering how to declare durable steps through the workflow adapter.
@@ -144,4 +144,4 @@ What does NOT change:
 
 - `observability-logging` (companion): supplies the run-log upstream so the four lifecycle events flow through the applied logger's channel policy.
 - `application-error-handling` (companion): supplies the error record factory a `jobFailed` constructs on the terminal path.
-- `messaging-queue-cloudflare`: the shipped `queue` capability provider today. The `messaging-queue-postgres` sibling (reserved slug per Baz decision 7 in the T-3 documentation) mints on demand and composes here without any change to `jobs-background`.
+- `messaging-queue-cloudflare`: the shipped `queue` capability provider today. The `messaging-queue-postgres` sibling (reserved slug per maintainer decision in the T-3 documentation) mints on demand and composes here without any change to `jobs-background`.

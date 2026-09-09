@@ -32,6 +32,34 @@
         "field": "interfaces.scheduler.schedule"
       },
       "disposition": "template"
+    },
+    {
+      "id": "AC-30103-3",
+      "description": "Scheduler mode workerCron. Given the elicited scheduler-mode answers workerCron and the applied deploy-cloudflare-workers target carries at least one job with a cron string, when the sidecar records the answer, then the generated wrangler.toml carries a `[triggers] crons = [\"<cron-string>\"]` entry per scheduled job (one entry per distinct cron string) and the Worker's `scheduled(event, env, ctx)` handler dispatches to the same publisher the inProcess scheduler would call; the scheduler.start entry point returns immediately in workerCron mode and holds no setInterval.",
+      "given": "scheduler-mode = workerCron and one job scheduled on cron '* * * * *'",
+      "when": "the sidecar records the answer",
+      "then": "wrangler.toml carries `[triggers] crons = [\"* * * * *\"]` and the Worker's scheduled handler dispatches to the publisher; scheduler.start holds no setInterval",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-3102-jobs-background-scheduler-mode",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30103-4",
+      "description": "Scheduler mode external. Given the elicited scheduler-mode answers external, when the sidecar records the answer, then the scheduler.start entry point holds no setInterval and no wrangler cron entry is emitted; the operator surface (per the operator-surface elicit) exposes a fire-now command the external cron runner (a Kubernetes CronJob, a GitHub Actions schedule, a systemd timer) invokes on its own tick; a jobScheduled event fires per invocation from the fire-now command, not from an in-process clock.",
+      "given": "scheduler-mode = external",
+      "when": "the sidecar records the answer and the external cron runner invokes the fire-now command",
+      "then": "scheduler.start holds no setInterval; no wrangler cron entry is emitted; jobScheduled fires per fire-now invocation, not per in-process tick",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-3102-jobs-background-scheduler-mode",
+        "field": "decision"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [

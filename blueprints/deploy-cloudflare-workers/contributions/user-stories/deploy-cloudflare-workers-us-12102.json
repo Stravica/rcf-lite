@@ -31,7 +31,11 @@
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
         "field": "interfaces.deployAdapter"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/versions-and-deployments/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-12102-3",
@@ -45,7 +49,11 @@
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
         "field": "interfaces.deployAdapter"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/#versions",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [

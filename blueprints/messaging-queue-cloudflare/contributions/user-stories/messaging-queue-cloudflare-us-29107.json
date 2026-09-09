@@ -31,7 +31,11 @@
         "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
         "field": "interfaces.producer.verbs"
       },
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/#dev",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [

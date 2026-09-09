@@ -17,7 +17,11 @@
       "then": "the shim exits 0; the report at .rcf/reports/blueprints/object-storage-s3/r2-real-account-smoke.json carries aggregateVerdict pass and a single result with accountBoundSkipped true",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/r2/api/s3/api/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28108-2",
