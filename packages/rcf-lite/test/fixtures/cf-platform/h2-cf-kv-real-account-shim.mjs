@@ -130,9 +130,19 @@ export async function destroyScratchNamespace(record) {
 // missing the prefix is unreachable from this code path (Dave hard
 // constraint 4). No cutoff: we control the prefix, so a match is
 // unambiguously ours.
+// Pure selection function extracted from sweepOrphans so a safety
+// test can feed a live account listing and assert the filter selects
+// zero live-named resources without any delete path being exercised
+// (Dave hard constraint 4; live-inventory variant of the sweep-safety
+// test). No IO, no mutation.
+export function selectSweepCandidates(listing) {
+  if (!Array.isArray(listing)) return [];
+  return listing.filter((n) => typeof n.title === 'string' && n.title.startsWith(NAMESPACE_PREFIX));
+}
+
 export async function sweepOrphans({ live } = {}) {
   const listing = Array.isArray(live) ? live : await kvListNamespaces();
-  const candidates = listing.filter((n) => typeof n.title === 'string' && n.title.startsWith(NAMESPACE_PREFIX));
+  const candidates = selectSweepCandidates(listing);
   const swept = [];
   for (const n of candidates) {
     // Belt-and-braces: repeat the prefix assert on the sweep path so

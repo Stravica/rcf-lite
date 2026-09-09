@@ -149,6 +149,24 @@ Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
 `accountBoundSkipped: true`, aggregates to `pass`, and exits 0 per
 spec section 3.5.
 
+The sweep-safety test carries a live-inventory variant alongside
+its mock-only variants:
+
+```
+node --test packages/rcf-lite/test/fixtures/cf-platform/test/h2-cf-sweep-safety.test.mjs
+```
+
+Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
+`CF_API_TOKEN`) the live-inventory subtest records
+`accountBoundSkipped: true` naming the required env var and passes;
+the mock-only variants still run unconditionally. With the env set,
+the variant reads the account's Workers, KV namespaces and Queues
+via the paginated listers and runs the shims' pure
+`selectSweepCandidates` / `selectWorkerSweepCandidates` /
+`selectQueueSweepCandidates` / `selectTelemetryKvSweepCandidates`
+selection functions over the live listings, asserting each selects
+zero. No delete path is exercised.
+
 ## Induced-failure switches
 
 T-0 (assets-manifest-scan):

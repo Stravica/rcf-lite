@@ -1,12 +1,23 @@
 // h2-cf-sweep-safety.test.mjs
 //
 // Dedicated sweep-safety test (Dave hard constraint 4, 8be06ee5): feed
-// the crash-recovery prefix sweep the ten LIVE production Worker
-// script names hosted on the operator Cloudflare account today (some
-// production - stravica.ai, curlies-corner, streaky, whoosh, wsdyou
-// admin - plus a sneaky mid-string-prefix name) and assert the sweep
-// selects ZERO of them. Same property applied to KV namespaces and
-// Queues (any resource type our sweep walks).
+// the crash-recovery prefix sweep a set of plausibly-live production
+// Worker / KV / Queue names (some production - stravica-ai, curlies-
+// corner, streaky, whoosh, wsdyou admin - plus a sneaky mid-string-
+// prefix name) and assert the sweep selects ZERO of them. Same
+// property applied to KV namespaces and Queues (any resource type
+// our sweep walks).
+//
+// Two variants:
+//   - mock-only (always runs): seeds the mock CF server with the
+//     LIVE_PRODUCTION_WORKER_NAMES fallback list plus the mid-string
+//     sneaky names, exercises sweepOrphans end-to-end against the
+//     mock, and asserts zero selections.
+//   - live-inventory (runs when CI_HAS_CLOUDFLARE_ACCOUNT is set):
+//     reads the real account inventory via the read-only listers,
+//     runs the pure selection functions (no delete path exercised)
+//     and asserts zero selections against the ACTUAL live names,
+//     not the frozen fallback.
 //
 // The sweep is a structurally separate code path from the happy-path
 // destroy (which uses exact-name equality against a scratch record).
@@ -17,11 +28,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createMockCfApi } from './mock-cf-api-server.mjs';
 
-// The ten live production Worker script names Dave enumerated (Dave
-// 8be06ee5). Kept as an exported const so any later dispatch that
-// adds sweep code can import and re-assert.
+// Mock-only fallback list of plausibly-live Worker script names. This
+// is a fixed vector for the mock-CF-server variant of the sweep-safety
+// test: it seeds the mock listing and asserts the sweep filter selects
+// zero of them. It is NOT the source of truth for what lives on the
+// real account - the live-inventory variant below reads the account
+// directly (when CI_HAS_CLOUDFLARE_ACCOUNT is set) and asserts against
+// THAT. Kept as an exported const so any later dispatch that adds
+// sweep code can import and re-assert.
 export const LIVE_PRODUCTION_WORKER_NAMES = Object.freeze([
-  'stravica.ai',
+  'stravica-ai',
   'stravica-ai-staging',
   'curlies-corner',
   'watchpost-heartbeat',
@@ -224,4 +240,66 @@ test('sweep-safety: multi-page listings still catch every prefixed residue (pagi
     assert.equal(mock.state.queues.size, 250);
     assert.equal(mock.state.workers.size, 250);
   });
+});
+
+// ---- Live-inventory variant --------------------------------------
+//
+// When CI_HAS_CLOUDFLARE_ACCOUNT=true (paired with CF_ACCOUNT_ID and
+// CF_API_TOKEN), read the real Cloudflare account's Workers, KV
+// namespaces and Queues over the paginated listers, then run the
+// shims' pure selection functions over those listings and assert
+// zero selections. No delete path is exercised; the selection
+// functions are the exact filter sweepOrphans uses internally.
+//
+// Without the env var, the variant records
+// { accountBoundSkipped: true, reason } naming the required env var
+// and exits pass, matching the pass-with-skip shape used by every
+// other real-account probe in this fixture.
+test('sweep-safety live-inventory: real account listings select zero for KV, Queue and Worker sweeps', async (t) => {
+  const skip = process.env.CI_HAS_CLOUDFLARE_ACCOUNT !== 'true'
+    || !process.env.CF_ACCOUNT_ID
+    || !process.env.CF_API_TOKEN;
+  if (skip) {
+    const record = {
+      accountBoundSkipped: true,
+      reason: 'CI_HAS_CLOUDFLARE_ACCOUNT=true (with CF_ACCOUNT_ID and CF_API_TOKEN) is required to run the live-inventory variant of sweep-safety; skipped, mock-only variant still ran.',
+    };
+    t.diagnostic(JSON.stringify(record));
+    return; // pass-with-skip; the mock-only variants above still assert.
+  }
+
+  const api = await import('../h2-cf-account-api.mjs');
+  const kvShim = await import('../h2-cf-kv-real-account-shim.mjs');
+  const qShim = await import('../h2-cf-queue-real-account-shim.mjs');
+
+  const [workers, kvNamespaces, queues] = await Promise.all([
+    api.workerList(),
+    api.kvListNamespaces(),
+    api.queueList(),
+  ]);
+
+  const kvSelected = kvShim.selectSweepCandidates(kvNamespaces);
+  const workerSelected = qShim.selectWorkerSweepCandidates(workers);
+  const queueSelected = qShim.selectQueueSweepCandidates(queues);
+  const telemetryKvSelected = qShim.selectTelemetryKvSweepCandidates(kvNamespaces);
+
+  t.diagnostic(JSON.stringify({
+    account: process.env.CF_ACCOUNT_ID,
+    inventory: {
+      workers: workers.length,
+      kvNamespaces: kvNamespaces.length,
+      queues: queues.length,
+    },
+    selected: {
+      kv: kvSelected.length,
+      workers: workerSelected.length,
+      queues: queueSelected.length,
+      telemetryKv: telemetryKvSelected.length,
+    },
+  }));
+
+  assert.equal(kvSelected.length, 0, `KV sweep filter selected ${kvSelected.length} of ${kvNamespaces.length} live KV namespaces: ${kvSelected.map((n) => n.title).join(', ')}`);
+  assert.equal(workerSelected.length, 0, `Worker sweep filter selected ${workerSelected.length} of ${workers.length} live Workers: ${workerSelected.map((w) => w.name).join(', ')}`);
+  assert.equal(queueSelected.length, 0, `Queue sweep filter selected ${queueSelected.length} of ${queues.length} live queues: ${queueSelected.map((q) => q.name).join(', ')}`);
+  assert.equal(telemetryKvSelected.length, 0, `Telemetry-KV sweep filter selected ${telemetryKvSelected.length} of ${kvNamespaces.length} live KV namespaces: ${telemetryKvSelected.map((n) => n.title).join(', ')}`);
 });

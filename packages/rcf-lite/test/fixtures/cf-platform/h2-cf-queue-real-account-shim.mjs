@@ -224,9 +224,29 @@ export async function destroyScratchQueueAndWorker(record) {
 // carrying our frozen throwaway prefixes, delete each match by exact
 // identity. Structurally unable to select a non-prefixed name (Dave
 // hard constraint 4).
+// Pure selection functions extracted from sweepOrphans so a safety
+// test can feed live account listings and assert the filters select
+// zero live-named resources without exercising any delete path (Dave
+// hard constraint 4; live-inventory variant of the sweep-safety
+// test). No IO, no mutation.
+export function selectWorkerSweepCandidates(workers) {
+  if (!Array.isArray(workers)) return [];
+  return workers.filter((w) => typeof w.name === 'string' && w.name.startsWith(WORKER_PREFIX));
+}
+
+export function selectQueueSweepCandidates(queues) {
+  if (!Array.isArray(queues)) return [];
+  return queues.filter((q) => typeof q.name === 'string' && q.name.startsWith(QUEUE_PREFIX));
+}
+
+export function selectTelemetryKvSweepCandidates(kvNamespaces) {
+  if (!Array.isArray(kvNamespaces)) return [];
+  return kvNamespaces.filter((n) => typeof n.title === 'string' && n.title.startsWith(TELEMETRY_KV_PREFIX));
+}
+
 export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvNamespaces: lk } = {}) {
   const workers = Array.isArray(lw) ? lw : await workerList();
-  const workerCandidates = workers.filter((w) => typeof w.name === 'string' && w.name.startsWith(WORKER_PREFIX));
+  const workerCandidates = selectWorkerSweepCandidates(workers);
   const workerSwept = [];
   for (const w of workerCandidates) {
     assertWorkerPrefix(w.name, 'sweepOrphans(worker)');
@@ -238,7 +258,7 @@ export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvName
     }
   }
   const queues = Array.isArray(lq) ? lq : await queueList();
-  const queueCandidates = queues.filter((q) => typeof q.name === 'string' && q.name.startsWith(QUEUE_PREFIX));
+  const queueCandidates = selectQueueSweepCandidates(queues);
   const queueSwept = [];
   for (const q of queueCandidates) {
     assertQueuePrefix(q.name, 'sweepOrphans(queue)');
@@ -250,7 +270,7 @@ export async function sweepOrphans({ liveWorkers: lw, liveQueues: lq, liveKvName
     }
   }
   const kvNamespaces = Array.isArray(lk) ? lk : await kvListNamespaces();
-  const kvCandidates = kvNamespaces.filter((n) => typeof n.title === 'string' && n.title.startsWith(TELEMETRY_KV_PREFIX));
+  const kvCandidates = selectTelemetryKvSweepCandidates(kvNamespaces);
   const kvSwept = [];
   for (const n of kvCandidates) {
     assertTelemetryKvPrefix(n.title, 'sweepOrphans(telemetry kv)');
