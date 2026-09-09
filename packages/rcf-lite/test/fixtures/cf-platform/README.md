@@ -306,3 +306,28 @@ one WebSocket broadcast frame received on connect). Warn per
 spec section 3.1 pass-with-skip if the wrangler devDependency is
 missing or the CLI fails to bind; a handler thrown at the workerd
 boundary is a genuine fail.
+
+## Declared env vars
+
+Every environment variable this fixture or any probe it hosts reads
+is declared here. Include the first-tier `CI_HAS_*` gate variable,
+and every second-tier variable the account-bound branch reads once
+past the gate. An undeclared env var that the fixture reads is
+refused by the positive-evidence gate row (authoring checklist
+section 6; authoring standard section 7d).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the account-bound branch on every Cloudflare real-account probe. | every `real-account-*` probe under `blueprints/platform-cloudflare-*` and `blueprints/messaging-queue-cloudflare` |
+| `CF_ACCOUNT_ID` | second | Cloudflare account id the probe drives its REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+| `CF_API_TOKEN` | second | API token the probe presents on the Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+| `CF_KV_NAMESPACE_ID` | second | KV namespace id the eventual-consistency smoke writes to and reads from. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` |
+| `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+
+A probe that reads any variable not on this table fails the
+positive-evidence gate row at review time. When a probe records
+`accountBoundSkipped: true`, the `reason` field names the specific
+env var on this table that was unset; a probe that returns
+`accountBoundSkipped: true` with the account env set fails the
+same row (the probe short-circuited on an undeclared variable and
+produced no evidence).

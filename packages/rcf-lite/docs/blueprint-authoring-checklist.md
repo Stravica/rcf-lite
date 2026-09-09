@@ -59,6 +59,65 @@ Run the checklist bottom-to-top: structural rules the loader would refuse first,
 - [ ] Every AC on every story carries a disposition marker: `fixed` (mechanism-invariant, true for every applying project) or `template` (shape given, values project-specific). Fixed vs template rule from the standard, section 7b.
 - [ ] Every `template` AC names the values the applying agent must set for the project (elicit ids, binding names, path segments, sizing knobs), so the disposition step is a fill-in rather than a rewrite. Section 7b.
 - [ ] Every AC or guide statement that rests on a third-party platform fact carries the vendor documentation URL and the ISO-8601 date the fact was verified. Vendor-citation rule from the standard, section 7b.
+- [ ] Every token on `blueprint.json:capabilities[]` is named or given a
+      contract by at least one `must`-priority requirement on the
+      blueprint. A capability declared with no covering requirement is
+      either removed from the manifest or backed by a new requirement
+      (and story, per section 7a). REQ-layer sufficiency rule from the
+      standard, section 7c.
+- [ ] Every option value on every `blueprint.json:elicits[].options[]`
+      entry, or the value space named by `kind` when `options` is not
+      enumerated, is named or given a runtime behaviour by at least one
+      `must`-priority requirement on the blueprint. Section 7c.
+- [ ] A manifest that omits the `elicits` key is legal only when no
+      requirement description, guide passage or TAC responsibility names
+      an apply-time answer. If any of those name an apply-time answer,
+      the `elicits` key exists and every named answer appears on it. The
+      `elicits`-key-legality clause from the standard, section 7c.
+- [ ] Every runtime-observable probe on the blueprint emits positive
+      evidence of the property it exists to protect (a request id, a
+      response body excerpt, a created-then-deleted resource id in an
+      inventory diff, a real deploy record), or records
+      `accountBoundSkipped: true` with an exact reason. A `pass` verdict
+      that carries neither is a defect. Positive-evidence rule from the
+      standard, section 7d.
+- [ ] Every environment variable a probe or a fixture reads is declared
+      on the fixture manifest (the "Declared env vars" table in the
+      fixture's own `README.md`): the first-tier `CI_HAS_*` env var that gates the
+      account-bound branch, and every second-tier variable the branch
+      reads once past the gate. The PR body lists any second-tier env
+      var it depends on, so a reviewer can see the surface. Section 7d.
+- [ ] Every assertion inside a probe or a gate row that rests on a
+      third-party platform fact carries the vendor URL and an ISO-8601
+      `verifiedOn` date, per section 7b's vendor-citation clause. A
+      literal engine-specific string (a migration keyword, a header name,
+      a config-file key) in a probe or a gate row is treated as a vendor
+      fact.
+- [ ] A probe result of `accountBoundSkipped: true` is legal only when
+      the account env is unset; the `reason` field names the specific
+      env var. A probe that records `accountBoundSkipped: true` with the
+      account env set fails the row (the probe short-circuited on an
+      undeclared variable and produced no evidence).
+- [ ] Every safety test that guards live cloud resources (teardown
+      selectors, "leave these alone" allowlists, pre-flight name
+      checks) reads the live inventory from the vendor API when the
+      account env is set and asserts against the returned set. A
+      hardcoded name list inside a test file is labelled as a
+      mock-only fallback in the test's own comment; a review claiming
+      to trace live resource names states its source, which is the
+      live inventory and never a list inside a test file. Section 7d.
+- [ ] Every field name, header name, enum, wire shape and interface
+      signature the blueprint mentions has exactly one owning TAC, and
+      every other layer references it by id and field rather than
+      restating it. Single-definition ownership rule from the standard,
+      section 7e.
+- [ ] Every REQ that promises an externally observable property carries
+      a `deliveredBy` link into a TAC responsibility or an ADR decision
+      that delivers it, and the blueprint passes `rcf blueprint
+      lint-consistency <source>` (or every finding is named in
+      `README.md` under "Known chain-consistency-lint suppressions" with
+      a one-sentence reason; pass-2 findings are not suppressible).
+      Section 7e.
 
 ## 7. Documentation
 

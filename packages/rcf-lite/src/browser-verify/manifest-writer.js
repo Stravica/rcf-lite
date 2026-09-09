@@ -94,7 +94,10 @@ export function composeBrowserVerificationRecord({
   invariantChecks, authSmokeChecks = [], probePacks = [], notes, now = new Date(),
 }) {
   const id = nextBrowserVerificationId(manifest, fbsId);
-  const verdict = aggregateVerdict(invariantChecks, authSmokeChecks, probePacks);
+  const composedProbePacks = Array.isArray(probePacks)
+    ? probePacks.map(remapPackForPositiveEvidence)
+    : probePacks;
+  const verdict = aggregateVerdict(invariantChecks, authSmokeChecks, composedProbePacks);
   const record = {
     id,
     fbsId,
@@ -107,9 +110,57 @@ export function composeBrowserVerificationRecord({
     verdict,
   };
   if (authSmokeChecks && authSmokeChecks.length > 0) record.authSmokeChecks = authSmokeChecks;
-  if (Array.isArray(probePacks) && probePacks.length > 0) record.probePacks = probePacks;
+  if (Array.isArray(composedProbePacks) && composedProbePacks.length > 0) record.probePacks = composedProbePacks;
   if (typeof notes === 'string' && notes.length > 0) record.notes = notes;
   return record;
+}
+
+/**
+ * Positive-evidence remap (authoring standard section 7d / section 8c).
+ *
+ * A `checks[]` or `preChecks[]` record with `verdict: 'pass'` is legal
+ * only when it carries either an `evidence` field of one of the four
+ * shapes named in section 7d (a request id, a response body excerpt, a
+ * created-then-deleted resource id in an inventory diff, or a
+ * rendered-bytes hash), or an `accountBoundSkipped: true` field with a
+ * non-empty `reason`. A pass record with neither is remapped to
+ * `verdict: 'fail'` with `detail: 'positive-evidence-missing'` at
+ * record-composition time; the composed record is what the manifest
+ * carries so the fail surfaces at the ship gate.
+ *
+ * @param {object} pack
+ * @returns {object}
+ */
+function remapPackForPositiveEvidence(pack) {
+  if (!pack || typeof pack !== 'object') return pack;
+  const nextPack = { ...pack };
+  if (Array.isArray(pack.checks)) {
+    nextPack.checks = pack.checks.map(remapCheckForPositiveEvidence);
+  }
+  if (Array.isArray(pack.preChecks)) {
+    nextPack.preChecks = pack.preChecks.map(remapCheckForPositiveEvidence);
+  }
+  return nextPack;
+}
+
+function remapCheckForPositiveEvidence(check) {
+  if (!check || typeof check !== 'object') return check;
+  if (check.verdict !== 'pass') return check;
+  if (checkCarriesPositiveEvidence(check)) return check;
+  return { ...check, verdict: 'fail', detail: 'positive-evidence-missing' };
+}
+
+function checkCarriesPositiveEvidence(check) {
+  if (check.accountBoundSkipped === true) {
+    const reason = check.reason;
+    if (typeof reason === 'string' && reason.length > 0) return true;
+    return false;
+  }
+  if (check.evidence != null) {
+    if (typeof check.evidence === 'string') return check.evidence.length > 0;
+    if (typeof check.evidence === 'object') return true;
+  }
+  return false;
 }
 
 function stripSeverity(check) {
