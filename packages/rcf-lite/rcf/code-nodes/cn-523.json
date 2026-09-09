@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-523",
+  "path": "../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs",
+  "implementsAcIds": [
+    "AC-15401-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T12:23:45.054Z",
+  "updatedAt": "2026-09-08T12:23:45.054Z"
+}

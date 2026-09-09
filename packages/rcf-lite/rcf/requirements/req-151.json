@@ -1,0 +1,85 @@
+{
+  "createdAt": "2026-09-08T12:16:28.590Z",
+  "updatedAt": "2026-09-08T12:16:28.726Z",
+  "description": "The rcf-lite platform-cloudflare-durable-objects blueprint ships thirteen ACs (AC-33101-1..AC-33113-1); eight probes anchor AC-33101, 33102, 33103, 33104, 33105, 33107, 33112, 33113, leaving AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1 unbound. real-account-storage-smoke.mjs currently returns pass on credential readiness alone. This train replaces the credential-readiness pass-stub with a real storage round-trip driver: when CI_HAS_CLOUDFLARE_ACCOUNT is set with CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID (or the binding config the driver needs) and CF_API_TOKEN, the probe drives an HTTP round trip against a deployed Worker route that opens the DO facade, writes a fixture key, reads it back, asserts the returned bytes equal the written value. Local proof against miniflare or wrangler dev via the existing wrangler-seam. Env-absent branch keeps the section 3.5 pass-with-skip shape; a pass must never again be reachable from credential presence alone. The five unbound ACs are bound as additional-result anchors on the existing wrangler-seam, storage-round-trip and concurrent-increment probes (or a new probe body inside existing capability if none carries the observable honestly).",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-151",
+  "prdId": "PRD-001",
+  "title": "H-2 DO storage round-trip driver and anchor coverage: real-account-storage-smoke drives a byte-equal put/get through a deployed Worker (or wrangler-dev locally); five previously-unbound DO ACs bound as anchors on existing probes",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "auth",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T12:16:28.724Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "put"
+      },
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "get"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "durable"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "credential"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "storage"
+      }
+    ]
+  }
+}

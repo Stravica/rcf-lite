@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-524",
+  "path": "../../blueprints/platform-cloudflare-durable-objects/blueprint.json",
+  "implementsAcIds": [
+    "AC-15101-1",
+    "AC-15101-2",
+    "AC-15401-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T13:01:58.227Z",
+  "updatedAt": "2026-09-08T13:01:58.227Z"
+}

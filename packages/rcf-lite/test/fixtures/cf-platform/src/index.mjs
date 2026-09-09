@@ -43,6 +43,14 @@ export default {
       const facade = createDoFacade({ env, eventSink: silentSink() });
       return facade.cellFetch(cellMatch[1], request);
     }
+    // H-2 real-account storage round-trip route: /cell/:id/storage/:key.
+    // Forwarded through the same facade so this entry module never
+    // dereferences env.CELL directly.
+    const storageMatch = url.pathname.match(/^\/cell\/([^/]+)\/storage\/[^/]+$/);
+    if (storageMatch) {
+      const facade = createDoFacade({ env, eventSink: silentSink() });
+      return facade.cellFetch(storageMatch[1], request);
+    }
     // /hub/:id/connect opens a WebSocket upgrade to the hub shape.
     const hubMatch = url.pathname.match(/^\/hub\/([^/]+)\/connect$/);
     if (hubMatch) {

@@ -6,21 +6,20 @@
 // flag as a leak), and matches literal occurrences of `env.CELL`
 // and `env.HUB` against the file path. The clean-fixture pass
 // asserts src/do-facade.mjs is the ONLY file whose live (non-
-// commented) source matches; every other file records zero. Under
-// SIMULATE_NON_FACADE_IMPORT=true the probe writes a synthetic
-// scratch file into a scratch directory (never inside the applied
-// source root, never mutating the fixture) and re-runs the scan
-// including the scratch file; the scan surfaces the injected leak
-// and returns fail.
+// commented) source matches; every other file records zero. The
+// mutation-run is triggered fixture-side by the H-2 shim
+// h2-cf-do-sole-reader-shim.mjs, which seeds a synthetic non-
+// facade consumer into a scratch tree outside the applied source
+// root; the probe body sees the augmented file list, the scan
+// surfaces the seeded leak and the result returns fail.
 //
 // anchorAcId: AC-33107-1.
 // accountBound: false.
 
-import { readdir, readFile, mkdir, writeFile, rm } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
-import { tmpdir } from 'node:os';
 
 export const anchorAcId = 'AC-33107-1';
 export const accountBound = false;
@@ -77,40 +76,42 @@ async function scanFiles(files) {
 }
 
 export default async function runProbe() {
+  const { prepareSoleReaderScan } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-do-sole-reader-shim.mjs');
   const results = [];
-  const files = [];
-  for await (const f of walk(APPLIED_SRC)) files.push(f);
+  const shippedFiles = [];
+  for await (const f of walk(APPLIED_SRC)) shippedFiles.push(f);
 
-  const baseline = await scanFiles(files);
-  const baselineClean =
-    baseline.leaks.length === 0 &&
-    baseline.facadeHits.path === facadePath() &&
-    baseline.facadeHits.cellHits > 0 &&
-    baseline.facadeHits.hubHits > 0;
-  results.push({
-    anchorAcId: 'AC-33107-1',
-    verdict: baselineClean ? 'pass' : 'fail',
-    detail: baselineClean
-      ? `clean-fixture scan: facade path=${baseline.facadeHits.path.split(sep).slice(-3).join('/')} cellHits=${baseline.facadeHits.cellHits} hubHits=${baseline.facadeHits.hubHits}; non-facade live leaks=0 (comment mentions are ignored)`
-      : `sole-reader scan fault: facade=${JSON.stringify(baseline.facadeHits)} leaks=${JSON.stringify(baseline.leaks)}`,
-  });
+  const prepared = await prepareSoleReaderScan({ files: shippedFiles });
 
-  if (process.env.SIMULATE_NON_FACADE_IMPORT === 'true') {
-    const scratch = resolve(tmpdir(), `t3-sole-reader-scratch-${process.pid}`);
-    await mkdir(scratch, { recursive: true });
-    const leaker = join(scratch, 'leaky-consumer.mjs');
-    await writeFile(leaker, `export function leak(env) { return { cell: env.CELL, hub: env.HUB }; }\n`, 'utf8');
-    const { leaks } = await scanFiles(files.concat([leaker]));
-    const leakFile = leaks.find((l) => l.file === leaker);
-    const simulateSurfaced = !!leakFile && leakFile.cellHits > 0 && leakFile.hubHits > 0;
-    await rm(scratch, { recursive: true, force: true });
-    results.push({
-      anchorAcId: 'AC-33107-1',
-      verdict: simulateSurfaced ? 'fail' : 'fail',
-      detail: simulateSurfaced
-        ? `SIMULATE_NON_FACADE_IMPORT=true: synthetic leaker at ${leaker} surfaced env.CELL(${leakFile.cellHits}) env.HUB(${leakFile.hubHits}); scan returns fail as intended`
-        : `SIMULATE_NON_FACADE_IMPORT=true: scan did not surface the synthetic leak`,
-    });
+  try {
+    if (!prepared.mutationOn) {
+      const baseline = await scanFiles(prepared.files);
+      const baselineClean =
+        baseline.leaks.length === 0 &&
+        baseline.facadeHits.path === facadePath() &&
+        baseline.facadeHits.cellHits > 0 &&
+        baseline.facadeHits.hubHits > 0;
+      results.push({
+        anchorAcId: 'AC-33107-1',
+        verdict: baselineClean ? 'pass' : 'fail',
+        detail: baselineClean
+          ? `clean-fixture scan (mutation-switch off): facade path=${baseline.facadeHits.path.split(sep).slice(-3).join('/')} cellHits=${baseline.facadeHits.cellHits} hubHits=${baseline.facadeHits.hubHits}; non-facade live leaks=0 (comment mentions are ignored)`
+          : `sole-reader scan fault: facade=${JSON.stringify(baseline.facadeHits)} leaks=${JSON.stringify(baseline.leaks)}`,
+      });
+    } else {
+      const augmented = await scanFiles(prepared.files);
+      const leakFile = augmented.leaks.find((l) => l.file === prepared.leakerPath);
+      const seededSurfaced = !!leakFile && leakFile.cellHits > 0 && leakFile.hubHits > 0;
+      results.push({
+        anchorAcId: 'AC-33107-1',
+        verdict: seededSurfaced ? 'fail' : 'fail',
+        detail: seededSurfaced
+          ? `mutation-run active (shim seeded non-facade consumer at ${prepared.leakerPath}); scan surfaced env.CELL(${leakFile.cellHits}) env.HUB(${leakFile.hubHits}); returns fail as intended`
+          : `mutation-run active (shim seeded non-facade consumer at ${prepared.leakerPath}); scan did not surface the seeded leak`,
+      });
+    }
+  } finally {
+    await prepared.cleanup();
   }
 
   return { results };

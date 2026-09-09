@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-08T12:16:29.086Z",
+  "updatedAt": "2026-09-08T12:16:29.220Z",
+  "description": "The rcf-lite messaging-queue-cloudflare blueprint's real-account-concurrency-smoke.mjs returns verdict pass with accountBoundSkipped true on the account-set branch (the wrangler dev --remote path is unsupported for Queues, so a real-account run must ride a deployed Worker that binds the queue). This train replaces that pass-stub with a real concurrency driver: the account-set branch publishes 500 messages through the producer facade wired to a live Queues binding on a deployed Worker (queue name and binding parameterised via env; HQ supplies values at gate time, canonical queue rcf-lite-ci-queue-smoke) and asserts concurrent processing up to the documented push-invocation cap. Local proof against miniflare or wrangler dev (local queue simulation). The env-absent branch keeps pass-with-skip. The documented Cloudflare Queues limits URL is re-verified 200 at merge time and logged in the PR provenance.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-152",
+  "prdId": "PRD-001",
+  "title": "H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages through the producer facade against a live Queues binding on a deployed Worker; concurrent processing asserted against the documented push-invocation cap",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-08T12:16:29.218Z"
+  }
+}

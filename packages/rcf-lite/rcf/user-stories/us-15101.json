@@ -1,0 +1,26 @@
+{
+  "createdAt": "2026-09-08T12:17:34.305Z",
+  "updatedAt": "2026-09-08T12:19:47.426Z",
+  "asA": "rcf-lite maintainer applying platform-cloudflare-durable-objects v1.0.0",
+  "iWant": "real-account-storage-smoke to drive a real HTTP round trip against a deployed Worker route that opens the DO facade, writes a fixture key and reads it back byte-equal (or record accountBoundSkipped when the account env is absent), and the five DO ACs currently unbound (AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) to appear as additional-result anchors on the wrangler-seam, storage-round-trip and concurrent-increment probes",
+  "soThat": "the real-account run proves the DO facade actually round-trips a value on Cloudflare (not just that credentials are present), and all 13 shipped DO ACs are bound to a probe with a runtime observable",
+  "description": "Part of H-2. The credential-readiness pass-stub is replaced by a real driver: when CI_HAS_CLOUDFLARE_ACCOUNT is set with CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID (or the binding config the driver needs) and CF_API_TOKEN, the probe drives an HTTP round trip against a deployed Worker route; the returned bytes must equal the written bytes for pass. Local proof via the existing wrangler-seam against miniflare or wrangler dev. Env-absent branch keeps section 3.5 pass-with-skip shape. A pass must never again be reachable from credential presence alone. The five unbound ACs are bound as additional-result anchors on existing probes; if any AC has no honest carrier a new probe body is added inside existing capability.",
+  "usId": "US-15101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-151",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-2 DO real storage driver + anchor coverage: real-account-storage-smoke drives a byte-equal put/get round-trip against a deployed Worker; five previously-unbound DO ACs bound as additional-result anchors on existing probes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15101-1",
+      "description": "When CI_HAS_CLOUDFLARE_ACCOUNT is set with CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID (or the DO binding config the driver needs) and CF_API_TOKEN, real-account-storage-smoke drives an HTTP round trip against a deployed Worker route that opens the DO facade, writes a fixture key with a random 1 KiB payload, reads it back, and asserts the returned bytes equal the written value (fail-with-detail otherwise, never pass on credential-presence). Local proof: the same driver path against miniflare or wrangler dev via the existing wrangler-seam. Env-absent branch keeps section 3.5 pass-with-skip. A mutation switch (moved to a fixture-side shim; not read from a probe body) that returns wrong bytes on read causes aggregateVerdict fail with the observed vs expected bytes named.",
+      "testable": true
+    },
+    {
+      "id": "AC-15101-2",
+      "description": "Each of the thirteen shipped DO ACs (AC-33101-1..AC-33113-1) appears as an anchorAcId (primary or additional result) on at least one shipped DO probe result. The five previously-unbound DO ACs (AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) are bound as additional-result anchors on the wrangler-seam, storage-round-trip and concurrent-increment probes where the probe genuinely observes the AC's behaviour; a new probe body is added inside existing capability only if no existing probe carries the observable. A test in the DO anatomy suite asserts each of the thirteen AC ids appears in the union of shipped probe results and each cited result is pass.",
+      "testable": true
+    }
+  ]
+}

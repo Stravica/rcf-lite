@@ -1,0 +1,26 @@
+{
+  "createdAt": "2026-09-08T12:17:33.807Z",
+  "updatedAt": "2026-09-08T12:19:24.742Z",
+  "asA": "rcf-lite maintainer applying platform-cloudflare-kv v1.0.0",
+  "iWant": "every kv probe result and the kv README to cite ACs from the shipped AC-31xxx band, and every one of the nine shipped kv ACs to appear as an anchor (primary or additional result) on at least one probe with a runtime observable",
+  "soThat": "the shipped kv probes count as evidence for the shipped kv ACs, no defunct AC-5xxx id survives on the kv blueprint, and traceability closes over the whole shipped kv surface",
+  "description": "As part of H-2 (Cloudflare-platform probe integrity), re-anchor every kv probe (facade-round-trip, list-with-prefix, cache-aside-hit-then-miss, event-secrecy, real-account-eventual-consistency-smoke), plus the kv README chain-slice pointers and the kv-anatomy test assertions, from AC-5xxx to the shipped AC-31xxx band per Dave ruling 4 (relay 582c2bca, 2026-09-08). The two ACs no shipped probe currently covers are added as additional results: AC-31102-1 (env.CACHE grep returns exactly src/kv-facade.mjs) becomes a runtime grep observable on facade-round-trip; AC-31107-1 (whitelist-only lifecycle events) becomes a whitelist-scan result on event-secrecy. Anatomy-test edits ride H-2 per dispatch addendum ruling 1. Nine ACs bound: 31101-1, 31102-1, 31103-1, 31103-2, 31104-1, 31105-1, 31106-1, 31107-1, 31108-1.",
+  "usId": "US-15001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-150",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-2 kv re-anchor: every kv probe result cites AC-31xxx; every shipped kv AC gains a runtime observable through the existing five probes",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15001-1",
+      "description": "A grep for AC-5 across blueprints/platform-cloudflare-kv/ (probes, README, changelog, guide, blueprint.json, .rcf/reports/blueprints/platform-cloudflare-kv/) returns zero hits. Every anchorAcId string in the five contributed kv probes (facade-round-trip, list-with-prefix, cache-aside-hit-then-miss, event-secrecy, real-account-eventual-consistency-smoke) and every AC id in the kv-anatomy test cite the shipped AC-31xxx band. The kv README chain-slice pointer paragraph names the shipped US-31101..US-31108 range and no AC-5xxx string remains.",
+      "testable": true
+    },
+    {
+      "id": "AC-15001-2",
+      "description": "Each of the nine shipped kv ACs (AC-31101-1, AC-31102-1, AC-31103-1, AC-31103-2, AC-31104-1, AC-31105-1, AC-31106-1, AC-31107-1, AC-31108-1) appears as an anchorAcId (primary or additional result) on at least one shipped kv probe result. AC-31102-1 is covered by a runtime env.CACHE-grep observable on facade-round-trip; AC-31107-1 is covered by a whitelist-scan observable on event-secrecy. A test in the kv-anatomy suite asserts each of the nine AC ids appears in the union of shipped probe results and each cited result is pass.",
+      "testable": true
+    }
+  ]
+}

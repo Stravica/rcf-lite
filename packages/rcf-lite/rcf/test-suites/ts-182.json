@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-08T12:20:55.203Z",
+  "updatedAt": "2026-09-08T12:21:45.254Z",
+  "purpose": "Cover AC-15201-1 (real 500-message concurrency drive against a live Queues binding on a deployed Worker; no accountBoundSkipped on the account-set branch) via the queue anatomy test and the real-account-concurrency-smoke probe",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15201-1"
+  ],
+  "id": "TS-182",
+  "usId": "US-15201",
+  "title": "H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding and asserts concurrent processing",
+  "testCases": [
+    {
+      "id": "TC-182-queue-real-concurrency-500-msg",
+      "acId": "AC-15201-1",
+      "description": "Cover AC-15201-1 via queue anatomy test: real-account-concurrency-smoke publishes 500 messages through the producer facade against a live Queues binding on a deployed Worker (or local miniflare/wrangler-dev queue) and asserts observed max-in-flight consumers greater than one and not exceeding the documented push-invocation cap; accountBoundSkipped is never set on the account-set branch; the documented limits URL answered 200 at merge time.",
+      "status": "pending",
+      "testPointer": "test/blueprint/messaging-queue-cloudflare-anatomy.test.js::H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages and asserts concurrent processing under cap"
+    }
+  ],
+  "status": "draft"
+}

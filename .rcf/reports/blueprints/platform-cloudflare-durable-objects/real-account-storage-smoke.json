@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-durable-objects",
   "probeName": "real-account-storage-smoke",
-  "runAt": "2026-09-07T16:08:52.698Z",
+  "runAt": "2026-09-08T13:32:58.855Z",
   "engine": {
     "kind": "accountBound",
     "image": "Cloudflare Workers real account (DO namespace)",
@@ -11,7 +11,7 @@
     {
       "anchorAcId": "AC-33112-1",
       "verdict": "pass",
-      "detail": "CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires a CI environment with CI_HAS_CLOUDFLARE_ACCOUNT=true, CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID and CF_API_TOKEN plus a deployed Worker exposing the DO facade round-trip."
+      "detail": "CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_DO_WORKER_URL (deployed Worker origin) and the paired CF_ACCOUNT_ID + CF_DO_NAMESPACE_ID + CF_API_TOKEN identifiers so the round-trip drives a live DO storage put and get."
     }
   ],
   "aggregateVerdict": "pass",

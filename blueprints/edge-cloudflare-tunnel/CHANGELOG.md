@@ -1,5 +1,15 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.0.1 - 2026-09-08
+
+H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
+
+- Replaced the warn-on-env-set stub in `real-account-connector-healthy.mjs` with a real cloudflared connector-health driver via the new cf-edge shim (`packages/rcf-lite/test/fixtures/cf-edge/h2-cf-tunnel-shim.mjs`). With both `CI_HAS_CLOUDFLARE_ACCOUNT` and `CI_HAS_HETZNER_ACCOUNT` set, the driver provisions the throwaway server through the hetzner fixture surface (H-1 territory, consumed as-is), runs `cloudflared tunnel info <name>` via the shim, asserts healthy connector count, captures the `tunnelConnectorUp` event, and always tears the server down. Env-absent branch keeps pass-with-skip. Env-present-with-fixture-failure yields FAIL with a pointer to the fixture step, never warn.
+- Replaced both warn-on-env-set stubs in `real-account-tunnel-hostname-routes.mjs` with real drivers. Public-hostname sub-case: undici fetch against the scratch subdomain via the shim's `fetchTunnelHostname` seam, activated on `CI_HAS_CLOUDFLARE_ACCOUNT`. Access-gated sub-case: two-identity HS256 JWT check, activated only when `CI_HAS_CLOUDFLARE_ACCESS` is ALSO set (amendment 4). Env-absent branch keeps pass-with-skip. A pass is no longer reachable from `CI_HAS_CLOUDFLARE_ACCOUNT` presence alone.
+- Converted the credentials-placeholder-read-failed branch in `manifest-schema-validate.mjs::eventSecrecyScan` from warn to fail with a pointer to the exact fixture path (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/*/credentials/probe.json.example`) and the setup requirement (must exist and parse as JSON).
+- Added the cf-edge tunnel shim (`packages/rcf-lite/test/fixtures/cf-edge/h2-cf-tunnel-shim.mjs`) with five seams: `provisionScratchServer`, `destroyScratchServer`, `cloudflaredTunnelInfo`, `fetchTunnelHostname`, `mintScratchIdentity`. The shim reads `H2_CF_TUNNEL_SHIM_MODE` and `H2_CF_TUNNEL_HOSTNAME_SHIM_MODE` for synthetic-mode branches; the probe bodies hold zero `SIMULATE_` token references.
+- Tunnel symbolic-anchor ruling (task C4): the `AC-tunnel-*` symbolic ids on the five tunnel probes ARE the shipped AC ids in the `US-39101..US-39108` contribution band, so no re-anchor was performed. Full mapping in the H-2 PR body.
+
 ## 1.0.0 - 2026-09-08
 
 Initial release. Round-7 T-3 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.

@@ -263,6 +263,49 @@ documentation URL and the ISO-8601 date the fact was verified; a
 citation older than the operator's tolerance is re-verified before the
 AC is treated as ground truth.
 
+A blueprint's seed docs are a minimal representational seed set, not a
+project spec. You have full scope of the project you are driving, and
+you are the party best placed to integrate the seed with the project's
+own chain. After you have disposed of every AC, walk the seed's REQs,
+TACs and ADRs against the project chain (existing REQs, TACs, ADRs and
+the PRD/TAD): resolve integration contradictions you can (parameter
+substitution against a settled project value, naming reconciliation
+against a settled project convention, composition-order reconciliation
+against another applied blueprint), record the disposition in the
+tree, and escalate to the operator only the ones that need a
+product-shape decision or a two-way credential or account decision. An
+internal contradiction (two of the seed's own layers disagreeing about
+the same contract) is not yours to resolve; escalate it as a defect
+against the blueprint's repo and refuse to derive downstream work from
+the ambiguity.
+
+When you escalate, pitch the question at the operator's declared
+register. On your first exchange after `rcf init`, if
+`rcf/.identity/profile.md` carries no `operatorRegister` value, ask one
+question and record the answer to the profile: "One quick set-up
+question. When we need to escalate a decision to you, do you want it
+framed as a product-owner question (plain English, outcome-shaped) or
+an engineer question (with the AC id, the seed's assertion, the
+project's convention)? Answer 'product owner', 'engineer', or 'skip'
+and I will hold the default." A `skip` answer writes `unstated`, which
+reads as `productOwner` on the first escalation; if the operator
+answers in method vocabulary, silently promote to `engineer` for the
+rest of the session and offer to persist the change to the profile.
+
+### RULE 16: Verify with positive evidence.
+
+Every "verified" claim (in the Test and Finalise stages, in the PR body's
+verification section, in any status update) names the runtime it was
+checked against AND cites the positive evidence of the property (a
+request id, a response body excerpt, a created-then-deleted resource id
+in an inventory diff, a real deploy record). "The check did not show the
+bad signature" is not evidence; "the request returned id 8f7a-... and
+the response body carried the created resource id 12345" is. Where the
+account credentials are not present, record the skip honestly (name the
+env var that was unset), never fabricate a pass on the strength of
+absence. This rule mirrors RULE 15's active-disposition posture: an
+absent check is a skip you name, an actual check is a claim you cite.
+
 ### Session start
 
 Run `rcf define validate`. A broken tree is fixed or reported before anything

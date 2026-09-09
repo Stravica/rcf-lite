@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-09-08T12:17:35.296Z",
+  "updatedAt": "2026-09-08T12:19:48.200Z",
+  "asA": "rcf-lite maintainer applying edge-cloudflare-tunnel v1.0.0",
+  "iWant": "real-account-connector-healthy to actually provision the throwaway hetzner server through the T-1 fixture surface and run cloudflared tunnel info <name> asserting healthy connector count (when both CI_HAS_CLOUDFLARE_ACCOUNT and CI_HAS_HETZNER_ACCOUNT are set), real-account-tunnel-hostname-routes to drive undici for the public-hostname sub-case (activated on CI_HAS_CLOUDFLARE_ACCOUNT) and a two-identity JWT probe for the access-gated sub-case (activated only when CI_HAS_CLOUDFLARE_ACCESS is also set), and manifest-schema-validate to fail with a fixture-setup pointer when the credentials placeholder is missing rather than warn",
+  "soThat": "the real-account tunnel run proves connectors are up and routes actually serve on Cloudflare, the warn-on-env-set branches never again mask a broken driver, and a missing fixture pointer surfaces as a clear failure not a warning",
+  "description": "Part of H-2. connector-healthy consumes the hetzner fixture as-is; its defects are H-1 scope at HQ; if the fixture path fails locally the driver fails with a pointer naming the fixture step, never warn. hostname-routes: the public-hostname sub-case fetches the scratch subdomain via undici; the access-gated sub-case obtains an Access Service Token identity, exchanges it for a JWT and asserts an authenticated fetch succeeds AND an unauthenticated fetch is denied; the AUD sub-case stays pass-with-skip when CI_HAS_CLOUDFLARE_ACCESS is unset (HQ note: Access is not enabled on the HQ account today, so at gate time the AUD sub-case stays pass-with-skip until HQ enables Access, expected not a driver defect). Env-absent branch keeps pass-with-skip on both probes; a pass must never again be reachable from account-flag presence alone.",
+  "usId": "US-15301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-153",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-2 tunnel real drivers: connector-healthy exercises cloudflared tunnel info against the throwaway hetzner server; hostname-routes drives undici and (when Access is enabled) a two-identity JWT probe; manifest-schema-validate placeholder becomes fail-with-pointer",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15301-1",
+      "description": "When both CI_HAS_CLOUDFLARE_ACCOUNT and CI_HAS_HETZNER_ACCOUNT are set with the required credentials, real-account-connector-healthy provisions the throwaway hetzner server via the T-1 hetzner fixture surface, brings a named cloudflared tunnel connector up on it, runs cloudflared tunnel info <name> through a cloudflared control shim, asserts the reported healthy connector count is at least one, captures a tunnelConnectorUp event on the injected event sink, and tears the connector and server down on exit. If the hetzner fixture path fails locally the driver fails with a pointer naming the failed fixture step (hetzner fixture defects are H-1 scope at HQ, never a warn on this driver). Env-absent branch keeps section 3.5 pass-with-skip.",
+      "testable": true
+    },
+    {
+      "id": "AC-15301-2",
+      "description": "When CI_HAS_CLOUDFLARE_ACCOUNT is set with the required tunnel credentials, real-account-tunnel-hostname-routes drives an undici fetch against the configured scratch subdomain for the public-hostname sub-case, asserts an HTTP 200 with expected body signature. When CI_HAS_CLOUDFLARE_ACCESS is ALSO set with Access service-token identities, the same probe drives a two-identity JWT sub-case: identity A obtains a JWT via the Service Token exchange and an authenticated fetch to the access-gated hostname succeeds; identity B without a JWT is denied (HTTP 302 to Access or HTTP 401). accountBoundSkipped is never set on the account-set branch; a pass is unreachable from CI_HAS_CLOUDFLARE_ACCOUNT presence alone on this probe. The access-gated sub-case remains pass-with-skip when CI_HAS_CLOUDFLARE_ACCESS is unset (HQ note: not enabled on HQ account today, expected). Env-absent branch keeps pass-with-skip.",
+      "testable": true
+    },
+    {
+      "id": "AC-15301-3",
+      "description": "manifest-schema-validate.mjs returns aggregateVerdict fail (not warn) with a detail string naming the missing credentials placeholder file and the fixture-setup step that would create it when the credentials placeholder is absent. The warn-on-missing-credentials-placeholder branch is removed.",
+      "testable": true
+    }
+  ]
+}
