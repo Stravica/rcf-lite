@@ -249,8 +249,14 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   assert.equal(ml.version, '1.2.0');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);
   const log = JSON.parse(await readFile(join(LOGGING_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(log.version, '1.2.0');
-  assert.deepEqual([...log.capabilities].sort(), ['auditLog', 'sessionInventory']);
+  // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
+  // sessionInventory per section 7c criterion a (no requirement, story or
+  // TAC responsibility ever backed it on this blueprint). Ownership stays
+  // with security-auth-clerk TAC-1003 interfaces.sessionInventory. The
+  // account-settings sessions surface reads the union across applied
+  // blueprints (this shelf-wide test) unchanged.
+  assert.equal(log.version, '1.3.0');
+  assert.deepEqual([...log.capabilities].sort(), ['auditLog']);
   // Section 6a table extension carries the three new capability strings.
   const authoring = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md'), 'utf8');
   assert.match(authoring, /`credentialSelfService`/);

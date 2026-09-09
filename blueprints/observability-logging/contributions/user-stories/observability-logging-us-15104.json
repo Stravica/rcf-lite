@@ -16,10 +16,14 @@
       "when": "one emission is issued at each of the six levels",
       "then": "the stdout line count equals 4 (info, warn, error, fatal), and no line at trace or debug appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info."
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

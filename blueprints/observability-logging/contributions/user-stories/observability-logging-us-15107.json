@@ -16,10 +16,13 @@
       "when": "the code under test emits any number of log lines",
       "then": "the returned array contains one entry per emission with the same object shape the runtime writes to stdout, and stdout carries no line",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

@@ -16,10 +16,13 @@
       "when": "the factory is constructed",
       "then": "construction throws with a message naming 'PII Email' as the offending value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1602-observability-logging-redaction-boundary"],
+  "tacIds": [
+    "TAC-1602-observability-logging-redaction-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

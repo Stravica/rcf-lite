@@ -16,7 +16,9 @@
       "when": "the request is processed (with or without the header set)",
       "then": "every log line emitted during the request carries the same correlationId value; header value wins when present; a v4 UUID is minted otherwise",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited correlation header name on the correlation-header-name elicit; the AC substitutes the elicited value for the illustrative X-Correlation-Id token."
     },
     {
       "id": "AC-15102-2",
@@ -25,7 +27,9 @@
       "when": "the outbound request is sent",
       "then": "the outbound request headers include the correlation header with the ambient value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited correlation header name on the correlation-header-name elicit; the AC substitutes the elicited value for the illustrative X-Correlation-Id token."
     },
     {
       "id": "AC-15102-3",
@@ -34,10 +38,13 @@
       "when": "a boot-time or background emission occurs",
       "then": "the line carries correlationId: null",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

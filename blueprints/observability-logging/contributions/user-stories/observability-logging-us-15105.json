@@ -16,7 +16,9 @@
       "when": "the logger factory is constructed",
       "then": "the construction throws, the error message names the missing field, and the process exits before any emission is possible",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
     },
     {
       "id": "AC-15105-2",
@@ -25,10 +27,14 @@
       "when": "any emission is issued",
       "then": "the stdout line's three fields equal the operator-supplied values verbatim",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals."
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

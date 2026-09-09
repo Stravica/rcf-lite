@@ -16,10 +16,14 @@
       "when": "the factory is constructed",
       "then": "the construction throws with a message naming 'verbose' as the offending value and listing the accepted vocabulary",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info."
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

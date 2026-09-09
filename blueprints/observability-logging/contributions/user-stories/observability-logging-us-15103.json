@@ -16,7 +16,8 @@
       "when": "the emission passes through the boundary",
       "then": "the stdout line's field value equals [REDACTED:pii.email] and the caller-side object still holds the original address",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-15103-2",
@@ -25,10 +26,14 @@
       "when": "an emission includes a field tagged ssn",
       "then": "the stdout line's field value equals [REDACTED:ssn]",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "templateFillIns": "The applying agent sets any project-added redaction categories on the redaction-categories-additions elicit; the AC substitutes the project's category names for the illustrative ssn token."
     }
   ],
-  "tacIds": ["TAC-1602-observability-logging-redaction-boundary"],
+  "tacIds": [
+    "TAC-1602-observability-logging-redaction-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }
