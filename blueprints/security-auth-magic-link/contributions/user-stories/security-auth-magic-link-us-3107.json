@@ -16,7 +16,8 @@
       "when": "the ceiling-plus-one request lands",
       "then": "the response status is 429 and Retry-After is present with a positive integer or a valid HTTP-date at or after request time",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3107-2",
@@ -25,7 +26,8 @@
       "when": "the ceiling-plus-one request lands",
       "then": "the response status is 429 and Retry-After is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3107-3",
@@ -34,7 +36,8 @@
       "when": "the 429 response bodies are captured",
       "then": "every captured body is byte-identical",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3107-4",
@@ -43,7 +46,8 @@
       "when": "the effective ceiling is inspected",
       "then": "the ceiling is five requests per minute per client key; when the project supplies rateLimit={ max, timeWindow } the effective ceiling matches the override",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

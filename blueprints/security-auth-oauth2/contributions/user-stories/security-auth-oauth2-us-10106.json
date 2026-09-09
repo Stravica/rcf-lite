@@ -16,7 +16,8 @@
       "when": "the request is dispatched",
       "then": "the middleware attaches `request.auth` carrying `principalId`, `provider`, `email` (if the provider returned one), `roles` (empty array by default), and `organisationIds` (empty array by default); `principalId` is a stable string derived from `{ provider.id, sub }` (OIDC) or `{ provider.id, userinfo.id }` (oauth2-only)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10106-2",
@@ -25,7 +26,8 @@
       "when": "a request is dispatched with no session cookie, then with a cookie whose value has been tampered by a single byte",
       "then": "the middleware treats each request as unauthenticated; the route handler is not invoked; the response is a 4xx (or a redirect to the sign-in route, per the wiring shim's declared class); no `request.auth` is attached in either case",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10106-3",
@@ -34,7 +36,8 @@
       "when": "the request is dispatched and the resolved `request.auth` object is inspected for keys",
       "then": "the object contains only the fields named in AC-10106-1; no `accessToken`, `idToken`, `refreshToken`, or provider-raw-claims field is exposed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

@@ -11,7 +11,8 @@
     "Refuse boot on a malformed record with a stable-coded error naming the provider id and the missing or invalid field; audit event `oauth2.provider_config_refused` carries provider id and reason class (AC-10108-3).",
     "Expose `resolve(providerId) -> record | absent`; return `absent` for an unknown id and let the flow controller emit OAUTH2_PROVIDER_UNKNOWN (AC-10109-2).",
     "Expose `fetchJwks(providerId) -> { keys[] }` with a cache keyed by provider id whose TTL is `jwksCacheTtlSeconds` (default 900); refresh on cache miss or on a verifier hint that a key is unknown (AC-10105-1, AC-10105-2).",
-    "Never expose `clientSecret` on the client-tier record form; the client-tier record carries a redacted placeholder and the server-tier record carries the real value (REQ-002)."
+    "Never expose `clientSecret` on the client-tier record form; the client-tier record carries a redacted placeholder and the server-tier record carries the real value (REQ-002).",
+    "Validate each enabled provider record's `accountUrl` at boot: an absolute https URL under the provider's documented self-service origin, or an explicit `null` when the provider carries `credentialSelfService: false`; refuse with `OAUTH2_ACCOUNT_URL_MISSING` on a `credentialSelfService: true` record lacking `accountUrl`, or `OAUTH2_ACCOUNT_URL_ORIGIN` on an origin mismatch (AC-10113-1, AC-10113-3, AC-10113-4)."
   ],
   "internalStructure": "One factory function producing an adapter closure over an injected `providerConfig` module (a plain data record set) and an injected `httpFetch` port (the process's HTTP client, either the platform's `fetch` or an injected mock in tests). The JWKS cache is a Map keyed by provider id whose value is `{ keys[], fetchedAt }`; TTL eviction is on read. The validator is a pure function invoked once at boot per record.",
   "interfaces": [

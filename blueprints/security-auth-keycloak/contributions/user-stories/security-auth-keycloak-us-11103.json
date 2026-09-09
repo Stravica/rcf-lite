@@ -16,7 +16,12 @@
       "when": "the verifier is invoked",
       "then": "the verifier consumes the token successfully; no fresh JWKS fetch is observed against the test-injected httpFetch for the duration of this verification; the audit log records no `keycloak.jwks_refreshed` event",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "interfaces.httpFetch.name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-11103-2",
@@ -25,7 +30,12 @@
       "when": "the verifier is invoked twice in the same test: once with the realm's fresh JWKS available on the injected httpFetch, once with the httpFetch instrumented to return a JWKS still missing the kid",
       "then": "the first invocation triggers one JWKS refresh (observed on the injected httpFetch), succeeds verification, emits `keycloak.jwks_refreshed`; the second invocation triggers one JWKS refresh, refuses the token with `KEYCLOAK_JWT_KID_UNKNOWN`, emits one `keycloak.jwt_refused` event carrying realmSlug and reason class `kid-unknown`; a third invocation with the same second-token does NOT trigger a further JWKS refresh within the TTL window",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "interfaces.httpFetch.name"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

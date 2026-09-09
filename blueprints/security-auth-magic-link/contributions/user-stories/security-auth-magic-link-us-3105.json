@@ -16,7 +16,8 @@
       "when": "POST /logout runs",
       "then": "the session record for that handle is deleted from the store, and the response carries a Set-Cookie header clearing the session cookie (Max-Age=0 or an expiry in the past)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3105-2",
@@ -25,7 +26,8 @@
       "when": "a subsequent authenticated request is made using S's handle",
       "then": "the server treats the request as unauthenticated (redirects to /login or returns 401 per the surface's convention) and does not resurrect the session",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3105-3",
@@ -34,7 +36,8 @@
       "when": "revokeAllForPrincipal is invoked with that principal id",
       "then": "the store's session count for that principal drops to zero and every previously issued handle for that principal fails validation on the next request",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

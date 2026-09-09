@@ -16,7 +16,8 @@
       "when": "a handler reads `request.auth`",
       "then": "the observed object's own-property keys are the set `{principalId, roles, organisationIds, claims}` with no additional own properties; `principalId` is a non-empty string; `roles` and `organisationIds` are arrays of strings; `claims` is an object carrying the raw Clerk claim bag for the escape-hatch case",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9102-2",
@@ -25,7 +26,8 @@
       "when": "a scan enumerates every import of `@clerk/*` or the Clerk server SDK equivalent",
       "then": "every match resolves to a file inside the middleware module directory or the session verifier module directory; no other project file imports Clerk directly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

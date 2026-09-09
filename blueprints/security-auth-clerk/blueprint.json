@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-clerk",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "category": "security",
   "capabilities": [
     "principalDirectory",
@@ -155,6 +155,21 @@
       "id": "ADR-1005-security-auth-clerk-session-lifecycle",
       "kind": "adr",
       "path": "adrs/adr-1005-security-auth-clerk-session-lifecycle.json"
+    },
+    {
+      "id": "security-auth-clerk-REQ-010",
+      "kind": "req",
+      "path": "requirements/security-auth-clerk-req-010.json"
+    },
+    {
+      "id": "security-auth-clerk-US-9112",
+      "kind": "us",
+      "path": "user-stories/security-auth-clerk-us-9112.json"
+    },
+    {
+      "id": "security-auth-clerk-REQ-011",
+      "kind": "req",
+      "path": "requirements/security-auth-clerk-req-011.json"
     }
   ]
 }

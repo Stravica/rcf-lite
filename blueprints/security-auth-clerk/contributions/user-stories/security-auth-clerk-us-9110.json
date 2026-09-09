@@ -16,7 +16,8 @@
       "when": "a scan enumerates every call to Clerk's Backend API mutation endpoints",
       "then": "every match resolves to a file under a directory conventionally named `scripts/provisioning/` (or the project's declared equivalent); no match resolves to a request handler, a middleware, or a runtime module served by the project's HTTP surface",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9110-2",
@@ -25,7 +26,8 @@
       "when": "a scan enumerates every Clerk SDK call the two modules make",
       "then": "every match resolves to a read-shaped operation (session verification, organisation membership lookup); no match resolves to a Clerk mutation endpoint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
