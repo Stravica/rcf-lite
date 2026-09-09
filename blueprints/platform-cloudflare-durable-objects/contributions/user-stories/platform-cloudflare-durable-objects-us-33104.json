@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33104-1",
-      "description": "A SingleCellObject with setAlarm(offsetMs=100) fires alarm() when driven at the scheduled time. The alarm() handler runs exactly once, deletes the persisted alarm from storage (getAlarm() returns null after the fire) and emits a doAlarmFired event on the injected sink with {event, key, size, ttl, timestamp, objectName, scheduledTime} where objectName is the object's name and scheduledTime matches the setAlarm scheduled millis. A second call to alarm() on the drained storage does NOT emit a second doAlarmFired for the same schedule (the storage.getAlarm() returns null so the second fire records scheduledTime null).",
-      "given": "a SingleCellObject with setAlarm(100)",
-      "when": "alarm() is driven once and then again after the fire",
-      "then": "the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm() returns null after the first fire",
+      "description": "A SingleCellObject with setAlarm(offsetMs=100) fires alarm() when driven at the scheduled time. The alarm() handler runs exactly once, deletes the persisted alarm from storage (getAlarm() returns null after the fire) and emits EXACTLY ONE doAlarmFired event on the injected sink with {event, key, size, ttl, timestamp, objectName, scheduledTime} where objectName is the object's name and scheduledTime matches the setAlarm scheduled millis. A subsequent second call to alarm() on the drained storage is a no-op: getAlarm() returns null, the handler observes no schedule and returns without emitting a second doAlarmFired event. The drained-alarm contract is single-valued: one setAlarm invocation implies one alarm() fire implies one doAlarmFired record; a bare alarm() call with no persisted schedule emits nothing.",
+      "given": "a SingleCellObject wired with an in-process storage driver whose alarm() handler is driven manually",
+      "when": "setAlarm(offsetMs=100) is called, the clock advances 100ms, alarm() runs, then a second alarm() call runs against the drained storage",
+      "then": "the sink observes exactly one doAlarmFired record with the setAlarm scheduled millis; the second alarm() call emits nothing and getAlarm() returns null throughout",
       "testable": true,
       "scope": "runtime",
       "ownerRef": {
@@ -28,5 +28,5 @@
     "TAC-3403-platform-cloudflare-durable-objects-alarm-handler"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T20:45:00.000Z"
 }
