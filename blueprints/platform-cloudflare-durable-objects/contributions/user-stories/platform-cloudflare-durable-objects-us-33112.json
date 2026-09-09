@@ -18,11 +18,61 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-33112-2",
+      "description": "Bounded-wait: the real-account probe caps its round-trip attempts at 30 seconds. If the storage.put or storage.get calls do not settle within the cap, the probe returns aggregateVerdict:\"fail\" with reason CF_DO_ROUND_TRIP_TIMEOUT and the observed elapsed millis.",
+      "given": "a real-account probe whose CF API calls hang past 30 seconds",
+      "when": "the probe caps the wait",
+      "then": "aggregateVerdict is \"fail\" with reason CF_DO_ROUND_TRIP_TIMEOUT and elapsed millis",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33112-3",
+      "description": "Partial env-var configuration: with CI_HAS_CLOUDFLARE_ACCOUNT=true but CF_API_TOKEN missing, the probe refuses before any API call with a named error kind CF_MISSING_TOKEN naming the missing variable. Same for CF_ACCOUNT_ID or CF_DO_NAMESPACE_ID.",
+      "given": "CI_HAS_CLOUDFLARE_ACCOUNT=true with CF_API_TOKEN unset",
+      "when": "the probe runs",
+      "then": "the probe refuses with CF_MISSING_TOKEN naming the missing variable",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33112-4",
+      "description": "Non-2xx API response: if the Cloudflare API returns a 401, 403 or 5xx during the round-trip, the probe surfaces the observed HTTP status and response body, and returns aggregateVerdict:\"fail\" with reason CF_DO_HTTP_ERROR. 4xx is not retried; 5xx retries once.",
+      "given": "a real-account probe where the DO API returns 403",
+      "when": "the probe attempts the round-trip",
+      "then": "aggregateVerdict is \"fail\" with reason CF_DO_HTTP_ERROR, HTTP status and body",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/platform/limits/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

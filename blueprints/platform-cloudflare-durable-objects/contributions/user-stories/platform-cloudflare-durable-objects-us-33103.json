@@ -18,11 +18,85 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "template"
+    },
+    {
+      "id": "AC-33103-2",
+      "description": "F-6 SQL-specific: a storage driver with {backend:\"sql\"} exposes a .query(sql, ...args) verb that runs a typed SQL statement against the DO SQLite backend; a driver with {backend:\"kv\"} has no .query verb (typeof driver.query === \"undefined\"). This aligns with the ADR-3403 backend-swap contract: SQL supports typed columns and query, KV is put/get/delete/list only.",
+      "given": "two storage drivers, one with backend \"sql\" and one with backend \"kv\"",
+      "when": "the .query property is inspected on each driver",
+      "then": "the SQL driver exposes .query as a function; the KV driver has no .query property",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33103-3",
+      "description": "F-6 KV-specific: a storage driver with {backend:\"kv\"} refuses a batch-write call driver.batch([...]) with a named error kind DO_STORAGE_UNSUPPORTED_ON_KV naming the operation. A driver with {backend:\"sql\"} accepts driver.batch([...]) and returns the batched writes. The refusal is a first-class boundary of the KV backend rather than a silent unavailability.",
+      "given": "a storage driver with backend \"kv\"",
+      "when": "driver.batch([{put:...}, {put:...}]) is called",
+      "then": "the driver throws DO_STORAGE_UNSUPPORTED_ON_KV naming \"batch\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33103-4",
+      "description": "F-7 write failure boundary: a driver.put(\"k\",\"v\") whose underlying backing store throws (simulated by a stubbed backing that rejects on put) surfaces the error unwrapped to the caller with a stable error kind DO_STORAGE_WRITE_FAILED whose message includes the key \"k\". No partial write persists (a subsequent get(\"k\") returns undefined). The write-failed event does not land on the DO event sink because the storage layer is under the single-cell, not the facade.",
+      "given": "a storage driver whose backing store put rejects synthetically",
+      "when": "driver.put(\"k\",\"v\") is called",
+      "then": "the call rejects with DO_STORAGE_WRITE_FAILED naming \"k\"; a subsequent get returns undefined",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33103-5",
+      "description": "Empty and maximal collection boundaries: driver.list({prefix:\"\"}) on an empty store returns an empty Map (size 0); driver.list({prefix:\"\"}) on a store with 100 keys returns a Map of size 100 with every key preserved. The list result is a Map, not an array, so key insertion order does not affect the assertion.",
+      "given": "a storage driver on an empty store and, separately, on a store with 100 keys",
+      "when": "driver.list({prefix:\"\"}) is called on each",
+      "then": "the empty store returns a Map of size 0; the populated store returns a Map of size 100",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33103-6",
+      "description": "Value-size boundary (vendor-cited): a put(\"k\", value) with value at 131072 bytes (the documented Cloudflare DO storage per-value cap of 128 KiB) succeeds and round-trips through get; a put(\"k\", value) with value at 131073 bytes refuses with DO_STORAGE_VALUE_TOO_LARGE naming the observed byte count and the vendor limit URL. On the KV backend the equivalent cap is 25 MiB per the Workers KV limit page; the driver reports the cap it enforces.",
+      "given": "a storage driver on the SQL backend with a 131072-byte value and, separately, a 131073-byte value",
+      "when": "put is called on each",
+      "then": "the 128 KiB value round-trips; the 131073-byte value refuses with DO_STORAGE_VALUE_TOO_LARGE naming the cap",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/platform/limits/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

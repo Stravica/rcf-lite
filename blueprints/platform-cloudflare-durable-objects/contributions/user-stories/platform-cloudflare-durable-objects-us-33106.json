@@ -22,11 +22,53 @@
         "field": "interfaces.createDoFacade"
       },
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-33106-2",
+      "description": "Allow-list mutation: a wrapper sink that adds a top-level \"requestId\" key onto every record trips the layer-1 forbidden-key scan (requestId is not in the allow-list). The event-secrecy probe surfaces the key by name and returns aggregateVerdict:\"fail\". Under SIMULATE_PII_LEAK=false (the shipped path) no wrapper is in play and the scan returns zero forbidden hits.",
+      "given": "the event-secrecy probe under SIMULATE_PII_LEAK=true with a wrapper adding \"requestId\" onto every record",
+      "when": "the layer-1 scan runs on the accumulated records",
+      "then": "the scan surfaces \"requestId\" as a forbidden key; aggregateVerdict is \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+        "field": "responsibilities.allowList"
+      }
+    },
+    {
+      "id": "AC-33106-3",
+      "description": "Closure-over-fixture: a hub handler that captures a PII fixture ({userId:12345, ssn:\"REDACTED-fixture\"}) via a JavaScript closure and mutates a scratch object each call still produces sink records whose JSON serialisation contains no \"12345\" and no \"REDACTED-fixture\" substring. Layer-2 substring scan returns zero hits on the shipped path (SIMULATE_PII_LEAK=false).",
+      "given": "a hub handler closing over a PII fixture on the shipped path",
+      "when": "the event-secrecy probe runs a broadcast that triggers the handler",
+      "then": "the layer-2 substring scan on the emitted records returns zero hits for the PII substrings",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+        "field": "responsibilities.allowList"
+      }
+    },
+    {
+      "id": "AC-33106-4",
+      "description": "Empty-payload boundary: a broadcast with an empty body ({type:\"broadcast\", payload:\"\"}) still emits doBroadcast records on the sink carrying the required allow-list keys (event, key, size:0, ttl:null, timestamp:<number>, objectName:<hub id>). No allow-list key is silently omitted when the payload is empty; size reports 0 rather than undefined.",
+      "given": "a HubObject broadcasting an empty payload",
+      "when": "the sink is inspected after the broadcast",
+      "then": "the doBroadcast record carries every required allow-list key with size:0 (never undefined)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+        "field": "responsibilities.allowList"
+      }
     }
   ],
   "tacIds": [
     "TAC-3405-platform-cloudflare-durable-objects-event-sink"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

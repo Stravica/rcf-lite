@@ -18,11 +18,53 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-33111-2",
+      "description": "F-6 SQL exposes query verbs: createInMemoryDoStorage({backend:\"sql\"}) returns a driver where typeof driver.query === \"function\" and typeof driver.exec === \"function\". createInMemoryDoStorage({backend:\"kv\"}) returns a driver where those properties are undefined; the KV surface is put/get/delete/list only. The verb set observable on the driver instance reflects the elicited backend.",
+      "given": "a SQL driver and a KV driver from the factory",
+      "when": "their verb sets are inspected",
+      "then": "the SQL driver has .query and .exec as functions; the KV driver does not",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33111-3",
+      "description": "F-6 KV refusal error kind: calling .query() on a KV driver throws DO_STORAGE_UNSUPPORTED_ON_KV naming the verb \"query\"; calling .exec() throws with naming \"exec\". The error message identifies the driver.backend value (\"kv\") so the caller can distinguish which backend refused.",
+      "given": "a KV driver from the factory",
+      "when": ".query() or .exec() is called",
+      "then": "the call throws DO_STORAGE_UNSUPPORTED_ON_KV naming the verb and the backend",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
+    },
+    {
+      "id": "AC-33111-4",
+      "description": "Unknown backend refuses: createInMemoryDoStorage({backend:\"redis\"}) throws DO_STORAGE_UNKNOWN_BACKEND naming the offered value \"redis\"; the accepted values (\"sql\" and \"kv\") are listed in the message. No driver is returned.",
+      "given": "a factory call with backend \"redis\"",
+      "when": "the factory is invoked",
+      "then": "the factory throws DO_STORAGE_UNKNOWN_BACKEND naming \"redis\" and listing \"sql\" and \"kv\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.storage"
+      }
     }
   ],
   "tacIds": [
     "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-09T20:05:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }
