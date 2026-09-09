@@ -306,6 +306,292 @@ The disposition marker sits at the AC level, not the sub-clause level. An AC who
 
 **Where the machine-checkable enforcement lands.** The disposition marker wants to be a first-class field on the AC record: a `disposition: "fixed" | "template"` enum, and for `fixed` ACs whose truth rests on a vendor fact, a `vendorCitation: {url: string, verifiedOn: string}` object with the URL fetched and the ISO-8601 date the fact was verified. That extension lives in `@stravica-ai/rcf-schemas` and is a separate follow-up; it is not a prerequisite for this section taking effect. Until the schema field lands, the disposition and the citation live inline in the AC's `description` and the guide's cross-reference, and the rows in section 6 of the [authoring checklist](blueprint-authoring-checklist.md) are the gate today. The applying-agent side of the rule is carried in the managed agent-instructions block (`RULE 15: On blueprint apply, dispose every AC`), so `rcf init` and `rcf doctor` install and refresh it into every project's `CLAUDE.md` and `AGENTS.md` alongside the other rules of the loop.
 
+## 7c. REQ-layer sufficiency
+
+Section 7 asks whether an AC is runtime-observable; section 7a asks whether
+the AC SET on a story covers the mechanism; section 7b asks whether each AC
+is the blueprint's to fix or the applying agent's to set. Neither answers a
+question a recent review of shipped blueprints surfaced repeatedly: is the
+story there at all? A blueprint whose manifest declares a capability token,
+or offers an elicit with an option value, is committing to behaviour a
+project can rely on. If no requirement on the blueprint carries that
+commitment, the token or the option can be selected and quietly ignored,
+and no downstream check bites because no chain link asks after it.
+
+**The rule.** Every capability token a blueprint declares on
+`blueprint.json:capabilities[]`, and every option value a blueprint offers
+on any `blueprint.json:elicits[].options[]` (or the value space named by
+its `kind` when `options` is not enumerated), is backed by at least one
+`must`-priority requirement on the blueprint before the blueprint ships. A
+manifest with no `elicits` key is legal only when no requirement
+description, guide passage or TAC responsibility names an apply-time
+answer.
+
+**Two defect shapes.** The rule bites on two shapes a recent review of
+shipped blueprints found twenty-one instances of between them.
+
+- **Declared capability without a covering requirement.** The manifest
+  declares a token on `capabilities[]`. No requirement's description names
+  the token or the contract behind it. A consumer blueprint that reads the
+  applied capability set will accept the token and configure its surface
+  on the assumption of a contract the provider blueprint never wrote down.
+- **Elicited option without a covering requirement.** The manifest offers
+  an option value on an `elicits[]` entry (an enum option, a bounded
+  string value, a boolean branch). No requirement describes what the
+  selected value does. The apply verb collects the answer, stores it on
+  the sidecar file, and no subsequent gate checks that the applied
+  behaviour matches the answer.
+
+**Two supporting clauses.**
+
+- **The `elicits`-key-legality clause.** A manifest that omits `elicits`
+  entirely is legal only when no apply-time answer is named anywhere in
+  the blueprint's requirements, guide, or TAC records. When a requirement
+  description reads "the applied X" or "the elicited Y", or a guide
+  section walks the operator through apply-time answers, the `elicits`
+  key must exist and each named answer must appear on it. The reverse
+  form of the rule catches the six blueprints the recent review found
+  that describe apply-time answers in prose but ship no elicit block.
+- **Reasoned removal.** A capability or option that appears on the
+  manifest with no covering requirement is not fixed by inventing a
+  requirement to match. Either the missing behaviour is added, in which
+  case the requirement is authored and the AC set on the owning story is
+  swept per section 7a; or the token or option is genuinely out of scope
+  for the blueprint, in which case it is removed from the manifest and
+  the CHANGELOG names the removal.
+
+**Worked example (illustrative).** The `application-onboarding-tour`
+blueprint's `blueprint.json` at v1.0.0 offers an elicit
+`dismissal-policy` with three option values (`permanent`, `versionMajor`,
+`versionMinor`). The blueprint's requirement set at the shipped version
+carries no clause describing what each dismissal policy does: none of the
+seven requirements binds the `permanent` behaviour (the checklist is
+dismissed once and never returns), the `versionMajor` behaviour (a major
+version bump re-surfaces the checklist), or the `versionMinor` behaviour
+(any version bump re-surfaces it). The TAC that stores completion state
+records versions in a shape consistent with all three, but "the shape can
+carry the fact" is not the same as "a requirement asks after the fact".
+An operator can select `versionMajor` at apply and the applied blueprint
+will silently behave as `permanent`, because nothing on the chain says
+otherwise.
+
+The fix is to author one `must`-priority requirement whose description
+names each of the three option values and gives each a runtime clause
+(the `permanent` branch stores a terminal completion record and refuses
+re-surfacing regardless of version bump; the `versionMajor` branch
+compares stored and current versions on the major segment and re-surfaces
+when the majors differ; the `versionMinor` branch re-surfaces when either
+segment differs). One story on the same US band binds the three behaviours
+as ACs per section 7a. The `dismissal-policy` elicit is now covered; the
+apply verb's answer flows through a requirement, a story and an AC set to
+a runtime observable a probe pack can bind.
+
+**Where the machine-checkable enforcement lands.** The loader today
+validates the shape of `capabilities[]` and `elicits[]` (kebab or camel
+string, non-empty when present) and enforces the roles-registry cross
+check. A future minor may extend the loader with two mechanical scans:
+one that fails a manifest whose `capabilities[]` token is not named in
+any contributed REQ's `description`, and one that fails a manifest whose
+`elicits[]` option value is not named similarly. Both are string scans;
+neither requires vocabulary knowledge. That extension is a separate
+follow-up and is not a prerequisite for this section taking effect. Until
+the loader fires, the rule is author-owned and reviewer-checked; the rows
+in section 6 of the [authoring checklist](blueprint-authoring-checklist.md)
+are the gate today.
+
+## 7d. Positive-evidence verification
+
+A verification artefact exists to prove that a property held. The property
+is what the reader cares about, and the artefact is only as useful as its
+statement of the property's observation. A gate row that greps for the
+string "not wired" proves the string was absent from a run; a probe that
+returns `verdict: pass` on the strength of a credential-readiness check
+proves the credentials were readable; a seam test that asserts a literal
+deprecated migration keyword proves the deprecated keyword was still in
+the file. None of the three prove the property the artefact exists to
+protect.
+
+**The rule.** Every verification artefact in the RCF authoring, gate
+and apply process asserts positive evidence of the property it exists to
+protect, never the absence of a previously seen bad signature.
+
+**Four positive-evidence shapes.** A verification artefact meets the rule
+by carrying at least one of the four shapes below.
+
+- **A real request identifier.** The artefact records a request id
+  returned by the real engine under test (a vendor request id echoed on a
+  response header, a transaction id from an idempotent verb, a subject id
+  on an audit event). The presence of the id proves the request was
+  issued and the engine answered; the id lets a later reader reopen the
+  interaction against the same engine.
+- **A response body excerpt.** The artefact records a distinctive
+  excerpt of the response body the engine returned (a header value, a
+  numeric field, a status code paired with a resource id). The excerpt
+  proves the engine returned data of the expected shape, not that a
+  local mock returned data of the expected shape.
+- **A created-then-deleted resource id in an inventory diff.** The
+  artefact records a resource id the probe created against the engine,
+  and the same id absent from the post-run inventory. The pair proves
+  the probe wrote and then cleaned up, and that the engine's inventory
+  reflects the write.
+- **A real deploy record.** The artefact records the runtime the deploy
+  produced (a deployed URL that answers, a bytes-hash of the produced
+  artefact, a container image digest). The record proves the shipped
+  artefact reached the runtime, not that a local build succeeded.
+
+**Env var declaration.** Every environment variable a probe or a fixture
+reads is declared on the fixture's own manifest. The first-tier `CI_HAS_*`
+env var that gates the account-bound branch is declared, and every
+second-tier variable the branch reads once past the gate is declared too
+(a per-resource id, a per-endpoint URL, a per-namespace binding). A probe
+that short-circuits on an undeclared env var and returns `verdict: pass`
+is a probe that proved nothing; the declaration and the checklist row
+together refuse the return before it is committed.
+
+**Account-bound skip.** A real-engine probe run without the account
+credentials skips honestly. The probe records `accountBoundSkipped: true`
+and a `reason` field naming the env var that was unset; the aggregate
+verdict flips to `pass` at the delivery-ci-workflows layer per the
+round-5 shape. A probe that returns without either positive evidence or
+`accountBoundSkipped: true` is FAIL, whatever its verdict field says.
+
+**Vendor citation on vendor facts.** Any assertion inside a probe or a
+gate row that rests on a third-party platform fact carries the vendor
+URL and the ISO-8601 date the fact was verified, per section 7b's vendor
+citation clause. A gate row that greps for a literal engine-specific
+string (a migration keyword, a header name, a config-file key) has as
+much shelf-life as the vendor fact it embeds, and no more.
+
+**Worked example (illustrative).** A recent shelf review of a Cloudflare
+Queues concurrency probe found the probe's account-bound branch returned
+`verdict: pass` with `accountBoundSkipped: true` whenever a second-tier
+variable (a per-queue consumer worker URL) was unset, without the
+fixture declaring the variable and without the probe naming the unset
+in `reason`. The gate row that greped for `verdict: 'warn'` and the
+string "not wired" passed because neither appeared, and the run
+produced no evidence of the property the probe existed to protect
+(concurrent delivery through the live binding). The rule-compliant
+shape ships the fixture's env-var table naming the URL, refuses `pass`
+unless the probe records a request id from a real `POST
+/accounts/<id>/queues/<id>/messages` round trip or records
+`accountBoundSkipped: true` with the exact reason
+(`CI_HAS_CLOUDFLARE_ACCOUNT` unset, or the second-tier URL unset), and
+carries the vendor URL and an ISO-8601 `verifiedOn` date on the Queues
+API citation inside the probe.
+
+**Where the machine-checkable enforcement lands.** The probe-pack
+record-composition function
+`composeBrowserVerificationRecord` in
+`packages/rcf-lite/src/browser-verify/manifest-writer.js` is the seam.
+The rule as amended reads: at record composition time, a per-check
+record's `verdict: pass` is remapped to `verdict: fail` with `detail:
+'positive-evidence-missing'` when the record carries neither an
+`evidence` field of one of the four shapes above nor an
+`accountBoundSkipped: true` field with a non-empty `reason`. The remap
+happens inside record composition; the aggregate scalar returned by
+`aggregateVerdict` in the same file (`'pass' | 'warn' | 'block'`) then
+reflects the remapped record naturally. The composed record is what the
+manifest carries, so the fail surfaces at the ship gate exactly where
+the operator can act on it. Until the amendment lands in a package
+minor, the rule is author-owned and reviewer-checked; the checklist
+rows and the round-gate template row are the gate today.
+
+## 7e. Single-definition ownership and authoring order
+
+Section 7a asks whether the AC SET on a story covers the mechanism.
+Section 7b asks whether each AC is the blueprint's to fix or the
+applying agent's to set. Section 7c asks whether a story exists at all
+for every declared capability and elicited option. Section 7d asks
+whether every verification artefact carries positive evidence. Neither
+answers a question a recent review of shipped blueprints kept
+surfacing: when the same contract is written down in more than one
+place, which one is authoritative and how do the others stay in step?
+
+A blueprint's chain has two roots (PRD to REQ to US and AC; TAD to TAC
+and ADR) plus a guide surface with no chain edge at all. The authoring
+standard has specified no ORDER between the two roots and the guide, so
+contracts (field names, header names, enums, wire shapes, boot events,
+behaviour decisions) get restated in several layers and drift silently.
+A recent review of shipped blueprints found this shape thirty-two
+times across nineteen blueprints.
+
+**The rule.** Every named contract is defined EXACTLY ONCE in one
+owning artefact, and every other layer references it (by id and field)
+rather than restating it. The owner is determined by the kind of
+contract.
+
+- **Wire shapes, schemas, field names, header names, enums, interface
+  signatures: the TAC.** The TAC record's `interfaces[]` and
+  `internalStructure` are the definitive source. REQs and ACs that need
+  to name a field, header, enum member or wire shape do so by pointing
+  at the owning TAC's field rather than restating the literal. Guide
+  code fences either quote the TAC field literal or are generated from
+  it.
+- **Behaviour decisions with alternatives (fold vs drop, retry vs
+  pause, hosted vs self-hosted, idempotent vs at-least-once): the
+  ADR.** The ADR's `decision` block is the definitive source. Every TAC
+  and AC that acts on the decision references the ADR by id.
+- **Externally promised properties (a global staleness ceiling, an
+  anti-enumeration guarantee, a forward-only migration invariant, a
+  boot-event contract): the REQ.** The REQ's `description` is the
+  definitive source. Every REQ carries a `deliveredBy` field naming the
+  TAC or ADR that delivers the property; a REQ with no `deliveredBy`
+  (or a `deliveredBy` pointing at a TAC whose responsibilities do not
+  carry the delivery) is refused at the ownership lint.
+- **The story (US): outcome and scope, not contract.** A US describes
+  what a user does and why; the ACs it owns REFERENCE the contract
+  owners rather than restating them. An AC's then-clause reads "the
+  response matches `TAC-X.request.header`", not "the response carries
+  `X-Foo`".
+- **The guide: prose that reads humans, quoting the owners.** No new
+  contract statements. A guide code fence is either a verbatim quote
+  from the TAC (with an id-and-field cross-reference the lint checks)
+  or is generated at build time from the TAC's schema. Freeform prose
+  about when to reach for the blueprint is fine; a snippet that
+  restates a field or a header is not.
+
+Rule of thumb for the author: if a name, a shape or a value appears in
+two artefacts and both spell it out, one of them is wrong to be
+spelling it out. Move the literal to the owner and turn the other into
+a reference.
+
+**Authoring order that follows.** Ownership implies an order. TAC
+interfaces and ADR decisions settle FIRST, because REQs need to point
+at what delivers them and ACs need to point at what shape they observe.
+Guide snippets are checked against (or generated from) the TAC
+interface, so they follow the TAC too.
+
+1. TAD and TAC interfaces plus ADR decisions (the contract owners).
+2. REQs, each with a `deliveredBy` pointing at a settled TAC or ADR.
+3. USs and their ACs, each referencing the owning TAC or ADR by id and
+   field.
+4. Guide, quoting or generating from the settled TACs and ADRs.
+
+An author who works out of order (writes an AC that names a header
+before the TAC owns it) can still finish, but must fold the header into
+the TAC before shipping and turn the AC into a reference; the lint
+refuses the ship otherwise. This is the same shape as RULE 15's
+"actively dispose of every template AC": the discipline is that the
+mechanism catches the shortcut, not that the author never takes it.
+
+**Where the machine-checkable enforcement lands.** A new lint verb
+lands under the `blueprint` group (`lint-consistency <source>`) and
+runs two passes over a blueprint's own JSON and markdown. Pass 1 (single-definition
+ownership): walk every TAC's `interfaces[]` and `internalStructure` to
+collect the owned literals; walk every REQ, US, AC, ADR and guide
+surface for restatements; refuse any literal restated outside its owner
+without a back-reference, or any restatement that disagrees with the
+owner. Pass 2 (REQ delivery): walk every REQ; for each REQ that
+promises an externally observable property, walk its `deliveredBy`
+link; refuse the REQ when the linked TAC's `responsibilities[]` and
+`interfaces[]` do not carry the property, or when no link is declared.
+The checklist rows in section 6 of the [authoring checklist](blueprint-authoring-checklist.md)
+name the lint at the author-side gate; the release-train CI runs the
+lint at the ship gate. A blueprint may suppress a specific pass-1
+finding by naming its id in `README.md` under "Known
+chain-consistency-lint suppressions" with a one-sentence reason;
+pass-2 findings are not suppressible.
+
 ## 8. Versioning and re-apply
 
 `blueprint.json:version` is semver. What re-apply does (`packages/rcf-lite/src/blueprint/apply.js`):
@@ -457,6 +743,20 @@ The runner runs the pack pass after invariants and after auth-smoke on `agentScr
 ```
 
 The aggregate verdict extends the existing rule in `manifest-writer.js:aggregateVerdict`: `block` on any invariant / auth-smoke / pack-check / pre-check severity=block fail; `warn` on any warn-severity fail when no block fires; `pass` otherwise. A pack whose `appliesTo` returns false is recorded with `applicable: false`, contributes no checks, and does not affect the verdict.
+
+Section 7d refines the aggregate verdict. `pass` on a `checks[].run`
+record is legal only when the record carries either an `evidence` field
+(a request id, a response body excerpt, a created-then-deleted resource
+id in an inventory diff, or a rendered-bytes hash), or an
+`accountBoundSkipped: true` field with a non-empty `reason`. A record
+with a `pass` verdict and neither field is remapped to `fail` at
+aggregate time with `detail: "positive-evidence-missing"`. The remap
+surfaces the defect at the ship gate; the composed record is what the
+manifest carries. `preChecks[]` records the same way. A pack whose
+author cannot supply either field for a check adjudicates the check as
+`accountBoundSkipped: true` with the exact reason, or as a defect
+against the check's authoring, never as `pass` on the strength of
+absence.
 
 The `rcf verify browser <fbs-id> --probe-pack <name>` option restricts one run to one pack by packName; an unknown value exits 2 with a diagnostic that names the discovered packs. Omitting `--probe-pack` runs every discovered pack whose `appliesTo` matches this FBS.
 

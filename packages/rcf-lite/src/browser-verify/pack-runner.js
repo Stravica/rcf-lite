@@ -81,10 +81,16 @@ export async function runProbePacksForFbs({
     for (const pre of pack.preChecks) {
       let verdict = 'pass';
       let detail;
+      let preEvidence;
+      let preAccountBoundSkipped;
+      let preReason;
       try {
         const outcome = await pre.run({ fbs, uiBaseline, manifest, runtimeUrl, fetch, browser });
         verdict = outcome?.verdict ?? 'pass';
         detail = outcome?.detail;
+        preEvidence = outcome?.evidence;
+        preAccountBoundSkipped = outcome?.accountBoundSkipped;
+        preReason = outcome?.reason;
       } catch (err) {
         verdict = 'fail';
         detail = `pre-check threw: ${err.message}`;
@@ -94,6 +100,9 @@ export async function runProbePacksForFbs({
         verdict,
         severity: pre.severity,
         ...(typeof detail === 'string' && detail.length > 0 ? { detail } : {}),
+        ...(preEvidence != null ? { evidence: preEvidence } : {}),
+        ...(preAccountBoundSkipped === true ? { accountBoundSkipped: true } : {}),
+        ...(typeof preReason === 'string' && preReason.length > 0 ? { reason: preReason } : {}),
       });
       if (verdict === 'fail') failedPreCheckIds.add(pre.id);
       if (verdict === 'fail' && pre.severity === 'block') highest = 'block';
@@ -154,10 +163,16 @@ export async function runProbePacksForFbs({
         : { browser, fetch, runtimeUrl, route: primaryRoute, theme: primaryTheme, projectRoot };
       let verdict = 'pass';
       let detail;
+      let checkEvidence;
+      let checkAccountBoundSkipped;
+      let checkReason;
       try {
         const outcome = await check.run(context);
         verdict = outcome?.verdict ?? 'pass';
         detail = outcome?.detail;
+        checkEvidence = outcome?.evidence;
+        checkAccountBoundSkipped = outcome?.accountBoundSkipped;
+        checkReason = outcome?.reason;
       } catch (err) {
         verdict = 'fail';
         detail = `check threw: ${err.message}`;
@@ -167,6 +182,9 @@ export async function runProbePacksForFbs({
         verdict,
         severity: check.severity,
         ...(typeof detail === 'string' && detail.length > 0 ? { detail } : {}),
+        ...(checkEvidence != null ? { evidence: checkEvidence } : {}),
+        ...(checkAccountBoundSkipped === true ? { accountBoundSkipped: true } : {}),
+        ...(typeof checkReason === 'string' && checkReason.length > 0 ? { reason: checkReason } : {}),
       });
       if (verdict === 'fail' && check.severity === 'block') highest = 'block';
       else if (verdict === 'fail' && check.severity === 'warn' && highest !== 'block') highest = 'warn';

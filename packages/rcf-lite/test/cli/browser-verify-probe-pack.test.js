@@ -98,7 +98,7 @@ export default {
   blueprintSlug: 'application-datatable',
   appliesTo: ({ fbs }) => Array.isArray(fbs?.designStage?.navModel?.routes) && fbs.designStage.navModel.routes.some((r) => r.path === '/dt'),
   checks: [
-    { id: 'AC-17101-1', severity: 'block', description: 'Sort click', run: async ({ browser }) => ({ verdict: browser === 'pw-stub' ? 'pass' : 'fail' }) },
+    { id: 'AC-17101-1', severity: 'block', description: 'Sort click', run: async ({ browser }) => (browser === 'pw-stub' ? { verdict: 'pass', evidence: { kind: 'responseExcerpt', value: 'sort-order-observed' } } : { verdict: 'fail' }) },
   ],
 };
 `);
