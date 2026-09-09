@@ -2,8 +2,8 @@
   "ok": true,
   "strict": false,
   "totals": {
-    "requirements": 87,
-    "covered": 87,
+    "requirements": 92,
+    "covered": 92,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3476,6 +3476,129 @@
           "covered": true,
           "testCases": [
             "TC-175-mock-consumes-rendered-file-and-probe-purity"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-150",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15001-1",
+          "covered": true,
+          "testCases": [
+            "TC-180-no-ac-5xxx-after-re-anchor"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15001-2",
+          "covered": true,
+          "testCases": [
+            "TC-180-shipped-kv-ac-coverage-union"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-151",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15101-1",
+          "covered": true,
+          "testCases": [
+            "TC-181-do-real-storage-round-trip-driver"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15101-2",
+          "covered": true,
+          "testCases": [
+            "TC-181-do-thirteen-ac-coverage-union"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-152",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15201-1",
+          "covered": true,
+          "testCases": [
+            "TC-182-queue-real-concurrency-500-msg"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-153",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15301-1",
+          "covered": true,
+          "testCases": [
+            "TC-183-tunnel-connector-healthy-real-driver"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15301-2",
+          "covered": true,
+          "testCases": [
+            "TC-183-tunnel-hostname-routes-real-driver"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15301-3",
+          "covered": true,
+          "testCases": [
+            "TC-183-manifest-schema-fail-with-pointer"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-154",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15401-1",
+          "covered": true,
+          "testCases": [
+            "TC-184-simulate-purity-four-blueprints"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15401-2",
+          "covered": true,
+          "testCases": [
+            "TC-184-envelope-hygiene-four-blueprints"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15401-3",
+          "covered": true,
+          "testCases": [
+            "TC-184-marker-hygiene-four-blueprints"
           ],
           "unresolvedTestCases": []
         }

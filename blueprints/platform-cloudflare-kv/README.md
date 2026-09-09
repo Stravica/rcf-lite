@@ -80,7 +80,7 @@ under the fixture root.
 | `cache-aside-hit-then-miss.mjs` | `AC-31105-1` | no | Wraps a spy origin function with the cache-aside helper, drives one call within TTL (hit, no origin call), advances the fake clock past TTL, drives another call (miss, second origin call). |
 | `event-secrecy.mjs` | `AC-31108-1` | no | Two-layer assertion: whitelist check on every event record and PII-substring scan on the JSON serialisation. A mutation-run under `SIMULATE_PII_LEAK` flips the probe to fail. |
 | `list-with-prefix.mjs` | `AC-31104-1` | no | Puts 10 keys under `flags/` plus one decoy outside the prefix, calls `list({prefix: flags/})`, asserts all 10 return with correct metadata shape and the decoy is absent. |
-| `real-account-eventual-consistency-smoke.mjs` | `AC-31108-1` | yes | Opens the facade against a real Cloudflare KV namespace via the Workers KV REST API, writes a fixture key, polls up to 60 seconds bounded, asserts the write eventually appears; without `CI_HAS_CLOUDFLARE_ACCOUNT` records `accountBoundSkipped: true` and aggregates `pass` per spec section 3.5. |
+| `real-account-eventual-consistency-smoke.mjs` | `AC-31108-1` | yes | Self-provisioning: the fixture shim (`packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`) mints a scratch KV namespace under the H-2 throwaway prefix `h2-cf-probe-integrity-scratch-kv-`, writes a fixture key under the `h2-storage-smoke-` prefix, polls up to 60 seconds bounded for same-region visibility, deletes the key, and destroys the namespace on exit. Positive evidence captured: namespace id, exact scratch title, key, PUT / GET / DELETE status codes, elapsed ms. Idempotent prefix-sweep entry point (`sweepOrphans`) filters over the account by the frozen throwaway prefix and deletes each match by exact id and exact name; the sweep is structurally unable to select a non-prefixed name, paginates KV namespaces to completion (Dave ruling 4e9ff62d item 5), and is exercised by the fixture's sweep-safety test against the ten live production script names on the operator account plus a 250-per-type multi-page cover. Without `CI_HAS_CLOUDFLARE_ACCOUNT` records `accountBoundSkipped: true` and aggregates `pass` per spec section 3.5. **The local proof exercises OUR lifecycle logic against a mock of Cloudflare's contract; the real-account gate is the only surface that proves the wire format.** |
 
 ## How to run the probes
 
@@ -104,8 +104,13 @@ Induced-failure switches:
   calls where one was expected and returns `aggregateVerdict: fail`.
 
 The real-account smoke needs `CI_HAS_CLOUDFLARE_ACCOUNT=true` plus
-the paired `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID`, `CF_API_TOKEN`
-env vars.
+the paired `CF_ACCOUNT_ID` and `CF_API_TOKEN` env vars. The fixture
+mints its own throwaway KV namespace under the H-2 prefix; no
+pre-provisioned namespace is required (the earlier `CF_KV_NAMESPACE_ID`
+gate is removed as of v1.1.0 per w-2026-09-08-dave-017). A test
+override `CF_API_BASE_URL` points the shim at a local mock CF REST
+API for local proof; the mock and its test lives under
+`packages/rcf-lite/test/fixtures/cf-platform/test/`.
 
 ## Known mechanism-reach gaps
 
@@ -118,11 +123,15 @@ env vars.
   the aggregate flips to `pass` with `accountBoundSkipped: true` per
   spec section 3.5. Full mechanism reach requires a CI environment
   with the paired env vars set.
-- The elicited `kv-metadata-field-pattern` cannot yet gate on an
-  `elicitedNonEmpty` predicate for `kv-binding-name`; the loader's
-  `validateElicits` accepts only `requiresCapability` on the `when`
-  block. The elicit fires unconditionally and the guide teaches the
-  pattern.
+- The elicited `kv-metadata-field-pattern` fires unconditionally
+  rather than gating on an `elicitedNonEmpty` predicate for
+  `kv-binding-name`; the loader's `validateElicits` accepts only
+  `requiresCapability` on the `when` block today. The guide teaches
+  the pattern; a loader-capability uplift extending
+  `validateElicits` to accept an `elicitedNonEmpty` predicate is
+  captured as follow-up work item
+  `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability
+  change, out of H-2's 0.25.x patch scope per Dave ruling 1).
 
 ## Companion suggestions
 
@@ -152,8 +161,27 @@ env vars.
 
 The anatomy test at
 `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js`
-binds every AC on `US-5001..5401` (`AC-5001-1..AC-5401-1`) to a test
-case in that file with a resolvable `testPointer`. Repo-chain slice
-under `packages/rcf-lite/rcf/`: `REQ-050..054` (5), `US-5001..5401`
-(8), `TS-080..087` (8), `FBS-070` (1), `CN-230..234` (5) per the
-HQ round-6 T-1 reserved-block ruling 2026-09-07T10:12Z.
+binds every AC on the shipped kv user stories `US-31101..US-31108`
+(`AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`,
+`AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`,
+`AC-31108-1`) to a test case in that file with a resolvable
+`testPointer`, and to the union of the five contributed probe
+result records. The five probes carry the following anchors: the
+facade-round-trip probe holds `AC-31103-1` as primary and adds
+`AC-31101-1` (facadeReady), `AC-31103-2` (delete then kvMiss),
+`AC-31104-1` (list-with-prefix compact case) and `AC-31102-1`
+(sole-reader env.CACHE grep) as additional results; the
+list-with-prefix probe holds `AC-31104-1`; the
+cache-aside-hit-then-miss probe holds `AC-31105-1` and
+`AC-31106-1`; the event-secrecy probe holds `AC-31108-1` and
+`AC-31107-1` (whitelist scan); the real-account-eventual-
+consistency smoke re-covers `AC-31103-1` on a real Cloudflare KV
+namespace. The blueprint contribution IDs are namespaced
+`platform-cloudflare-kv-REQ-001..005` and
+`platform-cloudflare-kv-US-31101..31108` per the shelf-wide
+id-band registry. The prior chain-slice pointer
+paragraph cited a defunct earlier id band that never became chain
+rows on this repo; that citation was removed in the H-2
+(h2-cf-platform-probe-integrity) train per Dave ruling 4
+(2026-09-08 relay 582c2bca): the earlier band was not resurrected
+and every kv probe result now cites the shipped `AC-31xxx` band.

@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-09-08T12:17:35.792Z",
+  "updatedAt": "2026-09-08T12:19:48.599Z",
+  "asA": "rcf-lite maintainer applying the four Cloudflare-platform blueprints",
+  "iWant": "no SIMULATE_ read anywhere in a shipped probe body on the four blueprints, no fail envelope committed under .rcf/reports on the four blueprints, and every committed envelope reflecting a shipped-code pass run against the re-anchored probes",
+  "soThat": "the mutation-purity rule holds at the probe boundary, envelopes are trusted evidence rather than stale fail records, and honest labelling of local test doubles restores probe-comment credibility",
+  "description": "Part of H-2. All SIMULATE_ branches in shipped probe bodies (kv cache-aside-hit-then-miss, kv event-secrecy, DO sole-reader-scan, DO storage-round-trip, DO websocket-hub-broadcast) move to fixture-side shim modules under packages/rcf-lite/test/fixtures/cf-platform/ or .../cf-edge/. New shim files carry the h2-cf-platform-probe-integrity slug prefix (short form h2-cf acceptable). Every driver's negative path is proven by firing the fixture-side mutation switch and observing the FAIL tail; only shipped-code pass envelopes are committed. The committed fail envelope at .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is deleted and a shipped-code pass envelope committed in its place; the other four kv envelopes are regenerated so committed envelopes reflect re-anchored shipped-code runs. Probe comments labelling doubles as fake state / fake WebSocket pair / fake clock are reworded to name the local double honestly, or adjudicated acceptable with reason in the PR body.",
+  "usId": "US-15401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-154",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "H-2 cross-cutting probe hygiene: SIMULATE_ branches out of probe bodies into fixture shims; no fail envelope committed; probe comments name test doubles honestly",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15401-1",
+      "description": "A grep for the token SIMULATE_ across every shipped probe module (contributions/probes/*.mjs) on the four Cloudflare-platform blueprints (platform-cloudflare-kv, platform-cloudflare-durable-objects, messaging-queue-cloudflare, edge-cloudflare-tunnel) returns zero hits. Every mutation switch previously read from a probe body is now read from a fixture-side shim module under packages/rcf-lite/test/fixtures/cf-platform/ or .../cf-edge/ whose file name carries the h2-cf-platform-probe-integrity slug prefix (short form h2-cf acceptable). For each moved switch, a corresponding FAIL tail is observed and recorded in the PR provenance transcript when the shims switch is on.",
+      "testable": true
+    },
+    {
+      "id": "AC-15401-2",
+      "description": "No committed report under .rcf/reports/blueprints/{platform-cloudflare-kv, platform-cloudflare-durable-objects, messaging-queue-cloudflare, edge-cloudflare-tunnel}/ carries aggregateVerdict fail or warn. Every committed envelope on the four blueprints reflects a shipped-code pass run against the re-anchored probes; the previously committed fail envelope at .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is replaced with a shipped-code pass envelope.",
+      "testable": true
+    },
+    {
+      "id": "AC-15401-3",
+      "description": "Every probe-comment or probe-utils-comment surfaced by stage-1 marker rows (kv fake clock; DO fake state; DO probe-utils lines 73 and 75; DO websocket-hub-broadcast fake WebSocket pair; kv not-yet elicit-gating wording) is either reworded to name the local test double honestly on its terms (a fixture in-memory driver realises the Workers KV binding shape; a synthetic WebSocket pair; an elicited fake wall-clock advanced deterministically by the fixture; a follow-up work-item note in place of not-yet) or adjudicated acceptable in the PR body with a stated reason. No shipped probe comment on the four blueprints carries a bare fake / not-yet marker without either honest naming or an adjudication row.",
+      "testable": true
+    }
+  ]
+}

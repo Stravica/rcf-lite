@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-kv",
   "probeName": "list-with-prefix",
-  "runAt": "2026-09-07T11:36:45.888Z",
+  "runAt": "2026-09-08T12:29:53.917Z",
   "engine": {
     "kind": "kv",
     "image": "in-memory KV driver realising Workers KV binding shape",
@@ -9,7 +9,7 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-5102-1",
+      "anchorAcId": "AC-31104-1",
       "verdict": "pass",
       "detail": "list({prefix: flags/}) returned 10 keys under the prefix; every entry carries {name, metadata} with metadata.v=1; decoy key outside prefix was NOT included"
     }

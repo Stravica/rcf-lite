@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-kv",
   "probeName": "cache-aside-hit-then-miss",
-  "runAt": "2026-09-07T11:50:02.899Z",
+  "runAt": "2026-09-08T12:30:53.874Z",
   "engine": {
     "kind": "kv",
     "image": "in-memory KV driver realising Workers KV binding shape",
@@ -9,12 +9,12 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-5201-1",
+      "anchorAcId": "AC-31105-1",
       "verdict": "pass",
       "detail": "first miss then cached: originCalls=2 secondSource=cache"
     },
     {
-      "anchorAcId": "AC-5201-2",
+      "anchorAcId": "AC-31106-1",
       "verdict": "pass",
       "detail": "past-TTL read triggered origin: originCalls=2 thirdSource=origin"
     }

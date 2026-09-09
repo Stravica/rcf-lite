@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-526",
+  "path": "../../blueprints/edge-cloudflare-tunnel/blueprint.json",
+  "implementsAcIds": [
+    "AC-15301-1",
+    "AC-15301-2",
+    "AC-15301-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-08T13:01:58.994Z",
+  "updatedAt": "2026-09-08T13:01:58.994Z"
+}

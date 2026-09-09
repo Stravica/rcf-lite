@@ -112,7 +112,10 @@ async function eventSecrecyScan(credentialsPath) {
   try {
     creds = JSON.parse(await readFile(credentialsPath, 'utf8'));
   } catch (err) {
-    return { verdict: 'warn', detail: `credentials placeholder read failed: ${err.message}` };
+    return {
+      verdict: 'fail',
+      detail: `credentials placeholder read failed at ${credentialsPath}: ${err.message}. Fix the fixture setup step (packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/*/credentials/probe.json.example must exist and parse as JSON) before re-running the probe. A missing placeholder is a fixture-setup defect, not an event-secrecy warning.`,
+    };
   }
   const eventBody = {
     kind: 'cloudflaredReady',

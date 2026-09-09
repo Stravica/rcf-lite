@@ -1566,6 +1566,55 @@ flowchart LR
   REQ-145 --> AC-14501-1
   TC-175-mock-consumes-rendered-file-and-probe-purity["TC-175-mock-consumes-rendered-file-and-probe-purity"]
   AC-14501-1 -.-> TC-175-mock-consumes-rendered-file-and-probe-purity
+  REQ-150["REQ-150"]
+  AC-15001-1["AC-15001-1"]
+  REQ-150 --> AC-15001-1
+  TC-180-no-ac-5xxx-after-re-anchor["TC-180-no-ac-5xxx-after-re-anchor"]
+  AC-15001-1 -.-> TC-180-no-ac-5xxx-after-re-anchor
+  AC-15001-2["AC-15001-2"]
+  REQ-150 --> AC-15001-2
+  TC-180-shipped-kv-ac-coverage-union["TC-180-shipped-kv-ac-coverage-union"]
+  AC-15001-2 -.-> TC-180-shipped-kv-ac-coverage-union
+  REQ-151["REQ-151"]
+  AC-15101-1["AC-15101-1"]
+  REQ-151 --> AC-15101-1
+  TC-181-do-real-storage-round-trip-driver["TC-181-do-real-storage-round-trip-driver"]
+  AC-15101-1 -.-> TC-181-do-real-storage-round-trip-driver
+  AC-15101-2["AC-15101-2"]
+  REQ-151 --> AC-15101-2
+  TC-181-do-thirteen-ac-coverage-union["TC-181-do-thirteen-ac-coverage-union"]
+  AC-15101-2 -.-> TC-181-do-thirteen-ac-coverage-union
+  REQ-152["REQ-152"]
+  AC-15201-1["AC-15201-1"]
+  REQ-152 --> AC-15201-1
+  TC-182-queue-real-concurrency-500-msg["TC-182-queue-real-concurrency-500-msg"]
+  AC-15201-1 -.-> TC-182-queue-real-concurrency-500-msg
+  REQ-153["REQ-153"]
+  AC-15301-1["AC-15301-1"]
+  REQ-153 --> AC-15301-1
+  TC-183-tunnel-connector-healthy-real-driver["TC-183-tunnel-connector-healthy-real-driver"]
+  AC-15301-1 -.-> TC-183-tunnel-connector-healthy-real-driver
+  AC-15301-2["AC-15301-2"]
+  REQ-153 --> AC-15301-2
+  TC-183-tunnel-hostname-routes-real-driver["TC-183-tunnel-hostname-routes-real-driver"]
+  AC-15301-2 -.-> TC-183-tunnel-hostname-routes-real-driver
+  AC-15301-3["AC-15301-3"]
+  REQ-153 --> AC-15301-3
+  TC-183-manifest-schema-fail-with-pointer["TC-183-manifest-schema-fail-with-pointer"]
+  AC-15301-3 -.-> TC-183-manifest-schema-fail-with-pointer
+  REQ-154["REQ-154"]
+  AC-15401-1["AC-15401-1"]
+  REQ-154 --> AC-15401-1
+  TC-184-simulate-purity-four-blueprints["TC-184-simulate-purity-four-blueprints"]
+  AC-15401-1 -.-> TC-184-simulate-purity-four-blueprints
+  AC-15401-2["AC-15401-2"]
+  REQ-154 --> AC-15401-2
+  TC-184-envelope-hygiene-four-blueprints["TC-184-envelope-hygiene-four-blueprints"]
+  AC-15401-2 -.-> TC-184-envelope-hygiene-four-blueprints
+  AC-15401-3["AC-15401-3"]
+  REQ-154 --> AC-15401-3
+  TC-184-marker-hygiene-four-blueprints["TC-184-marker-hygiene-four-blueprints"]
+  AC-15401-3 -.-> TC-184-marker-hygiene-four-blueprints
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2393,6 +2442,33 @@ flowchart LR
   class REQ-145 req;
   class AC-14501-1 ac;
   class TC-175-mock-consumes-rendered-file-and-probe-purity tc;
+  class REQ-150 req;
+  class AC-15001-1 ac;
+  class TC-180-no-ac-5xxx-after-re-anchor tc;
+  class AC-15001-2 ac;
+  class TC-180-shipped-kv-ac-coverage-union tc;
+  class REQ-151 req;
+  class AC-15101-1 ac;
+  class TC-181-do-real-storage-round-trip-driver tc;
+  class AC-15101-2 ac;
+  class TC-181-do-thirteen-ac-coverage-union tc;
+  class REQ-152 req;
+  class AC-15201-1 ac;
+  class TC-182-queue-real-concurrency-500-msg tc;
+  class REQ-153 req;
+  class AC-15301-1 ac;
+  class TC-183-tunnel-connector-healthy-real-driver tc;
+  class AC-15301-2 ac;
+  class TC-183-tunnel-hostname-routes-real-driver tc;
+  class AC-15301-3 ac;
+  class TC-183-manifest-schema-fail-with-pointer tc;
+  class REQ-154 req;
+  class AC-15401-1 ac;
+  class TC-184-simulate-purity-four-blueprints tc;
+  class AC-15401-2 ac;
+  class TC-184-envelope-hygiene-four-blueprints tc;
+  class AC-15401-3 ac;
+  class TC-184-marker-hygiene-four-blueprints tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

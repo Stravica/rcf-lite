@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 87  covered: 87  covered-unresolved: 0  uncovered: 0
+Requirements: 92  covered: 92  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -357,3 +357,14 @@ REQ-133      yes      AC-13301-1  yes         TC-160-aud-presence-flip-on-both-f
 REQ-134      yes      AC-13401-1  yes         TC-160-credentials-discipline-and-event-secrecy
 REQ-140      yes      AC-14001-1  yes         TC-170-hetzner-endpoint-round-trip-and-skipped-shape
 REQ-145      yes      AC-14501-1  yes         TC-175-mock-consumes-rendered-file-and-probe-purity
+REQ-150      yes      AC-15001-1  yes         TC-180-no-ac-5xxx-after-re-anchor
+                      AC-15001-2  yes         TC-180-shipped-kv-ac-coverage-union
+REQ-151      yes      AC-15101-1  yes         TC-181-do-real-storage-round-trip-driver
+                      AC-15101-2  yes         TC-181-do-thirteen-ac-coverage-union
+REQ-152      yes      AC-15201-1  yes         TC-182-queue-real-concurrency-500-msg
+REQ-153      yes      AC-15301-1  yes         TC-183-tunnel-connector-healthy-real-driver
+                      AC-15301-2  yes         TC-183-tunnel-hostname-routes-real-driver
+                      AC-15301-3  yes         TC-183-manifest-schema-fail-with-pointer
+REQ-154      yes      AC-15401-1  yes         TC-184-simulate-purity-four-blueprints
+                      AC-15401-2  yes         TC-184-envelope-hygiene-four-blueprints
+                      AC-15401-3  yes         TC-184-marker-hygiene-four-blueprints

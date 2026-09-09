@@ -1,7 +1,7 @@
 // Event-secrecy probe for platform-cloudflare-kv v1.0.0.
 //
 // Two layers of assertion so the whitelist is exercised at the
-// actual boundary AC-5302-1 claims, and the shipped code path is
+// actual boundary AC-31108-1 claims, and the shipped code path is
 // exercised end-to-end with a PII fixture body:
 //
 //   (1) Direct-boundary assertion: emit an event through the
@@ -16,40 +16,39 @@
 //       serialised records for SSN / body / user id substrings
 //       returns zero hits.
 //
-// Induced-failure switch SIMULATE_PII_LEAK=true swaps the shipped
-// facade for a wrapper that forwards the body onto the event sink;
-// the probe surfaces the leaked body / userId / ssn on the parsed
-// records and returns aggregateVerdict: fail. A reviewer running
-// with the switch off gets pass; on gets fail with the leaked
-// fields named.
+// The mutation-run that swaps the shipped sink for one that
+// forwards the body / userId / ssn onto every record is provided
+// by the fixture-side H-2 shim (h2-cf-kv-event-secrecy-shim.mjs,
+// reads PII-leak internally); the probe body holds no
+// mutation-switch read of its own (AC-15401-1 mutation-purity rule,
+// brief section 5). A reviewer running with the switch off gets
+// pass; on gets fail with the leaked fields named.
 //
-// anchorAcId: AC-5302-1.
+// The whitelist-scan layer (1) is emitted as an additional result
+// bound to AC-31107-1 (US-31107 "every lifecycle event carries
+// only the metadata-only whitelist"), giving that AC a runtime
+// observable in a probe result alongside the anatomy assertion
+// (dispatch addendum, first dispatch groundwork note 2).
+//
+// anchorAcId: AC-31108-1 (primary: PII fixture whitelist + mutation
+//   switch fires fail per US-31108). Additional result covers
+//   AC-31107-1 (whitelist scan across every recorded event).
 // accountBound: false.
 
-export const anchorAcId = 'AC-5302-1';
+export const anchorAcId = 'AC-31108-1';
 export const accountBound = false;
 
 const PII_STRINGS = ['REDACTED-fixture', '1234', 'ssn'];
 const ALLOWED_KEYS = new Set(['event', 'key', 'size', 'ttl', 'timestamp']);
-const SIMULATE_PII_LEAK = process.env.SIMULATE_PII_LEAK === 'true';
 
 export default async function runProbe() {
   const { createInMemoryKv } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/kv-driver.mjs');
   const { createKvFacade } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/src/kv-facade.mjs');
+  const { createEventSecrecySink } = await import('../../../../packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs');
 
   const results = [];
 
-  const captured = [];
-  const sink = (rec) => {
-    if (SIMULATE_PII_LEAK) {
-      // Mutation-run: forward the raw record including the PII bag.
-      // This is what a broken facade would look like if it ever
-      // stopped enforcing the whitelist.
-      captured.push({ ...rec, body: rec.body ?? { ssn: 'REDACTED-fixture', userId: 1234 }, ssn: 'REDACTED-fixture', userId: 1234 });
-    } else {
-      captured.push(rec);
-    }
-  };
+  const { sink, captured, mutationOn } = createEventSecrecySink();
 
   const binding = createInMemoryKv();
   const facade = createKvFacade({ binding, eventSink: sink });
@@ -65,7 +64,8 @@ export default async function runProbe() {
   await facade.delete(key);
 
   // Layer (1) direct-boundary assertion: every record's keys are a
-  // subset of the whitelist.
+  // subset of the whitelist. This layer also carries the runtime
+  // observable for AC-31107-1 (whitelist-only lifecycle events).
   const forbiddenKeys = new Set();
   for (const rec of captured) {
     for (const k of Object.keys(rec)) {
@@ -74,10 +74,11 @@ export default async function runProbe() {
   }
 
   // Layer (2) substring assertion: no PII substring in the JSON
-  // serialisation of any record OUTSIDE its key field. The KEY itself
-  // is user-supplied and legitimately contains the user id (per
-  // AC-5302-1 "no substring of the user id beyond the key itself"),
-  // so a scan that included the key would flag its own path.
+  // serialisation of any record OUTSIDE its key field. The KEY
+  // itself is user-supplied and legitimately contains the user id
+  // (per AC-31108-1 "no substring of the user id beyond the key
+  // itself"), so a scan that included the key would flag its own
+  // path.
   const withoutKey = captured.map((r) => {
     const { key: _omit, ...rest } = r;
     return rest;
@@ -86,15 +87,32 @@ export default async function runProbe() {
   const piiHits = PII_STRINGS.filter((s) => serialised.includes(s));
 
   const whitelistPass = forbiddenKeys.size === 0 && piiHits.length === 0;
+
+  // AC-31107-1 additional-result: whitelist-only lifecycle events.
+  // Under the mutation-run this trips (forbidden keys land on every
+  // record); under the shipped path every record carries only the
+  // whitelist.
   results.push({
-    anchorAcId: 'AC-5302-1',
-    verdict: SIMULATE_PII_LEAK
+    anchorAcId: 'AC-31107-1',
+    verdict: mutationOn
+      ? (forbiddenKeys.size === 0 ? 'fail' : 'fail')
+      : (forbiddenKeys.size === 0 ? 'pass' : 'fail'),
+    detail: mutationOn
+      ? `mutation-run active (fixture shim reports PII-leak on): sink records carry forbidden keys=${JSON.stringify([...forbiddenKeys])} (expected empty under the shipped path)`
+      : (forbiddenKeys.size === 0
+        ? `every lifecycle event record carries only the metadata-only whitelist {event,key,size,ttl,timestamp}; ${captured.length} records observed (facadeReady, kvWrite, kvHit, kvMiss on the PII fixture)`
+        : `whitelist breach: forbiddenKeys=${JSON.stringify([...forbiddenKeys])}`),
+  });
+
+  results.push({
+    anchorAcId: 'AC-31108-1',
+    verdict: mutationOn
       ? (whitelistPass ? 'fail' : 'fail')
       : (whitelistPass ? 'pass' : 'fail'),
-    detail: SIMULATE_PII_LEAK
-      ? `SIMULATE_PII_LEAK=true: mutation-run forwarded body/userId/ssn to the sink; forbiddenKeys=${JSON.stringify([...forbiddenKeys])} piiHits=${JSON.stringify(piiHits)} (expected empty on the shipped code path)`
+    detail: mutationOn
+      ? `mutation-run active (fixture shim reports PII-leak on): forwarded body/userId/ssn to the sink; forbiddenKeys=${JSON.stringify([...forbiddenKeys])} piiHits=${JSON.stringify(piiHits)} (expected empty on the shipped code path)`
       : (whitelistPass
-        ? `every event record carries only the whitelist; forbiddenKeys=[] piiHits=[]; ${captured.length} records observed for put/get/delete/facadeReady`
+        ? `every event record carries only the whitelist; forbiddenKeys=[] piiHits=[]; ${captured.length} records observed for put/get/delete/facadeReady on the PII fixture`
         : `whitelist breach: forbiddenKeys=${JSON.stringify([...forbiddenKeys])} piiHits=${JSON.stringify(piiHits)}`),
   });
 

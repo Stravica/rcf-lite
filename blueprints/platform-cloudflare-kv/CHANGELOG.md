@@ -2,6 +2,45 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.0.2 (2026-09-08)
+
+H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the real-account KV probe now self-provisions its own throwaway namespace, closing the second-tier undeclared-env skip HQ hit at the real-account gate on 2026-09-08 (`REAL RUN: PARTIAL`, `MERGE DECISION: HOLD`). No shipped-code capability change.
+
+### Changed
+
+- `real-account-eventual-consistency-smoke.mjs` rewritten against a new self-provisioning fixture shim at `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`. The shim mints a scratch KV namespace under the frozen throwaway prefix `h2-cf-probe-integrity-scratch-kv-`, writes a fixture key under `h2-storage-smoke-`, polls up to 60 seconds bounded for same-region visibility, deletes the key, and destroys the namespace on exit. Positive evidence captured on every real-account run: namespace id, exact scratch title, key, PUT / GET / DELETE status codes, elapsed ms.
+- Removed the second-tier `CF_KV_NAMESPACE_ID` gate that produced the undeclared skip at the H-2 real-account gate. The declared env for a real-account run is now `CI_HAS_CLOUDFLARE_ACCOUNT` + `CF_ACCOUNT_ID` + `CF_API_TOKEN` (optional test override `CF_API_BASE_URL`), enumerated in the probe's `report.extra.envDeclared` and mirrored in the shim's `DECLARED_ENV` export.
+- Teardown is fail-safe and idempotent: a mid-run crash surfaces the minted id through the shim's persisted scratch record; the shim's separate `sweepOrphans` entry point lists over the account and filters on the throwaway prefix. Sweep is structurally unable to select a non-prefixed name (three independent guards: prefix assert on mint, prefix assert on destroy against the record, prefix assert on the live-listing observation; sweep-only prefix filter mirrors the destroy assertions). A dedicated sweep-safety test at `packages/rcf-lite/test/fixtures/cf-platform/test/h2-cf-kv-real-account-shim.test.mjs` seeds the mock account with the ten live production script names on the operator account plus a sneaky mid-string-prefix name and asserts sweep selects zero of them.
+
+### Added
+
+- Self-contained mock CF REST API at `packages/rcf-lite/test/fixtures/cf-platform/test/mock-cf-api-server.mjs` (Node `node:http` only, zero-dep) implementing the KV namespaces + values + keys endpoints the shim hits, with page + per_page pagination on the namespaces list. Test at `test/h2-cf-kv-probe-e2e.test.mjs` boots the mock in-process, points the shim at it via `CF_API_BASE_URL`, and drives the probe end-to-end to prove the mint / evidence-capture / teardown / zero-orphans loop before the HQ real-account run ever executes.
+- `kvListNamespaces` in the shared CF REST client (`h2-cf-account-api.mjs`) paginates to completion via the documented `per_page` + `page` loop (Dave ruling 4e9ff62d item 5) so `sweepOrphans` is not silently truncated to page one on a busy account. `kvDeleteNamespace` is idempotent on 404 (Dave ruling 4e9ff62d items 3+4).
+
+### Local-proof scope note
+
+The local proof harness under `packages/rcf-lite/test/fixtures/cf-platform/test/` is a mock of Cloudflare's REST contract, not the wire. **The local run exercises OUR lifecycle logic against a mock of Cloudflare's contract; the real-account gate is the only surface that proves the wire format.** This probe is never described as "locally verified" - the local runs are our own lifecycle-logic proof; wire correctness is proven at the HQ real-account gate.
+
+## 1.0.1 (2026-09-08)
+
+H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch across the four Cloudflare-platform blueprints. No capability change.
+
+### Changed
+
+- Re-anchored all five KV probes and the README from the defunct `AC-5xxx` id space to the shipped `AC-31xxx` band (nine shipped ACs: `AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`, `AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`, `AC-31108-1`). Every one of the nine now has a runtime observable through a re-anchored probe. Anatomy-test assertions in `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js` moved with the re-anchor. Dispatch addendum ruling 1.
+- Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
+- Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
+- Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
+- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1). The entry describes the current shipped shape and points forward to the follow-up.
+
+### Fixed
+
+- Removed the committed fail envelope at `.rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json`; committed a shipped-code pass envelope in its place. Regenerated the other KV envelopes so committed envelopes reflect the re-anchored shipped-code runs.
+
+### Chain slice
+
+- Train chain slice minted inside the reserved H-2 block: `REQ-150..154`, `US-15001..15401`, twelve `AC-15xxx` ACs, `TS-180..184` with eleven TCs, `FBS-170..174`, `CN-520..529` (seven used, three reserved). Full mint transcript in the H-2 PR provenance.
+
 ## 1.0.0 (2026-09-07)
 
 ### Added
@@ -18,4 +57,4 @@ All notable changes to `platform-cloudflare-kv` are recorded here. The shape fol
 
 - The `real-account-eventual-consistency-smoke` probe records `accountBoundSkipped: true` and aggregates to `pass` when `CI_HAS_CLOUDFLARE_ACCOUNT` is unset (spec section 3.5 pass-with-skip). Full mechanism reach requires a CI environment with the paired `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID` and `CF_API_TOKEN` env vars.
 - The four local probes drive an in-memory KV driver whose shape matches the Workers KV binding at the facade boundary. Vendor surface changes beyond that boundary (a new list cursor format, a header-only limit) are not caught by the local probes; the real-account smoke is the mechanism-reach closure for that gap.
-- The loader's supported `when` block on `elicits[]` only accepts `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` cannot yet gate on an `elicitedNonEmpty` predicate for `kv-binding-name`. A future loader minor extending `validateElicits` would close that gap; the elicit fires unconditionally today and the guide teaches the pattern.
+- The loader's supported `when` block on `elicits[]` currently accepts only `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` fires unconditionally rather than gating on an `elicitedNonEmpty` predicate for `kv-binding-name`. The elicit fires unconditionally today and the guide teaches the pattern; a loader-capability uplift extending `validateElicits` to accept an `elicitedNonEmpty` predicate is captured as follow-up work item `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability change, out of H-2's 0.25.x patch scope per Dave ruling 1).
