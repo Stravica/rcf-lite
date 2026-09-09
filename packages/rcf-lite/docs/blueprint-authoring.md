@@ -574,7 +574,7 @@ refuses the ship otherwise. This is the same shape as RULE 15's
 "actively dispose of every template AC": the discipline is that the
 mechanism catches the shortcut, not that the author never takes it.
 
-**Where the machine-checkable enforcement lands.** `rcf blueprint lint-consistency <source>`
+**Where the machine-checkable enforcement lands.** `rcf define blueprint lint-consistency <source>`
 runs two passes over a blueprint's own JSON and markdown. Pass 1 (single-definition
 ownership): walk every TAC's `interfaces[]` and `internalStructure` to
 collect the owned literals; walk every REQ, US, AC, ADR and guide

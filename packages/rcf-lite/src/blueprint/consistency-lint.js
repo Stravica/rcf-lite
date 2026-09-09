@@ -4,7 +4,7 @@
 // Two passes over ONE blueprint's own JSON and markdown. Pure functions;
 // the CLI seam loads the blueprint from disk and hands the model in.
 //
-// PASS 1 — single-definition ownership, MECHANICAL ONLY.
+// PASS 1: single-definition ownership, MECHANICAL ONLY.
 //   The check is intentionally conservative. Pass 1 fires when the
 //   same identifier-shaped literal appears on more than one artefact
 //   and one of the appearances is case-INCONSISTENT with the owning
@@ -19,7 +19,7 @@
 //   knowledge, and the spec explicitly names four human-read shapes
 //   the lint does not catch, per section 5.7).
 //
-// PASS 2 — REQ delivery, MECHANICAL.
+// PASS 2: REQ delivery, MECHANICAL.
 //   A REQ whose description carries a promise phrase (must / requires
 //   / guarantees / ceiling / never / invariant / on boot / at boot /
 //   event / boundary) must carry a `deliveredBy` link into a TAC or
