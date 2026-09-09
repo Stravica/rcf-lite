@@ -50,6 +50,5 @@
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The mount observable is covered here for both always-pass (AC-35101-1) and always-fail (AC-35101-2) test-key branches per the Cloudflare Turnstile testing docs; boot-time refusals when the elicited sitekey or secret is missing live on US-35102 AC-35102-2..4 as the widget-mount and verifier-boot refusal ACs, so this story's mount-observable footprint is complete per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

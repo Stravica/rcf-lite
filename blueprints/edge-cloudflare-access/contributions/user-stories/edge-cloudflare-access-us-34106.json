@@ -28,6 +28,6 @@
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the audit-event record-shape assertion (10 records, exact key set, no token substring); reject-branch outcomes are covered by US-34102 AC-34102-1..5, so a single AC on this story is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the audit-event record-shape assertion (10 records across 5 pass and 5 reject requests, exact key set, no token substring). Reject-branch outcomes are covered by US-34102; per section 7a, this story carries a single AC because the record-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

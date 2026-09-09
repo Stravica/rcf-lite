@@ -24,6 +24,6 @@
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the event-secrecy probe (record-shape keys only, no token or secret substring); verifier-error record shapes are covered by US-35103 AC-35103-1..6, so a single AC on this story is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the event-secrecy probe against Cloudflare siteverify with the pinned test keys (record carries {sitekeyHash, outcome, timestamp} only; no token or secret substring). Verifier-error record shapes are covered by US-35103; per section 7a, this story carries a single AC because the event-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

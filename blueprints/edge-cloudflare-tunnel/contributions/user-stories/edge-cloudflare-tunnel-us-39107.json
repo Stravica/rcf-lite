@@ -11,9 +11,26 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-accessGatedRefuse",
-      "description": "aud-presence-check FAILS under SIMULATE_AUD_DROP when the gated fixture ingress drifts to omit the originRequest.access block. The finding names the affected rule and the missing AUD value.",
+      "description": "Given the gated fixture sidecar mutated via SIMULATE_AUD_DROP (one ingress rule drifts to omit the originRequest.access block), when aud-presence-check runs, the probe returns aggregateVerdict:fail with detail naming the affected ingress rule and the missing AUD value.",
       "testable": true,
       "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.audAttach"
+      },
+      "given": "the gated fixture sidecar with one ingress rule missing the originRequest.access block (SIMULATE_AUD_DROP=true)",
+      "when": "aud-presence-check runs on the mutated gated sidecar",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the affected rule and the missing AUD value"
+    },
+    {
+      "id": "AC-tunnel-accessGatedRefuseHappy",
+      "description": "Given the canonical access-gated fixture sidecar (every non-catch-all ingress rule attaches the originRequest.access block with an AUD value), when aud-presence-check runs, the probe returns aggregateVerdict:pass with a zero-drift finding count on the gated variant.",
+      "given": "the canonical gated fixture sidecar with originRequest.access block attached on every non-catch-all rule",
+      "when": "aud-presence-check runs on the gated variant sidecar",
+      "then": "the probe returns aggregateVerdict:pass with a zero-drift finding count",
+      "testable": true,
+      "scope": "library",
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
@@ -25,6 +42,5 @@
     "TAC-4003-edge-cloudflare-tunnel-access-binding"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single documented drift path (an access-gated fixture that omits the originRequest.access block, exercised via SIMULATE_AUD_DROP) is bound by this AC; the deeper edge-side reject/accept branches live on US-39106 as the four accessGatedReject*/AcceptValid ACs, so a single AC on this story is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

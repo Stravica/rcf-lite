@@ -11,12 +11,22 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36107-1",
-      "description": "The event-secrecy probe drives a synthetic drift-audit payload constructed from a fixture rule and a fake live-zone response; every drift record on the sink carries only {ruleId, outcome, timestamp, diff} with the schema-safe diff fields and NEVER a clientIpHash key, NEVER a full IP (regex 4-octet dotted quad or v6 group), NEVER a request-body key, NEVER a user-agent key; a separate runtime request-event synthetic payload produces records with {ruleId, clientIpHash, outcome, timestamp} where clientIpHash is a bounded hashed prefix (32 hex chars max), never a full IP; the SIMULATE_EVENT_LEAK_IP=true switch injects a full IP into any record and the probe returns aggregateVerdict: fail with the leaked key named.",
+      "description": "Given a synthetic drift-audit payload constructed from a fixture rule and a fake live-zone response, and a separate runtime request-event synthetic payload, when the event-secrecy probe reads the sink, every drift-audit record carries only {ruleId, outcome, timestamp, diff} (never clientIpHash, never a full IP as regex 4-octet dotted quad or v6 group, never a request-body key, never a user-agent key), and every request-event record carries only {ruleId, clientIpHash, outcome, timestamp} where clientIpHash is a bounded hashed prefix (32 hex chars max, never a full IP); the probe returns aggregateVerdict:pass.",
       "given": "the shipped drift-audit runner and a synthetic input pair",
       "when": "the event-secrecy probe drives the runner and inspects the resulting records",
       "then": "every record carries only the metadata-safe fields; SIMULATE_EVENT_LEAK_IP=true surfaces a leaked key and the aggregate verdict is fail",
       "testable": true,
       "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-36107-2",
+      "description": "Given the SIMULATE_EVENT_LEAK_IP=true switch, a full IP is injected into a record produced by the runner, when the event-secrecy probe reads the sink, the probe returns aggregateVerdict:fail with detail naming the leaked key.",
+      "given": "the drift-audit runner producing records under SIMULATE_EVENT_LEAK_IP=true (a full IP injected into one record)",
+      "when": "the event-secrecy probe scans the sink",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the leaked key",
+      "testable": true,
+      "scope": "library",
       "disposition": "fixed"
     }
   ],
@@ -24,6 +34,5 @@
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the event-secrecy probe, whose documented failure path (SIMULATE_EVENT_LEAK_IP) is exercised inside the same AC; the drift-runner API/timeout/malformed reject branches live on US-36104 AC-36104-3..7, so a single AC on this story is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

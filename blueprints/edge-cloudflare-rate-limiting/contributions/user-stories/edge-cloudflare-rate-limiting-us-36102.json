@@ -24,6 +24,6 @@
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the guide-section presence assertion (both flows documented, vendor URL cited); the guide itself has no documented runtime failure path for this story, so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the guide-section presence assertion for the management-surface documentation. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }

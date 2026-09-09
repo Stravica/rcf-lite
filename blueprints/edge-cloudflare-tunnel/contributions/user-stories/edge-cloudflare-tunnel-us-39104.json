@@ -11,9 +11,30 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-hostnameRoutes",
-      "description": "cloudflared-config-lint probe runs cloudflared tunnel ingress validate against the fixture manifest (through the cloudflare/cloudflared:2026.8.3 container image when the binary is not on PATH) and exits 0 on the canonical fixture; SIMULATE_INGRESS_INVALID rewrites the service URL to an unresolvable scheme and the probe FAILS.",
+      "description": "Given the canonical fixture manifest, when the cloudflared-config-lint probe runs `cloudflared tunnel ingress validate` (via the cloudflare/cloudflared:2026.8.3 container image when the binary is not on PATH) against the fixture manifest, the probe exits 0 and returns aggregateVerdict:pass.",
       "testable": true,
       "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "interfaces.schema"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/configuration-file/",
+        "verifiedOn": "2026-09-09"
+      },
+      "given": "the canonical fixture manifest with a valid ingress ruleset",
+      "when": "cloudflared-config-lint runs `cloudflared tunnel ingress validate` against the fixture",
+      "then": "the probe exits 0 and returns aggregateVerdict:pass"
+    },
+    {
+      "id": "AC-tunnel-hostnameRoutesInvalidIngress",
+      "description": "Given the fixture manifest mutated via SIMULATE_INGRESS_INVALID (an ingress rule service URL rewritten to an unresolvable scheme), when cloudflared-config-lint runs `cloudflared tunnel ingress validate` against the mutated fixture, the probe exits non-zero and returns aggregateVerdict:fail with detail naming the offending ingress rule index.",
+      "given": "the fixture manifest with one ingress rule's service URL rewritten to an unresolvable scheme (SIMULATE_INGRESS_INVALID=true)",
+      "when": "cloudflared-config-lint runs against the mutated fixture",
+      "then": "the probe exits non-zero and returns aggregateVerdict:fail with detail naming the offending ingress rule index",
+      "testable": true,
+      "scope": "library",
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
@@ -29,6 +50,5 @@
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single documented failure path for the cloudflared-config-lint probe (SIMULATE_INGRESS_INVALID) is bound by this AC; the guide's Tunnel manifest walkthrough names no additional ingress-lint failure path, so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

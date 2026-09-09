@@ -24,6 +24,6 @@
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the two applied capability-set combinations that flip the admin-console sign-in surface; the deeper admin-console packaging is owned by application-admin-console and the guide names no additional surface-flip failure path, so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the admin-console sign-in surface flip between the access-gated data-surface and the local-login data-surface. Both applied capability-set combinations are exercised in-AC. Per section 7a, this story carries a single AC because the capability-set flip mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

@@ -32,6 +32,6 @@
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the guide-section presence assertion (Zero Trust dashboard walk-through and API alternative sections, ADR-3501 vendor URL citation); the guide has no documented runtime failure path for this story, so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the guide-section presence assertion for the Zero Trust dashboard walk-through and the API alternative. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }

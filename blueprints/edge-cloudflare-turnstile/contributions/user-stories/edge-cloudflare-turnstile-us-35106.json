@@ -28,6 +28,6 @@
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the widget-mode enum shape and its three-value coverage against the pinned Cloudflare test sitekeys; the guide names no additional mode-specific failure path (any missing-value error surfaces via US-35102 AC-35102-2), so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the widget-mode enum shape and its three-value coverage against the pinned Cloudflare test sitekeys. Per section 7a, this story carries a single AC because the enum-coverage mechanism has no additional documented failure path in the guide (a missing sitekey surfaces via US-35102 AC-35102-2, not via widget-mode)."
 }

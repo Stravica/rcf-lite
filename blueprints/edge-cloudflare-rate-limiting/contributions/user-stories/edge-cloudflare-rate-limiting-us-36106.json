@@ -11,12 +11,26 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36106-1",
-      "description": "Given the shipped rate-limit-rule JSON Schema (blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json, draft-07), the manifest-schema-validate probe reads every manifest file in the fixture manifest directory and validates each against the schema; every valid file passes; a manifest file with a missing threshold field (simulated via SIMULATE_SCHEMA_INVALID=true) fails validation and the probe returns aggregateVerdict: fail with the offending field named in the detail.",
+      "description": "Given the shipped rate-limit-rule JSON Schema (blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json, draft-07) and the canonical cf-edge fixture manifest directory, when the manifest-schema-validate probe reads every manifest file and validates each against the schema, every file passes and the probe returns aggregateVerdict:pass.",
       "given": "the cf-edge fixture with the two committed manifest files and the shipped JSON Schema",
       "when": "the manifest-schema-validate probe validates every manifest file",
       "then": "every valid file passes; the SIMULATE_SCHEMA_INVALID=true switch surfaces the missing threshold field and the aggregate verdict is fail",
       "testable": true,
       "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+        "field": "interfaces.rate-limit-rule"
+      }
+    },
+    {
+      "id": "AC-36106-2",
+      "description": "Given a fixture manifest file with a missing threshold field, injected via the SIMULATE_SCHEMA_INVALID=true switch, when manifest-schema-validate runs, the probe returns aggregateVerdict:fail with detail naming the offending field.",
+      "given": "the fixture cf-edge manifest with the threshold field removed on one rule (SIMULATE_SCHEMA_INVALID=true)",
+      "when": "manifest-schema-validate runs against the mutated fixture",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the missing `threshold` field",
+      "testable": true,
+      "scope": "library",
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
@@ -28,6 +42,5 @@
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z",
-  "coverageNote": "The single AC binds the manifest-schema-validate probe, whose documented failure path (SIMULATE_SCHEMA_INVALID) is exercised inside the same AC; the guide names no additional schema-validate failure path, so a single AC is sufficient per section 7a."
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }
