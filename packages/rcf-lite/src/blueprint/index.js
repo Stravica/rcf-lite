@@ -62,3 +62,22 @@ export {
   parseUstar,
   sha256Hex,
 } from './library-fetcher-tarball.js';
+export {
+  loadForLint,
+  loadSuppressions,
+  runLint,
+  runPass1,
+  runPass2,
+} from './consistency-lint.js';
+export {
+  APPLY_DISPOSITION_PROMPT,
+  LEDGER_SCHEMA_NOTE,
+  initialiseLedger,
+  ledgerAbsPath,
+  ledgerExists,
+  ledgerRelPath,
+  readLedger,
+  upsertLedgerRecord,
+  writeLedger,
+} from './disposition-ledger.js';
+export { renderDispositions } from './dispositions.js';

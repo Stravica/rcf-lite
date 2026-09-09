@@ -21,6 +21,7 @@ import { updateManifest } from './manifest-writer.js';
 import { stampId } from './namespace.js';
 import { nextResolutionId } from './resolutions.js';
 import { buildRefusalMessage, discoverAppliedCapabilities, runCustomAuthCapabilityElicits, runElicitationPhase, writeSidecar } from './capabilities.js';
+import { APPLY_DISPOSITION_PROMPT, initialiseLedger } from './disposition-ledger.js';
 
 /**
  * @typedef {object} ApplyResult
@@ -410,11 +411,36 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
     });
   }
 
+  // Disposition ledger. On a fresh apply, initialise
+  // rcf/blueprints/<slug>.disposition.json with one record per
+  // contributed AC so the applying agent has a machine-readable walk
+  // list. Reads AC ids and their `disposition` field (rcf-schemas
+  // 0.6.2) from the SOURCE user-story JSON so the record reflects the
+  // authored shape, not the stamped one; `fixed` ACs land as accepted
+  // with the sentinel reason, `template` and unmarked ACs land as
+  // pending-disposition. Re-apply leaves an existing ledger untouched.
+  let ledgerPath = null;
+  let dispositionPrompt = null;
+  let acCount = 0;
+  if (!dryRun) {
+    const acDescriptors = await collectAcDescriptorsFromSource(source, blueprint, namespace);
+    acCount = acDescriptors.length;
+    if (acCount > 0) {
+      const ledgerRes = await initialiseLedger({ projectRoot, slug: appliedSlug, acDescriptors, now });
+      ledgerPath = ledgerRes.path;
+      if (!ledgerRes.alreadyExisted) {
+        dispositionPrompt = APPLY_DISPOSITION_PROMPT(appliedSlug, blueprint.version, acCount);
+      }
+    }
+  }
+
   return {
     applied: true,
     slug: appliedSlug,
     version: blueprint.version,
     contributions: writtenContributions,
+    ...(ledgerPath ? { ledgerPath, dispositionAcCount: acCount } : {}),
+    ...(dispositionPrompt ? { dispositionPrompt } : {}),
     ...(wroteSidecar ? { sidecarPath, appliedCapabilities, appliedElicitations } : {}),
     // Companion-suggestion mechanism (spec 2.6). Bubble the source
     // blueprint's `suggestedCompanions[]` up on the result so the CLI
@@ -426,6 +452,44 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
       : {}),
     ...(duplicateResolveTopics.length > 0 ? { warnings: [{ kind: 'duplicateResolveTopic', topics: duplicateResolveTopics }] } : {}),
   };
+}
+
+/**
+ * Walk the blueprint's user-story contributions on-disk and collect
+ * every AC as a { id, storyId, sourceDisposition? } descriptor for the
+ * disposition ledger. AC ids and story ids are stamped with the
+ * applied namespace so they match what the applying agent sees in the
+ * tree (rather than the raw blueprint-slug ids on the source files).
+ *
+ * `disposition` on the AC (rcf-schemas 0.6.2 $defs.acDisposition) is
+ * `fixed` | `template` and is optional; an unmarked AC lands as
+ * pending-disposition with no `sourceDisposition` field so the operator
+ * can decide.
+ */
+async function collectAcDescriptorsFromSource(sourcePath, blueprint, namespace) {
+  const descriptors = [];
+  for (const c of blueprint.contributions ?? []) {
+    if (c.kind !== 'us' || typeof c.path !== 'string') continue;
+    const abs = join(sourcePath, 'contributions', c.path);
+    let doc;
+    try { doc = JSON.parse(await readFile(abs, 'utf8')); } catch { continue; }
+    const rawStoryId = typeof doc.usId === 'string' ? doc.usId : c.id;
+    // Re-stamp under the applied namespace so a library-qualified apply
+    // (namespace differs from the blueprint's own slug) records the
+    // story id the applying agent will actually see on the tree.
+    const storyStamped = stampId(rawStoryId, namespace);
+    const storyId = 'error' in storyStamped ? rawStoryId : storyStamped.id;
+    const acs = Array.isArray(doc.acceptanceCriteria) ? doc.acceptanceCriteria : [];
+    for (const ac of acs) {
+      if (!ac || typeof ac.id !== 'string') continue;
+      const descriptor = { id: ac.id, storyId };
+      if (ac.disposition === 'fixed' || ac.disposition === 'template') {
+        descriptor.sourceDisposition = ac.disposition;
+      }
+      descriptors.push(descriptor);
+    }
+  }
+  return descriptors;
 }
 
 function stampContributions(contributions, namespace) {

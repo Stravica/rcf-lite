@@ -57,6 +57,24 @@ _(how you like to work: casual or formal register, verbose or terse
 responses, willingness to be pushed back on, anything the agent should
 know before choosing its default posture)_
 
+## Register
+
+_(how the agent should frame decisions when it needs your ruling. One
+of the three values below on a single line; a line that reads only
+\`unstated\` is fine and reads as productOwner on the first
+escalation.)_
+
+- \`productOwner\`: escalations arrive as one plain-English sentence
+  naming the decision and its consequences, then two or three named
+  choices with what each costs. No method vocabulary, no document ids.
+- \`engineer\`: escalations name the AC id, quote the seed's assertion,
+  quote the project convention that conflicts, and ask a direct
+  question. Fluent in the method vocabulary.
+- \`unstated\`: the agent asks you which register on the first
+  exchange after init and holds \`productOwner\` in the meantime.
+
+unstated
+
 ## Project-scoped notes
 
 _(anything specific to this project that would be useful for the agent
