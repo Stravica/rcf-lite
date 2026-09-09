@@ -25,7 +25,11 @@
       "when": "the grep is executed",
       "then": "matches appear only inside CRUD verb bodies (facade) or inside statements the recovery runner or deploy gate does not read for event-record construction, and never inside onEvent call arguments or event-record construction sites",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1401-persistence-data-d1-facade",
+        "field": "interfaces.onEvent"
+      }
     }
   ],
   "tacIds": [
@@ -34,5 +38,5 @@
     "TAC-1403-persistence-data-d1-deploy-gate"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

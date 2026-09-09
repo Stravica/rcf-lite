@@ -16,7 +16,11 @@
       "when": "the operator invokes `deployAdapter.listVersions()` and picks a prior id P then triggers the `promote` workflow with `versionId=P`",
       "then": "`listVersions` returns a list containing P with the currently-serving flag on the correct entry; the `promote` run succeeds; the deploy-log record names P as `promotedVersionId` and the prior currently-serving id as `previousVersionId`",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "ownerRef": {
+        "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
+        "field": "interfaces.deployAdapter"
+      }
     },
     {
       "id": "AC-12109-2",
@@ -43,5 +47,5 @@
     "TAC-1305-deploy-cloudflare-workers-served-surface-verifier"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

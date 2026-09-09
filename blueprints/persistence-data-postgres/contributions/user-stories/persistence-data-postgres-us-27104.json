@@ -16,10 +16,16 @@
       "when": "await withTransaction(callback) runs",
       "then": "BEGIN is issued, the first INSERT lands inside the transaction, the second INSERT throws, ROLLBACK is issued, transactionRolledBack fires on the event sink with { statementIndex: 1, code: '<pg error code>' }, the client is released, the promise rejects with the underlying error, and a subsequent SELECT against the table returns no rows from the aborted transaction",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+        "field": "interfaces.withTransaction"
+      }
     }
   ],
-  "tacIds": ["TAC-2803-persistence-data-postgres-transaction-helper"],
+  "tacIds": [
+    "TAC-2803-persistence-data-postgres-transaction-helper"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -25,7 +25,11 @@
       "when": "the grep is executed",
       "then": "matches appear only inside CRUD verb bodies and never inside onEvent call arguments or event-record construction sites",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "interfaces.onEvent"
+      }
     }
   ],
   "tacIds": [
@@ -33,5 +37,5 @@
     "TAC-604-persistence-data-sqlite-backup-runner"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

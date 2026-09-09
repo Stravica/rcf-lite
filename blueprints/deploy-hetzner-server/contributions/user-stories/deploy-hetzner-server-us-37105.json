@@ -13,12 +13,16 @@
       "id": "AC-37105-1",
       "description": "real-account-cloud-init-hardened.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) waits for cloud-init status --wait on the throwaway server, then ssh-checks the six baseline blocks and asserts each check passes; failure names the missing block. Teardown via destroy.mjs runs regardless.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+        "field": "interfaces.cloud-init.yaml.tmpl"
+      }
     }
   ],
   "tacIds": [
     "TAC-3803-deploy-hetzner-server-cloud-init-template"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

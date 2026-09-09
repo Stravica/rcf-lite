@@ -16,7 +16,11 @@
       "when": "the sink is inspected after each lifecycle moment",
       "then": "the sink has received one record for each moment with the event name field set to opened, migrated, backupCheckpoint, and closed respectively, each carrying a valid ISO-8601 timestamp",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-601-persistence-data-sqlite-store",
+        "field": "interfaces.onEvent"
+      }
     },
     {
       "id": "AC-5106-2",
@@ -42,5 +46,5 @@
     "TAC-604-persistence-data-sqlite-backup-runner"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

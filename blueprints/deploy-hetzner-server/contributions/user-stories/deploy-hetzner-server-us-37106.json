@@ -13,7 +13,11 @@
       "id": "AC-37106-1",
       "description": "manifest-schema-validate.mjs asserts every fixture manifest carries a firewallRules array matching the shape (22 permitted only from a nonempty list of source-prefix ranges with no 0.0.0.0/0; 80 and 443 permitted from 0.0.0.0/0; no other inbound rule); an induced defect (a manifest that opens 22 to 0.0.0.0/0) FAILS schema validation with a message naming the offending rule.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+        "field": "interfaces.firewallRules"
+      }
     }
   ],
   "tacIds": [
@@ -21,5 +25,5 @@
     "TAC-3804-deploy-hetzner-server-firewall-shape"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
