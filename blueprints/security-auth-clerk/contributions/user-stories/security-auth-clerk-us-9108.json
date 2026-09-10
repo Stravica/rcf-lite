@@ -17,7 +17,11 @@
       "then": "the surface reads exactly one `signInStrategy` config record; the record's own-property keys are exactly `{primary, alternates}`; `primary` is a non-empty string; `alternates` is an array of strings",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://clerk.com/docs/guides/configure/auth-strategies/sign-up-sign-in-options",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-9108-2",

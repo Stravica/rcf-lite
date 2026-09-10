@@ -237,7 +237,7 @@ test('sample-app fixture break switches surface the four defects (TC-056-negativ
 
 test('four amended auth blueprints declare the ratified capability sets and observability-logging drops sessionInventory (TC-056-shelf-doc-consistency)', async () => {
   const clerk = JSON.parse(await readFile(join(CLERK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(clerk.version, '1.5.0');
+  assert.equal(clerk.version, '1.5.1');
   assert.deepEqual([...clerk.capabilities].sort(), ['hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const kc = JSON.parse(await readFile(join(KEYCLOAK_BP, 'blueprint.json'), 'utf8'));
   assert.equal(kc.version, '1.4.0');
