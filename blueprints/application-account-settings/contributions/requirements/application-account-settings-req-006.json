@@ -5,7 +5,7 @@
   "description": "The theme surface (/account/theme) renders when application-spa is applied. Renders a light/dark/system radiogroup (ARIA APG radiogroup, keyboard reachable) and persists the choice per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Choice takes effect immediately (data-theme attribute on the html element flips) and honours the users prefers-color-scheme when set to system.",
   "deliveredBy": {
     "tacId": "TAC-2601-application-account-settings-shell",
-    "field": "responsibilities.renderCorrelationId"
+    "field": "responsibilities.renderThemeSurface"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-account-settings",
     "category:06-theme"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

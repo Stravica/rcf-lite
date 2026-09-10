@@ -14,7 +14,21 @@
       "testable": true,
       "scope": "runtime",
       "description": "Given a first-run principal on the SPA, the tour opens on the highest-value surface with the first step; Escape dismisses the tour and hides the tooltip; keyboard-only users reach every tour control (previous, next, dismiss) via Tab in DOM order and activate the next control with Enter (WCAG 2.1.1 Keyboard, WCAG 2.1.2 No Keyboard Trap, WCAG 2.4.3 Focus Order). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26101-1.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": [
+        {
+          "url": "https://www.w3.org/TR/WCAG22/#keyboard",
+          "verifiedOn": "2026-09-10"
+        },
+        {
+          "url": "https://www.w3.org/TR/WCAG22/#no-keyboard-trap",
+          "verifiedOn": "2026-09-10"
+        },
+        {
+          "url": "https://www.w3.org/TR/WCAG22/#focus-order",
+          "verifiedOn": "2026-09-10"
+        }
+      ]
     },
     {
       "id": "AC-26101-2",

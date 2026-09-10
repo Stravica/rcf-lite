@@ -27,10 +27,10 @@ const KEYCLOAK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-keycloak');
 const OAUTH2_BP = join(REPO_ROOT, 'blueprints', 'security-auth-oauth2');
 const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 
-test('blueprint.json declares 26 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
+test('blueprint.json declares 27 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.1.0');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -38,11 +38,11 @@ test('blueprint.json declares 26 contributions with requiresAppliedCapabilities 
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 7);
+  assert.equal(reqs.length, 8);
   assert.equal(uss.length, 11);
   assert.equal(tacs.length, 4);
   assert.equal(adrs.length, 4);
-  assert.equal(doc.contributions.length, 26);
+  assert.equal(doc.contributions.length, 27);
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['principalDirectory']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-auth-yet');
   assert.equal(doc.requiresAppliedCapabilities.refusalMessageId, 'application-account-settings-bare-spa');

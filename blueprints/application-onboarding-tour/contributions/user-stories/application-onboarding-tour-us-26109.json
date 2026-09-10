@@ -11,13 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-26109-1",
-      "description": "When checklist-anchor is `dashboard-top` and application-dashboard is applied, the checklist mounts at the top of the dashboard route as a <details data-role=\"onboarding-tour-checklist\"> element with open=false by default.",
+      "description": "When checklist-anchor is `dashboard-top` and application-dashboard is applied, the checklist mounts at the top of the dashboard route as a <details data-role=\"onboarding-tour-checklist\" open> element (open by default per ADR-2703).",
       "given": "checklist-anchor=dashboard-top with application-dashboard applied",
       "when": "the dashboard route renders",
-      "then": "the DOM carries a <details data-role=\"onboarding-tour-checklist\" open=false> element as the first child of the dashboard content region",
+      "then": "the DOM carries a <details data-role=\"onboarding-tour-checklist\" open> element as the first child of the dashboard content region",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-2703-application-onboarding-tour-checklist-anchor",
+        "field": "decision"
+      }
     },
     {
       "id": "AC-26109-2",

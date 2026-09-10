@@ -2,7 +2,7 @@
   "tacId": "TAC-2604-application-account-settings-session-store",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Session store contract",
   "purpose": "The sessions surface bridge between the applied blueprints session-inventory source and the terminate-write flow.",
@@ -23,7 +23,7 @@
     {
       "name": "sessionRecord",
       "kind": "shape",
-      "description": "{ sessionId, deviceLabel, lastActive (ISO-8601), currentSession (boolean) }. The current session cannot be terminated by itself (the operator signs out from the shell instead); the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action."
+      "description": "Shape owned by `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` (or the equivalent session-inventory TAC on the applied auth blueprint). The consumer reads that shape without restating it; the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action."
     },
     {
       "name": "sessionInventoryConsumer",
@@ -39,8 +39,8 @@
       "description": "The sessions surface reads the applied capability set to gate on sessionInventory."
     }
   ],
-  "tradeoffs": "Re-authenticate before terminate is elicited (reauth-window ADR-2604) with a default of true. A project that ships a short-lived session token can set reauth-window=never; ADR-2604 records the choice and its risk.",
+  "tradeoffs": "Re-authenticate before high-value changes is elicited (`blueprint.json.elicits[id=reauth-window]`, default `15`, per ADR-2604). A project that ships a short-lived session token can set the elicit to `never`; ADR-2604 records the choice and its risk.",
   "notes": "Known mechanism-reach gap: the read-inventory adapter contract cannot prove the applied provider actually returns a device label the operator will recognise (User-Agent parsing varies); the pack asserts the DOM shape.",
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

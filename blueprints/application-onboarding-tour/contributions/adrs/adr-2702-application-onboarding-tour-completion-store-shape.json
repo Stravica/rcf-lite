@@ -2,12 +2,12 @@
   "adrId": "ADR-2702-application-onboarding-tour-completion-store-shape",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Completion-state store shape: spa-local-storage default (Q4 fallback), spa-session-storage or server-side-per-principal",
   "context": "The completion state needs a store. Three shapes are legal. spa-local-storage keeps the completion state per browser and per principal identifier; a returning principal on the same browser is not re-onboarded, and a different browser (or a private window) is re-onboarded. spa-session-storage keeps the completion state per session and re-plays the tour on every new session; useful only for a project that deliberately wants a per-session refresher. server-side-per-principal keeps the completion state on the principals record so it follows the user across devices; requires an applied persistence blueprint and the projects own writer adapter. The spec section 5.5 and section 10 Q4 ratify spa-local-storage as the fallback when no persistence blueprint is applied because a per-session tour that re-plays on every new session is worse than a one-time tour that persists across sessions on that browser.",
-  "decision": "completion-state-store is elicited (enum: spa-local-storage | spa-session-storage | server-side-per-principal). Recommended default: spa-local-storage. At apply time the elicit surface offers all three; a project that answers server-side-per-principal without an applied persistence blueprint hits a documented refusal (the elicit's when predicate refuses per the mechanism minor T-5 does not extend; the refusal is enforced at the surface load by TAC-2703 which refuses to construct a server-side backend without a resolved persistence adapter and falls back to spa-local-storage with a documented note on the sidecar).",
-  "consequences": "A project with no persistence blueprint applied gets the spa-local-storage backend automatically per the Q4 fallback; a project with a persistence blueprint and the server-side-per-principal answer gets a cross-device tour completion; a project answering spa-session-storage accepts a per-session re-onboarding. The dismiss-until-next-major and dismiss-until-next-minor policies (ADR-2701) still work under any of the three shapes because the CompletionRecord.blueprintSetVersion travels with the record.",
+  "decision": "completion-state-store is elicited (enum: spa-local-storage | spa-session-storage | server-side-per-principal). Recommended default: spa-local-storage. A project that answers server-side-per-principal without an applied persistence blueprint hits a hard refusal (error class COMPLETION_STORE_MISSING_PROVIDER) at surface load; TAC-2703 refuses to construct a server-side backend and does not fall back to any other store. spa-local-storage and spa-session-storage need no persistence blueprint and construct their backend directly.",
+  "consequences": "A project with no persistence blueprint applied that answers spa-local-storage or spa-session-storage gets that backend directly; a project answering server-side-per-principal without a persistence blueprint hits COMPLETION_STORE_MISSING_PROVIDER and does not silently downgrade. The dismiss-until-next-major and dismiss-until-next-minor policies (ADR-2701) still work under any of the three shapes because the CompletionRecord.blueprintSetVersion travels with the record.",
   "alternativesConsidered": [
     {
       "name": "Alternative approach considered",
@@ -16,5 +16,5 @@
     }
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

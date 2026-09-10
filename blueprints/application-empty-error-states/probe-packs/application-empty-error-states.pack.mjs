@@ -119,12 +119,24 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'forbidden region [data-surface="forbidden"] not found' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'forbidden region missing [data-action="request-access"] control' };
-        // Least-privilege posture: no resource-id shape, no source path leaking through.
+        // F-5 positive-marker gate: fixture seeds a known secret in the request context; the surface must render the safe-response marker plus a request-id, and the pack asserts absence of the leaked secret alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="forbidden"]');
+          const safe = region.querySelector('[data-safe-response]');
+          const rid = region.querySelector('[data-request-id]');
+          return {
+            hasSafeMarker: !!safe,
+            safeText: safe ? safe.textContent.trim() : null,
+            requestId: rid ? rid.getAttribute('data-request-id') : null,
+          };
+        });
+        if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'forbidden region missing positive [data-safe-response] redaction marker' };
+        if (!positive.requestId || !/^[A-Za-z0-9._-]+$/.test(positive.requestId)) return { verdict: 'fail', detail: `forbidden region missing valid [data-request-id]: ${JSON.stringify(positive.requestId)}` };
         const leak = firstSensitiveMatch(dom.text, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `forbidden surface leaked ${leak.name}: ${leak.match}` };
         const path = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS.filter((p) => p.name.startsWith('source-path')));
         if (path) return { verdict: 'fail', detail: `forbidden surface leaked ${path.name}: ${path.match}` };
-        return { verdict: 'pass', detail: 'forbidden region clean; request-access control present' };
+        return { verdict: 'pass', detail: `forbidden region carries positive safe-response marker; requestId=${positive.requestId}` };
       },
     },
     {
@@ -142,9 +154,22 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'server-error region [data-surface="server-error"] not found' };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'server-error region missing [data-recovery="retry"] control' };
+        // F-6 positive-marker gate: fixture seeds a known safe-error body; the surface must render the safe-error marker plus a correlation id, and the pack asserts absence of a stack trace alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="server-error"]');
+          const safe = region.querySelector('[data-safe-error]');
+          const cid = region.querySelector('[data-correlation-id]');
+          return {
+            hasSafeMarker: !!safe,
+            safeText: safe ? safe.textContent.trim() : null,
+            correlationId: cid ? cid.getAttribute('data-correlation-id') : null,
+          };
+        });
+        if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'server-error region missing positive [data-safe-error] body marker' };
+        if (!positive.correlationId || !/^[A-Za-z0-9._-]+$/.test(positive.correlationId)) return { verdict: 'fail', detail: `server-error region missing valid [data-correlation-id]: ${JSON.stringify(positive.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `server-error surface leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: 'server-error region clean; retry control present' };
+        return { verdict: 'pass', detail: `server-error region carries positive safe-error marker; correlationId=${positive.correlationId}` };
       },
     },
     {
@@ -168,9 +193,21 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'permission-denied region [data-surface="permission-denied"] not found' };
         if (!dom.causeText) return { verdict: 'fail', detail: 'permission-denied region missing [data-cause] class-level cause' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'permission-denied region missing [data-action="request-access"] control' };
+        // F-7 positive-marker gate: fixture seeds an exact cause-class token; the surface must expose it on [data-cause-class] with a request id, and the pack asserts absence of any resource-id shape alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="permission-denied"]');
+          const cls = region.querySelector('[data-cause-class]');
+          const rid = region.querySelector('[data-request-id]');
+          return {
+            causeClass: cls ? cls.getAttribute('data-cause-class') : null,
+            requestId: rid ? rid.getAttribute('data-request-id') : null,
+          };
+        });
+        if (!positive.causeClass || !/^[a-z][a-z0-9-]*$/.test(positive.causeClass)) return { verdict: 'fail', detail: `permission-denied region missing valid [data-cause-class] token: ${JSON.stringify(positive.causeClass)}` };
+        if (!positive.requestId || !/^[A-Za-z0-9._-]+$/.test(positive.requestId)) return { verdict: 'fail', detail: `permission-denied region missing valid [data-request-id]: ${JSON.stringify(positive.requestId)}` };
         const leak = firstSensitiveMatch(dom.causeText, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `permission-denied cause leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: `cause=${JSON.stringify(dom.causeText)}` };
+        return { verdict: 'pass', detail: `cause-class=${positive.causeClass} requestId=${positive.requestId}` };
       },
     },
     {
@@ -275,9 +312,21 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'error-boundary region [data-surface="error-boundary"] not found' };
         if (dom.role !== 'alert') return { verdict: 'fail', detail: `error-boundary region role expected "alert", got ${JSON.stringify(dom.role)}` };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'error-boundary region missing [data-recovery="retry"] control' };
+        // F-8 positive-marker gate: the boundary must expose a safe error-class token and a correlation id; the pack asserts absence of stack detail alongside the positive markers.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="error-boundary"]');
+          const cls = region.querySelector('[data-error-class]');
+          const cid = region.querySelector('[data-correlation-id]');
+          return {
+            errorClass: cls ? cls.getAttribute('data-error-class') : null,
+            correlationId: cid ? cid.getAttribute('data-correlation-id') : null,
+          };
+        });
+        if (!positive.errorClass || !/^[a-z][a-z0-9-]*$/.test(positive.errorClass)) return { verdict: 'fail', detail: `error-boundary region missing valid [data-error-class] token: ${JSON.stringify(positive.errorClass)}` };
+        if (!positive.correlationId || !/^[A-Za-z0-9._-]+$/.test(positive.correlationId)) return { verdict: 'fail', detail: `error-boundary region missing valid [data-correlation-id]: ${JSON.stringify(positive.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `error-boundary surface leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: 'error-boundary role=alert, retry control present, no stack detail' };
+        return { verdict: 'pass', detail: `error-boundary carries error-class=${positive.errorClass} correlationId=${positive.correlationId}; no stack detail` };
       },
     },
   ],

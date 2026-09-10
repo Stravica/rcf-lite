@@ -1,0 +1,21 @@
+{
+  "reqId": "application-empty-error-states-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Offline strategy bound to the offline-strategy elicit per option",
+  "description": "The offline state honours the elicited `blueprint.json.elicits[id=offline-strategy]` with a runtime clause per option: when `write-buffer` the surface renders a read-only banner and queues writes to the offline buffer (per REQ-005 and TAC-2303); when `read-only-banner` the surface renders the banner and disables every write control, and no buffer entry is created; when `refuse-writes` every write attempt fails locally with a clear message referencing `OFFLINE_WRITES_REFUSED`, and no buffer entry is created. ADR-2303 owns the strategy decision; this REQ binds each option to observable behaviour on the rendered surface.",
+  "deliveredBy": {
+    "tacId": "TAC-2303-application-empty-error-states-offline-buffer",
+    "field": "interfaces.bufferWrite"
+  },
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The elicit offers three strategies; each option needs a runtime clause the offline buffer or the surface enforces so a project cannot choose refuse-writes and see writes queue silently.",
+  "tags": [
+    "blueprint:application-empty-error-states"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

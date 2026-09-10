@@ -1,6 +1,6 @@
 {
   "slug": "application-account-settings",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -100,6 +100,11 @@
     }
   ],
   "contributions": [
+    {
+      "id": "application-account-settings-REQ-009",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-009.json"
+    },
     {
       "id": "application-account-settings-REQ-001",
       "kind": "req",

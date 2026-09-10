@@ -96,6 +96,8 @@ function forbiddenPage({ leakId }) {
   <h1 id="forbiddenHeading">Access denied</h1>
   <p>You do not have scope on this workspace. Ask an existing admin to grant you access.</p>
   <button type="button" data-action="request-access" aria-label="Request access to this workspace">Request access</button>
+  <p data-safe-response>The workspace exists but its details are hidden from unauthorised viewers.</p>
+  <span data-request-id="req-forbidden-000001" hidden>req-forbidden-000001</span>
   ${leakBlock}
 </section>
 <div data-live-region="polite" role="status" aria-live="polite"></div>
@@ -116,6 +118,8 @@ function serverErrorPage({ break_ }) {
   <h1 id="serverErrorHeading">Something went wrong</h1>
   <p>The server hit an internal failure. Retry in a moment or contact support if the failure persists.</p>
   <button type="button" data-recovery="retry" aria-label="Retry the failed request">Retry</button>
+  <p data-safe-error>The server hit an internal failure. The support team has the request id below.</p>
+  <span data-correlation-id="cid-server-000001" hidden>cid-server-000001</span>
   ${stackBlock}
 </section>
 </main>
@@ -131,6 +135,8 @@ function permissionDeniedPage({ leakId }) {
   <p>You reached this route but your role does not cover the operation.</p>
   <p><span data-cause>${escapeHtml(cause)}</span></p>
   <button type="button" data-action="request-access" aria-label="Request the admin scope">Request access</button>
+  <span data-cause-class="scope-missing" hidden>scope-missing</span>
+  <span data-request-id="req-perm-000001" hidden>req-perm-000001</span>
 </section>
 </main>
 </body></html>`;
@@ -201,6 +207,8 @@ function errorBoundaryPage({ crash }) {
   <h1 id="errorBoundaryHeading">Widget failed to render</h1>
   ${errorBlock}
   <button type="button" data-recovery="retry" aria-label="Retry the widget render">Retry</button>
+  <span data-error-class="render-failure" hidden>render-failure</span>
+  <span data-correlation-id="cid-boundary-000001" hidden>cid-boundary-000001</span>
 </section>`
     : '<section><p>error-boundary standby</p></section>';
   return `<!doctype html><html lang="en"><head>${shellHead('Widget failed to render')}</head><body>

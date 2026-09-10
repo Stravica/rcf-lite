@@ -1,0 +1,21 @@
+{
+  "reqId": "application-admin-console-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Custom-auth capability declarations bind the four provides-* booleans to the applied capability set",
+  "description": "When the applying project runs its own auth (no shipped security-auth-* blueprint) and answers the four custom-auth-provides-* boolean elicits, the console binds each answer to the appliedCapabilities union with a runtime clause per token: when `blueprint.json.elicits[id=custom-auth-provides-principal-directory]` is `true` the union includes `principalDirectory` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-role-model]` is `true` the union includes `roleModel` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-tenancy]` is `true` the union includes `tenancy` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-audit-log]` is `true` the union includes `auditLog` and `false` omits it. The sidecar the shell reads reflects the exact union the boolean answers produce.",
+  "deliveredBy": {
+    "tacId": "TAC-2202-application-admin-console-capability-discovery",
+    "field": "responsibilities.runElicitationPhase"
+  },
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The four provides-* booleans produced capabilities in the applied union without a chained clause. Requiring one runtime clause per token turns each boolean answer into a must-observable binding on the sidecar the shell reads.",
+  "tags": [
+    "blueprint:application-admin-console"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}
