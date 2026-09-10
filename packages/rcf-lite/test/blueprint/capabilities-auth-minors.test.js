@@ -20,10 +20,10 @@ const REPO_ROOT = resolve(here, '..', '..', '..', '..');
 // credentialSelfService, sessionInventory and hostedIdentityUi (provider-
 // conditional per the OAuth2 README).
 const EXPECTED = [
-  { slug: 'security-auth-magic-link', version: '1.2.2', capabilities: ['principalDirectory'] },
-  { slug: 'security-auth-clerk', version: '1.4.1', capabilities: ['principalDirectory', 'roleModel', 'sessionInventory', 'hostedIdentityUi'] },
-  { slug: 'security-auth-oauth2', version: '1.3.1', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi', 'authorisationCodeFlow'] },
-  { slug: 'security-auth-keycloak', version: '1.3.1', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory'] },
+  { slug: 'security-auth-magic-link', version: '1.2.3', capabilities: ['principalDirectory'] },
+  { slug: 'security-auth-clerk', version: '1.5.0', capabilities: ['principalDirectory', 'roleModel', 'sessionInventory', 'hostedIdentityUi'] },
+  { slug: 'security-auth-oauth2', version: '1.3.2', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi', 'authorisationCodeFlow'] },
+  { slug: 'security-auth-keycloak', version: '1.4.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory'] },
 ];
 
 test('the four shelf auth blueprints declare capabilities[] and matching CHANGELOG entries (TC-051-auth-minors)', async () => {
@@ -38,6 +38,40 @@ test('the four shelf auth blueprints declare capabilities[] and matching CHANGEL
     assert.ok(cl.includes('capabilities'), `${spec.slug} CHANGELOG mentions capabilities`);
     // T-4 entries cite section 5.4.2 (T-5 legacy entries still cite 5.5.2).
     assert.ok(cl.includes('5.4.2') || cl.includes('5.5.2'), `${spec.slug} CHANGELOG cites the ratifying spec section`);
+  }
+});
+
+// Anatomy assertions for the audit-event stories added under the second
+// closure fix pass. Each named story carries exactly the expected
+// acceptanceCriteria count so the suite catches a regression that adds
+// or drops one.
+const AUDIT_STORY_AC_COUNTS = [
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11116', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11117', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11118', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11119', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11120', expected: 6 },
+  { slug: 'security-auth-clerk', usId: 'security-auth-clerk-US-9113', expected: 6 },
+];
+
+test('keycloak and clerk audit-event user stories carry the expected AC counts (TC-051-audit-story-ac-counts)', async () => {
+  for (const spec of AUDIT_STORY_AC_COUNTS) {
+    const bareId = spec.usId.split('-').pop();
+    const path = join(
+      REPO_ROOT,
+      'blueprints',
+      spec.slug,
+      'contributions',
+      'user-stories',
+      `${spec.slug}-us-${bareId}.json`,
+    );
+    const doc = JSON.parse(await readFile(path, 'utf8'));
+    assert.equal(doc.usId, spec.usId, `${spec.usId} document usId`);
+    assert.equal(
+      doc.acceptanceCriteria.length,
+      spec.expected,
+      `${spec.usId} expected ${spec.expected} ACs, saw ${doc.acceptanceCriteria.length}`,
+    );
   }
 });
 

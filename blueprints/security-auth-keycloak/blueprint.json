@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-keycloak",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "category": "security",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -242,6 +242,31 @@
       "id": "security-auth-keycloak-REQ-019",
       "kind": "req",
       "path": "requirements/security-auth-keycloak-req-019.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11116",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11116.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11117",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11117.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11118",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11118.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11119",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11119.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11120",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11120.json"
     }
   ],
   "elicits": [

@@ -1,5 +1,9 @@
 # security-secrets-management changelog
 
+## 1.1.2
+
+- Rewrites `REQ-002.description` to reference `TAC-901-security-secrets-management-manager-client` `responsibilities.get` and the sibling responsibilities on the same TAC rather than restate the `get(name)` signature verbatim; the literal remains owned by the delivering TAC.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

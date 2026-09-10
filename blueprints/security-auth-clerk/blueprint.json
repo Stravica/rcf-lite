@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-clerk",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "category": "security",
   "capabilities": [
     "principalDirectory",
@@ -170,6 +170,11 @@
       "id": "security-auth-clerk-REQ-011",
       "kind": "req",
       "path": "requirements/security-auth-clerk-req-011.json"
+    },
+    {
+      "id": "security-auth-clerk-US-9113",
+      "kind": "us",
+      "path": "user-stories/security-auth-clerk-us-9113.json"
     }
   ]
 }

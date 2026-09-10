@@ -1,5 +1,9 @@
 # security-auth-oauth2 CHANGELOG
 
+## 1.3.2
+
+- Adds `AC-10111-2` to `US-10111` binding a fixed refusal path on the owning mechanism (`TAC-1102-security-auth-oauth2-provider-adapter` `responsibilities.validate`); the boot-time validator refuses a provider-config record missing any REQ-002-mandated field with a stable-coded error class and no server process is left listening. Rewrites `AC-10114-1.description` to reference the local `TAC-1103-security-auth-oauth2-session-bridge` `responsibilities.sessionInventory` (the interface shape remains owned by `TAC-1003-security-auth-clerk-session-verifier` `interfaces.sessionInventory` and is referenced by that owner id) and moves the sibling ACs' `ownerRef` to the same local owner. Rewrites `REQ-011.description` to reference `TAC-1103-security-auth-oauth2-session-bridge` `interfaces.enrichPrincipal` rather than restate the `enrichPrincipal(principal)` signature verbatim.
+
 ## 1.3.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
