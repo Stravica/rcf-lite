@@ -1,5 +1,14 @@
 # edge-cloudflare-rate-limiting changelog
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); vendor citation on the guide-section AC; register tidy in shipped prose (no capability change).
+
+- Probes and fixture: the account-bound skip return on `contributions/probes/real-account-burst-and-429.mjs` now carries a `reason` field naming the exact env var(s) that were unset; added a "Declared env vars" section to the shared fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`), per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
+- Closes F-6: AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation, verified on 2026-09-10.
+- Closes F-7: README trailing clause with the internal spec reference removed.
+- Closes F-8: guide leading provenance sentence removed.
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; single-mechanism story legality notes; owner reference for the drift-audit and request-event record shapes.

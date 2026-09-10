@@ -194,3 +194,29 @@ node ../../../../../blueprints/edge-cloudflare-rate-limiting/contributions/probe
 Without both env vars the probe records `accountBoundSkipped: true`
 per ruling 6 and aggregates to `pass`; this is the accepted CI
 verdict.
+
+## Declared env vars
+
+Every environment variable this fixture or any probe it hosts reads
+is declared here. Includes the first-tier `CI_HAS_*` gate variable
+and every second-tier variable the account-bound branch reads once
+past the gate. An undeclared env var that the fixture reads is
+refused by the positive-evidence gate row (authoring standard
+section 7d and the checklist rows in section 6).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the account-bound branches on both real-account probes hosted against this fixture. Without it, each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `edge-cloudflare-access/real-account-gated-url`, `edge-cloudflare-rate-limiting/real-account-burst-and-429` |
+| `CF_ACCESS_HOST` | second | Hostname the Access-gated redirect walk targets on the account-bound path. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `edge-cloudflare-access/real-account-gated-url` |
+| `CF_RATE_LIMIT_URL` | second | Scheduled URL the burst-and-429 probe fires against on the account-bound path. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `edge-cloudflare-rate-limiting/real-account-burst-and-429` |
+| `CF_RATE_LIMIT_THRESHOLD` | second | Optional; the elicited `threshold` used to compute the burst count on the account-bound path. Defaults to `60` when unset. | `edge-cloudflare-rate-limiting/real-account-burst-and-429` |
+| `CF_ZONE_ID` | second | Cloudflare zone id the drift-audit runner would fetch rules for on the account-bound path. Never inlined in a manifest file. Unset on the skip path. | `edge-cloudflare-rate-limiting` drift-audit runner |
+| `CF_API_TOKEN` | second | Cloudflare API token the drift-audit runner would send as a bearer credential on the account-bound path. Never inlined in a manifest file. Unset on the skip path. | `edge-cloudflare-rate-limiting` drift-audit runner |
+| `ACCESS_JWKS_URL` | fixture | JWKS endpoint the local Access JWT validator fetches during the local (non-account) probes. Defaults to the fixture JWKS server on `127.0.0.1`. | `edge-cloudflare-access/jwt-validator-*`, `edge-cloudflare-access/audit-event-secrecy`, `edge-cloudflare-access/admin-console-gate-surface` |
+| `ACCESS_AUDIENCE` | fixture | Audience tag the local validator checks against `payload.aud` during the local probes. Defaults to `cf-edge-fixture-audience`. | `edge-cloudflare-access/jwt-validator-*` |
+| `SIMULATE_MISSING_JWT` | fixture-mutation | Strips the header before dispatch so the reject probe surfaces the 401 with `outcome: missing`. Unset on the shipped verdict path. | `edge-cloudflare-access/jwt-validator-reject` |
+| `SIMULATE_EXPIRED_JWT` | fixture-mutation | Treats the effective expiry as an hour in the past so the reject probe surfaces the 401 with `outcome: expired`. Unset on the shipped verdict path. | `edge-cloudflare-access/jwt-validator-reject` |
+| `SIMULATE_BYPASS_SERVICE_AUTH` | fixture-mutation | Forces the break-glass code path (a valid pair is still required). Unset on the shipped verdict path. | `edge-cloudflare-access` fixture Worker |
+| `SIMULATE_MANIFEST_MISSING` | fixture-mutation | Moves one rate-limit manifest file to a scratch location so `manifest-presence` surfaces the missing basename in the detail. Unset on the shipped verdict path. | `edge-cloudflare-rate-limiting/manifest-presence` |
+| `SIMULATE_SCHEMA_INVALID` | fixture-mutation | Writes a rate-limit manifest file with a missing `threshold` field so `manifest-schema-validate` surfaces the invalid file. Unset on the shipped verdict path. | `edge-cloudflare-rate-limiting/manifest-schema-validate` |
+| `SIMULATE_EVENT_LEAK_IP` | fixture-mutation | Injects a full client IP into every drift record so `event-secrecy` surfaces the leaked key. Unset on the shipped verdict path. | `edge-cloudflare-rate-limiting/event-secrecy` |

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 - 2026-09-10
+
+Register cleanup on shipped prose: neutral wording in the README six-probes paragraph, which now describes the probe module envelope directly. Guide `publishBatch` sample updated: the `x-trace-id` example values are now `trace-order-1001` and `trace-order-1002`, and a one-line pointer follows the sample to the owner at `TAC-3001.interfaces[2].description`. Anatomy pin updated to 1.1.2. Chain-consistency lint zero on pass 1 and pass 2. Closes criterion-f finding 1 for messaging-queue-cloudflare; finding 2 was verified as not a defect (the flagged tokens were `x-trace-id` header values in the sample rather than register labels, and the sample now uses order-scoped example values that remove the ambiguity).
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

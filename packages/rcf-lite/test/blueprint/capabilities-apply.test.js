@@ -296,7 +296,7 @@ test('jobs-background --allow-no-queue-yet override writes sidecar with queue-fa
   const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'jobs-background');
-  assert.equal(doc.version, '1.1.3');
+  assert.equal(doc.version, '1.1.4');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   // Family word derives from allowSkipFlag; the queue override must read
