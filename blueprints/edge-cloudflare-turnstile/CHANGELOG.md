@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1 - 2026-09-10
+
+Hardening pass F wave 2 (criterion a capability-token naming; criterion b AC-set sufficiency; criterion e magic-link guard positive-evidence).
+
+- Extended REQ-001 description to name the declared `humanCheck` capability token verbatim with a one-line runtime clause tying the token to the client widget mount that delivers it. Closes review P0 finding F-1 (declared capability had no covering `must`-priority REQ description).
+- Added AC-35101-3 on US-35101 as a fixed AC that binds the manifest-declared `humanCheck` token to the widget-render mechanism the fixture surfaces.
+- Appended the section 7a legality note to AC-35106-1, AC-35107-1 and AC-35108-1 to record that each single-AC story`s mechanism has no additional documented failure path in the guide or the anchored TAC. Closes review P1 findings F-2, F-3, F-4 (single-AC legality note missing).
+- Extended the magic-link-guard probe check (`AC-turnstile-magicLinkGuard` in `probe-packs/edge-cloudflare-turnstile.pack.mjs`) to read a pre-mint and post-mint mint-outcome count from the fixture`s `/api/events` sink and return `pass` only when both refusals are observed AND the mint-outcome delta is exactly zero; the observed delta is included in the positive-evidence detail. Closes review P1 finding F-5 (guard could pass while a token was minted).
+
+
 ## 1.1.0 - 2026-09-09
 
 Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).

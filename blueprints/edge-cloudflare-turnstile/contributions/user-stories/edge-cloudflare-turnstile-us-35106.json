@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-35106-1",
-      "description": "The blueprint elicit widget-mode is enum with values managed, non-interactive, invisible; recommendedDefault managed per ADR-3602. The pack fixture accepts ?mode=<managed|non-interactive|invisible> and mounts the widget with the pinned invisible-widget test sitekeys (1x00000000000000000000BB, 2x00000000000000000000BB per https://developers.cloudflare.com/turnstile/troubleshooting/testing/). Each mode renders the Turnstile iframe from https://challenges.cloudflare.com and no other origin.",
+      "description": "The blueprint elicit widget-mode is enum with values managed, non-interactive, invisible; recommendedDefault managed per ADR-3602. The pack fixture accepts ?mode=<managed|non-interactive|invisible> and mounts the widget with the pinned invisible-widget test sitekeys (1x00000000000000000000BB, 2x00000000000000000000BB per https://developers.cloudflare.com/turnstile/troubleshooting/testing/). Each mode renders the Turnstile iframe from https://challenges.cloudflare.com and no other origin. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the pack fixture loaded with mode=managed, mode=non-interactive and mode=invisible respectively",
       "when": "each variant renders",
       "then": "each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded",
@@ -28,6 +28,6 @@
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the widget-mode enum shape and its three-value coverage against the pinned Cloudflare test sitekeys. Per section 7a, this story carries a single AC because the enum-coverage mechanism has no additional documented failure path in the guide (a missing sitekey surfaces via US-35102 AC-35102-2, not via widget-mode)."
 }
