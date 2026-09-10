@@ -27,7 +27,11 @@
       "then": "each action's accessible name identifies the acted-on row",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-17107-3",
@@ -37,7 +41,11 @@
       "then": "the announced context includes the column header the cell resolves to",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/info-and-relationships.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-17107-4",
@@ -51,6 +59,10 @@
       "ownerRef": {
         "adrId": "ADR-1801-application-datatable-pattern-choice",
         "field": "decision"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/table/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -65,6 +77,10 @@
       "ownerRef": {
         "adrId": "ADR-1801-application-datatable-pattern-choice",
         "field": "decision"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -89,5 +105,5 @@
     "blueprint:application-datatable"
   ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

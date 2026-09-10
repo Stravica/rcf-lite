@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-18105-2",
-      "description": "Given the shell's palette API, an operator supplies brand tokens (a palette override object keyed by series index or role) and the shell renders the operator palette; when the operator palette misses a token the shell falls back to the accessible-defaults palette at the same index and records a warning on the render log. The API surface (`renderShell({ palette, chart })`) is a project-side contract; the fallback behaviour is exercised by the applying project's own tests, not this blueprint's pack. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given the shell's palette API, an operator supplies brand tokens through the `blueprint.json:elicits[].palette-overrides` elicit (a palette override object keyed by series index or role) and the shell renders the operator palette; when the operator palette misses a token the shell falls back to the accessible-defaults palette at the same index and records a warning on the render log. The API surface (`renderShell({ palette, chart })`) is a project-side contract; the fallback behaviour is exercised by the applying project's own tests, not this blueprint's pack. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "an operator palette with missing tokens",
       "when": "the shell renders",
       "then": "missing tokens fall back to the accessible-defaults palette and a warning is recorded",
@@ -41,11 +41,15 @@
       "ownerRef": {
         "adrId": "ADR-1902-application-charts-accessible-palette",
         "field": "decision"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
       "id": "AC-18105-4",
-      "description": "Given an operator-elicited palette override that names N brand tokens for N series but leaves M > N series unpaletted, the shell falls back to the accessible-defaults palette for the unpaletted series at the same index and the render log records exactly one warning per unpaletted series naming the missing token; a shell that silently substitutes without a log entry fails the pack check per ADR-1902.",
+      "description": "Given an operator-elicited `blueprint.json:elicits[].palette-overrides` value that names N brand tokens for N series but leaves M > N series unpaletted, the shell falls back to the accessible-defaults palette for the unpaletted series at the same index and the render log records exactly one warning per unpaletted series naming the missing token; a shell that silently substitutes without a log entry fails the pack check per ADR-1902.",
       "given": "an operator palette override that undersupplies for the series count",
       "when": "the shell renders the chart",
       "then": "the unpaletted series fall back to the accessible-defaults palette at the same index and one render-log warning per unpaletted series names the missing token",
@@ -79,5 +83,5 @@
     "blueprint:application-charts"
   ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

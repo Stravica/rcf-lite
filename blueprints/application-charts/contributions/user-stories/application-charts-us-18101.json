@@ -45,7 +45,7 @@
     },
     {
       "id": "AC-18101-4",
-      "description": "Given a specialised form the applying project needs (a candlestick, a Sankey), the project's README carries a CALLS MADE entry naming the deviation and the project supersedes REQ-001 with a project-authored REQ that names the deviating form; a specialised form without a documented CALLS MADE + superseding REQ fails project-side review.",
+      "description": "Given a specialised form the applying project needs (a candlestick, a Sankey), the project's README carries a CALLS MADE entry naming the deviation and the project supersedes REQ-001 with a project-authored REQ that names the deviating form; a specialised form without a documented CALLS MADE + superseding REQ fails project-side review. Applying agent sets: the specialised chart form the project needs (a candlestick, a Sankey), the CALLS MADE entry text (the deviation from the six-form set quoted verbatim and the project's reason), and the project-authored superseding REQ id that names the deviating form.",
       "given": "an applying project shipping a form outside the six committed",
       "when": "review inspects the project's CALLS MADE and REQ set",
       "then": "the deviation is documented with a project-authored superseding REQ; an undocumented deviation fails review",

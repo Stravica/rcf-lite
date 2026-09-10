@@ -27,7 +27,11 @@
       "then": "each state region includes text content that names the state without relying on colour",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-17105-3",
@@ -61,5 +65,5 @@
     "blueprint:application-datatable"
   ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

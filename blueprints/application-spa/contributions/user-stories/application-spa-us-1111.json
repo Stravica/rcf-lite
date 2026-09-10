@@ -51,13 +51,13 @@
     },
     {
       "id": "AC-1111-5",
-      "description": "Tabs implement the standard pattern: one Tab stop for the tablist, arrow keys move between tabs, selection follows the declared activation mode, and panels are labelled by their tabs.",
+      "description": "Tabs implement the standard pattern: one Tab stop for the tablist, arrow keys move between tabs, selection follows the declared activation mode, and panels are labelled by their tabs. Applying agent sets: the tablist activation mode (`automatic`, where selection follows arrow-key focus, or `manual`, where selection follows an explicit Enter or Space) per the ARIA APG tabs pattern, per tabgroup on the surface.",
       "given": "a tablist with several tabs",
       "when": "operated by keyboard",
       "then": "the pattern grammar works with correct ARIA wiring",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1111-6",
@@ -94,5 +94,5 @@
     "TAC-203-application-spa-component-library"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-10T07:09:50Z"
 }

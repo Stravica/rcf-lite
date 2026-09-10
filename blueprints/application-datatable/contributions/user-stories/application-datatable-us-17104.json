@@ -37,7 +37,11 @@
       "then": "focus returns to the originating row's control (the row-scoped focus target), not to the document body or an unrelated element",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-17104-4",
@@ -79,6 +83,10 @@
       "ownerRef": {
         "tacId": "TAC-1801-application-datatable-shell",
         "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+        "verifiedOn": "2026-09-09"
       }
     }
   ],
@@ -90,5 +98,5 @@
     "blueprint:application-datatable"
   ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

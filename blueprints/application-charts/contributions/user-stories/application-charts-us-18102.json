@@ -27,7 +27,11 @@
       "then": "the AC-18102-1 rule does not apply and the pack records applicable false",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-18102-3",
@@ -79,5 +83,5 @@
     "blueprint:application-charts"
   ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

@@ -41,6 +41,10 @@
       "ownerRef": {
         "tacId": "TAC-2001-application-dashboard-tile-grid",
         "field": "responsibilities[2]"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -79,5 +83,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

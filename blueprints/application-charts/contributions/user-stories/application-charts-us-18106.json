@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-18106-1",
-      "description": "Given ADR-1901's engine choice (Recharts, ECharts, Chart.js, D3 primitives or another operator-elicited engine), the applying project's manifest records the engine and the text-alternative reach: the engine's rendered chart is paired with a `<table>` element the pack asserts (AC-18103-1). An engine that renders exclusively to a `<canvas>` and does not offer a text-alternative surface is refused at project-side review; the refusal is documented in the blueprint's README under the engine-refusal rule. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given ADR-1901's engine choice, one of the canonical tokens `recharts`, `echarts`, `chart-js`, `d3-primitives` or `hand-authored-svg` on `blueprint.json:elicits[].chart-engine.options` (the manifest owns the token set; every other layer references these tokens verbatim), the applying project's manifest records the engine and the text-alternative reach: the engine's rendered chart is paired with a `<table>` element the pack asserts (AC-18103-1). An engine that renders exclusively to a `<canvas>` and does not offer a text-alternative surface is refused at project-side review; the refusal is documented in the blueprint's README under the engine-refusal rule. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "an ADR-1901 engine choice",
       "when": "the applying project's chart mount is reviewed",
       "then": "the engine is refused if it renders canvas-only surfaces with no text-alternative path",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-18106-2",
-      "description": "Given a compliant engine choice, the applying project's rendered chart carries a `data-chart-engine` attribute or an equivalent DOM marker naming the engine (Recharts, ECharts, Chart.js, D3 or the elicited name). This is a project-side observation, not a pack check; the README names it under known mechanism-reach gaps as a documentation contract on the applying project. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given a compliant engine choice, the applying project's rendered chart carries a `data-chart-engine` attribute or an equivalent DOM marker whose value equals the canonical engine token elicited on `blueprint.json:elicits[].chart-engine.options` (`recharts`, `echarts`, `chart-js`, `d3-primitives` or `hand-authored-svg`). This is a project-side observation, not a pack check; the README names it under known mechanism-reach gaps as a documentation contract on the applying project. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a compliant chart engine on the applying project",
       "when": "the rendered chart is inspected",
       "then": "the engine name is discoverable on the rendered DOM through a stable attribute",

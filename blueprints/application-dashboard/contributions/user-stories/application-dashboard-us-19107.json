@@ -41,6 +41,10 @@
       "ownerRef": {
         "tacId": "TAC-2001-application-dashboard-tile-grid",
         "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -59,7 +63,7 @@
     },
     {
       "id": "AC-19107-5",
-      "description": "Given an applying project that ships a surface deviating from a ratified rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side review.",
+      "description": "Given an applying project that ships a surface deviating from a ratified rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side review. Applying agent sets: the CALLS MADE entry text (the ratified guidance section quoted verbatim and the project's reason for deviating), the project's superseding REQ id, and the specific deviation named (for example the primary-kpi placement or the tile-density limit).",
       "given": "an applying project surface deviating from a ratified guidance rule",
       "when": "the review inspects the project's CALLS MADE section",
       "then": "the deviation is documented with the guidance section quoted verbatim and the project's reason; an undocumented deviation fails review",
@@ -75,5 +79,5 @@
     "blueprint:application-dashboard"
   ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

@@ -51,6 +51,10 @@
       "ownerRef": {
         "tacId": "TAC-1801-application-datatable-shell",
         "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
+        "verifiedOn": "2026-09-09"
       }
     },
     {
@@ -89,5 +93,5 @@
     "blueprint:application-datatable"
   ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

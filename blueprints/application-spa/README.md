@@ -55,7 +55,7 @@ The v1.1 probes are runtime-observable AC binding at the ship gate. When a proje
 
 ## What v1.2.0 adds
 
-v1.2.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the styled-under-shipped-CSP mechanism-reach gap watchpost caught at first production review (w-2026-08-24-003, w-2026-08-24-004): FBS-011 declared strict CSP (`style-src 'self'`, no `'unsafe-inline'`), FBS-013/015 rendered inline `<style>` blocks, every existing UI-bearing gate passed, and every production page rendered unstyled at deploy because the harness bypassed the production security-header path.
+v1.2.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the styled-under-shipped-CSP mechanism-reach gap watchpost caught at first production review: FBS-011 declared strict CSP (`style-src 'self'`, no `'unsafe-inline'`), FBS-013/015 rendered inline `<style>` blocks, every existing UI-bearing gate passed, and every production page rendered unstyled at deploy because the harness bypassed the production security-header path.
 
 - `application-spa-US-1131` (anchored to application-spa-REQ-018) with six ACs binding the styled-under-shipped-CSP probe.
 - `TAC-209-application-spa-csp-styled-adherence-probe`: a Node probe the project realises; boots the target server through the production entry-point path, drives a real headless browser at every enumerated UI route, refuses on any inline `<style>` block, any style-src relaxation, any browser-default computed body background, or any non-200 text/css stylesheet response.
@@ -63,7 +63,7 @@ v1.2.0 is an additive-non-global minor bump. No global topics change; no contrib
 
 ## What v1.3.0 adds
 
-v1.3.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the deployment-gate class defect the watchpost first-production review caught (w-2026-08-24-005, class cure w-2026-08-24-006): the app was signed off as DEPLOYED with the only login path (magic-link email) inert because RESEND_API_KEY carried a placeholder value, admin access was reachable only via manually minted tokens, and the gap was filed as a "quirk" note in status.md rather than blocked at gate time. A real key existed in the estate the whole time.
+v1.3.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the deployment-gate class defect the watchpost first-production review caught: the app was signed off as DEPLOYED with the only login path (magic-link email) inert because RESEND_API_KEY carried a placeholder value, admin access was reachable only via manually minted tokens, and the gap was filed as a "quirk" note in status.md rather than blocked at gate time. A real key existed in the estate the whole time.
 
 The bump encodes three class rules the deployment / handover gates now compel:
 

@@ -21,13 +21,13 @@
     },
     {
       "id": "AC-1116-2",
-      "description": "Re-authenticating from the session-expired surface returns the user to the route they were on, with unsaved form input preserved where the journey specification declares preservation.",
+      "description": "Re-authenticating from the session-expired surface returns the user to the route they were on, with unsaved form input preserved where the journey specification declares preservation. Applying agent sets: the journey specification's preservation set (which form surfaces preserve unsaved input across the re-authentication round-trip and which do not), per surface.",
       "given": "a user who expired mid-form",
       "when": "they re-authenticate",
       "then": "they land back on the same route with declared preservation honoured",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "template"
     },
     {
       "id": "AC-1116-3",
@@ -74,5 +74,5 @@
     "TAC-204-application-spa-client-data-layer"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-10T07:09:50Z"
 }
