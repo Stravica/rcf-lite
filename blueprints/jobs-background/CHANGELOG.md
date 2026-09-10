@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.1.1 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-002: REQ description now references the job-definition module shape owned on TAC-3101.responsibilities[0] rather than restating the exported field-name shape. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.0 - 2026-09-09
 
 Adds the elicits block (jobs-directory, scheduler-mode, max-attempts, retry-backoff, handler-timeout-seconds, operator-surface) that the REQs and guide were already describing in prose. Adds a runtime clause naming the backgroundJobs applied capability on REQ-002. Adds deliveredBy on REQ-001 (pointing at ADR-3103 for the refusalMessageId decision), REQ-002 and REQ-004. Adds disposition to every AC.

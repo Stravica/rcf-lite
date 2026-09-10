@@ -1,5 +1,10 @@
 # application-api-rest CHANGELOG
 
+
+## 2.1.3 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-013: REQ description now references the request-id header owned on TAC-301.responsibilities[0] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 2.1.2 (B6a application core completion pass, 2026-09-09)
 
 - Donor hand-sweep on all 118 ACs: flipped 24 additional ACs from fixed to template where the assertion carries a project-set literal (deprecation dates, per-endpoint auth-class binding, downstream dependency sets on readiness, resolved probe paths, declared page-size and maximum limits, filter parameter and sortable-key sets, key-required operation set, de-duplication TTL, per-class rate-limit values and window durations, per-endpoint rate-limit overrides, log-level per class, histogram bucket boundaries, per-endpoint CORS overrides, PII-redaction policy). Each flipped AC carries an Applying agent sets: <specific values> clause. Final split: 87 fixed / 31 template.

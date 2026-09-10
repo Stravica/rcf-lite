@@ -1,5 +1,10 @@
 # application-spa CHANGELOG
 
+
+## 1.5.3 - 2026-09-10
+
+Dimension-b acceptance-criteria-sufficiency cleanup on US-1134 and US-1135: each story previously shipped a single AC. AC-1134-2 added to bind the icon-adherence probe refusal path on inline-SVG or unknown-alias violations against the primary-navigation slot (ownerRef TAC-208.interfaces.runIconAdherenceProbe). AC-1135-2 added to bind the signed-in and post-sign-out deep-link preservation and return-to flow on the app shell (ownerRef TAC-201.responsibilities[0]). Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.5.2 (B6a application core completion pass, 2026-09-09)
 
 - Donor hand-sweep on all 197 ACs: flipped 19 additional ACs from fixed to template where the assertion carries a project-set literal (per-project section inventories, viewport table widths, journey-inventory checkpoints and events, per-route empty-state text, cache-invalidation entry sets, canonical URL shapes cache keys derive from, offline telemetry buffer bound N, per-route payload budgets, external-dependency inventory, deferral-record path and metadata, core-flow definitions, plus the two review-fix-pass flips on AC-1111-5 tablist activation mode and AC-1116-2 journey preservation set). Each flipped AC carries an Applying agent sets: <specific values> clause. Final split: 173 fixed / 24 template.
