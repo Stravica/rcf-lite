@@ -7,14 +7,14 @@
       "acId": "AC-2401-1",
       "description": "blueprint.json declares slug, version 1.0.0, category application, 19 contributions in 5/8/3/3 groups; providesRoles absent; requiresAppliedCapabilities absent; suggestedCompanions logging and errorHandling",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)"
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::blueprint.json declares 21 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)"
     },
     {
       "id": "TC-053-applies-clean",
       "acId": "AC-2401-2",
       "description": "Fresh init project applies application-empty-error-states cleanly and reports the tree clean",
       "status": "pending",
-      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)"
+      "testPointer": "test/blueprint/application-empty-error-states-anatomy.test.js::applies cleanly on a fresh init project and adds 21 documents to the tree (TC-053-applies-clean)"
     },
     {
       "id": "TC-053-pack-checks-cross-check",

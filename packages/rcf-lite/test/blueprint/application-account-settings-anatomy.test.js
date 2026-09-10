@@ -27,10 +27,10 @@ const KEYCLOAK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-keycloak');
 const OAUTH2_BP = join(REPO_ROOT, 'blueprints', 'security-auth-oauth2');
 const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 
-test('blueprint.json declares 26 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
+test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.1.1');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -38,11 +38,11 @@ test('blueprint.json declares 26 contributions with requiresAppliedCapabilities 
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 7);
-  assert.equal(uss.length, 11);
+  assert.equal(reqs.length, 8);
+  assert.equal(uss.length, 12);
   assert.equal(tacs.length, 4);
   assert.equal(adrs.length, 4);
-  assert.equal(doc.contributions.length, 26);
+  assert.equal(doc.contributions.length, 28);
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['principalDirectory']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-auth-yet');
   assert.equal(doc.requiresAppliedCapabilities.refusalMessageId, 'application-account-settings-bare-spa');
@@ -71,7 +71,7 @@ test('blueprint.json declares 26 contributions with requiresAppliedCapabilities 
   }
 });
 
-test('applies cleanly on a magic-link project with 26 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
+test('applies cleanly on a magic-link project with 28 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-magic-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 26 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.1.1');
+  assert.equal(sidecar.version, '1.2.0');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {

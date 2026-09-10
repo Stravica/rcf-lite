@@ -4,8 +4,8 @@
   "title": "Refusal contract: MIME-type, size-limit and virus-scan refusals with an aria-describedby error binding and focus-to-retry",
   "description": "The upload surface refuses a file that fails the MIME-type gate, exceeds the per-file size cap, or matches the virus-scan hit. Every refusal renders a per-file error message inside a region bound to the file row via aria-describedby, moves keyboard focus to the row's retry control, and refuses to send the file to the server. The refusal reason is one of the closed strings mime-refused, size-refused, virus-refused so a project's log pipeline can classify without prose parsing.",
   "deliveredBy": {
-    "tacId": "TAC-2403-application-file-upload-progress-announcer",
-    "field": "interfaces.tick"
+    "tacId": "TAC-2401-application-file-upload-input",
+    "field": "interfaces.renderRefusal"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-file-upload",
     "category:03-refusal-contract"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

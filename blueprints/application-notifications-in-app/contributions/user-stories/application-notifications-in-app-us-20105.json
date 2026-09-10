@@ -4,20 +4,24 @@
   "reqId": "application-notifications-in-app-REQ-005",
   "version": "1.0.0",
   "status": "approved",
-  "title": "The delivery-attempt log records one row per surfaced notification with the operator-readable fields for later inspection",
+  "title": "The delivery-attempt log records one row per surfaced notification, in the shape owned by TAC-2102, for later inspection",
   "asA": "operator inspecting the notification behaviour of a shipped rcf-lite application",
-  "iWant": "one row in the delivery-attempt log per notification the shell surfaced, with the priority, the category and the delivery and acknowledgement timestamps",
+  "iWant": "one row in the delivery-attempt log per notification the shell surfaced, in the shape owned by `TAC-2102.interfaces.deliveryRowShape`",
   "soThat": "I can reconcile what the shell said with what my operators saw and acknowledged",
   "acceptanceCriteria": [
     {
       "id": "AC-20105-1",
-      "description": "Given a shipped surface that has surfaced N notifications, `GET /api/delivery-log` returns HTTP 200 with body `{ rows: [...] }` and `rows.length === N`; each row carries `notificationId` (string), `category` (string), `priority` (`\"info\"` or `\"error\"`), `deliveredAt` (ISO-8601 timestamp); a row for a dismissed toast additionally carries `dismissedAt`; a row for an acknowledged centre item additionally carries `acknowledgedAt`. Rows are append-only; a `notificationId` never appears twice on the same page load. The pack does not itself enumerate every row (the delivery log's persistence is delegated to the applied `logging` companion); the AC is a mechanism-reach gap for a v1.1 minor bump when the pack gains a log-shape probe.",
+      "description": "Given a shipped surface that has surfaced N notifications, `GET /api/delivery-log` returns HTTP 200 with body `{ rows: [...] }` and `rows.length === N`; each row honours the shape owned by `TAC-2102.interfaces.deliveryRowShape`. Rows are append-only; the same delivery event never appears twice on the same page load. The pack does not itself enumerate every row (the delivery-log persistence is delegated to the applied `logging` companion); the AC is a mechanism-reach gap for a v1.1 minor bump when the pack gains a log-shape probe.",
       "given": "a shipped surface after N notifications",
       "when": "the delivery-log endpoint is read",
       "then": "N rows with the operator-readable fields are returned",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.deliveryRowShape"
+      }
     },
     {
       "id": "AC-20105-2",
@@ -35,10 +39,24 @@
     },
     {
       "id": "AC-20105-3",
-      "description": "A delivery-attempt log row records exactly the fields deliveryTs, priority, category, outcome and correlationId; missing outcome or missing correlationId refuses the row write with DELIVERY_ROW_INCOMPLETE naming the missing field.",
-      "given": "a delivery attempt with a missing outcome or correlationId",
+      "description": "A delivery-attempt log row honours exactly the field set owned by `TAC-2102.interfaces.deliveryRowShape`; a row missing any owner-required field refuses the write with DELIVERY_ROW_INCOMPLETE naming the missing owner-required field (per the owner shape).",
+      "given": "a delivery attempt whose row is missing an owner-required field owned by `TAC-2102.interfaces.deliveryRowShape`",
       "when": "the row write fires",
-      "then": "the write refuses with DELIVERY_ROW_INCOMPLETE naming the missing field and no partial row is persisted",
+      "then": "the write refuses with DELIVERY_ROW_INCOMPLETE naming the missing owner-required field and no partial row is persisted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.deliveryRowShape"
+      }
+    },
+    {
+      "id": "AC-20105-4",
+      "description": "When no applied blueprint provides the `logging` companion (no writeDeliveryRow factory on the applied set), apply refuses with LOGGING_COMPANION_MISSING naming the required remedy (apply the logging companion so the delivery-log rows can persist); no delivery-log entries are written and the toast and centre factories refuse to construct.",
+      "given": "a project applying application-notifications-in-app with no logging companion applied",
+      "when": "apply runs",
+      "then": "apply exits with a non-zero code and LOGGING_COMPANION_MISSING is emitted naming the remedy (apply the logging companion)",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",

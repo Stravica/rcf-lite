@@ -1,0 +1,21 @@
+{
+  "reqId": "application-empty-error-states-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Stack-trace visibility bound to the stack-trace-visible elicit per option",
+  "description": "The server-error state honours the elicited `blueprint.json.elicits[id=stack-trace-visible]` with a runtime clause per option: when `production-hide` the surface refuses any word matching the sensitive-pattern list (backtrace-frame prefix, source path, environment-variable key shape, framework-internal frame prefix), rendering only a plain summary line and a retry recovery hook; when `staging-show` the surface may include a stack-trace block marked `data-stack-trace=\"staging\"` and the sensitive-pattern refusal narrows to environment-variable keys only; when `local-show` the surface may include full stack traces and source paths under `data-stack-trace=\"local\"` with no pattern refusal. ADR-2302 owns the visibility decision; this REQ binds each option to observable behaviour on the rendered surface.",
+  "deliveredBy": {
+    "tacId": "TAC-2301-application-empty-error-states-state-machine",
+    "field": "responsibilities.stackTraceGate"
+  },
+  "category": "security",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The elicit offers three visibility levels; each option needs a runtime clause the state machine enforces so a project cannot choose staging-show and inherit local-show behaviour silently.",
+  "tags": [
+    "blueprint:application-empty-error-states"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

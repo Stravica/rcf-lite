@@ -1,0 +1,21 @@
+{
+  "reqId": "application-account-settings-REQ-009",
+  "prdId": "PRD-001",
+  "title": "Custom-auth capability declarations bind the four provides-* booleans to the applied capability set",
+  "description": "When the applying project runs its own auth (no shipped security-auth-* blueprint) and answers the four custom-auth-provides-* boolean elicits, the account-settings shell binds each answer to the appliedCapabilities union with a runtime clause per token: when `blueprint.json.elicits[id=custom-auth-provides-principal-directory]` is `true` the union includes `principalDirectory` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-credential-self-service]` is `true` the union includes `credentialSelfService` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-session-inventory]` is `true` the union includes `sessionInventory` and `false` omits it; when `blueprint.json.elicits[id=custom-auth-provides-hosted-identity-ui]` is `true` the union includes `hostedIdentityUi` and `false` omits it. The sidecar the shell reads reflects the exact union the boolean answers produce.",
+  "deliveredBy": {
+    "tacId": "TAC-2602-application-account-settings-capability-discovery",
+    "field": "responsibilities.runElicitationPhase"
+  },
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The four provides-* booleans produced capabilities in the applied union without a chained clause; requiring one runtime clause per token turns each boolean answer into a must-observable binding on the sidecar the shell reads.",
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

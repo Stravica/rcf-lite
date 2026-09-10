@@ -1,5 +1,22 @@
 # application-file-upload CHANGELOG
 
+## 1.2.0 (2026-09-10)
+
+### Added
+
+- Six elicits (`accepted-set`, `size-cap`, `tick-interval`, `concurrency`, `polling`, `chunked-transport`) declared on blueprint.json; REQ-006 binds one runtime clause per apply-time answer family.
+- `virusScan` declared on `blueprint.json.capabilities` and REQ-007 binds the input TAC's refusal path to the applied verifier.
+- Vendor citations on AC-23104-1, AC-23104-3 and AC-23104-4 (tus.io PATCH); AC-23104-4 names the response header (not body).
+
+### Changed
+
+- REQ-002 drops the "at least every 10 percent" clause and keeps the 2-second announcement cap owned by `TAC-2403.interfaces.announcementInterval` (user-observable); names `TAC-2403.interfaces.tickInterval` (250 ms internal poll, not user-observable); ADR-2402 references both via ownerRef.
+- REQ-002.deliveredBy retargeted to `TAC-2403.interfaces.tick`.
+- REQ-003.deliveredBy retargeted to `TAC-2401.interfaces.renderRefusal`.
+- REQ-004.deliveredBy retargeted to `TAC-2402.interfaces.uploadFile`.
+- `TAC-2402.interfaces.removeFile` declared with DELETE failure semantics; REQ-005 targets it.
+- Probe check AC-23103-1 reworked to positively assert a per-file `[data-refusal-receipt]` keyed by file id; fixture updated to emit the marker alongside `data-file-id`.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

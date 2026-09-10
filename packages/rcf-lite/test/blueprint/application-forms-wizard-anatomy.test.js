@@ -29,10 +29,10 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 const GUIDE_ABS = join(BLUEPRINT_ROOT, 'guide', 'application-forms-wizard.md');
 const PACK_SRC_ABS = PACK_ABS;
 
-test('blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)', async () => {
+test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-forms-wizard');
-  assert.equal(doc.version, '1.1.1');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
@@ -44,11 +44,11 @@ test('blueprint.json declares 19 contributions with no capabilities and no requi
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 5, 'five REQs');
+  assert.equal(reqs.length, 6, 'six REQs');
   assert.equal(uss.length, 8, 'eight USs (one per REQ plus three cross-cutting)');
   assert.equal(tacs.length, 3, 'three TACs');
   assert.equal(adrs.length, 3, 'three ADRs');
-  assert.equal(doc.contributions.length, 19, '19 contributions total');
+  assert.equal(doc.contributions.length, 20, '20 contributions total');
   const adrIds = adrs.map((a) => a.id).sort();
   assert.deepEqual(adrIds, [
     'ADR-2501-application-forms-wizard-navigation',
@@ -66,7 +66,7 @@ test('blueprint.json declares 19 contributions with no capabilities and no requi
   assert.equal(navAdr.recommendedDefault, true, 'ADR-2501 carries recommendedDefault: true (linear)');
 });
 
-test('applies cleanly on a fresh init project and adds 19 documents to the tree (TC-055-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 20 documents to the tree (TC-055-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'forms-wizard-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -78,7 +78,7 @@ test('applies cleanly on a fresh init project and adds 19 documents to the tree 
   const walked = await walkTree({ projectRoot: scratch });
   assert.deepEqual(walked.errors, []);
   const added = walked.tree.requirements.filter((r) => r.reqId.startsWith('application-forms-wizard-'));
-  assert.equal(added.length, 5);
+  assert.equal(added.length, 6);
   const uss = walked.tree.userStories.filter((u) => u.usId.startsWith('application-forms-wizard-'));
   assert.equal(uss.length, 8);
 });

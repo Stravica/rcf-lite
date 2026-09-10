@@ -14,7 +14,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "Given a 404 response on a route the SPA declares, the not-found state renders inside a role=\"region\" with an accessible name naming the missing resource kind, a keyboard-reachable recovery link to the parent surface with data-recovery=\"parent-surface\", a search entry with data-recovery=\"search\", and the browser tab title matches /^Not found - .+/. The pack drives the real browser to /probe/not-found and reads all four surface tokens.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.rfc-editor.org/rfc/rfc9110#status.404",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-22101-2",

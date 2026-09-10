@@ -2,7 +2,7 @@
   "tacId": "TAC-2402-application-file-upload-transport",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Upload transport contract",
   "purpose": "Owns the wire-level side of the file-upload contract: chunking, resumption, the multipart POST default, the tus.io elicited alternative, the refusal-render seam, and the completion callback. Every AC on REQ-004 that reads the request log anchors on this TAC.",
@@ -30,6 +30,11 @@
       "name": "transportsEnum",
       "kind": "shape",
       "description": "The transport branches are the closed enum {multipart, tus, vendor-sdk}. multipart is the recommended default per ADR-2401."
+    },
+    {
+      "name": "removeFile",
+      "kind": "function",
+      "description": "removeFile(fileId) -> Promise<void>. Issues a DELETE against the applied endpoint on the multipart branch or aborts the tus PATCH session on the tus branch; refuses with REMOVE_FAILED and surfaces the failure through the per-file error region on non-2xx."
     }
   ],
   "dependencies": [
@@ -43,5 +48,5 @@
   "tradeoffs": "Three transport branches keep the shelf usable for teams already committed to a vendor SDK, but the per-branch adapter code is real work; a project that never elicits tus or a vendor SDK ships with the multipart adapter only. Bounded parallelism (default 3) is a heuristic; a slow-link project can lower it via the applied endpoint config. Known mechanism-reach gap: the pack cannot probe a network-interruption resume path on the multipart branch without a request-blocking driver; the fixture simulates the pause via a ?interrupt=1 branch and the pack reads the resulting DOM state.",
   "notes": "See README Known mechanism-reach gaps for the full list.",
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

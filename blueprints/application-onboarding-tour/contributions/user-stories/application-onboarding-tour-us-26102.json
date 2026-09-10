@@ -13,12 +13,16 @@
       "id": "AC-26102-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a step showing a tooltip anchored to a UI element, focus moves to the tooltip on open; the tooltip carries role=\"dialog\" with aria-labelledby pointing at the step heading; focus returns to the anchor on close (Escape or the dismiss control) per the ARIA APG dialog-modal pattern; focus is not obscured on the 1440 wide breakpoint or the 360 narrow breakpoint (WCAG 2.4.11 Focus Not Obscured Minimum). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26102-1.",
-      "disposition": "fixed"
+      "description": "Given a step showing a tooltip anchored to a UI element, focus moves to the tooltip on open; the tooltip carries role=\"dialog\" with aria-labelledby pointing at the step heading; focus returns to the anchor on close (Escape or the dismiss control) per the ARIA APG dialog-modal pattern; focus is not obscured on the 1440 wide breakpoint or the 360 narrow breakpoint (WCAG 2.4.11 Focus Not Obscured Minimum). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26102-1. (WCAG 2.4.11 verified against https://www.w3.org/TR/WCAG22/#focus-not-obscured-minimum, 2026-09-10.)",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-26102-2",
-      "description": "The tooltip carries role=\"dialog\", aria-modal=\"true\" and aria-labelledby resolving to the step heading id (WCAG 1.3.1 and 4.1.2 via the ARIA APG dialog-modal pattern verified today).",
+      "description": "The tooltip carries role=\"dialog\", aria-modal=\"true\" and aria-labelledby resolving to the step heading id (WCAG 1.3.1 and 4.1.2 via the ARIA APG dialog-modal pattern).",
       "given": "a tour step opens",
       "when": "the DOM is inspected",
       "then": "the tooltip element carries role=\"dialog\", aria-modal=\"true\" and aria-labelledby resolving to a heading id present in the tooltip",

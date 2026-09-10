@@ -4,8 +4,8 @@
   "title": "Per-step validation timing: on-blur before first submit, then on-change after the first failure, and a full pass on submit reusing the SPA forms-engine",
   "description": "Every step validates its own answers before advancing. Validation timing is on-blur before the first submit attempt on a step (a field validates when the operator leaves it), then on-change after the first submit failure on that field (so the operator sees the message clear as they correct it), and a full pass on submit that rebuilds the error set from scratch. Validation delegates to the SPA blueprint's forms-engine TAC-205 so a project already applying application-spa does not compose two overlapping engines. On refusal the engine surfaces the failed fields to the error-summary contract (REQ-003). The timing rule is a closed set at v1.0.0; different projects can elicit stricter (validate on every change from the start) via a project-level ADR but the shipped default is the three-mode rule above.",
   "deliveredBy": {
-    "tacId": "TAC-2501-application-forms-wizard-task-list",
-    "field": "responsibilities.navigateSteps"
+    "tacId": "TAC-2502-application-forms-wizard-error-summary",
+    "field": "responsibilities.validationTimingGate"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-forms-wizard",
     "category:02-validation-timing"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

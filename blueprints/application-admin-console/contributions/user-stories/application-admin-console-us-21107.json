@@ -2,7 +2,7 @@
   "usId": "application-admin-console-US-21107",
   "prdId": "PRD-001",
   "reqId": "application-admin-console-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Console shell surfaces are self-configured from the applied capability sidecar at deploy time, not from client-side inference",
   "asA": "admin operator opening the console the same way in every deploy environment",
@@ -13,18 +13,26 @@
       "id": "AC-21107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at build time) as a build asset served under a stable path (e.g. /admin/caps.json); the shell never runs a runtime probe against manifest.blueprints[] over the network. The sidecar payload keys are appliedCapabilities[], appliedElicitations{} and allowNoAuthYet? per the mechanism spec.",
-      "disposition": "fixed"
+      "description": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at build time) as a build asset served under a stable path (e.g. /admin/caps.json); the shell never runs a runtime probe against manifest.blueprints[] over the network. The sidecar payload shape is owned by TAC-2201.interfaces.capabilitiesSidecar.",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2201-application-admin-console-shell",
+        "field": "interfaces.capabilitiesSidecar"
+      }
     },
     {
       "id": "AC-21107-2",
-      "description": "When manifest.blueprints[] carries a library-qualified source that cannot be read locally (a library-qualified source unavailable at read time), the entry is skipped in the union, the sidecar records the skipped entry under skippedSources[] naming the source id and the reason, and the shell navigation gates as though that source had contributed no capabilities (no surface renders that would have required a capability from the missing source).",
+      "description": "When manifest.blueprints[] carries a library-qualified source that cannot be read locally (a library-qualified source unavailable at read time), the entry is skipped in the union; the sidecar (shape owned by TAC-2201.interfaces.capabilitiesSidecar) records the skipped entry and the shell navigation gates as though that source had contributed no capabilities (no surface renders that would have required a capability from the missing source).",
       "given": "a project whose manifest.blueprints[] names a library-qualified source unavailable locally",
       "when": "apply runs and the sidecar is written",
-      "then": "the sidecar carries the source id under skippedSources[] with a reason field and the shell navigation renders only surfaces whose gating capabilities were provided by successfully read sources",
+      "then": "the sidecar entry names the skipped source id per TAC-2201.interfaces.capabilitiesSidecar and the shell navigation renders only surfaces whose gating capabilities were provided by successfully read sources",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2201-application-admin-console-shell",
+        "field": "interfaces.capabilitiesSidecar"
+      }
     }
   ],
   "tacIds": [

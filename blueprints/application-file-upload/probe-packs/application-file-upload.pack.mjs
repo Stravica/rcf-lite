@@ -178,7 +178,16 @@ export default {
         if (dom.sentRefused) {
           return { verdict: 'fail', detail: `refused filename ${JSON.stringify(dom.refusedFilename)} appears in the upload request log` };
         }
-        return { verdict: 'pass', detail: `reason=${JSON.stringify(dom.reason)} err=${JSON.stringify(dom.errText)} no refused bytes on the wire (${dom.network.length} recorded upload requests)` };
+        // positive refusal-receipt: assert the row exposes a per-file [data-refusal-receipt] keyed by file id.
+                const receipt = await browser.evaluate(() => {
+                  const row = document.querySelector('[data-file-row][data-refused="true"]');
+                  const rec = row ? row.querySelector('[data-refusal-receipt]') : null;
+                  const fileId = row ? row.getAttribute('data-file-id') : null;
+                  return { hasReceipt: !!rec, receiptFileId: rec ? rec.getAttribute('data-refusal-receipt') : null, fileId };
+                });
+                if (!receipt.hasReceipt) return { verdict: 'fail', detail: 'refused row missing positive [data-refusal-receipt] marker' };
+                if (!receipt.receiptFileId || receipt.receiptFileId !== receipt.fileId) return { verdict: 'fail', detail: `refusal-receipt file id ${JSON.stringify(receipt.receiptFileId)} does not match row file id ${JSON.stringify(receipt.fileId)}` };
+                return { verdict: 'pass', detail: `reason=${JSON.stringify(dom.reason)} err=${JSON.stringify(dom.errText)} refusal-receipt fileId=${receipt.fileId}` };
       },
     },
     {

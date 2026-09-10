@@ -1,5 +1,21 @@
 # application-admin-console CHANGELOG
 
+## 1.3.0 (2026-09-10)
+
+### Added
+
+- REQ-009: custom-auth-provides-* runtime clauses covering the four boolean elicits with a per-token clause on the applied capability union sidecar the shell reads.
+- Vendor citations on AC-21103-1 (ARIA APG grid) and AC-21106-1 (WCAG headings-and-labels), verified 2026-09-10.
+
+### Changed
+
+- ADR-2203.decision names the elicit as `blueprint.json.elicits[id=invite-transport]` (drops the camelCase inviteTransport spelling).
+- ADR-2204.decision names the elicit as `blueprint.json.elicits[id=audit-retention-days]`.
+- AC-21111-2 (and AC-21111-5) use `data-org-membership=*` per REQ-008 with ownerRef into REQ-008.
+- TAC-2214 responsibility named `renderAccessGatedSurface` so REQ-014.deliveredBy resolves.
+- AC-21107-1 and AC-21107-2 reference `TAC-2201.interfaces.capabilitiesSidecar` via ownerRef; TAC-2201 shape declares `skippedSources[]`.
+- US-21108 description carries the single-AC legality note verbatim.
+
 ## 1.2.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

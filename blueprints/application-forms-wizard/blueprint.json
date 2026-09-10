@@ -1,6 +1,6 @@
 {
   "slug": "application-forms-wizard",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -37,6 +37,11 @@
       "id": "application-forms-wizard-REQ-005",
       "kind": "req",
       "path": "requirements/application-forms-wizard-req-005.json"
+    },
+    {
+      "id": "application-forms-wizard-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-forms-wizard-req-006.json"
     },
     {
       "id": "application-forms-wizard-US-24101",
@@ -115,6 +120,57 @@
       "recommendedDefault": true,
       "elicited": true,
       "standardsTraceClause": "GOV.UK Design System task list pattern; WCAG 2.2 SC 2.4.6 Headings and Labels"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "step-manifest",
+      "prompt": "Wizard step manifest: comma-separated step slugs in order.",
+      "kind": "string",
+      "default": "about,detail,confirm"
+    },
+    {
+      "id": "navigation",
+      "prompt": "Step navigation model: linear (steps are gated by prerequisites) or free (any step reachable at any time).",
+      "kind": "enum",
+      "options": [
+        "linear",
+        "free"
+      ],
+      "default": "linear"
+    },
+    {
+      "id": "step-indicator",
+      "prompt": "Step-indicator surface: task-list (recommended default), aria-progressbar-only, or breadcrumb.",
+      "kind": "enum",
+      "options": [
+        "task-list",
+        "aria-progressbar-only",
+        "breadcrumb"
+      ],
+      "default": "task-list"
+    },
+    {
+      "id": "draft-transport",
+      "prompt": "Draft persistence transport: spa-local-storage (default), server-scoped, or none.",
+      "kind": "enum",
+      "options": [
+        "spa-local-storage",
+        "server-scoped",
+        "none"
+      ],
+      "default": "spa-local-storage"
+    },
+    {
+      "id": "validation-policy",
+      "prompt": "Validation policy: on-blur-then-on-change (default per REQ-002), on-change-always, or on-submit-only.",
+      "kind": "enum",
+      "options": [
+        "on-blur-then-on-change",
+        "on-change-always",
+        "on-submit-only"
+      ],
+      "default": "on-blur-then-on-change"
     }
   ]
 }

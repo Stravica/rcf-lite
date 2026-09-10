@@ -1,6 +1,6 @@
 {
   "slug": "application-file-upload",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -37,6 +37,16 @@
       "id": "application-file-upload-REQ-005",
       "kind": "req",
       "path": "requirements/application-file-upload-req-005.json"
+    },
+    {
+      "id": "application-file-upload-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-006.json"
+    },
+    {
+      "id": "application-file-upload-REQ-007",
+      "kind": "req",
+      "path": "requirements/application-file-upload-req-007.json"
     },
     {
       "id": "application-file-upload-US-23101",
@@ -110,5 +120,50 @@
       "elicited": true,
       "standardsTraceClause": "OWASP ASVS V12 file uploads"
     }
+  ],
+  "elicits": [
+    {
+      "id": "accepted-set",
+      "prompt": "Accepted MIME set: comma-separated IANA media types or wildcards (image/*, application/*).",
+      "kind": "string",
+      "default": "image/*"
+    },
+    {
+      "id": "size-cap",
+      "prompt": "Per-file size cap in bytes.",
+      "kind": "string",
+      "default": "10485760"
+    },
+    {
+      "id": "tick-interval",
+      "prompt": "Internal progress polling cadence in milliseconds (default 250, internal only).",
+      "kind": "string",
+      "default": "250"
+    },
+    {
+      "id": "concurrency",
+      "prompt": "Chunk upload concurrency cap (default 3).",
+      "kind": "string",
+      "default": "3"
+    },
+    {
+      "id": "polling",
+      "prompt": "Announcement cap in seconds for the polite live region (default 2).",
+      "kind": "string",
+      "default": "2"
+    },
+    {
+      "id": "chunked-transport",
+      "prompt": "Chunked-and-resumable transport branch: multipart (default) or tus.",
+      "kind": "enum",
+      "options": [
+        "multipart",
+        "tus"
+      ],
+      "default": "multipart"
+    }
+  ],
+  "capabilities": [
+    "virusScan"
   ]
 }

@@ -14,7 +14,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "Given an authenticated principal AND an applied auth blueprint declaring principalDirectory, GET /account renders the shell as an ARIA APG tabs region [role=\"tablist\"] with one [role=\"tab\"] per applied capability plus the always-on profile tab; a tab whose capability is not in the applied set does NOT render (no disabled shell). Probed by pack check AC-25101-1.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-25101-2",
