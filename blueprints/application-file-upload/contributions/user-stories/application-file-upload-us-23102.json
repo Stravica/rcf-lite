@@ -4,9 +4,9 @@
   "reqId": "application-file-upload-REQ-002",
   "version": "1.0.0",
   "status": "approved",
-  "title": "The progress announcer emits per-file and aggregate progress through a polite live-region wrapper",
+  "title": "The progress announcer emits per-file and aggregate progress through a polite live-region wrapper at the manifest-owned cadence",
   "asA": "operator watching an upload progress on a screen reader or a low-vision magnifier",
-  "iWant": "a polite live-region tick every 10 percent of aggregate progress that names how many files have completed out of how many",
+  "iWant": "a polite live-region tick at the cadence owned by `TAC-2403.interfaces.announcementInterval` that names how many files have completed out of how many",
   "soThat": "I know the upload is still working without watching the screen and I can tell when it stalls",
   "acceptanceCriteria": [
     {
@@ -28,13 +28,17 @@
     },
     {
       "id": "AC-23102-3",
-      "description": "The polite live region emits one aggregate progress tick per elicited tick-interval (default 2 seconds) and never emits more than once per interval, so that assistive tech does not receive an announcement flood.",
-      "given": "an in-flight upload and a tick-interval of 2 seconds",
+      "description": "The polite live region emits one aggregate progress announcement per the elicited announcement interval owned by `TAC-2403.interfaces.announcementInterval` and never emits more than once per that interval, so that assistive tech does not receive an announcement flood.",
+      "given": "an in-flight upload and the announcement interval resolved from `TAC-2403.interfaces.announcementInterval`",
       "when": "ticks fire",
-      "then": "the polite live region carries at most one aggregate announcement per 2-second interval",
+      "then": "the polite live region carries at most one aggregate announcement per that interval",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2403-application-file-upload-progress-announcer",
+        "field": "interfaces.announcementInterval"
+      }
     }
   ],
   "tacIds": [

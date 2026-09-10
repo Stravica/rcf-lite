@@ -1,6 +1,6 @@
 {
   "slug": "application-empty-error-states",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -37,6 +37,16 @@
       "id": "application-empty-error-states-REQ-005",
       "kind": "req",
       "path": "requirements/application-empty-error-states-req-005.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-006.json"
+    },
+    {
+      "id": "application-empty-error-states-REQ-007",
+      "kind": "req",
+      "path": "requirements/application-empty-error-states-req-007.json"
     },
     {
       "id": "application-empty-error-states-US-22101",
@@ -114,6 +124,30 @@
       "path": "adrs/adr-2303-application-empty-error-states-offline-strategy.json",
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "stack-trace-visible",
+      "prompt": "Server-error stack-trace visibility: production hides stack traces and secrets; staging or local may allow them.",
+      "kind": "enum",
+      "options": [
+        "production-hide",
+        "staging-show",
+        "local-show"
+      ],
+      "default": "production-hide"
+    },
+    {
+      "id": "offline-strategy",
+      "prompt": "Offline strategy when navigator.onLine reports false: write-buffer (queue writes to IndexedDB and flush on reconnection), read-only-banner (render a banner and disable every write control), or refuse-writes (every write attempt fails locally with a clear message).",
+      "kind": "enum",
+      "options": [
+        "write-buffer",
+        "read-only-banner",
+        "refuse-writes"
+      ],
+      "default": "write-buffer"
     }
   ]
 }

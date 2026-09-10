@@ -1,6 +1,6 @@
 {
   "slug": "application-account-settings",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -101,6 +101,11 @@
   ],
   "contributions": [
     {
+      "id": "application-account-settings-REQ-009",
+      "kind": "req",
+      "path": "requirements/application-account-settings-req-009.json"
+    },
+    {
       "id": "application-account-settings-REQ-001",
       "kind": "req",
       "path": "requirements/application-account-settings-req-001.json"
@@ -189,6 +194,11 @@
       "id": "application-account-settings-US-25111",
       "kind": "us",
       "path": "user-stories/application-account-settings-us-25111.json"
+    },
+    {
+      "id": "application-account-settings-US-25112",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25112.json"
     },
     {
       "id": "TAC-2601-application-account-settings-shell",

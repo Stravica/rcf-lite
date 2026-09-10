@@ -2,7 +2,7 @@
   "usId": "application-admin-console-US-21111",
   "prdId": "PRD-001",
   "reqId": "application-admin-console-REQ-008",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The users surface, the org switcher and the invite path honour the elicited tenancy shape",
   "asA": "shelf consumer applying application-admin-console with the tenancy capability applied and a tenancy-shape chosen",
@@ -21,13 +21,17 @@
     },
     {
       "id": "AC-21111-2",
-      "description": "When tenancy-shape is `per-org`, every directory row carries data-org-membership=all and the switcher renders every org the current principal can reach; an org-scoped invite adds the invitee to the currently switched org without touching the other orgs the principal already belongs to.",
+      "description": "When tenancy-shape is `per-org`, every directory row carries the per-org membership attribute owned by `REQ-008.description`, and the switcher renders every org the current principal can reach; an org-scoped invite adds the invitee to the currently switched org without touching the other orgs the principal already belongs to.",
       "given": "tenancy applied with tenancy-shape=per-org",
       "when": "the users route renders and an admin invites into the currently switched org",
-      "then": "each users row carries data-org-membership=all, the switcher enumerates every reachable org, and the invite POST records the invitee against exactly the switched org (verified in the audit stream)",
+      "then": "each users row carries the per-org membership attribute defined by `REQ-008.description`, the switcher enumerates every reachable org, and the invite POST records the invitee against exactly the switched org (verified in the audit stream)",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "reqId": "application-admin-console-REQ-008",
+        "field": "description"
+      }
     },
     {
       "id": "AC-21111-3",
@@ -51,13 +55,17 @@
     },
     {
       "id": "AC-21111-5",
-      "description": "The rendered directory always agrees with the applied shape: a users row rendered with data-org-membership=all under tenancy-shape=per-user refuses to render (data-error=SHAPE_MISMATCH is written to the console log and the row is suppressed) rather than presenting the wrong shape.",
+      "description": "The rendered directory always agrees with the applied shape: a users row rendered with the per-org membership attribute (owned by `REQ-008.description`) under tenancy-shape=per-user refuses to render (data-error=SHAPE_MISMATCH is written to the console log and the row is suppressed) rather than presenting the wrong shape.",
       "given": "tenancy applied and a mismatched row surfaces from the principal directory",
       "when": "the users route renders",
       "then": "the row is suppressed and data-error=SHAPE_MISMATCH is emitted",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "reqId": "application-admin-console-REQ-008",
+        "field": "description"
+      }
     }
   ],
   "tacIds": [

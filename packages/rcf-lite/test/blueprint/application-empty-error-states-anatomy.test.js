@@ -29,10 +29,10 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 const GUIDE_ABS = join(BLUEPRINT_ROOT, 'guide', 'application-empty-error-states.md');
 const PACK_SRC_ABS = PACK_ABS;
 
-test('blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)', async () => {
+test('blueprint.json declares 21 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-empty-error-states');
-  assert.equal(doc.version, '1.1.1');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
@@ -44,11 +44,11 @@ test('blueprint.json declares 19 contributions with no capabilities and no requi
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 5, 'five REQs');
+  assert.equal(reqs.length, 7, 'seven REQs');
   assert.equal(uss.length, 8, 'eight USs one per named state');
   assert.equal(tacs.length, 3, 'three TACs');
   assert.equal(adrs.length, 3, 'three ADRs');
-  assert.equal(doc.contributions.length, 19, '19 contributions total');
+  assert.equal(doc.contributions.length, 21, '21 contributions total');
   const adrIds = adrs.map((a) => a.id).sort();
   assert.deepEqual(adrIds, [
     'ADR-2301-application-empty-error-states-status-contract',
@@ -59,7 +59,7 @@ test('blueprint.json declares 19 contributions with no capabilities and no requi
   assert.ok(adrClauses.every((c) => typeof c === 'string' && c.length > 0), 'every ADR contribution carries standardsTraceClause');
 });
 
-test('applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 21 documents to the tree (TC-053-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -71,7 +71,7 @@ test('applies cleanly on a fresh init project and adds 19 documents to the tree 
   const walked = await walkTree({ projectRoot: scratch });
   assert.deepEqual(walked.errors, []);
   const added = walked.tree.requirements.filter((r) => r.reqId.startsWith('application-empty-error-states-'));
-  assert.equal(added.length, 5);
+  assert.equal(added.length, 7);
   const uss = walked.tree.userStories.filter((u) => u.usId.startsWith('application-empty-error-states-'));
   assert.equal(uss.length, 8);
 });

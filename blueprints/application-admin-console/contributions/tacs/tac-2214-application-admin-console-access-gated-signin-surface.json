@@ -2,12 +2,12 @@
   "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "status": "approved",
   "name": "Access-gated sign-in surface with principal-read-from-request contract",
   "purpose": "Names the sign-in surface shape the admin-console renders when zeroTrustGate is in the applied capability set. The Access-gated shape carries [data-surface=access-gated], no local form, and a [data-role=principal-read] element rendering the principal email read from request.auth. The fallback shape (zeroTrustGate absent) carries [data-surface=local-login] with the security-auth-* local login form. The two are mutually exclusive on any /admin/sign-in render.",
   "responsibilities": [
-    "Render the Access-gated surface with [data-surface=access-gated] when zeroTrustGate is in appliedCapabilities (AC-21815-1).",
+    "renderAccessGatedSurface: render the Access-gated surface with [data-surface=access-gated] when zeroTrustGate is in appliedCapabilities, wiring the principal read from request.auth (AC-21815-1).",
     "Render the local-login surface with [data-surface=local-login] when zeroTrustGate is absent (AC-21816-1).",
     "Read the principal email from request.auth and render it in [data-role=principal-read] on the gated branch.",
     "Never render both surfaces on the same request; ensure the two are mutually exclusive per applied set."
@@ -28,5 +28,5 @@
     }
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

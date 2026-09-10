@@ -1,0 +1,21 @@
+{
+  "reqId": "application-notifications-in-app-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Apply-time answer families bind the five elicits to the notifications-in-app contract",
+  "description": "When the applying project answers the five apply-time elicits, the shell honours each with a runtime clause per family: `blueprint.json.elicits[id=timeout]` sets the toast timeout floor on ADR-2102 (a value below 6 seconds refuses at apply with TOAST_TIMEOUT_TOO_SHORT); `blueprint.json.elicits[id=retention]` sets the notification-centre retention window in days per ADR-2103; `blueprint.json.elicits[id=categories]` populates the per-category preference sections on TAC-2103; `blueprint.json.elicits[id=route]` sets the preferences route the shell mounts; `blueprint.json.elicits[id=page-size]` sets the notification-centre page size.",
+  "deliveredBy": {
+    "tacId": "TAC-2102-application-notifications-in-app-centre",
+    "field": "responsibilities.applyElicits"
+  },
+  "category": "functional",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "The five apply-time answer families named in the guide needed one must REQ per family so a project cannot elicit a value and see it ignored silently.",
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

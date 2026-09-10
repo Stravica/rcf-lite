@@ -1,5 +1,20 @@
 # application-forms-wizard CHANGELOG
 
+## 1.2.0 (2026-09-10)
+
+### Added
+
+- Five elicits (`step-manifest`, `navigation`, `step-indicator`, `draft-transport`, `validation-policy`) declared on blueprint.json; REQ-006 binds one runtime clause per apply-time answer family.
+- Vendor citations on AC-24101-1 (GOV.UK task-list) and AC-24103-1 (ARIA aria-invalid).
+
+### Changed
+
+- AC-24106-2 references `ADR-2503.decision` via ownerRef (`task-list` / `aria-progressbar-only` / `breadcrumb`).
+- REQ-002.deliveredBy retargeted to `TAC-2502.responsibilities.validationTimingGate` (new responsibility carrying the on-blur / on-change / on-submit clauses).
+- REQ-003.deliveredBy retargeted to `TAC-2502.interfaces.renderSummary`.
+- REQ-004.deliveredBy retargeted to `TAC-2501.responsibilities.renderSummaryReview` (new responsibility).
+- AC-24101-1 references `TAC-2501.interfaces.statesEnum` via ownerRef; drops the four-value restatement.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

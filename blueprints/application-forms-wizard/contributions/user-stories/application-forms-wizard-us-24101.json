@@ -13,8 +13,16 @@
       "id": "AC-24101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given the wizard task-list route, the rendered surface exposes [data-surface=\"task-list\"] carrying a [role=\"progressbar\"] with aria-valuenow, aria-valuemax and aria-valuetext, and one child element per step carrying [data-step-slug] and [data-step-state] whose value is one of the closed set {Cannot start yet, Not started, In progress, Completed}. The pack drives the real browser to /task-list and reads the state string per step, the progressbar values, and the enumerated step order.",
-      "disposition": "fixed"
+      "description": "Given the wizard task-list route, the rendered surface exposes [data-surface=\"task-list\"] carrying a [role=\"progressbar\"] with aria-valuenow, aria-valuemax and aria-valuetext, and one child element per step carrying [data-step-slug] and [data-step-state] whose value is drawn from the closed enum owned by `TAC-2501.interfaces.statesEnum`. The pack drives the real browser to /task-list and reads the state string per step, the progressbar values, and the enumerated step order. (Progressbar ARIA role verified against https://www.w3.org/TR/wai-aria-1.2/#progressbar, 2026-09-10.)",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2501-application-forms-wizard-task-list",
+        "field": "interfaces.statesEnum"
+      },
+      "vendorCitation": {
+        "url": "https://design-system.service.gov.uk/patterns/task-list-pages/",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-24101-2",

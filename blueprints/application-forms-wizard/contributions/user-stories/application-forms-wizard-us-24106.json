@@ -18,13 +18,17 @@
     },
     {
       "id": "AC-24106-2",
-      "description": "Alternative step-indicator contracts (\"progress-bar\", \"stepper-count\", \"none\") each render exactly the contract for the elicited option; a value outside the closed set refuses at apply with STEP_INDICATOR_UNKNOWN naming the value.",
+      "description": "Alternative step-indicator contracts drawn from the closed set owned by `ADR-2503.decision` each render exactly the contract for the elicited option; a value outside the owned set refuses at apply with STEP_INDICATOR_UNKNOWN naming the value.",
       "given": "a project elicits a step-indicator outside the closed set",
       "when": "apply runs",
-      "then": "apply exits with a non-zero code and STEP_INDICATOR_UNKNOWN names the value; each supported option renders its own contract",
+      "then": "apply exits with a non-zero code and STEP_INDICATOR_UNKNOWN names the value; each option in the set owned by `ADR-2503.decision` renders its own contract",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-2503-application-forms-wizard-step-indicator",
+        "field": "decision"
+      }
     }
   ],
   "tacIds": [

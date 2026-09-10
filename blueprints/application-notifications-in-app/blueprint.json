@@ -1,6 +1,6 @@
 {
   "slug": "application-notifications-in-app",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -37,6 +37,11 @@
       "id": "application-notifications-in-app-REQ-005",
       "kind": "req",
       "path": "requirements/application-notifications-in-app-req-005.json"
+    },
+    {
+      "id": "application-notifications-in-app-REQ-006",
+      "kind": "req",
+      "path": "requirements/application-notifications-in-app-req-006.json"
     },
     {
       "id": "application-notifications-in-app-US-20101",
@@ -116,6 +121,38 @@
       "recommendedDefault": true,
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "timeout",
+      "prompt": "Toast timeout floor in seconds (must be at least 6 per ADR-2102).",
+      "kind": "string",
+      "default": "6"
+    },
+    {
+      "id": "retention",
+      "prompt": "Notification-centre retention window in days.",
+      "kind": "string",
+      "default": "30"
+    },
+    {
+      "id": "categories",
+      "prompt": "Notification categories (comma-separated) the preferences UI enumerates.",
+      "kind": "string",
+      "default": "account,billing,security"
+    },
+    {
+      "id": "route",
+      "prompt": "Preferences route path.",
+      "kind": "string",
+      "default": "/notifications-preferences"
+    },
+    {
+      "id": "page-size",
+      "prompt": "Notification-centre page size (positive integer).",
+      "kind": "string",
+      "default": "20"
     }
   ]
 }

@@ -27,7 +27,7 @@
       "acId": "AC-2101-2",
       "description": "Fresh init project applies the blueprint cleanly; walkTree produces zero errors; 5 REQs and 8 USs land under the application-notifications-in-app prefix",
       "status": "pending",
-      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: applies cleanly on a fresh init project and adds 19 documents to the tree (TC-050-applies-clean)"
+      "testPointer": "test/blueprint/application-notifications-in-app-anatomy.test.js::application-notifications-in-app: applies cleanly on a fresh init project and adds 20 documents to the tree (TC-050-applies-clean)"
     },
     {
       "id": "TC-050-pack-checks-cross-check",

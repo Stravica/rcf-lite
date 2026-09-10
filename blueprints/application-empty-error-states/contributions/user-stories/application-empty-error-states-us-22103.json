@@ -14,7 +14,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "Given a mocked 500 response, the server-error state renders inside role=\"region\" with a keyboard-reachable [data-recovery=\"retry\"] control; the rendered surface does NOT contain any word matching the sensitive-pattern list (backtrace-frame prefix like \"at \" plus function name plus file colon line, a source path starting with / or ./ or ../, an environment-variable key shape NAME= or process.env.NAME, or a framework-internal frame prefix). The pack drives /probe/server-error and greps the document text against the pattern list.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.rfc-editor.org/rfc/rfc9110#status.500",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-22103-2",

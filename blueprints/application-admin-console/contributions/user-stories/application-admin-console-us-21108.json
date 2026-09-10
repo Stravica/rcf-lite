@@ -25,5 +25,5 @@
   ],
   "createdAt": "2026-09-05T01:30:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
-  "description": " Note (blueprint-authoring section 7a single-AC legality clause): this story asserts a manifest-level composition invariant (the console never declares providesRoles) with no documented failure path in the guide or the anchored TAC; the assertion is either true or false statically and requires no failure branch."
+  "description": "Note (blueprint-authoring section 7a single-AC legality clause): this static check has no documented runtime or apply-time failure path; the assertion is either true or false statically and requires no failure branch."
 }

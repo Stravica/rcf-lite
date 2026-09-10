@@ -2,7 +2,7 @@
   "reqId": "application-empty-error-states-REQ-002",
   "prdId": "PRD-001",
   "title": "Recovery-action contract per state: parent-surface link, search entry, request-access flow, retry hook",
-  "description": "Every rendered state carries at least one recovery action. The recovery-action router maps each named state to one of a fixed four action shapes: parent-surface (a link back up the resource hierarchy, used by not-found and empty-list), search (a search entry, used by not-found and no-search-results), request-access (a POST to a well-known request-access endpoint the applied notification centre can surface, used by forbidden and permission-denied), retry (a client-side re-issue of the failed operation, used by server-error and offline). The router refuses to render a state without a recovery action; a state whose applied surface has no legitimate recovery renders an explicit no-recovery notice with the reason.",
+  "description": "Every rendered state carries at least one recovery action. The recovery-action router realises the closed enum owned by `TAC-2302.notes` (`parent-surface`, `search`, `request-access`, `retry`, `create`, `clear-filters`, `no-recovery`): parent-surface anchors a link back up the resource hierarchy (used by not-found and empty-list); search opens a search entry (used by not-found and no-search-results); request-access POSTs to a well-known endpoint the applied notification centre can surface (used by forbidden and permission-denied); retry re-issues the failed operation client-side (used by server-error and offline); create anchors a new-resource affordance (used by empty-list); clear-filters clears the applied filter set (used by no-search-results); no-recovery is an explicit notice the surface authors when no legitimate recovery exists. The router refuses to render a state without a recovery shape from the owned enum.",
   "deliveredBy": {
     "tacId": "TAC-2302-application-empty-error-states-recovery-router",
     "field": "interfaces.renderRecovery"
@@ -15,8 +15,8 @@
     "blueprint:application-empty-error-states",
     "category:02-recovery-router"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

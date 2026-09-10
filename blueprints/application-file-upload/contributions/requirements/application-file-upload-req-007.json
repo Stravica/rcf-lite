@@ -1,0 +1,21 @@
+{
+  "reqId": "application-file-upload-REQ-007",
+  "prdId": "PRD-001",
+  "title": "virusScan is declared as an own capability the input TAC calls; the applied verifier is elicited per project",
+  "description": "The blueprint declares `virusScan` in `capabilities` and the input TAC calls the applied verifier as an async predicate over a File that resolves to `{clean: true}` or `{clean: false, reason: <string>}`. A project supplies the verifier (or elicits the noop verifier and accepts the risk per ADR-2403). The refusal path on a virus-scan hit fires on the input TAC and the refused file never leaves the browser.",
+  "deliveredBy": {
+    "tacId": "TAC-2401-application-file-upload-input",
+    "field": "responsibilities.verifyVirusScan"
+  },
+  "category": "security",
+  "domain": "application",
+  "priority": "must",
+  "rationale": "ADR-2403 contributes virusScan but the manifest declared no capability; declaring it as an own capability with a must REQ closes the seam.",
+  "tags": [
+    "blueprint:application-file-upload"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

@@ -21,7 +21,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "Clicking [data-action=\"terminate\"] opens <div role=\"dialog\" aria-modal=\"true\" data-role=\"terminate-confirm\" aria-labelledby=\"terminate-confirm-heading\"> with the row focus-trapped inside the dialog; on confirm the row is removed and <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> is announced; focus returns to the neighbouring row on close.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-25105-3",

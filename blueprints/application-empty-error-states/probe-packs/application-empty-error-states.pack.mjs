@@ -50,6 +50,34 @@ const RESOURCE_ID_PATTERNS = [
   { name: 'resource-slug-hint', re: /\b(?:resource|id|slug|handle)=[A-Za-z0-9._-]+/i },
 ];
 
+// Fixture-seeded exact tokens. The pack asserts the surface renders
+// these exact values so a check cannot pass on any syntactically valid
+// look-alike; the fixture server is the single source of truth for
+// them and the pack rejects a mismatch.
+const SEEDED_FIXTURE_TOKENS = {
+  forbidden: {
+    requestId: 'req-forbidden-000001',
+    safeResponse: 'The workspace exists but its details are hidden from unauthorised viewers.',
+    // Known secret the pack SEEDS into the exercised /probe/forbidden request
+    // context (?resource=<seededSecretResourceId>). The rendered surface must
+    // redact it: the exact string must be absent from the response body while
+    // the [data-safe-response] redaction marker is present.
+    seededSecretResourceId: 'seeded-secret-widget-forbidden-a7f3c1',
+  },
+  serverError: {
+    correlationId: 'cid-server-000001',
+    safeError: 'The server hit an internal failure. The support team has the request id below.',
+  },
+  permissionDenied: {
+    causeClass: 'scope-missing',
+    requestId: 'req-perm-000001',
+  },
+  errorBoundary: {
+    errorClass: 'render-failure',
+    correlationId: 'cid-boundary-000001',
+  },
+};
+
 function firstSensitiveMatch(text, patterns) {
   if (typeof text !== 'string') return null;
   for (const { name, re } of patterns) {
@@ -110,7 +138,10 @@ export default {
       description: 'forbidden state renders inside a region with a request-access control and the rendered surface refuses to include a resource id, resource name or path-shape token',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        await browser.goto(withUrl(runtimeUrl, '/probe/forbidden'));
+        // Seed the known secret into the exercised request context via a query param on the forbidden path;
+        // the fixture receives the seeded value but never echoes it in the response body in normal mode.
+        const seededSecret = SEEDED_FIXTURE_TOKENS.forbidden.seededSecretResourceId;
+        await browser.goto(withUrl(runtimeUrl, `/probe/forbidden?resource=${encodeURIComponent(seededSecret)}`));
         const dom = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="forbidden"]');
           if (!region) return { present: false };
@@ -119,12 +150,27 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'forbidden region [data-surface="forbidden"] not found' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'forbidden region missing [data-action="request-access"] control' };
-        // Least-privilege posture: no resource-id shape, no source path leaking through.
+        // positive-marker gate: fixture seeds a known secret in the request context; the surface must render the safe-response marker plus a request-id, and the pack asserts absence of the leaked secret alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="forbidden"]');
+          const safe = region.querySelector('[data-safe-response]');
+          const rid = region.querySelector('[data-request-id]');
+          return {
+            hasSafeMarker: !!safe,
+            safeText: safe ? safe.textContent.trim() : null,
+            requestId: rid ? rid.getAttribute('data-request-id') : null,
+          };
+        });
+        if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'forbidden region missing positive [data-safe-response] redaction marker' };
+        if (positive.safeText !== SEEDED_FIXTURE_TOKENS.forbidden.safeResponse) return { verdict: 'fail', detail: `forbidden region [data-safe-response] did not match seeded safe body: got ${JSON.stringify(positive.safeText)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.safeResponse)}` };
+        if (positive.requestId !== SEEDED_FIXTURE_TOKENS.forbidden.requestId) return { verdict: 'fail', detail: `forbidden region [data-request-id] did not match seeded id: got ${JSON.stringify(positive.requestId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.requestId)}` };
+        // Positive redaction assertion: the exact seeded secret MUST be absent from the response body.
+        if (dom.text.includes(seededSecret)) return { verdict: 'fail', detail: `forbidden surface leaked the seeded secret resource id ${JSON.stringify(seededSecret)} into the response body` };
         const leak = firstSensitiveMatch(dom.text, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `forbidden surface leaked ${leak.name}: ${leak.match}` };
         const path = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS.filter((p) => p.name.startsWith('source-path')));
         if (path) return { verdict: 'fail', detail: `forbidden surface leaked ${path.name}: ${path.match}` };
-        return { verdict: 'pass', detail: 'forbidden region clean; request-access control present' };
+        return { verdict: 'pass', detail: `forbidden region carries positive safe-response marker; requestId=${positive.requestId}; seeded secret ${JSON.stringify(seededSecret)} absent from body and [data-safe-response] marker present with seeded body` };
       },
     },
     {
@@ -142,9 +188,23 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'server-error region [data-surface="server-error"] not found' };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'server-error region missing [data-recovery="retry"] control' };
+        // positive-marker gate: fixture seeds a known safe-error body; the surface must render the safe-error marker plus a correlation id, and the pack asserts absence of a stack trace alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="server-error"]');
+          const safe = region.querySelector('[data-safe-error]');
+          const cid = region.querySelector('[data-correlation-id]');
+          return {
+            hasSafeMarker: !!safe,
+            safeText: safe ? safe.textContent.trim() : null,
+            correlationId: cid ? cid.getAttribute('data-correlation-id') : null,
+          };
+        });
+        if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'server-error region missing positive [data-safe-error] body marker' };
+        if (positive.safeText !== SEEDED_FIXTURE_TOKENS.serverError.safeError) return { verdict: 'fail', detail: `server-error region [data-safe-error] did not match seeded safe body: got ${JSON.stringify(positive.safeText)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.serverError.safeError)}` };
+        if (positive.correlationId !== SEEDED_FIXTURE_TOKENS.serverError.correlationId) return { verdict: 'fail', detail: `server-error region [data-correlation-id] did not match seeded id: got ${JSON.stringify(positive.correlationId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.serverError.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `server-error surface leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: 'server-error region clean; retry control present' };
+        return { verdict: 'pass', detail: `server-error region carries positive safe-error marker; correlationId=${positive.correlationId}` };
       },
     },
     {
@@ -168,9 +228,21 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'permission-denied region [data-surface="permission-denied"] not found' };
         if (!dom.causeText) return { verdict: 'fail', detail: 'permission-denied region missing [data-cause] class-level cause' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'permission-denied region missing [data-action="request-access"] control' };
+        // positive-marker gate: fixture seeds an exact cause-class token; the surface must expose it on [data-cause-class] with a request id, and the pack asserts absence of any resource-id shape alongside the positive marker.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="permission-denied"]');
+          const cls = region.querySelector('[data-cause-class]');
+          const rid = region.querySelector('[data-request-id]');
+          return {
+            causeClass: cls ? cls.getAttribute('data-cause-class') : null,
+            requestId: rid ? rid.getAttribute('data-request-id') : null,
+          };
+        });
+        if (positive.causeClass !== SEEDED_FIXTURE_TOKENS.permissionDenied.causeClass) return { verdict: 'fail', detail: `permission-denied region [data-cause-class] did not match seeded token: got ${JSON.stringify(positive.causeClass)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.permissionDenied.causeClass)}` };
+        if (positive.requestId !== SEEDED_FIXTURE_TOKENS.permissionDenied.requestId) return { verdict: 'fail', detail: `permission-denied region [data-request-id] did not match seeded id: got ${JSON.stringify(positive.requestId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.permissionDenied.requestId)}` };
         const leak = firstSensitiveMatch(dom.causeText, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `permission-denied cause leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: `cause=${JSON.stringify(dom.causeText)}` };
+        return { verdict: 'pass', detail: `cause-class=${positive.causeClass} requestId=${positive.requestId}` };
       },
     },
     {
@@ -275,9 +347,21 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'error-boundary region [data-surface="error-boundary"] not found' };
         if (dom.role !== 'alert') return { verdict: 'fail', detail: `error-boundary region role expected "alert", got ${JSON.stringify(dom.role)}` };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'error-boundary region missing [data-recovery="retry"] control' };
+        // positive-marker gate: the boundary must expose a safe error-class token and a correlation id; the pack asserts absence of stack detail alongside the positive markers.
+        const positive = await browser.evaluate(() => {
+          const region = document.querySelector('[data-surface="error-boundary"]');
+          const cls = region.querySelector('[data-error-class]');
+          const cid = region.querySelector('[data-correlation-id]');
+          return {
+            errorClass: cls ? cls.getAttribute('data-error-class') : null,
+            correlationId: cid ? cid.getAttribute('data-correlation-id') : null,
+          };
+        });
+        if (positive.errorClass !== SEEDED_FIXTURE_TOKENS.errorBoundary.errorClass) return { verdict: 'fail', detail: `error-boundary region [data-error-class] did not match seeded token: got ${JSON.stringify(positive.errorClass)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.errorBoundary.errorClass)}` };
+        if (positive.correlationId !== SEEDED_FIXTURE_TOKENS.errorBoundary.correlationId) return { verdict: 'fail', detail: `error-boundary region [data-correlation-id] did not match seeded id: got ${JSON.stringify(positive.correlationId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.errorBoundary.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `error-boundary surface leaked ${leak.name}: ${leak.match}` };
-        return { verdict: 'pass', detail: 'error-boundary role=alert, retry control present, no stack detail' };
+        return { verdict: 'pass', detail: `error-boundary carries error-class=${positive.errorClass} correlationId=${positive.correlationId}; no stack detail` };
       },
     },
   ],

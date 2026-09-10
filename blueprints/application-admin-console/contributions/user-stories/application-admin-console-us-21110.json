@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-21110-1",
-      "description": "When invite-transport is `email` and the applied email companion accepts the invite payload, the invite row records data-invite-outcome=accepted and the audit stream carries a row naming transport=email, the invitee and outcome=accepted. Template values the applying agent sets: the email companion binding name, the from address and the invite template id.",
+      "description": "When invite-transport is `email` and the applied email companion accepts the invite payload, the invite row records data-invite-outcome=accepted and the audit stream carries a row naming transport=email, the invitee and outcome=accepted. Applying agent sets: the email companion binding name, the from address and the invite template id.",
       "given": "invite-transport=email applied and the email companion returns accepted",
       "when": "an admin clicks invite for a pending principal",
       "then": "the invite row exposes data-invite-outcome=accepted and the audit stream row names transport=email, invitee and outcome=accepted",
@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-21110-4",
-      "description": "When invite-transport is `custom` and a project-supplied invite handler is registered on the applied capability sidecar, the invite payload is handed to the handler and success is recorded only after the handler resolves; when no handler is registered the invite refuses at apply-time with INVITE_HANDLER_MISSING naming the sidecar key. Template values the applying agent sets: the handler function name and the sidecar key it registers under.",
+      "description": "When invite-transport is `custom` and a project-supplied invite handler is registered on the applied capability sidecar, the invite payload is handed to the handler and success is recorded only after the handler resolves; when no handler is registered the invite refuses at apply-time with INVITE_HANDLER_MISSING naming the sidecar key. Applying agent sets: the handler function name and the sidecar key it registers under.",
       "given": "invite-transport=custom applied",
       "when": "an admin clicks invite",
       "then": "the handler is called with { invitee, orgId?, correlationId } and the row records data-invite-outcome=accepted only after the handler resolves; a missing handler refuses at apply with INVITE_HANDLER_MISSING",

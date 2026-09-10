@@ -2,17 +2,17 @@
   "tacId": "TAC-2703-application-onboarding-tour-completion-store",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Onboarding-tour completion-state store",
-  "purpose": "Owns the completion-state store contract: the writer the step runner calls on the last step, the reader first-run detection calls on principal load, and the clearer the restart-tour control calls. Delegates to the applied persistence blueprint when server-side-per-principal is elicited (and refuses at apply if no persistence blueprint is applied); falls back to spa-local-storage per Q4 or spa-session-storage per the elicit.",
+  "purpose": "Owns the completion-state store contract: the writer the step runner calls on the last step, the reader first-run detection calls on principal load, and the clearer the restart-tour control calls. The refusal semantics for the server-side-per-principal backend without an applied persistence blueprint are owned by `ADR-2702.decision`.",
   "responsibilities": [
     "Write the completion record on the last step (AC-26104-1).",
     "Read the completion record on principal load so first-run detection can gate the tour auto-open (AC-26105-1).",
     "Clear the completion record when the restart-tour control fires (AC-26104-1, AC-26106-1).",
-    "Refuse at apply when server-side-per-principal is elicited without an applied persistence blueprint."
+    "Enforce the refusal semantics owned by `ADR-2702.decision`."
   ],
-  "internalStructure": "One completion-store module with three backends (spa-local-storage, spa-session-storage, server-side-per-principal) selected at apply time from the elicited completion-state-store answer or the Q4 fallback (spa-local-storage). The server-side backend calls the applied persistence blueprint's writer through the projects own adapter interface; the two SPA backends read and write window.localStorage / window.sessionStorage under a namespaced key derived from the applied blueprint set version.",
+  "internalStructure": "One completion-store module with three backends (selected at apply time from the elicited `blueprint.json.elicits[id=completion-state-store]` answer). The server-side backend calls the applied persistence blueprint's writer through the projects own adapter interface; the missing-provider refusal semantics for that branch are owned by `ADR-2702.decision`. The SPA backends read and write from the browser storage the elicit selects under a namespaced key derived from the applied blueprint set version.",
   "interfaces": [
     {
       "name": "completionStore",
@@ -27,8 +27,8 @@
       "description": "Optional composition: only the server-side-per-principal backend delegates to an applied persistence blueprint writer. spa-local-storage and spa-session-storage need no persistence blueprint. The rcf-schemas 0.6.1 TAC dependency kind enum is limited to tac and external, so the composition-optional relation is recorded as external and made explicit in the description and notes."
     }
   ],
-  "tradeoffs": "spa-local-storage is chosen as the Q4 default because a per-session tour that re-plays on every new session is worse than a one-time tour that persists across sessions on that browser; spa-session-storage remains an option for a project that deliberately wants a per-session tour. server-side-per-principal is chosen when the tour completion is a real profile fact (a cross-device onboarding) rather than a per-browser convenience.",
-  "notes": "The blueprintSetVersion in the CompletionRecord is what lets ADR-2701's dismiss-until-next-major and dismiss-until-next-minor policies re-open the tour on the right bump. Known mechanism-reach gap: the server-side-per-principal backend cannot prove a round-trip in a unit test without an applied persistence blueprint; the pack skips the persistence round-trip check for spa-* stores (inspects the storage directly) and drives it for server-side-per-principal on the fixture branch that stands up an in-fixture writer. The Persistence blueprint dependency is recorded with kind external per the rcf-schemas 0.6.1 enum and is optional-composition semantically: server-side-per-principal delegates to the applied persistence blueprint writer, and the spa-local-storage and spa-session-storage backends need no persistence blueprint applied. Refusal at apply for the server-side-per-principal branch is enforced in the store module.",
+  "tradeoffs": "The three-backend choice and the default selection are owned by `ADR-2702.decision` and the manifest elicit `blueprint.json.elicits[id=completion-state-store]`; this TAC carries only the store contract, not the option-level rationale.",
+  "notes": "The blueprintSetVersion in the CompletionRecord is what lets ADR-2701's dismiss-until-next-major and dismiss-until-next-minor policies re-open the tour on the right bump. Known mechanism-reach gap: the server-side-per-principal backend cannot prove a round-trip in a unit test without an applied persistence blueprint; the pack skips the persistence round-trip check for the SPA stores (inspects the storage directly) and drives it for the server-side backend on the fixture branch that stands up an in-fixture writer. The Persistence blueprint dependency is recorded with kind external per the rcf-schemas 0.6.1 enum and is optional-composition semantically. The refusal path is enforced per `ADR-2702.decision`.",
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-07T00:45:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

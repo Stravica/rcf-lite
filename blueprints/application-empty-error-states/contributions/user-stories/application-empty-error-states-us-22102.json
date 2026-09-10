@@ -14,7 +14,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "Given a 403 response, the forbidden state renders inside role=\"region\" with a keyboard-reachable [data-action=\"request-access\"] control that POSTs to /api/request-access. The rendered surface does NOT contain any word matching the sensitive-pattern list (resource id shape, resource name shape, path-shape strings starting with /). The pack drives /probe/forbidden and reads the region, the control, and the full document text for pattern hits.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.rfc-editor.org/rfc/rfc9110#status.403",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-22102-2",

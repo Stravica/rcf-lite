@@ -10,7 +10,8 @@
     "Persist every buffered write to the applied local buffer (IndexedDB by default per ADR-2303, an elicited alternative for projects that need it) with an idempotency token, serialised payload and sequence (AC-22105-1).",
     "Expose window.__offlineBuffer as a read-only enumeration for the pack and for project-side smoke tests (AC-22105-1).",
     "Announce buffered-write count changes through the polite live-region wrapper on entry and on reconnection (AC-22105-1 via TAC-2301).",
-    "On reconnection, flush the buffer in sequence, retain the entry on flush failure with a retry counter, and clear the entry on flush success."
+    "On reconnection, flush the buffer in sequence, retain the entry on flush failure with a retry counter, and clear the entry on flush success.",
+    "writeAndFlushReconciliation: on write, persist through bufferWrite with idempotency token, serialised payload and monotonic sequence; on reconnection, iterate through flushBuffer, retain entries on flush failure with a retry counter and clear on success, per REQ-005."
   ],
   "internalStructure": "One buffer module the state machine invokes on offline entry and exit. The buffer wraps the applied storage engine (default IndexedDB via a small adapter interface, elicited alternatives per ADR-2303) with a serialise/deserialise pair and a monotonic counter. The reconciliation loop is idempotent: replaying the flush against the same buffer produces the same server-side effect.",
   "interfaces": [

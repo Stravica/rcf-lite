@@ -2,7 +2,7 @@
   "tacId": "TAC-2601-application-account-settings-shell",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Account settings shell",
   "purpose": "Owns the rendered settings surface: the top-level tabs landmark, the surface-manifest read at load, the conditional rendering of every applied surface (profile always; security, sessions, notifications, theme conditional), the tabs interaction contract (ARIA APG), and the shared page layout every surface renders within. The shell is the base surface every AC in this blueprint anchors on.",
@@ -14,7 +14,8 @@
     "Route unauthenticated principals to the empty-error-states forbidden state rather than inventing a bespoke denied UI.",
     "renderProfileSurface: mount the profile tab as the active tab on /account, always available (AC-25102-1).",
     "renderPreferencesSurface: mount the notification-preferences tab when application-notifications-in-app is applied (AC-25107-1) and the theme tab when application-spa is applied honouring theme-persistence (AC-25108-1).",
-    "renderCorrelationId: write one request-scoped log line per rendered surface, carrying the correlation identifier the applied logging companion supplies."
+    "renderCorrelationId: write one request-scoped log line per rendered surface, carrying the correlation identifier the applied logging companion supplies.",
+    "renderThemeSurface: mount the theme tab when application-spa is applied, render the light/dark/system ARIA APG radiogroup, persist the choice per the elicited theme-persistence, and flip the data-theme attribute on the html element (REQ-006)."
   ],
   "internalStructure": "One shell module that mounts the surface, reads the applied capabilities sidecar, and renders the tabs landmark, the page-layout scaffolding, and the tabpanel-level containers for each conditional surface. The framework is not prescribed; the shell interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
   "interfaces": [
@@ -40,5 +41,5 @@
   "tradeoffs": "The shell reads the sidecar file the apply verb writes; a runtime probe against manifest.blueprints[] would be more dynamic but ties the shell to the deploy-target having filesystem read access, which not every deploy target grants. The sidecar contract is deterministic and cacheable.",
   "notes": "Composes on application-empty-error-states for the forbidden and empty-list states rather than inventing bespoke denied UI. Known mechanism-reach gap: the shell contract cannot prove keyboard focus does not escape the tabs region in every framework rendering; project-side smoke tests supplement the pack. See README Known mechanism-reach gaps.",
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

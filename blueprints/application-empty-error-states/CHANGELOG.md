@@ -1,5 +1,19 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.0 (2026-09-10)
+
+### Added
+
+- Elicits `stack-trace-visible` (default `production-hide`) and `offline-strategy` (default `write-buffer`) declared on blueprint.json; REQ-006 binds the three `stack-trace-visible` options and REQ-007 binds the three `offline-strategy` options with a runtime clause per value.
+- Vendor citations on AC-22101-1 (RFC 9110 404), AC-22102-1 (RFC 9110 403) and AC-22103-1 (RFC 9110 500).
+
+### Changed
+
+- REQ-002 widened to the seven-value recovery-shape enum owned by `TAC-2302.notes` (parent-surface, search, request-access, retry, create, clear-filters, no-recovery) via ownerRef.
+- REQ-004.deliveredBy retargeted to `TAC-2301.responsibilities.redactSensitivePatterns` (new responsibility).
+- REQ-005.deliveredBy retargeted to `TAC-2303.interfaces.bufferWrite`.
+- Probe checks AC-22102-1, AC-22103-1, AC-22104-1 and AC-22108-1 reworked to positively assert `data-safe-response` / `data-safe-error` / `data-cause-class` / `data-error-class` markers plus `data-request-id` / `data-correlation-id`; fixture updated to emit the markers.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

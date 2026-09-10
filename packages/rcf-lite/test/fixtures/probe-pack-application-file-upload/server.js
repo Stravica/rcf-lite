@@ -83,10 +83,11 @@ function seededFileRows(seed) {
 
 function renderFileRowHtml(f, idx) {
   if (f.refused) {
-    return `<div data-file-row data-file-name="${escapeHtml(f.name)}" data-file-state="refused" data-chunks-uploaded="0" data-refused="true" data-refusal-reason="${escapeHtml(f.reason)}" data-refused-filename="${escapeHtml(f.name)}" aria-describedby="err-${idx}">
+    return `<div data-file-row data-file-id="file-${idx}" data-file-name="${escapeHtml(f.name)}" data-file-state="refused" data-chunks-uploaded="0" data-refused="true" data-refusal-reason="${escapeHtml(f.reason)}" data-refused-filename="${escapeHtml(f.name)}" aria-describedby="err-${idx}">
   <span>${escapeHtml(f.name)} </span>
   <span data-file-progress role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">0</span>
   <div data-error-message id="err-${idx}">This file was refused (${escapeHtml(f.reason)}). Please choose another file.</div>
+  <span data-refusal-receipt="file-${idx}" hidden>file-${idx}</span>
   <button type="button" data-recovery="retry">Retry</button>
 </div>`;
   }
