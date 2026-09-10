@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-1135-2",
-      "description": "A signed-in browser opening a protected deep-link with a live session lands on the requested protected route, not on the sign-in route. A signed-in browser opening a sign-out surface and then reopening the same protected deep-link lands on the sign-in route with the originally requested route preserved on the return-to state named on TAC-201-application-spa-app-shell.responsibilities[0], and after a fresh sign-in the browser lands on the originally requested protected route. Applying agent sets: the project-declared browserSurface.routes for the protected route, the sign-in route, and the sign-out surface.",
+      "description": "A signed-in browser opening a protected deep-link with a live session lands on the requested protected route, not on the sign-in route. A signed-in browser opening a sign-out surface and then reopening the same protected deep-link lands on the sign-in route with the originally requested route preserved on the return-to state owned on TAC-201-application-spa-app-shell.responsibilities[5], and after a fresh sign-in the browser lands on the originally requested protected route. Applying agent sets: the project-declared browserSurface.routes for the protected route, the sign-in route, and the sign-out surface.",
       "given": "the application booted through its production entry point with a protected route, a sign-in route, and a sign-out surface all registered under browserSurface.routes",
       "when": "a signed-in browser opens the protected deep-link, then signs out, then reopens the same deep-link, then signs in again",
       "then": "the first open lands on the protected route; the second open (post sign-out) lands on the sign-in route with the return-to state preserving the originally requested path; the post-authentication landing is the originally requested protected route; any other landing refuses ship with a diagnostic naming the requested, landed, and expected paths",
@@ -30,7 +30,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-201-application-spa-app-shell",
-        "field": "responsibilities[0]"
+        "field": "responsibilities[5]"
       }
     }
   ],

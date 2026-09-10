@@ -4,7 +4,7 @@ This guide is for the human running the project, not the coding agent. It explai
 
 ## What this blueprint is
 
-A specification package for single-page applications with public and authenticated surfaces, session-based auth, one deployable, dark and light by default, fully responsive by default. Applying it (`rcf define blueprint add <path>`) merges 76 namespaced documents into your RCF tree: 21 requirements, 35 user stories carrying 197 acceptance criteria, 11 architectural components, and 9 decision records. It also ships a design system: contrast-validated design tokens for both themes, a realising stylesheet, wireframes for the nine canonical surfaces, per-component behaviour contracts, a viewport table, and sample data.
+A specification package for single-page applications with public and authenticated surfaces, session-based auth, one deployable, dark and light by default, fully responsive by default. Applying it (`rcf define blueprint add <path>`) merges 76 namespaced documents into your RCF tree: 21 requirements, 35 user stories carrying 199 acceptance criteria, 11 architectural components, and 9 decision records. It also ships a design system: contrast-validated design tokens for both themes, a realising stylesheet, wireframes for the nine canonical surfaces, per-component behaviour contracts, a viewport table, and sample data.
 
 The point, in one sentence: the visual and UX floor of your build becomes part of the specification, so the same build cycle that verifies your features also verifies that the product looks and behaves like someone cared.
 
@@ -37,4 +37,4 @@ Walk any journey in the finished product and try to catch it looking abandoned: 
 
 ## Cost honesty
 
-This doc set makes builds slower to declare done, on purpose: 197 criteria is the price of "no route ships half-dressed". If the project is a one-day throwaway, that price is wrong for you; skip the blueprint rather than opting out of half of it. If the project has users, the price is the product.
+This doc set makes builds slower to declare done, on purpose: 199 criteria is the price of "no route ships half-dressed". If the project is a one-day throwaway, that price is wrong for you; skip the blueprint rather than opting out of half of it. If the project has users, the price is the product.
