@@ -13,7 +13,42 @@
       "id": "AC-23105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "After the fixture completes the upload set the upload region carries a [data-assertive-slot] element with aria-live=\"assertive\" or role=\"status\" whose textContent matches /^\\d+ files uploaded successfully$/, each completed file row carries [data-file-row][data-file-state=\"complete\"], a keyboard-reachable [data-recovery=\"remove\"] button per row and, after a refused-then-succeeded row, a [data-recovery=\"retry\"] button visible only until the retry succeeds."
+      "description": "After the fixture completes the upload set the upload region carries a [data-assertive-slot] element with aria-live=\"assertive\" or role=\"status\" whose textContent matches /^\\d+ files uploaded successfully$/, each completed file row carries [data-file-row][data-file-state=\"complete\"], a keyboard-reachable [data-recovery=\"remove\"] button per row and, after a refused-then-succeeded row, a [data-recovery=\"retry\"] button visible only until the retry succeeds.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23105-2",
+      "description": "On successful removal (the transport DELETE returns 204 or a defined 200), the upload surface removes the row, announces the removal via the polite live region and no upload artefact remains referenced in the applied data blueprint.",
+      "given": "a completed upload row and a successful DELETE",
+      "when": "the principal activates remove",
+      "then": "the row is removed from the DOM, a polite announcement fires and the applied data blueprint no longer references the artefact",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23105-3",
+      "description": "When the transport DELETE returns a non-2xx or times out, the row remains with data-remove-outcome=failed, the assertive live region announces the failure, no recovery artefact is deleted downstream, and a retry stays keyboard-reachable.",
+      "given": "a completed upload row and a DELETE that returns a non-2xx or times out",
+      "when": "the principal activates remove",
+      "then": "the row remains with data-remove-outcome=failed, the assertive live region announces the failure and a retry is keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2402-application-file-upload-transport",
+        "field": "interfaces.removeFile"
+      }
+    },
+    {
+      "id": "AC-23105-4",
+      "description": "The completion once contract: a single upload emits exactly one completion announcement even under a retry; two rapid completions from the same upload id emit one announcement (idempotency of a retried operation).",
+      "given": "an upload that emits two completion events for the same upload id",
+      "when": "the completions are dispatched",
+      "then": "exactly one completion announcement fires and no duplicate data-complete=true is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +60,5 @@
     "affordance:completion"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

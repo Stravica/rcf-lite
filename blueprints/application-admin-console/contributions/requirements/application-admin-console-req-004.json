@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Orgs surface conditional on tenancy, with switcher and org-scoped invites",
   "description": "When an applied blueprint declares the tenancy capability, the console renders an orgs route: an org switcher control on the shell and an org-scoped invite path from the users surface. The tenancy capability today has no shelf provider (reserved for a future application-tenancy-orgs blueprint per spec section 11); the surface is suppressed until that provider ships.",
+  "deliveredBy": {
+    "tacId": "TAC-2201-application-admin-console-shell",
+    "field": "responsibilities.delegateOrgsSurface"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

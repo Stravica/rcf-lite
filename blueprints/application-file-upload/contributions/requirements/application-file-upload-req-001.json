@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Input contract: a labelled file input plus a drop-zone plus a keyboard alternative per WCAG 2.5.7",
   "description": "The upload surface renders a labelled native file input, a labelled drop-zone region for pointer users, and a keyboard-focusable alternative control that opens the picker on Enter or Space. Every input carries an accessible name via label association or aria-label. The three affordances share the same underlying file collector so a keyboard-only user, a pointer user with drag-drop and a screen-reader user reach the same state. Per WCAG 2.5.7 Dragging Movements, the drop-zone is never the only way to add a file; a click and keyboard path both satisfy the same acceptance criterion.",
+  "deliveredBy": {
+    "tacId": "TAC-2401-application-file-upload-input",
+    "field": "interfaces.collectFiles"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

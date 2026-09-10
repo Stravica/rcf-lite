@@ -13,13 +13,25 @@
       "id": "AC-25101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given an authenticated principal AND an applied auth blueprint declaring principalDirectory, GET /account renders the shell as an ARIA APG tabs region [role=\"tablist\"] with one [role=\"tab\"] per applied capability plus the always-on profile tab; a tab whose capability is not in the applied set does NOT render (no disabled shell). Probed by pack check AC-25101-1."
+      "description": "Given an authenticated principal AND an applied auth blueprint declaring principalDirectory, GET /account renders the shell as an ARIA APG tabs region [role=\"tablist\"] with one [role=\"tab\"] per applied capability plus the always-on profile tab; a tab whose capability is not in the applied set does NOT render (no disabled shell). Probed by pack check AC-25101-1.",
+      "disposition": "fixed"
     },
     {
       "id": "AC-25101-2",
       "testable": true,
       "scope": "runtime",
-      "description": "The shell landmark is <nav data-role=\"account-settings-nav\" aria-label=\"Account settings\"> with a single accessible name; heading order follows h1 (page) then h2 (active tab) per WCAG 2.4.6."
+      "description": "The shell landmark is <nav data-role=\"account-settings-nav\" aria-label=\"Account settings\"> with a single accessible name; heading order follows h1 (page) then h2 (active tab) per WCAG 2.4.6.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25101-3",
+      "description": "When an unauthenticated principal requests /account, the shell routes to the shared forbidden state (T-1 application-empty-error-states), presents a sign-in link and renders no profile data.",
+      "given": "a request for /account without a valid principal on any applied auth blueprint",
+      "when": "the shell resolves the route",
+      "then": "the forbidden state renders with a sign-in link, no profile form is written to the DOM and no principal identifiers appear in the response body",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -30,5 +42,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

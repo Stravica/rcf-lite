@@ -13,7 +13,28 @@
       "id": "AC-24107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given at least one draft persisted per REQ-005, /in-progress renders [data-surface=\"in-progress-list\"] with one [data-wizard-row] per draft carrying the wizard title, the step slug the operator was on and a [data-recovery=\"resume\"] link whose href routes back to the wizard's task-list surface. The row count matches the number of drafts held in the draft store."
+      "description": "Given at least one draft persisted per REQ-005, /in-progress renders [data-surface=\"in-progress-list\"] with one [data-wizard-row] per draft carrying the wizard title, the step slug the operator was on and a [data-recovery=\"resume\"] link whose href routes back to the wizard's task-list surface. The row count matches the number of drafts held in the draft store.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24107-2",
+      "description": "When the in-progress list read returns a non-2xx or times out, the surface renders the last cached list (if any) with a fetch-failed banner and an inline retry; drafts owned by other principals never appear in the list even on a stale cache.",
+      "given": "a server-side draft list whose read returns a non-2xx or times out",
+      "when": "the in-progress list surface renders",
+      "then": "the last cached list renders with a fetch-failed banner, an inline retry is keyboard-reachable and no cross-principal draft appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24107-3",
+      "description": "A draft in the list is only shown to its owning principal; a request from another principal for the same draft id refuses at the applied auth boundary and never renders the draft on the list.",
+      "given": "a draft owned by principal A and a request from principal B",
+      "when": "the list surface renders for principal B",
+      "then": "the draft is not present in the list and any direct URL for principal B refuses at the auth boundary",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +45,5 @@
     "case:in-progress-list"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

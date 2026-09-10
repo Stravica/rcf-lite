@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Access-denied and request-access states per WCAG 2.2 AA",
   "description": "A principal without admin scope reaching an admin route renders an access-denied state under WCAG 2.4.6 Headings and Labels and 3.3.4 Error Prevention: a heading naming the denied action, an explanation of why access was refused, and a request-access control routed to a POST /api/request-access endpoint the applied notification blueprint delivers on. The request-access control is keyboard-reachable and announces its state (idle, submitting, submitted) via a polite live region (WCAG 4.1.3).",
+  "deliveredBy": {
+    "tacId": "TAC-2201-application-admin-console-shell",
+    "field": "responsibilities.renderAccessDenied"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

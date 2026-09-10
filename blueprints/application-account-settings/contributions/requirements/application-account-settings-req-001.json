@@ -2,7 +2,11 @@
   "reqId": "application-account-settings-REQ-001",
   "prdId": "PRD-001",
   "title": "Settings shell with no dead links to unapplied capabilities and ARIA APG tabs",
-  "description": "The settings shell renders a single primary tabs region (ARIA APG tabs pattern) whose entries mirror the union of applied capabilities discovered via readAppliedCapabilities. A tab whose capability is not applied does NOT render (no dead link, no disabled shell). A principal without an authenticated session reaching /account routes to the access-denied state through application-empty-error-states (T-1) with a sign-in link; no bespoke access-denied UI is invented here. Landmark, headings, focus order per WCAG 2.4.6.",
+  "description": "The settings shell renders a single primary tabs region (ARIA APG tabs pattern) whose entries mirror the union of applied capabilities discovered via readAppliedCapabilities. The applied capability floor is principalDirectory: the shell reads the current authenticated principal (name, email, id) from the applied principalDirectory provider on first render and passes the identity to every child surface without re-reading it per tab switch. A tab whose capability is not applied does NOT render (no dead link, no disabled shell). A principal without an authenticated session reaching /account routes to the access-denied state through application-empty-error-states (T-1) with a sign-in link; no bespoke access-denied UI is invented here. Landmark, headings, focus order per WCAG 2.4.6.",
+  "deliveredBy": {
+    "tacId": "TAC-2601-application-account-settings-shell",
+    "field": "responsibilities.renderShell"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",
@@ -14,5 +18,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

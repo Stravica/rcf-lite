@@ -13,7 +13,18 @@
       "id": "AC-24104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given every step is Completed, /summary renders [data-surface=\"summary-review\"] with one [data-summary-list-section] per step; each section holds a <dl> summary list carrying [data-summary-row] entries with a <dt> label and a <dd> value; every row carries a [data-recovery=\"change\"] link whose href routes back to the step. After clicking a Change link, editing that field and saving, the operator returns to /summary and every other row's value is preserved verbatim. The pack drives /summary, reads the row count and dl structure, follows one Change link, updates one field, saves, and diffs the summary rows before and after to prove only the edited row changed."
+      "description": "Given every step is Completed, /summary renders [data-surface=\"summary-review\"] with one [data-summary-list-section] per step; each section holds a <dl> summary list carrying [data-summary-row] entries with a <dt> label and a <dd> value; every row carries a [data-recovery=\"change\"] link whose href routes back to the step. After clicking a Change link, editing that field and saving, the operator returns to /summary and every other row's value is preserved verbatim. The pack drives /summary, reads the row count and dl structure, follows one Change link, updates one field, saves, and diffs the summary rows before and after to prove only the edited row changed.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24104-2",
+      "description": "The summary-review surface renders one row per step with a Change link back to the owning step; a submit from summary that fails leaves the summary intact and surfaces the applied error-summary at the top with no data loss.",
+      "given": "the summary-review surface and a submit that returns a non-2xx",
+      "when": "the failure is reported",
+      "then": "the summary remains rendered, an error summary appears at the top, and no answers are lost from the DOM state",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "contract:summary-review"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -13,7 +13,38 @@
       "id": "AC-26104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a completed tour, the completion state persists per principal in the applied persistence blueprint (or in spa-local-storage as the Q4 fallback per ADR-2702 when no persistence blueprint is applied); a restart-tour control is reachable from the settings surface (composing on application-account-settings when applied; on any settings surface as a fallback); activating the control clears the completion state and re-opens the tour on the next principal load. Anchors to TAC-2703-application-onboarding-tour-completion-store; probed by application-onboarding-tour.pack.mjs check AC-26104-1."
+      "description": "Given a completed tour, the completion state persists per principal in the applied persistence blueprint (or in spa-local-storage as the Q4 fallback per ADR-2702 when no persistence blueprint is applied); a restart-tour control is reachable from the settings surface (composing on application-account-settings when applied; on any settings surface as a fallback); activating the control clears the completion state and re-opens the tour on the next principal load. Anchors to TAC-2703-application-onboarding-tour-completion-store; probed by application-onboarding-tour.pack.mjs check AC-26104-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26104-2",
+      "description": "When completion-state-store is  and no persistence blueprint is applied, apply refuses with COMPLETION_STORE_MISSING_PROVIDER naming the required capability and no completion record is written.",
+      "given": "completion-state-store=server-side-per-principal with no persistence blueprint applied",
+      "when": "apply runs",
+      "then": "apply exits with a non-zero code, COMPLETION_STORE_MISSING_PROVIDER is emitted and no completion record is written to any store",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26104-3",
+      "description": "When the write of the completion record fails (a rejected persistence write or a full quota on spa-local-storage), the tour does not mark itself completed: the last step remains active or the dialog closes with data-error=COMPLETION_WRITE_FAILED, and the next principal load re-opens the tour.",
+      "given": "a tour completing while the store rejects the write",
+      "when": "the last step confirm fires",
+      "then": "no completed-success announcement is emitted, data-error=COMPLETION_WRITE_FAILED is logged, and a subsequent principal load re-opens the tour",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26104-4",
+      "description": "When the read of the completion record fails on principal load (an unreachable persistence backend or a corrupted spa-local-storage entry), the tour defaults to first-run behaviour and the console log carries data-error=COMPLETION_READ_FAILED; the tour never claims dismissed status on an unreadable record.",
+      "given": "a store that raises on read at principal load",
+      "when": "the principal loads",
+      "then": "the tour surfaces as first-run and data-error=COMPLETION_READ_FAILED is logged with the store kind",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +54,5 @@
     "blueprint:application-onboarding-tour"
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

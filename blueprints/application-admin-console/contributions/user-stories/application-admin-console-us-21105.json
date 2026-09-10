@@ -13,13 +13,25 @@
       "id": "AC-21105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a role change AND the auditLog capability applied (via observability-logging or a dedicated audit blueprint), an audit-log entry writes with actor, target, before, after, timestamp, and correlationId from the logging companion; the entry surfaces on the audit view table where every row is enumerable by data-audit-id and every cell exposes its column via a data-column attribute. Probed by pack check AC-21105-1."
+      "description": "Given a role change AND the auditLog capability applied (via observability-logging or a dedicated audit blueprint), an audit-log entry writes with actor, target, before, after, timestamp, and correlationId from the logging companion; the entry surfaces on the audit view table where every row is enumerable by data-audit-id and every cell exposes its column via a data-column attribute. Probed by pack check AC-21105-1.",
+      "disposition": "fixed"
     },
     {
       "id": "AC-21105-2",
       "testable": true,
       "scope": "runtime",
-      "description": "The audit view consumes the application-datatable shell (TAC-2204 depends on TAC-1801-application-datatable-shell), so filter chrome, pagination and the four state regions inherit from the datatable contract."
+      "description": "The audit view consumes the application-datatable shell (TAC-2204 depends on TAC-1801-application-datatable-shell), so filter chrome, pagination and the four state regions inherit from the datatable contract.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21105-3",
+      "description": "The audit view honours the elicited `audit-retention-days` day-count: entries whose timestamp is older than (now - days) do not appear in the table and the earliest filter chrome date-boundary uses the same day-count. A day-count below 1 refuses at apply with AUDIT_RETENTION_OUT_OF_RANGE naming the value. Applying agent sets: audit-retention-days.",
+      "given": "auditLog applied with audit-retention-days elicited to N days and audit entries spanning older-than-N and newer-than-N timestamps",
+      "when": "the audit view renders",
+      "then": "the DOM lists only entries within the last N days and the earliest filter-chrome date-boundary matches (now - N days); apply refuses with AUDIT_RETENTION_OUT_OF_RANGE for a value below 1",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -30,5 +42,5 @@
     "blueprint:application-admin-console"
   ],
   "createdAt": "2026-09-05T01:30:00Z",
-  "updatedAt": "2026-09-05T01:30:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

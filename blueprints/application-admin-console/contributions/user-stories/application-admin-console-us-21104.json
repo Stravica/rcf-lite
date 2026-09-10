@@ -13,7 +13,18 @@
       "id": "AC-21104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given an applied blueprint declaring tenancy, the shell renders an org switcher control (data-role=\"org-switcher\") on the console header; the users invite path renders an org selector. When tenancy is not applied, neither control is rendered nor reachable. Probed by pack check AC-21104-1."
+      "description": "Given an applied blueprint declaring tenancy, the shell renders an org switcher control (data-role=\"org-switcher\") on the console header; the users invite path renders an org selector. When tenancy is not applied, neither control is rendered nor reachable. Probed by pack check AC-21104-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21104-2",
+      "description": "When tenancy is NOT applied, the orgs route is suppressed (not linked in the shell navigation and returning 404 or the shared forbidden state on direct URL); the org switcher control is absent from the DOM on every route.",
+      "given": "a project without the tenancy capability applied",
+      "when": "the shell renders any route",
+      "then": "no orgs link is present in navigation, /admin/orgs is unreachable and no org-switcher control appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +35,5 @@
     "blueprint:application-admin-console"
   ],
   "createdAt": "2026-09-05T01:30:00Z",
-  "updatedAt": "2026-09-05T01:30:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

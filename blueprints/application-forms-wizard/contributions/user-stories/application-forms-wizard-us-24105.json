@@ -13,7 +13,38 @@
       "id": "AC-24105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "On ?draft-store=server, entering an answer on step 1 and advancing issues a POST /drafts request whose body carries the operator identifier, the wizard slug, the step slug and the answer field; a subsequent GET /drafts on the same operator returns the persisted answer (the pack drives step 1, types into a field, advances, then re-issues a fresh GET /drafts and reads the JSON body). On ?draft-store=local, the same input path writes into window.localStorage under a namespaced key (draft:<wizard-slug>:<step-slug>) and renders a [data-sync-tick] element carrying an ISO-8601 timestamp updated on every write. When both transports are absent (?draft-store=none) the pack fails at severity block naming the missing transport."
+      "description": "On ?draft-store=server, entering an answer on step 1 and advancing issues a POST /drafts request whose body carries the operator identifier, the wizard slug, the step slug and the answer field; a subsequent GET /drafts on the same operator returns the persisted answer (the pack drives step 1, types into a field, advances, then re-issues a fresh GET /drafts and reads the JSON body). On ?draft-store=local, the same input path writes into window.localStorage under a namespaced key (draft:<wizard-slug>:<step-slug>) and renders a [data-sync-tick] element carrying an ISO-8601 timestamp updated on every write. When both transports are absent (?draft-store=none) the pack fails at severity block naming the missing transport.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24105-2",
+      "description": "When the draft transport is server-side and the POST returns a non-2xx or times out, the wizard preserves in-memory answers, surfaces a visible unsaved banner (data-draft-state=unsaved) and never emits the sync-tick indicator; the retry stays keyboard-reachable.",
+      "given": "server-side draft transport applied and the POST returns a non-2xx or times out",
+      "when": "the principal triggers a save",
+      "then": "the answers stay in memory, a data-draft-state=unsaved banner renders, no data-draft-state=synced tick appears and a retry control is keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24105-3",
+      "description": "When the draft transport is client-side localStorage and the write is denied (quota exceeded or a privacy-mode denial), the wizard preserves in-memory answers, surfaces a visible unsaved banner naming the storage refusal and offers the applied fallback (server-side if configured, otherwise a plain in-session mode).",
+      "given": "client-side localStorage draft transport and a denied setItem",
+      "when": "the principal triggers a save",
+      "then": "the answers stay in memory, a data-draft-state=unsaved banner names the storage refusal and any configured fallback is offered",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24105-4",
+      "description": "When the draft hydrate on load returns a shape the wizard does not recognise (missing stepStates or malformed answers), the wizard starts fresh, surfaces a data-hydrate-failed=true banner naming the reason and never applies partial answers.",
+      "given": "a stored draft whose shape the wizard cannot parse",
+      "when": "the wizard loads",
+      "then": "the wizard starts fresh, data-hydrate-failed=true is emitted with the reason and no partial answers are pre-filled",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +55,5 @@
     "contract:save-and-return"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

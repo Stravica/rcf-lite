@@ -1,5 +1,17 @@
 # application-empty-error-states CHANGELOG
 
+## 1.1.0 (2026-09-10, hardening pass B6b)
+
+### Added
+
+- Failure-path acceptance criteria on US-22102 (failed request-access POST, no per-resource detail), US-22103 (retry failure, no stack trace leak), US-22105 (ordered flush with stable tokens, per-write failure with retry counter and banner, idempotency of retried operations), US-22106 (no-recovery notice for a state without configured recovery), US-22107 (query verbatim rendering, failed clear-filters reload), US-22108 (role=alert, hard-refresh recommendation after 3 recovery retries), US-22101 (gone vs never-existed distinction gated on the applied data provider), US-22104 (class-only naming, no per-resource detail). Closes review findings F-1, F-2 and F-3.
+- Vendor citations on the WCAG status-messages criteria and the ARIA APG alert-pattern criteria (verified 2026-09-10).
+
+### Changed
+
+- Every REQ now carries a deliveredBy link into TAC-2301 (state-machine), TAC-2302 (recovery-router) or TAC-2303 (offline-buffer).
+- Every AC on every user story now carries an explicit disposition (fixed or template).
+
 ## 1.0.0 (visual round T-1, spec 2026-09-06)
 
 - First ratified version of the shelf's empty-and-error-states blueprint. Five REQs (state catalogue with eight named states, recovery-action contract, announcement contract with role region and aria-live polite, least-privilege 5xx and 403 posture, offline state with write-buffer and reconnection semantics), eight USs 22101-22108 binding one runtime-observable AC per named state, three TACs 2301-2303 (state-machine, recovery-action router, offline write-buffer), three ADRs 2301-2303 (HTTP status contract per RFC 9110 as recommendedDefault, stack-trace visibility elicited with recommendedDefault true, offline strategy across write-buffer read-only-banner and refuse-writes elicited). No new global topics.

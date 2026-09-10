@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Completion-state persistence per principal in the applied persistence blueprint with an spa-local-storage fallback per Q4",
   "description": "The completion state persists per principal in the applied persistence blueprint (server-side-per-principal when a persistence blueprint is applied and the operator picks that store) or per browser in spa-local-storage as the Q4 fallback when no persistence blueprint is applied. spa-session-storage is a third option the operator can pick when a per-session tour is deliberately wanted. A restart-tour control renders on the settings surface (composing on application-account-settings when applied; on any settings-shaped surface as a fallback) and clears the completion state so the tour re-opens on the next principal load.",
+  "deliveredBy": {
+    "tacId": "TAC-2703-application-onboarding-tour-completion-store",
+    "field": "interfaces.completionStore"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

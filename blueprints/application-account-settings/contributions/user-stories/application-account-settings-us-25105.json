@@ -13,13 +13,57 @@
       "id": "AC-25105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When sessionInventory is in the applied capability set, GET /account/sessions renders <div data-surface=\"sessions\"> containing a table whose rows are enumerated by data-session-id, each row carrying [data-column=\"device\"], [data-column=\"lastActive\"] and a [data-action=\"terminate\"] control. Absent when sessionInventory is not applied. Probed by pack check AC-25106-1."
+      "description": "When sessionInventory is in the applied capability set, GET /account/sessions renders <div data-surface=\"sessions\"> containing a table whose rows are enumerated by data-session-id, each row carrying [data-column=\"device\"], [data-column=\"lastActive\"] and a [data-action=\"terminate\"] control. Absent when sessionInventory is not applied. Probed by pack check AC-25106-1.",
+      "disposition": "fixed"
     },
     {
       "id": "AC-25105-2",
       "testable": true,
       "scope": "runtime",
-      "description": "Clicking [data-action=\"terminate\"] opens <div role=\"dialog\" aria-modal=\"true\" data-role=\"terminate-confirm\" aria-labelledby=\"terminate-confirm-heading\"> with the row focus-trapped inside the dialog; on confirm the row is removed and <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> is announced; focus returns to the neighbouring row on close."
+      "description": "Clicking [data-action=\"terminate\"] opens <div role=\"dialog\" aria-modal=\"true\" data-role=\"terminate-confirm\" aria-labelledby=\"terminate-confirm-heading\"> with the row focus-trapped inside the dialog; on confirm the row is removed and <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> is announced; focus returns to the neighbouring row on close.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25105-3",
+      "description": "When the read of the session inventory fails (a non-2xx from the applied provider or a timeout), the sessions surface renders an error state naming the failure and no row is rendered as if terminated; a retry control is keyboard-reachable.",
+      "given": "the applied provider returns a non-2xx or times out on sessionInventory.list()",
+      "when": "the /account/sessions route renders",
+      "then": "the surface shows an inventory-read-failed banner, no data-session-id rows appear as terminated, and a retry control is keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-25105-4",
+      "description": "When the terminate-write fails on a session (a non-2xx from revoke() or a timeout), the row remains in the DOM with data-terminate-outcome=failed, the polite live region announces the failure, and no data-role=session-terminated-announce fires.",
+      "given": "a principal invokes terminate on a session row and the provider rejects revoke()",
+      "when": "the terminate write resolves",
+      "then": "the row remains with data-terminate-outcome=failed, the polite live region announces the failure and no session-terminated-announce is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-25105-5",
+      "description": "The current session row carries data-current-session=true and its terminate control refuses (data-action=terminate is absent or renders disabled with an aria-describedby explanation) so a principal cannot accidentally terminate their own session from within the surface.",
+      "given": "the sessions inventory carries a row with currentSession=true",
+      "when": "the surface renders",
+      "then": "the current row carries data-current-session=true and its terminate control is disabled with an aria-describedby explanation",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
     }
   ],
   "tacIds": [
@@ -29,5 +73,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -13,13 +13,15 @@
       "id": "AC-21101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at deploy time) and, for each of principalDirectory, roleModel, tenancy, auditLog, renders a nav item ONLY when the capability is present in appliedCapabilities[]. A nav item that would route to a non-applied surface is neither rendered nor keyboard-reachable."
+      "description": "The console shell reads rcf/blueprints/application-admin-console.applied.json (written by apply at deploy time) and, for each of principalDirectory, roleModel, tenancy, auditLog, renders a nav item ONLY when the capability is present in appliedCapabilities[]. A nav item that would route to a non-applied surface is neither rendered nor keyboard-reachable.",
+      "disposition": "fixed"
     },
     {
       "id": "AC-21101-2",
       "testable": true,
       "scope": "runtime",
-      "description": "The shell has a single primary nav landmark (role=\"navigation\" or a nav element) with an accessible name naming the console."
+      "description": "The shell has a single primary nav landmark (role=\"navigation\" or a nav element) with an accessible name naming the console.",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

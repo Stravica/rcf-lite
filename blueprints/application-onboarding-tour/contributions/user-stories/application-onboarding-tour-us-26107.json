@@ -13,7 +13,22 @@
       "id": "AC-26107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The tooltip carries aria-labelledby pointing at the step heading and aria-describedby pointing at the step body; focus moves into the tooltip on open so the screen reader reads the labelled and described text. Documented as a mechanism-reach gap for the described-text read order because rcf-lite does not drive a real screen reader in CI; the pack asserts the DOM contract and the fixture README names the manual screen-reader smoke."
+      "description": "The tooltip carries aria-labelledby pointing at the step heading and aria-describedby pointing at the step body; focus moves into the tooltip on open so the screen reader reads the labelled and described text. Documented as a mechanism-reach gap for the described-text read order because rcf-lite does not drive a real screen reader in CI; the pack asserts the DOM contract and the fixture README names the manual screen-reader smoke.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26107-2",
+      "description": "On close of the tour (Escape, dismiss or last-step confirm), a polite live region announces the outcome (completed or dismissed) so screen-reader users know the state transition happened without inspecting the surface.",
+      "given": "a tour step is open and the principal closes the tour",
+      "when": "the tour closes",
+      "then": "a polite live region announces \"onboarding tour completed\" or \"onboarding tour dismissed\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#status-messages",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [
@@ -23,5 +38,5 @@
     "blueprint:application-onboarding-tour"
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

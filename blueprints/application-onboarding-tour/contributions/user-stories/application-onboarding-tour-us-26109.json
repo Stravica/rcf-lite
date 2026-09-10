@@ -1,0 +1,68 @@
+{
+  "usId": "application-onboarding-tour-US-26109",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The elicited checklist-anchor mounts the checklist at the resolved slot or a defined fallback",
+  "asA": "operator applying application-onboarding-tour with a chosen checklist-anchor",
+  "iWant": "the checklist to appear in the anchored slot with a defined open state and a defined fallback",
+  "soThat": "the checklist never lands silently in the wrong place or disappears without a reason I can trace",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26109-1",
+      "description": "When checklist-anchor is `dashboard-top` and application-dashboard is applied, the checklist mounts at the top of the dashboard route as a <details data-role=\"onboarding-tour-checklist\"> element with open=false by default.",
+      "given": "checklist-anchor=dashboard-top with application-dashboard applied",
+      "when": "the dashboard route renders",
+      "then": "the DOM carries a <details data-role=\"onboarding-tour-checklist\" open=false> element as the first child of the dashboard content region",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26109-2",
+      "description": "When checklist-anchor is `settings-page` and application-account-settings is applied, the checklist mounts on the settings route with the same shape and default open=false.",
+      "given": "checklist-anchor=settings-page with application-account-settings applied",
+      "when": "the settings route renders",
+      "then": "the DOM carries a <details data-role=\"onboarding-tour-checklist\" open=false> element inside the settings content region",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26109-3",
+      "description": "When checklist-anchor is `custom-anchor` and the elicited CSS selector resolves to a visible, unclipped element on load, the checklist mounts inside that element with open=false and data-role=onboarding-tour-checklist. Template values the applying agent sets: the anchor-selectors elicit's selector string.",
+      "given": "checklist-anchor=custom-anchor with a resolvable, visible selector",
+      "when": "the route with that selector renders",
+      "then": "the DOM carries the <details data-role=\"onboarding-tour-checklist\"> inside the resolved element",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-26109-4",
+      "description": "When checklist-anchor is `custom-anchor` and the selector resolves to nothing, to an invisible element or to a clipped element that cannot fit the checklist, the checklist mounts on the settings route as a fallback and the console log carries data-error=CHECKLIST_ANCHOR_UNRESOLVED naming the selector string. No dialog floats loose over the underlying surface.",
+      "given": "checklist-anchor=custom-anchor with an unresolvable, invisible or clipped selector",
+      "when": "the route renders",
+      "then": "the checklist mounts on the settings route and data-error=CHECKLIST_ANCHOR_UNRESOLVED is logged with the selector; no floating dialog surfaces",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26109-5",
+      "description": "When no dashboard surface, no settings surface and no usable custom anchor are available, the checklist suppresses entirely (no element is written to the DOM) and the sidecar records checklistSuppressed:true with the reason.",
+      "given": "no dashboard, no settings and no usable custom anchor applied",
+      "when": "any route renders",
+      "then": "no <details data-role=\"onboarding-tour-checklist\"> is present and the sidecar records checklistSuppressed:true",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-2702-application-onboarding-tour-checklist-slot"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

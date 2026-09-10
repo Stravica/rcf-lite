@@ -13,7 +13,22 @@
       "id": "AC-23107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "On the ?background=1 branch of the fixture the fixture drives a visibilitychange event to hidden, the upload continues (the aggregate percent advances between two polite-tick reads separated by at least one polling interval), and the [data-live-region=\"polite\"] wrapper's text updates. The pack reads the wrapper twice with a wait between and asserts the aggregate percent increased and the tick text changed."
+      "description": "On the ?background=1 branch of the fixture the fixture drives a visibilitychange event to hidden, the upload continues (the aggregate percent advances between two polite-tick reads separated by at least one polling interval), and the [data-live-region=\"polite\"] wrapper's text updates. The pack reads the wrapper twice with a wait between and asserts the aggregate percent increased and the tick text changed.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23107-2",
+      "description": "The polite live region continues to tick under prefers-reduced-motion: reduce; only the animated visual progress indicator switches to a static text ratio (\"3 of 5 MiB\"), the announcement cadence and shape are unchanged.",
+      "given": "a user agent asserting prefers-reduced-motion: reduce",
+      "when": "an upload is in-flight",
+      "then": "the polite live region announcements continue at the same cadence and the visual indicator switches to static text",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#animation-from-interactions",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [
@@ -24,5 +39,5 @@
     "affordance:background-tab-progress"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

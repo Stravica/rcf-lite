@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Checklist surface: on the dashboard when application-dashboard is applied, on the settings page when not",
   "description": "A first-run checklist renders on the dashboard-top anchor when application-dashboard is applied (open by default, so a new principal sees the outstanding items at a glance) and collapses to a settings-page anchor when application-dashboard is not applied (closed by default, so an existing principal reaching the settings surface can expand it). The collapse contract is a <details> element whose open state mirrors the anchor choice: dashboard-top -> open, settings-page -> closed. The checklist enumerates the applied tour surfaces with a link back to the restart-tour affordance on the settings surface. The blueprint contributes the anchor slot contract (ADR-2703) and the surface conditionality, not the checklist items.",
+  "deliveredBy": {
+    "tacId": "TAC-2702-application-onboarding-tour-checklist-slot",
+    "field": "responsibilities.resolveAnchor"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

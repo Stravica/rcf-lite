@@ -13,7 +13,32 @@
       "id": "AC-24101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given the wizard task-list route, the rendered surface exposes [data-surface=\"task-list\"] carrying a [role=\"progressbar\"] with aria-valuenow, aria-valuemax and aria-valuetext, and one child element per step carrying [data-step-slug] and [data-step-state] whose value is one of the closed set {Cannot start yet, Not started, In progress, Completed}. The pack drives the real browser to /task-list and reads the state string per step, the progressbar values, and the enumerated step order."
+      "description": "Given the wizard task-list route, the rendered surface exposes [data-surface=\"task-list\"] carrying a [role=\"progressbar\"] with aria-valuenow, aria-valuemax and aria-valuetext, and one child element per step carrying [data-step-slug] and [data-step-state] whose value is one of the closed set {Cannot start yet, Not started, In progress, Completed}. The pack drives the real browser to /task-list and reads the state string per step, the progressbar values, and the enumerated step order.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24101-2",
+      "description": "Every step row carries exactly one of the four GOV.UK completion states (Not started, In progress, Cannot start yet, Completed) as data-step-state; an unknown value refuses to render (data-error=STEP_STATE_UNKNOWN is emitted and the row is suppressed).",
+      "given": "a task-list with a step whose state is outside the four-state enum",
+      "when": "the surface renders",
+      "then": "the row is suppressed, data-error=STEP_STATE_UNKNOWN is emitted and no fallback state renders",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://design-system.service.gov.uk/patterns/task-list-pages/",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-24101-3",
+      "description": "A Cannot-start-yet step lists its blocking dependencies in an aria-describedby-bound description; activating a blocked step is refused with focus preserved on the row and a polite live-region announcement of the block.",
+      "given": "a step in Cannot start yet state with named blockers",
+      "when": "the principal activates the row",
+      "then": "the row does not navigate, focus stays and the polite live region announces the block",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +49,5 @@
     "contract:task-list"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

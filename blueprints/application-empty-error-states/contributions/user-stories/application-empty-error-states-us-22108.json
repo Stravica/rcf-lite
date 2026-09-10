@@ -13,7 +13,32 @@
       "id": "AC-22108-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a synthetic client-side render exception thrown via page.evaluate (or the sample-app /probe/error-boundary?crash=1 route), the error-boundary state renders inside role=\"alert\" with a keyboard-reachable [data-recovery=\"retry\"] control, a plain summary line and no stack-frame content matching the sensitive-pattern list. The pack drives /probe/error-boundary?crash=1, reads the region, the retry control and the document text for pattern hits."
+      "description": "Given a synthetic client-side render exception thrown via page.evaluate (or the sample-app /probe/error-boundary?crash=1 route), the error-boundary state renders inside role=\"alert\" with a keyboard-reachable [data-recovery=\"retry\"] control, a plain summary line and no stack-frame content matching the sensitive-pattern list. The pack drives /probe/error-boundary?crash=1, reads the region, the retry control and the document text for pattern hits.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22108-2",
+      "description": "The error-boundary state renders under role=\"alert\" so it is announced by screen readers as it appears without requiring focus; the announcement carries the class of failure (never the error stack).",
+      "given": "a client-side render exception in a child component",
+      "when": "the error-boundary catches it",
+      "then": "the rendered surface carries role=\"alert\" and the announced text names the class only",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-22108-3",
+      "description": "When the route-level recovery from an error-boundary fails (a subsequent navigation throws again), the surface renders the outer shell error state and never loops the client-side render exception; a retry counter caps at 3 before surfacing a hard-refresh recommendation.",
+      "given": "a repeated failure in the same route",
+      "when": "the recovery navigation fires and the render fails again",
+      "then": "the outer shell error state renders, no infinite loop occurs and after 3 retries a hard-refresh recommendation appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +50,5 @@
     "state:error-boundary"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -1,9 +1,22 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.1.0 (2026-09-10, hardening pass B6b)
+
+### Added
+
+- Failure-path acceptance criteria on US-20101 (live-region wrappers pre-seeded before any state-driven mount), US-20102 (sub-6s timeout apply refusal with TOAST_TIMEOUT_TOO_SHORT, focused-toast pause per WCAG 2.2.1), US-20103 (non-2xx acknowledgement error toast with unchanged data-acknowledged, paginated fetch failure), US-20104 (failed preference write error toast with toggle rollback, idempotency of retried writes), US-20105 (delivery-row incomplete refusal), US-20106 (page-load backlog failure with cached-row banner), US-20107 (invalid toast payload refusal), US-20108 (invalid priority drop). Closes review findings F-1, F-2 and F-3.
+- Vendor citations on the WCAG 2.2.1 Timing Adjustable and status-messages acceptance criteria (verified 2026-09-10).
+
+### Changed
+
+- Every REQ now carries a deliveredBy link into TAC-2101 (live-region), TAC-2102 (centre) or TAC-2103 (preferences).
+- Every AC on every user story now carries an explicit disposition (fixed or template); ACs that observe writeDeliveryRow, renderLiveRegions, renderToast or renderCentre carry ownerRef into the owning TAC field.
+- Review fix pass (2026-09-10): README, TAC-2103 and REQ-004 register scrubbed (no operator names or work-item ids). Closes review-fix-pass findings O-2, O-3.
+
 ## 1.0.0 (visual round T-4, spec 2026-09-04)
 
 - First ratified version of the shelf's application-notifications-in-app blueprint. Five REQs (live-region preseeding on every declared route; transient toast contract with priority-to-role mapping, one-shot announcement and timeout floor; notification centre inbox with retention and acknowledge round-trip; per-user preferences UI with category silence and sibling delegation; delivery-attempt log with operator-readable rows), eight USs binding runtime-observable ACs plus three cross-cutting cases (page load with backlog, background event, disjoint-content contract), three TACs (live-region wrappers with the toast factory; centre inbox with retention and acknowledge round-trip; preferences UI with sibling delegation), three ADRs (priority-to-role mapping polite/status vs assertive/alert per WCAG 4.1.3 and the ARIA APG alert pattern; six-second toast timeout floor per WCAG 2.2.1 with elicited overrides above the floor; thirty-day centre retention window with elicited overrides). No new global topics.
-- Reserves the `application-notifications-` family prefix for the sibling channel blueprints the shelf will grow into (`-email`, `-push`, `-webhook`) as a doc-only reservation on the blueprint README and every applying blueprint's `docs/topics.md` shelf band registry per Baz decision 2026-09-04 ("we might support more types of notifications - be clear in the name what these ones are").
+- Reserves the `application-notifications-` family prefix for the sibling channel blueprints the shelf will grow into (`-email`, `-push`, `-webhook`) as a doc-only reservation on the blueprint README and every applying blueprint's `docs/topics.md` shelf band registry per the 2026-09-04 shelf decision to make the transport type explicit in the blueprint name.
 - Ships `probe-packs/application-notifications-in-app.pack.mjs`: three browser-verify checks anchored to blueprint AC ids, every check carrying a description field per spec section 9. `AC-20101-1` live-region preseeded on every declared route (wrappers present AND empty at load, enumerated by `[data-live-region]`). `AC-20102-1` transient toast contract with priority-to-role mapping and timeout measured against the ADR-2102 six-second floor via `data-shown-at`/`data-dismissed-at` timestamps (no six-second sleep in the pack; bounded polling). `AC-20103-1` centre acknowledge round-trip enumerated by `data-notification-id` (per-element attribute per T-3 gate discipline), reconciled through both `window.__notificationFetches` and the server-side request log. Fourth blueprint on the shelf that ships a Playwright probe pack under the T-0 runner extension.
 - Ships a sample-app fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-notifications-in-app/` (dependency-free Node HTTP server) so the pack can be probed at the shelf's own gate; the fixture is the golden the gate reviewer drives, with `?break=preseed`, `?break=role`, `?break=timeout` and `?break=ack` query switches for the negative runs. Three routes (`/`, `/notifications-centre`, `/notifications-preferences`); every route preseeds both live-region wrappers.
 - Suggests the `logging` and `errorHandling` companions with the ratified spec's reasons. `providesRoles` absent, leaf blueprint per the loader contract (an empty array is refused, an omitted field marks the blueprint as a leaf).

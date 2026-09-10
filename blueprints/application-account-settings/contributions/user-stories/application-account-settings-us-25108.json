@@ -13,7 +13,32 @@
       "id": "AC-25108-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When application-spa is in the applied-blueprint set, GET /account/theme renders <div data-surface=\"theme\" role=\"radiogroup\" aria-label=\"Theme\"> containing three <input type=\"radio\" name=\"theme\" value=\"light|dark|system\"> options; selecting an option flips the data-theme attribute on the html element and persists per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Probed by pack check AC-25108-1."
+      "description": "When application-spa is in the applied-blueprint set, GET /account/theme renders <div data-surface=\"theme\" role=\"radiogroup\" aria-label=\"Theme\"> containing three <input type=\"radio\" name=\"theme\" value=\"light|dark|system\"> options; selecting an option flips the data-theme attribute on the html element and persists per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Probed by pack check AC-25108-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25108-2",
+      "description": "The theme surface renders a radiogroup with exactly three options (light, dark, system) using role=\"radiogroup\" and role=\"radio\", each with an accessible name; a break that omits a radio fails the pack.",
+      "given": "application-spa applied and the theme route renders",
+      "when": "the DOM is inspected",
+      "then": "the theme control is a radiogroup with three radios named light, dark and system",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/radio/",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-25108-3",
+      "description": "When theme-persistence is spa-local-storage, the theme choice persists across principal loads via localStorage; when server-scoped, the choice persists via the applied server endpoint; when none, the choice resets to system on load. Applying agent sets: theme-persistence.",
+      "given": "each theme-persistence value applied in turn",
+      "when": "the principal picks a theme and reloads",
+      "then": "spa-local-storage persists via localStorage, server-scoped persists via the server endpoint, none resets to system",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -23,5 +48,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

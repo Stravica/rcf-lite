@@ -13,7 +13,18 @@
       "id": "AC-22101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a 404 response on a route the SPA declares, the not-found state renders inside a role=\"region\" with an accessible name naming the missing resource kind, a keyboard-reachable recovery link to the parent surface with data-recovery=\"parent-surface\", a search entry with data-recovery=\"search\", and the browser tab title matches /^Not found - .+/. The pack drives the real browser to /probe/not-found and reads all four surface tokens."
+      "description": "Given a 404 response on a route the SPA declares, the not-found state renders inside a role=\"region\" with an accessible name naming the missing resource kind, a keyboard-reachable recovery link to the parent surface with data-recovery=\"parent-surface\", a search entry with data-recovery=\"search\", and the browser tab title matches /^Not found - .+/. The pack drives the real browser to /probe/not-found and reads all four surface tokens.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22101-2",
+      "description": "The not-found state distinguishes gone from never-existed only when the applied data blueprint supplies the removal record; otherwise the state renders as not-found with no gone-vs-never inference.",
+      "given": "a not-found state on a resource id",
+      "when": "the surface renders",
+      "then": "when the applied data blueprint supplies a removal record the surface renders the gone variant, otherwise the not-found variant",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "state:not-found"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

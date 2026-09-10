@@ -1,0 +1,68 @@
+{
+  "usId": "application-admin-console-US-21110",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The invite path honours the elicited invite-transport for every option and records the outcome",
+  "asA": "shelf consumer applying application-admin-console with an invite-transport chosen at elicit time",
+  "iWant": "the users surface to deliver invites through the elicited transport with a defined success and a defined refusal per option",
+  "soThat": "the invite control I click never silently misdelivers and every outcome shows up in the audit stream",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21110-1",
+      "description": "When invite-transport is `email` and the applied email companion accepts the invite payload, the invite row records data-invite-outcome=accepted and the audit stream carries a row naming transport=email, the invitee and outcome=accepted. Template values the applying agent sets: the email companion binding name, the from address and the invite template id.",
+      "given": "invite-transport=email applied and the email companion returns accepted",
+      "when": "an admin clicks invite for a pending principal",
+      "then": "the invite row exposes data-invite-outcome=accepted and the audit stream row names transport=email, invitee and outcome=accepted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-21110-2",
+      "description": "When invite-transport is `email` and the applied email companion rejects the payload (a non-2xx response or a timeout), the invite row shows data-invite-outcome=failed with a retry control, no audit record marks the invite accepted, and the console announces the failure through the notifications live region.",
+      "given": "invite-transport=email applied and the companion returns a non-2xx or times out",
+      "when": "an admin clicks invite",
+      "then": "the invite row carries data-invite-outcome=failed, a data-action=retry-invite control is keyboard-reachable, the audit stream row records outcome=failed and no outcome=accepted row is emitted for this invitee",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21110-3",
+      "description": "When invite-transport is `in-app-only`, the invite path never invokes the email companion; the invite writes a notification with data-invite-transport=in-app-only to the applied notification stream, and the users row records data-invite-outcome=recorded.",
+      "given": "invite-transport=in-app-only applied",
+      "when": "an admin clicks invite for a pending principal",
+      "then": "no email transport is called, the notifications stream carries a row with data-invite-transport=in-app-only, and the users row carries data-invite-outcome=recorded",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21110-4",
+      "description": "When invite-transport is `custom` and a project-supplied invite handler is registered on the applied capability sidecar, the invite payload is handed to the handler and success is recorded only after the handler resolves; when no handler is registered the invite refuses at apply-time with INVITE_HANDLER_MISSING naming the sidecar key. Template values the applying agent sets: the handler function name and the sidecar key it registers under.",
+      "given": "invite-transport=custom applied",
+      "when": "an admin clicks invite",
+      "then": "the handler is called with { invitee, orgId?, correlationId } and the row records data-invite-outcome=accepted only after the handler resolves; a missing handler refuses at apply with INVITE_HANDLER_MISSING",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-21110-5",
+      "description": "Every transport branch writes exactly one audit-stream row per invite, naming transport, invitee identifier and outcome (accepted, failed or refused). No transport branch writes zero rows or more than one row for a single invite click.",
+      "given": "any invite-transport applied",
+      "when": "an admin clicks invite once for a principal",
+      "then": "the audit stream carries exactly one row for this invite naming transport, invitee and outcome",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-2201-application-admin-console-shell"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

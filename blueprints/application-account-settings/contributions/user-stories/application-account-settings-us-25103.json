@@ -13,7 +13,18 @@
       "id": "AC-25103-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When credentialSelfService is in the applied capability set, GET /account/security renders <div data-surface=\"security\" data-branch=\"self-service\"> containing a [data-role=\"change-password\"] form and a [data-role=\"mfa-management\"] region. Absent from render when credentialSelfService is not applied. Probed by pack check AC-25105-1 (unified security check)."
+      "description": "When credentialSelfService is in the applied capability set, GET /account/security renders <div data-surface=\"security\" data-branch=\"self-service\"> containing a [data-role=\"change-password\"] form and a [data-role=\"mfa-management\"] region. Absent from render when credentialSelfService is not applied. Probed by pack check AC-25105-1 (unified security check).",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25103-2",
+      "description": "The self-service credential-change surface never accepts a new password without a fresh reauthentication when the elicited reauth-window says so (REQ-007); a submit without a passing reauth refuses with REAUTH_REQUIRED.",
+      "given": "credentialSelfService applied with reauth-window > 0 and the current session past the elapsed threshold",
+      "when": "the principal submits a new password",
+      "then": "the submit refuses with REAUTH_REQUIRED and no credential change occurs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +34,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

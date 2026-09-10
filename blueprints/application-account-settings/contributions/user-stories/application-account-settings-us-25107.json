@@ -13,7 +13,18 @@
       "id": "AC-25107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When application-notifications-in-app is in the applied-blueprint set, GET /account/notifications renders <div data-surface=\"notifications\"> with [data-role=\"category-silence\"] entries per category and [data-role=\"channel-opt-in\"] entries per channel; save-success and save-failure announcements follow the profile surface contract. Absent when notifications-in-app is not applied. Probed by pack check AC-25107-1."
+      "description": "When application-notifications-in-app is in the applied-blueprint set, GET /account/notifications renders <div data-surface=\"notifications\"> with [data-role=\"category-silence\"] entries per category and [data-role=\"channel-opt-in\"] entries per channel; save-success and save-failure announcements follow the profile surface contract. Absent when notifications-in-app is not applied. Probed by pack check AC-25107-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25107-2",
+      "description": "When application-notifications-in-app is not applied, the preferences tab is suppressed (not linked in the settings navigation and returning 404 on direct URL); no preferences form is written to the DOM.",
+      "given": "application-notifications-in-app not applied",
+      "when": "the settings shell renders",
+      "then": "no preferences link appears in navigation, /account/preferences is unreachable and no preferences form is in the DOM",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +34,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

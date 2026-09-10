@@ -13,7 +13,18 @@
       "id": "AC-24106-1",
       "testable": true,
       "scope": "runtime",
-      "description": "On the ?nav=linear branch, task-list rows whose [data-step-state] is Cannot start yet render as non-anchor spans (no clickable href) and the pack asserts a click on the row does not change the URL. On the ?nav=free branch every row renders as an anchor and a click on any row navigates to that step's route. ADR-2501 records the elicit and the shipped default is linear."
+      "description": "On the ?nav=linear branch, task-list rows whose [data-step-state] is Cannot start yet render as non-anchor spans (no clickable href) and the pack asserts a click on the row does not change the URL. On the ?nav=free branch every row renders as an anchor and a click on any row navigates to that step's route. ADR-2501 records the elicit and the shipped default is linear.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24106-2",
+      "description": "Alternative step-indicator contracts (\"progress-bar\", \"stepper-count\", \"none\") each render exactly the contract for the elicited option; a value outside the closed set refuses at apply with STEP_INDICATOR_UNKNOWN naming the value.",
+      "given": "a project elicits a step-indicator outside the closed set",
+      "when": "apply runs",
+      "then": "apply exits with a non-zero code and STEP_INDICATOR_UNKNOWN names the value; each supported option renders its own contract",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +35,5 @@
     "case:linear-vs-free-navigation"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

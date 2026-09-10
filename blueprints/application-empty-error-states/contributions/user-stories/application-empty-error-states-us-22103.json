@@ -13,7 +13,28 @@
       "id": "AC-22103-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a mocked 500 response, the server-error state renders inside role=\"region\" with a keyboard-reachable [data-recovery=\"retry\"] control; the rendered surface does NOT contain any word matching the sensitive-pattern list (backtrace-frame prefix like \"at \" plus function name plus file colon line, a source path starting with / or ./ or ../, an environment-variable key shape NAME= or process.env.NAME, or a framework-internal frame prefix). The pack drives /probe/server-error and greps the document text against the pattern list."
+      "description": "Given a mocked 500 response, the server-error state renders inside role=\"region\" with a keyboard-reachable [data-recovery=\"retry\"] control; the rendered surface does NOT contain any word matching the sensitive-pattern list (backtrace-frame prefix like \"at \" plus function name plus file colon line, a source path starting with / or ./ or ../, an environment-variable key shape NAME= or process.env.NAME, or a framework-internal frame prefix). The pack drives /probe/server-error and greps the document text against the pattern list.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22103-2",
+      "description": "When the retry-recovery action fires and the underlying request fails again, the surface remains on the server-error state, the polite live region announces the retry failure and a further retry stays keyboard-reachable; no success state is transitioned to.",
+      "given": "a server-error state and a retry that returns a non-2xx or times out",
+      "when": "the principal activates retry",
+      "then": "the surface stays on server-error, the polite live region announces retry-failed and the retry control remains keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22103-3",
+      "description": "The server-error surface never renders a stack trace, a source path, an environment variable name, or any framework internal frame in the production build (ADR-2302); a break in the fixture that leaks any of the above fails the pack.",
+      "given": "the production build renders the server-error surface",
+      "when": "the DOM is inspected",
+      "then": "no stack trace, source path, environment variable name or backtrace frame is present",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +46,5 @@
     "state:server-error"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

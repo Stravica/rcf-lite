@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Announcement contract: role region per state, aria-live polite for progress and reconnection, screen-reader traversal order",
   "description": "Every rendered state region carries role=\"region\" with an accessible name naming the state (WCAG 2.4.6 Headings and Labels). Progress announcements (retry attempt, reconnection to server) fire through an aria-live=\"polite\" live-region wrapper (WCAG 4.1.3 Status Messages). Screen-reader traversal order is: state heading first, then the recovery action, then any secondary detail; keyboard focus lands on the recovery control on state entry so a keyboard user reaches recovery in one tab. The error-boundary state announces via role=\"alert\" (assertive) rather than polite because the client render failed and the operator has no context.",
+  "deliveredBy": {
+    "tacId": "TAC-2301-application-empty-error-states-state-machine",
+    "field": "responsibilities.announceState"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

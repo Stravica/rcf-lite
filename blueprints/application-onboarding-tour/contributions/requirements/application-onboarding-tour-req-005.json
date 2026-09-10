@@ -1,0 +1,22 @@
+{
+  "reqId": "application-onboarding-tour-REQ-005",
+  "prdId": "PRD-001",
+  "title": "Dismissal policy: dismiss-permanently, dismiss-until-next-major and dismiss-until-next-minor each have a defined runtime clause",
+  "description": "The completion store honours the elicited dismissal-policy with a runtime clause per option. `dismiss-permanently` writes a terminal completion record and refuses re-surfacing regardless of any subsequent version bump: a principal who dismisses the tour never sees it again until the restart-tour control fires. `dismiss-until-next-major` writes a completion record carrying the current tour version and compares stored and current versions on the major segment on principal load: the tour re-surfaces when the majors differ, otherwise it stays dismissed. `dismiss-until-next-minor` writes a completion record carrying the current tour version and re-surfaces the tour when either the major or the minor segment differs on principal load. The record shape is identical across the three policies; only the comparison on load differs.",
+  "deliveredBy": {
+    "tacId": "TAC-2703-application-onboarding-tour-completion-store",
+    "field": "interfaces.completionStore"
+  },
+  "category": "functional",
+  "domain": "onboarding",
+  "priority": "must",
+  "rationale": "The elicit offers three dismissal policies but no requirement described what each option does. A principal on a project that chose `dismiss-until-next-major` inherited `dismiss-permanently` behaviour silently. Requiring a per-option clause turns the elicit into a chain-linked behaviour the completion store's read on load proves.",
+  "tags": [
+    "blueprint:application-onboarding-tour",
+    "category:05-dismissal-policy"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

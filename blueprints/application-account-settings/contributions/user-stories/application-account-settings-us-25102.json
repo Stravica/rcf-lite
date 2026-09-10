@@ -13,7 +13,32 @@
       "id": "AC-25102-1",
       "testable": true,
       "scope": "runtime",
-      "description": "GET /account/profile renders a <form data-surface=\"profile\"> with inputs carrying autocomplete tokens \"name\" on the full-name field, \"email\" on the email field, \"bday\" on the birthday field and \"country\" on the country field; save-success renders <div role=\"status\" aria-live=\"polite\">Profile saved</div>; save-failure per field carries aria-invalid=\"true\" and aria-describedby pointing to a rendered error message. Probed by pack check AC-25102-1."
+      "description": "GET /account/profile renders a <form data-surface=\"profile\"> with inputs carrying autocomplete tokens \"name\" on the full-name field, \"email\" on the email field, \"bday\" on the birthday field and \"country\" on the country field; save-success renders <div role=\"status\" aria-live=\"polite\">Profile saved</div>; save-failure per field carries aria-invalid=\"true\" and aria-describedby pointing to a rendered error message. Probed by pack check AC-25102-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25102-2",
+      "description": "A profile save that returns a non-2xx or times out surfaces an assertive error toast, preserves the entered values in the DOM (data-form-state=unsaved) and never marks the fields as saved.",
+      "given": "a profile save that returns a non-2xx or times out",
+      "when": "the principal submits",
+      "then": "an assertive error toast appears, data-form-state=unsaved renders and no data-form-state=saved is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25102-3",
+      "description": "Every identifier input carries an appropriate WCAG 1.3.5 autocomplete token (email as email, given-name as given-name, family-name as family-name); a break that removes any of these fails the pack.",
+      "given": "the profile form rendered",
+      "when": "the DOM is inspected",
+      "then": "every identifier input has an autocomplete attribute per WCAG 1.3.5",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#identify-input-purpose",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [
@@ -23,5 +48,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }
