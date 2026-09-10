@@ -64,6 +64,16 @@ const DOCUMENTED_PUSH_CAP = 250;
 export const anchorAcId = 'AC-29108-2';
 export const accountBound = true;
 
+// Every env var the probe reads. Superset of the shim's DECLARED_ENV
+// (shim tracks the shim's own reads; this probe additionally gates on
+// the account-state env var CF_QUEUE_LIVE_RUN_ALLOWED to keep the 7d
+// declared-skip shape on accounts where workers.dev subdomain is not
+// provisioned).
+const PROBE_DECLARED_ENV = Object.freeze([
+  ...DECLARED_ENV,
+  'CF_QUEUE_LIVE_RUN_ALLOWED',
+]);
+
 function skipResult({ reason, detail }) {
   return [{
     anchorAcId: 'AC-29108-2',
@@ -71,7 +81,7 @@ function skipResult({ reason, detail }) {
     detail,
     accountBoundSkipped: true,
     reason,
-    envDeclared: Array.from(DECLARED_ENV),
+    envDeclared: PROBE_DECLARED_ENV,
     throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
   }];
 }
@@ -124,6 +134,22 @@ export default async function runProbe() {
       detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but ${missingCreds.join(' and ')} unset; a real-account run requires those credentials alongside the CI gate. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
     });
   }
+  // Pre-flight account-state gate: the queue consumer-attach API
+  // requires the target account to have a workers.dev subdomain
+  // provisioned (Cloudflare returns HTTP 403 code 10063 without it,
+  // per https://developers.cloudflare.com/api/resources/queues/
+  // subresources/consumers/ verifiedOn 2026-09-10). On accounts where
+  // that subdomain is deliberately not enabled (operator ruling
+  // 376b4f30 style), the operator sets
+  // `CF_QUEUE_LIVE_RUN_ALLOWED=true` only when the account state
+  // supports a consumer attach. Unset -> honest declared skip; a
+  // bare verdict: fail on an environmental gap is a 7d violation.
+  if (process.env.CF_QUEUE_LIVE_RUN_ALLOWED !== 'true' && process.env.CF_QUEUE_LIVE_RUN_ALLOWED !== '1') {
+    return skipResult({
+      reason: 'CF_QUEUE_LIVE_RUN_ALLOWED',
+      detail: `accountBoundSkipped: CF_QUEUE_LIVE_RUN_ALLOWED unset; the queue consumer-attach step requires the target Cloudflare account to have a workers.dev subdomain provisioned (Cloudflare API code 10063 without it, per https://developers.cloudflare.com/api/resources/queues/subresources/consumers/ verifiedOn 2026-09-10). Set CF_QUEUE_LIVE_RUN_ALLOWED=true only on an account where consumer-attach is known to succeed. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
+  }
 
   const messageCount = Number.parseInt(process.env.CF_QUEUE_MESSAGE_COUNT ?? '', 10) || DEFAULT_MESSAGE_COUNT;
   const runId = process.env.GITHUB_RUN_ID || `local-${Date.now()}`;
@@ -136,7 +162,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-29108-2',
       verdict: 'fail',
       detail: `mintScratchQueueAndWorker failed: ${err.message}`,
-      envDeclared: Array.from(DECLARED_ENV),
+      envDeclared: PROBE_DECLARED_ENV,
     }];
   }
 
@@ -163,7 +189,7 @@ export default async function runProbe() {
         anchorAcId: 'AC-29108-2',
         verdict: 'fail',
         detail: `queuePublishBatch failed: status=${publishFail.status} error=${publishFail.error}`,
-        envDeclared: Array.from(DECLARED_ENV),
+        envDeclared: PROBE_DECLARED_ENV,
       }];
     }
     const publishedCount = publishResults.reduce((acc, r) => acc + (r.count ?? 0), 0);
@@ -201,7 +227,7 @@ export default async function runProbe() {
       batches: batchesConsumed,
       maxConcurrent,
       elapsedMs: elapsed,
-      envDeclared: Array.from(DECLARED_ENV),
+      envDeclared: PROBE_DECLARED_ENV,
       throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
     }];
   } finally {

@@ -2,7 +2,7 @@
 
 ## 1.1.2 (positive-evidence patch, 2026-09-10)
 
-- `real-account-concurrency-smoke.mjs`: skip results now carry a discrete `reason` field naming the exact unset environment variable, and the credential-missing branch (`CF_ACCOUNT_ID` or `CF_API_TOKEN` unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`) records `accountBoundSkipped: true` rather than a bare fail, closing the authoring standard section 7d shape. No capability change.
+- `real-account-concurrency-smoke.mjs`: skip results now carry a discrete `reason` field naming the exact unset environment variable, and the credential-missing branch (`CF_ACCOUNT_ID` or `CF_API_TOKEN` unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`) records `accountBoundSkipped: true` rather than a bare fail, closing the authoring standard section 7d shape. Adds a `CF_QUEUE_LIVE_RUN_ALLOWED` pre-flight gate: the consumer-attach step requires the target account to have a workers.dev subdomain provisioned (Cloudflare API code 10063 without it, verifiedOn 2026-09-10 per https://developers.cloudflare.com/api/resources/queues/subresources/consumers/); unset -> honest declared skip rather than a partial-mint fail on an environmental gap. No capability change.
 
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
