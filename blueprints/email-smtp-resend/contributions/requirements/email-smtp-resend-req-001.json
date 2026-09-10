@@ -2,7 +2,7 @@
   "reqId": "email-smtp-resend-REQ-001",
   "prdId": "PRD-001",
   "title": "The adapter satisfies the mail-adapter interface named by the shipped magic-link blueprint's TAC-504",
-  "description": "The Resend send adapter exposes exactly the `send({ to, subject, textBody, htmlBody })` method the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter` names, and resolves the fixed outcome shape `{ ok, providerStatus, providerMessageId, error }` on every call. No other method is added to the auth-facing surface; provider status codes and provider message ids are normalised into the four declared fields inside the adapter. A project composing this blueprint alongside the magic-link blueprint wires the adapter reference into the auth routes at composition time and calls `adapter.send` directly.",
+  "description": "The Resend send adapter exposes the send interface named by the magic-link blueprint's TAC-504-security-auth-magic-link-email-delivery-adapter, matching the signature owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send, and resolves the fixed outcome shape declared on that same owner on every call. No other method is added to the auth-facing surface; provider status codes and provider message ids are normalised into the declared outcome fields inside the adapter. A project composing this blueprint alongside the magic-link blueprint wires the adapter reference into the auth routes at composition time and calls the adapter send method directly.",
   "deliveredBy": {
     "tacId": "TAC-401-email-smtp-resend-send-adapter",
     "field": "interfaces.send"
@@ -15,8 +15,8 @@
     "blueprint:email-smtp-resend",
     "category:01-mail-adapter-contract"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

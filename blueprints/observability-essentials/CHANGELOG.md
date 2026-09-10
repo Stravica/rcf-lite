@@ -1,5 +1,9 @@
 # observability-essentials CHANGELOG
 
+## 2.1.2 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-007: REQ description now references the JSON media-type header owned on TAC-801.responsibilities[1] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 2.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

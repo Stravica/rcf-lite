@@ -1,5 +1,7 @@
 # Batch atomicity in the D1 facade
 
+> Owner: the batch atomicity primitive the facade uses for multi-statement writes is defined on `TAC-1401-persistence-data-d1-facade.responsibilities[3]` (batch call); the surrounding prepared-statement discipline is defined on `TAC-1401-persistence-data-d1-facade.responsibilities[2]`. This asset demonstrates usage; the definitions live on the TAC.
+
 D1 does not expose explicit BEGIN / COMMIT to the Worker binding. `db.batch([...])` is the vendor's atomicity primitive for multi-statement writes: the vendor's contract states that a mid-batch failure aborts and rolls back the entire sequence. This asset shows the shape a facade verb takes when its domain contract requires two or more statements to land as one unit (AC-13105-1, AC-13105-2).
 
 ## Verb shape

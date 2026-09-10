@@ -1,5 +1,13 @@
 # application-spa CHANGELOG
 
+## 1.5.5 - 2026-09-10
+
+Second closure fix on the dimension-d ownership sweep: REQ-009 no longer defines the deep-link return-to behaviour, referencing the owner at `TAC-201-application-spa-app-shell.responsibilities[5]` instead; `deliveredBy.field` re-pointed at `responsibilities[5]` (was generic `responsibilities`). Corrected the 1.5.4 changelog line that recorded the obsolete `responsibilities[0]` ownerRef for AC-1135-2 to `responsibilities[5]`. REQ-009 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2.
+
+## 1.5.4 - 2026-09-10
+
+Dimension-b acceptance-criteria-sufficiency cleanup on US-1134 and US-1135: each story previously shipped a single AC. AC-1134-2 added to bind the icon-adherence probe refusal path on inline-SVG or unknown-alias violations against the primary-navigation slot (ownerRef TAC-208.interfaces.runIconAdherenceProbe). AC-1135-2 added to bind the signed-in and post-sign-out deep-link preservation and return-to flow on the app shell (ownerRef TAC-201.responsibilities[5]). Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.5.3 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

@@ -4,6 +4,8 @@ TAC-401 names a stub-adapter implementation the project wires into its test harn
 
 ## Interface satisfied
 
+Owner: `TAC-401-email-smtp-resend-send-adapter.interfaces.send` names the shape below; this sample demonstrates the call surface.
+
 ```
 send({ to, subject, textBody, htmlBody })
   -> Promise<{ ok, providerStatus, providerMessageId, error }>

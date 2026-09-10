@@ -14,7 +14,7 @@
       "description": "The application serves the readiness endpoint at a stable HTTP path supplied by project configuration under `probeInterface.paths.readiness` (with no shipped default from v2.0.0), distinct from the liveness path; a GET returns 200 with a JSON body when every declared readiness dependency is passing and returns 503 with a JSON body when at least one declared readiness dependency is failing. When observability-probe-endpoints v1.1.0 or later is composed on the same project the resolved profile readiness path substitutes for this configuration entry automatically.",
       "given": "the process is running and the readiness dependency set is declared",
       "when": "an unauthenticated GET is issued against the readiness path against a healthy dependency set, then against a set with at least one failing dependency",
-      "then": "the first response has status code 200 with JSON body status equal to pass; the second response has status code 503 with JSON body status equal to fail; both bodies have Content-Type application/json",
+      "then": "the first response has status code 200 with JSON body status equal to pass; the second response has status code 503 with JSON body status equal to fail; both responses carry the header owned on TAC-801-observability-essentials-liveness-probe.responsibilities[1]",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
