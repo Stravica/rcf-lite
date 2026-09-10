@@ -1,5 +1,12 @@
 # edge-cloudflare-rate-limiting changelog
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes and fixture: the account-bound skip return on `contributions/probes/real-account-burst-and-429.mjs` now carries a `reason` field naming the exact env var(s) that were unset; added a "Declared env vars" section to the shared fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`), per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; single-mechanism story legality notes; owner reference for the drift-audit and request-event record shapes.

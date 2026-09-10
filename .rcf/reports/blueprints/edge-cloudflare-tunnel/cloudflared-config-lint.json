@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "cloudflared-config-lint",
-  "runAt": "2026-09-08T04:49:46.050Z",
+  "runAt": "2026-09-10T16:15:35.646Z",
   "engine": {
     "kind": "cloudflared-ingress-validate",
     "image": "cloudflare/cloudflared:2026.8.3",
@@ -32,7 +32,7 @@
   "aggregateVerdict": "pass",
   "fixtureRoot": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared",
   "cloudflaredVersion": null,
-  "dockerVersion": "29.6.2",
+  "dockerVersion": "29.5.3",
   "compose-service/public-hostname": {
     "exit": 0
   },

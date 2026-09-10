@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "manifest-schema-validate",
-  "runAt": "2026-09-08T04:49:45.174Z",
+  "runAt": "2026-09-10T16:15:35.758Z",
   "engine": {
     "kind": "schema-validate",
     "image": "edge-cloudflare-tunnel manifest schema (Ajv-free walker)",

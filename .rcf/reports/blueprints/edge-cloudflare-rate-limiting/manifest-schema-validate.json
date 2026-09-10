@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-rate-limiting",
   "probeName": "manifest-schema-validate",
-  "runAt": "2026-09-07T23:04:20.041Z",
+  "runAt": "2026-09-10T16:15:36.113Z",
   "engine": {
     "kind": "source-scan",
     "image": "cf-edge fixture manifest directory validated against draft-07 JSON Schema (in-process)",

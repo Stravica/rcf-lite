@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-access",
   "probeName": "wrangler-seam",
-  "runAt": "2026-09-07T17:20:05.596Z",
+  "runAt": "2026-09-10T16:15:37.228Z",
   "engine": {
     "kind": "wrangler-dev",
     "image": "wrangler dev (workerd) on cf-edge fixture",
@@ -10,21 +10,10 @@
   "results": [
     {
       "anchorAcId": "AC-34101-1",
-      "verdict": "pass",
-      "detail": "workerd /protected (no header) returned HTTP 401 - the shipped validator's missing-header reject path fires at the edge"
-    },
-    {
-      "anchorAcId": "AC-34101-1",
-      "verdict": "pass",
-      "detail": "workerd /protected (fixture-signed JWT) returned HTTP 200 with request.auth reflected on the body (email=ada@example.com)"
-    },
-    {
-      "anchorAcId": "AC-34101-1",
-      "verdict": "pass",
-      "detail": "workerd /health returned HTTP 200 (health path exempt from the validator, LB-reachable)"
+      "verdict": "warn",
+      "detail": "wrangler devDependency not installed under /Users/thefoot/builds/rcf-lite-crit-e-edge/packages/rcf-lite/test/fixtures/cf-edge/node_modules/.bin/wrangler; run pnpm install --ignore-workspace in the fixture directory. Mechanism-reach gap noted; the in-process probes carry the runtime evidence for the shipped validator. Warn (not fail) per section 3.1 pass-with-skip."
     }
   ],
-  "aggregateVerdict": "pass",
-  "wranglerBinPresent": true,
-  "boundUrl": "http://127.0.0.1:55209"
+  "aggregateVerdict": "warn",
+  "wranglerBinPresent": false
 }

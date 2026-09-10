@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes and fixture: the account-bound skip return on `contributions/probes/real-account-gated-url.mjs` now carries a `reason` field naming the exact env var(s) that were unset; the same fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`) gains a "Declared env vars" section covering the access-side env-var surface, per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Single-mechanism story legality notes; owner reference for the audit-record shape.

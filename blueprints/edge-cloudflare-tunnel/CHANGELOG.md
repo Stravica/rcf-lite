@@ -1,5 +1,12 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes and fixture: extended the shared `accountBoundSkippedResult` helper in `contributions/probes/probe-utils.mjs` to carry a `reason` field naming the exact env var(s) that were unset on the skip return; added a "Declared env vars" section for the tunnel probes to the shared fixture README (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/README.md`), per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer.

@@ -278,3 +278,28 @@ never read a `SIMULATE_` env var, per the T-2 gate ruling).
   removes the `originRequest.access` block from the access-gated
   manifest; the probe FAILS with a defensive-against-silent-degradation
   finding.
+
+## Declared env vars (edge-cloudflare-tunnel probes)
+
+Every environment variable the `edge-cloudflare-tunnel` probes hosted
+against this fixture read is declared here. Includes the first-tier
+`CI_HAS_*` gate variables and every second-tier variable the
+account-bound branch reads once past the gate. An undeclared env var
+that a probe or the fixture reads is refused by the positive-evidence
+gate row (authoring standard section 7d and the checklist rows in
+section 6). The Hetzner-blueprint gate env vars for the wider fixture
+are listed under "Gate env vars" above; this section is scoped to the
+tunnel-probe surface.
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the Cloudflare-account branch on both `edge-cloudflare-tunnel` real-account probes. Without it, each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `edge-cloudflare-tunnel/real-account-connector-healthy`, `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` |
+| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on both `edge-cloudflare-tunnel` real-account probes. Unset means the tunnel probe records `accountBoundSkipped: true` with `reason` naming this variable. | `edge-cloudflare-tunnel/real-account-connector-healthy`, `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` |
+| `CI_HAS_CLOUDFLARE_ACCESS` | first | Extra gate for the access-gated sub-case on the hostname-routes probe. A pass on the access-gated sub-case is unreachable without this variable, even with the other two set. | `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` (access-gated sub-case) |
+| `CF_TUNNEL_NAME` | second | Optional; tunnel name the connector-healthy probe queries via the cf-edge shim on the account-bound path. Defaults to a scratch name when unset. | `edge-cloudflare-tunnel/real-account-connector-healthy` |
+| `CF_TUNNEL_PUBLIC_URL` | second | Optional; scratch subdomain URL the public-hostname sub-case fetches on the account-bound path. Defaults to a documented scratch value when unset. | `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` (public-hostname sub-case) |
+| `CF_TUNNEL_ACCESS_URL` | second | Optional; scratch subdomain URL the access-gated sub-case fetches on the account-bound path. Defaults to a documented scratch value when unset. | `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` (access-gated sub-case) |
+| `CF_ACCESS_AUDIENCE` | second | Audience tag the two-identity JWT check asserts against on the account-bound access-gated sub-case. Unset on the skip path. | `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` (access-gated sub-case) |
+| `CF_ACCESS_TEAM_SECRET` | second | Team secret used to mint the scratch identity on the account-bound access-gated sub-case. Unset on the skip path. | `edge-cloudflare-tunnel/real-account-tunnel-hostname-routes` (access-gated sub-case) |
+| `HCLOUD_TOKEN` | second | Hetzner API token the shared fixture reads on the account-bound path to provision the throwaway server the tunnel probe drives against. Unset on the skip path. | shared `hetzner-throwaway-server` provision seam consumed by `edge-cloudflare-tunnel/real-account-connector-healthy` |
+| `CLOUDFLARE_API_TOKEN` | second | Cloudflare API token the cf-edge shim reads on the account-bound path to drive the tunnel control surface. Unset on the skip path. | cf-edge shim consumed by `edge-cloudflare-tunnel/real-account-connector-healthy` |
