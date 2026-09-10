@@ -200,6 +200,11 @@
       "path": "user-stories/application-admin-console-us-21111.json"
     },
     {
+      "id": "application-admin-console-US-21112",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21112.json"
+    },
+    {
       "id": "TAC-2201-application-admin-console-shell",
       "kind": "tac",
       "path": "tacs/tac-2201-application-admin-console-shell.json"

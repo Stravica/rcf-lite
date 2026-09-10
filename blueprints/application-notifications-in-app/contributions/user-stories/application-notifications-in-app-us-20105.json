@@ -4,9 +4,9 @@
   "reqId": "application-notifications-in-app-REQ-005",
   "version": "1.0.0",
   "status": "approved",
-  "title": "The delivery-attempt log records one row per surfaced notification with the operator-readable fields for later inspection",
+  "title": "The delivery-attempt log records one row per surfaced notification, in the shape owned by TAC-2102, for later inspection",
   "asA": "operator inspecting the notification behaviour of a shipped rcf-lite application",
-  "iWant": "one row in the delivery-attempt log per notification the shell surfaced, with the priority, the category and the delivery and acknowledgement timestamps",
+  "iWant": "one row in the delivery-attempt log per notification the shell surfaced, in the shape owned by `TAC-2102.interfaces.deliveryRowShape`",
   "soThat": "I can reconcile what the shell said with what my operators saw and acknowledged",
   "acceptanceCriteria": [
     {
@@ -39,10 +39,10 @@
     },
     {
       "id": "AC-20105-3",
-      "description": "A delivery-attempt log row honours exactly the field set owned by `TAC-2102.interfaces.deliveryRowShape`; a row missing any owner-required field refuses the write with DELIVERY_ROW_INCOMPLETE naming the missing field.",
-      "given": "a delivery attempt with a missing outcome or correlationId",
+      "description": "A delivery-attempt log row honours exactly the field set owned by `TAC-2102.interfaces.deliveryRowShape`; a row missing any owner-required field refuses the write with DELIVERY_ROW_INCOMPLETE naming the missing owner-required field (per the owner shape).",
+      "given": "a delivery attempt whose row is missing an owner-required field owned by `TAC-2102.interfaces.deliveryRowShape`",
       "when": "the row write fires",
-      "then": "the write refuses with DELIVERY_ROW_INCOMPLETE naming the missing field and no partial row is persisted",
+      "then": "the write refuses with DELIVERY_ROW_INCOMPLETE naming the missing owner-required field and no partial row is persisted",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",

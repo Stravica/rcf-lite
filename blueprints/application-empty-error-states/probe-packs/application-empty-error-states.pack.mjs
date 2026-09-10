@@ -58,6 +58,11 @@ const SEEDED_FIXTURE_TOKENS = {
   forbidden: {
     requestId: 'req-forbidden-000001',
     safeResponse: 'The workspace exists but its details are hidden from unauthorised viewers.',
+    // Known secret the pack SEEDS into the exercised /probe/forbidden request
+    // context (?resource=<seededSecretResourceId>). The rendered surface must
+    // redact it: the exact string must be absent from the response body while
+    // the [data-safe-response] redaction marker is present.
+    seededSecretResourceId: 'seeded-secret-widget-forbidden-a7f3c1',
   },
   serverError: {
     correlationId: 'cid-server-000001',
@@ -133,7 +138,10 @@ export default {
       description: 'forbidden state renders inside a region with a request-access control and the rendered surface refuses to include a resource id, resource name or path-shape token',
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
-        await browser.goto(withUrl(runtimeUrl, '/probe/forbidden'));
+        // Seed the known secret into the exercised request context via a query param on the forbidden path;
+        // the fixture receives the seeded value but never echoes it in the response body in normal mode.
+        const seededSecret = SEEDED_FIXTURE_TOKENS.forbidden.seededSecretResourceId;
+        await browser.goto(withUrl(runtimeUrl, `/probe/forbidden?resource=${encodeURIComponent(seededSecret)}`));
         const dom = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="forbidden"]');
           if (!region) return { present: false };
@@ -156,11 +164,13 @@ export default {
         if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'forbidden region missing positive [data-safe-response] redaction marker' };
         if (positive.safeText !== SEEDED_FIXTURE_TOKENS.forbidden.safeResponse) return { verdict: 'fail', detail: `forbidden region [data-safe-response] did not match seeded safe body: got ${JSON.stringify(positive.safeText)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.safeResponse)}` };
         if (positive.requestId !== SEEDED_FIXTURE_TOKENS.forbidden.requestId) return { verdict: 'fail', detail: `forbidden region [data-request-id] did not match seeded id: got ${JSON.stringify(positive.requestId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.requestId)}` };
+        // Positive redaction assertion: the exact seeded secret MUST be absent from the response body.
+        if (dom.text.includes(seededSecret)) return { verdict: 'fail', detail: `forbidden surface leaked the seeded secret resource id ${JSON.stringify(seededSecret)} into the response body` };
         const leak = firstSensitiveMatch(dom.text, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `forbidden surface leaked ${leak.name}: ${leak.match}` };
         const path = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS.filter((p) => p.name.startsWith('source-path')));
         if (path) return { verdict: 'fail', detail: `forbidden surface leaked ${path.name}: ${path.match}` };
-        return { verdict: 'pass', detail: `forbidden region carries positive safe-response marker; requestId=${positive.requestId}` };
+        return { verdict: 'pass', detail: `forbidden region carries positive safe-response marker; requestId=${positive.requestId}; seeded secret ${JSON.stringify(seededSecret)} absent from body and [data-safe-response] marker present with seeded body` };
       },
     },
     {

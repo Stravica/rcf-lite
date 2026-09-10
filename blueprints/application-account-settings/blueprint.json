@@ -196,6 +196,11 @@
       "path": "user-stories/application-account-settings-us-25111.json"
     },
     {
+      "id": "application-account-settings-US-25112",
+      "kind": "us",
+      "path": "user-stories/application-account-settings-us-25112.json"
+    },
+    {
       "id": "TAC-2601-application-account-settings-shell",
       "kind": "tac",
       "path": "tacs/tac-2601-application-account-settings-shell.json"

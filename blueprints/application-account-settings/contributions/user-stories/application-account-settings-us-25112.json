@@ -1,0 +1,77 @@
+{
+  "usId": "application-account-settings-US-25112",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-009",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Custom-auth provides-* boolean elicits each bind one applied-capabilities token on the sidecar",
+  "asA": "operator applying the account-settings on a project running its own auth (no shipped security-auth-* blueprint)",
+  "iWant": "each of the four custom-auth-provides-* boolean elicits to bind its capability token onto the sidecar's appliedCapabilities union with a per-token clause (true adds; false omits)",
+  "soThat": "the shell reads the exact capability union the elicited answers produce and no downstream surface guesses at what a custom auth has declared",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25112-1",
+      "description": "When the manifest elicit `blueprint.json.elicits[id=custom-auth-provides-principal-directory]` is answered `true`, the sidecar written by the elicitation phase records `principalDirectory` as a member of `appliedCapabilities`; when the same elicit is answered `false`, the sidecar records no `principalDirectory` entry in `appliedCapabilities`, per REQ-009. Applying agent sets: the boolean answer to `custom-auth-provides-principal-directory`.",
+      "given": "a project running its own auth with the elicit `custom-auth-provides-principal-directory` presented at apply",
+      "when": "the elicitation phase runs and writes the sidecar",
+      "then": "the sidecar the shell reads records `principalDirectory` in `appliedCapabilities` when the answer is `true` and omits it when the answer is `false`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-2602-application-account-settings-capability-discovery",
+        "field": "responsibilities.runElicitationPhase"
+      }
+    },
+    {
+      "id": "AC-25112-2",
+      "description": "When the manifest elicit `blueprint.json.elicits[id=custom-auth-provides-credential-self-service]` is answered `true`, the sidecar written by the elicitation phase records `credentialSelfService` as a member of `appliedCapabilities`; when the same elicit is answered `false`, the sidecar records no `credentialSelfService` entry in `appliedCapabilities`, per REQ-009. Applying agent sets: the boolean answer to `custom-auth-provides-credential-self-service`.",
+      "given": "a project running its own auth with the elicit `custom-auth-provides-credential-self-service` presented at apply",
+      "when": "the elicitation phase runs and writes the sidecar",
+      "then": "the sidecar the shell reads records `credentialSelfService` in `appliedCapabilities` when the answer is `true` and omits it when the answer is `false`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-2602-application-account-settings-capability-discovery",
+        "field": "responsibilities.runElicitationPhase"
+      }
+    },
+    {
+      "id": "AC-25112-3",
+      "description": "When the manifest elicit `blueprint.json.elicits[id=custom-auth-provides-session-inventory]` is answered `true`, the sidecar written by the elicitation phase records `sessionInventory` as a member of `appliedCapabilities`; when the same elicit is answered `false`, the sidecar records no `sessionInventory` entry in `appliedCapabilities`, per REQ-009. Applying agent sets: the boolean answer to `custom-auth-provides-session-inventory`.",
+      "given": "a project running its own auth with the elicit `custom-auth-provides-session-inventory` presented at apply",
+      "when": "the elicitation phase runs and writes the sidecar",
+      "then": "the sidecar the shell reads records `sessionInventory` in `appliedCapabilities` when the answer is `true` and omits it when the answer is `false`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-2602-application-account-settings-capability-discovery",
+        "field": "responsibilities.runElicitationPhase"
+      }
+    },
+    {
+      "id": "AC-25112-4",
+      "description": "When the manifest elicit `blueprint.json.elicits[id=custom-auth-provides-hosted-identity-ui]` is answered `true`, the sidecar written by the elicitation phase records `hostedIdentityUi` as a member of `appliedCapabilities`; when the same elicit is answered `false`, the sidecar records no `hostedIdentityUi` entry in `appliedCapabilities`, per REQ-009. Applying agent sets: the boolean answer to `custom-auth-provides-hosted-identity-ui`.",
+      "given": "a project running its own auth with the elicit `custom-auth-provides-hosted-identity-ui` presented at apply",
+      "when": "the elicitation phase runs and writes the sidecar",
+      "then": "the sidecar the shell reads records `hostedIdentityUi` in `appliedCapabilities` when the answer is `true` and omits it when the answer is `false`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-2602-application-account-settings-capability-discovery",
+        "field": "responsibilities.runElicitationPhase"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-2602-application-account-settings-capability-discovery"
+  ],
+  "tags": [
+    "blueprint:application-account-settings"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}
