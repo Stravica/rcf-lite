@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3 - 2026-09-10
+
+Second closure fix on the dimension-d ownership sweep for REQ-002: migrated every reference from the intermediary `TAC-3101.responsibilities[0]` to the true owner `TAC-3101.interfaces.jobModule.default`. Removed the five-field shape restatement from `TAC-3101.purpose`, `AC-30102-1` (description and then-clause), the README table row for REQ-002, the "What this gives you" bullet, and the guide's "Writing a job" intro; each surface now points at the owner. The guide's demonstrative code sample remains as usage-demonstration below a one-line owner pointer. Anatomy pin updated to 1.1.3. TAC-3101, REQ-002 and US-30102 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2. Third-pass residues cleared without a further bump: the US-30102 title and the guide's "What does NOT change" bullet now reference the owner instead of restating the five-field shape.
+
+## 1.1.2 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-002: REQ description now references the job-definition module shape owned on TAC-3101.interfaces.jobModule.default rather than restating the exported field-name shape. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

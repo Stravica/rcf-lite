@@ -14,7 +14,7 @@
       "description": "The application serves the status page at a stable HTTP path declared in configuration (default /status), responds to an unauthenticated GET with 200 and text/html, and renders exactly the declared component list with no phantom components and no missing components.",
       "given": "the process is running with a component declaration that names N components",
       "when": "an unauthenticated GET is issued against the status page path",
-      "then": "the response status code is 200, the Content-Type begins with text/html, and the rendered document contains exactly N component elements, each carrying the declared component name as text content",
+      "then": "the response status code is 200, the response carries the status-page variant of the header owned on TAC-801-observability-essentials-liveness-probe.responsibilities[1] (text/html for this endpoint), and the rendered document contains exactly N component elements, each carrying the declared component name as text content",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"

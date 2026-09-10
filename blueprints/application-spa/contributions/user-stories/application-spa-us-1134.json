@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1134",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-011",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Primary-nav icon renders at the expected size across declared themes on the home route in a browser (e2e)",
   "asA": "operator relying on the iconography discipline the application-spa blueprint declares",
@@ -22,9 +22,23 @@
         "tacId": "TAC-207-application-spa-token-adherence-probe",
         "field": "interfaces[1].name"
       }
+    },
+    {
+      "id": "AC-1134-2",
+      "description": "A shipped component that references the primary-navigation icon by an alias absent from the alias registry named on TAC-208-application-spa-icon-adherence-probe.responsibilities[1], or that inlines an SVG for that slot outside the registry, refuses ship through the icon adherence probe with a non-zero exit code and a per-file, per-line diagnostic on the probe report. A component scan that carries no such violation exits with code zero and the probe report verdict records the ok signal named on TAC-208-application-spa-icon-adherence-probe.interfaces.runIconAdherenceProbe. Applying agent sets: the project alias registry path, the component glob, and the report directory the probe reads and writes.",
+      "given": "the icon adherence probe wired as a delivery-ci-workflows gate with the project alias registry, the component glob, and the report directory configured",
+      "when": "the probe scans the shipped component source once for an inline SVG violation on the primary-navigation slot and once for a reference resolving to a name absent from the alias registry",
+      "then": "the probe exits non-zero on either violation with the offending file path, line number and offending name on the probe report; a clean scan exits zero and the report verdict records the ok signal",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-208-application-spa-icon-adherence-probe",
+        "field": "interfaces.runIconAdherenceProbe"
+      }
     }
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z",
-  "description": "7a note: this e2e is a single-assertion probe with a fixed success signal; the guide names no additional failure paths on the owning mechanism (the render or redirect fires as declared), so one AC is at the section 7a floor."
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "A boundary-path AC covering the icon-adherence probe refusal on inline-SVG or unknown-alias violations against the primary-navigation icon slot; the browser render AC binds the success signal, the probe AC binds the shipped mechanism failure path."
 }

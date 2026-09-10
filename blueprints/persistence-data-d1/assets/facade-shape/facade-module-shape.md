@@ -1,5 +1,7 @@
 # D1 store facade module shape
 
+> Owner: the prepared-statement chain the facade issues every read and write through is defined on `TAC-1401-persistence-data-d1-facade.responsibilities[2]`. This asset demonstrates usage; the definition lives on the TAC.
+
 The facade (TAC-1401) is one module that reads the D1 binding from the Worker `env`, exposes named domain verbs, issues every statement as a parameterised prepared statement, uses `db.batch([...])` for multi-statement atomicity, and emits structured lifecycle events on the injected sink. This asset shows the exact shape with a worked domain example.
 
 ## Module layout

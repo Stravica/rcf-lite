@@ -1,5 +1,9 @@
 # application-api-rest CHANGELOG
 
+## 2.1.4 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-013: REQ description now references the request-id header owned on TAC-301.responsibilities[0] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 2.1.3 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

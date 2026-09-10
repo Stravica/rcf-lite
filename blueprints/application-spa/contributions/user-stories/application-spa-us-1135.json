@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1135",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-009",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Unauthenticated visit to a protected route lands on the sign-in page in a browser (e2e)",
   "asA": "operator relying on the auth-surface discipline the application-spa blueprint declares",
@@ -18,9 +18,23 @@
       "testable": true,
       "scope": "deployed",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-1135-2",
+      "description": "A signed-in browser opening a protected deep-link with a live session lands on the requested protected route, not on the sign-in route. A signed-in browser opening a sign-out surface and then reopening the same protected deep-link lands on the sign-in route with the originally requested route preserved on the return-to state owned on TAC-201-application-spa-app-shell.responsibilities[5], and after a fresh sign-in the browser lands on the originally requested protected route. Applying agent sets: the project-declared browserSurface.routes for the protected route, the sign-in route, and the sign-out surface.",
+      "given": "the application booted through its production entry point with a protected route, a sign-in route, and a sign-out surface all registered under browserSurface.routes",
+      "when": "a signed-in browser opens the protected deep-link, then signs out, then reopens the same deep-link, then signs in again",
+      "then": "the first open lands on the protected route; the second open (post sign-out) lands on the sign-in route with the return-to state preserving the originally requested path; the post-authentication landing is the originally requested protected route; any other landing refuses ship with a diagnostic naming the requested, landed, and expected paths",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-201-application-spa-app-shell",
+        "field": "responsibilities[5]"
+      }
     }
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z",
-  "description": "7a note: this e2e is a single-assertion probe with a fixed success signal; the guide names no additional failure paths on the owning mechanism (the render or redirect fires as declared), so one AC is at the section 7a floor."
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "A boundary-path AC covering the deep-link preservation and post-sign-out return-to flow named on the app-shell; the arrival AC binds the unauthenticated-redirect success signal, this AC binds the signed-in and post-sign-out boundary transitions."
 }
