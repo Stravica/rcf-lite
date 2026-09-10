@@ -122,11 +122,22 @@ export async function runShim(probeName, engine, mainFn) {
 }
 
 export function accountBoundSkippedResult(anchorAcId, envList, note) {
+  // Positive-evidence rule (authoring standard section 7d): a probe that
+  // records `accountBoundSkipped: true` carries a `reason` field naming
+  // the exact env var(s) that were unset. Compute from process.env so
+  // the reason is a fact of the run, not a hand-copied string.
+  const unset = envList.filter((name) => process.env[name] !== 'true');
+  const reason = unset.length > 0 ? unset.join(', ') : envList.join(', ');
+  // Detail names only the variables actually missing, so a partial-skip
+  // (one first-tier gate set, the other unset) reads honestly instead of
+  // claiming the whole input list is unset.
+  const detailUnset = unset.length > 0 ? unset : envList;
   return {
     anchorAcId,
     verdict: 'skipped',
     accountBoundSkipped: true,
-    detail: `accountBound: ${envList.join(' or ')} unset; ${note}`,
+    reason,
+    detail: `accountBound: ${detailUnset.join(' or ')} unset; ${note}`,
   };
 }
 
