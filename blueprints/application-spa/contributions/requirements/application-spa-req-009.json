@@ -2,7 +2,7 @@
   "reqId": "application-spa-REQ-009",
   "prdId": "PRD-001",
   "title": "User arrival and auth surfaces: landing, sign-in, sign-out, expiry, recovery, onboarding, and deep-link redirects",
-  "description": "The application ships designed surfaces for: first-visit unauthenticated landing, sign-in, sign-out confirmation, session-expired, forgot-password, account-recovery, and first-run onboarding. Deep links visited while unauthenticated redirect to sign-in and return the user to the originally requested route after successful authentication.",
+  "description": "The application ships designed surfaces for: first-visit unauthenticated landing, sign-in, sign-out confirmation, session-expired, forgot-password, account-recovery, and first-run onboarding. Deep-link and post-authentication return-to behaviour is owned on TAC-201-application-spa-app-shell.responsibilities[5].",
   "category": "functional",
   "domain": "auth",
   "priority": "must",
@@ -11,12 +11,12 @@
     "blueprint:application-spa",
     "category:09-arrival-auth"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "createdAt": "2026-08-19T09:00:00Z",
   "updatedAt": "2026-08-19T09:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-201-application-spa-app-shell",
-    "field": "responsibilities"
+    "field": "responsibilities[5]"
   }
 }

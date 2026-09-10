@@ -6,12 +6,12 @@
   "status": "approved",
   "title": "Every facade query is a parameterised prepared statement",
   "asA": "developer who needs the persistence boundary to leave no SQL-injection surface for consumer arguments",
-  "iWant": "every facade query to be a static SQL literal issued via `db.prepare(...).bind(...)`, with no string-concatenated SQL and no `exec(<consumer string>)` on any path",
+  "iWant": "every facade query to go through the prepared-statement discipline owned on TAC-1401-persistence-data-d1-facade.responsibilities[2] (no string-concatenated SQL and no non-literal `exec` on any path)",
   "soThat": "consumer arguments never traverse the SQL parser and the vendor's parameter-binding layer is the only place values reach the engine",
   "acceptanceCriteria": [
     {
       "id": "AC-13104-1",
-      "description": "Every call site in the facade module that reaches the D1 binding is a `db.prepare(<static SQL literal>).bind(...)` chain terminating in `.first()`, `.all()`, `.run()`, or `.raw()`. No call site inside the facade calls `db.exec is refused on the facade's exposed handle (per ADR-1404).",
+      "description": "Every call site in the facade module that reaches the D1 binding matches the prepared-statement chain owned on TAC-1401-persistence-data-d1-facade.responsibilities[2]; no call site invokes the raw `exec` surface, which is refused on the facade's exposed handle per ADR-1404-persistence-data-d1-store-boundary.",
       "given": "the facade module source",
       "when": "every call to the D1 binding is inspected for its SQL argument shape",
       "then": "every `prepare` argument is a static string literal (not a template with an interpolation for a value, not a `+`-concatenation with any consumer argument, not a function-returned string) and no `exec` call takes a non-literal string; a targeted grep for `\\.exec(`, `\\.prepare(` template-literal interpolations, and `\\+` inside prepared-statement arguments returns only the known-safe literal-static occurrences the facade documents",

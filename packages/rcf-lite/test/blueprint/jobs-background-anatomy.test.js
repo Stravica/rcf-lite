@@ -30,7 +30,7 @@ async function pathExists(p) {
 test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)', async () => {
   const bp = await readJson(join(BP_DIR, 'blueprint.json'));
   assert.equal(bp.slug, 'jobs-background');
-  assert.equal(bp.version, '1.1.1');
+  assert.equal(bp.version, '1.1.3');
   assert.equal(bp.category, 'jobs');
   assert.deepEqual(bp.capabilities, ['backgroundJobs']);
   assert.deepEqual(bp.requiresAppliedCapabilities, {

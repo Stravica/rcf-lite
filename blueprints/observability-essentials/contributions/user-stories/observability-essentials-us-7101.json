@@ -14,7 +14,7 @@
       "description": "The application serves the liveness endpoint at a stable HTTP path supplied by project configuration under `probeInterface.paths.liveness` (with no shipped default from v2.0.0); a GET returns 200 when the process is running its event loop and returns application/json with a status field equal to pass. When observability-probe-endpoints v1.1.0 or later is composed on the same project the resolved profile liveness path substitutes for this configuration entry automatically.",
       "given": "the process is running normally with its event loop responsive",
       "when": "an unauthenticated GET is issued against the liveness path",
-      "then": "the response status code is 200, the Content-Type is application/json, and the JSON body's status field equals pass",
+      "then": "the response status code is 200, the response carries the header owned on TAC-801-observability-essentials-liveness-probe.responsibilities[1], and the JSON body's status field equals pass",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"

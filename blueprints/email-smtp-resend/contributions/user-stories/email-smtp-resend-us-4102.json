@@ -2,7 +2,7 @@
   "usId": "email-smtp-resend-US-4102",
   "prdId": "PRD-001",
   "reqId": "email-smtp-resend-REQ-003",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The provider's unverified-sender refusal maps to a stable error code and does not leak the recipient",
   "asA": "operator running a deployed project where the sender domain has not yet been verified with the provider",
@@ -11,13 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-4102-1",
-      "description": "When the provider refuses the submission because the sender domain or address is unverified, the adapter returns `{ ok: false, providerStatus, providerMessageId: null, error }` with `error` beginning with the code `RESEND_SENDER_UNVERIFIED` and `providerStatus` equal to the provider's own refusal status.",
+      "description": "When the provider refuses the submission because the sender domain or address is unverified, the adapter returns the refusal outcome owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send with the `RESEND_SENDER_UNVERIFIED` code from the classification owned on TAC-401-email-smtp-resend-send-adapter.responsibilities[3].",
       "given": "a running project whose configured from-address is not verified with the provider",
-      "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
-      "then": "the returned object matches the shape with `ok === false`, `providerMessageId === null`, `providerStatus` a positive integer, and `error` starting with `RESEND_SENDER_UNVERIFIED`",
+      "when": "the magic-link route calls the adapter's send interface defined on `TAC-401-email-smtp-resend-send-adapter.interfaces.send`",
+      "then": "the returned object matches the refusal shape owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send and its `error` begins with `RESEND_SENDER_UNVERIFIED`",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "interfaces.send"
+      }
     },
     {
       "id": "AC-4102-2",
