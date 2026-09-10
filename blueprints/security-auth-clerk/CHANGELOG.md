@@ -1,5 +1,11 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.1
+
+- Adds `vendorCitation` on `AC-9108-1` (`{ url, verifiedOn }` pointing at the Clerk sign-up-and-sign-in-options guide) and on `AC-9109-2` (pointing at the Clerk system-limits page): closes F-4 and F-5. Both ACs rest on Clerk-documented facts; the citations record the exact page and the ISO-8601 verification date so a reviewer can retrace the fact without following prose leads.
+- Closure fix pass (F-6): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
+- Owner rule on `signInStrategy`: repoints `REQ-005.description` to reference `TAC-1001-security-auth-clerk-middleware.interfaces.config` as the owner of the record shape; `AC-9108-1` keeps the literal `{ primary: string, alternates: string[] }` as an oracle and gains an `ownerRef` at the same field.
+
 ## 1.5.0
 
 - Extends `REQ-001.description` with a one-line runtime clause naming the `hostedIdentityUi` capability verbatim (Clerk-hosted sign-in, sign-up, MFA, and account-management surfaces; no project route renders a credential-input control of its own). Adds `AC-9102-3` to `US-9102` binding a fixed source-tree-scan observation against `TAC-1001-security-auth-clerk-middleware` `responsibilities.signInStrategy`. Adds `US-9113` binding `REQ-011` (audit surface) with four ACs covering the success, refusal, retry and boundary paths of the verification and sessionInventory audit-event contract, each `ownerRef` pointing at `TAC-1003-security-auth-clerk-session-verifier` `responsibilities.audit`. Rewrites `REQ-003.description` to reference `TAC-1001-security-auth-clerk-middleware` `responsibilities.verify` rather than restate the `{ authenticated, principal?, reason? }` shape verbatim, and moves the REQ's `deliveredBy` from the shape ADR to the owning TAC.

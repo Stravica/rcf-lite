@@ -11,13 +11,21 @@
   "acceptanceCriteria": [
     {
       "id": "AC-9108-1",
-      "description": "The project exposes a single `signInStrategy` config record whose shape is `{ primary: string, alternates: string[] }` and whose values are Clerk's currently-documented strategy identifiers.",
+      "description": "The project exposes a single `signInStrategy` config record whose shape is owned by `TAC-1001-security-auth-clerk-middleware.interfaces.config` (the `signInStrategy` record on that interface); asserted here as an oracle: shape `{ primary: string, alternates: string[] }`, values are Clerk's currently-documented strategy identifiers.",
       "given": "the project's configuration surface at boot",
       "when": "the sign-in surface reads its strategy configuration",
       "then": "the surface reads exactly one `signInStrategy` config record; the record's own-property keys are exactly `{primary, alternates}`; `primary` is a non-empty string; `alternates` is an array of strings",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://clerk.com/docs/guides/configure/auth-strategies/sign-up-sign-in-options",
+        "verifiedOn": "2026-09-10"
+      },
+      "ownerRef": {
+        "tacId": "TAC-1001-security-auth-clerk-middleware",
+        "field": "interfaces.config.signInStrategy"
+      }
     },
     {
       "id": "AC-9108-2",

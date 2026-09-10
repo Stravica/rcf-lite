@@ -1,6 +1,6 @@
 # edge-cloudflare-tunnel
 
-Round-7 core blueprint on the rcf-lite shelf. Bridges a service on a
+Core blueprint on the rcf-lite shelf. Bridges a service on a
 `cloudHost` (bare, systemd shape) or a `containerHost` (compose-service
 shape) to the Cloudflare edge through a Cloudflare Tunnel, with no
 public origin ports. When applied alongside `edge-cloudflare-access`
@@ -193,8 +193,7 @@ under the repo root.
   AC-tunnel-hostnameRoutes (public sub-case) and AC-tunnel-accessGated
   (gated sub-case). `accountBound: true`. The public-hostname sub-case
   runs on `CI_HAS_CLOUDFLARE_ACCOUNT` + `CI_HAS_HETZNER_ACCOUNT`; the
-  access-gated sub-case adds `CI_HAS_CLOUDFLARE_ACCESS` per the round-7
-  Q4 ratification. Sub-cases skip independently.
+  access-gated sub-case adds `CI_HAS_CLOUDFLARE_ACCESS`. Sub-cases skip independently.
 
 The delegate shims at
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/run-<probe>.mjs`

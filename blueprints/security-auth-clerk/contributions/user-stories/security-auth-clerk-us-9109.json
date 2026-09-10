@@ -27,7 +27,11 @@
       "then": "the observed refusal shape (status code, response body error identifier, retry-after header if any) matches Clerk's documented rate-limit response for the strategy; no project-authored refusal shape appears in the burst",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://clerk.com/docs/guides/how-clerk-works/system-limits",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [

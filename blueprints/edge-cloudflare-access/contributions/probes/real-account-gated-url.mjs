@@ -29,14 +29,22 @@ export default async function runProbe() {
   const has = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
   const host = process.env.CF_ACCESS_HOST || '';
   if (!has || !host) {
+    // Positive-evidence rule (authoring standard section 7d): the skip
+    // record names the exact env var(s) that were unset in `reason`,
+    // so a `pass` verdict is legal without positive evidence.
+    const unset = [];
+    if (!has) unset.push('CI_HAS_CLOUDFLARE_ACCOUNT');
+    if (!host) unset.push('CF_ACCESS_HOST');
+    const reason = unset.join(', ');
     return {
       results: [{
         anchorAcId: 'AC-34109-1',
         verdict: 'pass',
         accountBoundSkipped: true,
-        detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=${has} CF_ACCESS_HOST=${host ? 'set' : 'unset'}; per spec section 3.5 pass-with-skip.`,
+        reason,
+        detail: `accountBoundSkipped: ${reason} unset; per spec section 3.5 pass-with-skip.`,
       }],
-      extra: { accountBoundSkipped: true },
+      extra: { accountBoundSkipped: true, reason },
     };
   }
   try {
