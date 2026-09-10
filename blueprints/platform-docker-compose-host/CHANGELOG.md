@@ -1,5 +1,11 @@
 # platform-docker-compose-host CHANGELOG
 
+## 1.1.2 - 2026-09-10
+
+Register patch.
+
+- Neutral register in README fixture-extension prose (F-2).
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
@@ -30,7 +36,7 @@
 
 ## 1.0.0 - 2026-09-08
 
-Initial release. Round-7 blueprint of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Initial release. Hetzner blueprint per the Hetzner host specification.
 
 - Mints capability `containerHost` and global topic `containerHostContract`.
 - Six REQs, nine USs, four TACs, four ADRs; five Node-only probes.

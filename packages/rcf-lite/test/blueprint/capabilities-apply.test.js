@@ -106,7 +106,7 @@ test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secr
   // Follow-up adapter minor bump (round-7 spec section 5.4) took the
   // blueprint to v1.1.0; the shipped requiresAppliedCapabilities /
   // allowSkipFlag shape is unchanged.
-  assert.equal(doc.version, '1.2.1');
+  assert.equal(doc.version, '1.2.2');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   // Predecessor-family word is derived from the allowSkipFlag name;

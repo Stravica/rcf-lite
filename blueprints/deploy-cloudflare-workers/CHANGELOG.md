@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.2 (register patch, 2026-09-10)
+
+- Register: neutral wording on the ADR-1306 consequences field (closes F-1); no capability change.
+
 ## 1.3.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
