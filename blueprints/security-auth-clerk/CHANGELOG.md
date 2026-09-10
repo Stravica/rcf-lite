@@ -1,5 +1,9 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.0
+
+- Extends `REQ-001.description` with a one-line runtime clause naming the `hostedIdentityUi` capability verbatim (Clerk-hosted sign-in, sign-up, MFA, and account-management surfaces; no project route renders a credential-input control of its own). Adds `AC-9102-3` to `US-9102` binding a fixed source-tree-scan observation against `TAC-1001-security-auth-clerk-middleware` `responsibilities.signInStrategy`. Adds `US-9113` binding `REQ-011` (audit surface) with four ACs covering the success, refusal, retry and boundary paths of the verification and sessionInventory audit-event contract, each `ownerRef` pointing at `TAC-1003-security-auth-clerk-session-verifier` `responsibilities.audit`. Rewrites `REQ-003.description` to reference `TAC-1001-security-auth-clerk-middleware` `responsibilities.verify` rather than restate the `{ authenticated, principal?, reason? }` shape verbatim, and moves the REQ's `deliveredBy` from the shape ADR to the owning TAC.
+
 ## 1.4.0 (hardening pass B2, spec 2026-09-09 section 5.4.2)
 
 - Adds `REQ-010` and `US-9112` for the `sessionInventory` capability contract (list, revoke-one, revoke-all-except-current, unauthenticated refusal, unknown-session refusal, one structured audit event per operation) and extends `TAC-1003` with the `sessionInventory` interface. Adds `REQ-011` (verification and inventory audit surface with a fixed field allow-list and prefix boundary). Reconciles the Principal shape in `REQ-001` to the four-field record already asserted by the ACs and TAC-1004. Adds `deliveredBy` on every `must` requirement and `disposition: fixed` on every existing acceptance criterion; adds `ownerRef` on ACs that observe the `sessionInventory` interface. Names the `principalDirectory`, `roleModel`, and `hostedIdentityUi` capabilities on the requirements that already carry their runtime clauses. Hardening pass B2 (criteria a, b, c on the 2026-09-09 programme).

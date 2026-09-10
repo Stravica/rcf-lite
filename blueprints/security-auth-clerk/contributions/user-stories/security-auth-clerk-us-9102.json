@@ -28,6 +28,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-9102-3",
+      "description": "A source-tree scan finds no project-owned credential-input control (a `type=password` HTML input, an MFA-enrolment DOM shape, a sign-up form owned by the project) on any project route; every sign-in, sign-up, MFA, and account-management moment either mounts a Clerk-hosted component or redirects to a Clerk-hosted route resolved from the `signInStrategy` config record.",
+      "given": "the project source tree after the blueprint's TACs are realised and a project route inventory",
+      "when": "a static scan enumerates every project route and every DOM shape those routes render",
+      "then": "zero credential-input controls are found on project-owned pages; every identity-facing route resolves to a Clerk-hosted mount or a redirect whose target is a Clerk-hosted route; the applied capability set records `hostedIdentityUi` as active for the project",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1001-security-auth-clerk-middleware",
+        "field": "responsibilities.signInStrategy"
+      }
     }
   ],
   "tacIds": [
@@ -36,5 +50,5 @@
     "TAC-1004-security-auth-clerk-claims-mapper"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

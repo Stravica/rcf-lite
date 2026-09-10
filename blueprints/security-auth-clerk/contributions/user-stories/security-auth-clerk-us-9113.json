@@ -1,0 +1,74 @@
+{
+  "usId": "security-auth-clerk-US-9113",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-clerk-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Session verification and sessionInventory operations each emit one structured audit event on the fixed allow-list",
+  "asA": "operator running the runtime-verify suite against the Clerk session verifier and its sessionInventory surface",
+  "iWant": "every verification attempt and every sessionInventory operation to write one structured event carrying only the allow-list fields",
+  "soThat": "the audit stream stays free of cookie material and every refusal has a stable reasonClass a reviewer can gate on",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-9113-1",
+      "description": "A completed session verification emits exactly one structured audit event with `outcome=verified` and a session id prefix no longer than eight characters.",
+      "given": "an authenticated request carrying a valid `__session` cookie for a Clerk session S1",
+      "when": "the session verifier verifies the cookie value",
+      "then": "the audit sink records exactly one event whose own-property keys are drawn from `{outcome, operation, reasonClass, sessionIdPrefix, at, principalIdPrefix}` with `outcome=verified` and `operation=verify`; the `__session` cookie value, the full session id, and any raw Clerk claim record are not present in any field; `sessionIdPrefix` is a substring of length no greater than eight characters",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
+    },
+    {
+      "id": "AC-9113-2",
+      "description": "A refused session verification emits exactly one structured audit event with `outcome=refused` and a `reasonClass` value from the fixed set.",
+      "given": "a request carrying a tampered or expired `__session` cookie",
+      "when": "the session verifier verifies the cookie value",
+      "then": "the audit sink records exactly one event with `outcome=refused` and `reasonClass` a stable-coded string (for example `expired`, `tampered`, `revoked`); the event carries `operation=verify`, `sessionIdPrefix` (no longer than eight characters), and `at`; no cookie value or full session id appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
+    },
+    {
+      "id": "AC-9113-3",
+      "description": "A sessionInventory operation that first refuses on `unknown_session` and then succeeds on a subsequent call for a valid session id emits exactly one refused event and one verified event, in order; the retry itself is not a distinct event.",
+      "given": "an authenticated caller who first calls `sessionInventory.revoke(unknownSessionId)` and then calls `sessionInventory.revoke(validSessionId)`",
+      "when": "the two calls run in sequence",
+      "then": "the audit sink records exactly two events in order: one with `operation=revoke`, `outcome=refused`, and `reasonClass=unknown_session`, then one with `operation=revoke` and `outcome=verified`; each event carries a `sessionIdPrefix` no longer than eight characters; no full session id or cookie value appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
+    },
+    {
+      "id": "AC-9113-4",
+      "description": "A sink failure during the emission of a verification audit event does not mask the underlying verification outcome; the mechanism records a `clerk.audit_sink_failed` warning event and the verification outcome is unchanged.",
+      "given": "a valid `__session` cookie and an audit sink whose write throws",
+      "when": "the session verifier emits the completion event",
+      "then": "the verification return value still reports the underlying result unchanged (a verified session does not spuriously become unauthenticated, and a refusal does not spuriously become authenticated); the mechanism records a `clerk.audit_sink_failed` warning event carrying `operation` and a reason-class string; no cookie value or full session id appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1003-security-auth-clerk-session-verifier"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

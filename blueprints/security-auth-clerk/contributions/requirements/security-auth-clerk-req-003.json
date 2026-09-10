@@ -2,7 +2,7 @@
   "reqId": "security-auth-clerk-REQ-003",
   "prdId": "PRD-001",
   "title": "Framework-agnostic middleware boundary contract",
-  "description": "The project integrates Clerk on the server through a middleware boundary whose shape is fixed by the blueprint and whose framework is not. The boundary is a function of the form `verify(request) -> { authenticated: boolean, principal?: Principal, reason?: string }` where `Principal` is the reduced shape from REQ-001. Framework-specific adapters (an Express request handler, a Fastify hook, a Node HTTP wrapper, a Cloudflare Workers fetch handler) are project-authored thin wrappers that delegate to the same underlying verifier; the blueprint does not mandate Express and does not mandate any single HTTP framework, only the shape of the boundary. A request that fails verification is denied at the boundary; a request that passes carries the principal onto the request object under a fixed field name (`request.auth`) for downstream handlers to read.",
+  "description": "The project integrates Clerk on the server through a middleware boundary whose shape is fixed by the blueprint and whose framework is not. The boundary signature and its return shape are owned by `TAC-1001-security-auth-clerk-middleware` `responsibilities.verify`; framework-specific adapters (an Express request handler, a Fastify hook, a Node HTTP wrapper, a Cloudflare Workers fetch handler) are project-authored thin wrappers that delegate to the same underlying verifier. The blueprint does not mandate Express and does not mandate any single HTTP framework, only the shape of the boundary. A request that fails verification is denied at the boundary; a request that passes carries the principal onto the request object under a fixed field name (`request.auth`) for downstream handlers to read.",
   "category": "technical",
   "domain": "authentication",
   "priority": "must",
@@ -16,6 +16,7 @@
   "createdAt": "2026-08-30T00:00:00Z",
   "updatedAt": "2026-08-30T00:00:00Z",
   "deliveredBy": {
-    "adrId": "ADR-1002-security-auth-clerk-middleware-boundary"
+    "tacId": "TAC-1001-security-auth-clerk-middleware",
+    "field": "responsibilities.verify"
   }
 }
