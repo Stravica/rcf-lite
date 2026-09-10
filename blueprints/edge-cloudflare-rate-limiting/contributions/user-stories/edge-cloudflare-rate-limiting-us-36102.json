@@ -17,7 +17,11 @@
       "then": "both flow headings are present and the vendor URL appears",
       "testable": true,
       "scope": "documentation",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/waf/rate-limiting-rules/",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [

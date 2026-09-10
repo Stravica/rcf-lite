@@ -1,5 +1,12 @@
 # edge-cloudflare-rate-limiting changelog
 
+## 1.1.3 - 2026-09-10
+
+Vendor citation on the guide-section AC; register tidy in shipped prose.
+
+- AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation, verified on 2026-09-10.
+- README trailing clause with the internal spec reference removed; guide leading provenance sentence removed.
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; single-mechanism story legality notes; owner reference for the drift-audit and request-event record shapes.

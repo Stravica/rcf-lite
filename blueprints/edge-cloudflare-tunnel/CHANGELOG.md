@@ -1,5 +1,11 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.1.3 - 2026-09-10
+
+Register tidy in shipped prose; no capability change.
+
+- README now leads with a category-neutral opening line and drops the account-token remark trailing clause; guide drops the leading provenance line and rewrites two trailing clauses without internal spec references.
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer.
