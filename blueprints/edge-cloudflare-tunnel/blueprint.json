@@ -1,6 +1,6 @@
 {
   "slug": "edge-cloudflare-tunnel",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "category": "edge",
   "capabilities": [
     "tunnelBridge"
@@ -26,7 +26,7 @@
       "id": "cloudflare-zone-secret",
       "prompt": "security-secrets-management reference to the Cloudflare zone the tunnel serves under. Read at apply time to create the DNS route; never inlined into the manifest.",
       "kind": "string",
-      "default": "hq-estate/CLOUDFLARE_ZONE_ID"
+      "default": "vault/CLOUDFLARE_ZONE_ID"
     },
     {
       "id": "public-hostname-template",
@@ -42,7 +42,7 @@
     },
     {
       "id": "access-aud",
-      "prompt": "Optional Access AUD tag for the Access-gated shape. When present AND edge-cloudflare-access is applied (zeroTrustGate on appliedCapabilities), every ingress rule attaches originRequest.access.aud with this value. When absent OR edge-cloudflare-access is not applied, the block is omitted and the tunnel serves in public-hostname mode.",
+      "prompt": "Access AUD tag. When edge-cloudflare-access is applied (zeroTrustGate on appliedCapabilities) this value is MANDATORY: every ingress rule attaches originRequest.access.aud with it and cloudflared refuses any request without a valid Access JWT for that AUD. Apply refuses with code apply.tunnel-aud-missing if zeroTrustGate is applied and this value is blank. When edge-cloudflare-access is NOT applied the block is omitted and the tunnel serves in the deliberate public-hostname mode per ADR-4003.",
       "kind": "string",
       "default": ""
     },
@@ -163,6 +163,31 @@
       "recommendedDefault": true,
       "elicited": false,
       "standardsTraceClause": "Cloudflare Access self-hosted-public-app documented shape per hetzner-round-7-spec-2026-09-07.md"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-006",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-006.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-REQ-007",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-tunnel-req-007.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39109",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39109.json"
+    },
+    {
+      "id": "edge-cloudflare-tunnel-US-39110",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-tunnel-us-39110.json"
+    },
+    {
+      "id": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+      "kind": "tac",
+      "path": "tacs/tac-4004-edge-cloudflare-tunnel-zone-and-hostname-apply.json"
     }
   ]
 }

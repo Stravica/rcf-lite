@@ -11,17 +11,27 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36101-1",
-      "description": "The rate-limit manifest directory (default cloudflare/rate-limits/) exists in the applied project and holds at least one JSON file per rule; every file parses as JSON and carries the seven documented Cloudflare WAF rate-limiting rules fields (id, expression, threshold, period, characteristics, action, duration); no file body contains a plaintext Cloudflare API token or the elicited zone id (the zone id is elicited and stored via the applied secretsManagement companion).",
+      "description": "The rate-limit manifest directory (default cloudflare/rate-limits/) exists in the applied project and holds at least one JSON file per rule; every file parses as JSON and carries the seven documented Cloudflare WAF rate-limiting rules fields (id, expression, threshold, period, characteristics, action, duration); no file body contains a plaintext Cloudflare API token or the elicited zone id (the zone id is elicited and stored via the applied secretsManagement companion). Applying agent sets: the applying agent sets the elicited rate-limit-rules-dir path and, per rule file, the id, expression, threshold, period, characteristics, action and duration values.",
       "given": "the cf-edge fixture with the two committed manifest files under cloudflare/rate-limits/",
       "when": "the manifest-presence probe scans the fixture directory",
       "then": "every manifest file parses, every file carries the seven required fields, and no file references a secret in plaintext",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
+        "field": "interfaces.rate-limits"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/waf/rate-limiting-rules/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the applied-project manifest-directory shape assertion. The rate-limit-rule schema and its refusal path (SIMULATE_SCHEMA_INVALID) are owned by US-36106; a missing manifest file is owned by US-36108. Per section 7a, this story carries a single AC because its mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

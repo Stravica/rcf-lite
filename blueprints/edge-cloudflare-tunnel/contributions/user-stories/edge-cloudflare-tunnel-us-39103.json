@@ -11,14 +11,64 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-manifestSchema",
-      "description": "manifest-schema-validate probe passes on the canonical fixture and fails when the fixture is mutated (SIMULATE_MANIFEST_INVALID_TUNNEL_ID, SIMULATE_MANIFEST_CREDENTIALS_INLINE, SIMULATE_MANIFEST_MISSING_CATCHALL) naming the offending field.",
+      "description": "Given the canonical fixture cloudflare/tunnels/<name>.yaml (uuid tunnel id, credentialsFile.secretRef reference, ingress array whose last entry is the catch-all `service: http_status:404`), when the manifest-schema-validate probe runs against the fixture, the probe returns aggregateVerdict:pass with zero findings.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "interfaces.schema"
+      },
+      "given": "the canonical fixture manifest with the three required-shape invariants (uuid tunnel id, credentialsFile.secretRef reference, terminal catch-all)",
+      "when": "manifest-schema-validate runs against the canonical fixture",
+      "then": "the probe returns aggregateVerdict:pass with zero findings"
+    },
+    {
+      "id": "AC-tunnel-manifestSchemaInvalidTunnelId",
+      "description": "Given the fixture manifest mutated via SIMULATE_MANIFEST_INVALID_TUNNEL_ID (tunnel id no longer a UUID), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail and the detail names the offending field `tunnel` from the schema.",
+      "given": "the fixture cloudflare/tunnels/<name>.yaml mutated so tunnel is not a UUID (SIMULATE_MANIFEST_INVALID_TUNNEL_ID=true)",
+      "when": "manifest-schema-validate runs against the mutated fixture",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the schema field `tunnel`",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "interfaces.schema"
+      }
+    },
+    {
+      "id": "AC-tunnel-manifestSchemaCredentialsInline",
+      "description": "Given the fixture manifest mutated via SIMULATE_MANIFEST_CREDENTIALS_INLINE (credentials JSON body inlined instead of the required credentialsFile.secretRef reference), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail and the detail names the offending field `credentialsFile.secretRef`.",
+      "given": "the fixture manifest with credentials inlined as JSON rather than referenced by secretRef (SIMULATE_MANIFEST_CREDENTIALS_INLINE=true)",
+      "when": "manifest-schema-validate runs",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the schema field `credentialsFile.secretRef`",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "responsibilities.credentialsSecretRef"
+      }
+    },
+    {
+      "id": "AC-tunnel-manifestSchemaMissingCatchall",
+      "description": "Given the fixture manifest mutated via SIMULATE_MANIFEST_MISSING_CATCHALL (last ingress rule is not the required `service: http_status:404` catch-all), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail and the detail names the ingress array's terminal catch-all requirement.",
+      "given": "the fixture manifest with the terminal http_status:404 catch-all ingress rule removed (SIMULATE_MANIFEST_MISSING_CATCHALL=true)",
+      "when": "manifest-schema-validate runs",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the ingress array's terminal `service: http_status:404` catch-all requirement",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "interfaces.schema"
+      }
     }
   ],
   "tacIds": [
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

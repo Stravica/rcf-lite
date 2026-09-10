@@ -16,12 +16,14 @@
       "when": "the pack runs against each combination",
       "then": "AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own checks pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the admin-console sign-in surface flip between the access-gated data-surface and the local-login data-surface. Both applied capability-set combinations are exercised in-AC. Per section 7a, this story carries a single AC because the capability-set flip mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Turnstile server-side siteverify verifier and refuse-if-token-missing guard",
-  "purpose": "The server-side verifier module. POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true proceeds; on success:false rejects 400 with error-codes body per ADR-3603. The refuse-if-token-missing guard is the sole reader of the Cf-Turnstile-Response payload field and rejects missing-token submits with 400 before any downstream handler runs.",
+  "purpose": "The server-side verifier module. POSTs {secret, response} to https://challenges.cloudflare.com/turnstile/v0/siteverify per Cloudflare Turnstile documented endpoint. On success:true proceeds; on success:false rejects 400 with error-codes body per ADR-3603. The refuse-if-token-missing guard is the sole reader of the cf-turnstile-response payload field and rejects missing-token submits with 400 before any downstream handler runs.",
   "responsibilities": [
     "Own the ONLY reference to https://challenges.cloudflare.com/turnstile/v0/siteverify in the applied source tree (AC-35102-1, AC-35103-1).",
     "Read TURNSTILE_SECRET only via env-shaped facade; refuse any inline literal (AC-35107-1).",
@@ -27,7 +27,7 @@
     {
       "name": "verifier.guard",
       "kind": "method",
-      "summary": "Middleware that reads Cf-Turnstile-Response and rejects missing-token submits with 400."
+      "summary": "Middleware that reads cf-turnstile-response and rejects missing-token submits with 400."
     }
   ],
   "dependencies": [],

@@ -1,6 +1,6 @@
 // Probe: real-account-tunnel-hostname-routes.
 //
-// anchorAcId list (unchanged per H-2 C4 ruling; the AC-tunnel-* ids
+// anchorAcId list (the AC-tunnel-* ids
 // ARE the shipped AC ids in the US-39104 / US-39106 contribution
 // bodies):
 // - AC-tunnel-hostnameRoutes (public-hostname sub-case: ingress rule
@@ -16,7 +16,7 @@
 // - Access-gated sub-case activated only when CI_HAS_CLOUDFLARE_ACCESS
 //   is ALSO set. Env-absent branch keeps pass-with-skip; a pass must
 //   never be reachable from CI_HAS_CLOUDFLARE_ACCOUNT presence alone.
-// - HQ note: Cloudflare Access is not enabled on the HQ account, so
+// - Deployment note: Cloudflare Access is not enabled on the operator account, so
 //   at gate time the AUD sub-case stays pass-with-skip; expected,
 //   not a driver defect.
 //

@@ -11,17 +11,28 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36108-1",
-      "description": "Given the cf-edge fixture with the SIMULATE_MANIFEST_MISSING=true switch, one committed manifest file is treated as absent by the probe; the manifest-presence probe returns aggregateVerdict: fail with the missing file's basename named in the detail; without the switch the probe passes and both manifest files are inspected.",
+      "description": "Given the canonical cf-edge fixture with every committed manifest file present, when the manifest-presence probe walks the fixture manifest directory, both fixture files are inspected and the probe returns aggregateVerdict:pass.",
       "given": "the cf-edge fixture with two committed manifest files and the SIMULATE_MANIFEST_MISSING=true switch",
       "when": "the manifest-presence probe scans the fixture manifest directory",
       "then": "the probe returns aggregateVerdict: fail and the missing file basename is present in the detail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-36108-2",
+      "description": "Given the cf-edge fixture with the SIMULATE_MANIFEST_MISSING=true switch (one committed manifest file is treated as absent by the probe), when manifest-presence runs, the probe returns aggregateVerdict:fail with detail naming the missing file's basename.",
+      "given": "the cf-edge fixture with SIMULATE_MANIFEST_MISSING=true (one committed manifest file treated as absent)",
+      "when": "the manifest-presence probe runs",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the missing file's basename",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

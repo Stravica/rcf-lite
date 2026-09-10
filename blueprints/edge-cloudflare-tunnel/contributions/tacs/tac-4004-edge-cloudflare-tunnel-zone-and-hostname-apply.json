@@ -1,0 +1,29 @@
+{
+  "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Zone resolution and public-hostname template expansion at apply",
+  "purpose": "The apply-verb path in the blueprint reads the elicited cloudflare-zone-secret (a security-secrets-management reference resolved at apply time), fetches the zone id via the vault seam, and never inlines the identifier into a manifest. The same apply pass expands the elicited public-hostname-template (default <service>.<zone>) per ingress rule to produce concrete hostnames. Apply refuses on: unresolved zone reference, unauthorised zone (Cloudflare API returns 4xx on the tunnel-route call), malformed hostname template, duplicate expanded hostnames across ingress rules. The DNS route for each expanded hostname is created via the Cloudflare API tunnels-routes endpoint or validated to already exist; a failed route creation refuses apply. This TAC anchors AC-tunnel-zoneResolve, AC-tunnel-zoneUnauthorised, AC-tunnel-hostnameTemplateExpand, AC-tunnel-hostnameTemplateMalformed, AC-tunnel-hostnameTemplateDuplicate and AC-tunnel-audMandatoryWhenGated.",
+  "responsibilities": [
+    "Resolve the elicited cloudflare-zone-secret via the security-secrets-management vault seam at apply; refuse apply.zone-unresolved when the reference does not resolve (AC-tunnel-zoneResolve).",
+    "Never inline the resolved zone id into the tunnel manifest or the applied sidecar in plaintext; only a secretRef reaches disk (AC-tunnel-zoneResolve).",
+    "Refuse apply.zone-unauthorised when the Cloudflare API returns 4xx on the tunnel-route call for the resolved zone (AC-tunnel-zoneUnauthorised).",
+    "Expand the elicited public-hostname-template per ingress rule to produce concrete hostnames; template inputs are {service, zone} and the output is the fully-qualified hostname the ingress rule commits to (AC-tunnel-hostnameTemplateExpand).",
+    "Refuse apply.hostname-template-malformed when the template contains an undefined placeholder, an unclosed brace, or expands to an invalid DNS label (AC-tunnel-hostnameTemplateMalformed).",
+    "Refuse apply.hostname-template-duplicate when two or more ingress rules expand to the same concrete hostname (AC-tunnel-hostnameTemplateDuplicate).",
+    "Refuse apply.tunnel-aud-missing when zeroTrustGate is applied and the elicited access-aud is blank (AC-tunnel-audMandatoryWhenGated)."
+  ],
+  "internalStructure": "One apply-time module that reads the elicited zone and hostname template, resolves the zone via security-secrets-management, calls the Cloudflare API tunnel-route endpoint per expanded hostname, and writes the applied sidecar with the concrete hostnames plus a secretRef for the zone (never the plaintext zone id).",
+  "interfaces": [
+    {
+      "name": "resolveZoneAndExpandHostnames",
+      "kind": "facade",
+      "summary": "Apply-time facade returning the resolved zone secretRef and the array of concrete hostname expansions per ingress rule."
+    }
+  ],
+  "dependencies": [],
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z"
+}

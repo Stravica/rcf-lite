@@ -59,7 +59,7 @@ async function scratchFixture() {
 test('T-3 edge-cloudflare-tunnel AC-13001-1 connector shape variants shipped (TC-160-connector-shape-variants-shipped)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'edge-cloudflare-tunnel');
-  assert.equal(bp.version, '1.0.1');
+  assert.equal(bp.version, '1.1.0');
   assert.equal(bp.category, 'edge');
   assert.deepEqual(bp.capabilities, ['tunnelBridge']);
   const compose = await readFile(join(CANONICAL, 'compose-service/compose-fragment.yaml'), 'utf8');

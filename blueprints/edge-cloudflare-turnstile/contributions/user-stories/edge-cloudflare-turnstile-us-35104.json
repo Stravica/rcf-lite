@@ -11,17 +11,40 @@
   "acceptanceCriteria": [
     {
       "id": "AC-35104-1",
-      "description": "The Node probe guard-shape-scan enumerates every elicited surface in the pack fixture source and asserts each is registered under the token-required guard. A live POST to /api/submit without a Cf-Turnstile-Response field is rejected with 400 and refusal body carries error-code turnstile.token-missing; no downstream handler side-effect is observable.",
-      "given": "the pack fixture running with every elicited surface registered under the token-required guard",
-      "when": "a submit reaches /api/submit without a Cf-Turnstile-Response value",
-      "then": "the guard rejects with 400 with an error-code body and no downstream handler runs",
+      "description": "The Node probe guard-shape-scan enumerates every elicited surface in the pack fixture source and asserts each is registered under the token-required guard; the probe returns aggregateVerdict:pass when every elicited surface has the guard wired.",
+      "given": "the pack fixture source tree with the elicited surfaces registered",
+      "when": "guard-shape-scan enumerates every elicited surface",
+      "then": "every surface is registered under the token-required guard and the probe returns aggregateVerdict:pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.guard"
+      }
+    },
+    {
+      "id": "AC-35104-2",
+      "description": "Given the pack fixture running on 127.0.0.1 with a real /api/submit route, when a live POST reaches /api/submit without a cf-turnstile-response field, the Turnstile guard rejects the submit with HTTP 400 whose body carries `{\"errorCode\":\"turnstile.token-missing\"}` and no downstream handler side-effect is observable.",
+      "given": "the pack fixture running with /api/submit registered under the token-required guard",
+      "when": "a live POST reaches /api/submit without a cf-turnstile-response form field",
+      "then": "the guard rejects with HTTP 400 and body {\"errorCode\":\"turnstile.token-missing\"} and no downstream handler side-effect is observable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.guard"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

@@ -71,9 +71,15 @@ authorisation lives at the origin). The tunnel still terminates
 ingress at the CF edge; no origin port is opened; the difference is
 that cloudflared does not check for a JWT before forwarding.
 
-Graceful degrade: when Access is not applied, the blueprint still ships
-in public-hostname mode. The `aud-presence-check` probe runs on both
-fixture variants and asserts the shape flips correctly.
+Mode selection is a pure function of the applied capability set. When
+`zeroTrustGate` is present on the applied capabilities, the elicited
+`access-aud` value is **mandatory**: apply refuses with code
+`apply.tunnel-aud-missing` if the value is blank, and every ingress
+rule attaches an `originRequest.access` block. There is no silent
+degrade to public-hostname mode under an applied gate. When
+`zeroTrustGate` is absent, the tunnel serves in the deliberate
+public-hostname mode per ADR-4003; the `aud-presence-check` probe
+runs on both fixture variants and asserts the shape flips correctly.
 
 ## Tunnel manifest walkthrough
 
@@ -83,7 +89,7 @@ The applying project ships one tunnel manifest per named tunnel at
 ```yaml
 tunnel: 12345678-90ab-4cde-8f12-3456789abcde
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080
@@ -96,7 +102,7 @@ non-catch-all rule:
 ```yaml
 tunnel: 12345678-90ab-4cde-8f12-3456789abcde
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080
@@ -116,6 +122,49 @@ rules array whose last entry is a catch-all `service: http_status:404`.
 Every ingress service URL must bind to an internal address (a compose
 service name or a loopback interface); binding to `0.0.0.0` or a
 non-loopback numeric IP refuses at apply time.
+
+## Zone resolution
+
+The applying project stores the target Cloudflare zone id as a secret
+reference rather than as a plaintext value in the tracked tree. TAC-4004
+owns the zone-resolution seam: at apply the resolver reads the elicited
+`cloudflare-zone-secret` through the `security-secrets-management`
+companion, and the resulting applied sidecar records only the
+`secretRef`. A grep across the applying tree for the resolved zone id
+must find zero matches on the tracked file set. Failure paths, per
+REQ-006:
+
+- If the elicited `cloudflare-zone-secret` does not resolve via the
+  vault seam (the reference is missing, or the seam returns an error),
+  apply refuses with `apply.zone-unresolved` naming the elicit id and
+  writes no sidecar (US-39109 AC-tunnel-zoneUnresolved).
+- If the Cloudflare API returns 401 or 403 on the tunnel-route call for
+  the resolved zone id, apply refuses with `apply.zone-unauthorised`
+  naming the resolved zone id metadata (never the token) and writes no
+  sidecar (US-39109 AC-tunnel-zoneUnauthorised).
+
+## Public-hostname template expansion
+
+TAC-4004 owns the public-hostname template. The default template is
+`<service>.<zone>` and each ingress rule's public hostname is rendered
+by substituting the `service` placeholder with the ingress rule's
+service name and the `zone` placeholder with the resolved zone. Every
+rendered hostname must match the DNS-label regex
+`^[a-z0-9-]+(\.[a-z0-9-]+)+$`. Failure paths, per REQ-007:
+
+- If the template names an undefined placeholder (for example
+  `<unknown>`), carries an unclosed brace (for example
+  `<service.<zone>`), or renders a value that violates DNS-label rules
+  (labels longer than 63 characters, or characters outside `[a-z0-9-]`),
+  apply refuses with `apply.hostname-template-malformed` naming the
+  offending template and writes no sidecar (US-39110
+  AC-tunnel-hostnameTemplateMalformed).
+- If two distinct service names expand under the elicited template to
+  the same concrete hostname (for example a template with the
+  `<service>` placeholder omitted or replaced by a constant), apply
+  refuses with `apply.hostname-template-duplicate` naming the collided
+  hostname and both offending rule indices; no sidecar is written
+  (US-39110 AC-tunnel-hostnameTemplateDuplicate).
 
 ## Credentials rotation pattern
 

@@ -11,17 +11,82 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34107-1",
-      "description": "When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the metadata-only shape, and delegates to the handler as authenticated with request.auth.email='service:'+id. Break-glass is disabled unless the elicited pair is applied.",
+      "description": "When the request presents the elicited service-auth id and secret (as CF-Access-Client-Id and CF-Access-Client-Secret headers), the validator observes the pair, records outcome=bypass in the audit event with the metadata-only shape, and delegates to the handler as authenticated with request.auth.email='service:'+id. Break-glass is disabled unless the elicited pair is applied. Applying agent sets: the applying agent sets the elicited access-bypass-service-auth-id and its paired secret; the bypass observable (delegates as authenticated with request.auth.email='service:'+id) is a pure function of that pair.",
       "given": "the createAccessValidator wired with an elicited bypass-service-auth pair and a request presenting the paired headers",
       "when": "the request dispatches through the validator",
       "then": "the handler receives request.auth with the service principal and the audit sink records outcome=bypass with allowed keys only",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/identity/service-tokens/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-34107-2",
+      "description": "Given no bypass-service-auth id is elicited (empty string, break-glass disabled), when a request presents CF-Access-Client-Id and CF-Access-Client-Secret headers, the validator ignores the bypass path entirely and falls through to normal JWT validation; the audit event carries outcome:\"reject\" reason:\"jwt-missing\" when no JWT accompanies the headers, never outcome:\"bypass\".",
+      "given": "the fixture applied source with break-glass disabled (access-bypass-service-auth-id empty)",
+      "when": "a request presents CF-Access-Client-Id and CF-Access-Client-Secret headers but no Cf-Access-Jwt-Assertion",
+      "then": "the validator refuses 401 with outcome \"reject\" reason \"jwt-missing\"; no bypass principal is set and no outcome \"bypass\" audit event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34107-3",
+      "description": "Given the elicited break-glass service-auth pair is present, when a request presents CF-Access-Client-Id that does not match the elicited id and any CF-Access-Client-Secret, the validator refuses 401 with outcome:\"reject\" reason:\"bypass-id-mismatch\"; no bypass principal is set on request.auth and no outcome:\"bypass\" audit event fires. Applying agent sets: the applying agent sets the elicited access-bypass-service-auth-id; a request whose CF-Access-Client-Id differs from the applied value is refused with bypass-id-mismatch.",
+      "given": "the fixture applied source with break-glass enabled and the elicited id and secret configured",
+      "when": "a request presents a wrong CF-Access-Client-Id with any secret",
+      "then": "the validator refuses 401 with outcome \"reject\" reason \"bypass-id-mismatch\" and no bypass principal is set",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34107-4",
+      "description": "Given the elicited break-glass service-auth pair is present, when a request presents the correct CF-Access-Client-Id with a wrong CF-Access-Client-Secret, the validator refuses 401 with outcome:\"reject\" reason:\"bypass-secret-mismatch\" using a constant-time compare; no bypass principal is set and no outcome:\"bypass\" audit event fires. Applying agent sets: the applying agent sets the elicited paired secret; a request whose CF-Access-Client-Secret differs from the applied value is refused with bypass-secret-mismatch under a constant-time compare.",
+      "given": "the fixture applied source with break-glass enabled and the elicited pair configured",
+      "when": "a request presents the correct client id but a wrong secret",
+      "then": "the validator refuses 401 with outcome \"reject\" reason \"bypass-secret-mismatch\" and no bypass principal is set",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
+    },
+    {
+      "id": "AC-34107-5",
+      "description": "Given the elicited break-glass service-auth pair is present, when a request presents only one of CF-Access-Client-Id or CF-Access-Client-Secret (never both), the validator falls through to normal JWT validation and refuses 401 with outcome:\"reject\" reason:\"jwt-missing\" (or whichever JWT-path reason applies); no partial-bypass principal is set and no outcome:\"bypass\" audit event fires. Applying agent sets: the applying agent sets both halves of the elicited bypass pair; a request presenting only one half falls through to JWT validation and is refused with the appropriate JWT-path reason.",
+      "given": "the fixture applied source with break-glass enabled and the elicited pair configured",
+      "when": "a request presents exactly one of CF-Access-Client-Id or CF-Access-Client-Secret",
+      "then": "the validator falls through to JWT validation; no bypass principal is set and no bypass audit event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

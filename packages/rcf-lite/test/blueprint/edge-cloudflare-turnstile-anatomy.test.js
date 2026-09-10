@@ -197,7 +197,7 @@ test('widget mode enum honours managed non-interactive and invisible on the pack
 test('blueprint.json anatomy: 5 REQ, 8 US, 3 TAC, 3 ADR; capabilities humanCheck; humanVerificationGate scope global on ADR-3601', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'edge-cloudflare-turnstile');
-  assert.equal(bp.version, '1.0.0');
+  assert.equal(bp.version, '1.1.0');
   assert.equal(bp.category, 'edge');
   assert.deepEqual(bp.capabilities, ['humanCheck']);
   const kinds = {};
