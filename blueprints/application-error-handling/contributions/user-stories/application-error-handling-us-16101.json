@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16101",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "A process-level uncaught exception constructs the record, emits it, and terminates cleanly with exit 1",
   "asA": "operator running the application under a supervising process",
@@ -16,10 +16,69 @@
       "when": "an uncaught exception is thrown from any code path",
       "then": "one log line is emitted at error level with the record shape (code, category unknown, message, correlationId, cause, context), and process.exitCode equals 1",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-16101-2",
+      "description": "Given an unhandled promise rejection fires on the process (a rejected Promise with no `.catch` handler), when the process-level boundary observes the event, then one error record is written under the `unknown` category with the rejection value serialised as its cause, and the process terminates with exit code 1.",
+      "given": "a process with the error-handling boundary armed and a promise rejection with no attached handler",
+      "when": "the unhandledRejection event fires",
+      "then": "one record under category `unknown` is written and the process exits with code 1",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "interfaces[0].name"
+      }
+    },
+    {
+      "id": "AC-16101-3",
+      "description": "Given the process-level boundary is registered and a code path deliberately calls `process.exit(0)` (a clean shutdown from elsewhere in the application), when the process exits, then the boundary does NOT construct a record and does NOT override the exit code to 1; the clean-shutdown path is preserved and only uncaughtException / unhandledRejection paths coerce to exit 1.",
+      "given": "the process-level boundary registered and a code path calling process.exit(0)",
+      "when": "the process exits",
+      "then": "no record is constructed, no exit-code override fires, and the clean-shutdown code 0 is preserved",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16101-4",
+      "description": "Given two uncaughtException events fire in quick succession (a rare double-throw during shutdown), when the process-level boundary observes them, then TWO records are constructed and emitted through the logging companion in order (one per event); the process still terminates cleanly with exit 1; no recursive re-entry into the boundary constructs a third record.",
+      "given": "two uncaughtException events firing in quick succession",
+      "when": "the process-level boundary observes them",
+      "then": "two records emit in order through the logging companion, the process exits 1 cleanly, and no re-entry constructs a third record",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-16101-5",
+      "description": "Given the process-level boundary is registered under a browser runtime (rather than Node), when an equivalent unhandled error fires (`window.error` / `window.unhandledrejection`), the boundary constructs the internal record via TAC-1702 the same way, emits it through the logging companion, and does NOT attempt to call `process.exit` (which does not exist in the browser); the applying project's guide names the browser-runtime path.",
+      "given": "a browser runtime with the boundary registered and an unhandled error firing",
+      "when": "the boundary observes the event",
+      "then": "a record is constructed and emitted; no process.exit call is attempted; the browser-runtime path is honoured",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[0]"
+      }
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

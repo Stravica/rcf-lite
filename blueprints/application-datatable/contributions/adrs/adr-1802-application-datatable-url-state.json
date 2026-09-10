@@ -2,7 +2,7 @@
   "adrId": "ADR-1802-application-datatable-url-state",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Serialise sort, filter and page state into the URL by recommended default; elicited overrides for a session-scoped alternative",
   "context": "Deep-linkable, reload-stable views are the tabular surface's expected posture in production. A datatable that resets sort, filter and page on reload forces operators to recreate their view every session and prevents them from sharing a specific view with a colleague. Some surfaces (an internal admin panel where a session-scoped view is preferable for auditability) elect the alternative.",

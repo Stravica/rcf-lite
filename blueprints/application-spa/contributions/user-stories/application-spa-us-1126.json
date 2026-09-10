@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1126",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-019",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "WCAG 2.2 AA: contrast, focus visibility, target size, no traps",
   "asA": "user with low vision or motor constraints",
@@ -16,7 +16,8 @@
       "when": "contrast is computed",
       "then": "body text is at or above 4.5:1",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1126-2",
@@ -25,7 +26,8 @@
       "when": "contrast is computed",
       "then": "all are at or above 3:1",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1126-3",
@@ -34,7 +36,8 @@
       "when": "focused via keyboard",
       "then": "a visible, sufficiently contrasting indicator renders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1126-4",
@@ -43,7 +46,12 @@
       "when": "measured across breakpoints",
       "then": "the criterion is met everywhere",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-1126-5",
@@ -52,7 +60,8 @@
       "when": "keyboard escape paths are exercised",
       "then": "focus can always leave",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1126-6",
@@ -61,7 +70,8 @@
       "when": "reviewed with colour removed",
       "then": "the state remains determinable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1126-7",
@@ -70,9 +80,14 @@
       "when": "the automated audit runs",
       "then": "zero AA violations are reported",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

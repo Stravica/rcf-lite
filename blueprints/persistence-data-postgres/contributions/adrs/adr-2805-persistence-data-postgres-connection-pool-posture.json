@@ -17,7 +17,7 @@
     {
       "name": "Delegate every pool to Hyperdrive from v1.0.0",
       "summary": "Ship Hyperdrive as the pool manager for every target.",
-      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service; forcing every project to bind to Cloudflare before applying the blueprint conflicts with the local-first posture (round-5 spec ruling 5, Baz decision 8). Round 6 lands Hyperdrive as an elicit for the operator who wants it."
+      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service; forcing every project to bind to Cloudflare before applying the blueprint conflicts with the local-first posture (round-5 spec ruling 5, maintainer decision). Round 6 lands Hyperdrive as an elicit for the operator who wants it."
     }
   ],
   "createdAt": "2026-09-06T15:47:00.000Z",

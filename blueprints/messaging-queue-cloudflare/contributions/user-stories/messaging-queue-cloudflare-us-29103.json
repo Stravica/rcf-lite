@@ -16,10 +16,27 @@
       "when": "the consumer is invoked across successive deliveries",
       "then": "the message-id is stable across attempts 1 to 3; the attempt counter increments on each delivery; body, headers and producer-supplied trace-id remain byte-equal across attempts",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-29103-2",
+      "description": "Attempt counter monotonic across N retries. Given a consumer that returns retry on every delivery, when the queue redelivers up to maxDeliveries, then each delivery carries an attempt count strictly greater than the previous (1, 2, 3, ...), and the counter does not reset mid-cycle; a mutation SIMULATE_ATTEMPT_RESET=true swaps two attempt values and the assertion FAILS.",
+      "given": "a consumer that returns retry on every delivery",
+      "when": "the queue redelivers up to maxDeliveries",
+      "then": "each delivery carries a strictly greater attempt count; the reset mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+        "field": "interfaces.createConsumer"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -6,7 +6,7 @@ A directed producer-to-consumer worklist queue on Cloudflare Queues: publish, co
 
 Four lifecycle events fire on the injected event sink with a rigid metadata-only whitelist (`event`, `ts`, `messageId`, `queueName`, `attempts`); consumer logging cannot leak object body bytes, header values, consumer-context fields or PII from the message body. The whitelist is enforced in code by the sink adapter (`event-sink.mjs`), not just documented.
 
-The reserved sibling `messaging-queue-postgres` (Baz decision 7, deferred v1.0.0 pending demand) mints on demand and conflicts by design on `deliverySemantics` with this blueprint; the operator picks one queue backend per project via a project-level ADR.
+The reserved sibling `messaging-queue-postgres` (maintainer decision, deferred v1.0.0 pending demand) mints on demand and conflicts by design on `deliverySemantics` with this blueprint; the operator picks one queue backend per project via a project-level ADR.
 
 ## Apply this blueprint
 
@@ -89,7 +89,7 @@ Miniflare (`https://developers.cloudflare.com/workers/testing/miniflare/`, fetch
 
 ## Real-account smoke section
 
-`node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs` is the accountBound probe. Without `CI_HAS_CLOUDFLARE_ACCOUNT` it exits 0 with `accountBoundSkipped: true` per spec section 3.5 and the per-blueprint report reads `aggregateVerdict: pass`. With `CI_HAS_CLOUDFLARE_ACCOUNT=1` plus credentials for the shared HQ queue `rcf-lite-ci-queue-smoke` (Q2 default) wired via `security-secrets-management`, a live-account run is queued as a v1.0.0 follow-up: the run itself rides `deploy-cloudflare-workers`' surface (not a Node probe module) since Cloudflare Queues does not support `wrangler dev --remote`, and the v1.0.0 probe stops short of driving deployment machinery.
+`node ../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs` is the accountBound probe. Without `CI_HAS_CLOUDFLARE_ACCOUNT` it exits 0 with `accountBoundSkipped: true` per spec section 3.5 and the per-blueprint report reads `aggregateVerdict: pass`. With `CI_HAS_CLOUDFLARE_ACCOUNT=1` plus credentials for the shared CI queue `rcf-lite-ci-queue-smoke` (Q2 default) wired via `security-secrets-management`, a live-account run is queued as a v1.0.0 follow-up: the run itself rides `deploy-cloudflare-workers`' surface (not a Node probe module) since Cloudflare Queues does not support `wrangler dev --remote`, and the v1.0.0 probe stops short of driving deployment machinery.
 
 ## Retry and DLQ discipline
 

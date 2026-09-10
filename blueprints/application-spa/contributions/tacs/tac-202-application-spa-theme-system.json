@@ -2,7 +2,7 @@
   "tacId": "TAC-202-application-spa-theme-system",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Theme system and design tokens",
   "purpose": "Realises the semantic token layer (colour, spacing, radius, typography, elevation, motion) in both themes and owns theme selection, persistence-data-sqlite, and application.",

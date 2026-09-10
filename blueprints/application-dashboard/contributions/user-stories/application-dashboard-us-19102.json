@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19102",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The primary KPI tile sits top-left in DOM order and in CSS Grid position across the ratified breakpoints",
   "asA": "reader glancing at the shipped dashboard on a laptop, a tablet and a phone",
@@ -16,7 +16,8 @@
       "when": "the DOM order and the computed CSS Grid position are read",
       "then": "the primary KPI tile is first in DOM order and top-left in CSS Grid at each of the three widths",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-19102-2",
@@ -25,11 +26,58 @@
       "when": "the surface is reviewed",
       "then": "the surface supersedes REQ-002 with a project-authored REQ or fails review",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-19102-3",
+      "description": "Given a rendered dashboard at the 360 breakpoint, when the tile row reflows to one column, the primary KPI tile carries `row-start: 1` in its computed CSS Grid position; a secondary tile whose row-start is 1 at 360 (competing for the top-left slot) fails the pack check.",
+      "given": "a rendered dashboard at 360 with the tile row reflowed to one column",
+      "when": "the pack inspects computed CSS Grid positions",
+      "then": "the primary KPI tile has row-start: 1 and no secondary tile shares that row-start",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-19102-4",
+      "description": "Given the operator elicited `primary-kpi-kind=custom`, the primary tile carries `data-kpi-kind=\"custom\"` AND a `data-kpi-name` attribute whose value is the operator-elicited `primary-kpi-custom-name`; a `custom` kind without a `data-kpi-name` fails the pack check. Applying agent sets: the custom short name.",
+      "given": "a rendered dashboard whose primary-kpi-kind is elicited as `custom`",
+      "when": "the pack inspects the primary tile attributes",
+      "then": "the tile carries both `data-kpi-kind=\"custom\"` and a non-empty `data-kpi-name` matching the elicited short name",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "adrId": "ADR-2001-application-dashboard-primary-kpi-enum",
+        "field": "decision"
+      }
+    },
+    {
+      "id": "AC-19102-5",
+      "description": "Given a rendered dashboard whose primary tile carries a `data-kpi-kind` value outside the ADR-2001 enum (a typo, an operator override that did not follow the elicit), the pack fails the check naming the invalid value; the check reads the attribute value and asserts membership in {revenue, active-users, error-rate, throughput, custom}.",
+      "given": "a primary tile with a data-kpi-kind value outside the ADR-2001 enum",
+      "when": "the pack inspects the attribute",
+      "then": "the check fails naming the invalid value and asserting the required enum membership",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-2001-application-dashboard-primary-kpi-enum",
+        "field": "decision"
+      }
     }
   ],
-  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2001-application-dashboard-tile-grid"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

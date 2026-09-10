@@ -16,10 +16,27 @@
       "when": "grep queries walk the guide and README",
       "then": "guide/jobs-background.md contains the substring operator-facing surface and names all three values cli, httpEndpoint, none; README.md names the same three values; neither ships a CLI binary nor an HTTP router",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30106-2",
+      "description": "Enum drift refused at load. Given the elicited operator-surface answered outside the shipped enum {cli, httpEndpoint, none}, when the loader validates the elicited answer, then the loader refuses with a named error kind (invalidOperatorSurface) and the applied sidecar is not written.",
+      "given": "operator-surface answered outside {cli, httpEndpoint, none}",
+      "when": "the loader validates",
+      "then": "the loader refuses with invalidOperatorSurface; the applied sidecar is not written",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3103-jobs-background-run-log",
+        "field": "interfaces.createRunLog"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

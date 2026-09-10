@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1117",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-010",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "The state quartet on every route and data-bearing component",
   "asA": "user meeting real-world data conditions",
@@ -11,12 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1117-1",
-      "description": "Every data-bearing route renders designed loading, empty, error, and success states; a state matrix over the route inventory has no unspecified applicable cell.",
+      "description": "Every data-bearing route renders designed loading, empty, error, and success states; a state matrix over the route inventory has no unspecified applicable cell. Applying agent sets: the project route inventory the state matrix covers.",
       "given": "the route inventory",
       "when": "each applicable state is induced per route",
       "then": "every applicable cell renders a designed state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-201-application-spa-app-shell",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-1117-2",
@@ -25,16 +30,18 @@
       "when": "audited against content shape",
       "then": "known shapes use skeletons; spinner use is justified",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1117-3",
-      "description": "Empty states are per-context, naming the specific absent content and its filling action; a single generic empty component text is not reused verbatim across unrelated routes.",
+      "description": "Empty states are per-context, naming the specific absent content and its filling action; a single generic empty component text is not reused verbatim across unrelated routes. Applying agent sets: the per-context empty-state text unique per route.",
       "given": "each empty state",
       "when": "copy and action are compared across routes",
       "then": "each names its own content and action",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1117-4",
@@ -43,7 +50,8 @@
       "when": "each error state renders",
       "then": "copy and affordances differ appropriately",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1117-5",
@@ -52,7 +60,8 @@
       "when": "the response lands",
       "then": "confirmation renders and affected views show the new data",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1117-6",
@@ -61,7 +70,8 @@
       "when": "transitions are observed",
       "then": "no wrong-state flash occurs in either",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -69,5 +79,5 @@
     "TAC-204-application-spa-client-data-layer"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

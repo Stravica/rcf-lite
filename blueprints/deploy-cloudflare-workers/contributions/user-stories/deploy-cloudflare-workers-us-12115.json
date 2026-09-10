@@ -16,12 +16,27 @@
       "when": "a reader opens the guide and grep locates the section heading, the verbatim quote and the two URLs",
       "then": "the section heading appears once; the verbatim landing-page quote appears once; both Cloudflare URLs appear at least once each; a curl -fsSI on each URL returns HTTP 200",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-12115-2",
+      "description": "One-line note: this story is documentation-only. The mechanism (guide prose linking Cloudflare's migrate-from-Pages walkthrough) has no documented failure path in the blueprint's own guide or TAC records, per section 7a; a broken link is a doc-drift finding surfaced by the shipped link-check probe rather than a mechanism failure.",
+      "given": "guide prose linking Cloudflare's migrate-from-Pages walkthrough",
+      "when": "the shipped link-check probe runs",
+      "then": "a broken link is surfaced as a doc-drift finding; there is no additional mechanism failure path to bind",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.assets"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

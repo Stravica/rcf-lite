@@ -11,8 +11,12 @@
     "blueprint:application-spa",
     "category:16-telemetry"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-08-19T09:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-201-application-spa-app-shell",
+    "field": "responsibilities"
+  }
 }

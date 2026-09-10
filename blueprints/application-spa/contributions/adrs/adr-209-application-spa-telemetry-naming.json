@@ -2,7 +2,7 @@
   "adrId": "ADR-209-application-spa-telemetry-naming",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Typed journey-checkpoint events named domain.surface.action",
   "context": "application-spa-REQ-016 requires named events. Free-text names drift with refactors and kill dashboard continuity; the scheme needs one recorded answer inside the SPA.",

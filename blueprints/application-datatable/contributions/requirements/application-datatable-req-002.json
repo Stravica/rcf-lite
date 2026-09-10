@@ -2,14 +2,21 @@
   "reqId": "application-datatable-REQ-002",
   "prdId": "PRD-001",
   "title": "Sort activates the query adapter and renders in the announced direction",
-  "description": "Column headers advertise sortability via a keyboard-reachable sort control; activation flips direction (asc / desc), announces the new direction through `aria-sort`, and reorders rendered rows to match the server-side sort (TAC-1802) when the project chose the server-side default. The client-side sort alternative applies to small in-memory collections when the operator elicited it (ADR-1802's elicited alternative).",
+  "description": "Column headers advertise sortability via a keyboard-reachable sort control; activation flips direction (asc / desc), announces the new direction through `aria-sort`, and reorders rendered rows to match the server-side sort (TAC-1802) when the project chose the server-side default. The client-side sort alternative applies to small in-memory collections when the operator elicited it (ADR-1802's elicited alternative). The recommended default `url-state-strategy` is `url-query`: the shell serialises `sort`, `q` and `page` into the URL query on every state change via `history.replaceState`. The elicited alternative `session-scoped` keeps the same state in memory for the shell mount lifetime and suppresses URL writes (ADR-1802).",
   "category": "functional",
   "domain": "application",
   "priority": "must",
   "rationale": "Sort is the single-most-used interaction on a datatable and the most common source of hidden accessibility regressions. Anchoring the direction announcement and the keyboard reach at the surface level closes both.",
-  "tags": ["blueprint:application-datatable", "category:02-sort"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:02-sort"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

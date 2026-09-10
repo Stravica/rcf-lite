@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1122",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-015",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Extracted strings, locale-aware formatting, RTL-safe layout",
   "asA": "user in any locale",
@@ -16,7 +16,8 @@
       "when": "rendered strings are traced to origin",
       "then": "each traces to a catalogue key",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1122-2",
@@ -25,7 +26,8 @@
       "when": "their construction is inspected",
       "then": "each is one catalogue entry with named placeholders",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1122-3",
@@ -34,7 +36,8 @@
       "when": "formatting paths are audited",
       "then": "all route through Intl-based formatting per ADR-208",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1122-4",
@@ -43,7 +46,8 @@
       "when": "formatting paths are audited",
       "then": "all route through Intl-based formatting",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1122-5",
@@ -52,7 +56,8 @@
       "when": "each route renders at each breakpoint",
       "then": "the layout survives with correct mirroring",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1122-6",
@@ -61,7 +66,8 @@
       "when": "zero, one, and many are rendered",
       "then": "each count renders its correct form",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

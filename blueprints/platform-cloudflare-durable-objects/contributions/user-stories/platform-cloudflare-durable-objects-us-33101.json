@@ -16,12 +16,83 @@
       "when": "the process boots and the facade ready() call resolves",
       "then": "a namespaceReady event fires on the injected event sink with the metadata-only payload; no other module dereferences env.CELL or env.HUB",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33101-2",
+      "description": "F-4 namespace-unbound: createDoFacade({env:{HUB:{}}, sink}) with env.CELL absent throws a named error kind DO_NAMESPACE_UNBOUND naming the missing binding \"CELL\" before any sink event fires. No namespaceReady record lands on the sink; the throw is synchronous at factory time so the applying agent sees the failure at boot rather than at first call.",
+      "given": "a createDoFacade call whose env object lacks the CELL property",
+      "when": "the factory is invoked",
+      "then": "the factory throws DO_NAMESPACE_UNBOUND naming \"CELL\" and no namespaceReady event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33101-3",
+      "description": "F-4 namespace-unbound (hub): createDoFacade({env:{CELL:{}}, sink}) with env.HUB absent throws DO_NAMESPACE_UNBOUND naming the missing binding \"HUB\" before any sink event fires. The two bindings are checked in a stable order (CELL then HUB) so the error names the first missing binding when both are absent.",
+      "given": "a createDoFacade call whose env object lacks the HUB property",
+      "when": "the factory is invoked",
+      "then": "the factory throws DO_NAMESPACE_UNBOUND naming \"HUB\" and no namespaceReady event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33101-4",
+      "description": "Invalid sink at boot: the DO facade factory (per TAC-3401.interfaces.createDoFacade) called with a sink argument that is not a function throws DO_FACADE_INVALID_SINK before any binding is dereferenced. Same for the sink omitted or a non-function value; no ready-check runs.",
+      "given": "a createDoFacade call whose sink is not a function",
+      "when": "the factory is invoked",
+      "then": "the factory throws DO_FACADE_INVALID_SINK and no namespaceReady event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33101-5",
+      "description": "Repeat-boot idempotency: two independent createDoFacade({env, sink}).ready() calls on the same env emit two namespaceReady records on the sink, both with identical payload shape {event:\"namespaceReady\", key:null, size:0, ttl:null, timestamp:<number>}; each record has its own timestamp. No accumulator drift across boots; no cellHandle or hubHandle state leaks between instances.",
+      "given": "two independent createDoFacade instances constructed with the same env and sink",
+      "when": "ready() is called on each in turn",
+      "then": "the sink receives two namespaceReady records with identical shape and independent timestamps",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33101-6",
+      "description": "Sole-reader boundary at boot: the src/do-facade.mjs module is the only module in the cf-platform fixture src/ tree that carries the literal substrings \"env.CELL\" or \"env.HUB\" outside comments. The wrangler-seam probe (US-33113) routes fetch requests through src/index.mjs which calls createDoFacade({env}) once, and that call site is the only \"env\" reference on src/index.mjs; the boundary check greps src/*.mjs and asserts the sole-reader claim before boot.",
+      "given": "the cf-platform fixture src/ tree at boot time",
+      "when": "a recursive scan strips comments and matches \"env.CELL\" and \"env.HUB\" against every .mjs file",
+      "then": "only src/do-facade.mjs contains the matches; src/index.mjs contains only the createDoFacade({env}) constructor call and no direct env.CELL / env.HUB dereference",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.solereader"
+      }
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

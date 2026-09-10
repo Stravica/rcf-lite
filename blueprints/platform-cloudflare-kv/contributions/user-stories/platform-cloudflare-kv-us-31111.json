@@ -1,0 +1,89 @@
+{
+  "usId": "platform-cloudflare-kv-US-31111",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Pre-ready facade calls queue behind facadeReady; sink events emit in causal per-operation order",
+  "asA": "developer wiring domain code that may issue a get or put before the facade ready-check has resolved",
+  "iWant": "the facade to queue pre-ready calls and drain them in issue-order after ready() resolves, and to emit sink events in the same order the operations completed",
+  "soThat": "no vendor put/get lands on an unbound binding, and a downstream logging companion observes a causal per-key event ordering",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31111-1",
+      "description": "Two facade.get calls issued BEFORE ready() has resolved settle in issue order after ready() completes. Neither returns a vendor error; both fire kvMiss (empty store) in issue order; a facadeReady event fires before both kvMiss records on the sink.",
+      "given": "a facade instantiated with an in-memory KV driver whose ready-check is artificially delayed by 25ms",
+      "when": "facade.get(\"a\") and facade.get(\"b\") are called synchronously before ready() has resolved",
+      "then": "the calls settle after ready() completes, both return no-value results with source origin, and the sink shows facadeReady, kvMiss(\"a\"), kvMiss(\"b\") in that order",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.facadeReady"
+      }
+    },
+    {
+      "id": "AC-31111-2",
+      "description": "A pre-ready call whose subsequent ready-check throws is rejected with a named error kind (KV_FACADE_NOT_READY) and no sink record is emitted for that call; a subsequent successful facade re-instantiation opens cleanly and the queue does not leak across instances.",
+      "given": "a facade instantiated with a KV driver whose list(limit:1) ready-check throws",
+      "when": "facade.get(\"a\") is called before ready() has resolved",
+      "then": "the call rejects with KV_FACADE_NOT_READY and no sink record is emitted for the failed call",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.facadeReady"
+      }
+    },
+    {
+      "id": "AC-31111-3",
+      "description": "Two facade.put calls issued in order on the same key emit kvWrite records in the same issue order on the sink; interleaved put and get calls on the same key emit kvWrite/kvHit records in the exact interleaving observed on the driver.",
+      "given": "a facade instantiated with an in-memory KV driver and a ready() completed",
+      "when": "facade.put(k, v1), facade.put(k, v2) and facade.get(k) are called in that order",
+      "then": "the sink observes kvWrite(k, v1), kvWrite(k, v2), kvHit(k, v2) in issue order",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
+    },
+    {
+      "id": "AC-31111-4",
+      "description": "Strict FIFO drain: 10 facade.get calls on distinct keys issued BEFORE ready() has resolved drain in exact issue order after ready() completes. The sink records 10 kvMiss records whose keys equal the issue-order sequence exactly (no reorder, no skips). facadeReady precedes every kvMiss.",
+      "given": "a facade with an artificially delayed ready-check and 10 get calls on keys k0..k9",
+      "when": "ready() resolves",
+      "then": "the sink records facadeReady, kvMiss(k0), kvMiss(k1)..kvMiss(k9) in that exact order",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.facadeReady"
+      }
+    },
+    {
+      "id": "AC-31111-5",
+      "description": "Post-ready no queue: after ready() has resolved, a facade.get call invokes the underlying driver directly (no queue). A test that increments a per-call counter on the driver observes counter=1 immediately after the call, not after a next tick.",
+      "given": "a facade after ready() has resolved",
+      "when": "facade.get(k) is called",
+      "then": "the driver counter increments in the same microtask (no queue interposed)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.facadeReady"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-3201-platform-cloudflare-kv-facade",
+    "TAC-3203-platform-cloudflare-kv-event-sink"
+  ],
+  "createdAt": "2026-09-09T20:25:00.000Z",
+  "updatedAt": "2026-09-09T22:00:00.000Z"
+}

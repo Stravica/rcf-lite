@@ -2,7 +2,7 @@
   "tacId": "TAC-304-application-api-rest-resource-layer",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Resource layer: routes, representations, and collection conventions",
   "purpose": "Owns the versioned resource surface: the route inventory under /v1, one representation model per resource class, and the shared collection machinery for pagination, filtering, and sorting so every collection behaves identically.",

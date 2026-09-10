@@ -11,8 +11,12 @@
     "blueprint:application-api-rest",
     "category:03-versioning"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-08-19T10:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-301-application-api-rest-request-pipeline",
+    "field": "responsibilities"
+  }
 }

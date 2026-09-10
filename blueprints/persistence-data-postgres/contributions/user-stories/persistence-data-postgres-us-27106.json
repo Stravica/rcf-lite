@@ -16,10 +16,27 @@
       "when": "twenty SELECT queries are dispatched concurrently across the two facades via Promise.all",
       "then": "all twenty promises resolve inside the connectionTimeoutMillis budget; no query throws; the observed maximum concurrent in-use pool connections on either facade is at most the configured pool size (5)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-27106-2",
+      "description": "Pool exhaustion is bounded. Given two facades at elicited pool-size 5 and thirty concurrent query calls, when the twenty-first through thirtieth calls contend for a client, then each call either acquires within the elicited connection-timeout-ms or refuses with a named error kind (poolAcquireTimeout); no call hangs indefinitely; the observability sink records connectionTimeout events with the elapsed time.",
+      "given": "two facades at pool-size 5 and 30 concurrent query calls",
+      "when": "the 21st through 30th calls contend for a client",
+      "then": "each call acquires within connection-timeout-ms or refuses with poolAcquireTimeout; no call hangs; the sink records connectionTimeout with elapsed time",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "interfaces.createStore"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "tacIds": [
+    "TAC-2801-persistence-data-postgres-facade"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -65,7 +65,7 @@ The pack-browser seam extension in T-3 adds `resize(width, height)`; the two pat
 
 ## Elicited parameters (ADR-2001, ADR-2002, ADR-2003 and REQ notes)
 
-The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (tracked as w-2026-09-04-dave-022, built in T-5); accept the declarative shape and gather the operator's answers by hand during the apply pass.
+The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (the shelf has a T-5 build item tracking it); accept the declarative shape and gather the operator's answers by hand during the apply pass.
 
 - **Primary-KPI kind** (ADR-2001): one of `revenue`, `active-users`, `error-rate`, `throughput`, `custom`. A `custom` value carries a short operator name in `data-kpi-name`.
 - **Tile inventory with slots** (REQ-002 and TAC-2001): the tile list (primary tile plus up to seven supporting tiles) and each tile's slot on the CSS Grid.

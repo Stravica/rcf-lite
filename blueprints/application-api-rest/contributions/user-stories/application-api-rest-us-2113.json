@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2113",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-011",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Class-scoped rate limits with mechanical back-off signals",
   "asA": "platform operator protecting the service from overload",
@@ -11,21 +11,23 @@
   "acceptanceCriteria": [
     {
       "id": "AC-2113-1",
-      "description": "Each of the four auth classes has a declared rate limit, and requests are counted against the limit of the endpoint's class.",
+      "description": "Each of the four auth classes has a declared rate limit, and requests are counted against the limit of the endpoint's class. Applying agent sets: the declared rate-limit values per auth class (public, user, admin, service).",
       "given": "the declared per-class limits",
       "when": "traffic flows to endpoints of each class",
       "then": "each request decrements its class's budget and no other's",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2113-2",
-      "description": "A request over its limit receives 429 with a Retry-After header and a problem-details body naming the limit and window.",
+      "description": "A request over its limit receives 429 with a Retry-After header and a problem-details body naming the limit and window. Applying agent sets: the limit value and the window duration named in the 429 problem-details body.",
       "given": "a caller exceeding its class limit",
       "when": "the next request arrives",
       "then": "the response is 429 with Retry-After and the error envelope naming limit and window",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2113-3",
@@ -34,16 +36,18 @@
       "when": "the second caller sends a request",
       "then": "the second caller is served while the first receives 429",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-4",
-      "description": "A per-endpoint override of the class default is supported, declared in the spec alongside the endpoint, and enforcement follows the override.",
+      "description": "A per-endpoint override of the class default is supported, declared in the spec alongside the endpoint, and enforcement follows the override. Applying agent sets: the per-endpoint rate-limit override values declared in the spec alongside the endpoint.",
       "given": "an endpoint declaring a rate-limit override",
       "when": "traffic exceeds the override but not the class default (or vice versa)",
       "then": "enforcement follows the declared override exactly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2113-5",
@@ -52,7 +56,8 @@
       "when": "the caller waits the advertised delay and retries",
       "then": "the retry succeeds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2113-6",
@@ -61,7 +66,8 @@
       "when": "metrics and logs are inspected",
       "then": "the 429s appear in RED and class counters, and no error-level log line per rejection exists",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -69,5 +75,5 @@
     "TAC-302-application-api-rest-auth-middleware"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

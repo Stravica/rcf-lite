@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2119",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-015",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Spec-derived contract conformance across request, error, and auth axes",
   "asA": "API consumer trusting the published contract",
@@ -16,7 +16,12 @@
       "when": "a valid request is executed against it",
       "then": "the response validates against the declared schema for the returned status",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2119-2",
@@ -25,7 +30,8 @@
       "when": "a request violating the input schema is executed",
       "then": "the response is the documented 4xx carrying the problem-details envelope",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2119-3",
@@ -34,7 +40,8 @@
       "when": "an under-privileged request is executed",
       "then": "the rejection matches the declared class semantics",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2119-4",
@@ -43,16 +50,22 @@
       "when": "the conformance run executes",
       "then": "the new operation is exercised on all three axes or the run fails naming it",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2119-5",
-      "description": "The conformance run is part of the standard verification pipeline and its per-operation results are reported, so contract conformance is visible at every build, not sampled occasionally.",
+      "description": "The conformance run is part of the standard verification pipeline and its per-operation results are reported, so contract conformance is visible at every build, not sampled occasionally. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the project's verification pipeline",
       "when": "it runs",
       "then": "the conformance results appear per operation and a conformance failure fails the pipeline",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [

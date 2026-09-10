@@ -16,7 +16,8 @@
       "when": "the store facade imports the catalog at boot",
       "then": "the loaded catalog is an ordered sequence whose version integers start at 1 and increase by exactly 1 per entry, and every entry carries a non-empty description and a non-empty statements list",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5102-2",
@@ -25,7 +26,8 @@
       "when": "consumer code calls the schemaVersion read operation",
       "then": "the returned integer equals the max value of the bookkeeping table's version column, and matches the max version integer in the loaded catalog",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-5102-3",
@@ -34,7 +36,8 @@
       "when": "the migration runner completes",
       "then": "the bookkeeping table holds one row per applied migration with the appliedAt timestamp set to a value not in the future and not preceding the store-opened event",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-603-persistence-data-sqlite-migration-catalog"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

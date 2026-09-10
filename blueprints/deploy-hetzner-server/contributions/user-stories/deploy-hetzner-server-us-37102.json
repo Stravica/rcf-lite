@@ -13,12 +13,45 @@
       "id": "AC-37102-1",
       "description": "manifest-schema-validate.mjs asserts every hetzner/servers/*.json under the shared throwaway-server fixture validates against blueprints/deploy-hetzner-server/contributions/schemas/hetzner-server.schema.json and carries every required field; a mutation SIMULATE_MANIFEST_INVALID=true replaces location with an unknown token and the probe FAILS naming the offending field.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+        "field": "interfaces.hetzner-server.schema.json"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37102-2",
+      "description": "Malformed manifest refusal. Given a hetzner/servers/*.json file with a required field missing (for example serverType omitted), when the schema validator runs, then the probe FAILS with a message that names the offending file and the missing required field; the provisioner facade refuses to apply the manifest.",
+      "given": "a hetzner/servers/*.json with a required field omitted",
+      "when": "manifest-schema-validate.mjs runs against the fixture set",
+      "then": "the probe FAILS naming the offending file and the missing required field; the provisioner refuses to apply",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+        "field": "interfaces.hetzner-server.schema.json"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37102-3",
+      "description": "Boundary refusal: firewall rule opens ssh to 0.0.0.0/0. Given a manifest whose firewallRules ssh entry carries sourceIps including 0.0.0.0/0, when the schema validator runs, then the probe FAILS naming the ssh rule with the specific 0.0.0.0/0 offence; the provisioner refuses to apply.",
+      "given": "a manifest whose firewallRules ssh entry carries sourceIps including 0.0.0.0/0",
+      "when": "manifest-schema-validate.mjs runs",
+      "then": "the probe FAILS naming the ssh rule and the 0.0.0.0/0 offence; the provisioner refuses to apply",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+        "field": "interfaces.firewallRules"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3802-deploy-hetzner-server-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

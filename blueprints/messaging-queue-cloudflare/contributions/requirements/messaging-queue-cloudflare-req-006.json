@@ -2,7 +2,7 @@
   "reqId": "messaging-queue-cloudflare-REQ-006",
   "prdId": "PRD-001",
   "title": "Lifecycle events with metadata-only fields: producerReady, messagePublished, messageAcked, messageDeadLettered",
-  "description": "The facade fires four lifecycle events on the injected event sink: producerReady (once per facade instance, on the first successful ready-check), messagePublished (once per successful publish), messageAcked (once per successful ack), messageDeadLettered (once per DLQ landing). Every event record carries a metadata-only field whitelist: messageId, queueName, attempts (integer, 0 for producerReady and messagePublished), timestamp (ISO 8601 UTC). No event record contains the message body, any header value, any consumer-context field, or any producer-context field. The whitelist is enforced in code (the sink adapter refuses forbidden fields); a call site that hands a body-bearing payload to the sink is refused at author-side review.",
+  "description": "The facade fires four lifecycle events on the injected event sink: producerReady (once per facade instance, on the first successful ready-check), messagePublished (once per successful publish), messageAcked (once per successful ack), messageDeadLettered (once per DLQ landing). Every event record carries a metadata-only field whitelist: messageId, queueName, attempts (integer, 0 for producerReady and messagePublished), ts (ISO 8601 UTC). No event record contains the message body, any header value, any consumer-context field, or any producer-context field. The whitelist is enforced in code (the sink adapter refuses forbidden fields); a call site that hands a body-bearing payload to the sink is refused at author-side review.",
   "category": "functional",
   "domain": "messaging",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
+    "field": "responsibilities.producerReady"
+  }
 }

@@ -2,7 +2,7 @@
   "tacId": "TAC-208-application-spa-icon-adherence-probe",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Icon adherence probe",
   "purpose": "The runtime-observable enforcement handle for the ADR-206 iconography discipline. The blueprint declares that components reference icons only through the semantic alias registry and that bespoke per-component artwork is an extension to the registry rather than inline SVG (application-spa-REQ-011, US-1118). Watchpost run4 shipped zero icons across eight surfaces while the build cycle ran green; declaring the discipline is not the same as compelling it. This TAC is the project-realised probe that inspects the shipped component source (or built bundle), refuses at non-zero exit when a component sidesteps the alias registry, and writes a stable JSON report the delivery-ci-workflows aggregate report can name.",

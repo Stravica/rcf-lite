@@ -2,7 +2,7 @@
   "reqId": "messaging-queue-cloudflare-REQ-001",
   "prdId": "PRD-001",
   "title": "One producer facade module is the sole reader of the Cloudflare Queues binding and opens on boot with producerReady",
-  "description": "The application publishes to the queue through a single producer facade module in the project's source tree that is the ONLY module holding a reference to the Cloudflare Queues binding (env.RCF_TEST_QUEUE in the fixture; the elicited binding name in a real project). Every other module that publishes reads the facade and calls its typed domain verbs (publish, publishBatch); no other module dereferences the raw Queues binding. On process boot, the facade opens against the bound queue and, once ready, emits a producerReady lifecycle event carrying the queue name. The queue name (or the binding name in a Workers deploy) is elicited at apply time under the Queues binding declared in wrangler config.",
+  "description": "The application publishes to the queue through a single producer facade module in the project's source tree that is the ONLY module holding a reference to the Cloudflare Queues binding (env.RCF_TEST_QUEUE in the fixture; the elicited binding name in a real project). Every other module that publishes reads the facade and calls its typed domain verbs (publish, publishBatch); no other module dereferences the raw Queues binding. On process boot, the facade opens against the bound queue and, once ready, emits a producerReady lifecycle event carrying the queue name. The queue name (or the binding name in a Workers deploy) is elicited at apply time under the Queues binding declared in wrangler config. The queue-binding-name is elicited at apply time; the producer facade dereferences env[queue-binding-name] once at boot and holds no other reference. The queue-name is elicited at apply time under the wrangler [[queues.producers]] declaration.",
   "category": "functional",
   "domain": "messaging",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+    "field": "responsibilities.producerReady"
+  }
 }

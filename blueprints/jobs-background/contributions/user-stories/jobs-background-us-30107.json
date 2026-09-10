@@ -16,10 +16,27 @@
       "when": "rcf define blueprint add ./blueprints/jobs-background --allow-no-queue-yet runs",
       "then": "exit code is 0; rcf/blueprints/jobs-background.applied.json exists; slug is jobs-background; allowNoAuthYet is true; appliedCapabilities is []; notes contains 'no queue yet', '--allow-no-queue-yet' and 'queue'; notes does NOT contain 'no auth yet' nor 'no secrets-management yet'",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30107-2",
+      "description": "Sidecar note references the flag verbatim. Given the --allow-no-queue-yet override applied, when the sidecar is inspected, then its notes field contains the exact substring \"--allow-no-queue-yet\" (so an operator later dropping the note can grep for the flag) and does not carry an \"auth\"-family phrasing that would misdirect the operator to a different override.",
+      "given": "the --allow-no-queue-yet override applied",
+      "when": "the sidecar is inspected",
+      "then": "the notes field contains the exact --allow-no-queue-yet substring and no auth-family phrasing",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-3103-jobs-background-requires-applied-capabilities",
+        "field": "decision.allowSkipFlag"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3101-jobs-background-job-definition"],
+  "tacIds": [
+    "TAC-3101-jobs-background-job-definition"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

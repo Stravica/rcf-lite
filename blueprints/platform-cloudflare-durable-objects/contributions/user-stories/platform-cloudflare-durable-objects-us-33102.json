@@ -16,12 +16,69 @@
       "when": "two increment(1) invocations fire concurrently and a read follows",
       "then": "the two increments resolve with counters {1, 2} in FIFO order, witnesses {0, 1}, and the final read returns 2",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33102-2",
+      "description": "N=10 concurrent increment(1) invocations against a named single-cell instance at initial counter 0 resolve to 10 {counter, witness} pairs whose counter values sorted equal [1,2,3,4,5,6,7,8,9,10] and whose witness values sorted equal [0,1,2,3,4,5,6,7,8,9]. Read after the batch returns counter 10. Per-instance FIFO holds across the whole batch: no witness or counter appears twice and no value is skipped.",
+      "given": "a SingleCellObject at counter 0 with the in-memory storage driver",
+      "when": "10 concurrent increment(1) calls fire and read() follows",
+      "then": "the 10 sorted counters equal [1..10]; the 10 sorted witnesses equal [0..9]; read returns 10",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
+    },
+    {
+      "id": "AC-33102-3",
+      "description": "Mixed positive and negative deltas: two concurrent calls increment(+1) and increment(-1) against counter 5 resolve to counters in FIFO order (either [6, 5] or [4, 5]) with witnesses [5, 6] or [5, 4] respectively; the final read returns 5. The per-instance FIFO ordering means the second caller ALWAYS observes the first caller's write as its own witness, regardless of sign.",
+      "given": "a SingleCellObject at counter 5",
+      "when": "increment(+1) and increment(-1) fire concurrently and read follows",
+      "then": "the second-caller witness equals the first-caller counter; read returns 5",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
+    },
+    {
+      "id": "AC-33102-4",
+      "description": "Zero-delta serialisation: an increment(0) against counter 3 resolves to {counter:3, witness:3}: the FIFO turn observes the current value as witness, the counter is unchanged. Concurrent increment(0) calls each observe the same witness AND the same counter, but each still occupies its own serialised turn (the FIFO promise queue advances by one per call).",
+      "given": "a SingleCellObject at counter 3",
+      "when": "two concurrent increment(0) calls fire",
+      "then": "both resolve with counter 3 and witness 3; the FIFO promise queue advances by two turns",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
+    },
+    {
+      "id": "AC-33102-5",
+      "description": "Single caller identity: one increment(1) against counter 0 resolves to {counter:1, witness:0}, identical to the FIFO-first pair from AC-33102-1. A concurrent-of-one produces the same result as a sequential-of-one; the FIFO queue does not accumulate spurious state on a single-caller path.",
+      "given": "a SingleCellObject at counter 0",
+      "when": "one increment(1) call fires alone",
+      "then": "it resolves to {counter:1, witness:0}",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
     }
   ],
   "tacIds": [
     "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

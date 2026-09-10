@@ -2,7 +2,7 @@
   "adrId": "ADR-201-application-spa-routing",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Client-side routing over the History API with a declared route inventory",
   "context": "A single-page application needs one answer to how URLs map to surfaces. Implicit or component-local routing makes deep links, canonical URLs, 404 handling, and telemetry unverifiable. The route model is a whole-project decision: two routing regimes in one deployable produce broken back-button behaviour and unshareable URLs.",

@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19107",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The applying agent reads the packaged design-guidance asset and honours its ratified surface rules",
   "asA": "agent applying the application-dashboard blueprint on a shipped surface",
@@ -11,25 +11,73 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19107-1",
-      "description": "The blueprint ships an operator-and-agent-readable design-guidance file at `assets/guidance/dashboard-design.md` covering the eight sections named in spec 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns). Each section names whether the rule hardens into an AC on this blueprint (the section names the AC id) or stays operator guidance the applying agent honours at project-side review. The file cites at least five https:// sources from the five named source families (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs).",
+      "description": "The blueprint ships an operator-and-agent-readable design-guidance file at `assets/guidance/dashboard-design.md` covering the eight sections named in spec 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns). Each section names whether the rule hardens into an AC on this blueprint (the section names the AC id) or stays operator guidance the applying agent honours at project-side review. The file cites at least five https:// sources from the five named source families (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs). Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the shipped blueprint",
       "when": "the applying agent reads assets/guidance/dashboard-design.md",
       "then": "the eight sections and the five https citations are present and each section names AC or guidance",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "template"
     },
     {
       "id": "AC-19107-2",
-      "description": "The dashboard shell's runtime shape reflects the rules the guidance hardens into ACs: the primary-KPI kind is one of the ADR-2001 enum values (asserted through `data-kpi-kind` on the primary tile; guidance section 1 hardens into AC-19102-1); the shell renders an `as of <ISO-8601>` stamp (guidance section 7 hardens into AC-19104-1); auto-refresh is off unless the elicited interval is set (guidance section 7 hardens into AC-19104-2). A shipped surface that violates any of these rules fails the corresponding pack check or project-side review.",
+      "description": "The dashboard shell's runtime shape reflects the rules the guidance hardens into ACs: the primary-kpi kind is one of the ADR-2001 enum values (asserted through `data-kpi-kind` on the primary tile; guidance section 1 hardens into AC-19102-1); the shell renders an `as of <ISO-8601>` stamp (guidance section 7 hardens into AC-19104-1); auto-refresh is off unless the elicited interval is set (guidance section 7 hardens into AC-19104-2). A shipped surface that violates any of these rules fails the corresponding pack check or project-side review. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a rendered dashboard shell",
       "when": "the shell is inspected against the guidance's hardened rules",
-      "then": "the shape honours the primary-KPI kind, the as-of stamp and the auto-refresh default",
+      "then": "the shape honours the primary-kpi kind, the as-of stamp and the auto-refresh default",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-19107-3",
+      "description": "Given the applying project's rendered dashboard, when the pack inspects the surface against every rule the packaged guidance ratifies (primary-kpi top-left placement, tile density under the guidance's cap, one-of-four state visibility, timeframe presets from the elicited set, fan-out share of the as-of stamp, export handle presence, WCAG 1.4.1 non-colour distinction on tile state), a rule violation fails the pack check naming the guidance section that ratified the rule.",
+      "given": "an applying project's rendered dashboard checked against the packaged guidance rules",
+      "when": "the pack inspects each ratified rule",
+      "then": "a violation fails naming the guidance section responsible",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-19107-4",
+      "description": "Given the design-guidance asset shipped at `assets/guidance/dashboard-design.md`, when the applying agent's pack inspects the manifest, the file is present, non-empty, and carries H2 headings for the eight sections named in spec 5.3.1; a missing file, an empty file or a file missing any of the eight sections fails the pack check.",
+      "given": "the packaged design-guidance asset",
+      "when": "the pack inspects the asset",
+      "then": "the file is present, non-empty and carries H2 headings for the eight ratified sections; a missing or short-of-sections file fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19107-5",
+      "description": "Given an applying project that ships a surface deviating from a ratified rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side review. Applying agent sets: the CALLS MADE entry text (the ratified guidance section quoted verbatim and the project's reason for deviating), the project's superseding REQ id, and the specific deviation named (for example the primary-kpi placement or the tile-density limit).",
+      "given": "an applying project surface deviating from a ratified guidance rule",
+      "when": "the review inspects the project's CALLS MADE section",
+      "then": "the deviation is documented with the guidance section quoted verbatim and the project's reason; an undocumented deviation fails review",
+      "testable": true,
+      "scope": "unclassified",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2001-application-dashboard-tile-grid"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

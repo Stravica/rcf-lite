@@ -2,7 +2,7 @@
   "tacId": "TAC-301-application-api-rest-request-pipeline",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Request pipeline",
   "purpose": "Owns the ordered middleware chain every request traverses: request-id assignment, auth-class enforcement, rate limiting, idempotency handling, body parsing with strict content-type and parameter validation, and the terminal error boundary that guarantees the problem-details envelope on every failure path.",

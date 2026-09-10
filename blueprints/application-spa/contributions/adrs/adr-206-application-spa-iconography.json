@@ -2,7 +2,7 @@
   "adrId": "ADR-206-application-spa-iconography",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "status": "accepted",
   "title": "One icon set behind semantic aliases",
   "context": "application-spa-REQ-011 requires a single icon set. Which construction (stroke width, grid) and how components reference icons needs one recorded answer inside the SPA. Watchpost run4 demonstrated that recording the discipline is not the same as compelling it: a build cycle passed while eight surfaces shipped zero icons. v1.1 pairs the decision with a runtime-observable enforcement handle so the ship gate refuses on violation, not the operator's later reading of the ADR.",

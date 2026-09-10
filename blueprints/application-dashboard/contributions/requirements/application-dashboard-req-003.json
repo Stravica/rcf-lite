@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The four-state contract is the shelf's most-repeated data-region pattern (see application-datatable REQ-005 for the same shape on the table shell); giving the dashboard tile its own explicit ACs is what stops the state contract from silently drifting between the two surfaces. The aria-live announcer is what makes a tile's state change reachable to a screen-reader user; the non-colour distinction is what makes the state legible to a colour-blind reader.",
-  "tags": ["blueprint:application-dashboard", "category:03-tile-four-state"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-dashboard",
+    "category:03-tile-four-state"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-04T22:10:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2001-application-dashboard-tile-grid",
+    "field": "responsibilities"
+  }
 }

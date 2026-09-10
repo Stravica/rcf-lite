@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "A stable record shape lets one log-side query find every error by category, one transport-side handler write the wire envelope by category, and one alerting rule filter by code. Without a shared shape, every consumer invents its own view, and the record becomes lossy at each hop.",
-  "tags": ["blueprint:application-error-handling", "category:02-record-shape"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-error-handling",
+    "category:02-record-shape"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-04T12:20:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1701-application-error-handling-boundary",
+    "field": "responsibilities"
+  }
 }

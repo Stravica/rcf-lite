@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1121",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-014",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Visible offline handling with no silent data loss",
   "asA": "user on an unreliable connection",
@@ -16,7 +16,8 @@
       "when": "the network drops",
       "then": "the offline banner renders and existing content stays usable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1121-2",
@@ -25,7 +26,8 @@
       "when": "retry is pressed after reconnect",
       "then": "the data loads and the error state clears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1121-3",
@@ -34,7 +36,8 @@
       "when": "the write cannot reach the server",
       "then": "queued-or-refused is explicit and the input is intact",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1121-4",
@@ -43,7 +46,8 @@
       "when": "replay runs",
       "then": "successes confirm, failures return to the user with data intact",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1121-5",
@@ -52,7 +56,8 @@
       "when": "the banner clears",
       "then": "visible data refreshes in the background",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1121-6",
@@ -61,7 +66,8 @@
       "when": "network failure is injected at submit",
       "then": "the entered data survives on screen or in the queue in every case",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

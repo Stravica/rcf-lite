@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1113",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-007",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Form validation timing, error summary, and accessible field binding",
   "asA": "user filling in a form",
@@ -16,7 +16,8 @@
       "when": "the user blurs with invalid content, then corrects it",
       "then": "the error appears on blur and clears as the correction is typed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-2",
@@ -25,7 +26,8 @@
       "when": "submit is pressed",
       "then": "a summary lists all three and each link focuses its field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-3",
@@ -34,7 +36,8 @@
       "when": "the summary renders",
       "then": "focus lands on the summary and it is announced",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-4",
@@ -43,7 +46,8 @@
       "when": "the accessibility tree is inspected",
       "then": "the message is associated and the state accurate through the fix",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-5",
@@ -52,7 +56,8 @@
       "when": "labels are inspected",
       "then": "required marking is visible and programmatic",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-6",
@@ -61,7 +66,8 @@
       "when": "field attributes are inspected on mobile",
       "then": "autofill offers correctly and the matching keyboard opens",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1113-7",
@@ -70,7 +76,8 @@
       "when": "submit fails",
       "then": "every entered value is still present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

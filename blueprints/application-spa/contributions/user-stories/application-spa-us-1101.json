@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1101",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Declared routes, canonical URLs, breadcrumbs, and not-found surfaces",
   "asA": "user sharing and revisiting links",
@@ -11,12 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1101-1",
-      "description": "The project maintains a declared route inventory naming every route; no navigable surface exists outside it.",
+      "description": "The project maintains a declared route inventory naming every route; no navigable surface exists outside it. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the application source tree",
       "when": "the route inventory is compared against reachable navigation targets",
       "then": "every reachable target appears in the inventory and every inventory entry is reachable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-201-application-spa-app-shell",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-1101-2",
@@ -25,7 +30,8 @@
       "when": "a non-canonical variant of that URL is visited",
       "then": "the application redirects or rewrites to the canonical shape",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1101-3",
@@ -34,7 +40,8 @@
       "when": "the route renders",
       "then": "a breadcrumb trail shows the ancestry and each crumb navigates to its level",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1101-4",
@@ -43,7 +50,12 @@
       "when": "a path outside the route inventory is visited",
       "then": "the 404 surface renders with shell navigation present, not a blank page or silent redirect",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-201-application-spa-app-shell",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-1101-5",
@@ -52,7 +64,8 @@
       "when": "its canonical URL is visited",
       "then": "the 410 surface renders naming the resource as removed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1101-6",
@@ -61,7 +74,8 @@
       "when": "the URL is opened in a fresh browser session",
       "then": "the route renders its arrival state without client-side navigation first",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

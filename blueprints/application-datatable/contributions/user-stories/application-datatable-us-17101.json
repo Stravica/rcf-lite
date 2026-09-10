@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17101",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Sort activation reorders rendered rows to match the query adapter and announces the direction",
   "asA": "operator scanning a table for a top or bottom row",
@@ -16,7 +16,8 @@
       "when": "the operator activates the sort control (mouse or keyboard)",
       "then": "the rendered row order matches the server-side sort response for the same column and direction",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17101-2",
@@ -25,20 +26,41 @@
       "when": "the operator tabs into the table header",
       "then": "each sortable column exposes a focusable sort control",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17101-3",
-      "description": "Given a sort activation on a column, the surface updates the column header's `aria-sort` attribute to `ascending` or `descending` matching the applied direction; subsequent activations flip the direction and the attribute together (ARIA APG table + grid patterns).",
+      "description": "Given a sort activation on a column, the surface updates the column header's `aria-sort` attribute to `ascending` or `descending` matching the applied direction; subsequent activations flip the direction and the attribute together (ARIA APG table + grid patterns). Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a rendered datatable with an initial `aria-sort` of `none` on every column",
       "when": "the operator activates the sort control on a column",
       "then": "the activated column's `aria-sort` reads `ascending` or `descending` matching the new direction and every other column stays at `none`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-17101-4",
+      "description": "Given the query adapter rejects the sort request (an HTTP 4xx/5xx, a network error, or a client-cancelled fetch), when the response settles, then the loading indicator clears and the announced error region replaces the pending state naming the failed operation; the rendered rows retain the last successful state until the operator retries.",
+      "given": "a pending sort request whose fetch rejects",
+      "when": "the query adapter's response settles as a failure",
+      "then": "the loading indicator clears, an announced error region reports the failed operation, and the last successful rows remain",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1802-application-datatable-query-adapter",
+        "field": "interfaces[0].name"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell",
+    "TAC-1802-application-datatable-query-adapter"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
   "updatedAt": "2026-09-04T19:45:00Z"
 }

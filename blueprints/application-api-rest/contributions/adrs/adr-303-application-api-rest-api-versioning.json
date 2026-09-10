@@ -2,7 +2,7 @@
   "adrId": "ADR-303-application-api-rest-api-versioning",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Major version in the URL path as the project's API versioning strategy",
   "context": "Versioning strategy is a whole-project decision: clients, caches, gateways, documentation, and support all key on it, and two strategies on one surface is chaos. The candidates are path versioning, header versioning, media-type versioning, and no versioning with additive-only evolution.",

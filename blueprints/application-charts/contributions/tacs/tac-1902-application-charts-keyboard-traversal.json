@@ -2,7 +2,7 @@
   "tacId": "TAC-1902-application-charts-keyboard-traversal",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Chart keyboard traversal contract",
   "purpose": "Owns the keyboard traversal contract for interactive charts: each data point receives focus in reading order, the announced string carries the series name, x-value, y-value and unit, and the traversal path composes cleanly with the shell's text-alternative table so a keyboard-only user reaches every value through either surface.",

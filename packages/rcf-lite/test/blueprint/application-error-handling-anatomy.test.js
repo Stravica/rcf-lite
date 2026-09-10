@@ -22,7 +22,7 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'application-error-handling
 test('application-error-handling: blueprint.json declares the ratified shape (TC-039-blueprint-json-fields)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-error-handling');
-  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.version, '1.0.2');
   assert.equal(doc.category, 'application');
   assert.deepEqual(doc.providesRoles, ['errorHandling']);
   assert.equal(doc.suggestedCompanions.length, 1);

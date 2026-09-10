@@ -2,7 +2,7 @@
   "reqId": "object-storage-s3-REQ-004",
   "prdId": "PRD-001",
   "title": "Multipart-upload contract above an elicited threshold",
-  "description": "For payloads above the elicited threshold (default 8 MiB per ADR-2903), the facade's put path switches transparently to multipart-upload: initiate multipart upload, part-upload each chunk with a stable part number and returned ETag, complete-multipart-upload with the ordered part list. A part-upload failure aborts the in-flight upload (AbortMultipartUpload) before propagating the error; leaving an incomplete multipart upload behind is not the shipped path. On completion the objectPut lifecycle event fires with the final total size. Multipart re-upload semantics (per the R2 doc, a re-upload to the same part number replaces the previous with loss-on-fail) is a documented gotcha named in the README; the multipart-upload probe asserts an end-to-end round-trip of at least 10 MiB.",
+  "description": "For payloads above the elicited threshold (default 8 MiB per ADR-2903), the facade's put path switches transparently to multipart-upload: initiate multipart upload, part-upload each chunk with a stable part number and returned ETag, complete-multipart-upload with the ordered part list. A part-upload failure aborts the in-flight upload (AbortMultipartUpload) before propagating the error; leaving an incomplete multipart upload behind is not the shipped path. On completion the objectPut lifecycle event fires with the final total size. Multipart re-upload semantics (per the R2 doc, a re-upload to the same part number replaces the previous with loss-on-fail) is a documented gotcha named in the README; the multipart-upload probe asserts an end-to-end round-trip of at least 10 MiB. The multipart-threshold-bytes is elicited at apply time (default 8388608, 8 MiB, per ADR-2903); at or above the threshold the facade's put path switches to multipart-upload.",
   "category": "functional",
   "domain": "object-storage",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2902-object-storage-s3-multipart-uploader",
+    "field": "responsibilities.multipart"
+  }
 }

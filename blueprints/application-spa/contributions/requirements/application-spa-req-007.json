@@ -11,8 +11,12 @@
     "blueprint:application-spa",
     "category:07-forms-validation"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-08-19T09:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-205-application-spa-forms-engine",
+    "field": "responsibilities.submit-level"
+  }
 }

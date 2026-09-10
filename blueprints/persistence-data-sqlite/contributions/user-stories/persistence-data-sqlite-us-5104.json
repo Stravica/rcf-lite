@@ -16,7 +16,8 @@
       "when": "the migration runner completes successfully",
       "then": "the bookkeeping table holds one row for each of v_k+1 through v_n in ascending order, and every domain table shape reflects the union of statements from those migrations",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5104-2",
@@ -25,7 +26,8 @@
       "when": "the migration runner attempts v_k+1 and its transaction fails",
       "then": "the bookkeeping table's highest row remains v_k, no partial DDL from v_k+1 is present, and the migration runner throws an error naming version v_k+1 and the failing description",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5104-3",
@@ -34,12 +36,27 @@
       "when": "the migration runner runs and fails on v_k+1",
       "then": "no domain-table statements from v_k+2 have been executed and the bookkeeping table holds no row for v_k+2",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-5104-4",
+      "description": "Disk full mid-migration leaves the previous version intact. Given a migration whose statements would exceed the filesystem's remaining free space (simulated by a bind-mounted tmpfs at a small quota), when the migration runner opens the transaction and executes statements, then the underlying engine surfaces a SQLITE_FULL error, the runner rolls the transaction back (leaving the bookkeeping table unchanged), the runner re-throws a named migrationDiskFull error carrying the target version, and a subsequent open at the previous version succeeds unchanged with the same row-count and checksum.",
+      "given": "a migration that would exceed the filesystem's free space (tmpfs quota probe)",
+      "when": "the migration runner executes statements",
+      "then": "engine surfaces SQLITE_FULL; runner rolls back; migrationDiskFull re-thrown naming the target version; the previous version reopens unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-602-persistence-data-sqlite-migration-runner",
+        "field": "responsibilities.applyInOrder"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-602-persistence-data-sqlite-migration-runner"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -2,7 +2,7 @@
   "reqId": "application-api-rest-REQ-002",
   "prdId": "PRD-001",
   "title": "Wire contract: JSON only, consistent casing, RFC-3339 UTC timestamps, explicit content types",
-  "description": "Every request and response body is JSON. Property casing is consistent across the whole surface (camelCase by default; a project may configure another casing but must then apply it everywhere). Timestamps are ISO-8601 in RFC-3339 form, UTC, on every temporal field. Every response carries an explicit Content-Type header; no response relies on client-side sniffing.",
+  "description": "Every request and response body is JSON. Property casing is consistent across the whole surface (camelCase by default; a project may configure another casing but must then apply it everywhere). Timestamps are ISO-8601 in RFC-3339 form, UTC, on every temporal field. Every response carries an explicit content-type header; no response relies on client-side sniffing.",
   "category": "technical",
   "domain": "wire-contract",
   "priority": "must",
@@ -11,8 +11,12 @@
     "blueprint:application-api-rest",
     "category:02-wire-contract"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-08-19T10:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-301-application-api-rest-request-pipeline",
+    "field": "purpose.content-type"
+  }
 }

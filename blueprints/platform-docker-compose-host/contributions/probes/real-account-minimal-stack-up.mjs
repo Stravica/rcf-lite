@@ -9,7 +9,7 @@
 // asserts every declared service reaches healthy inside the elicited
 // timeout, tears the stack down and destroys the server in always().
 // Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped:
-// true and the aggregate flips to pass per hetzner-round-7-spec section 3.5.
+// true and the aggregate flips to pass per the real-account gate contract, section 3.5.
 
 import { runShim, accountBoundSkippedResult } from './probe-utils.mjs';
 
@@ -26,8 +26,7 @@ export default async function runProbe() {
   // Real-account path (not run in this environment; requires a Hetzner
   // token via the fixture's provision.mjs and ssh access to the created
   // server). The full driver lives with the round-close real-account
-  // gate work item; see hetzner-round-7-spec-2026-09-07 section 3.3 and
-  // the T-2 followup w-2026-09-08-dave-001.
+  // gate work item, per the real-account gate contract, section 3.3.
   results.push({
     anchorAcId, verdict: 'warn',
     detail: 'CI_HAS_HETZNER_ACCOUNT is set but the driver is not wired in this environment; run against the throwaway server via the round-close real-account gate',

@@ -1,8 +1,8 @@
 {
   "reqId": "application-api-rest-REQ-010",
   "prdId": "PRD-001",
-  "title": "Idempotency: declared Idempotency-Key handling on non-safe verbs with server-side de-duplication",
-  "description": "Non-safe verbs (POST, and any PATCH whose double application would harm) accept an Idempotency-Key header. The project declares which verbs and resource classes require the key; for those, the server de-duplicates by key in a cache with a declared TTL, replaying the original response on repeats within the TTL and rejecting key reuse with a different request body.",
+  "title": "Idempotency: declared idempotency-key handling on non-safe verbs with server-side de-duplication",
+  "description": "Non-safe verbs (POST, and any PATCH whose double application would harm) accept an idempotency-key header. The project declares which verbs and resource classes require the key; for those, the server de-duplicates by key in a cache with a declared TTL, replaying the original response on repeats within the TTL and rejecting key reuse with a different request body.",
   "category": "functional",
   "domain": "idempotency",
   "priority": "must",
@@ -11,8 +11,12 @@
     "blueprint:application-api-rest",
     "category:10-idempotency"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-08-19T10:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-301-application-api-rest-request-pipeline",
+    "field": "responsibilities"
+  }
 }

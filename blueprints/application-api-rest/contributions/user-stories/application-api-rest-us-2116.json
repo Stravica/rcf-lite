@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2116",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-012",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "OpenTelemetry-compatible traces with declared span attributes",
   "asA": "on-call engineer following a slow request across services",
@@ -16,7 +16,8 @@
       "when": "exported spans are inspected",
       "then": "a server span exists with the method and path template name and timing that brackets the request",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2116-2",
@@ -25,7 +26,8 @@
       "when": "its span attributes are read",
       "then": "auth class, resource id, status code, and request id are present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2116-3",
@@ -34,7 +36,8 @@
       "when": "the resulting span is inspected",
       "then": "it carries the inbound trace id as its parent context",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2116-4",
@@ -43,7 +46,8 @@
       "when": "the trace is assembled",
       "then": "the downstream call appears as a child span and the dependency received the propagated context",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2116-5",
@@ -52,7 +56,8 @@
       "when": "its span is inspected",
       "then": "span status is error and the problem type is recorded as an attribute",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

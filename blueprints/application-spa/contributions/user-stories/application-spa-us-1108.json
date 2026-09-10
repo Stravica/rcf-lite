@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1108",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Buttons and text inputs with full state and semantics contracts",
   "asA": "user interacting with actions and text entry",
@@ -16,7 +16,8 @@
       "when": "each state is induced",
       "then": "each state is visually distinct and token-driven in both themes",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-2",
@@ -25,7 +26,8 @@
       "when": "it is activated",
       "then": "it enters busy state, ignores repeat activation, and exposes the state programmatically",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-3",
@@ -34,7 +36,8 @@
       "when": "it opens",
       "then": "initial focus rests on the non-destructive action",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-4",
@@ -43,7 +46,8 @@
       "when": "states are induced",
       "then": "each state is distinct, and focus is visible per application-spa-REQ-019",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-5",
@@ -52,7 +56,8 @@
       "when": "its accessible name is computed",
       "then": "the name comes from an associated label element or equivalent, not placeholder",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-6",
@@ -61,7 +66,8 @@
       "when": "the error renders",
       "then": "the message is programmatically associated and announced",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-7",
@@ -70,7 +76,8 @@
       "when": "content is entered and the control resized",
       "then": "layout holds and content scrolls within the control",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1108-8",
@@ -79,7 +86,8 @@
       "when": "traversed and inspected",
       "then": "they are skipped by Tab, announced as disabled, and remain perceivable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

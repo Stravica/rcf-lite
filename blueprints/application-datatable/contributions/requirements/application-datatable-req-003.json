@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "Filter and sort share the same query surface. Naming them together stops projects from realising two divergent request shapes that then desync on the composition case.",
-  "tags": ["blueprint:application-datatable", "category:03-filter"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:03-filter"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-04T19:45:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17108",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "URL state serialisation preserves sort, filter and page across reload and share",
   "asA": "operator sharing a specific datatable view with a colleague",
@@ -16,29 +16,79 @@
       "when": "the operator reloads the URL",
       "then": "the reloaded surface renders the same sort, filter and page",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17108-2",
-      "description": "Given the elicited client-side sort alternative (ADR-1802 elicited variant) applied to a small in-memory collection, the sort direction still writes to the URL so reload stability is preserved; the client-side branch never invents a URL state divergent from the server-side default.",
+      "description": "Given the elicited client-side sort alternative (ADR-1802 elicited variant) applied to a small in-memory collection, the sort direction still writes to the URL so reload stability is preserved; the client-side branch never invents a URL state divergent from the server-side default. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a rendered datatable applying the client-side sort alternative",
       "when": "the operator activates a sort control",
       "then": "the URL query parameters update with `sort=<column>:<direction>` in the same shape as the server-side default",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-17108-3",
-      "description": "Given a rendered datatable, the default page size on the recommended default (ADR-1803) applies when no `pageSize` is present in the URL; the operator's elicited page-size override at apply time changes the default without changing the URL contract.",
+      "description": "Given a rendered datatable, the default page size on the recommended default (ADR-1803) applies when no `pageSize` is present in the URL; the operator's elicited page-size override at apply time changes the default without changing the URL contract. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a rendered datatable landed at the shell route without a `pageSize` query parameter",
       "when": "the initial render fetches the first page",
       "then": "the fetch carries `pageSize=<applied-default>` and the URL is left untouched",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-17108-4",
+      "description": "Given the elicited session-scoped alternative (`url-state-strategy=session-scoped` per ADR-1802), when the operator applies a sort, filter and page advance, the URL does NOT change (no query parameters appear) and the state is retained in memory for the shell mount lifetime; a reload of the URL lands on the default state (no state restoration) and the shell announces the session-scoped mode in the accessible copy on first mount.",
+      "given": "an operator applying sort, filter and page under url-state-strategy=session-scoped",
+      "when": "the pack inspects URL and state after operator actions",
+      "then": "the URL carries no query parameters, the state is retained in memory for the mount lifetime, and reload lands on the default state",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1802-application-datatable-url-state",
+        "field": "decision"
+      }
+    },
+    {
+      "id": "AC-17108-5",
+      "description": "Given a URL carrying an INVALID state (a `sort=notacolumn` referencing a column that does not exist on the schema, a `page=999` past the last page, a `q=<value>` longer than the input's maxlength), when the shell loads, the shell rejects the invalid parts of the URL state, falls back to the default for each rejected part, and announces the fallback through the aria-live polite region; a shell that hard-fails on invalid URL state fails the pack check.",
+      "given": "a URL with invalid sort, page or q parameters",
+      "when": "the shell mounts and reads the URL state",
+      "then": "the shell rejects invalid parts, falls back to defaults per part, and announces the fallback; a hard failure on invalid URL state fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1802-application-datatable-query-adapter",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17108-6",
+      "description": "Given a rendered datatable, when the operator applies a new sort mid-view, the URL is updated with `history.replaceState` (not `pushState`); the browser history does NOT gain a new entry per micro-change so the operator's back button returns them to the page BEFORE the datatable, not to the previous sort state. A shell using `pushState` per micro-change fails the pack check per ADR-1802.",
+      "given": "a rendered datatable and an operator applying a new sort",
+      "when": "the pack inspects browser history after the sort",
+      "then": "the URL updated via history.replaceState and no new history entry was added; pushState per micro-change fails per ADR-1802",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1802-application-datatable-url-state",
+        "field": "decision"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell",
+    "TAC-1802-application-datatable-query-adapter"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

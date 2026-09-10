@@ -2,7 +2,7 @@
   "adrId": "ADR-307-application-api-rest-openapi-generation",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "OpenAPI generated from source at build time, defended by drift validation",
   "context": "The contract document can be authored spec-first (hand-written spec, implementation follows) or generated from the implementation. Either can work; what cannot work is a hand-maintained spec beside a moving implementation with nothing enforcing agreement.",

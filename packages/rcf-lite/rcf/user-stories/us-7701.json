@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:54.740Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-09T23:00:00.000Z",
   "usId": "US-7701",
   "prdId": "PRD-001",
   "reqId": "REQ-077",
@@ -13,9 +13,9 @@
   "acceptanceCriteria": [
     {
       "id": "AC-7701-1",
-      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_classes = [\"SingleCellObject\", \"HubObject\"]. The anatomy assertion greps the toml for each literal string and the migrations pair.",
+      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_sqlite_classes = [\"SingleCellObject\", \"HubObject\"]. The anatomy assertion greps the toml for each literal string and the migrations pair.",
       "given": "the cf-platform fixture wrangler.toml",
-      "when": "the anatomy assertion greps for the four literal strings and the migrations pair",
+      "when": "the anatomy assertion greps for the four literal strings and the migrations pair (new_sqlite_classes plus the two class names)",
       "then": "every string is present and the migrations tag \"v1\" carries the two class names",
       "testable": true,
       "scope": "runtime"

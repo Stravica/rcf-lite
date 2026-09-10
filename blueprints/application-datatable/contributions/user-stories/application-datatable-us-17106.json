@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17106",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Column visibility, reorder and resize each expose a keyboard-reachable alternative to any drag pointer path",
   "asA": "operator who cannot drag with a pointer",
@@ -16,7 +16,8 @@
       "when": "the operator activates a keyboard-reachable move control on a column",
       "then": "the header order changes to reflect the move",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17106-2",
@@ -25,7 +26,8 @@
       "when": "the operator activates a column visibility control",
       "then": "the target column's header and body cells hide or show accordingly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17106-3",
@@ -34,11 +36,62 @@
       "when": "the operator activates the keyboard resize path on a column",
       "then": "the column width changes by the declared increment without a pointer drag",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-17106-4",
+      "description": "Given a drag-only reorder or resize control (no keyboard alternative surface), the pack fails the check per REQ-006 and WCAG 2.5.7 Dragging Movements; a passing surface exposes a paired button pair (move-left / move-right, resize-up / resize-down) or a menu ordering per column reachable by Tab.",
+      "given": "a datatable whose reorder or resize is pointer-drag-only",
+      "when": "the pack inspects the keyboard-alternative surface",
+      "then": "the check fails; a passing surface exposes a paired button or menu ordering reachable by Tab",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1801-application-datatable-shell",
+        "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-17106-5",
+      "description": "Given the column visibility toggle activated to hide a column, when the pack re-renders the table, the hidden column is removed from the DOM AND from the paired header/data cell binding (no orphan `<td>` rows narrower than the visible column count); a shell that leaves orphan cells fails the pack check.",
+      "given": "a column visibility toggle activated to hide a column",
+      "when": "the pack inspects the rendered rows",
+      "then": "the column is removed from the DOM and each row's cell count matches the visible column count; orphan cells fail",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1801-application-datatable-shell",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17106-6",
+      "description": "Given a hidden column with an active sort or filter, when the operator hides the column, the sort or filter remains applied to the underlying query (the operator did not de-select the sort; hiding is presentation only) and the accessible copy near the chrome names the retained sort or filter so the operator can see why the visible rows narrowed.",
+      "given": "a hidden column that carries an active sort or filter",
+      "when": "the pack inspects the shell after hiding",
+      "then": "the sort or filter remains applied to the query and the accessible chrome names the retained state",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1802-application-datatable-query-adapter",
+        "field": "purpose"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

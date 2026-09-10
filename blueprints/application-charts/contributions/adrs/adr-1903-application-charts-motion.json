@@ -2,7 +2,7 @@
   "adrId": "ADR-1903-application-charts-motion",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Honour prefers-reduced-motion via the application-spa motion tokens on every chart transition",
   "context": "Chart libraries default to animated entry and update transitions (bars grow from zero, lines sweep left-to-right). `prefers-reduced-motion: reduce` is the WCAG 2.3.3 signal the operator's platform preferences carry; failing to honour it is a common accessibility defect on chart libraries and a hard-to-diagnose vestibular trigger.",

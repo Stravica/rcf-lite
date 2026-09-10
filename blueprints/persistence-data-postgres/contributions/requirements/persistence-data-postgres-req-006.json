@@ -2,7 +2,7 @@
   "reqId": "persistence-data-postgres-REQ-006",
   "prdId": "PRD-001",
   "title": "Connection-pool posture per deploy target: long-lived pool on Node, request-scoped isolation on container",
-  "description": "The facade opens a long-lived pg.Pool for the lifetime of the Node process on a long-lived-Node deploy target (a monolithic Node server, a container platform holding warm instances). On a request-scoped container platform (a serverless-container target that spins fresh instances per request, a Workers-adjacent target via the round-6 Hyperdrive adapter at ADR-2801), the facade opens a pool sized to the request budget and disposes it at request end, or delegates the pool to the round-6 Hyperdrive-managed connection pool without holding a Node-side long-lived pool. Pool size, idle timeout, and query timeout are elicited defaults that the operator overrides per target; the shipped defaults are pool size 10, idleTimeoutMillis 30000, connectionTimeoutMillis 5000, per the node-postgres pool defaults. The pool-posture-smoke probe drives twenty concurrent queries at pool size 5 and asserts all return with no timeout; the probe does not impose a sizing formula.",
+  "description": "The facade opens a long-lived pg.Pool for the lifetime of the Node process on a long-lived-Node deploy target (a monolithic Node server, a container platform holding warm instances). On a request-scoped container platform (a serverless-container target that spins fresh instances per request, a Workers-adjacent target via the round-6 Hyperdrive adapter at ADR-2801), the facade opens a pool sized to the request budget and disposes it at request end, or delegates the pool to the round-6 Hyperdrive-managed connection pool without holding a Node-side long-lived pool. Pool size, idle timeout, and query timeout are elicited defaults that the operator overrides per target; the shipped defaults are pool size 10, idleTimeoutMillis 30000, connectionTimeoutMillis 5000, per the node-postgres pool defaults. The pool-posture-smoke probe drives twenty concurrent queries at pool size 5 and asserts all return with no timeout; the probe does not impose a sizing formula. Runner-mode is elicited per ADR-2803: atBoot runs migrations on process boot before the facade opens (right for a long-lived Node target); ciStep runs migrations as a discrete CI step before the deploy (right for Workers-adjacent or container-scheduled targets). Pool posture reads the elicited idle-timeout-ms (default 30000 per node-postgres) and connection-timeout-ms (default 5000) at boot; a container target may set idle-timeout-ms to zero.",
   "category": "technical",
   "domain": "persistence",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2801-persistence-data-postgres-facade",
+    "field": "responsibilities.pool"
+  }
 }

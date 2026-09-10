@@ -16,7 +16,12 @@
       "when": "putObject(key, contentType='application/octet-stream', body=<1 KiB Buffer>) then getObject(key)",
       "then": "the returned body's byte length equals 1024 and the returned content-type equals application/octet-stream; the events list captured on the sink contains an objectPut record with matching key, size 1024, contentType, timestamp; no body bytes appear in any event record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28102-2",
@@ -25,7 +30,12 @@
       "when": "deleteObject(key) followed by getObject(key)",
       "then": "the getObject rejects with a not-found shape (NoSuchKey on S3/R2/MinIO); an objectDeleted event fires on the sink with matching key and timestamp",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28102-3",
@@ -34,10 +44,27 @@
       "when": "listObjects(prefix='probe/list/')",
       "then": "the returned keys include every put key with matching prefix, and the paginated envelope carries an isTruncated boolean",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-28102-4",
+      "description": "Key-shape refusal. Given a call to put, get, delete or list on the facade, when the key argument is an empty string, starts with a \"/\", contains \"..\" or \"//\", or exceeds 1024 bytes, then the facade refuses with a named error kind (invalidKey) before any client call, and no lifecycle event fires on the sink.",
+      "given": "a facade verb call with an invalid key shape",
+      "when": "the verb runs",
+      "then": "the facade refuses with error kind invalidKey; no client call is issued; no lifecycle event fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

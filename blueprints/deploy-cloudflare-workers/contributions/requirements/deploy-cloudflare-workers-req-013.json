@@ -14,5 +14,9 @@
   "version": "1.2.0",
   "status": "approved",
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "adrId": "ADR-1306-deploy-cloudflare-workers-spa-shape",
+    "field": "decision.assets"
+  }
 }

@@ -2,7 +2,7 @@
   "tacId": "TAC-305-application-api-rest-observability",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Observability: logs, metrics, and traces from one signal model",
   "purpose": "Owns the three telemetry signals as one coherent model: structured JSON logs, RED metrics with per-class and probe series, and OpenTelemetry-compatible traces, all keyed by the same request id and auth class so any signal pivots to the others.",

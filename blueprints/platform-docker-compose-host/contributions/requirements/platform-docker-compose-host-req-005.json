@@ -2,7 +2,7 @@
   "reqId": "platform-docker-compose-host-REQ-005",
   "prdId": "PRD-001",
   "title": "Zero-downtime reverse-proxy reload via bind-mounted config artefact; verb per proxy; no non-2xx or dropped connection inside the elicited window",
-  "description": "The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) is a first-class checked-in artefact. The compose runtime bind-mounts the artefact read-only into the proxy service. The reload verb is docker compose exec caddy caddy reload for Caddy, or the documented Traefik equivalent. During the elicited reload window (10 s default) a client burst against the proxy sees no non-2xx and no dropped connection.",
+  "description": "The reverse-proxy config file (caddy/Caddyfile when reverseProxy=caddy, traefik/traefik.yaml when reverseProxy=traefik) is a first-class checked-in artefact. The compose runtime bind-mounts the artefact read-only into the proxy service. The reload verb is docker compose exec caddy caddy reload for Caddy, or the documented Traefik equivalent. During the elicited reload window (10 s default) a client burst against the proxy sees no non-2xx and no dropped connection. The elicited reverse-proxy=none branch is a legal topology (used when the project is fronted only by an upstream tunnel or an off-host proxy): no reverse-proxy service or config artefact ships, and the compose lint refuses ANY proxy service block or reload verb when none is elicited. In none mode, ingress reaches the compose services directly through the elicited tunnel target and the reload window becomes a no-op. The elicited reload-window-seconds answer bounds the zero-downtime reload gate; the shipped default is 10 seconds.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T20:35:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+    "field": "responsibilities.reload"
+  }
 }

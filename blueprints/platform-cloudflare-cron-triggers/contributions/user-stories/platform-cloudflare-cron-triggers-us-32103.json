@@ -16,7 +16,8 @@
       "when": "an event is dispatched",
       "then": "a cronFired event fires with outcome onTime and no cronSkewed fires",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-32103-2",
@@ -25,10 +26,56 @@
       "when": "an event is dispatched",
       "then": "a cronSkewed event fires with the observed delta and the handler still runs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-32103-3",
+      "description": "Boundary at exactly skewToleranceMs: with skewToleranceMs=30000 and a clock advanced EXACTLY 30000ms past scheduledTime, dispatch classifies onTime (inclusive boundary) and fires cronFired with outcome:\"onTime\"; no cronSkewed record emits for that dispatch.",
+      "given": "a dispatcher with skewToleranceMs=30000 and a clock at scheduledTime + 30000ms",
+      "when": "an event is dispatched",
+      "then": "a cronFired event fires with outcome:\"onTime\" and no cronSkewed emits",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.skewClassification"
+      }
+    },
+    {
+      "id": "AC-32103-4",
+      "description": "One millisecond past skewToleranceMs: with skewToleranceMs=30000 and a clock advanced 30001ms past scheduledTime, dispatch classifies skewed and fires cronSkewed with deltaMs:30001; the routed handler still runs to completion.",
+      "given": "a dispatcher with skewToleranceMs=30000 and a clock at scheduledTime + 30001ms",
+      "when": "an event is dispatched",
+      "then": "a cronSkewed event fires with deltaMs:30001 and the handler runs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.skewClassification"
+      }
+    },
+    {
+      "id": "AC-32103-5",
+      "description": "Early fire (clock BEFORE scheduledTime): with skewToleranceMs=30000 and a clock 5000ms before scheduledTime, dispatch classifies onTime and fires cronFired with outcome:\"onTime\"; no cronSkewed record emits and no negative deltaMs ever lands on the sink (the skew signal is lateness-only).",
+      "given": "a dispatcher with skewToleranceMs=30000 and a clock at scheduledTime - 5000ms",
+      "when": "an event is dispatched",
+      "then": "a cronFired event fires with outcome:\"onTime\" and no cronSkewed emits with a negative deltaMs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+        "field": "responsibilities.skewClassification"
+      }
     }
   ],
-  "tacIds": ["TAC-3302-platform-cloudflare-cron-triggers-expression-router", "TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "tacIds": [
+    "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
+    "TAC-3303-platform-cloudflare-cron-triggers-event-sink"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

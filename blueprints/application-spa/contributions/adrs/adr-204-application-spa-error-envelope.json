@@ -2,7 +2,7 @@
   "adrId": "ADR-204-application-spa-error-envelope",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "RFC 7807 problem details as the error shape the client consumes",
   "context": "The client must render errors it can rely on structurally. The wire error shape is a whole-project decision shared with whatever serves the API; this ADR records the client half. A application-api-rest blueprint applied to the same project contributes its own decision on the same topic, and blueprint composition will surface that pairing for the operator to reconcile at add time. That surfacing is intended.",

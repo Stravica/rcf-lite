@@ -16,12 +16,55 @@
       "when": "two concurrent increments fire",
       "then": "the FIFO-first increment returns witness 0, the second returns witness 1, and read returns 2",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33109-2",
+      "description": "read() has no witness field: a SingleCellObject at counter 3 driven with read() resolves to a bare number 3, not an object; there is no witness field on a read result. The witness is a per-increment observable, tied to serialisation, and does not apply to a pure read that does not advance the FIFO queue.",
+      "given": "a SingleCellObject at counter 3",
+      "when": "read() is called",
+      "then": "the result is the primitive number 3 (no witness field, no object wrapping)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
+    },
+    {
+      "id": "AC-33109-3",
+      "description": "reset() has no witness field: a reset() call against a SingleCellObject at counter 5 resolves to the primitive number 0 (the reset value); no witness field. reset advances the FIFO turn but its return contract mirrors read, not increment.",
+      "given": "a SingleCellObject at counter 5",
+      "when": "reset() is called",
+      "then": "the result is the primitive number 0 (no witness field)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
+    },
+    {
+      "id": "AC-33109-4",
+      "description": "N=100 concurrent increments: 100 concurrent increment(1) calls at initial counter 0 resolve to 100 {counter, witness} pairs. Sorted witnesses equal [0..99] exactly (no gaps, no duplicates); sorted counters equal [1..100]. read() after the batch returns 100. The FIFO queue holds under high concurrency.",
+      "given": "a SingleCellObject at counter 0",
+      "when": "100 concurrent increment(1) calls fire and read follows",
+      "then": "sorted witnesses equal [0..99]; sorted counters equal [1..100]; read returns 100",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+        "field": "responsibilities.serialise"
+      }
     }
   ],
   "tacIds": [
     "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1125",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-018",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "CSP, sanitised dynamic HTML, hardened cookies, secret-free bundle",
   "asA": "user trusting the application with my data",
@@ -11,12 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1125-1",
-      "description": "A Content-Security-Policy is served on the application document with directives explicitly declared for at least default-src, script-src, style-src, img-src, connect-src, and frame-ancestors; no wildcard script-src.",
+      "description": "A content-security-policy is served on the application document with directives explicitly declared for at least default-src, script-src, style-src, img-src, connect-src, and frame-ancestors; no wildcard script-src.",
       "given": "the deployed application document",
       "when": "response headers are inspected",
       "then": "the CSP is present with the named directives and no wildcard script source",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1125-2",
@@ -25,7 +26,8 @@
       "when": "the paths are audited",
       "then": "each either escapes by default or routes through the sanitiser",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1125-3",
@@ -34,7 +36,8 @@
       "when": "the session cookie is inspected",
       "then": "all three attributes are present",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1125-4",
@@ -43,7 +46,8 @@
       "when": "a script fragment is entered, submitted, and re-rendered",
       "then": "the fragment displays as text with no execution",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1125-5",
@@ -52,7 +56,8 @@
       "when": "assets are scanned for secret patterns and known project secrets",
       "then": "zero findings",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1125-6",
@@ -61,7 +66,8 @@
       "when": "inspected",
       "then": "no authenticated-scope data is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

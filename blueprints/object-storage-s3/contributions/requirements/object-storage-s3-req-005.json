@@ -2,7 +2,7 @@
   "reqId": "object-storage-s3-REQ-005",
   "prdId": "PRD-001",
   "title": "Lifecycle events at four moments with metadata-only fields",
-  "description": "The facade emits four lifecycle events on the injected event sink: facadeReady (endpoint host, bucket name, timestamp), objectPut (key, size, contentType, timestamp), objectDeleted (key, timestamp), presignedIssued (key, ttl, timestamp). No event record carries object body bytes, no body checksum, no user id fields beyond what appears in the key itself, no PII drawn from the object body, and no adapter internal state. The event sink is a synchronous callback the operator wires; the facade never invokes it with domain-row values or authentication tokens. TAC-2903 realises the event-sink contract; the event-secrecy probe asserts field-level whitelist compliance against a PII fixture.",
+  "description": "The facade emits four lifecycle events on the injected event sink: facadeReady (endpoint host, bucket name, ts), objectPut (key, size, contentType, ts), objectDeleted (key, ts), presignedIssued (key, ttl, ts). No event record carries object body bytes, no body checksum, no user id fields beyond what appears in the key itself, no PII drawn from the object body, and no adapter internal state. The event sink is a synchronous callback the operator wires; the facade never invokes it with domain-row values or authentication tokens. TAC-2903 realises the event-sink contract; the event-secrecy probe asserts field-level whitelist compliance against a PII fixture.",
   "category": "functional",
   "domain": "object-storage",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2903-object-storage-s3-event-sink",
+    "field": "responsibilities.lifecycle"
+  }
 }

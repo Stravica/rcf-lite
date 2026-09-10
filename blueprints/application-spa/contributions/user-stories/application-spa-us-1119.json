@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1119",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-012",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Tokenised motion that respects reduced-motion preferences",
   "asA": "user sensitive to motion",
@@ -16,7 +16,8 @@
       "when": "animation declarations are audited",
       "then": "every duration and easing resolves to a motion token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1119-2",
@@ -25,7 +26,8 @@
       "when": "timings are measured",
       "then": "they match the declared tokens",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1119-3",
@@ -34,7 +36,8 @@
       "when": "animated components render",
       "then": "no non-essential motion plays and nothing breaks functionally",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1119-4",
@@ -43,7 +46,8 @@
       "when": "observed at rest",
       "then": "nothing animates without user initiation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1119-5",
@@ -52,7 +56,8 @@
       "when": "skeletons render",
       "then": "placeholders are static and still convey loading via their busy state",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

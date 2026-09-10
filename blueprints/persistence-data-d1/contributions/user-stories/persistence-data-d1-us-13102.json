@@ -16,7 +16,8 @@
       "when": "the migrations directory is listed and each filename's leading integer is extracted",
       "then": "the sequence of leading integers is strictly increasing with no duplicates, every file has a non-empty SQL body, and no file in the directory falls outside the wrangler-configured pattern",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13102-2",
@@ -25,7 +26,8 @@
       "when": "the `list` then `apply` then `list` sequence runs against the local database",
       "then": "the first `list` prints every migration file as unapplied, the `apply` exits zero, and the second `list` prints zero unapplied migrations",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13102-3",
@@ -34,12 +36,31 @@
       "when": "the bookkeeping table is read via `wrangler d1 execute <database> --local --command \"SELECT * FROM d1_migrations\"` (or the configured `migrations_table` name)",
       "then": "the returned row count equals the number of migration files in the directory, and the recorded identifiers match the migration filenames or their leading integers",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-13102-4",
+      "description": "Quota exhausted on D1 database write. Given the D1 database is at or above the plan's per-database size ceiling (10 GB on Paid, 500 MB on Free per the vendor page) and a migration would add rows exceeding the remaining headroom, when the deploy-gate's wrangler d1 migrations apply invocation runs, then the vendor returns a quota-exhausted error, the deploy-gate exits non-zero, no migrationsApplied fires, and the wrangler deploy step is not reached (deploy is gated per REQ-003).",
+      "given": "the D1 database is at or above the plan's size ceiling and a migration would exceed the headroom",
+      "when": "the deploy-gate runs wrangler d1 migrations apply",
+      "then": "the vendor returns quota exhausted; the deploy-gate exits non-zero; no migrationsApplied fires; wrangler deploy is not reached",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1403-persistence-data-d1-deploy-gate",
+        "field": "responsibilities.gate"
+      },
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/platform/limits/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-1402-persistence-data-d1-migration-catalog"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

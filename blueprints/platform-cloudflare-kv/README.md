@@ -80,7 +80,7 @@ under the fixture root.
 | `cache-aside-hit-then-miss.mjs` | `AC-31105-1` | no | Wraps a spy origin function with the cache-aside helper, drives one call within TTL (hit, no origin call), advances the fake clock past TTL, drives another call (miss, second origin call). |
 | `event-secrecy.mjs` | `AC-31108-1` | no | Two-layer assertion: whitelist check on every event record and PII-substring scan on the JSON serialisation. A mutation-run under `SIMULATE_PII_LEAK` flips the probe to fail. |
 | `list-with-prefix.mjs` | `AC-31104-1` | no | Puts 10 keys under `flags/` plus one decoy outside the prefix, calls `list({prefix: flags/})`, asserts all 10 return with correct metadata shape and the decoy is absent. |
-| `real-account-eventual-consistency-smoke.mjs` | `AC-31108-1` | yes | Self-provisioning: the fixture shim (`packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`) mints a scratch KV namespace under the H-2 throwaway prefix `h2-cf-probe-integrity-scratch-kv-`, writes a fixture key under the `h2-storage-smoke-` prefix, polls up to 60 seconds bounded for same-region visibility, deletes the key, and destroys the namespace on exit. Positive evidence captured: namespace id, exact scratch title, key, PUT / GET / DELETE status codes, elapsed ms. Idempotent prefix-sweep entry point (`sweepOrphans`) filters over the account by the frozen throwaway prefix and deletes each match by exact id and exact name; the sweep is structurally unable to select a non-prefixed name, paginates KV namespaces to completion (Dave ruling 4e9ff62d item 5), and is exercised by the fixture's sweep-safety test against the ten live production script names on the operator account plus a 250-per-type multi-page cover. Without `CI_HAS_CLOUDFLARE_ACCOUNT` records `accountBoundSkipped: true` and aggregates `pass` per spec section 3.5. **The local proof exercises OUR lifecycle logic against a mock of Cloudflare's contract; the real-account gate is the only surface that proves the wire format.** |
+| `real-account-eventual-consistency-smoke.mjs` | `AC-31108-1` | yes | Self-provisioning: the fixture shim (`packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`) mints a scratch KV namespace under the throwaway prefix `h2-cf-probe-integrity-scratch-kv-`, writes a fixture key under the `h2-storage-smoke-` prefix, polls up to 60 seconds bounded for same-region visibility, deletes the key, and destroys the namespace on exit. Positive evidence captured: namespace id, exact scratch title, key, PUT / GET / DELETE status codes, elapsed ms. Idempotent prefix-sweep entry point (`sweepOrphans`) filters over the account by the frozen throwaway prefix and deletes each match by exact id and exact name; the sweep is structurally unable to select a non-prefixed name, paginates KV namespaces to completion, and is exercised by the fixture's sweep-safety test against the ten live production script names on the operator account plus a 250-per-type multi-page cover. Without `CI_HAS_CLOUDFLARE_ACCOUNT` records `accountBoundSkipped: true` and aggregates `pass` per spec section 3.5. **The local proof exercises OUR lifecycle logic against a mock of Cloudflare's contract; the real-account gate is the only surface that proves the wire format.** |
 
 ## How to run the probes
 
@@ -105,9 +105,9 @@ Induced-failure switches:
 
 The real-account smoke needs `CI_HAS_CLOUDFLARE_ACCOUNT=true` plus
 the paired `CF_ACCOUNT_ID` and `CF_API_TOKEN` env vars. The fixture
-mints its own throwaway KV namespace under the H-2 prefix; no
+mints its own throwaway KV namespace under the throwaway prefix; no
 pre-provisioned namespace is required (the earlier `CF_KV_NAMESPACE_ID`
-gate is removed as of v1.1.0 per w-2026-09-08-dave-017). A test
+gate is removed as of v1.1.0). A test
 override `CF_API_BASE_URL` points the shim at a local mock CF REST
 API for local proof; the mock and its test lives under
 `packages/rcf-lite/test/fixtures/cf-platform/test/`.
@@ -130,8 +130,7 @@ API for local proof; the mock and its test lives under
   the pattern; a loader-capability uplift extending
   `validateElicits` to accept an `elicitedNonEmpty` predicate is
   captured as follow-up work item
-  `w-2026-09-08-h3-loader-elicit-when-predicates` (0.26.x capability
-  change, out of H-2's 0.25.x patch scope per Dave ruling 1).
+  a follow-up capability change (0.26.x) is out of scope for this 0.25.x patch.
 
 ## Companion suggestions
 
@@ -181,7 +180,6 @@ namespace. The blueprint contribution IDs are namespaced
 `platform-cloudflare-kv-US-31101..31108` per the shelf-wide
 id-band registry. The prior chain-slice pointer
 paragraph cited a defunct earlier id band that never became chain
-rows on this repo; that citation was removed in the H-2
-(h2-cf-platform-probe-integrity) train per Dave ruling 4
+rows on this repo; that citation was removed in the probe-integrity pass
 (2026-09-08 relay 582c2bca): the earlier band was not resurrected
 and every kv probe result now cites the shipped `AC-31xxx` band.
