@@ -119,7 +119,7 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'forbidden region [data-surface="forbidden"] not found' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'forbidden region missing [data-action="request-access"] control' };
-        // F-5 positive-marker gate: fixture seeds a known secret in the request context; the surface must render the safe-response marker plus a request-id, and the pack asserts absence of the leaked secret alongside the positive marker.
+        // positive-marker gate: fixture seeds a known secret in the request context; the surface must render the safe-response marker plus a request-id, and the pack asserts absence of the leaked secret alongside the positive marker.
         const positive = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="forbidden"]');
           const safe = region.querySelector('[data-safe-response]');
@@ -154,7 +154,7 @@ export default {
         });
         if (!dom.present) return { verdict: 'fail', detail: 'server-error region [data-surface="server-error"] not found' };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'server-error region missing [data-recovery="retry"] control' };
-        // F-6 positive-marker gate: fixture seeds a known safe-error body; the surface must render the safe-error marker plus a correlation id, and the pack asserts absence of a stack trace alongside the positive marker.
+        // positive-marker gate: fixture seeds a known safe-error body; the surface must render the safe-error marker plus a correlation id, and the pack asserts absence of a stack trace alongside the positive marker.
         const positive = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="server-error"]');
           const safe = region.querySelector('[data-safe-error]');
@@ -193,7 +193,7 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'permission-denied region [data-surface="permission-denied"] not found' };
         if (!dom.causeText) return { verdict: 'fail', detail: 'permission-denied region missing [data-cause] class-level cause' };
         if (!dom.hasControl) return { verdict: 'fail', detail: 'permission-denied region missing [data-action="request-access"] control' };
-        // F-7 positive-marker gate: fixture seeds an exact cause-class token; the surface must expose it on [data-cause-class] with a request id, and the pack asserts absence of any resource-id shape alongside the positive marker.
+        // positive-marker gate: fixture seeds an exact cause-class token; the surface must expose it on [data-cause-class] with a request id, and the pack asserts absence of any resource-id shape alongside the positive marker.
         const positive = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="permission-denied"]');
           const cls = region.querySelector('[data-cause-class]');
@@ -312,7 +312,7 @@ export default {
         if (!dom.present) return { verdict: 'fail', detail: 'error-boundary region [data-surface="error-boundary"] not found' };
         if (dom.role !== 'alert') return { verdict: 'fail', detail: `error-boundary region role expected "alert", got ${JSON.stringify(dom.role)}` };
         if (!dom.hasRetry) return { verdict: 'fail', detail: 'error-boundary region missing [data-recovery="retry"] control' };
-        // F-8 positive-marker gate: the boundary must expose a safe error-class token and a correlation id; the pack asserts absence of stack detail alongside the positive markers.
+        // positive-marker gate: the boundary must expose a safe error-class token and a correlation id; the pack asserts absence of stack detail alongside the positive markers.
         const positive = await browser.evaluate(() => {
           const region = document.querySelector('[data-surface="error-boundary"]');
           const cls = region.querySelector('[data-error-class]');

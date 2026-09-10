@@ -71,7 +71,7 @@ test('blueprint.json declares 27 contributions with requiresAppliedCapabilities 
   }
 });
 
-test('applies cleanly on a magic-link project with 26 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
+test('applies cleanly on a magic-link project with 27 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-magic-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 26 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.1.0');
+  assert.equal(sidecar.version, '1.2.0');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {

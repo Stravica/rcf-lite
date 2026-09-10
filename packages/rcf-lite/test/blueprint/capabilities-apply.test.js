@@ -75,7 +75,7 @@ test('apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-a
   const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.3.0');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   assert.match(doc.notes, /no auth yet/i);

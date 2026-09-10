@@ -1,21 +1,21 @@
 # application-file-upload CHANGELOG
 
-## 1.2.0 (2026-09-10, hardening pass f-wave5)
+## 1.2.0 (2026-09-10)
 
 ### Added
 
-- Six elicits (accepted-set, size-cap, tick-interval, concurrency, polling, chunked-transport) declared on blueprint.json; REQ-006 binds one runtime clause per apply-time answer family; closes F-2.
-- virusScan declared on blueprint.json.capabilities and REQ-007 binds the input TAC's refusal path to the applied verifier; closes F-3.
-- Vendor citations on AC-23104-1, AC-23104-3, AC-23104-4 (tus.io PATCH); AC-23104-4 names the response header (not body); closes F-9..F-11.
+- Six elicits (`accepted-set`, `size-cap`, `tick-interval`, `concurrency`, `polling`, `chunked-transport`) declared on blueprint.json; REQ-006 binds one runtime clause per apply-time answer family.
+- `virusScan` declared on `blueprint.json.capabilities` and REQ-007 binds the input TAC's refusal path to the applied verifier.
+- Vendor citations on AC-23104-1, AC-23104-3 and AC-23104-4 (tus.io PATCH); AC-23104-4 names the response header (not body).
 
 ### Changed
 
-- REQ-002 drops the "at least every 10 percent" clause, keeps the 2-second announcement cap owned by TAC-2403.interfaces.announcementInterval (user-observable) and names TAC-2403.interfaces.tickInterval (250 ms, internal only, not user-observable); ADR-2402 references both via ownerRef; closes F-1.
-- REQ-002.deliveredBy retargeted to TAC-2403.interfaces.tick; closes F-4.
-- REQ-003.deliveredBy retargeted to TAC-2401.interfaces.renderRefusal; closes F-5.
-- REQ-004.deliveredBy retargeted to TAC-2402.interfaces.uploadFile; closes F-6.
-- TAC-2402.interfaces.removeFile declared with DELETE failure semantics; REQ-005 targets it; closes F-7.
-- Probe check AC-23103-1 reworked to positively assert a per-file [data-refusal-receipt] keyed by file id; fixture updated to emit the marker with data-file-id; closes F-8.
+- REQ-002 drops the "at least every 10 percent" clause and keeps the 2-second announcement cap owned by `TAC-2403.interfaces.announcementInterval` (user-observable); names `TAC-2403.interfaces.tickInterval` (250 ms internal poll, not user-observable); ADR-2402 references both via ownerRef.
+- REQ-002.deliveredBy retargeted to `TAC-2403.interfaces.tick`.
+- REQ-003.deliveredBy retargeted to `TAC-2401.interfaces.renderRefusal`.
+- REQ-004.deliveredBy retargeted to `TAC-2402.interfaces.uploadFile`.
+- `TAC-2402.interfaces.removeFile` declared with DELETE failure semantics; REQ-005 targets it.
+- Probe check AC-23103-1 reworked to positively assert a per-file `[data-refusal-receipt]` keyed by file id; fixture updated to emit the marker alongside `data-file-id`.
 
 ## 1.1.0 (2026-09-10, hardening pass B6b)
 

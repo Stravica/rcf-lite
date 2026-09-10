@@ -1,15 +1,15 @@
 # application-onboarding-tour CHANGELOG
 
-## 1.0.1 (2026-09-10, hardening pass f-wave5)
+## 1.0.1 (2026-09-10)
 
 ### Changed
 
-- AC-26109-1 requires <details open> per ADR-2703 and references the ADR via ownerRef; closes F-1.
-- ADR-2702 refusal-only decision: server-side-per-principal without an applied persistence blueprint refuses with COMPLETION_STORE_MISSING_PROVIDER and never falls back; TAC-2703 aligned; closes F-2.
-- AC-26108-4 references TAC-2703.interfaces.completionStore via ownerRef; drops the principalId/tourVersion/dismissedAt restatement; closes F-3.
-- AC-26104-2 names server-side-per-principal inline and its refusal COMPLETION_STORE_MISSING_PROVIDER; closes F-4.
-- REQ-002.deliveredBy retargeted to TAC-2701.interfaces.renderTourRunner; closes F-5.
-- Vendor citations on AC-26101-1 (WCAG keyboard), AC-26102-1 (ARIA APG dialog-modal); AC-26102-2 URL naming tidied; closes F-6..F-8.
+- AC-26109-1 requires `<details open>` per ADR-2703 and references the ADR via ownerRef.
+- ADR-2702 refusal-only decision: `server-side-per-principal` without an applied persistence blueprint refuses with `COMPLETION_STORE_MISSING_PROVIDER` and never falls back; TAC-2703 aligned.
+- AC-26108-4 references `TAC-2703.interfaces.completionStore` via ownerRef; drops the principalId/tourVersion/dismissedAt restatement.
+- AC-26104-2 names `server-side-per-principal` inline and its refusal `COMPLETION_STORE_MISSING_PROVIDER`.
+- REQ-002.deliveredBy retargeted to `TAC-2701.interfaces.renderTourRunner`.
+- Vendor citations on AC-26101-1 (WCAG keyboard) and AC-26102-1 (ARIA APG dialog-modal); AC-26102-2 URL naming tidied.
 
 ## 1.1.0 (2026-09-10, hardening pass B6b)
 

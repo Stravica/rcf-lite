@@ -1,18 +1,18 @@
 # application-account-settings CHANGELOG
 
-## 1.2.0 (2026-09-10, hardening pass f-wave5)
+## 1.2.0 (2026-09-10)
 
 ### Added
 
-- REQ-009 (custom-auth-provides-* runtime clauses) covering the four boolean elicits with a per-token clause on the applied capability union; closes F-3.
-- Vendor citations on AC-25101-1 (APG tabs), AC-25102-3 (WCAG 1.3.5), AC-25105-2 (APG dialog), AC-25108-2 (APG radio); closes F-7..F-10.
+- REQ-009: custom-auth-provides-* runtime clauses covering the four boolean elicits with a per-token clause on the applied capability union.
+- Vendor citations on AC-25101-1 (APG tabs), AC-25102-3 (WCAG 1.3.5), AC-25105-2 (APG dialog) and AC-25108-2 (APG radio).
 
 ### Changed
 
-- ADR-2604.decision references blueprint.json.elicits[id=reauth-window].options (never|5|15|60) via ownerRef; closes F-1.
-- TAC-2604.tradeoffs references the manifest's reauth-window default (15) via ownerRef; sessionRecord shape references TAC-1003 owner (session verifier) via ownerRef; closes F-2 and F-6.
-- REQ-003.deliveredBy retargeted to TAC-2603.interfaces.renderSecuritySurface; closes F-4.
-- REQ-006.deliveredBy retargeted to TAC-2601.responsibilities.renderThemeSurface (new responsibility carrying the theme-persistence clauses); closes F-5.
+- ADR-2604.decision references `blueprint.json.elicits[id=reauth-window].options` (never|5|15|60) via ownerRef.
+- TAC-2604.tradeoffs references the manifest's `reauth-window` default (`15`) via ownerRef; `sessionRecord` shape references the session-verifier owner (`TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory`) via ownerRef.
+- REQ-003.deliveredBy retargeted to `TAC-2603.interfaces.renderSecuritySurface`.
+- REQ-006.deliveredBy retargeted to `TAC-2601.responsibilities.renderThemeSurface` (new responsibility carrying the theme-persistence clauses).
 
 ## 1.1.0 (2026-09-10, hardening pass B6b)
 

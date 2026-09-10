@@ -178,7 +178,7 @@ export default {
         if (dom.sentRefused) {
           return { verdict: 'fail', detail: `refused filename ${JSON.stringify(dom.refusedFilename)} appears in the upload request log` };
         }
-        // F-8 positive refusal-receipt: assert the row exposes a per-file [data-refusal-receipt] keyed by file id.
+        // positive refusal-receipt: assert the row exposes a per-file [data-refusal-receipt] keyed by file id.
                 const receipt = await browser.evaluate(() => {
                   const row = document.querySelector('[data-file-row][data-refused="true"]');
                   const rec = row ? row.querySelector('[data-refusal-receipt]') : null;
