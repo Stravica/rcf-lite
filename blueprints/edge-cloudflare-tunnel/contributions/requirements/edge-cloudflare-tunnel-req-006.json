@@ -1,0 +1,22 @@
+{
+  "reqId": "edge-cloudflare-tunnel-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Zone resolution and AUD-mandatory-when-gated: elicited cloudflare-zone-secret resolves via the vault seam; access-aud is mandatory whenever zeroTrustGate is applied",
+  "description": "At apply time the elicited cloudflare-zone-secret (a security-secrets-management reference) is resolved via the applied vault seam. The plaintext zone id never lands on disk in the applying tree; only a secretRef reaches the manifest and the applied sidecar. An unresolved reference refuses apply with code apply.zone-unresolved. A Cloudflare API 4xx on the tunnel-route call for the resolved zone refuses apply with code apply.zone-unauthorised. Additionally, when zeroTrustGate is present on appliedCapabilities, the elicited access-aud MUST be non-blank; apply refuses with code apply.tunnel-aud-missing otherwise (never a silent public-hostname fallback under an applied gate).",
+  "category": "security",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Closes the review P0 F-1 (elicit collected and ignored) and specimen F-3 (access-aud silent-degrade precedence). Aligns the zone-secret elicit with security-secrets-management discipline; ties the AUD-mandatory reading of REQ-004 to a machine-observable apply refusal.",
+  "tags": [
+    "blueprint:edge-cloudflare-tunnel",
+    "capability:tunnelBridge"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
+    "field": "responsibilities.zoneResolve"
+  }
+}

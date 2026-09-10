@@ -1,0 +1,88 @@
+{
+  "usId": "security-auth-oauth2-US-10114",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-013",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A signed-in oauth2 caller lists their project sessions, revokes one, and revokes all others",
+  "asA": "operator signed in through an OAuth2 provider on two browsers",
+  "iWant": "to list every active project session, terminate any one of them, and terminate every one except the current in a single call",
+  "soThat": "I end a stolen or forgotten session without touching the provider's admin surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10114-1",
+      "description": "A `list()` call from an authenticated caller returns one row per active project session, each row shaped per `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow`.",
+      "given": "a caller with two active project sessions S1 (current) and S2, both issued through provider `google`",
+      "when": "the current browser calls `sessionInventory.list()`",
+      "then": "the return is exactly two rows shaped per the ownerRef interface, one with `currentSession=true` for S1 and one with `currentSession=false` for S2",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-10114-2",
+      "description": "`revoke(sessionId)` on a non-current session invalidates it in the session-record store; a replay from the revoked browser is treated as unauthenticated.",
+      "given": "the two-session setup from AC-10114-1",
+      "when": "the current browser calls `sessionInventory.revoke(\"S2\")` and browser B replays its next request",
+      "then": "the revoke returns successfully; the session-record store no longer holds a record for S2; browser B is refused as unauthenticated on the next request; the audit sink records exactly one `oauth2.session_inventory_revoked` event with `{ operation, sessionIdPrefix, at }` and no other cookie- or token-carrying field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-10114-3",
+      "description": "`revokeAllExceptCurrent()` invalidates every active project session for the caller other than the current one; the refresh-token chain for each revoked session is cleared alongside per REQ-007.",
+      "given": "a caller with sessions S1 (current), S2, S3 and stored refresh-token chains for each",
+      "when": "the current browser calls `sessionInventory.revokeAllExceptCurrent()`",
+      "then": "the return value is `2`; a subsequent `list()` returns exactly one row for S1; the refresh-token store no longer holds chains for S2 or S3",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-10114-4",
+      "description": "An unauthenticated call to any `sessionInventory` operation refuses with `SESSION_INVENTORY_UNAUTHENTICATED` and no side effect.",
+      "given": "a request with no verified session cookie",
+      "when": "any of the three operations is invoked",
+      "then": "each call throws `SESSION_INVENTORY_UNAUTHENTICATED`; the session-record store is unchanged; the audit sink records exactly one `oauth2.session_inventory_unauthenticated` event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-10114-5",
+      "description": "`revoke(sessionId)` against a session id the caller does not own, or a session already invalidated, refuses without a side effect.",
+      "given": "an authenticated caller and a `sessionId` naming a session belonging to a different principal or already invalidated",
+      "when": "the caller calls `sessionInventory.revoke(sessionId)`",
+      "then": "the call throws `SESSION_INVENTORY_UNKNOWN_SESSION`; the session-record store is unchanged; the audit sink records exactly one `oauth2.session_inventory_unknown_session` event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

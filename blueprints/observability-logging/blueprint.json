@@ -1,40 +1,48 @@
 {
   "slug": "observability-logging",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "category": "observability",
   "providesRoles": [
     "logging"
   ],
   "capabilities": [
-    "auditLog",
-    "sessionInventory"
+    "auditLog"
+  ],
+  "elicits": [
+    {
+      "id": "correlation-header-name",
+      "prompt": "Inbound correlation header name accepted and reflected on outbound requests (per ADR-1602; recommended default X-Correlation-Id, elicited alternative per project).",
+      "kind": "string",
+      "default": "X-Correlation-Id"
+    },
+    {
+      "id": "minimum-log-level",
+      "prompt": "Minimum log level per environment (per ADR-1604 vocabulary trace / debug / info / warn / error / fatal; the factory refuses emissions below this level).",
+      "kind": "enum",
+      "options": [
+        "trace",
+        "debug",
+        "info",
+        "warn",
+        "error",
+        "fatal"
+      ],
+      "default": "info"
+    },
+    {
+      "id": "redaction-categories-additions",
+      "prompt": "Additional PII redaction categories on top of the recommended defaults (credential, pii.email, pii.name, pii.address, token, bearer per ADR-1603). Kebab-cased or dotted-namespace names; comma-separated list, blank when none.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "boot-identity-fields",
+      "prompt": "Boot identity: JSON object with environment, serviceName and serviceVersion string values the factory carries on every emitted line (REQ-005). All three refuse construction when blank.",
+      "kind": "string",
+      "default": "{\"environment\":\"\",\"serviceName\":\"\",\"serviceVersion\":\"\"}"
+    }
   ],
   "contributions": [
-    {
-      "id": "observability-logging-REQ-001",
-      "kind": "req",
-      "path": "requirements/observability-logging-req-001.json"
-    },
-    {
-      "id": "observability-logging-REQ-002",
-      "kind": "req",
-      "path": "requirements/observability-logging-req-002.json"
-    },
-    {
-      "id": "observability-logging-REQ-003",
-      "kind": "req",
-      "path": "requirements/observability-logging-req-003.json"
-    },
-    {
-      "id": "observability-logging-REQ-004",
-      "kind": "req",
-      "path": "requirements/observability-logging-req-004.json"
-    },
-    {
-      "id": "observability-logging-REQ-005",
-      "kind": "req",
-      "path": "requirements/observability-logging-req-005.json"
-    },
     {
       "id": "observability-logging-US-15101",
       "kind": "us",
@@ -76,6 +84,11 @@
       "path": "user-stories/observability-logging-us-15108.json"
     },
     {
+      "id": "observability-logging-US-15109",
+      "kind": "us",
+      "path": "user-stories/observability-logging-us-15109.json"
+    },
+    {
       "id": "TAC-1601-observability-logging-logger-factory",
       "kind": "tac",
       "path": "tacs/tac-1601-observability-logging-logger-factory.json"
@@ -115,6 +128,41 @@
       "recommendedDefault": true,
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "ADR-1605-observability-logging-serialisation-refusal",
+      "kind": "adr",
+      "path": "adrs/adr-1605-observability-logging-serialisation-refusal.json"
+    },
+    {
+      "id": "observability-logging-REQ-001",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-001.json"
+    },
+    {
+      "id": "observability-logging-REQ-002",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-002.json"
+    },
+    {
+      "id": "observability-logging-REQ-003",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-003.json"
+    },
+    {
+      "id": "observability-logging-REQ-004",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-004.json"
+    },
+    {
+      "id": "observability-logging-REQ-005",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-005.json"
+    },
+    {
+      "id": "observability-logging-REQ-006",
+      "kind": "req",
+      "path": "requirements/observability-logging-req-006.json"
     }
   ]
 }

@@ -1,0 +1,88 @@
+{
+  "usId": "platform-cloudflare-kv-US-31110",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The elicited key naming convention flows through every facade verb: prefixed applies the keyPrefix, flat passes keys through untouched",
+  "asA": "developer applying platform-cloudflare-kv against a project with either per-domain prefixed keys or a flat key space",
+  "iWant": "the facade to honour the elicited kv-key-naming-convention answer transparently on every put/get/delete/list call",
+  "soThat": "domain code writes prefix-free keys under prefixed mode and stays unchanged under flat mode; storage-side keys carry the prefix only under prefixed mode",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31110-1",
+      "description": "With kv-key-naming-convention=prefixed and elicited keyPrefix=\"users/\", a facade.put(\"42\", value) writes to storage-side key \"users/42\"; a facade.get(\"42\") reads the same storage-side key and returns the value; a facade.list({prefix: \"\"}) returns entries with storage-side keys prefixed by \"users/\" and the returned records expose the storage-side keys verbatim so domain code sees the full applied namespace.",
+      "given": "a facade wired against an in-memory KV driver with elicited kv-key-naming-convention=prefixed and keyPrefix=\"users/\"",
+      "when": "facade.put, facade.get and facade.list are called with prefix-free domain keys",
+      "then": "storage-side keys carry the \"users/\" prefix and reads round-trip",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.keyPrefix"
+      }
+    },
+    {
+      "id": "AC-31110-2",
+      "description": "With kv-key-naming-convention=flat, the facade passes keys through untouched: a facade.put(\"users/42\", value) writes to storage-side key \"users/42\" (identical to the input); a facade.get(\"users/42\") reads it back; the facade does NOT apply any additional prefix.",
+      "given": "a facade wired against an in-memory KV driver with elicited kv-key-naming-convention=flat",
+      "when": "facade.put and facade.get are called with the exact intended storage-side keys",
+      "then": "storage-side keys equal the input keys verbatim",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.keyPrefix"
+      }
+    },
+    {
+      "id": "AC-31110-3",
+      "description": "Unknown mode refuses: createKvFacade({binding, sink, kvKeyNamingConvention:\"banana\", keyPrefix:\"users/\"}) throws a named error kind KV_INVALID_KEY_NAMING naming the offered value \"banana\"; the accepted values (\"prefixed\" and \"flat\") are listed in the message. No facade is returned.",
+      "given": "a createKvFacade call with an unrecognised kvKeyNamingConvention",
+      "when": "the factory is invoked",
+      "then": "the factory throws KV_INVALID_KEY_NAMING naming the value and listing accepted options",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.keyPrefix"
+      }
+    },
+    {
+      "id": "AC-31110-4",
+      "description": "Prefixed with empty prefix behaves as flat: createKvFacade({binding, sink, kvKeyNamingConvention:\"prefixed\", keyPrefix:\"\"}) treats keys as flat: facade.put(\"k\", v) writes to storage-side key \"k\" (no prefix); facade.get(\"k\") reads the same. The empty keyPrefix short-circuits the prepend.",
+      "given": "a facade in prefixed mode with an empty keyPrefix",
+      "when": "facade.put(\"k\", v) and facade.get(\"k\") run",
+      "then": "storage-side key equals \"k\" with no prepend",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.keyPrefix"
+      }
+    },
+    {
+      "id": "AC-31110-5",
+      "description": "Nested prefix: with kvKeyNamingConvention=\"prefixed\" and keyPrefix=\"a/b/\", facade.put(\"42\", v) writes to storage-side key \"a/b/42\"; facade.get(\"42\") reads the same; facade.list({prefix:\"\"}) returns entries whose names begin with \"a/b/\".",
+      "given": "a facade in prefixed mode with keyPrefix \"a/b/\"",
+      "when": "facade.put(\"42\", v), facade.get(\"42\") and facade.list({prefix:\"\"}) run",
+      "then": "storage-side key is \"a/b/42\"; the list result carries entries prefixed with \"a/b/\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+        "field": "responsibilities.keyPrefix"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-3201-platform-cloudflare-kv-facade"
+  ],
+  "createdAt": "2026-09-09T20:25:00.000Z",
+  "updatedAt": "2026-09-09T22:00:00.000Z"
+}

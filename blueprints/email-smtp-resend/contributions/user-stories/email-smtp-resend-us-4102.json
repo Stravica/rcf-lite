@@ -16,7 +16,8 @@
       "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
       "then": "the returned object matches the shape with `ok === false`, `providerMessageId === null`, `providerStatus` a positive integer, and `error` starting with `RESEND_SENDER_UNVERIFIED`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4102-2",
@@ -25,12 +26,27 @@
       "when": "the magic-link route calls `adapter.send({ to: distinctiveRecipient, subject: distinctiveSubject, textBody: distinctiveBody, htmlBody })` and the call resolves",
       "then": "the returned `error` string, every line the adapter emitted during the call, and every exception message caught contain none of the distinctive recipient, subject, or body substrings",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-4102-3",
+      "description": "The unverified-sender refusal maps to RESEND_SENDER_UNVERIFIED and does not surface the recipient identity: a probe of the returned error record shows only the stable code, the (redacted) provider response code and the sender placeholder reference; the recipient email is not on the error record even at debug level.",
+      "given": "a send with an unverified sender configured and a recipient \"recipient@example.test\" and a caller reading the error record",
+      "when": "the send() rejects",
+      "then": "the error carries code=RESEND_SENDER_UNVERIFIED and no field or nested field contains the string \"recipient@example.test\"; the sender placeholder reference name is present but the recipient email is not",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "responsibilities[5]"
+      }
     }
   ],
   "tacIds": [
     "TAC-401-email-smtp-resend-send-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

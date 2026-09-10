@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3504-edge-cloudflare-access-audit-sink",
+    "field": "responsibilities.metadataOnlyRecord"
+  }
 }

@@ -1,7 +1,68 @@
 {
   "slug": "delivery-ci-workflows",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "category": "delivery",
+  "elicits": [
+    {
+      "id": "branch-model",
+      "prompt": "Branch model of the project (per ADR-706). feature: pull-request-checks + default-branch-checks. trunk: trunk-first with an optional pull-request-checks sub-shape.",
+      "kind": "enum",
+      "options": [
+        "feature",
+        "trunk"
+      ],
+      "default": "feature"
+    },
+    {
+      "id": "check-set",
+      "prompt": "Enabled elicited check kinds (per REQs 016-020, ADR-701). JSON object of booleans keyed by check kind: linter, formatter, typecheck, unitTest, securityScan.",
+      "kind": "string",
+      "default": "{\"linter\":true,\"formatter\":true,\"typecheck\":true,\"unitTest\":true,\"securityScan\":true}"
+    },
+    {
+      "id": "release-mode",
+      "prompt": "Release workflow mode (per ADR-707). none: no release workflow. tagOnly: tag write only. tagPlusArtefact: tag write plus artefact publication. deployHandoff: invokes the named deploy blueprint's promote workflow.",
+      "kind": "enum",
+      "options": [
+        "none",
+        "tagOnly",
+        "tagPlusArtefact",
+        "deployHandoff"
+      ],
+      "default": "none"
+    },
+    {
+      "id": "scheduled-audit",
+      "prompt": "Scheduled-audit workflow enabled per ADR-710 (cron-triggered required check set on cadence).",
+      "kind": "enum",
+      "options": [
+        "off",
+        "on"
+      ],
+      "default": "off"
+    },
+    {
+      "id": "provider-hint",
+      "prompt": "Provider whose illustrative asset set the blueprint ships per ADR-708 (v2.0.0 ships GHA only; alternate providers wire the same Node entry points).",
+      "kind": "enum",
+      "options": [
+        "githubActions"
+      ],
+      "default": "githubActions"
+    },
+    {
+      "id": "report-dir",
+      "prompt": "Report directory the gate runner writes per-gate and aggregate reports into (per ADR-704). Relative or absolute path; recommended default .rcf/reports.",
+      "kind": "string",
+      "default": ".rcf/reports"
+    },
+    {
+      "id": "deploy-handoff-target",
+      "prompt": "Slug of the deploy blueprint the deployHandoff release-mode invokes (per REQ-022). Required when release-mode is deployHandoff; refused at boot otherwise.",
+      "kind": "string",
+      "default": ""
+    }
+  ],
   "contributions": [
     {
       "id": "delivery-ci-workflows-REQ-001",

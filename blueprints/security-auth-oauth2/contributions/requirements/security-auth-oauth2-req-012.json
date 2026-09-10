@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-oauth2-REQ-012",
+  "prdId": "PRD-001",
+  "title": "Password change, reset, recovery and account management are delegated to the provider's self-service surface",
+  "description": "The blueprint contributes the `credentialSelfService` capability by resolving and exposing the provider record's `accountUrl` field (a URL the provider documents for account, password and recovery self-service; for example Google's https://myaccount.google.com, GitHub's https://github.com/settings/security). The provider adapter verifies at boot that every enabled provider record carries `accountUrl` as an absolute https URL under the provider's documented origin (or an explicit `null` when the provider offers no self-service surface); a provider that declares `credentialSelfService` support without an `accountUrl` is refused with `OAUTH2_ACCOUNT_URL_MISSING`. The project exposes `getCredentialSelfServiceUrl(principal)` that returns the resolved URL for the principal's provider; a project page linking to self-service reads that helper rather than hard-coding a URL. No project route renders a credential-change form of its own.",
+  "category": "functional",
+  "domain": "authentication",
+  "priority": "must",
+  "rationale": "A capability declaration for `credentialSelfService` on an OAuth2/OIDC blueprint whose sign-in is already delegated makes little sense unless the account-management surface is also delegated by contract; naming the `accountUrl` field and the boot-time verification is what turns the capability into a bind-able surface.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:12-credential-self-service"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
+    "field": "responsibilities.accountUrl"
+  }
+}

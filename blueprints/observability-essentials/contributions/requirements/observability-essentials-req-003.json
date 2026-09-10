@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The readiness dependency set is declared in configuration and every declared dependency is named in the probe response",
   "description": "The set of dependencies whose health contributes to the readiness answer is declared at boot from application configuration. Each declared dependency has a stable string name that appears in the readiness probe's structured response body under a checks field, alongside its individual pass/fail state and the timestamp of the last check evaluation. Dependencies not declared in the readiness set never appear in the probe response, never affect readiness, and are surfaced to operators only through the status page or the notification outcome record.",
+  "deliveredBy": {
+    "tacId": "TAC-802-observability-essentials-readiness-probe",
+    "field": "interfaces.dependencyRegistry"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

@@ -5,7 +5,7 @@
 You reach for `platform-cloudflare-durable-objects` when your
 Worker needs strongly consistent authoritative state, coordinated
 multiplayer websocket connections, or both on the same DO namespace
-mechanic. Two shapes ship in one blueprint: the SINGLE-CELL shape
+mechanic. Two shapes ship in one blueprint: the single-cell shape
 (counter, session store, lock, coordinator) and the WEBSOCKET-HUB
 shape (rooms, presence, live cursors).
 
@@ -19,7 +19,7 @@ v1.1.0 (round-6 minor bump per spec section 5.7).
 ## Decision tree
 
 - Strongly consistent authoritative cell (counter, session store,
-  lock, coordinator) -> SINGLE-CELL shape (this blueprint,
+  lock, coordinator) -> single-cell shape (this blueprint,
   `platform-cloudflare-durable-objects` v1.0.0).
 - Coordinated multiplayer websocket connections in one authoritative
   hub (rooms, live cursors, presence) -> WEBSOCKET-HUB shape (this
@@ -107,7 +107,7 @@ looser window trades latency for fan-out cost on a busy hub.
 
 The DO class names are stable strings committed to `wrangler.toml`.
 Both binding blocks name the class explicitly; the `[[migrations]]`
-block records the mint under `tag = "v1"` with `new_classes` naming
+block records the mint under `tag = "v1"` with `new_sqlite_classes` naming
 both classes. A copy-paste block for a fresh Worker project:
 
 ```
@@ -121,7 +121,7 @@ class_name = "HubObject"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["SingleCellObject", "HubObject"]
+new_sqlite_classes = ["SingleCellObject", "HubObject"]
 ```
 
 A rename in a later release ships as a NEW `[[migrations]]` tag on
@@ -203,7 +203,7 @@ workerd runtime:
 - An additional `AC-33108-1` result on the same run greps the
   fixture `wrangler.toml` for both `[[durable_objects.bindings]]`
   binding pairs and the `[[migrations]]` `tag = "v1"` with
-  `new_classes`; the grep is deterministic and does not require
+  `new_sqlite_classes`; the grep is deterministic and does not require
   wrangler.
 
 Warn semantics per section 3.1 pass-with-skip: if the wrangler

@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-08-31T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+    "field": "responsibilities.discovery"
+  }
 }

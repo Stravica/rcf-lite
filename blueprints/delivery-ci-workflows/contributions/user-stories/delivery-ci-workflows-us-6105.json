@@ -11,12 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6105-1",
-      "description": "Every gate the suite runs writes a JSON report file at `<reportDir>/<gate>.json` whether the gate passed or failed. The report carries a fixed set of fields: `gate`, `command`, `toolVersion`, `startedAt`, `endedAt`, `durationMs`, `exitCode`, `outcome`, `stdout`, `stderr`, and (v2 addition) `checkKind`.",
+      "description": "Every gate the suite runs writes a JSON report file at `<reportDir>/<gate>.json` whether the gate passed or failed. The report carries a fixed set of fields: `gate`, `command`, `toolVersion`, `startedAt`, `endedAt`, `durationMs`, `exitCode`, `outcome`, `stdout`, `stderr`, and (v2 addition) `checkKind`. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "the suite has run against any tree",
       "when": "the reviewer inspects the configured report directory after the run",
       "then": "for every gate named in the aggregate report's `gates[]` array, a file at `<reportDir>/<gate>.json` exists whose top-level keys are exactly the fixed set above, and the value types match the stable schema (`startedAt` and `endedAt` are ISO-8601 strings, `durationMs` is an integer, `exitCode` is an integer, `outcome` is one of `passed` or `failed`, `checkKind` is one of `validate`, `coverage-strict`, `linter`, `formatter`, `typecheck`, `unitTest`, `securityScan`, or a `custom:<name>` string)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6105-2",
@@ -25,12 +26,27 @@
       "when": "the reviewer diffs the two runs' per-gate reports",
       "then": "the `toolVersion` field in the affected per-gate reports differs between the two runs, and the value on each side matches what the invoked `rcf --version` prints on that host",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-6105-3",
+      "description": "An interrupted per-gate report rewrite (SIGKILL of the gate runner mid-write) never leaves a stale passing report standing for the current run: after interruption, a follow-up gate invocation on the same reportDir sees the previous report either fully replaced by the new one OR absent, never partially rewritten and never a stale success. Template values the applying agent sets: The applying agent supplies the elicited reportDir path; the AC substitutes it for the illustrative default.",
+      "given": "a reportDir containing a passing per-gate report from a previous run and a gate about to fail on the current run",
+      "when": "the gate runner is SIGKILLed mid-way through writing the new per-gate report, then a follow-up invocation reads the reportDir",
+      "then": "the follow-up invocation either finds the new failing report or no report at all for the interrupted gate; a subsequent aggregate step treats an absent report as missing per REQ-008; the previous run's passing report never survives the current run",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-702-delivery-ci-workflows-gate-report",
+        "field": "responsibilities[3]"
+      }
     }
   ],
   "tacIds": [
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

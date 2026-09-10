@@ -206,7 +206,7 @@ test('wrangler toml carries DO bindings and migrations tag additively over T-0 T
   // T-3 additive
   assert.match(toml, /\[\[durable_objects\.bindings\]\][\s\S]*name = "CELL"[\s\S]*class_name = "SingleCellObject"/);
   assert.match(toml, /\[\[durable_objects\.bindings\]\][\s\S]*name = "HUB"[\s\S]*class_name = "HubObject"/);
-  assert.match(toml, /\[\[migrations\]\][\s\S]*tag = "v1"[\s\S]*new_classes = \["SingleCellObject", "HubObject"\]/);
+  assert.match(toml, /\[\[migrations\]\][\s\S]*tag = "v1"[\s\S]*new_sqlite_classes = \["SingleCellObject", "HubObject"\]/);
 });
 
 // TS-109 (US-7002): real-account storage smoke probe records accountBoundSkipped without env var.
@@ -401,7 +401,7 @@ test('H-2 DO AC-15101-2 all thirteen shipped DO ACs appear in the union of probe
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-cloudflare-durable-objects');
-  assert.equal(bp.version, '1.0.1');
+  assert.equal(bp.version, '1.1.0');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['strongConsistencyCell', 'hibernatableWebSocket']);
   assert.equal(Array.isArray(bp.elicits), true);

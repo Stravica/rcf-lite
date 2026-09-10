@@ -11,26 +11,42 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6113-1",
-      "description": "A `workflowShape` declared as `{ \"alias\": \"smallLibrary\" }` is expanded at boot to the four-field form (`branchModel: feature`, `checkSet: <all-true>`, `releaseMode: tagPlusArtefact`, `providerHint: githubActions`). Every downstream in this blueprint binds to the four-field form.",
+      "description": "A `workflowShape` declared as `{ \"alias\": \"smallLibrary\" }` is expanded at boot to the four-field form (`branchModel: feature`, `checkSet: <all-true>`, `releaseMode: tagPlusArtefact`, `providerHint: githubActions`). Every downstream in this blueprint binds to the four-field form. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` declaration carrying only the alias field with value `smallLibrary`",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser expands the alias to the four-field composition, records the expansion in its own log, and treats the four-field form as authoritative for materialisation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6113-2",
-      "description": "An alias name that the shipped set does not include causes a boot-check failure with a stable-coded error naming the alias and listing the shipped set. A project that wants a shape the aliases do not cover uses the four-field form directly.",
+      "description": "An alias name that the shipped set does not include causes a boot-check failure with a stable-coded error naming the alias and listing the shipped set. A project that wants a shape the aliases do not cover uses the four-field form directly. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` declared as `{ \"alias\": \"microservice\" }`",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero with a stable-coded error naming the alias, the shipped-set list, and the four-field form as the fallback",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6113-3",
+      "description": "A workflowShape configuration that combines a named profile alias with an inline override for the same field fails at expansion time with WORKFLOW_SHAPE_CONFLICT naming the field and the two sources; the materialiser refuses ambiguity. Template values the applying agent sets: The applying agent sets the elicited workflowShape (the profile alias name and any inline field override); the AC substitutes the project's alias and inline pair for the illustrative trunk-lite profile paired with branchModel=feature.",
+      "given": "a workflowShape configuration with profile=trunk-lite AND branchModel=feature (the alias sets trunk, the inline sets feature)",
+      "when": "the expander runs",
+      "then": "the expander refuses with WORKFLOW_SHAPE_CONFLICT naming branchModel and the two sources",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces.materialise"
+      }
     }
   ],
   "tacIds": [
     "TAC-704-delivery-ci-workflows-workflow-materialiser"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

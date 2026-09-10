@@ -1,0 +1,72 @@
+{
+  "usId": "security-auth-keycloak-US-11114",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-013",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A signed-in caller reaches password change, reset and recovery through the realm's account console",
+  "asA": "operator signed in through a Keycloak realm who needs to change their password or set up MFA",
+  "iWant": "the project to send me to the realm's hosted account console for every credential operation",
+  "soThat": "password material never leaves the identity source and I do not need a second credential-management surface on the project",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11114-1",
+      "description": "The discovery client resolves the account console URL for each realm on boot and refuses boot when the URL responds non-2xx to an unauthenticated GET.",
+      "given": "a realm-config record whose `accountConsoleUrl` field names a URL that returns 404 to an unauthenticated GET",
+      "when": "the blueprint boots",
+      "then": "boot fails with stable-coded `KEYCLOAK_ACCOUNT_CONSOLE_UNREACHABLE` naming the realm slug; the audit sink records one `keycloak.account_console_refused` event carrying the realm slug and the observed HTTP status class",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.accountConsoleUrl"
+      }
+    },
+    {
+      "id": "AC-11114-2",
+      "description": "`getCredentialSelfServiceUrl()` returns the resolved account console URL for the caller's realm.",
+      "given": "a caller whose verified session names `realmSlug=alpha` and a boot-verified realm-config for `alpha` whose account console URL is `https://kc.example/realms/alpha/account`",
+      "when": "a project route calls `getCredentialSelfServiceUrl()` for the caller",
+      "then": "the return value is exactly `https://kc.example/realms/alpha/account`; no other URL is returned; the return value carries no query parameters and no fragment appended by the helper",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-11114-3",
+      "description": "No project route renders a credential-change form of its own.",
+      "given": "the applied blueprint at v1.3.0 and a source-tree scan of the project's contributed pages",
+      "when": "a static scan looks for password-input HTML controls (`type=password`) or MFA-enrolment DOM shapes on any project route",
+      "then": "the scan reports zero credential-input controls owned by the project; every credential moment resolves to a link out to the realm's account console via `getCredentialSelfServiceUrl()`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-11114-4",
+      "description": "An account console URL missing the `/account` path segment or pointing at a different origin than the realm's issuer is refused at boot.",
+      "given": "a realm-config record whose `accountConsoleUrl` is `https://other.example/dashboard` (different origin from the discovered issuer)",
+      "when": "the blueprint boots",
+      "then": "boot fails with stable-coded `KEYCLOAK_ACCOUNT_CONSOLE_MALFORMED` naming the realm slug and the origin mismatch",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-11114-5",
+      "description": "A realm without any credential self-service (an entirely federated realm that carries `accountConsoleUrl: null`) is legal at boot; consumers see the capability as absent for that realm.",
+      "given": "a realm-config for `beta` whose `accountConsoleUrl` is `null` and whose realm setting disables the account console",
+      "when": "the blueprint boots and a caller in `beta` invokes `getCredentialSelfServiceUrl()`",
+      "then": "boot succeeds; `getCredentialSelfServiceUrl()` returns `null` for callers in `beta`; the applied capability set for the project reflects `credentialSelfService` as inactive for `beta`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

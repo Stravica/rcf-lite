@@ -1,0 +1,82 @@
+{
+  "usId": "security-auth-oauth2-US-10112",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-oauth2-REQ-011",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The reduced Principal carries the roles the provider record declares, and the union is refused on a malformed claim",
+  "asA": "operator signing in through an OAuth2 provider whose token exchange returns roles at a project-declared claim path",
+  "iWant": "the session-bridge to read the roles the provider record names and put them on `request.auth.roles`",
+  "soThat": "project routes gate on roles without reading raw provider claims",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-10112-1",
+      "description": "When the provider record declares `roleSources: [\"realm_access.roles\"]` and the verified id_token carries `realm_access.roles = [\"admin\",\"auditor\"]`, the reduced Principal's `roles` array is the set `{\"admin\",\"auditor\"}`.",
+      "given": "a provider record with `roleSources: [\"realm_access.roles\"]` and a verified id_token whose `realm_access.roles` is `[\"admin\",\"auditor\",\"admin\"]`",
+      "when": "the session-bridge reduces the identity",
+      "then": "`request.auth.roles` is a two-element array whose set membership is `{\"admin\",\"auditor\"}`; the array ordering is not asserted but the set is; the audit sink records one `oauth2.roles_mapped` event carrying the count `2` and no role values",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10112-2",
+      "description": "When `roleSources` names multiple paths, the reduced `roles` is the union.",
+      "given": "a provider record with `roleSources: [\"realm_access.roles\",\"resource_access.web.roles\"]` and a verified id_token whose `realm_access.roles = [\"a\"]` and `resource_access.web.roles = [\"b\",\"a\"]`",
+      "when": "the session-bridge reduces the identity",
+      "then": "`request.auth.roles` has set membership `{\"a\",\"b\"}`; each string appears exactly once",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10112-3",
+      "description": "A `roleSources` path resolving to a value that is not a string and not an array of strings refuses the session issue with `OAUTH2_ROLES_MALFORMED`.",
+      "given": "a provider record with `roleSources: [\"realm_access.roles\"]` and a verified id_token whose `realm_access.roles` is the JSON object `{\"admin\": true}`",
+      "when": "the session-bridge reduces the identity",
+      "then": "the bridge throws `OAUTH2_ROLES_MALFORMED` naming the provider id and the offending path; no session cookie is issued; the audit sink records one `oauth2.roles_refused` event carrying the reason class and no claim values",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10112-4",
+      "description": "A provider record with an empty or absent `roleSources` produces a Principal with an empty `roles` array; no error.",
+      "given": "a provider record whose `roleSources` field is `[]` (or absent) and a verified id_token that carries a `realm_access.roles` field the provider does not name",
+      "when": "the session-bridge reduces the identity",
+      "then": "`request.auth.roles` is `[]`; the session cookie is issued normally; no `oauth2.roles_refused` event fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-10112-5",
+      "description": "An `enrichPrincipal` hook, when configured, receives the Principal after `roles[]` is populated and its return value replaces the Principal on `request.auth`.",
+      "given": "a provider record with `roleSources: [\"realm_access.roles\"]` and a project-authored `enrichPrincipal(p) => ({ ...p, roles: [...p.roles, \"audit-viewer\"] })` hook",
+      "when": "the session-bridge reduces the identity of a caller whose `realm_access.roles` is `[\"admin\"]`",
+      "then": "`request.auth.roles` has set membership `{\"admin\",\"audit-viewer\"}`; the hook is invoked exactly once per session issue",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
+        "field": "interfaces.enrichPrincipal.name"
+      }
+    },
+    {
+      "id": "AC-10112-6",
+      "description": "Project routes never observe a raw provider claim; every role decision reads the reduced Principal.",
+      "given": "the applied blueprint at v1.3.0 and a source-tree scan of the project's contributed routes",
+      "when": "a static scan looks for reads of `id_token`, `userinfo`, or raw provider-claim shape from any project route",
+      "then": "the scan reports zero raw-claim reads outside the flow-controller and session-bridge modules; every route's role-check reads `request.auth.roles`",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1103-security-auth-oauth2-session-bridge"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

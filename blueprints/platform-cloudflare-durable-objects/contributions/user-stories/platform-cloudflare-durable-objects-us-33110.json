@@ -16,12 +16,69 @@
       "when": "wake() is called once, then again",
       "then": "the first wake emits doWakeUp once and returns lastBroadcast; the second wake reports alreadyAwake without a second event",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33110-2",
+      "description": "F-5 cold-start reconstruction: after a broadcast has been processed and hibernate has fired, a fresh HubObject INSTANCE constructed against the same storage (simulating Cloudflare's wake-on-message: the pre-hibernate instance is discarded and a new one is minted from cold), when wake() is called, reads lastBroadcast from storage and returns {lastBroadcast: <same serialised payload>}; doWakeUp fires exactly once on the fresh instance's sink. The reconstruction happens over the same durable storage, not over transferred in-memory state.",
+      "given": "a fresh HubObject instance constructed against a storage that carries a persisted lastBroadcast",
+      "when": "wake() is called on the fresh instance",
+      "then": "wake returns lastBroadcast equal to the persisted value; doWakeUp emits once",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.hibernate"
+      }
+    },
+    {
+      "id": "AC-33110-3",
+      "description": "F-5 wake-on-message: a hibernated HubObject that receives a webSocketMessage during the hibernation window queues the message, wakes (doWakeUp emits once), reads the same storage, processes the queued message (e.g. a broadcast) and delivers to any connected sockets. The message is not dropped; the wake handler runs to completion before the message handler.",
+      "given": "a hibernated HubObject with the message arriving from a re-emerging client",
+      "when": "the driver delivers the webSocketMessage to the hibernated instance",
+      "then": "wake fires, storage is read, and the message is processed after wake completes",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.hibernate"
+      }
+    },
+    {
+      "id": "AC-33110-4",
+      "description": "Hibernate-before-broadcast: a HubObject that has hibernated without ever processing a broadcast persists no lastBroadcast key. wake() on the reconstructed instance returns {lastBroadcast: null} (not undefined; the field is present) and doWakeUp still emits exactly once.",
+      "given": "a HubObject that hibernated without any broadcast",
+      "when": "wake() is called on the reconstructed instance",
+      "then": "wake returns lastBroadcast:null with the field present; doWakeUp emits once",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.hibernate"
+      }
+    },
+    {
+      "id": "AC-33110-5",
+      "description": "Repeated hibernate-and-wake cycles: two hibernate + wake cycles on the same instance produce exactly two doHibernate and two doWakeUp records on the sink, alternating in strict order (hibernate1, wake1, hibernate2, wake2). No cycle produces duplicate records; the idempotent-by-contract guarantee (ADR-3405) holds per cycle.",
+      "given": "a HubObject driven through two hibernate + wake cycles",
+      "when": "the sink is inspected after the second wake",
+      "then": "the sink records exactly two doHibernate and two doWakeUp in strict order",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.hibernate"
+      }
     }
   ],
   "tacIds": [
     "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

@@ -110,5 +110,8 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
   assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry "cannot yet gate" wording after D2 reword');
   assert.doesNotMatch(kvReadme, /cannot yet gate/i, 'KV README must not carry "cannot yet gate" wording after D2 reword');
   assert.match(kvChangelog, /w-2026-09-08-h3-loader-elicit-when-predicates/, 'KV CHANGELOG carries the follow-up work-item pointer');
-  assert.match(kvReadme, /w-2026-09-08-h3-loader-elicit-when-predicates/, 'KV README carries the follow-up work-item pointer');
+  // F-3 register sweep (2026-09-09 review fix pass) removes internal work-item ids from
+  // customer-facing README content; the CHANGELOG keeps the internal provenance instead.
+  // The README still names the follow-up as a capability change out of scope for this patch.
+  assert.match(kvReadme, /follow-up capability change/, 'KV README names the follow-up capability change');
 });

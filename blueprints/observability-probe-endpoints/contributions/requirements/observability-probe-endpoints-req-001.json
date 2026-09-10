@@ -2,7 +2,11 @@
   "reqId": "observability-probe-endpoints-REQ-001",
   "prdId": "PRD-001",
   "title": "The health probe interface is derived from an operator-declared target integration",
-  "description": "The application exposes health probes shaped for the external system that will probe it. The operator declares a target integration by name (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`, `dockerHealthcheck`, `reverseProxy`, or a project-authored `custom` profile). The profile fixes the probe transport (HTTP GET, TCP socket accept, exec command, or a supervisor notify call), the probe path or command surface, the response contract, and the port topology defaults. A probe surface not backed by a declared profile is refused at boot with a stable-coded error naming the missing declaration. Nothing in the process wires a probe on its own initiative; the profile drives every binding.",
+  "description": "The application exposes health probes shaped for the external system that will probe it. The operator declares a target integration by name (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`, `dockerHealthcheck`, `reverseProxy`, or a project-authored `custom` profile). The profile fixes the probe transport (HTTP GET, TCP socket accept, exec command, or a supervisor notify call), the probe path or command surface, the response contract, and the port topology defaults. Precedence at boot: an explicit `probeInterface.profile` declaration wins; when the declaration is absent, the shipped Kubernetes default (ADR-1503) resolves and the process boots on that profile. A profile name that is neither in the enumerated set nor a resolvable `custom` profile is refused at boot with a stable-coded `PROBE_PROFILE_UNKNOWN` error naming the offending value; a `probeInterface` declaration that is syntactically malformed (a non-object, or an object missing required per-profile keys) is refused with `PROBE_PROFILE_MALFORMED` naming the offending shape. Nothing in the process wires a probe on its own initiative; the profile drives every binding.",
+  "deliveredBy": {
+    "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "field": "interfaces.resolveProbeProfile"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",
@@ -14,5 +18,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

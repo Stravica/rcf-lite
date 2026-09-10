@@ -16,7 +16,8 @@
       "when": "a browser dispatches `GET /auth/sign-in?provider=<second-id>` and completes the round-trip",
       "then": "the resulting session's `request.auth.provider` equals the second provider's `id`; `principalId` is derived under the second provider's slug and does not collide with any principalId issued against the first provider even when the underlying `sub` claim value is identical; the flow controller's request log records the redirect and the token exchange against the second provider's URLs, not the first",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10109-2",
@@ -25,7 +26,8 @@
       "when": "a browser dispatches `GET /auth/sign-in?provider=nonexistent-id`",
       "then": "the response is a 4xx with body error code `OAUTH2_PROVIDER_UNKNOWN`; no `Location` header pointing at an authorise endpoint is emitted; no pending-flow record is written",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

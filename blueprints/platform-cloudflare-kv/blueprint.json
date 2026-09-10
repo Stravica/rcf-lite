@@ -1,8 +1,10 @@
 {
   "slug": "platform-cloudflare-kv",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "category": "platform",
-  "capabilities": ["keyValueStore"],
+  "capabilities": [
+    "keyValueStore"
+  ],
   "suggestedCompanions": [
     {
       "role": "logging",
@@ -36,27 +38,119 @@
       "id": "kv-key-naming-convention",
       "prompt": "Key naming convention: prefixed (domain prefix like users/, flags/) or flat (per ADR-3203; recommended default prefixed)",
       "kind": "enum",
-      "options": ["prefixed", "flat"],
+      "options": [
+        "prefixed",
+        "flat"
+      ],
       "default": "prefixed"
     }
   ],
   "contributions": [
-    { "id": "platform-cloudflare-kv-REQ-001", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-001.json" },
-    { "id": "platform-cloudflare-kv-REQ-002", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-002.json" },
-    { "id": "platform-cloudflare-kv-REQ-003", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-003.json" },
-    { "id": "platform-cloudflare-kv-REQ-004", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-004.json" },
-    { "id": "platform-cloudflare-kv-REQ-005", "kind": "req", "path": "requirements/platform-cloudflare-kv-req-005.json" },
-    { "id": "platform-cloudflare-kv-US-31101", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31101.json" },
-    { "id": "platform-cloudflare-kv-US-31102", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31102.json" },
-    { "id": "platform-cloudflare-kv-US-31103", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31103.json" },
-    { "id": "platform-cloudflare-kv-US-31104", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31104.json" },
-    { "id": "platform-cloudflare-kv-US-31105", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31105.json" },
-    { "id": "platform-cloudflare-kv-US-31106", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31106.json" },
-    { "id": "platform-cloudflare-kv-US-31107", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31107.json" },
-    { "id": "platform-cloudflare-kv-US-31108", "kind": "us", "path": "user-stories/platform-cloudflare-kv-us-31108.json" },
-    { "id": "TAC-3201-platform-cloudflare-kv-facade", "kind": "tac", "path": "tacs/tac-3201-platform-cloudflare-kv-facade.json" },
-    { "id": "TAC-3202-platform-cloudflare-kv-cache-aside", "kind": "tac", "path": "tacs/tac-3202-platform-cloudflare-kv-cache-aside.json" },
-    { "id": "TAC-3203-platform-cloudflare-kv-event-sink", "kind": "tac", "path": "tacs/tac-3203-platform-cloudflare-kv-event-sink.json" },
+    {
+      "id": "platform-cloudflare-kv-REQ-001",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-001.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-002",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-002.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-003",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-003.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-004",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-004.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-005",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-005.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-006",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-006.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-REQ-007",
+      "kind": "req",
+      "path": "requirements/platform-cloudflare-kv-req-007.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31101",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31101.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31102",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31102.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31103",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31103.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31104",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31104.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31105",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31105.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31106",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31106.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31107",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31107.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31108",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31108.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31109",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31109.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31110",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31110.json"
+    },
+    {
+      "id": "platform-cloudflare-kv-US-31111",
+      "kind": "us",
+      "path": "user-stories/platform-cloudflare-kv-us-31111.json"
+    },
+    {
+      "id": "TAC-3201-platform-cloudflare-kv-facade",
+      "kind": "tac",
+      "path": "tacs/tac-3201-platform-cloudflare-kv-facade.json"
+    },
+    {
+      "id": "TAC-3202-platform-cloudflare-kv-cache-aside",
+      "kind": "tac",
+      "path": "tacs/tac-3202-platform-cloudflare-kv-cache-aside.json"
+    },
+    {
+      "id": "TAC-3203-platform-cloudflare-kv-event-sink",
+      "kind": "tac",
+      "path": "tacs/tac-3203-platform-cloudflare-kv-event-sink.json"
+    },
     {
       "id": "ADR-3201-platform-cloudflare-kv-key-value-store-contract",
       "kind": "adr",

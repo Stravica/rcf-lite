@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The gate suite is invoked as one Node entry point that is CI-provider-neutral",
   "description": "The project realises a single Node entry point script that runs every RCF gate in order. The entry point is a plain Node process invoked by whatever runner the project's CI provider ships (GitHub Actions job step, GitLab job script, CircleCI step, Buildkite command, Jenkins stage). The CI-provider job definition contains one invocation line and the standard Node and package-manager setup steps; every gate-specific piece of logic lives in the Node entry point.",
+  "deliveredBy": {
+    "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+    "field": "interfaces.runGates"
+  },
   "category": "technical",
   "domain": "continuous-integration",
   "priority": "must",

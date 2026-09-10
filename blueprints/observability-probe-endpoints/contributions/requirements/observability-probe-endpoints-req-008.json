@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "A change of target integration profile is a configuration change; the source tree does not re-shape",
   "description": "Switching the target integration from one profile to another (for example, moving a service from a Kubernetes deployment to a Docker Compose deployment behind a load balancer) is expressed as a change to the operator-declared profile name and its per-profile options. The source tree that binds the profile handlers and the profile-resolver call site do not change; the profile shift takes effect on the next process start. A source-tree change is required only when the operator authors a new custom profile or extends the shipped profile set; existing profiles are switched by configuration alone.",
+  "deliveredBy": {
+    "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
+    "field": "interfaces.contractValidator"
+  },
   "category": "nonFunctional",
   "domain": "observability",
   "priority": "must",

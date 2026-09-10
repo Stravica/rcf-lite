@@ -16,7 +16,8 @@
       "when": "the browser inspects the cookie jar for the project's top-level domain immediately after the sign-in redirect completes",
       "then": "a cookie named `__session` is present with `HttpOnly`, `Secure`, and `SameSite=Lax` flags set; no other cookie carries the session credential",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9101-2",
@@ -25,7 +26,8 @@
       "when": "the request is dispatched to the route",
       "then": "the middleware attaches a `request.auth` object carrying `principalId`, `roles`, and `organisationIds`; the route handler observes `request.auth.principalId` as a non-empty string that matches the Clerk-issued user id for the signed-in operator",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9101-3",
@@ -34,7 +36,8 @@
       "when": "the request reaches the middleware",
       "then": "the middleware treats the request as unauthenticated; no `request.auth` object is attached; the verifier's audit log records one verification-failure event carrying the failure class and no cookie value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

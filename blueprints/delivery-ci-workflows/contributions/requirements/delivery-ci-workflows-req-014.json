@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The feature-branch shape materialises pull-request-checks and default-branch-checks workflows against the required check set",
   "description": "When `workflowShape.branchModel` is `feature`, the workflow-materialiser produces two workflows sharing the same required check set: `pull-request-checks` firing on pull requests targeting the default branch, and `default-branch-checks` firing on pushes to the default branch. Both workflows invoke the same Node gate-runner entry point (TAC-701) with the required check set produced by the two-tier catalogue (mandatory tier plus the elicited subset from `checkSet`). Both workflows write their aggregate report to the stable path and preserve the ordering discipline. The blueprint contributes an AC that the project configure default-branch protection to require the `pull-request-checks` aggregate as a merge-blocking check; the configuration itself is a project responsibility on the platform's own surface.",
+  "deliveredBy": {
+    "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "field": "interfaces.materialise"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

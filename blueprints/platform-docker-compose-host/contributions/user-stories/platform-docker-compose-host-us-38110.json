@@ -1,0 +1,92 @@
+{
+  "usId": "platform-docker-compose-host-US-38110",
+  "prdId": "PRD-001",
+  "reqId": "platform-docker-compose-host-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Docker Engine installs from the elicited apt channel: the observable repository source matches",
+  "asA": "operator installing the container host on a fresh Ubuntu 24.04 or Debian 12 baseline",
+  "iWant": "the shipped installer script to resolve the elicited docker-engine-channel answer into the apt sources entry actually written to the host, and to refuse any other value with a named error kind",
+  "soThat": "a project verifying against test can trust the installed engine is on the pre-release channel; a project on stable can trust it is on the stable channel",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-38110-1",
+      "description": "With docker-engine-channel=stable, the installer writes an apt sources entry pointing at the vendor stable pool; the observable file at /etc/apt/sources.list.d/docker.list carries the \"stable\" pool component; dpkg -s docker-ce reports a version from the stable pool. With docker-engine-channel=test, the same file carries the \"test\" component and dpkg -s reports a version from the test pool.",
+      "given": "a fresh Ubuntu 24.04 baseline with no prior docker-ce install",
+      "when": "the installer script runs against the elicited channel",
+      "then": "the apt sources file carries the elicited pool component and the installed docker-ce matches",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.docker.com/engine/install/ubuntu/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38110-2",
+      "description": "The installer refuses any elicited docker-engine-channel value outside {stable, test} with a stable error kind DOCKER_ENGINE_CHANNEL_UNSUPPORTED naming the offered value and lists the accepted options in the message. No apt sources entry is written on refusal.",
+      "given": "a docker-engine-channel elicit answer set to \"nightly\" (or any other unrecognised value)",
+      "when": "the installer script runs",
+      "then": "the installer refuses with DOCKER_ENGINE_CHANNEL_UNSUPPORTED and no apt sources entry lands",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-38110-3",
+      "description": "Sources file content probe: after the installer script runs on the fixture VM, a shell probe reads /etc/apt/sources.list.d/docker.list and asserts (a) the file exists, (b) the URI resolves to https://download.docker.com/linux/ubuntu (or /linux/debian) matching the OS, and (c) the pool component equals the elicited docker-engine-channel answer (\"stable\" or \"test\"). SIMULATE_STALE_SOURCES=true writes an incorrect pool value and the probe FAILS naming the observed and expected components.",
+      "given": "a fresh VM after the installer runs with docker-engine-channel=stable",
+      "when": "the probe reads the sources file",
+      "then": "the file exists, the URI matches, and the pool component equals \"stable\"",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/engine/install/ubuntu/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38110-4",
+      "description": "Keyring probe: /etc/apt/keyrings/docker.gpg exists after the installer runs (the Docker Engine install steps place the keyring here per the Ubuntu install doc). SIMULATE_MISSING_KEYRING=true removes the file and the installer refuses on the next apt-get update with a stable error kind DOCKER_ENGINE_KEYRING_MISSING.",
+      "given": "a fresh VM after the installer runs",
+      "when": "the probe reads /etc/apt/keyrings/docker.gpg",
+      "then": "the file exists; SIMULATE_MISSING_KEYRING=true removes it and the installer refuses with DOCKER_ENGINE_KEYRING_MISSING",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/engine/install/ubuntu/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38110-5",
+      "description": "Idempotent install: running the installer script twice on the same VM does NOT duplicate the sources entry (a subsequent grep of /etc/apt/sources.list.d/docker.list finds exactly one URI line), does NOT re-add the keyring, and returns exit 0 on the second run. The installer detects the existing install and short-circuits (docker-ce is up to date).",
+      "given": "a fresh VM after the installer has already run once",
+      "when": "the installer script runs a second time",
+      "then": "the sources file has exactly one URI line; the keyring is unchanged; the second run exits 0",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.aptSources"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-3901-platform-docker-compose-host-compose-layout"
+  ],
+  "createdAt": "2026-09-09T20:25:00.000Z",
+  "updatedAt": "2026-09-09T22:00:00.000Z"
+}

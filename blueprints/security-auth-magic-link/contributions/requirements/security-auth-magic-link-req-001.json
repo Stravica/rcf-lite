@@ -14,5 +14,8 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-08-21T00:00:00Z",
+  "deliveredBy": {
+    "adrId": "ADR-501-security-auth-magic-link-model"
+  }
 }

@@ -1,0 +1,92 @@
+{
+  "usId": "platform-cloudflare-kv-US-31109",
+  "prdId": "PRD-001",
+  "reqId": "platform-cloudflare-kv-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The cache-aside TTL bounds LOCAL staleness; the guide names KV vendor propagation as a separate clock",
+  "asA": "developer reading platform-cloudflare-kv guidance about cache-aside expiry versus KV eventual consistency",
+  "iWant": "the guide to separate the applied cache-aside TTL (local expiry) from the vendor-owned KV propagation window (global read visibility) so I do not misread the TTL as a global staleness ceiling",
+  "soThat": "when the applied project asserts a 60-second TTL, I know it bounds local re-fetch cadence only, not the moment every other network location observes the write",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-31109-1",
+      "description": "The cache-aside helper's local expiry window matches the elicited TTL exactly: driven with a fake clock, a read that lands within elicitedTtlMs of the write returns the cached value with source cache; a read at elicitedTtlMs+1 re-invokes originFn and returns source origin. The two events (kvHit before the expiry boundary, kvMiss after) emit in that causal order on the sink; no cross-region KV propagation timing is asserted by this AC because the vendor documents that clock at 60 seconds or more and it is not a mechanism the applied project owns.",
+      "given": "a cache-aside helper wired against an in-memory KV driver and a fake clock, with the elicited TTL set to 60000ms",
+      "when": "sequential reads land at 59_000ms and 61_000ms after a warmed write",
+      "then": "the first read returns source cache (kvHit), the second returns source origin (kvMiss), and no cross-region propagation claim is made",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
+    },
+    {
+      "id": "AC-31109-2",
+      "description": "The guide passage on eventual consistency names the KV propagation window (up to 60 seconds or more per the Cloudflare KV documented behaviour) as a separate clock from the applied cache-aside TTL; a doc-string test greps guide.md for the phrase \"separate clock\" and for the decision-tree cross-reference to platform-cloudflare-durable-objects (round-6 T-3) as the strong-consistency answer.",
+      "given": "the shipped guide file at guide/platform-cloudflare-kv.md",
+      "when": "a doc-string test greps the guide for the required phrases",
+      "then": "both phrases are present and the guide names DO as the strong-consistency answer",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/concepts/how-kv-works/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31109-3",
+      "description": "Vendor propagation window named in the guide: a doc-string test greps guide/platform-cloudflare-kv.md for the phrase \"up to 60 seconds or more\" (the vendor-documented propagation window from https://developers.cloudflare.com/kv/concepts/how-kv-works/ per today's verifiedOn date) and asserts the phrase is present in the eventual-consistency section.",
+      "given": "the shipped guide file at guide/platform-cloudflare-kv.md",
+      "when": "a grep of the guide runs",
+      "then": "the phrase \"up to 60 seconds or more\" appears in the eventual-consistency section",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/concepts/how-kv-works/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-31109-4",
+      "description": "DO as strong-consistency alternative: the guide's decision tree names platform-cloudflare-durable-objects as the answer for the \"every read must reflect the most recent write\" case. A doc-string test greps guide/platform-cloudflare-kv.md for the substrings \"platform-cloudflare-durable-objects\" and \"most recent write\" and asserts both are present in the decision-tree section.",
+      "given": "the shipped guide file",
+      "when": "a grep runs for the two decision-tree substrings",
+      "then": "both are present in the decision-tree section",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
+    },
+    {
+      "id": "AC-31109-5",
+      "description": "No cross-region propagation claim on any AC in this blueprint: a scan of contributions/user-stories/*.json for the substrings \"cross-region\", \"global staleness ceiling\" and \"same-location read is guaranteed\" finds zero hits. The blueprint's ACs stay within the local-clock domain; vendor-side propagation is guide-only, per US-31109 F-3 closure.",
+      "given": "the contributions/user-stories/*.json files",
+      "when": "a substring scan runs",
+      "then": "zero hits for the forbidden phrases",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+        "field": "responsibilities.ttl"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-3202-platform-cloudflare-kv-cache-aside"
+  ],
+  "createdAt": "2026-09-09T20:25:00.000Z",
+  "updatedAt": "2026-09-09T23:00:00.000Z"
+}

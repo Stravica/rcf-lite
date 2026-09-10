@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "No internal identifier is exposed on any external-visible probe response",
   "description": "The probe response, on every profile that emits a response payload, contains no dependency name, no environment name (dev, staging, live), no hostname, no replica id, no database identifier, no queue name, no internal URL, no build hash, no commit sha, no numeric metric value, no dependency count, no latency measurement, no error rate. The response is bounded to the fields REQ-005 enumerates for the profile and to the resolved status code. A profile that adds any field beyond that set is refused by the profile validator at boot with a stable-coded error naming the offending field.",
+  "deliveredBy": {
+    "adrId": "ADR-1505-observability-probe-endpoints-external-response-secrecy",
+    "field": "decision.externalResponseSecrecy"
+  },
   "category": "security",
   "domain": "observability",
   "priority": "must",

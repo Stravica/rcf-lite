@@ -16,7 +16,8 @@
       "when": "the aggregate report is written by any CI run",
       "then": "the aggregate report's `runner.entryPoint` field records a project-relative path to a `.js` or `.mjs` file that exists at that path in the tree",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-6102-2",
@@ -25,12 +26,27 @@
       "when": "an operator reads the job step that produces the pipeline report",
       "then": "the step is a single-line invocation of the Node entry point (or an equivalent package-manager script), and every gate-level branching, timing, and report-writing responsibility lives inside the Node runner rather than the CI configuration",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-6102-3",
+      "description": "A gate that names an unknown executable in its command array (a `command[0]` that does not resolve on the PATH) is refused at gate spawn with a stable-coded GATE_SPAWN_FAILED naming the executable and the gate name; the runner does not continue with other gates until the operator resolves.",
+      "given": "a gate descriptor with command [\"nonexistent-bin\",\"arg\"] and a runner invoked against the descriptor",
+      "when": "the runner attempts to spawn the gate",
+      "then": "the gate reports failed with GATE_SPAWN_FAILED naming the executable and the gate; the per-gate report is written failed; the aggregate reflects the failure",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

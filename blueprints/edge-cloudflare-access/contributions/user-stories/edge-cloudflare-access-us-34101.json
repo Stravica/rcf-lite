@@ -16,12 +16,22 @@
       "when": "the request dispatches through the validator",
       "then": "the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with the reduced principal reflected on the response body",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/policies/access/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the JWT validator happy path (Cf-Access-Jwt-Assertion accepted, principal reduced onto request.auth). Reject branches (missing header, expired exp, mis-signed, aud-mismatch, jwt-malformed, kid-unknown, jwks-unavailable) live on US-34102 and break-glass branches on US-34107; per section 7a, this story carries a single AC because its own mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

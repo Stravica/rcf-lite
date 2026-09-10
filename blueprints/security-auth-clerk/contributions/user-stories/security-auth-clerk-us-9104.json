@@ -16,7 +16,8 @@
       "when": "the handler calls `can(principal, 'article.edit')`",
       "then": "the call returns `true`; a second call `can(principal, 'billing.invoice.void')` (a verb not granted to `editor`) returns `false`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9104-2",
@@ -25,7 +26,8 @@
       "when": "the handler calls `assert(principal, 'article.edit')` and then `assert(principal, 'billing.invoice.void')`",
       "then": "the first call returns without throwing; the second call throws an `AUTHZ_FORBIDDEN` error whose message contains the string `billing.invoice.void` and whose serialised form contains no role name, no organisation id, and no Clerk claim key or value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9104-3",
@@ -34,7 +36,8 @@
       "when": "a scan enumerates every reference to `.roles`, `.organisationIds`, or `.claims` on an object whose type resolves to the project's `Principal` shape",
       "then": "every match sits inside the authorisation adapter module (TAC-1002) or the claims-mapper module (TAC-1004); no handler file reads a claim directly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

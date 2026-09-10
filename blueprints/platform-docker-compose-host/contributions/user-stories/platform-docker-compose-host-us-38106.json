@@ -13,12 +13,55 @@
       "id": "AC-composeHost-restartClassification",
       "description": "The compose-config-lint probe asserts every service in the compose.yaml declares a restart policy AND every declared value is one of unless-stopped or on-failure. SIMULATE_UNCLASSIFIED_RESTART=true sets restart: always on the web service and the probe FAILS naming the service and the disallowed value.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-38106-2",
+      "description": "F-7 long-running policy: a service classified kind: long-running (a labels: com.stravica.service-kind: long-running convention on the fixture) must declare restart: unless-stopped. SIMULATE_JOB_POLICY_ON_LONG_RUNNING=true sets restart: on-failure on a long-running service and the compose-config-lint FAILS naming the service and the disallowed pairing.",
+      "given": "a fixture with a long-running service labelled com.stravica.service-kind: long-running",
+      "when": "SIMULATE_JOB_POLICY_ON_LONG_RUNNING=true sets restart: on-failure",
+      "then": "the lint FAILS naming the service and the pairing \"long-running + on-failure\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.restartClassification"
+      }
+    },
+    {
+      "id": "AC-38106-3",
+      "description": "F-7 job policy: a service classified kind: job must declare restart: on-failure. SIMULATE_LONG_RUNNING_POLICY_ON_JOB=true sets restart: unless-stopped on a job and the lint FAILS naming the service and the disallowed pairing.",
+      "given": "a fixture with a job labelled com.stravica.service-kind: job",
+      "when": "SIMULATE_LONG_RUNNING_POLICY_ON_JOB=true sets restart: unless-stopped",
+      "then": "the lint FAILS naming the service and the pairing \"job + unless-stopped\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.restartClassification"
+      }
+    },
+    {
+      "id": "AC-38106-4",
+      "description": "Missing restart field: SIMULATE_MISSING_RESTART=true removes the restart field from a service. The compose-config-lint FAILS naming the service; every service must declare a restart policy per REQ-004.",
+      "given": "a fixture with SIMULATE_MISSING_RESTART=true",
+      "when": "the lint runs",
+      "then": "the lint FAILS naming the service with no restart policy",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.restartClassification"
+      }
     }
   ],
   "tacIds": [
     "TAC-3903-platform-docker-compose-host-healthcheck-lint"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

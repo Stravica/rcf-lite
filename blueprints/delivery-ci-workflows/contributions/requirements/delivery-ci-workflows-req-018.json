@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "A typecheck the project realises produces a stable-shape typecheck report and fails non-zero on any type error",
   "description": "The elicited `typecheck` check, when the project enables it in `workflowShape.checkSet.typecheck`, runs a typechecker gate that exits non-zero on any type error. The gate writes its per-gate report to `.rcf/reports/ci/typecheck.json` in the shared per-gate report shape (with `checkKind: \"typecheck\"`). The check is applicable only when the project uses a typed language or a TypeScript-style build; the workflow-materialiser turns the check on by default when the project tree contains a `tsconfig.json` or an equivalent tool marker, off otherwise. The project overrides the auto-detection by setting the check-set flag explicitly.",
+  "deliveredBy": {
+    "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+    "field": "interfaces.runGates"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

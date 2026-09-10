@@ -253,16 +253,16 @@ test('H-2 kv AC-15001-2 every shipped kv AC appears in the union of probe result
 
 // Shelf-shape cross-check.
 
-test('blueprint.json declares 19 contributions with v1.0.2, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {
+test('blueprint.json declares 24 contributions with v1.1.0, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'platform-cloudflare-kv');
-  assert.equal(doc.version, '1.0.2');
+  assert.equal(doc.version, '1.1.0');
   assert.equal(doc.category, 'platform');
   assert.deepEqual(doc.capabilities, ['keyValueStore']);
-  assert.equal(doc.contributions.length, 19);
+  assert.equal(doc.contributions.length, 24);
   const kinds = doc.contributions.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
-  assert.equal(kinds.req, 5);
-  assert.equal(kinds.us, 8);
+  assert.equal(kinds.req, 7);
+  assert.equal(kinds.us, 11);
   assert.equal(kinds.tac, 3);
   assert.equal(kinds.adr, 3);
   for (const c of doc.contributions.filter((c) => c.kind === 'adr')) {

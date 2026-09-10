@@ -1,4 +1,4 @@
-# Delivery-ci-workflows blueprint (v2.0.0)
+# Delivery-ci-workflows blueprint (v2.3.0)
 
 The `delivery-ci-workflows` blueprint (renamed from `ci-pipeline` at v2.0.0) contributes the full workflow set an rcf-lite project runs on its CI provider: two commit-triggered workflows (pull-request-checks and default-branch-checks), an optional release workflow scaled across four modes, and an optional scheduled-audit workflow. The workflow set is a function of an operator-declared `workflowShape` covering four elicited dimensions plus one optional fifth: branch model (feature or trunk), check set (mandatory tier plus five elicited checks), release mode (none, tagOnly, tagPlusArtefact, or deployHandoff), provider hint (which CI provider's illustrative assets to seed from), and an optional scheduledAudit flag. The v1 RCF-gate suite is preserved verbatim as the mandatory tier inside a broader two-tier check catalogue.
 

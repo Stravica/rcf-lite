@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The gate suite entry point is the same code path locally and in CI",
   "description": "The Node entry point script is invocable on a developer's machine with the same command the CI provider invokes, against the same tree the developer has checked out, and produces the same per-gate reports and aggregate report at the same stable paths. A developer reproducing a CI failure runs the same one line the CI job ran; no CI-only wrapper or environment shim is on the CI code path but not the developer's.",
+  "deliveredBy": {
+    "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+    "field": "interfaces.runGates"
+  },
   "category": "nonFunctional",
   "domain": "continuous-integration",
   "priority": "must",

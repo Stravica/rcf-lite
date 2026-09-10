@@ -16,7 +16,8 @@
       "when": "the flow controller's outbound token-exchange request is inspected before it leaves the process",
       "then": "the request body contains a `code_verifier` field whose value equals the verifier stored on the pending-flow record for the state; the request body carries no `code_challenge_method` field (verifier is presented, method is provider-remembered from authorise)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10103-2",
@@ -25,7 +26,8 @@
       "when": "the callback reaches the flow controller",
       "then": "the response is a 4xx with body error code `OAUTH2_TOKEN_EXCHANGE_FAILED` naming the provider response class as `invalid_grant`; no session cookie is set on the response; the pending-flow record for this state has been evicted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

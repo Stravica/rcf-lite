@@ -1,7 +1,38 @@
 {
   "slug": "observability-essentials",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "category": "observability",
+  "elicits": [
+    {
+      "id": "liveness-probe-path",
+      "prompt": "HTTP path the liveness probe binds to on the request-traffic listener (REQ-001; default /live).",
+      "kind": "string",
+      "default": "/live"
+    },
+    {
+      "id": "readiness-probe-path",
+      "prompt": "HTTP path the readiness probe binds to on the request-traffic listener (REQ-002; default /ready).",
+      "kind": "string",
+      "default": "/ready"
+    },
+    {
+      "id": "declared-dependency-set",
+      "prompt": "Comma-separated names of dependencies whose availability the readiness probe evaluates (REQ-003; blank when no dependencies are declared). Each name resolves to a checkFor(name) predicate.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "notification-outcome-substrate",
+      "prompt": "Durable substrate for notification-outcome records (REQ-006). Recommended defaults: sqlite (single-node), postgres (multi-node). The substrate must survive a process restart.",
+      "kind": "enum",
+      "options": [
+        "sqlite",
+        "postgres",
+        "custom"
+      ],
+      "default": "sqlite"
+    }
+  ],
   "contributions": [
     {
       "id": "observability-essentials-REQ-001",

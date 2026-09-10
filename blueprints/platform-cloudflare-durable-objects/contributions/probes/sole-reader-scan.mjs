@@ -7,7 +7,7 @@
 // and `env.HUB` against the file path. The clean-fixture pass
 // asserts src/do-facade.mjs is the ONLY file whose live (non-
 // commented) source matches; every other file records zero. The
-// mutation-run is triggered fixture-side by the H-2 shim
+// mutation-run is triggered fixture-side by the shim
 // h2-cf-do-sole-reader-shim.mjs, which seeds a synthetic non-
 // facade consumer into a scratch tree outside the applied source
 // root; the probe body sees the augmented file list, the scan

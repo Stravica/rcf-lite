@@ -1,0 +1,22 @@
+{
+  "reqId": "platform-cloudflare-kv-REQ-006",
+  "prdId": "PRD-001",
+  "title": "The applied key naming convention is either prefixed (per-domain prefix like users/ or flags/) or flat; the elicited answer flows through the facade",
+  "description": "The applied project elicits a key naming convention per ADR-3203: prefixed (every key carries a per-domain prefix such as users/ or flags/ before the domain identifier) or flat (every key is written as authored, with no facade-side prefix step). Recommended default is prefixed. When prefixed, the facade transparently applies the elicited keyPrefix on every read and write so domain code sees prefix-free keys and the storage layer sees fully qualified keys; when flat, the facade passes keys through untouched. The elicited answer is recorded in rcf/blueprints/platform-cloudflare-kv.applied.json and the applied fixture must (must) route every put/get/delete/list call through the elicited branch.",
+  "category": "functional",
+  "domain": "platform",
+  "priority": "must",
+  "rationale": "Closes criterion a (section 7c) on the kv-key-naming-convention elicit; refuses the previously silent prefixed/flat option.",
+  "tags": [
+    "blueprint:platform-cloudflare-kv",
+    "category:006-key-naming"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T20:20:00.000Z",
+  "updatedAt": "2026-09-09T20:20:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+    "field": "responsibilities.keyPrefix"
+  }
+}
