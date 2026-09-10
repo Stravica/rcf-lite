@@ -2,7 +2,7 @@
   "tacId": "TAC-3101-jobs-background-job-definition",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "name": "Jobs-background job-definition module contract",
   "purpose": "The shape every job-definition module in the applying project's jobs directory exports, owned on interfaces.jobModule.default below. The jobs runtime registers every job at boot on the applied queue consumer and dispatches by name.",
@@ -41,10 +41,10 @@
     {
       "name": "Applied queue capability",
       "kind": "external",
-      "description": "Composed on the applied blueprint declaring capabilities: [queue] via the mechanism; refuses apply on a bare project per REQ-001."
+      "description": "Composed on the applied blueprint declaring capabilities: [queue] via the applied-capability mechanism; refuses apply on a bare project per REQ-001."
     }
   ],
   "tradeoffs": "The v1.0.0 job-definition shape does not prescribe an inputSchema validator; the applying project owns validation. A later minor could add an optional validate hook if a shipped validation library becomes the shelf default. The dispatch table is by job name; two modules exporting the same name collide at boot and refuse.",
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

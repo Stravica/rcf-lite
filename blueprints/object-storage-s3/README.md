@@ -1,6 +1,6 @@
 # object-storage-s3
 
-Object storage on the S3 API, accessed through a store facade that is the sole reader of the S3 client. Cloudflare R2 is the first adapter, MinIO is the local dev target, any S3-compatible remote (AWS S3, Backblaze B2, Wasabi, self-hosted) composes cleanly. Ships put / get / delete / list, presigned GET URLs with a bounded TTL, and multipart-upload above an elicited threshold, plus a lifecycle-event sink with a metadata-only field discipline. Refuses composition without `security-secrets-management` applied (maintainer decision): the credential pair is a `secretRef`, never a value.
+Object storage on the S3 API, accessed through a store facade that is the sole reader of the S3 client. Cloudflare R2 is the first adapter, MinIO is the local dev target, any S3-compatible remote (AWS S3, Backblaze B2, Wasabi, self-hosted) composes cleanly. Ships put / get / delete / list, presigned GET URLs with a bounded TTL, and multipart-upload above an elicited threshold, plus a lifecycle-event sink with a metadata-only field discipline. Refuses composition without `security-secrets-management` applied: the credential pair is a `secretRef`, never a value.
 
 ## What this blueprint gives you
 
@@ -55,7 +55,7 @@ A new Node-only probe `hetzner-object-storage-round-trip.mjs` binds AC-28110-1: 
 
 ## Composition and conflicts
 
-Consumes `security-secrets-management` v1.0.1+ for the credential pair. Declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` per the capability mechanism (visual round spec 5.5.1). The apply verb refuses on a project without `secretsProvider` (exit 3, stderr carries `[object-storage-s3-no-secrets]` as the first-line tag and names the required capability, the shipped predecessor, and the override flag). `--allow-no-secrets-yet` overrides for a scaffolding pass and records a `notes` line on `rcf/blueprints/object-storage-s3.applied.json` for later reconciliation. Contributes ADR-2904 as `scope: global` on new topic `objectStorageContract`; future `object-storage-native-gcs` or `object-storage-native-azure` siblings would conflict here by design. `capabilities: ["objectStorage"]`; `providesRoles: []`.
+Consumes `security-secrets-management` v1.0.1+ for the credential pair. Declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` per the capability mechanism. The apply verb refuses on a project without `secretsProvider` (exit 3, stderr carries `[object-storage-s3-no-secrets]` as the first-line tag and names the required capability, the shipped predecessor, and the override flag). `--allow-no-secrets-yet` overrides for a scaffolding pass and records a `notes` line on `rcf/blueprints/object-storage-s3.applied.json` for later reconciliation. Contributes ADR-2904 as `scope: global` on new topic `objectStorageContract`; future `object-storage-native-gcs` or `object-storage-native-azure` siblings would conflict here by design. `capabilities: ["objectStorage"]`; `providesRoles: []`.
 
 ## The six probes
 

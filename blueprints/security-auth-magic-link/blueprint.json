@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-magic-link",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "category": "security",
   "capabilities": [
     "principalDirectory"

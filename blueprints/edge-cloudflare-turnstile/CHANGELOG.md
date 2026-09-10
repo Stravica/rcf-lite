@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Fixture: added a "Declared env vars" section to the fixture README (`packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/README.md`) declaring every env var the fixture and its probes read, per authoring standard section 7d. Probe pack itself unchanged (no account-bound branch).
+
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; single-mechanism story legality notes; magic-link guard probe extended with a mint-count delta assertion.

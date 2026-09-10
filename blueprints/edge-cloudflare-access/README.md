@@ -22,7 +22,7 @@ value beyond `path` ever leaves the validator boundary.
   vendor-neutral seam (`request.auth`) between the edge and the
   downstream handler.
 - Compose with `application-admin-console` v1.1.0 for the Access-gated
-  sign-in surface (round-4 capability-minor pattern).
+  sign-in surface.
 
 ## The six REQs
 
@@ -138,4 +138,4 @@ Each probe prints a report envelope and writes it to
   optionally: the admin-console's sign-in surface renders
   Access-gated when `zeroTrustGate` is in the applied set (and
   falls back to `security-auth-*` local login otherwise). The
-  v1.1.0 minor rides this PR (round-4 capability-minor pattern).
+  v1.1.0 minor rides this PR.
