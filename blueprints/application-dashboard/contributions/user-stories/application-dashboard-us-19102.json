@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19102",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-002",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "The primary KPI tile sits top-left in DOM order and in CSS Grid position across the ratified breakpoints",
   "asA": "reader glancing at the shipped dashboard on a laptop, a tablet and a phone",

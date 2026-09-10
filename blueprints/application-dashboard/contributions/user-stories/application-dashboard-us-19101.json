@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19101",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-001",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "The dashboard shell renders the five required regions on every shipped surface",
   "asA": "product owner responsible for the shipped dashboard surface",

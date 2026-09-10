@@ -28,7 +28,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 32 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.2.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent per spec 5.5.3');
   const reqs = doc.contributions.filter((c) => c.kind === 'req');

@@ -33,7 +33,7 @@ is the canonical example. Copy it and edit:
   "serverType": "cx33",
   "location": "fsn1",
   "image": "ubuntu-24.04",
-  "sshKeyIds": ["dave-ed25519", "baz-yubikey"],
+  "sshKeyIds": ["primary-admin-ed25519", "backup-admin-yubikey"],
   "networkId": null,
   "firewallId": null,
   "cloudInitPath": "hetzner/servers/rendered/ops-host.cloud-init.yaml",
@@ -159,15 +159,16 @@ ceiling: EUR 0.006/hour per run; destroy runs in `always()`; nightly
 `sweep-orphans` cron collects any leak on a 60-minute label-age
 cutoff.
 
-Round-7 T-2 (`platform-docker-compose-host`) and T-3
-(`edge-cloudflare-tunnel`) EXTEND this fixture rather than shipping
-a second copy. T-2 mounts the docker + compose verbs on the same
-throwaway server after cloud-init seals the baseline; T-3 mounts
-`cloudflared` on the runtime T-2 stands up.
+Round-7 `platform-docker-compose-host` and
+`edge-cloudflare-tunnel` EXTEND this fixture rather than shipping
+a second copy. The container-host blueprint mounts the docker + compose
+verbs on the same throwaway server after cloud-init seals the baseline;
+the edge-tunnel blueprint mounts `cloudflared` on the runtime the
+container-host stack stands up.
 
 ## Standards trace
 
-Every URL fetched 200 in the ratifying pass before the T-1 PR.
+Every URL fetched 200 in the ratifying pass before the PR.
 
 - Hetzner Cloud API https://docs.hetzner.cloud/
 - Hetzner Cloud CLI https://github.com/hetznercloud/cli

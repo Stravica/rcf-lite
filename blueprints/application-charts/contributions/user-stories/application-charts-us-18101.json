@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18101",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-001",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Every chart on the shipped surface names one of the six committed forms and honours the render-shell contract",
   "asA": "product owner responsible for the shipped surface's data affordances",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.1.0 (2026-09-09)
@@ -26,7 +30,7 @@ All notable changes to `platform-cloudflare-durable-objects` are recorded here. 
 
 ## 1.0.1 (2026-09-08)
 
-H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
+hardening pass (`h2-cf-platform-probe-integrity`): probe-integrity patch. No capability change.
 
 ### Changed
 
@@ -48,8 +52,8 @@ H-2 hardening train (`h2-cf-platform-probe-integrity`): probe-integrity patch. N
 - 8 Node-only probes under `contributions/probes/`: `namespace-facade-ready` (facade opens and emits namespaceReady with metadata-only payload), `single-cell-concurrent-increment` (two concurrent increments serialise FIFO; also folds AC-33109-1 witness field), `storage-round-trip` (both sql and kv backends; also folds AC-33111-1 default backend), `alarm-fires-once` (once-per-schedule contract with drained storage), `websocket-hub-broadcast` (fan-out within window; folds AC-33110-1 hibernate-and-wake and AC-33106-1 event-secrecy on the shipped path with SIMULATE_PII_LEAK=true mutation), `sole-reader-scan` (source-tree scan of the applied source root with comment-stripping; folds SIMULATE_NON_FACADE_IMPORT=true mutation), `real-account-storage-smoke` (`accountBound: true`; records `accountBoundSkipped` in CI without `CI_HAS_CLOUDFLARE_ACCOUNT` per spec section 3.5), and `wrangler-seam` (drives `wrangler dev --local` on the fixture; two concurrent POST /cell/<id>/increment requests through the DO facade reaching env.CELL observe per-instance serialisation; one WebSocket upgrade against /hub/<id>/connect through the facade reaching env.HUB receives one broadcast frame; additional AC-33108-1 result on the same run greps wrangler.toml for both binding pairs and the migrations tag/new_classes; warn semantics per section 3.1 pass-with-skip if wrangler is missing or fails to bind).
 - 7 elicited parameters on `blueprint.json`: `do-cell-binding` (default `CELL`), `do-hub-binding` (default `HUB`), `do-cell-class-name` (default `SingleCellObject`), `do-hub-class-name` (default `HubObject`), `do-storage-backend` (default `sql` per ADR-3403), `do-hub-broadcast-window-ms` (default `500`), `do-hub-hibernate-after-idle-ms` (default `30000` per ADR-3405).
 - `suggestedCompanions`: `logging` (for the lifecycle-event sink) and `errorHandling` (for the handler-failure boundary).
-- Extends the shared `cf-platform` sample-app fixture with the `[[durable_objects.bindings]]` blocks (one binding named `CELL` with `class_name` `SingleCellObject`, one binding named `HUB` with `class_name` `HubObject`), the paired `[[migrations]]` block with `tag = "v1"` and `new_classes = ["SingleCellObject", "HubObject"]`, the sole-reader DO facade (`src/do-facade.mjs`), the single-cell class (`src/do-single-cell.mjs`), the hub class (`src/do-hub.mjs`), and the in-memory DO storage driver (`src/do-storage.mjs`) realising both sql and kv backends. The T-0 `[assets]`, T-1 `[[kv_namespaces]]` and T-2 `[triggers]` crons blocks are preserved verbatim; the facade does NOT dereference `env.CACHE` (KV binding stays owned by the T-1 KV facade).
-- Anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js` covers `TS-100..109` on the T-3 chain slice plus the wrangler-seam probe module shape (TC-wrangler-seam-shape) that binds AC-33113-1 to the shipped probe file (blueprint shape, contributions cross-check, probe module contracts, fixture files, ADR bodies and clauses, guide sections and URLs, two-mint-topic scope entries).
+- Extends the shared `cf-platform` sample-app fixture with the `[[durable_objects.bindings]]` blocks (one binding named `CELL` with `class_name` `SingleCellObject`, one binding named `HUB` with `class_name` `HubObject`), the paired `[[migrations]]` block with `tag = "v1"` and `new_classes = ["SingleCellObject", "HubObject"]`, the sole-reader DO facade (`src/do-facade.mjs`), the single-cell class (`src/do-single-cell.mjs`), the hub class (`src/do-hub.mjs`), and the in-memory DO storage driver (`src/do-storage.mjs`) realising both sql and kv backends. The `[assets]`, `[[kv_namespaces]]` and `[triggers]` crons blocks are preserved verbatim; the facade does NOT dereference `env.CACHE` (KV binding stays owned by the KV facade).
+- Anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js` covers `TS-100..109` on the chain slice plus the wrangler-seam probe module shape (TC-wrangler-seam-shape) that binds AC-33113-1 to the shipped probe file (blueprint shape, contributions cross-check, probe module contracts, fixture files, ADR bodies and clauses, guide sections and URLs, two-mint-topic scope entries).
 
 ### Known limitations
 

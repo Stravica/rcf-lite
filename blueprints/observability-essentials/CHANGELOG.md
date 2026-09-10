@@ -1,11 +1,14 @@
 # observability-essentials CHANGELOG
 
-
-## 2.1.1 - 2026-09-10
+## 2.1.2 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-007: REQ description now references the JSON media-type header owned on TAC-801.responsibilities[1] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.
 
-## 2.1.0 (hardening pass B4, 2026-09-09)
+## 2.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
+## 2.1.0 (hardening pass, 2026-09-09)
 
 - Adds `elicits[]` with four apply-time answers: `liveness-probe-path` (string, default /live; REQ-001), `readiness-probe-path` (string, default /ready; REQ-002), `declared-dependency-set` (string, comma-separated; REQ-003), and `notification-outcome-substrate` (enum sqlite/postgres/custom, default sqlite; REQ-006). Every option value is backed by a must-priority REQ description (section 7c criterion a).
 - Adds `deliveredBy` to every REQ (REQ-001/002/003/007/010 -> TAC-801/TAC-802 interface names; REQ-004/005 -> TAC-803; REQ-006 -> TAC-804; REQ-008 -> ADR-804; REQ-009 -> ADR-803). Closes 8 pass-2 lint findings; per-blueprint lint reports zero on pass 1 and pass 2.

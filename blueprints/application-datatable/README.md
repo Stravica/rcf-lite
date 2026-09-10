@@ -39,5 +39,5 @@ Table or grid ARIA APG pattern per interactivity (ADR-1801); sortable columns ke
 ## Known mechanism-reach gaps
 
 - **Framework-agnostic focus containment.** The pack asserts focus return to the originating row on dialog close, but cannot prove a given framework's focus trap never leaks into the browser chrome; a project-side keyboard smoke supplement per applied framework closes the class.
-- **Chart-adjacent chart integration.** A datatable that renders a per-row sparkline (`application-charts` chart-style) is not covered by the datatable pack; the `application-charts` blueprint's own probe pack (visual round T-2) reaches those surfaces.
+- **Chart-adjacent chart integration.** A datatable that renders a per-row sparkline (`application-charts` chart-style) is not covered by the datatable pack; the `application-charts` blueprint's own probe pack (visual round) reaches those surfaces.
 - **Live-region debouncing on rapid filter typing.** Per-keystroke pagination announcements can flood assistive tech; the pack asserts the announcement fires, not the debounce. A v1.1 minor bump candidate adds a check for a bounded announcement rate.

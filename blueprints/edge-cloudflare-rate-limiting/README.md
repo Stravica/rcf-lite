@@ -1,6 +1,6 @@
 # edge-cloudflare-rate-limiting
 
-Zone-level rate limiting as an edge gate in front of Worker handlers, configured through a local manifest the applying project commits and applies to the live Cloudflare zone via a documented wrangler or dashboard flow. Ships v1.0.0 of the round-6 T-6 track per `projects/blueprint-library/specs/cloudflare-round-6-spec-2026-09-06.md` section 5.6.
+Zone-level rate limiting as an edge gate in front of Worker handlers, configured through a local manifest the applying project commits and applies to the live Cloudflare zone via a documented wrangler or dashboard flow. Ships v1.0.0 of the round-6 track per `projects/blueprint-library/specs/cloudflare-round-6-spec-2026-09-06.md` section 5.6.
 
 - **Category:** `edge`.
 - **Capability provided:** `edgeRateLimit`.
@@ -66,7 +66,7 @@ When both blueprints apply, the zone-level rate rule (characteristic set: IP-per
 
 ## Vendor citations
 
-- Cloudflare WAF rate-limiting rules: `https://developers.cloudflare.com/waf/rate-limiting-rules/` (documents `expression`, `threshold`, `period`, `characteristics`, `action`, `duration`; fetched 200 on 2026-09-07 for the round-6 T-6 ship).
+- Cloudflare WAF rate-limiting rules: `https://developers.cloudflare.com/waf/rate-limiting-rules/` (documents `expression`, `threshold`, `period`, `characteristics`, `action`, `duration`; fetched 200 on 2026-09-07 for the round-6 ship).
 
 ## Known mechanism-reach gaps
 

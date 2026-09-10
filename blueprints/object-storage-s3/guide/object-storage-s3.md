@@ -6,7 +6,7 @@ S3-shape object storage on any S3-compatible endpoint: Cloudflare R2 (the shippe
 
 ## Apply this blueprint
 
-`security-secrets-management` v1.0.1+ MUST be applied first per REQ-006 (maintainer decision). The blueprint declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` and the T-5 capability mechanism (visual round spec 5.5.1) enforces the refusal at apply time. On a project that has not applied secrets-management:
+`security-secrets-management` v1.0.1+ MUST be applied first per REQ-006 (maintainer decision). The blueprint declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` and the capability mechanism (visual round spec 5.5.1) enforces the refusal at apply time. On a project that has not applied secrets-management:
 
 ```sh
 rcf define blueprint add object-storage-s3
@@ -216,7 +216,7 @@ The Cloudflare R2 smoke stays gated on `CI_HAS_CLOUDFLARE_ACCOUNT` and is not af
 
 - Storage region matters (European data-locality requirements or lower-latency reads from EU-hosted workloads). `fsn1`, `hel1`, `nbg1` cover Germany and Finland; R2 does not surface a per-region locality on the public shape.
 - Egress-pricing profile differs from R2's zero-egress-fee posture; a workload with high internal-only egress may prefer R2, while a workload with predictable public egress may prefer Hetzner's flat per-TB pricing.
-- The applying project already runs on Hetzner Cloud (deploy-hetzner-server v1.0.0 shipped in round 7 T-1) and pairing the storage on the same vendor account is operationally simpler.
+- The applying project already runs on Hetzner Cloud (deploy-hetzner-server v1.0.0 shipped in round 7) and pairing the storage on the same vendor account is operationally simpler.
 
 Reach for R2 for the zero-egress-fee posture, for AWS S3 for the widest feature surface (Object Lock, versioning, lifecycle policies), and for MinIO for local dev without any account.
 

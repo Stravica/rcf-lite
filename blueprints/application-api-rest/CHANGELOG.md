@@ -1,18 +1,21 @@
 # application-api-rest CHANGELOG
 
-
-## 2.1.3 - 2026-09-10
+## 2.1.4 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-013: REQ description now references the request-id header owned on TAC-301.responsibilities[0] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.
 
-## 2.1.2 (B6a application core completion pass, 2026-09-09)
+## 2.1.3 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
+## 2.1.2 (application-core completion pass, 2026-09-09)
 
 - Donor hand-sweep on all 118 ACs: flipped 24 additional ACs from fixed to template where the assertion carries a project-set literal (deprecation dates, per-endpoint auth-class binding, downstream dependency sets on readiness, resolved probe paths, declared page-size and maximum limits, filter parameter and sortable-key sets, key-required operation set, de-duplication TTL, per-class rate-limit values and window durations, per-endpoint rate-limit overrides, log-level per class, histogram bucket boundaries, per-endpoint CORS overrides, PII-redaction policy). Each flipped AC carries an Applying agent sets: <specific values> clause. Final split: 87 fixed / 31 template.
 - Adds vendorCitation to seven ACs whose assertions rest on RFC wire shapes: AC-2102-3 cites RFC 3339 (Date and Time on the Internet: Timestamps); AC-2111-1 through AC-2111-6 cite RFC 7807 (Problem Details for HTTP APIs). Both citation URLs point at datatracker.ietf.org and carry verifiedOn 2026-09-09 (fetched via WebFetch during this pass).
 
-## 2.1.1 (B6a application core hardening, 2026-09-09)
+## 2.1.1 (application-core hardening, 2026-09-09)
 
-- B6a hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b, closed case drifts on `content-type` and `idempotency-key` in REQ-002, REQ-010, AC-2102-4, AC-2102-5, AC-2112-1, AC-2112-2 and ADR-306 to match the owner spellings on TAC-301.
+- hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b, closed case drifts on `content-type` and `idempotency-key` in REQ-002, REQ-010, AC-2102-4, AC-2102-5, AC-2112-1, AC-2112-2 and ADR-306 to match the owner spellings on TAC-301.
 - Added AC-2108-9 (readiness deadline: aggregate 503 naming the failed check id and the configured deadline while liveness continues at 200) covering the 2026-09-08 review finding F-1 on TAC-306.interfaces[0] (readiness check registry).
 
 

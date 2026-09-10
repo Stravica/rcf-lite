@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17109",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Selection persistence across pages holds the elicited contract and announces the running count",
   "asA": "operator selecting rows across several pages before running a bulk action",

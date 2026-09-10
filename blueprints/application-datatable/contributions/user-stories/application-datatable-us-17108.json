@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17108",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-002",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "URL state serialisation preserves sort, filter and page across reload and share",
   "asA": "operator sharing a specific datatable view with a colleague",

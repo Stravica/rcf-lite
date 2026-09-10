@@ -39,7 +39,7 @@ Every route the applying project ships preseeds both live-region wrappers in the
 - The two live-region wrappers must be preseeded before the first notification. A lazy-mount defect is silent at the DOM (the wrapper appears "eventually") but loses the first announcement at the assistive-technology layer. The pack refuses ship on this shape.
 - The priority-to-role mapping is fixed at v1.0.0 (info to polite/status, error to assertive/alert). A third priority (`warning`) is a v1.1 minor bump because it changes the role vocabulary; free-form priorities are refused at project-side review.
 - The toast timeout floor is a floor, not a ceiling. Six seconds is the default; an operator-elicited value above the floor is honoured (thirty seconds), a value below the floor is refused at apply. The pack measures the actual elapsed time against the shell root's declared floor and against the six-second baseline; both must clear.
-- The centre enumerates items by `data-notification-id`, per the T-3 gate discipline. A centre implementation that uses only `role="listitem"` on the children (without a per-element id attribute) passes the accessibility contract but does not let the pack enumerate individual items reliably; ship both.
+- The centre enumerates items by `data-notification-id`, per the gate discipline. A centre implementation that uses only `role="listitem"` on the children (without a per-element id attribute) passes the accessibility contract but does not let the pack enumerate individual items reliably; ship both.
 - The family-prefix reservation is documented; naming a future notifications blueprint outside the family (`application-alerts-email`) reads against the reservation and stops at author-side review.
 
 ## Cost honesty

@@ -11,16 +11,16 @@
 //   AC-20103-1 centre acknowledge round-trip (Tab-reachable acknowledge
 //              control POSTs to the server, the server responds, the
 //              DOM updates in response; enumerated by data-notification-id
-//              per the T-3 gate discipline, never by role alone)
+//              per the gate discipline, never by role alone)
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects (packages/rcf-lite/src/browser-verify/pack-browser.js) and
 // asserts on the DOM the applying project renders under TAC-2101
 // (live-region wrappers and toast factory), TAC-2102 (centre inbox
 // and acknowledge round-trip) and the priority-to-role mapping per
 // ADR-2101.
 //
-// The pack has no network-interception seam (T-0 shipped none); the
+// The pack has no network-interception seam (shipped none); the
 // acknowledge round-trip is captured through the request log the
 // sample app exposes on window.__notificationFetches and at
 // GET /__requests. The toast timeout is measured with browser.evaluate
@@ -34,7 +34,7 @@ export default {
   blueprintSlug: 'application-notifications-in-app',
   // Applies to any FBS that realises the live-region TAC or whose
   // navModel routes include a notifications-centre path. The source
-  // references BOTH `tacIds` and `route` so the T-0 loader's
+  // references BOTH `tacIds` and `route` so the loader's
   // applicability source-scan sees the two legal seams (route is one
   // of the three legal predicates).
   appliesTo: ({ fbs }) => {

@@ -15,10 +15,10 @@
 //              completion-state store per the elicited shape, activates restart
 //              from the settings surface, asserts the tour re-opens)
 //
-// Every check drives the real Playwright browser the T-0 runner injects and
+// Every check drives the real Playwright browser the runner injects and
 // reads its per-check applicability from the blueprint applied sidecar
 // (rcf/blueprints/application-onboarding-tour.applied.json) written by the apply
-// verb. T-5 has no requiresAppliedCapabilities, but the checklist-slot check
+// verb. The blueprint has no requiresAppliedCapabilities, but the checklist-slot check
 // gates its dashboard-vs-settings branch on the applied-blueprint set
 // (application-dashboard present or not), and the persistence check gates its
 // backend on the elicited completion-state-store answer (with the Q4 fallback
