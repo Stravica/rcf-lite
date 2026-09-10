@@ -249,10 +249,17 @@ cd packages/rcf-lite/test/fixtures/cf-platform
 node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-real-account-storage-smoke.mjs
 ```
 
-Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
-`CF_DO_NAMESPACE_ID`, `CF_API_TOKEN`) the probe records
-`accountBoundSkipped: true`, aggregates to `pass`, and exits 0
-per spec section 3.5.
+The probe's env contract is URL-only: it drives an HTTP round-trip
+against a deployed Worker origin named by `CF_DO_WORKER_URL` and
+does not call the Cloudflare REST API directly. Without
+`CI_HAS_CLOUDFLARE_ACCOUNT=true` the probe records
+`accountBoundSkipped: true` with `reason` naming
+`CI_HAS_CLOUDFLARE_ACCOUNT` and aggregates to `pass`. With
+`CI_HAS_CLOUDFLARE_ACCOUNT=true` but `CF_DO_WORKER_URL` unset the
+probe records `accountBoundSkipped: true` with `reason` naming
+`CF_DO_WORKER_URL` and aggregates to `pass`. The CF account id,
+DO namespace id and API token are wrangler-side deploy config
+bound to the deployed Worker; they are not on the probe's gate.
 
 ## T-3 wrangler dev boot
 
@@ -342,7 +349,7 @@ standard section 7d).
 | `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the account-bound branch on every Cloudflare real-account probe. | every `real-account-*` probe under `blueprints/platform-cloudflare-*` and `blueprints/messaging-queue-cloudflare` |
 | `CF_ACCOUNT_ID` | second | Cloudflare account id the shims send REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` (via `h2-cf-kv-real-account-shim.mjs`); `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
 | `CF_API_TOKEN` | second | API token the shims present on Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` (via `h2-cf-kv-real-account-shim.mjs`); `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
-| `CF_DO_WORKER_URL` | second | Deployed-Worker origin the DO storage-smoke probe HTTP round-trips against. This fixture does not yet self-provision the DO Worker (follow-up work item `w-2026-09-09-dave-005`); until it does, unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `blueprints/platform-cloudflare-durable-objects/contributions/probes/real-account-storage-smoke.mjs` |
+| `CF_DO_WORKER_URL` | second | Deployed-Worker origin the DO storage-smoke probe HTTP round-trips against. This fixture does not yet self-provision the DO Worker; until it does, unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `blueprints/platform-cloudflare-durable-objects/contributions/probes/real-account-storage-smoke.mjs` |
 | `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. This probe polls analytics for a pre-existing Worker with a per-minute cron and does not deploy a Worker itself; unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
 | `CF_API_BASE_URL` | optional | Test-only override pointing the KV shim at a local mock CF REST API. Not a skip trigger; enumerated for completeness in the shim's `DECLARED_ENV` export. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs` (via `h2-cf-account-api.mjs`) |
 | `CF_QUEUE_MESSAGE_COUNT` | optional | Message-count override on the messaging-queue-cloudflare concurrency smoke (default 500). Not a skip trigger. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
