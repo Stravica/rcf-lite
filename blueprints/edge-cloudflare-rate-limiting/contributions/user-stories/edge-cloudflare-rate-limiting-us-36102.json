@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36102-1",
-      "description": "The blueprint guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md documents an operator-facing management surface with both a wrangler command flow and a Cloudflare dashboard flow; each flow names the exact steps to apply one rule from a manifest file to the elicited zone; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/ as the vendor doc for the rule shape.",
+      "description": "The blueprint guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md documents an operator-facing management surface with both a wrangler command flow and a Cloudflare dashboard flow; each flow names the exact steps to apply one rule from a manifest file to the elicited zone; the guide references https://developers.cloudflare.com/waf/rate-limiting-rules/ as the vendor doc for the rule shape. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped guide file in the blueprint tree",
       "when": "the anatomy test scans the guide for the wrangler headings, the dashboard headings and the vendor URL",
       "then": "both flow headings are present and the vendor URL appears",
@@ -24,6 +24,6 @@
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the guide-section presence assertion for the management-surface documentation. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }
