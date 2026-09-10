@@ -16,7 +16,12 @@
       "when": "the input stanza is parsed",
       "then": "one input `versionId` exists and is not marked required; the workflow declares no other input fields",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-12108-2",
@@ -25,7 +30,8 @@
       "when": "the `promote` workflow runs with `versionId=''`",
       "then": "the workflow invokes `resolveNewestOfMain` returning W, calls `promoteVersion({ versionId: W })`, and the recorded promote record names W as `promotedVersionId`",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12108-3",
@@ -34,7 +40,12 @@
       "when": "the `promote` workflow runs with `versionId='not-a-version'`",
       "then": "the run fails with the `DEPLOY_VERSION_NOT_FOUND` code from the adapter, no vendor promote call is issued, and no promote record is appended to the deploy log",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/#versions",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
@@ -42,5 +53,5 @@
     "TAC-1306-deploy-cloudflare-workers-deploy-ci-workflows"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

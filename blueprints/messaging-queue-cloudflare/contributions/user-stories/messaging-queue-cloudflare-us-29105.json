@@ -16,10 +16,27 @@
       "when": "the publish-to-delivery probe publishes 5 messages",
       "then": "the consumer receives them in one batch; per-message ack fires 5 times; the messageAcked events on the sink number 5",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-29105-2",
+      "description": "Batch-size ceiling refused at load. Given the elicited batch-size answered above the Cloudflare limit of 100, when the loader validates the elicited answer, then the loader refuses with a named error kind (batchSizeAboveCeiling) and the ship gate FAILS; a mutation SIMULATE_BATCH_LIMIT_BREACH=true forces a 150 value into the applied sidecar and the same refusal fires downstream.",
+      "given": "batch-size answered above 100",
+      "when": "the loader validates the elicited answer",
+      "then": "the loader refuses with batchSizeAboveCeiling; the ship gate FAILS; the mutation surfaces the same refusal downstream",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+        "field": "interfaces.createConsumer"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -16,7 +16,12 @@
       "when": "the deploy job's step list is inspected for each environment",
       "then": "the migrations-apply step appears before the deploy step in that job, and any parallelism configuration is such that the deploy cannot start until the apply has exited zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/reference/migrations/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-13103-2",
@@ -25,7 +30,8 @@
       "when": "the pipeline runs",
       "then": "the migrations-apply step exits non-zero, the deploy step does not execute, the deploy job is reported as failed, and no new Worker version has been published to the target environment",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13103-3",
@@ -34,7 +40,8 @@
       "when": "the store event log for that CI run is inspected",
       "then": "the log contains exactly one migrationsApplied event whose metadata fields match the run and whose payload contains no value read from a domain table",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -42,5 +49,5 @@
     "TAC-1402-persistence-data-d1-migration-catalog"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

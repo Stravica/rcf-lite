@@ -29,14 +29,14 @@ is the canonical example. Copy it and edit:
 
 ```jsonc
 {
-  "name": "ops-01",
+  "name": "ops-host",
   "serverType": "cx33",
   "location": "fsn1",
   "image": "ubuntu-24.04",
   "sshKeyIds": ["dave-ed25519", "baz-yubikey"],
   "networkId": null,
   "firewallId": null,
-  "cloudInitPath": "hetzner/servers/rendered/ops-01.cloud-init.yaml",
+  "cloudInitPath": "hetzner/servers/rendered/ops-host.cloud-init.yaml",
   "labels": {
     "role": "ops-host",
     "blueprint": "deploy-hetzner-server"
@@ -106,7 +106,7 @@ elicit change.
 ## When to reach for `cx23` vs `cx33`
 
 - `cx23` (default). Two vCPU, 4 GB RAM, 40 GB SSD. Approximately
-  EUR 4.15/month. Fine for the docker-compose stack that ops-01
+  EUR 4.15/month. Fine for the docker-compose stack that ops-host
   runs (fewer than ten containers, each below 300 MB RSS).
 - `cx33`. Two vCPU, 8 GB RAM, 80 GB SSD. Approximately EUR
   7.99/month. Reach when the compose stack holds a Postgres, a
@@ -143,7 +143,7 @@ https://docs.hetzner.com/cloud/servers/backups-snapshots/overview.
 Fire a snapshot manually from the applying project's CLI:
 
 ```
-node ./scripts/snapshot.mjs --server ops-01
+node ./scripts/snapshot.mjs --server ops-host
 ```
 
 The script imports the provisioner facade, calls `takeSnapshot`,

@@ -16,7 +16,8 @@
       "when": "a fresh process opens the same store artifact and reads through the facade",
       "then": "the read returns W with the same values that were committed, and the store event log's opened event for the fresh process is present with no accompanying corruption error",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5105-2",
@@ -25,7 +26,8 @@
       "when": "a fresh process opens the same store artifact and reads through the facade",
       "then": "the reads for W_a's affected rows return the pre-transaction state and no post-transaction state, and no partial subset of W_a is visible",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5105-3",
@@ -34,12 +36,13 @@
       "when": "the durability posture is inspected via an engine-native introspection query executed through the facade",
       "then": "the returned posture matches the facade's declared crash-safety configuration, and a grep of consumer code finds no direct configuration of these pragmas or engine-native equivalents",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-601-persistence-data-sqlite-store"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

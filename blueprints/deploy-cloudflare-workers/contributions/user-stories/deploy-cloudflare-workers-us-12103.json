@@ -16,7 +16,8 @@
       "when": "an HTTP request hits A and then a second HTTP request hits U within five minutes of the run completing",
       "then": "both responses carry the `versionSha` field of V's build provenance in the health-probe body, and the two responses agree on that field",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12103-2",
@@ -25,7 +26,8 @@
       "when": "requests hit A and the version-id URLs for V and W after W's run completes",
       "then": "the response at A carries W's `versionSha`; the response at V's version-id URL still carries V's `versionSha`; the two are distinct",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12103-3",
@@ -34,7 +36,8 @@
       "when": "the `build-and-upload` run completes and no promote has run",
       "then": "the production URL's health probe carries P's `versionSha`, not W's",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

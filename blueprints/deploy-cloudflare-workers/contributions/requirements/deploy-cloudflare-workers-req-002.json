@@ -2,7 +2,7 @@
   "reqId": "deploy-cloudflare-workers-REQ-002",
   "prdId": "PRD-001",
   "title": "One deploy adapter module is the sole caller of the deploy CLI",
-  "description": "The project exposes a single Deploy Adapter module that wraps the deploy CLI (the vendor's `wrangler` binary when the default vendor is in play). Every path that uploads a version, promotes a version, lists versions, or reads deploy state routes through this module. Nothing else in the project source tree spawns the CLI, imports the vendor SDK, or issues an HTTP call to the vendor's deploy API. The module exposes a fixed named-verb surface (`uploadVersion`, `promoteVersion`, `listVersions`, `resolveNewestOfMain`, `describeVersion`) that is stable across the blueprint's major version.",
+  "description": "The project exposes a single Deploy Adapter module that wraps the deploy CLI (the vendor's `wrangler` binary when the default vendor is in play). Every path that uploads a version, promotes a version, lists versions, or reads deploy state routes through this module. Nothing else in the project source tree spawns the CLI, imports the vendor SDK, or issues an HTTP call to the vendor's deploy API. The module exposes a fixed named-verb surface (`uploadVersion`, `promoteVersion`, `listVersions`, `resolveNewestOfMain`, `describeVersion`) that is stable across the blueprint's major version. The adapter exposes a stable deployStatus verb that composes the manifest-declared production URL, the preview alias URL resolved via the Preview URL Resolver, and the currently serving version id (from the Cloudflare Deployments API); the verb is the sole channel through which any AC observes those addressable surfaces.",
   "category": "technical",
   "domain": "deploy",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1301-deploy-cloudflare-workers-deploy-adapter",
+    "field": "responsibilities.uploadVersion"
+  }
 }

@@ -6,7 +6,7 @@ S3-shape object storage on any S3-compatible endpoint: Cloudflare R2 (the shippe
 
 ## Apply this blueprint
 
-`security-secrets-management` v1.0.1+ MUST be applied first per REQ-006 (Baz decision 6). The blueprint declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` and the T-5 capability mechanism (visual round spec 5.5.1) enforces the refusal at apply time. On a project that has not applied secrets-management:
+`security-secrets-management` v1.0.1+ MUST be applied first per REQ-006 (maintainer decision). The blueprint declares `requiresAppliedCapabilities: {capabilities: ["secretsProvider"], allowSkipFlag: "allow-no-secrets-yet", refusalMessageId: "object-storage-s3-no-secrets"}` and the T-5 capability mechanism (visual round spec 5.5.1) enforces the refusal at apply time. On a project that has not applied secrets-management:
 
 ```sh
 rcf define blueprint add object-storage-s3

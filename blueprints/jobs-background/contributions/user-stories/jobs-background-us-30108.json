@@ -16,10 +16,28 @@
       "when": "the fake clock advances 60 seconds",
       "then": "one jobStarted event fires within fireToleranceMs; one jobCompleted event fires within timeoutMs; both records match the whitelist",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-30108-2",
+      "description": "Cron tick outside tolerance FAILS. Given a job scheduled on a cron string and the elicited fire tolerance window, when the cron tick fires more than tolerance seconds past the scheduled boundary, then the scheduler emits jobFireOutsideTolerance on the event sink carrying the observed delay; a mutation SIMULATE_CRON_JITTER=true delays the tick past tolerance and the sink observer FAILS the run.",
+      "given": "a scheduled cron string and the elicited fire tolerance",
+      "when": "the cron tick fires beyond tolerance",
+      "then": "jobFireOutsideTolerance fires with the observed delay; the jitter mutation FAILS the run",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3102-jobs-background-scheduler",
+        "field": "interfaces.scheduler.schedule"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3102-jobs-background-scheduler", "TAC-3103-jobs-background-run-log"],
+  "tacIds": [
+    "TAC-3102-jobs-background-scheduler",
+    "TAC-3103-jobs-background-run-log"
+  ],
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-06T20:30:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

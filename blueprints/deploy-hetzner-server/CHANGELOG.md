@@ -1,6 +1,12 @@
+# Changelog
+
+## 1.1.0 - 2026-09-09
+
+Adds deliveredBy on REQ-001, REQ-002 and REQ-004. Adds ownerRef on AC-37102-1 (manifest schema), AC-37105-1 (cloud-init template) and AC-37106-1 (firewall shape). Adds runtime-clause naming the cloudHost applied capability on REQ-001. Adds disposition to every AC. Adds provisioner-failure and idempotency ACs across the family: US-37101 (AC-37101-2 credential missing, AC-37101-3 dependency not ready, AC-37101-4 repeat-boot idempotency, per section 7a worked example), US-37102 (AC-37102-2 malformed manifest, AC-37102-3 firewall opens ssh to 0.0.0.0/0), US-37103 (AC-37103-2 provisioner failure surfaces, AC-37103-3 repeat-apply idempotency), US-37104 (AC-37104-2 malformed template refusal), US-37106 (AC-37106-2 firewall applied at provision time), US-37107 (AC-37107-2 scheduled snapshot per elicited cadence, with off suppression), US-37108 (AC-37108-2 snapshot-on-demand upstream failure), US-37109 (AC-37109-2 secret exclusion by source-tree grep, AC-37109-3 event fires once per lifecycle moment).
+
 ## 1.0.1
 
-H-1 hardening patch train (round-7 real-account gate d-2026-09-08-010 defect list). Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three T-1 real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three T-1 mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
+H-1 hardening patch train (round-7 real-account gate  defect list). Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three T-1 real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three T-1 mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
 
 Defect list fixed:
 
@@ -15,9 +21,9 @@ Defect list fixed:
 
 Also: the three T-1 mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the H-1 mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (H-1 REQ-145 / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
 
-Chain: HQ hardening block H-1 REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519 per HQ chain-block ruling 2026-09-08. Real run under Baz one-off approval 2026-09-08: yes, one-off for round 7 gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
+Chain: the operator estate hardening block H-1 REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for round 7 gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
 
-Defect (8) T-2 and T-3 stub drivers are OUT of scope for H-1 (H-2 owns them).
+Defect (8) T-2 and T-3 stub drivers are OUT of scope for H-1 (the review train owns them).
 
 # deploy-hetzner-server changelog
 
@@ -51,5 +57,7 @@ Mints the shared `hetzner-throwaway-server` fixture under
 they do not ship a second copy).
 
 Trace: hetzner-round-7-spec-2026-09-07.md section 5.1;
-Baz ruling 2026-09-07 09:50Z (decisions 18 through 24 approved as
+maintainer ruling 2026-09-07 09:50Z (decisions 18 through 24 approved as
 recommended, "round 7 - agreee to all").
+
+Review-fix (2026-09-09): Adds three option-binding ACs to close section 7c on the elicits catalogue - provisioning-tool raw-api (AC-37101-5), server-type SKU enum (AC-37103-4 naming every shipped SKU), location enum (AC-37103-5 naming every shipped datacentre). Adds deliveredBy on REQ-003, REQ-005, REQ-006. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-37101-2, AC-37105-1, AC-37108-1, AC-37108-2, AC-37108-3).

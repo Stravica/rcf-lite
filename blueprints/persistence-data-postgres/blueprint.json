@@ -1,8 +1,10 @@
 {
   "slug": "persistence-data-postgres",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "persistence",
-  "capabilities": ["relationalStore"],
+  "capabilities": [
+    "relationalStore"
+  ],
   "suggestedCompanions": [
     {
       "role": "logging",
@@ -14,27 +16,111 @@
     }
   ],
   "contributions": [
-    { "id": "persistence-data-postgres-REQ-001", "kind": "req", "path": "requirements/persistence-data-postgres-req-001.json" },
-    { "id": "persistence-data-postgres-REQ-002", "kind": "req", "path": "requirements/persistence-data-postgres-req-002.json" },
-    { "id": "persistence-data-postgres-REQ-003", "kind": "req", "path": "requirements/persistence-data-postgres-req-003.json" },
-    { "id": "persistence-data-postgres-REQ-004", "kind": "req", "path": "requirements/persistence-data-postgres-req-004.json" },
-    { "id": "persistence-data-postgres-REQ-005", "kind": "req", "path": "requirements/persistence-data-postgres-req-005.json" },
-    { "id": "persistence-data-postgres-REQ-006", "kind": "req", "path": "requirements/persistence-data-postgres-req-006.json" },
-    { "id": "persistence-data-postgres-REQ-007", "kind": "req", "path": "requirements/persistence-data-postgres-req-007.json" },
-    { "id": "persistence-data-postgres-US-27101", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27101.json" },
-    { "id": "persistence-data-postgres-US-27102", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27102.json" },
-    { "id": "persistence-data-postgres-US-27103", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27103.json" },
-    { "id": "persistence-data-postgres-US-27104", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27104.json" },
-    { "id": "persistence-data-postgres-US-27105", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27105.json" },
-    { "id": "persistence-data-postgres-US-27106", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27106.json" },
-    { "id": "persistence-data-postgres-US-27107", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27107.json" },
-    { "id": "persistence-data-postgres-US-27108", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27108.json" },
-    { "id": "persistence-data-postgres-US-27109", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27109.json" },
-    { "id": "persistence-data-postgres-US-27110", "kind": "us", "path": "user-stories/persistence-data-postgres-us-27110.json" },
-    { "id": "TAC-2801-persistence-data-postgres-facade", "kind": "tac", "path": "tacs/tac-2801-persistence-data-postgres-facade.json" },
-    { "id": "TAC-2802-persistence-data-postgres-migration-runner", "kind": "tac", "path": "tacs/tac-2802-persistence-data-postgres-migration-runner.json" },
-    { "id": "TAC-2803-persistence-data-postgres-transaction-helper", "kind": "tac", "path": "tacs/tac-2803-persistence-data-postgres-transaction-helper.json" },
-    { "id": "TAC-2804-persistence-data-postgres-recovery-runner", "kind": "tac", "path": "tacs/tac-2804-persistence-data-postgres-recovery-runner.json" },
+    {
+      "id": "persistence-data-postgres-REQ-001",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-001.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-002",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-002.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-003",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-003.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-004",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-004.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-005",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-005.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-006",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-006.json"
+    },
+    {
+      "id": "persistence-data-postgres-REQ-007",
+      "kind": "req",
+      "path": "requirements/persistence-data-postgres-req-007.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27101",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27101.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27102",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27102.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27103",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27103.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27104",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27104.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27105",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27105.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27106",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27106.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27107",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27107.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27108",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27108.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27109",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27109.json"
+    },
+    {
+      "id": "persistence-data-postgres-US-27110",
+      "kind": "us",
+      "path": "user-stories/persistence-data-postgres-us-27110.json"
+    },
+    {
+      "id": "TAC-2801-persistence-data-postgres-facade",
+      "kind": "tac",
+      "path": "tacs/tac-2801-persistence-data-postgres-facade.json"
+    },
+    {
+      "id": "TAC-2802-persistence-data-postgres-migration-runner",
+      "kind": "tac",
+      "path": "tacs/tac-2802-persistence-data-postgres-migration-runner.json"
+    },
+    {
+      "id": "TAC-2803-persistence-data-postgres-transaction-helper",
+      "kind": "tac",
+      "path": "tacs/tac-2803-persistence-data-postgres-transaction-helper.json"
+    },
+    {
+      "id": "TAC-2804-persistence-data-postgres-recovery-runner",
+      "kind": "tac",
+      "path": "tacs/tac-2804-persistence-data-postgres-recovery-runner.json"
+    },
     {
       "id": "ADR-2801-persistence-data-postgres-driver",
       "kind": "adr",
@@ -75,6 +161,98 @@
       "path": "adrs/adr-2805-persistence-data-postgres-connection-pool-posture.json",
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "connection-url",
+      "prompt": "Connection URL for the pg client (project-config value; a security-secrets-management-applied project passes a secretRef instead of the literal URL). The facade dereferences this at boot and holds no other reference to it.",
+      "kind": "string",
+      "default": "postgres://localhost:5432/app"
+    },
+    {
+      "id": "migrations-directory",
+      "prompt": "Migrations directory: numbered forward-only .sql files, one file one transaction. Default db/migrations under the applying project root.",
+      "kind": "string",
+      "default": "db/migrations"
+    },
+    {
+      "id": "migration-runner-tool",
+      "prompt": "Migration runner tool per ADR-2802. node-pg-migrate wraps the pg driver; sqitch is a standalone Perl runner; flyway is the JVM-based runner; custom is a bespoke Node runner over pg. The discipline (numbered forward-only, one file one transaction) is fixed; the tool is elicited.",
+      "kind": "enum",
+      "options": [
+        "node-pg-migrate",
+        "sqitch",
+        "flyway",
+        "custom"
+      ],
+      "default": "node-pg-migrate"
+    },
+    {
+      "id": "runner-mode",
+      "prompt": "Migration runner mode per ADR-2803. atBoot runs migrations on process boot before the facade opens (right for a long-lived Node target). ciStep runs migrations as a discrete CI step before the deploy (right for Workers-adjacent or container-scheduled targets where the runtime lifecycle is not the migration lifecycle).",
+      "kind": "enum",
+      "options": [
+        "atBoot",
+        "ciStep"
+      ],
+      "default": "atBoot"
+    },
+    {
+      "id": "pool-size",
+      "prompt": "Connection pool size per node-postgres defaults. The shipped default is 10 on Node targets; a container target with a short-lived request scope may use a lower value.",
+      "kind": "string",
+      "default": "10"
+    },
+    {
+      "id": "idle-timeout-ms",
+      "prompt": "Idle-timeout milliseconds per node-postgres. Default 30000. A container target may set 0 to disable idle culling and rely on the request-scoped pool.",
+      "kind": "string",
+      "default": "30000"
+    },
+    {
+      "id": "connection-timeout-ms",
+      "prompt": "Connection-timeout milliseconds per node-postgres. Default 5000. The facade refuses to boot when the timeout expires without a successful ready-check.",
+      "kind": "string",
+      "default": "5000"
+    },
+    {
+      "id": "recovery-destination",
+      "prompt": "Destination path for the scheduled pg_dump artefact. A filesystem path, an S3 URL, or an operator-owned path. The recovery runner writes here and emits backupExported carrying the artefact path.",
+      "kind": "string",
+      "default": "backups/pg"
+    },
+    {
+      "id": "recovery-cadence",
+      "prompt": "Cadence for the scheduled pg_dump artefact. daily is the shipped default; hourly and weekly are alternatives per ADR-2804. off is not legal at v1.0.0 because the two-path recovery model requires the export path.",
+      "kind": "enum",
+      "options": [
+        "daily",
+        "hourly",
+        "weekly"
+      ],
+      "default": "daily"
+    },
+    {
+      "id": "pitr-provider",
+      "prompt": "Vendor point-in-time recovery provider. hosted (RDS, Cloud SQL, Neon, Supabase, etc., where the vendor exposes PITR) or self-managed (WAL archiving to a durable object store, restored via pg_basebackup). Both paths are required at v1.0.0.",
+      "kind": "enum",
+      "options": [
+        "hosted",
+        "self-managed"
+      ],
+      "default": "hosted"
+    },
+    {
+      "id": "advisory-lock-helper",
+      "prompt": "Advisory-lock helper mode per Postgres explicit-locking reference. off omits the helper entirely (Q1 ratified default). session takes pg_advisory_lock at session scope; transaction takes pg_advisory_xact_lock at transaction scope.",
+      "kind": "enum",
+      "options": [
+        "off",
+        "session",
+        "transaction"
+      ],
+      "default": "off"
     }
   ]
 }

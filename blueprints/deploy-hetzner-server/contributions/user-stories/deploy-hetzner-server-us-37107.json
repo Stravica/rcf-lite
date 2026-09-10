@@ -13,12 +13,41 @@
       "id": "AC-37107-1",
       "description": "manifest-schema-validate.mjs asserts every fixture manifest carries snapshotCadence with a value in the shipped enum {weekly, daily, off}; a manifest missing the field FAILS schema validation naming the missing field.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37107-2",
+      "description": "Scheduled snapshot fires per elicited cadence. Given snapshotCadence = weekly and hetznerManagedBackups = false, when the scheduled snapshot runner ticks past the weekly boundary against the throwaway server, then hcloud image list --type=snapshot --output json shows a fresh snapshot tagged with the server name and current wall-clock time; hetznerScheduledSnapshotTaken fires on the event sink with snapshot id, cadence and time. A mutation snapshotCadence = off suppresses the scheduled run and asserts no new snapshot appears.",
+      "given": "snapshotCadence = weekly, hetznerManagedBackups = false, throwaway server present",
+      "when": "the scheduled snapshot runner ticks past the weekly boundary",
+      "then": "hcloud image list --type=snapshot shows a fresh tagged snapshot; hetznerScheduledSnapshotTaken fires with snapshot id, cadence, time; snapshotCadence=off produces no new snapshot",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37107-3",
+      "description": "Enum drift refusal on snapshot-cadence. Given a manifest snapshotCadence value outside the shipped enum {weekly, daily, off}, when manifest-schema-validate.mjs runs, then the probe FAILS naming the offending value and the shipped enum; the provisioner refuses to apply the manifest.",
+      "given": "snapshotCadence value outside {weekly, daily, off}",
+      "when": "manifest-schema-validate.mjs runs",
+      "then": "the probe FAILS naming the offending value and the shipped enum; the provisioner refuses to apply",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
+        "field": "interfaces.hetzner-server.schema.json"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3802-deploy-hetzner-server-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

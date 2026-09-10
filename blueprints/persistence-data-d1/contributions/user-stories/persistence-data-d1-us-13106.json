@@ -16,7 +16,8 @@
       "when": "the operator invokes `wrangler d1 time-travel restore <database> --timestamp=<pre-drop-timestamp>` and a fresh Worker request reads through the facade",
       "then": "the facade reads return the pre-drop row set, the destructive write is not present, and the store event log records exactly one `timeTravelRestored` event whose fields carry the target database identifier, the restore timestamp or bookmark, and the ISO-8601 completion timestamp",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13106-2",
@@ -25,7 +26,8 @@
       "when": "the export step runs against the source database, and the artifact is loaded into a fresh D1 database via `wrangler d1 execute --file <artifact-path>` (with any BEGIN TRANSACTION or COMMIT statements stripped per the vendor's import guidance) and a fresh Worker request reads through the facade",
       "then": "the artifact file exists at the requested path, the fresh database reports the same schema shape and row count for every domain table as the source at export completion, and the store event log records one `backupExported` event whose fields carry the source database identifier, the artifact path, and the ISO-8601 completion timestamp",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13106-3",
@@ -34,7 +36,8 @@
       "when": "the source tree the Worker deploys from is inspected for diff against the deployed build",
       "then": "no Worker source change is required to invoke either recovery path (the recovery runner is a project-side ops surface, not a facade verb), and both invocations produced their event log entry without a Worker redeploy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1401-persistence-data-d1-facade"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

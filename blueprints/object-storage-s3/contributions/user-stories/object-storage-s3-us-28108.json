@@ -16,7 +16,12 @@
       "when": "node blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs runs",
       "then": "the shim exits 0; the report at .rcf/reports/blueprints/object-storage-s3/r2-real-account-smoke.json carries aggregateVerdict pass and a single result with accountBoundSkipped true",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/r2/api/s3/api/",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-28108-2",
@@ -25,10 +30,13 @@
       "when": "node blueprints/object-storage-s3/contributions/probes/run-r2-real-account-smoke.mjs runs",
       "then": "the shim exits 0; the temporary object is deleted after the round-trip; the report carries aggregateVerdict pass and no accountBoundSkipped:true field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

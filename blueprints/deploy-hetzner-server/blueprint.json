@@ -1,6 +1,6 @@
 {
   "slug": "deploy-hetzner-server",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "category": "deploy",
   "capabilities": [
     "cloudHost"
@@ -46,7 +46,7 @@
     },
     {
       "id": "location",
-      "prompt": "Hetzner data centre. fsn1 (Falkenstein) is the shipped default per Baz ruling 2026-09-07 09:50Z on the Q2 ratification.",
+      "prompt": "Hetzner data centre. fsn1 (Falkenstein) is the shipped default per maintainer ruling 2026-09-07 09:50Z on the Q2 ratification.",
       "kind": "enum",
       "options": [
         "fsn1",

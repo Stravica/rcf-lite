@@ -16,7 +16,8 @@
       "when": "every event record captured on the sink is inspected",
       "then": "every field on every record matches one of the metadata field types listed above, and no field's value equals a value read from any domain table",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13107-2",
@@ -25,7 +26,26 @@
       "when": "the grep is executed",
       "then": "matches appear only inside CRUD verb bodies (facade) or inside statements the recovery runner or deploy gate does not read for event-record construction, and never inside onEvent call arguments or event-record construction sites",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1401-persistence-data-d1-facade",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-13107-3",
+      "description": "Repeat-emission secrecy under maximum event volume. Given the facade exercised through a load run that fires facadeReady, migrationsApplied, backupExported, timeTravelRestored and queryFailed events N times, when the event stream is inspected, then every one of the N event records carries only the metadata field types on AC-13107-1 and no run of N leaks a domain-row value; a mutation SIMULATE_DOMAIN_ROW_IN_EVENT=true injects a domain value into one event and the sink observer FAILS the run.",
+      "given": "the facade run under load that fires each of the five lifecycle events N times",
+      "when": "the event stream is inspected across the whole run",
+      "then": "every one of the N records carries only the metadata field types on AC-13107-1; the injection mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1401-persistence-data-d1-facade",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -34,5 +54,5 @@
     "TAC-1403-persistence-data-d1-deploy-gate"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

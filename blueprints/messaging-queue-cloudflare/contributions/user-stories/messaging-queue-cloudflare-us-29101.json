@@ -16,7 +16,8 @@
       "when": "the process boots and the facade ready-check returns",
       "then": "a producerReady event fires on the injected event sink with a payload containing queueName; the facade exposes named domain verbs (publish, publishBatch) and does not re-export the raw Queues binding",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-29101-2",
@@ -25,10 +26,27 @@
       "when": "grep for a Queues binding dereference walks the tree outside the facade directory",
       "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw binding reference",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-29101-3",
+      "description": "Binding missing at boot. Given the elicited queue-binding-name resolves to no binding on env (the wrangler.toml [[queues.producers]] block is absent, or the binding name is mistyped), when the producer facade opens on boot, then the facade refuses with a named error kind (missingQueueBinding); no producerReady fires on the sink.",
+      "given": "env[queue-binding-name] is undefined",
+      "when": "the producer facade opens on boot",
+      "then": "the facade refuses with missingQueueBinding; no producerReady fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.createProducer"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

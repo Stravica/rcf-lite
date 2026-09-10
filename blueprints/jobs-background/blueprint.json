@@ -1,6 +1,6 @@
 {
   "slug": "jobs-background",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "jobs",
   "capabilities": [
     "backgroundJobs"
@@ -144,6 +144,59 @@
       "recommendedDefault": true,
       "elicited": true,
       "standardsTraceClause": "Cloudflare Queues consumer wall-clock ceiling per platform limits doc"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "jobs-directory",
+      "prompt": "Directory holding one job-definition module per job. Each module default-exports the { name, handler, inputSchema, retryPolicy, timeoutMs } shape and registerJobs walks the directory. Default apps/*/src/jobs under the applying project root.",
+      "kind": "string",
+      "default": "src/jobs"
+    },
+    {
+      "id": "scheduler-mode",
+      "prompt": "Scheduler mode per ADR-3102. inProcess drives the scheduler from a long-lived process (setInterval or a cron library). workerCron uses the Cloudflare Workers cron trigger. external uses an operator-provided cron surface calling the runtime through a triggerJob verb. workflows is reserved for v1.1.0.",
+      "kind": "enum",
+      "options": [
+        "inProcess",
+        "workerCron",
+        "external"
+      ],
+      "default": "workerCron"
+    },
+    {
+      "id": "max-attempts",
+      "prompt": "Max delivery attempts per job. Elicited within the applied queue capability's own ceiling; refused when higher than that ceiling. Default 3.",
+      "kind": "string",
+      "default": "3"
+    },
+    {
+      "id": "retry-backoff",
+      "prompt": "Retry backoff shape on the job-definition retryPolicy: constant delay between attempts, exponential doubling, or linear increase. Applied within the queue-owned redelivery mechanism.",
+      "kind": "enum",
+      "options": [
+        "constant",
+        "exponential",
+        "linear"
+      ],
+      "default": "exponential"
+    },
+    {
+      "id": "handler-timeout-seconds",
+      "prompt": "Handler wall-clock timeout per ADR-3104. Default 60 seconds; floor 1 second; ceiling bounded by the applied queue's consumer wall-clock. A handler exceeding the timeout raises a retryable timeout error routed through the queue redelivery mechanism.",
+      "kind": "string",
+      "default": "60"
+    },
+    {
+      "id": "operator-surface",
+      "prompt": "Operator-facing surface for triggering ad-hoc runs, inspecting the run log, and re-driving a failed job. cli ships a Node command; httpEndpoint ships a bearer-guarded route wired through the applied HTTP surface; none omits the operator surface (the applying project provides its own).",
+      "kind": "enum",
+      "options": [
+        "cli",
+        "httpEndpoint",
+        "none"
+      ],
+      "default": "cli"
     }
   ]
 }

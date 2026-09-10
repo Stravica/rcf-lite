@@ -63,7 +63,7 @@ Each probe is a Node module under `contributions/probes/` exporting the round-5 
 | `recovery-restore-round-trip` | AC-27105-1 | `pg_dump` artefact primes a fresh Postgres; row-count and checksum equality |
 | `pool-posture-smoke` | AC-27106-1 | Two facades at pool size 5 handle twenty concurrent queries with no timeout |
 
-None of the six probes carries `accountBound: true`; Postgres is local-first per infra round 5 spec Baz decision 8.
+None of the six probes carries `accountBound: true`; Postgres is local-first per infra round 5 spec maintainer decision.
 
 ## How to run the probes locally
 

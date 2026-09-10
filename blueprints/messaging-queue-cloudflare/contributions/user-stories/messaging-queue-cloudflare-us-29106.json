@@ -11,15 +11,36 @@
   "acceptanceCriteria": [
     {
       "id": "AC-29106-1",
-      "description": "Given the SIMULATE_PII_IN_BODY=true induced-failure switch driving publish and ack with a PII fixture body (userId 1234, ssn 123-45-6789), when the event-secrecy probe captures the events, then every event record carries exactly the whitelist fields (event, messageId, queueName, attempts, timestamp) and no more; no body bytes, no header value, no userId string, no ssn string, no consumer-context field appears in any record, verified by JSON-stringify substring grep.",
+      "description": "Given the SIMULATE_PII_IN_BODY=true induced-failure switch driving publish and ack with a PII fixture body (userId 1234, ssn 123-45-6789), when the event-secrecy probe captures the events, then every event record carries exactly the whitelist fields (event, messageId, queueName, attempts, ts (number of milliseconds since epoch)) and no more; no body bytes, no header value, no userId string, no ssn string, no consumer-context field appears in any record, verified by JSON-stringify substring grep.",
       "given": "the PII fixture body driven through publish, consume and ack",
       "when": "the event-secrecy probe reads the captured event records",
       "then": "every record carries only the whitelist; JSON-stringify substring grep for the fixture PII strings returns no match on any record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
+        "field": "interfaces.createSinkAdapter"
+      }
+    },
+    {
+      "id": "AC-29106-2",
+      "description": "Secret exclusion by grep-across-source. Given the producer facade source, the consumer registration source, and the event sink source, when a source-tree scan searches every onEvent call site for header values, message body bytes, and any elicited binding name substring, then no match is found; a mutation SIMULATE_HEADER_VALUE_IN_EVENT=true injects a header value into one event record and the scan FAILS naming the leaked event id.",
+      "given": "the producer, consumer and sink source files",
+      "when": "a source-tree scan runs across every onEvent call site",
+      "then": "no header-value, body-byte, or binding-name match is found; the header-leak mutation FAILS",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.onEvent"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-3003-messaging-queue-cloudflare-event-sink"],
+  "tacIds": [
+    "TAC-3003-messaging-queue-cloudflare-event-sink"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

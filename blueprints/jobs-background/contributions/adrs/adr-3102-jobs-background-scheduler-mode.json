@@ -17,7 +17,7 @@
     {
       "name": "Ship the reserved workflows mode at v1.0.0",
       "summary": "Include the Cloudflare Workflows step.do orchestration inline in the v1.0.0 shipped shape.",
-      "reasonNotChosen": "The round-6 Workflows adapter is on Baz per section 5.7 of the spec; v1.0.0 keeps the mode ELICITED at three values and the v1.1.0 minor adds workflows as the fourth. No topic conflict, no facade re-shape."
+      "reasonNotChosen": "The round-6 Workflows adapter is on the project maintainer per section 5.7 of the spec; v1.0.0 keeps the mode ELICITED at three values and the v1.1.0 minor adds workflows as the fourth. No topic conflict, no facade re-shape."
     }
   ],
   "createdAt": "2026-09-06T20:30:00.000Z",

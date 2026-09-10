@@ -16,7 +16,8 @@
       "when": "the process boots and the facade's pool ready-check returns",
       "then": "a facadeReady event fires on the injected event sink with a payload containing databaseName, and the pool is ready to accept queries; the facade exposes named domain verbs and does not re-export the raw pg client",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-27101-2",
@@ -25,10 +26,27 @@
       "when": "grep 'from \\'pg\\'' or grep 'require(\\'pg\\')' walks the tree outside the facade directory",
       "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw pg reference",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27101-3",
+      "description": "Credential missing at boot. Given the elicited connection-url resolves to a rejected value (an empty string or a secretRef the resolver refuses), when the facade opens on boot, then the facade refuses with a named error kind (missingConnectionUrl) and no facadeReady fires on the event sink; the error record carries no fragment of the connection URL substring.",
+      "given": "connection-url resolves to an empty string or the secretRef resolver refuses",
+      "when": "the facade opens on boot",
+      "then": "facade refuses with missingConnectionUrl; no facadeReady fires; the error record carries no URL substring",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "interfaces.createStore"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "tacIds": [
+    "TAC-2801-persistence-data-postgres-facade"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

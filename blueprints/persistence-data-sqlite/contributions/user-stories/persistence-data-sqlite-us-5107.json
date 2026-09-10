@@ -16,7 +16,8 @@
       "when": "the import graph is inspected for uses of the engine binding module",
       "then": "the engine binding is imported by exactly one file (the store facade) and no other file in the source tree imports it, verified by an import-graph query or a targeted grep",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5107-2",
@@ -25,7 +26,8 @@
       "when": "the surface is inspected",
       "then": "every exported function has a domain-shaped name and typed parameters (not a raw query string parameter), and no exported function accepts an engine-native query object or raw SQL string as a call argument from consumer code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-5107-3",
@@ -34,12 +36,13 @@
       "when": "the domain code runs against the double in place of the facade",
       "then": "the domain code executes to completion without importing the engine binding at any point in its call path and its behaviour is unchanged from a facade-backed run for the operations under test",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-601-persistence-data-sqlite-store"
   ],
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -1,6 +1,6 @@
 # object-storage-s3
 
-Object storage on the S3 API, accessed through a store facade that is the sole reader of the S3 client. Cloudflare R2 is the first adapter, MinIO is the local dev target, any S3-compatible remote (AWS S3, Backblaze B2, Wasabi, self-hosted) composes cleanly. Ships put / get / delete / list, presigned GET URLs with a bounded TTL, and multipart-upload above an elicited threshold, plus a lifecycle-event sink with a metadata-only field discipline. Refuses composition without `security-secrets-management` applied (Baz decision 6): the credential pair is a `secretRef`, never a value.
+Object storage on the S3 API, accessed through a store facade that is the sole reader of the S3 client. Cloudflare R2 is the first adapter, MinIO is the local dev target, any S3-compatible remote (AWS S3, Backblaze B2, Wasabi, self-hosted) composes cleanly. Ships put / get / delete / list, presigned GET URLs with a bounded TTL, and multipart-upload above an elicited threshold, plus a lifecycle-event sink with a metadata-only field discipline. Refuses composition without `security-secrets-management` applied (maintainer decision): the credential pair is a `secretRef`, never a value.
 
 ## What this blueprint gives you
 

@@ -2,7 +2,7 @@
   "reqId": "deploy-hetzner-server-REQ-001",
   "prdId": "PRD-001",
   "title": "The provisioner facade is the sole reader of the Hetzner API token and opens on boot with provisionerReady",
-  "description": "The applying project reaches the Hetzner Cloud API through a single provisioner facade module that is the ONLY module holding a reference to the HETZNER_ACCOUNT_API_KEY secret (or the elicited project-scoped alternative). The facade wraps typed verbs (createServer, applyFirewall, takeSnapshot, listSnapshots, destroyServer) and, when provisioningTool=hcloud (default), shells to the hcloud CLI with `--output json`; when provisioningTool=raw-api it fetches the equivalent Hetzner Cloud REST endpoints per https://docs.hetzner.cloud/. On process boot the facade opens against the token via a bounded ready-check and emits a provisionerReady lifecycle event on the injected event sink with a metadata-only payload {tool, apiHost}. No other module reads the token; the injected event sink never carries the token or user-data bodies.",
+  "description": "The applying project reaches the Hetzner Cloud API through a single provisioner facade module that is the ONLY module holding a reference to the HETZNER_ACCOUNT_API_KEY secret (or the elicited project-scoped alternative). The facade wraps typed verbs (createServer, applyFirewall, takeSnapshot, listSnapshots, destroyServer) and, when provisioningTool=hcloud (default), shells to the hcloud CLI with `--output json`; when provisioningTool=raw-api it fetches the equivalent Hetzner Cloud REST endpoints per https://docs.hetzner.cloud/. On process boot the facade opens against the token via a bounded ready-check and emits a provisionerReady lifecycle event on the injected event sink with a metadata-only payload {tool, apiHost}. No other module reads the token; the injected event sink never carries the token or user-data bodies. This blueprint declares the cloudHost applied capability at runtime: the provisioner facade is the sole reader of the Hetzner Cloud API token, and any downstream blueprint whose requiresAppliedCapabilities lists cloudHost is satisfied by an applied deploy-hetzner-server pinning the provisioner module against a real account.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+    "field": "responsibilities.provisionerReady"
+  }
 }

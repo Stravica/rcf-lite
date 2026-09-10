@@ -2,7 +2,7 @@
   "reqId": "messaging-queue-cloudflare-REQ-004",
   "prdId": "PRD-001",
   "title": "Dead-letter contract: elicited max-attempts default 3, DLQ retention 4 days, dead_letter_queue field on the consumer",
-  "description": "After the elicited max-attempts (default 3 per the Cloudflare Queues documented default) is reached on a message, the message lands on the configured dead-letter queue (DLQ) and the facade fires messageDeadLettered on the sink with the stable message-id, the queue name, and the terminal attempt count. The DLQ is declared per-consumer in wrangler config through the dead_letter_queue field (per https://developers.cloudflare.com/queues/configuration/dead-letter-queues/); the field syntax in wrangler.toml is dead_letter_queue = \"<dlq-queue-name>\" alongside max_retries on the [[queues.consumers]] block. The DLQ retention defaults to 4 days when no active consumer is attached per the same Cloudflare DLQ documentation. Consumer code can attach a DLQ consumer to drain the DLQ (via wrangler queues consumer add) for inspection or replay per the same Cloudflare DLQ documentation.",
+  "description": "After the elicited max-attempts (default 3 per the Cloudflare Queues documented default) is reached on a message, the message lands on the configured dead-letter queue (DLQ) and the facade fires messageDeadLettered on the sink with the stable message-id, the queue name, and the terminal attempt count. The DLQ is declared per-consumer in wrangler config through the dead_letter_queue field (per https://developers.cloudflare.com/queues/configuration/dead-letter-queues/); the field syntax in wrangler.toml is dead_letter_queue = \"<dlq-queue-name>\" alongside maxDeliveries mapped to the vendor max_retries field per TAC-3002 as (maxDeliveries - 1) so max_retries=2 delivers three times before DLQ on the [[queues.consumers]] block. The DLQ retention defaults to 4 days when no active consumer is attached per the same Cloudflare DLQ documentation. Consumer code can attach a DLQ consumer to drain the DLQ (via wrangler queues consumer add) for inspection or replay per the same Cloudflare DLQ documentation.",
   "category": "functional",
   "domain": "messaging",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "adrId": "ADR-3003-messaging-queue-cloudflare-max-attempts-floor",
+    "field": "decision.maxAttemptsCeiling"
+  }
 }
