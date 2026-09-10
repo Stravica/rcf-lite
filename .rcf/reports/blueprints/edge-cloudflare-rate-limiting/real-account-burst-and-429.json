@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-rate-limiting",
   "probeName": "real-account-burst-and-429",
-  "runAt": "2026-09-10T16:15:36.163Z",
+  "runAt": "2026-09-07T23:04:20.082Z",
   "engine": {
     "kind": "real-account",
     "image": "undici burst against scheduled Cloudflare-fronted URL",
@@ -12,11 +12,9 @@
       "anchorAcId": "AC-36103-1",
       "verdict": "pass",
       "accountBoundSkipped": true,
-      "reason": "CI_HAS_CLOUDFLARE_ACCOUNT, CF_RATE_LIMIT_URL",
-      "detail": "accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT, CF_RATE_LIMIT_URL unset; per spec section 3.5 and ruling 6 pass-with-skip."
+      "detail": "accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=false CF_RATE_LIMIT_URL=unset; per spec section 3.5 and ruling 6 pass-with-skip."
     }
   ],
   "aggregateVerdict": "pass",
-  "accountBoundSkipped": true,
-  "reason": "CI_HAS_CLOUDFLARE_ACCOUNT, CF_RATE_LIMIT_URL"
+  "accountBoundSkipped": true
 }

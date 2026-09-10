@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "aud-presence-check",
-  "runAt": "2026-09-10T16:15:34.416Z",
+  "runAt": "2026-09-08T04:49:46.081Z",
   "engine": {
     "kind": "sidecar-read",
     "image": "edge-cloudflare-tunnel aud-presence facade",

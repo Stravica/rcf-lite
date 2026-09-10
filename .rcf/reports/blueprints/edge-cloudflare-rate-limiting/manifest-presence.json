@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-rate-limiting",
   "probeName": "manifest-presence",
-  "runAt": "2026-09-10T16:15:36.056Z",
+  "runAt": "2026-09-07T23:04:20.017Z",
   "engine": {
     "kind": "source-scan",
     "image": "cf-edge fixture manifest directory (in-process JSON read)",

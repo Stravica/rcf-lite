@@ -4,7 +4,8 @@
 
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
 
-- Probes and fixture: extended the shared `accountBoundSkippedResult` helper in `contributions/probes/probe-utils.mjs` to carry a `reason` field naming the exact env var(s) that were unset on the skip return; added a "Declared env vars" section for the tunnel probes to the shared fixture README (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/README.md`), per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
+- Probes and fixture: extended the shared `accountBoundSkippedResult` helper in `contributions/probes/probe-utils.mjs` to carry a `reason` field naming the exact env var(s) that were unset on the skip return; added a "Declared env vars" section for the tunnel probes to the shared fixture README (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/README.md`), per authoring standard section 7d.
+- Probe report detail hygiene: `accountBoundSkippedResult` now names only the actually-unset variables in its `detail` string (a partial skip with one first-tier gate set and the other unset reads honestly, instead of claiming the whole input list is unset). The `reason` field was already exact; this aligns the human-readable detail with it.
 
 
 ## 1.1.2 - 2026-09-10
