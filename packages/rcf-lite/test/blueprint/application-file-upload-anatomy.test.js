@@ -63,7 +63,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
   assert.equal(transportAdr.elicited, true, 'ADR-2401 carries elicited: true');
 });
 
-test('applies cleanly on a fresh init project and adds 18 documents to the tree (TC-054-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 20 documents to the tree (TC-054-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'file-upload-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);

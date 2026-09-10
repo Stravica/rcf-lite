@@ -59,7 +59,7 @@ test('blueprint.json declares 21 contributions with no capabilities and no requi
   assert.ok(adrClauses.every((c) => typeof c === 'string' && c.length > 0), 'every ADR contribution carries standardsTraceClause');
 });
 
-test('applies cleanly on a fresh init project and adds 19 documents to the tree (TC-053-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 21 documents to the tree (TC-053-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);

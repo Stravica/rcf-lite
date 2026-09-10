@@ -66,7 +66,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
   assert.equal(navAdr.recommendedDefault, true, 'ADR-2501 carries recommendedDefault: true (linear)');
 });
 
-test('applies cleanly on a fresh init project and adds 19 documents to the tree (TC-055-applies-clean)', async () => {
+test('applies cleanly on a fresh init project and adds 20 documents to the tree (TC-055-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'forms-wizard-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
