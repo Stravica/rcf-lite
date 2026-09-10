@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-27104-1",
-      "description": "Given the transaction helper wrapping a callback that issues two INSERTs where the second violates a UNIQUE constraint, when the helper runs, then client.query('BEGIN') is issued, the first INSERT lands on the transaction, the second INSERT throws a constraint error the helper catches, client.query('ROLLBACK') is issued, a transactionRolledBack event fires with statementIndex 1, the client is released back to the pool, and the underlying error is re-thrown to the caller. The database after rollback carries neither row from the aborted transaction.",
+      "description": "Given the transaction helper wrapping a callback that issues two INSERTs where the second violates a UNIQUE constraint, when the helper runs, then the transaction-control primitives owned on TAC-2803-persistence-data-postgres-transaction-helper.interfaces.withTransaction fire in order (BEGIN before the first INSERT, ROLLBACK after the failing INSERT), a transactionRolledBack event fires with statementIndex 1, the client is released back to the pool, and the underlying error is re-thrown to the caller. The database after rollback carries neither row from the aborted transaction.",
       "given": "the facade's withTransaction helper, a table with a UNIQUE constraint on a column, and a callback issuing two INSERTs with the same value for that column",
       "when": "await withTransaction(callback) runs",
-      "then": "BEGIN is issued, the first INSERT lands inside the transaction, the second INSERT throws, ROLLBACK is issued, transactionRolledBack fires on the event sink with { statementIndex: 1, code: '<pg error code>' }, the client is released, the promise rejects with the underlying error, and a subsequent SELECT against the table returns no rows from the aborted transaction",
+      "then": "the BEGIN primitive owned on TAC-2803-persistence-data-postgres-transaction-helper.interfaces.withTransaction is issued, the first INSERT lands inside the transaction, the second INSERT throws, the ROLLBACK primitive owned on the same interface is issued, transactionRolledBack fires on the event sink with { statementIndex: 1, code: '<pg error code>' }, the client is released, the promise rejects with the underlying error, and a subsequent SELECT against the table returns no rows from the aborted transaction",
       "testable": true,
       "scope": "runtime",
       "ownerRef": {
@@ -25,10 +25,10 @@
     },
     {
       "id": "AC-27104-2",
-      "description": "Mid-transaction error rolls back. Given a two-statement withTransaction callback where the second statement throws, when the helper catches the throw, then client.query('ROLLBACK') runs before the client is released, transactionRolledBack fires with the failing statement index on the event sink, and a subsequent SELECT on the transaction's target rows shows the pre-transaction state.",
+      "description": "Mid-transaction error rolls back. Given a two-statement withTransaction callback where the second statement throws, when the helper catches the throw, then the ROLLBACK primitive owned on TAC-2803-persistence-data-postgres-transaction-helper.interfaces.withTransaction fires before the client is released, transactionRolledBack fires with the failing statement index on the event sink, and a subsequent SELECT on the transaction's target rows shows the pre-transaction state.",
       "given": "a two-statement withTransaction callback whose second statement throws",
       "when": "the helper catches the throw",
-      "then": "client.query(ROLLBACK) runs; transactionRolledBack fires with failing statement index; target rows show pre-transaction state",
+      "then": "the ROLLBACK primitive owned on TAC-2803-persistence-data-postgres-transaction-helper.interfaces.withTransaction runs; transactionRolledBack fires with failing statement index; target rows show pre-transaction state",
       "testable": true,
       "scope": "runtime",
       "ownerRef": {
