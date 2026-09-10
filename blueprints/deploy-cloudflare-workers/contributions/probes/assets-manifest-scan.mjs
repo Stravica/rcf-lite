@@ -1,6 +1,6 @@
 // Source-tree scan probe for the deploy-cloudflare-workers v1.2.0
-// Workers-with-static-assets shape (of the Cloudflare round 6
-// spec, section 5.0). accountBound false: this probe reads the
+// Workers-with-static-assets shape owned by TAC-1302 on this
+// blueprint. accountBound false: this probe reads the
 // applied fixture wrangler.toml and asserts three properties:
 //
 //   1. When the elicited assets-directory answer is non-empty, the

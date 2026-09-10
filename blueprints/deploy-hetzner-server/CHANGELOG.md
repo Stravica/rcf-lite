@@ -57,7 +57,7 @@ paired with a mutation switch that flips the probe to FAIL), plus
 without `CI_HAS_HETZNER_ACCOUNT`).
 
 Mints the shared `hetzner-throwaway-server` fixture under
-`packages/rcf-lite/test/fixtures/` (later round-7 blueprints EXTEND it,
+`packages/rcf-lite/test/fixtures/` (`platform-docker-compose-host` and `edge-cloudflare-tunnel` EXTEND it,
 they do not ship a second copy).
 
 Trace: hetzner-round-7-spec-2026-09-07.md section 5.1;
