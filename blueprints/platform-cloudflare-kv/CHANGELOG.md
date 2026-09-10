@@ -2,6 +2,13 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes: the account-bound skip return on `contributions/probes/real-account-eventual-consistency-smoke.mjs` now carries a `reason` field naming the exact env var that was unset (`CI_HAS_CLOUDFLARE_ACCOUNT` on the standard skip path). Skip-path probe report regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Owner reference for the KV event-record whitelist.

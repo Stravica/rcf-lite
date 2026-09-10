@@ -53,16 +53,18 @@ export const accountBound = true;
 const CAP_MS = 60_000;
 const POLL_INTERVAL_MS = 2_000;
 
-function skipResult(detail) {
+function skipResult(detail, reason) {
   return {
     results: [{
       anchorAcId: 'AC-31103-1',
       verdict: 'pass',
       detail,
       accountBoundSkipped: true,
+      reason,
     }],
     extra: {
       accountBoundSkipped: true,
+      reason,
       envDeclared: Array.from(DECLARED_ENV),
       throwawayPrefixes: { namespaceTitle: NAMESPACE_PREFIX, kvKey: KEY_PREFIX },
     },
@@ -70,8 +72,15 @@ function skipResult(detail) {
 }
 
 export default async function runProbe() {
+  // Positive-evidence rule (authoring standard section 7d): the skip
+  // record names the exact env var(s) that were unset in `reason`, so
+  // a `pass` verdict on the skip path is legal without positive
+  // evidence.
   if (process.env.CI_HAS_CLOUDFLARE_ACCOUNT !== 'true') {
-    return skipResult('accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip. Declared env for a live run: CI_HAS_CLOUDFLARE_ACCOUNT + CF_ACCOUNT_ID + CF_API_TOKEN (CF_API_BASE_URL optional test override).');
+    return skipResult(
+      'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip. Declared env for a live run: CI_HAS_CLOUDFLARE_ACCOUNT + CF_ACCOUNT_ID + CF_API_TOKEN (CF_API_BASE_URL optional test override).',
+      'CI_HAS_CLOUDFLARE_ACCOUNT',
+    );
   }
   if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
     return {

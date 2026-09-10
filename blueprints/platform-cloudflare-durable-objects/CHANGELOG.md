@@ -2,6 +2,13 @@
 
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes: the account-bound skip returns on `contributions/probes/real-account-storage-smoke.mjs` now carry a `reason` field naming the exact env var(s) that were unset (`CI_HAS_CLOUDFLARE_ACCOUNT` on the standard skip path; `CF_DO_WORKER_URL` on the second-tier declared skip when the account env is set). Skip-path probe report regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Owner reference for the DO event-record whitelist.

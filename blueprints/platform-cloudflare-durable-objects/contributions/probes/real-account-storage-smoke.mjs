@@ -52,12 +52,18 @@ export default async function runProbe() {
   const enabled = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1';
 
   if (!enabled) {
+    // Positive-evidence rule (authoring standard section 7d): the skip
+    // record names the exact env var(s) that were unset in `reason`,
+    // so a `pass` verdict on the skip path is legal without positive
+    // evidence.
     results.push({
       anchorAcId: 'AC-33112-1',
       verdict: 'pass',
+      accountBoundSkipped: true,
+      reason: 'CI_HAS_CLOUDFLARE_ACCOUNT',
       detail: 'CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_DO_WORKER_URL (deployed Worker origin) and the paired CF_ACCOUNT_ID + CF_DO_NAMESPACE_ID + CF_API_TOKEN identifiers so the round-trip drives a live DO storage put and get.',
     });
-    return { results, extra: { accountBoundSkipped: true } };
+    return { results, extra: { accountBoundSkipped: true, reason: 'CI_HAS_CLOUDFLARE_ACCOUNT' } };
   }
 
   const workerUrl = process.env.CF_DO_WORKER_URL;
@@ -73,9 +79,11 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-33112-1',
       verdict: 'pass',
+      accountBoundSkipped: true,
+      reason: 'CF_DO_WORKER_URL',
       detail: 'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but CF_DO_WORKER_URL is unset; the round-trip driver needs the deployed-Worker origin (e.g. https://cf-platform.<subdomain>.workers.dev). This fixture does not yet self-provision the DO Worker (a follow-up); until it does, the probe records a declared skip on CF_DO_WORKER_URL rather than failing without real-engine evidence. Set the URL to run the round-trip, or leave CI_HAS_CLOUDFLARE_ACCOUNT unset for the standard pass-with-skip path.',
     });
-    return { results, extra: { accountBoundSkipped: true, reason: 'CF_DO_WORKER_URL unset (second-tier env var)', missing: ['CF_DO_WORKER_URL'] } };
+    return { results, extra: { accountBoundSkipped: true, reason: 'CF_DO_WORKER_URL', missing: ['CF_DO_WORKER_URL'] } };
   }
 
   const missingIdent = REQUIRED_ACCOUNT_ENV.filter((k) => !process.env[k]);
