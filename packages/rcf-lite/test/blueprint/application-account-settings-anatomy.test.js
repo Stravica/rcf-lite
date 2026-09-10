@@ -71,7 +71,7 @@ test('blueprint.json declares 28 contributions with requiresAppliedCapabilities 
   }
 });
 
-test('applies cleanly on a magic-link project with 27 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
+test('applies cleanly on a magic-link project with 28 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-magic-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const { tree: t0 } = await walkTree({ projectRoot: scratch });

@@ -22,14 +22,14 @@
       "acId": "AC-2701-1",
       "description": "blueprint.json declares 24 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)",
       "status": "pending",
-      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::blueprint.json declares 27 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)"
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)"
     },
     {
       "id": "TC-056-applies-clean",
       "acId": "AC-2701-2",
       "description": "applies cleanly on a magic-link project with 24 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)",
       "status": "pending",
-      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::applies cleanly on a magic-link project with 27 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)"
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::applies cleanly on a magic-link project with 28 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)"
     },
     {
       "id": "TC-056-apply-refusal-and-override",
