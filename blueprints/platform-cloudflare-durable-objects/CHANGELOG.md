@@ -2,6 +2,13 @@
 
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.1 - 2026-09-10
+
+Hardening pass F wave 2 (criterion d owner-owned shape reference).
+
+- Rewrote REQ-006 description to reference the owning TAC field (`TAC-3405-platform-cloudflare-durable-objects-event-sink.purpose`) for the DO event-record whitelist, rather than restating the shape verbatim. Closes review P1 finding F-1 (owner-owned shape restated on both REQ and TAC).
+
+
 ## 1.1.0 (2026-09-09)
 
 ### Changed
