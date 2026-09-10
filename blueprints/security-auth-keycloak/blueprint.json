@@ -1,7 +1,14 @@
 {
   "slug": "security-auth-keycloak",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "category": "security",
+  "requiresAppliedCapabilities": {
+    "capabilities": [
+      "authorisationCodeFlow"
+    ],
+    "allowSkipFlag": "allow-no-auth-yet",
+    "refusalMessageId": "security-auth-keycloak-flow-required"
+  },
   "capabilities": [
     "principalDirectory",
     "roleModel",
@@ -190,6 +197,74 @@
       "id": "ADR-1206-security-auth-keycloak-refresh-and-sign-out-posture",
       "kind": "adr",
       "path": "adrs/adr-1206-security-auth-keycloak-refresh-and-sign-out-posture.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-013",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-013.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11114",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11114.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-014",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-014.json"
+    },
+    {
+      "id": "security-auth-keycloak-US-11115",
+      "kind": "us",
+      "path": "user-stories/security-auth-keycloak-us-11115.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-015",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-015.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-016",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-016.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-017",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-017.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-018",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-018.json"
+    },
+    {
+      "id": "security-auth-keycloak-REQ-019",
+      "kind": "req",
+      "path": "requirements/security-auth-keycloak-req-019.json"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "boot-posture",
+      "prompt": "How should the blueprint behave when a realm's OIDC discovery is not reachable at boot?",
+      "kind": "enum",
+      "default": "strict",
+      "options": [
+        "strict",
+        "deferred",
+        "standby"
+      ]
+    },
+    {
+      "id": "verification-mode",
+      "prompt": "How should the blueprint verify tokens for a given realm?",
+      "kind": "enum",
+      "default": "jwks",
+      "options": [
+        "jwks",
+        "introspection"
+      ]
     }
   ]
 }

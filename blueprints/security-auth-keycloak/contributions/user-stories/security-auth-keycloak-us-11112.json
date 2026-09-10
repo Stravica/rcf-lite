@@ -16,7 +16,8 @@
       "when": "`rcf audit coverage --strict` reports the coverage state and the runtime-verify runner is invoked",
       "then": "the coverage report lists the AC as covered by a TC whose latest run outcome is `skipped` with reason `KEYCLOAK_LIVE_REALM_UNREACHABLE`; the pipeline exit code is 0; the audit log records one `keycloak.accountbound_skip` event carrying the AC id and the missing-credential class",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11112-2",
@@ -25,7 +26,8 @@
       "when": "the operator drives a real browser through the sign-in surface at the live realm",
       "then": "the flow completes; a project session cookie is set with the same shape as AC-11101-3; `request.auth.provider` equals the live realm's declared realmSlug; the project-authored TC for this AC records a `pass` outcome",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

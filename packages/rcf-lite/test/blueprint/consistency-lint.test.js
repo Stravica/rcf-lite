@@ -232,11 +232,11 @@ test('runLint refuses to suppress a pass-2 finding (spec 5.8)', async () => {
   assert.equal(res.verdict, 'fail');
 });
 
-test('AC-3 (spec section 9): the shipped edge-cloudflare-turnstile blueprint fires pass-1 Cf-Turnstile-Response drift on the guide', async () => {
+test('AC-3 (spec section 9): the shipped edge-cloudflare-turnstile blueprint no longer fires the Cf-Turnstile-Response guide-casing drift (specimen closed by the B3 edge hardening pass)', async () => {
   const source = join(shelfRoot, 'edge-cloudflare-turnstile');
   const input = await loadForLint(source);
   assert.equal(input.error, undefined, `load failed: ${JSON.stringify(input)}`);
   const findings = runPass1(input);
   const specimen = findings.find((f) => f.kind === 'contractDrift' && /Cf-Turnstile-Response/i.test(f.subject) && f.refs.includes('guide'));
-  assert.ok(specimen, `expected the Cf-Turnstile-Response guide-casing drift; got ${JSON.stringify(findings)}`);
+  assert.equal(specimen, undefined, `Cf-Turnstile-Response guide-casing drift should now be closed on the shipped blueprint; got ${JSON.stringify(findings)}`);
 });

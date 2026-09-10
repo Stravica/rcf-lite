@@ -12,7 +12,9 @@
     "Issue an opaque-handle session cookie: mint a cryptographically random handle, store the session record `{ handle, principal, providerId, accessToken, idToken, refreshToken?, issuedAt, expiresAt }` in the session-record store, and emit `Set-Cookie` with `HttpOnly`, `Secure`, `SameSite=Lax` (AC-10101-3, AC-10106-1).",
     "Verify a presented handle at the middleware boundary: lookup, expiry check, tampered-value refusal, populate `request.auth` on success, refuse otherwise; do not renew a tampered cookie (AC-10106-1, AC-10106-2).",
     "Invalidate on sign-out: delete the session record, clear the associated refresh-token chain, emit the cookie-clear header (AC-10108-1).",
-    "Delegate the session-record store to a project-authored implementation (in-memory for the reference wiring; SQLite for `persistence-data-sqlite`-composed projects; D1 for `persistence-data-d1`-composed projects); do not embed a store implementation (REQ-006)."
+    "Delegate the session-record store to a project-authored implementation (in-memory for the reference wiring; SQLite for `persistence-data-sqlite`-composed projects; D1 for `persistence-data-d1`-composed projects); do not embed a store implementation (REQ-006).",
+    "Populate `roles[]` on the reduced Principal by walking each path named on the provider record's `roleSources[]` against the verified claim record; take the union of the resulting string values; refuse with `OAUTH2_ROLES_MALFORMED` when a named path resolves to a value that is neither string nor array-of-strings (AC-10112-1, AC-10112-2, AC-10112-3, AC-10112-4).",
+    "Expose `sessionInventory` against the session-record store (list, revoke-one, revoke-all-except-current); the interface shape is owned by `TAC-1003-security-auth-clerk-session-verifier` `interfaces.sessionInventory` and referenced by that owner id; a revoke clears the associated refresh-token chain per REQ-007 (AC-10114-1, AC-10114-2, AC-10114-3, AC-10114-4, AC-10114-5)."
   ],
   "internalStructure": "One factory function producing an issue/verify/invalidate closure over an injected `sessionRecordStore`, an injected `refreshTokenStore` (shared with the flow controller), an injected `randomBytes` port for handle minting, an injected clock, and an injected `enrichPrincipal` hook (or a no-op default). The session-record shape is a plain object; the store's on-disk shape is the project's concern.",
   "interfaces": [
@@ -43,7 +45,12 @@
     }
   ],
   "dependencies": [
-    { "name": "OAuth2 flow controller", "kind": "tac", "tacId": "TAC-1101-security-auth-oauth2-flow-controller", "description": "The bridge is invoked by the controller at the end of a successful callback; the bridge does not initiate flows." }
+    {
+      "name": "OAuth2 flow controller",
+      "kind": "tac",
+      "tacId": "TAC-1101-security-auth-oauth2-flow-controller",
+      "description": "The bridge is invoked by the controller at the end of a successful callback; the bridge does not initiate flows."
+    }
   ],
   "tradeoffs": "Deriving `principalId` from `{provider.id, subject}` prevents accidental cross-provider identity merging; the trade is that a project that wants such merging must author an explicit identity-merge policy in its enrichPrincipal hook. Storing provider tokens on the server-side session record rather than the browser cookie carries a small per-session storage cost and buys the project one code path for revocation on sign-out and refresh-token reuse; the tokens never appear in a place the browser can leak them. Exposing an `enrichPrincipal` hook without prescribing a role-source lets a project reach for its own claim-mapping vocabulary without the blueprint committing to one.",
   "createdAt": "2026-08-30T00:00:00Z",

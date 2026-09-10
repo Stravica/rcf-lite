@@ -16,7 +16,8 @@
       "when": "the handles are inspected",
       "then": "every handle is a base64url string decoding to at least 24 bytes, and no two handles in the batch are equal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3103-2",
@@ -25,7 +26,8 @@
       "when": "the string is inspected",
       "then": "it contains no dot-separated JWT segments, decodes to random bytes, and reveals no substring matching the principal id, expiry timestamp, or scope value stored in the session record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3103-3",
@@ -34,7 +36,8 @@
       "when": "response headers and body are scanned for JWT-shaped tokens (three dot-separated base64url segments) or Authorization headers with Bearer prefixes",
       "then": "no such artefact is present outside of a Set-Cookie header carrying the opaque session handle",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

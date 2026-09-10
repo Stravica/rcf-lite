@@ -16,21 +16,31 @@
       "when": "the composition wire is walked in the source tree",
       "then": "the magic-link mint surface reads the Turnstile guard before invoking the mint",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-35105-2",
-      "description": "A live POST to /api/magic-link without a Cf-Turnstile-Response field, and a POST carrying the always-fail response token that fails siteverify, are both refused with 400 by the Turnstile guard and no magic-link mint side-effect is observable. The Playwright pack check magicLinkGuard drives this against the fixture with a real browser.",
+      "description": "A live POST to /api/magic-link without a cf-turnstile-response field, and a POST carrying the always-fail response token that fails siteverify, are both refused with 400 by the Turnstile guard and no magic-link mint side-effect is observable. The Playwright pack check magicLinkGuard drives this against the fixture with a real browser.",
       "given": "the pack fixture running with both blueprints applied and a real Playwright browser driving the fixture",
       "when": "a magic-link mint submit is issued without a Turnstile response, or with the always-fail response token",
       "then": "the Turnstile guard refuses with 400 and no magic-link mint side-effect is observable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
+        "field": "responsibilities.guardMint"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/get-started/server-side-validation/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3603-edge-cloudflare-turnstile-magic-link-hook"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }

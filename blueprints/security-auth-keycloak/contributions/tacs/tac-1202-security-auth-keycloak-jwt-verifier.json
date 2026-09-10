@@ -12,7 +12,8 @@
     "Validate the standard claim set: `iss` equals the record's discovered issuer; `aud` contains the record's `clientId` OR `azp` equals it; `exp` in the future by at least one second; `nbf` not in the future; `iat` in the past by no more than `idTokenMaxAgeSeconds` (AC-11104-1).",
     "Refuse with `KEYCLOAK_JWT_EXPIRED`, `KEYCLOAK_JWT_ISSUER_MISMATCH`, `KEYCLOAK_JWT_AUDIENCE_MISMATCH`, or `KEYCLOAK_JWT_SIGNATURE_INVALID` per failure class; emit one structured audit event `keycloak.jwt_refused` carrying realmSlug, reasonClass, and no token value (AC-11104-2).",
     "Return the verified claim record `{ sub, email?, azp, iss, aud, exp, iat, resource_access?, realm_access?, plus other realm-declared claims }` to the caller; the caller (the role adapter, the session-bridge in opaque-handle mode, the bearer verifier in stateless mode) consumes from that record (AC-11101-3).",
-    "Refuse a JWKS fetch failure at verification time with `KEYCLOAK_JWKS_UNREACHABLE`; the token is refused, not silently trusted (AC-11103-2)."
+    "Refuse a JWKS fetch failure at verification time with `KEYCLOAK_JWKS_UNREACHABLE`; the token is refused, not silently trusted (AC-11103-2).",
+    "Audit each verify call as one `keycloak.jwt` audit event on the allow-list REQ-016 declares (`family`, `outcome`, `reasonClass?`, `realmSlug`, `at`); the token-exclusion rule and sink-failure posture inherit from REQ-015 (jwtAudit)."
   ],
   "internalStructure": "One factory function producing a verify closure over the injected discovery-client (TAC-1201, which exposes the record's discovered endpoints), an injected `httpFetch` port for JWKS, an injected clock, and an injected auditSink. The JWKS cache is a Map keyed by realmSlug whose value is `{ keys[], fetchedAt }`; the crypto is either the process's Web Crypto (Node 20+) or a project-injected primitive.",
   "interfaces": [
@@ -38,7 +39,12 @@
     }
   ],
   "dependencies": [
-    { "name": "Discovery client", "kind": "tac", "tacId": "TAC-1201-security-auth-keycloak-discovery-client", "description": "Reads the realm's discovered endpoints." }
+    {
+      "name": "Discovery client",
+      "kind": "tac",
+      "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+      "description": "Reads the realm's discovered endpoints."
+    }
   ],
   "tradeoffs": "TTL-plus-kid-miss caching is the standard shape for JWKS verification; the trade against a shorter TTL is one background refresh per window; against a longer TTL is a bounded staleness window. Refusing on a kid-miss after one refresh defends against amplification while still recovering from a rotation the realm has published. Fixed refusal codes make failure classes observable in the audit stream without a runtime taxonomy the operator has to learn.",
   "createdAt": "2026-08-31T00:00:00Z",

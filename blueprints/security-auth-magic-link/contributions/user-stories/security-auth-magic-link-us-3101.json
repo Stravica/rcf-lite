@@ -16,7 +16,8 @@
       "when": "the page renders",
       "then": "the response body contains an input with type='email' and name='email', and no input with type='password' or autocomplete='current-password'",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3101-2",
@@ -25,7 +26,8 @@
       "when": "the POST /login handler runs",
       "then": "the response status is 200 and the body confirms that a link will arrive if the address is registered, without confirming or denying that this address is registered",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3101-3",
@@ -34,7 +36,8 @@
       "when": "the handler completes",
       "then": "the email-delivery-adapter.send call fires exactly once with a body containing a URL whose path is /login/verify and whose only query parameter carries the token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3101-4",
@@ -43,7 +46,8 @@
       "when": "GET /login/verify runs",
       "then": "the response is a 302 to the configured post-sign-in route and carries a Set-Cookie header issuing a fresh session handle",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3101-5",
@@ -52,7 +56,8 @@
       "when": "the handler runs",
       "then": "the response status is 401, no Set-Cookie is emitted, and the response body reveals nothing about which failure class the token fell into",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

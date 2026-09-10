@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Rate-limit rule manifest schema and manifest layout",
-  "purpose": "The shipped JSON Schema (draft-07) at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json is the single source of truth for the shape of one manifest file under the elicited rate-limit-rules-dir. The schema names the seven Cloudflare WAF rate-limiting rules fields per https://developers.cloudflare.com/waf/rate-limiting-rules/ (id, expression, threshold, period, characteristics, action, duration), their types (string, string, positive integer, positive integer, non-empty string array, enum of block/challenge/log/managed_challenge, positive integer), and the additionalProperties: false stance. The manifest-schema-validate probe reads every file in the fixture manifest directory and validates against this schema; the manifest-presence probe asserts the seven required fields are all present. This TAC anchors AC-36101-1, AC-36106-1 and AC-36108-1.",
+  "purpose": "The shipped JSON Schema (draft-07) at blueprints/edge-cloudflare-rate-limiting/contributions/schemas/rate-limit-rule.schema.json is the single source of truth for the shape of one manifest file under the elicited rate-limit-rules-dir. The schema declares seven required Cloudflare WAF rate-limiting rules fields per https://developers.cloudflare.com/waf/rate-limiting-rules/ (id, expression, threshold, period, characteristics, action, duration) plus one optional operator-facing description field, their types (string, string, positive integer, positive integer, non-empty string array, enum of block/challenge/log/managed_challenge, positive integer, and an optional string description), and the additionalProperties: false stance. The manifest-schema-validate probe reads every file in the fixture manifest directory and validates against this schema; the manifest-presence probe asserts the seven required fields are all present (the optional description is not required). This TAC anchors AC-36101-1, AC-36106-1 and AC-36108-1.",
   "responsibilities": [
     "Ship a JSON Schema (draft-07) at contributions/schemas/rate-limit-rule.schema.json naming the seven required fields, their types and additionalProperties: false (AC-36101-1, AC-36106-1).",
     "Ship the shape used by the manifest-presence probe to assert every manifest file carries the seven required fields (AC-36101-1).",
@@ -27,5 +27,5 @@
   ],
   "dependencies": [],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z"
 }

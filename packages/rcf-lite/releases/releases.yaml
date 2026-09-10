@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.25.0"
+latest: "0.26.0"
 releases:
+  - version: "0.26.0"
+    date: "2026-09-09"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.26.0 is a hardening and authoring release. The Cloudflare-platform blueprints on the shelf pick up real-account probe drivers with positive evidence and one shared account-token env matrix."
+      - "The blueprint authoring standard gains three new sections (7c REQ-layer sufficiency, 7d positive-evidence verification, 7e single-definition ownership), ten checklist rows and RULE 16 in the managed agent block."
+      - "The rcf define blueprint verb group gains a lint-consistency subverb, a per-slug disposition ledger with an apply-time prompt and a read-only dispositions view, and the identity seed grows a register field. The schema floor moves to rcf-schemas 0.6.2."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.25.0"
     date: "2026-09-08"
     breaking: false

@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-oauth2-REQ-011",
+  "prdId": "PRD-001",
+  "title": "Role sources and role mapping are declared per provider; the reduced Principal carries the resulting roles array",
+  "description": "The blueprint contributes the `roleModel` capability by naming the provider-record's `roleSources[]` field (an ordered list of claim paths the session-bridge reads: for example `[\"realm_access.roles\", \"resource_access.<clientId>.roles\", \"groups\"]`) and an optional project-authored `enrichPrincipal(principal) -> principal` hook the bridge invokes after populating `roles[]`. The session-bridge walks each `roleSources[]` path against the verified claim record (id_token for OIDC providers, userinfo for oauth2-only providers) and populates `roles[]` with the union of the string values found; a path that resolves to a non-string non-array-of-strings shape is refused with `OAUTH2_ROLES_MALFORMED` and the session is not issued. The blueprint mandates that authorisation decisions above the middleware read `principal.roles[]` and never a raw provider claim; project routes that need role-based gating do so through a project-authored predicate that takes the reduced Principal.",
+  "category": "functional",
+  "domain": "authorisation",
+  "priority": "must",
+  "rationale": "A capability declaration for `roleModel` on a blueprint whose default behaviour is an empty roles array leaves consumers to gate on a token the provider blueprint never wrote a contract for. Naming `roleSources[]` and the malformed-claim refusal is what turns the token into an apply-time observable.",
+  "tags": [
+    "blueprint:security-auth-oauth2",
+    "category:11-role-model"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
+    "field": "responsibilities.roles"
+  }
+}

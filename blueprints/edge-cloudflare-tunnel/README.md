@@ -13,7 +13,6 @@ when applied without it the tunnel serves in public-hostname mode.
 - Capabilities: `["tunnelBridge"]`
 - Mints global topic: `edgeIngressBridge`
 - Contribution count: 5 REQs, 8 USs, 3 TACs, 3 ADRs, 5 probes
-- Consumers: ops-01 has no consumer today (SSH is the only inbound path). Estate consumer is the follow-on make-the-librarian-API-and-workspace-viewer-reachable-without-Mullvad work that `w-2026-09-06-dave-010` is expected to green-light. Blueprint acceptance never depends on that consumer; the ops-01 migration mints as a separate work item at that point (`w-2026-09-07-dave-004`).
 
 ## Five REQs
 
@@ -66,7 +65,7 @@ Example (compose-service, public-hostname mode):
 ```yaml
 tunnel: 00000000-0000-4000-8000-0000000012ab
 credentialsFile:
-  secretRef: hq-estate/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
+  secretRef: vault/CLOUDFLARE_TUNNEL_CREDENTIALS_MY_PROJECT
 ingress:
   - hostname: my-app.example.com
     service: http://web:8080
@@ -140,7 +139,7 @@ numeric IP, or an unresolvable shape.
 
 - `tunnel-name` (string; default `probe`): the Cloudflare Tunnel name
   and the manifest filename under `cloudflare/tunnels/<name>.yaml`.
-- `cloudflare-zone-secret` (string; default `hq-estate/CLOUDFLARE_ZONE_ID`):
+- `cloudflare-zone-secret` (string; default `vault/CLOUDFLARE_ZONE_ID`):
   `security-secrets-management` reference to the Cloudflare zone the
   tunnel serves under.
 - `public-hostname-template` (string; default `<service>.<zone>`):

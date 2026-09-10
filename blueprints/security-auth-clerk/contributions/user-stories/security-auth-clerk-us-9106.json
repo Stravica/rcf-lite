@@ -16,7 +16,8 @@
       "when": "a page-render probe fetches the page as the signed-in operator and inspects the rendered DOM",
       "then": "the DOM contains the slot's rendered element; a subsequent render as a signed-in operator whose principal returns `false` for the same verb produces a DOM in which the slot is absent (no hidden node, no disabled control, no aria-hidden variant)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9106-2",
@@ -25,7 +26,8 @@
       "when": "a request bypassing the UI (direct API call) attempts the verb's underlying action",
       "then": "the server-side handler's `assert(principal, 'article.delete')` throws `AUTHZ_FORBIDDEN`; the response status is 403 and no state mutation occurs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

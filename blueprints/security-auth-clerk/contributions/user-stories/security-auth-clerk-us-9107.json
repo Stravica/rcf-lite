@@ -16,7 +16,8 @@
       "when": "a subsequent request replays the same `__session` cookie against a protected route",
       "then": "the middleware treats the request as unauthenticated; the response status is 401 (API) or a redirect (page); the handler is never invoked",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9107-2",
@@ -25,7 +26,8 @@
       "when": "a request replays that cookie against a protected route",
       "then": "the middleware refuses per AC-9107-1; no cache the middleware or session verifier holds keeps the revoked session alive beyond one revocation-propagation cycle (the verifier's `revocationCheckIntervalMs`, documented in ADR-1005; the value is bounded and stated)",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

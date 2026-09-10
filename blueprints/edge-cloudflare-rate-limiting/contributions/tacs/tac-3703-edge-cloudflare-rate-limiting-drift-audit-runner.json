@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Drift-audit runner: read live zone rules via the Cloudflare API and diff against the local manifest",
-  "purpose": "The single project-side module realising the scheduled drift-audit runner. It fetches the live rate-limiting rules on the elicited zone via the Cloudflare API (GET /client/v4/zones/{zone_id}/rulesets), diffs the returned rule set against the local manifest file-by-file, and constructs one drift-audit record per mismatched rule. Records write through the applied logger's audit sink with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp, diff}; no record carries a full IP, a request body or a user agent (event-secrecy discipline per REQ-004 and AC-36107-1). The runner is factory-driven for testability: probes and the anatomy test inject a fake fetch that returns a synthetic live-zone response. This TAC anchors AC-36104-1 and AC-36107-1.",
+  "purpose": "The single project-side module realising the scheduled drift-audit runner. It fetches the live rate-limiting rules on the elicited zone via the Cloudflare API (GET /client/v4/zones/{zone_id}/rulesets), diffs the returned rule set against the local manifest file-by-file, and constructs one drift-audit record per mismatched rule. Drift-audit records write through the applied logger's audit sink with the metadata-only shape {ruleId, outcome, timestamp, diff} (no clientIpHash on the drift record; drift is manifest-vs-live divergence, not a request event). The separate request-event record class emitted by the applied guard on a real client request carries {ruleId, clientIpHash, outcome, timestamp}; no record carries a full IP, a request body or a user agent (event-secrecy discipline per REQ-004 and AC-36107-1). The runner is factory-driven for testability: probes and the anatomy test inject a fake fetch that returns a synthetic live-zone response. This TAC anchors AC-36104-1 and AC-36107-1.",
   "responsibilities": [
     "Export createDriftAuditRunner({env, eventSink, fetch, clock, cadence}) returning {runOnce, schedule, stop} matching the drift-audit shape (AC-36104-1).",
     "Diff every manifest rule against every live rule and construct one drift record per mismatched rule, with the metadata-only shape {ruleId, outcome, timestamp, diff} (AC-36104-1, AC-36107-1).",
@@ -22,5 +22,5 @@
   ],
   "dependencies": [],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }
