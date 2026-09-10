@@ -1,0 +1,74 @@
+{
+  "usId": "security-auth-keycloak-US-11120",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-019",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Role-adapter reads each emit one structured audit event on the fixed allow-list",
+  "asA": "operator running the runtime-verify suite against the role adapter",
+  "iWant": "every read call to write one structured `keycloak.roles` event carrying only the allow-list fields",
+  "soThat": "the audit stream stays free of raw claim records and every malformed-claim refusal carries a stable reasonClass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11120-1",
+      "description": "A read on a well-formed claim emits exactly one `keycloak.roles` audit event with `outcome=verified` and the caller's realmSlug.",
+      "given": "a verified claim record whose expected role path is an array of strings, in realm `alpha`",
+      "when": "the role adapter reads the roles from the claim record",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.roles` and `outcome=verified`; no raw claim record and no token material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
+    },
+    {
+      "id": "AC-11120-2",
+      "description": "A read where the expected path is present but the value is not an array of strings emits exactly one refused event with `reasonClass=malformed`.",
+      "given": "a verified claim record whose expected role path is present as a scalar value or an array of non-string values, in realm `alpha`",
+      "when": "the role adapter reads the roles from the claim record",
+      "then": "the audit sink records exactly one event with `family=keycloak.roles`, `outcome=refused`, and `reasonClass=malformed`; the raw claim record does not appear in any field; the reduced roles array is not populated",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
+    },
+    {
+      "id": "AC-11120-3",
+      "description": "A caller whose claim record was malformed on a first read and well-formed on a second read (a claim refresh) emits exactly one refused event and one verified event on the `keycloak.roles` family, in order; the retry itself is not a distinct event.",
+      "given": "a caller whose first claim read is malformed and whose second claim read (after a re-verify) is well-formed",
+      "when": "the role adapter reads twice in sequence",
+      "then": "the audit sink records exactly two events in order: one `keycloak.roles` event with `outcome=refused` and `reasonClass=malformed`, then one `keycloak.roles` event with `outcome=verified`; no additional event is written for the retry itself",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
+    },
+    {
+      "id": "AC-11120-4",
+      "description": "A sink failure during the emission of a `keycloak.roles` event does not mask the underlying read outcome; the mechanism records a `keycloak.audit_sink_failed` warning event and the read outcome is unchanged.",
+      "given": "a verified claim record whose expected role path is well-formed and an audit sink whose write throws",
+      "when": "the role adapter emits the completion event",
+      "then": "the read's return value (the reduced roles array or the refusal) is unchanged; the mechanism records a `keycloak.audit_sink_failed` warning event carrying the realm slug and a reason-class string; the raw claim record does not appear in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1205-security-auth-keycloak-role-adapter"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}
