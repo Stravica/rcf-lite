@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The response contract exposed to the external supervisor matches only what that supervisor consumes",
   "description": "Every profile's response is exactly what the supervising system reads and nothing more. HTTP-transport profiles that consume status code only (load balancer, uptime monitor, reverse proxy) return an empty response body with the resolved status code. HTTP-transport profiles that consume a body (Kubernetes HTTPGet, where the kubelet ignores body but operators inspect it during triage) return a minimal JSON body of the shape `{ \"status\": \"pass\" }` or `{ \"status\": \"fail\" }` with no additional fields. TCP-transport profiles complete the SYN-ACK handshake on pass and refuse the connection on fail. Exec-transport profiles exit with code 0 on pass and a non-zero code on fail. Supervisor-notify profiles emit exactly the notify calls the supervisor expects (for systemd: `READY=1` at startup, `WATCHDOG=1` on the configured watchdog cadence).",
+  "deliveredBy": {
+    "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
+    "field": "interfaces.buildHandlerSet"
+  },
   "category": "nonFunctional",
   "domain": "observability",
   "priority": "must",

@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-keycloak-REQ-017",
+  "prdId": "PRD-001",
+  "title": "Introspection client interactions emit one structured audit event per named interaction",
+  "description": "The introspection client emits exactly one structured audit event per introspect call from the `keycloak.introspection` family (verified on `active: true`, refused on `active: false` or non-2xx). Every event carries fields drawn from the fixed allow-list `family` (`keycloak.introspection`), `outcome`, `reasonClass?`, `realmSlug`, `at`. No event may carry a token value (access token, id token, refresh token, introspection response body), a client secret, a raw claim record, or a substring of any of the above. The audit sink is the same one REQ-015 names; sink-failure posture is inherited verbatim (a sink failure logs a `keycloak.audit_sink_failed` warning event and never masks the underlying refusal).",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "A single cross-cutting audit REQ pointing at one TAC hides ownership when the delivery is spread across TACs. Each TAC that emits an audit family owns its own REQ so a reviewer can see the ownership at a glance and so a future author changing an audit family finds the single REQ that governs it.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:15-audit-surface"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
+    "field": "responsibilities.introspectionAudit"
+  }
+}

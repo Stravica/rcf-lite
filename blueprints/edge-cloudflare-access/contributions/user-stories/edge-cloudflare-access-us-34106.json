@@ -16,12 +16,18 @@
       "when": "the requests dispatch through the validator",
       "then": "10 sink records, each with allowed keys only, none containing forbidden substrings",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "interfaces.createAccessValidator"
+      }
     }
   ],
   "tacIds": [
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the audit-event record-shape assertion (10 records across 5 pass and 5 reject requests, exact key set, no token substring). Reject-branch outcomes are covered by US-34102; per section 7a, this story carries a single AC because the record-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

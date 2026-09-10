@@ -12,7 +12,7 @@
     "Suppress the signing secret from the response body, from every log line the verifier writes for the call, and from every exception the verifier throws for the call (AC-4104-3).",
     "Refuse a webhook whose timestamp header is older than the configured tolerance window (default 300 seconds) with HTTP 401, empty body, no handler invocation, and one `webhookReplayStale` audit event (AC-4105-1).",
     "On a signature-passing request, read the provider's delivery event id from the payload and consult the bounded event-id store; refuse a duplicate with HTTP 200, no handler invocation, and one `webhookReplayDuplicate` audit event; record a new id with an expiry equal to the tolerance window (AC-4105-2).",
-    "Resolve `RESEND_WEBHOOK_SIGNING_SECRET`, the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window at boot through the project's configured resolver; carry no literal for the signing secret in verifier source (AC-4106-2)."
+    "Resolve `RESEND_WEBHOOK_SIGNING_SECRET`, the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window at boot through the project's configured resolver; carry no literal for the signing secret in verifier source (AC-4106-3)."
   ],
   "internalStructure": "One stateless verifier per process, constructed at boot with an injected signature-computation function (a project-selected HMAC implementation matching the configured algorithm identifier), an injected event-id store (an in-memory LRU sized to the tolerance window or a project-authored persistent store with a matching TTL, satisfying the same put-if-absent-with-expiry interface), an injected audit sink, and an injected clock the tolerance check consults. The route handler is a thin adapter over the verifier: the verifier is the thing under test, the route wiring is not.",
   "interfaces": [
@@ -35,6 +35,11 @@
       "name": "verifierClock",
       "kind": "read-api",
       "description": "Project-supplied clock the tolerance check consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test."
+    },
+    {
+      "name": "secretResolver",
+      "kind": "read-api",
+      "description": "Project-supplied secret-reference resolver. The verifier reads the webhook signing secret (`RESEND_WEBHOOK_SIGNING_SECRET`), the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window through it at boot; carries no literal for the signing secret in verifier source (AC-4106-3). The resolver shape matches the resolver TAC-401 consumes for the SMTP secrets, so a project realises one resolver for both TACs."
     }
   ],
   "dependencies": [
@@ -52,5 +57,5 @@
   ],
   "tradeoffs": "The event-id store is a stateful component the project realises; an in-memory LRU sized to the tolerance window is cheap and defends the replay class the tolerance window bounds, but does not defend cross-process replay in a horizontally-scaled deployment. Projects running multiple webhook-consuming processes supply a shared store (a small Redis, a small database table) implementing the same put-if-absent-with-expiry interface. The constant-time comparison assumes a comparison function that itself runs in constant time over the byte length of the expected signature; a project that provides a naive comparison re-opens the timing side channel the verifier is closing.",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

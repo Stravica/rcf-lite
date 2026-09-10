@@ -5,23 +5,29 @@
   "version": "1.0.0",
   "status": "approved",
   "title": "Real-account gated URL round-trip against a scheduled Access-configured hostname",
-  "asA": "HQ operator running the real-account gated-URL smoke against a scheduled Access-configured hostname",
+  "asA": "operator running the real-account gated-URL smoke against a scheduled Access-configured hostname",
   "iWant": "the probe to fire against the hostname when the env vars are present and record accountBoundSkipped when not",
   "soThat": "the mechanism-reach claim is proven on a real Cloudflare Access instance without ever failing the shelf gate on the absence of an account",
   "acceptanceCriteria": [
     {
       "id": "AC-34109-1",
-      "description": "With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=<hostname>, a plain fetch against https://<hostname>/ follows the redirect chain and terminates at an https://<team>.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5.",
+      "description": "With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=<hostname>, a plain fetch against https://<hostname>/ follows the redirect chain and terminates at an https://<team>.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5. Applying agent sets: the applying agent sets CF_ACCESS_HOST (the hostname the account-bound probe fetches) and toggles CI_HAS_CLOUDFLARE_ACCOUNT in the operator environment for the account-bound run.",
       "given": "the run-real-account-gated-url.mjs probe shim and the two env vars",
       "when": "the probe runs",
       "then": "in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/policies/access/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the account-bound Access redirect probe with the accountBoundSkipped fall-through. Per section 7a, this story carries a single AC because the redirect-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

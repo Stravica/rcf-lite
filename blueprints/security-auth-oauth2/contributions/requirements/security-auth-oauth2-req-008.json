@@ -2,7 +2,7 @@
   "reqId": "security-auth-oauth2-REQ-008",
   "prdId": "PRD-001",
   "title": "Sign-out invalidates the project session; provider-side sign-out is a project option",
-  "description": "The blueprint mandates one sign-out shape: a project route (`POST /auth/sign-out` in the reference wiring) that invalidates the project session handle server-side and clears the session cookie on the response. Every subsequent request presenting the cleared cookie or the invalidated handle is treated as unauthenticated. Provider-side sign-out (RP-Initiated Logout, RFC-drafted for OIDC; provider-specific for OAuth2-only providers) is a project-authored option NOT mandated by the blueprint: a project that wants a downstream provider session cleared on sign-out sets `providerLogout: 'redirect'` on the provider record, and the flow controller emits a redirect to the provider's declared `endSessionEndpoint` after clearing the project session. A provider whose declaration omits `endSessionEndpoint` and whose record is set to `providerLogout: 'redirect'` is refused at boot with `OAUTH2_LOGOUT_NOT_DECLARED`.",
+  "description": "The blueprint mandates one sign-out shape: a project route (`POST /auth/sign-out` in the reference wiring) that invalidates the project session handle server-side and clears the session cookie on the response. Every subsequent request presenting the cleared cookie or the invalidated handle is treated as unauthenticated. Provider-side sign-out (RP-Initiated Logout, RFC-drafted for OIDC; provider-specific for oauth2-only providers) is a project-authored option NOT mandated by the blueprint: a project that wants a downstream provider session cleared on sign-out sets `providerLogout: 'redirect'` on the provider record, and the flow controller emits a redirect to the provider's declared `endSessionEndpoint` after clearing the project session. A provider whose declaration omits `endSessionEndpoint` and whose record is set to `providerLogout: 'redirect'` is refused at boot with `OAUTH2_LOGOUT_NOT_DECLARED`.",
   "category": "functional",
   "domain": "authentication",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-08-30T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1101-security-auth-oauth2-flow-controller",
+    "field": "responsibilities.endSessionEndpoint"
+  }
 }

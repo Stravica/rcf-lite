@@ -1,0 +1,22 @@
+{
+  "reqId": "security-auth-keycloak-REQ-015",
+  "prdId": "PRD-001",
+  "title": "Discovery-client and account-console interactions emit one structured audit event per named interaction",
+  "description": "The discovery client and the account-console verification (both on TAC-1201) emit exactly one structured audit event per named interaction from the `keycloak.discovery` and `keycloak.account_console` families. Every event carries fields drawn from the fixed allow-list `family` (one of `keycloak.discovery`, `keycloak.account_console`), `outcome`, `reasonClass?`, `realmSlug`, `at`. No event may carry a token value (access token, id token, refresh token, introspection response body), a client secret, a raw claim record, or a substring of any of the above. The audit sink is contributed by the composed observability blueprint (or by a project-authored sink under the same interface); a sink failure logs a `keycloak.audit_sink_failed` warning event and never masks the underlying refusal. The other keycloak-side surfaces (JWT verifier, introspection client, provider router, sessionInventory, role adapter) each carry their own audit contract on the TAC that owns the surface (REQ-016 through REQ-019); the token-exclusion rule and the sink-failure posture named here apply verbatim to each of them.",
+  "category": "nonFunctional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The five TACs each require structured audit events with slightly different fields; without a cross-cutting REQ naming the allow-list and the token-exclusion rule, a reviewer cannot decide whether a new event field is inside the blueprint's contract. The REQ also anchors the sink-failure posture the guide implies but never states at REQ level.",
+  "tags": [
+    "blueprint:security-auth-keycloak",
+    "category:15-audit-surface"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+    "field": "responsibilities.auditSink"
+  }
+}

@@ -16,7 +16,8 @@
       "when": "unauthenticated GETs are issued against each of the three paths in turn",
       "then": "no response carries status code 401 or 403 and none carries a WWW-Authenticate response header; each response is either a 2xx probe pass, a 5xx probe fail, or a 2xx status page",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7108-2",
@@ -25,7 +26,8 @@
       "when": "the running process's exempt list is inspected",
       "then": "the list contains the three configured paths (liveness, readiness, status page) and no others that were not deliberately declared",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7108-3",
@@ -34,7 +36,8 @@
       "when": "an authenticated GET is issued against each of the three exempt paths",
       "then": "each response is identical in shape and status code to the unauthenticated case; no path refuses the authenticated caller",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

@@ -16,7 +16,8 @@
       "when": "an authenticated request from a signed-in Clerk-development-instance user reaches the route",
       "then": "the middleware runs the handler; the response status is the handler's declared success status (200 for a GET); the response body is what the handler returns",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9103-2",
@@ -25,7 +26,8 @@
       "when": "a request without a `__session` cookie reaches the route",
       "then": "the response status is 401 (for an API-shaped route) or a 302 redirect to the sign-in surface (for a page-shaped route); the handler is never invoked; the response body carries no principal or session information",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9103-3",
@@ -34,7 +36,8 @@
       "when": "the request reaches a protected route",
       "then": "the middleware refuses with the same status and shape as AC-9103-2; the handler is never invoked",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

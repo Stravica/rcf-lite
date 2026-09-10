@@ -11,7 +11,8 @@
     "Parse the response body as JSON per RFC 7662; a response with `active: true` yields the claim record; a response with `active: false` refuses the token with `KEYCLOAK_INTROSPECTION_INACTIVE` (AC-11105-2).",
     "Refuse a non-2xx response with `KEYCLOAK_INTROSPECTION_ENDPOINT_ERROR` naming the HTTP status class; emit `keycloak.introspection_refused` carrying realmSlug and status class (AC-11105-3).",
     "Cache the response when the record's `introspectionCacheTtlSeconds` is greater than zero; cache key is a stable hash of the token value (SHA-256 hex prefix, never the token) so the cache does not carry token strings; default TTL is 0 (no cache); AC-11105-1 covers the uncached path.",
-    "Emit one structured audit event `keycloak.introspection_verified` on a 2xx `active: true` carrying realmSlug and no token value (AC-11105-1)."
+    "Emit one structured audit event `keycloak.introspection_verified` on a 2xx `active: true` carrying realmSlug and no token value (AC-11105-1).",
+    "Audit each introspect call as one `keycloak.introspection` audit event on the allow-list REQ-017 declares (`family`, `outcome`, `reasonClass?`, `realmSlug`, `at`); the token-exclusion rule and sink-failure posture inherit from REQ-015 (introspectionAudit)."
   ],
   "internalStructure": "One factory function producing an introspect closure over the discovery client (for the endpoint), an injected `httpFetch`, an injected clock, and an injected auditSink. The optional cache is a Map keyed by the token-hash whose value is `{ claims, cachedAt }`; entries evict on TTL expiry from the read path.",
   "interfaces": [
@@ -37,7 +38,12 @@
     }
   ],
   "dependencies": [
-    { "name": "Discovery client", "kind": "tac", "tacId": "TAC-1201-security-auth-keycloak-discovery-client", "description": "Provides the introspection endpoint from discovery." }
+    {
+      "name": "Discovery client",
+      "kind": "tac",
+      "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+      "description": "Provides the introspection endpoint from discovery."
+    }
   ],
   "tradeoffs": "The introspection round-trip is expensive on the hot path; the optional cache lets an operator on a high-issuance realm claw back some of the cost at the price of a bounded revocation-reflection delay. Hashing the token as the cache key defends against a leaked cache dump: nothing on disk (or in a warmed memory dump) is a token; the hash cannot be exchanged. Refusing on non-2xx keeps the mechanism from falling back to a permissive posture when the endpoint is misbehaving.",
   "createdAt": "2026-08-31T00:00:00Z",

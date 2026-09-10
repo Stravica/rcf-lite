@@ -2,7 +2,7 @@
   "reqId": "security-auth-magic-link-REQ-003",
   "prdId": "PRD-001",
   "title": "Sessions are server-issued opaque handles, never signed client-readable claims",
-  "description": "A successful token consumption issues a session by writing a server-side record and returning an opaque handle to the client. The handle is base64url of at least 24 bytes of cryptographically random entropy; it carries no identity claim, no scope claim, no signed payload, and no data the client can decode. Identity, scope, and expiry are looked up server-side from the record on every request. No JWT-shaped token, no self-describing bearer, and no client-decodable envelope is issued on any authenticated code path.",
+  "description": "A successful token consumption issues a session by writing a server-side record and returning an opaque handle to the client. The handle is base64url of at least 24 bytes of cryptographically random entropy; it carries no identity claim, no scope claim, no signed payload, and no data the client can decode. Identity, scope, and expiry are looked up server-side from the record on every request. No JWT-shaped token, no self-describing bearer, and no client-decodable envelope is issued on any authenticated code path. The session-lifetime contract is: a sliding idle window bounded by `sessionIdleTimeoutSeconds` (default 3600, refreshed by every validated request without changing the handle value), a fixed absolute lifetime bounded by `sessionAbsoluteLifetimeSeconds` (default 604800, never refreshed once issued), and server-side revocation as the only truthful invalidation (client-side cookie clearing alone never invalidates). A validated request whose stored `issuedAt + sessionAbsoluteLifetimeSeconds` is in the past is refused as unauthenticated even if the sliding window has not elapsed. Defaults are declared on ADR-504 and overridable per project.",
   "category": "security",
   "domain": "authentication",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-08-21T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-502-security-auth-magic-link-session-manager",
+    "field": "responsibilities.handle"
+  }
 }

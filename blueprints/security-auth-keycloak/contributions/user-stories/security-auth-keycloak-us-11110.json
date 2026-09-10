@@ -16,7 +16,8 @@
       "when": "the browser dispatches the sign-out request",
       "then": "the response clears the session cookie (`Set-Cookie` with the cookie name, empty value, `Max-Age=0`, `HttpOnly`, `Secure`, `SameSite=Lax`); the session-record store no longer holds a record for the pre-signout session handle; the next protected-route request replaying the pre-signout cookie value is refused as unauthenticated",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11110-2",
@@ -25,7 +26,8 @@
       "when": "the sign-out route is invoked",
       "then": "the response status is 302; the `Location` header equals the discovered `end_session_endpoint` with the configured `post_logout_redirect_uri` and, when the id_token is available on the session record, the `id_token_hint` query parameter carrying the raw id_token; the session cookie is cleared on the same response; the session record is deleted",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-11110-3",
@@ -34,7 +36,8 @@
       "when": "the discovery client's boot fetch completes",
       "then": "the process terminates with error code `KEYCLOAK_LOGOUT_NOT_DECLARED` naming the realm slug; no listener is left running; the audit log records one `keycloak.discovery_refused` event carrying realmSlug and reason class `logout-endpoint-missing`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

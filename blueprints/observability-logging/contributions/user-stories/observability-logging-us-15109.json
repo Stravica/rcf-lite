@@ -1,0 +1,71 @@
+{
+  "usId": "observability-logging-US-15109",
+  "prdId": "PRD-001",
+  "reqId": "observability-logging-REQ-006",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The audit-log stream carries actor, target, before and after fields per line with the ambient correlation identifier for consumer surfaces to join",
+  "asA": "operator of a consuming blueprint (application-admin-console) rendering an audit-log surface",
+  "iWant": "every audit event the applying application emits to land on the same shared logger stream with actor, target, before, after and correlationId fields on the top-level object",
+  "soThat": "the audit surface can read the stream directly, join each row to its originating request via the correlation identifier, and use the shared redaction and level-filter pipeline without a per-consumer adapter",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15109-1",
+      "description": "An audit event emission at info with a payload carrying { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'admin' } produces one stdout line whose parsed object holds those four fields at the top level alongside message, level, timestamp, correlationId, environment, serviceName and serviceVersion; the correlationId equals the ambient request context's value. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
+      "given": "a running application in an ambient request context with correlationId 'req-777' and a caller issuing logger.info('role.granted', { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'admin' })",
+      "when": "the emission passes through the factory",
+      "then": "stdout carries one line, JSON.parse yields an object with actor === 'principal:1', target === 'role:2', before === 'reader', after === 'admin', correlationId === 'req-777' and the shared minimum field set present",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.Logger"
+      }
+    },
+    {
+      "id": "AC-15109-2",
+      "description": "An audit event emitted at debug with the elicited minimum-log-level set to info produces no stdout line, so the audit stream in production does not carry sub-threshold audit noise. Template values the applying agent sets: The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info.",
+      "given": "a running application with minimum-log-level info and a caller issuing logger.debug('role.hover', { actor: 'principal:1', target: 'role:2', before: 'reader', after: 'reader' })",
+      "when": "the emission is issued",
+      "then": "stdout carries no line for this emission",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.Logger"
+      }
+    },
+    {
+      "id": "AC-15109-3",
+      "description": "An audit event whose actor value has category pii.email at the caller-side has that field replaced with [REDACTED:pii.email] on the emitted line; the caller-side object still holds the original address.",
+      "given": "a running application configured with the recommended redaction defaults and a caller issuing logger.info('login.success', { actor: 'alice@example.test', 'actor.pii.email': 'alice@example.test' })",
+      "when": "the emission passes through the redaction boundary",
+      "then": "the stdout line's `actor.pii.email` field value equals [REDACTED:pii.email] and the caller-side object still holds 'alice@example.test'",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1602-observability-logging-redaction-boundary",
+        "field": "interfaces.createRedactionBoundary"
+      }
+    },
+    {
+      "id": "AC-15109-4",
+      "description": "The blueprint's guide 'Known mechanism-reach gaps' section names the class of a bare console.log or bare stdout write bypassing the factory. This AC verifies that the guide states the gap and names at least one project-side workaround (an ESLint rule or a build-time grep gate) that a consuming project can adopt to close it; the blueprint does not itself supply the gate.",
+      "given": "the applied blueprint's guide file",
+      "when": "the guide is opened",
+      "then": "the guide names the mechanism-reach gap explicitly and states at least one project-side workaround by name",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory",
+    "TAC-1602-observability-logging-redaction-boundary"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

@@ -16,12 +16,18 @@
       "when": "each variant renders",
       "then": "each renders the Turnstile widget from Cloudflare Turnstile origin only and no third-party script is loaded",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the widget-mode enum shape and its three-value coverage against the pinned Cloudflare test sitekeys. Per section 7a, this story carries a single AC because the enum-coverage mechanism has no additional documented failure path in the guide (a missing sitekey surfaces via US-35102 AC-35102-2, not via widget-mode)."
 }

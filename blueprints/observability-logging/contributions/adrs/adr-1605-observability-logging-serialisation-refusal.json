@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-1605-observability-logging-serialisation-refusal",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "1.0.0",
+  "status": "accepted",
+  "title": "Serialisation refusal split: BigInt folded to string, circular reference and function reference dropped with stderr notice",
+  "context": "REQ-001 previously described any non-JSON-representable value as dropped, while TAC-1601's internalStructure described a JSON.stringify replacer that folded BigInt to string. Both cannot hold: an operator debugging a BigInt-carrying payload sees either the folded value on stdout OR a dropped emission on stderr, not both. The refusal semantics of a circular graph and a function reference is different from a BigInt (the former genuinely cannot serialise; the latter has a well-defined decimal string form). Splitting the two clears the chain contradiction the family-pass review flagged as F-4 and lands a stable oracle every AC can assert.",
+  "decision": "BigInt values in a log payload are folded to their decimal string form on the emitted line (the replacer calls `.toString()` on the value; the field's runtime type on stdout is `string`). Circular references and function references cannot be folded and cause the emission to be dropped: the boundary catches the SerializationRefusedError, writes one stderr notice naming the offending field's dotted path, and returns to the caller without throwing. The three classes are separately observable: a BigInt is on-stdout as a string, a circular reference is off-stdout with one stderr notice, a function reference is off-stdout with one stderr notice.",
+  "consequences": "Callers that hand the logger a BigInt (an id from a database driver returning arbitrary-precision numerics) see the value on the emitted line; downstream tooling reads it as a JSON string, which is the industry-standard representation for BigInt on the wire. Callers that hand the logger a circular graph see the emission dropped and one stderr notice; the caller's next line still runs. The TAC-1601 internalStructure names all three behaviours consistently. The AC-15101-2 refusal path splits into two observable ACs: one for BigInt (asserting the folded string on stdout), one for a circular payload (asserting the dropped emission and the stderr notice).",
+  "alternativesConsidered": [
+    {
+      "name": "Drop every non-JSON-representable value including BigInt",
+      "summary": "Treat BigInt the same as a circular graph: catch the SerializationRefusedError, drop the emission, write one stderr notice.",
+      "reasonNotChosen": "BigInt has a stable decimal string form every JSON consumer accepts, so dropping the emission loses information the folded form would have preserved. The class this blueprint targets (small greenfield applications with database drivers returning bigints) hits BigInt often enough that a drop-on-every-encounter would surprise operators."
+    },
+    {
+      "name": "Fold every non-representable value into a placeholder",
+      "summary": "Replace circular references and function references with the literal string [UNSERIALISABLE:<class>] on the emitted line.",
+      "reasonNotChosen": "A function reference on a log payload is almost certainly a coding defect (the caller wrote the wrong argument); silently folding it to a placeholder lets the defect ship. A drop with one stderr notice surfaces the class where a developer will see it."
+    }
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

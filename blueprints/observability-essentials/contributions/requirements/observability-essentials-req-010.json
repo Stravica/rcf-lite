@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Probe handlers evaluate in bounded time and never block on a network call to a downstream dependency",
   "description": "The liveness probe handler completes its evaluation entirely in-process and returns without issuing any network call. The readiness probe handler completes within a bounded ceiling (the readiness evaluation budget, declared at boot with a documented default) and never blocks on a synchronous network round trip to a declared dependency: readiness checks read from a per-dependency last-known state that a background evaluator refreshes on its own cadence. A slow or hanging downstream dependency causes the last-known state for that dependency to age or fail, not the probe handler itself to hang.",
+  "deliveredBy": {
+    "tacId": "TAC-802-observability-essentials-readiness-probe",
+    "field": "interfaces.createReadinessHandler"
+  },
   "category": "nonFunctional",
   "domain": "observability",
   "priority": "must",

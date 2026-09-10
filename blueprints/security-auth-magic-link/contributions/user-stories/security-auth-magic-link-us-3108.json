@@ -16,7 +16,8 @@
       "when": "a subsequent authenticated request is made using S's handle after the restart",
       "then": "the server authenticates the request, exposes the same principal id on the request context, and does not require a fresh sign-in",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3108-2",
@@ -25,7 +26,8 @@
       "when": "GET /login/verify is called with T after the restart",
       "then": "the response is a 302 to the configured post-sign-in route and carries a Set-Cookie header issuing a fresh session handle",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3108-3",
@@ -34,7 +36,8 @@
       "when": "a subsequent request is made using S's handle after the restart",
       "then": "the server applies the same idle-expiry rule it would have applied with no restart, using the last-seen timestamp recorded before the stop",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

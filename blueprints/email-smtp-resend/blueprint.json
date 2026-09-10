@@ -1,23 +1,125 @@
 {
   "slug": "email-smtp-resend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "email",
+  "elicits": [
+    {
+      "id": "smtp-host-ref",
+      "prompt": "Placeholder reference name the send adapter resolves at boot for the Resend SMTP host (per REQ-002). Recommended default RESEND_SMTP_HOST; the value itself is never literal in source.",
+      "kind": "string",
+      "default": "RESEND_SMTP_HOST"
+    },
+    {
+      "id": "smtp-username-ref",
+      "prompt": "Placeholder reference name for the SMTP username (per REQ-002). Recommended default RESEND_SMTP_USERNAME.",
+      "kind": "string",
+      "default": "RESEND_SMTP_USERNAME"
+    },
+    {
+      "id": "smtp-password-ref",
+      "prompt": "Placeholder reference name for the SMTP password (per REQ-002). Recommended default RESEND_SMTP_PASSWORD.",
+      "kind": "string",
+      "default": "RESEND_SMTP_PASSWORD"
+    },
+    {
+      "id": "verified-sender-ref",
+      "prompt": "Placeholder reference name for the verified sender address (per REQ-002). Recommended default RESEND_VERIFIED_SENDER_ADDRESS.",
+      "kind": "string",
+      "default": "RESEND_VERIFIED_SENDER_ADDRESS"
+    },
+    {
+      "id": "webhook-signing-secret-ref",
+      "prompt": "Placeholder reference name the webhook verifier resolves at boot for the Resend delivery-webhook signing secret (per REQ-005). Owned by TAC-402, not TAC-401. Recommended default RESEND_WEBHOOK_SIGNING_SECRET.",
+      "kind": "string",
+      "default": "RESEND_WEBHOOK_SIGNING_SECRET"
+    },
+    {
+      "id": "replay-tolerance-ms",
+      "prompt": "Replay tolerance window in milliseconds for webhook event id de-duplication (per REQ-006). Recommended default 300000 (5 minutes).",
+      "kind": "string",
+      "default": "300000"
+    }
+  ],
   "contributions": [
-    { "id": "email-smtp-resend-REQ-001", "kind": "req", "path": "requirements/email-smtp-resend-req-001.json" },
-    { "id": "email-smtp-resend-REQ-002", "kind": "req", "path": "requirements/email-smtp-resend-req-002.json" },
-    { "id": "email-smtp-resend-REQ-003", "kind": "req", "path": "requirements/email-smtp-resend-req-003.json" },
-    { "id": "email-smtp-resend-REQ-004", "kind": "req", "path": "requirements/email-smtp-resend-req-004.json" },
-    { "id": "email-smtp-resend-REQ-005", "kind": "req", "path": "requirements/email-smtp-resend-req-005.json" },
-    { "id": "email-smtp-resend-REQ-006", "kind": "req", "path": "requirements/email-smtp-resend-req-006.json" },
-    { "id": "email-smtp-resend-US-4101", "kind": "us", "path": "user-stories/email-smtp-resend-us-4101.json" },
-    { "id": "email-smtp-resend-US-4102", "kind": "us", "path": "user-stories/email-smtp-resend-us-4102.json" },
-    { "id": "email-smtp-resend-US-4103", "kind": "us", "path": "user-stories/email-smtp-resend-us-4103.json" },
-    { "id": "email-smtp-resend-US-4104", "kind": "us", "path": "user-stories/email-smtp-resend-us-4104.json" },
-    { "id": "email-smtp-resend-US-4105", "kind": "us", "path": "user-stories/email-smtp-resend-us-4105.json" },
-    { "id": "email-smtp-resend-US-4106", "kind": "us", "path": "user-stories/email-smtp-resend-us-4106.json" },
-    { "id": "TAC-401-email-smtp-resend-send-adapter", "kind": "tac", "path": "tacs/tac-401-email-smtp-resend-send-adapter.json" },
-    { "id": "TAC-402-email-smtp-resend-webhook-verifier", "kind": "tac", "path": "tacs/tac-402-email-smtp-resend-webhook-verifier.json" },
-    { "id": "ADR-401-email-smtp-resend-transport-choice", "kind": "adr", "path": "adrs/adr-401-email-smtp-resend-transport-choice.json" },
-    { "id": "ADR-402-email-smtp-resend-retry-and-backoff-posture", "kind": "adr", "path": "adrs/adr-402-email-smtp-resend-retry-and-backoff-posture.json" }
+    {
+      "id": "email-smtp-resend-REQ-001",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-001.json"
+    },
+    {
+      "id": "email-smtp-resend-REQ-002",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-002.json"
+    },
+    {
+      "id": "email-smtp-resend-REQ-003",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-003.json"
+    },
+    {
+      "id": "email-smtp-resend-REQ-004",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-004.json"
+    },
+    {
+      "id": "email-smtp-resend-REQ-005",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-005.json"
+    },
+    {
+      "id": "email-smtp-resend-REQ-006",
+      "kind": "req",
+      "path": "requirements/email-smtp-resend-req-006.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4101",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4101.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4102",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4102.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4103",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4103.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4104",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4104.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4105",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4105.json"
+    },
+    {
+      "id": "email-smtp-resend-US-4106",
+      "kind": "us",
+      "path": "user-stories/email-smtp-resend-us-4106.json"
+    },
+    {
+      "id": "TAC-401-email-smtp-resend-send-adapter",
+      "kind": "tac",
+      "path": "tacs/tac-401-email-smtp-resend-send-adapter.json"
+    },
+    {
+      "id": "TAC-402-email-smtp-resend-webhook-verifier",
+      "kind": "tac",
+      "path": "tacs/tac-402-email-smtp-resend-webhook-verifier.json"
+    },
+    {
+      "id": "ADR-401-email-smtp-resend-transport-choice",
+      "kind": "adr",
+      "path": "adrs/adr-401-email-smtp-resend-transport-choice.json"
+    },
+    {
+      "id": "ADR-402-email-smtp-resend-retry-and-backoff-posture",
+      "kind": "adr",
+      "path": "adrs/adr-402-email-smtp-resend-retry-and-backoff-posture.json"
+    }
   ]
 }

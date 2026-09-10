@@ -11,26 +11,42 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6110-1",
-      "description": "The CI provider's job step invokes the Node entry point with the same command a developer runs locally: the same file path, the same required arguments, the same environment variables the entry point reads (report directory path, tool-version pin). No CI-only wrapper script sits between the runner and the Node entry point.",
+      "description": "The CI provider's job step invokes the Node entry point with the same command a developer runs locally: the same file path, the same required arguments, the same environment variables the entry point reads (report directory path, tool-version pin). No CI-only wrapper script sits between the runner and the Node entry point. Template values the applying agent sets: The applying agent sets the elicited report directory; the AC substitutes the project's path for the illustrative default.",
       "given": "an rcf-lite project with this blueprint applied and a CI job wired per the illustrative example",
       "when": "a developer runs the same command line the CI job's invocation step records against their local checkout at the same commit",
       "then": "the aggregate report the local run writes at the configured report directory carries the same `runner.entryPoint`, the same `gates[]` ordering, and the same per-gate outcomes as the CI run's aggregate report for that commit, given the same rcf CLI version installed locally",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6110-2",
-      "description": "The gate entry point reads no CI-provider-specific environment variable to alter its behaviour. Every configuration input the entry point honours is documented and available to a developer running locally.",
+      "description": "The gate entry point reads no CI-provider-specific environment variable to alter its behaviour. Every configuration input the entry point honours is documented and available to a developer running locally. Template values the applying agent sets: The applying agent sets the elicited providerHint; the AC substitutes the project's provider assets for the illustrative GitHub-Actions asset set.",
       "given": "the applied blueprint's source path and the project's realised gate entry point",
       "when": "the reviewer greps the entry point's source and its dependency modules for reads against known CI-provider environment variables (`GITHUB_ACTIONS`, `GITLAB_CI`, `CIRCLECI`, `BUILDKITE`, `JENKINS_URL`)",
       "then": "no read of any of those variables gates the entry point's control flow or its gate set; if any such variable is read it is only for reporting into the aggregate report's `runner.environment` metadata field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6110-3",
+      "description": "A gate that produces different exit codes locally versus in CI (a stateful runner that reads process.env.CI) fails the parity assertion: the local invocation and the CI invocation must produce equal per-gate JSON reports (excluding wall-clock durations); a difference is flagged as a parity defect the operator resolves at the gate implementation, not by tolerating drift.",
+      "given": "a gate whose exit code depends on process.env.CI (returns 0 locally, 1 in CI)",
+      "when": "the same tree is run locally and under CI=1",
+      "then": "the per-gate reports differ in verdict; the runner's parity-check flag (documented) marks the drift and the operator is directed to remove the CI-dependent branch from the gate",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

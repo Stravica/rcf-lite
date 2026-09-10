@@ -16,7 +16,8 @@
       "when": "the process enumerates the adapter's exported surface",
       "then": "the enumeration returns `send` as the sole async method and no other public method matches the auth-facing shape",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4101-2",
@@ -25,7 +26,8 @@
       "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
       "then": "the returned object matches the shape with `ok === true`, `providerStatus` a positive integer, `providerMessageId` a non-empty string, and `error === null`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4101-3",
@@ -34,7 +36,8 @@
       "when": "the magic-link route triggers one adapter send",
       "then": "the submission counter increments by exactly one and no additional submission is observed within the retry window",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

@@ -2,7 +2,7 @@
   "reqId": "security-auth-clerk-REQ-005",
   "prdId": "PRD-001",
   "title": "Sign-in strategy is a fixed-shape config surface",
-  "description": "Clerk supports multiple sign-in strategies (email link, email code, password, phone code, OAuth via named providers, SAML). The project's Clerk instance is configured to enable one or more of them; the blueprint fixes the SHAPE of that configuration on the project side as a single `signInStrategy` config record (`{ primary: string, alternates: string[] }`) rather than fixing the CHOICE. The values in the record are Clerk's currently-documented strategy identifiers (as printed by the Clerk dashboard or the Clerk SDK's strategy enumeration at the project's build time). The project's sign-in surface reads the config record and does not hard-code any strategy string; changing the enabled strategy set is a config edit and a Clerk-dashboard change, not a codebase change.",
+  "description": "Clerk supports multiple sign-in strategies (email link, email code, password, phone code, OAuth via named providers, SAML). The project's Clerk instance is configured to enable one or more of them; the blueprint fixes the SHAPE of that configuration on the project side as a single `signInStrategy` config record (`{ primary: string, alternates: string[] }`) rather than fixing the CHOICE. The values in the record are Clerk's currently-documented strategy identifiers (as printed by the Clerk dashboard or the Clerk SDK's strategy enumeration at the project's build time). The project's sign-in surface reads the config record and does not hard-code any strategy string; changing the enabled strategy set is a config edit and a Clerk-dashboard change, not a codebase change. Because Clerk hosts every sign-in, sign-up, and MFA UI surface, the blueprint contributes the `hostedIdentityUi` capability: no project route renders a credential-input form of its own; the project route mounts the Clerk-hosted component or redirects to the Clerk-hosted route named by the `signInStrategy` record.",
   "category": "functional",
   "domain": "authentication",
   "priority": "should",
@@ -14,5 +14,8 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-08-30T00:00:00Z",
+  "deliveredBy": {
+    "adrId": "ADR-1001-security-auth-clerk-auth-model"
+  }
 }

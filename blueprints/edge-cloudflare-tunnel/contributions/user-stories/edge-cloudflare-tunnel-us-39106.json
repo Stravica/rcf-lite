@@ -13,12 +13,96 @@
       "id": "AC-tunnel-accessGated",
       "description": "aud-presence-check probe reads each variant sidecar and asserts the ingress rules attach originRequest.access.aud on the access-gated variant and omit the block on the public-hostname variant. The shape flip is a pure function of the sidecar contents.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.audAttach"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      },
+      "given": "the fixture ships the access-gated and public-hostname sidecar variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/ with the access-gated sidecar carrying an elicited AUD",
+      "when": "the aud-presence-check probe reads each variant sidecar's ingress rules",
+      "then": "the access-gated variant ingress rules all carry originRequest.access.aud and the public-hostname variant ingress rules all omit the originRequest.access block; the shape flip is a pure function of the sidecar contents"
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectMissing",
+      "description": "Given the access-gated variant on an account-bound run, when a request reaches the gated hostname with no Cf-Access-Jwt-Assertion header, cloudflared refuses at the edge and the origin never sees the request (the origin origin-hit counter stays at zero across N+1 requests). Applying agent sets: the applying agent sets the elicited access-aud tag and the applied project's Cf-Access-Jwt-Assertion signing team; the accept and reject observables are pure functions of that AUD.",
+      "given": "the account-bound fixture with an origin counter behind a gated hostname",
+      "when": "a client fires N+1 requests without a Cf-Access-Jwt-Assertion header",
+      "then": "every request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectInvalid",
+      "description": "Given the access-gated variant, when a request reaches the gated hostname with a malformed or expired Cf-Access-Jwt-Assertion, cloudflared refuses at the edge and the origin origin-hit counter stays at zero across N+1 requests. Applying agent sets: the applying agent sets the elicited access-aud tag; the reject observable is a pure function of that AUD.",
+      "given": "the account-bound fixture with an origin counter behind a gated hostname",
+      "when": "a client fires N+1 requests with a malformed or expired Cf-Access-Jwt-Assertion",
+      "then": "every request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedRejectWrongAud",
+      "description": "Given the access-gated variant with an elicited AUD tag, when a request presents a well-signed Cf-Access-Jwt-Assertion whose aud claim does not match the elicited AUD, cloudflared refuses at the edge and the origin origin-hit counter stays at zero. Applying agent sets: the applying agent sets the elicited access-aud tag; a request whose JWT `aud` differs from the applied value is refused.",
+      "given": "the account-bound fixture with the elicited AUD tag configured",
+      "when": "a client fires a request with a well-signed JWT whose aud claim mismatches the elicited AUD",
+      "then": "the request is refused at the edge and the origin counter stays at zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-tunnel-accessGatedAcceptValid",
+      "description": "Given the access-gated variant, when a request presents a well-signed Cf-Access-Jwt-Assertion whose aud claim matches the elicited AUD, the request reaches the origin exactly once and the origin origin-hit counter increments by one per accepted request. Applying agent sets: the applying agent sets the elicited access-aud tag; a request whose JWT `aud` matches the applied value is accepted.",
+      "given": "the account-bound fixture with the elicited AUD tag configured and an origin counter",
+      "when": "a client fires N requests each with a well-signed JWT whose aud matches the elicited AUD",
+      "then": "each request reaches the origin and the origin counter reads exactly N",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
+        "field": "responsibilities.accessGated"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-public-app/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-4003-edge-cloudflare-tunnel-access-binding"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

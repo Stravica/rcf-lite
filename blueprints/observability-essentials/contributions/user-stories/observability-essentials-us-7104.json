@@ -16,7 +16,8 @@
       "when": "an unauthenticated GET is issued against the status page path",
       "then": "the response status code is 200, the Content-Type begins with text/html, and the rendered document contains exactly N component elements, each carrying the declared component name as text content",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7104-2",
@@ -25,7 +26,8 @@
       "when": "the rendered document is queried for the per-component state attribute",
       "then": "every component element carries a state attribute whose value is one of the four enum strings; no other value appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7104-3",
@@ -34,7 +36,8 @@
       "when": "the status page is rendered",
       "then": "the rendered component elements appear in the same order as the declaration, verified by walking the rendered document's component elements top-to-bottom and comparing to the declared order",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

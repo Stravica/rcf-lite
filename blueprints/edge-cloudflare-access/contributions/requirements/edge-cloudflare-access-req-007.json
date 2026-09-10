@@ -1,0 +1,22 @@
+{
+  "reqId": "edge-cloudflare-access-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Policy-shape inputs (email-domain, group-membership, identity-provider, service-token) are dashboard-owned; the shipped guide names every input and every elicit",
+  "description": "The policy-shape enum (email-domain, service-token-only, service-token-plus-email-domain, group-membership) governs which Cloudflare Access policy the operator issues on the dashboard side. The blueprint owns the JWT validator side and does NOT elicit the four dashboard-owned inputs (email domain, group name, identity provider, application/path scope); those inputs live on the Cloudflare Zero Trust dashboard and are named in the shipped guide walk-through. The shipped guide MUST name each of the four dashboard-owned inputs per policy-shape option and MUST name each shipped elicit (access-application-host, access-selfhosted-app-id, access-audience, access-jwks-url, access-policy-shape, access-bypass-service-auth-id) alongside its runtime effect; the applying agent traces every policy the operator issues to the guide entry that names the required input.",
+  "category": "functional",
+  "domain": "edge",
+  "priority": "must",
+  "rationale": "Closes review P1 F-1 (policy-shape options with under-specified inputs). The Cloudflare dashboard is the owner of the identity/group/domain/path inputs (they live in the Access application, not in the JWT validator); the blueprint's job is to document each input in the guide and to elicit only the JWT-side values the validator consumes.",
+  "tags": [
+    "blueprint:edge-cloudflare-access",
+    "capability:zeroTrustGate"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
+    "field": "responsibilities.dashboard"
+  }
+}

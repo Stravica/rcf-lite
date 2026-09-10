@@ -16,7 +16,8 @@
       "when": "the harness enumerates test cases and their bound ACs",
       "then": "every TC bound to one of the enumerated ACs above has the `accountBound` marker set; TCs bound to other ACs (source-tree scans, in-process principal-shape assertions, adapter unit-shaped checks) do not carry the marker",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9111-2",
@@ -25,7 +26,8 @@
       "when": "the run enumerates accountBound TCs",
       "then": "every accountBound TC records outcome `skipped` with reason field equal to `AUTH_CLERK_UNREACHABLE`; the ship gate report flags the skipped set; the run's overall status reflects the skip rather than a pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

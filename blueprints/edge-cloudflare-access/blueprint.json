@@ -1,6 +1,6 @@
 {
   "slug": "edge-cloudflare-access",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "edge",
   "capabilities": [
     "zeroTrustGate"
@@ -192,6 +192,16 @@
       "recommendedDefault": true,
       "elicited": false,
       "standardsTraceClause": "generic enterprise practice"
+    },
+    {
+      "id": "edge-cloudflare-access-REQ-007",
+      "kind": "req",
+      "path": "requirements/edge-cloudflare-access-req-007.json"
+    },
+    {
+      "id": "edge-cloudflare-access-US-34110",
+      "kind": "us",
+      "path": "user-stories/edge-cloudflare-access-us-34110.json"
     }
   ]
 }

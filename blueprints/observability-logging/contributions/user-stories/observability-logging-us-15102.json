@@ -11,21 +11,23 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15102-1",
-      "description": "A request arriving with the elicited correlation header (default X-Correlation-Id per ADR-1602) causes every log line emitted during the handler and its callees to carry correlationId equal to the header value; a request arriving without the header causes the application to mint a v4 UUID and the same value appears on every log line for the request.",
+      "description": "A request arriving with the elicited correlation header (default X-Correlation-Id per ADR-1602) causes every log line emitted during the handler and its callees to carry correlationId equal to the header value; a request arriving without the header causes the application to mint a v4 UUID and the same value appears on every log line for the request. Template values the applying agent sets: The applying agent sets the elicited correlation header name on the correlation-header-name elicit; the AC substitutes the elicited value for the illustrative X-Correlation-Id token.",
       "given": "a running application with the correlation header configured and an inbound request",
       "when": "the request is processed (with or without the header set)",
       "then": "every log line emitted during the request carries the same correlationId value; header value wins when present; a v4 UUID is minted otherwise",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-15102-2",
-      "description": "An outbound HTTP request initiated from within a request-scoped handler carries the ambient correlationId as the same elicited header name.",
+      "description": "An outbound HTTP request initiated from within a request-scoped handler carries the ambient correlationId as the same elicited header name. Template values the applying agent sets: The applying agent sets the elicited correlation header name on the correlation-header-name elicit; the AC substitutes the elicited value for the illustrative X-Correlation-Id token.",
       "given": "an inbound request handler that issues an outbound HTTP call",
       "when": "the outbound request is sent",
       "then": "the outbound request headers include the correlation header with the ambient value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-15102-3",
@@ -34,10 +36,13 @@
       "when": "a boot-time or background emission occurs",
       "then": "the line carries correlationId: null",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
   "updatedAt": "2026-09-04T12:20:00Z"
 }

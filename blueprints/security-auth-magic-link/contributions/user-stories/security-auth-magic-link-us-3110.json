@@ -16,7 +16,8 @@
       "when": "the outgoing calls to the adapter interface are enumerated",
       "then": "only the declared send method is invoked, with only the declared arguments, and the returned outcome is consumed only via the declared fields",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3110-2",
@@ -25,7 +26,8 @@
       "when": "the response and log stream are captured",
       "then": "the response body and status match a successful send exactly, and exactly one adapterSendFailed entry is emitted with the error string in the outcome field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3110-3",
@@ -34,7 +36,8 @@
       "when": "POST /login runs against a registered principal",
       "then": "the stub's send is invoked with the declared arguments and its in-memory record contains one call with those arguments",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

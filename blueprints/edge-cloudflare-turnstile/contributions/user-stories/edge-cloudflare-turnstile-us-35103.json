@@ -16,12 +16,91 @@
       "when": "a submit hits /api/submit with any response token and the verifier calls siteverify",
       "then": "siteverify returns success:false and the handler responds 400 with an error-codes body and no sitekey leak",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-35103-2",
+      "description": "Given the pack fixture with the injected fetch simulating a siteverify request timeout (fetch rejects with AbortError after the bounded timeout), when a submit hits /api/submit and the verifier calls siteverify, the handler refuses 502 with body {\"errorCode\":\"turnstile.verifier-timeout\"}, no downstream handler runs, and exactly one metadata-only audit event fires carrying no response-token or secret substring.",
+      "given": "the pack fixture running with an injected fetch that rejects with AbortError after the bounded timeout window",
+      "when": "a submit hits /api/submit carrying a response token and the verifier calls siteverify",
+      "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-timeout\"} and one audit event with metadata only",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      }
+    },
+    {
+      "id": "AC-35103-3",
+      "description": "Given an injected fetch that rejects with a network error (ECONNRESET or DNS failure), when the verifier calls siteverify, the handler refuses 502 with body {\"errorCode\":\"turnstile.verifier-network\"}, no downstream handler runs, and the audit event carries no response-token or secret substring.",
+      "given": "the pack fixture with an injected fetch that rejects synchronously with a network error",
+      "when": "the verifier calls siteverify",
+      "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-network\"} and one metadata-only audit event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      }
+    },
+    {
+      "id": "AC-35103-4",
+      "description": "Given an injected fetch returning a 500 status body, when the verifier calls siteverify, the handler refuses 502 with body {\"errorCode\":\"turnstile.verifier-upstream\", \"upstreamStatus\":500}, no downstream handler runs.",
+      "given": "the pack fixture with an injected fetch returning status 500 and any body",
+      "when": "the verifier calls siteverify",
+      "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-upstream\",\"upstreamStatus\":500}",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      }
+    },
+    {
+      "id": "AC-35103-5",
+      "description": "Given an injected fetch returning status 200 with a body that is not valid JSON, when the verifier parses the response, the handler refuses 502 with body {\"errorCode\":\"turnstile.verifier-malformed\"} and no downstream handler runs.",
+      "given": "the pack fixture with an injected fetch returning a 200 with a non-JSON body",
+      "when": "the verifier parses the response",
+      "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-malformed\"}",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      }
+    },
+    {
+      "id": "AC-35103-6",
+      "description": "Given an injected fetch returning valid JSON with no boolean success field (or success set to a non-boolean), when the verifier interprets the response, the handler refuses 502 with body {\"errorCode\":\"turnstile.verifier-malformed\"} (fail-closed) and no downstream handler runs.",
+      "given": "the pack fixture with an injected fetch returning JSON that omits success or supplies a non-boolean value",
+      "when": "the verifier interprets the response",
+      "then": "the handler responds 502 with {\"errorCode\":\"turnstile.verifier-malformed\"} and treats the outcome as failure",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
+        "field": "interfaces.verifier.verify"
+      }
     }
   ],
   "tacIds": [
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-07T20:00:00.000Z"
+  "updatedAt": "2026-09-09T12:00:00.000Z"
 }
