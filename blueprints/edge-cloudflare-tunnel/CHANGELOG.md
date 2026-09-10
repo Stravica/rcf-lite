@@ -4,7 +4,8 @@
 
 Register tidy in shipped prose; no capability change.
 
-- README now leads with a category-neutral opening line and drops the account-token remark trailing clause; guide drops the leading provenance line and rewrites two trailing clauses without internal spec references.
+- Closes F-5: README now leads with a category-neutral opening line and drops the account-token remark trailing clause.
+- Closes F-6: guide drops the leading provenance line and rewrites two trailing clauses without internal spec references.
 
 ## 1.1.2 - 2026-09-10
 

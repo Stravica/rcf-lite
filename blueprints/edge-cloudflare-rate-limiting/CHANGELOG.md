@@ -4,8 +4,9 @@
 
 Vendor citation on the guide-section AC; register tidy in shipped prose.
 
-- AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation, verified on 2026-09-10.
-- README trailing clause with the internal spec reference removed; guide leading provenance sentence removed.
+- Closes F-6: AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation, verified on 2026-09-10.
+- Closes F-7: README trailing clause with the internal spec reference removed.
+- Closes F-8: guide leading provenance sentence removed.
 
 ## 1.1.2 - 2026-09-10
 

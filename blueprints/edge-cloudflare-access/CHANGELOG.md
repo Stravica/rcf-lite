@@ -4,7 +4,8 @@
 
 Register tidy in shipped prose; no capability change.
 
-- README compose bullet and consumer note stripped of internal pattern label; REQ-006 description stripped of internal mechanism label.
+- Closes F-8: README compose bullet and consumer note stripped of internal pattern label.
+- Closes F-9: REQ-006 description stripped of internal mechanism label.
 
 ## 1.1.2 - 2026-09-10
 
