@@ -1,5 +1,9 @@
 # security-auth-magic-link CHANGELOG
 
+## 1.2.3
+
+- Rewrites `REQ-010.description` to reference `TAC-504-security-auth-magic-link-email-delivery-adapter` `responsibilities.send` rather than restate the `{ ok, providerStatus, providerMessageId, error }` return shape verbatim; the literal remains owned by the delivering TAC.
+
 ## 1.2.2 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

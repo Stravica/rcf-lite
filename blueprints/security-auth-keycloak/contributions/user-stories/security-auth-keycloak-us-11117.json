@@ -1,0 +1,117 @@
+{
+  "usId": "security-auth-keycloak-US-11117",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-016",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "JWT verify calls each emit one structured audit event on the fixed allow-list",
+  "asA": "operator running the runtime-verify suite against the JWT verifier",
+  "iWant": "every verify call to write one structured `keycloak.jwt` event carrying only the allow-list fields",
+  "soThat": "the audit stream stays free of token material and every refusal has a stable reasonClass a reviewer can gate on",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11117-1",
+      "description": "A verified JWT emits exactly one `keycloak.jwt` audit event carrying `outcome=verified` and the caller's realm slug; no token value appears.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss`, `aud`, and `exp` claims match the configured verification record",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.jwt` and `outcome=verified`; no access token, id token, refresh token, introspection response body, client secret, raw claim record, or substring of any of the above appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-2",
+      "description": "A JWT whose `exp` timestamp is in the past emits exactly one `keycloak.jwt` audit event carrying `outcome=refused` and `reasonClass=expired`; the reasonClass is the single value bound to that input, not one of a set.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` and `aud` claims match the configured verification record and whose `exp` timestamp is in the past",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=expired`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-3",
+      "description": "A JWKS-refresh retry on `signature_invalid` before re-verifying emits exactly one refused event and, on a successful second verify, one verified event; no third event is written for the retry itself.",
+      "given": "a JWT whose signature does not verify against the cached JWKS but does verify against the freshly-refreshed JWKS (a key-rollover window)",
+      "when": "the JWT verifier refuses on cache, refreshes the JWKS per its documented posture, and re-verifies",
+      "then": "the audit sink records exactly two events in order: one `keycloak.jwt` event with `outcome=refused` and `reasonClass=signature_invalid`, then one `keycloak.jwt` event with `outcome=verified`; the retry itself is not recorded as a distinct event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-4",
+      "description": "A sink failure during the emission of a `keycloak.jwt` event does not mask the underlying verify outcome; the mechanism records a `keycloak.audit_sink_failed` warning event and the verify outcome is unchanged.",
+      "given": "a valid JWT against realm `alpha` and an audit sink whose write throws",
+      "when": "the JWT verifier emits the completion event",
+      "then": "the verifier's return value still reports the underlying refusal or verification result unchanged; the mechanism records a `keycloak.audit_sink_failed` warning event carrying the realm slug and a reason-class string; no token value or raw claim record appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-5",
+      "description": "Verifying the same well-formed JWT twice within its `exp` window is idempotent: each verify call emits exactly one `keycloak.jwt` audit event with `outcome=verified`; two consecutive verify calls produce two events (count is one per verify call, never a deduplicated event).",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss`, `aud`, and `exp` claims match the configured verification record, verified once already",
+      "when": "the JWT verifier verifies the same token a second time",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.jwt` and `outcome=verified`; the total count of `keycloak.jwt` verified events across the two verifies is exactly two; the verify's return value is unchanged between calls",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-6",
+      "description": "A JWT with a valid signature and a matching `iss` claim, but whose `aud` claim does not match the audience the configured verification record requires (the credential is valid for a different audience scope than this mechanism permits), is refused: the audit sink records exactly one `keycloak.jwt` event with `outcome=refused` and `reasonClass=audience_mismatch`; the audience mismatch is the permission-scope refusal that records the refusal reason.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` claim is `https://issuer.example/realms/alpha` (matching the verification record) and whose `aud` claim is `other-service` (the verification record requires `aud=alpha-api`), and whose `exp` timestamp is in the future",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=audience_mismatch`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-7",
+      "description": "A JWT with a valid signature whose `iss` claim does not match the issuer the configured verification record requires emits exactly one `keycloak.jwt` audit event with `outcome=refused` and `reasonClass=issuer_mismatch`; the reasonClass is the single value bound to that input, not one of a set.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` claim is `https://other.example/realms/other` (the verification record expects `https://issuer.example/realms/alpha`), whose `aud` claim matches the record, and whose `exp` timestamp is in the future",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=issuer_mismatch`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1202-security-auth-keycloak-jwt-verifier"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a JWT signed by the realm's current key with matching `iss`, `aud` and unexpired `exp` is the credential and the event records the realm-scoped identity via the `realmSlug` payload field). The permission scenario class is bound by AC-6 (a JWT with a valid signature and matching `iss` but a mismatched `aud` is a valid credential lacking the required audience scope and is refused with `reasonClass=audience_mismatch`). The REQ-016 named refusal reasons are each bound to a concrete AC: `expired` on AC-2, `signature_invalid` on AC-3, `audience_mismatch` on AC-6, `issuer_mismatch` on AC-7."
+}

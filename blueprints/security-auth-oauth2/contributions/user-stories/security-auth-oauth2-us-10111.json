@@ -18,6 +18,20 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-10111-2",
+      "description": "The provider adapter's boot-time validator refuses a provider-config record that is missing any `REQ-002`-mandated field with a stable-coded error class on `TAC-1102-security-auth-oauth2-provider-adapter` `responsibilities.validate`, and no server process is left listening; the refusal is emitted as one structured event and the flow controller is not initialised.",
+      "given": "a project provider-config module carrying a record whose `authorizeUrl` field is absent (or any other REQ-002-mandated field is absent), and the provider adapter loaded at boot per TAC-1102",
+      "when": "the blueprint boots and the validator inspects the record",
+      "then": "boot fails with the stable-coded error class named on `TAC-1102-security-auth-oauth2-provider-adapter` `responsibilities.validate` (identifying the missing field and the offending record); no server process remains listening; the flow-controller module is not initialised; the refusal is emitted as one structured event whose payload names the missing field but does not carry the record's `clientSecret` value or any substring of it",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
+        "field": "responsibilities.validate"
+      }
     }
   ],
   "tacIds": [
@@ -25,5 +39,5 @@
     "TAC-1102-security-auth-oauth2-provider-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

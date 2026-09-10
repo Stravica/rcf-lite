@@ -2,7 +2,7 @@
   "reqId": "security-auth-magic-link-REQ-010",
   "prdId": "PRD-001",
   "title": "Email delivery is a pluggable adapter behind a fixed contract",
-  "description": "The blueprint owns a narrow email-delivery-adapter interface with a single send({ to, subject, textBody, htmlBody }) method returning a Promise resolving to a normalised outcome ({ ok, providerStatus, providerMessageId, error }). The project supplies the transport (SMTP, Resend, SES, a stub for tests). The magic-link routes call only the adapter interface; provider-specific fields, credentials, and rate-limit semantics never appear in the routes or the managers. Adapter-send failures are recorded on the event log and swallowed for the response body under the anti-enumeration budget.",
+  "description": "The blueprint owns a narrow email-delivery-adapter interface whose sole auth-facing surface and returned outcome shape are owned by `TAC-504-security-auth-magic-link-email-delivery-adapter` `responsibilities.send`. The project supplies the transport (SMTP, Resend, SES, a stub for tests). The magic-link routes call only the adapter interface; provider-specific fields, credentials, and rate-limit semantics never appear in the routes or the managers. Adapter-send failures are recorded on the event log and swallowed for the response body under the anti-enumeration budget.",
   "category": "technical",
   "domain": "authentication",
   "priority": "must",
@@ -14,7 +14,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-504-security-auth-magic-link-email-delivery-adapter",
     "field": "responsibilities.send"

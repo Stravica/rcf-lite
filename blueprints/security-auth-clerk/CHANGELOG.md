@@ -1,5 +1,10 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.0
+
+- Extends `REQ-001.description` with a one-line runtime clause naming the `hostedIdentityUi` capability verbatim (Clerk-hosted sign-in, sign-up, MFA, and account-management surfaces; no project route renders a credential-input control of its own). Adds `AC-9102-3` to `US-9102` binding a fixed source-tree-scan observation against `TAC-1001-security-auth-clerk-middleware` `responsibilities.signInStrategy`. Adds `US-9113` binding `REQ-011` (audit surface) with four ACs covering the success, refusal, retry and boundary paths of the verification and sessionInventory audit-event contract, each `ownerRef` pointing at `TAC-1003-security-auth-clerk-session-verifier` `responsibilities.audit`. Rewrites `REQ-003.description` to reference `TAC-1001-security-auth-clerk-middleware` `responsibilities.verify` rather than restate the `{ authenticated, principal?, reason? }` shape verbatim, and moves the REQ's `deliveredBy` from the shape ADR to the owning TAC.
+- Closure fixes: repoints `REQ-001.deliveredBy` from `TAC-1004-security-auth-clerk-claims-mapper.responsibilities.reduceClaims` to `TAC-1001-security-auth-clerk-middleware.responsibilities.signInStrategy`, the responsibility that carries the `hostedIdentityUi` mount behaviour (the field `AC-9102-3` observes); strengthens the TAC-1001 `signInStrategy` responsibility text to name the `hostedIdentityUi` capability verbatim. Tightens `AC-9113-1` and `AC-9113-2` to name each event by its (`operation`, `outcome`) tuple and binds the refusal case to `reasonClass=expired` for an expired `__session` cookie input (dropping the example set). Adds `AC-9113-5` (permission: unauthenticated `sessionInventory.revoke` refused with `reasonClass=unauthenticated`, no side effect) and `AC-9113-6` (idempotency: two verifications of the same valid cookie emit two events, count is one per verify call). Adds a 7a inline note in the story's `description` documenting the credential and permission scenario-class mapping.
+
 ## 1.4.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
