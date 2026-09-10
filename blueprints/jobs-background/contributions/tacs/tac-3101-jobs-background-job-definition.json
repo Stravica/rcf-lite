@@ -41,7 +41,7 @@
     {
       "name": "Applied queue capability",
       "kind": "external",
-      "description": "Composed on the applied blueprint declaring capabilities: [queue] via the T-5 mechanism; refuses apply on a bare project per REQ-001."
+      "description": "Composed on the applied blueprint declaring capabilities: [queue] via the mechanism; refuses apply on a bare project per REQ-001."
     }
   ],
   "tradeoffs": "The v1.0.0 job-definition shape does not prescribe an inputSchema validator; the applying project owns validation. A later minor could add an optional validate hook if a shipped validation library becomes the shelf default. The dispatch table is by job name; two modules exporting the same name collide at boot and refuse.",

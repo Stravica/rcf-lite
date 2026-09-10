@@ -1,5 +1,5 @@
 // Source-tree scan probe for the deploy-cloudflare-workers v1.2.0
-// Workers-with-static-assets shape (T-0 of the Cloudflare round 6
+// Workers-with-static-assets shape (of the Cloudflare round 6
 // spec, section 5.0). accountBound false: this probe reads the
 // applied fixture wrangler.toml and asserts three properties:
 //

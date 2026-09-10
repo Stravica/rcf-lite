@@ -71,7 +71,7 @@ Shipping this doc set costs the project 12 REQs, 13 USs (34 ACs), 5 TACs, and 6 
 - The project needs delegated identity that is not vendor-committed (a small project that wants to plug in Google or GitHub without running a realm). Demote to `security-auth-oauth2`: supersede ADR-1201 with a project-level ADR pointing at oauth2's authModel; apply `security-auth-oauth2`.
 - The project's audience needs a passwordless-magic-link posture (regulated environment, no third-party identity dependency). Demote to `security-auth-magic-link`.
 
-## Provider-aware install-design shape (Baz-reshape, restated)
+## Provider-aware install-design shape (operator reshape, restated)
 
 The blueprint stays Keycloak-committed. What the blueprint does NOT do is assume Keycloak is the only issuer the receiving system will ever consult. Two shapes make this explicit:
 

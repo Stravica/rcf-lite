@@ -64,7 +64,7 @@ US 34101-34109 sit at the LOW end of the 34101-34899 band on purpose (watchpost 
 ## Shared expectations for future composing blueprints
 
 - Reuse `edgeAuthenticationGate` exactly as spelled here when your blueprint holds an opinion on the edge authentication gate contract; contribute your own scope:global ADR on that string and let composition surface the pairing.
-- Consumer blueprints reading the `zeroTrustGate` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the Access-gated composition at apply time via the T-5 visual-round capability-declaration mechanism.
+- Consumer blueprints reading the `zeroTrustGate` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the Access-gated composition at apply time via the visual-round capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 

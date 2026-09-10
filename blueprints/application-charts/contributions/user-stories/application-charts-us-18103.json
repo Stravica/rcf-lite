@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18103",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-003",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Every chart ships a paired text-alternative table with the same data, focus-reachable in the same landmark",
   "asA": "screen-reader user using the shipped surface",

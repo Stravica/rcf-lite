@@ -2,14 +2,14 @@
 //
 // Four surface-observable checks, one per contract, anchored to the
 // blueprint's contributed AC ids:
-//   AC-23101-1 input surface       (file input, drop-zone, keyboard-opener)
-//   AC-23102-1 progress announcer  (polite tick format + monotonic advance)
-//   AC-23103-1 refusal contract    (aria-describedby, no bytes for refused)
-//   AC-23104-1 chunked transport   (multipart chunks OR tus Upload-Offset)
+//   AC-23101-1 input surface (file input, drop-zone, keyboard-opener)
+//   AC-23102-1 progress announcer (polite tick format + monotonic advance)
+//   AC-23103-1 refusal contract (aria-describedby, no bytes for refused)
+//   AC-23104-1 chunked transport (multipart chunks OR tus Upload-Offset)
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects. URLs are composed by the withUrl(runtimeUrl, path) helper
-// per the round 3 T-3 fix train; no bare string concatenation.
+// per the round 3 fix train; no bare string concatenation.
 //
 // Sample-app fixture:
 // packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/
@@ -32,7 +32,7 @@ export default {
   blueprintSlug: 'application-file-upload',
   // Applies to any FBS that binds the input TAC or whose navModel
   // routes name the operator-configured upload path. References BOTH
-  // `tacIds` AND `route` per the loader source-scan rule (T-0
+  // `tacIds` AND `route` per the loader source-scan rule (
   // AC-1701-3, cross-check with authoring standard 8c).
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];

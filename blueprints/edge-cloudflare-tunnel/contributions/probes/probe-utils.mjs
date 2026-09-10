@@ -1,4 +1,4 @@
-// Shared helpers for edge-cloudflare-tunnel probes (round-7 T-3).
+// Shared helpers for edge-cloudflare-tunnel probes (round-7).
 //
 // Runtime-dependency posture:
 // - manifest-schema-validate is dependency-free: it reads yaml text and

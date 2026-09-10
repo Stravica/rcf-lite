@@ -44,8 +44,8 @@ The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authorin
 - `application-spa` (round 1, shipped v1.5.0+): supplies the routing shell (`/tour`, `/dashboard`, `/settings`), the iconography and theming the tour uses. The tour still renders without the SPA blueprint; the project supplies its own routing.
 - `application-dashboard` (round 3, shipped v1.0.0): supplies the dashboard-top anchor slot where the checklist mounts as `<details open>` for returning principals. When absent, the checklist collapses to a `<details>` (closed) on the settings-page anchor (ADR-2703).
 - `application-notifications-in-app` (round 3, shipped v1.0.0): supplies the polite `aria-live` live region the tour-completion announcement uses. When absent, the tour is silent at the announce layer (the step runner still logs one line if a logging companion is present).
-- `application-account-settings` (round 4 T-4, shipped v1.0.0): supplies the settings surface where the restart-tour control lives. When absent, the restart-tour control renders on any settings-shaped surface (`/settings`, `/account`, `/account/settings`).
-- `application-empty-error-states` (round 4 T-1, shipped v1.0.0): the tour composes on the forbidden state when a principal reaches `/tour` without an authenticated session and an auth blueprint is applied. When no auth blueprint is applied, the tour behaves as a single-principal experience per the composition table.
+- `application-account-settings` (round 4, shipped v1.0.0): supplies the settings surface where the restart-tour control lives. When absent, the restart-tour control renders on any settings-shaped surface (`/settings`, `/account`, `/account/settings`).
+- `application-empty-error-states` (round 4, shipped v1.0.0): the tour composes on the forbidden state when a principal reaches `/tour` without an authenticated session and an auth blueprint is applied. When no auth blueprint is applied, the tour behaves as a single-principal experience per the composition table.
 
 ## Probe pack
 

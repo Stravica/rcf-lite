@@ -25,8 +25,8 @@ The authenticated home surface. Composes summary cards, a primary collection pre
 |                | +-----------------------------------------------------+ |
 |                |                                                         |
 |                | h2 Activity                                             |
-|                | | avatar  actor did thing on item        timestamp     | |
-|                | | avatar  actor did thing on item        timestamp     | |
+|                | | avatar actor did thing on item timestamp     | |
+|                | | avatar actor did thing on item timestamp     | |
 +----------------+---------------------------------------------------------+
 | contentinfo: product name | version | support link                        |
 +--------------------------------------------------------------------------+

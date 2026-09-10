@@ -1,8 +1,12 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
 ## 1.1.0 - 2026-09-09
 
-Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+hardening pass edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
 
 - Added REQ-006 (zone resolution via the vault seam; AUD-mandatory-when-gated) and REQ-007 (public-hostname template expansion at apply with malformed and duplicate refusals). Closes review P0 findings F-1 (cloudflare-zone-secret elicit had no covering requirement) and F-2 (public-hostname-template elicit had no covering requirement). Neither elicit or capability token was removed; both are now backed by a `must`-priority requirement.
 - Added TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply naming the apply-time responsibilities for zone resolution, hostname expansion and AUD-mandatory refusals.
@@ -20,7 +24,7 @@ Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set suffic
 
 Probe-integrity patch. No capability change.
 
-- Replaced the warn-on-env-set stub in `real-account-connector-healthy.mjs` with a real cloudflared connector-health driver via the new cf-edge shim (`packages/rcf-lite/test/fixtures/cf-edge/h2-cf-tunnel-shim.mjs`). With both `CI_HAS_CLOUDFLARE_ACCOUNT` and `CI_HAS_HETZNER_ACCOUNT` set, the driver provisions the throwaway server through the hetzner fixture surface (H-1 territory, consumed as-is), runs `cloudflared tunnel info <name>` via the shim, asserts healthy connector count, captures the `tunnelConnectorUp` event, and always tears the server down. Env-absent branch keeps pass-with-skip. Env-present-with-fixture-failure yields FAIL with a pointer to the fixture step, never warn.
+- Replaced the warn-on-env-set stub in `real-account-connector-healthy.mjs` with a real cloudflared connector-health driver via the new cf-edge shim (`packages/rcf-lite/test/fixtures/cf-edge/h2-cf-tunnel-shim.mjs`). With both `CI_HAS_CLOUDFLARE_ACCOUNT` and `CI_HAS_HETZNER_ACCOUNT` set, the driver provisions the throwaway server through the hetzner fixture surface (territory, consumed as-is), runs `cloudflared tunnel info <name>` via the shim, asserts healthy connector count, captures the `tunnelConnectorUp` event, and always tears the server down. Env-absent branch keeps pass-with-skip. Env-present-with-fixture-failure yields FAIL with a pointer to the fixture step, never warn.
 - Replaced both warn-on-env-set stubs in `real-account-tunnel-hostname-routes.mjs` with real drivers. Public-hostname sub-case: undici fetch against the scratch subdomain via the shim's `fetchTunnelHostname` seam, activated on `CI_HAS_CLOUDFLARE_ACCOUNT`. Access-gated sub-case: two-identity HS256 JWT check, activated only when `CI_HAS_CLOUDFLARE_ACCESS` is ALSO set (amendment 4). Env-absent branch keeps pass-with-skip. A pass is no longer reachable from `CI_HAS_CLOUDFLARE_ACCOUNT` presence alone.
 - Converted the credentials-placeholder-read-failed branch in `manifest-schema-validate.mjs::eventSecrecyScan` from warn to fail with a pointer to the exact fixture path (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/*/credentials/probe.json.example`) and the setup requirement (must exist and parse as JSON).
 - Added the cf-edge tunnel shim (`packages/rcf-lite/test/fixtures/cf-edge/h2-cf-tunnel-shim.mjs`) with five seams: `provisionScratchServer`, `destroyScratchServer`, `cloudflaredTunnelInfo`, `fetchTunnelHostname`, `mintScratchIdentity`. The shim reads `H2_CF_TUNNEL_SHIM_MODE` and `H2_CF_TUNNEL_HOSTNAME_SHIM_MODE` for synthetic-mode branches; the probe bodies hold zero `SIMULATE_` token references.
@@ -28,11 +32,11 @@ Probe-integrity patch. No capability change.
 
 ## 1.0.0 - 2026-09-08
 
-Initial release. Round-7 T-3 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Initial release. round-7 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
 
 - Mints capability `tunnelBridge` and global topic `edgeIngressBridge`.
 - Five REQs, eight USs, three TACs, three ADRs; five Node-only probes.
-- Extends the shared throwaway-Hetzner-server fixture with a cloudflared connector in both runtime shapes (compose-service alongside the T-2 web and caddy services when `containerHost` is applied; systemd-unit for a bare `cloudHost`) and both hostname modes (access-gated when `zeroTrustGate` is applied; public-hostname when absent) plus five `run-<probe>.mjs` delegate shims.
+- Extends the shared throwaway-Hetzner-server fixture with a cloudflared connector in both runtime shapes (compose-service alongside the web and caddy services when `containerHost` is applied; systemd-unit for a bare `cloudHost`) and both hostname modes (access-gated when `zeroTrustGate` is applied; public-hostname when absent) plus five `run-<probe>.mjs` delegate shims.
 - manifest-schema-validate carries five fixture-side mutation switches (`SIMULATE_MANIFEST_INVALID_TUNNEL_ID`, `SIMULATE_MANIFEST_CREDENTIALS_INLINE`, `SIMULATE_MANIFEST_MISSING_CATCHALL`, `SIMULATE_ORIGIN_PORT_OPEN`, `SIMULATE_EVENT_SECRECY_LEAK`); cloudflared-config-lint carries `SIMULATE_INGRESS_INVALID` and runs `cloudflared tunnel ingress validate` via the `cloudflare/cloudflared:2026.8.3` container when a local binary is not on PATH; aud-presence-check carries `SIMULATE_AUD_DROP`.
-- Mutation-discipline (T-2 gate ruling carried forward): every `SIMULATE_*` switch lives in the fixture-side delegate shim; the probe modules read only `RCF_LITE_T3_FIXTURE_ROOT` and never branch on being under mutation.
+- Mutation-discipline (gate ruling carried forward): every `SIMULATE_*` switch lives in the fixture-side delegate shim; the probe modules read only `RCF_LITE_T3_FIXTURE_ROOT` and never branch on being under mutation.
 - Connector-runtime choice elicited via `connector-runtime` (compose-service default when `containerHost` applied; systemd-unit alternative for bare `cloudHost`, per the vendor cloudflared as-a-service local-configuration-file docs); hostname-mode discovered (not elicited) from `appliedCapabilities` via the sidecar per ADR-4003.

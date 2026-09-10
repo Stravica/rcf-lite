@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-noPublicOrigin",
-      "description": "Given the fixture manifest mutated via SIMULATE_ORIGIN_PORT_OPEN (one ingress rule service URL rewritten to bind to 0.0.0.0 or a host public interface), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail with detail naming the offending ingress rule index. The T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
+      "description": "Given the fixture manifest mutated via SIMULATE_ORIGIN_PORT_OPEN (one ingress rule service URL rewritten to bind to 0.0.0.0 or a host public interface), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail with detail naming the offending ingress rule index. The firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",

@@ -11,7 +11,7 @@
 // pass per spec section 3.5.
 //
 // The wrangler dev seam is documented in the fixture README under
-// the "T-3 wrangler dev optional boot" section; the shipped
+// the " wrangler dev optional boot" section; the shipped
 // in-process probes do NOT require a wrangler dev process to
 // drive their assertions.
 

@@ -24,7 +24,7 @@ The project supplies one field:
 |---|---|
 | `operator@example.com` | `true` |
 | `Operator@Example.COM` | `true` (case-insensitive) |
-| `  operator@example.com ` | `true` (whitespace trimmed) |
+| ` operator@example.com ` | `true` (whitespace trimmed) |
 | `other@example.com` | `false` |
 | `""` | `false` |
 | `null` or `undefined` | `false` |

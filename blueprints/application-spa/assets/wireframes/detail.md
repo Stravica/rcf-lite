@@ -15,9 +15,9 @@ The canonical single-resource surface at the resource's canonical URL. Deep-link
 |                | +--- main column (8 cols) ---+ +-- aside (4 cols) ----+ |
 |                | | h2 Description             | | h2 Properties        | |
 |                | | body text ...              | | owner    Alex Morgan | |
-|                | |                            | | status   active      | |
-|                | | h2 Activity                | | created  date        | |
-|                | | timeline entries ...       | | tags     chips       | |
+|                | |                            | | status active      | |
+|                | | h2 Activity                | | created date        | |
+|                | | timeline entries ...       | | tags chips       | |
 |                | +----------------------------+ +----------------------+ |
 +----------------+---------------------------------------------------------+
 ```

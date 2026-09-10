@@ -15,7 +15,7 @@
 //      the queue surfaces two responses of {counter:1, witness:0}
 //      on the mutation-run.
 //  (b) one WebSocket upgrade against `/hub/<id>/connect` reaching
-//      `env.HUB`; asserts a single broadcast frame arrives on
+// `env.HUB`; asserts a single broadcast frame arrives on
 //      connect (the shipped HubObject fetch handler accepts the
 //      server half via `state.acceptWebSocket` and sends one
 //      broadcast frame immediately, so the probe does not need a

@@ -82,7 +82,7 @@ function validateAgainstSchema(doc, schema) {
 
 function refuseOriginPortRules(doc) {
   // A service URL that binds to a host public interface is a policy
-  // violation for a T-3 apply (no reverse proxy). The catch-all
+  // violation for a apply (no reverse proxy). The catch-all
   // http_status:N is exempt.
   const violations = [];
   const rules = Array.isArray(doc.ingress) ? doc.ingress : [];
@@ -97,11 +97,11 @@ function refuseOriginPortRules(doc) {
     }
     const host = m[1];
     if (host === '0.0.0.0' || host === '') {
-      violations.push(`ingress[${i}] service '${svc}' binds to a host public interface (${host || 'empty'}); T-3 requires internal addresses only`);
+      violations.push(`ingress[${i}] service '${svc}' binds to a host public interface (${host || 'empty'});  requires internal addresses only`);
       continue;
     }
     if (/^\d+\.\d+\.\d+\.\d+$/.test(host) && host !== '127.0.0.1') {
-      violations.push(`ingress[${i}] service '${svc}' binds to a numeric IP that is not loopback; T-3 requires internal names or loopback`);
+      violations.push(`ingress[${i}] service '${svc}' binds to a numeric IP that is not loopback;  requires internal names or loopback`);
     }
   }
   return violations;

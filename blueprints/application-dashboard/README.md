@@ -1,6 +1,6 @@
 # Dashboard blueprint (v1.0.0)
 
-Vendor-neutral analytics-dashboard contract for a rcf-lite application. Ships the shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome refetch fan-out, and the export handle with format delegation to charts. Consumes the application-charts render shell (TAC-1901) for every rendered chart; references application-datatable in the packaged design guidance's "when a table beats a chart" section. Ships a packaged design-guidance asset under `assets/guidance/dashboard-design.md` and a Playwright probe pack under `probe-packs/application-dashboard.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04, section 5.3). No new global topics; suggests the `logging` and `errorHandling` companions. Third blueprint on the shelf that ships a Playwright probe pack under the T-0 runner extension.
+Vendor-neutral analytics-dashboard contract for a rcf-lite application. Ships the shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome refetch fan-out, and the export handle with format delegation to charts. Consumes the application-charts render shell (TAC-1901) for every rendered chart; references application-datatable in the packaged design guidance's "when a table beats a chart" section. Ships a packaged design-guidance asset under `assets/guidance/dashboard-design.md` and a Playwright probe pack under `probe-packs/application-dashboard.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04, section 5.3). No new global topics; suggests the `logging` and `errorHandling` companions. Third blueprint on the shelf that ships a Playwright probe pack under the runner extension.
 
 ## Apply
 
@@ -48,7 +48,7 @@ Five https-cited sources anchor the guidance: NN/g dashboard design, Few (Inform
 
 The three shipped checks:
 
-- `AC-19102-1` primary-KPI position by DOM order and CSS Grid position at 1440, 1024 and 360. Drives the pack-browser's `resize(width, height)` seam (new in T-3) to each of the three widths, reads DOM order and computed `grid-column-start`/`grid-row-start` on the primary tile, and asserts the top-left placement holds at every width.
+- `AC-19102-1` primary-KPI position by DOM order and CSS Grid position at 1440, 1024 and 360. Drives the pack-browser's `resize(width, height)` seam (new in ) to each of the three widths, reads DOM order and computed `grid-column-start`/`grid-row-start` on the primary tile, and asserts the top-left placement holds at every width.
 - `AC-19104-1` timeframe refetch fan-out with matching boundary and as-of stamp. Clicks a second preset control, waits for the batch, reads the request log from `window.__dashboardFetches` and reconciles with the `GET /__requests` endpoint on the sample app, and asserts every fetch in the new batch carries the same `from`/`to`/`preset` trio and every tile's `data-as-of` matches the shell root in ISO-8601 form.
 - `AC-19103-1` per-tile four-state contract. Drives the sample app's state-pinning switches (`?tile=primary&state=<state>`) for each of the four states, reads the accessibility tree and the DOM, and asserts every state carries `role="region"`, `aria-live="polite"`, the `data-tile-state` attribute, and a distinct non-colour visual cue.
 
@@ -56,16 +56,16 @@ The pack fires ONLY when its `appliesTo` returns true; a project whose FBS does 
 
 ## The shelf pattern for tile-state pinning and fetch capture
 
-Two things this pack needs that the T-0 runner seam does not offer directly: viewport resize (added in T-3 through the `resize(width, height)` seam extension) and per-tile state mocking with fetch capture. Rather than adding a network interception seam, this blueprint documents a shelf pattern the applying project realises on its own runtime:
+Two things this pack needs that the runner seam does not offer directly: viewport resize (added in through the `resize(width, height)` seam extension) and per-tile state mocking with fetch capture. Rather than adding a network interception seam, this blueprint documents a shelf pattern the applying project realises on its own runtime:
 
 - **State pinning through query switches**: the sample app accepts `?tile=<id>&state=<state>` on the dashboard route so the pack can drive each of the four states without a synthetic-event seam. An applying project realises the same pattern through its own dev-mode query handling.
 - **Fetch capture through a request log**: the sample app appends every fetch to `window.__dashboardFetches` (client-side) and to a server-side log the pack reads at `GET /__requests`. An applying project realises the same pattern through a dev-mode telemetry hook.
 
-The pack-browser seam extension in T-3 adds `resize(width, height)`; the two patterns above stay a shelf convention this README documents.
+The pack-browser seam extension in adds `resize(width, height)`; the two patterns above stay a shelf convention this README documents.
 
 ## Elicited parameters (ADR-2001, ADR-2002, ADR-2003 and REQ notes)
 
-The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (the shelf has a T-5 build item tracking it); accept the declarative shape and gather the operator's answers by hand during the apply pass.
+The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (the shelf has a build item tracking it); accept the declarative shape and gather the operator's answers by hand during the apply pass.
 
 - **Primary-KPI kind** (ADR-2001): one of `revenue`, `active-users`, `error-rate`, `throughput`, `custom`. A `custom` value carries a short operator name in `data-kpi-name`.
 - **Tile inventory with slots** (REQ-002 and TAC-2001): the tile list (primary tile plus up to seven supporting tiles) and each tile's slot on the CSS Grid.
@@ -84,7 +84,7 @@ Every dashboard surface renders the five shell regions (tile row, chart region, 
 
 ## Known mechanism-reach gaps
 
-Every runtime-observable AC that is not bound to a pack check appears here individually per the T-1 gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
+Every runtime-observable AC that is not bound to a pack check appears here individually per the gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
 
 - **AC-19101-1 five-region shell composition**. The pack drives the primary-KPI region (AC-19102-1) and the timeframe region (AC-19104-1), which implies the shell renders at least those two, but the pack does not enumerate all five regions and their labels. A v1.1 minor bump could add a region-enumeration pre-check that walks `[data-region]` on the shell root.
 - **AC-19101-2 chart region mounts through the charts shell**. The application-charts pack fires on the dashboard's chart route through its own `appliesTo` predicate; the dashboard's pack does not itself assert the chart-shell contract on the region. Project-side review is the current mechanism.
@@ -99,4 +99,4 @@ Every runtime-observable AC that is not bound to a pack check appears here indiv
 
 ## The pack-browser resize seam extension
 
-This blueprint's train adds a small, honest extension to the T-0 pack-browser seam: `resize(width, height)`. On the MCP route the method calls the pinned Playwright MCP's `browser_resize` tool; on the project route it calls `page.setViewportSize({ width, height })`. The extension lets the primary-KPI position check (AC-19102-1) drive the three ratified breakpoints (1440, 1024, 360) through the same browser handle. The next blueprints on the shelf that carry breakpoint-scoped visual ACs (T-4 notifications-in-app, T-5 admin-console) reuse the same seam.
+This blueprint's train adds a small, honest extension to the pack-browser seam: `resize(width, height)`. On the MCP route the method calls the pinned Playwright MCP's `browser_resize` tool; on the project route it calls `page.setViewportSize({ width, height })`. The extension lets the primary-KPI position check (AC-19102-1) drive the three ratified breakpoints (1440, 1024, 360) through the same browser handle. The next blueprints on the shelf that carry breakpoint-scoped visual ACs (notifications-in-app,  admin-console) reuse the same seam.

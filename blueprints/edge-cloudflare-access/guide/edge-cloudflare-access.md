@@ -21,10 +21,10 @@ flips the admin-console sign-in surface (`/admin/sign-in`):
 
 - With `zeroTrustGate` in the applied capability set (this
   blueprint declares it): the sign-in page renders
-  `[data-surface=access-gated]` with no local form.
+ `[data-surface=access-gated]` with no local form.
 - Without `zeroTrustGate` (this blueprint not applied): the
   sign-in page renders `[data-surface=local-login]` with the local
-  `security-auth-*` form unchanged from v1.0.0.
+ `security-auth-*` form unchanged from v1.0.0.
 
 The Q4 default (spec section 5.4.1) is: consumption is OPTIONAL.
 The v1.1.0 admin-console remains backward-compatible with every
@@ -38,10 +38,10 @@ v1.0.0 deployment.
   when the second is set.
 - `access-audience`: the JWT audience tag the Access policy issues.
   Every JWT the validator accepts must carry this string as its
-  `aud` claim.
+ `aud` claim.
 - `access-jwks-url`: the JWKS endpoint URL the validator fetches.
   Cloudflare Access publishes this at
-  `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`.
+ `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`.
 - `access-policy-shape` (default `email-domain`): one of the four
   values in the enum below.
 - `access-bypass-service-auth-id`: leave blank to disable
@@ -70,7 +70,7 @@ Screen-by-screen path for a fresh Cloudflare account. Vendor URL:
 1. Sign in to `dash.cloudflare.com` and select your account.
 2. In the left nav, open `Zero Trust`. If the dashboard prompts
    you to create a team, do so with the elicited team name (the
-   `<team>` in `https://<team>.cloudflareaccess.com/`).
+ `<team>` in `https://<team>.cloudflareaccess.com/`).
 3. In the Zero Trust dashboard, open `Access` -> `Applications`,
    then `Add an application`.
 4. Pick `Self-hosted` (both for hostname-scoped applications and
@@ -95,9 +95,9 @@ Screen-by-screen path for a fresh Cloudflare account. Vendor URL:
    card; copy it verbatim into the `access-audience` elicit
    answer on apply.
 9. Confirm the JWKS endpoint at
-   `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`
+ `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`
    returns a valid JWKS document; copy the URL into the
-   `access-jwks-url` elicit answer.
+ `access-jwks-url` elicit answer.
 
 The blueprint is now ready to apply on the Worker project.
 
@@ -169,12 +169,12 @@ branch on `/admin/sign-in`.
 ## Standards trace
 
 - `ADR-3501-edge-cloudflare-access-jwt-gate` carries
-  `standardsTraceClause: Cloudflare Access policy actions and rule
+ `standardsTraceClause: Cloudflare Access policy actions and rule
   selectors` per
   https://developers.cloudflare.com/cloudflare-one/policies/access/.
 - `ADR-3503-edge-cloudflare-access-policy-scope` carries the same
   clause.
 - `ADR-3502-edge-cloudflare-access-identity-provider` and
-  `ADR-3504-edge-cloudflare-access-audit-retention` carry the
+ `ADR-3504-edge-cloudflare-access-audit-retention` carry the
   sentinel `generic enterprise practice` (no vendor documentation
   constrains identity provider or audit retention).

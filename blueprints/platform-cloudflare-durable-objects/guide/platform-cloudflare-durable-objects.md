@@ -11,7 +11,7 @@ shape (rooms, presence, live cursors).
 
 If you need eventually-consistent low-latency reads on a read-hot
 path (feature flags, session cache, config cache), reach for
-`platform-cloudflare-kv` (round 6 T-1) instead. If you need
+`platform-cloudflare-kv` (round 6) instead. If you need
 durable multi-step workflows with retries and state across steps,
 reach for the follow-up Workflows adapter on `jobs-background`
 v1.1.0 (round-6 minor bump per spec section 5.7).
@@ -20,14 +20,14 @@ v1.1.0 (round-6 minor bump per spec section 5.7).
 
 - Strongly consistent authoritative cell (counter, session store,
   lock, coordinator) -> single-cell shape (this blueprint,
-  `platform-cloudflare-durable-objects` v1.0.0).
+ `platform-cloudflare-durable-objects` v1.0.0).
 - Coordinated multiplayer websocket connections in one authoritative
   hub (rooms, live cursors, presence) -> WEBSOCKET-HUB shape (this
   blueprint, same v1.0.0).
 - Cache-shaped eventually-consistent reads -> `platform-cloudflare-kv`
   v1.0.0.
 - Durable multi-step workflow -> follow-up Workflows adapter on
-  `jobs-background` v1.1.0.
+ `jobs-background` v1.1.0.
 - Not on Cloudflare Workers -> reach for a platform-native
   strongly-consistent adapter when one ships; the shelf has no
   non-Cloudflare strong-consistency cell blueprint today.
@@ -161,11 +161,11 @@ returns fail on the AC-33106-1 result.
 
 ## Composition
 
-- Consumes `deploy-cloudflare-workers` v1.2.0 (T-0). The DO bindings
+- Consumes `deploy-cloudflare-workers` v1.2.0. The DO bindings
   and migrations tag land in the same `wrangler.toml`.
 - Companions `logging` and `errorHandling` supply the sink factory
   and the internal-error record factory.
-- Complements `platform-cloudflare-kv` (round 6 T-1): DO owns the
+- Complements `platform-cloudflare-kv` (round 6): DO owns the
   strong-consistency slot; KV owns the cache-shaped eventually-
   consistent slot. Both compose on the same Worker.
 - A future non-Cloudflare adapter on `strongConsistencyCellContract`
@@ -203,7 +203,7 @@ workerd runtime:
 - An additional `AC-33108-1` result on the same run greps the
   fixture `wrangler.toml` for both `[[durable_objects.bindings]]`
   binding pairs and the `[[migrations]]` `tag = "v1"` with
-  `new_sqlite_classes`; the grep is deterministic and does not require
+ `new_sqlite_classes`; the grep is deterministic and does not require
   wrangler.
 
 Warn semantics per section 3.1 pass-with-skip: if the wrangler

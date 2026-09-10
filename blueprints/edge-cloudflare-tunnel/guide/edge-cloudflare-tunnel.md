@@ -15,7 +15,7 @@ Reach when the applying project needs to expose a service on the public
 internet without opening origin ports on the host and without standing
 up a bespoke reverse proxy in front of the CDN. The tunnel connector
 dials out to the Cloudflare edge and terminates ingress there; the host
-firewall (T-1 deploy-hetzner-server) can stay closed on 80/443 unless a
+firewall (deploy-hetzner-server) can stay closed on 80/443 unless a
 reverse proxy is also applied.
 
 Do not reach for this blueprint when the applying project runs on
@@ -34,10 +34,10 @@ Reach for **compose-service** (the shipped default when `containerHost`
 is applied) when the applying project already runs docker compose on
 the host. The connector ships as another service in the same stack,
 sharing the compose network, the log driver and the restart discipline.
-The T-2 platform-docker-compose-host contract makes this the natural
-home; the connector composes on `containerHost` from T-2.
+The platform-docker-compose-host contract makes this the natural
+home; the connector composes on `containerHost` from .
 
-Reach for **systemd-unit** when the host runs bare (only T-1 applied)
+Reach for **systemd-unit** when the host runs bare (only applied)
 and there is no compose stack to add a service to. The connector runs
 as a systemd unit per the vendor cloudflared as-a-service documented
 systemd unit; the unit file lives at `/etc/systemd/system/cloudflared.service`
@@ -153,15 +153,15 @@ rendered hostname must match the DNS-label regex
 `^[a-z0-9-]+(\.[a-z0-9-]+)+$`. Failure paths, per REQ-007:
 
 - If the template names an undefined placeholder (for example
-  `<unknown>`), carries an unclosed brace (for example
-  `<service.<zone>`), or renders a value that violates DNS-label rules
+ `<unknown>`), carries an unclosed brace (for example
+ `<service.<zone>`), or renders a value that violates DNS-label rules
   (labels longer than 63 characters, or characters outside `[a-z0-9-]`),
   apply refuses with `apply.hostname-template-malformed` naming the
   offending template and writes no sidecar (US-39110
   AC-tunnel-hostnameTemplateMalformed).
 - If two distinct service names expand under the elicited template to
   the same concrete hostname (for example a template with the
-  `<service>` placeholder omitted or replaced by a constant), apply
+ `<service>` placeholder omitted or replaced by a constant), apply
   refuses with `apply.hostname-template-duplicate` naming the collided
   hostname and both offending rule indices; no sidecar is written
   (US-39110 AC-tunnel-hostnameTemplateDuplicate).
@@ -175,7 +175,7 @@ read only) and is referenced from the manifest as a
 1. Regenerate the credentials via `cloudflared tunnel token <name>` or
    the Cloudflare API against the tunnel id.
 2. Update the secret named by the manifest's `secretRef` via
-   `security-secrets-management`.
+ `security-secrets-management`.
 3. Trigger a reapply on the applying project; the connector picks up
    the new credentials on its next boot cycle.
 

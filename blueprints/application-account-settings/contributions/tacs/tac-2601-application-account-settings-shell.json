@@ -11,7 +11,7 @@
     "Render a single primary navigation landmark carrying an accessible name and rendering only applied surfaces (AC-25101-1, AC-25101-2).",
     "Render the profile surface unconditionally as the active tab on /account (AC-25102-1).",
     "Delegate the security, sessions, notification-preferences and theme surfaces to their respective TACs (TAC-2603, TAC-2604) or render inline for notifications and theme.",
-    "Route unauthenticated principals to the empty-error-states forbidden state (T-1) rather than inventing a bespoke denied UI.",
+    "Route unauthenticated principals to the empty-error-states forbidden state rather than inventing a bespoke denied UI.",
     "renderProfileSurface: mount the profile tab as the active tab on /account, always available (AC-25102-1).",
     "renderPreferencesSurface: mount the notification-preferences tab when application-notifications-in-app is applied (AC-25107-1) and the theme tab when application-spa is applied honouring theme-persistence (AC-25108-1).",
     "renderCorrelationId: write one request-scoped log line per rendered surface, carrying the correlation identifier the applied logging companion supplies."
@@ -38,7 +38,7 @@
     }
   ],
   "tradeoffs": "The shell reads the sidecar file the apply verb writes; a runtime probe against manifest.blueprints[] would be more dynamic but ties the shell to the deploy-target having filesystem read access, which not every deploy target grants. The sidecar contract is deterministic and cacheable.",
-  "notes": "Composes on application-empty-error-states (T-1) for the forbidden and empty-list states rather than inventing bespoke denied UI. Known mechanism-reach gap: the shell contract cannot prove keyboard focus does not escape the tabs region in every framework rendering; project-side smoke tests supplement the pack. See README Known mechanism-reach gaps.",
+  "notes": "Composes on application-empty-error-states for the forbidden and empty-list states rather than inventing bespoke denied UI. Known mechanism-reach gap: the shell contract cannot prove keyboard focus does not escape the tabs region in every framework rendering; project-side smoke tests supplement the pack. See README Known mechanism-reach gaps.",
   "createdAt": "2026-09-06T20:55:46Z",
   "updatedAt": "2026-09-06T20:55:46Z"
 }

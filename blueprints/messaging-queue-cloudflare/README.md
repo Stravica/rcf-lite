@@ -52,7 +52,7 @@ Composes on `deploy-cloudflare-workers` transitively via the wrangler binding (n
 
 ## The six probes
 
-Each probe is a Node module under `contributions/probes/` exporting the round-5 spec section 3.2 verdict envelope, with a matching `run-<probe-name>.mjs` shim that drives the probe against the shared fixture's T-3 slice and writes the per-blueprint report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json`.
+Each probe is a Node module under `contributions/probes/` exporting the round-5 spec section 3.2 verdict envelope, with a matching `run-<probe-name>.mjs` shim that drives the probe against the shared fixture's slice and writes the per-blueprint report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json`.
 
 | Probe | Anchor AC | What it proves | accountBound |
 |---|---|---|---|
@@ -89,11 +89,11 @@ blueprints/messaging-queue-cloudflare/
       adr-3004-messaging-queue-cloudflare-batch-defaults.json
     probes/
       probe-utils.mjs
-      producer-facade-ready.mjs                 (+ run-producer-facade-ready.mjs)
-      publish-to-delivery.mjs                   (+ run-publish-to-delivery.mjs)
-      retry-and-dlq.mjs                         (+ run-retry-and-dlq.mjs)
-      event-secrecy.mjs                         (+ run-event-secrecy.mjs)
-      real-account-concurrency-smoke.mjs        (+ run-real-account-concurrency-smoke.mjs)
+      producer-facade-ready.mjs (+ run-producer-facade-ready.mjs)
+      publish-to-delivery.mjs (+ run-publish-to-delivery.mjs)
+      retry-and-dlq.mjs (+ run-retry-and-dlq.mjs)
+      event-secrecy.mjs (+ run-event-secrecy.mjs)
+      real-account-concurrency-smoke.mjs (+ run-real-account-concurrency-smoke.mjs)
 ```
 
 ## Known limitations and mechanism-reach gaps

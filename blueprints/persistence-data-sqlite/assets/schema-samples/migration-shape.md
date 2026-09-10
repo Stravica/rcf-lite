@@ -22,11 +22,11 @@ export const MIGRATIONS = [
     version: 1,
     description: 'initial schema, eleven entities',
     statements: [
-      `CREATE TABLE schemaVersion (
+ `CREATE TABLE schemaVersion (
         version   INTEGER PRIMARY KEY,
         appliedAt TEXT    NOT NULL
       )`,
-      `CREATE TABLE entityA (
+ `CREATE TABLE entityA (
         id        TEXT PRIMARY KEY,
         name      TEXT NOT NULL UNIQUE,
         createdAt TEXT NOT NULL,
@@ -39,14 +39,14 @@ export const MIGRATIONS = [
     version: 2,
     description: 'soft-delete: entityA.removedAt column for file-lane removal without eager history loss',
     statements: [
-      `ALTER TABLE entityA ADD COLUMN removedAt TEXT`,
+ `ALTER TABLE entityA ADD COLUMN removedAt TEXT`,
     ],
   },
   {
     version: 3,
     description: 'boot markers: audit trail of process starts for honest-gap accounting',
     statements: [
-      `CREATE TABLE bootMarker (
+ `CREATE TABLE bootMarker (
         bootAt TEXT PRIMARY KEY
       )`,
     ],
@@ -55,12 +55,12 @@ export const MIGRATIONS = [
     version: 4,
     description: 'notifier: per-entity channel routes and pending-delivery resume queue',
     statements: [
-      `CREATE TABLE entityChannelRoute (
+ `CREATE TABLE entityChannelRoute (
         entityId  TEXT NOT NULL,
         channelId TEXT NOT NULL,
         PRIMARY KEY (entityId, channelId)
       )`,
-      `ALTER TABLE channel ADD COLUMN isDefault INTEGER NOT NULL DEFAULT 0`,
+ `ALTER TABLE channel ADD COLUMN isDefault INTEGER NOT NULL DEFAULT 0`,
     ],
   },
 ];

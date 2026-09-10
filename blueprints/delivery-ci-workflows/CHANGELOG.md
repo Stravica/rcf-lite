@@ -1,9 +1,13 @@
 # Changelog: delivery-ci-workflows blueprint
 
+## 2.3.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the blueprint version is semver per the authoring standard section 8.
 
 
-## 2.3.0 (hardening pass B4, 2026-09-09)
+## 2.3.0 (hardening pass, 2026-09-09)
 
 - Adds `elicits[]` with seven apply-time answers: `branch-model` (enum feature/trunk, default feature; ADR-706), `check-set` (string JSON of booleans; REQs 016-020), `release-mode` (enum none/tagOnly/tagPlusArtefact/deployHandoff, default none; ADR-707), `scheduled-audit` (enum off/on, default off; ADR-710), `provider-hint` (enum githubActions, default githubActions; ADR-708), `report-dir` (string, default .rcf/reports; ADR-704), `deploy-handoff-target` (string, blank when not deployHandoff; REQ-022).
 - Adds `deliveredBy` to all 23 REQs pointing at TAC-701/702/703/704/705/706 responsibility-carrying interfaces. Closes 14 pass-2 lint findings.

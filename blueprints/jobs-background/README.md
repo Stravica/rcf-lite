@@ -1,12 +1,12 @@
 # jobs-background v1.0.0
 
-Background-jobs discipline over an applied `queue` capability. Ships a job-definition contract, a POSIX-cron plus one-shot-delayed scheduler, a retry contract that inherits the applied queue's max-attempts ceiling, and a metadata-only run-log event stream at four moments. Composes on the T-5 capability-consumer mechanism from the visual round; refuses apply on a bare project with exit 3 and the stable message id `jobs-background-no-queue` per maintainer decision on the ratified round-5 spec.
+Background-jobs discipline over an applied `queue` capability. Ships a job-definition contract, a POSIX-cron plus one-shot-delayed scheduler, a retry contract that inherits the applied queue's max-attempts ceiling, and a metadata-only run-log event stream at four moments. Composes on the capability-consumer mechanism from the visual round; refuses apply on a bare project with exit 3 and the stable message id `jobs-background-no-queue` per maintainer decision on the ratified round-5 spec.
 
 ## What this gives you
 
 - A job-definition module shape you export from `./jobs/*.mjs`: `{ name, handler, inputSchema, retryPolicy, timeoutMs }`.
 - A scheduler with POSIX cron and one-shot-delayed shapes, elicited across `inProcess` (a Node long-lived process), `workerCron` (Cloudflare Cron Triggers) and `external` (a Kubernetes CronJob, a systemd timer, GitHub Actions schedule). A `workflows` mode is reserved for the v1.1.0 minor per section 5.7 of the spec.
-- A retry contract that inherits the applied queue's max-attempts ceiling (Cloudflare Queues at 100 per the T-3 messaging-queue-cloudflare ADR-3003) and expresses the elicited backoff shape (`exponential`, `constant`, `linear`).
+- A retry contract that inherits the applied queue's max-attempts ceiling (Cloudflare Queues at 100 per the messaging-queue-cloudflare ADR-3003) and expresses the elicited backoff shape (`exponential`, `constant`, `linear`).
 - A metadata-only run-log at four moments (`jobScheduled`, `jobStarted`, `jobCompleted`, `jobFailed`). Record whitelist: `{ jobId, jobName, attempts, duration, timestamp }` plus optional `terminalErrorCode`. No job input, no handler output, no user id, no email, no SSN, ever.
 - An operator-facing surface elicited across `cli`, `httpEndpoint`, or `none`. The blueprint ships the contract; the applying project builds the thin shim.
 
@@ -35,7 +35,7 @@ Background-jobs discipline over an applied `queue` capability. Ships a job-defin
 
 Apply refuses on a bare project (no applied blueprint declares `capabilities: ["queue"]`) with exit 3 and the stable first-line tag `[jobs-background-no-queue]`. The refusal message explicitly names `messaging-queue-cloudflare` as the shipped provider and `--allow-no-queue-yet` as the override.
 
-The `--allow-no-queue-yet` override records a note on the sidecar `rcf/blueprints/jobs-background.applied.json` (`notes: "no queue yet: applied under --allow-no-queue-yet; surfaces gated on queue will refuse at runtime until a queue blueprint is applied."`). Note: the spec section 5.4 prose reference to `manifest.blueprints[jobs-background].source.notes` is superseded by the shipped T-5 mechanism which writes the note on the sidecar because the applied-blueprint-record schema in rcf-schemas 0.6.1 is closed and cannot carry a `notes` field. `rcf define validate` reads the sidecar to flag surfaces that never activated.
+The `--allow-no-queue-yet` override records a note on the sidecar `rcf/blueprints/jobs-background.applied.json` (`notes: "no queue yet: applied under --allow-no-queue-yet; surfaces gated on queue will refuse at runtime until a queue blueprint is applied."`). Note: the spec section 5.4 prose reference to `manifest.blueprints[jobs-background].source.notes` is superseded by the shipped mechanism which writes the note on the sidecar because the applied-blueprint-record schema in rcf-schemas 0.6.1 is closed and cannot carry a `notes` field. `rcf define validate` reads the sidecar to flag surfaces that never activated.
 
 ## Scheduler mode ADR (ADR-3102)
 
@@ -70,7 +70,7 @@ Each probe module lives under `contributions/probes/` and exports the spec secti
 
 ## Running the probes
 
-The probes drive against the shared sample-app fixture at `packages/rcf-lite/test/fixtures/infra-s3-and-queue/` (extended with `jobs/`, `src/jobs-runtime.mjs`, `src/scheduler.mjs`, `src/job-run-log.mjs`). No Docker, no `wrangler dev` process required; the T-3 in-memory queue-driver seam is the shipped local seam per SDR-3-a.
+The probes drive against the shared sample-app fixture at `packages/rcf-lite/test/fixtures/infra-s3-and-queue/` (extended with `jobs/`, `src/jobs-runtime.mjs`, `src/scheduler.mjs`, `src/job-run-log.mjs`). No Docker, no `wrangler dev` process required; the in-memory queue-driver seam is the shipped local seam per SDR-3-a.
 
 Two-line boot for the two headline probes:
 
@@ -94,8 +94,8 @@ The remaining three shims (`run-apply-time-override.mjs`, `run-retry-and-fail.mj
 
 - AC-jobs-requiresQueue: PROVEN via `apply-time-refusal.mjs` against a bare scratch project on the shipped head (exit code and message id assertions run in-process). No live-only gap.
 - AC-jobs-overrideRecorded: PROVEN via `apply-time-override.mjs` on the shipped head (sidecar note grep asserts `no queue yet`, `--allow-no-queue-yet`, and family word `queue`). No live-only gap.
-- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on the shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the the operator estate gate reviewer's follow-up run per SDR-3-a; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
-- AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on the shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver's re-delivery loop matches Cloudflare Queues' retry semantics per T-3's opaque-adapter clause; a live-account run against Cloudflare Queues is the T-3 real-account concurrency smoke's territory, not T-4's.
+- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on the shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the operator estate gate reviewer's follow-up run per SDR-3-a; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
+- AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on the shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver's re-delivery loop matches Cloudflare Queues' retry semantics per the earlier release opaque-adapter clause; a live-account run against Cloudflare Queues is the real-account concurrency smoke's territory, not the earlier release.
 - AC-jobs-eventSecrecy: PROVEN via `event-secrecy.mjs` on the shipped head (grep on the serialised run-log stream returns zero matches for every PII fixture literal). No live-only gap; the whitelist enforcement lives in code, not in a runtime environment.
 - `workerCron` refuses on an applied queue with no cron surface: DOCUMENTED at ADR-3102 in this blueprint's contribution set; not exercised at v1.0.0 because the shipped provider (`messaging-queue-cloudflare` v1.0.0) does not itself claim a cron surface (the cron surface is Workers-side per Cloudflare Cron Triggers, not Queues-side). A follow-up train fires the refusal live once a `queue`-capability provider with a cron surface ships.
 - Reserved v1.1.0 `workflows` scheduler mode: DOCUMENTED at ADR-3102; the `fake-clock-cron.mjs` probe grows a `workflows-scheduler` variant when the v1.1.0 minor lands per section 5.7 of the spec.

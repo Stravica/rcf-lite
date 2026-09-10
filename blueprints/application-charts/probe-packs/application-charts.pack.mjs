@@ -5,7 +5,7 @@
 //   AC-18103-1 text-alternative table in the same landmark, cell-per-value
 //   AC-18104-1 keyboard traversal contract with reduced-motion suppression
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects (packages/rcf-lite/src/browser-verify/pack-browser.js) and
 // asserts on the DOM the applying project renders under the render
 // shell (TAC-1901) and the keyboard traversal contract (TAC-1902).
@@ -26,7 +26,7 @@ export default {
   // Applies to any FBS that realises the chart render-shell TAC or
   // whose navModel routes match an operator-configured chart-route
   // glob. The source references BOTH `tacIds` and `route` so the
-  // T-0 loader's applicability source-scan sees the two legal seams.
+  //  loader's applicability source-scan sees the two legal seams.
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];
     const tacIds = fbs?.contextRequirements?.tacIds ?? [];

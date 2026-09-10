@@ -2,7 +2,7 @@
 
 ## Global topics
 
-The blueprint claims no new global topics at v1.0.0. The chart-component contract is a general accessibility-first practice; every ADR (engine choice, accessible palette, reduced motion) is non-global. When a second chart-shaped blueprint composes on the shelf (a Sankey blueprint, a mapping blueprint), THAT blueprint may claim a `chartEngine` topic; today, the single consumer (application-dashboard T-3) reads the shell contract directly.
+The blueprint claims no new global topics at v1.0.0. The chart-component contract is a general accessibility-first practice; every ADR (engine choice, accessible palette, reduced motion) is non-global. When a second chart-shaped blueprint composes on the shelf (a Sankey blueprint, a mapping blueprint), THAT blueprint may claim a `chartEngine` topic; today, the single consumer (application-dashboard ) reads the shell contract directly.
 
 ## Deliberately unclaimed topics
 
@@ -52,4 +52,4 @@ Every check carries a `description` field per spec section 9. `appliesTo` binds 
 
 ## Consumers
 
-- `application-dashboard` (visual round T-3): the leaf blueprint the dashboard shell consumes. The dashboard's chart region delegates chart rendering to this blueprint's render shell; the dashboard pack does not duplicate the chart-accessibility ACs, it references them.
+- `application-dashboard` (visual round): the leaf blueprint the dashboard shell consumes. The dashboard's chart region delegates chart rendering to this blueprint's render shell; the dashboard pack does not duplicate the chart-accessibility ACs, it references them.

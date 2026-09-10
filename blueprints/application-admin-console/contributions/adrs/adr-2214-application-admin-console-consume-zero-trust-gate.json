@@ -5,8 +5,8 @@
   "version": "1.1.0",
   "status": "accepted",
   "title": "Admin-console reads zeroTrustGate at apply-time and switches sign-in surface (scope global, adminConsoleSignInSurface)",
-  "context": "application-admin-console v1.0.0 shipped with principalDirectory as the sole hard requirement; the sign-in surface was local per whatever security-auth-* was applied. Round-6 T-4 introduces edge-cloudflare-access with the zeroTrustGate capability; a composed deployment needs the admin-console to flip its sign-in surface deterministically so the Access-gated deployment stops rendering the local login form.",
-  "decision": "application-admin-console v1.1.0 reads appliedCapabilities via readAppliedCapabilities at apply-time (the T-5 visual-round mechanism). When zeroTrustGate is present the sign-in surface renders access-gated (no local form, principal reads from request.auth); when absent the surface falls back to whatever security-auth-* is applied. Q4 default per spec 5.4.1: zeroTrustGate is CONSUMED OPTIONALLY; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change). The adminConsoleSignInSurface topic scope is global on this blueprint at v1.1.0; the topic string is adminConsoleSignInSurface (camelCase, one concept per topic).",
+  "context": "application-admin-console v1.0.0 shipped with principalDirectory as the sole hard requirement; the sign-in surface was local per whatever security-auth-* was applied. round-6 introduces edge-cloudflare-access with the zeroTrustGate capability; a composed deployment needs the admin-console to flip its sign-in surface deterministically so the Access-gated deployment stops rendering the local login form.",
+  "decision": "application-admin-console v1.1.0 reads appliedCapabilities via readAppliedCapabilities at apply-time (the visual-round mechanism). When zeroTrustGate is present the sign-in surface renders access-gated (no local form, principal reads from request.auth); when absent the surface falls back to whatever security-auth-* is applied. Q4 default per spec 5.4.1: zeroTrustGate is CONSUMED OPTIONALLY; principalDirectory remains the sole hard requirement (making Access-gate hard is a v2.0 change). The adminConsoleSignInSurface topic scope is global on this blueprint at v1.1.0; the topic string is adminConsoleSignInSurface (camelCase, one concept per topic).",
   "consequences": "The v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment. An Access-gated deployment automatically stops rendering the local login form (the shipped pack check AC-21815-1 catches a stray local-login region under zeroTrustGate). The fallback branch (local-login surface) ships in v1.1.0 unchanged; a v2.0.0 that makes Access-gate hard would remove the fallback branch (breaking-change). Standards trace clause: Cloudflare round 6 spec section 5.4 (admin-console v1.1.0 delta).",
   "alternativesConsidered": [
     {
@@ -17,7 +17,7 @@
     {
       "name": "Ship two admin-console blueprints (local-only and access-gated)",
       "summary": "Split the surface across two slugs so the operator picks at apply.",
-      "reasonNotChosen": "Doubles the shelf surface area and duplicates every other contribution. The applied-capability read is the shipped mechanism for exactly this composition (T-5 visual-round)."
+      "reasonNotChosen": "Doubles the shelf surface area and duplicates every other contribution. The applied-capability read is the shipped mechanism for exactly this composition (visual-round)."
     }
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",

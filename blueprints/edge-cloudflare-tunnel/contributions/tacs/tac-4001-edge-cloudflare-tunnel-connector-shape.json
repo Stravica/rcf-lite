@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Edge-cloudflare-tunnel connector install shape",
-  "purpose": "The cloudflared connector installs in one of two runtime shapes as selected by ADR-4002 from the applied capability set. When containerHost is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server) the connector ships as a compose service alongside the applying project services on the same web-net network with no host ports and a healthcheck. When the host runs bare (only T-1 applied) the connector ships as a systemd unit per the vendor local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only).",
+  "purpose": "The cloudflared connector installs in one of two runtime shapes as selected by ADR-4002 from the applied capability set. When containerHost is applied (platform-docker-compose-host on top of deploy-hetzner-server) the connector ships as a compose service alongside the applying project services on the same web-net network with no host ports and a healthcheck. When the host runs bare (only applied) the connector ships as a systemd unit per the vendor local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only).",
   "responsibilities": [
     "Ship the compose-service variant under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/ (AC-tunnel-connectorShape).",
     "Ship the systemd-unit variant under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/systemd-unit/ (AC-tunnel-connectorShape).",

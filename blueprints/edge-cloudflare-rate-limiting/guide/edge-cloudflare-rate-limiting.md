@@ -1,6 +1,6 @@
 # edge-cloudflare-rate-limiting guide
 
-Round 6 T-6 of the Cloudflare-first blueprint line. Ships zone-level rate limiting as an edge gate in front of Worker handlers. The rule set is a local manifest the applying project commits, and an operator applies it to the live Cloudflare zone through either a wrangler command flow or the Cloudflare dashboard flow, both walked below.
+round 6 of the Cloudflare-first blueprint line. Ships zone-level rate limiting as an edge gate in front of Worker handlers. The rule set is a local manifest the applying project commits, and an operator applies it to the live Cloudflare zone through either a wrangler command flow or the Cloudflare dashboard flow, both walked below.
 
 ## Manifest
 

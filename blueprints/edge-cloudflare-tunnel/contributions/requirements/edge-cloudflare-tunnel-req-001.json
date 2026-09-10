@@ -2,7 +2,7 @@
   "reqId": "edge-cloudflare-tunnel-REQ-001",
   "prdId": "PRD-001",
   "title": "Connector install shape switches on applied containerHost (compose-service default; systemd-unit for bare cloudHost); cloudflaredReady fires on boot",
-  "description": "The blueprint contributes a cloudflared connector whose runtime shape is elicited via ADR-4002 with enum {compose-service, systemd-unit} and recommendedDefault compose-service. When containerHost is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server) the connector ships as a compose service alongside the applying project services on the same web-net network. When the host runs bare (only T-1 applied) the connector ships as a systemd unit per the vendor local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only; no token or credentials in the payload).",
+  "description": "The blueprint contributes a cloudflared connector whose runtime shape is elicited via ADR-4002 with enum {compose-service, systemd-unit} and recommendedDefault compose-service. When containerHost is applied (platform-docker-compose-host on top of deploy-hetzner-server) the connector ships as a compose service alongside the applying project services on the same web-net network. When the host runs bare (only applied) the connector ships as a systemd unit per the vendor local-configuration-file docs. Either shape emits cloudflaredReady on boot with connector id, region and version metadata (metadata only; no token or credentials in the payload).",
   "category": "functional",
   "domain": "edge",
   "priority": "must",

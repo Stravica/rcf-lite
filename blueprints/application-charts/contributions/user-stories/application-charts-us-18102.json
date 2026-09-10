@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18102",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-002",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Series distinction combines colour, pattern and direct label so a colour-blind reader reads the same distinction",
   "asA": "reader with a colour-vision deficiency using the shipped surface",

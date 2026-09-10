@@ -1,6 +1,10 @@
 # observability-probe-endpoints CHANGELOG
 
-## 1.2.0 (hardening pass B4, 2026-09-09)
+## 1.2.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
+## 1.2.0 (hardening pass, 2026-09-09)
 
 - Adds `elicits[]` with four apply-time answers: `probe-interface-profile` (enum kubernetes/loadBalancer/uptimeMonitor/systemd/dockerHealthcheck/reverseProxy/custom, default kubernetes; REQ-001), `probe-paths-override` (string JSON; REQ-002/003), `probe-listener-separate-port` (string; REQ-004), `kubernetes-startup-enabled` (enum off/on, default off; ADR-1503). Every option value is backed by a must-priority REQ description.
 - Adds `deliveredBy` to every REQ (REQ-001-008 -> TAC-1501/1502/1503/1504 interface names; REQ-006 -> ADR-1505). Closes 7 pass-2 lint findings.
@@ -10,4 +14,4 @@
 - Closes F-2 (systemd + TCP transport families with no AC): adds AC-14105-4 (systemd Type=notify: exactly-once READY=1 plus periodic WATCHDOG=1 at cadence; supervisor pull when the watchdog cadence lapses), AC-14105-5 (TCP transport: accept on pass, refuse on fail, zero bytes on the connection), AC-14105-6 (missing platform adapter refused at boot with PROBE_ADAPTER_MISSING).
 - Closes the pass-1 lint finding on AC-14106-3: `then` now uses the canonical lowercase `content-length` string owned by TAC-1502.responsibilities[2].
 - Re-sweeps every existing AC's `disposition` per section 7b: ACs whose text references profile names, dependency names, or the elicited separate-port option flipped to `template` with `templateFillIns`; the remaining ACs stay `fixed`.
-- Review fix pass (register scan): replaces `HQ-lane` (twice, on the band-spacing paragraph) in `docs/topics.md` with `shelf-lane`/`shelf lane` so shipped content carries no internal team labels.
+- Review fix pass (register scan): the band-spacing paragraph in `docs/topics.md` reads `shelf-lane`/`shelf lane` so shipped content carries no internal team labels.

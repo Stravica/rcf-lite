@@ -18,7 +18,7 @@ Usage:
    next free project-level ADR id.
 3. Replace the two `TEMPLATE-*ISO8601` timestamps with the current wall-clock.
 4. Register the ADR on the project as `scope: global` on topic
-   `strictCoverageGate` so it competes with ADR-702 through the resolutions
+ `strictCoverageGate` so it competes with ADR-702 through the resolutions
    mechanism.
 5. Amend the exit criterion in the `decision` section if `N = 5` consecutive
    passes is not the right threshold for the project.

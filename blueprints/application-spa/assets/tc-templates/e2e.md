@@ -15,8 +15,8 @@ the e2e case (one browser, two responsibilities).
 
 - **Covers:** the AC end to end at a user-observable browser surface. One
   test case per AC. Sits in the project chain as coverage that
-  `rcf audit coverage --strict` reads, and runs in the pull-request-checks
-  `e2e` CI job the delivery-ci-workflows blueprint materialises.
+ `rcf audit coverage --strict` reads, and runs in the pull-request-checks
+ `e2e` CI job the delivery-ci-workflows blueprint materialises.
 - **Does not cover:** every rendering variation the browser-verify
   invariants already cover. If the concern is "is the CSP stamped
   correctly?" or "does the layout reflow at 360px?", write it as an

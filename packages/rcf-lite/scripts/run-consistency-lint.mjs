@@ -32,14 +32,22 @@ const here = dirname(fileURLToPath(import.meta.url));
 // at pack time; the lint runs against the pre-stage sources so a
 // finding surfaces before the release-train stager touches anything.
 // A staged local shelf at `packages/rcf-lite/blueprints/` is preferred
-// when present (the CI stager may have run first).
+// when present (the CI stager may have run first), unless
+// `RCF_LINT_SHELF=root` forces the monorepo-root shelf so the CI job
+// lints the authoritative sources regardless of a local staged copy.
 const stagedDir = resolve(here, '..', 'blueprints');
 const monorepoRootDir = resolve(here, '..', '..', '..', 'blueprints');
-let blueprintsDir = stagedDir;
-try {
-  await readdir(stagedDir);
-} catch {
+const shelfOverride = (process.env.RCF_LINT_SHELF || '').toLowerCase();
+let blueprintsDir;
+if (shelfOverride === 'root') {
   blueprintsDir = monorepoRootDir;
+} else {
+  blueprintsDir = stagedDir;
+  try {
+    await readdir(stagedDir);
+  } catch {
+    blueprintsDir = monorepoRootDir;
+  }
 }
 const mode = (process.env.RCF_LINT_MODE || 'soft').toLowerCase();
 

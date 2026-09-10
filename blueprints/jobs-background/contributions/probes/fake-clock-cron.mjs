@@ -2,7 +2,7 @@
  * Fake-clock cron probe.
  *
  * Drives the fixture scheduler (inProcess mode with the fake-clock seam)
- * plus the T-3 in-memory queue seam plus the T-4 jobs-runtime through
+ * plus the in-memory queue seam plus the jobs-runtime through
  * one POSIX cron minute for the refresh-cache job. Asserts a jobStarted
  * event fires on the injected run-log sink within the elicited
  * fireToleranceMs window (default 30000 ms) with jobName 'refresh-cache'

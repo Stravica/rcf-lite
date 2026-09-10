@@ -10,7 +10,7 @@
 //
 // Also folds the soft-budget contract in as additional results
 // (AC-32104-1 and AC-32104-2) so the shipped skew-tolerance probe
-// is the one place the T-2 spec's time-based dispatcher behaviour is
+// is the one place the spec's time-based dispatcher behaviour is
 // exercised end-to-end. SIMULATE_SLOW_HANDLER=true forces the spy
 // handler past the soft budget on every dispatch so a reviewer can
 // see cronStalled fires without editing the probe.

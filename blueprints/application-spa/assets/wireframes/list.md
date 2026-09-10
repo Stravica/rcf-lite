@@ -8,7 +8,7 @@ The canonical collection surface: filterable, sortable, paginated. One of these 
 +--------------------------------------------------------------------------+
 | shell (as dashboard)                                                     |
 +----------------+---------------------------------------------------------+
-| side nav       | breadcrumb: Home / Items          (if depth > 2)        |
+| side nav       | breadcrumb: Home / Items (if depth > 2)        |
 |                | h1 Items (128)                     [+ New item]         |
 |                |                                                         |
 |                | [ filter: status v ] [ filter: owner v ] [ search... ]  |

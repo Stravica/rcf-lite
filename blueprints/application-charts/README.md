@@ -1,6 +1,6 @@
 # Charts blueprint (v1.0.0)
 
-Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04, section 5.2). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard (visual round T-3) consumes it; no other blueprint in this round does.
+Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04, section 5.2). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard (visual round) consumes it; no other blueprint in this round does.
 
 ## Apply
 
@@ -56,7 +56,7 @@ Every chart on the shipped surface mounts through the render shell (TAC-1901). E
 
 ## Known mechanism-reach gaps
 
-Every runtime-observable AC that is not bound to a pack check appears here individually per the T-1 gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
+Every runtime-observable AC that is not bound to a pack check appears here individually per the gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
 
 - **AC-18101-1 form-set membership**. the pack does not inspect a chart's declared form against the six-form set. A project-side review is the current mechanism. A v1.1 minor bump could add a fourth pack check reading the `data-chart-form` attribute the shell emits and asserting membership.
 - **AC-18101-2 shell-mount routing**. the pack does not inspect the mount seam; a chart bypass to the raw chart-library mount is caught at project-side review. A build-scan pre-check in a v1.1 minor bump can grep the applying project's source for engine-specific mount calls.
@@ -70,4 +70,4 @@ Every runtime-observable AC that is not bound to a pack check appears here indiv
 
 ## Vision-deficiency emulation is a runner-seam gap
 
-The runner has no `emulateVisionDeficiency` seam on the pack browser today (`goto`, `snapshot`, `evaluate`, `click`, `type`, `press`, `screenshot` is the current API). AC-18102-1 is therefore proven at the DOM level: every series carries a non-colour cue AND a direct label. A future runner minor that adds `emulateVisionDeficiency` to the seam lets this pack add a deuteranopia render pass; that follow-up is named under CONCERNS in the T-2 dispatch report as the smallest runner change that would close the class.
+The runner has no `emulateVisionDeficiency` seam on the pack browser today (`goto`, `snapshot`, `evaluate`, `click`, `type`, `press`, `screenshot` is the current API). AC-18102-1 is therefore proven at the DOM level: every series carries a non-colour cue AND a direct label. A future runner minor that adds `emulateVisionDeficiency` to the seam lets this pack add a deuteranopia render pass; that follow-up is named under CONCERNS in the dispatch report as the smallest runner change that would close the class.
