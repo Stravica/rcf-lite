@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19105",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-004",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "The filter chrome exposes accessible controls and refetches every tile with the same boundary",
   "asA": "operator narrowing the dashboard with a filter chip or a filter input",

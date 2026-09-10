@@ -99,6 +99,6 @@ directory = "./dist"
 run_worker_first = true
 ```
 
-The `[assets]` block and Pages' `pages_build_output_dir` field are mutually exclusive per Cloudflare's static-assets doc; the T-0 probe `assets-manifest-scan.mjs` (`accountBound: false`, `anchorAcId: AC-12113-1`) refuses on a manifest that carries both. A project on the bare-Worker shape (no static assets served at the edge) leaves both elicits unanswered and the probe reports the bare shape as passing.
+The `[assets]` block and Pages' `pages_build_output_dir` field are mutually exclusive per Cloudflare's static-assets doc; the probe `assets-manifest-scan.mjs` (`accountBound: false`, `anchorAcId: AC-12113-1`) refuses on a manifest that carries both. A project on the bare-Worker shape (no static assets served at the edge) leaves both elicits unanswered and the probe reports the bare shape as passing.
 
 Migrating from Cloudflare Pages: read Cloudflare's own walkthrough at `https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/`, apply this blueprint at v1.2.0 with `assets-directory` set to the build-output directory the Pages project pointed at (typically `./dist`, `./build`, or `./public`), pick `run-worker-first` per the project's routing shape, and drop the Pages workflow. The Workers-with-static-assets shape covers the SPA and API surfaces the Pages workflow covered; the promote and rollback verbs on this blueprint carry through unchanged.

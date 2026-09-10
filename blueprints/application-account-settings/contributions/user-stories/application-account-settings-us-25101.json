@@ -25,7 +25,7 @@
     },
     {
       "id": "AC-25101-3",
-      "description": "When an unauthenticated principal requests /account, the shell routes to the shared forbidden state (T-1 application-empty-error-states), presents a sign-in link and renders no profile data.",
+      "description": "When an unauthenticated principal requests /account, the shell routes to the shared forbidden state (application-empty-error-states), presents a sign-in link and renders no profile data.",
       "given": "a request for /account without a valid principal on any applied auth blueprint",
       "when": "the shell resolves the route",
       "then": "the forbidden state renders with a sign-in link, no profile form is written to the DOM and no principal identifiers appear in the response body",

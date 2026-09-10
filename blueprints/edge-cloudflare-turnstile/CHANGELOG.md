@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.1 - 2026-09-10
+## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; single-mechanism story legality notes; magic-link guard probe extended with a mint-count delta assertion.
 
@@ -9,9 +9,13 @@ Capability token named in the requirements layer; single-mechanism story legalit
 - Appended the section 7a legality note to AC-35106-1, AC-35107-1 and AC-35108-1 recording that each single-AC story's mechanism has no additional documented failure path in the guide or the anchored TAC.
 - Extended the magic-link-guard probe check (`AC-turnstile-magicLinkGuard` in `probe-packs/edge-cloudflare-turnstile.pack.mjs`) to read a pre-mint and post-mint mint-outcome count from the fixture's `/api/events` sink and return `pass` only when both refusals are observed AND the mint-outcome delta is exactly zero; the observed delta is included in the positive-evidence detail.
 
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
 ## 1.1.0 - 2026-09-09
 
-Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
+hardening pass edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
 
 - Normalised the `cf-turnstile-response` token casing across the shipped guide, README, REQs, TACs and user stories to the lowercase form-field literal Cloudflare's client-side rendering and server-side validation docs specify verbatim (closes specimen F-1 in the vendor-fact direction under 7b; earlier interim pass mistakenly took the pre-existing TAC-3601 title-case as canonical). TAC-3601 owns the literal with a `vendorCitation` and US-35101 AC-35101-1 is re-marked `fixed` with the same citation. The consistency-lint AC-3 spec test continues to assert the specimen is closed on the shipped blueprint.
 - Added failure-path ACs to US-35102 (AC-35102-2..4 close F-3: missing sitekey, missing secret, only-one-of-pair boot refusal) and US-35103 (AC-35103-2..6 close F-2: siteverify timeout, network failure, non-2xx upstream, invalid JSON, missing success-field fail-closed).
@@ -34,7 +38,7 @@ All notable changes to `edge-cloudflare-turnstile` are recorded here. The shape 
 - 4 elicited parameters on `blueprint.json`: `turnstile-sitekey`, `turnstile-secret` (routed through `security-secrets-management` when applied), `turnstile-widget-mode` (enum default `managed`), `turnstile-guarded-surfaces`.
 - `suggestedCompanions`: `logging` (for the metadata-only event sink retention), `errorHandling` (for the verifier failure boundary), `secretsManagement` (for the paired sitekey and secret).
 - Ships the dedicated pack fixture at `packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/` per spec section 3.3. The fixture pins the Cloudflare public test keys documented at `https://developers.cloudflare.com/turnstile/troubleshooting/testing/` as environment defaults so the pack runs without real Turnstile credentials.
-- Anatomy test at `packages/rcf-lite/test/blueprint/edge-cloudflare-turnstile-anatomy.test.js` covers TS-120..127 on the T-5 repo-chain slice.
+- Anatomy test at `packages/rcf-lite/test/blueprint/edge-cloudflare-turnstile-anatomy.test.js` covers TS-120..127 on the repo-chain slice.
 
 ### Known limitations
 

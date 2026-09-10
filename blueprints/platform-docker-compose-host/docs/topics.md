@@ -61,11 +61,11 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 
 US 38101-38109 sit at the LOW end of the 38101-38899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a platform-docker-compose-host REQ id into the number 38109 would collide against the shipped US-38109; band headroom (38110-38899) leaves that space.
 
-Platform-docker-compose-host suffixes for this blueprint use the 3901-3904 block, continuing the widening pattern (deploy-hetzner-server 3801-3804 for the T-1 sibling).
+Platform-docker-compose-host suffixes for this blueprint use the 3901-3904 block, continuing the widening pattern (deploy-hetzner-server 3801-3804 for the host sibling).
 
 ## Cross-references
 
-- `deploy-hetzner-server` (v1.0.0): consumed via `capabilities: [cloudHost]`; this blueprint composes on the Hetzner cloudHost T-1 provisions.
+- `deploy-hetzner-server` (v1.0.0): consumed via `capabilities: [cloudHost]`; this blueprint composes on the Hetzner cloudHost that blueprint provisions.
 - `security-secrets-management` (v1.0.1): the compose secrets file source resolves through the applied secrets facade when the secrets blueprint is applied; the guide names a file-based fallback path when it is not.
-- Round-7 T-3 `edge-cloudflare-tunnel`: composes on `capabilities: [containerHost]`; runs cloudflared as a compose service in this stack.
+- Round-7 `edge-cloudflare-tunnel`: composes on `capabilities: [containerHost]`; runs cloudflared as a compose service in this stack.
 - `observability-logging`: elicited log-driver wires the applied logging companion's endpoint (journald by default, loki opt-in).

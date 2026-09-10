@@ -2,13 +2,18 @@
 
 All notable changes to `platform-cloudflare-cron-triggers` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
-## 1.1.1 - 2026-09-10
+## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; owner reference for the scheduled-side record shape.
 
 - Extended REQ-001 description to name the declared `scheduledTrigger` capability token verbatim with a one-line runtime clause tying the token to the single scheduled() handler module that delivers it.
 - Added AC-32101-6 on US-32101 as a fixed AC that binds the manifest-declared `scheduledTrigger` token to the handler-module presence assertion the fixture exercises.
 - Rewrote REQ-004 description to reference the owning TAC field (`TAC-3303-platform-cloudflare-cron-triggers-event-sink.responsibilities[0]`) for the scheduled-side record shape, rather than restating the whitelist verbatim.
+
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
 
 ## 1.1.0 (2026-09-09)
 
@@ -37,8 +42,8 @@ Capability token named in the requirements layer; owner reference for the schedu
 - 5 Node-only probes under `contributions/probes/`: `wrangler-test-scheduled` (drives `wrangler dev --test-scheduled` on the shared cf-platform fixture, `warn` on CLI regression per spec section 3.1), `dispatcher-routing`, `skew-tolerance` (also folds AC-32104 soft-budget as additional results), `event-secrecy` (SIMULATE_PII_LEAK=true mutation surfaces the leaked fields), and `real-account-scheduled-smoke` (`accountBound: true`; skipped in CI without `CI_HAS_CLOUDFLARE_ACCOUNT`).
 - Elicited parameters on `blueprint.json`: `cron-expressions` (default `* * * * *`), `cron-dispatcher-mode` (default `expression-routed`), `cron-skew-tolerance-seconds` (default `30`, floor `5`, ceiling `300`), `cron-soft-budget-seconds` (default `30`).
 - `suggestedCompanions`: `logging` (for the event-sink boundary) and `errorHandling` (for the handler-failure boundary).
-- Extends the shared `cf-platform` sample-app fixture with the `[triggers] crons` block on `wrangler.toml`, the sole-reader scheduled handler (`src/scheduled.mjs`), and the expression-routed dispatcher (`src/dispatcher.mjs`). The T-0 `[assets]` block and the T-1 `[[kv_namespaces]]` block are preserved verbatim; the scheduled handler does NOT dereference `env.CACHE` (KV stays owned by the T-1 facade).
-- Anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js` covers `TS-090..096` on the T-2 chain slice (blueprint shape, contributions cross-check, probe module contracts, fixture files, ADR bodies and clauses, guide sections and URLs, three-state probed verdicts).
+- Extends the shared `cf-platform` sample-app fixture with the `[triggers] crons` block on `wrangler.toml`, the sole-reader scheduled handler (`src/scheduled.mjs`), and the expression-routed dispatcher (`src/dispatcher.mjs`). The `[assets]` block and the `[[kv_namespaces]]` block are preserved verbatim; the scheduled handler does NOT dereference `env.CACHE` (KV stays owned by the facade).
+- Anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-cron-triggers-anatomy.test.js` covers `TS-090..096` on the chain slice (blueprint shape, contributions cross-check, probe module contracts, fixture files, ADR bodies and clauses, guide sections and URLs, three-state probed verdicts).
 
 ### Known limitations
 

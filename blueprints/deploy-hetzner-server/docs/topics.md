@@ -44,5 +44,5 @@ The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authorin
 
 - `security-secrets-management` (v1.0.1): the provisioner facade reads `HETZNER_ACCOUNT_API_KEY` through the applied secrets facade. The facade is the sole reader; every other module in the applying project imports the facade and never dereferences the token.
 - `deploy-cloudflare-workers` (v1.2.0): sibling in the `deploy-*` family. The family enforces one-target-per-project at apply time (a project applying both refuses with `deploy-family-multiple-targets`).
-- Round-7 T-2 `platform-docker-compose-host`: composes on `capabilities: [cloudHost]`; ships the compose runtime on the Hetzner host this blueprint provisions.
-- Round-7 T-3 `edge-cloudflare-tunnel`: composes on `cloudHost` (systemd unit shape) or on `containerHost` (compose service shape); either shape bridges the Hetzner host to the Cloudflare edge without opening origin ports.
+- round-7 `platform-docker-compose-host`: composes on `capabilities: [cloudHost]`; ships the compose runtime on the Hetzner host this blueprint provisions.
+- round-7 `edge-cloudflare-tunnel`: composes on `cloudHost` (systemd unit shape) or on `containerHost` (compose service shape); either shape bridges the Hetzner host to the Cloudflare edge without opening origin ports.

@@ -11,7 +11,7 @@ shape (rooms, presence, live cursors).
 
 If you need eventually-consistent low-latency reads on a read-hot
 path (feature flags, session cache, config cache), reach for
-`platform-cloudflare-kv` (round 6 T-1) instead. If you need
+`platform-cloudflare-kv` (round 6) instead. If you need
 durable multi-step workflows with retries and state across steps,
 reach for the follow-up Workflows adapter on `jobs-background`
 v1.1.0 (round-6 minor bump per spec section 5.7).
@@ -161,11 +161,11 @@ returns fail on the AC-33106-1 result.
 
 ## Composition
 
-- Consumes `deploy-cloudflare-workers` v1.2.0 (T-0). The DO bindings
+- Consumes `deploy-cloudflare-workers` v1.2.0. The DO bindings
   and migrations tag land in the same `wrangler.toml`.
 - Companions `logging` and `errorHandling` supply the sink factory
   and the internal-error record factory.
-- Complements `platform-cloudflare-kv` (round 6 T-1): DO owns the
+- Complements `platform-cloudflare-kv` (round 6): DO owns the
   strong-consistency slot; KV owns the cache-shaped eventually-
   consistent slot. Both compose on the same Worker.
 - A future non-Cloudflare adapter on `strongConsistencyCellContract`

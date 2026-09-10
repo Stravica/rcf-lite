@@ -152,8 +152,8 @@ Every probe writes its report envelope to
 The one new pattern this round. Lives at
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`; ships
 `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, the mocked hcloud
-shim and the manifest at `hetzner/servers/ci-throwaway.json`. T-2
-(`platform-docker-compose-host`) and T-3 (`edge-cloudflare-tunnel`)
+shim and the manifest at `hetzner/servers/ci-throwaway.json`. Round-7
+`platform-docker-compose-host` and `edge-cloudflare-tunnel`
 EXTEND the fixture rather than shipping a second copy. Cost ceiling:
 one `cx23` at approximately EUR 0.006/hour per run; destroy runs in
 `always()`; the nightly `sweep-orphans` cron collects any leak with a
@@ -172,11 +172,11 @@ cannot host.
 
 ## Consumers
 
-- ops-host is the first infrastructure consumer ( migration).
-- Round-7 T-2 `platform-docker-compose-host` composes on
+- ops-host is the first infrastructure consumer (migration path).
+- Round-7 `platform-docker-compose-host` composes on
   `capabilities: [cloudHost]`.
-- Round-7 T-3 `edge-cloudflare-tunnel` composes on `cloudHost` (via
-  the systemd unit shape) or on `containerHost` (via T-2).
+- Round-7 `edge-cloudflare-tunnel` composes on `cloudHost` (via
+  the systemd unit shape) or on `containerHost` (via `platform-docker-compose-host`).
 
 Blueprint acceptance never depends on the ops-host migration.
 
@@ -198,5 +198,5 @@ Blueprint acceptance never depends on the ops-host migration.
 
 - Terraform. Adds a second toolchain and a state file that nobody in
   the estate needs. maintainer ruling 2026-09-07 09:50Z.
-- A Load Balancer blueprint. Out of scope for round-7 T-1; may ship as
+- A Load Balancer blueprint. Out of scope for round-7; may ship as
   a follow-up if a second Hetzner consumer needs it.

@@ -5,7 +5,7 @@
 //   AC-19104-1 timeframe refetch fan-out (every fetch same from/to/preset, matching as-of stamp)
 //   AC-19103-1 per-tile four-state contract (role region, aria-live polite, non-colour distinction)
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects (packages/rcf-lite/src/browser-verify/pack-browser.js) and
 // asserts on the DOM the applying project renders under the tile
 // grid TAC (TAC-2001), the fan-out contract TAC (TAC-2002) and the
@@ -17,7 +17,7 @@
 // reads both to reconcile the timeframe-preset refetch batch.
 //
 // The runner exposes viewport resize through pack-browser's
-// `resize(width, height)` seam (T-3 extension): the primary-KPI
+// `resize(width, height)` seam (extension): the primary-KPI
 // position check drives 1440, 1024 and 360 through the same handle.
 
 export default {
@@ -27,7 +27,7 @@ export default {
   // Applies to any FBS that realises the dashboard tile-grid TAC or
   // whose navModel routes match an operator-configured dashboard
   // route glob. The source references BOTH `tacIds` and `route` so
-  // the T-0 loader's applicability source-scan sees the two legal
+  // the loader's applicability source-scan sees the two legal
   // seams (route is one of the three legal predicates).
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];
@@ -44,7 +44,7 @@ export default {
       run: async ({ browser, runtimeUrl }) => {
         if (!browser) return { verdict: 'fail', detail: 'no packBrowser wired' };
         if (typeof browser.resize !== 'function') {
-          return { verdict: 'fail', detail: 'packBrowser has no resize seam; the T-3 extension has not landed' };
+          return { verdict: 'fail', detail: 'packBrowser has no resize seam; the extension has not landed' };
         }
         const url = new URL('', runtimeUrl).toString();
         const widths = [1440, 1024, 360];

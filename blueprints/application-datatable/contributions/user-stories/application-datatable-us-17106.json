@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17106",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-006",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Column visibility, reorder and resize each expose a keyboard-reachable alternative to any drag pointer path",
   "asA": "operator who cannot drag with a pointer",

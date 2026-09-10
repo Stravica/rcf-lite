@@ -101,7 +101,7 @@ ADR-3004 sets `max_batch_size` to 10 (ceiling 100) and `max_batch_timeout` to 5 
 
 ## Composition with jobs-background
 
-`jobs-background` (round-5 track T-4) declares `requiresAppliedCapabilities: ["queue"]`; applying `jobs-background` on a project that already applied `messaging-queue-cloudflare` gets the T-4 apply-time capability check to pass with the `queue` capability discovered on the applied manifest. The T-4 blueprint enqueues jobs through the producer facade this blueprint exposes; the retry-and-DLQ trajectory is what turns transient job failures into eventual success and permanent failures into a DLQ receipt.
+`jobs-background` (round-5 sibling on the jobs track) declares `requiresAppliedCapabilities: ["queue"]`; applying `jobs-background` on a project that already applied `messaging-queue-cloudflare` gets the apply-time capability check to pass with the `queue` capability discovered on the applied manifest. The jobs-background blueprint enqueues jobs through the producer facade this blueprint exposes; the retry-and-DLQ trajectory is what turns transient job failures into eventual success and permanent failures into a DLQ receipt.
 
 ## What this blueprint does not do
 

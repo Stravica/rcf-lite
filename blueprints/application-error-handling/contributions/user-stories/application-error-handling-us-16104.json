@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16104",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-002",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "The record's context field is redacted at record construction, not at emission",
   "asA": "operator concerned about PII in error records",

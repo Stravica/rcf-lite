@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16106",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-004",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Records emit through the logging companion; the fallback stderr path fires only when no companion is applied",
   "asA": "operator debugging why an error record did not appear in the log ingestion pipeline",

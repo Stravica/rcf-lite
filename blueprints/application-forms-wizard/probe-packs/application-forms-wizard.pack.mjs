@@ -13,9 +13,9 @@
 //              on ?draft-store=local; the ?draft-store=none branch
 //              proves the missing-transport refusal on the fixture)
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects. URLs are composed by the withUrl(runtimeUrl, path)
-// helper per the round 3 T-3 fix train; no bare string
+// helper per the round 3 fix train; no bare string
 // concatenation.
 //
 // Sample-app fixture:
@@ -42,7 +42,7 @@ export default {
   // Applies to any FBS that realises the task-list TAC or whose
   // navModel routes name an operator-configured wizard path.
   // References BOTH tacIds AND route per the loader source-scan
-  // rule (T-0 AC-1701-3, cross-check with authoring standard 8c).
+  // rule (AC-1701-3, cross-check with authoring standard 8c).
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];
     const tacIds = fbs?.contextRequirements?.tacIds ?? [];

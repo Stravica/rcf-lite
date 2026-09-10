@@ -53,7 +53,7 @@ async function runProbe(name, env = {}) {
 test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.0');
+  assert.equal(bp.version, '1.1.1');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');

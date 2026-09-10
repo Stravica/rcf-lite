@@ -13,7 +13,7 @@
 // reader of SIMULATE_HARDENING_DRIFT and it mutates INPUT (the
 // rendered YAML) only; the probe then FAILS naming the missing
 // baseline block per hetzner-round-7-spec-2026-09-07.md section 3.4
-// lesson 4. H-1 (2026-09-08).
+// lesson 4.  (2026-09-08).
 
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';

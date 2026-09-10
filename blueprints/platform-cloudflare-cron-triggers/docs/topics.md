@@ -6,7 +6,7 @@ This file is the platform-cloudflare-cron-triggers half of the cross-blueprint c
 
 | Topic string | platform-cloudflare-cron-triggers contribution | Origin | Composition note |
 |---|---|---|---|
-| `scheduledTriggerContract` | ADR-3301-platform-cloudflare-cron-triggers-scheduled-trigger-contract | Minted by this blueprint. Names the wire-shape contract for a scheduled trigger the applied Workers project reads through the scheduled() handler; the shipped answer is Cloudflare Workers Cron Triggers per https://developers.cloudflare.com/workers/configuration/cron-triggers/. | The one project-wide decision on the scheduled-trigger contract at the handler boundary. A future non-Cron-Triggers scheduler (a cross-region cron on a different platform, a durable-workflow scheduler on the round-6 T-3 Durable Objects sibling, the round-6 Workflows adapter on jobs-background v1.1.0 per spec section 5.7) would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR |
+| `scheduledTriggerContract` | ADR-3301-platform-cloudflare-cron-triggers-scheduled-trigger-contract | Minted by this blueprint. Names the wire-shape contract for a scheduled trigger the applied Workers project reads through the scheduled() handler; the shipped answer is Cloudflare Workers Cron Triggers per https://developers.cloudflare.com/workers/configuration/cron-triggers/. | The one project-wide decision on the scheduled-trigger contract at the handler boundary. A future non-Cron-Triggers scheduler (a cross-region cron on a different platform, a durable-workflow scheduler on the round-6 Durable Objects sibling, the round-6 Workflows adapter on jobs-background v1.1.0 per spec section 5.7) would contribute the same topic string with a different answer, forcing a DELIBERATE conflict the operator resolves with a project-level ADR |
 
 The platform-cloudflare-cron-triggers blueprint claims one global topic. Every other contribution is scope-local (ADR-3302 dispatcher mode and ADR-3303 default skew tolerance do not contribute global topics; a composing blueprint that holds an opinion on either authors its own project-level ADR).
 
@@ -66,8 +66,8 @@ ADR/TAC suffixes for this blueprint use the 3301-3399 block, continuing the shel
 ## Shared expectations for future composing blueprints
 
 - Reuse `scheduledTriggerContract` exactly as spelled here when your blueprint holds an opinion on the scheduled-trigger contract at the handler boundary; contribute your own scope:global ADR on that string and let composition surface the pairing.
-- A future non-Cron-Triggers scheduler (a cross-region cron on a different platform, a durable-workflow scheduler on the round-6 T-3 Durable Objects sibling, the round-6 Workflows adapter on jobs-background v1.1.0 per spec section 5.7) mints on demand; each claims `scheduledTriggerContract` and conflicts by design.
-- Consumer blueprints reading the `scheduledTrigger` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the scheduled handler wiring at apply time via the T-5 visual-round capability-declaration mechanism.
+- A future non-Cron-Triggers scheduler (a cross-region cron on a different platform, a durable-workflow scheduler on the round-6 Durable Objects sibling, the round-6 Workflows adapter on jobs-background v1.1.0 per spec section 5.7) mints on demand; each claims `scheduledTriggerContract` and conflicts by design.
+- Consumer blueprints reading the `scheduledTrigger` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the scheduled handler wiring at apply time via the visual-round capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 
