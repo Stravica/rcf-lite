@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17109",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "status": "approved",
   "title": "Selection persistence across pages holds the elicited contract and announces the running count",
   "asA": "operator selecting rows across several pages before running a bulk action",
@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-17109-1",
-      "description": "Given an operator elicited `selection-persistence=cross-page` on `blueprint.json:elicits[selection-persistence]` (ADR-1804), when the operator selects rows on page 1 and advances to page 2, the previously selected row ids remain in the selection model; a return to page 1 re-renders the checkboxes as checked. The check clicks a row checkbox, advances the page, returns, and asserts the checkbox is still checked. Applying agent sets: the elicited value on `blueprint.json:elicits[selection-persistence]` (`cross-page` here; the TAC-1803 factory is constructed with the corresponding runtime `crossPage` value), the row-id field the TAC-1803 selection model keys on, and the pagination control the check advances through.",
+      "description": "Given an operator elicited `selection-persistence=cross-page` on `blueprint.json:elicits[selection-persistence]` (ADR-1804), when the operator selects rows on page 1 and advances to page 2, the previously selected row ids remain in the selection model; a return to page 1 re-renders the checkboxes as checked. The check clicks a row checkbox, advances the page, returns, and asserts the checkbox is still checked. Applying agent sets: the elicited value on `blueprint.json:elicits[selection-persistence]` (`cross-page` here; the corresponding runtime `crossPage` value is fixed on TAC-1803-application-datatable-selection-model.internalStructure) and the pagination control the check advances through.",
       "given": "a rendered datatable with elicited cross-page selection persistence",
       "when": "the operator selects rows on page 1 and paginates away and back",
       "then": "the row checkboxes on page 1 remain in the selected state on return",
