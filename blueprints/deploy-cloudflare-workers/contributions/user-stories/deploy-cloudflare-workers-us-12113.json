@@ -16,7 +16,8 @@
       "when": "the probe module assets-manifest-scan.mjs parses the fixture wrangler.toml",
       "then": "the parsed structure contains an assets table whose directory string equals ./dist and no top-level pages_build_output_dir key; the probe returns verdict pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12113-2",
@@ -25,12 +26,49 @@
       "when": "the probe module parses the fixture wrangler.toml",
       "then": "the parsed [assets] table carries run_worker_first equal to true; when the fixture is switched with SIMULATE_EMPTY_ASSETS=true the run_worker_first field is absent (the whole [assets] block is absent) and the probe still returns verdict pass because the bare-Worker shape is legal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/static-assets/binding/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-12113-3",
+      "description": "Empty assets-directory keeps the bare-Worker shape. Given the elicited assets-directory answered as the empty string, when the deploy adapter renders the wrangler manifest, then no [assets] block is emitted (the file has no assets header), no static-asset probe fires, and the deploy runs as a bare Worker; a mutation SIMULATE_UNWANTED_ASSETS_BLOCK=true forces an [assets] block into the generated manifest and the ship gate FAILS naming the unwanted block.",
+      "given": "assets-directory answered as the empty string",
+      "when": "the deploy adapter renders the wrangler manifest",
+      "then": "no [assets] block is emitted; the deploy runs as a bare Worker; the unwanted-block mutation FAILS the ship gate",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.assets"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-12113-4",
+      "description": "Run Worker first array-of-patterns form. Given the operator answers run-worker-first with a JSON array literal such as [\"/api/*\", \"!/api/docs/*\"] alongside a non-empty assets-directory, when the wrangler manifest is generated, then the emitted [assets] block carries `run_worker_first = [\"/api/*\", \"!/api/docs/*\"]` verbatim; a deployed request to /api/orders reaches the Worker fetch handler before asset lookup, a deployed request to /api/docs/openapi.json falls back to the static-asset pipeline (negative pattern precedence), and an answer of more than 100 entries refuses at load with tooManyRunWorkerFirstPatterns naming the vendor's 100-entry cap.",
+      "given": "run-worker-first answered as a JSON array of route patterns alongside a non-empty assets-directory",
+      "when": "the wrangler manifest is generated and the applied Worker deploys",
+      "then": "the [assets] block carries `run_worker_first = [\"/api/*\", \"!/api/docs/*\"]`; a request to /api/orders hits the Worker first; a request to /api/docs/openapi.json hits the static-asset pipeline first; over-100 entries refuse with tooManyRunWorkerFirstPatterns",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
+        "field": "responsibilities.runWorkerFirstArrayForm"
+      },
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/static-assets/binding/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-1302-deploy-cloudflare-workers-wrangler-manifest"
   ],
   "createdAt": "2026-09-07T00:00:00Z",
-  "updatedAt": "2026-09-07T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

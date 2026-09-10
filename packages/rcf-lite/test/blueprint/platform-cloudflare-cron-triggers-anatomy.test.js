@@ -38,12 +38,13 @@ test('scheduled handler opens on boot and emits cronReady with metadata-only pay
   await handler.ready();
   const ready = events.filter((e) => e.event === 'cronReady');
   assert.equal(ready.length, 1, 'cronReady emitted exactly once');
-  const allowed = new Set(['event', 'key', 'size', 'ttl', 'timestamp']);
+  const allowed = new Set(['event', 'expression', 'scheduledTime', 'outcome', 'duration']);
   const extra = Object.keys(ready[0]).filter((k) => !allowed.has(k));
-  assert.deepEqual(extra, [], `cronReady record must carry only {event,key,size,ttl,timestamp}; extra=${JSON.stringify(extra)}`);
-  assert.equal(ready[0].key, null);
-  assert.equal(ready[0].size, 0);
-  assert.equal(ready[0].ttl, null);
+  assert.deepEqual(extra, [], `cronReady record must carry only the cron-vocabulary shape {event,expression,scheduledTime,outcome,duration}; extra=${JSON.stringify(extra)}`);
+  assert.equal(ready[0].expression, null);
+  assert.equal(ready[0].scheduledTime, null);
+  assert.equal(ready[0].outcome, 'ready');
+  assert.equal(ready[0].duration, 0);
 });
 
 // TS-090 (US-6001) part 2: src/scheduled.mjs does not dereference env.CACHE (KV stays owned by T-1 facade).
@@ -154,7 +155,7 @@ test('event-secrecy probe returns pass with zero forbidden keys and zero PII hit
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-cloudflare-cron-triggers');
-  assert.equal(bp.version, '1.0.0');
+  assert.equal(bp.version, '1.1.0');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['scheduledTrigger']);
   assert.equal(Array.isArray(bp.elicits), true);

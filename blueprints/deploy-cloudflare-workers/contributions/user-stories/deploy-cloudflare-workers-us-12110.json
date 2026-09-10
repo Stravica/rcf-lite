@@ -16,7 +16,8 @@
       "when": "the verifier runs",
       "then": "at least one HTTP request to the production URL's `/healthz` completes within the sixty-second window; the request carries no `Authorization` header that would bypass a production auth layer; the retry count for any single probe does not exceed six",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12110-2",
@@ -25,7 +26,8 @@
       "when": "the verifier receives the response",
       "then": "the verifier substitutes `sha-W` into the `expectShape.versionSha` slot before requesting; the probe passes exactly when the status is 200 AND the JSON body's `versionSha` matches `sha-W`; a 200 response whose `versionSha` names a different sha fails the probe",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12110-3",
@@ -34,7 +36,8 @@
       "when": "the verifier completes",
       "then": "the workflow exits non-zero; the exit records include the stable code `PROMOTE_VERIFY_FAILED`; the deploy log entry names the failing probe path, the last status observed, and the elapsed time; the release is not marked successful",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1304-deploy-cloudflare-workers-promote-gate"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

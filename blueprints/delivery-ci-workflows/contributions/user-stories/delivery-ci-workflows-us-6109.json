@@ -11,26 +11,33 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6109-1",
-      "description": "The applied blueprint's source path (recorded on `manifest.blueprints[delivery-ci-workflows].source`) contains one illustrative GitHub Actions workflow file per workflow in the matrix under `assets/ci-provider-examples/github-actions/`. At the widest shape the files are `pull-request-checks.yml`, `default-branch-checks.yml`, `release.yml`, and `scheduled-audit.yml`. Each workflow defines the required trigger set for its workflow, sets up Node and the package manager, installs dependencies, invokes the corresponding Node entry point as a single command line, and uploads the corresponding report directory or file as a workflow artefact.",
+      "description": "The applied blueprint's source path (recorded on `manifest.blueprints[delivery-ci-workflows].source`) contains one illustrative GitHub Actions workflow file per workflow in the matrix under `assets/ci-provider-examples/github-actions/`. At the widest shape the files are `pull-request-checks.yml`, `default-branch-checks.yml`, `release.yml`, and `scheduled-audit.yml`. Each workflow defines the required trigger set for its workflow, sets up Node and the package manager, installs dependencies, invokes the corresponding Node entry point as a single command line, and uploads the corresponding report directory or file as a workflow artefact. Template values the applying agent sets: The applying agent sets the elicited providerHint; the AC substitutes the project's provider assets for the illustrative GitHub-Actions asset set.",
       "given": "an rcf-lite project that has applied this blueprint",
       "when": "the operator opens the blueprint's source path and reads the files under `assets/ci-provider-examples/github-actions/`",
       "then": "the four workflow files exist at that path, each file's `on:` block names the trigger set corresponding to its workflow, each file's steps include a Node setup and a package-manager setup, one step per file invokes the appropriate Node entry point as a single `node <path>` line (or a package-manager script that resolves to the same), and a final step uploads the corresponding report path as a workflow artefact",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6109-2",
-      "description": "The applied blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, states the mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied to each workflow in the matrix, and states that the blueprint does not ship provider-specific configuration for those runners in v2.0.0.",
+      "description": "The applied blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, states the mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied to each workflow in the matrix, and states that the blueprint does not ship provider-specific configuration for those runners in v2.0.0. Template values the applying agent sets: The applying agent sets the elicited providerHint; the AC substitutes the project's provider assets for the illustrative GitHub-Actions asset set.",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces[2].name"
+      },
       "given": "an rcf-lite project that has applied this blueprint",
       "when": "the operator opens `guide/delivery-ci-workflows.md` from the blueprint's source path",
       "then": "the guide's `when to reach for it` or an adjacent section names GitLab CI, CircleCI, Buildkite, and Jenkins by name, describes the four mapping points applied to each workflow the matrix materialises, and states that no provider-specific configuration file for those runners is shipped by the blueprint at v2.0.0",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-701-delivery-ci-workflows-gate-runner"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-08-24T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "Section 7a floor: two ACs. Guide and TAC-701 name no US-6109-specific failure paths beyond runner-missing (covered generically by AC-6102-3 unknown-executable refusal) and gate-aggregation gaps (covered by AC-6108-1 required-gate listing); this story owns the shipped GHA illustrative assets and the alternate-provider mapping documentation (per REQ-009 and assets/ci-provider-examples/notes.md)."
 }

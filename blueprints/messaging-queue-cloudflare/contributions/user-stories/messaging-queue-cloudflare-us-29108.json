@@ -6,20 +6,42 @@
   "status": "approved",
   "title": "Real-account concurrency smoke: 500 messages processed concurrently up to the 250 cap",
   "asA": "developer verifying the facade works against a real Cloudflare account",
-  "iWant": "a smoke test that publishes 500 messages against the shared HQ queue rcf-lite-ci-queue-smoke and asserts the consumer processes them concurrently up to the documented 250-invocation cap",
+  "iWant": "a smoke test that publishes 500 messages against the shared CI queue rcf-lite-ci-queue-smoke and asserts the consumer processes them concurrently up to the documented 250-invocation cap",
   "soThat": "the shipped shape's compatibility with the real Cloudflare Queues surface is proven end-to-end at least once per release, without requiring every CI run to be account-bound",
   "acceptanceCriteria": [
     {
       "id": "AC-29108-2",
-      "description": "Given CI_HAS_CLOUDFLARE_ACCOUNT=1 and the credentials for the shared HQ queue rcf-lite-ci-queue-smoke wired via security-secrets-management, when the real-account-concurrency-smoke probe runs against the real queue, then 500 messages are published, the consumer processes them concurrently up to the 250 push-based invocation cap Cloudflare documents at https://developers.cloudflare.com/queues/platform/limits/, and the smoke drains the queue on exit. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true per spec section 3.5 and the per-blueprint report carries aggregateVerdict pass.",
-      "given": "the shared HQ queue rcf-lite-ci-queue-smoke on Baz's account, or the env var unset",
+      "description": "Given CI_HAS_CLOUDFLARE_ACCOUNT=1 and the credentials for the shared CI queue rcf-lite-ci-queue-smoke wired via security-secrets-management, when the real-account-concurrency-smoke probe runs against the real queue, then 500 messages are published, the consumer processes them concurrently up to the 250 push-based invocation cap Cloudflare documents at https://developers.cloudflare.com/queues/platform/limits/, and the smoke drains the queue on exit. Without CI_HAS_CLOUDFLARE_ACCOUNT the probe records accountBoundSkipped true per spec section 3.5 and the per-blueprint report carries aggregateVerdict pass.",
+      "given": "the shared CI queue rcf-lite-ci-queue-smoke on the maintainer's account, or the env var unset",
       "when": "the real-account-concurrency-smoke run-shim executes",
       "then": "with the env var set, 500 messages round-trip with observed concurrency below or equal to 250; with the env var unset, the report carries accountBoundSkipped true and aggregateVerdict pass; the shim exits 0 in both paths",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/queues/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-29108-3",
+      "description": "Concurrency cap enforced. Given 500 messages published in a burst on the real-account probe, when the consumer processes them, then at no observed moment is the concurrent in-flight count greater than the Cloudflare-documented 250 cap; a mutation SIMULATE_CONCURRENCY_BREACH=true drives the concurrency past 250 and the smoke FAILS naming the observed peak.",
+      "given": "500 messages published in a burst",
+      "when": "the consumer processes them under the real-account probe",
+      "then": "in-flight count never exceeds 250; the breach mutation FAILS naming the observed peak",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+        "field": "interfaces.createConsumer"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade",
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

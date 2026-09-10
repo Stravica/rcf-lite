@@ -16,7 +16,8 @@
       "when": "the sign-in surface reads its strategy configuration",
       "then": "the surface reads exactly one `signInStrategy` config record; the record's own-property keys are exactly `{primary, alternates}`; `primary` is a non-empty string; `alternates` is an array of strings",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9108-2",
@@ -25,7 +26,8 @@
       "when": "a scan enumerates literal string matches for the strategy identifiers known to Clerk's strategy enumeration at build time",
       "then": "every match resolves to the single config module or to test fixtures; no sign-in surface, no middleware, no handler carries a hard-coded strategy string",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

@@ -31,6 +31,24 @@ export const accountBound = false;
 // blueprint's manifest declares (top-level scalars, one [assets]
 // table, and boolean/string literals). Reaches for no runtime dep;
 // keeps the probe accountBound-false and dependency-free.
+
+function interpretRunWorkerFirst(v) {
+  // Accepts boolean true/false, string 'true'/'false', or a JSON array literal such as ["/api/*"].
+  // Returns { truthy: boolean, arrayForm: null | string[] }.
+  if (v === true) return { truthy: true, arrayForm: null };
+  if (v === false) return { truthy: false, arrayForm: null };
+  if (typeof v === 'string') {
+    const s = v.trim();
+    if (s === 'true') return { truthy: true, arrayForm: null };
+    if (s === 'false' || s === '') return { truthy: false, arrayForm: null };
+    if (s.startsWith('[')) {
+      try { const arr = JSON.parse(s); if (Array.isArray(arr)) return { truthy: true, arrayForm: arr }; } catch { /* fall through */ }
+    }
+  }
+  if (Array.isArray(v)) return { truthy: true, arrayForm: v };
+  return { truthy: false, arrayForm: null };
+}
+
 export function parseWranglerToml(text) {
   const lines = text.split(/\r?\n/);
   const root = {};
@@ -90,7 +108,7 @@ export async function scan(opts) {
     parsed,
     elicited: {
       assetsDirectory: elicited['assets-directory'] || '',
-      runWorkerFirst: elicited['run-worker-first'] === true,
+      runWorkerFirst: interpretRunWorkerFirst(elicited['run-worker-first']),
     },
   };
 
@@ -117,17 +135,17 @@ export async function scan(opts) {
       });
     }
     const runWorkerFirstOnManifest = assets && Object.prototype.hasOwnProperty.call(assets, 'run_worker_first');
-    if (detail.elicited.runWorkerFirst) {
-      if (!runWorkerFirstOnManifest || assets.run_worker_first !== true) {
+    if (detail.elicited.runWorkerFirst.truthy) {
+      const expectShape = detail.elicited.runWorkerFirst.arrayForm; const manifestVal = runWorkerFirstOnManifest ? assets.run_worker_first : undefined; const boolMatches = expectShape === null && manifestVal === true; const arrMatches = Array.isArray(expectShape) && Array.isArray(manifestVal) && JSON.stringify(expectShape) === JSON.stringify(manifestVal); if (!runWorkerFirstOnManifest || (!boolMatches && !arrMatches)) {
         results.push({
           verdict: 'fail',
-          detail: 'run_worker_first mismatch: elicited answer is true but manifest carries ' + (runWorkerFirstOnManifest ? String(assets.run_worker_first) : 'no run_worker_first key'),
+          detail: 'run_worker_first mismatch: elicited answer expected ' + (expectShape === null ? 'true' : JSON.stringify(expectShape)) + ' but manifest carries ' + (runWorkerFirstOnManifest ? JSON.stringify(assets.run_worker_first) : 'no run_worker_first key'),
           anchorAcId,
         });
       } else {
         results.push({
           verdict: 'pass',
-          detail: 'assets.run_worker_first equals true, matching the elicited run-worker-first answer',
+          detail: 'assets.run_worker_first ' + (expectShape === null ? 'equals true' : 'equals array ' + JSON.stringify(manifestVal)) + ', matching the elicited run-worker-first answer',
           anchorAcId,
         });
       }

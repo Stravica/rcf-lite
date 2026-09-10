@@ -13,12 +13,41 @@
       "id": "AC-37104-1",
       "description": "cloud-init-render-lint.mjs renders the template with the fixture manifest and asserts each of the six baseline blocks (SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail, unattended-upgrades) appears in the rendered YAML by grep; a mutation SIMULATE_HARDENING_DRIFT=true removes the unattended-upgrades block and the probe FAILS with a message naming the missing line.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37104-2",
+      "description": "Malformed template refusal. Given the cloud-init template with a placeholder tag left unclosed or misspelled, when cloud-init-render-lint.mjs renders it, then the probe FAILS naming the malformed placeholder; no rendered YAML is written to disk.",
+      "given": "a cloud-init template with a malformed placeholder",
+      "when": "cloud-init-render-lint.mjs runs",
+      "then": "the probe FAILS naming the malformed placeholder; no rendered YAML is written",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+        "field": "interfaces.cloud-init.yaml.tmpl"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-37104-3",
+      "description": "Fixture renderer refuses on unknown placeholder. Given the fixture renderer given a template with an unknown placeholder tag (a tag not in the two-placeholder shape {{name}} and {{sshAuthorizedKeysBlock}}), when the renderer runs, then it refuses with a named error kind (unknownPlaceholder); no rendered YAML is written to disk.",
+      "given": "a template with an unknown placeholder tag",
+      "when": "the fixture renderer runs",
+      "then": "the renderer refuses with unknownPlaceholder; no rendered YAML is written",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
+        "field": "interfaces.cloud-init.yaml.tmpl"
+      },
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3803-deploy-hetzner-server-cloud-init-template"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

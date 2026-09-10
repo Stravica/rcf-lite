@@ -11,21 +11,23 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6114-1",
-      "description": "With `workflowShape.branchModel: feature`, the materialiser produces a `pull-request-checks` workflow triggered by pull requests targeting the configured default branch (`workflowShape.defaultBranch`, default `main`). The workflow invokes the Node gate-runner entry point (TAC-701) with the required check set (mandatory tier plus every `checkSet` flag set true).",
+      "description": "With `workflowShape.branchModel: feature`, the materialiser produces a `pull-request-checks` workflow triggered by pull requests targeting the configured default branch (`workflowShape.defaultBranch`, default `main`). The workflow invokes the Node gate-runner entry point (TAC-701) with the required check set (mandatory tier plus every `checkSet` flag set true). Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` with `branchModel: feature`, `defaultBranch: develop`, and every `checkSet` flag true",
       "when": "the workflow-materialiser runs",
       "then": "a `pull-request-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `develop` (the configured default branch, not the placeholder marker and not a hard-coded `main`), and its command line invokes the Node gate-runner entry point with the required check set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6114-2",
-      "description": "With `branchModel: feature`, the materialiser additionally produces a `default-branch-checks` workflow triggered by pushes to the configured default branch. The workflow invokes the same Node gate-runner entry point on the same required check set.",
+      "description": "With `branchModel: feature`, the materialiser additionally produces a `default-branch-checks` workflow triggered by pushes to the configured default branch. The workflow invokes the same Node gate-runner entry point on the same required check set. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "the same `workflowShape` (`branchModel: feature`, `defaultBranch: develop`)",
       "when": "the workflow-materialiser runs",
       "then": "a `default-branch-checks` workflow file lands at the provider's workflow path, its trigger's branch list names `develop`, and its command line invokes the Node gate-runner entry point with the required check set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6114-3",
@@ -34,7 +36,8 @@
       "when": "a pull request whose most recent `pull-request-checks` aggregate report records `verdict: failed` is submitted for merge",
       "then": "the platform refuses the merge and the refusal reason references the failed `pull-request-checks` required check",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

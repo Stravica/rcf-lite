@@ -16,10 +16,49 @@
       "when": "presignGetUrl(key, ttl=60) then fetch(url) immediately, then wait ttl+2 seconds and fetch(url) again",
       "then": "first fetch returns 200 with body bytes equal to the put payload; second fetch returns 403; the events list contains a presignedIssued record with key, ttl=60, timestamp; no URL or credential material appears in any event record",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-28103-2",
+      "description": "Presigned URL beyond TTL returns 403. Given a presigned GET URL issued with TTL of 60 seconds, when a fetch runs against it more than 60 seconds after issuance, then the vendor returns HTTP 403 (SignatureDoesNotMatch or expired-URL family), and the facade's subsequent presign call for the same key issues a fresh URL with a fresh TTL boundary.",
+      "given": "a presigned GET URL issued with a 60-second TTL",
+      "when": "a fetch runs against it more than 60 seconds after issuance",
+      "then": "the vendor returns HTTP 403 (expired-URL family); a subsequent presign issues a fresh URL",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-query-string-auth.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-28103-3",
+      "description": "Presigned TTL above ceiling refused at the facade edge. Given a presignGetUrl call with a TTL argument above the elicited presigned-ttl-ceiling-seconds, when the verb runs, then the facade refuses with a named error kind (presignTtlAboveCeiling); no vendor call issues.",
+      "given": "presignGetUrl call with TTL above the elicited ceiling",
+      "when": "the verb runs",
+      "then": "the facade refuses with presignTtlAboveCeiling; no vendor call issues",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.store.verbs"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

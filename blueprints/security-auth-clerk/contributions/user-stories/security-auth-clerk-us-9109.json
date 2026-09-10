@@ -16,7 +16,8 @@
       "when": "a source-tree scan enumerates rate-limit middleware, throttle wrappers, or enumeration-defence checks bound to the sign-in surface",
       "then": "the scan returns zero matches on the sign-in surface; the same scan on other surfaces (a public API, a webhook receiver) is unaffected by this AC",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-9109-2",
@@ -25,7 +26,8 @@
       "when": "the burst is dispatched and the responses are collected",
       "then": "the observed refusal shape (status code, response body error identifier, retry-after header if any) matches Clerk's documented rate-limit response for the strategy; no project-authored refusal shape appears in the burst",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

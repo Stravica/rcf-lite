@@ -11,17 +11,98 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33108-1",
-      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_classes = [\"SingleCellObject\", \"HubObject\"]. An anatomy assertion greps the toml for each of the four literal strings (name = \"CELL\", class_name = \"SingleCellObject\", name = \"HUB\", class_name = \"HubObject\") and the tag/new_classes pair. A rename in a real project ships as a new migrations tag entry, never a silent edit of the class name.",
+      "description": "The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \"v1\" and new_sqlite_classes = [\"SingleCellObject\", \"HubObject\"]. An anatomy assertion greps the toml for each of the four literal strings (name = \"CELL\", class_name = \"SingleCellObject\", name = \"HUB\", class_name = \"HubObject\") and the tag/new_sqlite_classes pair. A rename in a real project ships as a new migrations tag entry, never a silent edit of the class name.",
       "given": "the cf-platform fixture wrangler.toml",
       "when": "the anatomy assertion greps for the four literal strings and the migrations pair",
       "then": "every string is present and the migrations tag \"v1\" carries the two class names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      },
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      }
+    },
+    {
+      "id": "AC-33108-2",
+      "description": "Rename-as-new-migration-tag: a wrangler.toml carrying a second [[migrations]] block with tag=\"v2\" and renamed_classes=[{from:\"SingleCellObject\", to:\"CellObjectV2\"}], with the [[durable_objects.bindings]] class_name updated to CellObjectV2, is a valid rename. The anatomy assertion accepts: it greps for tag=\"v2\" and renamed_classes, and asserts the v1 migration still records the original class name for history.",
+      "given": "a wrangler.toml with two migrations tags (v1 with new_sqlite_classes, v2 with renamed_classes) and updated binding class_name",
+      "when": "the anatomy assertion parses the toml",
+      "then": "both tags are present, renamed_classes points from the v1 class to the v2 class, and the binding class_name matches the v2 target",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33108-3",
+      "description": "Silent class rename refuses: a wrangler.toml where the [[durable_objects.bindings]] class_name has changed from \"SingleCellObject\" to \"CellObjectV2\" but no new [[migrations]] tag records the rename is a defect. The anatomy assertion detects the mismatch (a class named on a binding that does not appear in any migration record) and refuses with DO_MIGRATION_RENAME_UNRECORDED naming the class name.",
+      "given": "a wrangler.toml whose binding class_name is not recorded in any migrations tag",
+      "when": "the anatomy assertion runs",
+      "then": "the assertion refuses with DO_MIGRATION_RENAME_UNRECORDED naming the class",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33108-4",
+      "description": "Missing migrations block: a wrangler.toml with [[durable_objects.bindings]] blocks but no [[migrations]] block refuses at the anatomy assertion with DO_MIGRATION_BLOCK_MISSING; the deploy would fail at Cloudflare mint time (a namespace cannot exist without a migration recording the class).",
+      "given": "a wrangler.toml with binding blocks and no migrations block",
+      "when": "the anatomy assertion runs",
+      "then": "the assertion refuses with DO_MIGRATION_BLOCK_MISSING",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33108-5",
+      "description": "Stale keyword refuses: a wrangler.toml whose [[migrations]] tag uses new_classes = [...] instead of new_sqlite_classes = [...] refuses at the anatomy assertion with DO_MIGRATION_KEYWORD_STALE naming the deprecated keyword and the vendor URL. Per the cited Cloudflare migrations page, key-value backed namespaces can no longer be created; only new_sqlite_classes mints a fresh namespace.",
+      "given": "a wrangler.toml whose migrations tag uses the deprecated new_classes keyword",
+      "when": "the anatomy assertion runs",
+      "then": "the assertion refuses with DO_MIGRATION_KEYWORD_STALE naming the vendor page and today's verifiedOn date",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.migrationsTag"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T23:00:00.000Z"
 }

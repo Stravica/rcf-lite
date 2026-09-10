@@ -76,7 +76,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 
 US 7101-7110 sit at the LOW end of the 7101-7899 band on purpose. A project-side story that mechanically derives from an observability-essentials REQs id into the number `7110` would collide against observability-essentials-US-7110 in this package; the band leaves headroom at the HIGH end (US 7181-7899) so a project's own stories anchored to observability-essentials REQs can allocate without conflict. The watchpost run4 lesson applies here too.
 
-Row-status caveat: the delivery-ci-workflows seat shipped first (PR #95 merged at 595cab9c on main). This branch was rebased onto that main; the delivery-ci-workflows row reflects the shipped state, and the observability row flips to `shipped v1.0.0` at this branch's merge (Dave coordinates that final flip in the merge commit or an immediate follow-up).
+Row-status caveat: the delivery-ci-workflows seat shipped first (PR #95 merged at 595cab9c on main). This branch was rebased onto that main; the delivery-ci-workflows row reflects the shipped state, and the observability row flips to `shipped v1.0.0` at this branch's merge (the maintainer coordinates that final flip in the merge commit or an immediate follow-up).
 
 ## Shared expectations for future composing blueprints
 

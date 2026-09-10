@@ -48,7 +48,7 @@ Four Node-only probes under `contributions/probes/`; three run in CI, one is acc
 | --- | --- | --- | --- |
 | `manifest-presence.mjs` | AC-36101-1 (also AC-36108-1 under `SIMULATE_MANIFEST_MISSING=true`) | false | Reads `cf-edge/cloudflare/rate-limits/`, asserts every file parses, carries the seven required fields and holds no plaintext secret. |
 | `manifest-schema-validate.mjs` | AC-36106-1 | false | Validates every manifest file against the shipped JSON Schema. Under `SIMULATE_SCHEMA_INVALID=true` writes a scratch file missing `threshold` and fails. |
-| `event-secrecy.mjs` | AC-36107-1 | false | Drives the shipped drift-audit runner realisation with a synthetic manifest and a fake fetch; asserts every drift record carries only `{ruleId, clientIpHash, outcome, timestamp, diff}`. Under `SIMULATE_EVENT_LEAK_IP=true` the runner injects a full IP and the probe fails. |
+| `event-secrecy.mjs` | AC-36107-1 | false | Drives the shipped drift-audit runner realisation with a synthetic manifest and a fake fetch; asserts every drift-audit record carries only `{ruleId, outcome, timestamp, diff}` and every request-event record carries only `{ruleId, clientIpHash, outcome, timestamp}`. Under `SIMULATE_EVENT_LEAK_IP=true` the runner injects a full IP and the probe fails. |
 | `real-account-burst-and-429.mjs` | AC-36103-1 | true | Fires an in-process burst against `CF_RATE_LIMIT_URL` under `CI_HAS_CLOUDFLARE_ACCOUNT=true` and asserts the (N+1)th and subsequent responses return 429 with `Retry-After` and `Cf-Ray`. Without either env var records `accountBoundSkipped: true` and aggregates to `pass` per spec section 3.5 and ruling 6. |
 
 ### Ruling 6 restated

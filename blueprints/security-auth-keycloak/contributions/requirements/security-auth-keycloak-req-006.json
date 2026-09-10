@@ -2,7 +2,7 @@
   "reqId": "security-auth-keycloak-REQ-006",
   "prdId": "PRD-001",
   "title": "Role extraction reads from Keycloak's client-roles or realm-roles claim shape",
-  "description": "Keycloak places roles on two claim families the operator selects between when configuring the client: `resource_access.<clientId>.roles` (per-client roles, the recommended default) and `realm_access.roles` (realm-wide roles). The realm record's `roleClaimShape` field declares which family this client uses (`client-roles` or `realm-roles`); the role adapter (TAC-1205) reads roles from that path on every verified token and populates the reduced Principal's `roles[]` array with the resulting string list. A token whose expected claim path is absent yields an empty `roles[]` (not a refusal); a project that wants stricter behaviour (a specific claim path must be present, or a specific role must be present, or the request is refused) authors a project-side authoriser above the reduced Principal and does not push that policy into the mechanism. The role adapter does not remap Keycloak role strings into project-defined role vocabulary; that remapping is a project-level concern and belongs on a project-authored ADR whose `related-reqs` cites this REQ.",
+  "description": "Keycloak places roles on two claim families the operator selects between when configuring the client: `resource_access.<clientId>.roles` (per-client roles, the recommended default) and `realm_access.roles` (realm-wide roles). The realm record's `roleClaimShape` field declares which family this client uses (`client-roles` or `realm-roles`); the role adapter (TAC-1205) reads roles from that path on every verified token and populates the reduced Principal's `roles[]` array with the resulting string list. A token whose expected claim path is absent yields an empty `roles[]` (not a refusal); a project that wants stricter behaviour (a specific claim path must be present, or a specific role must be present, or the request is refused) authors a project-side authoriser above the reduced Principal and does not push that policy into the mechanism. The role adapter does not remap Keycloak role strings into project-defined role vocabulary; that remapping is a project-level concern and belongs on a project-authored ADR whose `related-reqs` cites this REQ. The `roles[]` field on the reduced Principal is the sole role vocabulary the project reads; the role adapter is the mechanism by which the blueprint contributes the `roleModel` capability into the applied capability set. The reduced Principal produced by the role adapter is also the blueprint's `principalDirectory` contribution: no other read-side surface on the project answers \"who is the caller\".",
   "category": "functional",
   "domain": "authentication",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-08-31T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+    "field": "responsibilities.roles"
+  }
 }

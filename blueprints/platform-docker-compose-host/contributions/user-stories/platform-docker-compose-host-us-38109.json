@@ -13,12 +13,67 @@
       "id": "AC-composeHost-logDriverClassification",
       "description": "Every service in the applied compose.yaml declares a logging: driver: block whose driver value matches the elicited log driver (default journald). The compose-config-lint probe asserts (a) every service declares logging: driver, (b) the value is one of journald or loki, and (c) SIMULATE_UNCLASSIFIED_LOG_DRIVER=true sets a disallowed driver and the probe FAILS naming the service and the disallowed value.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-38109-2",
+      "description": "F-8 journald marker: with log-driver=journald on the throwaway server, the probe writes a marker line via a service's stdout (a unique UUID substring), then runs `journalctl CONTAINER_NAME=<name> -o cat` on the host and asserts the marker substring appears in the output within a bounded 30 seconds. Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass.",
+      "given": "a fixture with log-driver=journald and CI_HAS_HETZNER_ACCOUNT=true",
+      "when": "the probe writes the marker and greps journalctl",
+      "then": "the marker appears in the journalctl output within 30 seconds; the probe passes",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.logDriver"
+      },
+      "vendorCitation": {
+        "url": "https://www.freedesktop.org/software/systemd/man/journalctl.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38109-3",
+      "description": "F-8 loki marker: with log-driver=loki and the applied Loki endpoint set, the probe writes a marker (UUID substring) via a service's stdout, then HTTP GETs the Loki push-query API at the elicited endpoint and asserts the marker appears in the response within a bounded 30 seconds. Without CI_HAS_HETZNER_ACCOUNT the probe records accountBoundSkipped: true and aggregates to pass.",
+      "given": "a fixture with log-driver=loki, a Loki endpoint and CI_HAS_HETZNER_ACCOUNT=true",
+      "when": "the probe writes the marker and queries the Loki API",
+      "then": "the marker appears in the Loki API response within 30 seconds; the probe passes",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.logDriver"
+      },
+      "vendorCitation": {
+        "url": "https://grafana.com/docs/loki/latest/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38109-4",
+      "description": "Missing logging block: SIMULATE_MISSING_LOG_DRIVER=true removes the logging: block from a service. The compose-config-lint FAILS naming the service; every service must declare a logging: driver block per REQ-006.",
+      "given": "a fixture with SIMULATE_MISSING_LOG_DRIVER=true",
+      "when": "the lint runs",
+      "then": "the lint FAILS naming the service with no logging driver",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
+        "field": "responsibilities.logDriver"
+      },
+      "vendorCitation": {
+        "url": "https://docs.docker.com/reference/compose-file/services/#logging",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3903-platform-docker-compose-host-healthcheck-lint"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

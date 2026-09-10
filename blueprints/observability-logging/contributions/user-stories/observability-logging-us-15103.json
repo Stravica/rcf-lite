@@ -16,19 +16,51 @@
       "when": "the emission passes through the boundary",
       "then": "the stdout line's field value equals [REDACTED:pii.email] and the caller-side object still holds the original address",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-15103-2",
-      "description": "A project may add its own redaction categories at apply through the ADR-1603 elicited-additions parameter; a new category name (kebab or dotted-namespace) is accepted and applied by the boundary in the same round.",
+      "description": "A project may add its own redaction categories at apply through the ADR-1603 elicited-additions parameter; a new category name (kebab or dotted-namespace) is accepted and applied by the boundary in the same round. Template values the applying agent sets: The applying agent sets any project-added redaction categories on the redaction-categories-additions elicit; the AC substitutes the project's category names for the illustrative ssn token.",
       "given": "a project that elicited an additional category ssn on ADR-1603",
       "when": "an emission includes a field tagged ssn",
       "then": "the stdout line's field value equals [REDACTED:ssn]",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-15103-3",
+      "description": "A category name whose kebab or dotted-namespace grammar looks valid but is not present in the current recommended-default set and not in the elicited additions is left unredacted; the emitted payload field carries its original value.",
+      "given": "a running application configured only with the recommended defaults and a caller emitting a payload with a field tagged `custom.internal.token` (not in defaults, not in elicited additions)",
+      "when": "the emission is issued",
+      "then": "the stdout line's `custom.internal.token` field carries the caller value verbatim; no [REDACTED:...] rewrite happens for that field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1602-observability-logging-redaction-boundary",
+        "field": "interfaces.createRedactionBoundary"
+      }
+    },
+    {
+      "id": "AC-15103-4",
+      "description": "The redaction boundary reads a nested payload path: an object with a `user.pii.email` shape has the leaf redacted; the sibling `user.id` retains its original value. Template values the applying agent sets: the AC exercises the recommended-default category vocabulary configured on the boundary.",
+      "given": "a running application with recommended defaults and a caller emitting `{ user: { id: \"u-1\", pii: { email: \"a@b\" } } }`",
+      "when": "the emission is issued",
+      "then": "the stdout line has `user.id` equal to \"u-1\" and `user.pii.email` equal to \"[REDACTED:pii.email]\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1602-observability-logging-redaction-boundary",
+        "field": "interfaces.createRedactionBoundary"
+      }
     }
   ],
-  "tacIds": ["TAC-1602-observability-logging-redaction-boundary"],
+  "tacIds": [
+    "TAC-1602-observability-logging-redaction-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

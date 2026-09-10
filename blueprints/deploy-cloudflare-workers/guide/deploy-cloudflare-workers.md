@@ -80,7 +80,12 @@ Cloudflare's own Pages landing page states, verbatim (fetched 2026-09-06): "Work
 The bump adds two elicits on the top-level `elicits[]` block:
 
 - `assets-directory` (kind `string`, default empty): the path (relative to the Worker source root) whose files Cloudflare serves at the edge as static assets. An empty answer keeps the bare-Worker shape (no `[assets]` block on the generated `wrangler.toml`); a non-empty answer emits `[assets] directory = "<answered path>"`.
-- `run-worker-first` (kind `boolean`, default `false`): the SPA fallback discipline. A truthy answer emits `run_worker_first = true` under the `[assets]` block; a falsy or unanswered answer omits the field, leaving Cloudflare's runtime to serve a matching static asset before the Worker fetch handler runs. The elicit is only meaningful when `assets-directory` is non-empty (a Worker with no assets has nothing to serve first); the loader-side `when-elicitedNonEmpty` predicate the spec calls for is a mechanism follow-up, so the elicit fires unconditionally today.
+- `run-worker-first` (kind `string`, default `"false"`): the SPA fallback discipline. The Cloudflare Workers static-assets binding page (https://developers.cloudflare.com/workers/static-assets/binding/, verified 2026-09-09) accepts two shapes on this field, and the elicit reflects both:
+
+  - **Boolean shape**: answer `"true"` (emits `run_worker_first = true`, Worker runs first for every request; right for a SPA whose Worker owns arbitrary routing or whose auth middleware must gate every path a static file could shadow) or `"false"` / empty (omits the field, Cloudflare's runtime serves a matching static asset before the Worker runs).
+  - **Array-of-patterns shape**: answer a JSON literal such as `["/api/*", "!/api/docs/*"]` (emits `run_worker_first = ["/api/*", "!/api/docs/*"]`, Worker runs first only on matched routes; glob `*` for deep matching; leading `!` for negatives; negatives take precedence over non-negatives; at most 100 entries per the vendor page). Right for a mixed SPA-plus-API deploy where auth must gate the API surface without stealing every static-asset request from the edge.
+
+  The elicit is only meaningful when `assets-directory` is non-empty (a Worker with no assets has nothing to serve first); the loader-side `when-elicitedNonEmpty` predicate the spec calls for is a mechanism follow-up, so the elicit fires unconditionally today.
 
 Copy-paste `wrangler.toml` snippet for the ratified shape:
 

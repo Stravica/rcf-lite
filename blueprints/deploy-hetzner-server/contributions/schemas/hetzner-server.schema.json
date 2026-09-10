@@ -31,7 +31,7 @@
     "location": {
       "type": "string",
       "enum": ["fsn1", "nbg1", "hel1", "ash", "hil"],
-      "description": "Hetzner data centre location. fsn1 is the shipped default per Baz ruling 2026-09-07 09:50Z on the Q2 ratification."
+      "description": "Hetzner data centre location. fsn1 is the shipped default per maintainer ruling 2026-09-07 09:50Z on the Q2 ratification."
     },
     "image": {
       "type": "string",

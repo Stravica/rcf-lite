@@ -237,20 +237,26 @@ test('sample-app fixture break switches surface the four defects (TC-056-negativ
 
 test('four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)', async () => {
   const clerk = JSON.parse(await readFile(join(CLERK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(clerk.version, '1.3.0');
+  assert.equal(clerk.version, '1.4.0');
   assert.deepEqual([...clerk.capabilities].sort(), ['hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const kc = JSON.parse(await readFile(join(KEYCLOAK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(kc.version, '1.2.0');
+  assert.equal(kc.version, '1.3.0');
   assert.deepEqual([...kc.capabilities].sort(), ['credentialSelfService', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ox = JSON.parse(await readFile(join(OAUTH2_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ox.version, '1.2.0');
-  assert.deepEqual([...ox.capabilities].sort(), ['credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
+  assert.equal(ox.version, '1.3.0');
+  assert.deepEqual([...ox.capabilities].sort(), ['authorisationCodeFlow', 'credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ml = JSON.parse(await readFile(join(MAGIC_LINK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ml.version, '1.2.0');
+  assert.equal(ml.version, '1.2.1');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);
   const log = JSON.parse(await readFile(join(LOGGING_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(log.version, '1.2.0');
-  assert.deepEqual([...log.capabilities].sort(), ['auditLog', 'sessionInventory']);
+  // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
+  // sessionInventory per section 7c criterion a (no requirement, story or
+  // TAC responsibility ever backed it on this blueprint). Ownership stays
+  // with security-auth-clerk TAC-1003 interfaces.sessionInventory. The
+  // account-settings sessions surface reads the union across applied
+  // blueprints (this shelf-wide test) unchanged.
+  assert.equal(log.version, '1.3.0');
+  assert.deepEqual([...log.capabilities].sort(), ['auditLog']);
   // Section 6a table extension carries the three new capability strings.
   const authoring = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md'), 'utf8');
   assert.match(authoring, /`credentialSelfService`/);

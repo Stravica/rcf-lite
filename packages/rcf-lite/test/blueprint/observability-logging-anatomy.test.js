@@ -26,17 +26,23 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
   const raw = await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'observability-logging');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.3.0');
   assert.equal(doc.category, 'observability');
   assert.deepEqual(doc.providesRoles, ['logging']);
-  // Visual round T-5: declares capabilities: [auditLog] so the
-  // application-admin-console probe pack's AC-21105-1 audit-log check
-  // activates when this shelf blueprint is applied. One grammar; no
-  // role-to-capability inference.
-  // Visual round T-4 (2026-09-06): sessionInventory added alongside auditLog
-// so a project may configure the logger's session-emission channel as the
-// source the account-settings sessions surface reads.
-assert.deepEqual([...doc.capabilities].sort(), ['auditLog', 'sessionInventory']);
+  // Hardening pass B4 (2026-09-09): sessionInventory removed per section 7c
+  // (no requirement, story or TAC responsibility ever backed it on this
+  // blueprint; owner is security-auth-clerk TAC-1003 interfaces.sessionInventory).
+  // auditLog stays: application-admin-console AC-21105-1 reads it through
+  // observability-logging-REQ-006. One grammar; no role-to-capability inference.
+  assert.deepEqual([...doc.capabilities].sort(), ['auditLog']);
+  assert.ok(Array.isArray(doc.elicits) && doc.elicits.length === 4);
+  const elicitIds = doc.elicits.map((e) => e.id).sort();
+  assert.deepEqual(elicitIds, [
+    'boot-identity-fields',
+    'correlation-header-name',
+    'minimum-log-level',
+    'redaction-categories-additions',
+  ]);
   const globalAdrs = doc.contributions.filter((c) => c.kind === 'adr' && c.scope === 'global');
   assert.equal(globalAdrs.length, 1);
   assert.equal(globalAdrs[0].id, 'ADR-1601-observability-logging-line-shape');
@@ -48,15 +54,19 @@ assert.deepEqual([...doc.capabilities].sort(), ['auditLog', 'sessionInventory'])
     'observability-logging-REQ-003',
     'observability-logging-REQ-004',
     'observability-logging-REQ-005',
+    'observability-logging-REQ-006',
   ]);
   const usIds = doc.contributions.filter((c) => c.kind === 'us').map((c) => c.id).sort();
   assert.ok(usIds.includes('observability-logging-US-15101'));
   assert.ok(usIds.includes('observability-logging-US-15108'));
+  assert.ok(usIds.includes('observability-logging-US-15109'));
   const tacIds = doc.contributions.filter((c) => c.kind === 'tac').map((c) => c.id).sort();
   assert.deepEqual(tacIds, [
     'TAC-1601-observability-logging-logger-factory',
     'TAC-1602-observability-logging-redaction-boundary',
   ]);
+  const adrIds = doc.contributions.filter((c) => c.kind === 'adr').map((c) => c.id).sort();
+  assert.ok(adrIds.includes('ADR-1605-observability-logging-serialisation-refusal'));
 });
 
 test('observability-logging: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-038-clean-apply)', async () => {
@@ -68,7 +78,7 @@ test('observability-logging: apply into a fresh fixture succeeds and writes the 
   const res = await applyBlueprint({ projectRoot: root, tree, source: BLUEPRINT_ROOT });
   assert.equal(res.applied, true, JSON.stringify(res));
   assert.equal(res.slug, 'observability-logging');
-  assert.equal(res.version, '1.2.0');
+  assert.equal(res.version, '1.3.0');
   const adrPath = join(root, 'rcf', 'adrs', 'adr-1601-observability-logging-line-shape.json');
   const st = await stat(adrPath);
   assert.ok(st.isFile(), 'expected ADR-1601 file on disk after apply');

@@ -16,10 +16,69 @@
       "when": "the shipped code path runs without the switch; the mutation path runs with SIMULATE_PII_LEAK=true",
       "then": "shipped: aggregateVerdict pass with zero forbidden keys and zero PII hits. Switch on: aggregateVerdict fail with the leaked fields named.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-32106-2",
+      "description": "Allow-list boundary: an event record whose top-level keys include ANY key outside the allow-list {event, expression, scheduledTime, outcome, duration, softBudgetMs, deltaMs} fails layer 1 of the event-secrecy probe. Under SIMULATE_PII_LEAK=true a wrapped sink adds a \"handlerInput\" key onto every record and the probe surfaces the forbidden key by name, returning aggregateVerdict:\"fail\".",
+      "given": "the event-secrecy probe run under SIMULATE_PII_LEAK=true",
+      "when": "the wrapper sink adds a forbidden key onto every record",
+      "then": "layer 1 asserts fail naming the forbidden key; aggregateVerdict is \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+        "field": "responsibilities.allowList"
+      }
+    },
+    {
+      "id": "AC-32106-3",
+      "description": "Empty payload boundary: a spy handler that receives NO domain payload (all inputs undefined) still produces cronFired records carrying every required key {event, expression, scheduledTime, outcome, duration}. No allow-list key is silently dropped when the payload is empty; expression is the wrangler-supplied string, scheduledTime the observed millis, outcome \"onTime\" or the classified value.",
+      "given": "the dispatcher run against a spy handler with an undefined input payload",
+      "when": "a dispatch fires",
+      "then": "the cronFired record carries all five required allow-list keys with non-null values (except where the vocabulary permits null)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+        "field": "responsibilities.allowList"
+      }
+    },
+    {
+      "id": "AC-32106-4",
+      "description": "Expression literal is not PII: the layer-2 substring scan explicitly excludes the expression field from the PII test because the expression string is a legitimate literal copied from wrangler.toml. A layer-2 test with a wrangler.toml expression containing the digits \"12345\" (which also appear in the PII fixture body) does not trip the scan; the exclusion is documented in the probe source.",
+      "given": "the event-secrecy probe with a wrangler expression carrying the digits \"12345\" and a PII fixture SSN containing the same digits",
+      "when": "the layer-2 substring scan runs",
+      "then": "the expression field is excluded from the scan and no false-positive PII hit fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+        "field": "responsibilities.allowList"
+      }
+    },
+    {
+      "id": "AC-32106-5",
+      "description": "Closure-over-fixture: a spy handler that captures a PII fixture ({userId, ssn}) via a JavaScript closure and mutates a scratch object each call still produces sink records whose JSON serialisation contains no userId or ssn substring. The layer-2 scan on the shipped path returns zero hits; layer 1 returns zero forbidden keys. Aggregate: pass.",
+      "given": "a spy handler closing over a PII fixture on the shipped path",
+      "when": "the event-secrecy probe runs without the mutation switch",
+      "then": "the layer-1 and layer-2 scans return zero hits and aggregateVerdict is \"pass\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+        "field": "responsibilities.allowList"
+      }
     }
   ],
-  "tacIds": ["TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "tacIds": [
+    "TAC-3303-platform-cloudflare-cron-triggers-event-sink"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

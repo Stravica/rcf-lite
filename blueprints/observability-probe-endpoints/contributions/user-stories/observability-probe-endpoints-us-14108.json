@@ -16,7 +16,8 @@
       "when": "the process restarts on the new configuration and the topology binds",
       "then": "a GET against `/health` returns 200 or 503; no probe handler is bound at `/live` or `/ready`; a source-tree diff between the two boots contains no non-configuration changes",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14108-2",
@@ -25,7 +26,8 @@
       "when": "the operator sets `probeInterface.profile: custom:tcpOnly` in configuration and the process restarts",
       "then": "the resolver loads the custom profile, the topology binds the profile's declared surface, and no additional source-tree change is required to move between the shipped set and the custom profile",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-14108-3",
@@ -34,7 +36,8 @@
       "when": "a scan searches for `probeInterface.profile` usage and per-profile branching (e.g., `if (profile === 'kubernetes')`) outside the `profiles/` directory and the profile-resolver module",
       "then": "the scan finds exactly one usage of `probeInterface.profile` (the resolver invocation) and zero per-profile conditionals in the rest of the boot path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

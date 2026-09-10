@@ -1,0 +1,88 @@
+{
+  "usId": "security-auth-keycloak-US-11115",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-014",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A signed-in keycloak caller lists their project sessions, revokes one, and revokes all others",
+  "asA": "operator signed in through a Keycloak realm on two browsers",
+  "iWant": "the account surface to show me every active project session, let me terminate one, and let me terminate every one except the current in a single call",
+  "soThat": "I end a forgotten or stolen session without touching the realm's admin surface",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11115-1",
+      "description": "A `list()` call from an authenticated caller returns one row per active project session, each row shaped per `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow`.",
+      "given": "a caller with two active project sessions S1 (current) and S2 in realm `alpha`",
+      "when": "the current browser calls `sessionInventory.list()`",
+      "then": "the return is exactly two rows shaped per the ownerRef interface, one with `currentSession=true` for S1 and one with `currentSession=false` for S2",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-11115-2",
+      "description": "`revoke(sessionId)` on a non-current project session invalidates it in the project session store; a replay from the revoked browser is treated as unauthenticated.",
+      "given": "the two-session setup from AC-11115-1",
+      "when": "the current browser calls `sessionInventory.revoke(\"S2\")` and browser B replays its next protected-route request",
+      "then": "the revoke returns successfully; the session store no longer holds a record for S2; browser B's replay is refused as unauthenticated on the next request; the audit sink records exactly one `keycloak.session_inventory_revoked` event carrying the operation, a session id prefix no longer than eight characters, and the wall-clock timestamp",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-11115-3",
+      "description": "`revokeAllExceptCurrent()` invalidates every active project session for the caller other than the one making the call.",
+      "given": "a caller with project sessions S1 (current), S2, S3",
+      "when": "the current browser calls `sessionInventory.revokeAllExceptCurrent()`",
+      "then": "the return value is `2`; a subsequent `list()` returns exactly one row for S1 with `currentSession=true`; replays from S2 or S3 are refused as unauthenticated on their next request",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-11115-4",
+      "description": "An unauthenticated call to any `sessionInventory` operation refuses with `SESSION_INVENTORY_UNAUTHENTICATED` and no side effect.",
+      "given": "a request with no verified session",
+      "when": "any of the three operations is invoked",
+      "then": "each call throws `SESSION_INVENTORY_UNAUTHENTICATED`; the project session store's records are unchanged; the audit sink records exactly one `keycloak.session_inventory_unauthenticated` event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    },
+    {
+      "id": "AC-11115-5",
+      "description": "`revoke(sessionId)` against a session id the caller does not own, or a session already invalidated, refuses without a side effect.",
+      "given": "an authenticated caller and a `sessionId` naming a session belonging to a different principal or an already-invalidated session",
+      "when": "the caller calls `sessionInventory.revoke(sessionId)`",
+      "then": "the call throws `SESSION_INVENTORY_UNKNOWN_SESSION`; the session store is unchanged; the audit sink records exactly one `keycloak.session_inventory_unknown_session` event",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces.sessionInventory"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1204-security-auth-keycloak-provider-router"
+  ],
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

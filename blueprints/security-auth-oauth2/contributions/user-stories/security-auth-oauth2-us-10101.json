@@ -16,7 +16,8 @@
       "when": "the request is dispatched and the response is inspected",
       "then": "the response is a 302 to the provider's declared `authorizeUrl`; the location query carries `response_type=code`, `code_challenge` (matches `^[A-Za-z0-9_-]{43,128}$`), `code_challenge_method=S256`, a `state` value distinct from any previously observed value in the test's collector; no `access_type=implicit` or `response_type=token` is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10101-2",
@@ -25,7 +26,8 @@
       "when": "the browser follows the provider's redirect back to the project's callback route",
       "then": "the flow controller issues a POST to the provider's `tokenUrl` whose body carries `grant_type=authorization_code`, the returned `code`, `client_id`, `code_verifier` (matching the pending-flow record), and `redirect_uri`; the response is a 2xx with `access_token`; for an OIDC provider the response additionally carries an `id_token`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10101-3",
@@ -34,7 +36,8 @@
       "when": "the browser inspects the response cookie jar",
       "then": "a session cookie declared by the project's session-cookie name (per config) is set with `Secure`, `HttpOnly`, and `SameSite=Lax`; the cookie value does not equal the access token, the id_token, or any refresh token returned by the provider; the value matches the opaque-handle shape declared by the session-bridge",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

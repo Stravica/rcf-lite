@@ -11,14 +11,36 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-noPublicOrigin",
-      "description": "manifest-schema-validate refuses under SIMULATE_ORIGIN_PORT_OPEN when an ingress rule service URL binds to 0.0.0.0 or a host public interface; the T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
+      "description": "Given the fixture manifest mutated via SIMULATE_ORIGIN_PORT_OPEN (one ingress rule service URL rewritten to bind to 0.0.0.0 or a host public interface), when manifest-schema-validate runs, the probe returns aggregateVerdict:fail with detail naming the offending ingress rule index. The T-1 firewall on the ci-throwaway manifest stays 22 open plus 80/443 open only when a reverse proxy is applied.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "responsibilities.originPortRefusal"
+      },
+      "given": "the fixture manifest with one ingress rule service URL bound to 0.0.0.0 or a host public interface (SIMULATE_ORIGIN_PORT_OPEN=true)",
+      "when": "manifest-schema-validate runs against the mutated fixture",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the offending ingress rule index"
+    },
+    {
+      "id": "AC-tunnel-noPublicOriginHappy",
+      "description": "Given the canonical fixture manifest (every ingress rule's service URL binds to an internal address: a compose service name or a loopback interface), when manifest-schema-validate runs, the probe returns aggregateVerdict:pass with no origin-port findings.",
+      "given": "the canonical fixture manifest with every ingress rule bound to an internal service or loopback",
+      "when": "manifest-schema-validate runs on the canonical fixture",
+      "then": "the probe returns aggregateVerdict:pass with no origin-port findings",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
+        "field": "responsibilities.originPortRefusal"
+      }
     }
   ],
   "tacIds": [
     "TAC-4002-edge-cloudflare-tunnel-manifest-schema"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

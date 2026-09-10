@@ -16,7 +16,8 @@
       "when": "the trigger stanza is parsed",
       "then": "the trigger set contains `push` scoped to the `main` branch (or the equivalent linear-history proxy); it contains no `pull_request` or `schedule` trigger",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12107-2",
@@ -25,7 +26,8 @@
       "when": "the run's outputs are inspected after completion",
       "then": "a structured output object exists whose fields include `versionId`, `versionIdUrl`, and `previewAliasUrl`; every field is populated with a non-empty string; the `previewAliasUrl` host segment carries the operator-chosen alias string",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-12107-3",
@@ -34,7 +36,8 @@
       "when": "the run's captured logs are inspected byte-for-byte",
       "then": "no log line contains the API token bytes; no log line contains the account id bytes; both are populated only into the vendor CLI's environment and redacted from any emitted line",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

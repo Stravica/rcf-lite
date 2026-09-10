@@ -11,21 +11,37 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6118-1",
-      "description": "When `checkSet.typecheck` is true (or the auto-detect finds a `tsconfig.json` or equivalent tool marker at the project root and the flag is unset), the gate-runner runs the project-realised typecheck runner. A non-zero exit flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/typecheck.json` carries `checkKind: \"typecheck\"`.",
+      "description": "When `checkSet.typecheck` is true (or the auto-detect finds a `tsconfig.json` or equivalent tool marker at the project root and the flag is unset), the gate-runner runs the project-realised typecheck runner. A non-zero exit flips the gate outcome to `failed`. The per-gate report at `.rcf/reports/ci/typecheck.json` carries `checkKind: \"typecheck\"`. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a project with `checkSet.typecheck: true` and a realised typecheck runner",
       "when": "a CI workflow invokes the gate-runner",
       "then": "a report file at `.rcf/reports/ci/typecheck.json` is written with `checkKind: \"typecheck\"`, and the gate outcome tracks the runner exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6118-2",
-      "description": "When `checkSet.typecheck` is unset and the project tree contains no `tsconfig.json` or equivalent tool marker, the auto-detect leaves the check off and no `typecheck.json` report file is written.",
+      "description": "When `checkSet.typecheck` is unset and the project tree contains no `tsconfig.json` or equivalent tool marker, the auto-detect leaves the check off and no `typecheck.json` report file is written. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a project with `checkSet.typecheck` unset and no typechecker marker at the project root",
       "when": "a CI workflow invokes the gate-runner",
       "then": "no `typecheck` gate is included in the aggregate report and no `.rcf/reports/ci/typecheck.json` file is written",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6118-3",
+      "description": "A typecheck configured on a project that has no typechecker at all skips with checkKind=typecheck and verdict=skipped (with a stable reason `no-typechecker-configured`); the aggregate treats skipped as pass for the aggregate report only when the required set does not include typecheck, else refuses pipeline pass. Template values the applying agent sets: The applying agent sets the elicited workflowShape.checkSet (specifically the typecheck flag) and the required-set membership; the AC substitutes the project's checkSet for the illustrative typecheck-required configuration.",
+      "given": "a project with checkSet.typecheck true but no tsconfig or equivalent",
+      "when": "the gate runs",
+      "then": "the per-gate report writes verdict=skipped with reason=no-typechecker-configured; the aggregate refuses pass when typecheck is in the required set",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces.runGates"
+      }
     }
   ],
   "tacIds": [
@@ -33,5 +49,5 @@
     "TAC-702-delivery-ci-workflows-gate-report"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

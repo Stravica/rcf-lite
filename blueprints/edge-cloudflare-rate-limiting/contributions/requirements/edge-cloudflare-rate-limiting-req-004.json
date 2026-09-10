@@ -2,7 +2,7 @@
   "reqId": "edge-cloudflare-rate-limiting-REQ-004",
   "prdId": "PRD-001",
   "title": "Drift audit: an opt-in scheduled runner reads live zone rules via the Cloudflare API and diffs against the local manifest, reporting mismatches metadata-only",
-  "description": "The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled (daily or hourly), the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs the returned rule set against the local manifest field-by-field, and constructs one drift-audit record per mismatched rule. Each record is written through the applied logger's audit sink with the metadata-only shape {ruleId, clientIpHash, outcome, timestamp} plus the diff fields; a record never carries a full client IP, a request body or a user agent per REQ-005's event-secrecy discipline. The runner's report artefact writes to the standard blueprint-report location under .rcf/reports/blueprints/edge-cloudflare-rate-limiting/. When the elicited cadence is off, the runner is not wired.",
+  "description": "The blueprint ships a scheduled drift-audit runner (TAC-3703) the applying project can wire behind the elicited rate-limit-drift-audit-cadence per ADR-3704. When enabled (daily or hourly), the runner fetches the live rate-limiting rules on the elicited zone via the Cloudflare API, diffs the returned rule set against the local manifest field-by-field, and constructs one drift-audit record per mismatched rule. The drift-audit record has the metadata-only shape {ruleId, outcome, timestamp, diff}; it never carries clientIpHash (there is no client on the API path), never a full IP, never a request body, never a user agent. Runtime request-event records (a separate record class produced by the live gate, not by the drift-audit runner) have the shape {ruleId, clientIpHash, outcome, timestamp} where clientIpHash is a hashed IP prefix. The runner report artefact writes to .rcf/reports/blueprints/edge-cloudflare-rate-limiting/. When the elicited cadence is off, the runner is not wired.",
   "category": "operational",
   "domain": "edge",
   "priority": "must",
@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
+    "field": "interfaces.createDriftAuditRunner"
+  }
 }

@@ -16,10 +16,32 @@
       "when": "the producer-facade-ready and publish-to-delivery run-shims execute",
       "then": "each shim exits 0; the per-blueprint reports carry aggregateVerdict pass; the event records observed include producerReady with queueName and 5 messageAcked events with matching messageIds",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-29107-2",
+      "description": "wrangler dev absent surfaces cleanly. Given wrangler is not on PATH on the runner's process shell, when the wrangler-dev round-trip probe runs, then the probe skips with accountBoundSkipped: true and a non-empty reason naming the missing wrangler binary; no partial round-trip is asserted.",
+      "given": "wrangler is not on PATH",
+      "when": "the wrangler-dev round-trip probe runs",
+      "then": "the probe skips with accountBoundSkipped: true and a non-empty reason naming missing wrangler; no partial round-trip is asserted",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+        "field": "interfaces.producer.verbs"
+      },
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/wrangler/commands/#dev",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
-  "tacIds": ["TAC-3001-messaging-queue-cloudflare-producer-facade", "TAC-3002-messaging-queue-cloudflare-consumer-registration"],
+  "tacIds": [
+    "TAC-3001-messaging-queue-cloudflare-producer-facade",
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

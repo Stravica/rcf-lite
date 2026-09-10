@@ -116,9 +116,13 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   const wide = await applyBlueprint({ projectRoot: scratch2, tree: c2, source: BLUEPRINT_ROOT });
   assert.equal(wide.applied, true, JSON.stringify(wide));
   const sorted = [...wide.appliedCapabilities].sort();
-  // T-4 bumps: clerk 1.3.0 adds sessionInventory + hostedIdentityUi;
-  // observability-logging 1.2.0 adds sessionInventory (as the logging-projection provider).
-  // The union widens accordingly.
+  // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
+  // sessionInventory (owner is security-auth-clerk TAC-1003
+  // interfaces.sessionInventory). The union still carries sessionInventory
+  // in this triple because clerk 1.3.0 declares it; the union math is
+  // unchanged for a project that runs clerk. A project that runs
+  // observability-logging without clerk no longer gains sessionInventory
+  // from logging alone, matching the section 7c backing evidence.
   assert.deepEqual(sorted, ['auditLog', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
 });
 

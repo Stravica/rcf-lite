@@ -16,7 +16,8 @@
       "when": "the log stream is captured",
       "then": "each event class emits exactly one entry per occurrence, with the named minimum fields present and typed as declared",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3109-2",
@@ -25,7 +26,8 @@
       "when": "every emitted entry is scanned",
       "then": "no field contains a substring matching any minted token, any issued session handle, or any configured adapter credential",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-3109-3",
@@ -34,7 +36,8 @@
       "when": "the entry is inspected",
       "then": "providerMessageId is present with a non-empty string or the literal 'none', and the recipient email appears only in the principalId field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

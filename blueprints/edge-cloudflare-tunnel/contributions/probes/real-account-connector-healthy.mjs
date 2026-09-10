@@ -2,14 +2,13 @@
 //
 // anchorAcId: AC-tunnel-connectorHealthy (US-39102 contribution;
 // real-account-connector-healthy declared with tunnelConnectorUp).
-// C4 ruling: the AC-tunnel-* symbolic anchors on the tunnel blueprint
-// ARE the AC ids in the shipped US-39101..US-39108 contribution band
-// (see blueprints/edge-cloudflare-tunnel/contributions/user-stories/
+// The AC-tunnel-* symbolic anchors on this blueprint ARE the AC ids
+// in the shipped US-39101..US-39108 contribution band (see
+// blueprints/edge-cloudflare-tunnel/contributions/user-stories/
 // edge-cloudflare-tunnel-us-3910N.json); the anchors already resolve
-// to the shipped band, so no re-anchor is performed by H-2. The kv
-// treatment differed because those probes anchored AC-5xxx ids that
-// existed nowhere on the shelf; here the ids exist and match by
-// design.
+// to the shipped band, so no re-anchor is needed. The kv treatment
+// differed because those probes anchored AC-5xxx ids that existed
+// nowhere on the shelf; here the ids exist and match by design.
 //
 // accountBound: true (gates on CI_HAS_CLOUDFLARE_ACCOUNT AND
 // CI_HAS_HETZNER_ACCOUNT; the connector runs on a throwaway Hetzner
@@ -28,7 +27,7 @@
 //
 // The shim seams (cloudflaredTunnelInfo, event capture) allow the
 // driver path and mutation switches to be exercised locally without
-// a real Cloudflare account; the real-account run happens at HQ
+// a real Cloudflare account; the real-account run happens in the operator account
 // gate time.
 
 import { runShim, accountBoundSkippedResult } from './probe-utils.mjs';

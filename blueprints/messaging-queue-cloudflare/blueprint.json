@@ -1,8 +1,10 @@
 {
   "slug": "messaging-queue-cloudflare",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "category": "messaging",
-  "capabilities": ["queue"],
+  "capabilities": [
+    "queue"
+  ],
   "suggestedCompanions": [
     {
       "role": "logging",
@@ -14,23 +16,91 @@
     }
   ],
   "contributions": [
-    { "id": "messaging-queue-cloudflare-REQ-001", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-001.json" },
-    { "id": "messaging-queue-cloudflare-REQ-002", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-002.json" },
-    { "id": "messaging-queue-cloudflare-REQ-003", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-003.json" },
-    { "id": "messaging-queue-cloudflare-REQ-004", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-004.json" },
-    { "id": "messaging-queue-cloudflare-REQ-005", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-005.json" },
-    { "id": "messaging-queue-cloudflare-REQ-006", "kind": "req", "path": "requirements/messaging-queue-cloudflare-req-006.json" },
-    { "id": "messaging-queue-cloudflare-US-29101", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29101.json" },
-    { "id": "messaging-queue-cloudflare-US-29102", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29102.json" },
-    { "id": "messaging-queue-cloudflare-US-29103", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29103.json" },
-    { "id": "messaging-queue-cloudflare-US-29104", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29104.json" },
-    { "id": "messaging-queue-cloudflare-US-29105", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29105.json" },
-    { "id": "messaging-queue-cloudflare-US-29106", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29106.json" },
-    { "id": "messaging-queue-cloudflare-US-29107", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29107.json" },
-    { "id": "messaging-queue-cloudflare-US-29108", "kind": "us", "path": "user-stories/messaging-queue-cloudflare-us-29108.json" },
-    { "id": "TAC-3001-messaging-queue-cloudflare-producer-facade", "kind": "tac", "path": "tacs/tac-3001-messaging-queue-cloudflare-producer-facade.json" },
-    { "id": "TAC-3002-messaging-queue-cloudflare-consumer-registration", "kind": "tac", "path": "tacs/tac-3002-messaging-queue-cloudflare-consumer-registration.json" },
-    { "id": "TAC-3003-messaging-queue-cloudflare-event-sink", "kind": "tac", "path": "tacs/tac-3003-messaging-queue-cloudflare-event-sink.json" },
+    {
+      "id": "messaging-queue-cloudflare-REQ-001",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-001.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-REQ-002",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-002.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-REQ-003",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-003.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-REQ-004",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-004.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-REQ-005",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-005.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-REQ-006",
+      "kind": "req",
+      "path": "requirements/messaging-queue-cloudflare-req-006.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29101",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29101.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29102",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29102.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29103",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29103.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29104",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29104.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29105",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29105.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29106",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29106.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29107",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29107.json"
+    },
+    {
+      "id": "messaging-queue-cloudflare-US-29108",
+      "kind": "us",
+      "path": "user-stories/messaging-queue-cloudflare-us-29108.json"
+    },
+    {
+      "id": "TAC-3001-messaging-queue-cloudflare-producer-facade",
+      "kind": "tac",
+      "path": "tacs/tac-3001-messaging-queue-cloudflare-producer-facade.json"
+    },
+    {
+      "id": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+      "kind": "tac",
+      "path": "tacs/tac-3002-messaging-queue-cloudflare-consumer-registration.json"
+    },
+    {
+      "id": "TAC-3003-messaging-queue-cloudflare-event-sink",
+      "kind": "tac",
+      "path": "tacs/tac-3003-messaging-queue-cloudflare-event-sink.json"
+    },
     {
       "id": "ADR-3001-messaging-queue-cloudflare-adapter",
       "kind": "adr",
@@ -62,6 +132,44 @@
       "recommendedDefault": true,
       "elicited": true,
       "standardsTraceClause": "Cloudflare Queues per-consumer batch settings"
+    }
+  ],
+  "elicits": [
+    {
+      "id": "queue-binding-name",
+      "prompt": "The Queues binding name declared under wrangler.toml [[queues.producers]] and [[queues.consumers]]. The producer facade reads env under this name at boot.",
+      "kind": "string",
+      "default": "RCF_TEST_QUEUE"
+    },
+    {
+      "id": "queue-name",
+      "prompt": "The Cloudflare Queues queue name the binding resolves to. The applied project asserts a real account queue at apply.",
+      "kind": "string",
+      "default": "app-queue"
+    },
+    {
+      "id": "max-attempts",
+      "prompt": "Max delivery attempts per ADR-3003 before a message crosses into the DLQ. Default 3 per the Cloudflare Queues documented default; floor 1; ceiling 100 per the Queues platform-limits page.",
+      "kind": "string",
+      "default": "3"
+    },
+    {
+      "id": "dead-letter-queue",
+      "prompt": "Dead-letter queue name attached under [[queues.consumers]].dead_letter_queue for the consumer. A dead-lettered message is stamped messageDeadLettered on the lifecycle sink; retention is 4 days per ADR-3003.",
+      "kind": "string",
+      "default": "app-queue-dlq"
+    },
+    {
+      "id": "batch-size",
+      "prompt": "max_batch_size for the consumer. Default 10 per ADR-3004; bounded above by 100 per the Cloudflare Queues platform-limits page.",
+      "kind": "string",
+      "default": "10"
+    },
+    {
+      "id": "batch-timeout-seconds",
+      "prompt": "max_batch_timeout seconds for the consumer. Default 5 per ADR-3004; bounded above by 60 per the Cloudflare Queues platform-limits page.",
+      "kind": "string",
+      "default": "5"
     }
   ]
 }

@@ -13,12 +13,73 @@
       "id": "AC-37101-1",
       "description": "On process boot the provisioner facade opens against the token, and (a) only the provisioner module reads HETZNER_ACCOUNT_API_KEY (grep across the fixture source refuses any other reader), (b) provisionerReady fires on the injected event sink with a payload of exactly {tool, apiHost}.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37101-2",
+      "description": "Credential missing. Given HETZNER_ACCOUNT_API_KEY unset in the applied secrets facade, when the provisioner facade opens on process boot, then the facade refuses with a named error kind (missingProvisionerToken), no provisionerReady event fires on the sink, and the error record carries no token substring.",
+      "given": "HETZNER_ACCOUNT_API_KEY unset in the applied secrets facade",
+      "when": "the provisioner opens on process boot",
+      "then": "the facade refuses with the named error kind missingProvisionerToken; no provisionerReady fires; the error record carries no token substring",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://docs.hetzner.cloud/#authentication",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-37101-3",
+      "description": "Dependency not ready. Given the elicited provisioning-tool is hcloud and hcloud is absent from PATH on the process shell, when the provisioner opens on process boot, then the facade refuses with a named error kind (missingProvisionerTool) and no provisionerReady fires.",
+      "given": "provisioning-tool = hcloud and hcloud absent from PATH",
+      "when": "the provisioner opens on process boot",
+      "then": "the facade refuses with the named error kind missingProvisionerTool; no provisionerReady fires",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37101-4",
+      "description": "Repeat boot idempotency. Given a completed first boot of the provisioner facade, when the process boots a second time against the same token and elicited configuration, then the facade opens again and provisionerReady fires once per boot with the same payload shape ({tool, apiHost}); no accumulator or side-channel state drifts across boots.",
+      "given": "a completed first boot with provisionerReady already fired",
+      "when": "the process boots a second time against the same token and elicited configuration",
+      "then": "the facade opens again; provisionerReady fires once per boot with the same {tool, apiHost} payload shape; no state drifts across boots",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-37101-5",
+      "description": "Provisioning tool raw-api. Given the elicited provisioning-tool answers raw-api, when the provisioner opens on process boot, then the facade constructs a fetch-based HTTP client against https://api.hetzner.cloud/v1 with Bearer HETZNER_ACCOUNT_API_KEY on every request (no hcloud binary invocation; grep across the fixture source refuses any child_process.execFile / spawn of hcloud); the provisionerReady payload carries tool='raw-api' and apiHost='api.hetzner.cloud'; a subsequent createServer verb issues one POST https://api.hetzner.cloud/v1/servers with the JSON body per the Hetzner Cloud API server-create schema.",
+      "given": "provisioning-tool = raw-api",
+      "when": "the provisioner opens on process boot",
+      "then": "the facade uses fetch against api.hetzner.cloud/v1 with Bearer auth; no hcloud spawn; provisionerReady carries tool='raw-api' and apiHost='api.hetzner.cloud'; createServer POSTs /v1/servers with the documented JSON body",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3801-deploy-hetzner-server-provisioner"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

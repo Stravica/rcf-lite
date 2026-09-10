@@ -16,7 +16,8 @@
       "when": "an unauthenticated GET is issued against the readiness path against a healthy dependency set, then against a set with at least one failing dependency",
       "then": "the first response has status code 200 with JSON body status equal to pass; the second response has status code 503 with JSON body status equal to fail; both bodies have Content-Type application/json",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7102-2",
@@ -25,7 +26,8 @@
       "when": "a GET is issued against the readiness path targeting the same listener address as request traffic",
       "then": "the response is served by the application, not refused with a connection error, and the readiness handler and a representative request handler both bind to the same address:port pair as reported by the process",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7102-3",
@@ -34,7 +36,8 @@
       "when": "the readiness probe returns 503 across a five-minute window",
       "then": "the process exit code is not emitted, the process remains running throughout the window, and the liveness probe continues to return 200 with status pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7102-4",
@@ -43,7 +46,8 @@
       "when": "the process attempts to boot",
       "then": "the boot fails with the stable-coded error PROBE_INTERFACE_PATHS_MISSING and the error message names probeInterface.paths.readiness as the missing key",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

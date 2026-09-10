@@ -11,15 +11,82 @@
   "acceptanceCriteria": [
     {
       "id": "AC-32101-1",
-      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected event sink; the ready() call fires cronReady on the sink with a payload of exactly {event, key, size, ttl, timestamp} where key is null, size is 0 and ttl is null. The scheduled handler does NOT dereference other bindings on env; env.CACHE (the T-1 KV binding) is not read by this module.",
+      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected sink; the ready() call fires cronReady on the sink with a payload of exactly {event, expression, scheduledTime, outcome, duration} per TAC-3303 where expression is null, scheduledTime is null, outcome is 'ready' and duration is 0. The scheduled handler module (src/scheduled.mjs) does NOT dereference env.CACHE (the T-1 KV binding) or any other env binding; a source-tree grep of that file returns zero hits for env.CACHE.",
       "given": "a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration",
       "when": "the process boots and the scheduled handler ready() call resolves",
-      "then": "a cronReady event fires on the injected event sink with the metadata-only payload; the module does not dereference env.CACHE",
+      "then": "a cronReady event fires on the injected sink carrying the cron-vocabulary metadata payload {event, expression, scheduledTime, outcome, duration}; the scheduled.mjs source has zero env.CACHE references",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.cronReady"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-32101-2",
+      "description": "createScheduledHandler({routes: []}) throws a named error kind CRON_HANDLER_INVALID_ROUTES before any binding is dereferenced; no cronReady event fires on the sink. Same for routes omitted or routes not an array.",
+      "given": "a call to createScheduledHandler with routes as an empty array (or not an array at all)",
+      "when": "the factory is invoked",
+      "then": "the factory throws CRON_HANDLER_INVALID_ROUTES and no event is emitted on the sink",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "interfaces.default export"
+      }
+    },
+    {
+      "id": "AC-32101-3",
+      "description": "createScheduledHandler called with the sink argument not a function (per TAC-3303) throws a named error kind CRON_HANDLER_INVALID_SINK before any binding is dereferenced.",
+      "given": "a call to createScheduledHandler with the sink argument not a function",
+      "when": "the factory is invoked",
+      "then": "the factory throws CRON_HANDLER_INVALID_SINK and no event is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
+        "field": "interfaces.eventSink parameter"
+      }
+    },
+    {
+      "id": "AC-32101-4",
+      "description": "Repeat-boot idempotency: two sequential createScheduledHandler(...).ready() calls emit two cronReady records on the sink, both with identical shape {event:\"cronReady\", expression:null, scheduledTime:null, outcome:\"ready\", duration:0}. No accumulator drift; no shared state leaks between instances.",
+      "given": "two independent createScheduledHandler instances constructed with identical arguments",
+      "when": "ready() is called on each in turn",
+      "then": "the sink receives two cronReady records with identical payload shape",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.cronReady"
+      }
+    },
+    {
+      "id": "AC-32101-5",
+      "description": "Sole-reader source-tree scan: a recursive scan of the cf-platform fixture src/ tree greps every .mjs file for the substrings \"event?.cron\", \"event.cron\" and \"event?.scheduledTime\"; the only file carrying these tokens is src/scheduled.mjs. Any other module carrying the raw Cron Trigger event field access surfaces as a leak with the file path.",
+      "given": "the cf-platform fixture src/ tree and the sole-reader scan probe",
+      "when": "the scan walks every .mjs file matching the token list",
+      "then": "the only file with matches is src/scheduled.mjs; every other file returns zero matches",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.solereader"
+      }
     }
   ],
-  "tacIds": ["TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"],
+  "tacIds": [
+    "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-07T12:35:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

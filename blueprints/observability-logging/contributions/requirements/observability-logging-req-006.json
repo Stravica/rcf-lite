@@ -1,0 +1,16 @@
+{
+  "reqId": "observability-logging-REQ-006",
+  "prdId": "PRD-001",
+  "title": "The applied logger emits an audit-log stream backing the shelf auditLog capability with the correlation identifier already threaded",
+  "description": "The blueprint declares the auditLog capability on blueprint.json and delivers it through the same emission stream REQ-001 defines. An audit event lands as one JSON object per line carrying the shared minimum field set plus caller-supplied actor, target, before and after payload fields on the top level of the same object. The correlationId REQ-002 threads is present on every audit line so the consumer (application-admin-console AC-21105-1) can join a role-change audit entry to the request that produced it. The line is subject to the REQ-003 redaction pass and the REQ-004 minimum-level filter; an audit event emitted at info or above lands, an audit event emitted at debug or trace is filtered out in production per the elicited minimum-level-per-environment.",
+  "deliveredBy": { "tacId": "TAC-1601-observability-logging-logger-factory", "field": "interfaces.Logger" },
+  "category": "functional",
+  "domain": "observability",
+  "priority": "must",
+  "rationale": "The shelf routes auditLog through observability-logging (application-admin-console-ADR-2201, application-account-settings-ADR-2601). Without a must-priority REQ naming that capability token, the delivery is a prose promise: consumer probe packs can be shipped but the chain does not have a load-bearing anchor. Making it explicit closes the section 7c gap on the auditLog token.",
+  "tags": ["blueprint:observability-logging", "category:06-audit-log-capability"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

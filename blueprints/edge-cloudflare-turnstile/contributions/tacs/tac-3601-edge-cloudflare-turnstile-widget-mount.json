@@ -5,11 +5,11 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Turnstile client widget mount with elicited sitekey and third-party script pin",
-  "purpose": "The client-side widget mount module for Cloudflare Turnstile. Mounts the Turnstile widget on elicited surfaces with the elicited TURNSTILE_SITEKEY. Injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. Populates the hidden Cf-Turnstile-Response token field on submit. Widget mode is per ADR-3602 (managed, non-interactive, invisible).",
+  "purpose": "The client-side widget mount module for Cloudflare Turnstile. Mounts the Turnstile widget on elicited surfaces with the elicited TURNSTILE_SITEKEY. Injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. Populates the hidden cf-turnstile-response token field on submit. Widget mode is per ADR-3602 (managed, non-interactive, invisible).",
   "responsibilities": [
     "Render the Turnstile widget on every elicited surface with the elicited TURNSTILE_SITEKEY (AC-35101-1).",
     "Inject only Cloudflare Turnstile JS from the Cloudflare Turnstile host; refuse any other third-party script.",
-    "Populate the hidden Cf-Turnstile-Response token field on the form payload before submit fires.",
+    "Populate the hidden cf-turnstile-response token field on the form payload before submit fires.",
     "Honour the elicited widget mode enum: managed, non-interactive, invisible (AC-35106-1)."
   ],
   "internalStructure": "One client module realising the Turnstile mount. In the pack fixture the mount is inline in the served HTML for auditability; in an applied Workers project the mount ships as a small module the operator drops into the elicited surface.",

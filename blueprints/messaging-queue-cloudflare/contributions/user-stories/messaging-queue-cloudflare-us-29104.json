@@ -11,15 +11,37 @@
   "acceptanceCriteria": [
     {
       "id": "AC-29104-1",
-      "description": "Given a message that returns retry across max_retries deliveries (default 3), when the third delivery returns retry, then a messageDeadLettered event fires on the sink with the stable message-id, the queue name, and attempts equal to the terminal attempt count. The message is present on the DLQ; inspecting the DLQ through the fixture DLQ-inspector helper returns the body byte-equal to the original publish.",
-      "given": "the fixture with max_retries 3 and SIMULATE_CONSUMER_RETRY=true published once",
-      "when": "the delivery loop runs to exhaustion",
-      "then": "the retry-and-dlq probe records attempts 1, 2, 3 with the same message-id; messageDeadLettered fires with attempts equal to the terminal count; the DLQ-inspector reads the message body back byte-equal",
+      "description": "Given the consumer registered under maxDeliveries=3 (mapped to max_retries=2 on wrangler consumers per TAC-3002), when a handler refuses on delivery 1 and delivery 2 and delivery 3, then delivery 3's refusal routes the message into the DLQ (dead_letter_queue field), messageDeadLettered fires with { queueName, messageId, deliveries: 3, deadLetterQueue }, and no fourth delivery is attempted against the primary consumer. A boundary case at maxDeliveries=1 asserts the message crosses to DLQ on the first refusal.",
+      "given": "consumer registered under maxDeliveries=3 (max_retries=2)",
+      "when": "the handler refuses on deliveries 1, 2 and 3",
+      "then": "delivery 3's refusal dead-letters the message; messageDeadLettered fires with { queueName, messageId, deliveries: 3, deadLetterQueue }; no fourth primary delivery",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+        "field": "interfaces.createConsumer"
+      }
+    },
+    {
+      "id": "AC-29104-2",
+      "description": "Boundary at maxDeliveries=1. Given the consumer registered under maxDeliveries=1 (max_retries=0), when a handler refuses on delivery 1, then delivery 1's refusal routes the message into the DLQ immediately; messageDeadLettered fires with { queueName, messageId, deliveries: 1, deadLetterQueue }; no second primary delivery is attempted.",
+      "given": "consumer registered under maxDeliveries=1 (max_retries=0)",
+      "when": "the handler refuses on delivery 1",
+      "then": "the message crosses to DLQ on the first refusal; messageDeadLettered fires with deliveries=1; no second delivery",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+        "field": "interfaces.createConsumer"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-3002-messaging-queue-cloudflare-consumer-registration", "TAC-3003-messaging-queue-cloudflare-event-sink"],
+  "tacIds": [
+    "TAC-3002-messaging-queue-cloudflare-consumer-registration",
+    "TAC-3003-messaging-queue-cloudflare-event-sink"
+  ],
   "createdAt": "2026-09-06T21:00:00.000Z",
-  "updatedAt": "2026-09-06T21:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

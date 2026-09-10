@@ -16,7 +16,8 @@
       "when": "the POST is delivered to the webhook route",
       "then": "the response status is 200, the handler invocation counter increments by exactly one, and the parsed event delivered to the handler matches the POST body",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4104-2",
@@ -25,7 +26,8 @@
       "when": "the POST is delivered to the webhook route",
       "then": "the response status is 401, the response body is empty, the handler invocation counter is unchanged, and the audit sink observes exactly one `webhookVerificationFailed` event",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-4104-3",
@@ -34,7 +36,8 @@
       "when": "a mix of matched and mismatched webhook posts is delivered",
       "then": "no captured response body, log line, or exception message contains the distinctive signing secret substring",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

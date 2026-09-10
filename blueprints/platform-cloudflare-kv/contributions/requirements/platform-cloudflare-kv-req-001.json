@@ -2,7 +2,7 @@
   "reqId": "platform-cloudflare-kv-REQ-001",
   "prdId": "PRD-001",
   "title": "The KV facade module is the sole reader of the KV binding and opens on boot with facadeReady",
-  "description": "The applying project reaches Cloudflare Workers KV through a single facade module in the project source tree that is the ONLY module holding a reference to env.<binding> (env.CACHE in the cf-platform fixture; the elicited binding name in a real project). Every other module that touches KV imports the facade and calls its typed domain verbs (get, getWithMetadata, put, delete, list); no other module dereferences the raw KV binding. On process boot, the facade opens against the bound namespace via a bounded list(limit:1) ready-check and, once ready, emits a facadeReady lifecycle event on the injected event sink. The binding name is elicited at apply time and the elicited answer is written into wrangler.toml under [[kv_namespaces]] binding = \"<name>\" per https://developers.cloudflare.com/kv/api/.",
+  "description": "The applying project reaches Cloudflare Workers KV through a single facade module in the project source tree that is the ONLY module holding a reference to env.<binding> (env.CACHE in the cf-platform fixture; the elicited binding name in a real project). Every other module that touches KV imports the facade and calls its typed domain verbs (get, getWithMetadata, put, delete, list); no other module dereferences the raw KV binding. On process boot, the facade opens against the bound namespace via a bounded list(limit:1) ready-check and, once ready, emits a facadeReady lifecycle event on the injected event sink. The binding name is elicited at apply time and the elicited answer is written into wrangler.toml under [[kv_namespaces]] binding = \"<name>\" per https://developers.cloudflare.com/kv/api/. The blueprint declares the keyValueStore capability token: a consumer blueprint that reads the applied capability set MUST (must) find the facade wired here as the sole KV binding reader before selecting keyValueStore.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T10:26:28.000Z",
-  "updatedAt": "2026-09-07T10:26:28.000Z"
+  "updatedAt": "2026-09-09T20:35:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3201-platform-cloudflare-kv-facade",
+    "field": "responsibilities.facadeReady"
+  }
 }

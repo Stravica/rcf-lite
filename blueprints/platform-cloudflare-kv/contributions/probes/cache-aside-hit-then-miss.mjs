@@ -13,7 +13,7 @@
 //
 // The mutation-run that disables the writeback path (put becomes a
 // no-op so the second read misses the cache and re-invokes origin)
-// is provided by the fixture-side H-2 shim (h2-cf-kv-cache-aside-
+// is provided by the fixture-side shim (h2-cf-kv-cache-aside-
 // shim.mjs, reads cache-miss internally); the probe body
 // holds no mutation-switch read of its own (AC-15401-1 mutation-purity
 // rule, brief section 5).

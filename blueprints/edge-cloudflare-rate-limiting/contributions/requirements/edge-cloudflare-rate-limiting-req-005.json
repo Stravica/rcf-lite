@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "deliveredBy": {
+    "adrId": "ADR-3702-edge-cloudflare-rate-limiting-layering",
+    "field": "decision.layering"
+  }
 }

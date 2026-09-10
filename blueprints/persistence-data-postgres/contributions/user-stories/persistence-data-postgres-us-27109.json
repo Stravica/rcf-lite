@@ -16,10 +16,27 @@
       "when": "the migration runner applies the directory with SIMULATE_MIGRATION_FAILURE=true",
       "then": "the first file's transaction commits and its row lands in the bookkeeping table; the second file's transaction rolls back; the runner exits non-zero with the failing filename in its stderr; the third file is not attempted; the bookkeeping table shows exactly one applied row",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27109-2",
+      "description": "On-disk store unchanged after a failing migration. Given a two-migration set where the second migration's body raises a Postgres error mid-statement, when the runner applies the set, then the second migration's transaction rolls back completely (schema_version reflects the first migration only), the runner exits non-zero with the pg error code named in stderr, and a subsequent '\\d' schema inspection shows no partial artefact from the failing migration.",
+      "given": "a two-migration set whose second migration raises mid-statement",
+      "when": "the runner applies the set",
+      "then": "the second migration rolls back; schema_version reflects the first only; run exits non-zero with the pg error code; schema shows no partial artefact",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "tacIds": [
+    "TAC-2802-persistence-data-postgres-migration-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

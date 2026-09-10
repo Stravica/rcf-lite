@@ -16,12 +16,22 @@
       "when": "the anatomy test greps for the two section headings, the curl example and the vendor URL",
       "then": "each string matches at least once in the file",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
+        "field": "interfaces.applicationDeclaration"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/cloudflare-one/policies/access/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the guide-section presence assertion for the Zero Trust dashboard walk-through and the API alternative. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }

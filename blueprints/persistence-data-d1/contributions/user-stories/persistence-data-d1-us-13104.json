@@ -11,12 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-13104-1",
-      "description": "Every call site in the facade module that reaches the D1 binding is a `db.prepare(<static SQL literal>).bind(...)` chain terminating in `.first()`, `.all()`, `.run()`, or `.raw()`. No call site inside the facade calls `db.exec(...)` with any string other than a static SQL literal authored inside the facade module.",
+      "description": "Every call site in the facade module that reaches the D1 binding is a `db.prepare(<static SQL literal>).bind(...)` chain terminating in `.first()`, `.all()`, `.run()`, or `.raw()`. No call site inside the facade calls `db.exec is refused on the facade's exposed handle (per ADR-1404).",
       "given": "the facade module source",
       "when": "every call to the D1 binding is inspected for its SQL argument shape",
       "then": "every `prepare` argument is a static string literal (not a template with an interpolation for a value, not a `+`-concatenation with any consumer argument, not a function-returned string) and no `exec` call takes a non-literal string; a targeted grep for `\\.exec(`, `\\.prepare(` template-literal interpolations, and `\\+` inside prepared-statement arguments returns only the known-safe literal-static occurrences the facade documents",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-13104-2",
@@ -25,7 +26,8 @@
       "when": "the surface is inspected",
       "then": "no exported function's typed parameter list includes a SQL-string parameter (a parameter named `sql`, `query`, `statement`, or typed as an arbitrary string that reaches `db.prepare` or `db.exec` inside the facade body); the boundary refuses raw-query passthrough by construction",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-13104-3",
@@ -34,12 +36,17 @@
       "when": "the verb is invoked with the probe value against a local D1 database",
       "then": "the invocation completes without side-effect against tables other than the one the verb legitimately touches, and a follow-up `SELECT COUNT(*) FROM domainTable` returns the same count as before the invocation (no DROP), and the probe value round-trips as an ordinary string wherever the verb persisted or returned it",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/d1/worker-api/prepared-statements/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
   "tacIds": [
     "TAC-1401-persistence-data-d1-facade"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

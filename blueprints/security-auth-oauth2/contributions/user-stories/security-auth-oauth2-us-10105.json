@@ -16,7 +16,8 @@
       "when": "the flow controller invokes its verifier module on the returned id_token",
       "then": "the verifier returns `{ valid: true, claims: { iss, aud, sub, exp, nonce } }`; the flow proceeds to session issue; the audit log records one `oauth2.id_token_verified` event carrying provider id and no token value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10105-2",
@@ -25,7 +26,8 @@
       "when": "the callback reaches the flow controller",
       "then": "the response is a 4xx with body error code `OAUTH2_ID_TOKEN_SIGNATURE_INVALID`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `signature`, and no token value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10105-3",
@@ -34,7 +36,8 @@
       "when": "the callback reaches the flow controller",
       "then": "the response is a 4xx with body error code `OAUTH2_ID_TOKEN_ISSUER_MISMATCH`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `issuer`, and no token value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-10105-4",
@@ -43,7 +46,8 @@
       "when": "the callback reaches the flow controller",
       "then": "the response is a 4xx with body error code `OAUTH2_MISSING_ID_TOKEN`; no session cookie is set; the audit log records one `oauth2.id_token_refused` event carrying provider id, reason class `missing`, and no token value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

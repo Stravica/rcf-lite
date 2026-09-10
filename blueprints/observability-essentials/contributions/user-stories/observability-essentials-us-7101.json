@@ -16,16 +16,18 @@
       "when": "an unauthenticated GET is issued against the liveness path",
       "then": "the response status code is 200, the Content-Type is application/json, and the JSON body's status field equals pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7101-2",
-      "description": "The liveness probe handler evaluates entirely in-process; a probe hit issues zero network calls to any declared dependency, verifiable by observing the network egress from the probe path.",
+      "description": "The liveness probe handler evaluates entirely in-process; a probe hit issues zero network calls to any declared dependency, verifiable by observing the network egress from the probe path. Template values the applying agent sets: The applying agent sets the elicited declared-dependency-set; the AC substitutes the project's dependency names for the illustrative paymentsProvider / primaryStore tokens.",
       "given": "the process is running and a network-egress observer is attached to the probe path",
       "when": "a GET is issued against the liveness path",
       "then": "the observer records zero egress connections attributable to the probe handler between request receipt and response send",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-7101-3",
@@ -34,7 +36,8 @@
       "when": "a GET is issued against the liveness path",
       "then": "the response status code is 200 and the JSON body's status field equals pass",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7101-4",
@@ -43,12 +46,27 @@
       "when": "the process attempts to boot",
       "then": "the boot fails with the stable-coded error PROBE_INTERFACE_PATHS_MISSING and the error message names probeInterface.paths.liveness as the missing key",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-7101-5",
+      "description": "A liveness handler on a process whose in-process self-check predicate returns fail (a scheduled watchdog tick that has not fired within its budget) answers HTTP 503 with content-length 0 and an empty body, so the orchestrator restarts the process on the next probe interval. The predicate is response-capable by design: it observes a boolean the handler reads without I/O. Template values the applying agent sets: The applying agent supplies the elicited liveness-probe-path and the project-owned self-check predicate; the AC substitutes both.",
+      "given": "a running application with an operator-declared watchdog tick scheduled every 1 second and a 5-second budget; the tick has not fired for 6 seconds so the predicate is fail",
+      "when": "the orchestrator issues HTTP GET on the elicited liveness-probe-path",
+      "then": "the response is HTTP 503 with content-length 0 and an empty body; a follow-up GET while the predicate stays fail continues to answer 503; a GET after the predicate returns pass answers 200",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-801-observability-essentials-liveness-probe",
+        "field": "interfaces.createLivenessHandler"
+      }
     }
   ],
   "tacIds": [
     "TAC-801-observability-essentials-liveness-probe"
   ],
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-09-04T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

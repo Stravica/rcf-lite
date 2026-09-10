@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Named profile aliases expand to the authoritative four-field workflowShape form before any consumer reads it",
   "description": "The elicitation surface accepts a named profile alias (`smallLibrary`, `smallService`, `internalPackage`, `trunkLibrary`) in place of the four-field form. On boot the workflow-materialiser detects the alias, expands it to the shipped four-field composition, and treats the expanded form as authoritative for every downstream. Every AC in this blueprint binds to the four-field form only; the alias layer is a convenience surface, not an authoritative representation. An unrecognised alias name is refused at boot with a stable-coded error naming the alias and listing the shipped set. A project that wants a shape the shipped aliases do not name uses the four-field form.",
+  "deliveredBy": {
+    "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "field": "interfaces.materialise"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "should",

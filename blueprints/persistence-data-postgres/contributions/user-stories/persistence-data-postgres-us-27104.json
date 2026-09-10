@@ -16,10 +16,31 @@
       "when": "await withTransaction(callback) runs",
       "then": "BEGIN is issued, the first INSERT lands inside the transaction, the second INSERT throws, ROLLBACK is issued, transactionRolledBack fires on the event sink with { statementIndex: 1, code: '<pg error code>' }, the client is released, the promise rejects with the underlying error, and a subsequent SELECT against the table returns no rows from the aborted transaction",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+        "field": "interfaces.withTransaction"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-27104-2",
+      "description": "Mid-transaction error rolls back. Given a two-statement withTransaction callback where the second statement throws, when the helper catches the throw, then client.query('ROLLBACK') runs before the client is released, transactionRolledBack fires with the failing statement index on the event sink, and a subsequent SELECT on the transaction's target rows shows the pre-transaction state.",
+      "given": "a two-statement withTransaction callback whose second statement throws",
+      "when": "the helper catches the throw",
+      "then": "client.query(ROLLBACK) runs; transactionRolledBack fires with failing statement index; target rows show pre-transaction state",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
+        "field": "interfaces.withTransaction"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2803-persistence-data-postgres-transaction-helper"],
+  "tacIds": [
+    "TAC-2803-persistence-data-postgres-transaction-helper"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

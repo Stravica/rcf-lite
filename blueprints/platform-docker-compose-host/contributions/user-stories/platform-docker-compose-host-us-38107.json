@@ -13,12 +13,59 @@
       "id": "AC-composeHost-reverseProxyArtefactValid",
       "description": "The applied fixture ships caddy/Caddyfile under a caddy/ directory, the compose file bind-mounts it read-only into the caddy service, and the caddyfile-validate probe shells to caddy validate against the file (using the caddy:2 container image when a local caddy binary is not on PATH) and asserts exit 0. SIMULATE_INVALID_CADDYFILE=true writes an invalid directive and the probe FAILS naming the line. Skipped when the applied reverseProxy is not caddy.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-38107-2",
+      "description": "F-5 Traefik topology: with reverseProxy=traefik, the applied fixture ships traefik/traefik.yaml bind-mounted read-only into the traefik service. The reverse-proxy validate probe reaches for the traefik binary (a `traefik healthcheck --ping` style check) or the traefik:v3 container; SIMULATE_INVALID_TRAEFIK=true injects an invalid directive and the probe FAILS naming the file and the line number.",
+      "given": "a fixture with reverseProxy=traefik and traefik/traefik.yaml bind-mounted read-only",
+      "when": "the validate probe runs and SIMULATE_INVALID_TRAEFIK=true trips",
+      "then": "the shipped path validates; the mutation FAILS naming the invalid line",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.validate"
+      },
+      "vendorCitation": {
+        "url": "https://doc.traefik.io/traefik/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-38107-3",
+      "description": "F-5 none topology: with reverseProxy=none, the applied fixture MUST NOT ship a caddy/ or traefik/ directory. A fixture assertion greps the applied tree and refuses if either directory is present. SIMULATE_CADDY_UNDER_NONE=true adds a caddy/Caddyfile and the assertion FAILS naming the disallowed directory.",
+      "given": "a fixture with reverseProxy=none and SIMULATE_CADDY_UNDER_NONE=true adding caddy/",
+      "when": "the fixture assertion walks the applied tree",
+      "then": "the assertion FAILS naming caddy/ as the disallowed directory under reverseProxy=none",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.noneTopology"
+      }
+    },
+    {
+      "id": "AC-38107-4",
+      "description": "Read-only bind-mount: the reverse-proxy config bind-mount in compose.yaml carries the read-only flag (\":ro\" suffix on the volume string, or read_only: true on the long-form). The compose-config-lint asserts the flag; SIMULATE_WRITEABLE_MOUNT=true removes it and the lint FAILS naming the service.",
+      "given": "a fixture with the reverse-proxy config bind-mounted read-only",
+      "when": "the lint runs and SIMULATE_WRITEABLE_MOUNT=true trips",
+      "then": "the shipped path passes; the mutation FAILS naming the writable mount",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
+        "field": "responsibilities.readOnlyMount"
+      }
     }
   ],
   "tacIds": [
     "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

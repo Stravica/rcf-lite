@@ -11,26 +11,56 @@
   "acceptanceCriteria": [
     {
       "id": "AC-6112-1",
-      "description": "A `workflowShape` missing any of the three required fields (`branchModel`, `checkSet`, `providerHint`) causes the workflow-materialiser to exit non-zero with a stable error code and a message naming the missing field. `releaseMode` being absent does NOT fail the boot-check (per Q6-B ratification): the materialiser treats absent `releaseMode` as `releaseMode: none` and ships no release workflow. No workflow file is written when the boot-check does fail.",
+      "description": "A `workflowShape` missing any of the three required fields (`branchModel`, `checkSet`, `providerHint`) causes the workflow-materialiser to exit non-zero with a stable error code and a message naming the missing field. `releaseMode` being absent does NOT fail the boot-check (per Q6-B ratification): the materialiser treats absent `releaseMode` as `releaseMode: none` and ships no release workflow. No workflow file is written when the boot-check does fail. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` declaration whose `providerHint` field is absent (or any of the three required fields)",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero, prints an error naming the missing field with a stable code, and leaves the provider's workflow directory unchanged",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-6112-2",
-      "description": "A required field whose value is not in the recognised enumeration for that field causes the same failure shape: non-zero exit, stable-coded error, no workflow file written.",
+      "description": "A required field whose value is not in the recognised enumeration for that field causes the same failure shape: non-zero exit, stable-coded error, no workflow file written. Template values the applying agent sets: The applying agent sets the workflowShape elicits (checkSet, branchModel, releaseMode, scheduledAudit, providerHint); the AC substitutes the project's declaration for the illustrative shape values.",
       "given": "a `workflowShape` carrying `branchModel: hybrid` (a value the enumeration does not include)",
       "when": "the workflow-materialiser boots",
       "then": "the materialiser exits non-zero, prints an error naming the field, the value received, and the recognised set, with a stable code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-6112-3",
+      "description": "An absent .rcf/config/delivery-ci-workflows.json file is refused at materialise-time with a stable-coded WORKFLOW_CONFIG_MISSING naming the expected path; no workflow file is written to the workflow directory.",
+      "given": "a project tree that has never applied a workflow shape (no .rcf/config/delivery-ci-workflows.json)",
+      "when": "the workflow-materialiser runs",
+      "then": "the materialiser exits with a non-zero code and emits WORKFLOW_CONFIG_MISSING naming the expected path; the workflow directory is unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "responsibilities[0]"
+      }
+    },
+    {
+      "id": "AC-6112-4",
+      "description": "An unparseable .rcf/config/delivery-ci-workflows.json (invalid JSON) is refused at materialise-time with a stable-coded WORKFLOW_CONFIG_UNPARSEABLE naming the file path and the parser error; no workflow file is written.",
+      "given": "a project tree with .rcf/config/delivery-ci-workflows.json containing invalid JSON (e.g. a trailing comma before EOF)",
+      "when": "the workflow-materialiser runs",
+      "then": "the materialiser exits with a non-zero code and emits WORKFLOW_CONFIG_UNPARSEABLE naming the file path and the parser error position; the workflow directory is unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "responsibilities[0]"
+      }
     }
   ],
   "tacIds": [
     "TAC-704-delivery-ci-workflows-workflow-materialiser"
   ],
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

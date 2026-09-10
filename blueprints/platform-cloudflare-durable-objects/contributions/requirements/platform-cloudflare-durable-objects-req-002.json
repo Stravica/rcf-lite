@@ -2,7 +2,7 @@
   "reqId": "platform-cloudflare-durable-objects-REQ-002",
   "prdId": "PRD-001",
   "title": "The single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance",
-  "description": "A named single-cell object exposes typed domain verbs (increment, read, reset). Cloudflare's documented Durable Objects consistency model serialises invocations against the same instance per https://developers.cloudflare.com/durable-objects/; the shipped SingleCellObject class realises that contract so a concurrent-increment probe observes the counter sum and one increment observed the other via a written witness.",
+  "description": "A named single-cell object exposes typed domain verbs (increment, read, reset). Cloudflare's documented Durable Objects consistency model serialises invocations against the same instance per https://developers.cloudflare.com/durable-objects/; the shipped SingleCellObject class realises that contract so a concurrent-increment probe observes the counter sum and one increment observed the other via a written witness. The single-cell shape realises the strongConsistencyCell capability token: every consumer that selects strongConsistencyCell inherits the per-instance FIFO serialisation and the typed domain-verb boundary this REQ describes.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:35:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3402-platform-cloudflare-durable-objects-single-cell-shape",
+    "field": "responsibilities.serialise"
+  }
 }

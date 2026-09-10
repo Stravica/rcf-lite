@@ -16,7 +16,8 @@
       "when": "the Worker source is scanned for env-accessor references that resolve to secret bindings (per the manifest loader's binding-kind classification) and each such name is cross-checked against the secrets contract's declared names",
       "then": "every implicitly-referenced secret name maps to a name declared in the secrets contract; every name has a resolvable value in the active deploy environment; the manifest carries no `[secrets]` block, no `secrets.required[]` list, and no binding declaration with an inline secret value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-12106-2",
@@ -25,7 +26,8 @@
       "when": "the run's captured logs are inspected byte-for-byte after completion",
       "then": "no log line contains any byte sequence in the resolved-values set; every substitution shows a fixed placeholder in the emitted line",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-12106-3",
@@ -34,7 +36,8 @@
       "when": "the CI gate scans the change",
       "then": "the run fails with a stable-coded `DEPLOY_SECRET_LEAKED_IN_FILE` error naming the offending path and the logical name of the matching secret",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -42,5 +45,5 @@
     "TAC-1301-deploy-cloudflare-workers-deploy-adapter"
   ],
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-08-30T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

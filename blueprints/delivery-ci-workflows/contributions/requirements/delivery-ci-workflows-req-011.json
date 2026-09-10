@@ -2,7 +2,11 @@
   "reqId": "delivery-ci-workflows-REQ-011",
   "prdId": "PRD-001",
   "title": "The project declares its CI workflow shape in a stable in-repo configuration file the workflow-materialiser reads",
-  "description": "The project ships a `workflowShape` declaration at the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The declaration carries three required top-level fields (`branchModel`, `checkSet`, `providerHint`), one optional top-level field (`releaseMode`; absent has the same effect as `releaseMode: none`, per Q6-B ratification), one optional fifth field (`scheduledAudit`, default false), and one optional sub-field (`trunkPullRequests`) that qualifies `branchModel: trunk`. The four-field composed form (`branchModel`, `checkSet`, `releaseMode`, `providerHint`, with `releaseMode` defaulted to `none` when absent) is the authoritative representation the downstream workflow-materialiser (TAC-704) and every AC in this blueprint bind against; the profile-alias convenience surface (REQ-013) expands to the same composed form before any consumer reads it. The declaration is a data file, not code; the workflow-materialiser reads it once at the start of every materialisation run and refuses to proceed when the file is absent or malformed.",
+  "description": "The project ships a `workflowShape` declaration at the stable path `.rcf/config/delivery-ci-workflows.json` on the project tree. The declaration carries three required top-level fields (`branchModel`, `checkSet`, `providerHint`), one optional top-level field (`releaseMode`; absent has the same effect as `releaseMode: none`, per Q6-B ratification), one optional fifth field (`scheduledAudit`, default false), and one optional sub-field (`trunkPullRequests`) that qualifies `branchModel: trunk`. The four-field composed form (`branchModel`, `checkSet`, `releaseMode`, `providerHint`, with `releaseMode` defaulted to `none` when absent) is the authoritative representation the downstream workflow-materialiser (TAC-704) and every AC in this blueprint bind against; the profile-alias convenience surface (REQ-013) expands to the same composed form before any consumer reads it. The declaration is a data file, not code; the workflow-materialiser reads it once at the start of every materialisation run and refuses to proceed when the file is absent or malformed. The `providerHint` field currently accepts one shipped-asset value, `githubActions`, whose runtime clause is: the workflow-materialiser reads `githubActions` from the declaration and seeds the shipped illustrative GitHub Actions workflow files from `assets/ci-provider-examples/github-actions/` (per REQ-009 and ADR-708). Other named provider hints are elicit-accepted but do not seed provider assets in v2 (per ADR-708-delivery-ci-workflows-provider-hint-shape); AC-6113-1 binds the four-field expansion including `providerHint: githubActions`.",
+  "deliveredBy": {
+    "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+    "field": "interfaces.materialise"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",
@@ -14,5 +18,5 @@
   "version": "2.0.0",
   "status": "approved",
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

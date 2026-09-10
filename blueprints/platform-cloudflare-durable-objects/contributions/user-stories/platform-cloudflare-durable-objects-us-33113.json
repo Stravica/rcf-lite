@@ -11,15 +11,78 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33113-1",
-      "description": "The wrangler-seam probe, when the fixture has been prepared with `pnpm install --ignore-workspace` so the wrangler devDependency is on the tree, spawns `wrangler dev --local --port 0` from the cf-platform fixture, waits bounded 45 seconds for the CLI to bind, then (a) issues two concurrent POST /cell/<id>/increment requests against a fetch route in src/index.mjs that calls createDoFacade({env, eventSink}).cellFetch(<id>, request), asserting the two responses observe per-instance serialisation (sorted counters == [1, 2], sorted witnesses == [0, 1], each request read the other's write) and (b) opens one WebSocket upgrade against /hub/<id>/connect via createDoFacade({env, eventSink}).hubFetch(<id>, request), asserting one broadcast frame arrives on connect with payload 'hello-from-hub'. The probe kills wrangler cleanly on exit. Warn semantics per section 3.1 pass-with-skip: if wrangler is not installed or fails to bind within the cap, the probe returns aggregateVerdict warn (never fail); a handler thrown at the workerd boundary is a genuine fail. The additional result on the same probe run covers AC-33108-1 by grepping the fixture wrangler.toml for the two [[durable_objects.bindings]] pairs and the [[migrations]] tag/new_classes pair; the grep result is deterministic and does not require wrangler.",
+      "description": "The wrangler-seam probe, when the fixture has been prepared with `pnpm install --ignore-workspace` so the wrangler devDependency is on the tree, spawns `wrangler dev --local --port 0` from the cf-platform fixture, waits bounded 45 seconds for the CLI to bind, then (a) issues two concurrent POST /cell/<id>/increment requests against a fetch route in src/index.mjs that calls createDoFacade({env, sink}).cellFetch(<id>, request), asserting the two responses observe per-instance serialisation (sorted counters == [1, 2], sorted witnesses == [0, 1], each request read the other's write) and (b) opens one WebSocket upgrade against /hub/<id>/connect via createDoFacade({env, sink}).hubFetch(<id>, request), asserting one broadcast frame arrives on connect with payload 'hello-from-hub'. The probe kills wrangler cleanly on exit. Warn semantics per section 3.1 pass-with-skip: if wrangler is not installed or fails to bind within the cap, the probe returns aggregateVerdict warn (never fail); a handler thrown at the workerd boundary is a genuine fail. The additional result on the same probe run covers AC-33108-1 by grepping the fixture wrangler.toml for the two [[durable_objects.bindings]] pairs and the [[migrations]] tag/new_sqlite_classes pair; the grep result is deterministic and does not require wrangler.",
       "given": "the cf-platform fixture with the wrangler devDependency installed and the shipped DO classes exported from src/index.mjs",
       "when": "the wrangler-seam probe runs",
-      "then": "wrangler dev binds; two concurrent increments through env.CELL observe per-instance serialisation; one WebSocket upgrade through env.HUB receives a broadcast frame; the wrangler.toml grep confirms both binding pairs and the migrations tag/new_classes; wrangler exits cleanly",
+      "then": "wrangler dev binds; two concurrent increments through env.CELL observe per-instance serialisation; one WebSocket upgrade through env.HUB receives a broadcast frame; the wrangler.toml grep confirms both binding pairs and the migrations tag/new_sqlite_classes; wrangler exits cleanly",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33113-2",
+      "description": "Wrangler-not-installed warn: if pnpm install --ignore-workspace has not been run under the cf-platform fixture and the wrangler bin is not on the fixture's node_modules/.bin, the wrangler-seam probe returns aggregateVerdict:\"warn\" naming DO_WRANGLER_NOT_INSTALLED with the expected bin path. This is a genuine \"cannot verify\" state, not a runtime defect (warn semantics per section 3.1 pass-with-skip).",
+      "given": "a cf-platform fixture whose node_modules does not contain wrangler",
+      "when": "the wrangler-seam probe runs",
+      "then": "aggregateVerdict is \"warn\" with reason DO_WRANGLER_NOT_INSTALLED",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33113-3",
+      "description": "Bind-timeout warn: if wrangler dev --local --port 0 does not bind within the 45-second cap, the probe returns aggregateVerdict:\"warn\" naming DO_WRANGLER_BIND_TIMEOUT with the observed stderr quoted. The probe kills the wrangler child on the timeout.",
+      "given": "a probe run where wrangler cannot bind within 45 seconds (simulated by an environment that blocks its listen)",
+      "when": "the probe caps the wait at 45 seconds",
+      "then": "aggregateVerdict is \"warn\" naming DO_WRANGLER_BIND_TIMEOUT with the observed stderr",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33113-4",
+      "description": "Workerd handler thrown = fail (not warn): if wrangler binds but a request through env.CELL or env.HUB throws inside the workerd runtime (e.g. the DO handler rejects with an uncaught error), the probe returns aggregateVerdict:\"fail\" naming DO_WORKERD_HANDLER_THREW with the observed response body. A handler thrown is a genuine runtime defect, distinct from the warn cases above.",
+      "given": "a probe run where a POST /cell/<id>/increment triggers a handler that throws inside workerd",
+      "when": "the probe issues the concurrent requests",
+      "then": "aggregateVerdict is \"fail\" naming DO_WORKERD_HANDLER_THREW",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
+    },
+    {
+      "id": "AC-33113-5",
+      "description": "Probe teardown: the wrangler child is killed on probe exit (normal or exceptional) via SIGTERM followed by SIGKILL after a 5-second grace period. An interrupted probe still tears down within 6 seconds; no orphan wrangler process remains.",
+      "given": "a probe run interrupted by an assertion rejection after the CLI binds",
+      "when": "the probe teardown runs",
+      "then": "the wrangler child is terminated within 6 seconds; no orphan process remains",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "interfaces.createDoFacade"
+      }
     }
   ],
-  "tacIds": ["TAC-3401-platform-cloudflare-durable-objects-namespace-facade"],
+  "tacIds": [
+    "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
+  ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T16:10:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

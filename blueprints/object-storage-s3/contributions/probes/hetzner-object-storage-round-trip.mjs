@@ -22,7 +22,7 @@
  * module for its `accountBound` flag), the SDK-touching imports are
  * DYNAMIC and gated on the CI_HAS_HETZNER_OBJECT_STORAGE env var.
  *
- * Mutation-purity discipline (per HQ hard gate row 2026-09-08): this
+ * Mutation-purity discipline (per the operator estate hard gate row 2026-09-08): this
  * module reads NO SIMULATE_ variable. Every fixture-side mutation
  * hook (SIMULATE_HETZNER_ENDPOINT_MISSHAPEN,
  * SIMULATE_HETZNER_EVENT_LEAK) lives in

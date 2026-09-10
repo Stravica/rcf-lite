@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The deployHandoff release mode invokes the named deploy blueprint's promote workflow and refuses at boot when that blueprint is absent",
   "description": "When `workflowShape.releaseMode` is `deployHandoff:<slug>`, the release workflow invokes the named deploy blueprint's `promote` workflow via that blueprint's declared invocation contract (a `workflow_dispatch` event carrying the just-published version identifier as the `versionId` input). The release workflow's aggregate outcome is `passed` only when the promote workflow's outcome is `passed`. The workflow-materialiser performs a boot-check that refuses the value when the named deploy blueprint is absent from `manifest.blueprints[]`; the error names the missing blueprint by slug and points at `rcf define blueprint add <deploy-slug>` as the resolution.",
+  "deliveredBy": {
+    "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+    "field": "interfaces.runRelease"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

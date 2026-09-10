@@ -16,10 +16,125 @@
       "when": "the migration runner applies the directory against the database",
       "then": "each file runs inside a BEGIN/COMMIT pair; after all three succeed a migrationsApplied event fires with the filename list ['001_*.sql', '002_*.sql', '003_*.sql'] and the schema_version table (or the runner's configured bookkeeping table name) carries a row per applied filename",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-2",
+      "description": "Malformed migration filename. Given a file under the elicited migrations directory whose name does not match the numbered forward-only pattern (for example a file without the numeric prefix, or a duplicate number), when the migration runner walks the directory, then the runner refuses with a named error kind (malformedMigrationName), the run exits non-zero, and schema_version does not advance.",
+      "given": "a file in the elicited migrations directory that does not match the numbered forward-only pattern",
+      "when": "the migration runner walks the directory",
+      "then": "the runner refuses with malformedMigrationName; the run exits non-zero; schema_version does not advance",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-3",
+      "description": "Repeat-apply idempotency. Given the migrations set already applied to the target database, when the runner is invoked a second time against the same set, then no migration file re-runs, schema_version is unchanged and the run exits zero.",
+      "given": "the migrations set already applied to the target database",
+      "when": "the runner is invoked again",
+      "then": "no migration re-runs; schema_version unchanged; run exits zero",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-4",
+      "description": "Migration runner tool node-pg-migrate. Given the elicited migration-runner-tool answers node-pg-migrate, when the sidecar records the answer and the CI or boot step invokes the runner, then the invocation shape is `node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir <migrations-directory>` and the schema_version bookkeeping table advances once per applied .sql file recorded by node-pg-migrate's own pgmigrations table.",
+      "given": "migration-runner-tool = node-pg-migrate",
+      "when": "the sidecar records the answer and the runner is invoked",
+      "then": "the invocation is `node-pg-migrate up --database-url-var DATABASE_URL --migrations-dir <migrations-directory>` and pgmigrations records one row per applied file",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2802-persistence-data-postgres-migration-shape",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-5",
+      "description": "Migration runner tool sqitch. Given the elicited migration-runner-tool answers sqitch, when the sidecar records the answer and the CI or boot step invokes the runner, then the invocation shape is `sqitch deploy <target>` reading the elicited migrations-directory as the sqitch plan root, and the sqitch changes table advances one row per deployed change.",
+      "given": "migration-runner-tool = sqitch",
+      "when": "the sidecar records the answer and the runner is invoked",
+      "then": "the invocation is `sqitch deploy <target>` and the sqitch changes table advances one row per deployed change",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2802-persistence-data-postgres-migration-shape",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-6",
+      "description": "Migration runner tool flyway. Given the elicited migration-runner-tool answers flyway, when the sidecar records the answer and the CI or boot step invokes the runner, then the invocation shape is `flyway -url=<jdbc:postgresql://...> -locations=filesystem:<migrations-directory> migrate` and the flyway_schema_history table advances one row per applied .sql file.",
+      "given": "migration-runner-tool = flyway",
+      "when": "the sidecar records the answer and the runner is invoked",
+      "then": "the invocation is `flyway -url=<jdbc> -locations=filesystem:<migrations-directory> migrate` and flyway_schema_history advances one row per file",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2802-persistence-data-postgres-migration-shape",
+        "field": "decision"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-7",
+      "description": "Migration runner tool custom. Given the elicited migration-runner-tool answers custom, when the sidecar records the answer and the CI or boot step invokes the runner, then the invocation shape is the bespoke Node runner shipped in the fixture (`node ./scripts/migrate.mjs` reading the elicited migrations-directory) and the schema_version bookkeeping table it owns advances one row per applied filename inside the same transaction as the file body.",
+      "given": "migration-runner-tool = custom",
+      "when": "the sidecar records the answer and the runner is invoked",
+      "then": "the invocation is `node ./scripts/migrate.mjs` and schema_version advances one row per applied filename inside the same transaction as the file body",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-8",
+      "description": "Runner mode atBoot. Given the elicited runner-mode answers atBoot, when the facade opens on process boot, then the runner's applyAll executes before the facade emits facadeReady; a fake migration that adds one row observably completes before the first domain-verb call returns; migrationsApplied fires exactly once with the applied filename list per boot.",
+      "given": "runner-mode = atBoot and one pending migration",
+      "when": "the facade opens on boot",
+      "then": "the runner applies before facadeReady fires; migrationsApplied fires exactly once per boot before the first domain-verb call returns",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
+        "field": "interfaces.applyAll"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-27102-9",
+      "description": "Runner mode ciStep. Given the elicited runner-mode answers ciStep, when the facade opens on process boot, then the facade does NOT invoke the runner and no migrationsApplied fires on boot; the CI pipeline's discrete migrate step (invoked before the artefact promotes) runs the same runner against the target's own connection URL and emits migrationsApplied out-of-process; a facade boot with schema_version behind the CI-applied set exits with schemaVersionBehind and refuses facadeReady.",
+      "given": "runner-mode = ciStep",
+      "when": "the facade opens on boot after or before the CI migrate step",
+      "then": "the facade does not invoke the runner on boot; migrationsApplied fires from the CI step, not the boot; a boot with schema_version behind the CI-applied set refuses facadeReady with schemaVersionBehind",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2803-persistence-data-postgres-runner-mode",
+        "field": "decision"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2802-persistence-data-postgres-migration-runner"],
+  "tacIds": [
+    "TAC-2802-persistence-data-postgres-migration-runner"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

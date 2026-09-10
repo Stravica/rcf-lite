@@ -16,7 +16,8 @@
       "when": "the process boots and the facade's ready-check returns",
       "then": "a facadeReady event fires on the injected event sink with a payload containing endpointHost and bucketName, and the client is ready to accept verbs; the facade exposes named domain verbs and does not re-export the raw S3 client",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-28101-2",
@@ -25,10 +26,41 @@
       "when": "grep 'from \\'@aws-sdk/client-s3\\'' or 'from \\'aws4fetch\\'' walks the tree outside the facade directory",
       "then": "no match is found outside the facade directory; the facade's public surface exports named domain verbs only, no raw S3 client reference",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-28101-3",
+      "description": "Facade refuses at boot when the elicited endpoint is unreachable. Given the elicited s3-endpoint-url resolves to a host the runner cannot reach (or refuses a ready-check inside the connection timeout), when the facade opens on boot, then the facade refuses with a named error kind (endpointUnreachable) carrying the endpoint host but no credential material, and facadeReady does not fire.",
+      "given": "s3-endpoint-url resolves to an unreachable host or times out on ready-check",
+      "when": "the facade opens on boot",
+      "then": "the facade refuses with endpointUnreachable carrying host but no credentials; facadeReady does not fire",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2901-object-storage-s3-facade",
+        "field": "interfaces.createObjectStore"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-28101-4",
+      "description": "S3 adapter aws-sdk-client-s3. Given the elicited s3-adapter answers aws-sdk-client-s3, when the facade opens on process boot, then the facade constructs one `new S3Client(...)` from @aws-sdk/client-s3 v3 and the outbound HeadBucket request carries the SDK's default User-Agent header of shape `aws-sdk-js/<version> ...` (grep on the client's user-agent middleware output confirms the aws-sdk-js prefix); the aws4fetch package is NOT present in the facade module's imports; a grep across the applied source refuses any import of aws4fetch outside the facade.",
+      "given": "s3-adapter = aws-sdk-client-s3",
+      "when": "the facade opens on boot and issues its first HeadBucket ready-check",
+      "then": "the facade constructs one S3Client from @aws-sdk/client-s3 v3 and the outbound HeadBucket carries a User-Agent starting with `aws-sdk-js/`; aws4fetch is absent from the applied source",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "adrId": "ADR-2901-object-storage-s3-adapter",
+        "field": "decision"
+      },
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2901-object-storage-s3-facade"],
+  "tacIds": [
+    "TAC-2901-object-storage-s3-facade"
+  ],
   "createdAt": "2026-09-06T18:00:00.000Z",
-  "updatedAt": "2026-09-06T18:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

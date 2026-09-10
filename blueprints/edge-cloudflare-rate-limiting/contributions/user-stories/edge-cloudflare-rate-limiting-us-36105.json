@@ -16,12 +16,14 @@
       "when": "the anatomy test scans the guide for the composition section and ADR-3702 reference",
       "then": "the section heading, ADR-3702 reference, both characteristic strings and the copy-paste example are present",
       "testable": true,
-      "scope": "documentation"
+      "scope": "documentation",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-07T22:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "description": "Story owns the guide-section presence assertion for the security-auth-magic-link composition documentation. Per section 7a, this story carries a single AC because the guide names no runtime failure path for this guide-section-presence mechanism."
 }

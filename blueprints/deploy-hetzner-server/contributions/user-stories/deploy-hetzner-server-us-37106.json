@@ -13,7 +13,40 @@
       "id": "AC-37106-1",
       "description": "manifest-schema-validate.mjs asserts every fixture manifest carries a firewallRules array matching the shape (22 permitted only from a nonempty list of source-prefix ranges with no 0.0.0.0/0; 80 and 443 permitted from 0.0.0.0/0; no other inbound rule); an induced defect (a manifest that opens 22 to 0.0.0.0/0) FAILS schema validation with a message naming the offending rule.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+        "field": "interfaces.firewallRules"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37106-2",
+      "description": "Firewall applied at provision time. Given a manifest carrying the shape-valid firewallRules array, when the provisioner runs createServer + applyFirewall, then hcloud firewall list --output json shows a firewall bound to the new server whose rules match the manifest shape (ssh restricted, 80/443 open, all else denied); a mutation SIMULATE_FIREWALL_DRIFT=true edits one rule out-of-band and the probe FAILS naming the drifted rule.",
+      "given": "a manifest with shape-valid firewallRules and no pre-existing firewall bound",
+      "when": "the provisioner runs against the throwaway account",
+      "then": "hcloud firewall list shows the bound firewall matching the manifest; a drift mutation FAILS the probe naming the drifted rule",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
+        "field": "interfaces.firewallRules"
+      },
+      "disposition": "template"
+    },
+    {
+      "id": "AC-37106-3",
+      "description": "Reuse existing firewall-id path. Given the elicited firewall-id names an existing Hetzner Cloud firewall id, when the provisioner runs createServer, then it attaches the existing firewall (no new firewall is created), and hcloud firewall list --output json shows no duplicate; a mutation that supplies a firewall-id absent from the account FAILS provision with a named error kind (missingFirewallId).",
+      "given": "firewall-id names an existing account firewall id",
+      "when": "the provisioner runs createServer",
+      "then": "the existing firewall attaches; no new firewall is created; the missing-id mutation FAILS provision with missingFirewallId",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -21,5 +54,5 @@
     "TAC-3804-deploy-hetzner-server-firewall-shape"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -7,8 +7,8 @@
 // 60 seconds bounded (poll every 2s) for the same-region read to see
 // the write, then deletes the key AND destroys the scratch namespace.
 // Positive evidence captured: the CF-assigned namespace id, the exact
-// scratch title used (H-2 prefix "h2-cf-probe-integrity-scratch-kv-"),
-// the scratch key (H-2 prefix "h2-storage-smoke-"), elapsed milli-
+// scratch title used (throwaway prefix "h2-cf-probe-integrity-scratch-kv-"),
+// the scratch key (throwaway prefix "h2-storage-smoke-"), elapsed milli-
 // seconds to first same-region visibility, and the PUT status code.
 // The teardown is fail-safe: a mid-run crash surfaces the scratch id
 // through the shim's persisted record; the shim's sweepOrphans entry
@@ -32,14 +32,14 @@
 // re-covering AC-31103-1 (facade put then get returns the same bytes
 // with paired kvWrite / kvHit events on the shipped binding contract).
 //
-// Local-proof scope (Dave ruling 376b4f30): the local test harness
+// Local-proof scope: the local test harness
 // under packages/rcf-lite/test/fixtures/cf-platform/test/ is a mock
 // of Cloudflare's REST contract, not the wire. The local run
 // exercises OUR lifecycle logic against a mock of Cloudflare's
 // contract; the real-account gate is the only surface that proves
 // the wire format. This probe is never described as "locally
 // verified" - the local runs are our own lifecycle-logic proof;
-// wire correctness is proven at the HQ real-account gate.
+// wire correctness is proven at the real-account gate.
 
 import {
   mintScratchNamespace, destroyScratchNamespace,

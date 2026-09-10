@@ -13,7 +13,7 @@
 // - real-account-* probes call the fixture's provision.mjs, drive docker
 //   compose over ssh against the throwaway server, and tear down in
 //   always(). Without CI_HAS_HETZNER_ACCOUNT they record accountBoundSkipped:
-//   true and the aggregate flips to pass per hetzner-round-7-spec section 3.5.
+//   true and the aggregate flips to pass per the real-account gate contract, section 3.5.
 
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';

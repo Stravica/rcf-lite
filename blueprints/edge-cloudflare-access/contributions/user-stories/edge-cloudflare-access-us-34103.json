@@ -11,17 +11,32 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34103-1",
-      "description": "The sole-reader scan walks the fixture applied source root (src/**/*.mjs), strips comments and string literals, and finds exactly one live-source occurrence of the header string Cf-Access-Jwt-Assertion, in src/jwt-validator.mjs. Any other live-source occurrence in a shipped module fails the probe (SIMULATE_NON_VALIDATOR_HEADER=true injects a second hit and the probe fails).",
+      "description": "Given the canonical fixture applied source root (src/**/*.mjs), when the sole-reader scan walks the tree, strips comments and string literals, and searches for live-source occurrences of the header string Cf-Access-Jwt-Assertion, the scan finds exactly one live-source occurrence in src/jwt-validator.mjs and the probe returns aggregateVerdict:pass.",
       "given": "the cf-edge fixture applied source tree",
       "when": "the sole-reader-scan probe walks src/**/*.mjs",
       "then": "the only live-source hit for Cf-Access-Jwt-Assertion is in src/jwt-validator.mjs",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-34103-2",
+      "description": "Given the SIMULATE_NON_VALIDATOR_HEADER=true switch (a second live-source occurrence of Cf-Access-Jwt-Assertion is injected outside src/jwt-validator.mjs), when the sole-reader scan runs on the fixture applied source root, the probe returns aggregateVerdict:fail with detail naming the offending file path.",
+      "given": "the fixture applied source root with SIMULATE_NON_VALIDATOR_HEADER=true (a second live-source hit on Cf-Access-Jwt-Assertion injected outside src/jwt-validator.mjs)",
+      "when": "the sole-reader scan runs",
+      "then": "the probe returns aggregateVerdict:fail with detail naming the offending file path",
+      "testable": true,
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
+        "field": "responsibilities.headerSoleReader"
+      }
     }
   ],
   "tacIds": [
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-09T13:00:00.000Z"
 }

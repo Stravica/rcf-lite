@@ -20,9 +20,9 @@ Cloudflare Turnstile as a CAPTCHA-alternative on public-facing forms. Ships the 
 
 ## Contract at a glance
 
-- **Client widget mount** (TAC-3601) injects Cloudflare Turnstile JS from `https://challenges.cloudflare.com` and no other origin; renders the widget for the elicited sitekey; populates the hidden `Cf-Turnstile-Response` token field on submit.
+- **Client widget mount** (TAC-3601) injects Cloudflare Turnstile JS from `https://challenges.cloudflare.com` and no other origin; renders the widget for the elicited sitekey; populates the hidden `cf-turnstile-response` token field on submit.
 - **Server-side siteverify verifier** (TAC-3602) POSTs `{secret, response}` to `https://challenges.cloudflare.com/turnstile/v0/siteverify`. On `success:true` the handler proceeds. On `success:false` the handler rejects with 400 and the refusal body carries the documented `error-codes` value; the sitekey is never in the refusal body.
-- **Refuse-if-token-missing guard** (TAC-3602) is the sole reader of the `Cf-Turnstile-Response` payload field; a submit without a token rejects with `400 {"errorCode":"turnstile.token-missing"}` before any downstream handler runs.
+- **Refuse-if-token-missing guard** (TAC-3602) is the sole reader of the `cf-turnstile-response` payload field; a submit without a token rejects with `400 {"errorCode":"turnstile.token-missing"}` before any downstream handler runs.
 - **Composition with security-auth-magic-link** (TAC-3603) registers the magic-link mint route under the Turnstile guard so a mint submit reads through the same token check.
 - **Widget mode** (ADR-3602) is an elicited enum: `managed`, `non-interactive`, `invisible`. Default: `managed`.
 

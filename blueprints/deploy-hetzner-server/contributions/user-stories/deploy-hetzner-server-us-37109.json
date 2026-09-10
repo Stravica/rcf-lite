@@ -13,12 +13,41 @@
       "id": "AC-37109-1",
       "description": "hcloud-dry-run-mock.mjs drives every lifecycle event through the facade against a mocked hcloud shim; the accumulated event stream carries only the metadata fields named on REQ-006; a mutation SIMULATE_EVENT_SECRECY_LEAK=true injects the token into the hetznerServerProvisioned payload and the probe FAILS with a defensive-fake finding naming the leaked field.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-37109-2",
+      "description": "Secret exclusion by grep-across-source. Given the fixture provisioner source and the fixture renderer source (per TAC-3803), when a source-tree scan searches every onEvent call site and every event-record construction site for the substring HETZNER_ACCOUNT_API_KEY and any ssh key body, then no match is found; a mutation SIMULATE_EVENT_TOKEN_LEAK=true adds the token into an event field and the probe FAILS naming the leaked field.",
+      "given": "the fixture provisioner and renderer source, and the four documented lifecycle events",
+      "when": "a source-tree grep runs across every event-record construction site",
+      "then": "no HETZNER_ACCOUNT_API_KEY or ssh-key-body match is found; the mutation FAILS naming the leaked field",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-37109-3",
+      "description": "Event fires once per lifecycle moment (repeat-run idempotency). Given a completed provision and a completed destroy, when the run replays a second time against the same manifest and account, then hetznerServerProvisioned fires once per successful create and hetznerServerDestroyed fires once per successful destroy; no duplicate event fires for a run whose upstream call did not change resource state.",
+      "given": "a completed provision + destroy cycle",
+      "when": "the run replays a second time against the same manifest and account",
+      "then": "each lifecycle event fires exactly once per successful state change; no duplicate event fires on a no-op call",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
+        "field": "interfaces.default"
+      },
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-3801-deploy-hetzner-server-provisioner"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

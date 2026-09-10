@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The application serves a public status page listing every declared component and its current state",
   "description": "The application serves a public status page at a stable HTTP path intended for external readers (users, partners, unauthenticated visitors). The page renders a list of declared components (subsystems the project chooses to publish state for), each with a current state field from a fixed enum (operational, degraded, outage, maintenance) and a human-readable component name. The page has no login gate. The component list, the enum, and the display order are declared at boot from application configuration; no component appears on the page that was not declared.",
+  "deliveredBy": {
+    "tacId": "TAC-803-observability-essentials-status-page",
+    "field": "interfaces.componentRegistry"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

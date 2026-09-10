@@ -5,7 +5,7 @@
 // delete/get and list({prefix}) on each; asserts the round-trip
 // on both. Also asserts driver.backend reports the elicited
 // answer (AC-33111-1). The backend-mismatch mutation-run is
-// triggered fixture-side by the H-2 shim
+// triggered fixture-side by the shim
 // h2-cf-do-storage-round-trip-shim.mjs, which constructs a driver
 // from an unrecognised backend answer that the shipped factory
 // clamps to sql per ADR-3403 recommendedDefault; the probe body

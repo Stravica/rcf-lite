@@ -100,8 +100,11 @@ test('probe-path alignment pre-condition: blueprint versions', async () => {
   const es = await loadBlueprint(essentialsSource);
   const pe = await loadBlueprint(probeEndpointsSource);
   const ar = await loadBlueprint(apiRestSource);
-  assert.equal(es.version, '2.0.0', 'essentials must be at v2.0.0');
-  assert.equal(pe.version, '1.1.0', 'probe-endpoints must be at v1.1.0');
+  // Hardening pass B4 (2026-09-09): essentials 2.0.0 -> 2.1.0 (elicits, F-1/F-2/F-3/F-4 closures);
+  // probe-endpoints 1.1.0 -> 1.2.0 (elicits, F-1/F-2/F-3/F-4 closures, guide boundary rewrite).
+  // The compose invariants this test asserts are unchanged; only the version markers move.
+  assert.equal(es.version, '2.1.0', 'essentials must be at v2.1.0');
+  assert.equal(pe.version, '1.2.0', 'probe-endpoints must be at v1.2.0');
   // api-rest bumped to 2.1.0 in the core-companions train (additive
   // suggestedCompanions + ADR-304 retained without scope:global); the
   // probe-path facts REQ-006 / US-2108 / TAC-306 stayed put.

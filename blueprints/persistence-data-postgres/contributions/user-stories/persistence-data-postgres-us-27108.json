@@ -16,10 +16,27 @@
       "when": "the pool completes its first ready-check",
       "then": "all five calls resolve successfully; facadeReady fires exactly once on the event sink; no unhandled rejection is raised",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-27108-2",
+      "description": "First-connect race: no double emission. Given two concurrent boot paths racing to open the facade at the same time (an atypical but reachable init ordering), when both paths call createStore, then only one facadeReady fires on the event sink and both paths observe the same facade reference; a mutation SIMULATE_DOUBLE_BOOT=true forces a second createStore call within the boot window and the sink observer FAILS on a second facadeReady.",
+      "given": "two concurrent boot paths racing to open the facade",
+      "when": "both paths call createStore",
+      "then": "only one facadeReady fires; both paths observe the same facade reference; the double-boot mutation FAILS the run",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-2801-persistence-data-postgres-facade",
+        "field": "responsibilities.pool"
+      },
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2801-persistence-data-postgres-facade"],
+  "tacIds": [
+    "TAC-2801-persistence-data-postgres-facade"
+  ],
   "createdAt": "2026-09-06T15:47:00.000Z",
-  "updatedAt": "2026-09-06T15:47:00.000Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -2,7 +2,7 @@
   "reqId": "security-auth-magic-link-REQ-011",
   "prdId": "PRD-001",
   "title": "Principal registry is pluggable behind a fixed lookup contract",
-  "description": "The blueprint owns a narrow principal-registry interface with a single isRegistered(email) method returning a Promise resolving to a boolean. The project supplies the registry implementation: a single-address constant for solo-operator deployments, a static allow-list file for small teams, or a database lookup for multi-tenant projects. The magic-link routes call only the registry interface and receive nothing from it except the boolean; principal roles, quotas, and identity metadata are project concerns that layer above this contract, not inside it.",
+  "description": "The blueprint owns a narrow principal-registry interface with a single isRegistered(email) method returning a Promise resolving to a boolean. The project supplies the registry implementation: a single-address constant for solo-operator deployments, a static allow-list file for small teams, or a database lookup for multi-tenant projects. The magic-link routes call only the registry interface and receive nothing from it except the boolean; principal roles, quotas, and identity metadata are project concerns that layer above this contract, not inside it. The pluggable registry's boolean answer is what the blueprint contributes as the `principalDirectory` capability: it is the sole surface the project queries to ask \"does this address correspond to a known principal\", and the applied capability set exposes the token so consumer blueprints can bind against it.",
   "category": "technical",
   "domain": "authentication",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-08-21T00:00:00Z",
-  "updatedAt": "2026-08-21T00:00:00Z"
+  "updatedAt": "2026-08-21T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-505-security-auth-magic-link-principal-registry",
+    "field": "responsibilities.isRegistered"
+  }
 }

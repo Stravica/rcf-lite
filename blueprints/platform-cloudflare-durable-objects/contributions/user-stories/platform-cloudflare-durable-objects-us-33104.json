@@ -11,17 +11,86 @@
   "acceptanceCriteria": [
     {
       "id": "AC-33104-1",
-      "description": "A SingleCellObject with setAlarm(offsetMs=100) fires alarm() when driven at the scheduled time. The alarm() handler runs exactly once, deletes the persisted alarm from storage (getAlarm() returns null after the fire) and emits a doAlarmFired event on the injected sink with {event, key, size, ttl, timestamp, objectName, scheduledTime} where objectName is the object's name and scheduledTime matches the setAlarm scheduled millis. A second call to alarm() on the drained storage does NOT emit a second doAlarmFired for the same schedule (the storage.getAlarm() returns null so the second fire records scheduledTime null).",
-      "given": "a SingleCellObject with setAlarm(100)",
-      "when": "alarm() is driven once and then again after the fire",
-      "then": "the first fire emits doAlarmFired with the scheduledTime; the second fire records scheduledTime null; storage.getAlarm() returns null after the first fire",
+      "description": "A SingleCellObject with setAlarm(offsetMs=100) fires alarm() when driven at the scheduled time. The alarm() handler runs exactly once, deletes the persisted alarm from storage (getAlarm() returns null after the fire) and emits EXACTLY ONE doAlarmFired event on the injected sink with {event, key, size, ttl, timestamp, objectName, scheduledTime} where objectName is the object's name and scheduledTime matches the setAlarm scheduled millis. A subsequent second call to alarm() on the drained storage is a no-op: getAlarm() returns null, the handler observes no schedule and returns without emitting a second doAlarmFired event. The drained-alarm contract is single-valued: one setAlarm invocation implies one alarm() fire implies one doAlarmFired record; a bare alarm() call with no persisted schedule emits nothing.",
+      "given": "a SingleCellObject wired with an in-process storage driver whose alarm() handler is driven manually",
+      "when": "setAlarm(offsetMs=100) is called, the clock advances 100ms, alarm() runs, then a second alarm() call runs against the drained storage",
+      "then": "the sink observes exactly one doAlarmFired record with the setAlarm scheduled millis; the second alarm() call emits nothing and getAlarm() returns null throughout",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.alarm"
+      },
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33104-2",
+      "description": "F-4 alarm-invalid-offset: setAlarm(offsetMs=-1) refuses with a named error kind DO_ALARM_INVALID_OFFSET naming the offered value; no schedule persists; getAlarm() returns null. Same for offsetMs === 0 (a \"fire immediately\" schedule that would race the current invocation) refused with DO_ALARM_INVALID_OFFSET.",
+      "given": "a SingleCellObject with the in-memory storage driver",
+      "when": "setAlarm(-1) or setAlarm(0) is called",
+      "then": "the call throws DO_ALARM_INVALID_OFFSET; getAlarm returns null",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.SingleCellObject.setAlarm"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/api/alarms/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33104-3",
+      "description": "F-4 alarm re-schedule: setAlarm(100) then setAlarm(200) before the first alarm fires overwrites the persisted schedule. The alarm() handler fires exactly once at the LATER scheduled time (200ms after original setAlarm(100)), the doAlarmFired record carries scheduledTime equal to the later scheduled millis, and no alarm fires at the earlier 100ms mark (the observer never sees a first fire).",
+      "given": "a SingleCellObject with the in-memory storage driver whose clock is fake",
+      "when": "setAlarm(100) then setAlarm(200) run, the clock advances 200ms, and the alarm handler drains",
+      "then": "exactly one doAlarmFired record carries the later scheduledTime; no earlier fire is observed",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.SingleCellObject.setAlarm"
+      },
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/api/alarms/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-33104-4",
+      "description": "F-4 alarm-handler-failure: an alarm() invocation whose bound handler throws surfaces the error with a stable kind DO_ALARM_HANDLER_FAILED naming the wrapped error message; NO doAlarmFired record emits on the sink for that failed fire (the sink emits only on successful drain); a subsequent setAlarm(100)/alarm() cycle behaves normally, proving the failure isolates to the one fire and does not poison the alarm slot.",
+      "given": "a SingleCellObject whose alarm handler rejects on the first call",
+      "when": "setAlarm(100) fires and alarm() runs",
+      "then": "the call rejects with DO_ALARM_HANDLER_FAILED; the sink records zero doAlarmFired for this fire; a subsequent cycle emits doAlarmFired normally",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.SingleCellObject.alarm"
+      }
+    },
+    {
+      "id": "AC-33104-5",
+      "description": "deleteAlarm before fire: setAlarm(100) then deleteAlarm() drains the persisted schedule; getAlarm() returns null immediately; a subsequent alarm() invocation on the drained storage records no doAlarmFired and returns without side effect (per the drained-storage contract in AC-33104-1).",
+      "given": "a SingleCellObject with a scheduled alarm",
+      "when": "deleteAlarm() runs before the scheduled time and alarm() then runs",
+      "then": "getAlarm returns null; no doAlarmFired record emits; alarm returns without side effect",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
+        "field": "interfaces.SingleCellObject.setAlarm"
+      }
     }
   ],
   "tacIds": [
     "TAC-3403-platform-cloudflare-durable-objects-alarm-handler"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }
