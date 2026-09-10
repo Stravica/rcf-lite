@@ -4,10 +4,9 @@ All notable changes to `platform-cloudflare-kv` are recorded here. The shape fol
 
 ## 1.1.1 - 2026-09-10
 
-Hardening pass F wave 2 (criterion d owner-owned shape reference).
+Owner reference for the KV event-record whitelist.
 
-- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3203-platform-cloudflare-kv-event-sink.purpose`) for the KV event-record whitelist, rather than restating the shape verbatim. Closes review P1 finding F-1 (owner-owned shape restated on both REQ and TAC).
-
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3203-platform-cloudflare-kv-event-sink.purpose`) for the KV event-record whitelist, rather than restating the shape verbatim.
 
 ## 1.1.0 (2026-09-09)
 

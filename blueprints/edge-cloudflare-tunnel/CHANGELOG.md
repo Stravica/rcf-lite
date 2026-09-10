@@ -2,10 +2,10 @@
 
 ## 1.1.1 - 2026-09-10
 
-Hardening pass F wave 2 (criterion a capability-token naming).
+Capability token named in the requirements layer.
 
-- Extended REQ-001 description to name the declared `tunnelBridge` capability token verbatim with a one-line runtime clause tying the token to the connector shape that supplies it. Closes review P0 finding F-1 (declared capability had no covering `must`-priority REQ description).
-- Added AC-tunnel-capabilityToken on US-39101 as a fixed AC that binds the manifest-declared `tunnelBridge` token to the on-disk connector variant selected by the applied capability set. 
+- Extended REQ-001 description to name the declared `tunnelBridge` capability token verbatim with a one-line runtime clause tying the token to the connector shape that supplies it.
+- Added AC-tunnel-capabilityToken on US-39101 as a fixed AC that binds the manifest-declared `tunnelBridge` token to the on-disk connector variant selected by the applied capability set.
 
 ## 1.1.0 - 2026-09-09
 

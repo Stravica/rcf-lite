@@ -4,12 +4,11 @@ All notable changes to `platform-cloudflare-cron-triggers` are recorded here. Th
 
 ## 1.1.1 - 2026-09-10
 
-Hardening pass F wave 2 (criterion a capability-token naming; criterion d owner-owned shape reference).
+Capability token named in the requirements layer; owner reference for the scheduled-side record shape.
 
-- Extended REQ-001 description to name the declared `scheduledTrigger` capability token verbatim with a one-line runtime clause tying the token to the single scheduled() handler module that delivers it. Closes review P0 finding F-1 (declared capability had no covering `must`-priority REQ description).
+- Extended REQ-001 description to name the declared `scheduledTrigger` capability token verbatim with a one-line runtime clause tying the token to the single scheduled() handler module that delivers it.
 - Added AC-32101-6 on US-32101 as a fixed AC that binds the manifest-declared `scheduledTrigger` token to the handler-module presence assertion the fixture exercises.
-- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3303-platform-cloudflare-cron-triggers-event-sink.responsibilities[0]`) for the scheduled-side record shape, rather than restating the whitelist verbatim. Closes review P1 finding F-2 (owner-owned shape restated on both REQ and TAC).
-
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3303-platform-cloudflare-cron-triggers-event-sink.responsibilities[0]`) for the scheduled-side record shape, rather than restating the whitelist verbatim.
 
 ## 1.1.0 (2026-09-09)
 

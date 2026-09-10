@@ -2,13 +2,12 @@
 
 ## 1.1.1 - 2026-09-10
 
-Hardening pass F wave 2 (criterion a capability-token naming; criterion b AC-set sufficiency; criterion d owner-owned shape references).
+Capability token named in the requirements layer; single-mechanism story legality notes; owner reference for the drift-audit and request-event record shapes.
 
-- Extended REQ-001 description to name the declared `edgeRateLimit` capability token verbatim with a one-line runtime clause tying the token to the rules-manifest mechanism that delivers it. Closes review P0 finding F-1 (declared capability had no covering `must`-priority REQ description).
+- Extended REQ-001 description to name the declared `edgeRateLimit` capability token verbatim with a one-line runtime clause tying the token to the rules-manifest mechanism that delivers it.
 - Added AC-36101-2 on US-36101 as a fixed AC that binds the manifest-declared `edgeRateLimit` token to the presence of at least one schema-valid rule under the applied manifest directory.
-- Appended the section 7a legality note to AC-36101-1, AC-36102-1 and AC-36105-1 to record that each single-AC story`s mechanism has no additional documented failure path in the guide or the anchored TAC (adjacent failure paths are owned by sibling stories, not by these). Closes review P1 findings F-2, F-3, F-4 (single-AC legality note missing).
-- Rewrote REQ-004 description to reference the owning TAC (`TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner.purpose`) for the drift-audit record shape and the runtime request-event record shape, rather than restating the shapes verbatim. Closes review P1 finding F-5 (owner-owned shape restated on both REQ and TAC).
-
+- Appended the section 7a legality note to AC-36101-1, AC-36102-1 and AC-36105-1 recording that each single-AC story's mechanism has no additional documented failure path in the guide or the anchored TAC (adjacent failure paths are owned by sibling stories, not by these).
+- Rewrote REQ-004 description to reference the owning TAC (`TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner.purpose`) for the drift-audit record shape and the runtime request-event record shape, rather than restating the shapes verbatim.
 
 ## 1.1.0 - 2026-09-09
 
