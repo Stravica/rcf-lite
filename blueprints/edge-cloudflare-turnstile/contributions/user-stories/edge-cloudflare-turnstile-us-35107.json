@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-35107-1",
-      "description": "A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is read only via env-shaped identifiers (process.env.TURNSTILE_SECRET or an env facade) and that no plain-string secret literal appears in the fixture source; the Node probe secret-shape-scan implements the assertion and exits 0.",
+      "description": "A source-tree AST scan of the pack fixture (packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile) asserts that TURNSTILE_SECRET is read only via env-shaped identifiers (process.env.TURNSTILE_SECRET or an env facade) and that no plain-string secret literal appears in the fixture source; the Node probe secret-shape-scan implements the assertion and exits 0. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped pack fixture with the pinned test secrets sourced from environment",
       "when": "the source-tree AST scan runs over the fixture",
       "then": "the scan finds only env-shaped reads for TURNSTILE_SECRET and reports no plain-string secret literal",
@@ -24,6 +24,6 @@
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the secret-shape-scan probe (env-shaped reads only, no plain-string secret literal in the pack fixture source). Per section 7a, this story carries a single AC because the source-scan mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

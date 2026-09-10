@@ -1,10 +1,19 @@
 # Changelog
 
+All notable changes to `platform-cloudflare-cron-triggers` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
+
+## 1.1.2 - 2026-09-10
+
+Capability token named in the requirements layer; owner reference for the scheduled-side record shape.
+
+- Extended REQ-001 description to name the declared `scheduledTrigger` capability token verbatim with a one-line runtime clause tying the token to the single scheduled() handler module that delivers it.
+- Added AC-32101-6 on US-32101 as a fixed AC that binds the manifest-declared `scheduledTrigger` token to the handler-module presence assertion the fixture exercises.
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3303-platform-cloudflare-cron-triggers-event-sink.responsibilities[0]`) for the scheduled-side record shape, rather than restating the whitelist verbatim.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
 
-All notable changes to `platform-cloudflare-cron-triggers` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.1.0 (2026-09-09)
 

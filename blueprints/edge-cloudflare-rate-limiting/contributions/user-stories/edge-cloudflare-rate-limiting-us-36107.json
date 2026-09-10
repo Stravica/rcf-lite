@@ -4,9 +4,9 @@
   "reqId": "edge-cloudflare-rate-limiting-REQ-004",
   "version": "1.0.0",
   "status": "approved",
-  "title": "Drift-audit records carry {ruleId, outcome, timestamp, diff} (no clientIpHash); request-event records carry {ruleId, clientIpHash, outcome, timestamp} on the runtime path, hashed prefix only",
+  "title": "Drift-audit and request-event records follow the metadata-only shapes declared on TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner.purpose (drift records omit clientIpHash; request-event records carry a hashed prefix only)",
   "asA": "operator on the applying project reading drift-audit reports and rate-limit event records through the applied logging companion",
-  "iWant": "the drift-audit runner to emit records without clientIpHash (no client on the API path) and the runtime request-event path to emit records with a clientIpHash hashed prefix only; both classes never carry a full client IP, never a request body, never a user agent",
+  "iWant": "the drift-audit runner and the runtime request-event path to emit records shaped exactly as TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner.purpose declares; both classes never carry a full client IP, never a request body, never a user agent",
   "soThat": "the audit trail is safe to store, forward and read without additional PII scrubbing at the audit sink",
   "acceptanceCriteria": [
     {
@@ -34,5 +34,5 @@
     "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

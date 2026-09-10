@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.2 - 2026-09-10
+
+Single-mechanism story legality notes; owner reference for the audit-record shape.
+
+- Appended the section 7a legality note to AC-34101-1, AC-34105-1, AC-34106-1, AC-34108-1, AC-34109-1 and AC-34110-1 recording that each single-AC story's mechanism has no additional documented failure path in the guide or the anchored TAC (adjacent failure paths are owned by sibling stories, not by these).
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3501-edge-cloudflare-access-jwt-validator.responsibilities[2]`) for the audit-record shape, rather than restating the shape verbatim.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

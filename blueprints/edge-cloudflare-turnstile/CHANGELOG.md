@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.2 - 2026-09-10
+
+Capability token named in the requirements layer; single-mechanism story legality notes; magic-link guard probe extended with a mint-count delta assertion.
+
+- Extended REQ-001 description to name the declared `humanCheck` capability token verbatim with a one-line runtime clause tying the token to the client widget mount that delivers it.
+- Added AC-35101-3 on US-35101 as a fixed AC that binds the manifest-declared `humanCheck` token to the widget-render mechanism the fixture surfaces.
+- Appended the section 7a legality note to AC-35106-1, AC-35107-1 and AC-35108-1 recording that each single-AC story's mechanism has no additional documented failure path in the guide or the anchored TAC.
+- Extended the magic-link-guard probe check (`AC-turnstile-magicLinkGuard` in `probe-packs/edge-cloudflare-turnstile.pack.mjs`) to read a pre-mint and post-mint mint-outcome count from the fixture's `/api/events` sink and return `pass` only when both refusals are observed AND the mint-outcome delta is exactly zero; the observed delta is included in the positive-evidence detail.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
