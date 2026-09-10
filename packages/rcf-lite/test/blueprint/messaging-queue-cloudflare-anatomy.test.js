@@ -18,7 +18,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'messaging-queue-cloudflare');
-  assert.equal(doc.version, '1.1.2');
+  assert.equal(doc.version, '1.1.3');
   assert.equal(doc.category, 'messaging');
   assert.deepEqual(doc.capabilities, ['queue']);
   assert.equal(doc.contributions.length, 21);

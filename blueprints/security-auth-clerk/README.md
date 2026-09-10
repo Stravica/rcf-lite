@@ -3,7 +3,7 @@
 The tenth content blueprint on the rcf-build-lite blueprint mechanism, category `security`. A Clerk-committed sibling to `security-auth-magic-link` on the `authModel` global topic: Clerk hosts the identity surface (users, sessions, sign-in UX, credential storage, MFA, account recovery); the project owns a framework-agnostic middleware boundary, a session verifier confined to one module, a Clerk-claim-to-project-verb authorisation adapter, and a reduced principal shape the rest of the codebase reasons against. Targeted at small greenfield rcf-lite projects that want hosted identity without building the user-and-session surface themselves; larger deployments supersede the vendor by superseding ADR-1001 with a project-level ADR and swapping the middleware and verifier adapters.
 
 
-> Latest: **v1.3.0** (visual round, 2026-09-06). `capabilities: [principalDirectory, roleModel, sessionInventory, hostedIdentityUi]`. See [CHANGELOG.md](CHANGELOG.md).
+> Latest: **v1.5.1** (2026-09-10). `capabilities: [principalDirectory, roleModel, sessionInventory, hostedIdentityUi]`. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Apply
 

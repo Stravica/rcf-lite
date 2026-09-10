@@ -1,5 +1,9 @@
 # security-auth-magic-link CHANGELOG
 
+## 1.2.4
+
+- Closure fix pass (F-2, F-3): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label; drops the vendor-implementation naming from the guide narrative and describes the reference container-plus-realm shape generically.
+
 ## 1.2.3
 
 - Rewrites `REQ-010.description` to reference `TAC-504-security-auth-magic-link-email-delivery-adapter` `responsibilities.send` rather than restate the `{ ok, providerStatus, providerMessageId, error }` return shape verbatim; the literal remains owned by the delivering TAC.

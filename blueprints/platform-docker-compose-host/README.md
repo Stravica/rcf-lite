@@ -68,9 +68,9 @@ CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-rea
 
 ## Fixture extension path
 
-Round-7 `deploy-hetzner-server` minted the shared fixture at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`. This blueprint EXTENDS that fixture, never duplicates it: `compose.yaml`, `caddy/Caddyfile`, `secrets/web-token`, `src/serve.mjs` and five `run-<probe>.mjs` delegate shims land alongside the hetzner blueprint's `provision.mjs`/`destroy.mjs`/`sweep-orphans.mjs`. Round-7 `edge-cloudflare-tunnel` extends the same fixture further; consumers of that fixture see one folder, one manifest, three tracks worth of runtime.
+The `deploy-hetzner-server` sibling minted the shared fixture at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`. This blueprint EXTENDS that fixture, never duplicates it: `compose.yaml`, `caddy/Caddyfile`, `secrets/web-token`, `src/serve.mjs` and five `run-<probe>.mjs` delegate shims land alongside the hetzner blueprint's `provision.mjs`/`destroy.mjs`/`sweep-orphans.mjs`. The `edge-cloudflare-tunnel` sibling extends the same fixture further; consumers of that fixture see one folder, one manifest, three tracks worth of runtime.
 
 ## When to reach for this blueprint
 
-- Any project running a containerised stack on a `cloudHost` (round-7 `deploy-hetzner-server` provides the shipped v1.0.0 provider).
+- Any project running a containerised stack on a `cloudHost` (`deploy-hetzner-server` provides the shipped v1.0.0 provider).
 - Any project that wants secrets as file mounts (not environment literals), healthchecks that gate boot, a checked-in reverse-proxy artefact, and a log driver on the elicited sink.

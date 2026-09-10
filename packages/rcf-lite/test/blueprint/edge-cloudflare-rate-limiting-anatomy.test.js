@@ -41,7 +41,7 @@ async function runProbe(name, env = {}) {
 test('T-6 rate-limiting AC-10001-1 anatomy proof (TC-130-manifest-presence-pass)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'edge-cloudflare-rate-limiting');
-  assert.equal(bp.version, '1.1.2');
+  assert.equal(bp.version, '1.1.3');
   assert.equal(bp.category, 'edge');
   assert.deepEqual(bp.capabilities, ['edgeRateLimit']);
   const entries = (await readdir(MANIFEST_DIR)).filter((f) => f.endsWith('.json'));

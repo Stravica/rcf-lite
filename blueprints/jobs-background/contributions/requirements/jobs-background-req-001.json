@@ -2,7 +2,7 @@
   "reqId": "jobs-background-REQ-001",
   "prdId": "PRD-001",
   "title": "Requires an applied queue capability; refuses apply on a bare project with exit 3 and the stable message id jobs-background-no-queue",
-  "description": "The jobs-background blueprint composes on an applied queue capability via the mechanism from the visual round. The apply verb refuses on a bare project (no applied blueprint declares capabilities: [queue]) with exit code 3 and a stable, dashboard-friendly message id jobs-background-no-queue on the first stderr line. The refusal message also names the shipped provider messaging-queue-cloudflare and the override flag --allow-no-queue-yet explicitly, per infra round 5 spec section 10 Q3 default asserting BOTH exit code AND stable message id. The override flag records a note on the sidecar rcf/blueprints/jobs-background.applied.json under the queue family so rcf define validate later flags surfaces gated on queue that never activated.",
+  "description": "The jobs-background blueprint composes on an applied queue capability via the applied-capability mechanism. The apply verb refuses on a bare project (no applied blueprint declares capabilities: [queue]) with exit code 3 and a stable, dashboard-friendly message id jobs-background-no-queue on the first stderr line. The refusal message also names the shipped provider messaging-queue-cloudflare and the override flag --allow-no-queue-yet explicitly, asserting both the exit code and the stable message id. The override flag records a note on the sidecar rcf/blueprints/jobs-background.applied.json under the queue family so rcf define validate later flags surfaces gated on queue that never activated.",
   "category": "functional",
   "domain": "jobs",
   "priority": "must",
@@ -11,10 +11,10 @@
     "blueprint:jobs-background",
     "category:00-composition"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T20:30:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "adrId": "ADR-3103-jobs-background-requires-applied-capabilities",
     "field": "decision.refusalMessageId"

@@ -85,3 +85,29 @@ The `proof/` directory ships the MCP-route pack proofs the T-5 gate reviewer rea
 - `pack-mcp-route.negative-third-party-script.<ts>.json` negative: `widgetRendered` FAILS when a non-Cloudflare script is injected.
 
 Every check is proven surface-observable on a real browser; a stubbed pack browser is not sufficient (round-4 T-4 gate lesson, inherited).
+
+## Declared env vars
+
+Every environment variable this fixture or any `edge-cloudflare-turnstile`
+probe hosted against it reads is declared here. There is no
+account-bound branch on any turnstile probe (the shipped probes drive
+against the fixture server plus pinned public Cloudflare test keys),
+so there is no first-tier `CI_HAS_*` gate. Every variable listed is
+either a fixture default (public test key or a documented endpoint)
+or a mutation switch. An undeclared env var that the fixture reads is
+refused by the positive-evidence gate row (authoring standard section
+7d and the checklist rows in section 6).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `PORT` | fixture | HTTP port the fixture server binds. Refused on `4200`. Defaults to `3000`. | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_SITEKEY` | fixture | Client widget sitekey the mount renders with. Defaults to the pinned public pass key. | `edge-cloudflare-turnstile/guard-shape-scan`, `edge-cloudflare-turnstile/siteverify-fixture` |
+| `TURNSTILE_BLOCK_SITEKEY` | fixture | Pinned public block key (for negative-path selection). | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_FORCED_SITEKEY` | fixture | Pinned public forced-challenge key. | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_INVISIBLE_SITEKEY` | fixture | Pinned public invisible-pass key. | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_INVISIBLE_BLOCK_SITEKEY` | fixture | Pinned public invisible-block key. | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_SECRET` | fixture | Server-side secret the verifier POSTs with. Defaults to the pinned public pass secret. | `edge-cloudflare-turnstile/siteverify-fixture` |
+| `TURNSTILE_FAIL_SECRET` | fixture | Secret used when `?fail-secret=1` is passed on the request. | `edge-cloudflare-turnstile/siteverify-fixture` |
+| `TURNSTILE_WIDGET_MODE` | fixture | Default widget mode: `managed`, `non-interactive`, `invisible`. | `edge-cloudflare-turnstile` fixture server |
+| `TURNSTILE_GUARDED_SURFACES` | fixture | Comma-separated route paths the token-required guard registers on. | `edge-cloudflare-turnstile/guard-shape-scan` |
+| `SITEVERIFY_URL` | fixture | Override for the siteverify endpoint. Defaults to `https://challenges.cloudflare.com/turnstile/v0/siteverify`. | `edge-cloudflare-turnstile/siteverify-fixture` |
