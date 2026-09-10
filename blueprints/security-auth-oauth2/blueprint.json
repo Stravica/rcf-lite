@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-oauth2",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "category": "security",
   "capabilities": [
     "principalDirectory",

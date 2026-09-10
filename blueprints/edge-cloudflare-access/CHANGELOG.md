@@ -2,10 +2,11 @@
 
 ## 1.1.3 - 2026-09-10
 
-Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); register tidy in shipped prose (no capability change).
 
 - Probes and fixture: the account-bound skip return on `contributions/probes/real-account-gated-url.mjs` now carries a `reason` field naming the exact env var(s) that were unset; the same fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`) gains a "Declared env vars" section covering the access-side env-var surface, per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
-
+- Closes F-8: README compose bullet and consumer note stripped of internal pattern label.
+- Closes F-9: REQ-006 description stripped of internal mechanism label.
 
 ## 1.1.2 - 2026-09-10
 

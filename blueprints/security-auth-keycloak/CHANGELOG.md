@@ -1,5 +1,9 @@
 # security-auth-keycloak CHANGELOG
 
+## 1.4.1
+
+- Closure fix pass (F-8): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
+
 ## 1.4.0
 
 - Adds `US-11116`, `US-11117`, `US-11118`, `US-11119`, `US-11120` binding stories to the five audit-surface must requirements `REQ-015` (discovery and account-console), `REQ-016` (JWT), `REQ-017` (introspection), `REQ-018` (route and sessionInventory), and `REQ-019` (roles). Each story ships one AC per success, refusal, retry and boundary path on the delivering mechanism, with `ownerRef` at the owning TAC and its audit-emission responsibility. Rewrites `US-11115` `AC-1` to reference the local `TAC-1204-security-auth-keycloak-provider-router` `responsibilities.sessionInventory` and updates the sibling ACs to the same local owner (the interface shape remains owned by `TAC-1003-security-auth-clerk-session-verifier` `interfaces.sessionInventory` and is referenced by that owner id). Rewrites `REQ-005.description` to reference `TAC-1204-security-auth-keycloak-provider-router` `responsibilities.route` rather than restate the `{ realmSlug, verificationMode }` shape verbatim.

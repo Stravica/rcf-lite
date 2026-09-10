@@ -7,8 +7,6 @@ what the connector looks like, what the manifest looks like, how the
 Access-gated shape composes on top of the public-hostname shape, and
 how the credentials-file discipline stays honest on every reapply.
 
-Ratifying spec: `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md` section 5.3.
-
 ## When to reach for this blueprint
 
 Reach when the applying project needs to expose a service on the public
@@ -199,7 +197,7 @@ Provides: `tunnelBridge` capability; new global topic
 The `deliver-ci-workflows` shelf blueprint invokes the two account-bound
 probes on a scratch subdomain when the account tokens are present;
 without them the probes record `accountBoundSkipped: true` and the
-aggregate flips to pass per hetzner-round-7-spec section 3.5.
+aggregate flips to pass when both env vars are absent.
 
 ## Running the probes
 
@@ -229,7 +227,7 @@ Mutations (fixture-side, one per switch; the probe modules never read
 
 Real-account probes need `CI_HAS_CLOUDFLARE_ACCOUNT=true` and
 `CI_HAS_HETZNER_ACCOUNT=true` (plus `CI_HAS_CLOUDFLARE_ACCESS=true` for
-the gated sub-case per the round-7 Q4 ratification):
+the gated sub-case):
 
 ```
 CI_HAS_CLOUDFLARE_ACCOUNT=true CI_HAS_HETZNER_ACCOUNT=true \
