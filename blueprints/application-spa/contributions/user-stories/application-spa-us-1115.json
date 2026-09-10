@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1115",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-009",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Landing, sign-in, sign-out, and first-run onboarding surfaces",
   "asA": "visitor arriving for the first time or returning to sign in",
@@ -16,7 +16,8 @@
       "when": "the landing renders at each breakpoint",
       "then": "the designed surface renders with no auth-gated blank regions",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1115-2",
@@ -25,7 +26,8 @@
       "when": "valid and invalid submissions are made",
       "then": "success routes onward and failure renders safe, actionable copy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1115-3",
@@ -34,7 +36,8 @@
       "when": "verification is in flight",
       "then": "the submit control is busy per application-spa-US-1108 and repeat submits are ignored",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1115-4",
@@ -43,7 +46,8 @@
       "when": "sign-out is invoked",
       "then": "the confirmation surface renders and cached user data is gone",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1115-5",
@@ -52,7 +56,8 @@
       "when": "both arrivals are observed",
       "then": "onboarding shows once, is skippable, and does not recur",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1115-6",
@@ -61,7 +66,8 @@
       "when": "accessibility and responsive checks run",
       "then": "the same bars pass; these surfaces are not exempt",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

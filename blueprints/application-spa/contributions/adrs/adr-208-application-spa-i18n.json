@@ -2,7 +2,7 @@
   "adrId": "ADR-208-application-spa-i18n",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "String extraction and locale-aware formatting from day one, translations deferred",
   "context": "application-spa-REQ-015 requires internationalisation readiness without shipping translations. The mechanism needs one recorded answer inside the SPA.",

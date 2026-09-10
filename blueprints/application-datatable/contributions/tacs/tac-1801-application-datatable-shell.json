@@ -2,7 +2,7 @@
   "tacId": "TAC-1801-application-datatable-shell",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Datatable shell",
   "purpose": "Owns the rendered datatable surface: the ARIA APG pattern choice (table vs grid per interactivity, ADR-1801), the header cell binding, the pagination controls with the polite live status region, the four-state distinction (empty, loading, error, no-results), the sort control per column with the aria-sort attribute, the filter chrome, the selection column, the bulk action controls, and the non-drag column reorder / visibility / resize path. The shell is the substitutable interface every AC in this blueprint anchors on.",

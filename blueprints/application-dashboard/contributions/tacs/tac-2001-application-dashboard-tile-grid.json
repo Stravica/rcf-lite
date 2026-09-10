@@ -2,7 +2,7 @@
   "tacId": "TAC-2001-application-dashboard-tile-grid",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Dashboard tile grid, primary KPI placement, and breakpoint reflow",
   "purpose": "Owns the dashboard shell's tile row and tile grid: the CSS Grid definition every tile lives on, the primary KPI placement top-left, the four-state region contract on every tile, and the breakpoint reflow to one column at 360. The shell mounts the chart region through the application-charts render shell (TAC-1901's dependency here) and delegates chart rendering to that shell; the tile grid is the substitutable interface the pack asserts on.",

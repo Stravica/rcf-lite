@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2105",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Contract-drift detection: implementation and spec verified against each other",
   "asA": "platform operator relying on the published contract",
@@ -16,7 +16,12 @@
       "when": "the two inventories are compared",
       "then": "every implemented route appears in the spec, and a deliberately added undeclared route makes the comparison fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2105-2",
@@ -25,7 +30,12 @@
       "when": "each declared operation is exercised",
       "then": "none returns a routing-level 404 or 501; a deliberately orphaned spec entry makes validation fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-2105-3",
@@ -34,7 +44,8 @@
       "when": "each observed response is validated against the spec schema",
       "then": "every response validates; a type-level mismatch fails the check naming the operation, status, and path into the schema",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2105-4",
@@ -43,7 +54,8 @@
       "when": "the pipeline runs",
       "then": "the build fails at the contract-validation step with a message naming the drift",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2105-5",
@@ -52,7 +64,8 @@
       "when": "its report is read",
       "then": "every declared operation appears with its verification outcome",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

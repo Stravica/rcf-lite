@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1131",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-018",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Styled-under-shipped-CSP adherence probe refuses ship on inline styles or unstyled runtime",
   "asA": "operator relying on the security baseline the application-spa blueprint declares",
@@ -13,10 +13,11 @@
       "id": "AC-1131-1",
       "description": "The CSP served on every HTML document declares style-src that resolves to 'self' (or a nonce / hash allowlist), and NEVER contains the 'unsafe-inline' or 'unsafe-eval' relaxations. A wildcard style-src is refused; declaring 'unsafe-inline' as a fallback is refused. The CSP style-src is the sole styling-authority signal the runtime respects; a stylesheet the CSP would refuse is a defect, not a warning.",
       "given": "the deployed application document response",
-      "when": "the Content-Security-Policy header is inspected",
+      "when": "the content-security-policy header is inspected",
       "then": "style-src is present, resolves to 'self' or a nonce / hash allowlist, and contains neither 'unsafe-inline' nor 'unsafe-eval' nor a wildcard source",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1131-2",
@@ -25,16 +26,18 @@
       "when": "the response body is scanned for the substring '<style'",
       "then": "zero occurrences are present; a positive match is a hard refusal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1131-3",
-      "description": "Every UI-bearing route renders styled UNDER the shipped strict CSP, AND the probe proves it exercised the requested surface (not a page a redirect would land on). A browser-driven check drives the same server instance that stamps the production security headers, navigates each enumerated UI route, and asserts (a) the browser's final URL path equals the requested route path; a silent redirect (for example an authenticated route 302'ing to /login when the harness session is broken) is a hard refusal because a headless browser follows redirects by default and would otherwise validate the redirect target's styled state seven times over, and (b) the computed body background is NOT the browser default (rgba(0,0,0,0) / transparent) and the computed body font-family resolves to a non-empty value. Verification runs through the production header path; a harness that strips the security headers, injects nonces the CSP does not declare, or invokes the app via app.inject() rather than a real browser fetch does NOT satisfy the AC. Cures the class of harness where a broken session lane silently causes every route assertion to run against /login (styled) and pass (watchpost run4 partial-acceptance gap, w-2026-08-24-003 / AC-1601-14).",
+      "description": "Every UI-bearing route renders styled UNDER the shipped strict CSP, AND the probe proves it exercised the requested surface (not a page a redirect would land on). A browser-driven check drives the same server instance that stamps the production security headers, navigates each enumerated UI route, and asserts (a) the browser's final URL path equals the requested route path; a silent redirect (for example an authenticated route 302'ing to /login when the harness session is broken) is a hard refusal because a headless browser follows redirects by default and would otherwise validate the redirect target's styled state seven times over, and (b) the computed body background is NOT the browser default (rgba(0,0,0,0) / transparent) and the computed body font-family resolves to a non-empty value. Verification runs through the production header path; a harness that strips the security headers, injects nonces the CSP does not declare, or invokes the app via app.inject() rather than a real browser fetch does NOT satisfy the AC. Cures the class of harness where a broken session lane silently causes every route assertion to run against /login (styled) and pass (the watchpost run4 partial-acceptance class defect). Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "a server booted through the project's production entry point with every UI-bearing route registered",
       "when": "a real browser navigates each enumerated route, its final URL is read, and getComputedStyle(document.body) is read",
       "then": "the final URL path equals the requested route (no silent redirect chain to another surface) AND the computed background is not the browser default AND the computed font-family resolves; on any route the check fails, the run refuses ship with a per-route diagnostic naming the requested and landed paths",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "template"
     },
     {
       "id": "AC-1131-4",
@@ -43,7 +46,8 @@
       "when": "the boot topology is inspected AND a same-origin GET is issued for the URL every rendered HTML links via <link rel=\"stylesheet\">",
       "then": "the stylesheet is served by the same server instance that stamps the production headers AND the response is 200 with content-type text/css",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1131-5",
@@ -52,7 +56,12 @@
       "when": "the report file is inspected on disk",
       "then": "the JSON at `reports/csp-styled-adherence.json` matches the shape declared by TAC-209 and its verdict field agrees with the process exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-209-application-spa-csp-styled-adherence-probe",
+        "field": "interfaces[2].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-1131-6",
@@ -61,7 +70,8 @@
       "when": "the probe reports `fail` on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

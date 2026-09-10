@@ -2,7 +2,7 @@
   "adrId": "ADR-202-application-spa-theming",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "status": "accepted",
   "title": "Semantic design tokens as CSS custom properties with a root-level theme switch",
   "context": "Dark and light parity is a ratified requirement (application-spa-REQ-005). Parity is only checkable when every colour decision routes through a named token that exists in both palettes. How theming is realised is a whole-project decision: two theming mechanisms cannot coexist without drift. Watchpost run4 demonstrated that declaring the discipline is not the same as compelling it: raw palette values can sit in component stylesheets across passing build cycles. v1.1 pairs the decision with a runtime-observable enforcement handle so the ship gate refuses on violation, not the operator's later reading of the ADR.",

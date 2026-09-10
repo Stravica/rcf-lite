@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19101",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The dashboard shell renders the five required regions on every shipped surface",
   "asA": "product owner responsible for the shipped dashboard surface",
@@ -16,7 +16,8 @@
       "when": "the accessibility tree is read",
       "then": "five labelled regions cover the tile row, the chart region, the filter chrome, the timeframe picker and the export handle",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-19101-2",
@@ -25,11 +26,58 @@
       "when": "the mount seam is inspected",
       "then": "the chart mounts through the application-charts render shell",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-19101-3",
+      "description": "Given a rendered dashboard surface, when a required region is omitted from the DOM (no export handle, no filter chrome, no timeframe picker), the surface either supersedes REQ-001 with a project-authored REQ documenting the omission (the pack looks up the sidecar `rcf/blueprints/application-dashboard.applied.json` for a `supersedes` entry) or renders the region as an empty labelled `role=\"region\"` element the pack can inspect; a silent omission fails project-side review.",
+      "given": "a rendered dashboard surface with a missing region and no documented supersedes entry",
+      "when": "the pack inspects the shell",
+      "then": "the surface fails the region-count check; the applying project must either supersede REQ-001 with a documented reason or render the region as an empty labelled role=region element",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19101-4",
+      "description": "Given the five labelled regions, each region's accessible name is unique on the surface (a screen reader announces five distinct region names when navigating landmarks); duplicate `aria-label` values on two regions fail the pack check because the reader cannot distinguish them.",
+      "given": "the five labelled regions on the shell",
+      "when": "assistive-tech landmark navigation reads them",
+      "then": "each region carries a unique accessible name; duplicates fail the pack check",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-19101-5",
+      "description": "Given a rendered dashboard whose chart region contains NO chart (the applying project has no charts to show), the region still renders with its `role=\"region\"` wrapper and an accessible-name announcement; the pack accepts an empty labelled chart region and does not require a chart mount.",
+      "given": "a dashboard surface whose chart region contains no chart",
+      "when": "the pack inspects the chart region",
+      "then": "the empty region still renders with its role=region wrapper and accessible name; the pack does not require a chart mount",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2001-application-dashboard-tile-grid",
+        "field": "purpose"
+      }
     }
   ],
-  "tacIds": ["TAC-2001-application-dashboard-tile-grid"],
-  "tags": ["blueprint:application-dashboard"],
+  "tacIds": [
+    "TAC-2001-application-dashboard-tile-grid"
+  ],
+  "tags": [
+    "blueprint:application-dashboard"
+  ],
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

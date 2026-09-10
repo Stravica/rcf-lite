@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "The most common source of production outages in unchecked applications is an uncaught exception that terminates the process with no diagnostic, or a framework-level exception that produces a mis-shaped response the caller cannot interpret. The two boundaries close both classes at the earliest possible surface.",
-  "tags": ["blueprint:application-error-handling", "category:01-boundary"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-error-handling",
+    "category:01-boundary"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-04T12:20:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1701-application-error-handling-boundary",
+    "field": "responsibilities"
+  }
 }

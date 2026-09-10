@@ -2,7 +2,7 @@
   "adrId": "ADR-308-application-api-rest-rate-limiting",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Rate limits keyed to auth classes with per-endpoint overrides",
   "context": "Rate limiting needs a policy anchor: something stable that limits attach to. Candidates are one global limit, per-endpoint hand-tuning, or the auth classes the surface already declares.",

@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16105",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-003",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The record's classification drives the transport response's retry hint",
   "asA": "caller of an application endpoint that failed",
@@ -16,10 +16,55 @@
       "when": "each request runs",
       "then": "the transport response bodies and headers reflect the per-class contract above",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-16105-2",
+      "description": "Given a record with category `permanent`, the transport response the mapper writes carries no Retry-After header and no retry-hint field on the envelope, regardless of whether the origin supplied one; the HTTP status is a non-retryable class (4xx that is not 408 or 429) per ADR-1703. The check drives the mapper with fixture records at each category and inspects the wire response.",
+      "given": "a record with category `permanent`",
+      "when": "the transport response mapper writes the wire response",
+      "then": "no Retry-After header and no retry-hint field appear on the envelope; the HTTP status is a non-retryable class per ADR-1703",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-16105-3",
+      "description": "Given a record with category `unknown`, the transport response is logged at error level and mapped to a non-retryable wire response identical in classification to `permanent`; no Retry-After hint is emitted even if the origin supplied one on the record (unknown is not a permission to retry). The check inspects the mapped response and the emitted log line's level attribute.",
+      "given": "a record with category `unknown` and an origin-supplied Retry-After hint",
+      "when": "the mapper writes the wire response",
+      "then": "the response is non-retryable (no Retry-After), the log line for the record is level `error`, and the wire status matches the `permanent` mapping per ADR-1703",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[2]"
+      }
+    },
+    {
+      "id": "AC-16105-4",
+      "description": "Given a project that elicited additional categories via the `classification-additions` elicit (for example `rate-limited`, `dependency-degraded`), when a record carries one of those categories, the mapper reads the applied per-class contract (elicited additions apply alongside the ADR-1702 defaults) and writes the retry hint the elicited class contract specifies; an unknown category token that the project never elicited is refused at record construction per REQ-002. Applying agent sets: the elicited additional category tokens and the per-class retry contract.",
+      "given": "a project with elicited additional categories and a record carrying one of them",
+      "when": "the mapper writes the wire response",
+      "then": "the retry hint reflects the elicited per-class contract for that category (applied alongside the ADR-1702 defaults)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "adrId": "ADR-1702-application-error-handling-classification-vocabulary",
+        "field": "decision"
+      }
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

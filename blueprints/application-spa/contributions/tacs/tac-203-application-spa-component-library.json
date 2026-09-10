@@ -2,7 +2,7 @@
   "tacId": "TAC-203-application-spa-component-library",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Component library",
   "purpose": "The single source of interactive and presentational primitives listed in application-spa-REQ-006; application screens compose these, they do not restyle them.",

@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17107",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "The rendered table shell uses the ARIA APG pattern that matches the surface's interactivity",
   "asA": "assistive-tech user reading the datatable",
@@ -16,7 +16,8 @@
       "when": "the shell renders",
       "then": "the rendered table has `role=\"grid\"` and header cells scoped to `col`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17107-2",
@@ -25,7 +26,12 @@
       "when": "assistive tech reads the action controls",
       "then": "each action's accessible name identifies the acted-on row",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html",
+        "verifiedOn": "2026-09-09"
+      }
     },
     {
       "id": "AC-17107-3",
@@ -34,11 +40,70 @@
       "when": "assistive tech traverses a data cell",
       "then": "the announced context includes the column header the cell resolves to",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/info-and-relationships.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-17107-4",
+      "description": "Given a datatable shell whose rows carry NO interactive controls (a read-only presentation), the rendered element is a `<table>` without `role=\"grid\"` (or with an explicit `role=\"table\"` per ARIA APG); a read-only surface that advertises `role=\"grid\"` fails the pack check per ADR-1801 because it advertises two-dimensional keyboard navigation the surface does not implement.",
+      "given": "a read-only datatable shell (no interactive per-row controls)",
+      "when": "the pack inspects the shell's role attribute",
+      "then": "the shell is `<table>` (or role=table); role=grid on a read-only surface fails per ADR-1801",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1801-application-datatable-pattern-choice",
+        "field": "decision"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/table/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-17107-5",
+      "description": "Given a `role=\"grid\"` shell, when the operator uses the arrow keys, keyboard focus moves cell-by-cell (Right, Left, Up, Down) per the ARIA APG grid pattern; a `role=\"grid\"` shell whose arrow keys do not move cell focus fails the pack check because the pattern advertises a navigation the surface does not implement.",
+      "given": "a role=grid datatable shell",
+      "when": "the operator presses arrow keys",
+      "then": "focus moves cell-by-cell per ARIA APG grid; arrow keys with no cell focus movement fail",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1801-application-datatable-pattern-choice",
+        "field": "decision"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-17107-6",
+      "description": "Given a datatable that carries a mix of read-only rows and rows with per-row inline controls (some rows have an Edit button, others do not), the shell picks the grid pattern for the whole shell (ADR-1801: `grid` once ANY cell becomes an interactive control); the pack fails a shell that renders `<table>` on such a surface.",
+      "given": "a datatable with mixed read-only and interactive rows",
+      "when": "the pack inspects the shell's role",
+      "then": "the shell is role=grid (per ADR-1801, grid once any cell becomes interactive); a role=table on such a surface fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1801-application-datatable-pattern-choice",
+        "field": "decision"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

@@ -2,7 +2,7 @@
   "tacId": "TAC-201-application-spa-app-shell",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Application shell and navigation",
   "purpose": "Owns the persistent frame around every route: top navigation, optional side navigation, skip-link, landmark structure, and the outlet the router renders into.",

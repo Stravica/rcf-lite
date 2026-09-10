@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1106",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-005",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Semantic token layer with complete dark and light palettes",
   "asA": "user who prefers a dark interface",
@@ -16,16 +16,18 @@
       "when": "colour declarations are audited",
       "then": "every colour routes through a semantic token",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1106-2",
-      "description": "Every semantic token declared for the light theme has a declared dark value; parity is verified over the token file, and a missing pair fails the build.",
+      "description": "Every semantic token declared for the light theme has a declared dark value; parity is verified over the token file, and a missing pair fails the build. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "assets/tokens/design-tokens.json as integrated into the project",
       "when": "the token sets are diffed by key",
       "then": "the light and dark key sets are identical",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1106-3",
@@ -34,7 +36,8 @@
       "when": "contrast is computed for both themes",
       "then": "every pairing meets its threshold in light and in dark",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1106-4",
@@ -43,7 +46,8 @@
       "when": "the application first loads",
       "then": "the dark theme renders without a flash of the wrong theme",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1106-5",
@@ -52,7 +56,8 @@
       "when": "rendered in dark theme",
       "then": "surface levels and disabled affordances are visually distinct per the token definitions",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

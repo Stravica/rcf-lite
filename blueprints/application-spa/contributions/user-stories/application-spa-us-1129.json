@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1129",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-005",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Token adherence probe refuses ship on raw palette or missing parity",
   "asA": "operator relying on the theme-system discipline",
@@ -16,7 +16,12 @@
       "when": "the token-adherence probe runs against the built stylesheet output",
       "then": "the probe exits with a non-zero code and records the file path and line number of the violation in its report",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     },
     {
       "id": "AC-1129-2",
@@ -25,7 +30,12 @@
       "when": "the token-adherence probe runs against the tokens file",
       "then": "the probe exits with a non-zero code and records the missing key with the theme it is missing from in its report",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[2].name"
+      },
+      "disposition": "fixed"
     },
     {
       "id": "AC-1129-3",
@@ -34,7 +44,12 @@
       "when": "the report file is inspected on disk",
       "then": "the JSON at `reports/token-adherence.json` matches the shape declared by TAC-207 and its verdict field agrees with the process exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     },
     {
       "id": "AC-1129-4",
@@ -43,7 +58,12 @@
       "when": "the probe reports `fail` on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     }
   ],
   "tacIds": [

@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1120",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-013",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Cache discipline: stale-while-revalidate reads and explicit write invalidation",
   "asA": "user working against live data",
@@ -16,7 +16,8 @@
       "when": "stores are audited",
       "then": "the separation holds with no view state in the query cache",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-2",
@@ -25,16 +26,18 @@
       "when": "the user returns",
       "then": "content is instant, then silently refreshed",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-3",
-      "description": "Every mutation declares the cache entries it invalidates; affected views reflect the write without manual refresh.",
+      "description": "Every mutation declares the cache entries it invalidates; affected views reflect the write without manual refresh. Applying agent sets: the cache-invalidation entry set declared per mutation.",
       "given": "a mutation touching a cached collection",
       "when": "it succeeds",
       "then": "the collection view shows the change on next render",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1120-4",
@@ -43,7 +46,8 @@
       "when": "the failure lands",
       "then": "the optimistic change reverts and the user is told why",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-5",
@@ -52,21 +56,23 @@
       "when": "both request data",
       "then": "one network request serves both",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1120-6",
-      "description": "Cache keys derive from canonical resource URLs so invalidation addresses resources exactly and misses nothing that displays the written resource.",
+      "description": "Cache keys derive from canonical resource URLs so invalidation addresses resources exactly and misses nothing that displays the written resource. Applying agent sets: the canonical resource URL shape from which cache keys derive.",
       "given": "a resource displayed on two routes",
       "when": "the resource is mutated from one",
       "then": "both routes show the new value on next render",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-204-application-spa-client-data-layer"
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

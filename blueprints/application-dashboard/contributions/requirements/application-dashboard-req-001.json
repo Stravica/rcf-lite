@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "A dashboard is a compound surface: the tile row, the chart region and the filter chrome each need their own AC coverage. Naming the five regions on the shell is what lets every subsequent REQ, TAC and pack check anchor onto a stable, inspectable structure rather than a floating layout convention.",
-  "tags": ["blueprint:application-dashboard", "category:01-shell-composition"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-dashboard",
+    "category:01-shell-composition"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T22:10:00Z",
-  "updatedAt": "2026-09-04T22:10:00Z"
+  "updatedAt": "2026-09-04T22:10:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-2001-application-dashboard-tile-grid",
+    "field": "responsibilities"
+  }
 }

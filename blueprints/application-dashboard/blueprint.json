@@ -1,29 +1,155 @@
 {
   "slug": "application-dashboard",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "category": "application",
   "suggestedCompanions": [
-    { "role": "logging", "reason": "Dashboard tile refresh, timeframe change and export activation are the surface's most-touched instrumentation points; a logging companion supplies the factory the tiles and the chart region write records against." },
-    { "role": "errorHandling", "reason": "A tile whose fetch fails renders the error-state visual per REQ-003; the error-state contract needs a project-side error-record factory the application-error-handling companion provides." }
+    {
+      "role": "logging",
+      "reason": "Dashboard tile refresh, timeframe change and export activation are the surface's most-touched instrumentation points; a logging companion supplies the factory the tiles and the chart region write records against."
+    },
+    {
+      "role": "errorHandling",
+      "reason": "A tile whose fetch fails renders the error-state visual per REQ-003; the error-state contract needs a project-side error-record factory the application-error-handling companion provides."
+    }
+  ],
+  "elicits": [
+    {
+      "id": "primary-kpi-kind",
+      "prompt": "Primary KPI kind for the top-left tile: revenue, active-users, error-rate, throughput or custom. The elicited value lands on the primary tile as data-kpi-kind.",
+      "kind": "enum",
+      "options": [
+        "revenue",
+        "active-users",
+        "error-rate",
+        "throughput",
+        "custom"
+      ],
+      "default": "revenue"
+    },
+    {
+      "id": "primary-kpi-custom-name",
+      "prompt": "Custom primary KPI short name. Applies only when primary-kpi-kind is custom; the value lands on the primary tile as data-kpi-name. Ignored otherwise.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "timeframe-presets",
+      "prompt": "Timeframe presets the timeframe picker offers, comma separated (missing presets from the shipped set are ignored, extra presets append). Recommended default: last-7-days, last-30-days, quarter-to-date.",
+      "kind": "string",
+      "default": "last-7-days,last-30-days,quarter-to-date"
+    },
+    {
+      "id": "auto-refresh-interval-seconds",
+      "prompt": "Auto-refresh interval in seconds for the whole dashboard fan-out. 0 keeps auto-refresh off (the ship default); a positive integer sets data-auto-refresh on the shell root and refetches on the same fan-out contract at that interval.",
+      "kind": "string",
+      "default": "0"
+    },
+    {
+      "id": "export-formats",
+      "prompt": "Export formats the export handle offers, comma separated (missing formats from the shipped set are ignored, extra formats append with an operator-supplied label). Recommended default: csv, pdf, png-chart.",
+      "kind": "string",
+      "default": "csv,pdf,png-chart"
+    }
   ],
   "contributions": [
-    { "id": "application-dashboard-REQ-001", "kind": "req", "path": "requirements/application-dashboard-req-001.json" },
-    { "id": "application-dashboard-REQ-002", "kind": "req", "path": "requirements/application-dashboard-req-002.json" },
-    { "id": "application-dashboard-REQ-003", "kind": "req", "path": "requirements/application-dashboard-req-003.json" },
-    { "id": "application-dashboard-REQ-004", "kind": "req", "path": "requirements/application-dashboard-req-004.json" },
-    { "id": "application-dashboard-REQ-005", "kind": "req", "path": "requirements/application-dashboard-req-005.json" },
-    { "id": "application-dashboard-US-19101", "kind": "us", "path": "user-stories/application-dashboard-us-19101.json" },
-    { "id": "application-dashboard-US-19102", "kind": "us", "path": "user-stories/application-dashboard-us-19102.json" },
-    { "id": "application-dashboard-US-19103", "kind": "us", "path": "user-stories/application-dashboard-us-19103.json" },
-    { "id": "application-dashboard-US-19104", "kind": "us", "path": "user-stories/application-dashboard-us-19104.json" },
-    { "id": "application-dashboard-US-19105", "kind": "us", "path": "user-stories/application-dashboard-us-19105.json" },
-    { "id": "application-dashboard-US-19106", "kind": "us", "path": "user-stories/application-dashboard-us-19106.json" },
-    { "id": "application-dashboard-US-19107", "kind": "us", "path": "user-stories/application-dashboard-us-19107.json" },
-    { "id": "TAC-2001-application-dashboard-tile-grid", "kind": "tac", "path": "tacs/tac-2001-application-dashboard-tile-grid.json" },
-    { "id": "TAC-2002-application-dashboard-filter-chrome", "kind": "tac", "path": "tacs/tac-2002-application-dashboard-filter-chrome.json" },
-    { "id": "TAC-2003-application-dashboard-export-handle", "kind": "tac", "path": "tacs/tac-2003-application-dashboard-export-handle.json" },
-    { "id": "ADR-2001-application-dashboard-primary-kpi-enum", "kind": "adr", "path": "adrs/adr-2001-application-dashboard-primary-kpi-enum.json", "recommendedDefault": false, "elicited": true, "standardsTraceClause": "NN/g F-scan; Gestalt proximity" },
-    { "id": "ADR-2002-application-dashboard-timeframe-presets", "kind": "adr", "path": "adrs/adr-2002-application-dashboard-timeframe-presets.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "NN/g dashboard design (timeframe defaults)" },
-    { "id": "ADR-2003-application-dashboard-export-formats", "kind": "adr", "path": "adrs/adr-2003-application-dashboard-export-formats.json", "recommendedDefault": true, "elicited": true, "standardsTraceClause": "GOV.UK Design System (download patterns); WCAG 1.3.1 (info and relationships)" }
+    {
+      "id": "application-dashboard-REQ-001",
+      "kind": "req",
+      "path": "requirements/application-dashboard-req-001.json"
+    },
+    {
+      "id": "application-dashboard-REQ-002",
+      "kind": "req",
+      "path": "requirements/application-dashboard-req-002.json"
+    },
+    {
+      "id": "application-dashboard-REQ-003",
+      "kind": "req",
+      "path": "requirements/application-dashboard-req-003.json"
+    },
+    {
+      "id": "application-dashboard-REQ-004",
+      "kind": "req",
+      "path": "requirements/application-dashboard-req-004.json"
+    },
+    {
+      "id": "application-dashboard-REQ-005",
+      "kind": "req",
+      "path": "requirements/application-dashboard-req-005.json"
+    },
+    {
+      "id": "application-dashboard-US-19101",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19101.json"
+    },
+    {
+      "id": "application-dashboard-US-19102",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19102.json"
+    },
+    {
+      "id": "application-dashboard-US-19103",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19103.json"
+    },
+    {
+      "id": "application-dashboard-US-19104",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19104.json"
+    },
+    {
+      "id": "application-dashboard-US-19105",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19105.json"
+    },
+    {
+      "id": "application-dashboard-US-19106",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19106.json"
+    },
+    {
+      "id": "application-dashboard-US-19107",
+      "kind": "us",
+      "path": "user-stories/application-dashboard-us-19107.json"
+    },
+    {
+      "id": "TAC-2001-application-dashboard-tile-grid",
+      "kind": "tac",
+      "path": "tacs/tac-2001-application-dashboard-tile-grid.json"
+    },
+    {
+      "id": "TAC-2002-application-dashboard-filter-chrome",
+      "kind": "tac",
+      "path": "tacs/tac-2002-application-dashboard-filter-chrome.json"
+    },
+    {
+      "id": "TAC-2003-application-dashboard-export-handle",
+      "kind": "tac",
+      "path": "tacs/tac-2003-application-dashboard-export-handle.json"
+    },
+    {
+      "id": "ADR-2001-application-dashboard-primary-kpi-enum",
+      "kind": "adr",
+      "path": "adrs/adr-2001-application-dashboard-primary-kpi-enum.json",
+      "recommendedDefault": false,
+      "elicited": true,
+      "standardsTraceClause": "NN/g F-scan; Gestalt proximity"
+    },
+    {
+      "id": "ADR-2002-application-dashboard-timeframe-presets",
+      "kind": "adr",
+      "path": "adrs/adr-2002-application-dashboard-timeframe-presets.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "NN/g dashboard design (timeframe defaults)"
+    },
+    {
+      "id": "ADR-2003-application-dashboard-export-formats",
+      "kind": "adr",
+      "path": "adrs/adr-2003-application-dashboard-export-formats.json",
+      "recommendedDefault": true,
+      "elicited": true,
+      "standardsTraceClause": "GOV.UK Design System (download patterns); WCAG 1.3.1 (info and relationships)"
+    }
   ]
 }

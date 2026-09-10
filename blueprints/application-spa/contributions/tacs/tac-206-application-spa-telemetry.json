@@ -2,7 +2,7 @@
   "tacId": "TAC-206-application-spa-telemetry",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Telemetry and error reporting",
   "purpose": "Emits journey checkpoint events, error-boundary reports, and performance marks per application-spa-REQ-016 under the naming scheme in ADR-209-application-spa-telemetry-naming.",

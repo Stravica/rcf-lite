@@ -108,7 +108,7 @@ test('probe-path alignment pre-condition: blueprint versions', async () => {
   // api-rest bumped to 2.1.0 in the core-companions train (additive
   // suggestedCompanions + ADR-304 retained without scope:global); the
   // probe-path facts REQ-006 / US-2108 / TAC-306 stayed put.
-  assert.equal(ar.version, '2.1.0', 'api-rest must be at v2.1.0');
+  assert.equal(ar.version, '2.1.2', 'api-rest must be at v2.1.2');
 });
 
 // Assertion 1: all three apply cleanly in every ordering; no globalAdrTopic

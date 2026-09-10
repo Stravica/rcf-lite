@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "Retry policies are the difference between a self-healing system and a burning one. Classifying errors at the source (where the code knows whether the failure was a transient network blip or a permanent authorisation refusal) puts the decision where the information is; classifying downstream on the wire message is the source of most retry-storm outages.",
-  "tags": ["blueprint:application-error-handling", "category:03-classification"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-error-handling",
+    "category:03-classification"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-04T12:20:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1701-application-error-handling-boundary",
+    "field": "responsibilities"
+  }
 }

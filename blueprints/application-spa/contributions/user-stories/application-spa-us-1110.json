@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1110",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-006",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Overlays: modals, drawers, tooltips, popovers, toasts",
   "asA": "user encountering layered UI",
@@ -16,7 +16,8 @@
       "when": "Tab is cycled and the modal closed",
       "then": "focus stays inside while open and returns to the trigger on close",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-2",
@@ -25,7 +26,8 @@
       "when": "Escape, close control, and backdrop are tried",
       "then": "dismissal follows the declared per-intent rules",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-3",
@@ -34,7 +36,8 @@
       "when": "rendered and dismissed",
       "then": "sizing, focus, and dismissal follow the contract",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-4",
@@ -43,7 +46,8 @@
       "when": "focused via keyboard",
       "then": "the tooltip shows, is announced, and dismisses on Escape",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-5",
@@ -52,7 +56,8 @@
       "when": "rendered and dismissed",
       "then": "it remains fully visible and follows the focus contract",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-6",
@@ -61,7 +66,8 @@
       "when": "the toast appears",
       "then": "it announces politely, never takes focus, and pauses on hover",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-7",
@@ -70,7 +76,8 @@
       "when": "the toast expires unseen",
       "then": "the same action remains reachable elsewhere",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-8",
@@ -79,7 +86,8 @@
       "when": "Escape is pressed twice",
       "then": "the popover closes first, then the modal",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1110-9",
@@ -88,7 +96,8 @@
       "when": "rendered",
       "then": "styling is token-driven with no theme-specific defects",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

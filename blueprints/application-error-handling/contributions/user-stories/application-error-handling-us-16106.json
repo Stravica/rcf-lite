@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16106",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Records emit through the logging companion; the fallback stderr path fires only when no companion is applied",
   "asA": "operator debugging why an error record did not appear in the log ingestion pipeline",
@@ -16,10 +16,55 @@
       "when": "an error is emitted from the boundary",
       "then": "the first case emits via the logging companion (nothing on stderr from the boundary itself); the second case emits one JSON line on stderr with the warning",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-16106-2",
+      "description": "Given a project WITHOUT a logging companion applied, when the boundary constructs a record and reaches the emission path, the fallback stderr path writes exactly ONE line of newline-terminated JSON to stderr per record (a single `JSON.stringify(record)` call), and the applying project's guide names the gap as a known state; no double-emission, no console.error mirror, no additional plain-text prefix.",
+      "given": "a project with no logging companion applied and a constructed record",
+      "when": "the boundary emits the record",
+      "then": "exactly one newline-terminated JSON line is written to stderr and no other writer fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[3]"
+      }
+    },
+    {
+      "id": "AC-16106-3",
+      "description": "Given a project WITH a logging companion applied, when a caller elsewhere in the codebase calls `console.error(<message>)` directly (not through the boundary), the boundary contract does NOT intercept or double-emit that call; the direct console.error call remains a documented anti-pattern the applying project's linter or code review catches, not something the boundary silently rewrites.",
+      "given": "a project with a logging companion applied and a direct console.error call in application code (not through the boundary)",
+      "when": "the direct call fires",
+      "then": "the boundary contract does not intercept or route it through the companion; the direct call remains visible for lint or review to catch (per REQ-004's refusal wording)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[3]"
+      }
+    },
+    {
+      "id": "AC-16106-4",
+      "description": "Given a logging companion whose factory `error()` method itself throws (a rare defect in the applied companion), when the boundary attempts to emit, then the boundary catches the companion's failure, falls back to the one-line stderr JSON path for the record AND writes exactly one additional stderr line naming the companion failure so the operator can spot the double outage; the process does not crash on the companion's throw.",
+      "given": "a logging companion applied whose error() method itself throws when called",
+      "when": "the boundary attempts to emit through it",
+      "then": "the boundary catches the throw, emits the record via the fallback stderr JSON path, and writes one additional stderr line naming the companion failure; the process continues",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1701-application-error-handling-boundary",
+        "field": "responsibilities[3]"
+      }
     }
   ],
-  "tacIds": ["TAC-1701-application-error-handling-boundary"],
+  "tacIds": [
+    "TAC-1701-application-error-handling-boundary"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

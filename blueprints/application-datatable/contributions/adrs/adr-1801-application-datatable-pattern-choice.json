@@ -2,7 +2,7 @@
   "adrId": "ADR-1801-application-datatable-pattern-choice",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Choose ARIA APG table for read-only rows and ARIA APG grid once any cell becomes an interactive control",
   "context": "The ARIA APG names two distinct patterns for tabular surfaces: `table` for a read-only presentation of tabular data, and `grid` for a two-dimensional widget where cells can hold interactive controls (buttons, links, editable fields). Assistive-tech behaviour differs between the two: a grid announces row and column position on focus, supports two-dimensional keyboard navigation, and expects `role=\"gridcell\"` on data cells; a table announces cell contents in reading order and does not expect grid navigation. Picking one pattern per the interactivity of the surface prevents the shipped datatable from advertising grid affordances the surface does not implement (a common defect).",

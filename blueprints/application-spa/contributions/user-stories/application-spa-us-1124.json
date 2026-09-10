@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1124",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-017",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Rendered copy free of internal ids and placeholders, errors phrased forward",
   "asA": "user reading anything the application says",
@@ -16,7 +16,8 @@
       "when": "rendered text is scanned for id patterns",
       "then": "zero matches in visible copy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1124-2",
@@ -25,7 +26,8 @@
       "when": "rendered text is scanned for placeholder markers",
       "then": "zero placeholder strings",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1124-3",
@@ -34,7 +36,8 @@
       "when": "copy is reviewed against the actionability rule",
       "then": "each names the situation and a next step",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1124-4",
@@ -43,7 +46,8 @@
       "when": "error surfaces render",
       "then": "internals are absent; the problem-details mapping per ADR-204 produced user copy",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1124-5",
@@ -52,7 +56,8 @@
       "when": "copy is compared to blueprint template text",
       "then": "no unreplaced template sentences remain",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",

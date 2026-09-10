@@ -2,7 +2,7 @@
   "adrId": "ADR-1901-application-charts-engine-choice",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Elicit the chart engine at apply, and refuse a canvas-only engine that offers no text-alternative surface",
   "context": "Chart engines have wildly different accessibility postures. Recharts and ECharts render to SVG with keyboard-focusable data points and a DOM the shell can read; Chart.js renders to canvas and needs a paired data-table to reach a screen reader; D3 primitives leave the accessibility contract to the author. A blueprint that hard-picks one engine locks the applying project into that engine's accessibility posture; a blueprint that leaves it wide open lets the project ship a canvas-only chart with no text-alternative path.",

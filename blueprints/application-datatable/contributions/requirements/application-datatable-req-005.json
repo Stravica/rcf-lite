@@ -7,9 +7,16 @@
   "domain": "application",
   "priority": "must",
   "rationale": "State ambiguity is the second-biggest datatable defect after focus return: showing a spinner over the last-good rows (stale-content ambiguity), or an empty state that reads the same as no-results. Distinct regions plus polite live announcements close both classes.",
-  "tags": ["blueprint:application-datatable", "category:05-states"],
-  "version": "1.0.0",
+  "tags": [
+    "blueprint:application-datatable",
+    "category:05-states"
+  ],
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-04T19:45:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-1801-application-datatable-shell",
+    "field": "responsibilities"
+  }
 }

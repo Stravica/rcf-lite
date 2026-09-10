@@ -2,7 +2,7 @@
   "adrId": "ADR-2002-application-dashboard-timeframe-presets",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Ship three timeframe presets by recommendedDefault with elicited overrides and auto-refresh off unless elicited",
   "context": "Timeframe presets on a dashboard are the single most-touched control; the wrong default (a rolling 24-hour window on a monthly-cycle business) produces a dashboard that is silently wrong at every open. Operators often want their own presets (a fiscal-year window, a shift window). Auto-refresh is one of the most common accessibility and cost defects on shipped dashboards: an unattended refresh runs the fan-out on a hidden tab all day.",

@@ -2,7 +2,7 @@
   "adrId": "ADR-301-application-api-rest-error-envelope",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "RFC 7807 problem details as the error shape the service produces",
   "context": "Every error the service emits is part of its wire contract, including the failures nobody plans: auth rejections, rate limits, malformed input, unhandled exceptions. The wire error shape is a whole-project decision with room for exactly one answer, shared with whatever consumes the API; this record is the producer half. A client-tier blueprint applied to the same project contributes its own decision on the same topic, and blueprint composition surfaces that pairing for the operator to reconcile at add time. That surfacing is intended.",

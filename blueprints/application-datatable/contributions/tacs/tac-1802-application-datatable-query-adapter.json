@@ -2,7 +2,7 @@
   "tacId": "TAC-1802-application-datatable-query-adapter",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Datatable query adapter",
   "purpose": "Owns the sort, filter and pagination wire contract between the shell (TAC-1801) and the project's data source (a REST endpoint on application-api-rest, a GraphQL query, or an in-memory collection). Ships two shapes: a server-side default (elicited endpoint, receives `q`, `sort`, `page`, `pageSize`, returns `{ rows, total, page, pageSize, sort, q }`) and a client-side in-memory adapter for small collections (elicited ADR-1802 alternative).",

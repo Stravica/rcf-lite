@@ -2,7 +2,7 @@
   "adrId": "ADR-1804-application-datatable-selection-persistence",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Selection persistence is elicited: per-page reset by default, cross-page persistence when the operator opts in",
   "context": "Cross-page selection persistence is a powerful primitive for bulk operations across a large dataset; it also increases the surface area for confusing behaviour (an unexpected bulk operation on rows the operator forgot they selected two pages ago). The default preserves predictability; the operator opts into persistence when the surface's task shape warrants it.",

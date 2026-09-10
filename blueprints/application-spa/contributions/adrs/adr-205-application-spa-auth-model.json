@@ -2,7 +2,7 @@
   "adrId": "ADR-205-application-spa-auth-model",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Cookie-based session authentication with client-side expiry handling",
   "context": "The blueprint scope is public plus authenticated surfaces with session-based auth. The authentication model is a whole-project decision: the client, the API, and the deploy target must hold the same answer. A application-api-rest blueprint contributes its own decision on this topic; composition surfaces the pairing for operator reconciliation, which is intended.",

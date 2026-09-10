@@ -2,7 +2,7 @@
   "tacId": "TAC-2003-application-dashboard-export-handle",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Export handle with format list and delegation to the charts render shell",
   "purpose": "Owns the shell's export handle: a labelled `<button>` that on activation opens an accessible list of formats (CSV, PDF, PNG-of-chart by default; ADR-2003 elicits overrides), and delegates PNG-of-chart generation to the application-charts render shell (TAC-1901). The handle is the substitutable interface the shell exposes to export tooling; the PNG-of-chart delegation stops the dashboard shell from carrying its own PNG generator.",

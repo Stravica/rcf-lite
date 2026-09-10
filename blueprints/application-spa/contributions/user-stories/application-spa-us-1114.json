@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1114",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-008",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Every declared journey specified and rendering across its six states",
   "asA": "user anywhere in a journey",
@@ -11,12 +11,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1114-1",
-      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states.",
+      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the journey inventory",
       "when": "each journey is walked against the specifications",
       "then": "all six states are specified for every step",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1114-2",
@@ -25,7 +26,8 @@
       "when": "first render is observed",
       "then": "designed arrival content is visible without user action",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1114-3",
@@ -34,27 +36,30 @@
       "when": "the error state renders",
       "then": "a forward path is present and operable",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1114-4",
-      "description": "Re-entry into a journey restores or gracefully resets context per the journey specification; expired-session re-entry routes through the application-spa-US-1116 flow back to the same step.",
+      "description": "Re-entry into a journey restores or gracefully resets context per the journey specification; expired-session re-entry routes through the application-spa-US-1116 flow back to the same step. Applying agent sets: the journey re-entry restore-or-reset behaviour per journey.",
       "given": "a user mid-journey who leaves and returns",
       "when": "re-entry occurs, including with an expired session",
       "then": "the declared restore-or-reset behaviour happens and no entered data is silently lost",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-1114-5",
-      "description": "Journey checkpoint telemetry per application-spa-REQ-016 fires at each declared checkpoint across all six states, so abandoned journeys are observable.",
+      "description": "Journey checkpoint telemetry per application-spa-REQ-016 fires at each declared checkpoint across all six states, so abandoned journeys are observable. Applying agent sets: the declared checkpoint set per journey inventory.",
       "given": "a journey walked through each state",
       "when": "telemetry is captured",
       "then": "the declared checkpoint events fire with correct names",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "createdAt": "2026-08-19T09:00:00Z",
-  "updatedAt": "2026-08-19T09:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

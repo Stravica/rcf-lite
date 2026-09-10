@@ -2,7 +2,7 @@
   "tacId": "TAC-1702-application-error-handling-record-factory",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Error record factory",
   "purpose": "Owns the construction of every internal error record. Threads the operator-elicited redaction categories (from the applied logging companion) into a shared factory that gates the record shape (code + category required per ADR-1701), redacts the context field at construction (AC-16104-1), preserves the cause chain across nested wrappings (AC-16103-2), and returns an immutable record every downstream consumer can trust.",

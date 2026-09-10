@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2112",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-010",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Idempotency keys: retries replay, duplicates never apply twice",
   "asA": "API consumer retrying over an unreliable network",
@@ -11,21 +11,27 @@
   "acceptanceCriteria": [
     {
       "id": "AC-2112-1",
-      "description": "The project declares which verb and resource-class combinations require an Idempotency-Key; the declaration is published in the generated spec per operation.",
+      "description": "The project declares which verb and resource-class combinations require an idempotency-key; the declaration is published in the generated spec per operation. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
       "given": "the generated OpenAPI document",
       "when": "operations on non-safe verbs are inspected",
-      "then": "each declares whether Idempotency-Key is required, and every duplicate-harmful operation declares it required",
+      "then": "each declares whether idempotency-key is required, and every duplicate-harmful operation declares it required",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-303-application-api-rest-contract-surface",
+        "field": "interfaces[0].name"
+      },
+      "disposition": "template"
     },
     {
       "id": "AC-2112-2",
-      "description": "An operation declared key-required rejects a request without the header: 400 with a problem-details body naming the missing header.",
+      "description": "An operation declared key-required rejects a request without the header: 400 with a problem-details body naming the missing header. Applying agent sets: the set of operations declared key-required.",
       "given": "a key-required operation",
-      "when": "a request without Idempotency-Key is submitted",
+      "when": "a request without idempotency-key is submitted",
       "then": "the service responds 400 with the error envelope naming the header",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2112-3",
@@ -34,7 +40,8 @@
       "when": "the identical request is repeated within the TTL",
       "then": "the original response is replayed and exactly one side effect exists",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2112-4",
@@ -43,7 +50,8 @@
       "when": "the same key arrives with a different body within the TTL",
       "then": "the service responds 422 with the error envelope naming the conflict",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2112-5",
@@ -52,21 +60,23 @@
       "when": "the same key and body arrive concurrently",
       "then": "the second request receives 409 with the error envelope and the side effect applies exactly once",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2112-6",
-      "description": "The de-duplication cache honours its declared TTL: within it replays occur, after it a reused key is treated as a fresh request, and the TTL value is documented.",
+      "description": "The de-duplication cache honours its declared TTL: within it replays occur, after it a reused key is treated as a fresh request, and the TTL value is documented. Applying agent sets: the de-duplication cache TTL value.",
       "given": "the declared TTL",
       "when": "a keyed request is repeated inside and after the TTL window",
       "then": "the inside repeat replays; the after repeat executes as new; the TTL matches its documentation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
     "TAC-301-application-api-rest-request-pipeline"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

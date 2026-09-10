@@ -2,7 +2,7 @@
   "adrId": "ADR-1902-application-charts-accessible-palette",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Ship an accessible-defaults categorical palette (light and dark) with elicited operator overrides",
   "context": "Categorical palettes are the most common source of colour-blindness defects on chart libraries: many popular defaults (rainbow gradients, the classic ten-colour categorical from d3-scale v1) fail deuteranopia readability at the second and third series. Operators bring brand tokens they want to see on the shipped surface; the tension between brand palette and accessible palette is real.",

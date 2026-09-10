@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1118",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-011",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Single icon set behind semantic aliases",
   "asA": "user scanning the interface",
@@ -16,7 +16,8 @@
       "when": "icon provenance is audited",
       "then": "every icon traces to the one declared set",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1118-2",
@@ -25,7 +26,8 @@
       "when": "icon references are audited",
       "then": "every reference goes through an alias",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1118-3",
@@ -34,7 +36,8 @@
       "when": "renderings are compared",
       "then": "glyph use is consistent per meaning",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1118-4",
@@ -43,7 +46,8 @@
       "when": "the accessibility tree is inspected",
       "then": "decorative ones are hidden and meaningful ones named",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

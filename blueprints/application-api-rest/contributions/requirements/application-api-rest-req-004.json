@@ -11,8 +11,12 @@
     "blueprint:application-api-rest",
     "category:04-openapi-generation"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-08-19T10:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-303-application-api-rest-contract-surface",
+    "field": "responsibilities.hand-written"
+  }
 }

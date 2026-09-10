@@ -2,7 +2,7 @@
   "adrId": "ADR-207-application-spa-motion",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "accepted",
   "title": "Motion tokens with ease-out defaults and a reduced-motion kill switch",
   "context": "application-spa-REQ-012 requires tokenised motion. The duration range, easing family, and the reduced-motion mechanism need one recorded answer inside the SPA.",

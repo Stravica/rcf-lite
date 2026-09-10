@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1134",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-011",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Primary-nav icon renders at the expected size across declared themes on the home route in a browser (e2e)",
   "asA": "operator relying on the iconography discipline the application-spa blueprint declares",
@@ -16,9 +16,15 @@
       "when": "a real browser loads / in each theme declared on the blueprint's browserSurface and getBoundingClientRect() is read for the primary-nav icon",
       "then": "the icon's rendered box equals the iconAlias size token for the primary-nav slot in every theme; a mismatch, a zero-size box, or a missing icon refuses ship with a per-theme diagnostic",
       "testable": true,
-      "scope": "deployed"
+      "scope": "deployed",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-207-application-spa-token-adherence-probe",
+        "field": "interfaces[1].name"
+      }
     }
   ],
   "createdAt": "2026-09-03T17:00:00Z",
-  "updatedAt": "2026-09-03T17:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "description": "7a note: this e2e is a single-assertion probe with a fixed success signal; the guide names no additional failure paths on the owning mechanism (the render or redirect fires as declared), so one AC is at the section 7a floor."
 }

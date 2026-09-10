@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17104",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Bulk actions on selected rows open a confirmation dialog and return focus to the originating row on close",
   "asA": "operator applying an action to multiple rows",
@@ -16,7 +16,8 @@
       "when": "the operator toggles a row checkbox",
       "then": "the accessible selection count updates by one",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17104-2",
@@ -25,7 +26,8 @@
       "when": "the operator activates the bulk action",
       "then": "the dialog opens with `role=\"dialog\"`, `aria-modal=\"true\"`, `aria-labelledby` and `aria-describedby` set, and the confirm control receives initial focus",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17104-3",
@@ -34,11 +36,67 @@
       "when": "the operator closes the dialog (confirm or cancel)",
       "then": "focus returns to the originating row's control (the row-scoped focus target), not to the document body or an unrelated element",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-17104-4",
+      "description": "Given the selection model's operator-configured maximum selection cap (an integer set on the shell factory), when the operator attempts to toggle a row that would exceed the cap, the shell refuses the toggle and announces the refusal through an aria-live polite region naming the cap value; the selection model records no change. Applying agent sets: the cap value on the shell factory input.",
+      "given": "an operator toggling a row that would push the selection past the configured maximum cap",
+      "when": "the shell handles the toggle",
+      "then": "the toggle is refused, the selection model records no change, and an aria-live polite region announces the refusal naming the cap value",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1803-application-datatable-selection-model",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17104-5",
+      "description": "Given an open bulk-action confirmation dialog and the operator activates the Cancel control (or presses Escape), when the dialog closes, focus returns to the same row-scoped focus target the dialog opened FROM (the row's selection checkbox or the equivalent row-level focus target), not to the bulk-action control that opened it; a dialog that returns focus to the wrong target fails the pack check.",
+      "given": "an open bulk-action confirmation dialog closed with Cancel or Escape",
+      "when": "the dialog closes",
+      "then": "focus returns to the row-scoped focus target the dialog opened from, not to the bulk-action control",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1803-application-datatable-selection-model",
+        "field": "purpose"
+      }
+    },
+    {
+      "id": "AC-17104-6",
+      "description": "Given an open bulk-action confirmation dialog, when the operator presses Tab through the dialog controls, focus is trapped inside the dialog (Tab cycles between the dialog's focusable elements; it does not reach elements outside the dialog); a dialog whose Tab escapes to elements outside fails the pack check per ARIA APG dialog-modal.",
+      "given": "an open bulk-action confirmation dialog and the operator pressing Tab",
+      "when": "the pack captures focus movement",
+      "then": "focus is trapped inside the dialog; Tab does not reach elements outside; escape fails the check",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1801-application-datatable-shell",
+        "field": "purpose"
+      },
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+        "verifiedOn": "2026-09-09"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1803-application-datatable-selection-model"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell",
+    "TAC-1803-application-datatable-selection-model"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
-  "updatedAt": "2026-09-04T19:45:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

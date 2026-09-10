@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17103",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Pagination advances the page and announces the current position through an aria-live region",
   "asA": "operator paging through a long result set",
@@ -16,7 +16,8 @@
       "when": "the operator activates the next-page control",
       "then": "the query adapter receives `page` and `pageSize` and the rendered rows equal the returned rows",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17103-2",
@@ -25,7 +26,8 @@
       "when": "the operator activates the pagination control",
       "then": "the aria-live region text updates from `Page N of M` to `Page N+1 of M`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-17103-3",
@@ -34,11 +36,31 @@
       "when": "the operator tabs into the pagination region",
       "then": "each pagination control receives focus and activates on `Enter` or `Space`",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-17103-4",
+      "description": "Given the query adapter rejects the pagination request (an HTTP 4xx/5xx, a network error, or a client-cancelled fetch), when the response settles, then the loading indicator clears and the announced error region replaces the pending state naming the failed operation; the rendered rows retain the last successful state until the operator retries.",
+      "given": "a pending pagination request whose fetch rejects",
+      "when": "the query adapter's response settles as a failure",
+      "then": "the loading indicator clears, an announced error region reports the failed operation, and the last successful rows remain",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1802-application-datatable-query-adapter",
+        "field": "interfaces[0].name"
+      }
     }
   ],
-  "tacIds": ["TAC-1801-application-datatable-shell", "TAC-1802-application-datatable-query-adapter"],
-  "tags": ["blueprint:application-datatable"],
+  "tacIds": [
+    "TAC-1801-application-datatable-shell",
+    "TAC-1802-application-datatable-query-adapter"
+  ],
+  "tags": [
+    "blueprint:application-datatable"
+  ],
   "createdAt": "2026-09-04T19:45:00Z",
   "updatedAt": "2026-09-04T19:45:00Z"
 }

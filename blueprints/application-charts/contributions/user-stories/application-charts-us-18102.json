@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18102",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Series distinction combines colour, pattern and direct label so a colour-blind reader reads the same distinction",
   "asA": "reader with a colour-vision deficiency using the shipped surface",
@@ -16,7 +16,8 @@
       "when": "the DOM is inspected",
       "then": "every series carries colour plus a non-colour pattern attribute plus a direct label",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-18102-2",
@@ -25,11 +26,62 @@
       "when": "the pack runs",
       "then": "the AC-18102-1 rule does not apply and the pack records applicable false",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+        "verifiedOn": "2026-09-09"
+      }
+    },
+    {
+      "id": "AC-18102-3",
+      "description": "Given a rendered multi-series chart whose series distinction relies on the shipped accessible palette AND a distinguishing pattern, when the deuteranopia simulation is applied to a screenshot of the surface, the series remain visually distinct (a pattern still parses through the simulation); a chart whose only distinction is a colour indistinguishable under the simulation fails the pack check.",
+      "given": "a rendered multi-series chart under a deuteranopia simulation",
+      "when": "the pack inspects the simulated screenshot",
+      "then": "the series remain visually distinct through the pattern and label; a colour-only distinction fails",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-18102-4",
+      "description": "Given a rendered multi-series chart whose legend is present but no series carries a direct label at the series, the pack fails the check per REQ-002 (a legend entry alone does not satisfy the AC); a passing chart carries a direct label at each series either inside the plot area or immediately adjacent to the series line, bar or slice.",
+      "given": "a rendered multi-series chart with a legend but no direct series labels",
+      "when": "the pack inspects the DOM",
+      "then": "the check fails; a passing chart carries a direct series label at each series (not only in the legend)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[1]"
+      }
+    },
+    {
+      "id": "AC-18102-5",
+      "description": "Given a rendered multi-series chart with more series than the shipped palette provides colours for (a 20-series chart against an 8-colour palette), the shell cycles the palette AND changes the pattern so the pattern-plus-index combination stays unique across series; two series that share both colour AND pattern fail the pack check.",
+      "given": "a rendered chart with more series than the palette carries colours",
+      "when": "the pack inspects series colour and pattern combinations",
+      "then": "each series has a unique (colour, pattern) combination; two series sharing both fail the check",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[1]"
+      }
     }
   ],
-  "tacIds": ["TAC-1901-application-charts-render-shell"],
-  "tags": ["blueprint:application-charts"],
+  "tacIds": [
+    "TAC-1901-application-charts-render-shell"
+  ],
+  "tags": [
+    "blueprint:application-charts"
+  ],
   "createdAt": "2026-09-04T21:00:00Z",
-  "updatedAt": "2026-09-04T21:00:00Z"
+  "updatedAt": "2026-09-10T07:07:28Z"
 }

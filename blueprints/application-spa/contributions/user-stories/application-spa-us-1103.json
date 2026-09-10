@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1103",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Keyboard navigation, skip-link, and landmark roles",
   "asA": "keyboard-only user",
@@ -16,7 +16,8 @@
       "when": "Tab is pressed once from page load",
       "then": "the skip-link receives visible focus and activating it moves focus into main",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1103-2",
@@ -25,7 +26,8 @@
       "when": "the page is traversed with Tab and Shift-Tab",
       "then": "focus order matches visual order with no unreachable interactive element",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1103-3",
@@ -34,7 +36,8 @@
       "when": "arrow keys and Tab are pressed",
       "then": "arrows move within the menu and Tab moves focus out of it",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1103-4",
@@ -43,7 +46,8 @@
       "when": "Escape is pressed",
       "then": "the overlay closes and focus returns to its trigger",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1103-5",
@@ -52,7 +56,8 @@
       "when": "the accessibility tree is inspected",
       "then": "the four landmarks are present and main is unique",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-1103-6",
@@ -61,7 +66,8 @@
       "when": "standard focus-movement keys are used",
       "then": "focus always has an exit path",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

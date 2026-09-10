@@ -2,7 +2,7 @@
   "usId": "application-spa-US-1130",
   "prdId": "PRD-001",
   "reqId": "application-spa-REQ-011",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Icon adherence probe refuses ship on inline SVG or unknown alias",
   "asA": "operator relying on the iconography discipline",
@@ -16,7 +16,12 @@
       "when": "the icon-adherence probe runs against the component glob",
       "then": "the probe exits with a non-zero code and records the file path and line number of the inline SVG in its report",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-208-application-spa-icon-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     },
     {
       "id": "AC-1130-2",
@@ -25,7 +30,12 @@
       "when": "the icon-adherence probe runs against the component glob",
       "then": "the probe exits with a non-zero code and records the unknown alias name, file path, and line number in its report",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-208-application-spa-icon-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     },
     {
       "id": "AC-1130-3",
@@ -34,7 +44,12 @@
       "when": "the report file is inspected on disk",
       "then": "the JSON at `reports/icon-adherence.json` matches the shape declared by TAC-208 and its verdict field agrees with the process exit code",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-208-application-spa-icon-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     },
     {
       "id": "AC-1130-4",
@@ -43,7 +58,12 @@
       "when": "the probe reports `fail` on any run",
       "then": "the aggregate report records the gate as failed and the runner exits non-zero",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-208-application-spa-icon-adherence-probe",
+        "field": "interfaces[2].name"
+      }
     }
   ],
   "tacIds": [

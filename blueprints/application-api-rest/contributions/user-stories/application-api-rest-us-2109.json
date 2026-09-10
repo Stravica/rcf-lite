@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2109",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-007",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Cursor pagination with a navigable envelope and enforced limits",
   "asA": "API consumer walking large collections",
@@ -16,7 +16,8 @@
       "when": "a page is requested with cursor and limit",
       "then": "the response conforms to the pagination envelope with items, next, and prev fields",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2109-2",
@@ -25,7 +26,8 @@
       "when": "the collection is walked via next from the first page",
       "then": "every item appears exactly once and the final page's next is null",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2109-3",
@@ -34,7 +36,8 @@
       "when": "it is submitted",
       "then": "the service responds 400 with the declared error envelope rather than best-effort interpretation",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2109-4",
@@ -43,16 +46,18 @@
       "when": "the walk completes",
       "then": "every item that existed throughout appears exactly once",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-2109-5",
-      "description": "The declared maximum limit is enforced: a request exceeding it receives 400 with a problem-details body naming the maximum, and a request without a limit receives the declared default page size.",
+      "description": "The declared maximum limit is enforced: a request exceeding it receives 400 with a problem-details body naming the maximum, and a request without a limit receives the declared default page size. Applying agent sets: the declared maximum limit value and the declared default page size per collection.",
       "given": "requests with an oversized limit and with no limit",
       "when": "each is submitted",
       "then": "the oversized request receives 400 naming the maximum; the limitless request returns the default page size",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
     },
     {
       "id": "AC-2109-6",
@@ -61,12 +66,13 @@
       "when": "both responses are compared",
       "then": "only the explicit request carries the total, per the envelope's documented count field",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
     "TAC-304-application-api-rest-resource-layer"
   ],
   "createdAt": "2026-08-19T10:00:00Z",
-  "updatedAt": "2026-08-19T10:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }
