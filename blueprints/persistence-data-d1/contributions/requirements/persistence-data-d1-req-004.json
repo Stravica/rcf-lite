@@ -2,7 +2,7 @@
   "reqId": "persistence-data-d1-REQ-004",
   "prdId": "PRD-001",
   "title": "Every statement the facade issues against D1 is a parameterised prepared statement; no consumer-supplied SQL reaches the binding",
-  "description": "The facade module issues every read or write against D1 through the prepared-statement surface: `db.prepare(<static SQL literal>).bind(<parameters>).first()`, `.all()`, or `.run()`. The static SQL literal is authored inside the facade module and does not embed values from consumer arguments through string concatenation, template interpolation, or any other join that produces a call-site-specific SQL fragment. The facade does not export a general-purpose query method whose parameter is a SQL string supplied by a consumer, and it does not use `db.exec(<consumer string>)` on any path. The allowed query surface is ratified on ADR-1404.",
+  "description": "The facade module routes every read and write against D1 through the prepared-statement discipline owned on TAC-1401-persistence-data-d1-facade.responsibilities[2]. Static SQL literals are authored inside the facade module and never embed values from consumer arguments through string concatenation, template interpolation, or any other join that produces a call-site-specific SQL fragment. The facade exports no general-purpose query method whose parameter is a SQL string supplied by a consumer, and it reaches no non-literal statement through the vendor raw execute path on any code path. The allowed query surface is ratified on ADR-1404.",
   "category": "security",
   "domain": "persistence",
   "priority": "must",
@@ -11,12 +11,12 @@
     "blueprint:persistence-data-d1",
     "category:04-prepared-statements"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-08-30T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1401-persistence-data-d1-facade",
-    "field": "responsibilities.prepareAndBind"
+    "field": "responsibilities.prepare"
   }
 }

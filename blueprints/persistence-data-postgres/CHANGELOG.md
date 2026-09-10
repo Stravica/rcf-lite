@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 - 2026-09-10
+
+Dimension-d single-definition-ownership cleanup on REQ-004: REQ description now references the transaction-helper interface owned on TAC-2803.interfaces.withTransaction rather than restating the driver control literals for begin, commit and rollback. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
