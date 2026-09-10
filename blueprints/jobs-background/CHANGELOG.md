@@ -2,7 +2,7 @@
 
 ## 1.1.4 - 2026-09-10
 
-Register cleanup on shipped prose. The README opening paragraph drops the editorial provenance phrases "from the visual round" and "per maintainer decision on the ratified round-5 spec" and now names the applied-capability mechanism directly. `jobs-background-REQ-001.description` drops "from the visual round" and the "per infra round 5 spec section 10 Q3 default" clause and states the exit-code and stable-message-id assertions in neutral form. `ADR-3103.consequences` drops the "Standards trace clause: visual round spec section 5.5.2" reference and the internal repo-path leak, and now describes the sidecar-note construction in plain external terms. `TAC-3101.dependencies[2].description` reads "via the applied-capability mechanism" in place of the bare "via the mechanism" leftover. REQ-001, ADR-3103 and TAC-3101 patch-bumped. Anatomy pin updated to 1.1.4. Chain-consistency lint zero on pass 1 and pass 2.
+Register cleanup on shipped prose: neutral wording in README, `jobs-background-REQ-001.description`, `ADR-3103.consequences` and `TAC-3101.dependencies[2].description` with no capability change. README opening now names the applied-capability mechanism directly. REQ-001 states the exit-code and stable-message-id assertions in neutral form. ADR-3103 describes the sidecar-note construction in plain external terms without the internal repo-path reference. TAC-3101 reads "via the applied-capability mechanism". REQ-001, ADR-3103 and TAC-3101 patch-bumped. Anatomy pin updated to 1.1.4. Chain-consistency lint zero on pass 1 and pass 2. Closes criterion-f findings 3, 4, 5 and 7 for jobs-background; findings 2 and 6 were already closed on origin/main.
 
 ## 1.1.3 - 2026-09-10
 

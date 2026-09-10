@@ -39,10 +39,12 @@ const { id } = await producer.publish({ userId: '42', action: 'sendConfirmation'
 
 // publish a batch
 await producer.publishBatch([
-  { body: { seq: 1 }, headers: { 'x-trace-id': 't-1' } },
-  { body: { seq: 2 }, headers: { 'x-trace-id': 't-2' } },
+  { body: { seq: 1 }, headers: { 'x-trace-id': 'trace-order-1001' } },
+  { body: { seq: 2 }, headers: { 'x-trace-id': 'trace-order-1002' } },
 ]);
 ```
+
+The `x-trace-id` header and the publish and publishBatch verbs are owned at `TAC-3001.interfaces[2].description`; the values above are illustrative.
 
 The facade is the sole holder of the queue binding reference per REQ-001. A call site that reaches into `env.<binding>.send()` directly is refused at author-side review.
 
