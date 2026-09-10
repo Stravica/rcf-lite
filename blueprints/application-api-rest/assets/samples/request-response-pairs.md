@@ -1,5 +1,7 @@
 # Sample request-response pairs per verb class
 
+Owner: the `X-Request-Id` header these pairs display is owned on `TAC-301-application-api-rest-request-pipeline.responsibilities[0]`. The samples below demonstrate wire shape.
+
 Reference realisations of the wire contract (application-api-rest-REQ-002, application-api-rest-REQ-007, application-api-rest-REQ-009, application-api-rest-REQ-010) using the illustrative `widgets` resource from the OpenAPI skeleton. The shapes are normative; the resource is not. All timestamps RFC-3339 UTC, all properties camelCase, every response with an explicit Content-Type.
 
 ## GET, collection page (filtered, sorted, paginated)
