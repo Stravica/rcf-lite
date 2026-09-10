@@ -58,7 +58,7 @@ hardening pass (`h2-cf-platform-probe-integrity`): probe-integrity patch across 
 - Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
 - Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
 - Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
-- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as follow-up work item a loader-capability follow-up (0.26.x capability change, out of the hardening pass's 0.25.x patch scope per operator ruling 1). The entry describes the current shipped shape and points forward to the follow-up.
+- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as a loader-capability follow-up (0.26.x capability change, out of the hardening pass's 0.25.x patch scope per operator ruling 1). The entry describes the current shipped shape and points forward to the follow-up.
 
 ### Fixed
 
@@ -66,7 +66,7 @@ hardening pass (`h2-cf-platform-probe-integrity`): probe-integrity patch across 
 
 ### Chain slice
 
-- Train chain slice minted inside the reserved the reserved block: `REQ-150..154`, `US-15001..15401`, twelve `AC-15xxx` ACs, `TS-180..184` with eleven TCs, `FBS-170..174`, `CN-520..529` (seven used, three reserved). Full mint transcript in the the hardening PR provenance.
+- Train chain slice minted inside the reserved chain block: `REQ-150..154`, `US-15001..15401`, twelve `AC-15xxx` ACs, `TS-180..184` with eleven TCs, `FBS-170..174`, `CN-520..529` (seven used, three reserved). Full mint transcript in the hardening-pass PR provenance.
 
 ## 1.0.0 (2026-09-07)
 

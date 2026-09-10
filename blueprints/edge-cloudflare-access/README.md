@@ -61,15 +61,15 @@ The `middleware(request, envSwitches?)` returns either
   the validator refuses tokens whose `aud` claim does not match.
 - `access-jwks-url`: the JWKS endpoint URL the validator fetches.
   Cloudflare Access publishes this at
- `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`.
+  `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs`.
 - `access-policy-shape` (default `email-domain`): one of
- `email-domain`, `service-token-only`,
- `service-token-plus-email-domain`, `group-membership`. Drives
+  `email-domain`, `service-token-only`,
+  `service-token-plus-email-domain`, `group-membership`. Drives
   the guide walk-through and the API alternative.
 - `access-bypass-service-auth-id`: leave blank to disable
   break-glass. When set, the paired secret is delegated to the
   applied `secretsManagement` companion via
- `security-secrets-management`.
+  `security-secrets-management`.
 
 ## The six probes
 
@@ -100,15 +100,15 @@ under the fixture root.
   is covered by the anatomy test that greps the shipped guide file
   for the two section headings and the vendor URL.
 - `AC-34106-1` (audit metadata secrecy) is covered by the
- `audit-event-secrecy` probe.
+  `audit-event-secrecy` probe.
 - `AC-34107-1` (break-glass posture) is covered by the anatomy
   test that drives the validator with an elicited pair.
 - `AC-34108-1` (admin-console composition) is covered by the
- `admin-console-gate-surface` probe (both branches) and by the
+  `admin-console-gate-surface` probe (both branches) and by the
   shipped `application-admin-console.pack.mjs` pack check
- `AC-21815-1` (Playwright-driven on the extended fixture).
+  `AC-21815-1` (Playwright-driven on the extended fixture).
 - `AC-34109-1` (real-account gated URL) is covered by the
- `real-account-gated-url` probe (skipped in CI without both env
+  `real-account-gated-url` probe (skipped in CI without both env
   vars per section 3.5).
 
 ## Two-line gate-reviewer boot

@@ -23,7 +23,7 @@ cadence), reach for `jobs-background` v1.0.0 directly.
 - Recurring cadence, stateless per fire, Cloudflare Workers ->
   this blueprint (Cron Triggers).
 - Background job produced by a request, retried and observed ->
- `jobs-background` v1.0.0 over `messaging-queue-cloudflare`.
+  `jobs-background` v1.0.0 over `messaging-queue-cloudflare`.
 - Durable workflow with state across steps, retried per step ->
   follow-up Workflows adapter on `jobs-background` v1.1.0 (round-6
   minor bump).
@@ -41,13 +41,13 @@ Answer four elicits at `rcf define blueprint add` time:
   minutes.
 - `cron-dispatcher-mode`: `single-handler` when you elicited one
   expression and want every fire to run one handler;
- `expression-routed` when you elicited more than one expression
+  `expression-routed` when you elicited more than one expression
   and want the dispatcher to route by exact expression match. The
   recommended default follows your `cron-expressions` list: one
   entry -> `single-handler`; more than one -> `expression-routed`.
 - `cron-skew-tolerance-seconds`: the drift window inside which a
   fire is `onTime` and outside which the dispatcher records
- `cronSkewed`. Default `30`, floor `5`, ceiling `300`.
+  `cronSkewed`. Default `30`, floor `5`, ceiling `300`.
 - `cron-soft-budget-seconds`: the per-handler duration past which
   the dispatcher records `cronStalled`. Default `30`. The
   dispatcher never terminates the handler; termination is
@@ -103,7 +103,7 @@ section 3.5.
 - `SIMULATE_PII_LEAK=true`: wraps the sink on the event-secrecy
   probe so it forwards the closure onto every record. The probe
   surfaces the forbidden keys and the PII substrings and returns
- `aggregateVerdict: fail`. Use this before shipping to confirm
+  `aggregateVerdict: fail`. Use this before shipping to confirm
   the whitelist assertion is teeth-bearing.
 - `SIMULATE_SLOW_HANDLER=true`: extends the spy handler on the
   skew-tolerance probe past `softBudgetMs` on every dispatch so

@@ -79,7 +79,7 @@ Answers land on `rcf/blueprints/application-account-settings.applied.json`'s `ap
 
 ## The one runtime gate
 
-`probe-packs/application-account-settings.pack.mjs` ships five checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2601-application-account-settings-shell` or whose nav model routes name an `/account`, `/settings` or `/profile` path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3,  residual cure).
+`probe-packs/application-account-settings.pack.mjs` ships five checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2601-application-account-settings-shell` or whose nav model routes name an `/account`, `/settings` or `/profile` path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3, residual cure).
 
 Each check drives the real Playwright browser the runner provisions (through the pinned Playwright MCP or the consuming project's own `playwright` installation), reads the accessibility tree and the DOM, and returns a verdict.
 

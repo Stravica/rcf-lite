@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 // CI gate that runs the chain-consistency lint over every shipped
-// blueprint under packages/rcf-lite/blueprints/. Reads each blueprint
-// via the same loader the CLI uses; refuses exit 1 on any unsuppressed
-// finding, exits 0 when every blueprint passes.
+// blueprint on the root `blueprints/` shelf (the monorepo-root
+// authoritative sources). Reads each blueprint via the same loader
+// the CLI uses; refuses exit 1 on any unsuppressed finding, exits 0
+// when every blueprint passes.
 //
-// Absorbs the (currently 32) chain-layers-disagree findings on the
-// shipped shelf as a documented suppression per blueprint; spec 2026-
-// 09-09 section 8.2 decision 4 has this as the operator-ratified
-// backfill plan. Until each blueprint's README lists its suppressions,
-// this gate stays in "soft" mode: it prints the finding line but
-// exits 0 so the merge is not blocked on 32 legacy findings that a
-// separate backfill work item owns.
+// Shelf selection: when `RCF_LINT_SHELF=root` is set the lint always
+// runs against the monorepo-root `blueprints/` sources; otherwise it
+// prefers a staged copy at `packages/rcf-lite/blueprints/` when
+// present and falls back to the monorepo root. CI sets
+// `RCF_LINT_SHELF=root` on the ratified 2026-09-10 harden pass so
+// the CI gate lints the authoritative sources regardless of any
+// staged copy landing at pack time.
 //
-// Toggle behaviour by exporting `RCF_LINT_MODE=hard` (default is `soft`
-// while the backfill is outstanding; ship-gate flip is a one-line
-// change once the backfill lands).
+// Mode: `RCF_LINT_MODE=hard` (the shipped CI setting from the
+// register-sweep hard flip, 2026-09-10) refuses exit 1 on any
+// unsuppressed finding. The pre-flip `soft` mode is kept for local
+// runs and named blueprint-family workthrough; it prints findings but
+// exits 0. Non-empty assertion: an empty shelf exits 2 rather than
+// vacuously passing.
 
 import { readdir } from 'node:fs/promises';
 import { join, dirname, resolve } from 'node:path';
@@ -53,6 +57,10 @@ const mode = (process.env.RCF_LINT_MODE || 'soft').toLowerCase();
 
 const entries = await readdir(blueprintsDir, { withFileTypes: true });
 const slugs = entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
+if (slugs.length === 0) {
+  console.error(`[lint] shelf has zero blueprint slugs at ${blueprintsDir}; refuse (empty-shelf vacuous-pass guard).`);
+  process.exit(2);
+}
 
 let anyUnsuppressed = 0;
 let totalPass1 = 0;

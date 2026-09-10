@@ -19,7 +19,7 @@ can render without ever writing a body byte.
   local first, invokes origin on miss, writes back with the elicited
   TTL, and returns the fresh value.
 - Four metadata-only lifecycle events (`facadeReady`, `kvHit`,
- `kvMiss`, `kvWrite`) with payload `{event, key, size, ttl,
+  `kvMiss`, `kvWrite`) with payload `{event, key, size, ttl,
   timestamp}` and nothing else. Two-layer secrecy assertion in the
   event-secrecy probe.
 - A decision-tree cross-reference in the guide to
@@ -98,7 +98,7 @@ Induced-failure switches:
 
 - `SIMULATE_PII_LEAK=true` on the `event-secrecy` shim: forwards a
   body-bearing event record; the probe surfaces `forbiddenKeys` and
- `piiHits` and returns `aggregateVerdict: fail`.
+  `piiHits` and returns `aggregateVerdict: fail`.
 - `SIMULATE_CACHE_MISS=true` on the `cache-aside-hit-then-miss`
   shim: disables the writeback path; the probe surfaces two origin
   calls where one was expected and returns `aggregateVerdict: fail`.
@@ -125,17 +125,17 @@ API for local proof; the mock and its test lives under
   with the paired env vars set.
 - The elicited `kv-metadata-field-pattern` fires unconditionally
   rather than gating on an `elicitedNonEmpty` predicate for
- `kv-binding-name`; the loader's `validateElicits` accepts only
- `requiresCapability` on the `when` block today. The guide teaches
+  `kv-binding-name`; the loader's `validateElicits` accepts only
+  `requiresCapability` on the `when` block today. The guide teaches
   the pattern; a loader-capability uplift extending
- `validateElicits` to accept an `elicitedNonEmpty` predicate is
+  `validateElicits` to accept an `elicitedNonEmpty` predicate is
   captured as follow-up work item
   a follow-up capability change (0.26.x) is out of scope for this 0.25.x patch.
 
 ## Companion suggestions
 
 - `logging` supplies the event-sink factory the facade uses to emit
- `facadeReady`, `kvHit`, `kvMiss`, `kvWrite`. Without a logging
+  `facadeReady`, `kvHit`, `kvMiss`, `kvWrite`. Without a logging
   companion, the sink is a no-op and the lifecycle events do not
   render anywhere.
 - `errorHandling` supplies the internal error record factory for a
@@ -146,15 +146,15 @@ API for local proof; the mock and its test lives under
 ## Standards trace
 
 - ADR-3201 (scope-global on `keyValueStoreContract`) carries
- `standardsTraceClause: Cloudflare Workers KV documented
+  `standardsTraceClause: Cloudflare Workers KV documented
   consistency model` and cites
   <https://developers.cloudflare.com/kv/concepts/how-kv-works/>.
 - ADR-3202 (default cache-aside TTL) carries
- `standardsTraceClause: generic enterprise practice` and cites the
+  `standardsTraceClause: generic enterprise practice` and cites the
   Cloudflare-documented 60-second cache TTL at
   <https://developers.cloudflare.com/kv/concepts/how-kv-works/>.
 - ADR-3203 (key naming convention) carries
- `standardsTraceClause: generic enterprise practice`.
+  `standardsTraceClause: generic enterprise practice`.
 
 ## Chain-slice pointers
 

@@ -11,7 +11,7 @@ emits four metadata-only lifecycle events on the injected sink.
 - Capabilities provided: `cloudHost`.
 - Suggested companions: `logging`, `errorHandling`.
 - New global topics minted: `linuxCloudHostContract`,
- `snapshotAndBackupCadence`.
+  `snapshotAndBackupCadence`.
 
 ## What the blueprint contracts
 
@@ -37,9 +37,9 @@ shape.
 Four ADRs record the load-bearing decisions:
 
 - `ADR-3801` cloud host contract (scope global, new topic
- `linuxCloudHostContract`).
+  `linuxCloudHostContract`).
 - `ADR-3802` snapshot cadence (scope global, new topic
- `snapshotAndBackupCadence`); weekly default; Hetzner-managed backups
+  `snapshotAndBackupCadence`); weekly default; Hetzner-managed backups
   are an elicited paid opt-in at approximately 20 percent of monthly
   server price per
   https://docs.hetzner.com/cloud/servers/backups-snapshots/overview.
@@ -69,7 +69,7 @@ probe asserts each block appears in the YAML; the
 FAILS naming the missing line.
 
 1. SSH key-only. `PasswordAuthentication no` via
- `/etc/ssh/sshd_config.d/hardening.conf`.
+   `/etc/ssh/sshd_config.d/hardening.conf`.
 2. Root disabled. `PermitRootLogin no` in the same file.
 3. UFW default-deny incoming with 22, 80, 443 permitted per the
    manifest firewall shape.
@@ -117,19 +117,19 @@ Every probe lives at `contributions/probes/<name>.mjs` with a
     appear. Mutation switch: `SIMULATE_HARDENING_DRIFT=true`.
   - `manifest-schema-validate` (AC-37102-1, also AC-37106-1 and
     AC-37107-1): validates every fixture manifest. Mutation switch:
- `SIMULATE_MANIFEST_INVALID=true`.
+    `SIMULATE_MANIFEST_INVALID=true`.
   - `hcloud-dry-run-mock` (AC-37101-1 and AC-37109-1): drives the
     facade lifecycle against a mocked hcloud shim and asserts every
     lifecycle event fires with a metadata-only payload; runs an
     event-secrecy scan across every event body. Mutation switches:
- `SIMULATE_JSON_PARSE_STRIP=true` (parser failure) and
- `SIMULATE_EVENT_SECRECY_LEAK=true` (defensive-fake token leak).
+    `SIMULATE_JSON_PARSE_STRIP=true` (parser failure) and
+    `SIMULATE_EVENT_SECRECY_LEAK=true` (defensive-fake token leak).
 - Three account-bound probes gate on `CI_HAS_HETZNER_ACCOUNT`:
   - `real-account-throwaway-server-provision` (AC-37103-1): applies
     the ci-throwaway manifest, asserts the server appears in
- `hcloud server list`, tears down in `always()`.
+    `hcloud server list`, tears down in `always()`.
   - `real-account-cloud-init-hardened` (AC-37105-1): waits for
- `cloud-init status --wait`, runs six ssh baseline checks.
+    `cloud-init status --wait`, runs six ssh baseline checks.
   - `real-account-snapshot-on-demand` (AC-37108-1): fires the snapshot
     verb, asserts a tagged snapshot appears in `hcloud image list`.
 
@@ -152,8 +152,8 @@ Every probe writes its report envelope to
 The one new pattern this round. Lives at
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`; ships
 `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, the mocked hcloud
-shim and the manifest at `hetzner/servers/ci-throwaway.json`. 
-(`platform-docker-compose-host`) and (`edge-cloudflare-tunnel`)
+shim and the manifest at `hetzner/servers/ci-throwaway.json`. Round-7
+`platform-docker-compose-host` and `edge-cloudflare-tunnel`
 EXTEND the fixture rather than shipping a second copy. Cost ceiling:
 one `cx23` at approximately EUR 0.006/hour per run; destroy runs in
 `always()`; the nightly `sweep-orphans` cron collects any leak with a
@@ -172,11 +172,11 @@ cannot host.
 
 ## Consumers
 
-- ops-host is the first infrastructure consumer (migration).
-- round-7 `platform-docker-compose-host` composes on
- `capabilities: [cloudHost]`.
-- round-7 `edge-cloudflare-tunnel` composes on `cloudHost` (via
-  the systemd unit shape) or on `containerHost` (via ).
+- ops-host is the first infrastructure consumer (migration path).
+- Round-7 `platform-docker-compose-host` composes on
+  `capabilities: [cloudHost]`.
+- Round-7 `edge-cloudflare-tunnel` composes on `cloudHost` (via
+  the systemd unit shape) or on `containerHost` (via `platform-docker-compose-host`).
 
 Blueprint acceptance never depends on the ops-host migration.
 

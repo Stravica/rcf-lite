@@ -17,7 +17,7 @@ the runtime probe rig.
   the install when `provisioning-tool` is `raw-api`; the provisioner
   reaches the REST API directly.
 - `security-secrets-management` applied so the facade reads
- `HETZNER_ACCOUNT_API_KEY` from the operator's vault of choice.
+  `HETZNER_ACCOUNT_API_KEY` from the operator's vault of choice.
 
 ## Authoring `hetzner/servers/<name>.json`
 
@@ -33,7 +33,7 @@ is the canonical example. Copy it and edit:
   "serverType": "cx33",
   "location": "fsn1",
   "image": "ubuntu-24.04",
-  "sshKeyIds": ["dave-ed25519", "baz-yubikey"],
+  "sshKeyIds": ["primary-admin-ed25519", "backup-admin-yubikey"],
   "networkId": null,
   "firewallId": null,
   "cloudInitPath": "hetzner/servers/rendered/ops-host.cloud-init.yaml",
@@ -63,7 +63,7 @@ consumes the shipped template with two placeholders:
 
 - `{{name}}` (the manifest name)
 - `{{sshAuthorizedKeysBlock}}` (the ssh-authorized_keys entries per
- `sshKeyIds`)
+  `sshKeyIds`)
 
 An applying project runs the renderer at manifest edit time (a git
 pre-commit hook, or a `pnpm build:cloud-init` script) and commits
@@ -95,7 +95,7 @@ lint refuses on drift.
   output on `--output json`; the vendor updates it in step with the
   API. Docs: https://github.com/hetznercloud/cli.
 - `raw-api`. Choose it when a container base image cannot install
- `hcloud` (Alpine minimal builds, a locked-down runtime). The
+  `hcloud` (Alpine minimal builds, a locked-down runtime). The
   provisioner reaches the REST endpoints directly per
   https://docs.hetzner.cloud/. Vendor SLAs cover the API; the local
   CLI is a convenience layer.
@@ -112,7 +112,7 @@ elicit change.
   7.99/month. Reach when the compose stack holds a Postgres, a
   Grafana, or any container that regularly touches 1 GB RSS.
 - `cx43`. Four vCPU, 16 GB RAM. Reach for a home for the
- `platform-cloudflare-durable-objects` self-hosted mode or a
+  `platform-cloudflare-durable-objects` self-hosted mode or a
   Postgres + Grafana + Loki triad.
 - `cpx*`. AMD EPYC. Faster per vCPU; slightly more expensive.
 - `cax*`. ARM64. Choose when every runtime component has an ARM
@@ -159,11 +159,12 @@ ceiling: EUR 0.006/hour per run; destroy runs in `always()`; nightly
 `sweep-orphans` cron collects any leak on a 60-minute label-age
 cutoff.
 
-round-7 (`platform-docker-compose-host`) and 
-(`edge-cloudflare-tunnel`) EXTEND this fixture rather than shipping
-a second copy.  mounts the docker + compose verbs on the same
-throwaway server after cloud-init seals the baseline;  mounts
-`cloudflared` on the runtime the container-host stack stands up.
+Round-7 `platform-docker-compose-host` and
+`edge-cloudflare-tunnel` EXTEND this fixture rather than shipping
+a second copy. The container-host blueprint mounts the docker + compose
+verbs on the same throwaway server after cloud-init seals the baseline;
+the edge-tunnel blueprint mounts `cloudflared` on the runtime the
+container-host stack stands up.
 
 ## Standards trace
 

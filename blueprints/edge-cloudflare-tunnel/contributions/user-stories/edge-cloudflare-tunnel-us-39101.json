@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-connectorShape",
-      "description": "The applied fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service on the same web-net network as the web and caddy services with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
+      "description": "The applied fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service on the same web-net network as the compose-host web and caddy services with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",

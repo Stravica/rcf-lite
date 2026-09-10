@@ -50,7 +50,7 @@ When `security-secrets-management` is applied, the source path resolves through 
 
 The `log-driver` elicit (ADR-3904):
 
-- **`journald` (default).** Matches the Debian 12 and Ubuntu 24.04 baseline the cloud-init sets up on the throwaway server. `journalctl -u docker.service` and `journalctl CONTAINER_NAME=<name>` reach the same stream you would see in `docker logs`.
+- **`journald` (default).** Matches the Debian 12 and Ubuntu 24.04 baseline the deploy-hetzner-server cloud-init sets up on the throwaway server. `journalctl -u docker.service` and `journalctl CONTAINER_NAME=<name>` reach the same stream you would see in `docker logs`.
 - **`loki` (opt-in).** Reach for it when the applying project runs Grafana. The compose logging block wires each service through the Grafana Loki docker plugin; the observability-logging companion supplies the loki endpoint.
 
 The compose-config-lint refuses on any driver value outside the two. The lint fires before `docker compose up` runs.
@@ -85,7 +85,7 @@ Real-account probes require `CI_HAS_HETZNER_ACCOUNT=true` plus `HCLOUD_TOKEN`; w
 
 ## Applying to your project
 
-Once (`deploy-hetzner-server`) has provisioned a `cloudHost`:
+Once `deploy-hetzner-server` has provisioned a `cloudHost`:
 
 ```
 rcf apply platform-docker-compose-host

@@ -10,7 +10,7 @@ Adds deliveredBy on REQ-001, REQ-002 and REQ-004. Adds ownerRef on AC-37102-1 (m
 
 ## 1.0.1
 
- hardening patch train (round-7 real-account gate defect list). Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
+Round-7 real-account gate hardening patch train. Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
 
 Defect list fixed:
 
@@ -25,9 +25,9 @@ Defect list fixed:
 
 Also: the three mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (REQ-145 / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
 
-Chain: the operator estate hardening block  REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for round 7 gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
+Chain: the operator estate hardening block covering REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for round 7 gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
 
-Defect (8) and stub drivers are OUT of scope for (the review train owns them).
+Defect (8) container-host and edge-tunnel stub drivers are OUT of scope for the round-7 real-account gate pass (the review train owns them).
 
 # deploy-hetzner-server changelog
 
@@ -57,7 +57,7 @@ paired with a mutation switch that flips the probe to FAIL), plus
 without `CI_HAS_HETZNER_ACCOUNT`).
 
 Mints the shared `hetzner-throwaway-server` fixture under
-`packages/rcf-lite/test/fixtures/` (round-7 and the container-host slice EXTENDS it,
+`packages/rcf-lite/test/fixtures/` (later round-7 blueprints EXTEND it,
 they do not ship a second copy).
 
 Trace: hetzner-round-7-spec-2026-09-07.md section 5.1;

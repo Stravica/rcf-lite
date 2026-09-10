@@ -18,7 +18,7 @@
     },
     {
       "id": "AC-26104-2",
-      "description": "When completion-state-store is and no persistence blueprint is applied, apply refuses with COMPLETION_STORE_MISSING_PROVIDER naming the required capability and no completion record is written.",
+      "description": "When completion-state-store is  and no persistence blueprint is applied, apply refuses with COMPLETION_STORE_MISSING_PROVIDER naming the required capability and no completion record is written.",
       "given": "completion-state-store=server-side-per-principal with no persistence blueprint applied",
       "when": "apply runs",
       "then": "apply exits with a non-zero code, COMPLETION_STORE_MISSING_PROVIDER is emitted and no completion record is written to any store",

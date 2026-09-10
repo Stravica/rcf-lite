@@ -24,11 +24,11 @@ Added
 
 - REQ `deploy-cloudflare-workers-REQ-013`: Workers-with-static-assets
   shape. An elicited `[assets] directory` value is emitted on
- `wrangler.toml`; the manifest never carries `pages_build_output_dir`
+  `wrangler.toml`; the manifest never carries `pages_build_output_dir`
   alongside `[assets]`.
 - REQ `deploy-cloudflare-workers-REQ-014`: SPA fallback discipline via
   elicited `run_worker_first`. A truthy answer emits
- `run_worker_first = true` under `[assets]`; a falsy or unanswered
+  `run_worker_first = true` under `[assets]`; a falsy or unanswered
   answer omits the field and lets Cloudflare's runtime serve assets
   before the Worker fetch handler runs.
 - US `-US-12113`: SPA-on-Workers deploy. Runtime-observable ACs on the
@@ -40,17 +40,17 @@ Added
 - ADR `ADR-1306-deploy-cloudflare-workers-spa-shape`: Workers-with-
   static-assets as the ratified SPA-on-Workers deploy shape.
   Contribution entry carries `recommendedDefault: true` and
- `standardsTraceClause: Cloudflare Pages landing-page recommendation
+  `standardsTraceClause: Cloudflare Pages landing-page recommendation
   (2026-09-06)`. Body quotes the landing-page recommendation verbatim
   (fetched 2026-09-06 in the round-6 proposal and re-verified at
   ratification).
 - Elicits (top-level `elicits[]`): `assets-directory` (string, default
   empty) and `run-worker-first` (boolean, default false). The spec's
   intended `when: {elicitedNonEmpty: [assets-directory]}` predicate on
- `run-worker-first` is not shipped this round because the loader's
+  `run-worker-first` is not shipped this round because the loader's
   supported `when` block only accepts `requiresCapability` arrays; the
   guide teaches that `run-worker-first` is only meaningful when
- `assets-directory` is non-empty.
+  `assets-directory` is non-empty.
 - Probe module `contributions/probes/assets-manifest-scan.mjs`
   (`anchorAcId: AC-12113-1`, `accountBound: false`): parses the applied
   fixture `wrangler.toml`, asserts `[assets] directory` matches the
@@ -61,8 +61,8 @@ Changed
 
 - Existing ADR contribution entries (`ADR-1301` through `ADR-1305`)
   gain the `generic enterprise practice` sentinel on
- `standardsTraceClause` at the contribution entry, per
- `blueprint-authoring.md` section 8a.4. The ADR bodies are not touched.
+  `standardsTraceClause` at the contribution entry, per
+  `blueprint-authoring.md` section 8a.4. The ADR bodies are not touched.
 
 Notes
 
@@ -72,8 +72,9 @@ Notes
 - No runtime dependency added to applying projects.
 - `suggestedCompanions` unchanged (`logging`, `errorHandling`).
 - The shared `cf-platform` sample-app fixture at
- `packages/rcf-lite/test/fixtures/cf-platform/` ships alongside this
-  bump as the probe target.  (KV),  (cron),  (Durable Objects)
-  and the earlier release Turnstile sub-fixture extend the same fixture later.
+  `packages/rcf-lite/test/fixtures/cf-platform/` ships alongside this
+  bump as the probe target. This blueprint mints the fixture; the KV,
+  cron and Durable Objects blueprints, and the Turnstile sub-fixture,
+  extend the same fixture later.
 
 Review-fix (2026-09-09): Widens the run-worker-first elicit from kind boolean to kind string so both wrangler-side shapes accepted by the Cloudflare Workers static-assets binding (the boolean form and the array-of-patterns form) round-trip through the operator surface without silent narrowing. TAC-1302 responsibility 8 is rewritten to name both shapes with the emitted wrangler literal for each. Adds AC-12113-4 binding the array-of-patterns form on US-12113 with vendorCitation, and adds vendorCitation to AC-12113-2 (boolean form). README and guide teach both shapes. Adds deliveredBy on REQ-002, REQ-004, REQ-008, REQ-009, REQ-012. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-12102-2, AC-12102-3, AC-12108-1, AC-12108-3, AC-12111-1, AC-12112-3).

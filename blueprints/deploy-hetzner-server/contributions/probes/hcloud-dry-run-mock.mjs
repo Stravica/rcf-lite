@@ -1,9 +1,9 @@
-// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per ).
+// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per the round-7 hardening pass).
 //
 // anchorAcId: AC-37101-1 (provisioner facade sole reader + provisionerReady
 // on boot; also covers AC-37109-1 event-secrecy across the lifecycle;
-// also covers AC-14501-1 mock-consumes-rendered-file assertions per 
-// hardening block REQ-145).
+// also covers AC-14501-1 mock-consumes-rendered-file assertions per
+// the round-7 hardening block REQ-145).
 // accountBound: false.
 //
 // Drives the provisioner facade with the fixture's ci-throwaway manifest

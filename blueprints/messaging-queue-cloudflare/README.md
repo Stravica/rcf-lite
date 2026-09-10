@@ -89,11 +89,11 @@ blueprints/messaging-queue-cloudflare/
       adr-3004-messaging-queue-cloudflare-batch-defaults.json
     probes/
       probe-utils.mjs
-      producer-facade-ready.mjs (+ run-producer-facade-ready.mjs)
-      publish-to-delivery.mjs (+ run-publish-to-delivery.mjs)
-      retry-and-dlq.mjs (+ run-retry-and-dlq.mjs)
-      event-secrecy.mjs (+ run-event-secrecy.mjs)
-      real-account-concurrency-smoke.mjs (+ run-real-account-concurrency-smoke.mjs)
+      producer-facade-ready.mjs                 (+ run-producer-facade-ready.mjs)
+      publish-to-delivery.mjs                   (+ run-publish-to-delivery.mjs)
+      retry-and-dlq.mjs                         (+ run-retry-and-dlq.mjs)
+      event-secrecy.mjs                         (+ run-event-secrecy.mjs)
+      real-account-concurrency-smoke.mjs        (+ run-real-account-concurrency-smoke.mjs)
 ```
 
 ## Known limitations and mechanism-reach gaps

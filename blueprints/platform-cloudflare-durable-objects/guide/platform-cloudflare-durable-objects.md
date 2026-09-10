@@ -20,14 +20,14 @@ v1.1.0 (round-6 minor bump per spec section 5.7).
 
 - Strongly consistent authoritative cell (counter, session store,
   lock, coordinator) -> single-cell shape (this blueprint,
- `platform-cloudflare-durable-objects` v1.0.0).
+  `platform-cloudflare-durable-objects` v1.0.0).
 - Coordinated multiplayer websocket connections in one authoritative
   hub (rooms, live cursors, presence) -> WEBSOCKET-HUB shape (this
   blueprint, same v1.0.0).
 - Cache-shaped eventually-consistent reads -> `platform-cloudflare-kv`
   v1.0.0.
 - Durable multi-step workflow -> follow-up Workflows adapter on
- `jobs-background` v1.1.0.
+  `jobs-background` v1.1.0.
 - Not on Cloudflare Workers -> reach for a platform-native
   strongly-consistent adapter when one ships; the shelf has no
   non-Cloudflare strong-consistency cell blueprint today.
@@ -203,7 +203,7 @@ workerd runtime:
 - An additional `AC-33108-1` result on the same run greps the
   fixture `wrangler.toml` for both `[[durable_objects.bindings]]`
   binding pairs and the `[[migrations]]` `tag = "v1"` with
- `new_sqlite_classes`; the grep is deterministic and does not require
+  `new_sqlite_classes`; the grep is deterministic and does not require
   wrangler.
 
 Warn semantics per section 3.1 pass-with-skip: if the wrangler

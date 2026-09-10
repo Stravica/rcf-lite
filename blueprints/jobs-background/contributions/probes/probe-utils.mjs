@@ -4,11 +4,11 @@
  * Runtime-dependency posture: probes import the fixture's in-memory
  * queue-driver plus the jobs-runtime, scheduler and run-log from the
  * sample-app fixture's src/ tree so rcf-lite itself gains no new runtime
- * dependency (round-5 spec section 5, brief section 4). The 
+ * dependency (round-5 spec section 5, brief section 4). The
  * in-memory queue-driver realises the Cloudflare Queues binding shape;
  * the jobs-runtime consumes messages from the driver, dispatches to
  * job-definition modules, and fires the four lifecycle events on the
- * -owned run-log sink (whitelist { event, jobId, jobName, attempts,
+ * jobs-background-owned run-log sink (whitelist { event, jobId, jobName, attempts,
  * duration, timestamp } plus optional terminalErrorCode).
  */
 

@@ -89,7 +89,7 @@ write_files:
 # Breaks: iptables-persistent), so we DO NOT install it; the DOCKER-USER
 # chain is loaded in runcmd via iptables directly (block 4 stays valid
 # for the running boot; reboot-persistence for the chain is a follow-up
-# item outside the  hardening scope).
+# item outside the round-7 hardening scope).
 packages:
   - ufw
   - fail2ban

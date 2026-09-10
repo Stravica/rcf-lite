@@ -60,10 +60,10 @@ project cannot ship a sub-second TTL.
 - Reads mix with writes AND every read must reflect the most recent
   write AND one key has one authoritative owner -> `platform-cloudflare-durable-objects` (round-6).
 - Row-shaped relational data with SQL semantics ->
- `persistence-data-postgres` or `persistence-data-d1` (via
- `persistenceStore`).
+  `persistence-data-postgres` or `persistence-data-d1` (via
+  `persistenceStore`).
 - Large binary uploads or reports -> `object-storage-s3` (via
- `objectStorage`).
+  `objectStorage`).
 
 ## Applying the blueprint
 
@@ -76,7 +76,7 @@ project cannot ship a sub-second TTL.
    - `kv-metadata-field-pattern`: recommended default `{v: number}`
      for a per-key schema version marker.
    - `kv-key-naming-convention`: `prefixed` (recommended) or
- `flat` per ADR-3203.
+     `flat` per ADR-3203.
 
 2. Create a KV namespace via `wrangler`:
 
@@ -85,7 +85,7 @@ project cannot ship a sub-second TTL.
    ```
 
    Copy the returned `id` and `preview_id` into
- `wrangler.toml` under `[[kv_namespaces]]`; the shipped fixture
+   `wrangler.toml` under `[[kv_namespaces]]`; the shipped fixture
    uses placeholder ids so `wrangler dev` boots without a live
    namespace.
 

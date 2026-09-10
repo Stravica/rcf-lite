@@ -21,10 +21,10 @@ logging companion can render without ever writing a body byte.
   on an unknown expression, and observes each fire against a
   skew-tolerance window and a soft budget.
 - Five metadata-only lifecycle events (`cronReady`, `cronFired`,
- `cronSkewed`, `cronStalled`, `cronUnmatched`) with a bounded
+  `cronSkewed`, `cronStalled`, `cronUnmatched`) with a bounded
   payload shape `{event, expression, scheduledTime, outcome,
   duration}` plus optional numeric fields (`softBudgetMs`,
- `deltaMs`). Two-layer secrecy assertion in the event-secrecy
+  `deltaMs`). Two-layer secrecy assertion in the event-secrecy
   probe.
 - A decision-tree cross-reference in the guide to `jobs-background`
   (round 5) and to the follow-up Workflows adapter (round 6 jobs-
@@ -62,12 +62,12 @@ createDispatcher({ routes, eventSink, skewToleranceMs, softBudgetMs, clock? })
 
 - `cron-expressions` (default `* * * * *`): the cron expressions
   to schedule; the operator's comma-separated list is written into
- `wrangler.toml` under `[triggers] crons`.
+  `wrangler.toml` under `[triggers] crons`.
 - `cron-dispatcher-mode` (default `expression-routed` when the
   elicited list has more than one entry, else `single-handler`):
   the dispatcher mode per `ADR-3302`.
 - `cron-skew-tolerance-seconds` (default `30`, floor `5`, ceiling
- `300`): the skew tolerance window per `ADR-3303`.
+  `300`): the skew tolerance window per `ADR-3303`.
 - `cron-soft-budget-seconds` (default `30`, no floor): the
   per-handler soft budget.
 
@@ -91,14 +91,14 @@ under the fixture root.
 - **`AC-32105-1` (wrangler dev --test-scheduled)** requires the
   fixture's `wrangler` devDependency to be installed
   (`pnpm install --ignore-workspace` in
- `packages/rcf-lite/test/fixtures/cf-platform`). Without it the
+  `packages/rcf-lite/test/fixtures/cf-platform`). Without it the
   probe returns `warn` with a documented gap; the shipped
- `src/scheduled.mjs` is still exercised end to end by the
+  `src/scheduled.mjs` is still exercised end to end by the
   in-process dispatcher probes.
 - **`AC-32107-1` (real-account live-cron smoke)** requires a live
   Cloudflare account with a deployed Worker running a per-minute
   cron plus the paired `CI_HAS_CLOUDFLARE_ACCOUNT=true`,
- `CF_ACCOUNT_ID`, `CF_WORKER_NAME` and `CF_API_TOKEN` env vars.
+  `CF_ACCOUNT_ID`, `CF_WORKER_NAME` and `CF_API_TOKEN` env vars.
   Without them the probe records `accountBoundSkipped: true` and
   aggregates to `pass` per spec section 3.5. Full mechanism reach
   requires a CI environment with those env vars set and a Worker

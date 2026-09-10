@@ -68,7 +68,7 @@ Answers land on `rcf/blueprints/application-admin-console.applied.json`'s `appli
 
 ## The one runtime gate
 
-`probe-packs/application-admin-console.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2201-application-admin-console-shell` or whose nav model routes name an admin path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `applicable: false` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3,  residual cure). This is exactly the residual pattern the spec named: the surface does not exist, so the pack does not fire.
+`probe-packs/application-admin-console.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2201-application-admin-console-shell` or whose nav model routes name an admin path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `applicable: false` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3, residual cure). This is exactly the residual pattern the spec named: the surface does not exist, so the pack does not fire.
 
 Each check drives the real Playwright browser the runner provisions (through the pinned Playwright MCP or the consuming project's own `playwright` installation), reads the accessibility tree and the DOM, and returns a verdict.
 

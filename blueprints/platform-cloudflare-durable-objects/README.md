@@ -37,7 +37,7 @@ decision tree pairs them.
   contract? Reach for `platform-cloudflare-kv` instead.
 - Do you need durable multi-step workflows with retries and state
   across steps? Reach for the round-6 Workflows adapter on
- `jobs-background` v1.1.0 instead.
+  `jobs-background` v1.1.0 instead.
 
 ## The eight REQs
 

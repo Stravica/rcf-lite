@@ -64,7 +64,7 @@ ADR/TAC suffixes for this blueprint use the 3001-3099 block, continuing the shel
 
 - Reuse `deliverySemantics` exactly as spelled here when your blueprint holds an opinion on the delivery-guarantee contract for the primary worklist queue; contribute your own scope:global ADR on that string and let composition surface the pairing.
 - A future exactly-once, at-most-once, or `messaging-queue-postgres` sibling mints on demand; each claims `deliverySemantics` and conflicts by design.
-- `jobs-background` (round-5 the track) reads the `queue` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` to obtain the producer facade at apply time via the visual-round capability-declaration mechanism.
+- `jobs-background` (round-5 sibling on the jobs track) reads the `queue` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` to obtain the producer facade at apply time via the visual-round capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 

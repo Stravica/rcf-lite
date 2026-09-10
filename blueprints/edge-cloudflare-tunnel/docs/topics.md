@@ -61,7 +61,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 
 US 39101-39108 sit at the LOW end of the 39101-39899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from an edge-cloudflare-tunnel REQ id into the number 39108 would collide against the shipped US-39108; band headroom (39109-39899) leaves that space.
 
-Edge-cloudflare-tunnel suffixes for this blueprint use the 4001-4003 block, continuing the widening pattern (deploy-hetzner-server 3801-3804 for the sibling, platform-docker-compose-host 3901-3904 for the sibling).
+Edge-cloudflare-tunnel suffixes for this blueprint use the 4001-4003 block, continuing the widening pattern (deploy-hetzner-server 3801-3804 for the host sibling, platform-docker-compose-host 3901-3904 for the compose-host sibling).
 
 ## Cross-references
 

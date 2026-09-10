@@ -4,12 +4,25 @@
 // operator names, work-item / dispatch / question ids, internal
 // hostnames, internal decision references, and em-dashes.
 //
+// Word-boundary matching for the operator and host names so legitimate
+// tokens (Bazel, Dex identity provider, dev-012, decision 10..29) do
+// not false-positive. Case-insensitive on the operator / host / train
+// name matchers so lowercase remnants (dave, baz, hq-estate) are hit.
+//
 // Exit 1 on any hit; prints `file:line:pattern:snippet` for each.
+// Exit 2 on any unreadable file, missing shelf, non-directory shelf, or
+// symlink under the shelf (symlinks are refused up front, and counted
+// as part of the exit-2 message). Follows no symlinks; asserts the
+// shelf holds exactly EXPECTED_BLUEPRINT_COUNT top-level directories so
+// an empty (or truncated) shelf cannot silently pass. Update the
+// constant when the shelf gains or drops a shipped blueprint (source of
+// truth: the top-level `blueprints/` directory count on `origin/main`).
+//
 // Pass `--allow <file>` for a documented allow-list of paths (relative
 // to the shelf root); prefer none. Set `--shelf <dir>` to point at a
 // different shelf.
 
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat, lstat } from 'node:fs/promises';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,43 +31,33 @@ const PACKAGE_ROOT = resolve(here, '..');
 const REPO_ROOT = resolve(PACKAGE_ROOT, '..', '..');
 const DEFAULT_SHELF = join(REPO_ROOT, 'blueprints');
 
-// Case-sensitive substrings unless a pattern is declared as a RegExp.
+// Source of truth: `ls -d blueprints/*/ | wc -l` on origin/main.
+const EXPECTED_BLUEPRINT_COUNT = 39;
+
 // Every entry is `{ name, test }` where `test` is `(line) => match[]`.
 export const REGISTER_PATTERNS = [
-  substring('Baz'),
-  substring('Dave'),
-  substring('Dex'),
-  substring('HQ'),
-  substring('ops-01'),
-  substring('dev-01'),
-  substring('smarthome'),
-  substring('thefootonline'),
-  regex('work-item-id', /w-2026-[0-9]{2}-[0-9]{2}(?:-[a-z]+)?-[0-9]{3}/g),
-  regex('dispatch-id', /d-2026-[0-9]{2}-[0-9]{2}-[0-9]{3}/g),
-  regex('question-id', /q-2026-[0-9]{2}-[0-9]{2}-[0-9]{3}/g),
-  regex('hardening-label', /\bH-[0-9]+\b/g),
+  regex('Baz', /\bBaz\b/gi),
+  regex('Dave', /\bDave\b/gi),
+  regex('Dex', /\bDex\b/gi),
+  regex('HQ', /\bHQ\b/gi),
+  regex('hq-estate', /\bhq-estate\b/gi),
+  regex('ops-01', /\bops-01\b/gi),
+  regex('dev-01', /\bdev-01\b/gi),
+  regex('smarthome', /\bsmarthome[a-z0-9-]*/gi),
+  regex('thefootonline', /\bthefootonline[a-z0-9.-]*/gi),
+  regex('work-item-id', /\bw-2026-[0-9]{2}-[0-9]{2}-[a-z0-9-]+/g),
+  regex('dispatch-id', /\bd-2026-[0-9]{2}-[0-9]{2}-[0-9]{3}\b/g),
+  regex('question-id', /\bq-2026-[0-9]{2}-[0-9]{2}-[0-9]{3}\b/g),
+  regex('hardening-label', /\bH-[234]\b/g),
   regex('train-label', /\bT-[0-9]+\b/g),
-  substring('decision 1'),
-  substring('decision 2'),
-  substring('Stravica-internal'),
+  regex('decision-1-or-2', /\bdecision [12]\b/g),
+  regex('Stravica-internal', /Stravica-internal/gi),
   regex('em-dash-U+2014', /—/g),
-  regex('train-family', /\bB[0-7][a-z]?[- ](platform|persistence|edge|deploy|messaging|storage|observability|security|application|delivery|jobs|email|core|tail|charts|hardening|review)\b/gi),
+  regex(
+    'train-family',
+    /\bB[0-7][a-z]?[- ](platform|persistence|edge|deploy|messaging|storage|observability|security|application|delivery|jobs|email|core|tail|charts|hardening|review|pass)\b/gi
+  ),
 ];
-
-function substring(needle) {
-  return {
-    name: needle,
-    test(line) {
-      const hits = [];
-      let idx = 0;
-      while ((idx = line.indexOf(needle, idx)) !== -1) {
-        hits.push({ col: idx + 1, match: needle });
-        idx += needle.length;
-      }
-      return hits;
-    },
-  };
-}
 
 function regex(name, re) {
   return {
@@ -72,12 +75,16 @@ function regex(name, re) {
   };
 }
 
-async function walk(dir, out = []) {
+async function walk(dir, symlinks, out = []) {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const e of entries) {
     const p = join(dir, e.name);
+    if (e.isSymbolicLink()) {
+      symlinks.push(p);
+      continue;
+    }
     if (e.isDirectory()) {
-      await walk(p, out);
+      await walk(p, symlinks, out);
     } else if (e.isFile()) {
       out.push(p);
     }
@@ -103,9 +110,13 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   let shelfStat;
   try {
-    shelfStat = await stat(args.shelf);
+    shelfStat = await lstat(args.shelf);
   } catch (err) {
     console.error(`[register-scan] shelf not found: ${args.shelf}`);
+    process.exit(2);
+  }
+  if (shelfStat.isSymbolicLink()) {
+    console.error(`[register-scan] shelf is a symlink; refusing to follow: ${args.shelf}`);
     process.exit(2);
   }
   if (!shelfStat.isDirectory()) {
@@ -113,7 +124,25 @@ async function main() {
     process.exit(2);
   }
 
-  const files = (await walk(args.shelf)).sort();
+  // Non-empty shelf assertion.
+  const topEntries = await readdir(args.shelf, { withFileTypes: true });
+  const topDirs = topEntries.filter((e) => e.isDirectory());
+  if (topDirs.length !== EXPECTED_BLUEPRINT_COUNT) {
+    console.error(
+      `[register-scan] shelf has ${topDirs.length} top-level blueprint directories; expected exactly ${EXPECTED_BLUEPRINT_COUNT} (update EXPECTED_BLUEPRINT_COUNT when the shelf gains or drops a shipped blueprint).`
+    );
+    process.exit(2);
+  }
+
+  const symlinks = [];
+  const files = (await walk(args.shelf, symlinks)).sort();
+  if (symlinks.length > 0) {
+    for (const s of symlinks) {
+      console.error(`[register-scan] symlink encountered (refused): ${relative(args.shelf, s)}`);
+    }
+    console.error(`[register-scan] ${symlinks.length} symlink(s) under shelf; refusing to follow.`);
+    process.exit(2);
+  }
   const allow = new Set(args.allow);
   let hits = 0;
   const perPattern = new Map();
@@ -121,13 +150,13 @@ async function main() {
   for (const file of files) {
     const rel = relative(args.shelf, file);
     if (allow.has(rel)) continue;
-    // Skip binary media if any (blueprints ship text/markdown/json; be safe).
     if (/\.(png|jpg|jpeg|gif|pdf|zip|ico|webp|woff2?)$/i.test(rel)) continue;
     let content;
     try {
       content = await readFile(file, 'utf8');
-    } catch {
-      continue;
+    } catch (err) {
+      console.error(`[register-scan] unreadable file: ${rel}: ${err && err.code ? err.code : err}`);
+      process.exit(2);
     }
     const lines = content.split(/\r?\n/);
     const slug = rel.split('/')[0];
@@ -145,7 +174,9 @@ async function main() {
       }
     }
   }
-  console.log(`[register-scan] totals: hits=${hits}, files=${files.length}, slugs=${perSlug.size}, shelf=${args.shelf}`);
+  console.log(
+    `[register-scan] totals: hits=${hits}, files=${files.length}, slugs=${perSlug.size}, shelf=${args.shelf}, expectedBlueprints=${EXPECTED_BLUEPRINT_COUNT}`
+  );
   if (hits > 0) {
     for (const [name, n] of [...perPattern.entries()].sort((a, b) => b[1] - a[1])) {
       console.log(`[register-scan]   pattern ${name}: ${n}`);

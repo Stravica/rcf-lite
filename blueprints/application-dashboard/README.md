@@ -48,7 +48,7 @@ Five https-cited sources anchor the guidance: NN/g dashboard design, Few (Inform
 
 The three shipped checks:
 
-- `AC-19102-1` primary-KPI position by DOM order and CSS Grid position at 1440, 1024 and 360. Drives the pack-browser's `resize(width, height)` seam (new in ) to each of the three widths, reads DOM order and computed `grid-column-start`/`grid-row-start` on the primary tile, and asserts the top-left placement holds at every width.
+- `AC-19102-1` primary-KPI position by DOM order and CSS Grid position at 1440, 1024 and 360. Drives the pack-browser's `resize(width, height)` seam to each of the three widths, reads DOM order and computed `grid-column-start`/`grid-row-start` on the primary tile, and asserts the top-left placement holds at every width.
 - `AC-19104-1` timeframe refetch fan-out with matching boundary and as-of stamp. Clicks a second preset control, waits for the batch, reads the request log from `window.__dashboardFetches` and reconciles with the `GET /__requests` endpoint on the sample app, and asserts every fetch in the new batch carries the same `from`/`to`/`preset` trio and every tile's `data-as-of` matches the shell root in ISO-8601 form.
 - `AC-19103-1` per-tile four-state contract. Drives the sample app's state-pinning switches (`?tile=primary&state=<state>`) for each of the four states, reads the accessibility tree and the DOM, and asserts every state carries `role="region"`, `aria-live="polite"`, the `data-tile-state` attribute, and a distinct non-colour visual cue.
 

@@ -30,7 +30,7 @@
 
 ## 1.0.0 - 2026-09-08
 
-Initial release. round-7 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Initial release. Round-7 blueprint of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
 
 - Mints capability `containerHost` and global topic `containerHostContract`.
 - Six REQs, nine USs, four TACs, four ADRs; five Node-only probes.

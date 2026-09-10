@@ -2,7 +2,7 @@
   "reqId": "platform-docker-compose-host-REQ-006",
   "prdId": "PRD-001",
   "title": "Log shipping to the elicited observability-logging sink: journald default matching Debian 12 and Ubuntu 24.04 baseline; loki opt-in when the project runs Grafana",
-  "description": "Every container writes stdout and stderr through the elicited log driver. Journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baselines cloud-init sets up. Loki is the opt-in alternative when the applying project runs Grafana. When observability-logging is applied, the compose file wires the elicited driver to that companion. The compose-config-lint asserts every service declares a logging driver whose value is one of journald or loki.",
+  "description": "Every container writes stdout and stderr through the elicited log driver. Journald is the shipped default matching the Debian 12 and Ubuntu 24.04 baselines the deploy-hetzner-server cloud-init sets up. Loki is the opt-in alternative when the applying project runs Grafana. When observability-logging is applied, the compose file wires the elicited driver to that companion. The compose-config-lint asserts every service declares a logging driver whose value is one of journald or loki.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
