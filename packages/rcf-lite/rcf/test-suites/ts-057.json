@@ -22,7 +22,7 @@
       "acId": "AC-2801-1",
       "description": "blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)",
       "status": "pending",
-      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)"
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::blueprint.json declares 21 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)"
     },
     {
       "id": "TC-057-adr-shape",
@@ -36,7 +36,7 @@
       "acId": "AC-2801-3",
       "description": "applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)",
       "status": "pending",
-      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)"
+      "testPointer": "test/blueprint/application-onboarding-tour-anatomy.test.js::applies cleanly on a fresh project with 21 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)"
     },
     {
       "id": "TC-057-pack-checks-cross-check",
