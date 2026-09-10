@@ -249,44 +249,17 @@ cd packages/rcf-lite/test/fixtures/cf-platform
 node ../../../../../blueprints/platform-cloudflare-durable-objects/contributions/probes/run-real-account-storage-smoke.mjs
 ```
 
-Without `CI_HAS_CLOUDFLARE_ACCOUNT=true` (and `CF_ACCOUNT_ID`,
-`CF_DO_NAMESPACE_ID`, `CF_API_TOKEN`) the probe records
-`accountBoundSkipped: true`, aggregates to `pass`, and exits 0
-per spec section 3.5.
-
-## Declared env vars (real-account probes)
-
-Every real-account probe on this fixture declares the env vars it
-reads. A first-tier env var gates entry into the driver path; a
-second-tier env var, when unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`,
-records `accountBoundSkipped: true` naming the missing variable and
-still passes per spec section 3.5. That keeps the positive-evidence
-gate row honest: a probe either produces real-engine evidence or a
-declared skip; a hard fail without evidence is never accepted.
-
-First-tier (required to enter any real-account driver):
-
-- `CI_HAS_CLOUDFLARE_ACCOUNT` (unset -> pass-with-skip on every
-  real-account probe).
-- `CF_ACCOUNT_ID`, `CF_API_TOKEN` (paired with the CI gate;
-  unset -> hard fail naming the missing pair).
-
-Second-tier (declared skips when unset with the CI gate set):
-
-- `CF_DO_WORKER_URL` — deployed-Worker origin the DO
-  `real-account-storage-smoke` probe HTTP round-trips against. Not
-  yet self-provisioned by this fixture (follow-up work item
-  `w-2026-09-09-dave-005`); until it is, the probe records
-  `accountBoundSkipped: true` with `reason` naming `CF_DO_WORKER_URL`
-  and passes with a declared skip rather than failing without
-  real-engine evidence.
-- `CF_QUEUE_MESSAGE_COUNT` — optional message-count override on the
-  queue `real-account-concurrency-smoke` probe (default 500). Not a
-  skip trigger; enumerated for completeness in the shim's
-  `DECLARED_ENV` export.
-- `CF_API_BASE_URL` — optional test override pointing the shims at a
-  local mock CF REST API. Not a skip trigger; enumerated for
-  completeness.
+The probe's env contract is URL-only: it drives an HTTP round-trip
+against a deployed Worker origin named by `CF_DO_WORKER_URL` and
+does not call the Cloudflare REST API directly. Without
+`CI_HAS_CLOUDFLARE_ACCOUNT=true` the probe records
+`accountBoundSkipped: true` with `reason` naming
+`CI_HAS_CLOUDFLARE_ACCOUNT` and aggregates to `pass`. With
+`CI_HAS_CLOUDFLARE_ACCOUNT=true` but `CF_DO_WORKER_URL` unset the
+probe records `accountBoundSkipped: true` with `reason` naming
+`CF_DO_WORKER_URL` and aggregates to `pass`. The CF account id,
+DO namespace id and API token are wrangler-side deploy config
+bound to the deployed Worker; they are not on the probe's gate.
 
 ## T-3 wrangler dev boot
 
@@ -362,33 +335,34 @@ boundary is a genuine fail.
 ## Declared env vars
 
 Every environment variable this fixture or any probe it hosts reads
-is declared here. Include the first-tier `CI_HAS_*` gate variable,
-and every second-tier variable the account-bound branch reads once
-past the gate. An undeclared env var that the fixture reads is
-refused by the positive-evidence gate row (authoring checklist
-section 6; authoring standard section 7d).
+is declared here. A first-tier env var gates entry into the
+account-bound driver path; a second-tier env var, when unset with
+`CI_HAS_CLOUDFLARE_ACCOUNT=true`, records `accountBoundSkipped: true`
+naming the missing variable in `reason` and still passes per spec
+section 3.5. This is the single authoritative table for the fixture;
+an undeclared env var that the fixture reads is refused by the
+positive-evidence gate row (authoring checklist section 6; authoring
+standard section 7d).
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
 | `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the account-bound branch on every Cloudflare real-account probe. | every `real-account-*` probe under `blueprints/platform-cloudflare-*` and `blueprints/messaging-queue-cloudflare` |
-| `CF_ACCOUNT_ID` | second | Cloudflare account id the probe drives its REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
-| `CF_API_TOKEN` | second | API token the probe presents on the Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
-| `CF_KV_NAMESPACE_ID` | second | KV namespace id the eventual-consistency smoke writes to and reads from. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` |
-| `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
-| `CF_API_BASE_URL` | second | Optional test override pointing the Cloudflare REST calls at a local mock server. Not a skip trigger; enumerated for completeness. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-account-api.mjs` |
-| `CF_QUEUE_MESSAGE_COUNT` | second | Optional message-count override on the queue concurrency smoke (default 500). Not a skip trigger; enumerated for completeness. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
-| `GITHUB_RUN_ID` | second | Optional CI run identifier used to disambiguate the throwaway queue / worker / telemetry KV names the shim mints. Not a skip trigger; falls back to a local timestamp when unset. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs` |
+| `CF_ACCOUNT_ID` | second | Cloudflare account id the shims send REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` (via `h2-cf-kv-real-account-shim.mjs`); `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` (via `h2-cf-queue-real-account-shim.mjs` and directly for the workers.dev subdomain pre-flight) |
+| `CF_API_TOKEN` | second | API token the shims present on Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` (via `h2-cf-kv-real-account-shim.mjs`); `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` (via `h2-cf-queue-real-account-shim.mjs` and directly for the workers.dev subdomain pre-flight) |
+| `CF_DO_WORKER_URL` | second | Deployed-Worker origin the DO storage-smoke probe HTTP round-trips against. This fixture does not yet self-provision the DO Worker; until it does, unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `blueprints/platform-cloudflare-durable-objects/contributions/probes/real-account-storage-smoke.mjs` |
+| `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. This probe polls analytics for a pre-existing Worker with a per-minute cron and does not deploy a Worker itself; unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+| `CF_API_BASE_URL` | optional | Test-only override pointing the Cloudflare REST calls at a local mock CF REST API. Not a skip trigger; enumerated for completeness in the shims' `DECLARED_ENV` exports. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs` (via `h2-cf-account-api.mjs`); `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs` (via `h2-cf-account-api.mjs`) |
+| `CF_QUEUE_MESSAGE_COUNT` | optional | Message-count override on the messaging-queue-cloudflare concurrency smoke (default 500). Not a skip trigger. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
+| `GITHUB_RUN_ID` | optional | Run tag stamped on the scratch namespace, queue, worker and telemetry KV titles / names when set (falls back to `local-<timestamp>`). Not a skip trigger. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-real-account-shim.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
 
-The queue concurrency smoke also observes the target account's
-workers.dev subdomain state directly via `GET
-/accounts/{id}/workers/subdomain` and records a declared skip when
-the account has none; that observation is an ACCOUNT prerequisite
-rather than an env var, so it does not appear on this table.
+The messaging-queue-cloudflare concurrency smoke also observes the
+target account's workers.dev subdomain state directly via
+`GET /accounts/{id}/workers/subdomain` and records a declared skip
+whose `reason` names the missing ACCOUNT prerequisite (not an env
+var) when the account has none; the observation is an account
+prerequisite rather than an env var, so it does not appear on this
+table.
 
-A probe that reads any variable not on this table fails the
-positive-evidence gate row at review time. When a probe records
-`accountBoundSkipped: true`, the `reason` field names the specific
-env var on this table that was unset; a probe that returns
-`accountBoundSkipped: true` with the account env set fails the
-same row (the probe short-circuited on an undeclared variable and
-produced no evidence).
+The KV probe is self-provisioning: it mints a scratch KV namespace at run time under the throwaway prefix `h2-cf-probe-integrity-scratch-kv-` and destroys it on teardown, so it does not read a pre-existing `CF_KV_NAMESPACE_ID`. The DO probe reads only `CF_DO_WORKER_URL` on the round-trip path; the CF account id, DO namespace id and API token bound at wrangler deploy are Worker-side config and are not on the probe's own gate.
+
+A probe that reads any variable not on this table fails the positive-evidence gate row at review time. When a probe records `accountBoundSkipped: true`, the `reason` field names the specific env var on this table that was unset; a probe that returns `accountBoundSkipped: true` with the account env set fails the same row (the probe short-circuited on an undeclared variable and produced no evidence).

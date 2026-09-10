@@ -4,8 +4,9 @@ All notable changes to `platform-cloudflare-durable-objects` are recorded here. 
 
 ## 1.1.3 - 2026-09-10
 
-Register patch.
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d), plus a register patch.
 
+- Probes: the account-bound skip returns on `contributions/probes/real-account-storage-smoke.mjs` now carry a `reason` field naming the exact env var(s) that were unset (`CI_HAS_CLOUDFLARE_ACCOUNT` on the standard skip path; `CF_DO_WORKER_URL` on the second-tier declared skip when the account env is set). Skip-path probe report regenerated so the shipped shape carries the new field.
 - Neutral register in ADR-3401 consequences (F-2), README (F-3) and guide prose (F-4).
 
 ## 1.1.2 - 2026-09-10

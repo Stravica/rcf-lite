@@ -2,6 +2,13 @@
 
 All notable changes to `platform-cloudflare-cron-triggers` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.3 - 2026-09-10
+
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d).
+
+- Probes: the account-bound skip returns on `contributions/probes/real-account-scheduled-smoke.mjs` now carry a `reason` field naming the exact env var(s) that were unset. The unset-second-tier case (`CF_ACCOUNT_ID` / `CF_WORKER_NAME` / `CF_API_TOKEN`) now records a declared skip on the missing keys rather than failing hard without real-engine evidence: this probe polls analytics for a pre-existing deployed Worker with a per-minute cron and does not deploy a Worker itself, so an unset-second-tier run on an empty account is a declared skip on the missing keys, not a fail. Skip-path probe report regenerated so the shipped shape carries the new field.
+
+
 ## 1.1.2 - 2026-09-10
 
 Capability token named in the requirements layer; owner reference for the scheduled-side record shape.

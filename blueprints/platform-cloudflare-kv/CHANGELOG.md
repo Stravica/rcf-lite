@@ -4,8 +4,9 @@ All notable changes to `platform-cloudflare-kv` are recorded here. The shape fol
 
 ## 1.1.3 - 2026-09-10
 
-Register and citation patch.
+Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d), plus a register and citation patch.
 
+- Probes: the account-bound skip return on `contributions/probes/real-account-eventual-consistency-smoke.mjs` now carries a `reason` field naming the exact env var that was unset (`CI_HAS_CLOUDFLARE_ACCOUNT` on the standard skip path). Skip-path probe report regenerated so the shipped shape carries the new field.
 - AC-31103-1 gains a `vendorCitation` for the Workers KV read/write API page (F-2).
 - Neutral register in AC-31109-2 (F-3), ADR-3201 context and consequences (F-4), README (F-5) and guide prose (F-6).
 
