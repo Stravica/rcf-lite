@@ -7,10 +7,12 @@
   "name": "Admin-console shell",
   "purpose": "Owns the rendered admin-console surface: the top-level nav landmark, the surface-manifest read at load, the conditional rendering of every applied surface (users, roles, orgs, audit), the access-denied and request-access states, and the shared page layout every surface renders within. The shell is the base surface every AC in this blueprint anchors on.",
   "responsibilities": [
-    "Read the applied capability sidecar (rcf/blueprints/application-admin-console.applied.json) at load and configure the surface set (AC-21101-1, AC-21107-1).",
-    "Render a single primary navigation landmark carrying an accessible name and rendering only applied surfaces (AC-21101-1, AC-21101-2).",
-    "Render the access-denied state for a non-admin principal reaching any admin route with a keyboard-reachable request-access control announcing its state (AC-21106-1).",
-    "Delegate the users, roles, orgs and audit surfaces to their respective TACs (TAC-2201 through TAC-2204)."
+    "renderShell: assemble the shell landmark from the applied capability set and render the surface set (AC-21101-1, AC-21101-2, AC-21107-1).",
+    "delegateUsersSurface: mount the users route when principalDirectory is applied and render access-denied for a non-admin principal (AC-21102-1, AC-21102-2, AC-21106-1).",
+    "delegateOrgsSurface: mount the org switcher and org-scoped invite path when tenancy is applied (AC-21104-1, AC-21111-1 through AC-21111-5).",
+    "renderAccessDenied: render the access-denied state under WCAG 2.4.6 and 3.3.4 with a keyboard-reachable request-access control announcing its state (AC-21106-1).",
+    "deliverInvite: dispatch an invite through the elicited invite-transport (email, in-app-only or custom), refusing on missing transport handler and writing exactly one audit-stream row per invite (AC-21110-1, AC-21110-2, AC-21110-3, AC-21110-4, AC-21110-5).",
+    "tenancyShapeGate: enforce per-user, per-org or both tenancy shape on directory rows, switcher entries and org-scoped actions, refusing cross-shape actions with TENANCY_SHAPE_REFUSAL (AC-21111-1 through AC-21111-5)."
   ],
   "internalStructure": "One shell module that mounts the surface, reads the applied capabilities sidecar, and renders the nav landmark, the page-layout scaffolding, and the route-level containers for each conditional surface. The framework is not prescribed; the shell interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
   "interfaces": [

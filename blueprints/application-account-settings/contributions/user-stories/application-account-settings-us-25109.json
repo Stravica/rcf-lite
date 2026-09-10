@@ -13,13 +13,15 @@
       "id": "AC-25109-1",
       "testable": true,
       "scope": "runtime",
-      "description": "rcf define blueprint add ./blueprints/application-account-settings on a project with no applied blueprint declaring principalDirectory exits 3 and prints the [application-account-settings-bare-spa] refusal message quoting the required capability, the applied-blueprint list and the two suggested next steps."
+      "description": "rcf define blueprint add ./blueprints/application-account-settings on a project with no applied blueprint declaring principalDirectory exits 3 and prints the [application-account-settings-bare-spa] refusal message quoting the required capability, the applied-blueprint list and the two suggested next steps.",
+      "disposition": "fixed"
     },
     {
       "id": "AC-25109-2",
       "testable": true,
       "scope": "runtime",
-      "description": "Passing --allow-no-auth-yet applies the blueprint and writes rcf/blueprints/application-account-settings.applied.json with allowNoAuthYet:true, empty appliedCapabilities and a scaffolding-pass note; rcf define validate flags the sidecar note on read-back."
+      "description": "Passing --allow-no-auth-yet applies the blueprint and writes rcf/blueprints/application-account-settings.applied.json with allowNoAuthYet:true, empty appliedCapabilities and a scaffolding-pass note; rcf define validate flags the sidecar note on read-back.",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

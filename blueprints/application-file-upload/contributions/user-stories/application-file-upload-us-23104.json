@@ -13,7 +13,42 @@
       "id": "AC-23104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "On the ?transport=multipart branch the fixture returns 200 with a completed chunk count higher than 1 on a file large enough to force chunking; the DOM exposes [data-transport=\"multipart\"] and [data-chunks-uploaded] whose numeric value equals the completed chunk count. On the ?transport=tus branch the pack observes at least one PATCH request on the browser's network log whose request headers include Upload-Offset with a numeric value, and the DOM exposes [data-transport=\"tus\"] with [data-chunks-uploaded] > 1."
+      "description": "On the ?transport=multipart branch the fixture returns 200 with a completed chunk count higher than 1 on a file large enough to force chunking; the DOM exposes [data-transport=\"multipart\"] and [data-chunks-uploaded] whose numeric value equals the completed chunk count. On the ?transport=tus branch the pack observes at least one PATCH request on the browser's network log whose request headers include Upload-Offset with a numeric value, and the DOM exposes [data-transport=\"tus\"] with [data-chunks-uploaded] > 1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23104-2",
+      "description": "When the transport is tus.io and no tus server or client library prerequisite is available at apply time, apply refuses with TUS_PREREQUISITE_MISSING naming the missing side (server or client) and the remedy to install it; no upload code is written to the project until the prerequisite is present.",
+      "given": "tus transport elicited without the tus server or client dependency installed",
+      "when": "apply runs",
+      "then": "apply exits with a non-zero code, TUS_PREREQUISITE_MISSING names the missing side and the remedy, and no transport code is added",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23104-3",
+      "description": "Upload-Offset on the tus branch matches the byte offset the server has durably acknowledged; a chunk write that returns a non-2xx does not advance Upload-Offset and a subsequent PATCH resumes from the last acknowledged offset.",
+      "given": "a tus upload with a chunk that returns a non-2xx",
+      "when": "the client inspects Upload-Offset and retries",
+      "then": "Upload-Offset reflects the last acknowledged offset only, and the resume PATCH sends bytes from that offset onward",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://tus.io/protocols/resumable-upload",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-23104-4",
+      "description": "A chunk write whose response body does not include a valid Upload-Offset header (missing, malformed, or beyond the total) is treated as a transport failure: the client refuses to advance and the polite live region announces the failure.",
+      "given": "a chunk response with a malformed or missing Upload-Offset",
+      "when": "the client processes the response",
+      "then": "the client does not advance its offset, the polite live region announces the failure and a retry stays keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +59,5 @@
     "affordance:chunked-resumable"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

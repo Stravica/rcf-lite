@@ -1,0 +1,68 @@
+{
+  "usId": "application-admin-console-US-21111",
+  "prdId": "PRD-001",
+  "reqId": "application-admin-console-REQ-008",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The users surface, the org switcher and the invite path honour the elicited tenancy shape",
+  "asA": "shelf consumer applying application-admin-console with the tenancy capability applied and a tenancy-shape chosen",
+  "iWant": "the directory, the switcher and org-scoped invites to obey the per-user, per-org or both shape",
+  "soThat": "the org boundaries the platform enforces are the boundaries the console renders and refuses across",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-21111-1",
+      "description": "When tenancy-shape is `per-user`, every directory row carries exactly one data-org-id and the org switcher renders exactly one org for the current principal; a per-org action from the switcher list beyond the principal's org is refused with TENANCY_SHAPE_REFUSAL naming the shape.",
+      "given": "tenancy applied with tenancy-shape=per-user",
+      "when": "the users route and the org switcher render",
+      "then": "each users row carries exactly one data-org-id, the switcher lists exactly one org, and a switch to another org refuses with TENANCY_SHAPE_REFUSAL",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21111-2",
+      "description": "When tenancy-shape is `per-org`, every directory row carries data-org-membership=all and the switcher renders every org the current principal can reach; an org-scoped invite adds the invitee to the currently switched org without touching the other orgs the principal already belongs to.",
+      "given": "tenancy applied with tenancy-shape=per-org",
+      "when": "the users route renders and an admin invites into the currently switched org",
+      "then": "each users row carries data-org-membership=all, the switcher enumerates every reachable org, and the invite POST records the invitee against exactly the switched org (verified in the audit stream)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21111-3",
+      "description": "When tenancy-shape is `both`, each directory row carries data-org-scope=single or data-org-scope=many and an org-scoped invite for a `many` principal presents an org-picker for the invitee's target orgs; a `single` principal cannot be invited into more than one org.",
+      "given": "tenancy applied with tenancy-shape=both",
+      "when": "the users route renders and an admin invites",
+      "then": "rows carry data-org-scope=single or data-org-scope=many, a `many` invitee shows an org-picker, and a `single` invitee cannot be given multiple orgs (the picker refuses)",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21111-4",
+      "description": "A cross-org action (deactivate, role-change) the elicited shape does not allow refuses at the console with TENANCY_SHAPE_REFUSAL naming the shape and the refused action; the underlying principal directory API is not called.",
+      "given": "any tenancy-shape applied and an admin attempts an action outside the shape",
+      "when": "the admin submits the action",
+      "then": "the console refuses with TENANCY_SHAPE_REFUSAL naming the shape and the action, and no request reaches the principal directory",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21111-5",
+      "description": "The rendered directory always agrees with the applied shape: a users row rendered with data-org-membership=all under tenancy-shape=per-user refuses to render (data-error=SHAPE_MISMATCH is written to the console log and the row is suppressed) rather than presenting the wrong shape.",
+      "given": "tenancy applied and a mismatched row surfaces from the principal directory",
+      "when": "the users route renders",
+      "then": "the row is suppressed and data-error=SHAPE_MISMATCH is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-2201-application-admin-console-shell"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

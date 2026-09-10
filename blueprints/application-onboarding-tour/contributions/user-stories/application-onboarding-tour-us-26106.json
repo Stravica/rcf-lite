@@ -13,7 +13,18 @@
       "id": "AC-26106-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The restart-tour control renders on the settings surface as a <button data-action=\"restart-tour\"> reachable via Tab and activatable with Enter; activating it clears the completion state in the applied store (per ADR-2702) and re-opens the tour on the highest-value surface on the next principal load. Covered as part of AC-26104-1's pack check (the check exercises the restart flow end-to-end)."
+      "description": "The restart-tour control renders on the settings surface as a <button data-action=\"restart-tour\"> reachable via Tab and activatable with Enter; activating it clears the completion state in the applied store (per ADR-2702) and re-opens the tour on the highest-value surface on the next principal load. Covered as part of AC-26104-1's pack check (the check exercises the restart flow end-to-end).",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26106-2",
+      "description": "When the restart-tour control fires but the completion store rejects the clear, the tour does not open and the console log carries data-error=COMPLETION_CLEAR_FAILED with a retry control; the control stays keyboard-reachable.",
+      "given": "the completion store rejects the clear",
+      "when": "a principal fires restart-tour",
+      "then": "the tour does not open, data-error=COMPLETION_CLEAR_FAILED is logged and a retry control renders keyboard-reachable",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +34,5 @@
     "blueprint:application-onboarding-tour"
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

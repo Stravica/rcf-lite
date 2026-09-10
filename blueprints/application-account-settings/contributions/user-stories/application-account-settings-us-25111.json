@@ -1,0 +1,71 @@
+{
+  "usId": "application-account-settings-US-25111",
+  "prdId": "PRD-001",
+  "reqId": "application-account-settings-REQ-007",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Every reauth-window option gates the high-value change with a defined behaviour",
+  "asA": "principal on a project applying application-account-settings with reauth-window chosen",
+  "iWant": "the surface to prompt for reauthentication when the elicited window says so and to refuse the high-value change otherwise",
+  "soThat": "a compromised session cannot silently walk through a credential change or a session termination outside the policy the operator elicited",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-25111-1",
+      "description": "When reauth-window is `never`, a high-value action (credential change, MFA enrolment, session termination) proceeds after the standard confirmation dialog without an additional reauth prompt.",
+      "given": "reauth-window=never applied",
+      "when": "the principal confirms a high-value action",
+      "then": "the action proceeds after the standard confirmation dialog with no reauth prompt rendered",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25111-2",
+      "description": "When reauth-window is `5` and more than 5 minutes have elapsed since the current session's last-active timestamp from the applied auth providers session inventory, the high-value action refuses with REAUTH_REQUIRED and a reauth prompt renders; the action does not proceed until the reauth prompt returns success.",
+      "given": "reauth-window=5 applied and a session with lastActive older than 5 minutes",
+      "when": "the principal confirms a high-value action",
+      "then": "the action refuses with REAUTH_REQUIRED, a reauth prompt renders and the action proceeds only after the reauth prompt returns success",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+    },
+    {
+      "id": "AC-25111-3",
+      "description": "When reauth-window is `15`, the same behaviour applies with a 15-minute elapsed threshold; when reauth-window is `60`, the threshold is 60 minutes.",
+      "given": "reauth-window=15 or reauth-window=60 applied",
+      "when": "the principal confirms a high-value action after the elapsed threshold",
+      "then": "the action refuses with REAUTH_REQUIRED and a reauth prompt renders; below the threshold no reauth prompt renders",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+    },
+    {
+      "id": "AC-25111-4",
+      "description": "The reauth prompt never accepts the current session credentials as sufficient without a fresh challenge (a fresh password entry, a fresh MFA challenge or a fresh magic-link click); a reauth attempt that reuses only the current session token refuses with REAUTH_STALE.",
+      "given": "any reauth-window not `never` and an elapsed session",
+      "when": "the principal submits the current session token as the reauth",
+      "then": "the reauth refuses with REAUTH_STALE and a fresh challenge is presented",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25111-5",
+      "description": "The elapsed-minutes comparison uses the current session's lastActive from the applied auth providers session inventory, never a client-side clock; when the inventory read fails the surface refuses the high-value action with REAUTH_WINDOW_UNKNOWN and offers a retry.",
+      "given": "any reauth-window not `never` and the session inventory read fails",
+      "when": "the principal confirms a high-value action",
+      "then": "the action refuses with REAUTH_WINDOW_UNKNOWN, a retry control renders keyboard-reachable and no client clock is used",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+    }
+  ],
+  "tacIds": [
+    "TAC-2604-application-account-settings-session-store"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

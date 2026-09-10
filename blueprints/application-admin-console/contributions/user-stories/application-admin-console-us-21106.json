@@ -13,7 +13,36 @@
       "id": "AC-21106-1",
       "testable": true,
       "scope": "runtime",
-      "description": "A non-admin principal reaching /admin renders a role=\"region\" with an accessible name naming the denied action (WCAG 2.4.6), a paragraph explaining why access was refused (WCAG 3.3.4), and a request-access control (data-action=\"request-access\") routed to POST /api/request-access. The control announces its state (idle, submitting, submitted) via a polite live region (WCAG 4.1.3)."
+      "description": "A non-admin principal reaching /admin renders a role=\"region\" with an accessible name naming the denied action (WCAG 2.4.6), a paragraph explaining why access was refused (WCAG 3.3.4), and a request-access control (data-action=\"request-access\") routed to POST /api/request-access. The control announces its state (idle, submitting, submitted) via a polite live region (WCAG 4.1.3).",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-21106-2",
+      "description": "When the request-access POST returns a non-2xx response or times out, the access-denied state announces the failure through the polite live region, the request-access control returns to an idle state (data-state=idle) and remains keyboard-reachable for a retry; no submitted-success announcement is emitted. Vendor citation on the WCAG live-region announcement path.",
+      "given": "the access-denied state rendered and the applied notification blueprint returns a non-2xx or times out",
+      "when": "the principal activates the request-access control",
+      "then": "the live region announces a failure message, the control returns to data-state=idle with keyboard focus preserved and no data-state=submitted transition fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#status-messages",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-21106-3",
+      "description": "The access-denied heading names the denied action, the explanation names the missing capability (principalDirectory when the console runs without any applied auth), and the request-access control exposes accName that matches the visible label per WCAG 2.5.3.",
+      "given": "a principal without admin scope reaches /admin",
+      "when": "the access-denied state renders",
+      "then": "the heading text names the action, the explanation text names the missing capability and the request-access control accessible name matches its visible label",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#label-in-name",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [
@@ -23,5 +52,5 @@
     "blueprint:application-admin-console"
   ],
   "createdAt": "2026-09-05T01:30:00Z",
-  "updatedAt": "2026-09-05T01:30:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

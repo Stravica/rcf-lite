@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Theme surface conditional on application-spa applied with theme-persistence elicit",
   "description": "The theme surface (/account/theme) renders when application-spa is applied. Renders a light/dark/system radiogroup (ARIA APG radiogroup, keyboard reachable) and persists the choice per the theme-persistence elicit (spa-local-storage default, server-scoped, or none). Choice takes effect immediately (data-theme attribute on the html element flips) and honours the users prefers-color-scheme when set to system.",
+  "deliveredBy": {
+    "tacId": "TAC-2601-application-account-settings-shell",
+    "field": "responsibilities.renderCorrelationId"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

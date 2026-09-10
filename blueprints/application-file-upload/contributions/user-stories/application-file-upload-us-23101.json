@@ -13,7 +13,28 @@
       "id": "AC-23101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The upload region carries [data-surface=\"file-upload\"] and inside it: a labelled <input type=\"file\"> with a keyboard-reachable label (an id-referenced <label> or an aria-label), a [data-drop-zone] region, and a keyboard-focusable [data-open-picker] button that opens the same picker on Enter or Space. The pack drives the real browser to /upload, asserts the three affordances are present, focuses the [data-open-picker] control and presses Enter, then reads that the file input received focus."
+      "description": "The upload region carries [data-surface=\"file-upload\"] and inside it: a labelled <input type=\"file\"> with a keyboard-reachable label (an id-referenced <label> or an aria-label), a [data-drop-zone] region, and a keyboard-focusable [data-open-picker] button that opens the same picker on Enter or Space. The pack drives the real browser to /upload, asserts the three affordances are present, focuses the [data-open-picker] control and presses Enter, then reads that the file input received focus.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23101-2",
+      "description": "A file whose MIME type is outside the elicited accepted-set is refused at the input with an inline error naming the mismatch and the accepted set; no request is sent to the transport. Applying agent sets: accepted-set.",
+      "given": "a file whose MIME type is outside the accepted-set",
+      "when": "the principal drops or selects the file",
+      "then": "the input refuses the file inline, an aria-describedby-bound error names the mismatch and the accepted set, and no transport call fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-23101-3",
+      "description": "A file whose size exceeds the elicited size-cap is refused inline with the cap named in bytes and a human-readable form; the input never accepts the file into the drop-zone queue. Applying agent sets: size-cap.",
+      "given": "a file whose size exceeds the elicited size-cap",
+      "when": "the principal drops or selects the file",
+      "then": "the input refuses inline with the cap named and no transport call fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -24,5 +45,5 @@
     "affordance:input-plus-drop-plus-keyboard"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

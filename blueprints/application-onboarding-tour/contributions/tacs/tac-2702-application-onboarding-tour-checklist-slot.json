@@ -10,7 +10,8 @@
     "Read the elicited checklist-anchor (ADR-2703) at load and mount the checklist at the resolved slot (AC-26103-1).",
     "Render the checklist as a <details> element carrying data-role=\"onboarding-tour-checklist\" whose open state mirrors the anchor: open on dashboard-top, closed on settings-page (AC-26103-1).",
     "Enumerate the applied tour surfaces as list items with a link to the restart-tour control on the settings surface.",
-    "Suppress the checklist entirely when neither the dashboard nor the settings surface is applied and no custom-anchor is supplied."
+    "Suppress the checklist entirely when neither the dashboard nor the settings surface is applied and no custom-anchor is supplied.",
+    "resolveAnchor: resolve the elicited checklist-anchor (dashboard-top, settings-page or custom-anchor) to a mounted <details> slot, or fall back to the settings surface with data-error=CHECKLIST_ANCHOR_UNRESOLVED (AC-26109-1 through AC-26109-5)."
   ],
   "internalStructure": "One checklist module that reads the applied capability set from the sidecar-adjacent applied-blueprint list, picks the anchor per the elicited value or the default derived at apply time, and mounts the <details> element into the resolved slot. The framework is not prescribed.",
   "interfaces": [

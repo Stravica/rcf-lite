@@ -13,7 +13,28 @@
       "id": "AC-23102-1",
       "testable": true,
       "scope": "runtime",
-      "description": "The upload region ships a [data-live-region=\"polite\"] wrapper with aria-live=\"polite\" preseeded at render time. During an upload the wrapper's textContent matches /^\\d+ of \\d+ files, \\d{1,3} percent$/ and the numeric aggregate percent advances monotonically. Per-file rows carry [data-file-row] with a [data-file-progress] element whose text or aria-valuenow reflects the per-file percent. The pack drives /upload?transport=multipart, starts the upload, and reads the wrapper text plus one per-file progress value before completion."
+      "description": "The upload region ships a [data-live-region=\"polite\"] wrapper with aria-live=\"polite\" preseeded at render time. During an upload the wrapper's textContent matches /^\\d+ of \\d+ files, \\d{1,3} percent$/ and the numeric aggregate percent advances monotonically. Per-file rows carry [data-file-row] with a [data-file-progress] element whose text or aria-valuenow reflects the per-file percent. The pack drives /upload?transport=multipart, starts the upload, and reads the wrapper text plus one per-file progress value before completion.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23102-2",
+      "description": "Aggregate progress is the byte-weighted sum of per-file progresses: three files of 1 MiB, 2 MiB and 5 MiB produce an aggregate percentage weighted by size, not a plain average of the three per-file percentages.",
+      "given": "three files of unequal size uploading concurrently",
+      "when": "the announcer emits aggregate progress",
+      "then": "the announced aggregate percentage equals the byte-weighted sum of per-file bytes uploaded over total bytes",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23102-3",
+      "description": "The polite live region emits one aggregate progress tick per elicited tick-interval (default 2 seconds) and never emits more than once per interval, so that assistive tech does not receive an announcement flood.",
+      "given": "an in-flight upload and a tick-interval of 2 seconds",
+      "when": "ticks fire",
+      "then": "the polite live region carries at most one aggregate announcement per 2-second interval",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -24,5 +45,5 @@
     "affordance:polite-progress"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

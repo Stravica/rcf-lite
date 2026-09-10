@@ -16,11 +16,26 @@
       "when": "the toast DOM is read",
       "then": "the priority-to-role mapping and the one-shot announcement match an operator-driven toast",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-20107-2",
+      "description": "A background-driven toast that lacks a priority field or a category outside the elicited enum refuses the toast render with TOAST_PAYLOAD_INVALID naming the missing or invalid field, and never surfaces to the DOM.",
+      "given": "a background event that emits a toast payload with a missing priority or unknown category",
+      "when": "the event fires",
+      "then": "no toast renders, TOAST_PAYLOAD_INVALID names the field and the event is logged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2101-application-notifications-in-app-live-region"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

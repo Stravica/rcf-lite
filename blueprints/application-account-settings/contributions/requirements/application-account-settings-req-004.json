@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Sessions surface conditional on sessionInventory",
   "description": "The sessions surface (/account/sessions) renders when sessionInventory is applied. Lists active sessions in a table enumerated by data-session-id with device label, last-active timestamp and terminate control. Terminate opens an ARIA APG dialog-modal (role=dialog, aria-modal=true, aria-labelledby to the heading, focus trap, focus returns to the row on close) confirming the action; on submit the row disappears from the table and a polite \"Session ended\" announcement fires (WCAG 4.1.3 Status Messages).",
+  "deliveredBy": {
+    "tacId": "TAC-2604-application-account-settings-session-store",
+    "field": "interfaces.sessionInventoryConsumer"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

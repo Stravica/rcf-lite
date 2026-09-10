@@ -13,7 +13,18 @@
       "id": "AC-25110-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When no applied blueprint declares credentialSelfService OR hostedIdentityUi and the operator answers --answer security-surface-shape=self-service (or =hosted-link-out or =hosted-embed), apply exits 3 with the two-remedy message: (a) apply an auth blueprint that declares one of the two security capabilities, or (b) drop the security tab from scope by not answering security-surface-shape."
+      "description": "When no applied blueprint declares credentialSelfService OR hostedIdentityUi and the operator answers --answer security-surface-shape=self-service (or =hosted-link-out or =hosted-embed), apply exits 3 with the two-remedy message: (a) apply an auth blueprint that declares one of the two security capabilities, or (b) drop the security tab from scope by not answering security-surface-shape.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25110-2",
+      "description": "The refusal names both remedies: applying an auth blueprint that declares credentialSelfService or hostedIdentityUi, and re-answering security-surface-shape or leaving the elicit unanswered. The refusal message is stable and matches the packaged fixture.",
+      "given": "a project answering security-surface-shape without a supplying capability",
+      "when": "apply runs",
+      "then": "apply refuses naming both remedies and the refusal message matches the packaged fixture verbatim",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +34,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

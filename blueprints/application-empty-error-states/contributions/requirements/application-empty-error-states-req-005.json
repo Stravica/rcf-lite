@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Offline state: write-buffer contract, navigator.onLine reconnection announcement, per-write reconciliation semantics",
   "description": "When navigator.onLine reports false the offline state renders with a read-only banner naming the offline mode. Queued writes buffer to an applied local buffer (IndexedDB by default, an elicited alternative per ADR-2303) with an idempotency token per write, a serialised payload, and a monotonically increasing sequence. On reconnection (navigator.onLine true) the offline state announces through the polite live-region wrapper the applied notifications-in-app blueprint has preseeded; queued writes flush in sequence, each with the same idempotency token so a server-side dedupe rejects a re-issue. Per-write reconciliation semantics: on flush success the surface clears the buffer entry; on flush failure the entry is retained with a retry counter and the surface renders a per-write error banner.",
+  "deliveredBy": {
+    "tacId": "TAC-2301-application-empty-error-states-state-machine",
+    "field": "responsibilities.reserveSpace"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

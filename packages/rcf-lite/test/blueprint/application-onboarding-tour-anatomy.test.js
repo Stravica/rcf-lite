@@ -27,10 +27,10 @@ const CHANGELOG_ABS = join(BLUEPRINT_ROOT, 'CHANGELOG.md');
 const GUIDE_ABS = join(BLUEPRINT_ROOT, 'guide', 'application-onboarding-tour.md');
 const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 
-test('blueprint.json declares 17 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
+test('blueprint.json declares 21 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-onboarding-tour');
-  assert.equal(doc.version, '1.0.0');
+  assert.equal(doc.version, '1.1.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -39,11 +39,11 @@ test('blueprint.json declares 17 contributions with no requiresAppliedCapabiliti
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 4);
-  assert.equal(uss.length, 7);
+  assert.equal(reqs.length, 6);
+  assert.equal(uss.length, 9);
   assert.equal(tacs.length, 3);
   assert.equal(adrs.length, 3);
-  assert.equal(doc.contributions.length, 17);
+  assert.equal(doc.contributions.length, 21);
   const elicitIds = doc.elicits.map((e) => e.id).sort();
   assert.deepEqual(elicitIds, [
     'anchor-selectors',
@@ -80,7 +80,7 @@ test('ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-
   }
 });
 
-test('applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
+test('applies cleanly on a fresh project with 21 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'onboarding-tour-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -88,7 +88,7 @@ test('applies cleanly on a fresh project with 17 contributions and no requiresAp
   assert.equal(apply.applied, true, JSON.stringify(apply));
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
-  assert.equal(sidecar.version, '1.0.0');
+  assert.equal(sidecar.version, '1.1.0');
   // TC-057-applies-clean also runs `rcf define validate` on the scratch
   // project so applied contributions are exercised against the closed
   // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution

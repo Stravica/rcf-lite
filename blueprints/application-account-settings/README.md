@@ -27,7 +27,7 @@ Refuses with exit 3 and the spec 5.4.1 verbatim message on a project with no app
 |---|---|---|
 | `principalDirectory` | Profile (`/account/profile`) always available | Any applied auth blueprint (magic-link, clerk, oauth2, keycloak). |
 | `credentialSelfService` OR `hostedIdentityUi` | Security (`/account/security`) | credentialSelfService: Keycloak from 1.2.0, OAuth2 from 1.2.0 (provider-conditional). hostedIdentityUi: Clerk from 1.3.0, OAuth2 from 1.2.0 (provider-conditional). Neither present: security tab suppressed AND the Q3 refusal fires at apply if the operator answers `--answer security-surface-shape=...`. |
-| `sessionInventory` | Sessions (`/account/sessions`) | Clerk from 1.3.0, Keycloak from 1.2.0, OAuth2 from 1.2.0, or observability-logging from 1.2.0 (as the logging-projection provider). Magic-link does NOT declare it. |
+| `sessionInventory` | Sessions (`/account/sessions`) | Clerk from 1.3.0, Keycloak from 1.2.0, OAuth2 from 1.2.0. Owner: security-auth-clerk TAC-1003-security-auth-clerk-session-verifier field interfaces.sessionInventory (the shape any auth blueprint declaring the capability agrees to). Magic-link does NOT declare it; observability-logging 1.3.0 no longer declares it. |
 | `application-notifications-in-app` applied | Notification preferences (`/account/notifications`) | Suppressed when the notifications-in-app blueprint is not applied. |
 | `application-spa` applied | Theme (`/account/theme`) | Suppressed when the SPA blueprint is not applied. |
 | (none) | Unauthenticated principal | Composes on `application-empty-error-states` (T-1) forbidden state; no bespoke access-denied UI. |
@@ -62,7 +62,7 @@ A project that declares `principalDirectory` (so apply is not refused at the bar
 2. Renders the shell WITHOUT a security tab (AC-25101-1, probed by the pack).
 3. Refuses the security surface at load time through TAC-2603 hosted-ui-bridge if a project-side FBS renders `/account/security` regardless (project-side enforcement per AC-25110-1 known mechanism-reach gap, spec section 5.4.1).
 
-No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per Baz decision Q3 in the ratified spec, the shell never lies about a surface that has no home.
+No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per the ratified spec Q3 decision, the shell never lies about a surface that has no home.
 
 ## Custom-auth projects (auth outside the shelf)
 
@@ -105,7 +105,7 @@ The applied-blueprint sidecar at `rcf/blueprints/application-account-settings.ap
 
 ## Companions
 
-`suggestedCompanions` declares `logging` (every rendered account surface writes one request-scoped log line with the correlation identifier; the sessions surface reads a session inventory from `observability-logging` 1.2.0+ when configured) and `errorHandling` (profile-save, security-flow and session-terminate failures construct internal error records). Neither is required to apply the blueprint; the audit-history surface is deferred to v1.1.0.
+`suggestedCompanions` declares `logging` (every rendered account surface writes one request-scoped log line with the correlation identifier) and `errorHandling` (profile-save, security-flow and session-terminate failures construct internal error records). Neither is required to apply the blueprint; the audit-history surface is deferred to v1.1.0.
 
 ## Consumers
 

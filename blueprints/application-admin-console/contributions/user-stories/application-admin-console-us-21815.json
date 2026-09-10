@@ -16,12 +16,31 @@
       "when": "the pack drives GET /admin/sign-in",
       "then": "the DOM carries [data-surface=access-gated], no [data-surface=local-login], and a [data-role=principal-read] with the request.auth email",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+        "field": "interfaces.GET /admin/sign-in"
+      }
+    },
+    {
+      "id": "AC-21815-2",
+      "description": "When zeroTrustGate is applied but the incoming request lacks request.auth (the JWT validator upstream did not populate it), GET /admin/sign-in refuses with a 403 access-denied surface: no [data-role=principal-read] element is rendered, no principal email is echoed, and no protected data is served. The refusal reason is logged with the correlation id and the applied capability set.",
+      "given": "zeroTrustGate applied and a request arrives at /admin/sign-in with request.auth undefined",
+      "when": "the route renders",
+      "then": "the response status is 403, the DOM carries the access-denied surface, no [data-role=principal-read] element is present and no protected data is included",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+        "field": "interfaces.GET /admin/sign-in"
+      }
     }
   ],
   "tacIds": [
     "TAC-2214-application-admin-console-access-gated-signin-surface"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

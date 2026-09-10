@@ -13,7 +13,18 @@
       "id": "AC-22106-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a listing endpoint returning an empty array, the empty-list state renders inside role=\"region\" with a data-visual=\"empty-list\" wrapper (distinct from data-visual=\"loading\" and data-visual=\"loaded\") and a keyboard-reachable [data-recovery=\"create\"] control. The pack drives /probe/empty-list, reads the region and the wrapper attribute, and asserts the recovery control exists and carries an accessible name."
+      "description": "Given a listing endpoint returning an empty array, the empty-list state renders inside role=\"region\" with a data-visual=\"empty-list\" wrapper (distinct from data-visual=\"loading\" and data-visual=\"loaded\") and a keyboard-reachable [data-recovery=\"create\"] control. The pack drives /probe/empty-list, reads the region and the wrapper attribute, and asserts the recovery control exists and carries an accessible name.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22106-2",
+      "description": "When the recovery-action router has no recovery configured for a state, the router refuses to render a recovery control and renders an explicit no-recovery notice naming the state; a broken configuration (a recovery-shape enum outside the closed set) is refused at apply.",
+      "given": "an empty-list state with no configured create/clear/invite recovery",
+      "when": "the surface renders",
+      "then": "a no-recovery notice renders naming the state and no false recovery control appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "state:empty-list"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

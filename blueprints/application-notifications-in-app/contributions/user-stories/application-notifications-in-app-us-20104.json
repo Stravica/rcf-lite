@@ -16,7 +16,8 @@
       "when": "a silence toggle is activated",
       "then": "the preference is recorded and reflected on the DOM",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-20104-2",
@@ -25,11 +26,36 @@
       "when": "the digest opt-in section is read",
       "then": "the section is disabled and labelled as sibling not applied",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-20104-3",
+      "description": "When the preference write POST returns a non-2xx or times out, an error toast surfaces via the assertive live region, the toggle in the DOM returns to its pre-click state and no false persisted-state is shown.",
+      "given": "a preference toggle change and a write POST that returns a non-2xx or times out",
+      "when": "the principal toggles the preference",
+      "then": "an error toast fires, the toggle rolls back to its pre-click state, and no data-persisted=true is emitted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-20104-4",
+      "description": "On a successful preference write, the polite live region announces the new persisted state and the toggle reflects it. Two rapid clicks are debounced to a single write (idempotency of a retried operation).",
+      "given": "a preference toggle change accepted by the write POST",
+      "when": "the write returns 2xx",
+      "then": "the polite live region announces the new state, data-persisted=true is emitted, and two rapid clicks fire exactly one write",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2103-application-notifications-in-app-preferences"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2103-application-notifications-in-app-preferences"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

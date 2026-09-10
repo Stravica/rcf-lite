@@ -13,7 +13,18 @@
       "id": "AC-24108-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given zero drafts in the draft store, /in-progress renders [data-surface=\"empty-list\"] (the empty-list wrapper contributed by application-empty-error-states) with a [data-recovery=\"create\"] control whose href routes to the first step of a fresh wizard. The pack asserts the wrapper and the control are present on the honest render and refuses when either is missing."
+      "description": "Given zero drafts in the draft store, /in-progress renders [data-surface=\"empty-list\"] (the empty-list wrapper contributed by application-empty-error-states) with a [data-recovery=\"create\"] control whose href routes to the first step of a fresh wizard. The pack asserts the wrapper and the control are present on the honest render and refuses when either is missing.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24108-2",
+      "description": "When application-empty-error-states is not applied, the empty in-progress list renders a minimal inline empty message inside the wizards own surface rather than crashing or leaving a blank region; a break that removes the fallback fails the pack.",
+      "given": "application-empty-error-states not applied and no drafts held",
+      "when": "the in-progress list surface renders",
+      "then": "a minimal inline empty message renders and no blank region appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "consumes:application-empty-error-states"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

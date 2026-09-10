@@ -1,0 +1,22 @@
+{
+  "reqId": "application-admin-console-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Every invite-transport option delivers or records the invite with a defined outcome",
+  "description": "The users surface honours the elicited invite-transport with a runtime clause per option: `email` hands the invite to the applied email companion (an email sibling declaring an email transport) and records success only after the transport reports the message accepted, presenting a delivery-failed refusal with a retryable control when the transport rejects or times out; `in-app-only` never touches the email transport and writes an invite record to the applied notification stream, marking the row with a data-invite-transport=in-app-only attribute so the recipient can see the invite in their own console; `custom` hands the invite payload to the project-supplied invite handler at surface time (a registered function on the applied capability sidecar) and records success only after the handler resolves, refusing the invite when no handler is registered. Every branch writes an audit record naming the transport, the invitee, and the outcome (accepted, failed, or refused).",
+  "deliveredBy": {
+    "tacId": "TAC-2201-application-admin-console-shell",
+    "field": "responsibilities.deliverInvite"
+  },
+  "category": "functional",
+  "domain": "user-management",
+  "priority": "must",
+  "rationale": "The elicit offers three transports but the shipped requirements described the invite button only. A project that selected `in-app-only` or `custom` inherited no runtime behaviour and no failure-path assertion; the console shipped an invite control that silently misdelivered. Requiring a clause per option turns the elicit into a chain-linked commitment the audit record proves.",
+  "tags": [
+    "blueprint:application-admin-console",
+    "category:07-invite-transport"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

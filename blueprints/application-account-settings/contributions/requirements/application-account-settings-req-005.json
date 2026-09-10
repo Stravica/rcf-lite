@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Notification preferences surface conditional on application-notifications-in-app applied",
   "description": "The notification-preferences surface (/account/notifications) renders when application-notifications-in-app is applied. Provides a per-category silence control and a per-channel opt-in (in-app, email, push where channels apply). The blueprint does NOT own the notification model; it delegates the model to the applied blueprint and renders the operator interface only. Save-success and save-failure announcements follow the profile surface contract.",
+  "deliveredBy": {
+    "tacId": "TAC-2601-application-account-settings-shell",
+    "field": "responsibilities.renderPreferencesSurface"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

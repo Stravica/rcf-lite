@@ -13,7 +13,22 @@
       "id": "AC-24103-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a submit refusal on the wizard step, the rendered surface exposes [data-surface=\"error-summary\"] with a heading (h2 or role=heading), one anchor element per failed field with href pointing at the field's id, and every failed field carries aria-invalid=\"true\" plus aria-describedby referencing its per-field error message. Focus after submit lands on the summary heading (document.activeElement matches the summary heading selector). The pack drives /step/2 with empty required inputs, submits and reads the summary heading, the anchor href list, the field aria-invalid attribute and the active-element selector."
+      "description": "Given a submit refusal on the wizard step, the rendered surface exposes [data-surface=\"error-summary\"] with a heading (h2 or role=heading), one anchor element per failed field with href pointing at the field's id, and every failed field carries aria-invalid=\"true\" plus aria-describedby referencing its per-field error message. Focus after submit lands on the summary heading (document.activeElement matches the summary heading selector). The pack drives /step/2 with empty required inputs, submits and reads the summary heading, the anchor href list, the field aria-invalid attribute and the active-element selector.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24103-2",
+      "description": "On submit refusal, keyboard focus lands on the error summary at document position, and activating a summary link moves focus to the failing field.",
+      "given": "a submit refusal with the error summary rendered",
+      "when": "focus is queried and a summary link is activated",
+      "then": "focus lands on the summary, then on the failing field after link activation",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://design-system.service.gov.uk/components/error-summary/",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [
@@ -24,5 +39,5 @@
     "contract:error-summary"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

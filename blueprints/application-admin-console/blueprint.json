@@ -1,6 +1,6 @@
 {
   "slug": "application-admin-console",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -130,6 +130,16 @@
       "path": "requirements/application-admin-console-req-006.json"
     },
     {
+      "id": "application-admin-console-REQ-007",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-007.json"
+    },
+    {
+      "id": "application-admin-console-REQ-008",
+      "kind": "req",
+      "path": "requirements/application-admin-console-req-008.json"
+    },
+    {
       "id": "application-admin-console-US-21101",
       "kind": "us",
       "path": "user-stories/application-admin-console-us-21101.json"
@@ -173,6 +183,16 @@
       "id": "application-admin-console-US-21109",
       "kind": "us",
       "path": "user-stories/application-admin-console-us-21109.json"
+    },
+    {
+      "id": "application-admin-console-US-21110",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21110.json"
+    },
+    {
+      "id": "application-admin-console-US-21111",
+      "kind": "us",
+      "path": "user-stories/application-admin-console-us-21111.json"
     },
     {
       "id": "TAC-2201-application-admin-console-shell",

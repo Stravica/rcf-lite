@@ -16,12 +16,31 @@
       "when": "the pack drives GET /admin/sign-in",
       "then": "the DOM carries [data-surface=local-login] and no [data-surface=access-gated]",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+        "field": "interfaces.GET /admin/sign-in"
+      }
+    },
+    {
+      "id": "AC-21816-2",
+      "description": "The local-login surface renders exactly the security-auth-* local form contract from v1.0.0: an id-labelled input for the credential, a submit control routed to the local sign-in POST and no [data-surface=access-gated] region on the same render.",
+      "given": "a project without zeroTrustGate applied",
+      "when": "GET /admin/sign-in renders",
+      "then": "the DOM carries an input, a submit control routed to the local sign-in POST and no [data-surface=access-gated] region",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
+        "field": "interfaces.GET /admin/sign-in"
+      }
     }
   ],
   "tacIds": [
     "TAC-2214-application-admin-console-access-gated-signin-surface"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-07T16:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

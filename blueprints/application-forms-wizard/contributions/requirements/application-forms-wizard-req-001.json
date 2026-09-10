@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Task-list contract: per-step completion state announced through the GOV.UK vocabulary Cannot start yet, Not started, In progress, Completed",
   "description": "The wizard renders a task-list surface listing every step in a stable order. Each step exposes one of four completion states from the closed GOV.UK vocabulary: Cannot start yet (a prerequisite step is unfinished), Not started (the step is reachable but has no answers), In progress (the step has partial answers), Completed (the step is fully valid). The task-list carries an ARIA progressbar shape naming the total step count and the number completed. The four state strings are a closed enum at v1.0.0; a fifth state is a v1.1.0 minor bump. The surface anchors on TAC-2501 (task-list shell) and is vendor-neutral: the blueprint contributes WHAT strings under WHAT condition, not the visual token set.",
+  "deliveredBy": {
+    "tacId": "TAC-2501-application-forms-wizard-task-list",
+    "field": "interfaces.renderTaskList"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",
