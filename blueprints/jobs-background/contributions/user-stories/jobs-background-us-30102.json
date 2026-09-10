@@ -6,7 +6,7 @@
   "status": "approved",
   "title": "Job definition contract with name, handler, inputSchema, retryPolicy and timeoutMs",
   "asA": "developer authoring a job in an applying project",
-  "iWant": "one shipped job-definition shape { name, handler, inputSchema, retryPolicy, timeoutMs } that the jobs runtime registers at boot on the applied queue consumer",
+  "iWant": "one shipped job-definition shape owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default that the jobs runtime registers at boot on the applied queue consumer",
   "soThat": "every job in the project follows one uniform contract without the blueprint prescribing an input-validation library or a handler-callback style",
   "acceptanceCriteria": [
     {
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-30102-2",
-      "description": "Malformed job-definition module refused at load. Given a job module in the elicited jobs-directory whose default export is missing one of the shape fields ({name, handler, inputSchema, retryPolicy, timeoutMs}), when registerJobs walks the directory at boot, then it refuses with a named error kind (malformedJobDefinition) naming the missing field and the module path; no job registers into the runtime.",
+      "description": "Malformed job-definition module refused at load. Given a job module in the elicited jobs-directory whose default export is missing one of the fields owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default, when registerJobs walks the directory at boot, then it refuses with a named error kind (malformedJobDefinition) naming the missing field and the module path; no job registers into the runtime.",
       "given": "a job module missing one shape field",
       "when": "registerJobs walks the elicited jobs-directory at boot",
       "then": "registerJobs refuses with malformedJobDefinition naming the missing field and the module path; no job registers",

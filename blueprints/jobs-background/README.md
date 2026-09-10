@@ -4,7 +4,7 @@ Background-jobs discipline over an applied `queue` capability. Ships a job-defin
 
 ## What this gives you
 
-- A job-definition module shape you export from `./jobs/*.mjs`: `{ name, handler, inputSchema, retryPolicy, timeoutMs }`.
+- A job-definition module shape you export from `./jobs/*.mjs`, owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default (name, handler, input schema, retry policy, timeout).
 - A scheduler with POSIX cron and one-shot-delayed shapes, elicited across `inProcess` (a Node long-lived process), `workerCron` (Cloudflare Cron Triggers) and `external` (a Kubernetes CronJob, a systemd timer, GitHub Actions schedule). A `workflows` mode is reserved for the v1.1.0 minor per section 5.7 of the spec.
 - A retry contract that inherits the applied queue's max-attempts ceiling (Cloudflare Queues at 100 per the messaging-queue-cloudflare ADR-3003) and expresses the elicited backoff shape (`exponential`, `constant`, `linear`).
 - A metadata-only run-log at four moments (`jobScheduled`, `jobStarted`, `jobCompleted`, `jobFailed`). Record whitelist: `{ jobId, jobName, attempts, duration, timestamp }` plus optional `terminalErrorCode`. No job input, no handler output, no user id, no email, no SSN, ever.

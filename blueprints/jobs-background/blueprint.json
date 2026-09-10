@@ -149,7 +149,7 @@
   "elicits": [
     {
       "id": "jobs-directory",
-      "prompt": "Directory holding one job-definition module per job. Each module default-exports the { name, handler, inputSchema, retryPolicy, timeoutMs } shape and registerJobs walks the directory. Default apps/*/src/jobs under the applying project root.",
+      "prompt": "Directory holding one job-definition module per job. Each module default-exports the shape owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default and registerJobs walks the directory. Default apps/*/src/jobs under the applying project root.",
       "kind": "string",
       "default": "src/jobs"
     },
