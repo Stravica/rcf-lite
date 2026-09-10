@@ -82,6 +82,25 @@ const PROBE_DECLARED_ENV = Object.freeze([
 // whose detail carries the API status and code as evidence. Endpoint:
 // GET /accounts/{id}/workers/subdomain (verifiedOn 2026-09-10 per
 // https://developers.cloudflare.com/api/resources/workers/subresources/subdomain/methods/get/).
+//
+// Return classification:
+//   - `provisioned`      : HTTP 200 with `success: true` and a
+//                          non-empty `result.subdomain`. The probe
+//                          runs mint / drive / teardown.
+//   - `affirmativelyAbsent`
+//                        : the AFFIRMATIVE absence shape the vendor
+//                          returns for an unprovisioned account,
+//                          either HTTP 404 with error code 10007 OR
+//                          HTTP 200 with `success: true` and an
+//                          empty / missing `result.subdomain`. The
+//                          probe records an accountBoundSkipped
+//                          declared skip.
+//   - `unclassified`     : any other shape (401, 403, 429, 5xx,
+//                          malformed body, unexpected status/code
+//                          combination). The probe fails the verdict
+//                          with the observed status and body code
+//                          in detail; a skip on a non-absence shape
+//                          is a 7d violation.
 async function preflightWorkersDevSubdomain() {
   const accountId = process.env.CF_ACCOUNT_ID;
   const token = process.env.CF_API_TOKEN;
@@ -92,12 +111,23 @@ async function preflightWorkersDevSubdomain() {
   const resp = await fetch(url, { method: 'GET', headers: { authorization: `Bearer ${token}` } });
   const text = await resp.text();
   let json = null;
-  try { json = JSON.parse(text); } catch (_err) { /* body may be empty or non-JSON */ }
+  let parseError = null;
+  try { json = JSON.parse(text); } catch (err) { parseError = err && err.message ? err.message : 'JSON parse failed'; }
   const errorCode = json && Array.isArray(json.errors) && json.errors[0] && json.errors[0].code;
   const result = json && json.result;
   const subdomain = result && typeof result.subdomain === 'string' && result.subdomain.trim().length > 0 ? result.subdomain : null;
-  const provisioned = resp.ok && json && json.success === true && subdomain !== null;
-  return { status: resp.status, errorCode, subdomain, provisioned };
+  let classification = 'unclassified';
+  if (parseError === null && json) {
+    if (resp.status === 200 && json.success === true && subdomain !== null) {
+      classification = 'provisioned';
+    } else if (resp.status === 404 && json.success === false && errorCode === 10007) {
+      classification = 'affirmativelyAbsent';
+    } else if (resp.status === 200 && json.success === true && subdomain === null) {
+      classification = 'affirmativelyAbsent';
+    }
+  }
+  const bodyExcerpt = text.length > 400 ? text.slice(0, 400) + '...(truncated)' : text;
+  return { status: resp.status, errorCode, subdomain, classification, parseError, bodyExcerpt };
 }
 
 function skipResult({ reason, detail }) {
@@ -174,11 +204,26 @@ export default async function runProbe() {
   // A fully capable account carries a subdomain and the probe
   // proceeds unconditionally to mint / drive / teardown.
   const preflight = await preflightWorkersDevSubdomain();
-  if (!preflight.provisioned) {
+  if (preflight.classification === 'affirmativelyAbsent') {
     return skipResult({
       reason: 'cloudflare-account-workers-dev-subdomain-not-provisioned',
-      detail: `accountBoundSkipped: pre-flight GET /accounts/{id}/workers/subdomain returned status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} - the target Cloudflare account has no workers.dev subdomain provisioned. The queue consumer-attach step (see https://developers.cloudflare.com/api/resources/queues/subresources/consumers/, verifiedOn 2026-09-10) rejects with HTTP 403 code 10063 in that state, so the probe cannot complete a live run against this account. The account prerequisite (a provisioned workers.dev subdomain) is out of the probe's authorship scope. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+      detail: `accountBoundSkipped: pre-flight GET /accounts/{id}/workers/subdomain returned status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} - the target Cloudflare account affirms it has no workers.dev subdomain provisioned. The queue consumer-attach step (see https://developers.cloudflare.com/api/resources/queues/subresources/consumers/, verifiedOn 2026-09-10) rejects with HTTP 403 code 10063 in that state, so the probe cannot complete a live run against this account. The account prerequisite (a provisioned workers.dev subdomain) is out of the probe's authorship scope. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
     });
+  }
+  if (preflight.classification !== 'provisioned') {
+    // Any non-absence, non-success response from the pre-flight is a
+    // real failure that must not be swallowed as a skip (authoring
+    // standard section 7d: a bare pass on a shape the probe did not
+    // observe would be positive-evidence-missing). Detail carries the
+    // observed status, Cloudflare error code and body excerpt so the
+    // reviewer can act on the exact vendor signal.
+    return [{
+      anchorAcId: 'AC-29108-2',
+      verdict: 'fail',
+      detail: `pre-flight GET /accounts/{id}/workers/subdomain returned an unclassified shape: status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} parseError=${preflight.parseError ?? 'null'} bodyExcerpt=${preflight.bodyExcerpt}. The probe refuses to declare an accountBound skip on a shape that is neither the vendor's affirmative absence (HTTP 404 code 10007, or HTTP 200 with an empty subdomain) nor a provisioned subdomain (HTTP 200 with a non-empty result.subdomain).`,
+      envDeclared: PROBE_DECLARED_ENV,
+      preflight: { status: preflight.status, errorCode: preflight.errorCode, subdomain: preflight.subdomain, parseError: preflight.parseError },
+    }];
   }
 
   const messageCount = Number.parseInt(process.env.CF_QUEUE_MESSAGE_COUNT ?? '', 10) || DEFAULT_MESSAGE_COUNT;
