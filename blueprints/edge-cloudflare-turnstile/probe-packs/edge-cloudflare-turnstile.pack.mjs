@@ -114,9 +114,23 @@ export default {
     {
       id: 'AC-turnstile-magicLinkGuard',
       severity: 'block',
-      description: 'Magic-link mint route composed with the Turnstile guard refuses a mint submit without a Turnstile response with 400 and refusal errorCode=turnstile.token-missing; no magic-link mint side-effect.',
+      description: 'Magic-link mint route composed with the Turnstile guard refuses a mint submit without a Turnstile response with 400 and refusal errorCode=turnstile.token-missing; the fixture event sink at /api/events records a mint-outcome count of zero after both refusals so the positive evidence proves no magic-link mint side-effect landed.',
       run: async ({ browser, runtimeUrl }) => {
-        // Two probes: (a) missing token refuse (400), (b) fail-secret refuse (400).
+        // Positive-evidence: capture a pre-mint outcome count from the fixture event
+        // sink, then two probes: (a) missing token refuse (400), (b) fail-secret refuse
+        // (400). The pass branch requires both refusals observed AND the mint-outcome
+        // delta (pre vs post) to be exactly zero on /api/events; the observed delta is
+        // included in the positive-evidence detail.
+        async function mintOutcomeCount() {
+          const eventsResp = await fetch(withUrl(runtimeUrl, '/api/events'));
+          if (!eventsResp.ok) return null;
+          try {
+            const list = await eventsResp.json();
+            if (!Array.isArray(list)) return null;
+            return list.filter((e) => e && e.outcome === 'minted').length;
+          } catch { return null; }
+        }
+        const mintedPre = await mintOutcomeCount();
         const missingBody = new URLSearchParams();
         missingBody.set('email', 'reviewer@example.com');
         missingBody.set('turnstile-sitekey', '1x00000000000000000000AA');
@@ -138,8 +152,16 @@ export default {
         let failJson = null; try { failJson = JSON.parse(failText); } catch {}
         const failOk = failResp.status === 400 && failJson && failJson.errorCode === 'turnstile.siteverify-failed';
 
-        if (missingOk && failOk) return { verdict: 'pass', detail: `magic-link guard: missing-token refused 400 turnstile.token-missing; fail-secret refused 400 turnstile.siteverify-failed errorCodes=${JSON.stringify(failJson.errorCodes)}` };
-        return { verdict: 'fail', detail: `magic-link guard unexpected: missing status=${missingResp.status} body=${missingText}; fail status=${failResp.status} body=${failText}` };
+        const mintedPost = await mintOutcomeCount();
+        const delta = (mintedPre == null || mintedPost == null) ? null : mintedPost - mintedPre;
+        const deltaZero = delta === 0;
+        if (missingOk && failOk && deltaZero) {
+          return { verdict: 'pass', detail: `magic-link guard: missing-token refused 400 turnstile.token-missing; fail-secret refused 400 turnstile.siteverify-failed errorCodes=${JSON.stringify(failJson.errorCodes)}; mint-outcome delta on /api/events pre=${mintedPre} post=${mintedPost} delta=0 (no mint side-effect landed)` };
+        }
+        if (missingOk && failOk && !deltaZero) {
+          return { verdict: 'fail', detail: `magic-link guard: both refusals observed but mint-outcome delta is not zero on /api/events (pre=${mintedPre} post=${mintedPost} delta=${delta}); a mint side-effect landed while the guard should have refused, or the fixture sink could not be read` };
+        }
+        return { verdict: 'fail', detail: `magic-link guard unexpected: missing status=${missingResp.status} body=${missingText}; fail status=${failResp.status} body=${failText}; mint-outcome pre=${mintedPre} post=${mintedPost} delta=${delta}` };
       },
     },
   ],

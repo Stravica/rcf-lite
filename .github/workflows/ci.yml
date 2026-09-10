@@ -27,16 +27,25 @@ jobs:
         working-directory: packages/rcf-lite
       - run: node bin/rcf.js audit coverage --strict
         working-directory: packages/rcf-lite
+      # Customer-register scan over the shipped shelf. Refuses any hit
+      # for internal operator names, workflow ids, internal host names,
+      # em-dashes, and internal train / hardening labels in shipped
+      # blueprint content.
+      - run: node scripts/run-register-scan.mjs
+        working-directory: packages/rcf-lite
       # Blueprint chain-consistency gate. Runs the single-definition
       # ownership and REQ-delivery lint over every shipped blueprint
-      # under `packages/rcf-lite/blueprints/`. Runs in SOFT mode by
-      # default (findings printed, exit 0) until the shelf backfill
-      # lands (spec 2026-09-09 section 8.2 decision 4). Flip to hard
-      # by setting `RCF_LINT_MODE: hard` on this step once the
-      # backfill is complete. A legacy finding can ship under a
-      # documented suppression in the blueprint's README ("Known
-      # chain-consistency-lint suppressions"); pass-2 findings are
-      # never suppressible.
+      # under the authoritative shelf at the monorepo root
+      # (`blueprints/`). CI forces the root shelf via
+      # `RCF_LINT_SHELF: root` so a local staged copy under
+      # `packages/rcf-lite/blueprints/` never shadows the sources.
+      # HARD mode: any unsuppressed finding fails the build. A legacy
+      # finding must ship under a documented suppression in the
+      # blueprint's README ("Known chain-consistency-lint
+      # suppressions"); pass-2 findings are never suppressible.
       - run: node scripts/run-consistency-lint.mjs
         working-directory: packages/rcf-lite
+        env:
+          RCF_LINT_SHELF: root
+          RCF_LINT_MODE: hard
       - run: pnpm -r test

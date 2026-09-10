@@ -2,11 +2,11 @@
   "reqId": "edge-cloudflare-access-REQ-006",
   "prdId": "PRD-001",
   "title": "Composition with application-admin-console v1.1.0: the sign-in surface flips per applied capability set",
-  "description": "When application-admin-console v1.1.0 is applied alongside edge-cloudflare-access, the admin-console reads the appliedCapabilities set at apply-time (via the shipped readAppliedCapabilities helper, the T-5 visual-round mechanism); with zeroTrustGate in the set the admin-console renders the Access-gated sign-in surface (data-surface=access-gated, no [data-surface=local-login], a [data-role=principal-read] with the request.auth email); without zeroTrustGate the admin-console falls back to whatever security-auth-* is applied (data-surface=local-login). The composition is deterministic; the pack check AC-21815-1 on the shipped application-admin-console.pack.mjs enforces the gated branch.",
+  "description": "When application-admin-console v1.1.0 is applied alongside edge-cloudflare-access, the admin-console reads the appliedCapabilities set at apply-time (via the shipped readAppliedCapabilities helper, the visual-round mechanism); with zeroTrustGate in the set the admin-console renders the Access-gated sign-in surface (data-surface=access-gated, no [data-surface=local-login], a [data-role=principal-read] with the request.auth email); without zeroTrustGate the admin-console falls back to whatever security-auth-* is applied (data-surface=local-login). The composition is deterministic; the pack check AC-21815-1 on the shipped application-admin-console.pack.mjs enforces the gated branch.",
   "category": "functional",
   "domain": "edge",
   "priority": "must",
-  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4 plus section 5.4.1 admin-console v1.1.0 delta; spec section 1 ruling 7). Ships as v1.0.0 of edge-cloudflare-access and v1.1.0 of application-admin-console in the same PR (round-4 T-4 capability-minor pattern).",
+  "rationale": "Ratified in the Cloudflare round 6 spec (2026-09-06 section 5.4 plus section 5.4.1 admin-console v1.1.0 delta; spec section 1 ruling 7). Ships as v1.0.0 of edge-cloudflare-access and v1.1.0 of application-admin-console in the same PR (round-4 capability-minor pattern).",
   "tags": [
     "blueprint:edge-cloudflare-access",
     "blueprint:application-admin-console"

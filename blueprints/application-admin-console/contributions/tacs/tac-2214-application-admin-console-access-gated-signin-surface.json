@@ -12,7 +12,7 @@
     "Read the principal email from request.auth and render it in [data-role=principal-read] on the gated branch.",
     "Never render both surfaces on the same request; ensure the two are mutually exclusive per applied set."
   ],
-  "internalStructure": "Applied-capability-driven surface pick in the sign-in route. The applied-sidecar (rcf/blueprints/application-admin-console.applied.json) records the appliedCapabilities set; the shipped readAppliedCapabilities() helper reads it at apply-time (T-5 visual-round mechanism). No new elicits on the admin-console side: the sign-in seam is deterministic once the applied set is known.",
+  "internalStructure": "Applied-capability-driven surface pick in the sign-in route. The applied-sidecar (rcf/blueprints/application-admin-console.applied.json) records the appliedCapabilities set; the shipped readAppliedCapabilities() helper reads it at apply-time (visual-round mechanism). No new elicits on the admin-console side: the sign-in seam is deterministic once the applied set is known.",
   "interfaces": [
     {
       "name": "GET /admin/sign-in",
@@ -22,7 +22,7 @@
   ],
   "dependencies": [
     {
-      "name": "T-4 edge-cloudflare-access v1.0.0 (zeroTrustGate provider)",
+      "name": "edge-cloudflare-access v1.0.0 (zeroTrustGate provider)",
       "kind": "blueprint",
       "description": "Applied alongside admin-console v1.1.0 to compose the Access-gated sign-in surface."
     }

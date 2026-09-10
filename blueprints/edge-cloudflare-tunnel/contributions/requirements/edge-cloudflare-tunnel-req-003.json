@@ -1,8 +1,8 @@
 {
   "reqId": "edge-cloudflare-tunnel-REQ-003",
   "prdId": "PRD-001",
-  "title": "No public origin ports on the host (T-1 firewall stays 22 open plus 80/443 only when a reverse proxy is applied; manifest refuses an origin-port request)",
-  "description": "The applying project MUST NOT open a public port on the host firewall for the origin path when only edge-cloudflare-tunnel provides ingress. T-1 deploy-hetzner-server firewall allows 22 unconditionally and 80/443 only when a reverse proxy is applied. A project applying only T-1 plus T-3 (no reverse proxy) declares zero 80/443 rules; the tunnel manifest schema refuses ingress rules whose service URL binds to a host public interface.",
+  "title": "No public origin ports on the host (the deploy-hetzner-server firewall stays 22 open plus 80/443 only when a reverse proxy is applied; manifest refuses an origin-port request)",
+  "description": "The applying project MUST NOT open a public port on the host firewall for the origin path when only edge-cloudflare-tunnel provides ingress. The deploy-hetzner-server firewall allows 22 unconditionally and 80/443 only when a reverse proxy is applied. A project applying only deploy-hetzner-server and edge-cloudflare-tunnel (no reverse proxy) declares zero 80/443 rules; the tunnel manifest schema refuses ingress rules whose service URL binds to a host public interface.",
   "category": "functional",
   "domain": "edge",
   "priority": "must",

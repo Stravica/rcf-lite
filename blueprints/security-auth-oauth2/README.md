@@ -3,7 +3,7 @@
 The eleventh content blueprint on the rcf-build-lite blueprint mechanism, category `security`. A vendor-neutral sibling to `security-auth-magic-link` and `security-auth-clerk` on the `authModel` global topic: identity is delegated to any OAuth2-compatible IdP the project selects (Google, GitHub, Microsoft, Okta, Auth0, a corporate ADFS-fronted OIDC, a self-hosted `node-oidc-provider`) through a fixed provider-abstraction contract. The project owns the flow controller (authorisation-code + PKCE state machine), the provider adapter (pluggable record validation and JWKS fetch), the session-bridge (opaque-handle project session, no provider tokens in the browser), and an optional provider selector. Targeted at small greenfield rcf-lite projects that want delegated identity without vendor commitment; larger deployments supersede vendor-neutral posture with a vendor-committed sibling (`security-auth-clerk`, `security-auth-keycloak` when it ships) or with a project-level ADR.
 
 
-> Latest: **v1.2.0** (visual round T-4, 2026-09-06). `capabilities: [principalDirectory, roleModel, credentialSelfService, sessionInventory, hostedIdentityUi]`. See [CHANGELOG.md](CHANGELOG.md).
+> Latest: **v1.2.0** (visual round, 2026-09-06). `capabilities: [principalDirectory, roleModel, credentialSelfService, sessionInventory, hostedIdentityUi]`. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Apply
 

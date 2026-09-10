@@ -1,6 +1,6 @@
 # application-onboarding-tour CHANGELOG
 
-## 1.1.1 (2026-09-10)
+## 1.1.2 (2026-09-10)
 
 ### Changed
 
@@ -11,7 +11,11 @@
 - REQ-002.deliveredBy retargeted to `TAC-2701.interfaces.renderTourRunner`.
 - Vendor citations on AC-26101-1 (WCAG keyboard) and AC-26102-1 (ARIA APG dialog-modal); AC-26102-2 URL naming tidied.
 
-## 1.1.0 (2026-09-10, hardening pass B6b)
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
+## 1.1.0 (2026-09-10, hardening pass)
 
 ### Added
 
@@ -27,7 +31,7 @@
 - TAC-2702 responsibilities extended with resolveAnchor so REQ-006 delivery resolves.
 - Review fix pass (2026-09-10): REQ-001 extended with runtime clauses naming the three string elicits `tour-step-manifest`, `anchor-selectors` and `per-step-content-voice` and their refusal branches; US-26101 gained three template ACs (AC-26101-5, AC-26101-6, AC-26101-7) each carrying an `Applying agent sets: <elicit-id>.` clause; README, guide and CHANGELOG register scrubbed (no work-item ids). Closes review-fix-pass findings F-3, O-4.
 
-## 1.0.0 (visual round T-5, spec 2026-09-06 section 5.5)
+## 1.0.0 (visual round, spec 2026-09-06 section 5.5)
 
 - First shipped version. Introduces the tour step runner (ARIA APG dialog-modal per step, focus lifecycle, `role="dialog"`, `aria-labelledby`, `aria-describedby`, keyboard trap inside the tooltip with Escape as the exit, focus-not-obscured at 1440 and 360 breakpoints via `browser.resize`), the checklist slot (dashboard-top open collapse on `application-dashboard` applied; settings-page closed collapse when not; `<details>` browser-native for keyboard-native keyboard behaviour and screen-reader-native semantics), and the completion-state store contract (three backend shapes selected at apply time from the elicited answer or the Q4 fallback `spa-local-storage` when no persistence blueprint is applied).
 - Ships six elicits: `tour-step-manifest`, `anchor-selectors`, `per-step-content-voice` (all project-owned strings the blueprint contributes the WHAT for), `dismissal-policy` (default `dismiss-permanently`), `completion-state-store` (default `spa-local-storage` per Q4), `checklist-anchor` (default derived at apply time from the applied-blueprint set).

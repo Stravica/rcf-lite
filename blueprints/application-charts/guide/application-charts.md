@@ -14,7 +14,7 @@ A shipped, vendor-neutral chart-component contract for a rcf-lite application. O
 
 - Any shipped surface that renders bar, line, area, pie, donut, single-value with sparkline, or heatmap charts. Analytics dashboards, admin overview surfaces, per-record trend views, monitoring UIs.
 - Projects that want the ARIA-first, palette-safe, keyboard-reachable discipline enforced at ship without hand-authoring per chart.
-- Any project where the T-3 application-dashboard is applied (charts is the leaf application-dashboard consumes).
+- Any project where the application-dashboard is applied (charts is the leaf application-dashboard consumes).
 
 ## When it does not fit
 

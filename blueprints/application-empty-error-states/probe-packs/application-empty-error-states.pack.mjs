@@ -11,9 +11,9 @@
 //   AC-22107-1 no-search-results (distinct visual wrapper, echoed query, clear-filters recovery)
 //   AC-22108-1 error-boundary (role=alert, retry control, no stack detail)
 //
-// Every check drives the real Playwright browser the T-0 runner
+// Every check drives the real Playwright browser the runner
 // injects. URLs are composed by the withUrl(runtimeUrl, path) helper
-// per the round 3 T-3 fix train; no bare string concatenation.
+// per the round 3 fix train; no bare string concatenation.
 //
 // Sample-app fixture:
 // packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/
@@ -89,7 +89,7 @@ export default {
   // Applies to any FBS that realises the state-machine TAC or whose
   // navModel routes name the operator-configured error-shell path.
   // References BOTH `tacIds` AND `route` per the loader source-scan
-  // rule (T-0 AC-1701-3, cross-check with authoring standard 8c).
+  // rule (AC-1701-3, cross-check with authoring standard 8c).
   appliesTo: ({ fbs }) => {
     const routes = fbs?.designStage?.navModel?.routes ?? [];
     const tacIds = fbs?.contextRequirements?.tacIds ?? [];

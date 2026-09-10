@@ -7,7 +7,7 @@
   "name": "Notification centre inbox, retention window, acknowledge round-trip and delivery-attempt log",
   "purpose": "Owns the shell's persistent notification-centre inbox: the centre route the applying project mounts (default `/notifications-centre`, elicited), the retention window contract per ADR-2103 (default thirty days, elicited), the per-item acknowledge round-trip that POSTs to the applying project's server and updates the DOM on the response, and the delivery-attempt log write path per REQ-005. The centre is the durable inbox the operator returns to; the toast is the transient surface.",
   "responsibilities": [
-    "Render one notification wrapper per delivery-log row within the ADR-2103 retention window. Every wrapper carries `data-notification-id` (per-element attribute the pack enumerates by, never `role=\"listitem\"` on the container alone per the T-3 gate discipline) (AC-20103-1, AC-20103-2).",
+    "Render one notification wrapper per delivery-log row within the ADR-2103 retention window. Every wrapper carries `data-notification-id` (per-element attribute the pack enumerates by, never `role=\"listitem\"` on the container alone per the gate discipline) (AC-20103-1, AC-20103-2).",
     "Render one keyboard-reachable `[data-action=\"acknowledge\"]` control and one `[data-action=\"mark-read\"]` control per item; render exactly one `[data-action=\"mark-all-read\"]` control on the surface, reachable in Tab order after the item list (AC-20103-1).",
     "On acknowledge activation, POST `POST /api/notifications/acknowledge` with the notification id, wait for the server response, and update `data-acknowledged` on the item to `true` on a 2xx response; a failed response surfaces an error toast via the TAC-2101 factory and the item's `data-acknowledged` remains unchanged (AC-20103-1).",
     "On a page load with a backlog, render every backlog item on the surface without writing any body text into the polite or assertive live-region wrapper (AC-20106-1).",
@@ -52,7 +52,7 @@
     }
   ],
   "tradeoffs": "The centre reading through the delivery log (rather than a separate inbox store) keeps the shell single-sourced on the applied `logging` companion but couples the surface latency to the log query; a project with a very high notification volume may want to project a materialised inbox view alongside the log. This TAC accepts the coupling because it collapses two writers of the same row into one; a project that needs the materialised view supersedes with a project-authored REQ.",
-  "notes": "Known mechanism-reach gap: the pack asserts one acknowledge round-trip on one item (AC-20103-1); the mark-read control, the mark-all-read control and the retention-window boundary (a row on day 31 must not surface) are runtime-observable ACs the shipped pack does not itself drive. The README names them individually per the T-1 gate discipline; a v1.1 minor bump could add checks for each.",
+  "notes": "Known mechanism-reach gap: the pack asserts one acknowledge round-trip on one item (AC-20103-1); the mark-read control, the mark-all-read control and the retention-window boundary (a row on day 31 must not surface) are runtime-observable ACs the shipped pack does not itself drive. The README names them individually per the gate discipline; a v1.1 minor bump could add checks for each.",
   "createdAt": "2026-09-04T23:59:00Z",
   "updatedAt": "2026-09-10T00:00:00Z"
 }

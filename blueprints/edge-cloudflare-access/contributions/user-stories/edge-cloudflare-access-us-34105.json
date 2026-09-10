@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34105-1",
-      "description": "The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide.",
+      "description": "The shipped guide/edge-cloudflare-access.md carries a section Zero Trust dashboard walk-through with numbered steps naming each screen; and a section API alternative with a curl example against https://api.cloudflare.com/client/v4/accounts/{account_id}/access/apps/{app_id}/policies; the vendor URL https://developers.cloudflare.com/cloudflare-one/policies/access/ is cited from ADR-3501 and the guide. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped guide file",
       "when": "the anatomy test greps for the two section headings, the curl example and the vendor URL",
       "then": "each string matches at least once in the file",
@@ -32,6 +32,6 @@
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the guide-section presence assertion for the Zero Trust dashboard walk-through and the API alternative. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }

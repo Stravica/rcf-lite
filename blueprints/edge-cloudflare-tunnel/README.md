@@ -1,6 +1,6 @@
 # edge-cloudflare-tunnel
 
-Round-7 T-3 core blueprint on the rcf-lite shelf. Bridges a service on a
+Round-7 core blueprint on the rcf-lite shelf. Bridges a service on a
 `cloudHost` (bare, systemd shape) or a `containerHost` (compose-service
 shape) to the Cloudflare edge through a Cloudflare Tunnel, with no
 public origin ports. When applied alongside `edge-cloudflare-access`
@@ -20,7 +20,7 @@ when applied without it the tunnel serves in public-hostname mode.
 |---|---|
 | edge-cloudflare-tunnel-REQ-001 | Connector install shape switches on applied `containerHost` (compose-service default; systemd-unit for bare `cloudHost`); `cloudflaredReady` fires on boot with connector id, region and version metadata. |
 | edge-cloudflare-tunnel-REQ-002 | Tunnel manifest schema at `cloudflare/tunnels/<name>.yaml` (uuid tunnel id, `credentialsFile.secretRef` reference, ingress rules with catch-all `http_status:404`). |
-| edge-cloudflare-tunnel-REQ-003 | No public origin ports on the host; T-1 firewall stays closed on 80/443 unless a reverse proxy is applied; manifest refuses ingress rules whose service URL binds to a host public interface. |
+| edge-cloudflare-tunnel-REQ-003 | No public origin ports on the host; the deploy-hetzner-server firewall stays closed on 80/443 unless a reverse proxy is applied; manifest refuses ingress rules whose service URL binds to a host public interface. |
 | edge-cloudflare-tunnel-REQ-004 | Access-gated composition: `zeroTrustGate` applied attaches `originRequest.access.aud`; absent omits the block and serves in public-hostname mode. |
 | edge-cloudflare-tunnel-REQ-005 | Credentials-file discipline (host mode 0o400, referenced via `secretRef`, not committed, grep-refuse, no leak in event bodies). |
 
@@ -32,7 +32,7 @@ The connector runtime is elicited via `connector-runtime` (ADR-4002) with
 - **compose-service** (default when `containerHost` is applied). The
   cloudflared container ships alongside the applying project services on
   the same web-net network. No host ports; restart `unless-stopped`;
-  logging driver aligned with the T-2 compose-host log-driver elicit.
+  logging driver aligned with the platform-docker-compose-host log-driver elicit.
   Fixture: `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/compose-service/`.
 - **systemd-unit** (alternative for a bare `cloudHost`). The cloudflared
   binary is installed via the vendor package per the cloudflared
@@ -120,7 +120,7 @@ elicited; see ADR-4003). The blueprint reads the sidecar at
 The `aud-presence-check` probe refuses when the gated variant drifts to
 omit the AUD block (defensive against silent degradation).
 
-Graceful degrade: when Access is not applied (T-4 absent from
+Graceful degrade: when Access is not applied (the `zeroTrustGate` capability is absent from
 `origin/main` or the applying project simply does not want the gate),
 the blueprint still ships in public-hostname mode. The probe assertion
 runs on both fixture variants so the shape flip is proven on every
@@ -128,9 +128,10 @@ reviewer boot.
 
 ## No-public-ports rule
 
-The T-1 firewall on a `cloudHost` allows 22 unconditionally and 80/443
-only when a reverse proxy is applied. A project applying only T-1 plus
-T-3 (no reverse proxy) declares zero 80/443 rules; the tunnel is the
+The deploy-hetzner-server firewall on a `cloudHost` allows 22 unconditionally and 80/443
+only when a reverse proxy is applied. A project applying only
+deploy-hetzner-server and edge-cloudflare-tunnel (no reverse proxy)
+declares zero 80/443 rules; the tunnel is the
 sole path from the edge to the origin. The manifest schema refuses
 ingress rules whose service URL binds to `0.0.0.0`, a non-loopback
 numeric IP, or an unresolvable shape.
@@ -139,7 +140,7 @@ numeric IP, or an unresolvable shape.
 
 - `tunnel-name` (string; default `probe`): the Cloudflare Tunnel name
   and the manifest filename under `cloudflare/tunnels/<name>.yaml`.
-- `cloudflare-zone-secret` (string; default `vault/CLOUDFLARE_ZONE_ID`):
+  `security-secrets-management` reference to the Cloudflare zone the
   `security-secrets-management` reference to the Cloudflare zone the
   tunnel serves under.
 - `public-hostname-template` (string; default `<service>.<zone>`):
@@ -149,13 +150,13 @@ numeric IP, or an unresolvable shape.
 - `access-aud` (string; default empty): Access AUD tag for the gated
   shape. Presence toggles the gated shape when `zeroTrustGate` is
   applied.
-- `connector-runtime` (enum: `compose-service`, `systemd-unit`; default
+  `compose-service`): the connector runtime per ADR-4002.
   `compose-service`): the connector runtime per ADR-4002.
 
 ## Companions
 
-- `suggestedCompanions[logging]`: every `cloudflaredReady`,
   `tunnelConnectorUp`, `tunnelConnectorDown`, `ingressRuleReloaded` and
+  `accessGateRefused` event writes through the applied logger.
   `accessGateRefused` event writes through the applied logger.
 - `suggestedCompanions[errorHandling]`: a cloudflared exit, a JWT-check
   failure, an ingress-rule schema violation, a hostname-DNS-route API
@@ -172,21 +173,21 @@ under the repo root.
 - **manifest-schema-validate** (local). Anchors AC-tunnel-manifestSchema,
   AC-tunnel-noPublicOrigin, AC-tunnel-credentialsDiscipline. `accountBound: false`.
   Ajv-free walker over the shipped JSON schema; runs on all four
-  variants; refuses on `SIMULATE_MANIFEST_INVALID_TUNNEL_ID`,
   `SIMULATE_MANIFEST_CREDENTIALS_INLINE`, `SIMULATE_MANIFEST_MISSING_CATCHALL`,
   `SIMULATE_ORIGIN_PORT_OPEN`, `SIMULATE_EVENT_SECRECY_LEAK`.
-- **cloudflared-config-lint** (local). Anchors AC-tunnel-hostnameRoutes.
+  `SIMULATE_ORIGIN_PORT_OPEN`, `SIMULATE_EVENT_SECRECY_LEAK`.
   `accountBound: false`. Runs `cloudflared tunnel --config <path> ingress validate`
-  via a local binary or the vendor container image
+  `accountBound: false`. Runs `cloudflared tunnel --config <path> ingress validate`
+  `cloudflare/cloudflared:2026.8.3`; refuses on `SIMULATE_INGRESS_INVALID`.
   `cloudflare/cloudflared:2026.8.3`; refuses on `SIMULATE_INGRESS_INVALID`.
 - **aud-presence-check** (local). Anchors AC-tunnel-accessGated,
   AC-tunnel-accessGatedRefuse. `accountBound: false`. Reads the sidecar
   and the paired manifests; asserts the shape flips correctly; refuses
   on `SIMULATE_AUD_DROP` when the gated fixture drifts to open ingress.
 - **real-account-connector-healthy** (account-bound). Anchors
-  AC-tunnel-connectorHealthy. `accountBound: true` on
   `CI_HAS_CLOUDFLARE_ACCOUNT` AND `CI_HAS_HETZNER_ACCOUNT`. Without
-  both, records `accountBoundSkipped: true` and the aggregate flips to
+  `CI_HAS_CLOUDFLARE_ACCOUNT` AND `CI_HAS_HETZNER_ACCOUNT`. Without
+  `pass`.
   `pass`.
 - **real-account-tunnel-hostname-routes** (account-bound). Anchors
   AC-tunnel-hostnameRoutes (public sub-case) and AC-tunnel-accessGated
@@ -207,7 +208,7 @@ The fixture lives under
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/`:
 
 - `compose-service/compose-fragment.yaml`: the cloudflared compose
-  service alongside the T-2 web and caddy services.
+  service alongside the compose-host web and caddy services.
 - `systemd-unit/cloudflared.service`: the systemd unit per the vendor
   as-a-service docs.
 - `<runtime>/cloudflare/tunnels/public-hostname.yaml`: manifest without
@@ -216,7 +217,7 @@ The fixture lives under
   AUD block on every non-catch-all rule.
 - `<runtime>/credentials/probe.json.example`: placeholder credentials
   documenting the 0o400 mode discipline.
-- `sidecars/access-gated.applied.json`: `appliedCapabilities` includes
+  `zeroTrustGate`.
   `zeroTrustGate`.
 - `sidecars/public-hostname.applied.json`: `appliedCapabilities`
   excludes `zeroTrustGate`.

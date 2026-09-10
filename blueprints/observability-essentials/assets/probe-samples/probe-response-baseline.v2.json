@@ -1,5 +1,5 @@
 {
-  "// Baseline documented for observability-essentials AC-7107-3": "Hardening pass B4 (2026-09-09): captures the v2 baseline shape of the /live and /ready probe response bodies so a release-time compatibility check can compare a candidate against the current v2 snapshot. A candidate that renames or removes a field named here fails with PROBE_BODY_SHAPE_DRIFT; additions are allowed.",
+  "// Baseline documented for observability-essentials AC-7107-3": "Hardening pass (2026-09-09): captures the v2 baseline shape of the /live and /ready probe response bodies so a release-time compatibility check can compare a candidate against the current v2 snapshot. A candidate that renames or removes a field named here fails with PROBE_BODY_SHAPE_DRIFT; additions are allowed.",
   "live": {
     "status": "pass",
     "checkedAt": "ISO-8601 timestamp string"

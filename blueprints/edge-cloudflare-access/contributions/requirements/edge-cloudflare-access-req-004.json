@@ -2,7 +2,7 @@
   "reqId": "edge-cloudflare-access-REQ-004",
   "prdId": "PRD-001",
   "title": "The audit event carries only metadata fields (email, outcome, timestamp, path) with no token value and no header names beyond path",
-  "description": "Every validate-pass, validate-reject and bypass emits exactly one audit event on the injected sink with the metadata-only shape {email, outcome, timestamp, path}. The record is Object.frozen at the validator boundary so no downstream module can enrich it with a stray token slice or header value. The serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value, and no header names beyond path.",
+  "description": "Every validate-pass, validate-reject and bypass emits exactly one audit event on the injected sink with the metadata-only record shape named on `TAC-3501-edge-cloudflare-access-jwt-validator.responsibilities[2]`. The record is Object.frozen at the validator boundary so no downstream module can enrich it with a stray token slice or header value. The serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value, and no header names beyond the field the TAC owner names.",
   "category": "functional",
   "domain": "edge",
   "priority": "must",
@@ -13,7 +13,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3504-edge-cloudflare-access-audit-sink",
     "field": "responsibilities.metadataOnlyRecord"

@@ -52,7 +52,7 @@ Every file row on the fixture cycles through the closed state set `idle` -> `upl
 
 ## The one runtime gate
 
-`probe-packs/application-file-upload.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2401-application-file-upload-input` or whose nav model routes name an operator-configured upload path. Each check drives the real Playwright browser the runner provisions, reads the accessibility tree and the DOM (and the request log for the refusal check and the tus branch), and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 T-3 fix train; no bare string concatenation.
+`probe-packs/application-file-upload.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2401-application-file-upload-input` or whose nav model routes name an operator-configured upload path. Each check drives the real Playwright browser the runner provisions, reads the accessibility tree and the DOM (and the request log for the refusal check and the tus branch), and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 fix train; no bare string concatenation.
 
 ## Quality bar
 

@@ -6,7 +6,7 @@
 //   AC-21104-1 org switcher (fires when tenancy applied)
 //   AC-21105-1 audit-log surface (fires when auditLog applied)
 //
-// Every check drives the real Playwright browser the T-0 runner injects
+// Every check drives the real Playwright browser the runner injects
 // and reads its per-check applicability from the blueprint applied
 // sidecar (rcf/blueprints/application-admin-console.applied.json)
 // written by the apply verb: an absent capability records
@@ -181,7 +181,7 @@ export default {
       {
       id: 'AC-21815-1',
       severity: 'block',
-      description: 'Access-gated sign-in surface renders when zeroTrustGate is applied: [data-surface=access-gated] present, [data-surface=local-login] absent, and [data-role=principal-read] carries the principal email read from request.auth (T-4 admin-console v1.1.0 delta, Cloudflare round 6 spec 5.4.1)',
+      description: 'Access-gated sign-in surface renders when zeroTrustGate is applied: [data-surface=access-gated] present, [data-surface=local-login] absent, and [data-role=principal-read] carries the principal email read from request.auth (admin-console v1.1.0 delta, Cloudflare round 6 spec 5.4.1)',
       appliesTo: async ({ projectRoot }) => {
         const caps = await readAppliedCapabilities(projectRoot);
         return caps.includes('zeroTrustGate');

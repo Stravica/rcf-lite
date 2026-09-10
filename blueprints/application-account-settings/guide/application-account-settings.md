@@ -20,7 +20,7 @@ You want an anonymous product (no principal, no profile). The blueprint refuses 
 
 ## Mechanism-reach gaps
 
-The blueprint's README lists the runtime-observable ACs the pack does NOT bind directly. Every gap is a candidate for a v1.1.0 minor bump extending the pack; the shipped v1.0.0 pack anchors the five load-bearing surface checks. Combine with the round-3 T-1 datatable pack to reach the sessions and notification-preferences shells' state-region contract.
+The blueprint's README lists the runtime-observable ACs the pack does NOT bind directly. Every gap is a candidate for a v1.1.0 minor bump extending the pack; the shipped v1.0.0 pack anchors the five load-bearing surface checks. Combine with the round-3 datatable pack to reach the sessions and notification-preferences shells' state-region contract.
 
 ## Promotion signals
 

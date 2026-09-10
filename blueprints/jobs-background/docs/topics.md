@@ -64,7 +64,7 @@ ADR/TAC suffixes for this blueprint use the 3101-3199 block, continuing the shel
 
 - Reuse `backgroundJobModel` exactly as spelled here when your blueprint holds an opinion on the shipped background-job discipline; contribute your own scope:global ADR on that string and let composition surface the pairing.
 - A future stateful-workflow sibling (Temporal-shape, Airflow-shape) mints on demand; each claims `backgroundJobModel` and conflicts by design.
-- A consumer blueprint that surfaces "run this later" or "run this on a schedule" reads the `backgroundJobs` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` to obtain the job-definition and scheduler surfaces at apply time via the T-5 capability-declaration mechanism.
+- A consumer blueprint that surfaces "run this later" or "run this on a schedule" reads the `backgroundJobs` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` to obtain the job-definition and scheduler surfaces at apply time via the capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 

@@ -9,7 +9,7 @@
   "responsibilities": [
     "Export a default { scheduled(event, env, ctx) } handler shape matching the Cloudflare Workers runtime API for scheduled events (AC-32101-1, AC-32105-1).",
     "Wire the dispatcher (TAC-3302) at boot with the elicited routes, skew tolerance and soft budget; wire the injected event sink; emit cronReady on the sink at ready-check completion.",
-    "Never dereference other bindings on env (AC-32101-1); env.CACHE stays owned by the T-1 KV facade.",
+    "Never dereference other bindings on env (AC-32101-1); env.CACHE stays owned by the KV facade.",
     "On every scheduled invocation delegate to dispatcher.dispatch(event); wrap the delegation with ctx.waitUntil per Cloudflare's documented scheduled contract so cronStalled and cronFired both land on the sink before the Worker context tears down."
   ],
   "internalStructure": "One module exporting createScheduledHandler({ dispatcher, eventSink }) returning { scheduled, ready } where scheduled(event, env, ctx) is the Cloudflare scheduled shape and ready() performs the boot ready-check. A thin index.mjs entry glues createScheduledHandler to the dispatcher and sink factories at apply time so wrangler dev picks up the default export.",

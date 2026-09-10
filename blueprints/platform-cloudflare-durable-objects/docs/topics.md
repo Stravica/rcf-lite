@@ -69,7 +69,7 @@ ADR/TAC suffixes for this blueprint use the 3401-3499 block, continuing the shel
 - Reuse `strongConsistencyCellContract` exactly as spelled here when your blueprint holds an opinion on the strong-consistency cell contract; contribute your own scope:global ADR on that string and let composition surface the pairing.
 - Reuse `websocketHubContract` exactly as spelled here when your blueprint holds an opinion on the websocket-hub contract; the same pattern applies.
 - A future non-Cloudflare adapter on either contract mints on demand; each claims the same topic string and conflicts by design.
-- Consumer blueprints reading the `strongConsistencyCell` or `hibernatableWebSocket` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the DO facade wiring at apply time via the T-5 visual-round capability-declaration mechanism.
+- Consumer blueprints reading the `strongConsistencyCell` or `hibernatableWebSocket` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the DO facade wiring at apply time via the visual-round capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 

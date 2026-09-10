@@ -2,7 +2,7 @@
   "reqId": "platform-cloudflare-cron-triggers-REQ-004",
   "prdId": "PRD-001",
   "title": "Soft budget: a handler running past the elicited budget fires cronStalled but the dispatcher does not terminate; every event record is metadata-only",
-  "description": "The applying project elicits a soft-budget duration per handler (default 30 seconds; no floor). If a handler's observed duration crosses the budget, the dispatcher fires exactly one cronStalled lifecycle event with metadata-only payload {expression, scheduledTime, outcome, duration, softBudgetMs} at the moment the observed duration crosses the budget. The dispatcher NEVER terminates the handler on soft-budget breach; Cloudflare's platform-level termination remains the sole terminator per https://developers.cloudflare.com/workers/platform/limits/. Every scheduled-side lifecycle event record on the sink carries only {event, expression, scheduledTime, outcome, duration} plus optional numeric fields (softBudgetMs, deltaMs); handler input closures, PII fields and body bytes never cross the sink boundary.",
+  "description": "The applying project elicits a soft-budget duration per handler (default 30 seconds; no floor). If a handler's observed duration crosses the budget, the dispatcher fires exactly one cronStalled lifecycle event with a metadata-only payload at the moment the observed duration crosses the budget. The dispatcher NEVER terminates the handler on soft-budget breach; Cloudflare's platform-level termination remains the sole terminator per https://developers.cloudflare.com/workers/platform/limits/. Every scheduled-side lifecycle event record on the sink carries only the whitelist named on `TAC-3303-platform-cloudflare-cron-triggers-event-sink.responsibilities[0]` (record-shape whitelist) plus the optional numeric fields (`softBudgetMs`, `deltaMs`) that field names; handler input closures, PII fields and body bytes never cross the sink boundary.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -13,7 +13,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
     "field": "responsibilities.softBudgetMs"
