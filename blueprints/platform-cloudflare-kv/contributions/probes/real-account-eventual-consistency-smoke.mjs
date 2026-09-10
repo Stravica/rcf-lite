@@ -78,7 +78,7 @@ export default async function runProbe() {
   // evidence.
   if (process.env.CI_HAS_CLOUDFLARE_ACCOUNT !== 'true') {
     return skipResult(
-      'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip. Declared env for a live run: CI_HAS_CLOUDFLARE_ACCOUNT + CF_ACCOUNT_ID + CF_API_TOKEN (CF_API_BASE_URL optional test override).',
+      'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip.',
       'CI_HAS_CLOUDFLARE_ACCOUNT',
     );
   }

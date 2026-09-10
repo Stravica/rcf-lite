@@ -61,7 +61,7 @@ export default async function runProbe() {
       verdict: 'pass',
       accountBoundSkipped: true,
       reason: 'CI_HAS_CLOUDFLARE_ACCOUNT',
-      detail: 'CI_HAS_CLOUDFLARE_ACCOUNT is not set; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5. Full mechanism reach requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_DO_WORKER_URL (deployed Worker origin) and the paired CF_ACCOUNT_ID + CF_DO_NAMESPACE_ID + CF_API_TOKEN identifiers so the round-trip drives a live DO storage put and get.',
+      detail: 'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; probe recorded accountBoundSkipped and aggregated to pass per spec section 3.5.',
     });
     return { results, extra: { accountBoundSkipped: true, reason: 'CI_HAS_CLOUDFLARE_ACCOUNT' } };
   }

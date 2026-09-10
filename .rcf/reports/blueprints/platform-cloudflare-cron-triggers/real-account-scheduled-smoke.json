@@ -1,7 +1,7 @@
 {
   "slug": "platform-cloudflare-cron-triggers",
   "probeName": "real-account-scheduled-smoke",
-  "runAt": "2026-09-10T16:34:21.562Z",
+  "runAt": "2026-09-07T12:45:35.929Z",
   "engine": {
     "kind": "real-account",
     "image": "Cloudflare Workers analytics REST API",
@@ -11,12 +11,9 @@
     {
       "anchorAcId": "AC-32107-1",
       "verdict": "pass",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_CLOUDFLARE_ACCOUNT",
       "detail": "accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip."
     }
   ],
   "aggregateVerdict": "pass",
-  "accountBoundSkipped": true,
-  "reason": "CI_HAS_CLOUDFLARE_ACCOUNT"
+  "accountBoundSkipped": true
 }
