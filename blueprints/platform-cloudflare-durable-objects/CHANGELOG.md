@@ -2,6 +2,12 @@
 
 All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.3 - 2026-09-10
+
+Register patch.
+
+- Neutral register in ADR-3401 consequences (F-2), README (F-3) and guide prose (F-4).
+
 ## 1.1.2 - 2026-09-10
 
 Owner reference for the DO event-record whitelist.
