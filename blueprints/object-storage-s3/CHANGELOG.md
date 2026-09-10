@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 (register patch, 2026-09-10)
+
+- Register: remove residual internal editorial and provenance phrases from README and guide (closes F-1, F-2 register findings).
+
+
 ## 1.2.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
