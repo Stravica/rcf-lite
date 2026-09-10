@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34109-1",
-      "description": "With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=<hostname>, a plain fetch against https://<hostname>/ follows the redirect chain and terminates at an https://<team>.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5. Applying agent sets: the applying agent sets CF_ACCESS_HOST (the hostname the account-bound probe fetches) and toggles CI_HAS_CLOUDFLARE_ACCOUNT in the operator environment for the account-bound run.",
+      "description": "With CI_HAS_CLOUDFLARE_ACCOUNT=true and CF_ACCESS_HOST=<hostname>, a plain fetch against https://<hostname>/ follows the redirect chain and terminates at an https://<team>.cloudflareaccess.com/ URL (the Access UI). Without either env var the probe records accountBoundSkipped=true and aggregateVerdict=pass per spec section 3.5. Applying agent sets: the applying agent sets CF_ACCESS_HOST (the hostname the account-bound probe fetches) and toggles CI_HAS_CLOUDFLARE_ACCOUNT in the operator environment for the account-bound run. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the run-real-account-gated-url.mjs probe shim and the two env vars",
       "when": "the probe runs",
       "then": "in the CI-with-account path the redirect chain reports cloudflareaccess.com as terminal; in the without-env path accountBoundSkipped is true",
@@ -28,6 +28,6 @@
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the account-bound Access redirect probe with the accountBoundSkipped fall-through. Per section 7a, this story carries a single AC because the redirect-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

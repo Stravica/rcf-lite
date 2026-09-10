@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 - 2026-09-10
+
+Hardening pass F wave 2 (criterion b AC-set sufficiency; criterion d owner-owned shape reference).
+
+- Appended the section 7a legality note to AC-34101-1, AC-34105-1, AC-34106-1, AC-34108-1, AC-34109-1 and AC-34110-1 to record that each single-AC story`s mechanism has no additional documented failure path in the guide or the anchored TAC (adjacent failure paths are owned by sibling stories, not by these). Closes review P1 findings F-1 through F-6 (single-AC legality note missing).
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3501-edge-cloudflare-access-jwt-validator.responsibilities[2]`) for the audit-record shape, rather than restating the shape verbatim. Closes review P1 finding F-7 (owner-owned shape restated on both REQ and TAC).
+
+
 ## 1.1.0 - 2026-09-09
 
 Hardening pass B3 edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).

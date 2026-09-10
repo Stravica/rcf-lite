@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34108-1",
-      "description": "Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1 on application-admin-console.pack.mjs (pack check fires only on the gated combination).",
+      "description": "Two applied combinations are exercised on the extended admin-console fixture: with ?caps=principalDirectory,roleModel,auditLog,zeroTrustGate the sign-in surface renders [data-surface=access-gated] and no [data-surface=local-login] is present; with ?caps=principalDirectory,roleModel,auditLog the sign-in surface renders [data-surface=local-login] and no [data-surface=access-gated] is present. Both combinations exercise the shipped pack check AC-21815-1 on application-admin-console.pack.mjs (pack check fires only on the gated combination). Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the extended admin-console pack fixture with the two caps combinations",
       "when": "the pack runs against each combination",
       "then": "AC-21815-1 fires on the gated combination and passes; the existing v1.0.0 surface renders on the non-gated combination and its own checks pass",
@@ -24,6 +24,6 @@
     "TAC-3502-edge-cloudflare-access-application-declaration"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the admin-console sign-in surface flip between the access-gated data-surface and the local-login data-surface. Both applied capability-set combinations are exercised in-AC. Per section 7a, this story carries a single AC because the capability-set flip mechanism has no additional documented failure path in the guide or the anchored TAC."
 }
