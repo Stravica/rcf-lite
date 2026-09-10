@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-26108-4",
-      "description": "The completion record shape is owned by TAC-2703.interfaces.completionStore (CompletionRecord fields: completedAt, blueprintSetVersion, stepIds); the record shape is identical across the three policies and only the load-time comparison differs. A stored record written under one policy is legal under another (the load-time comparison is what changes).",
+      "description": "The completion record shape is owned by `TAC-2703.interfaces.completionStore`; the record shape is identical across the three policies and only the load-time comparison differs. A stored record written under one policy is legal under another (the load-time comparison is what changes).",
       "given": "a completion record written under any of the three policies",
       "when": "the applied policy changes at re-apply time",
       "then": "the record shape is unchanged and the load-time comparison uses the new policy",

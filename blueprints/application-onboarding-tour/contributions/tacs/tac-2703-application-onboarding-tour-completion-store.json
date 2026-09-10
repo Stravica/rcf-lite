@@ -5,14 +5,14 @@
   "version": "1.0.1",
   "status": "approved",
   "name": "Onboarding-tour completion-state store",
-  "purpose": "Owns the completion-state store contract: the writer the step runner calls on the last step, the reader first-run detection calls on principal load, and the clearer the restart-tour control calls. Delegates to the applied persistence blueprint when server-side-per-principal is elicited (and refuses at apply with COMPLETION_STORE_MISSING_PROVIDER if no persistence blueprint is applied); spa-local-storage and spa-session-storage backends need no persistence blueprint.",
+  "purpose": "Owns the completion-state store contract: the writer the step runner calls on the last step, the reader first-run detection calls on principal load, and the clearer the restart-tour control calls. The refusal semantics for the server-side-per-principal backend without an applied persistence blueprint are owned by `ADR-2702.decision`.",
   "responsibilities": [
     "Write the completion record on the last step (AC-26104-1).",
     "Read the completion record on principal load so first-run detection can gate the tour auto-open (AC-26105-1).",
     "Clear the completion record when the restart-tour control fires (AC-26104-1, AC-26106-1).",
-    "Refuse at surface load with COMPLETION_STORE_MISSING_PROVIDER when server-side-per-principal is elicited without an applied persistence blueprint (no fallback)."
+    "Refuse to construct the server-side backend when the server-side-per-principal option is elicited without an applied persistence blueprint, per `ADR-2702.decision`."
   ],
-  "internalStructure": "One completion-store module with three backends (spa-local-storage, spa-session-storage, server-side-per-principal) selected at apply time from the elicited completion-state-store answer. The server-side backend calls the applied persistence blueprint's writer through the projects own adapter interface; a server-side-per-principal answer without an applied persistence blueprint hits COMPLETION_STORE_MISSING_PROVIDER at surface construction, never a silent fallback. The two SPA backends read and write window.localStorage / window.sessionStorage under a namespaced key derived from the applied blueprint set version.",
+  "internalStructure": "One completion-store module with three backends (selected at apply time from the elicited `blueprint.json.elicits[id=completion-state-store]` answer). The server-side backend calls the applied persistence blueprint's writer through the projects own adapter interface; a server-side-per-principal answer without an applied persistence blueprint refuses at surface construction per `ADR-2702.decision`, never a silent fallback. The two SPA backends read and write window.localStorage / window.sessionStorage under a namespaced key derived from the applied blueprint set version.",
   "interfaces": [
     {
       "name": "completionStore",

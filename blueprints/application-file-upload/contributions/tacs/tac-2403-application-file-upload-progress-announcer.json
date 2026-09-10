@@ -8,12 +8,12 @@
   "purpose": "Owns the announcement side of the file-upload contract: the polite live-region wrapper the transport ticks, the aggregate-percent calculator, the assertive-slot completion announcement, and the background-tab tick continuity. Every AC on REQ-002 and REQ-005 that reads the aria-live regions anchors on this TAC.",
   "responsibilities": [
     "Mount the polite live-region wrapper at render time so a screen reader adopts it before the first tick (AC-23102-1).",
-    "Emit a polite text tick every 10 percent of aggregate progress in the closed format \"<uploaded> of <total> files, <PP> percent\" (AC-23102-1).",
+    "Emit a polite text tick at the cadence owned by `interfaces.announcementInterval` in the closed format owned by `interfaces.announcementFormatsEnum` (AC-23102-1).",
     "Compute the aggregate percent as the mean weighted by byte size across the active file set (AC-23102-1).",
-    "On completion of the set, mount an assertive-slot announcement (aria-live=\"assertive\" or role=\"status\") with the closed text \"<N> files uploaded successfully\", exactly once per set (AC-23105-1).",
+    "On completion of the set, mount an assertive-slot announcement (aria-live=\"assertive\" or role=\"status\") in the closed format owned by `interfaces.announcementFormatsEnum`, exactly once per set (AC-23105-1).",
     "Continue ticking under document visibilitychange to hidden so a backgrounded tab does not stall the announcement (AC-23107-1)."
   ],
-  "internalStructure": "One announcer module the transport hooks. The module preseeds the polite wrapper (aria-live polite) on mount, reads per-chunk acknowledgements from the transport, updates a per-file percent + aggregate percent record, and pushes a text tick every time the floor(aggregate/10) integer changes. Completion detection is a single flag; the assertive slot is mounted on mount as an empty wrapper and its textContent is set exactly once per set. Background-tab continuity is achieved by using setInterval on the ack polling loop rather than requestAnimationFrame; the interval keeps firing when the tab is hidden. A project that wants to pause on hidden explicitly elicits the alternative.",
+  "internalStructure": "One announcer module the transport hooks. The module preseeds the polite wrapper (aria-live polite) on mount, reads per-chunk acknowledgements from the transport, updates a per-file percent and aggregate percent record, and pushes a text tick at the cadence owned by `interfaces.announcementInterval`. Completion detection is a single flag; the assertive slot is mounted on mount as an empty wrapper and its textContent is set exactly once per set. Background-tab continuity is achieved by using setInterval on the ack polling loop rather than requestAnimationFrame; the interval keeps firing when the tab is hidden. A project that wants to pause on hidden explicitly elicits the alternative.",
   "interfaces": [
     {
       "name": "tick",

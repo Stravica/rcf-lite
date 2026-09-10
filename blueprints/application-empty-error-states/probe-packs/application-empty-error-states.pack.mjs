@@ -50,6 +50,29 @@ const RESOURCE_ID_PATTERNS = [
   { name: 'resource-slug-hint', re: /\b(?:resource|id|slug|handle)=[A-Za-z0-9._-]+/i },
 ];
 
+// Fixture-seeded exact tokens. The pack asserts the surface renders
+// these exact values so a check cannot pass on any syntactically valid
+// look-alike; the fixture server is the single source of truth for
+// them and the pack rejects a mismatch.
+const SEEDED_FIXTURE_TOKENS = {
+  forbidden: {
+    requestId: 'req-forbidden-000001',
+    safeResponse: 'The workspace exists but its details are hidden from unauthorised viewers.',
+  },
+  serverError: {
+    correlationId: 'cid-server-000001',
+    safeError: 'The server hit an internal failure. The support team has the request id below.',
+  },
+  permissionDenied: {
+    causeClass: 'scope-missing',
+    requestId: 'req-perm-000001',
+  },
+  errorBoundary: {
+    errorClass: 'render-failure',
+    correlationId: 'cid-boundary-000001',
+  },
+};
+
 function firstSensitiveMatch(text, patterns) {
   if (typeof text !== 'string') return null;
   for (const { name, re } of patterns) {
@@ -131,7 +154,8 @@ export default {
           };
         });
         if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'forbidden region missing positive [data-safe-response] redaction marker' };
-        if (!positive.requestId || !/^[A-Za-z0-9._-]+$/.test(positive.requestId)) return { verdict: 'fail', detail: `forbidden region missing valid [data-request-id]: ${JSON.stringify(positive.requestId)}` };
+        if (positive.safeText !== SEEDED_FIXTURE_TOKENS.forbidden.safeResponse) return { verdict: 'fail', detail: `forbidden region [data-safe-response] did not match seeded safe body: got ${JSON.stringify(positive.safeText)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.safeResponse)}` };
+        if (positive.requestId !== SEEDED_FIXTURE_TOKENS.forbidden.requestId) return { verdict: 'fail', detail: `forbidden region [data-request-id] did not match seeded id: got ${JSON.stringify(positive.requestId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.forbidden.requestId)}` };
         const leak = firstSensitiveMatch(dom.text, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `forbidden surface leaked ${leak.name}: ${leak.match}` };
         const path = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS.filter((p) => p.name.startsWith('source-path')));
@@ -166,7 +190,8 @@ export default {
           };
         });
         if (!positive.hasSafeMarker) return { verdict: 'fail', detail: 'server-error region missing positive [data-safe-error] body marker' };
-        if (!positive.correlationId || !/^[A-Za-z0-9._-]+$/.test(positive.correlationId)) return { verdict: 'fail', detail: `server-error region missing valid [data-correlation-id]: ${JSON.stringify(positive.correlationId)}` };
+        if (positive.safeText !== SEEDED_FIXTURE_TOKENS.serverError.safeError) return { verdict: 'fail', detail: `server-error region [data-safe-error] did not match seeded safe body: got ${JSON.stringify(positive.safeText)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.serverError.safeError)}` };
+        if (positive.correlationId !== SEEDED_FIXTURE_TOKENS.serverError.correlationId) return { verdict: 'fail', detail: `server-error region [data-correlation-id] did not match seeded id: got ${JSON.stringify(positive.correlationId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.serverError.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `server-error surface leaked ${leak.name}: ${leak.match}` };
         return { verdict: 'pass', detail: `server-error region carries positive safe-error marker; correlationId=${positive.correlationId}` };
@@ -203,8 +228,8 @@ export default {
             requestId: rid ? rid.getAttribute('data-request-id') : null,
           };
         });
-        if (!positive.causeClass || !/^[a-z][a-z0-9-]*$/.test(positive.causeClass)) return { verdict: 'fail', detail: `permission-denied region missing valid [data-cause-class] token: ${JSON.stringify(positive.causeClass)}` };
-        if (!positive.requestId || !/^[A-Za-z0-9._-]+$/.test(positive.requestId)) return { verdict: 'fail', detail: `permission-denied region missing valid [data-request-id]: ${JSON.stringify(positive.requestId)}` };
+        if (positive.causeClass !== SEEDED_FIXTURE_TOKENS.permissionDenied.causeClass) return { verdict: 'fail', detail: `permission-denied region [data-cause-class] did not match seeded token: got ${JSON.stringify(positive.causeClass)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.permissionDenied.causeClass)}` };
+        if (positive.requestId !== SEEDED_FIXTURE_TOKENS.permissionDenied.requestId) return { verdict: 'fail', detail: `permission-denied region [data-request-id] did not match seeded id: got ${JSON.stringify(positive.requestId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.permissionDenied.requestId)}` };
         const leak = firstSensitiveMatch(dom.causeText, RESOURCE_ID_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `permission-denied cause leaked ${leak.name}: ${leak.match}` };
         return { verdict: 'pass', detail: `cause-class=${positive.causeClass} requestId=${positive.requestId}` };
@@ -322,8 +347,8 @@ export default {
             correlationId: cid ? cid.getAttribute('data-correlation-id') : null,
           };
         });
-        if (!positive.errorClass || !/^[a-z][a-z0-9-]*$/.test(positive.errorClass)) return { verdict: 'fail', detail: `error-boundary region missing valid [data-error-class] token: ${JSON.stringify(positive.errorClass)}` };
-        if (!positive.correlationId || !/^[A-Za-z0-9._-]+$/.test(positive.correlationId)) return { verdict: 'fail', detail: `error-boundary region missing valid [data-correlation-id]: ${JSON.stringify(positive.correlationId)}` };
+        if (positive.errorClass !== SEEDED_FIXTURE_TOKENS.errorBoundary.errorClass) return { verdict: 'fail', detail: `error-boundary region [data-error-class] did not match seeded token: got ${JSON.stringify(positive.errorClass)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.errorBoundary.errorClass)}` };
+        if (positive.correlationId !== SEEDED_FIXTURE_TOKENS.errorBoundary.correlationId) return { verdict: 'fail', detail: `error-boundary region [data-correlation-id] did not match seeded id: got ${JSON.stringify(positive.correlationId)}, expected ${JSON.stringify(SEEDED_FIXTURE_TOKENS.errorBoundary.correlationId)}` };
         const leak = firstSensitiveMatch(dom.text, SENSITIVE_PATTERNS);
         if (leak) return { verdict: 'fail', detail: `error-boundary surface leaked ${leak.name}: ${leak.match}` };
         return { verdict: 'pass', detail: `error-boundary carries error-class=${positive.errorClass} correlationId=${positive.correlationId}; no stack detail` };

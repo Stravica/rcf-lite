@@ -2,10 +2,10 @@
   "reqId": "application-notifications-in-app-REQ-005",
   "prdId": "PRD-001",
   "title": "The delivery-attempt log records one row per surfaced notification with the operator-readable fields for later inspection",
-  "description": "Every notification the shell surfaces (as a toast, in the notification centre, or both) appends one row to the delivery-attempt log. Every row honours the shape owned by `TAC-2102.interfaces.deliveryRowShape` (deliveryTs, priority, category, outcome, correlationId). The applied `logging` companion persists the rows; the centre reads them back through `GET /api/delivery-log` for the current-session read model.",
+  "description": "Every notification the shell surfaces (as a toast, in the notification centre, or both) appends one row to the delivery-attempt log through `TAC-2102.interfaces.writeDeliveryRow`; every row honours the shape owned by `TAC-2102.interfaces.deliveryRowShape`. The applied `logging` companion persists the rows; the centre reads them back through `TAC-2102.responsibilities.readDeliveryLog` for the current-session read model.",
   "deliveredBy": {
     "tacId": "TAC-2102-application-notifications-in-app-centre",
-    "field": "writeDeliveryRow"
+    "field": "interfaces.writeDeliveryRow"
   },
   "category": "functional",
   "domain": "application",

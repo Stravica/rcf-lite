@@ -35,7 +35,7 @@
     },
     {
       "id": "AC-26109-3",
-      "description": "When checklist-anchor is `custom-anchor` and the elicited CSS selector resolves to a visible, unclipped element on load, the checklist mounts inside that element with open=false and data-role=onboarding-tour-checklist. Template values the applying agent sets: the anchor-selectors elicit's selector string.",
+      "description": "When checklist-anchor is `custom-anchor` and the elicited CSS selector resolves to a visible, unclipped element on load, the checklist mounts inside that element with open=false and data-role=onboarding-tour-checklist. Applying agent sets: the anchor-selectors elicit's selector string.",
       "given": "checklist-anchor=custom-anchor with a resolvable, visible selector",
       "when": "the route with that selector renders",
       "then": "the DOM carries the <details data-role=\"onboarding-tour-checklist\"> inside the resolved element",

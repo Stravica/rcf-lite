@@ -5,7 +5,7 @@
   "description": "When the applying project answers the six apply-time elicits, the surface honours each with a runtime clause per family: `blueprint.json.elicits[id=accepted-set]` populates the MIME-type gate; `blueprint.json.elicits[id=size-cap]` populates the per-file byte cap; `blueprint.json.elicits[id=tick-interval]` sets the internal progress polling cadence (owned by `TAC-2403.interfaces.tickInterval`, internal only, not user-observable); `blueprint.json.elicits[id=concurrency]` sets the chunk upload parallelism on the transport TAC; `blueprint.json.elicits[id=polling]` caps the polite live-region announcement cadence (owned by `TAC-2403.interfaces.announcementInterval`); `blueprint.json.elicits[id=chunked-transport]` picks the multipart or tus branch on the transport TAC.",
   "deliveredBy": {
     "tacId": "TAC-2401-application-file-upload-input",
-    "field": "interfaces.collectFiles"
+    "field": "responsibilities.applyElicits"
   },
   "category": "functional",
   "domain": "application",

@@ -5,7 +5,7 @@
   "description": "The blueprint declares `virusScan` in `capabilities` and the input TAC calls the applied verifier as an async predicate over a File that resolves to `{clean: true}` or `{clean: false, reason: <string>}`. A project supplies the verifier (or elicits the noop verifier and accepts the risk per ADR-2403). The refusal path on a virus-scan hit fires on the input TAC and the refused file never leaves the browser.",
   "deliveredBy": {
     "tacId": "TAC-2401-application-file-upload-input",
-    "field": "interfaces.renderRefusal"
+    "field": "responsibilities.verifyVirusScan"
   },
   "category": "security",
   "domain": "application",

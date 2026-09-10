@@ -10,9 +10,9 @@
     "Enumerate manifest.blueprints[] and read each applied blueprints source blueprint.json to extract its capabilities[] (AC-21107-1).",
     "Compose the union of applied capabilities as a sorted string array (deterministic sidecar output).",
     "runElicitationPhase: Run the elicitation phase gated on the discovered capability set; each `custom-auth-provides-*` boolean binds its `providesCapability` token onto the applied union when true, omits it when false, per REQ-009 (AC-21109-2).",
-    "Write the sidecar file with appliedCapabilities[], appliedElicitations{}, allowNoAuthYet? and notes? (AC-21107-1)."
+    "Write the sidecar file whose shape is owned by `TAC-2201.interfaces.capabilitiesSidecar` (AC-21107-1)."
   ],
-  "internalStructure": "Two helpers: discoverAppliedCapabilities(applied, projectRoot) reads and unions; writeSidecar({slug, version, appliedAt, appliedCapabilities, appliedElicitations, allowNoAuthYet?, notes?}) writes the file. Both live in packages/rcf-lite/src/blueprint/capabilities.js.",
+  "internalStructure": "Two helpers: discoverAppliedCapabilities(applied, projectRoot) reads and unions; writeSidecar(record) writes the file, where `record` matches the shape owned by `TAC-2201.interfaces.capabilitiesSidecar`. Both live in packages/rcf-lite/src/blueprint/capabilities.js.",
   "interfaces": [
     {
       "name": "discoverAppliedCapabilities",
