@@ -2,7 +2,7 @@
 
 ## 1.1.2 (register patch, 2026-09-10)
 
-- Register: neutral wording on the ADR-3801 consequences field and the shared throwaway-server fixture paragraph in README (no capability change).
+- Register: neutral wording on the ADR-3801 consequences field (closes F-1) and the shared throwaway-server fixture paragraph in README (closes F-2); no capability change.
 
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 

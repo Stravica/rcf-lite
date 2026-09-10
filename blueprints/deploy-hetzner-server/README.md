@@ -149,7 +149,7 @@ Every probe writes its report envelope to
 
 ## Shared throwaway-server fixture
 
-The one new pattern this round. Lives at
+The blueprint ships one new pattern. It lives at
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`; ships
 `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, the mocked hcloud
 shim and the manifest at `hetzner/servers/ci-throwaway.json`. Sibling
