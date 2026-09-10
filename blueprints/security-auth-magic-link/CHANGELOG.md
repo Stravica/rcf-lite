@@ -1,5 +1,9 @@
 # security-auth-magic-link CHANGELOG
 
+## 1.2.2
+
+- Rewrites `REQ-010.description` to reference `TAC-504-security-auth-magic-link-email-delivery-adapter` `responsibilities.send` rather than restate the `{ ok, providerStatus, providerMessageId, error }` return shape verbatim; the literal remains owned by the delivering TAC.
+
 ## 1.2.1 (hardening pass B2, spec 2026-09-09 section 5.4.2)
 
 - Adds `deliveredBy` on every `must` requirement and `disposition: fixed` on every existing acceptance criterion; adds `ownerRef` on ACs that restate the `isRegistered` interface on `TAC-505`. Extends `REQ-003` with the session-lifetime contract (sliding idle window, absolute lifetime, server-side revocation as the only truthful invalidation). Names the `principalDirectory` capability on `REQ-011`, which already carries its runtime clause through the principal-registry contract. Hardening pass B2 (criteria a, b, c on the 2026-09-09 programme). No new contributions.
