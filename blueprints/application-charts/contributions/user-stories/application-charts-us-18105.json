@@ -27,7 +27,11 @@
       "then": "missing tokens fall back to the accessible-defaults palette and a warning is recorded",
       "testable": true,
       "scope": "library",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "interfaces[0].name"
+      }
     },
     {
       "id": "AC-18105-3",
