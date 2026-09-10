@@ -45,6 +45,36 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed"
+    },
+    {
+      "id": "AC-26101-5",
+      "description": "The elicited `tour-step-manifest` value is the ordered step list the runner walks; each entry names a step id, an anchor selector, a heading and a body. A manifest with fewer than 3 or more than 5 entries refuses at apply with STEP_MANIFEST_OUT_OF_RANGE naming the count. Applying agent sets: tour-step-manifest.",
+      "given": "a project applying application-onboarding-tour with a tour-step-manifest of N entries",
+      "when": "apply runs",
+      "then": "apply exits 0 with 3<=N<=5 and refuses with STEP_MANIFEST_OUT_OF_RANGE otherwise, naming N and the required range",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-26101-6",
+      "description": "The elicited `anchor-selectors` value supplies the per-step CSS selector the runner passes to document.querySelector at step-open time; a step whose selector resolves to no element or to a clipped element refuses the render with data-error=TOUR_ANCHOR_UNRESOLVED or TOUR_ANCHOR_UNFIT respectively (see AC-26101-2 and AC-26101-3). Applying agent sets: anchor-selectors.",
+      "given": "a project applying application-onboarding-tour with anchor-selectors set per manifest step",
+      "when": "the runner opens a step",
+      "then": "the runner queries the DOM with the elicited selector for that step and refuses the render with the named data-error when the selector does not resolve to a visible unclipped element",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-26101-7",
+      "description": "The elicited `per-step-content-voice` value supplies the heading and body strings the tooltip surfaces verbatim for each step; a step whose heading or body resolves to an empty string refuses at apply with STEP_CONTENT_MISSING naming the step id. Applying agent sets: per-step-content-voice.",
+      "given": "a project applying application-onboarding-tour with per-step-content-voice set for each manifest step",
+      "when": "apply runs",
+      "then": "apply refuses with STEP_CONTENT_MISSING naming the offending step id when any heading or body is empty, and exits 0 with the strings surfaced verbatim in the tooltip DOM at runtime otherwise",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [

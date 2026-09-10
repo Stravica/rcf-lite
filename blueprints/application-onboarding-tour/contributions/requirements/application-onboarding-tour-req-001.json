@@ -2,7 +2,7 @@
   "reqId": "application-onboarding-tour-REQ-001",
   "prdId": "PRD-001",
   "title": "Step-manifest contract: 3 to 5 steps per tour with per-step anchor selector and per-step content voice slot",
-  "description": "The blueprint contributes a step-manifest contract for a 3 to 5 step onboarding tour. Each step declares a step id, an anchor selector (CSS resolved at step-open time to place the tooltip against a live element in the DOM), a heading and a body slot the project fills with its own voice. The step runner walks the manifest in order and refuses to open a step whose anchor does not resolve to a visible element rather than rendering a floating tooltip. The blueprint contributes the WHAT (the manifest shape and the resolver contract), not the words.",
+  "description": "The blueprint contributes a step-manifest contract for a 3 to 5 step onboarding tour. Each step declares a step id, an anchor selector (CSS resolved at step-open time to place the tooltip against a live element in the DOM), a heading and a body slot the project fills with its own voice. The step runner walks the manifest in order and refuses to open a step whose anchor does not resolve to a visible element rather than rendering a floating tooltip. The blueprint contributes the WHAT (the manifest shape and the resolver contract), not the words. The three string elicits carry a runtime clause each: `tour-step-manifest` is the ordered 3 to 5 entry list the runner walks (a count below 3 or above 5 refuses at apply with STEP_MANIFEST_OUT_OF_RANGE); `anchor-selectors` supplies the per-step CSS selector the runner passes to document.querySelector at step-open time and refuses the step render when the selector resolves to no element or to a clipped element; `per-step-content-voice` supplies the heading and body strings the tooltip surfaces verbatim (blank strings refuse at apply with STEP_CONTENT_MISSING naming the step id).",
   "deliveredBy": {
     "tacId": "TAC-2701-application-onboarding-tour-step-runner",
     "field": "interfaces.renderTourRunner"
@@ -18,5 +18,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

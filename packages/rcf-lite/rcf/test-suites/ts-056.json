@@ -69,9 +69,9 @@
     {
       "id": "TC-056-shelf-doc-consistency",
       "acId": "AC-2701-7",
-      "description": "four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)",
+      "description": "four amended auth blueprints declare the ratified capability sets and observability-logging drops sessionInventory (TC-056-shelf-doc-consistency)",
       "status": "pending",
-      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)"
+      "testPointer": "test/blueprint/application-account-settings-anatomy.test.js::four amended auth blueprints declare the ratified capability sets and observability-logging drops sessionInventory (TC-056-shelf-doc-consistency)"
     }
   ],
   "status": "draft"

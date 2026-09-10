@@ -10,7 +10,7 @@
   "category": "functional",
   "domain": "application",
   "priority": "must",
-  "rationale": "Per-user category silence is the operator's primary knob on notification fatigue: a labelled toggle per category gives the reader an accountable choice without overloading the transport. Delegating digest opt-in to the sibling channel keeps this blueprint at the in-app surface it names (per Baz decision 2026-09-04: 'we might support more types of notifications - be clear in the name what these ones are'); a digest is a transport concern the sibling blueprint owns.",
+  "rationale": "Per-user category silence is the operator's primary knob on notification fatigue: a labelled toggle per category gives the reader an accountable choice without overloading the transport. Delegating digest opt-in to the sibling channel keeps this blueprint at the in-app surface it names (per the 2026-09-04 shelf decision to make the transport type explicit in the blueprint name); a digest is a transport concern the sibling blueprint owns.",
   "tags": [
     "blueprint:application-notifications-in-app",
     "category:04-preferences"

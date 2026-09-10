@@ -14,6 +14,7 @@
 - Every REQ now carries a deliveredBy link into TAC-2201, TAC-2203, TAC-2204 or TAC-2214.
 - Every AC on every user story now carries an explicit disposition (fixed or template); template ACs state the values the applying agent sets.
 - TAC-2201 responsibilities now include deliverInvite (per invite-transport branch), tenancyShapeGate (per tenancy shape), delegateUsersSurface, delegateOrgsSurface, renderAccessDenied and renderShell so the deliveredBy fields resolve.
+- Review fix pass (2026-09-10): REQ-005 extended with an audit-retention-days runtime clause naming the string elicit and its refusal branch; US-21105 gained a template AC (AC-21105-3) carrying `Applying agent sets: audit-retention-days.`; README and ADR-2201 register scrubbed (no operator names). Closes review-fix-pass finding F-3 for the audit-retention-days string elicit.
 
 ## 1.1.0 (2026-09-07)
 

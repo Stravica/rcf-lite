@@ -235,7 +235,7 @@ test('sample-app fixture break switches surface the four defects (TC-056-negativ
   }
 });
 
-test('four amended auth blueprints declare the ratified capability sets and observability-logging declares sessionInventory (TC-056-shelf-doc-consistency)', async () => {
+test('four amended auth blueprints declare the ratified capability sets and observability-logging drops sessionInventory (TC-056-shelf-doc-consistency)', async () => {
   const clerk = JSON.parse(await readFile(join(CLERK_BP, 'blueprint.json'), 'utf8'));
   assert.equal(clerk.version, '1.4.0');
   assert.deepEqual([...clerk.capabilities].sort(), ['hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);

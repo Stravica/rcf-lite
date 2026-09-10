@@ -24,7 +24,7 @@ Applies namespaced contributions into the project tree and records `manifest.blu
 
 Contributed: REQ, US (with inline ACs), TAC, ADR, plus one shipped probe pack. Adherence is expressed as ACs; the blueprint ships no notifications-framework source and no test files (the probe pack drives the real browser against the applying project's own runtime).
 
-Deliberately not contributed: any transport (email, push, webhook). The in-app slug is the discriminator per Baz decision 2026-09-04: "we might support more types of notifications - be clear in the name what these ones are". Sibling channel blueprints ship their own transport contracts under the reserved `application-notifications-` family prefix.
+Deliberately not contributed: any transport (email, push, webhook). The in-app slug is the discriminator per the 2026-09-04 shelf decision to make the transport type explicit in the blueprint name. Sibling channel blueprints ship their own transport contracts under the reserved `application-notifications-` family prefix.
 
 ## Family-prefix reservation
 
@@ -60,7 +60,7 @@ Every runtime-observable AC that is not bound to a pack check appears here indiv
 
 ## Elicited parameters (ADR-2101 through ADR-2103 and REQ notes)
 
-The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (w-2026-09-04-dave-022, built in T-5); accept the declarative shape and gather the operator's answers by hand during the apply pass.
+The applying project elicits these at apply; the declarative ADR shape (`elicited: true`) records the intent on the manifest. The runner has no apply-time elicitation phase today (planned for a follow-up minor); accept the declarative shape and gather the operator's answers by hand during the apply pass.
 
 - **Toast timeout floor** (ADR-2102): six seconds baseline per WCAG 2.2.1; operator elicits an override above the floor (twelve seconds, thirty seconds); the elicited value lands on `manifest.blueprints[application-notifications-in-app].appliedParameters.toastTimeoutSeconds`. A value below six is refused at apply.
 - **Notification categories** (REQ-004): the operator's category list (payment, security, product, and any project-specific categories). The preferences UI renders one section per elicited category.

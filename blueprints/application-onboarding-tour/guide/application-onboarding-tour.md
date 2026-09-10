@@ -32,7 +32,7 @@ When no persistence blueprint is applied AND the operator does not answer `compl
 - `AC-26105-1` first-run detection: manual verification via the fixture README boot line (open `/tour` twice, confirm the tour auto-opens on run 1 and does not on run 2).
 - `AC-26107-1` screen-reader traversal: the pack asserts the DOM contract; the manual VoiceOver smoke is in the fixture README.
 
-Both gaps ride runner cleanup `w-2026-09-04-dave-020`.
+Both gaps are planned for a follow-up minor runner cleanup.
 
 ## Compose targets
 

@@ -13,6 +13,7 @@
 - Every REQ now carries a deliveredBy link into TAC-2601, TAC-2603 or TAC-2604.
 - Every AC on every user story now carries an explicit disposition (fixed or template); ACs that observe a session-inventory row carry ownerRef into TAC-1003.
 - TAC-2601 responsibilities extended with renderProfileSurface, renderPreferencesSurface and renderCorrelationId; TAC-2604 extended with reauthWindowGate and sessionInventoryConsumer.
+- Review fix pass (2026-09-10): elicit-token coverage tightened on REQ-003 to name `self-service`, `hosted-link-out` and `hosted-embed` literally alongside the branch prose; principalDirectory named literally in REQ-001; template ACs on US-25104, US-25108 and US-25101 carry an `Applying agent sets: <elicit-id>.` clause; anatomy test name at TC-056-shelf-doc-consistency renamed to say observability-logging drops sessionInventory; README register scrubbed (no operator names). Closes review-fix-pass findings F-1, F-2, O-1.
 
 ## 1.0.0 (visual round T-4, spec 2026-09-06 section 5.4)
 

@@ -62,7 +62,7 @@ A project that declares `principalDirectory` (so apply is not refused at the bar
 2. Renders the shell WITHOUT a security tab (AC-25101-1, probed by the pack).
 3. Refuses the security surface at load time through TAC-2603 hosted-ui-bridge if a project-side FBS renders `/account/security` regardless (project-side enforcement per AC-25110-1 known mechanism-reach gap, spec section 5.4.1).
 
-No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per Baz decision Q3 in the ratified spec, the shell never lies about a surface that has no home.
+No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per the ratified spec Q3 decision, the shell never lies about a surface that has no home.
 
 ## Custom-auth projects (auth outside the shelf)
 

@@ -48,7 +48,7 @@ Spec `standardsTrace` empty at the blueprint level; each ADR contribution carrie
 ## Known mechanism-reach gaps
 
 - `AC-26105-1` (first-run detection): the runner cannot fully prove the first-run vs returning-principal branch in one browser session without a persisted state seed; the pack drives the first-run branch via `?first-run=1` and the returning branch is verified by the fixture READMEs manual boot line (walk `/tour` twice, confirm the tour auto-opens on run 1 and does not on run 2).
-- `AC-26107-1` (screen-reader traversal): the pack asserts the DOM contract (`aria-labelledby`, `aria-describedby`) but does not drive a real screen reader in CI. The fixture README names the manual VoiceOver smoke. Runner cleanup rides `w-2026-09-04-dave-020`.
+- `AC-26107-1` (screen-reader traversal): the pack asserts the DOM contract (`aria-labelledby`, `aria-describedby`) but does not drive a real screen reader in CI. The fixture README names the manual VoiceOver smoke. Runner cleanup planned for a follow-up minor.
 - `AC-26106-1` (restart-tour clears state and re-opens): fully exercised inside the AC-26104-1 pack check end-to-end (the check clicks restart, then navigates to `/tour` and asserts the tooltip re-appears).
 
 ## Elicited parameters

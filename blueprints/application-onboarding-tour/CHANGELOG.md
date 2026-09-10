@@ -14,6 +14,7 @@
 - Every REQ now carries a deliveredBy link into TAC-2701 (step-runner), TAC-2702 (checklist-slot) or TAC-2703 (completion-store).
 - Every AC on every user story now carries an explicit disposition (fixed or template).
 - TAC-2702 responsibilities extended with resolveAnchor so REQ-006 delivery resolves.
+- Review fix pass (2026-09-10): REQ-001 extended with runtime clauses naming the three string elicits `tour-step-manifest`, `anchor-selectors` and `per-step-content-voice` and their refusal branches; US-26101 gained three template ACs (AC-26101-5, AC-26101-6, AC-26101-7) each carrying an `Applying agent sets: <elicit-id>.` clause; README, guide and CHANGELOG register scrubbed (no work-item ids). Closes review-fix-pass findings F-3, O-4.
 
 ## 1.0.0 (visual round T-5, spec 2026-09-06 section 5.5)
 
@@ -23,5 +24,5 @@
 - Ships a dependency-free sample-app fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-onboarding-tour/` realising the tour surface honestly across both checklist branches and multiple completion-store shapes, plus four break switches (`?break=no-role`, `?break=focus-escape`, `?break=no-collapse`, `?break=no-persist`) driving the negative runs.
 - Composes on `application-spa` (routing and iconography), `application-dashboard` (dashboard-top anchor slot; settings-page fallback), `application-notifications-in-app` (polite `aria-live` completion announce), `application-account-settings` (restart-tour control home; any settings-shaped surface as fallback), and any `security-auth-*` blueprint (per-principal completion state; per-browser under a bare namespace as fallback).
 - Q4 default: when no persistence blueprint is applied AND the operator does not answer `completion-state-store`, the store defaults to `spa-local-storage`. Rationale in ADR-2702 and the README's Q4 fallback section.
-- Two documented mechanism-reach gaps: `AC-26105-1` first-run detection is fixture-verified via the manual boot line; `AC-26107-1` screen-reader traversal is asserted at the DOM contract level and verified manually via the fixture READMEs VoiceOver smoke. Runner cleanup rides `w-2026-09-04-dave-020`.
+- Two documented mechanism-reach gaps: `AC-26105-1` first-run detection is fixture-verified via the manual boot line; `AC-26107-1` screen-reader traversal is asserted at the DOM contract level and verified manually via the fixture READMEs VoiceOver smoke.
 - No new global topics claimed. Extends the section 5 shelf id band registry with `application-onboarding-tour` at 26101 to 26899 (US) and 27xx (ADR/TAC).
