@@ -18,7 +18,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'messaging-queue-cloudflare');
-  assert.equal(doc.version, '1.1.1');
+  assert.equal(doc.version, '1.1.2');
   assert.equal(doc.category, 'messaging');
   assert.deepEqual(doc.capabilities, ['queue']);
   assert.equal(doc.contributions.length, 21);
@@ -206,9 +206,11 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   } finally {
     if (savedAcct !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = savedAcct;
   }
-  // Account-set-no-tokens branch: fail with missing token env named; a
-  // pass is never reachable from CI_HAS_CLOUDFLARE_ACCOUNT alone
-  // (dispatch requirement 5, no third outcome).
+  // Account-set-no-tokens branch: pass-with-declared-skip per authoring
+  // standard section 7d. A bare verdict: fail without positive evidence
+  // is a 7d violation, so the credential-missing branch records
+  // accountBoundSkipped: true with a discrete `reason` field naming the
+  // exact unset env var(s), and the detail prose agrees with the reason.
   const savedAcctId = process.env.CF_ACCOUNT_ID;
   const savedToken = process.env.CF_API_TOKEN;
   delete process.env.CF_ACCOUNT_ID;
@@ -219,8 +221,10 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
     const rs = Array.isArray(out) ? out : (out && out.results) || [];
     const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
     assert.ok(r, 'account-set branch must still include an AC-29108-2 result');
-    assert.equal(r.verdict, 'fail', `account-set-no-tokens verdict must be fail; detail=${r.detail}`);
-    assert.match(r.detail, /CF_ACCOUNT_ID|CF_API_TOKEN/, 'fail detail names the missing token env');
+    assert.equal(r.verdict, 'pass', `account-set-no-tokens verdict must be pass with accountBoundSkipped per section 7d; detail=${r.detail}`);
+    assert.equal(r.accountBoundSkipped, true, 'account-set-no-tokens branch records accountBoundSkipped: true');
+    assert.match(r.reason || '', /CF_ACCOUNT_ID.*CF_API_TOKEN|CF_API_TOKEN.*CF_ACCOUNT_ID|CF_ACCOUNT_ID|CF_API_TOKEN/, 'reason names the specific missing env var(s)');
+    assert.match(r.detail, /CF_ACCOUNT_ID|CF_API_TOKEN/, 'skip detail names the missing token env');
   } finally {
     if (savedAcctId !== undefined) process.env.CF_ACCOUNT_ID = savedAcctId;
     if (savedToken !== undefined) process.env.CF_API_TOKEN = savedToken;

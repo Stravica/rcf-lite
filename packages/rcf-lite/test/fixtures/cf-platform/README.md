@@ -371,10 +371,12 @@ section 6; authoring standard section 7d).
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
 | `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the account-bound branch on every Cloudflare real-account probe. | every `real-account-*` probe under `blueprints/platform-cloudflare-*` and `blueprints/messaging-queue-cloudflare` |
-| `CF_ACCOUNT_ID` | second | Cloudflare account id the probe drives its REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
-| `CF_API_TOKEN` | second | API token the probe presents on the Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+| `CF_ACCOUNT_ID` | second | Cloudflare account id the probe drives its REST calls against. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
+| `CF_API_TOKEN` | second | API token the probe presents on the Cloudflare REST calls. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs`; `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs`; `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
 | `CF_KV_NAMESPACE_ID` | second | KV namespace id the eventual-consistency smoke writes to and reads from. | `blueprints/platform-cloudflare-kv/contributions/probes/real-account-eventual-consistency-smoke.mjs` |
 | `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
+| `CF_API_BASE_URL` | second | Optional test override pointing the Cloudflare REST calls at a local mock server. Not a skip trigger; enumerated for completeness. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-account-api.mjs` |
+| `CF_QUEUE_MESSAGE_COUNT` | second | Optional message-count override on the queue concurrency smoke (default 500). Not a skip trigger; enumerated for completeness. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
 
 A probe that reads any variable not on this table fails the
 positive-evidence gate row at review time. When a probe records

@@ -64,12 +64,13 @@ const DOCUMENTED_PUSH_CAP = 250;
 export const anchorAcId = 'AC-29108-2';
 export const accountBound = true;
 
-function skipResult(detail) {
+function skipResult({ reason, detail }) {
   return [{
     anchorAcId: 'AC-29108-2',
     verdict: 'pass',
     detail,
     accountBoundSkipped: true,
+    reason,
     envDeclared: Array.from(DECLARED_ENV),
     throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
   }];
@@ -109,15 +110,19 @@ async function readTelemetryRecords({ namespaceId }) {
 export default async function runProbe() {
   const hasAccount = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
   if (!hasAccount) {
-    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker + telemetry KV namespace under the CI scratch prefixes; publishes via the CF Queues REST publish endpoint (no workers.dev subdomain enabled); reads telemetry via the KV REST list + get endpoints. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
+    return skipResult({
+      reason: 'CI_HAS_CLOUDFLARE_ACCOUNT',
+      detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true. When set, the fixture shim self-provisions a throwaway Queue, consumer Worker and telemetry KV namespace under the frozen scratch prefixes, publishes via the Cloudflare Queues REST publish endpoint (verifiedOn 2026-09-10 per https://developers.cloudflare.com/api/operations/queue-publish-messages), reads telemetry via the KV REST list and get endpoints, and tears every resource down before exit. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
   }
-  if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
-    return [{
-      anchorAcId: 'AC-29108-2',
-      verdict: 'fail',
-      detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true but one of CF_ACCOUNT_ID / CF_API_TOKEN is missing: accountIdPresent=${!!process.env.CF_ACCOUNT_ID} tokenPresent=${!!process.env.CF_API_TOKEN}.`,
-      envDeclared: Array.from(DECLARED_ENV),
-    }];
+  const missingCreds = [];
+  if (!process.env.CF_ACCOUNT_ID) missingCreds.push('CF_ACCOUNT_ID');
+  if (!process.env.CF_API_TOKEN) missingCreds.push('CF_API_TOKEN');
+  if (missingCreds.length > 0) {
+    return skipResult({
+      reason: missingCreds.join(','),
+      detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but ${missingCreds.join(' and ')} unset; a real-account run requires those credentials alongside the CI gate. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
   }
 
   const messageCount = Number.parseInt(process.env.CF_QUEUE_MESSAGE_COUNT ?? '', 10) || DEFAULT_MESSAGE_COUNT;
