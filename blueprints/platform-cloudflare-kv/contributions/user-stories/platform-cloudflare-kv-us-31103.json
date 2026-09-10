@@ -17,7 +17,11 @@
       "then": "the read returns the same bytes; the event sink records one kvWrite and one kvHit; the probe report aggregates to pass",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/kv/api/",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-31103-2",
@@ -98,5 +102,5 @@
     "TAC-3201-platform-cloudflare-kv-facade"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }
