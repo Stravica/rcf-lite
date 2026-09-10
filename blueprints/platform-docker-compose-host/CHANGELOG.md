@@ -4,7 +4,7 @@
 
 Register patch.
 
-- Neutral register in README fixture-extension prose.
+- Neutral register in README fixture-extension prose (F-2).
 
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
@@ -36,7 +36,7 @@ Register patch.
 
 ## 1.0.0 - 2026-09-08
 
-Initial release. Hetzner blueprint per spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Initial release. Hetzner blueprint per the Hetzner host specification.
 
 - Mints capability `containerHost` and global topic `containerHostContract`.
 - Six REQs, nine USs, four TACs, four ADRs; five Node-only probes.

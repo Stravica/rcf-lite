@@ -6,7 +6,7 @@ All notable changes to `platform-cloudflare-durable-objects` are recorded here. 
 
 Register patch.
 
-- Neutral register in ADR-3401 consequences, README and guide prose.
+- Neutral register in ADR-3401 consequences (F-2), README (F-3) and guide prose (F-4).
 
 ## 1.1.2 - 2026-09-10
 
