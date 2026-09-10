@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Roles surface conditional on roleModel, with Owner + Admin + Member + Viewer baseline and permission matrix",
   "description": "When an applied blueprint declares the roleModel capability, the console renders a roles route: the Owner + Admin + Member + Viewer baseline (elicited additions per ADR-2202), and a permission matrix as an ARIA APG grid (rows = roles, columns = permissions, cells = allowed/denied). Each cell announces the exact permission string as it takes focus (WCAG 4.1.3). The matrix suppresses when roleModel is not applied.",
+  "deliveredBy": {
+    "tacId": "TAC-2203-application-admin-console-permission-matrix",
+    "field": "interfaces.renderMatrix"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

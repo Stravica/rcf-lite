@@ -13,7 +13,38 @@
       "id": "AC-26101-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a first-run principal on the SPA, the tour opens on the highest-value surface with the first step; Escape dismisses the tour and hides the tooltip; keyboard-only users reach every tour control (previous, next, dismiss) via Tab in DOM order and activate the next control with Enter (WCAG 2.1.1 Keyboard, WCAG 2.1.2 No Keyboard Trap, WCAG 2.4.3 Focus Order). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26101-1."
+      "description": "Given a first-run principal on the SPA, the tour opens on the highest-value surface with the first step; Escape dismisses the tour and hides the tooltip; keyboard-only users reach every tour control (previous, next, dismiss) via Tab in DOM order and activate the next control with Enter (WCAG 2.1.1 Keyboard, WCAG 2.1.2 No Keyboard Trap, WCAG 2.4.3 Focus Order). Anchors to TAC-2701-application-onboarding-tour-step-runner; probed by application-onboarding-tour.pack.mjs check AC-26101-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26101-2",
+      "description": "When the current step's anchor selector resolves to nothing at open, the runner refuses the step render, focus stays on the last known anchor (or on the tour launcher for the first step), and the console log carries data-error=TOUR_ANCHOR_UNRESOLVED naming the selector; no floating dialog surfaces.",
+      "given": "the current step has an anchor that resolves to no element",
+      "when": "the runner attempts to open the step",
+      "then": "the step is skipped or the tour is closed with a defined error, no floating dialog appears, and data-error=TOUR_ANCHOR_UNRESOLVED is logged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26101-3",
+      "description": "When the current step's anchor resolves to an invisible or clipped element that cannot fit the tooltip at the current breakpoint, the runner refuses the render and emits data-error=TOUR_ANCHOR_UNFIT; the dialog never renders floating or off-screen.",
+      "given": "the current step's anchor is present but hidden or clipped for the current viewport",
+      "when": "the runner attempts to open the step",
+      "then": "no tooltip renders, data-error=TOUR_ANCHOR_UNFIT is logged with the anchor and breakpoint, and the tour offers the next step or a defined close",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26101-4",
+      "description": "The tour opens on the highest-value surface as named by the elicited step manifest (the first step's anchor selector determines the surface); a manifest with fewer than 3 steps or more than 5 refuses at apply with STEP_MANIFEST_OUT_OF_RANGE naming the count.",
+      "given": "a project applying application-onboarding-tour",
+      "when": "apply runs against a step manifest with an out-of-range count",
+      "then": "apply exits with a non-zero code and STEP_MANIFEST_OUT_OF_RANGE names the count and the required range",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +54,5 @@
     "blueprint:application-onboarding-tour"
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -13,7 +13,18 @@
       "id": "AC-26103-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given the applied capability set includes application-dashboard, the checklist renders inside a <details open> element on the dashboard-top anchor slot; given the applied capability set does NOT include application-dashboard, the checklist renders inside a <details> (closed) element on the settings-page anchor slot; the <details> element carries data-role=\"onboarding-tour-checklist\" in both branches. Anchors to TAC-2702-application-onboarding-tour-checklist-slot; probed by application-onboarding-tour.pack.mjs check AC-26103-1 on both application-dashboard and settings-page branches."
+      "description": "Given the applied capability set includes application-dashboard, the checklist renders inside a <details open> element on the dashboard-top anchor slot; given the applied capability set does NOT include application-dashboard, the checklist renders inside a <details> (closed) element on the settings-page anchor slot; the <details> element carries data-role=\"onboarding-tour-checklist\" in both branches. Anchors to TAC-2702-application-onboarding-tour-checklist-slot; probed by application-onboarding-tour.pack.mjs check AC-26103-1 on both application-dashboard and settings-page branches.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26103-2",
+      "description": "When application-dashboard is not applied, the checklist mounts on the settings route rather than falling through to nothing.",
+      "given": "application-dashboard is not applied",
+      "when": "the settings route renders",
+      "then": "the checklist appears on the settings route with data-role=onboarding-tour-checklist",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -23,5 +34,5 @@
     "blueprint:application-onboarding-tour"
   ],
   "createdAt": "2026-09-06T23:15:00Z",
-  "updatedAt": "2026-09-06T23:15:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

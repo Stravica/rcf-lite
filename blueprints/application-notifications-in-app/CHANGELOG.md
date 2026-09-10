@@ -1,5 +1,17 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.1.0 (2026-09-10, hardening pass B6b)
+
+### Added
+
+- Failure-path acceptance criteria on US-20101 (live-region wrappers pre-seeded before any state-driven mount), US-20102 (sub-6s timeout apply refusal with TOAST_TIMEOUT_TOO_SHORT, focused-toast pause per WCAG 2.2.1), US-20103 (non-2xx acknowledgement error toast with unchanged data-acknowledged, paginated fetch failure), US-20104 (failed preference write error toast with toggle rollback, idempotency of retried writes), US-20105 (delivery-row incomplete refusal), US-20106 (page-load backlog failure with cached-row banner), US-20107 (invalid toast payload refusal), US-20108 (invalid priority drop). Closes review findings F-1, F-2 and F-3.
+- Vendor citations on the WCAG 2.2.1 Timing Adjustable and status-messages acceptance criteria (verified 2026-09-10).
+
+### Changed
+
+- Every REQ now carries a deliveredBy link into TAC-2101 (live-region), TAC-2102 (centre) or TAC-2103 (preferences).
+- Every AC on every user story now carries an explicit disposition (fixed or template); ACs that observe writeDeliveryRow, renderLiveRegions, renderToast or renderCentre carry ownerRef into the owning TAC field.
+
 ## 1.0.0 (visual round T-4, spec 2026-09-04)
 
 - First ratified version of the shelf's application-notifications-in-app blueprint. Five REQs (live-region preseeding on every declared route; transient toast contract with priority-to-role mapping, one-shot announcement and timeout floor; notification centre inbox with retention and acknowledge round-trip; per-user preferences UI with category silence and sibling delegation; delivery-attempt log with operator-readable rows), eight USs binding runtime-observable ACs plus three cross-cutting cases (page load with backlog, background event, disjoint-content contract), three TACs (live-region wrappers with the toast factory; centre inbox with retention and acknowledge round-trip; preferences UI with sibling delegation), three ADRs (priority-to-role mapping polite/status vs assertive/alert per WCAG 4.1.3 and the ARIA APG alert pattern; six-second toast timeout floor per WCAG 2.2.1 with elicited overrides above the floor; thirty-day centre retention window with elicited overrides). No new global topics.

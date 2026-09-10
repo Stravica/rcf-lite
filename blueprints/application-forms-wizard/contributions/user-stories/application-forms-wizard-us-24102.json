@@ -13,7 +13,32 @@
       "id": "AC-24102-1",
       "testable": true,
       "scope": "runtime",
-      "description": "On the wizard step route, focusing a field then blurring it without a valid entry renders a field-level error message referenced by aria-describedby without setting aria-invalid=\"true\" before the first submit (the pack asserts the message element is present and referenced). After a submit attempt fails on the field, subsequent input events on the same field update the message text on every change (the pack drives a first-submit-fail then a valid input and reads the message element's textContent transitioning to empty). On the next submit the engine rebuilds the error set from scratch (the pack asserts a previously failing field that has been corrected no longer appears in the summary)."
+      "description": "On the wizard step route, focusing a field then blurring it without a valid entry renders a field-level error message referenced by aria-describedby without setting aria-invalid=\"true\" before the first submit (the pack asserts the message element is present and referenced). After a submit attempt fails on the field, subsequent input events on the same field update the message text on every change (the pack drives a first-submit-fail then a valid input and reads the message element's textContent transitioning to empty). On the next submit the engine rebuilds the error set from scratch (the pack asserts a previously failing field that has been corrected no longer appears in the summary).",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-24102-2",
+      "description": "On the first attempted advance, every failing field renders its own inline error bound via aria-describedby and the top-of-page error summary renders with one link per failing field; on subsequent change the field re-validates but the top-of-page summary is only re-rendered on the next attempted advance.",
+      "given": "a step with three failing fields and the principal attempts to advance",
+      "when": "the error summary renders",
+      "then": "each failing field carries an aria-describedby-bound inline error and the summary carries one link per failing field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://design-system.service.gov.uk/components/error-summary/",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-24102-3",
+      "description": "A field whose validator raises (an unexpected exception in a custom validator) refuses to persist an answer for that field, surfaces the exception class in an inline error and never blocks other fields from advancing on the same submit if they pass.",
+      "given": "a validator that throws on a specific field",
+      "when": "the principal advances",
+      "then": "the throwing fields error is surfaced inline naming the exception class and other passing fields still submit",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +50,5 @@
     "contract:validation-timing"
   ],
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

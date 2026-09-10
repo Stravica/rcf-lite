@@ -16,11 +16,26 @@
       "when": "both live-region wrappers are read simultaneously",
       "then": "the body text appears in exactly one wrapper",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-20108-2",
+      "description": "When the priority-to-role contract fires with an invalid priority, the announcement is dropped and a console log records the invalid value; no accidental double-announce lands in the alternate live region as a fallback.",
+      "given": "an announcement carrying a priority outside the closed enum",
+      "when": "the announcement is dispatched",
+      "then": "no live region receives the announcement, the console log records the invalid priority and no fallback double-announce fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2101-application-notifications-in-app-live-region"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

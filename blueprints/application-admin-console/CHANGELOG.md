@@ -1,5 +1,20 @@
 # application-admin-console CHANGELOG
 
+## 1.2.0 (2026-09-10, hardening pass B6b)
+
+### Added
+
+- REQ-007 (invite-transport option coverage) and US-21110: every invite-transport option (email, in-app-only, custom) now carries a runtime clause and a story binding accepted, failed and recorded outcomes with a per-invite audit record. Closes review finding [application-admin-console] F-1.
+- REQ-008 (tenancy-shape option coverage) and US-21111: the elicited tenancy-shape (per-user, per-org, both) now determines directory membership, org switcher entries, invite scope and cross-shape refusal (TENANCY_SHAPE_REFUSAL). Closes review finding [application-admin-console] F-2.
+- Failure-path acceptance criteria on US-21106 (request-access POST failure) and US-21107 (empty union entry for a library-qualified source unavailable locally) closing findings F-3 and F-4; failure-path AC on US-21815 for a gated request with no request.auth closing finding F-5.
+- Vendor citations on the WCAG 2.4.6 / 3.3.4 / 4.1.3 fixed acceptance criteria and on the ARIA APG grid pattern criteria (verified 2026-09-10).
+
+### Changed
+
+- Every REQ now carries a deliveredBy link into TAC-2201, TAC-2203, TAC-2204 or TAC-2214.
+- Every AC on every user story now carries an explicit disposition (fixed or template); template ACs state the values the applying agent sets.
+- TAC-2201 responsibilities now include deliverInvite (per invite-transport branch), tenancyShapeGate (per tenancy shape), delegateUsersSurface, delegateOrgsSurface, renderAccessDenied and renderShell so the deliveredBy fields resolve.
+
 ## 1.1.0 (2026-09-07)
 
 ### Added

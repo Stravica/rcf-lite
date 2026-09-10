@@ -16,7 +16,8 @@
       "when": "an acknowledge control is activated by keyboard",
       "then": "the acknowledge round-trips to the server and the DOM updates in response",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-20103-2",
@@ -25,11 +26,44 @@
       "when": "the delivery log is read",
       "then": "one wrapper is emitted per row within the retention window",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.renderCentre"
+      }
+    },
+    {
+      "id": "AC-20103-3",
+      "description": "When the acknowledge round-trip returns a non-2xx or times out, an error toast surfaces via the assertive live region naming the failure, and data-acknowledged on the row remains false (the row is not visually or programmatically marked read).",
+      "given": "a notification row and an acknowledge POST that returns a non-2xx or times out",
+      "when": "the principal activates the acknowledge control",
+      "then": "an error toast appears via role=alert, data-acknowledged=false remains and no polite acknowledgement announcement fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.acknowledgeRoundTrip"
+      }
+    },
+    {
+      "id": "AC-20103-4",
+      "description": "The notification centre inbox lists the last N days of notifications enumerated by data-notification-id and paginates once N exceeds the elicited page-size; a paginated request that fails leaves the currently loaded rows visible and shows an inline retry.",
+      "given": "an inbox whose N exceeds the page-size and a paginated fetch that fails",
+      "when": "the principal scrolls or paginates",
+      "then": "the previously loaded rows remain visible, an inline retry control appears and no rows are removed on the failure",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
-  "tacIds": ["TAC-2102-application-notifications-in-app-centre"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2102-application-notifications-in-app-centre"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

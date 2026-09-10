@@ -16,7 +16,8 @@
       "when": "the delivery-log endpoint is read",
       "then": "N rows with the operator-readable fields are returned",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-20105-2",
@@ -25,11 +26,34 @@
       "when": "a toast or centre event surfaces a notification",
       "then": "a row lands through the applied logging companion",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.writeDeliveryRow"
+      }
+    },
+    {
+      "id": "AC-20105-3",
+      "description": "A delivery-attempt log row records exactly the fields deliveryTs, priority, category, outcome and correlationId; missing outcome or missing correlationId refuses the row write with DELIVERY_ROW_INCOMPLETE naming the missing field.",
+      "given": "a delivery attempt with a missing outcome or correlationId",
+      "when": "the row write fires",
+      "then": "the write refuses with DELIVERY_ROW_INCOMPLETE naming the missing field and no partial row is persisted",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2102-application-notifications-in-app-centre",
+        "field": "interfaces.writeDeliveryRow"
+      }
     }
   ],
-  "tacIds": ["TAC-2102-application-notifications-in-app-centre"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2102-application-notifications-in-app-centre"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

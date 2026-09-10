@@ -11,7 +11,10 @@
     "Render a single primary navigation landmark carrying an accessible name and rendering only applied surfaces (AC-25101-1, AC-25101-2).",
     "Render the profile surface unconditionally as the active tab on /account (AC-25102-1).",
     "Delegate the security, sessions, notification-preferences and theme surfaces to their respective TACs (TAC-2603, TAC-2604) or render inline for notifications and theme.",
-    "Route unauthenticated principals to the empty-error-states forbidden state (T-1) rather than inventing a bespoke denied UI."
+    "Route unauthenticated principals to the empty-error-states forbidden state (T-1) rather than inventing a bespoke denied UI.",
+    "renderProfileSurface: mount the profile tab as the active tab on /account, always available (AC-25102-1).",
+    "renderPreferencesSurface: mount the notification-preferences tab when application-notifications-in-app is applied (AC-25107-1) and the theme tab when application-spa is applied honouring theme-persistence (AC-25108-1).",
+    "renderCorrelationId: write one request-scoped log line per rendered surface, carrying the correlation identifier the applied logging companion supplies."
   ],
   "internalStructure": "One shell module that mounts the surface, reads the applied capabilities sidecar, and renders the tabs landmark, the page-layout scaffolding, and the tabpanel-level containers for each conditional surface. The framework is not prescribed; the shell interfaces are what the project realises against React, Vue, Svelte or vanilla DOM.",
   "interfaces": [

@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Step-manifest contract: 3 to 5 steps per tour with per-step anchor selector and per-step content voice slot",
   "description": "The blueprint contributes a step-manifest contract for a 3 to 5 step onboarding tour. Each step declares a step id, an anchor selector (CSS resolved at step-open time to place the tooltip against a live element in the DOM), a heading and a body slot the project fills with its own voice. The step runner walks the manifest in order and refuses to open a step whose anchor does not resolve to a visible element rather than rendering a floating tooltip. The blueprint contributes the WHAT (the manifest shape and the resolver contract), not the words.",
+  "deliveredBy": {
+    "tacId": "TAC-2701-application-onboarding-tour-step-runner",
+    "field": "interfaces.renderTourRunner"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

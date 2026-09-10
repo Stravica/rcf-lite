@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Security surface conditional on credentialSelfService OR hostedIdentityUi",
   "description": "The security surface (/account/security) renders when the applied capability set contains credentialSelfService (self-service branch: password change, MFA setup, session-based sign-out) or hostedIdentityUi (link-out or embed branch: rendering an operator-elicited href or handle). When NEITHER capability is applied, the security tab does not render and the surface refuses at apply with the two-remedy message (declare a capability, or drop the security tab from scope) per spec Q3.",
+  "deliveredBy": {
+    "tacId": "TAC-2603-application-account-settings-hosted-ui-bridge",
+    "field": "interfaces.securitySurface"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

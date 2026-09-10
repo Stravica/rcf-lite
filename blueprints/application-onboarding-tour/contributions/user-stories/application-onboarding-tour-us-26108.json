@@ -1,0 +1,58 @@
+{
+  "usId": "application-onboarding-tour-US-26108",
+  "prdId": "PRD-001",
+  "reqId": "application-onboarding-tour-REQ-005",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "The elicited dismissal-policy determines whether a version bump re-surfaces the tour",
+  "asA": "principal who dismissed the tour once on a project applying application-onboarding-tour",
+  "iWant": "a subsequent tour version bump to re-surface the tour only if the elicited policy says so",
+  "soThat": "a project's dismissal policy is the policy I actually experience across releases",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-26108-1",
+      "description": "When dismissal-policy is `dismiss-permanently` and the principal dismisses the tour, the completion record marks the dismissal terminal and no version bump re-opens the tour; only the restart-tour control clears the record and re-opens.",
+      "given": "dismissal-policy=dismiss-permanently applied and the principal dismissed the tour once",
+      "when": "the tour version bumps and the principal re-loads",
+      "then": "the tour stays dismissed regardless of the version bump; the restart-tour control clears the record and re-opens the tour",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26108-2",
+      "description": "When dismissal-policy is `dismiss-until-next-major` the completion store writes the dismissed tour's SemVer, and on principal load compares the stored major segment against the current tour's major segment; the tour re-opens iff the majors differ.",
+      "given": "dismissal-policy=dismiss-until-next-major applied and a completion record from tour v1.4.2",
+      "when": "the tour version changes",
+      "then": "a bump to v1.5.0 does not re-open the tour, a bump to v2.0.0 does re-open it",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26108-3",
+      "description": "When dismissal-policy is `dismiss-until-next-minor` the completion store writes the dismissed tour's SemVer, and on principal load compares stored and current major.minor; the tour re-opens iff either segment differs.",
+      "given": "dismissal-policy=dismiss-until-next-minor applied and a completion record from tour v1.4.2",
+      "when": "the tour version changes",
+      "then": "a bump to v1.4.9 does not re-open the tour, a bump to v1.5.0 does re-open it and a bump to v2.0.0 does re-open it",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-26108-4",
+      "description": "The completion record shape is identical across the three policies (fields: principalId, tourVersion, dismissedAt); only the load-time comparison differs. A stored record written under one policy is legal under another (the load-time comparison is what changes).",
+      "given": "a completion record written under any of the three policies",
+      "when": "the applied policy changes at re-apply time",
+      "then": "the record shape is unchanged and the load-time comparison uses the new policy",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    }
+  ],
+  "tacIds": [
+    "TAC-2703-application-onboarding-tour-completion-store"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

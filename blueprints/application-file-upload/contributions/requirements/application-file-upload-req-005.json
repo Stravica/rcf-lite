@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Completion contract: assertive-slot success announcement per WCAG 4.1.3 plus per-file remove and retry",
   "description": "On successful completion of the upload set, the surface renders an assertive-slot announcement in a wrapper carrying role=status or aria-live=assertive with the string \"<N> files uploaded successfully\", per WCAG 4.1.3 Status Messages. Every completed file row carries a keyboard-reachable remove control (returns the row to the pre-upload state and issues a DELETE against the transport where the transport supports removal) and a retry control (visible only after a refusal or a transport error). The completion announcement fires exactly once per set; a retried refusal that then succeeds increments the completed count but does not re-announce.",
+  "deliveredBy": {
+    "tacId": "TAC-2402-application-file-upload-transport",
+    "field": "interfaces.removeFile"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

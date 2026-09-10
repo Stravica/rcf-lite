@@ -2,12 +2,12 @@
 
 ## Global topics
 
-The blueprint claims no new global topics at v1.0.0. Account-settings is a consumer of the identity capability set the applied auth blueprints (and the observability-logging companion) declare through `capabilities[]`; every ADR (capability-vocabulary extension, security-surface-shape, theme-persistence, reauth-window) is non-global.
+The blueprint claims no new global topics at v1.0.0. Account-settings is a consumer of the identity capability set the applied auth blueprints declare through `capabilities[]`; every ADR (capability-vocabulary extension, security-surface-shape, theme-persistence, reauth-window) is non-global.
 
 ## Deliberately unclaimed topics
 
 - `themePersistence` (the shape of theme persistence). Reserved for the applied `application-spa` blueprint's own ADR set; the account-settings blueprint offers the operator surface for choosing the theme and hands the persistence to the SPA blueprint via the elicited `theme-persistence` answer.
-- `sessionInventory` (the shape of a session-inventory record). Reserved for the applied provider's ADR set (an auth blueprint, or observability-logging as the logging-projection provider). The account-settings blueprint reads the inventory through the applied provider's interface.
+- `sessionInventory` (the shape of a session-inventory record). Owner: security-auth-clerk TAC-1003-security-auth-clerk-session-verifier field interfaces.sessionInventory (the shape any auth blueprint declaring the capability agrees to). observability-logging 1.3.0 no longer provides it; the account-settings blueprint reads the inventory through the applied auth provider only.
 - `credentialSelfService` (the shape of a credential surface). Reserved for the applied auth blueprint's ADR set for the same reason.
 - `hostedIdentityUi` (the shape of a hosted identity portal). Reserved for the applied auth blueprint's ADR set for the same reason.
 

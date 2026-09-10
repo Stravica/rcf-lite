@@ -1,5 +1,17 @@
 # application-forms-wizard CHANGELOG
 
+## 1.1.0 (2026-09-10, hardening pass B6b)
+
+### Added
+
+- Failure-path acceptance criteria on US-24101 (STEP_STATE_UNKNOWN refusal, Cannot start yet blocker announcement), US-24102 (error summary field bindings, throwing validator surface), US-24103 (submit refusal focus and summary link focus contract), US-24104 (summary submit failure preserves answers), US-24105 (server-side POST failure with unsaved banner, localStorage denial with fallback, hydrate failure), US-24106 (step-indicator apply refusal for values outside the closed set), US-24107 (in-progress list read failure with cache, cross-principal draft refusal), US-24108 (fallback empty message when application-empty-error-states not applied). Closes review finding F-1.
+- Vendor citations on the GOV.UK task-list-pages and error-summary acceptance criteria (verified 2026-09-10).
+
+### Changed
+
+- Every REQ now carries a deliveredBy link into TAC-2501 (task-list), TAC-2502 (error-summary) or TAC-2503 (draft-store).
+- Every AC on every user story now carries an explicit disposition (fixed or template).
+
 ## 1.0.0 (visual round T-3, spec 2026-09-06)
 
 - First ratified version of the shelf's forms-wizard blueprint. Five REQs (task-list contract with the closed GOV.UK vocabulary Cannot start yet, Not started, In progress, Completed and an ARIA progressbar wrapper; per-step validation timing with on-blur before first submit then on-change after first failure and a full pass on submit reusing SPA forms-engine TAC-205; error-summary contract with a top-of-page summary, skip links, aria-invalid on the field, aria-describedby to the field-level message and focus moved to the summary heading; summary-review contract with a summary-list per step, Change links per row and answer retention on save; save-and-return contract with a server-side draft table or a client-side local buffer with a sync tick, refuses to ship if neither is wired), eight USs 24101 to 24108 binding one runtime-observable AC per contract plus three cross-cutting cases (linear-vs-free navigation, in-progress list, no-in-progress empty state delegated to application-empty-error-states), three TACs 2501 to 2503 (task-list shell, error-summary contract, draft store), three ADRs 2501 to 2503 (navigation posture linear default with elicited free branch, save-and-return transport with no recommendedDefault so the abandoned-draft loss class does not ship silently, step-indicator shape with task-list default and elicited ARIA progressbar-only or breadcrumb). No new global topics.

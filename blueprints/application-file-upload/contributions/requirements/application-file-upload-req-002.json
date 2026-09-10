@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Progress contract: per-file percent, aggregate percent, and a polite live-region tick",
   "description": "Every file in the upload set carries a per-file percent that advances monotonically from 0 to 100. The surface also carries an aggregate percent that reflects the mean weighted by byte size. A polite live-region wrapper (aria-live polite) receives a text tick at least every 10 percent of aggregate progress with the string format \"<uploaded> of <total> files, <PP> percent\". The polite wrapper is preseeded at render time so a screen reader adopts it before the first tick fires.",
+  "deliveredBy": {
+    "tacId": "TAC-2402-application-file-upload-transport",
+    "field": "interfaces.transportUpload"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

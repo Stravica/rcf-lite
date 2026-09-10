@@ -7,10 +7,11 @@
   "name": "Session store contract",
   "purpose": "The sessions surface bridge between the applied blueprints session-inventory source and the terminate-write flow.",
   "responsibilities": [
-    "Read the active-session inventory from the applied provider (an auth blueprint declaring sessionInventory, or observability-logging 1.2.0+ as the logging-projection provider) (AC-25105-1, AC-25106-1).",
+    "Read the active-session inventory from the applied provider (an auth blueprint declaring sessionInventory, owned by security-auth-clerk TAC-1003-security-auth-clerk-session-verifier field interfaces.sessionInventory) (AC-25105-1, AC-25106-1).",
     "Render one row per session enumerated by data-session-id with device and last-active columns and a terminate action (AC-25105-1).",
     "Open an ARIA APG dialog-modal on terminate with focus-trap, aria-labelledby to the heading and focus-return to the neighbouring row on close (AC-25105-2).",
-    "Announce the terminate-success via <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> (AC-25105-2)."
+    "Announce the terminate-success via <div role=\"status\" aria-live=\"polite\" data-role=\"session-terminated-announce\">Session ended</div> (AC-25105-2).",
+    "reauthWindowGate: honour the elicited reauth-window (never, 5, 15, 60) by comparing the current session lastActive from the applied auth providers sessionInventory against the elapsed threshold and refusing the high-value action with REAUTH_REQUIRED or REAUTH_STALE or REAUTH_WINDOW_UNKNOWN accordingly (AC-25111-1 through AC-25111-5)."
   ],
   "internalStructure": "One sessions-surface module with a read-inventory helper and a terminate-write helper. The read-inventory helper dispatches to the applied providers session-inventory API; the terminate-write helper dispatches to the same providers terminate API. The framework is not prescribed.",
   "interfaces": [
@@ -23,6 +24,11 @@
       "name": "sessionRecord",
       "kind": "shape",
       "description": "{ sessionId, deviceLabel, lastActive (ISO-8601), currentSession (boolean) }. The current session cannot be terminated by itself (the operator signs out from the shell instead); the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action."
+    },
+    {
+      "name": "sessionInventoryConsumer",
+      "kind": "consumer",
+      "description": "Consumer contract on top of the applied auth providers sessionInventory (owner TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory or the equivalent TAC on another auth blueprint). Reads list()/revoke()/revokeAllExceptCurrent() and never restates the row shape."
     }
   ],
   "dependencies": [

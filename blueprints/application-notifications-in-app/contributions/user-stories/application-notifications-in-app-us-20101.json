@@ -16,7 +16,8 @@
       "when": "the initial DOM is read",
       "then": "both preseeded wrappers are present, carry their id attribute, and are empty",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-20101-2",
@@ -25,11 +26,34 @@
       "when": "the factory is invoked at first render and again on a route change",
       "then": "the same two wrapper elements are returned; identity is stable",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2101-application-notifications-in-app-live-region",
+        "field": "interfaces.renderLiveRegions"
+      }
+    },
+    {
+      "id": "AC-20101-3",
+      "description": "The two live-region wrappers pre-seed at document render, before any state-driven mount, so that an announcement fired during a first render lands in a live region already present. A break that mounts the wrapper on state entry fails the pack.",
+      "given": "a page load on any route",
+      "when": "the DOM is inspected before any state-driven announcement fires",
+      "then": "both polite (aria-live=polite) and assertive (aria-live=assertive) live-region containers are present in the initial DOM",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#status-messages",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
-  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2101-application-notifications-in-app-live-region"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

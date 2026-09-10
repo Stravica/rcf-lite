@@ -13,7 +13,32 @@
       "id": "AC-22102-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a 403 response, the forbidden state renders inside role=\"region\" with a keyboard-reachable [data-action=\"request-access\"] control that POSTs to /api/request-access. The rendered surface does NOT contain any word matching the sensitive-pattern list (resource id shape, resource name shape, path-shape strings starting with /). The pack drives /probe/forbidden and reads the region, the control, and the full document text for pattern hits."
+      "description": "Given a 403 response, the forbidden state renders inside role=\"region\" with a keyboard-reachable [data-action=\"request-access\"] control that POSTs to /api/request-access. The rendered surface does NOT contain any word matching the sensitive-pattern list (resource id shape, resource name shape, path-shape strings starting with /). The pack drives /probe/forbidden and reads the region, the control, and the full document text for pattern hits.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22102-2",
+      "description": "When the request-access POST returns a non-2xx or times out, the surface announces the failure via the polite live region, keeps the request-access control keyboard-reachable in a retry-able state (data-state=idle) and never shows a submitted-success state.",
+      "given": "the forbidden state rendered and the request-access endpoint returns a non-2xx or times out",
+      "when": "the principal activates request-access",
+      "then": "the polite live region announces the failure, data-state=idle is restored on the control and no data-state=submitted transition fires",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#status-messages",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-22102-3",
+      "description": "The forbidden state never renders the resource identifier or any per-resource detail; the heading names the class (\"You do not have access to this resource\") and the explanation names the missing capability class only.",
+      "given": "a forbidden state on any resource id",
+      "when": "the surface renders",
+      "then": "no resource identifier is present in the DOM, only the class name of the resource type and the missing capability class",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +50,5 @@
     "state:forbidden"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

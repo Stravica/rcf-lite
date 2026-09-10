@@ -13,7 +13,28 @@
       "id": "AC-22107-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a search or filter yielding zero rows, the no-search-results state renders inside role=\"region\" with a data-visual=\"no-search-results\" wrapper distinct from empty-list, echoing the query terms verbatim inside a data-query wrapper, and a keyboard-reachable [data-recovery=\"clear-filters\"] control that removes the search parameters on click. The pack drives /probe/search?q=needle, reads the region, the wrapper attribute, the echoed query and the recovery control."
+      "description": "Given a search or filter yielding zero rows, the no-search-results state renders inside role=\"region\" with a data-visual=\"no-search-results\" wrapper distinct from empty-list, echoing the query terms verbatim inside a data-query wrapper, and a keyboard-reachable [data-recovery=\"clear-filters\"] control that removes the search parameters on click. The pack drives /probe/search?q=needle, reads the region, the wrapper attribute, the echoed query and the recovery control.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22107-2",
+      "description": "The surface echoes the exact search query verbatim in the DOM (data-query attribute or visible text) so a screen reader can name the searched term; a query containing special characters is escaped for HTML but never truncated.",
+      "given": "a no-search-results state on the query \"foo & bar\"",
+      "when": "the surface renders",
+      "then": "the DOM carries the query verbatim (HTML-escaped) and no truncation occurs",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22107-3",
+      "description": "When the clear-filters recovery is fired and the underlying reload fails, the surface stays on the no-search-results state and the polite live region announces the failure; no false clear-success is emitted.",
+      "given": "a no-search-results state and a failing clear-filters reload",
+      "when": "the principal activates clear-filters",
+      "then": "the surface stays on no-search-results, the polite live region announces the failure and no clear-success is announced",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +46,5 @@
     "state:no-search-results"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

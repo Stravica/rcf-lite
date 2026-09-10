@@ -13,7 +13,38 @@
       "id": "AC-22105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given navigator.onLine simulated false via the runtime seam (page.setOffline(true) on the project route, an offline endpoint on the sample-app route the pack uses instead), the offline state renders inside role=\"region\" with a read-only banner naming offline mode. A synthetic write buffers to window.__offlineBuffer with an idempotency token and a monotonic sequence. On the reconnect signal (navigator.onLine true or the sample-app /probe/offline?reconnect route) the polite live-region wrapper with data-live-region=\"polite\" carries a reconnection announcement. The pack drives /probe/offline, reads the banner, the buffer entry and the polite wrapper text."
+      "description": "Given navigator.onLine simulated false via the runtime seam (page.setOffline(true) on the project route, an offline endpoint on the sample-app route the pack uses instead), the offline state renders inside role=\"region\" with a read-only banner naming offline mode. A synthetic write buffers to window.__offlineBuffer with an idempotency token and a monotonic sequence. On the reconnect signal (navigator.onLine true or the sample-app /probe/offline?reconnect route) the polite live-region wrapper with data-live-region=\"polite\" carries a reconnection announcement. The pack drives /probe/offline, reads the banner, the buffer entry and the polite wrapper text.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22105-2",
+      "description": "On reconnection, the offline buffer flushes in the order of enqueue: each buffered write is replayed with the stable token it was buffered under, and a successful write removes the entry from the buffer.",
+      "given": "a buffer with two writes enqueued while offline",
+      "when": "navigator.onLine transitions to true and the buffer flushes",
+      "then": "the two writes are replayed in the order they were enqueued, each keyed by its stable token, and each success removes the entry",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22105-3",
+      "description": "When a buffered write returns a non-2xx or times out on replay, the entry stays in the buffer, its retry-count increments, a banner announces the failure via the polite live region, and no downstream surface renders as if the write had succeeded.",
+      "given": "a buffer with one write enqueued and the flush replay returns a non-2xx or times out",
+      "when": "the flush runs",
+      "then": "the entry remains in the buffer with retryCount incremented, the polite live region announces the failure and no downstream surface reflects the write",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22105-4",
+      "description": "The buffer refuses to enqueue two writes with the same stable token (idempotency of a retried operation): the second enqueue is a no-op and the buffer size remains 1.",
+      "given": "a buffer that already contains a write with token T",
+      "when": "the client attempts to enqueue a second write with the same token T",
+      "then": "the second enqueue is a no-op, the buffer size stays at 1 and no duplicate replay fires on flush",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +56,5 @@
     "state:offline"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

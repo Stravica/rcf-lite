@@ -1,0 +1,22 @@
+{
+  "reqId": "application-onboarding-tour-REQ-006",
+  "prdId": "PRD-001",
+  "title": "Checklist anchor: dashboard-top, settings-page and custom-anchor each resolve to a rendered slot or a defined fallback",
+  "description": "The checklist slot honours the elicited checklist-anchor with a runtime clause per option. `dashboard-top` mounts the checklist at the top of the dashboard route provided by application-dashboard and refuses the mount (a WCAG 3.3.1 refusal announced on the settings surface) when application-dashboard is not applied. `settings-page` mounts the checklist at the settings route provided by application-account-settings and behaves as `dashboard-top` regarding refusal when the settings surface is unavailable. `custom-anchor` resolves an elicited CSS selector against the live DOM at load: on resolution the checklist mounts inside the resolved element with a default collapsed state (a <details> element with data-role=onboarding-tour-checklist and open=false); when the selector resolves to nothing or to an invisible or clipped element, the checklist mounts at the settings route as a fallback and the console log carries data-error=CHECKLIST_ANCHOR_UNRESOLVED naming the selector. In every branch, the checklist suppresses entirely when neither the dashboard nor the settings surface is applied and no usable custom anchor is set.",
+  "deliveredBy": {
+    "tacId": "TAC-2702-application-onboarding-tour-checklist-slot",
+    "field": "responsibilities.resolveAnchor"
+  },
+  "category": "functional",
+  "domain": "onboarding",
+  "priority": "must",
+  "rationale": "The elicit offers three checklist anchors but the shipped requirement covered dashboard-top and settings-page only. A project that chose custom-anchor inherited unspecified behaviour: no requirement described the default collapse state or what happens when the selector resolves to nothing. Requiring a per-option clause makes the fallback and the refusal observable.",
+  "tags": [
+    "blueprint:application-onboarding-tour",
+    "category:06-checklist-anchor"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

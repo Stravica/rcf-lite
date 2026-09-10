@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Recovery-action contract per state: parent-surface link, search entry, request-access flow, retry hook",
   "description": "Every rendered state carries at least one recovery action. The recovery-action router maps each named state to one of a fixed four action shapes: parent-surface (a link back up the resource hierarchy, used by not-found and empty-list), search (a search entry, used by not-found and no-search-results), request-access (a POST to a well-known request-access endpoint the applied notification centre can surface, used by forbidden and permission-denied), retry (a client-side re-issue of the failed operation, used by server-error and offline). The router refuses to render a state without a recovery action; a state whose applied surface has no legitimate recovery renders an explicit no-recovery notice with the reason.",
+  "deliveredBy": {
+    "tacId": "TAC-2302-application-empty-error-states-recovery-router",
+    "field": "interfaces.renderRecovery"
+  },
   "category": "functional",
   "domain": "application",
   "priority": "must",

@@ -13,7 +13,28 @@
       "id": "AC-25104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When hostedIdentityUi is in the applied capability set AND the operator elicited security-surface-shape=hosted-link-out, GET /account/security renders <a data-role=\"hosted-link-out\" href=\"{hosted-identity-url}\" rel=\"noopener\"> with an accessible label carrying the destination provider name; when security-surface-shape=hosted-embed, renders <iframe data-role=\"hosted-embed\" title=\"Account security\" src=\"{hosted-identity-url}\" sandbox=\"allow-scripts allow-forms allow-same-origin\">. Probed by pack check AC-25105-1."
+      "description": "When hostedIdentityUi is in the applied capability set AND the operator elicited security-surface-shape=hosted-link-out, GET /account/security renders <a data-role=\"hosted-link-out\" href=\"{hosted-identity-url}\" rel=\"noopener\"> with an accessible label carrying the destination provider name; when security-surface-shape=hosted-embed, renders <iframe data-role=\"hosted-embed\" title=\"Account security\" src=\"{hosted-identity-url}\" sandbox=\"allow-scripts allow-forms allow-same-origin\">. Probed by pack check AC-25105-1.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-25104-2",
+      "description": "When security-surface-shape is hosted-link-out, the surface renders an <a> element carrying data-role=hosted-link-out and href={hosted-identity-url}; a missing hosted-identity-url elicit answer refuses at apply with HOSTED_URL_MISSING.",
+      "given": "hostedIdentityUi applied with security-surface-shape=hosted-link-out and hosted-identity-url set",
+      "when": "the security route renders",
+      "then": "the DOM carries an <a data-role=\"hosted-link-out\" href={hosted-identity-url}> element; missing URL refuses at apply",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-25104-3",
+      "description": "When security-surface-shape is hosted-embed, the surface renders an <iframe data-role=\"hosted-embed\" title=\"Account security\" src={hosted-identity-url}> element; the iframe carries a defined title for screen readers.",
+      "given": "hostedIdentityUi applied with security-surface-shape=hosted-embed",
+      "when": "the security route renders",
+      "then": "the DOM carries the described iframe with a non-empty title",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template"
     }
   ],
   "tacIds": [
@@ -23,5 +44,5 @@
     "blueprint:application-account-settings"
   ],
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

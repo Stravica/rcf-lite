@@ -13,7 +13,18 @@
       "id": "AC-22104-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a mocked 403 response with a per-resource cause, the permission-denied state renders inside role=\"region\" with a class-level cause string (matches /^[A-Za-z][A-Za-z0-9 ]+$/ with no digits-run of four or more) and a [data-action=\"request-access\"] control. The pack drives /probe/permission-denied, reads the cause string, and refuses when the string contains a resource-id shape (four or more consecutive digits, or a UUID pattern, or a slug-shape id preceded by resource identifiers like \"resource=\" or \"id=\")."
+      "description": "Given a mocked 403 response with a per-resource cause, the permission-denied state renders inside role=\"region\" with a class-level cause string (matches /^[A-Za-z][A-Za-z0-9 ]+$/ with no digits-run of four or more) and a [data-action=\"request-access\"] control. The pack drives /probe/permission-denied, reads the cause string, and refuses when the string contains a resource-id shape (four or more consecutive digits, or a UUID pattern, or a slug-shape id preceded by resource identifiers like \"resource=\" or \"id=\").",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-22104-2",
+      "description": "The permission-denied state names the missing scope class (\"You need the admin role\") and never renders the underlying resource identifier; a scope name is a WHOLE role class, never a per-resource permission.",
+      "given": "a permission-denied state on a specific resource",
+      "when": "the surface renders",
+      "then": "the missing scope name is a role class and no resource identifier appears in the DOM",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "state:permission-denied"
   ],
   "createdAt": "2026-09-06T15:40:00Z",
-  "updatedAt": "2026-09-06T15:40:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

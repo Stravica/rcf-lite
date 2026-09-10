@@ -13,7 +13,18 @@
       "id": "AC-23103-1",
       "testable": true,
       "scope": "runtime",
-      "description": "When the fixture is seeded with a refused file (MIME mismatch, size cap exceeded, or virus-scan hit), the file row [data-file-row][data-refused=\"true\"] renders a [data-error-message] element whose id is referenced by the row's aria-describedby attribute, the row exposes the closed refusal reason via [data-refusal-reason] (one of mime-refused, size-refused, virus-refused), a [data-recovery=\"retry\"] control receives keyboard focus, and the pack observes zero POST or PATCH requests carrying the refused filename on the browser's request log."
+      "description": "When the fixture is seeded with a refused file (MIME mismatch, size cap exceeded, or virus-scan hit), the file row [data-file-row][data-refused=\"true\"] renders a [data-error-message] element whose id is referenced by the row's aria-describedby attribute, the row exposes the closed refusal reason via [data-refusal-reason] (one of mime-refused, size-refused, virus-refused), a [data-recovery=\"retry\"] control receives keyboard focus, and the pack observes zero POST or PATCH requests carrying the refused filename on the browser's request log.",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-23103-2",
+      "description": "On a per-file transport failure (non-2xx from the transport POST/PATCH), the row renders with data-file-outcome=failed and focus moves to a retry control on the row; a subsequent retry starts from the last acknowledged Upload-Offset on tus.",
+      "given": "a per-file upload that fails on the transport",
+      "when": "the failure is reported",
+      "then": "the row shows data-file-outcome=failed, focus lands on the retry control and retry starts from the last acknowledged offset",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [
@@ -25,5 +36,5 @@
     "affordance:refusal"
   ],
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

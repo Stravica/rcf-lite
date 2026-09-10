@@ -1,0 +1,22 @@
+{
+  "reqId": "application-account-settings-REQ-007",
+  "prdId": "PRD-001",
+  "title": "Reauth window: never, 5, 15, 60 each carry a defined trigger for high-value changes",
+  "description": "The security and sessions surfaces honour the elicited reauth-window with a runtime clause per option, applied before a high-value change (credential change, session termination, MFA enrolment). `never` bypasses reauthentication for any interval since the last successful sign-in and permits the high-value action to proceed with only the standard confirmation dialog. `5`, `15` and `60` denote a minute-count: when more than that many minutes have elapsed since the principal's last successful sign-in (as recorded on the applied auth providers session inventory), the surface presents a reauth prompt before the high-value action; the action refuses with REAUTH_REQUIRED until the reauth prompt returns success, then proceeds. The comparison uses the last-active timestamp on the current session record from the applied provider (security-auth-clerk TAC-1003 sessionInventory or the equivalent TAC on another auth blueprint), never a local clock. The reauth prompt never accepts the current session's own credentials as sufficient for the reauth without a fresh challenge (a fresh password entry, a fresh MFA challenge or a fresh magic-link click).",
+  "deliveredBy": {
+    "tacId": "TAC-2604-application-account-settings-session-store",
+    "field": "responsibilities.reauthWindowGate"
+  },
+  "category": "functional",
+  "domain": "security",
+  "priority": "must",
+  "rationale": "The elicit offers four windows but no requirement described what each option does. A project that chose 15 inherited `never` behaviour silently because no chain link asked after the elapsed-minutes gate. Requiring a per-option clause turns the elicit into a chain-linked check the reauth prompts appearance proves.",
+  "tags": [
+    "blueprint:application-account-settings",
+    "category:07-reauth-window"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}

@@ -25,21 +25,21 @@ const MAGIC_LINK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-magic-link');
 const CLERK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-clerk');
 const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 
-test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
+test('blueprint.json declares 32 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.1.0');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent per spec 5.5.3');
   const reqs = doc.contributions.filter((c) => c.kind === 'req');
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 7);
-  assert.equal(uss.length, 11);
+  assert.equal(reqs.length, 9);
+  assert.equal(uss.length, 13);
   assert.equal(tacs.length, 5);
   assert.equal(adrs.length, 5);
-  assert.equal(doc.contributions.length, 28);
+  assert.equal(doc.contributions.length, 32);
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['principalDirectory']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-auth-yet');
   const elicitIds = doc.elicits.map((e) => e.id).sort();

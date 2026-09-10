@@ -16,7 +16,8 @@
       "when": "the accessibility tree and the toast timestamps are read",
       "then": "the priority-to-role mapping holds, the announcement is one-shot, and the timeout is at or above the six second floor",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-20102-2",
@@ -25,11 +26,48 @@
       "when": "the factory is invoked at a given priority",
       "then": "the correct wrapper receives the toast",
       "testable": true,
-      "scope": "library"
+      "scope": "library",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2101-application-notifications-in-app-live-region",
+        "field": "interfaces.renderToast"
+      }
+    },
+    {
+      "id": "AC-20102-3",
+      "description": "Apply refuses a toast-timeout-floor answer below 6 seconds with TOAST_TIMEOUT_TOO_SHORT naming the elicited value; a value at or above 6 seconds applies and the polite toast honours it. Vendor citation on WCAG 2.2.1 Timing Adjustable.",
+      "given": "a project elicits a toast-timeout-floor below 6 seconds",
+      "when": "apply runs",
+      "then": "apply exits with a non-zero code and TOAST_TIMEOUT_TOO_SHORT names the elicited value; at or above 6 seconds apply succeeds",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#timing-adjustable",
+        "verifiedOn": "2026-09-10"
+      }
+    },
+    {
+      "id": "AC-20102-4",
+      "description": "A transient toast auto-dismisses at the elicited timeout only if the principal has not focused it; a focused toast pauses the timer and resumes only after focus leaves (WCAG 2.2.1 Timing Adjustable, verified 2026-09-10).",
+      "given": "a rendered toast and the principal focuses it via the keyboard",
+      "when": "the elicited timeout elapses",
+      "then": "the toast remains visible until focus leaves; on focus loss the timer resumes",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://www.w3.org/TR/WCAG22/#timing-adjustable",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
-  "tacIds": ["TAC-2101-application-notifications-in-app-live-region"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2101-application-notifications-in-app-live-region"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

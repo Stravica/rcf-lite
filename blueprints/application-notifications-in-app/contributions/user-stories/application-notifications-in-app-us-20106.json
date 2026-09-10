@@ -16,11 +16,26 @@
       "when": "the initial DOM and the live-region wrappers are read",
       "then": "the backlog is rendered on the surface and neither live-region wrapper carries a load-time announcement",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-20106-2",
+      "description": "When the backlog fetch on page load returns a non-2xx or times out, the inbox renders the last cached rows (if any) with a fetch-failed banner and an inline retry; no rows are shown as read that were not previously acknowledged.",
+      "given": "a page load whose backlog fetch fails",
+      "when": "the inbox route renders",
+      "then": "the last cached rows appear with a fetch-failed banner and inline retry; no false read state is shown",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
-  "tacIds": ["TAC-2102-application-notifications-in-app-centre"],
-  "tags": ["blueprint:application-notifications-in-app"],
+  "tacIds": [
+    "TAC-2102-application-notifications-in-app-centre"
+  ],
+  "tags": [
+    "blueprint:application-notifications-in-app"
+  ],
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

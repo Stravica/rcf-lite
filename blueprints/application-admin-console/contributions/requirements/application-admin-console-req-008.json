@@ -1,0 +1,22 @@
+{
+  "reqId": "application-admin-console-REQ-008",
+  "prdId": "PRD-001",
+  "title": "The tenancy shape (per-user, per-org, both) determines directory membership and org-scoped invite behaviour",
+  "description": "When the tenancy capability is applied, the users surface, the org switcher and the invite path honour the elicited tenancy-shape with a runtime clause per option: `per-user` renders each principal in exactly one org (the directory row carries a single data-org-id and the org switcher only lists the principal's own org), and an org-scoped invite adds the invitee to exactly that org; `per-org` renders every principal in every org they can reach (the directory row carries a data-org-membership=* attribute and the org switcher lists every org the principal can enter), and an org-scoped invite adds the invitee to the currently switched org without touching the other orgs the principal already belongs to; `both` permits either shape per principal (the directory row carries data-org-scope=single or data-org-scope=many) and the invite path prompts for the org set when the invited principal is `many`. Every branch refuses a cross-org action (invite, deactivate) that the shape does not allow with a named error announcing the shape and the refused action.",
+  "deliveredBy": {
+    "tacId": "TAC-2201-application-admin-console-shell",
+    "field": "responsibilities.tenancyShapeGate"
+  },
+  "category": "functional",
+  "domain": "tenancy",
+  "priority": "must",
+  "rationale": "The tenancy-shape elicit offers three shapes but no requirement bound directory membership or invite scope to any of them. A project that chose `per-org` inherited a directory that behaved as `per-user` because no downstream link asked after the shape; the org switcher silently misrendered. Requiring a per-option clause turns the shape into a chain-linked behaviour the datatable's data attributes prove.",
+  "tags": [
+    "blueprint:application-admin-console",
+    "category:08-tenancy-shape"
+  ],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z"
+}
