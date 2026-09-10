@@ -4,8 +4,8 @@
   "title": "The preferences UI exposes per-user category silence and delegates digest opt-in to the sibling channels",
   "description": "The applying project renders a preferences surface (default `/notifications-preferences`, operator-elicited) that carries one section per operator-elicited notification category with a labelled silence toggle (`[data-preference-category=\"<category>\"]` on the toggle's `<input>` or `<button>` control), and one section per sibling channel (`-email`, `-push`, `-webhook`) with a digest opt-in control recording the operator's intent on `data-digest-<channel>`. This blueprint ships no transport: the digest opt-in records the intent on the surface, and the applying project's sibling blueprint (once shipped) reads the intent from the preferences store and drives its own delivery. A preferences surface that promises a digest without a corresponding sibling blueprint applied is a defect the applying project surfaces via a `[data-preference-status]` label reading `\"sibling not applied\"`.",
   "deliveredBy": {
-    "tacId": "TAC-2101-application-notifications-in-app-live-region",
-    "field": "responsibilities.timeoutPolicy"
+    "tacId": "TAC-2103-application-notifications-in-app-preferences",
+    "field": "interfaces.renderPreferences"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-notifications-in-app",
     "category:04-preferences"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -5,7 +5,7 @@
   "description": "After every step is Completed (per REQ-001) the wizard renders a summary-review surface: one summary-list section per step, each row a definition-list entry naming the field label and the operator's answer, and a Change link per row that navigates to the step with the field focused. Editing on the target step and saving returns to the summary-review surface with every other answer retained; only the edited answer is updated. The summary-list shape follows the GOV.UK Design System summary-list pattern. Per WCAG 2.2 SC 3.3.4 Error Prevention (Legal, Financial, Data): the summary-review is the last checkpoint before submission and every answer is reversible up to submit.",
   "deliveredBy": {
     "tacId": "TAC-2501-application-forms-wizard-task-list",
-    "field": "responsibilities.saveAndReturn"
+    "field": "responsibilities.renderSummaryReview"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-forms-wizard",
     "category:04-summary-review"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T18:00:00Z",
-  "updatedAt": "2026-09-06T18:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

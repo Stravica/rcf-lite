@@ -2,10 +2,10 @@
   "reqId": "application-file-upload-REQ-002",
   "prdId": "PRD-001",
   "title": "Progress contract: per-file percent, aggregate percent, and a polite live-region tick",
-  "description": "Every file in the upload set carries a per-file percent that advances monotonically from 0 to 100. The surface also carries an aggregate percent that reflects the mean weighted by byte size. A polite live-region wrapper (aria-live polite) receives a text tick at least every 10 percent of aggregate progress with the string format \"<uploaded> of <total> files, <PP> percent\". The polite wrapper is preseeded at render time so a screen reader adopts it before the first tick fires.",
+  "description": "Every file in the upload set carries a per-file percent that advances monotonically from 0 to 100. The surface also carries an aggregate percent that reflects the mean weighted by byte size. A polite live-region wrapper (aria-live polite) receives a text tick per the elicited announcement cap (default 2 seconds, owned by `TAC-2403.interfaces.announcementInterval`) with the string format \"<uploaded> of <total> files, <PP> percent\". Internal progress polling runs at the internal cadence owned by `TAC-2403.interfaces.tickInterval` (default 250 ms, internal only, not user-observable); the polite wrapper is preseeded at render time so a screen reader adopts it before the first announcement fires.",
   "deliveredBy": {
-    "tacId": "TAC-2402-application-file-upload-transport",
-    "field": "interfaces.transportUpload"
+    "tacId": "TAC-2403-application-file-upload-progress-announcer",
+    "field": "interfaces.tick"
   },
   "category": "functional",
   "domain": "application",
@@ -15,8 +15,8 @@
     "blueprint:application-file-upload",
     "category:02-progress-contract"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -1,5 +1,20 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.2.0 (2026-09-10, hardening pass f-wave5)
+
+### Added
+
+- Five elicits (timeout, retention, categories, route, page-size) declared on blueprint.json; REQ-006 binds one runtime clause per apply-time answer family; closes F-2.
+- New AC-20105-4 refuses apply with LOGGING_COMPANION_MISSING when no logging companion is applied; closes F-6.
+
+### Changed
+
+- TAC-2102.interfaces.deliveryRowShape owns the row schema (deliveryTs, priority, category, outcome, correlationId); AC-20105-1, AC-20105-3 and REQ-005 reference the owner via ownerRef; closes F-1.
+- REQ-001.deliveredBy retargeted to TAC-2101.interfaces.renderLiveRegions; closes F-3.
+- REQ-004.deliveredBy retargeted to TAC-2103.interfaces.renderPreferences; closes F-4.
+- REQ-005.deliveredBy retargeted to TAC-2102.writeDeliveryRow; closes F-5.
+- AC-20102-3 and AC-20102-4 descriptions carry the W3C URL inline alongside the existing vendorCitation object; closes F-7 and F-8.
+
 ## 1.1.0 (2026-09-10, hardening pass B6b)
 
 ### Added

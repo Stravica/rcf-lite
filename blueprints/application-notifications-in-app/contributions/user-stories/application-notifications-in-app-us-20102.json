@@ -35,7 +35,7 @@
     },
     {
       "id": "AC-20102-3",
-      "description": "Apply refuses a toast-timeout-floor answer below 6 seconds with TOAST_TIMEOUT_TOO_SHORT naming the elicited value; a value at or above 6 seconds applies and the polite toast honours it. Vendor citation on WCAG 2.2.1 Timing Adjustable.",
+      "description": "Apply refuses a toast-timeout-floor answer below 6 seconds with TOAST_TIMEOUT_TOO_SHORT naming the elicited value; a value at or above 6 seconds applies and the polite toast honours it. Vendor citation on WCAG 2.2.1 (https://www.w3.org/TR/WCAG22/#timing-adjustable, verified 2026-09-10).",
       "given": "a project elicits a toast-timeout-floor below 6 seconds",
       "when": "apply runs",
       "then": "apply exits with a non-zero code and TOAST_TIMEOUT_TOO_SHORT names the elicited value; at or above 6 seconds apply succeeds",
@@ -49,7 +49,7 @@
     },
     {
       "id": "AC-20102-4",
-      "description": "A transient toast auto-dismisses at the elicited timeout only if the principal has not focused it; a focused toast pauses the timer and resumes only after focus leaves (WCAG 2.2.1 Timing Adjustable, verified 2026-09-10).",
+      "description": "A transient toast auto-dismisses at the elicited timeout only if the principal has not focused it; a focused toast pauses the timer and resumes only after focus leaves (WCAG 2.2.1 Timing Adjustable, https://www.w3.org/TR/WCAG22/#timing-adjustable, verified 2026-09-10).",
       "given": "a rendered toast and the principal focuses it via the keyboard",
       "when": "the elicited timeout elapses",
       "then": "the toast remains visible until focus leaves; on focus loss the timer resumes",

@@ -1,5 +1,22 @@
 # application-admin-console CHANGELOG
 
+## 1.3.0 (2026-09-10, hardening pass f-wave5)
+
+### Added
+
+- REQ-009 (custom-auth-provides-* runtime clauses) covering the four boolean elicits with a per-token clause on the applied capability union sidecar the shell reads. Closes review finding [application-admin-console] F-5.
+- Vendor citations on AC-21103-1 (ARIA APG grid) and AC-21106-1 (WCAG headings-and-labels), verified 2026-09-10 (F-8, F-9).
+
+### Changed
+
+- ADR-2203.decision names the elicit as blueprint.json.elicits[id=invite-transport] (drops the camelCase inviteTransport spelling); closes F-2.
+- ADR-2204.decision names the elicit as blueprint.json.elicits[id=audit-retention-days]; closes F-3.
+- AC-21111-2 (and AC-21111-5) use data-org-membership=* per REQ-008 with ownerRef into REQ-008; closes F-4.
+- TAC-2214 responsibility named renderAccessGatedSurface so REQ-014.deliveredBy resolves; closes F-6.
+- AC-21107-1 and AC-21107-2 reference TAC-2201.interfaces.capabilitiesSidecar via ownerRef; TAC-2201 shape declares skippedSources[]; closes F-7.
+- US-21108 description carries the single-AC legality note verbatim; closes F-10.
+- F-1 (transport-refusal vs no-email-sibling ADR clause) verified DEAD per Conductor handback; no edit.
+
 ## 1.2.0 (2026-09-10, hardening pass B6b)
 
 ### Added

@@ -28,13 +28,17 @@
     },
     {
       "id": "AC-23102-3",
-      "description": "The polite live region emits one aggregate progress tick per elicited tick-interval (default 2 seconds) and never emits more than once per interval, so that assistive tech does not receive an announcement flood.",
+      "description": "The polite live region emits one aggregate progress announcement per elicited announcement-interval owned by `TAC-2403.interfaces.announcementInterval` (default 2 seconds) and never emits more than once per interval, so that assistive tech does not receive an announcement flood.",
       "given": "an in-flight upload and a tick-interval of 2 seconds",
       "when": "ticks fire",
       "then": "the polite live region carries at most one aggregate announcement per 2-second interval",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-2403-application-file-upload-progress-announcer",
+        "field": "interfaces.announcementInterval"
+      }
     }
   ],
   "tacIds": [

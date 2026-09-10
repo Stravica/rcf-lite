@@ -29,13 +29,13 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 const GUIDE_ABS = join(BLUEPRINT_ROOT, 'guide', 'application-file-upload.md');
 const PACK_SRC_ABS = PACK_ABS;
 
-test('blueprint.json declares 18 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)', async () => {
+test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-file-upload');
-  assert.equal(doc.version, '1.1.0');
+  assert.equal(doc.version, '1.2.0');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
-  assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
+  assert.deepEqual(doc.capabilities, ['virusScan'], 'capabilities declares virusScan (F-3 close, 1.2.0)');
   assert.equal(doc.requiresAppliedCapabilities, undefined, 'requiresAppliedCapabilities absent (no auth required)');
   assert.equal(doc.suggestedCompanions.length, 2);
   const roles = doc.suggestedCompanions.map((c) => c.role).sort();
@@ -44,11 +44,11 @@ test('blueprint.json declares 18 contributions with no capabilities and no requi
   const uss = doc.contributions.filter((c) => c.kind === 'us');
   const tacs = doc.contributions.filter((c) => c.kind === 'tac');
   const adrs = doc.contributions.filter((c) => c.kind === 'adr');
-  assert.equal(reqs.length, 5, 'five REQs');
+  assert.equal(reqs.length, 7, 'seven REQs');
   assert.equal(uss.length, 7, 'seven USs (one per REQ plus two cross-cutting)');
   assert.equal(tacs.length, 3, 'three TACs');
   assert.equal(adrs.length, 3, 'three ADRs');
-  assert.equal(doc.contributions.length, 18, '18 contributions total');
+  assert.equal(doc.contributions.length, 20, '20 contributions total');
   const adrIds = adrs.map((a) => a.id).sort();
   assert.deepEqual(adrIds, [
     'ADR-2401-application-file-upload-transport',
@@ -75,7 +75,7 @@ test('applies cleanly on a fresh init project and adds 18 documents to the tree 
   const walked = await walkTree({ projectRoot: scratch });
   assert.deepEqual(walked.errors, []);
   const added = walked.tree.requirements.filter((r) => r.reqId.startsWith('application-file-upload-'));
-  assert.equal(added.length, 5);
+  assert.equal(added.length, 7);
   const uss = walked.tree.userStories.filter((u) => u.usId.startsWith('application-file-upload-'));
   assert.equal(uss.length, 7);
 });

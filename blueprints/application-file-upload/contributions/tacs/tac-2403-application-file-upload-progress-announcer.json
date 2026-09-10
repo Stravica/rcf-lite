@@ -2,7 +2,7 @@
   "tacId": "TAC-2403-application-file-upload-progress-announcer",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Upload progress announcer",
   "purpose": "Owns the announcement side of the file-upload contract: the polite live-region wrapper the transport ticks, the aggregate-percent calculator, the assertive-slot completion announcement, and the background-tab tick continuity. Every AC on REQ-002 and REQ-005 that reads the aria-live regions anchors on this TAC.",
@@ -29,6 +29,16 @@
       "name": "announcementFormatsEnum",
       "kind": "shape",
       "description": "The polite format is fixed: /^\\d+ of \\d+ files, \\d{1,3} percent$/; the assertive format is fixed: /^\\d+ files uploaded successfully$/. Localisation is a v1.1.0 minor bump extending the enum with a lookup table."
+    },
+    {
+      "name": "tickInterval",
+      "kind": "shape",
+      "description": "Internal progress polling cadence in milliseconds (default 250). Internal only, not user-observable; drives the byte-progress reader that feeds the announcer."
+    },
+    {
+      "name": "announcementInterval",
+      "kind": "shape",
+      "description": "Announcement cadence in seconds (default 2). Caps the polite live-region announcement frequency the user hears; independent of the internal tickInterval."
     }
   ],
   "dependencies": [
@@ -42,5 +52,5 @@
   "tradeoffs": "One announcer module keeps the aria-live discipline testable but pins the wire format in English at v1.0.0; a localised project elicits the format table in a v1.1.0 minor. Known mechanism-reach gap: the pack asserts the polite wrapper's textContent format but does not additionally probe screen-reader adoption (that requires a real assistive tech in the loop).",
   "notes": "See README Known mechanism-reach gaps for the full list.",
   "createdAt": "2026-09-06T16:55:00Z",
-  "updatedAt": "2026-09-06T16:55:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -14,7 +14,11 @@
       "testable": true,
       "scope": "runtime",
       "description": "On the ?transport=multipart branch the fixture returns 200 with a completed chunk count higher than 1 on a file large enough to force chunking; the DOM exposes [data-transport=\"multipart\"] and [data-chunks-uploaded] whose numeric value equals the completed chunk count. On the ?transport=tus branch the pack observes at least one PATCH request on the browser's network log whose request headers include Upload-Offset with a numeric value, and the DOM exposes [data-transport=\"tus\"] with [data-chunks-uploaded] > 1.",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://tus.io/protocols/resumable-upload#patch",
+        "verifiedOn": "2026-09-10"
+      }
     },
     {
       "id": "AC-23104-2",
@@ -36,19 +40,23 @@
       "scope": "runtime",
       "disposition": "fixed",
       "vendorCitation": {
-        "url": "https://tus.io/protocols/resumable-upload",
+        "url": "https://tus.io/protocols/resumable-upload#patch",
         "verifiedOn": "2026-09-10"
       }
     },
     {
       "id": "AC-23104-4",
-      "description": "A chunk write whose response body does not include a valid Upload-Offset header (missing, malformed, or beyond the total) is treated as a transport failure: the client refuses to advance and the polite live region announces the failure.",
+      "description": "A chunk write whose response headers do not include a valid Upload-Offset header (missing, malformed, or beyond the total) is treated as a transport failure: the client refuses to advance and the polite live region announces the failure.",
       "given": "a chunk response with a malformed or missing Upload-Offset",
       "when": "the client processes the response",
       "then": "the client does not advance its offset, the polite live region announces the failure and a retry stays keyboard-reachable",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://tus.io/protocols/resumable-upload#patch",
+        "verifiedOn": "2026-09-10"
+      }
     }
   ],
   "tacIds": [

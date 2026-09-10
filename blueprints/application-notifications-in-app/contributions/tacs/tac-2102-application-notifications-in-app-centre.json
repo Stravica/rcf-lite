@@ -2,7 +2,7 @@
   "tacId": "TAC-2102-application-notifications-in-app-centre",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Notification centre inbox, retention window, acknowledge round-trip and delivery-attempt log",
   "purpose": "Owns the shell's persistent notification-centre inbox: the centre route the applying project mounts (default `/notifications-centre`, elicited), the retention window contract per ADR-2103 (default thirty days, elicited), the per-item acknowledge round-trip that POSTs to the applying project's server and updates the DOM on the response, and the delivery-attempt log write path per REQ-005. The centre is the durable inbox the operator returns to; the toast is the transient surface.",
@@ -30,6 +30,11 @@
       "name": "acknowledgeRoundTrip",
       "kind": "function",
       "description": "acknowledgeRoundTrip({ notificationId }) -> Promise<{ ok: boolean }>. POSTs `POST /api/notifications/acknowledge` and returns the parsed server response. A 2xx flips `data-acknowledged` on the item; a non-2xx surfaces an error toast through TAC-2101."
+    },
+    {
+      "name": "deliveryRowShape",
+      "kind": "shape",
+      "description": "Delivery-log row schema owned by TAC-2102 (Conductor pick, observability-flavoured set): { deliveryTs (ISO-8601 timestamp of the surface event), priority (\"info\" | \"error\"), category (string), outcome (\"delivered\" | \"dismissed\" | \"acknowledged\" | \"expired\"), correlationId (string). Every row the toast factory and the centre factory write goes through writeDeliveryRow honouring this shape."
     }
   ],
   "dependencies": [
@@ -48,5 +53,5 @@
   "tradeoffs": "The centre reading through the delivery log (rather than a separate inbox store) keeps the shell single-sourced on the applied `logging` companion but couples the surface latency to the log query; a project with a very high notification volume may want to project a materialised inbox view alongside the log. This TAC accepts the coupling because it collapses two writers of the same row into one; a project that needs the materialised view supersedes with a project-authored REQ.",
   "notes": "Known mechanism-reach gap: the pack asserts one acknowledge round-trip on one item (AC-20103-1); the mark-read control, the mark-all-read control and the retention-window boundary (a row on day 31 must not surface) are runtime-observable ACs the shipped pack does not itself drive. The README names them individually per the T-1 gate discipline; a v1.1 minor bump could add checks for each.",
   "createdAt": "2026-09-04T23:59:00Z",
-  "updatedAt": "2026-09-04T23:59:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }
