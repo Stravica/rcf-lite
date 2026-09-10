@@ -41,6 +41,40 @@ test('the four shelf auth blueprints declare capabilities[] and matching CHANGEL
   }
 });
 
+// Anatomy assertions for the audit-event stories added under the second
+// closure fix pass. Each named story carries exactly the expected
+// acceptanceCriteria count so the suite catches a regression that adds
+// or drops one.
+const AUDIT_STORY_AC_COUNTS = [
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11116', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11117', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11118', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11119', expected: 7 },
+  { slug: 'security-auth-keycloak', usId: 'security-auth-keycloak-US-11120', expected: 6 },
+  { slug: 'security-auth-clerk', usId: 'security-auth-clerk-US-9113', expected: 6 },
+];
+
+test('keycloak and clerk audit-event user stories carry the expected AC counts (TC-051-audit-story-ac-counts)', async () => {
+  for (const spec of AUDIT_STORY_AC_COUNTS) {
+    const bareId = spec.usId.split('-').pop();
+    const path = join(
+      REPO_ROOT,
+      'blueprints',
+      spec.slug,
+      'contributions',
+      'user-stories',
+      `${spec.slug}-us-${bareId}.json`,
+    );
+    const doc = JSON.parse(await readFile(path, 'utf8'));
+    assert.equal(doc.usId, spec.usId, `${spec.usId} document usId`);
+    assert.equal(
+      doc.acceptanceCriteria.length,
+      spec.expected,
+      `${spec.usId} expected ${spec.expected} ACs, saw ${doc.acceptanceCriteria.length}`,
+    );
+  }
+});
+
 test('docs blueprint-authoring section 6a carries the capability vocabulary table (TC-051-docs-section-6a)', async () => {
   const docPath = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md');
   const text = await readFile(docPath, 'utf8');

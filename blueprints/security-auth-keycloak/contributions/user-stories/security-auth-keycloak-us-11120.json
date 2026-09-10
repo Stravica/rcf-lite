@@ -78,6 +78,20 @@
         "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
         "field": "responsibilities.rolesAudit"
       }
+    },
+    {
+      "id": "AC-11120-6",
+      "description": "A read on a claim record whose expected role path is absent (the caller's credential carries no granted role and so no operation is permitted through this mechanism) emits exactly one `keycloak.roles` audit event with `outcome=refused` and `reasonClass=roles_absent`; the reduced roles array is not populated and no operation is authorised downstream.",
+      "given": "a verified claim record in realm `alpha` whose expected role path is not present on the record",
+      "when": "the role adapter reads the roles from the claim record",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.roles`, `outcome=refused`, and `reasonClass=roles_absent`; the raw claim record does not appear in any field; the reduced roles array is not populated",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
     }
   ],
   "tacIds": [
@@ -85,5 +99,5 @@
   ],
   "createdAt": "2026-09-10T00:00:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
-  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a verified claim record is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the role adapter reads roles from a claim; it does not itself evaluate authorization scopes or role permissions, which are downstream of this mechanism (the request-handling layer consumes the reduced roles array)."
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a verified claim record is the credential and the event records the realm-scoped identity via the `realmSlug` payload field). The permission scenario class is bound by AC-6 (a claim record whose expected role path is absent carries no granted role, so the mechanism refuses with `reasonClass=roles_absent` and populates no reduced roles array)."
 }

@@ -78,6 +78,34 @@
         "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
         "field": "responsibilities.jwtAudit"
       }
+    },
+    {
+      "id": "AC-11117-6",
+      "description": "A JWT with a valid signature and a matching `iss` claim, but whose `aud` claim does not match the audience the configured verification record requires (the credential is valid for a different audience scope than this mechanism permits), is refused: the audit sink records exactly one `keycloak.jwt` event with `outcome=refused` and `reasonClass=audience_mismatch`; the audience mismatch is the permission-scope refusal that records the refusal reason.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` claim is `https://issuer.example/realms/alpha` (matching the verification record) and whose `aud` claim is `other-service` (the verification record requires `aud=alpha-api`), and whose `exp` timestamp is in the future",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=audience_mismatch`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
+    },
+    {
+      "id": "AC-11117-7",
+      "description": "A JWT with a valid signature whose `iss` claim does not match the issuer the configured verification record requires emits exactly one `keycloak.jwt` audit event with `outcome=refused` and `reasonClass=issuer_mismatch`; the reasonClass is the single value bound to that input, not one of a set.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` claim is `https://other.example/realms/other` (the verification record expects `https://issuer.example/realms/alpha`), whose `aud` claim matches the record, and whose `exp` timestamp is in the future",
+      "when": "the JWT verifier verifies the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=issuer_mismatch`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
     }
   ],
   "tacIds": [
@@ -85,5 +113,5 @@
   ],
   "createdAt": "2026-09-10T00:00:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
-  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a valid JWT is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the JWT verifier does not evaluate authorization scopes or role permissions; permission decisions are downstream of this mechanism (see TAC-1205 role adapter and the request-handling layer)."
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a JWT signed by the realm's current key with matching `iss`, `aud` and unexpired `exp` is the credential and the event records the realm-scoped identity via the `realmSlug` payload field). The permission scenario class is bound by AC-6 (a JWT with a valid signature and matching `iss` but a mismatched `aud` is a valid credential lacking the required audience scope and is refused with `reasonClass=audience_mismatch`). The REQ-016 named refusal reasons are each bound to a concrete AC: `expired` on AC-2, `signature_invalid` on AC-3, `audience_mismatch` on AC-6, `issuer_mismatch` on AC-7."
 }

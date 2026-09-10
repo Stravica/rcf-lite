@@ -78,6 +78,34 @@
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
         "field": "responsibilities.discoveryAudit"
       }
+    },
+    {
+      "id": "AC-11116-6",
+      "description": "A boot-time discovery fetch against a realm-config record whose `realmSlug` is a non-empty string (the credential that binds the fetch to a realm principal) emits a `keycloak.discovery` event that records that principal in the `realmSlug` field; a fetch attempted against a realm-config record whose `realmSlug` is missing or the empty string is refused before any network call with exactly one `keycloak.discovery` event carrying `outcome=refused` and `reasonClass=missing_realm_credential`, and no realm principal string leaks into any other field.",
+      "given": "two realm-config records: record A for `alpha` whose `realmSlug` is `alpha` and whose discovery document responds 200; record B whose `realmSlug` is the empty string",
+      "when": "the discovery client attempts a discovery fetch against each record in turn",
+      "then": "the audit sink records exactly one `keycloak.discovery` event for record A with `outcome=verified` and `realmSlug=alpha` (the `realmSlug` field is the payload field that records the realm principal), and exactly one `keycloak.discovery` event for record B with `outcome=refused` and `reasonClass=missing_realm_credential`; no network call is issued for record B and no principal string appears in any other field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-7",
+      "description": "An account-console verification against a realm-config record whose `realmSlug` is present (a valid realm credential) but whose `accountConsoleUrl` origin differs from the discovered issuer origin (the record lacks the origin-scope the mechanism requires) is refused with exactly one `keycloak.account_console` event carrying `outcome=refused` and `reasonClass=account_console_malformed`; the event records the refusal reason and the realm principal, and the underlying account-console verification is not carried out.",
+      "given": "a realm-config record for `alpha` with `realmSlug=alpha` whose discovered issuer origin is `https://issuer.example` and whose `accountConsoleUrl` origin is `https://other.example`",
+      "when": "the discovery client verifies the account console URL at boot",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.account_console`, `outcome=refused`, `reasonClass=account_console_malformed`, and `realmSlug=alpha`; the `credentialSelfService` capability is not bound to the realm",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
     }
   ],
   "tacIds": [
@@ -85,5 +113,5 @@
   ],
   "createdAt": "2026-09-10T00:00:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
-  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the discovery client and account-console verification interact with the realm's public discovery document at boot time and there is no user credential nor user permission model on this boundary, so the credential and permission scenario classes are not bound to their own AC."
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-6 (a realm-config record with a non-empty `realmSlug` is the credential the discovery fetch is bound to, and the `realmSlug` payload field records the realm principal; a missing credential is refused with `reasonClass=missing_realm_credential`). The permission scenario class is bound by AC-7 (a realm-config record whose `accountConsoleUrl` origin does not match the discovered issuer origin lacks the origin scope the mechanism requires and is refused with `reasonClass=account_console_malformed`)."
 }

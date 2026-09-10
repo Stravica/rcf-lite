@@ -39,10 +39,10 @@
     },
     {
       "id": "AC-11118-3",
-      "description": "A transient introspection failure followed by a successful retry emits exactly one refused event and one verified event on the `keycloak.introspection` family, in order; the retry itself is not a distinct event.",
+      "description": "A transient introspection failure followed by a successful retry emits exactly one refused event with `reasonClass=upstream_error` and one verified event on the `keycloak.introspection` family, in order; the retry itself is not a distinct event.",
       "given": "a token whose introspection endpoint returns 503 on the first attempt and 200 with `active: true` on the second",
       "when": "the introspection client retries per its documented posture and completes the call",
-      "then": "the audit sink records exactly two events in order: one `keycloak.introspection` event with `outcome=refused` and a reasonClass value, then one `keycloak.introspection` event with `outcome=verified`; no additional event is written for the retry itself",
+      "then": "the audit sink records exactly two events in order: one `keycloak.introspection` event with `outcome=refused` and `reasonClass=upstream_error`, then one `keycloak.introspection` event with `outcome=verified`; no additional event is written for the retry itself",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
@@ -92,6 +92,20 @@
         "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
         "field": "responsibilities.introspectionAudit"
       }
+    },
+    {
+      "id": "AC-11118-7",
+      "description": "An introspect call whose introspection endpoint responds with `401 Unauthorized` to the mechanism's client credentials (the client is authenticated but not authorised to call introspection on this realm; the credential lacks the required permission scope) emits exactly one `keycloak.introspection` event with `outcome=refused` and `reasonClass=client_forbidden`; the introspection response body does not appear.",
+      "given": "a realm-config record for `alpha` whose introspection endpoint responds `401 Unauthorized` to the configured `clientId`",
+      "when": "the introspection client introspects any token against realm `alpha`",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.introspection`, `outcome=refused`, and `reasonClass=client_forbidden`; the introspection response body is not present in any field; no client secret appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
+        "field": "responsibilities.introspectionAudit"
+      }
     }
   ],
   "tacIds": [
@@ -99,5 +113,5 @@
   ],
   "createdAt": "2026-09-10T00:00:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
-  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (an active introspection response is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the introspection client resolves whether a token is active; it does not evaluate authorization scopes or role permissions, which are downstream of this mechanism."
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a 2xx `{ active: true }` introspection response is the credential and the event records the realm-scoped identity via the `realmSlug` payload field). The permission scenario class is bound by AC-7 (an introspect call whose upstream returns `401 Unauthorized` names a valid client credential lacking the required permission scope on this realm and is refused with `reasonClass=client_forbidden`)."
 }
