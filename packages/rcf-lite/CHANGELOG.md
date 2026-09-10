@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **`rcf audit view` SIGINT handler race.** `src/cli/view.js:main` installed the `SIGINT` and `SIGTERM` handlers AFTER writing the `rcf audit view server listening at ...` line, so a caller (test harness, script, operator) that keyed on the readiness line and immediately sent `SIGINT` could deliver the signal in the window between the stdout flush and `process.on('SIGINT', ...)` calling into `sigaction`, and the child would be killed by Node's default disposition instead of running its own clean-shutdown path. The `rcf view SIGINT triggers a clean shutdown within the 2s budget` test intermittently failed on CI with `expected a self-directed exit, got killed by SIGINT`. Handlers are now installed before the readiness write; the ordering is a documented contract with a deterministic in-process regression test (`SIGINT/SIGTERM handlers before writing the "listening at" line`) that drives `viewMain` with an injected `onSignal` and asserts install-order vs stdout-write-order.
+
 ## [0.26.0] - 2026-09-09
 
 rcf-lite 0.26.0 is a hardening and authoring release. The Cloudflare-platform blueprints on the shelf pick up real-account probe drivers with positive evidence and one shared account-token env matrix, the blueprint authoring standard gains three new sections (7c REQ-layer sufficiency, 7d positive-evidence verification, 7e single-definition ownership) plus RULE 16 for the managed agent block, and `rcf define blueprint` gains a `lint-consistency` verb, a per-slug disposition ledger, an apply-time disposition prompt and an identity-register field on the seeded profile. The schema floor moves to `@stravica-ai/rcf-schemas` 0.6.2. Nothing here is breaking.
