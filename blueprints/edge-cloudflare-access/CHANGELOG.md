@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.3 - 2026-09-10
+
+Register tidy in shipped prose; no capability change.
+
+- Closes F-8: README compose bullet and consumer note stripped of internal pattern label.
+- Closes F-9: REQ-006 description stripped of internal mechanism label.
+
 ## 1.1.2 - 2026-09-10
 
 Single-mechanism story legality notes; owner reference for the audit-record shape.
