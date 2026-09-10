@@ -2,7 +2,7 @@
   "reqId": "platform-cloudflare-kv-REQ-004",
   "prdId": "PRD-001",
   "title": "Lifecycle events facadeReady kvHit kvMiss kvWrite carry metadata-only fields key size ttl timestamp",
-  "description": "The facade emits four lifecycle events on the injected sink: facadeReady once on the first ready-check resolving; kvHit on a get returning a non-null value; kvMiss on a get returning null; kvWrite on put and on delete. Every event record carries EXACTLY the whitelist {event, key, size, ttl, timestamp} and NOTHING else: no body bytes, no metadata pass-through, no user id beyond the key itself. The event-secrecy probe drives this at mechanism reach with a PII fixture body and asserts the whitelist under both the shipped code path and a mutation-run.",
+  "description": "The facade emits four lifecycle events on the injected sink: facadeReady once on the first ready-check resolving; kvHit on a get returning a non-null value; kvMiss on a get returning null; kvWrite on put and on delete. Every event record carries EXACTLY the metadata-only whitelist named on `TAC-3203-platform-cloudflare-kv-event-sink.purpose` (event-record whitelist) and NOTHING else: no body bytes, no metadata pass-through, no user id beyond the key the TAC owner names. The event-secrecy probe drives this at mechanism reach with a PII fixture body and asserts the whitelist under both the shipped code path and a mutation-run.",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,7 +14,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T10:26:28.000Z",
-  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
     "field": "responsibilities.whitelist"
