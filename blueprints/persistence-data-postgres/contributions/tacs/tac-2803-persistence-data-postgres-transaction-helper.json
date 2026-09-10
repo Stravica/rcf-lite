@@ -5,12 +5,12 @@
   "version": "1.0.0",
   "status": "approved",
   "name": "Postgres transaction helper",
-  "purpose": "The helper that wraps client.query('BEGIN') and client.query('COMMIT') around a consumer callback and issues client.query('ROLLBACK') with a transactionRolledBack event on any error, tracking the zero-based index of the failing statement inside the callback.",
+  "purpose": "The helper that wraps the transaction-control primitives around a consumer callback and rolls back with a transactionRolledBack event on any error, tracking the zero-based index of the failing statement inside the callback. The transaction-control shape is owned on `interfaces.withTransaction` below.",
   "responsibilities": [
-    "Acquire a pg.PoolClient from the facade's pool; issue client.query('BEGIN') (AC-27104-1).",
+    "Acquire a pg.PoolClient from the facade's pool; open the transaction through the BEGIN primitive owned on interfaces.withTransaction (AC-27104-1).",
     "Invoke the consumer callback with a wrapped client whose query(sql, params) delegates to the underlying client and increments a statement counter each time it is called (AC-27104-1).",
-    "On the callback's successful completion, issue client.query('COMMIT'), release the client, resolve the outer promise (AC-27104-1).",
-    "On any error thrown from a wrapped-client query or from the callback body, issue client.query('ROLLBACK'), fire transactionRolledBack on the injected event sink with { statementIndex, code }, release the client, re-throw the underlying error (AC-27104-1).",
+    "On the callback's successful completion, close the transaction through the COMMIT primitive owned on interfaces.withTransaction, release the client, resolve the outer promise (AC-27104-1).",
+    "On any error thrown from a wrapped-client query or from the callback body, unwind the transaction through the ROLLBACK primitive owned on interfaces.withTransaction, fire transactionRolledBack on the injected event sink with { statementIndex, code }, release the client, re-throw the underlying error (AC-27104-1).",
     "Preserve the underlying pg error object (code, detail, position, table, constraint) on the re-thrown error so the facade's own error boundary constructs the internal error record correctly."
   ],
   "internalStructure": "A single async function withTransaction({ pool, onEvent }) that returns a call helper. The helper wraps the pg.PoolClient in a proxy that intercepts .query() to increment the counter, forwards the arguments to the underlying client, and re-throws on error after firing the event.",
@@ -18,7 +18,7 @@
     {
       "name": "withTransaction",
       "kind": "read-write-api",
-      "description": "await store.withTransaction(async (tx) => { await tx.query(...); await tx.query(...); }). Commits on successful return, rolls back on any thrown error, fires transactionRolledBack with statementIndex on rollback."
+      "description": "await store.withTransaction(async (tx) => { await tx.query(...); await tx.query(...); }). The helper acquires a pg.PoolClient from the pool and issues the transaction-control primitives around the callback: `client.query('BEGIN')` before the first wrapped-client query, `client.query('COMMIT')` on the callback's successful return, and `client.query('ROLLBACK')` on any thrown error before releasing the client. On rollback the helper fires transactionRolledBack on the injected event sink with { statementIndex, code } and re-throws the underlying pg error."
     }
   ],
   "dependencies": [

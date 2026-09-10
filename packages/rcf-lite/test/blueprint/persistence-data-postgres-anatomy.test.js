@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.1');
+  assert.equal(doc.version, '1.1.2');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);

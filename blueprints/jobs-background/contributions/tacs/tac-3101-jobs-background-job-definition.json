@@ -2,12 +2,12 @@
   "tacId": "TAC-3101-jobs-background-job-definition",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "name": "Jobs-background job-definition module contract",
-  "purpose": "The shape every job-definition module in the applying project's jobs directory exports. One shape carries name, handler, inputSchema (opaque per project), retryPolicy, and timeoutMs. The jobs runtime registers every job at boot on the applied queue consumer and dispatches by name.",
+  "purpose": "The shape every job-definition module in the applying project's jobs directory exports, owned on interfaces.jobModule.default below. The jobs runtime registers every job at boot on the applied queue consumer and dispatches by name.",
   "responsibilities": [
-    "Declare a job by exporting { name, handler, inputSchema, retryPolicy, timeoutMs } (AC-30102-1, AC-jobs-retryOnHandlerFailure).",
+    "Declare a job by exporting the shape owned on interfaces.jobModule.default below (AC-30102-1, AC-jobs-retryOnHandlerFailure).",
     "Bound handler wall-clock via timeoutMs; jobs runtime cancels a handler that exceeds timeoutMs and treats it as a retryable error (AC-jobs-retryOnHandlerFailure).",
     "Respect the applied queue's max-attempts ceiling; retryPolicy.maxAttempts must not exceed the ceiling (AC-jobs-retryOnHandlerFailure).",
     "Refuse composition on a bare project via the requiresAppliedCapabilities gate (AC-jobs-requiresQueue)."
