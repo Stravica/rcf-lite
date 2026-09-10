@@ -2,7 +2,7 @@
 
 ## 1.0.4 - 2026-09-10
 
-Template-AC fill-in clauses on AC-18105-1, AC-18105-2, AC-18106-1, AC-18106-2 and AC-18106-3 now enumerate the specific applying-project substitutions (palette name and backgrounds, palette-overrides elicit, chart-engine token, data-chart-engine attribute value, refused engine choice and refusal record) in place of the generic phrasing. Register cleanup on README (removed the dated visual-specification reference, the internal round-label phrasing, and the internal-report language on the follow-up naming) and on the guide (rewrote the spec-reference section to neutral spec-provenance without the operator-repo path or the internal CALLS-MADE convention).
+Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7. Template-AC fill-in clauses on AC-18105-1, AC-18105-2, AC-18106-1, AC-18106-2 and AC-18106-3 now enumerate the specific applying-project substitutions (applied light and dark backgrounds and any operator brand-token overrides on `blueprint.json:elicits[palette-overrides]`, the elicited palette-overrides string value, the elicited engine token, the elicited engine choice failing the text-alternative check) in place of the generic phrasing. TAC-1901-application-charts-render-shell patch-bumped to 1.0.2 with the `data-chart-engine` attribute added to responsibilities and referenced from AC-18106-2; ADR-1902 fixes the palette fallback expectation and the render-log warning shape. Register cleanup on README shipped prose (removed the dated visual-specification reference and neutralised the follow-up naming) and on the guide (rewrote the spec-reference section to neutral spec-provenance without the operator-repo path or the internal review convention).
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)
@@ -21,7 +21,7 @@ Template-AC fill-in clauses on AC-18105-1, AC-18105-2, AC-18106-1, AC-18106-2 an
 - Added AC-18106-3 and AC-18106-4 (mount refusal before any DOM attaches and the render-log warning contract with one entry per refused declaration and no duplication on compliant re-mount) covering the 2026-09-08 review finding F-1 on TAC-1901.responsibilities[5].
 
 
-## 1.0.0 (visual round, spec 2026-09-04)
+## 1.0.0 (2026-09-04)
 
 - First ratified version of the shelf's charts blueprint. Four REQs (chart form set, non-colour distinction, text-alternative table, keyboard traversal), six USs binding runtime-observable ACs, two TACs (render shell, keyboard traversal), three ADRs (elicited chart engine with canvas-only refusal, accessible palette light and dark, reduced motion via application-spa tokens). No new global topics.
 - Ships `probe-packs/application-charts.pack.mjs`: three browser-verify checks anchored to AC-18102-1 (non-colour distinction), AC-18103-1 (text-alternative table with cell-per-value contract), AC-18104-1 (keyboard traversal contract with reduced-motion suppression). Every check carries a description field per spec section 9. Second blueprint on the shelf that ships a Playwright probe pack under the runner extension; first leaf blueprint the application-dashboard consumes.

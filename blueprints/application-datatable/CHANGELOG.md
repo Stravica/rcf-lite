@@ -2,7 +2,7 @@
 
 ## 1.0.4 - 2026-09-10
 
-Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, sort variant, page-size default, selection-persistence value, accessible-copy text) in place of the generic phrasing. Register cleanup on README (dated visual-specification reference) and on the guide (removed the internal round-label reference on the dashboard-blueprint mention).
+Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8. Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, elicited query-adapter mode, applied default page size, elicited selection-persistence value, accessible-copy text near the bulk-action control) in place of the generic phrasing. TAC-1802 owns the `sort=<column>:<asc|desc>` grammar and the fixed `pageSize` query-parameter name; TAC-1803-application-datatable-selection-model patch-bumped to 1.0.2 with the `data-selection-persistence` marker on the bulk-action region added to responsibilities[3] and referenced from AC-17109-3. Register cleanup on the datatable README (removed the dated visual-specification reference and the residual mechanism-reach gap parenthetical) and on the guide (neutralised the dashboard-blueprint mention).
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)
@@ -21,7 +21,7 @@ Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, A
 - Added AC-17101-4, AC-17102-4, AC-17103-4 and AC-17105-4 (loading indicator clears, announced error region replaces the pending state, last successful rows retained) covering the 2026-09-08 review finding F-1 on TAC-1802.internalStructure for sort, filter, pagination and URL-state page requests that reject.
 
 
-## 1.0.0 (visual round, spec 2026-09-04)
+## 1.0.0 (2026-09-04)
 
 - First ratified version of the shelf's datatable blueprint. Six REQs (table shell, sort semantics, filter chrome, selection and bulk actions, empty / loading / error / no-results states, column visibility / reorder / resize), nine USs binding 27 runtime-observable ACs, three TACs (shell, query adapter, selection model), four ADRs (pattern choice, URL state, page size, selection persistence). No new global topics.
 - Ships `probe-packs/application-datatable.pack.mjs`: six browser-verify checks anchored to AC-17101-1, AC-17102-1, AC-17103-2, AC-17104-3, AC-17105-1, AC-17106-1. First blueprint on the shelf that ships a Playwright probe pack under the runner extension.

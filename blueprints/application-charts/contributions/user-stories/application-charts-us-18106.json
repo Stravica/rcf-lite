@@ -2,7 +2,7 @@
   "usId": "application-charts-US-18106",
   "prdId": "PRD-001",
   "reqId": "application-charts-REQ-004",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "A chart engine that refuses text-alternative access is refused on the applying project",
   "asA": "shelf reviewer gating an applying project's chart engine choice",
@@ -21,17 +21,21 @@
     },
     {
       "id": "AC-18106-2",
-      "description": "Given a compliant engine choice, the applying project's rendered chart carries a `data-chart-engine` attribute or an equivalent DOM marker whose value equals the canonical engine token elicited on `blueprint.json:elicits[].chart-engine.options` (`recharts`, `echarts`, `chart-js`, `d3-primitives` or `hand-authored-svg`). This is a project-side observation, not a pack check; the README names it under known mechanism-reach gaps as a documentation contract on the applying project. Applying agent sets: the `data-chart-engine` attribute value on the rendered chart (equal to the elicited engine token from `blueprint.json:elicits[].chart-engine.options`) or an equivalent DOM marker the project-side review reads.",
+      "description": "Given a compliant engine choice, the applying project's rendered chart carries the `data-chart-engine` attribute whose value equals the canonical engine token elicited on `blueprint.json:elicits[chart-engine]` (`recharts`, `echarts`, `chart-js`, `d3-primitives` or `hand-authored-svg`). This is a project-side observation, not a pack check; the README names it under known mechanism-reach gaps as a documentation contract on the applying project. Applying agent sets: the value elicited on `blueprint.json:elicits[chart-engine]` (one of the five canonical tokens). The `data-chart-engine` attribute name is fixed on TAC-1901-application-charts-render-shell.responsibilities[6].",
       "given": "a compliant chart engine on the applying project",
       "when": "the rendered chart is inspected",
       "then": "the engine name is discoverable on the rendered DOM through a stable attribute",
       "testable": true,
       "scope": "library",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1901-application-charts-render-shell",
+        "field": "responsibilities[6]"
+      }
     },
     {
       "id": "AC-18106-3",
-      "description": "Given the applying project mounts a chart whose engine renders exclusively to a `<canvas>` and offers no text-alternative surface, when the shell factory attempts to mount, then the mount is refused before any DOM is produced and no `<canvas>` element attaches to the target root. Applying agent sets: the engine choice that fails the text-alternative check (a canvas-only engine with no text-alternative surface) and the refusal record the shell factory writes when the mount is refused before any DOM attaches.",
+      "description": "Given the applying project mounts a chart whose engine renders exclusively to a `<canvas>` and offers no text-alternative surface, when the shell factory attempts to mount, then the mount is refused before any DOM is produced and no `<canvas>` element attaches to the target root. Applying agent sets: the applying project's engine choice that fails the text-alternative check (a canvas-only engine with no text-alternative surface). The refusal record is a render-log warning fixed on TAC-1901-application-charts-render-shell.responsibilities[5] and shaped by AC-18106-4 (one entry keyed to the chart declaration's accessible-name, naming the engine and the missing text-alternative surface).",
       "given": "an engine choice whose runtime provides no text-alternative surface",
       "when": "the shell attempts to mount a chart on the applying project's surface",
       "then": "the mount is refused before DOM attachment and no chart element renders",

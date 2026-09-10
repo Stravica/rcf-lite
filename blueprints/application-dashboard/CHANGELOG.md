@@ -2,7 +2,7 @@
 
 ## 1.0.4 - 2026-09-10
 
-Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2, AC-19107-1 and AC-19107-2 now enumerate the specific applying-project substitutions (auto-refresh interval, export-button accessible name and format list, chart-selection mechanism, guidance-file confirmation, primary-kpi kind and tile inventory) in place of the generic phrasing. Register cleanup on README shipped prose (removed the dated visual-specification reference and the internal round-label phrasing on the pack-browser seam extension).
+Findings closed: F-1, F-2, F-3, F-4, F-5, F-6. Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2 and AC-19107-2 now enumerate the specific applying-project substitutions (auto-refresh interval, export-button accessible name and format list, chart-selection mechanism, primary-kpi kind and tile inventory) in place of the generic phrasing. AC-19107-1 changed to `disposition: fixed` (no project-side substitution: the shipped guidance file satisfies the AC directly). Register cleanup on README shipped prose (removed the dated visual-specification reference and neutralised the pack-browser seam-extension paragraph).
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)
@@ -21,7 +21,7 @@ Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2, AC-19107-1 an
 - Added AC-19104-2 (fan-out partial failure: failed tiles render error state with aria-live and retry control, shared refresh-stamp advances only after every tile has settled) covering the 2026-09-08 review finding F-1 on TAC-2002.responsibilities[3]. Added AC-19106-2 and AC-19106-3 (export success and rejection cases: valid blob/filename on the current slice, no download on rejection with an announced failure) covering F-2 on TAC-2003.interfaces[0].
 
 
-## 1.0.0 (visual round, spec 2026-09-04)
+## 1.0.0 (2026-09-04)
 
 - First ratified version of the shelf's application-dashboard blueprint. Five REQs (shell composition; primary-KPI top-left visual hierarchy on the F-scan across 1440, 1024 and 360; per-tile four-state contract with role region, aria-live polite and non-colour distinction; timeframe and filter chrome refetch fan-out with matching as-of stamp; export handle with format delegation to charts), seven USs binding runtime-observable ACs plus one on packaged-guidance adherence, three TACs (tile grid with CSS Grid position semantics and breakpoint reflow; timeframe picker and filter chrome with the fan-out contract; export handle with delegation to the application-charts render shell), three ADRs (primary-KPI kinds enum with elicited overrides; timeframe presets with recommendedDefault and elicited overrides plus auto-refresh off by default; export formats with recommendedDefault and elicited overrides). No new global topics.
 - Ships `assets/guidance/dashboard-design.md`: eight sections (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns) with five https-cited sources (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs). Each section names whether the rule hardens into an AC on this blueprint or stays operator guidance. The applying agent reads this asset at apply and the gate reviewer references it at ship.

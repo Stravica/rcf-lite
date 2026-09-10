@@ -1,4 +1,4 @@
-# Charts blueprint (v1.0.0)
+# Charts blueprint (v1.0.4)
 
 Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.2 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard consumes it; no other blueprint on the shelf does.
 

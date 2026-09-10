@@ -1,4 +1,4 @@
-# Dashboard blueprint (v1.0.0)
+# Dashboard blueprint (v1.0.4)
 
 Vendor-neutral analytics-dashboard contract for a rcf-lite application. Ships the shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome refetch fan-out, and the export handle with format delegation to charts. Consumes the application-charts render shell (TAC-1901) for every rendered chart; references application-datatable in the packaged design guidance's "when a table beats a chart" section. Ships a packaged design-guidance asset under `assets/guidance/dashboard-design.md` and a Playwright probe pack under `probe-packs/application-dashboard.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.3 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Third blueprint on the shelf that ships a Playwright probe pack under the runner extension.
 

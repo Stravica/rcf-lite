@@ -2,7 +2,7 @@
   "usId": "application-api-rest-US-2106",
   "prdId": "PRD-001",
   "reqId": "application-api-rest-REQ-005",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "title": "Auth-class declaration: every endpoint names its class and middleware enforces it",
   "asA": "security reviewer auditing the API surface",
@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-2106-4",
-      "description": "Enforcement is driven by the same declaration the spec publishes: changing an endpoint's declared class changes its enforcement with no second edit site. Applying agent sets: the authorisation-class taxonomy (the class tokens the spec publishes, for example `user`, `admin`, `service`) and the mapping from each operation to a class.",
+      "description": "Enforcement is driven by the same declaration the spec publishes: changing an endpoint's declared class changes its enforcement with no second edit site. Applying agent sets: the mapping from each operation to one of the four auth classes fixed on REQ-005-application-api-rest (`public`, `authenticated-user`, `admin`, `service-to-service`).",
       "given": "an endpoint whose declared class is changed from user to admin",
       "when": "the service is rebuilt and the endpoint called with a non-admin user token",
       "then": "the request is rejected per the new class, and the spec and enforcement agree",

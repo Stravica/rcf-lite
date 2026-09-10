@@ -2,7 +2,7 @@
 
 ## 2.1.5 - 2026-09-10
 
-Template-AC fill-in clauses on AC-2102-2, AC-2104-6, AC-2106-4, AC-2108-4, AC-2112-1, AC-2118-3 and AC-2119-5 now enumerate the specific applying-project substitutions (declared property-name casing, documentation-exposure policy per environment, authorisation-class taxonomy and mapping, resolved startup-probe path, idempotency-key verb-and-class combinations, deploy documentation location and order, verification-pipeline definition) in place of the generic phrasing.
+Findings closed: F-2, F-3, F-4, F-5, F-6, F-7, F-8. Template-AC fill-in clauses on AC-2102-2, AC-2104-6, AC-2106-4, AC-2108-4, AC-2112-1, AC-2118-3 and AC-2119-5 now enumerate the specific applying-project substitutions (declared property-name casing, documentation-exposure policy per environment, operation-to-auth-class mapping onto the four classes fixed on REQ-005, resolved startup-probe path, idempotency-key verb-and-class combinations, deploy documentation location and order, verification-pipeline definition) in place of the generic phrasing. TAC-303-application-api-rest-contract-surface patch-bumped to 1.0.2: responsibilities[2] now names `x-idempotency-key` (`required` or `forbidden`) explicitly and references AC-2112-1.
 
 
 ## 2.1.4 - 2026-09-10

@@ -1,4 +1,4 @@
-# application-spa blueprint (v1.3.0)
+# application-spa blueprint (v1.5.6)
 
 The first content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified). Scope: single-page applications with public and authenticated surfaces, session-based auth, single deployable, dark and light by default, fully responsive by default.
 

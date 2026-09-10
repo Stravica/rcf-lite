@@ -2,7 +2,7 @@
 
 ## 1.5.6 - 2026-09-10
 
-Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing. Register cleanup on the AC-1131-3 description (partial-acceptance defect described without the prior-review internal identifier) and on README shipped prose (removed prior-review internal identifiers, the numbered ratified-decision reference, the dated ratified-policy reference, and internal review-round labels).
+Findings closed: F-3, F-4, F-5, F-6, F-7, F-8, F-9. Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing. Register cleanup on the AC-1131-3 description (partial-acceptance defect described without prior-review internal identifiers) and on README shipped prose (removed prior-review internal identifiers, the numbered ratified-decision reference, and the dated ratified-policy reference).
 
 
 ## 1.5.5 - 2026-09-10
