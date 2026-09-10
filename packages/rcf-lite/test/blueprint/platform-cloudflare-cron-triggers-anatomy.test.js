@@ -155,7 +155,7 @@ test('event-secrecy probe returns pass with zero forbidden keys and zero PII hit
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-cloudflare-cron-triggers');
-  assert.equal(bp.version, '1.1.1');
+  assert.equal(bp.version, '1.1.2');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['scheduledTrigger']);
   assert.equal(Array.isArray(bp.elicits), true);

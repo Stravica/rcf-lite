@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34101-1",
-      "description": "The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by the per-kid cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth.",
+      "description": "The JWT validator reads Cf-Access-Jwt-Assertion, verifies against the fixture JWKS (RS256, kid rotation supported by the per-kid cache), reduces the principal into request.auth as {email, sub, groups} and the downstream handler receives a 200 with the reduced principal fields exposed on request.auth. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "a Worker fetch handler wired with createAccessValidator(...).middleware and a fixture-signed JWT presented in the Cf-Access-Jwt-Assertion header",
       "when": "the request dispatches through the validator",
       "then": "the validator resolves, attaches {email, sub, groups} onto request.auth and delegates to the handler which returns 200 with the reduced principal reflected on the response body",
@@ -32,6 +32,6 @@
     "TAC-3501-edge-cloudflare-access-jwt-validator"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the JWT validator happy path (Cf-Access-Jwt-Assertion accepted, principal reduced onto request.auth). Reject branches (missing header, expired exp, mis-signed, aud-mismatch, jwt-malformed, kid-unknown, jwks-unavailable) live on US-34102 and break-glass branches on US-34107; per section 7a, this story carries a single AC because its own mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

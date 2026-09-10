@@ -1,0 +1,117 @@
+{
+  "usId": "security-auth-keycloak-US-11119",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-018",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Provider-router routing decisions and sessionInventory operations each emit one structured audit event on the fixed allow-list",
+  "asA": "operator running the runtime-verify suite against the provider router and the sessionInventory surface",
+  "iWant": "every routing decision and every sessionInventory operation to write one structured event carrying only the allow-list fields",
+  "soThat": "the audit stream stays free of session material and every refusal has a stable reasonClass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11119-1",
+      "description": "A routing decision that returns a realm record emits exactly one `keycloak.route` event carrying `outcome=verified` and the routed realmSlug; a sessionInventory `list()` emits exactly one `keycloak.session_inventory` event carrying `outcome=verified` and the caller's realmSlug.",
+      "given": "an authenticated caller in realm `alpha` and a project-authored routing function that returns the `alpha` realm record",
+      "when": "the provider router routes the request and the caller then calls `sessionInventory.list()`",
+      "then": "the audit sink records two events in order: one `keycloak.route` event with `outcome=verified` and `realmSlug=alpha`, then one `keycloak.session_inventory` event with `outcome=verified` and `realmSlug=alpha`; each event's own-property keys are drawn from `{family, outcome, reasonClass, realmSlug, sessionIdPrefix, at}` and no request-content field appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-2",
+      "description": "A sessionInventory operation from an unauthenticated caller emits exactly one `keycloak.session_inventory` event with `outcome=refused` and `reasonClass=unauthenticated`; the operation itself refuses without side effect.",
+      "given": "a request with no verified session",
+      "when": "any sessionInventory operation is invoked",
+      "then": "the audit sink records exactly one event with `family=keycloak.session_inventory`, `outcome=refused`, and `reasonClass=unauthenticated`; no session record is created, updated, or removed; no cookie or full session id appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-3",
+      "description": "A sessionInventory `revoke(sessionId)` that first refuses on `unknown_session` and then succeeds on a subsequent call for a valid session id emits exactly one refused event and one verified event on the `keycloak.session_inventory` family, in order; the retry itself is not a distinct event.",
+      "given": "an authenticated caller who first calls `sessionInventory.revoke(unknownSessionId)` and then calls `sessionInventory.revoke(validSessionId)`",
+      "when": "the two calls run in sequence",
+      "then": "the audit sink records exactly two events in order: one `keycloak.session_inventory` event with `outcome=refused` and `reasonClass=unknown_session`, then one `keycloak.session_inventory` event with `outcome=verified` and the caller's realmSlug; each event carries a `sessionIdPrefix` no longer than eight characters",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-4",
+      "description": "A sink failure during the emission of a `keycloak.route` event does not mask the underlying routing decision; the mechanism records a `keycloak.audit_sink_failed` warning event and the routing outcome is unchanged.",
+      "given": "a routing decision that returns the `alpha` realm record and an audit sink whose write throws",
+      "when": "the provider router emits the routing event",
+      "then": "the routing decision returned to the caller is unchanged (the routed realm record or the sentinel `notThisIssuer`); the mechanism records a `keycloak.audit_sink_failed` warning event carrying the realm slug and a reason-class string; no request-content field appears",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-5",
+      "description": "A `sessionInventory.revoke(sessionId)` call for a valid session id from an authenticated caller in realm `alpha` emits exactly one `keycloak.session_inventory` audit event carrying `outcome=verified`, the caller's realmSlug, and a `sessionIdPrefix` of the revoked session; count is exactly one event per revoke-one invocation.",
+      "given": "an authenticated caller in realm `alpha` and a valid non-current sessionId belonging to that caller",
+      "when": "the caller invokes `sessionInventory.revoke(validSessionId)`",
+      "then": "the audit sink records exactly one event whose own-property keys are drawn from `{family, outcome, realmSlug, sessionIdPrefix, at}` with `family=keycloak.session_inventory`, `outcome=verified`, and `realmSlug=alpha`; `sessionIdPrefix` is a substring of length no greater than eight characters; no cookie value and no full session id appears in any field; the target session is invalidated on the provider",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-6",
+      "description": "A `sessionInventory.revokeAllExceptCurrent()` call from an authenticated caller emits exactly one `keycloak.session_inventory` audit event carrying `outcome=verified`, the caller's realmSlug, and a `sessionIdPrefix` for the retained current session; count is exactly one event per revoke-all-except-current invocation, regardless of how many other sessions were invalidated.",
+      "given": "an authenticated caller in realm `alpha` with three active sessions (one current, two non-current)",
+      "when": "the caller invokes `sessionInventory.revokeAllExceptCurrent()`",
+      "then": "the audit sink records exactly one event whose own-property keys are drawn from `{family, outcome, realmSlug, sessionIdPrefix, at}` with `family=keycloak.session_inventory`, `outcome=verified`, and `realmSlug=alpha`; `sessionIdPrefix` names the retained current session and is a substring of length no greater than eight characters; no cookie value and no full session id appears in any field; the two non-current sessions are invalidated on the provider and the current session remains valid",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    },
+    {
+      "id": "AC-11119-7",
+      "description": "A repeated `sessionInventory.revoke(sessionId)` for the same session id is idempotent: the first call emits one verified event and invalidates the session, the second call emits one refused event with `reasonClass=unknown_session` (the session has already been invalidated) with no additional side effect; count is exactly one event per revoke call across both invocations.",
+      "given": "an authenticated caller in realm `alpha` who has just successfully revoked sessionId `S1` (AC-11119-5 result on record)",
+      "when": "the caller invokes `sessionInventory.revoke(S1)` a second time",
+      "then": "the audit sink records exactly one additional event whose own-property keys are drawn from `{family, outcome, reasonClass, realmSlug, sessionIdPrefix, at}` with `family=keycloak.session_inventory`, `outcome=refused`, and `reasonClass=unknown_session`; the total count of `keycloak.session_inventory` events across the two revoke calls is exactly two (one verified, one refused); the session state on the provider is unchanged by the second call",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1204-security-auth-keycloak-provider-router",
+        "field": "responsibilities.routeAndSessionAudit"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1204-security-auth-keycloak-provider-router"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (an authenticated caller in a realm records the realm-scoped identity on both the route and the session_inventory event). The permission scenario class is bound by AC-2 (an unauthenticated caller's sessionInventory invocation refuses with `reasonClass=unauthenticated` and no side effect). Interaction coverage: route-decided AC-1, session-listed AC-1, revoke-one AC-5 (AC-3 also observes revoke-one inside a mixed sequence), revoke-all-except-current AC-6, unauthenticated AC-2."
+}

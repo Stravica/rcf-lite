@@ -15,7 +15,8 @@
     "Verify that a record whose `providerLogout` is `'redirect'` maps to a discovery response that carries `end_session_endpoint`; refuse boot with `KEYCLOAK_LOGOUT_NOT_DECLARED` on absence (AC-11110-2, related to REQ-010).",
     "Refresh the discovery document at the realm record's `discoveryRefreshSeconds` cadence (default 3600) in a background loop; a refresh failure logs a warning event but does not flip a healthy realm to unhealthy - the failure is transient by policy (AC-11102-2).",
     "Emit structured audit events `keycloak.realm_healthy`, `keycloak.realm_unhealthy`, `keycloak.discovery_refreshed`, `keycloak.discovery_refused` carrying the realm slug; no field carries a client secret.",
-    "Verify each realm record's `accountConsoleUrl` on boot with an unauthenticated GET returning 2xx; refuse with `KEYCLOAK_ACCOUNT_CONSOLE_UNREACHABLE` on non-2xx or connection failure; refuse with `KEYCLOAK_ACCOUNT_CONSOLE_MALFORMED` when the URL's origin differs from the discovered issuer origin; a null `accountConsoleUrl` is legal and leaves the realm without a `credentialSelfService` binding (AC-11114-1, AC-11114-4, AC-11114-5)."
+    "Verify each realm record's `accountConsoleUrl` on boot with an unauthenticated GET returning 2xx; refuse with `KEYCLOAK_ACCOUNT_CONSOLE_UNREACHABLE` on non-2xx or connection failure; refuse with `KEYCLOAK_ACCOUNT_CONSOLE_MALFORMED` when the URL's origin differs from the discovered issuer origin; a null `accountConsoleUrl` is legal and leaves the realm without a `credentialSelfService` binding (AC-11114-1, AC-11114-4, AC-11114-5).",
+    "Audit each discovery fetch and each account-console verification as one `keycloak.discovery` or `keycloak.account_console` audit event on the allow-list REQ-015 declares (`family`, `outcome`, `reasonClass?`, `realmSlug`, `at`); the token-exclusion rule and sink-failure posture inherit from REQ-015 (discoveryAudit)."
   ],
   "internalStructure": "One factory function producing a discovery-client closure over an injected `realmConfig` module (a plain data-record set the project maintains), an injected `httpFetch` port (the process HTTP client), an injected `clock`, an injected `auditSink`, and an injected `retryScheduler` used by the deferred posture. The internal cache is a Map keyed by realmSlug whose value is `{ endpoints, fetchedAt, health }`; refresh replaces atomically.",
   "interfaces": [
@@ -48,5 +49,5 @@
   "dependencies": [],
   "tradeoffs": "Fixing discovery at boot and refreshing on a fixed cadence trades a small piece of background work for the guarantee that the realm's URL layout can change under the process without a code edit. Three fail-safe postures let the operator pick their preferred crash-loop / self-heal / manual-control shape; the trade against a single hardcoded posture is one record field and a small policy branch. Emitting audit events on health transitions makes an unhealthy realm legible in the project's own log stream rather than only in the realm's operations surface.",
   "createdAt": "2026-08-31T00:00:00Z",
-  "updatedAt": "2026-08-31T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

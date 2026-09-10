@@ -1,5 +1,14 @@
 # edge-cloudflare-rate-limiting changelog
 
+## 1.1.2 - 2026-09-10
+
+Capability token named in the requirements layer; single-mechanism story legality notes; owner reference for the drift-audit and request-event record shapes.
+
+- Extended REQ-001 description to name the declared `edgeRateLimit` capability token verbatim with a one-line runtime clause tying the token to the rules-manifest mechanism that delivers it.
+- Added AC-36101-2 on US-36101 as a fixed AC that binds the manifest-declared `edgeRateLimit` token to the presence of at least one schema-valid rule under the applied manifest directory.
+- Appended the section 7a legality note to AC-36101-1, AC-36102-1 and AC-36105-1 recording that each single-AC story's mechanism has no additional documented failure path in the guide or the anchored TAC (adjacent failure paths are owned by sibling stories, not by these).
+- Rewrote REQ-004 description to reference the owning TAC (`TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner.purpose`) for the drift-audit record shape and the runtime request-event record shape, rather than restating the shapes verbatim.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

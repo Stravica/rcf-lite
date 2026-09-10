@@ -1,5 +1,12 @@
 # edge-cloudflare-tunnel CHANGELOG
 
+## 1.1.2 - 2026-09-10
+
+Capability token named in the requirements layer.
+
+- Extended REQ-001 description to name the declared `tunnelBridge` capability token verbatim with a one-line runtime clause tying the token to the connector shape that supplies it.
+- Added AC-tunnel-capabilityToken on US-39101 as a fixed AC that binds the manifest-declared `tunnelBridge` token to the on-disk connector variant selected by the applied capability set.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

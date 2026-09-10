@@ -2,7 +2,7 @@
   "reqId": "edge-cloudflare-turnstile-REQ-001",
   "prdId": "PRD-001",
   "title": "Client widget mount: an elicited sitekey renders the Turnstile widget and the mount injects no third-party script beyond Cloudflare Turnstile JS host",
-  "description": "The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. On submit the widget populates a hidden cf-turnstile-response token field the form payload carries.",
+  "description": "The applying project reaches Cloudflare Turnstile through a client widget mount that renders on elicited surfaces using the elicited TURNSTILE_SITEKEY. The mount injects only Cloudflare Turnstile JS from the Cloudflare Turnstile host (https://challenges.cloudflare.com/turnstile/v0/api.js per https://developers.cloudflare.com/turnstile/) and no other third-party script. On submit the widget populates a hidden cf-turnstile-response token field the form payload carries. Delivers the declared `humanCheck` capability token: the client widget mount is the runtime surface the token names, so once the applying project renders the widget on an elicited surface the `humanCheck` promise binds every submit the surface accepts.",
   "category": "functional",
   "domain": "edge",
   "priority": "must",
@@ -13,7 +13,7 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T00:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
     "field": "interfaces.mountTurnstile"

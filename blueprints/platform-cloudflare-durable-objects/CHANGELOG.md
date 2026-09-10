@@ -1,10 +1,17 @@
 # Changelog
 
+All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
+
+## 1.1.2 - 2026-09-10
+
+Owner reference for the DO event-record whitelist.
+
+- Rewrote REQ-006 description to reference the owning TAC field (`TAC-3405-platform-cloudflare-durable-objects-event-sink.purpose`) for the DO event-record whitelist, rather than restating the shape verbatim.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
 
-All notable changes to `platform-cloudflare-durable-objects` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.1.0 (2026-09-09)
 

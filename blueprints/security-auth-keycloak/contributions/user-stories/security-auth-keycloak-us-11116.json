@@ -1,0 +1,117 @@
+{
+  "usId": "security-auth-keycloak-US-11116",
+  "prdId": "PRD-001",
+  "reqId": "security-auth-keycloak-REQ-015",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Discovery and account-console interactions each emit one structured audit event on the fixed allow-list",
+  "asA": "operator running the runtime-verify suite against the discovery client and the account-console verification",
+  "iWant": "every named interaction on those two families to write one structured event carrying only the allow-list fields",
+  "soThat": "the audit stream stays free of token material and a reviewer can decide at a glance whether an event field is inside the blueprint's contract",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-11116-1",
+      "description": "A completed discovery fetch for realm `alpha` emits exactly one `keycloak.discovery` audit event carrying `family=keycloak.discovery`, `outcome=verified`, `realmSlug=alpha`, and `at`; no other field appears.",
+      "given": "a realm-config record for `alpha` whose issuer is reachable and whose discovery document responds 200",
+      "when": "the discovery client fetches the realm's OIDC discovery document at boot",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.discovery` and `outcome=verified`; no token value, no client secret, no raw claim record, and no substring of any of the above appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-2",
+      "description": "A refused account-console verification against an unreachable `accountConsoleUrl` emits exactly one `keycloak.account_console` audit event carrying `outcome=refused` and `reasonClass=account_console_unreachable`.",
+      "given": "a realm-config record for `alpha` whose `accountConsoleUrl` returns 404 to an unauthenticated GET",
+      "when": "the discovery client verifies the account console URL at boot",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.account_console`, `outcome=refused`, and `reasonClass=account_console_unreachable`; no token value, no client secret, no raw claim record, and no substring of any of the above appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-3",
+      "description": "A transient discovery failure followed by a successful retry emits exactly one refusal event and one verified event on the `keycloak.discovery` family, in order.",
+      "given": "a realm-config record for `alpha` whose discovery endpoint returns 503 on the first attempt and 200 on the second",
+      "when": "the discovery client retries per its documented retry posture and completes the fetch",
+      "then": "the audit sink records exactly two events in order: one `keycloak.discovery` event with `outcome=refused` and `reasonClass=upstream_unavailable`, then one `keycloak.discovery` event with `outcome=verified`; no additional event is written for the retry itself",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-4",
+      "description": "A sink failure during the emission of a `keycloak.discovery` event does not mask the underlying discovery outcome; the mechanism records a `keycloak.audit_sink_failed` warning event and the discovery outcome is unchanged.",
+      "given": "a realm-config record for `alpha` whose discovery responds 200 and an audit sink whose write throws",
+      "when": "the discovery client emits the completion event",
+      "then": "the discovery outcome remains `verified` (boot proceeds); the mechanism records a `keycloak.audit_sink_failed` warning event carrying the realm slug and a reason-class string; no token value or raw claim record appears; the original refusal or verification result is not masked",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-5",
+      "description": "A repeated identical discovery fetch of the same reachable realm (a scheduled `discoveryRefreshSeconds` refresh, or a second explicit fetch) is idempotent: each fetch call emits exactly one `keycloak.discovery` audit event with `outcome=verified`; two consecutive fetches produce two events (count is one per fetch call, never a deduplicated event).",
+      "given": "a realm-config record for `alpha` whose issuer is reachable and whose discovery document responds 200 on every attempt, and a completed first fetch already on record",
+      "when": "the discovery client performs a second discovery fetch against the same realm",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.discovery` and `outcome=verified`; the total count of `keycloak.discovery` verified events across the two fetches is exactly two; no additional event is written and no earlier event is mutated",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-6",
+      "description": "A boot-time discovery fetch against a realm-config record whose `realmSlug` is a non-empty string (the credential that binds the fetch to a realm principal) emits a `keycloak.discovery` event that records that principal in the `realmSlug` field; a fetch attempted against a realm-config record whose `realmSlug` is missing or the empty string is refused before any network call with exactly one `keycloak.discovery` event carrying `outcome=refused` and `reasonClass=missing_realm_credential`, and no realm principal string leaks into any other field.",
+      "given": "two realm-config records: record A for `alpha` whose `realmSlug` is `alpha` and whose discovery document responds 200; record B whose `realmSlug` is the empty string",
+      "when": "the discovery client attempts a discovery fetch against each record in turn",
+      "then": "the audit sink records exactly one `keycloak.discovery` event for record A with `outcome=verified` and `realmSlug=alpha` (the `realmSlug` field is the payload field that records the realm principal), and exactly one `keycloak.discovery` event for record B with `outcome=refused` and `reasonClass=missing_realm_credential`; no network call is issued for record B and no principal string appears in any other field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-7",
+      "description": "An account-console verification against a realm-config record whose `realmSlug` is present (a valid realm credential) but whose `accountConsoleUrl` origin differs from the discovered issuer origin (the record lacks the origin-scope the mechanism requires) is refused with exactly one `keycloak.account_console` event carrying `outcome=refused` and `reasonClass=account_console_malformed`; the event records the refusal reason and the realm principal, and the underlying account-console verification is not carried out.",
+      "given": "a realm-config record for `alpha` with `realmSlug=alpha` whose discovered issuer origin is `https://issuer.example` and whose `accountConsoleUrl` origin is `https://other.example`",
+      "when": "the discovery client verifies the account console URL at boot",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.account_console`, `outcome=refused`, `reasonClass=account_console_malformed`, and `realmSlug=alpha`; the `credentialSelfService` capability is not bound to the realm",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
+      }
+    }
+  ],
+  "tacIds": [
+    "TAC-1201-security-auth-keycloak-discovery-client"
+  ],
+  "createdAt": "2026-09-10T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-6 (a realm-config record with a non-empty `realmSlug` is the credential the discovery fetch is bound to, and the `realmSlug` payload field records the realm principal; a missing credential is refused with `reasonClass=missing_realm_credential`). The permission scenario class is bound by AC-7 (a realm-config record whose `accountConsoleUrl` origin does not match the discovered issuer origin lacks the origin scope the mechanism requires and is refused with `reasonClass=account_console_malformed`)."
+}

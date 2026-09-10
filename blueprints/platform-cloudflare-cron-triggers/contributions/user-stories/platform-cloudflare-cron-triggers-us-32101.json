@@ -82,11 +82,25 @@
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
         "field": "responsibilities.solereader"
       }
+    },
+    {
+      "id": "AC-32101-6",
+      "description": "The applied blueprint's manifest declares the `scheduledTrigger` capability token and the applied project ships the single scheduled() handler module per AC-32101-1; therefore the `scheduledTrigger` promise the manifest carries is backed by the live handler the deployed Worker registers.",
+      "given": "the applied blueprint manifest at `blueprints/platform-cloudflare-cron-triggers/blueprint.json` and the applied fixture with the shipped scheduled() handler module",
+      "when": "the anatomy test reads the blueprint manifest and asserts the handler module presence per AC-32101-1",
+      "then": "the manifest carries `scheduledTrigger` on its `capabilities[]` list and the applied handler module is present, so `scheduledTrigger` is a live promise the applying project can act on",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.cronReady"
+      }
     }
   ],
   "tacIds": [
     "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

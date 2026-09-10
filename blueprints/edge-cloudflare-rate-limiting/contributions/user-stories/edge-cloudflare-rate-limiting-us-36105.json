@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-36105-1",
-      "description": "The guide contains a section titled Composition with security-auth-magic-link that names ADR-3702 explicitly, states the zone rule characteristic (IP-per-URL) and the application rule characteristic (per-email per-minute) verbatim, and shows a copy-paste example of both blueprints applied on the same project.",
+      "description": "The guide contains a section titled Composition with security-auth-magic-link that names ADR-3702 explicitly, states the zone rule characteristic (IP-per-URL) and the application rule characteristic (per-email per-minute) verbatim, and shows a copy-paste example of both blueprints applied on the same project. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped guide at blueprints/edge-cloudflare-rate-limiting/guide/edge-cloudflare-rate-limiting.md",
       "when": "the anatomy test scans the guide for the composition section and ADR-3702 reference",
       "then": "the section heading, ADR-3702 reference, both characteristic strings and the copy-paste example are present",
@@ -24,6 +24,6 @@
     "TAC-3702-edge-cloudflare-rate-limiting-management-surface-doc"
   ],
   "createdAt": "2026-09-07T22:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the guide-section presence assertion for the security-auth-magic-link composition documentation. Per section 7a, this story carries a single AC because the guide names no runtime failure path for this guide-section-presence mechanism."
 }

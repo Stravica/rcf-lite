@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34106-1",
-      "description": "After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path.",
+      "description": "After 5 validate-pass and 5 validate-reject requests the audit sink holds 10 records each carrying exactly {email, outcome, timestamp, path}; the serialised JSON of every record contains no substring of the JWT (header, payload or signature), no Authorization value and no header names beyond path. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped createAccessValidator wired with a spy audit sink and 10 requests (5 pass, 5 reject)",
       "when": "the requests dispatch through the validator",
       "then": "10 sink records, each with allowed keys only, none containing forbidden substrings",
@@ -28,6 +28,6 @@
     "TAC-3504-edge-cloudflare-access-audit-sink"
   ],
   "createdAt": "2026-09-07T16:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the audit-event record-shape assertion (10 records across 5 pass and 5 reject requests, exact key set, no token substring). Reject-branch outcomes are covered by US-34102; per section 7a, this story carries a single AC because the record-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

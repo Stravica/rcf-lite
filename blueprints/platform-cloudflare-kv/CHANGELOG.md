@@ -1,10 +1,17 @@
 # Changelog
 
+All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
+
+## 1.1.2 - 2026-09-10
+
+Owner reference for the KV event-record whitelist.
+
+- Rewrote REQ-004 description to reference the owning TAC field (`TAC-3203-platform-cloudflare-kv-event-sink.purpose`) for the KV event-record whitelist, rather than restating the shape verbatim.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
 
-All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
 ## 1.1.0 (2026-09-09)
 

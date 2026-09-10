@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-34110-1",
-      "description": "The shipped guide (guide/<slug>.md within this blueprint) contains a section Policy shape enum that names, per policy-shape option, the required dashboard-owned inputs: email-domain names the required email-domain input; group-membership names the required group-name input and the required identity-provider selection; service-token-only names the required service-token id and paired secret (linked to the bypass-service-auth-id elicit); service-token-plus-email-domain names both the email-domain and the service-token pair; every shape names the required application-vs-path scope input. The guide additionally names every shipped elicit (application-host, selfhosted-app-id, audience, jwks-url, policy-shape, bypass-service-auth-id) with its runtime effect.",
+      "description": "The shipped guide (guide/<slug>.md within this blueprint) contains a section Policy shape enum that names, per policy-shape option, the required dashboard-owned inputs: email-domain names the required email-domain input; group-membership names the required group-name input and the required identity-provider selection; service-token-only names the required service-token id and paired secret (linked to the bypass-service-auth-id elicit); service-token-plus-email-domain names both the email-domain and the service-token pair; every shape names the required application-vs-path scope input. The guide additionally names every shipped elicit (application-host, selfhosted-app-id, audience, jwks-url, policy-shape, bypass-service-auth-id) with its runtime effect. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the shipped guide file",
       "when": "a source-tree grep asserts the required substrings per shape and elicit",
       "then": "every required substring is present; a fixture that omits any of them refuses the probe with a stable code guide.policy-inputs-missing naming which substring is absent",
@@ -28,6 +28,6 @@
     "TAC-3503-edge-cloudflare-access-policy-shape"
   ],
   "createdAt": "2026-09-09T00:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the guide-section presence assertion for the policy-shape enum. Per section 7a, this story carries a single AC because the guide names no runtime failure path for the guide-section-presence mechanism."
 }
