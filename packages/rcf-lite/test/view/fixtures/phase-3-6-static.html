@@ -12533,14 +12533,14 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
     <ul class="ac-list">
-      <li id="AC-7701-1" class="ac-item"><strong>AC-7701-1</strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.
-<div class="ac-gwt"><p><em>Given</em> the cf-platform fixture wrangler.toml</p><p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair</p><p><em>Then</em> every string is present and the migrations tag &quot;v1&quot; carries the two class names</p></div>
+      <li id="AC-7701-1" class="ac-item"><strong>AC-7701-1</strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_sqlite_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.
+<div class="ac-gwt"><p><em>Given</em> the cf-platform fixture wrangler.toml</p><p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair (new_sqlite_classes plus the two class names)</p><p><em>Then</em> every string is present and the migrations tag &quot;v1&quot; carries the two class names</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-090">FBS-090</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T14:11:54.740Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-07T14:13:26.508Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-09T23:00:00.000Z&quot;,
   &quot;usId&quot;: &quot;US-7701&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;reqId&quot;: &quot;REQ-077&quot;,
@@ -12553,9 +12553,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;acceptanceCriteria&quot;: [
     {
       &quot;id&quot;: &quot;AC-7701-1&quot;,
-      &quot;description&quot;: &quot;The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \&quot;v1\&quot; and new_classes = [\&quot;SingleCellObject\&quot;, \&quot;HubObject\&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.&quot;,
+      &quot;description&quot;: &quot;The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag \&quot;v1\&quot; and new_sqlite_classes = [\&quot;SingleCellObject\&quot;, \&quot;HubObject\&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.&quot;,
       &quot;given&quot;: &quot;the cf-platform fixture wrangler.toml&quot;,
-      &quot;when&quot;: &quot;the anatomy assertion greps for the four literal strings and the migrations pair&quot;,
+      &quot;when&quot;: &quot;the anatomy assertion greps for the four literal strings and the migrations pair (new_sqlite_classes plus the two class names)&quot;,
       &quot;then&quot;: &quot;every string is present and the migrations tag \&quot;v1\&quot; carries the two class names&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;runtime&quot;
@@ -25677,9 +25677,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><em>Then</em> clean scan returns pass with zero leaks; simulate scan surfaces the injected leaker and returns fail</p>
 </div>
 <div class="ac-resolved">
-  <p><strong><a href="#AC-7701-1">AC-7701-1</a></strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.</p>
+  <p><strong><a href="#AC-7701-1">AC-7701-1</a></strong> - The fixture wrangler.toml carries at least two [[durable_objects.bindings]] blocks (one binding named CELL with class_name SingleCellObject; one binding named HUB with class_name HubObject) and at least one [[migrations]] block with tag &quot;v1&quot; and new_sqlite_classes = [&quot;SingleCellObject&quot;, &quot;HubObject&quot;]. The anatomy assertion greps the toml for each literal string and the migrations pair.</p>
   <p><em>Given</em> the cf-platform fixture wrangler.toml</p>
-  <p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair</p>
+  <p><em>When</em> the anatomy assertion greps for the four literal strings and the migrations pair (new_sqlite_classes plus the two class names)</p>
   <p><em>Then</em> every string is present and the migrations tag &quot;v1&quot; carries the two class names</p>
 </div></section>
   
