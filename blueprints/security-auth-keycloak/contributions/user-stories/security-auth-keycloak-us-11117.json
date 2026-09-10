@@ -25,10 +25,10 @@
     },
     {
       "id": "AC-11117-2",
-      "description": "A refused JWT emits exactly one `keycloak.jwt` audit event carrying `outcome=refused` and a `reasonClass` from the fixed set.",
-      "given": "a JWT whose `exp` has passed against realm `alpha`",
+      "description": "A JWT whose `exp` timestamp is in the past emits exactly one `keycloak.jwt` audit event carrying `outcome=refused` and `reasonClass=expired`; the reasonClass is the single value bound to that input, not one of a set.",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss` and `aud` claims match the configured verification record and whose `exp` timestamp is in the past",
       "when": "the JWT verifier verifies the token",
-      "then": "the audit sink records exactly one event whose `outcome` is `refused` and `reasonClass` is exactly one of `expired`, `issuer_mismatch`, `audience_mismatch`, `signature_invalid`; the event carries `family=keycloak.jwt`, `realmSlug=alpha`, and `at`; no token or claim material appears in any field",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.jwt`, `outcome=refused`, and `reasonClass=expired`; the event carries `realmSlug=alpha`; no token or claim material appears in any field",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
@@ -64,11 +64,26 @@
         "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
         "field": "responsibilities.jwtAudit"
       }
+    },
+    {
+      "id": "AC-11117-5",
+      "description": "Verifying the same well-formed JWT twice within its `exp` window is idempotent: each verify call emits exactly one `keycloak.jwt` audit event with `outcome=verified`; two consecutive verify calls produce two events (count is one per verify call, never a deduplicated event).",
+      "given": "a JWT signed by realm `alpha`'s current signing key whose `iss`, `aud`, and `exp` claims match the configured verification record, verified once already",
+      "when": "the JWT verifier verifies the same token a second time",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.jwt` and `outcome=verified`; the total count of `keycloak.jwt` verified events across the two verifies is exactly two; the verify's return value is unchanged between calls",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
+        "field": "responsibilities.jwtAudit"
+      }
     }
   ],
   "tacIds": [
     "TAC-1202-security-auth-keycloak-jwt-verifier"
   ],
   "createdAt": "2026-09-10T00:00:00Z",
-  "updatedAt": "2026-09-10T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a valid JWT is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the JWT verifier does not evaluate authorization scopes or role permissions; permission decisions are downstream of this mechanism (see TAC-1205 role adapter and the request-handling layer)."
 }

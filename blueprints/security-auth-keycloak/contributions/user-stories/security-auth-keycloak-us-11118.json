@@ -25,10 +25,10 @@
     },
     {
       "id": "AC-11118-2",
-      "description": "An introspect call whose response is `active: false` or a non-2xx status emits exactly one refused event carrying a `reasonClass`.",
-      "given": "a token whose introspection endpoint response is `200 { active: false }` or a 5xx status against realm `alpha`",
+      "description": "An introspect call whose response is a 2xx `active: false` emits exactly one `keycloak.introspection` audit event with `outcome=refused` and `reasonClass=inactive`.",
+      "given": "a token whose introspection endpoint response is a 2xx `{ active: false }` against realm `alpha`",
       "when": "the introspection client introspects the token",
-      "then": "the audit sink records exactly one event whose `outcome=refused` and `reasonClass` is a stable-coded string (for example `inactive` or `upstream_error`); the event carries `family=keycloak.introspection`, `realmSlug=alpha`, and `at`; the introspection response body is not present",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.introspection`, `outcome=refused`, and `reasonClass=inactive`; the introspection response body is not present in any field",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
@@ -64,11 +64,40 @@
         "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
         "field": "responsibilities.introspectionAudit"
       }
+    },
+    {
+      "id": "AC-11118-5",
+      "description": "An introspect call whose response is a non-2xx status emits exactly one `keycloak.introspection` audit event with `outcome=refused` and `reasonClass=upstream_error`.",
+      "given": "a token whose introspection endpoint responds with a 5xx status against realm `alpha`",
+      "when": "the introspection client introspects the token",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.introspection`, `outcome=refused`, and `reasonClass=upstream_error`; the introspection response body is not present in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
+        "field": "responsibilities.introspectionAudit"
+      }
+    },
+    {
+      "id": "AC-11118-6",
+      "description": "Introspecting the same active token twice is idempotent: each introspect call emits exactly one `keycloak.introspection` audit event with `outcome=verified`; two consecutive introspect calls produce two events (count is one per introspect call, whether the second call is served from the introspection cache or not).",
+      "given": "a token whose introspection endpoint response is a 2xx `{ active: true }` on both attempts, and one completed introspect call already on record",
+      "when": "the introspection client introspects the same token a second time",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.introspection` and `outcome=verified`; the total count of `keycloak.introspection` verified events across the two calls is exactly two; the caller's return value is unchanged between the two calls",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1203-security-auth-keycloak-introspection-client",
+        "field": "responsibilities.introspectionAudit"
+      }
     }
   ],
   "tacIds": [
     "TAC-1203-security-auth-keycloak-introspection-client"
   ],
   "createdAt": "2026-09-10T00:00:00Z",
-  "updatedAt": "2026-09-10T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (an active introspection response is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the introspection client resolves whether a token is active; it does not evaluate authorization scopes or role permissions, which are downstream of this mechanism."
 }

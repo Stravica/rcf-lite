@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-9113-1",
-      "description": "A completed session verification emits exactly one structured audit event with `outcome=verified` and a session id prefix no longer than eight characters.",
+      "description": "A completed session verification emits exactly one structured audit event identified by the tuple (`operation=verify`, `outcome=verified`), carrying a session id prefix no longer than eight characters.",
       "given": "an authenticated request carrying a valid `__session` cookie for a Clerk session S1",
       "when": "the session verifier verifies the cookie value",
       "then": "the audit sink records exactly one event whose own-property keys are drawn from `{outcome, operation, reasonClass, sessionIdPrefix, at, principalIdPrefix}` with `outcome=verified` and `operation=verify`; the `__session` cookie value, the full session id, and any raw Clerk claim record are not present in any field; `sessionIdPrefix` is a substring of length no greater than eight characters",
@@ -25,10 +25,10 @@
     },
     {
       "id": "AC-9113-2",
-      "description": "A refused session verification emits exactly one structured audit event with `outcome=refused` and a `reasonClass` value from the fixed set.",
-      "given": "a request carrying a tampered or expired `__session` cookie",
+      "description": "A session verification against a `__session` cookie whose Clerk-side expiry has passed emits exactly one audit event identified by the tuple (`operation=verify`, `outcome=refused`) with `reasonClass=expired`; the reasonClass is the single value bound to that input, not one of a set.",
+      "given": "a request carrying a `__session` cookie whose Clerk-side expiry has passed",
       "when": "the session verifier verifies the cookie value",
-      "then": "the audit sink records exactly one event with `outcome=refused` and `reasonClass` a stable-coded string (for example `expired`, `tampered`, `revoked`); the event carries `operation=verify`, `sessionIdPrefix` (no longer than eight characters), and `at`; no cookie value or full session id appears in any field",
+      "then": "the audit sink records exactly one event with `outcome=refused`, `operation=verify`, and `reasonClass=expired`; the event carries `sessionIdPrefix` (no longer than eight characters) and `at`; no cookie value or full session id appears in any field",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
@@ -64,11 +64,40 @@
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
         "field": "responsibilities.audit"
       }
+    },
+    {
+      "id": "AC-9113-5",
+      "description": "An unauthenticated caller invoking a `sessionInventory.revoke(sessionId)` is refused: the audit sink records exactly one event identified by the tuple (`operation=revoke`, `outcome=refused`) with `reasonClass=unauthenticated`; no session state changes on the provider.",
+      "given": "a request with no verified session",
+      "when": "any `sessionInventory.revoke(sessionId)` is invoked",
+      "then": "the audit sink records exactly one event with `outcome=refused`, `operation=revoke`, and `reasonClass=unauthenticated`; the event carries `at`; no session is created, updated or removed on the provider; no cookie value or full session id appears in any field",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
+    },
+    {
+      "id": "AC-9113-6",
+      "description": "Verifying the same valid `__session` cookie twice is idempotent: each verify call emits exactly one audit event identified by the tuple (`operation=verify`, `outcome=verified`); two consecutive verifications produce two events (count is one per verify call, never a deduplicated event).",
+      "given": "a request carrying a valid `__session` cookie for a Clerk session S1, verified once already",
+      "when": "the session verifier verifies the same cookie value a second time",
+      "then": "the audit sink records exactly one additional event with `operation=verify` and `outcome=verified`; the total count of verify events across the two attempts is exactly two; each event's `sessionIdPrefix` is a substring of length no greater than eight characters; the verifier's return value is unchanged between calls",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "responsibilities.audit"
+      }
     }
   ],
   "tacIds": [
     "TAC-1003-security-auth-clerk-session-verifier"
   ],
   "createdAt": "2026-09-10T00:00:00Z",
-  "updatedAt": "2026-09-10T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a valid `__session` cookie is the credential and the event records a bounded `sessionIdPrefix`). The permission scenario class is bound by AC-5 (an unauthenticated caller's `sessionInventory.revoke` refuses with `reasonClass=unauthenticated` and no side effect). Events are named by the tuple (`operation`, `outcome`) per REQ-011's allow-list; the blueprint does not carry a top-level `family` field on clerk audit events."
 }

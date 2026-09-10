@@ -14,9 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-09T00:00:00Z",
-  "updatedAt": "2026-09-09T00:00:00Z",
+  "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-    "field": "responsibilities.auditSink"
+    "field": "responsibilities.discoveryAudit"
   }
 }

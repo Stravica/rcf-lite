@@ -20,21 +20,21 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "responsibilities.auditSink"
+        "field": "responsibilities.discoveryAudit"
       }
     },
     {
       "id": "AC-11116-2",
-      "description": "A refused account-console verification emits exactly one `keycloak.account_console` audit event carrying `outcome=refused` and a `reasonClass` value.",
+      "description": "A refused account-console verification against an unreachable `accountConsoleUrl` emits exactly one `keycloak.account_console` audit event carrying `outcome=refused` and `reasonClass=account_console_unreachable`.",
       "given": "a realm-config record for `alpha` whose `accountConsoleUrl` returns 404 to an unauthenticated GET",
       "when": "the discovery client verifies the account console URL at boot",
-      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.account_console` and `outcome=refused`; the reasonClass value is a stable-coded string; no token value, no client secret, no raw claim record, and no substring of any of the above appears in any field",
+      "then": "the audit sink records exactly one event whose own-property keys are exactly `{family, outcome, reasonClass, realmSlug, at}` with `family=keycloak.account_console`, `outcome=refused`, and `reasonClass=account_console_unreachable`; no token value, no client secret, no raw claim record, and no substring of any of the above appears in any field",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "responsibilities.auditSink"
+        "field": "responsibilities.discoveryAudit"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "responsibilities.auditSink"
+        "field": "responsibilities.discoveryAudit"
       }
     },
     {
@@ -62,7 +62,21 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "responsibilities.auditSink"
+        "field": "responsibilities.discoveryAudit"
+      }
+    },
+    {
+      "id": "AC-11116-5",
+      "description": "A repeated identical discovery fetch of the same reachable realm (a scheduled `discoveryRefreshSeconds` refresh, or a second explicit fetch) is idempotent: each fetch call emits exactly one `keycloak.discovery` audit event with `outcome=verified`; two consecutive fetches produce two events (count is one per fetch call, never a deduplicated event).",
+      "given": "a realm-config record for `alpha` whose issuer is reachable and whose discovery document responds 200 on every attempt, and a completed first fetch already on record",
+      "when": "the discovery client performs a second discovery fetch against the same realm",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.discovery` and `outcome=verified`; the total count of `keycloak.discovery` verified events across the two fetches is exactly two; no additional event is written and no earlier event is mutated",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
+        "field": "responsibilities.discoveryAudit"
       }
     }
   ],
@@ -70,5 +84,6 @@
     "TAC-1201-security-auth-keycloak-discovery-client"
   ],
   "createdAt": "2026-09-10T00:00:00Z",
-  "updatedAt": "2026-09-10T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the discovery client and account-console verification interact with the realm's public discovery document at boot time and there is no user credential nor user permission model on this boundary, so the credential and permission scenario classes are not bound to their own AC."
 }

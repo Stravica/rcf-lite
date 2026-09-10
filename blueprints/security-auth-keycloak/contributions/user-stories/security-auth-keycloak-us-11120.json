@@ -64,11 +64,26 @@
         "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
         "field": "responsibilities.rolesAudit"
       }
+    },
+    {
+      "id": "AC-11120-5",
+      "description": "Reading roles twice from the same well-formed verified claim record is idempotent: each read emits exactly one `keycloak.roles` audit event with `outcome=verified`; two consecutive reads produce two events (count is one per read call).",
+      "given": "a verified claim record whose expected role path is an array of strings in realm `alpha`, and one completed read already on record",
+      "when": "the role adapter reads the roles from the same claim record a second time",
+      "then": "the audit sink records exactly one additional event whose own-property keys are exactly `{family, outcome, realmSlug, at}` with `family=keycloak.roles` and `outcome=verified`; the total count of `keycloak.roles` verified events across the two reads is exactly two; the reduced roles array returned by the second read is identical to the first",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1205-security-auth-keycloak-role-adapter",
+        "field": "responsibilities.rolesAudit"
+      }
     }
   ],
   "tacIds": [
     "TAC-1205-security-auth-keycloak-role-adapter"
   ],
   "createdAt": "2026-09-10T00:00:00Z",
-  "updatedAt": "2026-09-10T00:00:00Z"
+  "updatedAt": "2026-09-10T00:00:00Z",
+  "description": "Applying agent sets: no project-parameterised values on this story; every AC is `fixed`. AC-set sufficiency (7a inline note per blueprint-authoring.md §7a): the credential scenario class is bound by AC-1 (a verified claim record is the credential and the event records the realm-scoped identity). The permission scenario class is not bound to its own AC on this story because the role adapter reads roles from a claim; it does not itself evaluate authorization scopes or role permissions, which are downstream of this mechanism (the request-handling layer consumes the reduced roles array)."
 }

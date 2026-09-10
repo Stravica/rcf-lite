@@ -16,7 +16,7 @@
   "createdAt": "2026-08-30T00:00:00Z",
   "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
-    "tacId": "TAC-1004-security-auth-clerk-claims-mapper",
-    "field": "responsibilities.reduceClaims"
+    "tacId": "TAC-1001-security-auth-clerk-middleware",
+    "field": "responsibilities.signInStrategy"
   }
 }
