@@ -80,7 +80,7 @@ test('ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-
   }
 });
 
-test('applies cleanly on a fresh project with 17 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
+test('applies cleanly on a fresh project with 21 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'onboarding-tour-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -88,7 +88,7 @@ test('applies cleanly on a fresh project with 17 contributions and no requiresAp
   assert.equal(apply.applied, true, JSON.stringify(apply));
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
-  assert.equal(sidecar.version, '1.0.0');
+  assert.equal(sidecar.version, '1.1.0');
   // TC-057-applies-clean also runs `rcf define validate` on the scratch
   // project so applied contributions are exercised against the closed
   // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution
