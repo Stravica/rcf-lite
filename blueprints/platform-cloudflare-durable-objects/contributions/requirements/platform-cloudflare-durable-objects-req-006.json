@@ -13,5 +13,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T20:00:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
+    "field": "responsibilities.allowed"
+  }
 }

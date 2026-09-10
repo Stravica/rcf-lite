@@ -16,12 +16,83 @@
       "when": "a broadcast message is sent from A",
       "then": "both A and B receive the same broadcast within 500ms and storage.get(\"lastBroadcast\") returns the serialised payload",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33105-2",
+      "description": "F-4 broadcast-malformed: webSocketMessage(A, \"not-json-at-all\") on a HubObject with two accepted sockets does NOT fan out anything; the hub replies to A with an error frame carrying {type:\"error\", kind:\"HUB_MALFORMED_MESSAGE\"} and B receives nothing. storage.get(\"lastBroadcast\") stays at its prior value (or remains undefined on a fresh hub); no doBroadcast record emits.",
+      "given": "a HubObject with two accepted fake sockets A and B",
+      "when": "webSocketMessage(A, \"not-json-at-all\") is driven",
+      "then": "the hub sends A an error frame with kind HUB_MALFORMED_MESSAGE; B receives no message; lastBroadcast is unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "interfaces.HubObject"
+      }
+    },
+    {
+      "id": "AC-33105-3",
+      "description": "Empty-hub broadcast (zero connected clients): a HubObject with zero accepted sockets, when driven with an out-of-band broadcast API (state.broadcast) or an incoming HTTP fetch that carries a broadcast payload, still persists storage.lastBroadcast so a subsequent socket connect can catch up. No client message is emitted (nobody is listening); the persistence side effect is the only observable.",
+      "given": "a HubObject with zero accepted sockets",
+      "when": "a broadcast is driven through the hub API",
+      "then": "no client message emits; storage.get(\"lastBroadcast\") returns the serialised payload",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.lastBroadcast"
+      }
+    },
+    {
+      "id": "AC-33105-4",
+      "description": "Slow-socket isolation: a HubObject with three accepted sockets A, B and C where B's send() blocks (simulated by a promise that never settles), when driven with a broadcast from A, still delivers the broadcast to C within the elicited 500ms window. The hub does not await B; the slow socket is dropped from the broadcast fan-out for that message and a doBroadcastSocketSlow record emits naming the slow socket id.",
+      "given": "a HubObject with three sockets where B blocks",
+      "when": "A broadcasts",
+      "then": "C receives the broadcast within 500ms; a doBroadcastSocketSlow record names B's socket id",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.broadcast"
+      }
+    },
+    {
+      "id": "AC-33105-5",
+      "description": "N=10 concurrent broadcasts: a HubObject with two accepted sockets A and B, driven with 10 concurrent broadcasts from A, delivers 10 messages to B in the same order A issued them. Per-connection ordering is preserved (10 messages in A-issue-order); storage.get(\"lastBroadcast\") after the batch returns the 10th payload.",
+      "given": "a HubObject with two accepted sockets",
+      "when": "10 concurrent broadcasts from A fire",
+      "then": "B receives 10 messages in issue order; lastBroadcast returns the 10th payload",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "responsibilities.broadcast"
+      }
+    },
+    {
+      "id": "AC-33105-6",
+      "description": "F-4 hub-unknown-type: webSocketMessage(A, JSON.stringify({type:\"nonsense\"})) on a HubObject does NOT change storage; the hub replies to A with an error frame carrying {type:\"error\", kind:\"HUB_UNKNOWN_MESSAGE_TYPE\"} naming the unknown type; B receives nothing; storage.get(\"lastBroadcast\") is unchanged.",
+      "given": "a HubObject with two accepted sockets",
+      "when": "A sends a message whose type is not broadcast|set-state|get-state",
+      "then": "A receives an HUB_UNKNOWN_MESSAGE_TYPE error frame; B receives nothing; storage is unchanged",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
+        "field": "interfaces.HubObject"
+      }
     }
   ],
   "tacIds": [
     "TAC-3404-platform-cloudflare-durable-objects-websocket-hub"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

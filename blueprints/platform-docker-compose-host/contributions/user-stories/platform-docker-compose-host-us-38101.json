@@ -13,12 +13,83 @@
       "id": "AC-composeHost-topologyValid",
       "description": "The applied compose.yaml at the repo root declares (a) every entry under services: as exactly one image running one container, (b) at least one named network under top-level networks:, (c) at least one named volume under top-level volumes:, and (d) non-secret configuration values are loaded from a colocated .env file rather than inlined as service environment entries.",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-38101-2",
+      "description": "F-9 layout-drift network removed: SIMULATE_LAYOUT_DRIFT_NETWORK=true strips a service's referenced network out of the top-level networks: block in compose.yaml. The compose-config-lint probe (docker compose config) FAILS naming the network reference and the referring service; the fixture assertion catches \"network <name> is not defined\" in the stderr.",
+      "given": "a fixture compose.yaml with SIMULATE_LAYOUT_DRIFT_NETWORK=true stripping a networks entry",
+      "when": "docker compose config runs",
+      "then": "the compose config command exits non-zero naming the missing network and the referring service",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.namedNetworks"
+      }
+    },
+    {
+      "id": "AC-38101-3",
+      "description": "F-9 layout-drift volume removed: SIMULATE_LAYOUT_DRIFT_VOLUME=true strips a service's referenced volume out of the top-level volumes: block. docker compose config exits non-zero naming the missing volume and the referring service.",
+      "given": "a fixture compose.yaml with SIMULATE_LAYOUT_DRIFT_VOLUME=true stripping a volumes entry",
+      "when": "docker compose config runs",
+      "then": "compose config exits non-zero naming the missing volume and referring service",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.namedVolumes"
+      }
+    },
+    {
+      "id": "AC-38101-4",
+      "description": "F-9 layout-drift image absent: SIMULATE_LAYOUT_DRIFT_IMAGE=true removes the image field from a service. docker compose config exits non-zero naming the service (compose refuses a service without an image or build directive).",
+      "given": "a fixture compose.yaml with SIMULATE_LAYOUT_DRIFT_IMAGE=true removing the image field",
+      "when": "docker compose config runs",
+      "then": "compose config exits non-zero naming the service",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.servicePerContainer"
+      }
+    },
+    {
+      "id": "AC-38101-5",
+      "description": "F-9 layout-drift .env removed: SIMULATE_LAYOUT_DRIFT_ENV=true removes the .env file colocated with compose.yaml. A shell probe asserts either (a) the .env file is present in the fixture directory, OR (b) if absent, no service references an env_file directive that points at it; the additional assertion refuses on a compose.yaml that references .env when the file is absent.",
+      "given": "a fixture with SIMULATE_LAYOUT_DRIFT_ENV=true removing the .env file",
+      "when": "the fixture assertion runs",
+      "then": "the assertion FAILS naming the missing .env when a service references it via env_file",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.dotenv"
+      }
+    },
+    {
+      "id": "AC-38101-6",
+      "description": "Compose file location: with elicited compose-file-location=repo-root, the applied compose.yaml lives at <repo>/compose.yaml; a fixture assertion greps the applied tree and refuses if the file is anywhere else. With compose-file-location=compose/compose.yaml, the file lives at <repo>/compose/compose.yaml; the assertion mirrors the check.",
+      "given": "an applied fixture with a chosen compose-file-location value",
+      "when": "the location assertion runs",
+      "then": "the compose.yaml lives at exactly the elicited location and nowhere else",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
+        "field": "responsibilities.composeFileLocation"
+      }
     }
   ],
   "tacIds": [
     "TAC-3901-platform-docker-compose-host-compose-layout"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-08T00:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

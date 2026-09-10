@@ -57,4 +57,4 @@ class_name = "HubObject"
 # as a subsequent tag entry in the same list.
 [[migrations]]
 tag = "v1"
-new_classes = ["SingleCellObject", "HubObject"]
+new_sqlite_classes = ["SingleCellObject", "HubObject"]

@@ -1,6 +1,6 @@
 {
   "slug": "platform-docker-compose-host",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "category": "platform",
   "capabilities": [
     "containerHost"
@@ -18,7 +18,7 @@
   "elicits": [
     {
       "id": "reverse-proxy",
-      "prompt": "Reverse proxy in front of the compose services. caddy is the shipped default per Baz decision 19 (matches dev-01 and ops-01); traefik is the alternative for docker-label auto-discovery; none is the alternative for projects fronted only by the round-7 tunnel.",
+      "prompt": "Reverse proxy in front of the compose services. caddy is the shipped default (a platform decision matching a common Linux-host baseline that already runs Caddy); traefik is the alternative for docker-label auto-discovery; none is the alternative for projects fronted only by a Cloudflare-tunnel sibling.",
       "kind": "enum",
       "options": [
         "caddy",
@@ -57,6 +57,12 @@
         "command"
       ],
       "default": "http"
+    },
+    {
+      "id": "healthcheck-timeout-seconds",
+      "prompt": "Elicited healthcheck timeout in seconds (per REQ-003 the stack is not considered up until every declared service reaches healthy inside this window; docker compose up -d --wait respects the compose healthcheck timeout: field). Default 30, floor 5, ceiling 300.",
+      "kind": "string",
+      "default": "30"
     },
     {
       "id": "log-driver",
@@ -107,6 +113,11 @@
       "path": "requirements/platform-docker-compose-host-req-006.json"
     },
     {
+      "id": "platform-docker-compose-host-REQ-007",
+      "kind": "req",
+      "path": "requirements/platform-docker-compose-host-req-007.json"
+    },
+    {
       "id": "platform-docker-compose-host-US-38101",
       "kind": "us",
       "path": "user-stories/platform-docker-compose-host-us-38101.json"
@@ -152,6 +163,11 @@
       "path": "user-stories/platform-docker-compose-host-us-38109.json"
     },
     {
+      "id": "platform-docker-compose-host-US-38110",
+      "kind": "us",
+      "path": "user-stories/platform-docker-compose-host-us-38110.json"
+    },
+    {
       "id": "TAC-3901-platform-docker-compose-host-compose-layout",
       "kind": "tac",
       "path": "tacs/tac-3901-platform-docker-compose-host-compose-layout.json"
@@ -179,7 +195,7 @@
       "topic": "containerHostContract",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "Docker Compose file reference AND Docker Engine install-on-Ubuntu docs per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Docker Compose file reference AND Docker Engine install-on-Ubuntu docs"
     },
     {
       "id": "ADR-3902-platform-docker-compose-host-reverse-proxy",
@@ -187,7 +203,7 @@
       "path": "adrs/adr-3902-platform-docker-compose-host-reverse-proxy.json",
       "recommendedDefault": true,
       "elicited": true,
-      "standardsTraceClause": "Caddy docs AND Traefik docs per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Caddy docs AND Traefik docs"
     },
     {
       "id": "ADR-3903-platform-docker-compose-host-reject-coolify",

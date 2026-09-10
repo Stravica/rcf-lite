@@ -24,7 +24,7 @@
 // The probe also carries an additional AC-33108-1 result that
 // greps the fixture wrangler.toml for the two `[[durable_objects.bindings]]`
 // binding pairs (name/class_name) and the `[[migrations]]` block
-// (tag `"v1"` plus new_classes for both classes). That result is
+// (tag `"v1"` plus new_sqlite_classes for both classes). That result is
 // deterministic and does not require wrangler.
 //
 // Warn semantics per section 3.1 pass-with-skip: if the wrangler
@@ -73,10 +73,16 @@ async function greppedWranglerToml() {
   const hubNameHit = /name = "HUB"/.test(toml);
   const hubClassHit = /class_name = "HubObject"/.test(toml);
   const tagHit = /tag = "v1"/.test(toml);
-  const newClassesHit = /new_classes = \["SingleCellObject", "HubObject"\]/.test(toml);
+  const newClassesHit = /new_sqlite_classes = \["SingleCellObject", "HubObject"\]/.test(toml);
+  // Per the Cloudflare Durable Objects migrations page, key-value backed
+  // namespaces can no longer be created; only new_sqlite_classes mints one.
+  // The probe refuses a wrangler.toml that still asserts the deprecated keyword,
+  // so a re-shipped blueprint cannot silently regress to the old shape.
+  // Vendor: https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/
+  const deprecatedNewClassesRefused = !/(^|\n)\s*new_classes\s*=/.test(toml);
   return {
-    ok: cellNameHit && cellClassHit && hubNameHit && hubClassHit && tagHit && newClassesHit,
-    hits: { cellNameHit, cellClassHit, hubNameHit, hubClassHit, tagHit, newClassesHit },
+    ok: cellNameHit && cellClassHit && hubNameHit && hubClassHit && tagHit && newClassesHit && deprecatedNewClassesRefused,
+    hits: { cellNameHit, cellClassHit, hubNameHit, hubClassHit, tagHit, newClassesHit, deprecatedNewClassesRefused },
   };
 }
 
@@ -156,7 +162,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-33108-1',
     verdict: toml.ok ? 'pass' : 'fail',
     detail: toml.ok
-      ? `wrangler.toml carries name="CELL" + class_name="SingleCellObject", name="HUB" + class_name="HubObject", and [[migrations]] tag "v1" with new_classes ["SingleCellObject","HubObject"]`
+      ? `wrangler.toml carries name="CELL" + class_name="SingleCellObject", name="HUB" + class_name="HubObject", and [[migrations]] tag "v1" with new_sqlite_classes ["SingleCellObject","HubObject"]`
       : `wrangler.toml grep miss: ${JSON.stringify(toml.hits)}`,
   });
 

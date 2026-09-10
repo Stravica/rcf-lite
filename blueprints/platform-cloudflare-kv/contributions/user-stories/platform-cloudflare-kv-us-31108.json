@@ -16,12 +16,55 @@
       "when": "put/get/delete operations run on the PII key with the mutation-run switch off then on",
       "then": "the recorded events contain only the whitelist; PII-substring scan returns zero hits; the mutation-run under SIMULATE_PII_LEAK trips the probe to fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-31108-2",
+      "description": "Metadata blob is never a body: facade.put(k, v, {metadata:{v:1, body:\"REDACTED-fixture\"}}) still emits a kvWrite record carrying only the whitelist keys (event, key, size, ttl, timestamp); the metadata blob's body substring does not appear in any emitted record. The whitelist scan returns zero hits for \"REDACTED-fixture\".",
+      "given": "a facade.put call with a metadata blob carrying a body substring",
+      "when": "the kvWrite record is inspected",
+      "then": "the record has only the whitelist keys and no substring of the metadata body",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
+    },
+    {
+      "id": "AC-31108-3",
+      "description": "Substring scan across all record kinds: the layer-2 substring scan on the sink accumulator runs against every record kind (facadeReady, kvHit, kvMiss, kvWrite) and asserts zero hits for the PII fixture substrings (SSN, user id numeric). No record kind is exempted.",
+      "given": "a facade driven with the PII fixture on the shipped path",
+      "when": "the layer-2 substring scan runs across every emitted record",
+      "then": "zero PII substring hits are reported",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
+    },
+    {
+      "id": "AC-31108-4",
+      "description": "Layer separation: the layer-1 whitelist scan and the layer-2 substring scan trip independently. A synthetic scenario that adds only a forbidden key (no PII substring) trips layer 1 alone; a scenario that leaks a PII substring inside an existing whitelisted field (e.g. a poisoned key) trips layer 2 alone. The probe reports which layer fired.",
+      "given": "two synthetic mutation scenarios (forbidden-key-only, substring-only)",
+      "when": "the probe runs on each scenario",
+      "then": "the forbidden-key scenario fires layer 1 only; the substring scenario fires layer 2 only",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3203-platform-cloudflare-kv-event-sink",
+        "field": "responsibilities.whitelist"
+      }
     }
   ],
   "tacIds": [
     "TAC-3203-platform-cloudflare-kv-event-sink"
   ],
   "createdAt": "2026-09-07T10:27:19.000Z",
-  "updatedAt": "2026-09-07T10:27:19.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

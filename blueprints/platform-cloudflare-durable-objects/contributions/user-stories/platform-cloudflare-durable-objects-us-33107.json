@@ -16,12 +16,55 @@
       "when": "the sole-reader-scan probe runs",
       "then": "the clean-fixture pass reports zero non-facade leaks; the simulate pass surfaces the injected leak and returns fail",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
+    },
+    {
+      "id": "AC-33107-2",
+      "description": "Comment-only mention: a JSDoc block or line comment on any non-facade module that mentions \"env.CELL\" or \"env.HUB\" (for documentation or a cross-reference) does NOT trip the scan. The probe strips block comments (/* ... */) and line comments (// ...) before matching literals; a synthetic scratch file with only a commented mention returns zero leaks.",
+      "given": "a scratch fixture module carrying only a commented mention of env.CELL",
+      "when": "the sole-reader-scan probe walks the fixture",
+      "then": "the file is not reported as a leak; the leak count is zero",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.solereader"
+      }
+    },
+    {
+      "id": "AC-33107-3",
+      "description": "Nested-directory recursion: a leak in a nested path (e.g. src/handlers/deep/leak.mjs) with a real env.CELL dereference is caught by the probe. The scan walks the src/ tree recursively and reports the full relative path of every leaking file.",
+      "given": "a synthetic src/handlers/deep/leak.mjs carrying a real env.CELL dereference",
+      "when": "the sole-reader-scan probe walks the tree",
+      "then": "the probe reports src/handlers/deep/leak.mjs as a leak and returns aggregateVerdict \"fail\"",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.solereader"
+      }
+    },
+    {
+      "id": "AC-33107-4",
+      "description": "Extension filter: the scan matches only .mjs, .js and .ts files. A .txt or .md file with a literal env.CELL substring (a README example, a config sample) is NOT scanned and does not flag; a .json fixture with an env.CELL string value is also not scanned.",
+      "given": "a scratch tree with env.CELL literals in .txt, .md and .json files",
+      "when": "the sole-reader-scan probe walks the tree",
+      "then": "no leak is reported; the extension filter excludes non-source files",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
+        "field": "responsibilities.solereader"
+      }
     }
   ],
   "tacIds": [
     "TAC-3401-platform-cloudflare-durable-objects-namespace-facade"
   ],
   "createdAt": "2026-09-07T14:00:00.000Z",
-  "updatedAt": "2026-09-07T14:00:00.000Z"
+  "updatedAt": "2026-09-09T22:00:00.000Z"
 }

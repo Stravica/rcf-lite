@@ -10,7 +10,7 @@
 // allowed key set {event, key, size, ttl, timestamp, objectName,
 // scheduledTime} and asserts zero forbidden-key hits (AC-33106-1).
 //
-// Two mutation switches are triggered fixture-side by the H-2
+// Two mutation switches are triggered fixture-side by the
 // shim h2-cf-do-websocket-hub-shim.mjs: a PII-leak wrapper on the
 // sink adapter that injects forbidden fields on every emitted
 // record, and a broadcast-hang gate that pauses the probe past

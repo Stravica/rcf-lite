@@ -111,7 +111,7 @@ export function createInProcessDoState() {
 }
 
 // Backwards-compatible aliases. The rename to createInProcess* was
-// driven by the honest-labelling sweep in H-2 (finding rows
+// driven by the honest-labelling sweep (finding rows
 // f-2026-09-08-stage2-218 and f-2026-09-08-stage2-219); the
 // aliases below let any existing anatomy assertion or downstream
 // probe still resolve the older names during the same train.

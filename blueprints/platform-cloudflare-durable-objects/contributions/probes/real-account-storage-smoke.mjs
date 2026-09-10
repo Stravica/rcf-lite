@@ -21,7 +21,7 @@
 //     cf-platform fixture; a run without CI_HAS_CLOUDFLARE_ACCOUNT
 //     but with CF_DO_WORKER_URL set exercises the same driver
 //     against the local wrangler binding, so the driver logic
-//     itself is verifiable offline (recorded in the H-2 provenance
+//     itself is verifiable offline (recorded in the provenance
 //     transcript, not committed as an envelope).
 //
 // anchorAcId: AC-33112-1.
@@ -62,18 +62,18 @@ export default async function runProbe() {
 
   const workerUrl = process.env.CF_DO_WORKER_URL;
   if (!workerUrl) {
-    // Second-tier declared skip (H-2 real-account gate 2026-09-09
+    // Second-tier declared skip (real-account gate 2026-09-09
     // finding 3; positive-evidence rule ratified 2026-09-08 in PR
     // #182): the DO round-trip needs a deployed Worker origin URL,
     // and this fixture does not yet self-provision that Worker
-    // (follow-up work item w-2026-09-09-dave-005). Until it does,
+    // (follow-up work item). Until it does,
     // an account-set-but-no-CF_DO_WORKER_URL run records a
     // pass-with-skip naming the env var, rather than failing hard
     // and returning without evidence.
     results.push({
       anchorAcId: 'AC-33112-1',
       verdict: 'pass',
-      detail: 'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but CF_DO_WORKER_URL is unset; the round-trip driver needs the deployed-Worker origin (e.g. https://cf-platform.<subdomain>.workers.dev). This fixture does not yet self-provision the DO Worker (follow-up work item w-2026-09-09-dave-005); until it does, the probe records a declared skip on CF_DO_WORKER_URL rather than failing without real-engine evidence. Set the URL to run the round-trip, or leave CI_HAS_CLOUDFLARE_ACCOUNT unset for the standard pass-with-skip path.',
+      detail: 'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but CF_DO_WORKER_URL is unset; the round-trip driver needs the deployed-Worker origin (e.g. https://cf-platform.<subdomain>.workers.dev). This fixture does not yet self-provision the DO Worker (a follow-up); until it does, the probe records a declared skip on CF_DO_WORKER_URL rather than failing without real-engine evidence. Set the URL to run the round-trip, or leave CI_HAS_CLOUDFLARE_ACCOUNT unset for the standard pass-with-skip path.',
     });
     return { results, extra: { accountBoundSkipped: true, reason: 'CF_DO_WORKER_URL unset (second-tier env var)', missing: ['CF_DO_WORKER_URL'] } };
   }

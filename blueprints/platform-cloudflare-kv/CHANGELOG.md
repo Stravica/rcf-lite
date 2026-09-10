@@ -2,6 +2,29 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.0 (2026-09-09)
+
+### Added
+
+- `platform-cloudflare-kv-REQ-006` (`must`): the elicited `kv-key-naming-convention` answer (`prefixed` or `flat`) flows through every facade verb; `prefixed` applies the elicited `keyPrefix` transparently, `flat` passes keys through untouched. Closes criterion a on the previously unbacked elicit (F-1).
+- `platform-cloudflare-kv-REQ-007` (`must`): pre-ready operations queue behind `facadeReady`; sink events emit in causal per-operation order. Closes the previously unbacked `TAC-3201` pre-ready responsibility and `TAC-3203` ordering responsibility (F-4).
+- `platform-cloudflare-kv-US-31109` (traces REQ-005 after prior gap F-2), `US-31110` (traces REQ-006), `US-31111` (traces REQ-007). Every AC carries `disposition` and `ownerRef`; the vendor-fact ACs carry `vendorCitation`.
+
+### Changed
+
+- `platform-cloudflare-kv-REQ-005` reworded to separate the applied cache-aside TTL (LOCAL expiry) from the KV eventual-consistency propagation window (vendor-owned, up to 60 seconds or more per the Cloudflare KV documentation). The v1.0.x wording that called the elicited TTL a "global staleness ceiling" is retired; the guide surfaces the two clocks separately and cross-references `platform-cloudflare-durable-objects` as the strong-consistency answer (F-3).
+- Every existing REQ carries a `deliveredBy` link into a TAC or ADR (five links). Every existing AC carries `disposition`. `rcf define blueprint lint-consistency` reports zero pass-1 and pass-2 findings.
+
+### Added (criterion b completion, second pass 2026-09-09)
+
+- Every story on this blueprint now reaches the section 7a AC-set-sufficiency floor. 36 new hand-authored ACs cover the documented failure paths named in the guide and TAC records, per-story range 4-6 (from the 1-3 shipped in the first 1.1.0 pass): US-31101 gains four failure-path ACs (binding-unbound closing F-7 write, invalid sink, repeat-boot idempotency, ready-check rejects with KV_FACADE_NOT_READY); US-31102 gains three ACs (non-facade leak, comment-only mention, nested-directory recursion); US-31103 gains four ACs (getWithMetadata closing F-5, per-call TTL propagation closing F-5, write-failed with KV_WRITE_FAILED closing F-7, read-failed with KV_READ_FAILED closing F-7); US-31104 gains four ACs (cursor pagination closing F-5, empty prefix, no-match, list_complete indicator); US-31105 gains four ACs (TTL floor clamping closing F-6, origin-throws, concurrent-miss single-flight, source classification); US-31106 gains three ACs (per-call TTL override closing F-6, per-call TTL below floor clamps, TTL boundary strict less-than); US-31107 gains three ACs (additional-field mutation, causal ordering, closed vocabulary); US-31108 gains three ACs (metadata-blob never a body, substring scan across all kinds, layer separation); US-31109 gains three ACs (vendor propagation window in guide, DO as strong-consistency alternative in guide, no cross-region claim on any AC); US-31110 gains three ACs (unknown mode refuses, empty prefix behaves as flat, nested prefix); US-31111 gains two ACs (strict FIFO drain of 10 pre-ready calls, post-ready no-queue path). Every new AC carries `disposition`, most carry `ownerRef` into the owning TAC, and vendor-fact ACs carry `vendorCitation` (KV overview, KV API, KV how-KV-works, KV limits) with today's verifiedOn date.
+- `rcf define blueprint lint-consistency` still reports zero pass-1 and pass-2 findings. Blueprint stays at v1.1.0 on the same unreleased minor.
+
+### Fixed (review fix pass, 2026-09-09)
+
+- `AC-31109-1` disposition flipped from `fixed` to `template`: the applying project sets the cache-aside TTL, so an AC that binds the local-expiry window to `elicitedTtlMs` is an elicit-branch AC per section 7b (review F-4).
+- Register sweep: README, ADR and probe comments have internal operator names, host names, work-item ids, "H-2" train labels and "Dave ruling" references neutralised to concept ("throwaway prefix", "probe-integrity pass", "operator ruling"); code literals bound to real Cloudflare API state ("h2-cf-probe-integrity-scratch-kv-" and similar) are unchanged. CHANGELOG entries keep internal provenance (review F-3).
+
 ## 1.0.2 (2026-09-08)
 
 H-2 follow-up (`w-2026-09-08-dave-017`, addendum item 6 fixture defect): the real-account KV probe now self-provisions its own throwaway namespace, closing the second-tier undeclared-env skip HQ hit at the real-account gate on 2026-09-08 (`REAL RUN: PARTIAL`, `MERGE DECISION: HOLD`). No shipped-code capability change.

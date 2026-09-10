@@ -1,6 +1,6 @@
 # Guide: platform-docker-compose-host v1.0.0
 
-Round-7 T-2 of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`. Applies on top of `deploy-hetzner-server` (or any future `cloudHost` provider) and mints `containerHost` for downstream consumers.
+Applies on top of `deploy-hetzner-server` (or any future `cloudHost` provider) and mints `containerHost` for downstream consumers.
 
 ## What this blueprint gives you
 
@@ -24,11 +24,11 @@ A docker compose stack as your application runtime on a Linux VM. The compose fi
 
 The `reverse-proxy` elicit is the one you will hit first. The defaults:
 
-- **`caddy` (default per Baz decision 19).** Matches the estate baseline (dev-01 and ops-01 both run Caddy). Small config file, automatic HTTPS in production, `docker compose exec caddy caddy reload` picks up changes instantly. Reach for it whenever you do not have a strong project-side reason for something else. See the Caddy docs at https://caddyserver.com/docs/.
+- **`caddy` (the shipped default).** Matches a common Linux-host baseline where the target hosts already run Caddy. Small config file, automatic HTTPS in production, `docker compose exec caddy caddy reload` picks up changes instantly. Reach for it whenever you do not have a strong project-side reason for something else. See the Caddy docs at https://caddyserver.com/docs/.
 - **`traefik` (alternative).** Reach for it when your project wants docker-label auto-discovery (each service declares its hostname/route via labels in `compose.yaml` and Traefik configures itself). Trade-off: your routing is spread across many service blocks rather than one Caddyfile. See the Traefik docs at https://doc.traefik.io/traefik/.
-- **`none` (alternative).** Reach for it when the project is fronted only by the round-7 tunnel (`edge-cloudflare-tunnel` v1.0.0). The connector terminates at the CF edge and forwards to a service on the internal `web-net` network; no reverse proxy is needed inside compose. The lint refuses to add a `caddy/Caddyfile` when `reverse-proxy` is `none`.
+- **`none` (alternative).** Reach for it when the project is fronted only by the `edge-cloudflare-tunnel` sibling (v1.0.0). The connector terminates at the CF edge and forwards to a service on the internal `web-net` network; no reverse proxy is needed inside compose. The lint refuses to add a `caddy/Caddyfile` when `reverse-proxy` is `none`.
 
-The Coolify note (ADR-3903 body): "reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state". Baz decision 20, verbatim. A `platform-coolify-host` sibling mints on operator demand later; it is not part of round 7.
+The Coolify note (ADR-3903 body): "reject; it shadows what the blueprints contract and adds its own DB and UI as a second source of state". Recorded as a platform decision. A `platform-coolify-host` sibling may mint on operator demand later.
 
 ## Healthcheck contract
 

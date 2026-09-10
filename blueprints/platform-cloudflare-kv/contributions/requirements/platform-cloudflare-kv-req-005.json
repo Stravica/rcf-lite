@@ -1,8 +1,8 @@
 {
   "reqId": "platform-cloudflare-kv-REQ-005",
   "prdId": "PRD-001",
-  "title": "Eventual-consistency note in the guide: a write may not appear on a global read within the same request and the elicited TTL sets the staleness ceiling",
-  "description": "Workers KV is eventually consistent per https://developers.cloudflare.com/kv/concepts/how-kv-works/. The guide surfaces the note (a write may not appear on a global read within the same request; changes may take up to 60 seconds or more to be visible in other network locations as cached versions time out) and states that the elicited cache-aside TTL (default 60 seconds per Cloudflare-documented cache TTL default) sets the staleness ceiling readers observe. The guide also carries a decision-tree cross-reference to platform-cloudflare-durable-objects (round-6 T-3) for cases needing stronger-consistency semantics; DO is the shipped answer when a key must have exactly one owner and every read must reflect the most recent write.",
+  "title": "The applied cache-aside TTL bounds LOCAL read staleness; Workers KV eventual consistency is a separate clock the guide names",
+  "description": "Workers KV is eventually consistent per https://developers.cloudflare.com/kv/concepts/how-kv-works/: a write may not appear on a global read within the same request and changes may take up to 60 seconds or more to be visible in other network locations as cached versions time out. That vendor-owned propagation window is a separate clock from the applied cache-aside TTL. The elicited cache-aside TTL (default 60 seconds per ADR-3202) bounds the LOCAL cache-aside layer only: a fresh origin fetch replaces the local entry, and the local entry expires after the TTL. It does NOT set a global staleness ceiling readers on other network locations observe. The guide surfaces the two clocks separately and carries a decision-tree cross-reference to platform-cloudflare-durable-objects for cases needing strong-consistency semantics (a key with one owner where every read must reflect the most recent write).",
   "category": "functional",
   "domain": "platform",
   "priority": "must",
@@ -14,5 +14,9 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-07T10:26:28.000Z",
-  "updatedAt": "2026-09-07T10:26:28.000Z"
+  "updatedAt": "2026-09-09T20:20:00.000Z",
+  "deliveredBy": {
+    "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
+    "field": "responsibilities.ttl"
+  }
 }
