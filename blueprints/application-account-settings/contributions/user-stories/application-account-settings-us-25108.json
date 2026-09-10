@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-25108-3",
-      "description": "When theme-persistence is spa-local-storage, the theme choice persists across principal loads via localStorage; when server-scoped, the choice persists via the applied server endpoint; when none, the choice resets to system on load.",
+      "description": "When theme-persistence is spa-local-storage, the theme choice persists across principal loads via localStorage; when server-scoped, the choice persists via the applied server endpoint; when none, the choice resets to system on load. Applying agent sets: theme-persistence.",
       "given": "each theme-persistence value applied in turn",
       "when": "the principal picks a theme and reloads",
       "then": "spa-local-storage persists via localStorage, server-scoped persists via the server endpoint, none resets to system",

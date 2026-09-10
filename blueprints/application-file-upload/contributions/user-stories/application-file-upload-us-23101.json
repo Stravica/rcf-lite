@@ -18,7 +18,7 @@
     },
     {
       "id": "AC-23101-2",
-      "description": "A file whose MIME type is outside the elicited accepted-set is refused at the input with an inline error naming the mismatch and the accepted set; no request is sent to the transport.",
+      "description": "A file whose MIME type is outside the elicited accepted-set is refused at the input with an inline error naming the mismatch and the accepted set; no request is sent to the transport. Applying agent sets: accepted-set.",
       "given": "a file whose MIME type is outside the accepted-set",
       "when": "the principal drops or selects the file",
       "then": "the input refuses the file inline, an aria-describedby-bound error names the mismatch and the accepted set, and no transport call fires",
@@ -28,7 +28,7 @@
     },
     {
       "id": "AC-23101-3",
-      "description": "A file whose size exceeds the elicited size-cap is refused inline with the cap named in bytes and a human-readable form; the input never accepts the file into the drop-zone queue.",
+      "description": "A file whose size exceeds the elicited size-cap is refused inline with the cap named in bytes and a human-readable form; the input never accepts the file into the drop-zone queue. Applying agent sets: size-cap.",
       "given": "a file whose size exceeds the elicited size-cap",
       "when": "the principal drops or selects the file",
       "then": "the input refuses inline with the cap named and no transport call fires",

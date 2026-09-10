@@ -2,7 +2,7 @@
   "reqId": "application-account-settings-REQ-003",
   "prdId": "PRD-001",
   "title": "Security surface conditional on credentialSelfService OR hostedIdentityUi",
-  "description": "The security surface (/account/security) renders when the applied capability set contains credentialSelfService (self-service branch: password change, MFA setup, session-based sign-out) or hostedIdentityUi (link-out or embed branch: rendering an operator-elicited href or handle). When NEITHER capability is applied, the security tab does not render and the surface refuses at apply with the two-remedy message (declare a capability, or drop the security tab from scope) per spec Q3.",
+  "description": "The security surface (/account/security) renders when the applied capability set contains credentialSelfService (self-service branch of the security-surface-shape elicit: password change, MFA setup, session-based sign-out) or hostedIdentityUi (hosted-link-out or hosted-embed branch of the security-surface-shape elicit: hosted-link-out surfaces an operator-elicited href through the hosted-identity-url handle; hosted-embed surfaces the same handle inside a same-origin iframe when the applied hosted-identity provider names an embed clause). When NEITHER capability is applied, the security tab does not render and the surface refuses at apply with the two-remedy message (declare a capability, or drop the security tab from scope) per spec Q3.",
   "deliveredBy": {
     "tacId": "TAC-2603-application-account-settings-hosted-ui-bridge",
     "field": "interfaces.securitySurface"
@@ -18,5 +18,5 @@
   "version": "1.0.0",
   "status": "approved",
   "createdAt": "2026-09-06T20:55:46Z",
-  "updatedAt": "2026-09-06T20:55:46Z"
+  "updatedAt": "2026-09-10T00:00:00Z"
 }

@@ -49,7 +49,7 @@
     },
     {
       "id": "AC-20103-4",
-      "description": "The notification centre inbox lists the last N days of notifications enumerated by data-notification-id and paginates once N exceeds the elicited page-size; a paginated request that fails leaves the currently loaded rows visible and shows an inline retry.",
+      "description": "The notification centre inbox lists the last N days of notifications enumerated by data-notification-id and paginates once N exceeds the elicited page-size; a paginated request that fails leaves the currently loaded rows visible and shows an inline retry. Applying agent sets: page-size.",
       "given": "an inbox whose N exceeds the page-size and a paginated fetch that fails",
       "when": "the principal scrolls or paginates",
       "then": "the previously loaded rows remain visible, an inline retry control appears and no rows are removed on the failure",

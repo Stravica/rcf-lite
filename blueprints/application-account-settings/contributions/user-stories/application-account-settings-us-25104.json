@@ -18,7 +18,7 @@
     },
     {
       "id": "AC-25104-2",
-      "description": "When security-surface-shape is hosted-link-out, the surface renders an <a> element carrying data-role=hosted-link-out and href={hosted-identity-url}; a missing hosted-identity-url elicit answer refuses at apply with HOSTED_URL_MISSING.",
+      "description": "When security-surface-shape is hosted-link-out, the surface renders an <a> element carrying data-role=hosted-link-out and href={hosted-identity-url}; a missing hosted-identity-url elicit answer refuses at apply with HOSTED_URL_MISSING. Applying agent sets: hosted-identity-url.",
       "given": "hostedIdentityUi applied with security-surface-shape=hosted-link-out and hosted-identity-url set",
       "when": "the security route renders",
       "then": "the DOM carries an <a data-role=\"hosted-link-out\" href={hosted-identity-url}> element; missing URL refuses at apply",
@@ -28,7 +28,7 @@
     },
     {
       "id": "AC-25104-3",
-      "description": "When security-surface-shape is hosted-embed, the surface renders an <iframe data-role=\"hosted-embed\" title=\"Account security\" src={hosted-identity-url}> element; the iframe carries a defined title for screen readers.",
+      "description": "When security-surface-shape is hosted-embed, the surface renders an <iframe data-role=\"hosted-embed\" title=\"Account security\" src={hosted-identity-url}> element; the iframe carries a defined title for screen readers. Applying agent sets: hosted-identity-url.",
       "given": "hostedIdentityUi applied with security-surface-shape=hosted-embed",
       "when": "the security route renders",
       "then": "the DOM carries the described iframe with a non-empty title",
