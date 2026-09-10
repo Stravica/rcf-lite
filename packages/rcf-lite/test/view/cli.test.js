@@ -15,6 +15,7 @@ import { createServer } from 'node:http';
 
 import { initProject } from '#core/store/init.js';
 import {
+  main as viewMain,
   maybeAutoOpen,
   openerFor,
   parseArgs,
@@ -297,6 +298,67 @@ test('rcf view SIGINT triggers a clean shutdown within the 2s budget', async () 
   const check = createServer().listen(port, '127.0.0.1');
   await new Promise((r) => check.once('listening', r));
   await new Promise((r) => check.close(r));
+});
+
+// Ordering-proof regression for the SIGINT flake: the SIGINT and SIGTERM
+// handlers must be installed BEFORE the "listening at" line is written to
+// stdout. Otherwise a caller (test harness, script, operator) that keys on
+// the readiness line and immediately sends SIGINT can race Node's default
+// SIGINT disposition and be killed instead of running the clean-shutdown
+// path. The subprocess test above ("triggers a clean shutdown within the
+// 2s budget") is racy by nature on slow CI; this test is deterministic
+// because it drives main() in-process with an injected onSignal that
+// records install order relative to injected stdout writes.
+test('rcf view installs SIGINT/SIGTERM handlers before writing the "listening at" line', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-cli-sigint-order-'));
+  await initProject({ projectRoot: tmp });
+  const port = await freePort();
+
+  const events = [];
+  const stdoutStream = {
+    write(s) { events.push({ kind: 'stdout', text: String(s) }); return true; },
+  };
+  const stderrStream = {
+    write(s) { events.push({ kind: 'stderr', text: String(s) }); return true; },
+  };
+  const handlers = {};
+  const onSignal = (sig, fn) => {
+    events.push({ kind: 'onSignal', sig });
+    handlers[sig] = fn;
+    // Fire SIGINT on the next tick so main() unblocks and resolves.
+    if (sig === 'SIGINT') setImmediate(() => fn());
+  };
+
+  const code = await viewMain(
+    ['--port', String(port), '--no-open'],
+    {
+      env: { ...process.env, CI: '1' },
+      stdout: stdoutStream,
+      stderr: stderrStream,
+      onSignal,
+      cwd: tmp,
+    },
+  );
+
+  assert.equal(code, 130, 'expected the self-directed SIGINT exit code');
+
+  const sigintIdx = events.findIndex((e) => e.kind === 'onSignal' && e.sig === 'SIGINT');
+  const sigtermIdx = events.findIndex((e) => e.kind === 'onSignal' && e.sig === 'SIGTERM');
+  const listeningIdx = events.findIndex(
+    (e) => e.kind === 'stdout' && /listening at/.test(e.text),
+  );
+
+  assert.ok(sigintIdx >= 0, 'onSignal was never called for SIGINT');
+  assert.ok(sigtermIdx >= 0, 'onSignal was never called for SIGTERM');
+  assert.ok(listeningIdx >= 0, '"listening at" line was never written to stdout');
+  assert.ok(
+    sigintIdx < listeningIdx,
+    `SIGINT handler must install before the "listening at" write; got sigint@${sigintIdx} vs listening@${listeningIdx}`,
+  );
+  assert.ok(
+    sigtermIdx < listeningIdx,
+    `SIGTERM handler must install before the "listening at" write; got sigterm@${sigtermIdx} vs listening@${listeningIdx}`,
+  );
 });
 
 test('rcf view start --persist-until 4h (the spec §9.2 sample) is accepted at parse time', async () => {

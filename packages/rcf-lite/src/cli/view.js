@@ -305,17 +305,17 @@ export async function main(argv, deps = {}) {
     return 1;
   }
 
-  stdout.write(`rcf audit view server listening at ${server.url}\n`);
-  stdout.write('watching rcf/ - Ctrl-C to shut down\n');
-
-  maybeAutoOpen({
-    target: server.url,
-    noOpen: opts.noOpen,
-    stream: stdout,
-    env,
-    stderr,
-  });
-
+  // Install SIGINT and SIGTERM handlers BEFORE announcing readiness on
+  // stdout. A caller (test harness, script, operator watching for the
+  // "listening at" line) that sees the readiness line and immediately
+  // sends SIGINT must not race Node's default SIGINT disposition. If the
+  // handlers were installed AFTER the write, a slow scheduler on CI could
+  // deliver the signal in the window between the write flushing to the
+  // parent pipe and `process.on('SIGINT', ...)` calling into sigaction,
+  // and the child would be killed by the default disposition instead of
+  // running its own clean-shutdown path. Ordering is the contract; see
+  // the `SIGINT handler is installed before the "listening at" line`
+  // test in test/view/cli.test.js.
   return new Promise((resolve) => {
     let signalled = false;
     async function handle(sig) {
@@ -339,6 +339,17 @@ export async function main(argv, deps = {}) {
     }
     onSignal('SIGINT', () => { handle('SIGINT'); });
     onSignal('SIGTERM', () => { handle('SIGTERM'); });
+
+    stdout.write(`rcf audit view server listening at ${server.url}\n`);
+    stdout.write('watching rcf/ - Ctrl-C to shut down\n');
+
+    maybeAutoOpen({
+      target: server.url,
+      noOpen: opts.noOpen,
+      stream: stdout,
+      env,
+      stderr,
+    });
   });
 }
 
