@@ -65,14 +65,40 @@ export const anchorAcId = 'AC-29108-2';
 export const accountBound = true;
 
 // Every env var the probe reads. Superset of the shim's DECLARED_ENV
-// (shim tracks the shim's own reads; this probe additionally gates on
-// the account-state env var CF_QUEUE_LIVE_RUN_ALLOWED to keep the 7d
-// declared-skip shape on accounts where workers.dev subdomain is not
-// provisioned).
+// (shim tracks its own reads; this probe additionally reads
+// GITHUB_RUN_ID for the mint runId derivation).
 const PROBE_DECLARED_ENV = Object.freeze([
   ...DECLARED_ENV,
-  'CF_QUEUE_LIVE_RUN_ALLOWED',
+  'GITHUB_RUN_ID',
 ]);
+
+// Pre-flight observation: does the target Cloudflare account have a
+// workers.dev subdomain provisioned? The queue consumer-attach step
+// (see mintScratchQueueAndWorker) requires one, and on accounts
+// without it the attach rejects with HTTP 403 code 10063 leaving a
+// partial mint that the shim rolls back. Observing the account state
+// up front lets the probe record a declared skip whose reason names
+// the missing ACCOUNT prerequisite rather than any env var, and
+// whose detail carries the API status and code as evidence. Endpoint:
+// GET /accounts/{id}/workers/subdomain (verifiedOn 2026-09-10 per
+// https://developers.cloudflare.com/api/resources/workers/subresources/subdomain/methods/get/).
+async function preflightWorkersDevSubdomain() {
+  const accountId = process.env.CF_ACCOUNT_ID;
+  const token = process.env.CF_API_TOKEN;
+  const base = (process.env.CF_API_BASE_URL && process.env.CF_API_BASE_URL.trim())
+    ? process.env.CF_API_BASE_URL.replace(/\/$/, '')
+    : 'https://api.cloudflare.com/client/v4';
+  const url = `${base}/accounts/${accountId}/workers/subdomain`;
+  const resp = await fetch(url, { method: 'GET', headers: { authorization: `Bearer ${token}` } });
+  const text = await resp.text();
+  let json = null;
+  try { json = JSON.parse(text); } catch (_err) { /* body may be empty or non-JSON */ }
+  const errorCode = json && Array.isArray(json.errors) && json.errors[0] && json.errors[0].code;
+  const result = json && json.result;
+  const subdomain = result && typeof result.subdomain === 'string' && result.subdomain.trim().length > 0 ? result.subdomain : null;
+  const provisioned = resp.ok && json && json.success === true && subdomain !== null;
+  return { status: resp.status, errorCode, subdomain, provisioned };
+}
 
 function skipResult({ reason, detail }) {
   return [{
@@ -129,25 +155,29 @@ export default async function runProbe() {
   if (!process.env.CF_ACCOUNT_ID) missingCreds.push('CF_ACCOUNT_ID');
   if (!process.env.CF_API_TOKEN) missingCreds.push('CF_API_TOKEN');
   if (missingCreds.length > 0) {
+    const noun = missingCreds.length > 1 ? 'those credentials are' : 'that credential is';
     return skipResult({
       reason: missingCreds.join(','),
-      detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but ${missingCreds.join(' and ')} unset; a real-account run requires those credentials alongside the CI gate. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+      detail: `accountBoundSkipped: ${missingCreds.join(' and ')} unset; a real-account run requires ${noun} present. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
     });
   }
-  // Pre-flight account-state gate: the queue consumer-attach API
-  // requires the target account to have a workers.dev subdomain
-  // provisioned (Cloudflare returns HTTP 403 code 10063 without it,
-  // per https://developers.cloudflare.com/api/resources/queues/
-  // subresources/consumers/ verifiedOn 2026-09-10). On accounts where
-  // that subdomain is deliberately not enabled (operator ruling
-  // 376b4f30 style), the operator sets
-  // `CF_QUEUE_LIVE_RUN_ALLOWED=true` only when the account state
-  // supports a consumer attach. Unset -> honest declared skip; a
-  // bare verdict: fail on an environmental gap is a 7d violation.
-  if (process.env.CF_QUEUE_LIVE_RUN_ALLOWED !== 'true' && process.env.CF_QUEUE_LIVE_RUN_ALLOWED !== '1') {
+  // Pre-flight account-state observation: the queue consumer-attach
+  // API requires the target Cloudflare account to have a workers.dev
+  // subdomain provisioned (rejects with HTTP 403 code 10063 without
+  // one, per https://developers.cloudflare.com/api/resources/queues/
+  // subresources/consumers/ verifiedOn 2026-09-10). This probe
+  // observes the subdomain state directly via
+  // GET /accounts/{id}/workers/subdomain and records a declared skip
+  // when the account has none - the reason names the missing ACCOUNT
+  // prerequisite (not an env var) and the detail carries the API
+  // status and error code as positive evidence of the observation.
+  // A fully capable account carries a subdomain and the probe
+  // proceeds unconditionally to mint / drive / teardown.
+  const preflight = await preflightWorkersDevSubdomain();
+  if (!preflight.provisioned) {
     return skipResult({
-      reason: 'CF_QUEUE_LIVE_RUN_ALLOWED',
-      detail: `accountBoundSkipped: CF_QUEUE_LIVE_RUN_ALLOWED unset; the queue consumer-attach step requires the target Cloudflare account to have a workers.dev subdomain provisioned (Cloudflare API code 10063 without it, per https://developers.cloudflare.com/api/resources/queues/subresources/consumers/ verifiedOn 2026-09-10). Set CF_QUEUE_LIVE_RUN_ALLOWED=true only on an account where consumer-attach is known to succeed. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+      reason: 'cloudflare-account-workers-dev-subdomain-not-provisioned',
+      detail: `accountBoundSkipped: pre-flight GET /accounts/{id}/workers/subdomain returned status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} - the target Cloudflare account has no workers.dev subdomain provisioned. The queue consumer-attach step (see https://developers.cloudflare.com/api/resources/queues/subresources/consumers/, verifiedOn 2026-09-10) rejects with HTTP 403 code 10063 in that state, so the probe cannot complete a live run against this account. The account prerequisite (a provisioned workers.dev subdomain) is out of the probe's authorship scope. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
     });
   }
 
@@ -166,6 +196,7 @@ export default async function runProbe() {
     }];
   }
 
+  let results = null;
   try {
     const started = Date.now();
     const batches = [];
@@ -185,12 +216,13 @@ export default async function runProbe() {
     ));
     const publishFail = publishResults.find((r) => !r.ok);
     if (publishFail) {
-      return [{
+      results = [{
         anchorAcId: 'AC-29108-2',
         verdict: 'fail',
         detail: `queuePublishBatch failed: status=${publishFail.status} error=${publishFail.error}`,
         envDeclared: PROBE_DECLARED_ENV,
       }];
+      return results;
     }
     const publishedCount = publishResults.reduce((acc, r) => acc + (r.count ?? 0), 0);
 
@@ -212,7 +244,7 @@ export default async function runProbe() {
     const observedConcurrency = maxConcurrent > 1;
     const allOk = drained && withinCap && observedConcurrency;
 
-    return [{
+    results = [{
       anchorAcId: 'AC-29108-2',
       verdict: allOk ? 'pass' : 'fail',
       detail: allOk
@@ -230,11 +262,33 @@ export default async function runProbe() {
       envDeclared: PROBE_DECLARED_ENV,
       throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
     }];
+    return results;
   } finally {
     try {
       await destroyScratchQueueAndWorker(mint);
     } catch (err) {
-      process.stderr.write(`h2-cf-queue probe: teardown failed for queue=${mint && mint.queue && mint.queue.id} worker=${mint && mint.worker && mint.worker.name} telemetryKv=${mint && mint.telemetryKv && mint.telemetryKv.id}: ${err.message}; sweepOrphans will collect on next run.\n`);
+      const orphaned = {
+        queueId: mint && mint.queue && mint.queue.id,
+        queueName: mint && mint.queue && mint.queue.name,
+        workerName: mint && mint.worker && mint.worker.name,
+        telemetryKvId: mint && mint.telemetryKv && mint.telemetryKv.id,
+      };
+      const orphanRecord = {
+        anchorAcId: 'AC-29108-2',
+        verdict: 'fail',
+        detail: `TEARDOWN FAILED: destroyScratchQueueAndWorker threw ${err && err.message ? err.message : String(err)}; potentially orphaned resources on the account: queue.id=${orphaned.queueId} queue.name=${orphaned.queueName} consumerWorker.name=${orphaned.workerName} telemetryKv.id=${orphaned.telemetryKvId}. sweepOrphans on the shim will collect on the next real-account run; a live account audit is still recommended.`,
+        teardownFailed: true,
+        orphaned,
+        envDeclared: PROBE_DECLARED_ENV,
+        throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
+      };
+      if (Array.isArray(results)) {
+        results.push(orphanRecord);
+      } else {
+        // Body threw before assigning results (would have propagated already);
+        // this branch keeps the safety net symmetric.
+        results = [orphanRecord];
+      }
     }
   }
 }

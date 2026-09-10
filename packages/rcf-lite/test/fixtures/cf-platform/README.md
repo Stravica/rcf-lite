@@ -377,7 +377,13 @@ section 6; authoring standard section 7d).
 | `CF_WORKER_NAME` | second | Deployed Worker name the scheduled smoke queries for cron invocation records. | `blueprints/platform-cloudflare-cron-triggers/contributions/probes/real-account-scheduled-smoke.mjs` |
 | `CF_API_BASE_URL` | second | Optional test override pointing the Cloudflare REST calls at a local mock server. Not a skip trigger; enumerated for completeness. | `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-account-api.mjs` |
 | `CF_QUEUE_MESSAGE_COUNT` | second | Optional message-count override on the queue concurrency smoke (default 500). Not a skip trigger; enumerated for completeness. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
-| `CF_QUEUE_LIVE_RUN_ALLOWED` | second | Account-state gate for the queue concurrency smoke. The consumer-attach step requires the target account to have a workers.dev subdomain provisioned (Cloudflare API code 10063 without it, verifiedOn 2026-09-10). Unset -> the probe records `accountBoundSkipped: true` with `reason=CF_QUEUE_LIVE_RUN_ALLOWED`; set only where consumer-attach is known to succeed. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs` |
+| `GITHUB_RUN_ID` | second | Optional CI run identifier used to disambiguate the throwaway queue / worker / telemetry KV names the shim mints. Not a skip trigger; falls back to a local timestamp when unset. | `blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs`; `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-queue-real-account-shim.mjs` |
+
+The queue concurrency smoke also observes the target account's
+workers.dev subdomain state directly via `GET
+/accounts/{id}/workers/subdomain` and records a declared skip when
+the account has none; that observation is an ACCOUNT prerequisite
+rather than an env var, so it does not appear on this table.
 
 A probe that reads any variable not on this table fails the
 positive-evidence gate row at review time. When a probe records

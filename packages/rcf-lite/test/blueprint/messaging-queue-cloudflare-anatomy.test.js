@@ -223,8 +223,12 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
     assert.ok(r, 'account-set branch must still include an AC-29108-2 result');
     assert.equal(r.verdict, 'pass', `account-set-no-tokens verdict must be pass with accountBoundSkipped per section 7d; detail=${r.detail}`);
     assert.equal(r.accountBoundSkipped, true, 'account-set-no-tokens branch records accountBoundSkipped: true');
-    assert.match(r.reason || '', /CF_ACCOUNT_ID.*CF_API_TOKEN|CF_API_TOKEN.*CF_ACCOUNT_ID|CF_ACCOUNT_ID|CF_API_TOKEN/, 'reason names the specific missing env var(s)');
-    assert.match(r.detail, /CF_ACCOUNT_ID|CF_API_TOKEN/, 'skip detail names the missing token env');
+    const reasonStr = r.reason || '';
+    assert.match(reasonStr, /CF_ACCOUNT_ID/, 'reason names CF_ACCOUNT_ID');
+    assert.match(reasonStr, /CF_API_TOKEN/, 'reason names CF_API_TOKEN');
+    assert.match(r.detail, /CF_ACCOUNT_ID/, 'skip detail names CF_ACCOUNT_ID');
+    assert.match(r.detail, /CF_API_TOKEN/, 'skip detail names CF_API_TOKEN');
+    assert.equal(/CI_HAS_CLOUDFLARE_ACCOUNT/.test(r.detail), false, 'skip detail on the account-set-no-tokens branch does not name CI_HAS_CLOUDFLARE_ACCOUNT (that variable is set on this branch)');
   } finally {
     if (savedAcctId !== undefined) process.env.CF_ACCOUNT_ID = savedAcctId;
     if (savedToken !== undefined) process.env.CF_API_TOKEN = savedToken;
