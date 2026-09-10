@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "A unit-test check the project realises produces a stable-shape test report and fails non-zero on any failing test",
   "description": "The elicited `unitTest` check, when the project enables it in `workflowShape.checkSet.unitTest`, runs the project unit-test suite as a gate that exits non-zero on any failing test. The gate writes its per-gate report to `.rcf/reports/ci/test.json` in the shared per-gate report shape (with `checkKind: \"unitTest\"`). The blueprint does not pick the test runner; the project realises the runner and satisfies the runner-contract interface. A missing runner (an empty test suite before the project has any tests) is recorded in the per-gate report and does not by itself fail the gate.",
+  "deliveredBy": {
+    "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+    "field": "interfaces.runGates"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

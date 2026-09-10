@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The probe paths are auth-exempt scoped exactly to the resolved probe path set on the resolved listener",
   "description": "For every HTTP-transport profile, the probe path set the profile resolved (e.g., `/live` and `/ready` for Kubernetes default) is exempt from the project's auth middleware on the listener the profile bound those handlers to. The exemption is scoped by exact path match and by listener, never by prefix. When the fused topology is in effect, the exemption applies on the user-traffic listener for those exact paths only; when the separate-port topology is in effect, the exemption applies on the separate probe listener for those exact paths only and no auth middleware runs on the separate listener because no other route is served there. A path near a probe path but not on the resolved set (e.g., `/ready/next` when `/ready` is the probe) receives the project's normal auth treatment.",
+  "deliveredBy": {
+    "tacId": "TAC-1503-observability-probe-endpoints-listener-topology",
+    "field": "interfaces.exemptListInstaller"
+  },
   "category": "security",
   "domain": "observability",
   "priority": "must",

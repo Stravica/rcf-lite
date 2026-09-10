@@ -2,6 +2,20 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the blueprint version is semver per the authoring standard section 8.
 
+
+## 2.3.0 (hardening pass B4, 2026-09-09)
+
+- Adds `elicits[]` with seven apply-time answers: `branch-model` (enum feature/trunk, default feature; ADR-706), `check-set` (string JSON of booleans; REQs 016-020), `release-mode` (enum none/tagOnly/tagPlusArtefact/deployHandoff, default none; ADR-707), `scheduled-audit` (enum off/on, default off; ADR-710), `provider-hint` (enum githubActions, default githubActions; ADR-708), `report-dir` (string, default .rcf/reports; ADR-704), `deploy-handoff-target` (string, blank when not deployHandoff; REQ-022).
+- Adds `deliveredBy` to all 23 REQs pointing at TAC-701/702/703/704/705/706 responsibility-carrying interfaces. Closes 14 pass-2 lint findings.
+- Closes the pass-1 lint finding on AC-6109-2: adds ownerRef pointing at TAC-701-delivery-ci-workflows-gate-runner.interfaces[2].name (the entry-point CLI it restates).
+- Closes F-1 (interrupted report writes could leave stale success): adds AC-6105-3 and AC-6108-3 asserting an interrupted per-gate and aggregate rewrite never leaves a stale-success from a previous run; the pipeline refuses pass on absent aggregate per REQ-008.
+- Closes F-2 (release entity creation and artefact publication had only success cases): adds AC-6121-4 (RELEASE_CREATE_FAILED naming step + provider status; no downstream publication or promote) and AC-6122-4 (RELEASE_PUBLISH_FAILED naming artefact + provider response; no promote step).
+- Closes F-3 (missing/malformed workflow config): adds AC-6112-3 (absent .rcf/config/delivery-ci-workflows.json -> WORKFLOW_CONFIG_MISSING; no workflow file written) and AC-6112-4 (unparseable JSON -> WORKFLOW_CONFIG_UNPARSEABLE naming file + parser error).
+- Re-sweeps every existing AC's `disposition` per section 7b: ACs referencing workflowShape values, provider hint, elicited check catalogue, report directory, and deployHandoff target flipped to `template` with `templateFillIns`; the remaining ACs stay `fixed`.
+- Review fix pass (F-1): flips AC-6104-3, AC-6106-3, AC-6119-2 to `disposition: fixed` (three ACs describe blueprint-invariant semantics with no elicited substitution in the assertion); adds the section 7b fill-in sentence naming the elicited values the applying agent sets to the remaining eight template ACs (AC-6111-3, AC-6113-3, AC-6115-3, AC-6116-2, AC-6118-3, AC-6120-2, AC-6123-3, AC-6124-2).
+- Review fix pass (F-6): extends REQ-011 description with a runtime clause naming the literal `providerHint: githubActions` value (the one shipped-asset provider hint in v2 per ADR-708); AC-6113-1 already binds the four-field expansion including `providerHint: githubActions`.
+- Review fix pass (F-8): adds section 7a coverage-note descriptions to US-6109, US-6116, US-6117, US-6119, US-6120, US-6124 recording the guide-and-TAC trace outcome per story (none had mechanism-specific failure paths named in the guide or TAC beyond the ACs each story already binds; runner-missing and gate-aggregation gaps route generically through AC-6102-3 and AC-6108-1).
+
 ## [2.0.0] - 2026-08-31
 
 Rename from `ci-pipeline` and redesign into a workflow SET the operator declares via a `workflowShape` block; introduces the elicited-check tier (linter, formatter, typecheck, unitTest, securityScan) alongside the preserved v1 RCF-gate mandatory tier; introduces the release workflow scaled across four modes; introduces the optional scheduled-audit workflow; mints one new global topic (`releaseArtefacts`). Ratified 2026-08-31 (Q1 one-blueprint-the-set; Q6-B releaseMode-optional; all other section-12 questions accepted as recommended).

@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Transport is Resend's SMTP endpoint, credentialed from placeholder-referenced secrets and a placeholder-referenced verified sender address",
   "description": "The adapter dials Resend's SMTP submission endpoint (host and port declared as configuration references, not literal in-code strings) and authenticates with an SMTP username and an SMTP password sourced from a Secrets Manager slice. The from-address on every outgoing message is a project-configured verified sender address, also sourced from configuration rather than a literal. Three configuration references are named by the adapter: `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS`. The names are references only; the values live in the vendor the project's Secrets Manager resolves against. No SMTP credential, no signing secret, and no real sender domain is ever committed to the repo or embedded in the adapter's code paths.",
+  "deliveredBy": {
+    "tacId": "TAC-401-email-smtp-resend-send-adapter",
+    "field": "interfaces.secretResolver"
+  },
   "category": "functional",
   "domain": "email",
   "priority": "must",

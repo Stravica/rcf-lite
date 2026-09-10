@@ -40,10 +40,15 @@
       "name": "checkFor",
       "kind": "callback",
       "description": "Project-supplied per-dependency probe: (name) -> Promise<{ state: pass or fail, checkedAt: <ISO-8601> }>. Called by the evaluator, not by the handler."
+    },
+    {
+      "name": "probeBodyShapeCompatibility",
+      "kind": "compatibility-contract",
+      "description": "Cross-probe response body shape compatibility. Owns the release-time check that compares a candidate release's /live and /ready response bodies against the checked-in v2 baseline snapshot at blueprints/observability-essentials/assets/probe-samples/probe-response-baseline.v2.json. A field name or JSON type present on the baseline that a candidate renames or removes is refused with the stable error code PROBE_BODY_SHAPE_DRIFT naming the offending field; a candidate that adds fields without renaming or removing any passes. TAC-802 hosts the contract because the readiness body is the richer of the two shapes; TAC-801's liveness body is jointly covered by the same contract."
     }
   ],
   "dependencies": [],
   "tradeoffs": "The cached-state pattern means the probe response is at worst one cadence interval stale; a dep that fails mid-cycle takes up to the cadence to reflect on the probe. That staleness is the cost of never hanging the probe handler. Path binding is now the operator or the composed observability-probe-endpoints blueprint decision, not an essentials default: the v2.0.0 breaking change is exactly this shift. Projects that want tighter freshness turn down the cadence at the cost of extra background work; projects that never want the probe to falsely fail on a transient dep blip turn up the cadence at the cost of slower fail-open detection.",
   "createdAt": "2026-08-24T00:00:00Z",
-  "updatedAt": "2026-09-04T00:00:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Each supported target integration profile names its own probe path, response contract, transport, and semantic distinction",
   "description": "Every profile the blueprint ships names four things: the probe path or command surface (an HTTP path for HTTP profiles, a TCP port for socket profiles, a shell command for exec profiles, a supervisor call for notify profiles); the response contract (HTTP status code range with an optional minimal JSON body for HTTP profiles, connect-and-close for TCP, exit-code zero for exec, one notify call for supervisor); the transport (HTTP GET, TCP SYN, spawned process, or unix socket for supervisor calls); and the semantic distinction between liveness and readiness (two endpoints for Kubernetes; one health signal for load balancers and uptime monitors that do not distinguish; a boot-time readiness notification followed by a periodic watchdog for systemd; a single command answer for Docker HEALTHCHECK). A profile that does not resolve all four is refused at boot with a stable-coded error naming the missing field.",
+  "deliveredBy": {
+    "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
+    "field": "interfaces.buildHandlerSet"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",

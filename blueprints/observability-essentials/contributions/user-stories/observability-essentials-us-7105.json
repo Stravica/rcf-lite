@@ -16,7 +16,8 @@
       "when": "the status page is rendered and the notices region is queried",
       "then": "the notices region contains exactly two notice elements, each with a title field, a body field, a severity field, and a startedAt field; the first notice element carries a componentIds field naming the two referenced components, the second notice element either omits the componentIds field or renders it as an empty list",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7105-2",
@@ -25,7 +26,8 @@
       "when": "the status page is rendered and every notice element's severity field is inspected",
       "then": "every severity value is one of info, warning, or critical; no notice renders with any other severity value",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     },
     {
       "id": "AC-7105-3",
@@ -34,7 +36,8 @@
       "when": "the status page is rendered",
       "then": "the rendered document either contains no notices region element or contains a notices region element carrying an emptyState marker; no notice element from any previously active incident is present",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

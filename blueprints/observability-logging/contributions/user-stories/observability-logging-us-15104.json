@@ -11,15 +11,46 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15104-1",
-      "description": "With the elicited minimum level set to info, an emission at trace or debug produces no stdout line; an emission at info, warn, error or fatal produces one stdout line each.",
+      "description": "With the elicited minimum level set to info, an emission at trace or debug produces no stdout line; an emission at info, warn, error or fatal produces one stdout line each. Template values the applying agent sets: The applying agent sets the elicited minimum-log-level per environment; the AC substitutes the elicited threshold for the illustrative info.",
       "given": "a running application with minimum level set to info",
       "when": "one emission is issued at each of the six levels",
       "then": "the stdout line count equals 4 (info, warn, error, fatal), and no line at trace or debug appears",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template"
+    },
+    {
+      "id": "AC-15104-2",
+      "description": "A minimum level of `fatal` drops every emission strictly below fatal, so only fatal emissions land on stdout; emissions at trace, debug, info, warn and error all produce zero lines.",
+      "given": "a running application with minimum-log-level fatal",
+      "when": "one emission is issued at each of the six levels",
+      "then": "stdout carries exactly one line (fatal); no line for any of trace, debug, info, warn or error",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.Logger"
+      }
+    },
+    {
+      "id": "AC-15104-3",
+      "description": "Toggling the minimum level between two constructions of the factory produces the corresponding filter change; the level is fixed for the process lifetime per REQ-004 and re-reading the elicit at boot is a new factory construction, never a mid-run hook.",
+      "given": "a factory constructed with minimum-log-level info; a second factory constructed in a subsequent process with minimum-log-level warn",
+      "when": "one emission is issued at info under each factory",
+      "then": "the first factory's emission lands on stdout; the second factory's emission does not; no mid-run flag flips the level in either process",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

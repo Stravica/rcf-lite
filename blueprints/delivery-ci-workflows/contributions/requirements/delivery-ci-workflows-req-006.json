@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "The suite emits an aggregate pipeline report summarising every gate's outcome at a stable path",
   "description": "The suite writes a single aggregate JSON report at a stable path under the same report directory (default `.rcf/reports/ci/pipeline.json`). The aggregate report carries the suite's own start and end ISO-8601 timestamps, the total duration, an overall pass/fail verdict, the fixed ordered list of gates the suite ran, and for each gate an entry naming the gate, its outcome, its duration, and the relative path to the per-gate report file. The aggregate schema is stable within a blueprint major version.",
+  "deliveredBy": {
+    "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
+    "field": "interfaces.writeAggregateReport"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

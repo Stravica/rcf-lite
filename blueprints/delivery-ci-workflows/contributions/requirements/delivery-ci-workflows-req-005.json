@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "Each gate writes a machine-readable JSON report file at a stable path on every invocation",
   "description": "Every gate the suite invokes writes a JSON report file at a stable relative path under a project-configured report directory (default `.rcf/reports/ci/`). The per-gate report file is written whether the gate passed or failed. The report file carries the gate name, the underlying CLI invocation, the exit code, the start and end ISO-8601 timestamps, the duration in milliseconds, the tool version invoked, the captured stdout and stderr strings, and (v2 addition) a `checkKind` field naming the elicited-check kind (`validate`, `coverage-strict`, `linter`, `formatter`, `typecheck`, `unitTest`, `securityScan`, or `custom:<name>`). The report file's schema is stable within a blueprint major version; v1 additive fields (the `checkKind` addition) are preserved from v1.0.0 to v2.0.0.",
+  "deliveredBy": {
+    "tacId": "TAC-702-delivery-ci-workflows-gate-report",
+    "field": "interfaces.writeGateReport"
+  },
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",

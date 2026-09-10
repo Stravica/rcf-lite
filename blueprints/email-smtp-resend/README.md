@@ -1,4 +1,4 @@
-# Email SMTP Resend blueprint (v1.0.0)
+# Email SMTP Resend blueprint (v1.1.0)
 
 The ninth content blueprint on the rcf-build-lite blueprint mechanism. Scope: a Resend-backed mail-adapter that fills the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter` slot as a shipped default. Transport is Resend's SMTP submission endpoint (keeps the adapter close to a generic SMTP shape a follow-up `email-smtp-<othervendor>` blueprint can sibling cleanly). Vendor default is Resend; the mail-adapter contract itself lives on the magic-link blueprint and remains vendor-neutral. Ships two TACs (send adapter, delivery-webhook verifier), no scope:global ADRs.
 

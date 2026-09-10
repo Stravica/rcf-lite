@@ -11,24 +11,78 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15101-1",
-      "description": "A log emission at any level from any call site produces exactly one line on stdout, that line parses as valid JSON, and the parsed object carries every field of the shared minimum set: message, level, timestamp, correlationId, environment, serviceName, serviceVersion.",
+      "description": "A log emission at any level from any call site produces exactly one line on stdout, that line parses as valid JSON, and the parsed object carries every field of the shared minimum set: message, level, timestamp, correlationId, environment, serviceName, serviceVersion. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
       "given": "a running application with the logger factory constructed and an ambient correlation context",
       "when": "any call site emits at any level",
       "then": "one stdout line results, JSON.parse succeeds, and the object has all seven minimum fields present with the correct types",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.Logger"
+      }
     },
     {
       "id": "AC-15101-2",
-      "description": "A log emission whose payload contains a non-JSON-representable value (a BigInt, a function reference, a circular object) is caught at the boundary, dropped with one stderr notice naming the offending field, and the calling code path returns as if the emission had succeeded; the service does not crash.",
-      "given": "a running application and a caller passing a BigInt or a circular object as part of a log payload",
+      "description": "A log emission whose payload contains a circular reference or a function reference is caught at the boundary, dropped with one stderr notice naming the offending dotted path, and the calling code path returns as if the emission had succeeded; the service does not crash.",
+      "given": "a running application and a caller passing a circular graph or a function reference as part of a log payload",
       "when": "the emission is attempted",
-      "then": "stdout carries no line for this emission, stderr carries one notice naming the offending field, and the caller's next line of code executes without throwing",
+      "then": "stdout carries no line for this emission, stderr carries one notice naming the offending dotted path, and the caller's next line of code executes without throwing",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "internalStructure"
+      }
+    },
+    {
+      "id": "AC-15101-3",
+      "description": "A log emission whose payload contains a BigInt value has that value folded to its decimal string form on the emitted line per ADR-1605; the emission proceeds normally, stderr carries no notice, and the JSON.parse of the stdout line yields a string equal to the BigInt's decimal representation.",
+      "given": "a running application and a caller passing { id: 9007199254740993n } (a BigInt beyond safe-integer) on a log payload",
+      "when": "the emission is attempted",
+      "then": "stdout carries one line; JSON.parse of it yields id === '9007199254740993' as a string; stderr carries no notice",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "adrId": "ADR-1605-observability-logging-serialisation-refusal",
+        "field": "decision.bigIntFold"
+      }
+    },
+    {
+      "id": "AC-15101-4",
+      "description": "The seven shared minimum fields (message, level, timestamp, correlationId, environment, serviceName, serviceVersion) never collide with a caller-supplied payload field of the same name: a caller payload field named 'level' or 'timestamp' does not overwrite the factory-authored value on the emitted line. The factory-authored value wins; the caller-supplied value with the same name is dropped with one stderr notice naming the offending key. Template values the applying agent sets: The applying agent sets the elicited environment, serviceName and serviceVersion on the boot-identity-fields elicit; the AC substitutes those values for the illustrative literals.",
+      "given": "a running application and a caller issuing logger.info('m', { level: 'boom', timestamp: 'yesterday' })",
+      "when": "the emission is attempted",
+      "then": "the stdout line's level equals the factory-computed level string and timestamp equals the factory-supplied ISO-8601 stamp; stderr names 'level' and 'timestamp' as reserved keys",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.Logger"
+      }
+    },
+    {
+      "id": "AC-15101-5",
+      "description": "Every emitted line's timestamp field parses as a valid ISO-8601 instant with millisecond precision and lies within a 5-second wall-clock window of the emission call site (a documented oracle for the timestamp promise). The factory refuses construction when the now() strategy returns something that fails to render as an ISO-8601 instant.",
+      "given": "a running application with the default now() strategy and a caller issuing an emission",
+      "when": "the emission is issued at wall-clock time T",
+      "then": "the stdout line's timestamp field parses via Date.parse to a Date whose absolute difference from T is at most 5 seconds, and the string matches /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-1601-observability-logging-logger-factory",
+        "field": "interfaces.createLoggerFactory"
+      }
     }
   ],
-  "tacIds": ["TAC-1601-observability-logging-logger-factory"],
+  "tacIds": [
+    "TAC-1601-observability-logging-logger-factory"
+  ],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-09T00:00:00Z"
 }

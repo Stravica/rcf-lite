@@ -1,7 +1,46 @@
 {
   "slug": "observability-probe-endpoints",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "category": "observability",
+  "elicits": [
+    {
+      "id": "probe-interface-profile",
+      "prompt": "Target integration profile: name of the external supervising system the probe surface serves. Recommended default kubernetes (ADR-1503); the enumerated set is kubernetes, loadBalancer, uptimeMonitor, systemd, dockerHealthcheck, reverseProxy; a project-authored custom:<name> resolves to a project-supplied profile object.",
+      "kind": "enum",
+      "options": [
+        "kubernetes",
+        "loadBalancer",
+        "uptimeMonitor",
+        "systemd",
+        "dockerHealthcheck",
+        "reverseProxy",
+        "custom"
+      ],
+      "default": "kubernetes"
+    },
+    {
+      "id": "probe-paths-override",
+      "prompt": "Per-profile probe path overrides (empty for the profile defaults: /live and /ready for kubernetes, /health for loadBalancer and reverseProxy, exec entry for dockerHealthcheck, systemd notify for systemd). JSON object keyed by profile name.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "probe-listener-separate-port",
+      "prompt": "Separate-port listener option for probe traffic isolation from user traffic (per ADR-1504). Recommended default fused (probes on the request-traffic listener); set an integer TCP port to bind probes on their own listener.",
+      "kind": "string",
+      "default": ""
+    },
+    {
+      "id": "kubernetes-startup-enabled",
+      "prompt": "Enable the optional Kubernetes startup path /startup (per ADR-1503). Recommended default off; on emits a three-path set /live, /ready, /startup and generates a startup handler.",
+      "kind": "enum",
+      "options": [
+        "off",
+        "on"
+      ],
+      "default": "off"
+    }
+  ],
   "contributions": [
     {
       "id": "observability-probe-endpoints-REQ-001",

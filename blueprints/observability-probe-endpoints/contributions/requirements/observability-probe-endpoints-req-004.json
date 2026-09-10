@@ -3,6 +3,10 @@
   "prdId": "PRD-001",
   "title": "A separate-port listener option is offered per HTTP profile for probe traffic isolation from user traffic",
   "description": "Every HTTP-transport profile offers a `probeListener.separatePort` option: when unset, probe handlers bind to the same listener that serves user request traffic (the fused topology); when set to a port number, probe handlers bind to a dedicated HTTP listener on that port and the user-traffic listener does not serve probe paths. The separate-port listener binds the profile's probe path set only; no other route is served on that listener. The option is off by default and opt-in per environment.",
+  "deliveredBy": {
+    "tacId": "TAC-1503-observability-probe-endpoints-listener-topology",
+    "field": "interfaces.bindListenerTopology"
+  },
   "category": "functional",
   "domain": "observability",
   "priority": "must",
