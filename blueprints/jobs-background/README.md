@@ -1,6 +1,6 @@
 # jobs-background v1.0.0
 
-Background-jobs discipline over an applied `queue` capability. Ships a job-definition contract, a POSIX-cron plus one-shot-delayed scheduler, a retry contract that inherits the applied queue's max-attempts ceiling, and a metadata-only run-log event stream at four moments. Composes on the capability-consumer mechanism from the visual round; refuses apply on a bare project with exit 3 and the stable message id `jobs-background-no-queue` per maintainer decision on the ratified round-5 spec.
+Background-jobs discipline over an applied `queue` capability. Ships a job-definition contract, a POSIX-cron plus one-shot-delayed scheduler, a retry contract that inherits the applied queue's max-attempts ceiling, and a metadata-only run-log event stream at four moments. Composes on the applied-capability mechanism; refuses apply on a bare project with exit 3 and the stable message id `jobs-background-no-queue`.
 
 ## What this gives you
 

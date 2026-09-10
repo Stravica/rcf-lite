@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.4 - 2026-09-10
+
+Register cleanup on shipped prose. The README opening paragraph drops the editorial provenance phrases "from the visual round" and "per maintainer decision on the ratified round-5 spec" and now names the applied-capability mechanism directly. `jobs-background-REQ-001.description` drops "from the visual round" and the "per infra round 5 spec section 10 Q3 default" clause and states the exit-code and stable-message-id assertions in neutral form. `ADR-3103.consequences` drops the "Standards trace clause: visual round spec section 5.5.2" reference and the internal repo-path leak, and now describes the sidecar-note construction in plain external terms. `TAC-3101.dependencies[2].description` reads "via the applied-capability mechanism" in place of the bare "via the mechanism" leftover. REQ-001, ADR-3103 and TAC-3101 patch-bumped. Anatomy pin updated to 1.1.4. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.3 - 2026-09-10
 
 Second closure fix on the dimension-d ownership sweep for REQ-002: migrated every reference from the intermediary `TAC-3101.responsibilities[0]` to the true owner `TAC-3101.interfaces.jobModule.default`. Removed the five-field shape restatement from `TAC-3101.purpose`, `AC-30102-1` (description and then-clause), the README table row for REQ-002, the "What this gives you" bullet, and the guide's "Writing a job" intro; each surface now points at the owner. The guide's demonstrative code sample remains as usage-demonstration below a one-line owner pointer. Anatomy pin updated to 1.1.3. TAC-3101, REQ-002 and US-30102 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2. Third-pass residues cleared without a further bump: the US-30102 title and the guide's "What does NOT change" bullet now reference the owner instead of restating the five-field shape.

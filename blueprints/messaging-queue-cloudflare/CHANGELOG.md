@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 - 2026-09-10
+
+Register cleanup on shipped prose. The README "six probes" paragraph drops the "round-5 spec section 3.2" editorial provenance and describes the probe module envelope in neutral terms. Anatomy pin updated to 1.1.2. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

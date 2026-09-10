@@ -52,7 +52,7 @@ Composes on `deploy-cloudflare-workers` transitively via the wrangler binding (n
 
 ## The six probes
 
-Each probe is a Node module under `contributions/probes/` exporting the round-5 spec section 3.2 verdict envelope, with a matching `run-<probe-name>.mjs` shim that drives the probe against the shared fixture's slice and writes the per-blueprint report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json`.
+Each probe is a Node module under `contributions/probes/` exporting the shipped verdict envelope, with a matching `run-<probe-name>.mjs` shim that drives the probe against the shared fixture's slice and writes the per-blueprint report at `.rcf/reports/blueprints/messaging-queue-cloudflare/<probe-name>.json`.
 
 | Probe | Anchor AC | What it proves | accountBound |
 |---|---|---|---|
