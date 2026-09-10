@@ -1,5 +1,10 @@
 # application-spa CHANGELOG
 
+## 1.5.6 - 2026-09-10
+
+Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing. Register cleanup on the AC-1131-3 description (partial-acceptance defect described without the prior-review internal identifier) and on README shipped prose (removed prior-review internal identifiers, the numbered ratified-decision reference, the dated ratified-policy reference, and internal review-round labels).
+
+
 ## 1.5.5 - 2026-09-10
 
 Second closure fix on the dimension-d ownership sweep: REQ-009 no longer defines the deep-link return-to behaviour, referencing the owner at `TAC-201-application-spa-app-shell.responsibilities[5]` instead; `deliveredBy.field` re-pointed at `responsibilities[5]` (was generic `responsibilities`). Corrected the 1.5.4 changelog line that recorded the obsolete `responsibilities[0]` ownerRef for AC-1135-2 to `responsibilities[5]`. REQ-009 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2.

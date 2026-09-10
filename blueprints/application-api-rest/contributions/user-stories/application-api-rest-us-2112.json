@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-2112-1",
-      "description": "The project declares which verb and resource-class combinations require an idempotency-key; the declaration is published in the generated spec per operation. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The project declares which verb and resource-class combinations require an idempotency-key; the declaration is published in the generated spec per operation. Applying agent sets: the declared verb-plus-resource-class combinations that require an idempotency-key, and the per-operation `x-idempotency-key: required|forbidden` flag the OpenAPI generator emits.",
       "given": "the generated OpenAPI document",
       "when": "operations on non-safe verbs are inspected",
       "then": "each declares whether idempotency-key is required, and every duplicate-harmful operation declares it required",

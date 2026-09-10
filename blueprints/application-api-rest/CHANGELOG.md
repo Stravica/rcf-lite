@@ -1,5 +1,10 @@
 # application-api-rest CHANGELOG
 
+## 2.1.5 - 2026-09-10
+
+Template-AC fill-in clauses on AC-2102-2, AC-2104-6, AC-2106-4, AC-2108-4, AC-2112-1, AC-2118-3 and AC-2119-5 now enumerate the specific applying-project substitutions (declared property-name casing, documentation-exposure policy per environment, authorisation-class taxonomy and mapping, resolved startup-probe path, idempotency-key verb-and-class combinations, deploy documentation location and order, verification-pipeline definition) in place of the generic phrasing.
+
+
 ## 2.1.4 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-013: REQ description now references the request-id header owned on TAC-301.responsibilities[0] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.

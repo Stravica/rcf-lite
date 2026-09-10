@@ -1,5 +1,10 @@
 # application-charts CHANGELOG
 
+## 1.0.4 - 2026-09-10
+
+Template-AC fill-in clauses on AC-18105-1, AC-18105-2, AC-18106-1, AC-18106-2 and AC-18106-3 now enumerate the specific applying-project substitutions (palette name and backgrounds, palette-overrides elicit, chart-engine token, data-chart-engine attribute value, refused engine choice and refusal record) in place of the generic phrasing. Register cleanup on README (removed the dated visual-specification reference, the internal round-label phrasing, and the internal-report language on the follow-up naming) and on the guide (rewrote the spec-reference section to neutral spec-provenance without the operator-repo path or the internal CALLS-MADE convention).
+
+
 ## 1.0.3 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

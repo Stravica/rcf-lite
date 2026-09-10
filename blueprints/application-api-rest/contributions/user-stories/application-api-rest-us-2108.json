@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-2108-4",
-      "description": "GET on the resolved startup path returns 200 only after initialisation (migrations applied, cache warmed, config loaded) completes, and a non-200 with the pending steps before that. The startup path is available when the composed observability-probe-endpoints blueprint enables it via `probeInterface.options.kubernetes.startup.enabled: true` or the project supplies `probeInterface.paths.startup` in configuration. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "GET on the resolved startup path returns 200 only after initialisation (migrations applied, cache warmed, config loaded) completes, and a non-200 with the pending steps before that. The startup path is available when the composed observability-probe-endpoints blueprint enables it via `probeInterface.options.kubernetes.startup.enabled: true` or the project supplies `probeInterface.paths.startup` in configuration. Applying agent sets: the resolved startup-probe path (the Kubernetes profile default `/startup` when enabled through `probeInterface.options.kubernetes.startup.enabled: true`, or a `probeInterface.paths.startup` override), and the enumeration of initialisation steps the pending response names.",
       "given": "an instance mid-initialisation and the same instance after initialisation, with the startup path resolved (Kubernetes profile default /startup when enabled) or supplied by project configuration",
       "when": "the resolved startup path is called in each state",
       "then": "the mid-initialisation call is non-200 naming pending steps; the post-initialisation call is 200",

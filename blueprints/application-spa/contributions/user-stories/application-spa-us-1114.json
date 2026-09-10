@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1114-1",
-      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The project maintains a journey inventory; every declared journey maps each step to a route and to specifications for arrival, loading, empty, error, success, and re-entry states. Applying agent sets: the journey-inventory location (a manifest or source module), the enumeration of journeys with steps, and the per-step route and state specifications for arrival, loading, empty, error, success, and re-entry.",
       "given": "the journey inventory",
       "when": "each journey is walked against the specifications",
       "then": "all six states are specified for every step",

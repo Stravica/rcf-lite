@@ -1,6 +1,6 @@
 # application-spa blueprint (v1.3.0)
 
-The first content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 2 of the blueprint programme). Scope: single-page applications with public and authenticated surfaces, session-based auth, single deployable, dark and light by default, fully responsive by default.
+The first content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified). Scope: single-page applications with public and authenticated surfaces, session-based auth, single deployable, dark and light by default, fully responsive by default.
 
 ## Apply
 
@@ -29,9 +29,9 @@ The doc set is contributions (copied into the project tree by `rcf define bluepr
 
 ## What it contributes, and what it deliberately does not
 
-Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (a ratified shelf-wide policy) and no code.
 
-No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing. Structurally the same conclusion falls out of the mechanism: an FBS binds to a bsId and a buildOrder slot the blueprint cannot know.
+No FBS contributions, as a matter of principle (a ratified shelf-wide policy): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing. Structurally the same conclusion falls out of the mechanism: an FBS binds to a bsId and a buildOrder slot the blueprint cannot know.
 
 ## The five global decisions
 
@@ -43,7 +43,7 @@ WCAG 2.2 AA (contrast 4.5:1 body / 3:1 large-and-non-text, visible focus, 24x24 
 
 ## What v1.1.0 adds
 
-v1.1.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump introduces the mechanism-reach cure for the icon and semantic-token disciplines that watchpost run4 caught shipping while the build cycle ran green.
+v1.1.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump introduces the mechanism-reach cure for the icon and semantic-token disciplines that a prior review pass caught shipping while the build cycle ran green.
 
 - `application-spa-US-1129` (anchored to application-spa-REQ-005) with four ACs binding the token-adherence probe.
 - `application-spa-US-1130` (anchored to application-spa-REQ-011) with four ACs binding the icon-adherence probe.
@@ -51,11 +51,11 @@ v1.1.0 is an additive-non-global minor bump. No global topics change; no contrib
 - `TAC-208-application-spa-icon-adherence-probe`: a Node build-scan probe the project realises; scans the component source for inline SVG outside the icon registry and for icon references naming aliases the registry does not declare, writes a stable JSON report, and exits non-zero on any violation.
 - `ADR-202-application-spa-theming` and `ADR-206-application-spa-iconography` are amended in place at version 1.1.0: the decision is unchanged; the consequences narrative names the new probe and the delivery-ci-workflows gate-failure path the probe rides.
 
-The v1.1 probes are runtime-observable AC binding at the ship gate. When a project wires each probe as a required gate in the delivery-ci-workflows runner (TAC-701), a violation refuses ship through TAC-702's per-gate report and TAC-703's aggregate report; the run4 pattern of a discipline declared but not compelled no longer applies to these two categories.
+The v1.1 probes are runtime-observable AC binding at the ship gate. When a project wires each probe as a required gate in the delivery-ci-workflows runner (TAC-701), a violation refuses ship through TAC-702's per-gate report and TAC-703's aggregate report; the earlier pattern of a discipline declared but not compelled no longer applies to these two categories.
 
 ## What v1.2.0 adds
 
-v1.2.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the styled-under-shipped-CSP mechanism-reach gap watchpost caught at first production review: FBS-011 declared strict CSP (`style-src 'self'`, no `'unsafe-inline'`), FBS-013/015 rendered inline `<style>` blocks, every existing UI-bearing gate passed, and every production page rendered unstyled at deploy because the harness bypassed the production security-header path.
+v1.2.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the styled-under-shipped-CSP mechanism-reach gap an early production review caught: FBS-011 declared strict CSP (`style-src 'self'`, no `'unsafe-inline'`), FBS-013/015 rendered inline `<style>` blocks, every existing UI-bearing gate passed, and every production page rendered unstyled at deploy because the harness bypassed the production security-header path.
 
 - `application-spa-US-1131` (anchored to application-spa-REQ-018) with six ACs binding the styled-under-shipped-CSP probe.
 - `TAC-209-application-spa-csp-styled-adherence-probe`: a Node probe the project realises; boots the target server through the production entry-point path, drives a real headless browser at every enumerated UI route, refuses on any inline `<style>` block, any style-src relaxation, any browser-default computed body background, or any non-200 text/css stylesheet response.
@@ -63,7 +63,7 @@ v1.2.0 is an additive-non-global minor bump. No global topics change; no contrib
 
 ## What v1.3.0 adds
 
-v1.3.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the deployment-gate class defect the watchpost first-production review caught: the app was signed off as DEPLOYED with the only login path (magic-link email) inert because RESEND_API_KEY carried a placeholder value, admin access was reachable only via manually minted tokens, and the gap was filed as a "quirk" note in status.md rather than blocked at gate time. A real key existed in the estate the whole time.
+v1.3.0 is an additive-non-global minor bump. No global topics change; no contribution is removed. The bump cures the deployment-gate class defect an early production review caught: the app was signed off as DEPLOYED with the only login path (magic-link email) inert because RESEND_API_KEY carried a placeholder value, admin access was reachable only via manually minted tokens, and the gap was filed as a "quirk" note in status.md rather than blocked at gate time. A real key existed in the estate the whole time.
 
 The bump encodes three class rules the deployment / handover gates now compel:
 

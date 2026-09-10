@@ -1,6 +1,6 @@
 # Datatable blueprint (v1.0.0)
 
-Vendor-neutral datatable contract for a rcf-lite application. Ships the ARIA APG table / grid pattern choice (per interactivity), the sort / filter / paginate discipline, the selection model with a bulk-action confirmation dialog, the four-state region contract (empty / loading / error / no-results), and a non-drag keyboard path for column visibility / reorder / resize. Ships a Playwright probe pack under `probe-packs/application-datatable.pack.mjs` whose six checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04). No new global topics; suggests the `logging` and `errorHandling` companions.
+Vendor-neutral datatable contract for a rcf-lite application. Ships the ARIA APG table / grid pattern choice (per interactivity), the sort / filter / paginate discipline, the selection model with a bulk-action confirmation dialog, the four-state region contract (empty / loading / error / no-results), and a non-drag keyboard path for column visibility / reorder / resize. Ships a Playwright probe pack under `probe-packs/application-datatable.pack.mjs` whose six checks are the runtime gate the delivery-ci-workflows runner drives (section 5 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions.
 
 ## Apply
 

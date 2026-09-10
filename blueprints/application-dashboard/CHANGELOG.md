@@ -1,5 +1,10 @@
 # application-dashboard CHANGELOG
 
+## 1.0.4 - 2026-09-10
+
+Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2, AC-19107-1 and AC-19107-2 now enumerate the specific applying-project substitutions (auto-refresh interval, export-button accessible name and format list, chart-selection mechanism, guidance-file confirmation, primary-kpi kind and tile inventory) in place of the generic phrasing. Register cleanup on README shipped prose (removed the dated visual-specification reference and the internal round-label phrasing on the pack-browser seam extension).
+
+
 ## 1.0.3 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

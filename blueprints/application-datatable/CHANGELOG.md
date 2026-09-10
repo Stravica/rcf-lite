@@ -1,5 +1,10 @@
 # application-datatable CHANGELOG
 
+## 1.0.4 - 2026-09-10
+
+Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, sort variant, page-size default, selection-persistence value, accessible-copy text) in place of the generic phrasing. Register cleanup on README (dated visual-specification reference) and on the guide (removed the internal round-label reference on the dashboard-blueprint mention).
+
+
 ## 1.0.3 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

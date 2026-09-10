@@ -73,7 +73,7 @@
     },
     {
       "id": "AC-2104-6",
-      "description": "The documentation endpoints (/openapi.json, /openapi.yaml, /docs) respond according to the project's declared exposure policy, and in non-production environments they are always available. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The documentation endpoints (/openapi.json, /openapi.yaml, /docs) respond according to the project's declared exposure policy, and in non-production environments they are always available. Applying agent sets: the documentation-exposure policy per environment (which of /openapi.json, /openapi.yaml and /docs each environment serves), recorded on the API surface configuration.",
       "given": "the declared exposure policy and a non-production deployment",
       "when": "the documentation URLs are fetched",
       "then": "responses match the declared policy, and the non-production deployment serves all three",
