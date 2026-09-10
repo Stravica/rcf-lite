@@ -23,7 +23,7 @@ scope-global ADRs on new topics.
 - Coordinated multiplayer websocket connections in one authoritative
   hub (rooms, live cursors, presence): the hub shape.
 
-The sibling `platform-cloudflare-kv` (round 6) is the shipped
+The sibling `platform-cloudflare-kv` is the shipped
 answer for eventually-consistent low-latency reads. The guide's
 decision tree pairs them.
 
@@ -36,7 +36,7 @@ decision tree pairs them.
 - Do you need cache-shaped read-hot reads with no strong-consistency
   contract? Reach for `platform-cloudflare-kv` instead.
 - Do you need durable multi-step workflows with retries and state
-  across steps? Reach for the round-6 Workflows adapter on
+  across steps? Reach for the Workflows adapter on
   `jobs-background` v1.1.0 instead.
 
 ## The eight REQs
@@ -176,7 +176,7 @@ future v1.1.0 grows the mechanism inside the same blueprint.
 
 If your project needs eventually-consistent low-latency reads on
 a read-hot path (feature flags, session cache, config cache),
-reach for `platform-cloudflare-kv` (round 6) instead. Durable
+reach for `platform-cloudflare-kv` instead. Durable
 Objects owns the strong-consistency slot on the shelf; KV owns
 the cache-shaped eventually-consistent slot. Both compose on the
 same Worker.
@@ -193,7 +193,7 @@ same Worker.
   this topic.
 
 Both topics are `scope: global` on the ADR contribution entries in
-`blueprint.json`; the round-2 conflict pattern applies.
+`blueprint.json`; the standard conflict pattern applies.
 
 ## References
 

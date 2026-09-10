@@ -401,7 +401,7 @@ test('H-2 DO AC-15101-2 all thirteen shipped DO ACs appear in the union of probe
 test('blueprint.json declares slug, version, capabilities, elicits, contributions', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-cloudflare-durable-objects');
-  assert.equal(bp.version, '1.1.2');
+  assert.equal(bp.version, '1.1.3');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['strongConsistencyCell', 'hibernatableWebSocket']);
   assert.equal(Array.isArray(bp.elicits), true);
