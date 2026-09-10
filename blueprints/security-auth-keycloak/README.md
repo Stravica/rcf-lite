@@ -3,7 +3,7 @@
 The twelfth content blueprint on the rcf-build-lite blueprint mechanism, category `security`. A Keycloak-committed sibling to `security-auth-magic-link`, `security-auth-clerk`, and `security-auth-oauth2` on the `authModel` global topic. Identity is delegated to a Keycloak realm the operator runs; the project owns the discovery client, the token verifier (JWKS or introspection per realm), the role adapter, the provider-routing seam, and the optional application session on top. Targeted at rcf-lite projects that have committed to a self-hosted Keycloak realm (or are running one already) and want the Keycloak-shaped decisions the vendor-neutral `security-auth-oauth2` sibling deliberately does not fix.
 
 
-> Latest: **v1.2.0** (visual round T-4, 2026-09-06). `capabilities: [principalDirectory, roleModel, credentialSelfService, sessionInventory]`. See [CHANGELOG.md](CHANGELOG.md).
+> Latest: **v1.2.0** (visual round, 2026-09-06). `capabilities: [principalDirectory, roleModel, credentialSelfService, sessionInventory]`. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Apply
 

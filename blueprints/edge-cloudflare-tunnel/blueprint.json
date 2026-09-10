@@ -1,6 +1,6 @@
 {
   "slug": "edge-cloudflare-tunnel",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "category": "edge",
   "capabilities": [
     "tunnelBridge"
@@ -48,7 +48,7 @@
     },
     {
       "id": "connector-runtime",
-      "prompt": "Connector runtime per ADR-4002. compose-service is the shipped default when containerHost is applied (T-2 platform-docker-compose-host on top of T-1 deploy-hetzner-server); systemd-unit is the alternative for a bare cloudHost per the cloudflared as-a-service local-configuration-file docs.",
+      "prompt": "Connector runtime per ADR-4002. compose-service is the shipped default when containerHost is applied (via platform-docker-compose-host on top of deploy-hetzner-server); systemd-unit is the alternative for a bare cloudHost per the cloudflared as-a-service local-configuration-file docs.",
       "kind": "enum",
       "options": [
         "compose-service",

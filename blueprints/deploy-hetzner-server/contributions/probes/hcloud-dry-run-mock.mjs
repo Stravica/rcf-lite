@@ -1,9 +1,9 @@
-// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per H-1).
+// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per the round-7 hardening pass).
 //
 // anchorAcId: AC-37101-1 (provisioner facade sole reader + provisionerReady
 // on boot; also covers AC-37109-1 event-secrecy across the lifecycle;
-// also covers AC-14501-1 mock-consumes-rendered-file assertions per H-1
-// hardening block REQ-145).
+// also covers AC-14501-1 mock-consumes-rendered-file assertions per
+// the round-7 hardening block REQ-145).
 // accountBound: false.
 //
 // Drives the provisioner facade with the fixture's ci-throwaway manifest
@@ -14,7 +14,7 @@
 // ssh-ed25519/ssh-rsa public-key line under the deploy user plus a
 // NOPASSWD directive naming that user). The rendered-file assertion is
 // what stops a mocked probe from passing while the real path fails on
-// the same artefact (H-1 REQ-145 / AC-14501-1).
+// the same artefact (REQ-145 / AC-14501-1).
 //
 // The probe body reads NO process.env.SIMULATE_ switch. Fixture-side
 // mutations live in src/cloud-init-renderer.mjs, src/hcloud-mock.mjs
@@ -33,7 +33,7 @@
 //   - the rendered cloud-init file exists under the fixture's rendered
 //     directory and carries at least one ssh-ed25519 or ssh-rsa
 //     authorized-keys line under the deploy user plus a NOPASSWD
-//     directive naming that user (H-1 REQ-145 / AC-14501-1).
+//     directive naming that user (REQ-145 / AC-14501-1).
 
 import { readFile, access } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
@@ -62,7 +62,7 @@ export default async function runProbe() {
   const publicKeys = ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForMockedRunHardeningH1 rcf-lite-ci-mock'];
   const { renderedPath, rendered } = await renderCloudInitToFile(manifest, { publicKeys });
 
-  // H-1 REQ-145 / AC-14501-1: assert the rendered file carries an
+  //  REQ-145 / AC-14501-1: assert the rendered file carries an
   // ssh-ed25519 or ssh-rsa line for the deploy user AND a NOPASSWD
   // directive naming that user. This assertion is what breaks the
   // "mock passes while real path fails on the same artefact" class.

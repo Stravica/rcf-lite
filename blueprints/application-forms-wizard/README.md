@@ -66,7 +66,7 @@ The in-progress-list surface delegates the zero-drafts case to the `application-
 
 ## The one runtime gate
 
-`probe-packs/application-forms-wizard.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2501-application-forms-wizard-task-list` or whose nav model routes name an operator-configured wizard path. Each check drives the real Playwright browser the runner provisions, reads the DOM and the accessibility tree, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 T-3 fix train; no bare string concatenation.
+`probe-packs/application-forms-wizard.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2501-application-forms-wizard-task-list` or whose nav model routes name an operator-configured wizard path. Each check drives the real Playwright browser the runner provisions, reads the DOM and the accessibility tree, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 fix train; no bare string concatenation.
 
 ## Quality bar
 
@@ -91,7 +91,7 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 
 ## Consumers
 
-- `application-account-settings` (T-4 of this round) consumes the wizard task-list pattern for its multi-part account setup flow and the summary-review pattern for its confirm-before-save gate.
+- `application-account-settings` (of this round) consumes the wizard task-list pattern for its multi-part account setup flow and the summary-review pattern for its confirm-before-save gate.
 
 ## Composition with application-spa
 

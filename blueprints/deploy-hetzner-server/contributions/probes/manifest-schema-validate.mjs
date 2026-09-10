@@ -16,7 +16,7 @@
 // SIMULATE_MANIFEST_INVALID and it mutates INPUT (a temp manifest dir
 // pointed at via RCF_FIXTURE_MANIFEST_DIR) only; the probe then FAILS
 // naming the offending field per hetzner-round-7-spec-2026-09-07.md
-// section 3.4 lesson 4. H-1 (2026-09-08).
+// section 3.4 lesson 4.  (2026-09-08).
 
 import { readFile } from 'node:fs/promises';
 import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';

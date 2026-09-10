@@ -32,7 +32,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 19 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-empty-error-states');
-  assert.equal(doc.version, '1.1.0');
+  assert.equal(doc.version, '1.1.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');

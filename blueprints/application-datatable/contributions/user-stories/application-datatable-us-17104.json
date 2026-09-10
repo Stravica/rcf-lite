@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17104",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-004",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Bulk actions on selected rows open a confirmation dialog and return focus to the originating row on close",
   "asA": "operator applying an action to multiple rows",

@@ -12,7 +12,7 @@ A shipped, vendor-neutral datatable contract for a rcf-lite application. One she
 
 ## When to reach for it
 
-- Any surface with tabular data the operator sorts, filters, paginates, or bulk-operates on. Users tables, orders, notifications, records, audit views. The dashboard blueprint (visual round T-3) consumes this shell for its `application-datatable` recent-items strip.
+- Any surface with tabular data the operator sorts, filters, paginates, or bulk-operates on. Users tables, orders, notifications, records, audit views. The dashboard blueprint (visual round) consumes this shell for its `application-datatable` recent-items strip.
 - Projects that want the ARIA APG discipline (table vs grid per interactivity) enforced at ship without hand-authoring the rule per surface.
 
 ## When it does not fit

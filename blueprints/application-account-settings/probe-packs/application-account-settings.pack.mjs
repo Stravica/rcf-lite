@@ -11,12 +11,12 @@
 //   AC-25108-1 theme surface renders the radiogroup and persists per the elicited
 //              theme-persistence (fires when application-spa is applied via caps)
 //
-// Every check drives the real Playwright browser the T-0 runner injects and reads
+// Every check drives the real Playwright browser the runner injects and reads
 // its per-check applicability from the blueprint applied sidecar
 // (rcf/blueprints/application-account-settings.applied.json) written by the apply
 // verb: an absent capability records verdict: skipped and the aggregate treats the
 // check as neither pass nor fail (spec section 3.3, rcf-schemas 0.6.1 has no
-// applicable: false field, per round-3 T-5 precedent).
+// applicable: false field, per round-3 precedent).
 //
 // Sample-app fixture: packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/.
 // The fixture ships CAPS and APPS env / ?caps= / ?apps= switches mirroring the

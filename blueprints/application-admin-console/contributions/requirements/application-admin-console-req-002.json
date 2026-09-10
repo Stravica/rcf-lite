@@ -2,7 +2,7 @@
   "reqId": "application-admin-console-REQ-002",
   "prdId": "PRD-001",
   "title": "Users surface conditional on principalDirectory, with directory, invite, deactivate, last-active columns",
-  "description": "When an applied blueprint declares the principalDirectory capability, the console renders a users route: a directory table listing every principal identified by data-user-id, an invite control per row for a principal without an active session, a deactivate control per row for an active principal, and last-active plus status columns. A principal without admin scope reaching /admin renders an access-denied state (REQ-006) with a request-access control routed to a notification. The users table is a datatable (T-1 consumer) with the same ARIA APG contract.",
+  "description": "When an applied blueprint declares the principalDirectory capability, the console renders a users route: a directory table listing every principal identified by data-user-id, an invite control per row for a principal without an active session, a deactivate control per row for an active principal, and last-active plus status columns. A principal without admin scope reaching /admin renders an access-denied state (REQ-006) with a request-access control routed to a notification. The users table is a datatable (consumer) with the same ARIA APG contract.",
   "deliveredBy": {
     "tacId": "TAC-2201-application-admin-console-shell",
     "field": "responsibilities.delegateUsersSurface"

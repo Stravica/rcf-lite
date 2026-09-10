@@ -2,7 +2,7 @@
   "usId": "application-error-handling-US-16102",
   "prdId": "PRD-001",
   "reqId": "application-error-handling-REQ-001",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "A framework-level exception thrown from handler code is caught, mapped to the wire, and never leaks a raw stack trace",
   "asA": "consumer of an application endpoint",

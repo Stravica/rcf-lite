@@ -3,7 +3,7 @@
 // anchorAcId: AC-composeHost-zeroDowntimeReload.
 // accountBound: true.
 //
-// On the shared throwaway-Hetzner-server fixture with the T-2 compose
+// On the shared throwaway-Hetzner-server fixture with the container-host compose
 // stack running: fires an undici burst against the caddy service while
 // docker compose exec caddy caddy reload runs. Asserts every request
 // returns a 2xx status inside the elicited reload window (10 s default)

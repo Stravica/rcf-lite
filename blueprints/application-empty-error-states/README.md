@@ -53,7 +53,7 @@ The closed set of recovery shapes: `parent-surface`, `search`, `request-access`,
 
 ## The one runtime gate
 
-`probe-packs/application-empty-error-states.pack.mjs` ships eight checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2301-application-empty-error-states-state-machine` or whose nav model routes name an operator-configured error-shell path. Each check drives the real Playwright browser the runner provisions, reads the accessibility tree and the DOM, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 T-3 fix train; no bare string concatenation.
+`probe-packs/application-empty-error-states.pack.mjs` ships eight checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2301-application-empty-error-states-state-machine` or whose nav model routes name an operator-configured error-shell path. Each check drives the real Playwright browser the runner provisions, reads the accessibility tree and the DOM, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 fix train; no bare string concatenation.
 
 ## Quality bar
 
@@ -80,8 +80,8 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 
 ## Consumers
 
-- `application-forms-wizard` (T-3 of this round) consumes the empty-list state as its "no in-progress forms" surface; the wizard's empty branch delegates to this blueprint's TAC-2301 state machine.
-- `application-account-settings` (T-4 of this round) consumes the access-denied path (forbidden and permission-denied) for its scope-gated settings sections and the empty-list state for its empty-history surfaces.
+- `application-forms-wizard` (of this round) consumes the empty-list state as its "no in-progress forms" surface; the wizard's empty branch delegates to this blueprint's TAC-2301 state machine.
+- `application-account-settings` (of this round) consumes the access-denied path (forbidden and permission-denied) for its scope-gated settings sections and the empty-list state for its empty-history surfaces.
 
 ## Composition with application-spa
 
