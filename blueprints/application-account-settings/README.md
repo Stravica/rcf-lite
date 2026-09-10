@@ -1,6 +1,6 @@
 # Account settings blueprint (v1.0.0)
 
-Vendor-neutral account-settings surface for an rcf-lite application. Surfaces are CONDITIONAL on what the applied identity blueprints and companion blueprints declare via `capabilities[]`. Ships the settings shell with an ARIA APG tabs region (no dead links to unapplied capabilities), a WCAG 1.3.5 profile surface (always active), a security surface with a self-service branch (password change, MFA) and a hosted-UI branch (link-out or embed), a sessions surface with an ARIA APG dialog-modal terminate flow, a notification preferences surface and a theme surface with light/dark/system. Reuses the visual round T-5 capability grammar and the apply-time discovery, refusal and custom-auth elicitation the spec section 5.4 ratifies. Ships a Playwright probe pack under `probe-packs/application-account-settings.pack.mjs` whose five checks are capability-gated: an absent capability records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3).
+Vendor-neutral account-settings surface for an rcf-lite application. Surfaces are CONDITIONAL on what the applied identity blueprints and companion blueprints declare via `capabilities[]`. Ships the settings shell with an ARIA APG tabs region (no dead links to unapplied capabilities), a WCAG 1.3.5 profile surface (always active), a security surface with a self-service branch (password change, MFA) and a hosted-UI branch (link-out or embed), a sessions surface with an ARIA APG dialog-modal terminate flow, a notification preferences surface and a theme surface with light/dark/system. Reuses the visual round capability grammar and the apply-time discovery, refusal and custom-auth elicitation the spec section 5.4 ratifies. Ships a Playwright probe pack under `probe-packs/application-account-settings.pack.mjs` whose five checks are capability-gated: an absent capability records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3).
 
 ## Apply
 
@@ -18,7 +18,7 @@ Refuses with exit 3 and the spec 5.4.1 verbatim message on a project with no app
 | Doc set | `contributions/` | 6 REQs, 10 USs (13 runtime-observable ACs), 4 TACs, 4 ADRs |
 | Probe pack | `probe-packs/application-account-settings.pack.mjs` | Five capability-gated browser-verify checks anchored to AC-25101-1, AC-25102-1, AC-25105-1, AC-25106-1, AC-25108-1 |
 | Guide | `guide/application-account-settings.md` | Operator-facing: when to reach, when not, mechanism-reach gaps |
-| Coordination vocabulary | `docs/topics.md` | Shelf id band registry update; no new global topics claimed; cross-references application-empty-error-states (T-1) and application-admin-console (T-5) |
+| Coordination vocabulary | `docs/topics.md` | Shelf id band registry update; no new global topics claimed; cross-references application-empty-error-states and application-admin-console |
 | Sample-app fixture | `packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/` | Dependency-free Node HTTP server the pack is probed against on the shelf gate |
 
 ## Conditionality: what surfaces render when
@@ -30,7 +30,7 @@ Refuses with exit 3 and the spec 5.4.1 verbatim message on a project with no app
 | `sessionInventory` | Sessions (`/account/sessions`) | Clerk from 1.3.0, Keycloak from 1.2.0, OAuth2 from 1.2.0. Owner: security-auth-clerk TAC-1003-security-auth-clerk-session-verifier field interfaces.sessionInventory (the shape any auth blueprint declaring the capability agrees to). Magic-link does NOT declare it; observability-logging 1.3.0 no longer declares it. |
 | `application-notifications-in-app` applied | Notification preferences (`/account/notifications`) | Suppressed when the notifications-in-app blueprint is not applied. |
 | `application-spa` applied | Theme (`/account/theme`) | Suppressed when the SPA blueprint is not applied. |
-| (none) | Unauthenticated principal | Composes on `application-empty-error-states` (T-1) forbidden state; no bespoke access-denied UI. |
+| (none) | Unauthenticated principal | Composes on `application-empty-error-states` forbidden state; no bespoke access-denied UI. |
 
 ## Bare-SPA refusal
 
@@ -79,7 +79,7 @@ Answers land on `rcf/blueprints/application-account-settings.applied.json`'s `ap
 
 ## The one runtime gate
 
-`probe-packs/application-account-settings.pack.mjs` ships five checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2601-application-account-settings-shell` or whose nav model routes name an `/account`, `/settings` or `/profile` path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3, T-5 residual cure).
+`probe-packs/application-account-settings.pack.mjs` ships five checks the `rcf verify browser` runner invokes on any FBS whose surface matches the pack's `appliesTo` predicate (an FBS that binds `TAC-2601-application-account-settings-shell` or whose nav model routes name an `/account`, `/settings` or `/profile` path). Each check ALSO carries its own `appliesTo` predicate that reads the applied capability sidecar and returns false when the required capability is absent; the check records `verdict: skipped` and the aggregate verdict treats it as neither pass nor fail (spec section 3.3, residual cure).
 
 Each check drives the real Playwright browser the runner provisions (through the pinned Playwright MCP or the consuming project's own `playwright` installation), reads the accessibility tree and the DOM, and returns a verdict.
 
@@ -101,7 +101,7 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 
 ## Known schema follow-ups
 
-The applied-blueprint sidecar at `rcf/blueprints/application-account-settings.applied.json` uses the schema shape T-5 admin-console established (no `verdict: skipped` field on the applied-record; the pack runtime records `verdict: skipped` per-check per spec section 3.3, and rcf-schemas 0.6.1 has no `applicable: false` field for the record). A future rcf-schemas minor may adopt the `appliedCapabilities[]` field on the applied-blueprint record directly; the sidecar path stays supported for backward compatibility.
+The applied-blueprint sidecar at `rcf/blueprints/application-account-settings.applied.json` uses the schema shape admin-console established (no `verdict: skipped` field on the applied-record; the pack runtime records `verdict: skipped` per-check per spec section 3.3, and rcf-schemas 0.6.1 has no `applicable: false` field for the record). A future rcf-schemas minor may adopt the `appliedCapabilities[]` field on the applied-blueprint record directly; the sidecar path stays supported for backward compatibility.
 
 ## Companions
 
@@ -109,6 +109,6 @@ The applied-blueprint sidecar at `rcf/blueprints/application-account-settings.ap
 
 ## Consumers
 
-The forbidden and empty-history states MAP to `application-empty-error-states` (T-1)'s `forbidden` and `empty-list` states. Every project applying `application-account-settings` MUST also apply `application-empty-error-states` if they want the shipped access-denied state; the shell composes on the empty-error-states components rather than inventing bespoke UI.
+The forbidden and empty-history states MAP to `application-empty-error-states`'s `forbidden` and `empty-list` states. Every project applying `application-account-settings` MUST also apply `application-empty-error-states` if they want the shipped access-denied state; the shell composes on the empty-error-states components rather than inventing bespoke UI.
 
-The sessions and notification-preferences surfaces reuse the `application-datatable` (round-3 T-1) table shell contract when the project renders them through the datatable factory.
+The sessions and notification-preferences surfaces reuse the `application-datatable` (round-3) table shell contract when the project renders them through the datatable factory.

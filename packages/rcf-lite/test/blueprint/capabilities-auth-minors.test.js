@@ -20,9 +20,9 @@ const REPO_ROOT = resolve(here, '..', '..', '..', '..');
 // credentialSelfService, sessionInventory and hostedIdentityUi (provider-
 // conditional per the OAuth2 README).
 const EXPECTED = [
-  { slug: 'security-auth-magic-link', version: '1.2.2', capabilities: ['principalDirectory'] },
+  { slug: 'security-auth-magic-link', version: '1.2.3', capabilities: ['principalDirectory'] },
   { slug: 'security-auth-clerk', version: '1.5.0', capabilities: ['principalDirectory', 'roleModel', 'sessionInventory', 'hostedIdentityUi'] },
-  { slug: 'security-auth-oauth2', version: '1.3.1', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi', 'authorisationCodeFlow'] },
+  { slug: 'security-auth-oauth2', version: '1.3.2', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory', 'hostedIdentityUi', 'authorisationCodeFlow'] },
   { slug: 'security-auth-keycloak', version: '1.4.0', capabilities: ['principalDirectory', 'roleModel', 'credentialSelfService', 'sessionInventory'] },
 ];
 

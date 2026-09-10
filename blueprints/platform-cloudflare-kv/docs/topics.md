@@ -67,7 +67,7 @@ ADR/TAC suffixes for this blueprint use the 3201-3299 block, continuing the shel
 
 - Reuse `keyValueStoreContract` exactly as spelled here when your blueprint holds an opinion on the key-value-store contract at the facade boundary; contribute your own scope:global ADR on that string and let composition surface the pairing.
 - A future non-KV adapter (a Redis-shape store, a strong-consistency Durable Objects cell for a single-owner use case) mints on demand; each claims `keyValueStoreContract` and conflicts by design.
-- Consumer blueprints reading the `keyValueStore` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the facade at apply time via the T-5 visual-round capability-declaration mechanism.
+- Consumer blueprints reading the `keyValueStore` capability declared on `blueprint.json` per section 6a of `blueprint-authoring.md` obtain the facade at apply time via the visual-round capability-declaration mechanism.
 
 ## Deliberate-conflict statement
 

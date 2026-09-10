@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-tunnel-connectorShape",
-      "description": "The applied fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service on the same web-net network as the T-2 web and caddy services with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
+      "description": "The applied fixture ships both variants under packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/{compose-service,systemd-unit}/; the compose-service variant defines a cloudflared service on the same web-net network as the compose-host web and caddy services with no host ports, restart unless-stopped and a healthcheck; the systemd-unit variant ships a cloudflared.service unit file per the vendor local-configuration-file docs.",
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
@@ -36,11 +36,25 @@
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
         "field": "interfaces.default"
       }
+    },
+    {
+      "id": "AC-tunnel-capabilityToken",
+      "description": "The applied blueprint's manifest declares the `tunnelBridge` capability token, and the connector variant selected by the applied capability set (compose-service under containerHost; systemd-unit on a bare cloudHost) is present and boots per AC-tunnel-connectorShape; therefore the `tunnelBridge` capability the manifest promises is live at runtime.",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
+        "field": "responsibilities.cloudflaredReady"
+      },
+      "given": "the applied blueprint manifest at `blueprints/edge-cloudflare-tunnel/blueprint.json` and the applied connector variant on disk under the fixture at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/`",
+      "when": "the anatomy test reads `blueprint.json` and walks the fixture tree for the two variants",
+      "then": "the manifest carries `tunnelBridge` on its `capabilities[]` list and both connector variants are present on disk, so the applied project inherits a working `tunnelBridge` runtime"
     }
   ],
   "tacIds": [
     "TAC-4001-edge-cloudflare-tunnel-connector-shape"
   ],
   "createdAt": "2026-09-08T00:00:00.000Z",
-  "updatedAt": "2026-09-09T12:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

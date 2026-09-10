@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 26 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.1.0');
+  assert.equal(doc.version, '1.1.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 26 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.1.0');
+  assert.equal(sidecar.version, '1.1.1');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
@@ -243,10 +243,10 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   assert.equal(kc.version, '1.4.0');
   assert.deepEqual([...kc.capabilities].sort(), ['credentialSelfService', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ox = JSON.parse(await readFile(join(OAUTH2_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ox.version, '1.3.1');
+  assert.equal(ox.version, '1.3.2');
   assert.deepEqual([...ox.capabilities].sort(), ['authorisationCodeFlow', 'credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ml = JSON.parse(await readFile(join(MAGIC_LINK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ml.version, '1.2.2');
+  assert.equal(ml.version, '1.2.3');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);
   const log = JSON.parse(await readFile(join(LOGGING_BP, 'blueprint.json'), 'utf8'));
   // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
@@ -255,7 +255,7 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   // with security-auth-clerk TAC-1003 interfaces.sessionInventory. The
   // account-settings sessions surface reads the union across applied
   // blueprints (this shelf-wide test) unchanged.
-  assert.equal(log.version, '1.3.0');
+  assert.equal(log.version, '1.3.1');
   assert.deepEqual([...log.capabilities].sort(), ['auditLog']);
   // Section 6a table extension carries the three new capability strings.
   const authoring = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md'), 'utf8');
@@ -267,5 +267,5 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   assert.match(topics, /application-account-settings \| 25101-25899/);
   // CHANGELOG entry present.
   const changelog = await readFile(join(BLUEPRINT_ROOT, 'CHANGELOG.md'), 'utf8');
-  assert.match(changelog, /## 1\.0\.0 \(visual round T-4/);
+  assert.match(changelog, /## 1\.0\.0 \(visual round,/);
 });

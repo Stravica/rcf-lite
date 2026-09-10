@@ -12,7 +12,7 @@
     {
       "id": "AC-12115-1",
       "description": "The guide file blueprints/deploy-cloudflare-workers/guide/deploy-cloudflare-workers.md gains one new section titled Workers-with-static-assets: the SPA-on-Workers shape. The section carries the verbatim Cloudflare Pages landing-page quote (Workers supports most Pages use cases and offers a broader feature set. It is Cloudflare's primary platform for building applications. Start new projects with Workers.), the two elicit signatures (assets-directory string default empty; run-worker-first boolean default false), a copy-paste wrangler.toml snippet showing the [assets] block with directory and the run_worker_first hint, and a link to the Cloudflare migrate-from-Pages guide at https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/. The Cloudflare Workers static-assets doc at https://developers.cloudflare.com/workers/static-assets/ is cited in the same section. Both URLs return HTTP 200 at gate time.",
-      "given": "the updated guide file on the T-0 branch",
+      "given": "the updated guide file on the branch",
       "when": "a reader opens the guide and grep locates the section heading, the verbatim quote and the two URLs",
       "then": "the section heading appears once; the verbatim landing-page quote appears once; both Cloudflare URLs appear at least once each; a curl -fsSI on each URL returns HTTP 200",
       "testable": true,

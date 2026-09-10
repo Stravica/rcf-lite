@@ -1,6 +1,10 @@
 # email-smtp-resend CHANGELOG
 
-## 1.1.0 (hardening pass B4, 2026-09-09)
+## 1.1.1 (register-sweep patch, 2026-09-10)
+
+- Register: neutral wording in shipped prose (no capability change).
+
+## 1.1.0 (hardening pass, 2026-09-09)
 
 - Adds `elicits[]` with six apply-time answers: `smtp-host-ref`, `smtp-username-ref`, `smtp-password-ref`, `verified-sender-ref` (string placeholder references the send adapter resolves at boot per REQ-002), `webhook-signing-secret-ref` (string placeholder reference the WEBHOOK VERIFIER resolves per REQ-005 - owned by TAC-402, not TAC-401), `replay-tolerance-ms` (string milliseconds, default 300000; REQ-006).
 - Adds `deliveredBy` to every REQ (REQ-001/003/004 -> TAC-401 interfaces; REQ-002 -> TAC-401.interfaces.secretResolver; REQ-005 -> TAC-402.interfaces.verify; REQ-006 -> TAC-402.interfaces.eventIdStore). Closes 3 pass-2 lint findings.

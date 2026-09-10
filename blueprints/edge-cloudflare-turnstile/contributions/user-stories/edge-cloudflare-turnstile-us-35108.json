@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-35108-1",
-      "description": "The Node probe event-secrecy drives siteverify against Cloudflare with the pinned test keys and asserts every event record carries {sitekeyHash, outcome, timestamp} keys only; no record carries the token, no record carries the secret, and no forbidden substring is present in the serialised record.",
+      "description": "The Node probe event-secrecy drives siteverify against Cloudflare with the pinned test keys and asserts every event record carries {sitekeyHash, outcome, timestamp} keys only; no record carries the token, no record carries the secret, and no forbidden substring is present in the serialised record. Per section 7a, this AC is legal as the single AC on the story because the guide and the anchored TAC name no additional documented failure path for this mechanism (adjacent failure paths are owned by sibling stories on the same blueprint, not by this one).",
       "given": "the pack fixture running with the event-secrecy probe attached and the pinned test keys in the environment",
       "when": "the probe drives one pass and one fail through the verifier",
       "then": "every emitted event carries only sitekeyHash, outcome and timestamp",
@@ -24,6 +24,6 @@
     "TAC-3602-edge-cloudflare-turnstile-server-verifier"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z",
+  "updatedAt": "2026-09-10T00:00:00.000Z",
   "description": "Story owns the event-secrecy probe against Cloudflare siteverify with the pinned test keys (record carries {sitekeyHash, outcome, timestamp} only; no token or secret substring). Verifier-error record shapes are covered by US-35103; per section 7a, this story carries a single AC because the event-shape mechanism has no additional documented failure path in the guide or the anchored TAC."
 }

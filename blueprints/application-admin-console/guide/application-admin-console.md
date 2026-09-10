@@ -20,7 +20,7 @@ You want an anonymous product (no principal directory, no roles). The blueprint 
 
 ## Mechanism-reach gaps
 
-The blueprint's README lists the runtime-observable ACs the pack does NOT bind directly. Every gap is a candidate for a v1.1.0 minor bump extending the pack; the shipped v1.0.0 pack anchors the four load-bearing surface checks. Combine with the T-1 datatable pack to reach the users and audit shells' state-region contract.
+The blueprint's README lists the runtime-observable ACs the pack does NOT bind directly. Every gap is a candidate for a v1.1.0 minor bump extending the pack; the shipped v1.0.0 pack anchors the four load-bearing surface checks. Combine with the datatable pack to reach the users and audit shells' state-region contract.
 
 ## Promotion signals
 
@@ -28,9 +28,9 @@ The blueprint's README lists the runtime-observable ACs the pack does NOT bind d
 - The tenancy shape needs a real shelf provider: candidate for the `application-tenancy-orgs` blueprint (spec section 11).
 - A dedicated audit-log blueprint ships: candidate for the console to consume it directly via `capabilities: ["auditLog"]` rather than through the logging companion.
 
-## v1.1.0 minor: Access-gate consumption (Cloudflare round 6 T-4)
+## v1.1.0 minor: Access-gate consumption (Cloudflare round 6)
 
-Applying `edge-cloudflare-access` v1.0.0 alongside `application-admin-console` v1.1.0 flips the sign-in surface on `/admin/sign-in`. The admin-console reads `appliedCapabilities` at apply-time via the shipped `readAppliedCapabilities()` helper (the T-5 visual-round mechanism).
+Applying `edge-cloudflare-access` v1.0.0 alongside `application-admin-console` v1.1.0 flips the sign-in surface on `/admin/sign-in`. The admin-console reads `appliedCapabilities` at apply-time via the shipped `readAppliedCapabilities()` helper (the visual-round mechanism).
 
 - With `zeroTrustGate` in the applied set: the sign-in page renders `[data-surface=access-gated]` with no local login form. A `[data-role=principal-read]` element carries the principal email the `edge-cloudflare-access` JWT validator attached to `request.auth`. The shipped pack check `AC-21815-1` on `application-admin-console.pack.mjs` asserts the shape.
 - Without `zeroTrustGate`: the sign-in page renders `[data-surface=local-login]` with the local `security-auth-*` form unchanged from v1.0.0. Every v1.0.0 deployment continues to work; the minor is strictly additive.

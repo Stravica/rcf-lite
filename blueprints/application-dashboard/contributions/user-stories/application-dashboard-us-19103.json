@@ -2,7 +2,7 @@
   "usId": "application-dashboard-US-19103",
   "prdId": "PRD-001",
   "reqId": "application-dashboard-REQ-003",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "status": "approved",
   "title": "Every tile honours the four-state contract with distinct visuals, role region, aria-live polite and non-colour distinction",
   "asA": "screen-reader user and colour-blind reader on the shipped dashboard",

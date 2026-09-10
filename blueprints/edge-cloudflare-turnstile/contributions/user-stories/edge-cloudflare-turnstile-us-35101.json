@@ -44,11 +44,25 @@
         "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
         "verifiedOn": "2026-09-09"
       }
+    },
+    {
+      "id": "AC-35101-3",
+      "description": "The applied blueprint's manifest declares the `humanCheck` capability token and the elicited surface renders the Cloudflare Turnstile widget with the pinned test sitekey per AC-35101-1; therefore the `humanCheck` promise the manifest carries is backed by a live widget the applying project can submit through.",
+      "given": "the applied blueprint manifest at `blueprints/edge-cloudflare-turnstile/blueprint.json` and the pack fixture serving the elicited surface at `packages/rcf-lite/test/fixtures/probe-pack-edge-cloudflare-turnstile/`",
+      "when": "the widget-rendered check reads the blueprint manifest and mounts the fixture surface",
+      "then": "the manifest carries `humanCheck` on its `capabilities[]` list and the fixture surface renders the Turnstile widget from the Cloudflare Turnstile origin only, so `humanCheck` is a live promise the applying project can act on",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
+        "field": "interfaces.mountTurnstile"
+      }
     }
   ],
   "tacIds": [
     "TAC-3601-edge-cloudflare-turnstile-widget-mount"
   ],
   "createdAt": "2026-09-07T20:00:00.000Z",
-  "updatedAt": "2026-09-09T13:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

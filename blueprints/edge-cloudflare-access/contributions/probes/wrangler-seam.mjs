@@ -18,7 +18,7 @@
 // Warn semantics per spec section 3.1 pass-with-skip:
 //   - wrangler devDependency missing: aggregateVerdict warn (never fail);
 //   - wrangler CLI fails to bind within the cap: warn.
-//   - A handler thrown at the workerd boundary: fail (per round-6 T-3 gate).
+//   - A handler thrown at the workerd boundary: fail (per round-6 gate).
 //
 // Mutation-check pair for the negative fires: removing the
 // validator's early-return call on missing header would surface

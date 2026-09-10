@@ -16,7 +16,7 @@
 //
 // Env-absent branch: pass-with-skip (spec section 3.5).
 // Env-present branch: provisions a throwaway Hetzner server through
-// the shared T-1 fixture provisionThrowawayServer, drives the
+// the shared throwaway-server fixture provisionThrowawayServer, drives the
 // cloudflared control surface through the cf-edge shim's
 // cloudflaredTunnelInfo({ tunnelName }) call, asserts at least one
 // HEALTHY connector, and captures a tunnelConnectorUp event

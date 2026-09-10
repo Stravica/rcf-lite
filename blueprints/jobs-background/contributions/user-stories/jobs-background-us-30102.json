@@ -12,7 +12,7 @@
     {
       "id": "AC-30102-1",
       "description": "The two toy job-definition modules under packages/rcf-lite/test/fixtures/infra-s3-and-queue/jobs/ (send-welcome-email.mjs and refresh-cache.mjs) each export a plain object with name (string), handler (async function), inputSchema (opaque, non-null), retryPolicy ({ maxAttempts: positive integer, backoff: one of exponential | constant | linear }), and timeoutMs (positive integer). The jobs runtime under src/jobs-runtime.mjs registers every job by name at boot and dispatches by message.name.",
-      "given": "the shared sample-app fixture with the T-4 jobs-runtime wired on top of the T-3 in-memory queue seam",
+      "given": "the shared sample-app fixture with the jobs-runtime wired on top of the in-memory queue seam",
       "when": "the fixture jobs runtime boots and reads the jobs/ directory",
       "then": "both toy job modules load without throwing; the runtime's registry has entries keyed by name whose values carry handler, inputSchema, retryPolicy and timeoutMs; dispatch by message.name calls the matching handler",
       "testable": true,

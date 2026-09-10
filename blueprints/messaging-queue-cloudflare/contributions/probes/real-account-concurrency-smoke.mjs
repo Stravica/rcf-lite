@@ -33,7 +33,7 @@
  * that proves the wire format (operator ruling). This probe is
  * therefore never described as "locally verified" - the local runs
  * are our own lifecycle-logic proof; wire correctness is proven at
- * the the operator estate real-account gate.
+ * the operator estate real-account gate.
  *
  * Declared env (dispatch requirement 4):
  *   CI_HAS_CLOUDFLARE_ACCOUNT   required to enter the driver path.

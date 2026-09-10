@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-32101-1",
-      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected sink; the ready() call fires cronReady on the sink with a payload of exactly {event, expression, scheduledTime, outcome, duration} per TAC-3303 where expression is null, scheduledTime is null, outcome is 'ready' and duration is 0. The scheduled handler module (src/scheduled.mjs) does NOT dereference env.CACHE (the T-1 KV binding) or any other env binding; a source-tree grep of that file returns zero hits for env.CACHE.",
+      "description": "On process boot, the scheduled handler binds against the elicited cron triggers (the [triggers] crons block in wrangler.toml on the fixture), wires the dispatcher and the injected sink; the ready() call fires cronReady on the sink with a payload of exactly {event, expression, scheduledTime, outcome, duration} per TAC-3303 where expression is null, scheduledTime is null, outcome is 'ready' and duration is 0. The scheduled handler module (src/scheduled.mjs) does NOT dereference env.CACHE (the KV binding) or any other env binding; a source-tree grep of that file returns zero hits for env.CACHE.",
       "given": "a Node or Worker process with the scheduled handler module imported and its factory invoked with the elicited configuration",
       "when": "the process boots and the scheduled handler ready() call resolves",
       "then": "a cronReady event fires on the injected sink carrying the cron-vocabulary metadata payload {event, expression, scheduledTime, outcome, duration}; the scheduled.mjs source has zero env.CACHE references",
@@ -82,11 +82,25 @@
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
         "field": "responsibilities.solereader"
       }
+    },
+    {
+      "id": "AC-32101-6",
+      "description": "The applied blueprint's manifest declares the `scheduledTrigger` capability token and the applied project ships the single scheduled() handler module per AC-32101-1; therefore the `scheduledTrigger` promise the manifest carries is backed by the live handler the deployed Worker registers.",
+      "given": "the applied blueprint manifest at `blueprints/platform-cloudflare-cron-triggers/blueprint.json` and the applied fixture with the shipped scheduled() handler module",
+      "when": "the anatomy test reads the blueprint manifest and asserts the handler module presence per AC-32101-1",
+      "then": "the manifest carries `scheduledTrigger` on its `capabilities[]` list and the applied handler module is present, so `scheduledTrigger` is a live promise the applying project can act on",
+      "testable": true,
+      "scope": "runtime",
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
+        "field": "responsibilities.cronReady"
+      }
     }
   ],
   "tacIds": [
     "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler"
   ],
   "createdAt": "2026-09-07T12:35:00.000Z",
-  "updatedAt": "2026-09-09T22:00:00.000Z"
+  "updatedAt": "2026-09-10T00:00:00.000Z"
 }

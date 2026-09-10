@@ -25,7 +25,7 @@
     },
     {
       "id": "AC-31109-2",
-      "description": "The guide passage on eventual consistency names the KV propagation window (up to 60 seconds or more per the Cloudflare KV documented behaviour) as a separate clock from the applied cache-aside TTL; a doc-string test greps guide.md for the phrase \"separate clock\" and for the decision-tree cross-reference to platform-cloudflare-durable-objects (round-6 T-3) as the strong-consistency answer.",
+      "description": "The guide passage on eventual consistency names the KV propagation window (up to 60 seconds or more per the Cloudflare KV documented behaviour) as a separate clock from the applied cache-aside TTL; a doc-string test greps guide.md for the phrase \"separate clock\" and for the decision-tree cross-reference to platform-cloudflare-durable-objects (round-6) as the strong-consistency answer.",
       "given": "the shipped guide file at guide/platform-cloudflare-kv.md",
       "when": "a doc-string test greps the guide for the required phrases",
       "then": "both phrases are present and the guide names DO as the strong-consistency answer",

@@ -43,8 +43,8 @@ The shelf-wide band registry lives in `packages/rcf-lite/docs/blueprint-authorin
 
 ## Cross-references
 
-- `application-empty-error-states` (T-1, shipped v1.0.0): the shell composes on the `forbidden` and `empty-list` states rather than inventing bespoke access-denied UI. Every project applying `application-account-settings` should also apply `application-empty-error-states`.
-- `application-admin-console` (T-5, shipped v1.0.0): shares the capability-declaration mechanism (`capabilities[]` on identity blueprints) and the apply-time discovery, refusal and custom-auth elicitation. The two blueprints are separate consumers (the account-settings surface is per-principal; the admin-console surface is per-operator-with-admin-scope) and never render the same surface.
+- `application-empty-error-states` (shipped v1.0.0): the shell composes on the `forbidden` and `empty-list` states rather than inventing bespoke access-denied UI. Every project applying `application-account-settings` should also apply `application-empty-error-states`.
+- `application-admin-console` (shipped v1.0.0): shares the capability-declaration mechanism (`capabilities[]` on identity blueprints) and the apply-time discovery, refusal and custom-auth elicitation. The two blueprints are separate consumers (the account-settings surface is per-principal; the admin-console surface is per-operator-with-admin-scope) and never render the same surface.
 
 ## Probe pack
 

@@ -15,7 +15,7 @@ Reach when the applying project needs to expose a service on the public
 internet without opening origin ports on the host and without standing
 up a bespoke reverse proxy in front of the CDN. The tunnel connector
 dials out to the Cloudflare edge and terminates ingress there; the host
-firewall (T-1 deploy-hetzner-server) can stay closed on 80/443 unless a
+firewall (from deploy-hetzner-server) can stay closed on 80/443 unless a
 reverse proxy is also applied.
 
 Do not reach for this blueprint when the applying project runs on
@@ -34,10 +34,10 @@ Reach for **compose-service** (the shipped default when `containerHost`
 is applied) when the applying project already runs docker compose on
 the host. The connector ships as another service in the same stack,
 sharing the compose network, the log driver and the restart discipline.
-The T-2 platform-docker-compose-host contract makes this the natural
-home; the connector composes on `containerHost` from T-2.
+The platform-docker-compose-host contract makes this the natural
+home; the connector composes on `containerHost` from platform-docker-compose-host.
 
-Reach for **systemd-unit** when the host runs bare (only T-1 applied)
+Reach for **systemd-unit** when the host runs bare (only deploy-hetzner-server applied)
 and there is no compose stack to add a service to. The connector runs
 as a systemd unit per the vendor cloudflared as-a-service documented
 systemd unit; the unit file lives at `/etc/systemd/system/cloudflared.service`
