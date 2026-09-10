@@ -23,7 +23,7 @@ can render without ever writing a body byte.
   timestamp}` and nothing else. Two-layer secrecy assertion in the
   event-secrecy probe.
 - A decision-tree cross-reference in the guide to
- `platform-cloudflare-durable-objects` (round-6) for cases that
+ `platform-cloudflare-durable-objects` for cases that
   need strong-consistency semantics.
 
 ## The five REQs

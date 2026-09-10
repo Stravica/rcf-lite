@@ -52,7 +52,7 @@ async function runProbe(name, env = {}) {
 test('T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.1');
+  assert.equal(bp.version, '1.1.2');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');

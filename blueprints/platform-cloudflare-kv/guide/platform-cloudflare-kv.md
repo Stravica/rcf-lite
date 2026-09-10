@@ -27,7 +27,7 @@ KV is NOT the shipped answer when:
 - The value is mutated by concurrent writers who each expect their
   write to win in a total order.
 
-Those three cases point at Durable Objects: the round-6 sibling
+Those three cases point at Durable Objects: the sibling
 `platform-cloudflare-durable-objects` is the shipped answer for
 strong-consistency needs.
 
@@ -58,7 +58,7 @@ project cannot ship a sub-second TTL.
 - Reads dominate writes AND a global staleness ceiling of a few
   seconds is acceptable AND writes come from few writers -> `platform-cloudflare-kv`.
 - Reads mix with writes AND every read must reflect the most recent
-  write AND one key has one authoritative owner -> `platform-cloudflare-durable-objects` (round-6).
+  write AND one key has one authoritative owner -> `platform-cloudflare-durable-objects`.
 - Row-shaped relational data with SQL semantics ->
   `persistence-data-postgres` or `persistence-data-d1` (via
   `persistenceStore`).
