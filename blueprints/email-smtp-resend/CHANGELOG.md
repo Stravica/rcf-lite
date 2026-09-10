@@ -1,5 +1,9 @@
 # email-smtp-resend CHANGELOG
 
+## 1.1.3 - 2026-09-10
+
+Second closure fix on the dimension-d ownership sweep for REQ-001: removed the send-signature and outcome-field restatements from `AC-4101-2` (description and then-clause), `AC-4102-1` (description and then-clause), and the guide's "What a good outcome looks like" bullets; each surface now references the outcome record owned on `TAC-401-email-smtp-resend-send-adapter.interfaces.send` and, where relevant, the classification owned on `responsibilities[3]`. US-4101 and US-4102 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2.
+
 ## 1.1.2 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-001: REQ description now references the send-adapter interface signature and outcome shape owned on TAC-401.interfaces.send rather than restating the send arguments and outcome fields. Chain-consistency lint zero on pass 1 and pass 2.

@@ -2,7 +2,7 @@
   "usId": "jobs-background-US-30102",
   "prdId": "PRD-001",
   "reqId": "jobs-background-REQ-002",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "approved",
   "title": "Job definition contract with name, handler, inputSchema, retryPolicy and timeoutMs",
   "asA": "developer authoring a job in an applying project",
@@ -11,13 +11,17 @@
   "acceptanceCriteria": [
     {
       "id": "AC-30102-1",
-      "description": "The two toy job-definition modules under packages/rcf-lite/test/fixtures/infra-s3-and-queue/jobs/ (send-welcome-email.mjs and refresh-cache.mjs) each export a plain object with name (string), handler (async function), inputSchema (opaque, non-null), retryPolicy ({ maxAttempts: positive integer, backoff: one of exponential | constant | linear }), and timeoutMs (positive integer). The jobs runtime under src/jobs-runtime.mjs registers every job by name at boot and dispatches by message.name.",
+      "description": "The two toy job-definition modules under packages/rcf-lite/test/fixtures/infra-s3-and-queue/jobs/ (send-welcome-email.mjs and refresh-cache.mjs) each export a plain object matching the shape owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default. The jobs runtime under src/jobs-runtime.mjs registers every job by name at boot and dispatches by message.name.",
       "given": "the shared sample-app fixture with the jobs-runtime wired on top of the in-memory queue seam",
       "when": "the fixture jobs runtime boots and reads the jobs/ directory",
-      "then": "both toy job modules load without throwing; the runtime's registry has entries keyed by name whose values carry handler, inputSchema, retryPolicy and timeoutMs; dispatch by message.name calls the matching handler",
+      "then": "both toy job modules load without throwing; the runtime's registry has entries keyed by name whose values match the shape owned on TAC-3101-jobs-background-job-definition.interfaces.jobModule.default; dispatch by message.name calls the matching handler",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-3101-jobs-background-job-definition",
+        "field": "interfaces.jobModule.default"
+      }
     },
     {
       "id": "AC-30102-2",

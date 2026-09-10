@@ -49,7 +49,7 @@ Exits 0 and writes the sidecar with `allowNoAuthYet: true`, `appliedCapabilities
 
 ## Writing a job
 
-Every job module in `./jobs/` exports a plain object:
+Every job module in `./jobs/` default-exports the shape owned on `TAC-3101-jobs-background-job-definition.interfaces.jobModule.default`. This section demonstrates that shape with a worked example; the definition lives on the TAC.
 
 ```js
 export default {
