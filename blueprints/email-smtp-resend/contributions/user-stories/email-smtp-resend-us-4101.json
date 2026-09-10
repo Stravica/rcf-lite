@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-4101-1",
-      "description": "The adapter exposes exactly the `send({ to, subject, textBody, htmlBody })` method the magic-link blueprint's TAC-504 names and no other auth-facing method.",
+      "description": "The adapter exposes exactly the send method owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send (shape-compatible with the magic-link blueprint's TAC-504) as the sole auth-facing method.",
       "given": "the adapter module imported into a running process",
       "when": "the process enumerates the adapter's exported surface",
       "then": "the enumeration returns `send` as the sole async method and no other public method matches the auth-facing shape",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-4101-2",
-      "description": "A successful send resolves the fixed outcome shape `{ ok, providerStatus, providerMessageId, error }` with `ok: true`, `providerStatus` equal to the provider's own accepted-status code, `providerMessageId` equal to the provider's returned identifier, and `error` equal to null.",
+      "description": "A successful send resolves the outcome fields owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send with the ok field true, the providerStatus field equal to the provider's own accepted-status code, the providerMessageId field equal to the provider's returned identifier, and the error field null.",
       "given": "a running project with valid configuration and a recipient the provider accepts",
       "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
       "then": "the returned object matches the shape with `ok === true`, `providerStatus` a positive integer, `providerMessageId` a non-empty string, and `error === null`",
