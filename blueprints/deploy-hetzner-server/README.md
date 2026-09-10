@@ -149,11 +149,11 @@ Every probe writes its report envelope to
 
 ## Shared throwaway-server fixture
 
-The one new pattern this round. Lives at
+The blueprint ships one new pattern. It lives at
 `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/`; ships
 `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, the mocked hcloud
-shim and the manifest at `hetzner/servers/ci-throwaway.json`. Round-7
-`platform-docker-compose-host` and `edge-cloudflare-tunnel`
+shim and the manifest at `hetzner/servers/ci-throwaway.json`. Sibling
+`platform-docker-compose-host` and `edge-cloudflare-tunnel` blueprints
 EXTEND the fixture rather than shipping a second copy. Cost ceiling:
 one `cx23` at approximately EUR 0.006/hour per run; destroy runs in
 `always()`; the nightly `sweep-orphans` cron collects any leak with a
