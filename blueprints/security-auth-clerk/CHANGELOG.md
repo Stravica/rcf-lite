@@ -2,7 +2,9 @@
 
 ## 1.5.1
 
-- Adds `vendorCitation` on `AC-9108-1` (`{ url, verifiedOn }` pointing at the Clerk sign-up-and-sign-in-options guide) and on `AC-9109-2` (pointing at the Clerk system-limits page). Both ACs rest on Clerk-documented facts; the citations record the exact page and the ISO-8601 verification date so a reviewer can retrace the fact without following prose leads.
+- Adds `vendorCitation` on `AC-9108-1` (`{ url, verifiedOn }` pointing at the Clerk sign-up-and-sign-in-options guide) and on `AC-9109-2` (pointing at the Clerk system-limits page): closes F-4 and F-5. Both ACs rest on Clerk-documented facts; the citations record the exact page and the ISO-8601 verification date so a reviewer can retrace the fact without following prose leads.
+- Closure fix pass (F-6): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
+- Owner rule on `signInStrategy`: repoints `REQ-005.description` to reference `TAC-1001-security-auth-clerk-middleware.interfaces.config` as the owner of the record shape; `AC-9108-1` keeps the literal `{ primary: string, alternates: string[] }` as an oracle and gains an `ownerRef` at the same field.
 
 ## 1.5.0
 
