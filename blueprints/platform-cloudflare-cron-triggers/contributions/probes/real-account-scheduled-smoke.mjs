@@ -65,7 +65,7 @@ export default async function runProbe() {
         verdict: 'pass',
         accountBoundSkipped: true,
         reason,
-        detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT=true but second-tier env vars unset: ${reason}. This probe does not deploy a Worker; it polls analytics for a pre-existing Worker with a per-minute cron. Set the missing keys and re-run to drive the live analytics call.`,
+        detail: `accountBoundSkipped: ${reason} unset. This probe does not deploy a Worker; it polls analytics for a pre-existing Worker with a per-minute cron. Set the missing keys and re-run to drive the live analytics call.`,
       }],
       extra: { accountBoundSkipped: true, reason },
     };
