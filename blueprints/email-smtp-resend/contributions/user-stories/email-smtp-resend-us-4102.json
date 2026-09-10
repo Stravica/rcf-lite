@@ -13,7 +13,7 @@
       "id": "AC-4102-1",
       "description": "When the provider refuses the submission because the sender domain or address is unverified, the adapter returns the refusal outcome owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send with the `RESEND_SENDER_UNVERIFIED` code from the classification owned on TAC-401-email-smtp-resend-send-adapter.responsibilities[3].",
       "given": "a running project whose configured from-address is not verified with the provider",
-      "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
+      "when": "the magic-link route calls the adapter's send interface defined on `TAC-401-email-smtp-resend-send-adapter.interfaces.send`",
       "then": "the returned object matches the refusal shape owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send and its `error` begins with `RESEND_SENDER_UNVERIFIED`",
       "testable": true,
       "scope": "runtime",

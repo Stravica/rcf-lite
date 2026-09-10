@@ -23,7 +23,7 @@
       "id": "AC-4101-2",
       "description": "A successful send resolves the outcome record owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send in its success shape (per that interface's contract).",
       "given": "a running project with valid configuration and a recipient the provider accepts",
-      "when": "the magic-link route calls `adapter.send({ to, subject, textBody, htmlBody })`",
+      "when": "the magic-link route calls the adapter's send interface defined on `TAC-401-email-smtp-resend-send-adapter.interfaces.send`",
       "then": "the returned object matches the success shape owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send",
       "testable": true,
       "scope": "runtime",

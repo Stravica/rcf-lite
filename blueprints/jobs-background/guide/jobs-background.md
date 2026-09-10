@@ -136,7 +136,7 @@ The `workflows` scheduler mode arrives at v1.1.0 per spec section 5.7 and round-
 What does NOT change:
 
 - The `backgroundJobModel` topic answer (still retry-and-schedule at ADR-3101).
-- The job-definition module shape (`name`, `handler`, `inputSchema`, `retryPolicy`, `timeoutMs`).
+- The job-definition module shape owned on `TAC-3101-jobs-background-job-definition.interfaces.jobModule.default`.
 - The run-log envelope whitelist (`event`, `jobId`, `jobName`, `attempts`, `duration`, `timestamp`, optional `terminalErrorCode`).
 - The `requiresAppliedCapabilities` block on the applying blueprint.
 
