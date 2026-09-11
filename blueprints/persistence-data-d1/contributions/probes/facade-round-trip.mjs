@@ -85,7 +85,7 @@ export default async function runProbe() {
     binding.__closeForFixture();
     // Sentinels stashed on the env passed alongside the missing DB
     // binding. AC-13101-4 requires the refusal to leak neither the
-    // account id nor the API token; we drive a positive predicate by
+    // account id nor the API token; the probe drives a positive predicate by
     // proving neither sentinel appears anywhere in the refusal error's
     // message, kind, bindingName, stack or JSON serialisation. Row
     // de-claimed to conformanceOnly (the strict-evidence contract): the refusal never
