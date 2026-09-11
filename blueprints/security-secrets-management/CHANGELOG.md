@@ -1,5 +1,9 @@
 # security-secrets-management changelog
 
+## 1.1.3 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the secretsProvider capability across four probes running against real `sops(1)` + `age(1)` engines with throwaway keypairs the probes self-provision and self-clean under `RCF_SECRETS_SCRATCH_DIR`: `encrypt-decrypt-round-trip` (scratch scope encrypt then decrypt; sops metadata captured as evidence excerpts), `add-recipient-rotation` (`--rotate --add-age` extends recipient list, regenerates mac, and lets the new recipient decrypt), `key-rotation` (`--rotate` re-keys the payload without changing recipients), and `mismatched-key-refusal` (foreign-key decrypt returns non-zero with no plaintext). The estate vault at `.vault/scopes/` is never touched. Fixture at `packages/rcf-lite/test/fixtures/security-secrets-management/` declares every env var the pack reads; anatomy test pins pack shape, fixture manifest and per-probe aggregate pass on the real engine.
+
 ## 1.1.2
 
 - Rewrites `REQ-002.description` to reference `TAC-901-security-secrets-management-manager-client` `responsibilities.get` and the sibling responsibilities on the same TAC rather than restate the `get(name)` signature verbatim; the literal remains owned by the delivering TAC.

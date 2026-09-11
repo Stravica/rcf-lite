@@ -1,5 +1,9 @@
 # security-auth-oauth2 CHANGELOG
 
+## 1.3.4 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the six declared capabilities via five probes: `pkce-challenge-shape` and `authorisation-code-flow-shape` (authorisationCodeFlow via a local mock RFC 6749 + RFC 7636 server on ports 47400-47449), `provider-adapter-shape` (principalDirectory + credentialSelfService), `session-bridge-shape` (sessionInventory + hostedIdentityUi), and `real-account-authorisation-code-flow` (LIVE; honest-skips on `CI_HAS_OAUTH2_PROVIDER` since this estate has no live commercial IdP). Fixture at `packages/rcf-lite/test/fixtures/security-auth-oauth2/` declares every env var the pack reads; anatomy test at `packages/rcf-lite/test/blueprint/security-auth-oauth2-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.
+
 ## 1.3.3
 
 - Closure fix pass (F-4): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.

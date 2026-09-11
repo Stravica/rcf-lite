@@ -1,5 +1,9 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.2 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the four declared capabilities: `role-model-adapter` (roleModel; local), `hosted-identity-ui-config` (hostedIdentityUi; local, https-only refusal), `real-account-principal-directory-round-trip` (principalDirectory; live against Clerk Backend API, creates a scratch principal, reads back, list-diff, deletes), and `real-account-session-inventory` (sessionInventory; live against the Clerk sessions endpoint per TAC-1003). Fixture at `packages/rcf-lite/test/fixtures/security-auth-clerk/` declares every env var the pack reads (`CI_HAS_CLERK_ACCOUNT`, `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_API_BASE_URL`, `GITHUB_RUN_ID`); anatomy test at `packages/rcf-lite/test/blueprint/security-auth-clerk-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.
+
 ## 1.5.1
 
 - Adds `vendorCitation` on `AC-9108-1` (`{ url, verifiedOn }` pointing at the Clerk sign-up-and-sign-in-options guide) and on `AC-9109-2` (pointing at the Clerk system-limits page): closes F-4 and F-5. Both ACs rest on Clerk-documented facts; the citations record the exact page and the ISO-8601 verification date so a reviewer can retrace the fact without following prose leads.

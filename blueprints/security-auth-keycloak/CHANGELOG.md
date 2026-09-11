@@ -1,5 +1,9 @@
 # security-auth-keycloak CHANGELOG
 
+## 1.4.2 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the four declared capabilities: `discovery-shape` (principalDirectory; OIDC discovery URL derivation and validator), `jwt-verifier-shape` (credentialSelfService; node:crypto RS256 sign+verify with alg/exp/iss/signature-tamper refusal paths on throwaway keys), `introspection-shape` (sessionInventory; RFC 7662 request/response shape), `role-adapter-shape` (roleModel; realm+resource-access role mapper). `real-account-realm-round-trip` (LIVE) honest-skips on `CI_HAS_KEYCLOAK_ACCOUNT` because this estate does not expose a Keycloak client to shelf probes. Fixture at `packages/rcf-lite/test/fixtures/security-auth-keycloak/` declares every env var the pack reads; anatomy test pins pack shape, fixture manifest and the account-bound skip contract.
+
 ## 1.4.1
 
 - Closure fix pass (F-8): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
