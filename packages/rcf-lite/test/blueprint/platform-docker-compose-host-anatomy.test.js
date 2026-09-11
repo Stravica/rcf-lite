@@ -169,7 +169,7 @@ test('T-2 platform-docker-compose-host anatomy: README, CHANGELOG, guide and doc
   assert.match(authoring, /\| `containerHost` \|/, 'blueprint-authoring section 6a gains the containerHost row');
 });
 
-test('T-2 platform-docker-compose-host v1.1.4 env vars declared and compose-stack driver wired (TC-150-env-vars-declared-and-real-driver-wired)', async () => {
+test('platform-docker-compose-host v1.1.4 env vars declared and compose-stack driver wired (TC-150-env-vars-declared-and-real-driver-wired)', async () => {
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   const section = readme.split('## Declared env vars (platform-docker-compose-host probes)')[1] || '';
   assert.ok(section.length > 0, 'fixture README is missing the platform-docker-compose-host declared env vars section');

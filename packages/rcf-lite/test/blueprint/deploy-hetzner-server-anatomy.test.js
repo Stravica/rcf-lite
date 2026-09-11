@@ -216,7 +216,7 @@ test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud
 // manifest, and skip reasons on the three real-account probes name
 // their gate variables literally with the honest set-but-not-true /
 // unset distinction.
-test('T-1 deploy-hetzner-server v1.1.4 env vars declared and skip reasons name variables literally', async () => {
+test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name variables literally', async () => {
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   const section = readme.split('## Declared env vars (deploy-hetzner-server probes)')[1] || '';
   assert.ok(section.length > 0, 'fixture README is missing the deploy-hetzner-server declared env vars section');
