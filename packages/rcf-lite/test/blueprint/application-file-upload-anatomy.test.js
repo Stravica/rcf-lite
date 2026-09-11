@@ -211,7 +211,7 @@ test('four state slugs and two transport slugs appear identically across README 
  }
 });
 
-test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the shelfTopic2 row (TC-054-readme-gaps-and-changelog)', async () => {
+test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-2 row (TC-054-readme-gaps-and-changelog)', async () => {
  const readme = await readFile(README_ABS, 'utf8');
  const changelog = await readFile(CHANGELOG_ABS, 'utf8');
  const topics = await readFile(TOPICS_ABS, 'utf8');
@@ -222,8 +222,8 @@ test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics c
  }
  // CHANGELOG has exactly one 1.0.0 entry.
  assert.match(changelog, /## 1\.0\.0/, 'CHANGELOG carries the 1.0.0 heading');
- // docs/topics.md carries the shelfTopic2 shelf registry row.
- assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'shelfTopic2 shelf registry row present in blueprint docs/topics.md');
+ // docs/topics.md carries the T-2 shelf registry row.
+ assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'T-2 shelf registry row present in blueprint docs/topics.md');
 });
 
 test('application-file-upload: no em-dashes in shipped prose', async () => {
