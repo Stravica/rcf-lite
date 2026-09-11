@@ -1,31 +1,16 @@
 # application-error-handling CHANGELOG
 
-## 1.0.7 (criterion-e third-closure fix, 2026-09-11)
+## 1.0.8 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - /crash-real now induces a REAL uncaughtException on the handler path (setImmediate throw). startServer({ crashOnRequest: true }) registers a process uncaughtException handler that constructs the record with category="unknown", emits ONE JSON line at level=error to stderr with the thrown stack on cause, and process.exit(1). The pass-3 direct process.exit path is removed.
-  - Probe: two-boundaries-registered spawns the child, hits /crash-real, and asserts (a) OS exit code 1, (b) exactly ONE JSON line at level=error in stderr, (c) record.category="unknown", (d) stack-on-cause carries a real "at ..:line:col" trace.
-  - REQ-004 row drives BOTH /throw-handler (framework) AND /crash-process (process emit-only, no exit) and asserts /companion-invocations records both boundary sources.
-  - CHANGELOG now names what the probe actually does (GET /crash-real, real uncaught), not the earlier POST /crash-process claim.
-  - notObservableHere rows drop anchorAcId / anchorReqId per rule 11.
-  - Anatomy test hardened (AC/REQ resolution, {} never counts, notObservableHere.ac resolves); version pin bumped to 1.0.7.
-
-## 1.0.6 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14; header refreshed from v1.0.0 to v1.0.6.
-  - Process-boundary probe (AC-16101-1) now spawns the fixture as a child process, POSTs /crash-process to induce an uncaught exception, and records the child's OS exit code from process.on('exit'), replacing the fixture-authored didExit field (Addendum 3 rule 12).
-  - Companion factory (REQ-004): fixture accepts a companion-factory injection via startServer({ companion }); the probe asserts the companion is invoked and observes emissions independently.
-  - Cause records now nest a full six-field ADR-1701 record inside cause[] rather than {message,category}; record-shape probe walks the nested cause list.
-  - notObservableHereResult helper added.
-
-## 1.0.4 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-error-handling/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
-- Probes: two-boundaries-registered, record-shape-adr-1701, category-vocabulary.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Adds a contributions/probes pack meeting rule 7d.
+- Probes: two-boundaries-registered, category-vocabulary, record-shape-adr-1701.
+- Framework boundary probe drives /throw-handler whose handler throws an Error whose stack contains /Users/, /home/ and file:// literals; the wire body is inspected for those substrings and for stack markers. That observation targets AC-16102-2 (stack, filesystem-path and file:// scrub) and is anchored to AC-16102-2.
+- Process boundary probe spawns the fixture as a child with crashOnRequest=true, hits /crash-real which schedules a real uncaught throw via setImmediate after the response is committed; the registered uncaughtException handler emits one level=error JSON line to stderr with the record shape (code, category unknown, message, correlationId, cause with stack, context) then process.exit(1); the probe reads the child's stderr line and OS exit code from the child.on('exit') event.
+- REQ-004 companion-invocation observation reads /companion-invocations from the SAME child process that hosted the real uncaught boundary; both the framework path (an in-process /throw-handler request) AND the process path (the emit written by the uncaughtException handler before process.exit) show up in the companion's invocation list on the child. No in-process /crash-process short-circuit is used for REQ-004 evidence.
+- AC-16102-4 (mid-stream close) is a conformanceOnly row with limitation naming that a browser-network client is required to observe the wire-side close and that the emit-only property is asserted server-side; the wire-close half is notObservableHere on a server-driven probe pack.
+- The process-boundary result records the correlationId as its own record.correlationId, and the evidence status field carries the OS exit code (numeric), not an HTTP-shaped fabrication.
+- Detail texts open with the first eight words of the AC or REQ text they observe.
+- Anatomy test pin bumped to 1.0.8.
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)

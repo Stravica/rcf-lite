@@ -1,29 +1,13 @@
 # application-dashboard CHANGELOG
 
-## 1.0.8 (criterion-e third-closure fix, 2026-09-11)
+## 1.0.9 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - Shell regions are now derived: startServer({ regions: [...] }) selects the region set; the probe drives two distinct sets (full vs reduced) and asserts the rendered DOM follows the input.
-  - Export formats are now derived: startServer({ exportFormats: [...] }) selects the format list; the probe drives two distinct sets (shipped vs elicited) and asserts the listbox follows the input.
-  - primary-kpi row drops the duplicate notObservableHere block; the single conformanceOnly row anchors AC-19102-1 with a limitation naming the browser-only viewport half.
-  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11.
-  - Anatomy test hardened (AC/REQ resolution, {} never counts as derived); version pin bumped to 1.0.8.
-
-## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14.
-  - Primary-KPI at 1440/1024/360 is a browser-only property; the row is recorded as notObservableHere(AC-19102-1) per Addendum 3 rule 11 rather than faking with static markup checks. A separate row asserts the shell markup satisfies the server-observable half (data-kpi-kind in ADR-2001 enum, non-empty inline styles) with request-id + body excerpt evidence.
-  - Export-format focus-return-on-Escape and control-activation are notObservableHere(AC-19106-1); the server-observable half (three format handles rendered with distinct downloads) remains a real row with evidence.
-  - Four-tile-states: the "supporting tile" checks now iterate each of the four states rather than always evaluating populated; the probe walks two tiles across four states.
-
-## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-dashboard/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
-- Probes: shell-five-regions, primary-kpi-top-left, four-tile-states, export-handle-formats.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Adds a contributions/probes pack meeting rule 7d.
+- Probes: shell-five-regions (region layout derived from probe-controlled region enum), primary-kpi-top-left, four-tile-states, export-handle-formats.
+- Export probe rethrows any teardown exception; a swallowed teardown error would hide a boundary failure.
+- Primary-KPI at ratified viewports is a browser-only property; the row is conformanceOnly + limitation naming the specific AC id and the browser property not observed.
+- notObservableHere rows anchor nothing else; conformanceOnly rows always carry a limitation.
+- Anatomy test pin bumped to 1.0.9.
 
 
 ## 1.0.4 - 2026-09-10

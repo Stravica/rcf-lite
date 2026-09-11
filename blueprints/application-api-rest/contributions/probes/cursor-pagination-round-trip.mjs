@@ -29,7 +29,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-1',
       verdict: firstRes.status === 200 && envelopeOk ? 'pass' : 'fail',
-      detail: `Every collection endpoint accepts ?cursor= and ?limit= - GET /v1/widgets?limit=5 returned items[${first.items?.length ?? 0}] next=${typeof first.next}(${(first.next || '').slice(0, 12)}...) prev=${first.prev}`,
+      detail: `Every collection endpoint accepts ?cursor= and ?limit= and - GET /v1/widgets?limit=5 returned items[${first.items?.length ?? 0}] next=${typeof first.next}(${(first.next || '').slice(0, 12)}...) prev=${first.prev}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=5',
         response: firstRes,
@@ -89,7 +89,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-3',
       verdict: opaque ? 'pass' : 'fail',
-      detail: `Cursors are opaque: they carry no client-decodable - cursor "${cursorStr}" parseableAsInt=${parseableAsInt} base64UrlJsonReadable=${base64JsonReadable} looksLikeUuid=${looksLikeUuid}`,
+      detail: `Cursors are opaque: they carry no client-decodable positional - cursor "${cursorStr}" parseableAsInt=${parseableAsInt} base64UrlJsonReadable=${base64JsonReadable} looksLikeUuid=${looksLikeUuid}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=5',
         response: firstRes,
@@ -112,7 +112,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-3',
       verdict: malformedOk ? 'pass' : 'fail',
-      detail: `Cursors are opaque: they carry no client-decodable - malformed cursor "not-a-cursor" returned ${malformedRes.status} problem+json type=${malformedJson?.type ?? 'null'}`,
+      detail: `Cursors are opaque: they carry no client-decodable positional - malformed cursor "not-a-cursor" returned ${malformedRes.status} problem+json type=${malformedJson?.type ?? 'null'}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?cursor=not-a-cursor',
         response: malformedRes,
@@ -135,7 +135,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-5',
       verdict: overLimitOk ? 'pass' : 'fail',
-      detail: `The declared maximum limit is enforced: a - ?limit=999 returned ${overLimitRes.status} problem+json type=${overLimitJson?.type ?? 'null'}`,
+      detail: `The declared maximum limit is enforced: a request - ?limit=999 returned ${overLimitRes.status} problem+json type=${overLimitJson?.type ?? 'null'}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=999',
         response: overLimitRes,

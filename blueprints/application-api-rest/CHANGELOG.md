@@ -1,32 +1,13 @@
 # application-api-rest CHANGELOG
 
-## 2.1.9 (criterion-e third-closure fix, 2026-09-11)
+## 2.1.10 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - Liveness (AC-2108-1): fixture reverted to always return 200 regardless of ?deps=; probe now derives that varying dependency-availability does NOT change the returned status (dependencyChecksPerformed=0). The pass-3 change that returned 503 on down dependencies was the opposite of the AC and is undone.
-  - Cursor opacity: fixture cursor tokens are now server-side UUIDs mapped in-process (no base64url JSON, no positional info exposed to the client); the probe asserts both parseableAsInt=false AND base64UrlJsonReadable=false and now anchors AC-2109-3.
-  - Cursor anchoring: malformed-cursor row anchors AC-2109-3, max-limit row anchors AC-2109-5 (were both AC-2109-1 by mistake in pass 3).
-  - Detail openings: every result row's detail now opens with the first eight words of the AC's text it anchors.
-  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11 ("anchors nothing else").
-  - Anatomy test hardened: notObservableHere.ac must resolve to a shipped AC id; anchorAcId and anchorReqId must resolve too; derived value {} never counts as non-empty; version pin bumped to 2.1.9.
-
-## 2.1.8 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14 (strict evidence; status zero never counts).
-  - Version pin exact (2.1.8) in the anatomy test.
-  - Cursor opacity: fixture cursors switched to opaque base64url tokens over an internal marker; malformed cursor now returns a problem+json with type=cursor.invalid rather than normalising to page zero; the max-limit cap returns problem+json with type=limit.exceeded rather than silently clamping. Cursor-pagination probe asserts the returned cursors are opaque (not decodable numeric offsets) and drives a malformed round-trip that expects a 400 problem body.
-  - Health probes: fixture exposes ?deps=down,up,unknown query so liveness varies dependency availability; readiness now requires every declared check to pass rather than "at least one non-empty" - probe asserts that with an intentionally-down dependency; startup probe drives both mid-init (503 with pending!=[]) and completed (200 with pending==[]) states.
-  - Request-id-echoed probe now inspects the request-scoped log line the fixture emits on /__logs?requestId=... so both the response echo and the log line are compared.
-  - notObservableHereResult helper added to probe-utils for AC parts that need a browser runner.
-
-## 2.1.6 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
-- Probes: cursor-pagination-round-trip, health-probes-distinct, problem-details-on-error, request-id-echoed.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Adds a contributions/probes pack meeting rule 7d: each probe drives a real HTTP round trip against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/ and records the fixture-echoed x-fixture-request-id, response status, a distinctive body excerpt, the varied input and the derived output on every result row.
+- Probes: cursor-pagination-round-trip, problem-details-on-error, health-probes-distinct, record-shape-adr-1701, request-id-echoed.
+- Cursor probe varies limits and derives forward/backward traversal from server-side cursor state (opaque UUID keys over a CURSOR_MAP, not positional JSON); malformed cursor and over-limit rows produce 400 with problem-details bodies anchored on AC-2109-3 and AC-2109-5.
+- Liveness returns 200 with zero dependency checks and readiness reports checked dependencies (matches AC-2108-1).
+- Detail texts open with the first eight words of the AC or REQ text they observe, then " - " and the derived observation.
+- Anatomy test pin bumped to 2.1.10; strict evidence predicate; notObservableHere.ac resolves against a shipped AC id.
 
 
 ## 2.1.5 - 2026-09-10

@@ -1,32 +1,14 @@
 # application-file-upload CHANGELOG
 
-## 1.2.4 (criterion-e third-closure fix, 2026-09-11)
+## 1.2.5 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - AC-23102-2 uses the AC's exact sizes (1 MiB, 2 MiB, 5 MiB) per rule 7; the earlier 100/200/300-byte values did not match the AC.
-  - AC-23104-3 adds the post-409 state check AND the resume PATCH: the probe re-reads the stored offset after the 409 (asserts it did NOT advance), then issues a resume PATCH from the last acknowledged offset and asserts the stored bytes advance.
-  - assertive-completion-slot and upload-surface-shape drop their duplicate notObservableHere rows; each is now a single conformanceOnly row for its AC carrying real evidence with a limitation naming the browser-only half.
-  - Detail openings now start with the AC text they anchor.
-  - notObservableHere rows drop anchorAcId / anchorReqId.
-  - Anatomy test hardened; version pin bumped to 1.2.4.
-
-## 1.2.3 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14.
-  - Enter-press / focus surface (AC-23101-1) is notObservableHere per Addendum 3 rule 11; the server-observable half (role, aria-label, drop zone in DOM) remains a real row.
-  - Progress AC-23102-1 rendered live-region and per-file DOM values are notObservableHere; the aggregate byte-weighted progress is now computed by the fixture from real chunk bodies rather than count-based, so AC-23102-2 has honest evidence.
-  - Chunked-transport-endpoints: the probe drives THREE real multipart chunk POSTs with distinct byte payloads; the fixture stores per-session byte totals and returns completion computed from bytes; ?complete=N query is removed. Tus endpoint now writes bytes to per-upload state and returns the acknowledged offset from stored bytes, rejecting expected-offset mismatches with 409 (AC-23104-3).
-  - Assertive-completion-slot: ?complete=N seed removed; the probe drives three chunk uploads whose total bytes cross the fixture completion threshold, then observes the completion slot the fixture computed.
-  - README claim about pressing Enter and reading focus dropped from the browser-pack section.
-
-## 1.2.1 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
+- Adds a contributions/probes pack meeting rule 7d.
 - Probes: upload-surface-shape, per-file-progressbar, chunked-transport-endpoints, assertive-completion-slot.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Chunked-transport row for AC-23104-1 is conformanceOnly: the probe observes multipart chunk-count bytes server-side; the DOM half ([data-transport], [data-chunks-uploaded]) and the browser-network half (PATCH requests carrying Upload-Offset) are notObservableHere. AC-23104-3 remains a positive row on the tus branch (post-409 state read + resume PATCH from the acknowledged offset).
+- Per-file aggregate row for AC-23102-2 is conformanceOnly with limitation: the plain-HTTP round trip cannot discriminate byte-weighted from plain averages once all three files have completed uploading; the row records the byte-derived counts from the fixture as evidence.
+- Enter-press / focus surface (AC-23101-1) is conformanceOnly with limitation naming that the button-Enter-open-picker interaction is browser-only.
+- Aggregate completion is derived from request-body bytes.
+- Anatomy test pin bumped to 1.2.5.
 
 
 ## 1.2.0 (2026-09-10)

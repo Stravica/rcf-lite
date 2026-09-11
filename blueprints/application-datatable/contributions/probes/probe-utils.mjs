@@ -6,11 +6,9 @@
 // part of its own request pipeline (no probe-side monkey-patch), so
 // the identifier the probe records is the identifier the engine
 // itself issued. Probes call the fixture over real HTTP via node's
-// fetch, vary inputs and assert derived outputs (Addendum rule 2,
-// 2026-09-11), and record request-id, status, body excerpt, the
+// fetch, vary inputs and assert derived outputs and record request-id, status, body excerpt, the
 // varied input and the derived output as evidence on every result
-// row (Addendum rule 3).
-//
+// row .//
 // No account-bound branch: the engine is a local fixture, not a
 // third-party account, so no CI_HAS_* gate is invented. Every env
 // var this pack reads is declared on the fixture README.
@@ -33,8 +31,7 @@ export function aggregate(results) {
   return 'pass';
 }
 
-// Rule 7d addendum 2026-09-11 (rule 3): empty results never pass.
-// A synthesised row is emitted with an actionable detail and its
+// Empty results never pass: a synthesised row is emitted with an actionable detail and its
 // own evidence object recording the empty condition so the row is
 // not a naked verdict scalar.
 export function normaliseResults(results) {
@@ -74,7 +71,7 @@ export async function writeReport({ probeName, engine, results, extra }) {
 // Starts the fixture on an ephemeral port (or PROBE_PORT when set)
 // and returns { server, port, baseUrl, close }. The close helper
 // rejects when the underlying close callback carries an error;
-// swallowing a teardown error would violate Addendum rule 5.
+// swallowing a teardown error would hide a boundary failure.
 export async function startFixture({ startServer, port } = {}) {
   const resolvedPort = typeof port === 'number'
     ? port
@@ -142,13 +139,12 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
-// Rule 7d addendum 3 (2026-09-11) rule 11: browser-observable
-// properties are AMBER on the shelf by ruling. A row that names
-// such a property is recorded as notObservableHere carrying an
-// object with the AC id and a reason; the tally script reads
-// notObservableHere.ac to accept the row.
+// Browser-observable properties are AMBER on the shelf by ruling.
+// A row that names such a property is recorded as notObservableHere
+// carrying an object with the AC id and a reason; the tally script
+// reads notObservableHere.ac to accept the row.
 export function notObservableHereResult({ ac, anchorAcId, detail, reason, evidence } = {}) {
-  // Per Addendum 3 rule 11 a notObservableHere row anchors nothing
+  // Per a notObservableHere row anchors nothing
   // else: no anchorAcId, no anchorReqId - only notObservableHere.ac.
   const acId = ac || anchorAcId;
   return {
@@ -165,9 +161,9 @@ export function notObservableHereResult({ ac, anchorAcId, detail, reason, eviden
   };
 }
 
-// Rule 7d addendum 3 rule 11 companion: a row that keeps a real
-// observation but must record that the observation only covers PART
-// of an AC uses conformanceOnly + limitation.
+// A row that keeps a real observation but records that the
+// observation only covers part of an AC uses conformanceOnly +
+// limitation carrying the AC id and the property not observed.
 export function conformanceOnlyResult({ anchorAcId, anchorReqId, verdict, detail, evidence, limitation }) {
   return {
     ...(anchorAcId ? { anchorAcId } : {}),

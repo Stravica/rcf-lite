@@ -33,7 +33,7 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-009',
       verdict: shapeOk ? 'pass' : 'fail',
       detail: shapeOk
-        ? 'Every 4xx and 5xx response body is - GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
+        ? 'Every 4xx and 5xx response body is an - GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
         : `Every 4xx and 5xx response body is an - problem-details shape fault: status=${res.status} contentType=${cType} missing=${JSON.stringify(missing)}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets/does-not-exist',

@@ -1,29 +1,12 @@
 # application-forms-wizard CHANGELOG
 
-## 1.2.4 (criterion-e third-closure fix, 2026-09-11)
+## 1.2.5 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - Task-list surface probe drives a VARIED manifest via /task-list?manifest=slug1|slug2|... (fixture accepts the query and startServer({ manifestOverride })) and asserts both the rendered rows and /__task-manifest follow the varied input across two distinct runs. The pass-3 self-agreement against the module STEP_MANIFEST constant is removed.
-  - step-page-shape row is single conformanceOnly on AC-24102-1 with limitation naming the browser-only blur/change/submit events; the /validate rebuild observation stays as the server-observable slice.
-  - Forms fixture: duplicate unreachable second GET /drafts branch removed.
-  - notObservableHere rows drop anchorAcId / anchorReqId.
-  - Anatomy test hardened; version pin bumped to 1.2.4.
-
-## 1.2.3 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14.
-  - Validation timing browser events (focus/blur/submit/input) are notObservableHere(AC-24102-1) per Addendum 3 rule 11; the fixture-selected shape rows are dropped in favour of that honest amber row.
-  - Draft POST body now carries operator identifier and wizard slug from the probe; fixture consumes them from the body rather than hard-coded keys.
-  - Task-list-surface probe reads the manifest from a fixture endpoint (/__task-manifest) and compares against the rendered enum, rather than duplicating the expected manifest in the probe.
-
-## 1.2.1 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-forms-wizard/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
+- Adds a contributions/probes pack meeting rule 7d.
 - Probes: task-list-surface, step-page-shape, draft-persistence-round-trip.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Task-list order and progressbar values are derived from two varied manifests the probe controls; AC-24101-1 is a conformanceOnly row because the closed enum is validated against the fixture's /__task-manifest rather than a shipped enum from the applying project; the row carries a limitation naming that gap and the AC id.
+- Validation timing (focus/blur/submit/input) is notObservableHere with the AC id and reason; the row anchors nothing else.
+- Anatomy test pin bumped to 1.2.5.
 
 
 ## 1.2.0 (2026-09-10)

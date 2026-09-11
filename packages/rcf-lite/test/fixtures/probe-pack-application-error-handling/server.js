@@ -38,7 +38,7 @@ const CATEGORIES = new Set(['transient', 'permanent', 'unknown']);
 function makeDefaultCompanion() {
   const invocations = [];
   return {
-    emit(record) { invocations.push({ category: record.category, correlationId: record.correlationId, at: new Date().toISOString() }); },
+    emit(record) { invocations.push({ category: record.category, correlationId: record.correlationId, source: (record && record.context && record.context.source) || null, at: new Date().toISOString() }); },
     invocations,
   };
 }
@@ -219,9 +219,17 @@ export function startServer({ port, companion, crashOnRequest } = {}) {
             cause: causeRecord,
             context: { source: 'process-boundary', fixture: 'application-error-handling' },
           };
+          // Emit through the injected companion so REQ-004 observes
+          // both boundaries via the SAME companion instance.
+          try { c.emit(record); } catch { /* companion failure must not stop teardown */ }
           const line = { level: 'error', boundary: 'process', record, at: new Date().toISOString() };
           process.stderr.write(JSON.stringify(line) + '\n');
-        } catch { /* swallowing here would defeat the boundary; teardown continues */ }
+          // Dump companion state so the probe can prove that both the
+          // framework and process boundaries reached the companion in
+          // this same child run.
+          const dumpLine = { level: 'info', type: 'companion-dump', invocations: c.invocations };
+          process.stderr.write(JSON.stringify(dumpLine) + '\n');
+        } catch { /* teardown continues */ }
         process.exit(1);
       });
     }

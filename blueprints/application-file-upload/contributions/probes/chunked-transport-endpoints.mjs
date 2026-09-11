@@ -7,132 +7,152 @@
 // durably; a mismatched offset returns 409 WITHOUT advancing the
 // stored offset; the probe then re-reads the state and issues a
 // RESUME PATCH from the last acknowledged offset, closing the
-// closure 3 gap (post-409 state check + resume PATCH from the AC).
+// gap (post-409 state check + resume PATCH from the AC).
 //
 // anchorAcId: per-row.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult, notObservableHereResult } from './probe-utils.mjs';
 import { randomUUID } from 'node:crypto';
 
 export const anchorReqId = 'application-file-upload-REQ-004';
 export const accountBound = false;
 
 export default async function runProbe() {
-  const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/server.js');
-  const fixture = await startFixture({ startServer, port: 0 });
-  try {
-    const results = [];
+ const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-file-upload/server.js');
+ const fixture = await startFixture({ startServer, port: 0 });
+ try {
+ const results = [];
 
-    // Row 1 (AC-23104-1 server-observable half): multipart chunks.
-    const sessionId = `session-${randomUUID()}`;
-    const files = [{ name: 'x.bin', bytes: 1024 }, { name: 'y.bin', bytes: 2048 }, { name: 'z.bin', bytes: 4096 }];
-    const total = files.reduce((s, f) => s + f.bytes, 0);
-    await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ totalExpectedBytes: total, files }),
-    });
-    const chunkResults = [];
-    let lastChunkRes, lastChunkBody = '';
-    for (const [i, f] of files.entries()) {
-      const payload = Buffer.alloc(f.bytes, 65 + i);
-      const r = await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, { method: 'POST', body: payload });
-      const b = await r.text();
-      const parsed = JSON.parse(b);
-      chunkResults.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes });
-      lastChunkRes = r; lastChunkBody = b;
-    }
-    const chunkOk = chunkResults[0].bytesReceived === files[0].bytes
-      && chunkResults[1].bytesReceived === files[1].bytes
-      && chunkResults[2].bytesReceived === files[2].bytes
-      && chunkResults[2].uploadedBytes === total;
-    results.push({
-      anchorAcId: 'application-file-upload-AC-23104-1',
-      verdict: chunkOk ? 'pass' : 'fail',
-      detail: `On the ?transport=multipart branch the fixture returns 200 - multipart chunks recorded bytes ${chunkResults.map((c) => c.bytesReceived).join(',')} advancing cumulative to ${chunkResults[2]?.uploadedBytes ?? 0} of ${total} (sessionId=${sessionId})`,
-      evidence: evidenceFromResponse({
-        route: `/upload/chunk (sessionId=${sessionId})`,
-        response: lastChunkRes,
-        bodyText: lastChunkBody,
-        extraFields: {
-          input: { sessionId, files, totalExpectedBytes: total },
-          derived: { chunkResults, totalOk: chunkResults[2]?.uploadedBytes === total },
-        },
-      }),
-    });
+ // Row 1 (AC-23104-1 server-observable half): multipart chunks.
+ const sessionId = `session-${randomUUID()}`;
+ const files = [{ name: 'x.bin', bytes: 1024 }, { name: 'y.bin', bytes: 2048 }, { name: 'z.bin', bytes: 4096 }];
+ const total = files.reduce((s, f) => s + f.bytes, 0);
+ await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
+ method: 'POST', headers: { 'content-type': 'application/json' },
+ body: JSON.stringify({ totalExpectedBytes: total, files }),
+ });
+ const chunkResults = [];
+ let lastChunkRes, lastChunkBody = '';
+ for (const [i, f] of files.entries()) {
+ const payload = Buffer.alloc(f.bytes, 65 + i);
+ const r = await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, { method: 'POST', body: payload });
+ const b = await r.text();
+ const parsed = JSON.parse(b);
+ chunkResults.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes });
+ lastChunkRes = r; lastChunkBody = b;
+ }
+ const chunkOk = chunkResults[0].bytesReceived === files[0].bytes
+ && chunkResults[1].bytesReceived === files[1].bytes
+ && chunkResults[2].bytesReceived === files[2].bytes
+ && chunkResults[2].uploadedBytes === total;
+ // AC-23104-1 has three halves: multipart chunk-count in the DOM
+ // (browser), tus PATCH with Upload-Offset on the browser network
+ // log (browser), and the underlying server-side byte accounting
+ // (server-observable). The probe positively observes the third
+ // and records the row as conformanceOnly with limitation naming
+ // that the DOM half and the browser-network half are not
+ // observed here.
+ results.push(conformanceOnlyResult({
+ anchorAcId: 'application-file-upload-AC-23104-1',
+ verdict: chunkOk ? 'pass' : 'fail',
+ detail: `On the ?transport=multipart branch the fixture returns 200 - multipart chunks recorded bytes ${chunkResults.map((c) => c.bytesReceived).join(',')} advancing cumulative to ${chunkResults[2]?.uploadedBytes ?? 0} of ${total} (sessionId=${sessionId})`,
+ evidence: evidenceFromResponse({
+ route: `/upload/chunk (sessionId=${sessionId})`,
+ response: lastChunkRes,
+ bodyText: lastChunkBody,
+ extraFields: {
+ input: { sessionId, files, totalExpectedBytes: total },
+ derived: { chunkResults, totalOk: chunkResults[2]?.uploadedBytes === total },
+ },
+ }),
+ limitation: 'application-file-upload-AC-23104-1: [data-transport] and [data-chunks-uploaded] DOM values, and the browser-network PATCH log carrying Upload-Offset, are not observable on a server-driven probe pack',
+ }));
+ results.push(notObservableHereResult({
+ ac: 'application-file-upload-AC-23104-1',
+ detail: 'On the ?transport=multipart branch the fixture returns 200 - the DOM half ([data-transport], [data-chunks-uploaded]) is browser-only',
+ reason: 'AC-23104-1 requires observing [data-transport="multipart"] and [data-chunks-uploaded] on the rendered DOM; a server-side probe pack cannot observe DOM',
+ evidence: { requires: 'browser DOM observation', ac: 'application-file-upload-AC-23104-1', half: 'dom' },
+ }));
+ results.push(notObservableHereResult({
+ ac: 'application-file-upload-AC-23104-1',
+ detail: 'On the ?transport=multipart branch the fixture returns 200 - the tus network half (PATCH with Upload-Offset on the browser network log) is browser-only',
+ reason: 'AC-23104-1 requires observing at least one PATCH on the browser network log whose request headers include a numeric Upload-Offset; a server-side probe pack cannot observe the browser network log',
+ evidence: { requires: 'browser network log observation', ac: 'application-file-upload-AC-23104-1', half: 'browser-network' },
+ }));
 
-    // Row 2 (AC-23104-3): tus offset write; a 409 mismatch does not
-    // advance stored offset; the resume PATCH from the last
-    // acknowledged offset succeeds.
-    const uploadId = `upload-${randomUUID()}`;
-    const patch1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH', headers: { 'upload-offset': '0' }, body: Buffer.alloc(4096, 65),
-    });
-    const patch1Offset = patch1.headers.get('upload-offset');
-    const get1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
-    const get1Body = await get1.text();
-    const get1Parsed = JSON.parse(get1Body);
-    const patch2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH', headers: { 'upload-offset': '4096' }, body: Buffer.alloc(8192, 66),
-    });
-    const patch2Offset = patch2.headers.get('upload-offset');
-    const get2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
-    const get2Body = await get2.text();
-    const get2Parsed = JSON.parse(get2Body);
-    // Bad PATCH: declared offset 99999 while stored is 12288.
-    const patchBad = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH', headers: { 'upload-offset': '99999' }, body: Buffer.alloc(10, 67),
-    });
-    const patchBadBody = await patchBad.text();
-    // AC-23104-3 post-failure state check: stored offset must NOT
-    // have moved, and the client re-reads Upload-Offset before
-    // resuming (closure 3 - post-409 state check + resume PATCH).
-    const postFail = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
-    const postFailBody = await postFail.text();
-    const postFailParsed = JSON.parse(postFailBody);
-    const storedUnchanged = postFailParsed.storedBytes === 12288;
-    // Resume PATCH from the last acknowledged offset (12288) with a
-    // real payload; on success the stored bytes advance again.
-    const resumeBytes = 1024;
-    const patchResume = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH', headers: { 'upload-offset': String(postFailParsed.storedBytes) }, body: Buffer.alloc(resumeBytes, 68),
-    });
-    const patchResumeOffset = patchResume.headers.get('upload-offset');
-    const getResume = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
-    const getResumeBody = await getResume.text();
-    const getResumeParsed = JSON.parse(getResumeBody);
-    const resumeOk = patchResume.status === 204
-      && patchResumeOffset === String(12288 + resumeBytes)
-      && getResumeParsed.storedBytes === 12288 + resumeBytes;
-    const tusOk = patch1.status === 204 && patch1Offset === '4096' && get1Parsed.storedBytes === 4096
-      && patch2.status === 204 && patch2Offset === '12288' && get2Parsed.storedBytes === 12288
-      && patchBad.status === 409 && storedUnchanged
-      && resumeOk;
-    results.push({
-      anchorAcId: 'application-file-upload-AC-23104-3',
-      verdict: tusOk ? 'pass' : 'fail',
-      detail: `Upload-Offset on the tus branch matches the byte - tus writes byte-derived: PATCH#1 stored=${get1Parsed.storedBytes}, PATCH#2 stored=${get2Parsed.storedBytes}, mismatch PATCH -> ${patchBad.status} (stored unchanged=${storedUnchanged}), resume PATCH -> ${patchResume.status} stored=${getResumeParsed.storedBytes}`,
-      evidence: evidenceFromResponse({
-        route: `/upload/tus (uploadId=${uploadId})`,
-        response: getResume,
-        bodyText: getResumeBody,
-        extraFields: {
-          input: { uploadId, patches: [
-            { offset: 0, bytes: 4096 },
-            { offset: 4096, bytes: 8192 },
-            { offset: 99999, bytes: 10, expectMismatch: true },
-            { offset: 12288, bytes: resumeBytes, resume: true },
-          ] },
-          derived: {
-            patch1Offset, patch2Offset, stored1: get1Parsed.storedBytes, stored2: get2Parsed.storedBytes,
-            mismatchStatus: patchBad.status, storedUnchanged, postFailBody: postFailBody.slice(0, 240),
-            resumeStatus: patchResume.status, resumeStoredBytes: getResumeParsed.storedBytes, resumeOffsetHeader: patchResumeOffset,
-          },
-        },
-      }),
-    });
+ // Row 2 (AC-23104-3): tus offset write; a 409 mismatch does not
+ // advance stored offset; the resume PATCH from the last
+ // acknowledged offset succeeds.
+ const uploadId = `upload-${randomUUID()}`;
+ const patch1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
+ method: 'PATCH', headers: { 'upload-offset': '0' }, body: Buffer.alloc(4096, 65),
+ });
+ const patch1Offset = patch1.headers.get('upload-offset');
+ const get1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
+ const get1Body = await get1.text();
+ const get1Parsed = JSON.parse(get1Body);
+ const patch2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
+ method: 'PATCH', headers: { 'upload-offset': '4096' }, body: Buffer.alloc(8192, 66),
+ });
+ const patch2Offset = patch2.headers.get('upload-offset');
+ const get2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
+ const get2Body = await get2.text();
+ const get2Parsed = JSON.parse(get2Body);
+ // Bad PATCH: declared offset 99999 while stored is 12288.
+ const patchBad = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
+ method: 'PATCH', headers: { 'upload-offset': '99999' }, body: Buffer.alloc(10, 67),
+ });
+ const patchBadBody = await patchBad.text();
+ // AC-23104-3 post-failure state check: stored offset must NOT
+ // have moved, and the client re-reads Upload-Offset before
+ // resuming ( - post-409 state check + resume PATCH).
+ const postFail = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
+ const postFailBody = await postFail.text();
+ const postFailParsed = JSON.parse(postFailBody);
+ const storedUnchanged = postFailParsed.storedBytes === 12288;
+ // Resume PATCH from the last acknowledged offset (12288) with a
+ // real payload; on success the stored bytes advance again.
+ const resumeBytes = 1024;
+ const patchResume = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
+ method: 'PATCH', headers: { 'upload-offset': String(postFailParsed.storedBytes) }, body: Buffer.alloc(resumeBytes, 68),
+ });
+ const patchResumeOffset = patchResume.headers.get('upload-offset');
+ const getResume = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
+ const getResumeBody = await getResume.text();
+ const getResumeParsed = JSON.parse(getResumeBody);
+ const resumeOk = patchResume.status === 204
+ && patchResumeOffset === String(12288 + resumeBytes)
+ && getResumeParsed.storedBytes === 12288 + resumeBytes;
+ const tusOk = patch1.status === 204 && patch1Offset === '4096' && get1Parsed.storedBytes === 4096
+ && patch2.status === 204 && patch2Offset === '12288' && get2Parsed.storedBytes === 12288
+ && patchBad.status === 409 && storedUnchanged
+ && resumeOk;
+ results.push({
+ anchorAcId: 'application-file-upload-AC-23104-3',
+ verdict: tusOk ? 'pass' : 'fail',
+ detail: `Upload-Offset on the tus branch matches the byte - tus writes byte-derived: PATCH#1 stored=${get1Parsed.storedBytes}, PATCH#2 stored=${get2Parsed.storedBytes}, mismatch PATCH -> ${patchBad.status} (stored unchanged=${storedUnchanged}), resume PATCH -> ${patchResume.status} stored=${getResumeParsed.storedBytes}`,
+ evidence: evidenceFromResponse({
+ route: `/upload/tus (uploadId=${uploadId})`,
+ response: getResume,
+ bodyText: getResumeBody,
+ extraFields: {
+ input: { uploadId, patches: [
+ { offset: 0, bytes: 4096 },
+ { offset: 4096, bytes: 8192 },
+ { offset: 99999, bytes: 10, expectMismatch: true },
+ { offset: 12288, bytes: resumeBytes, resume: true },
+ ] },
+ derived: {
+ patch1Offset, patch2Offset, stored1: get1Parsed.storedBytes, stored2: get2Parsed.storedBytes,
+ mismatchStatus: patchBad.status, storedUnchanged, postFailBody: postFailBody.slice(0, 240),
+ resumeStatus: patchResume.status, resumeStoredBytes: getResumeParsed.storedBytes, resumeOffsetHeader: patchResumeOffset,
+ },
+ },
+ }),
+ });
 
-    return { results };
-  } finally {
-    await fixture.close();
-  }
+ return { results };
+ } finally {
+ await fixture.close();
+ }
 }

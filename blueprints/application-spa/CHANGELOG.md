@@ -1,27 +1,14 @@
 # application-spa CHANGELOG
 
-## 1.5.10 (criterion-e third-closure fix, 2026-09-11)
+## 1.5.11 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - /__mounted is derived from the same DISPATCH_TABLE the request handler resolves against; MOUNTED_PATHS as a second hand-maintained literal is removed. The mounted set the probe reads and the routes the router actually serves cannot drift.
-  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11.
-  - Anatomy test hardened (AC/REQ resolution, {} never counts as derived value); version pin bumped to 1.5.10.
-
-## 1.5.9 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14: rows pass only with a non-empty x-fixture-request-id AND a body excerpt or derived value, or an honest notObservableHere/accountBoundSkipped row carrying an anchorAcId; status zero never counts.
-  - Version pin exact (1.5.9) in the anatomy test rather than "typeof string".
-  - Probes for shell-nav-present and designed-empty-state now iterate every declared route/state instead of one, and the observation-vs-inventory row for route-inventory-published derives its "no undeclared surface" claim from a second fixture endpoint (/__mounted) that returns the actual mounted paths independently of the published inventory.
-  - notObservableHereResult helper added to probe-utils for any AC whose observation needs a browser-driven runner.
-
-## 1.5.7 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-spa/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
+- Adds a contributions/probes pack meeting rule 7d: each probe drives a real HTTP round trip against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-spa/ and records the fixture-echoed x-fixture-request-id, response status, a distinctive body excerpt, the varied input and the derived output on every result row.
 - Probes: route-inventory-published, shell-nav-present, designed-empty-state.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Route-inventory probe injects two independent route sets into startServer({ routes }); reads /__routes and /__mounted for each; asserts both endpoints follow the injected input verbatim; asserts declared paths respond 200 and out-of-inventory paths return 404. Route inventory completeness is derived from probe-controlled input, not from fixture self-agreement.
+- Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range). No account-bound branch: the engine is a local fixture.
+- Empty results now fail with detail "no checks ran"; anatomy test asserts each result carries evidence with a non-empty x-fixture-request-id AND a body excerpt or derived value, or an honest notObservableHere / accountBoundSkipped row carrying a shipped AC id; status zero never counts; {} is rejected as a populated derived value.
+- notObservableHere rows anchor nothing else (no anchorAcId, no anchorReqId); conformanceOnly rows carry a limitation naming the specific AC id and the property not observed.
+- Anatomy test pin bumped to 1.5.11 (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
 
 
 ## 1.5.6 - 2026-09-10

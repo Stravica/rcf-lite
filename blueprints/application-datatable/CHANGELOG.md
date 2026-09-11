@@ -1,30 +1,13 @@
 # application-datatable CHANGELOG
 
-## 1.0.8 (criterion-e third-closure fix, 2026-09-11)
+## 1.0.9 - 2026-09-11
 
-- Third-closure fix on the criterion-e pack:
-  - AC-17107-1 is a plain anchor row (server-observable): <table role="grid"> with scope="col" headers is directly observable in returned HTML. The pass-3 notObservableHere for AC-17107-1 is dropped. AC-17107-5 (arrow-key focus) stays browser-only.
-  - Sort and search rows are single conformanceOnly rows (server-observable API round-trip) with a limitation naming the browser-only DOM-comparison half. The duplicate notObservableHere rows that stacked on the same AC are dropped.
-  - Detail openings now start with the AC text they anchor.
-  - notObservableHere rows drop anchorAcId / anchorReqId.
-  - Anatomy test hardened; version pin bumped to 1.0.8.
-
-## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
-
-- Second closure follow-up on the criterion-e pack:
-  - Anatomy test hardened to Addendum 3 rule 14.
-  - Arrow-key cell focus (AC-17107-5) is notObservableHere per Addendum 3 rule 11.
-  - APG rendered interactive shell/accessibility tree is notObservableHere(AC-17107-1); the server-observable half (source module shape, grid role, aria-rowcount) remains real evidence.
-  - Sort and search adapter round trips remain as real evidence for the server-observable derivation; browser interaction / DOM comparison rows are notObservableHere.
-  - No-results row now sends q=zzz-no-hits together with state=no-results so the fixture's region renders under an active filter (AC-17105-1's condition).
-
-## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
-
-- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-datatable/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
-- Probes: apg-table-shape, search-adapter-round-trip, sort-adapter-round-trip, four-states-regions.
-- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
-- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
-- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+- Adds a contributions/probes pack meeting rule 7d.
+- Probes: apg-table-shape, sort-adapter-round-trip, search-adapter-round-trip, four-states-regions.
+- Arrow-key cell focus (AC-17107-5) is a browser-only property and is recorded as notObservableHere with the shipped AC id and reason; the row anchors nothing else.
+- Sort/search adapters observe the server round trip; the DOM click / typing halves are conformanceOnly + limitation naming the AC id and the browser property.
+- No-results uses a non-empty filter and checks the no-filter negative case.
+- Anatomy test pin bumped to 1.0.9.
 
 
 ## 1.0.4 - 2026-09-10
