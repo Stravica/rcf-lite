@@ -58,3 +58,12 @@ curl -s http://127.0.0.1:4321/task-list | head -20
 ```
 
 Two-line boot: start the server, hit `/task-list` to confirm the surface renders.
+
+## Declared env vars
+
+| Name         | Read by      | Purpose                                                       |
+|--------------|--------------|---------------------------------------------------------------|
+| `PORT`       | `server.js`  | Bind port for manual runs (default `3000`).                   |
+| `PROBE_PORT` | `probe-utils.mjs` in `blueprints/application-forms-wizard/contributions/probes/` | Bind port used by the probe pack (default `47306`, reserved range 47300-47399). |
+
+No account-bound branch: the engine is a local fixture, so no `CI_HAS_*` gate applies.

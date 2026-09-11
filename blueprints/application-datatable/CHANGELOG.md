@@ -1,5 +1,14 @@
 # application-datatable CHANGELOG
 
+## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
+
+- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-datatable/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
+- Probes: apg-table-shape, search-adapter-round-trip, sort-adapter-round-trip, four-states-regions.
+- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
+- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
+- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+
+
 ## 1.0.4 - 2026-09-10
 
 Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8. Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, elicited query-adapter mode, applied default page size, elicited selection-persistence value, accessible-copy text near the bulk-action control) in place of the generic phrasing. TAC-1802 owns the `sort=<column>:<asc|desc>` grammar and the fixed `pageSize` query-parameter name; TAC-1803-application-datatable-selection-model patch-bumped to 1.0.2 with the `data-selection-persistence` marker on the bulk-action region added to responsibilities[3] and referenced from AC-17109-3. Register cleanup on the datatable README (removed the dated visual-specification reference and the residual mechanism-reach gap parenthetical) and on the guide (neutralised the dashboard-blueprint mention).

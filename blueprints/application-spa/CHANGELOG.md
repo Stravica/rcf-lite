@@ -1,5 +1,14 @@
 # application-spa CHANGELOG
 
+## 1.5.7 (criterion-e positive-evidence probes, 2026-09-11)
+
+- Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-spa/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.
+- Probes: route-inventory-published, shell-nav-present, designed-empty-state.
+- No account-bound branch: the engine is a local fixture, so no CI_HAS_* gate is invented. Fixture README declares every env var the probes read (PORT, PROBE_PORT in the reserved 47300-47399 range).
+- 7d addendum 2026-09-11 applied: probe-utils.aggregate([]) now returns fail with detail no checks ran (rule 3); anatomy test asserts each result carries one of the four 7d evidence shapes (rule 6); probe-vs-fixture symmetry avoided (rule 2); AC anchors ride on the anchorReqId when no AC states the property (rule 1).
+- Anatomy test extended to pin the pack shape (probe modules, run-*.mjs wrappers, probe-utils.mjs helper, anchorReqId cross-check against contributed REQs, fixture env-var declaration).
+
+
 ## 1.5.6 - 2026-09-10
 
 Findings closed: F-3, F-4, F-5, F-6, F-7, F-8, F-9. Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing. Register cleanup on the AC-1131-3 description (partial-acceptance defect described without prior-review internal identifiers) and on README shipped prose (removed prior-review internal identifiers, the numbered ratified-decision reference, and the dated ratified-policy reference).
@@ -26,5 +35,3 @@ Dimension-b acceptance-criteria-sufficiency cleanup on US-1134 and US-1135: each
 
 - hardening pass: chain-consistency lint zero (pass1 + pass2); added deliveredBy to every REQ pointing at a TAC responsibility or interface, added ownerRef and disposition to every AC per section 7b, closed case drifts on `content-security-policy` in REQ-018, AC-1125-1 and AC-1131-1 to match the owner spelling on TAC-209.
 - Added AC-1123-6 (telemetry buffer overflow with drop-oldest and drop-count observability on reconnect) covering the 2026-09-08 review finding F-1 on TAC-206.responsibilities[3], and AC-1107-6 (theme persistence failure: visible session-only theme, aria-live unsaved announcement, no persisted preference) covering F-2 on TAC-202.responsibilities[2].
-
-

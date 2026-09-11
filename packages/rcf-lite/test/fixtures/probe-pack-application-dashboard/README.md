@@ -68,3 +68,12 @@ The root route accepts three query parameters, `?break=<mode>`, `?tile=<id>&stat
 - Blueprint README: `blueprints/application-dashboard/README.md`
 - Packaged design guidance: `blueprints/application-dashboard/assets/guidance/dashboard-design.md`
 - Ratified spec: `projects/blueprint-library/specs/visual-round-spec-2026-09-04.md` section 5.3 (in the operator repo).
+
+## Declared env vars
+
+| Name         | Read by      | Purpose                                                       |
+|--------------|--------------|---------------------------------------------------------------|
+| `PORT`       | `server.js`  | Bind port for manual runs (default `3000`).                   |
+| `PROBE_PORT` | `probe-utils.mjs` in `blueprints/application-dashboard/contributions/probes/` | Bind port used by the probe pack (default `47304`, reserved range 47300-47399). |
+
+No account-bound branch: the engine is a local fixture, so no `CI_HAS_*` gate applies.

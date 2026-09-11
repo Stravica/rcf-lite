@@ -1,6 +1,6 @@
 {
   "slug": "application-file-upload",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -165,5 +165,6 @@
   ],
   "capabilities": [
     "virusScan"
-  ]
+  ],
+  "updatedAt": "2026-09-11"
 }
