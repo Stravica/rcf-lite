@@ -53,16 +53,18 @@ export const accountBound = true;
 const CAP_MS = 60_000;
 const POLL_INTERVAL_MS = 2_000;
 
-function skipResult(detail) {
+function skipResult(detail, reason) {
   return {
     results: [{
       anchorAcId: 'AC-31103-1',
       verdict: 'pass',
       detail,
       accountBoundSkipped: true,
+      reason,
     }],
     extra: {
       accountBoundSkipped: true,
+      reason,
       envDeclared: Array.from(DECLARED_ENV),
       throwawayPrefixes: { namespaceTitle: NAMESPACE_PREFIX, kvKey: KEY_PREFIX },
     },
@@ -70,17 +72,35 @@ function skipResult(detail) {
 }
 
 export default async function runProbe() {
+  // Positive-evidence rule (authoring standard section 7d): the skip
+  // record names the exact env var(s) that were unset in `reason`, so
+  // a `pass` verdict on the skip path is legal without positive
+  // evidence.
   if (process.env.CI_HAS_CLOUDFLARE_ACCOUNT !== 'true') {
-    return skipResult('accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip. Declared env for a live run: CI_HAS_CLOUDFLARE_ACCOUNT + CF_ACCOUNT_ID + CF_API_TOKEN (CF_API_BASE_URL optional test override).');
+    return skipResult(
+      'accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT is not set to true; spec section 3.5 pass-with-skip.',
+      'CI_HAS_CLOUDFLARE_ACCOUNT',
+    );
   }
+  // Discrete skip shape on every missing-environment branch: missing
+  // required configuration is a skip (the probe did not execute),
+  // named exactly by the unset variables in `reason`.
   if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
+    const unset = [];
+    if (!process.env.CF_ACCOUNT_ID) unset.push('CF_ACCOUNT_ID');
+    if (!process.env.CF_API_TOKEN) unset.push('CF_API_TOKEN');
+    const reason = unset.join(', ');
     return {
       results: [{
         anchorAcId: 'AC-31103-1',
-        verdict: 'fail',
-        detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true but one of CF_ACCOUNT_ID / CF_API_TOKEN is missing: accountIdPresent=${!!process.env.CF_ACCOUNT_ID} tokenPresent=${!!process.env.CF_API_TOKEN}.`,
+        verdict: 'pass',
+        accountBoundSkipped: true,
+        reason,
+        detail: `accountBoundSkipped: ${reason} unset; the probe did not execute against a real KV namespace. Set the missing keys and re-run.`,
       }],
       extra: {
+        accountBoundSkipped: true,
+        reason,
         envDeclared: Array.from(DECLARED_ENV),
         throwawayPrefixes: { namespaceTitle: NAMESPACE_PREFIX, kvKey: KEY_PREFIX },
       },
@@ -114,6 +134,10 @@ export default async function runProbe() {
   evidence.key = key;
   evidence.valueSample = value;
 
+  // Result row is mutable through finally so teardown failures can
+  // flip the verdict; a live run that leaves an orphan must not pass.
+  const resultRow = { anchorAcId: 'AC-31103-1', verdict: 'fail', detail: '' };
+  let keyOrphaned = false;
   try {
     const put = await putScratchKey({ namespaceId: namespace.id, key, value });
     evidence.putStatus = put.status;
@@ -141,26 +165,37 @@ export default async function runProbe() {
       evidence.deleteStatus = del.status;
     } catch (err) {
       evidence.deleteError = err.message;
+      keyOrphaned = true;
     }
 
     const pass = observed === value;
-    return {
-      results: [{
-        anchorAcId: 'AC-31103-1',
-        verdict: pass ? 'pass' : 'fail',
-        detail: pass
-          ? `real-account KV eventual-consistency: mint namespace ${namespace.id} (${namespace.title}); PUT key ${key} (status ${evidence.putStatus}); write eventually appeared on same-region GET within elapsed=${elapsed}ms (CAP=${CAP_MS}ms); DELETE key (status ${evidence.deleteStatus ?? 'unset'}); namespace destroyed on teardown.`
-          : `real-account KV eventual-consistency: mint namespace ${namespace.id} (${namespace.title}); PUT key ${key} (status ${evidence.putStatus}); write did NOT appear within CAP=${CAP_MS}ms; elapsed=${elapsed}ms.`,
-      }],
-      extra: evidence,
-    };
+    resultRow.verdict = pass ? 'pass' : 'fail';
+    resultRow.detail = pass
+      ? `real-account KV eventual-consistency: mint namespace ${namespace.id} (${namespace.title}); PUT key ${key} (status ${evidence.putStatus}); write eventually appeared on same-region GET within elapsed=${elapsed}ms (CAP=${CAP_MS}ms); DELETE key (status ${evidence.deleteStatus ?? 'unset'}).`
+      : `real-account KV eventual-consistency: mint namespace ${namespace.id} (${namespace.title}); PUT key ${key} (status ${evidence.putStatus}); write did NOT appear within CAP=${CAP_MS}ms; elapsed=${elapsed}ms.`;
   } finally {
     try {
       const teardown = await destroyScratchNamespace(namespace);
       evidence.namespaceDestroyed = teardown.destroyed;
     } catch (err) {
       evidence.teardownError = err.message;
+      evidence.orphanNamespaceId = namespace && namespace.id;
+      evidence.orphanNamespaceTitle = namespace && namespace.title;
       process.stderr.write(`h2-cf-kv probe: teardown failed for namespace ${namespace && namespace.id}: ${err.message}; sweepOrphans will collect on next run.\n`);
+      // Teardown discipline: an orphaned namespace flips the verdict
+      // to fail-with-orphan, regardless of whether the round-trip
+      // itself passed.
+      resultRow.verdict = 'fail';
+      const previous = resultRow.detail ? resultRow.detail + ' ' : '';
+      resultRow.detail = `${previous}TEARDOWN FAILED leaving orphan namespace ${namespace && namespace.id} (${namespace && namespace.title}): ${err.message}. sweepOrphans will collect on next run; this run is FAIL-WITH-ORPHAN.`;
     }
   }
+  // Key-orphan escalation: if the per-key DELETE failed but the
+  // namespace teardown succeeded, the key is gone with the namespace
+  // and there is no residual orphan. If the namespace teardown also
+  // failed, the block above already flipped the verdict. So the
+  // key-only orphan surfaces only when the namespace destroy also
+  // threw; keep the flag on evidence for the reader.
+  evidence.keyOrphanedInsideNamespace = keyOrphaned;
+  return { results: [resultRow], extra: evidence };
 }
