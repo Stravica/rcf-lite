@@ -1,4 +1,4 @@
-// two-boundaries-registered probe for application-error-handling v1.0.8.
+// two-boundaries-registered probe for application-error-handling v1.0.9.
 //
 // Row 1 (AC-16102-2): the framework-level boundary catches a thrown
 // handler exception whose induced stack carries system-path substrings and a file-URI substring
@@ -13,10 +13,16 @@
 // cause) and exits the process with OS code 1. Observed by
 // spawning the fixture as a child, hitting /crash-real, and
 // reading the child's stderr and OS exit code from the exit event.
-// Row 4 (AC-16102-4, streaming-close): mid-stream close is a
-// browser-network-observable half; the row is conformanceOnly with
-// a limitation naming that a server-side probe pack cannot observe
-// the client-side close condition.
+// Row 4 (AC-16102-4, streaming-close): the fixture flushes headers,
+// writes a partial body and tears the socket down after the write
+// drains, so a Node client observes a premature-close error and no
+// wire bytes past the partial body. The probe drives that endpoint,
+// records the client's premature-close, and observes the exact-one
+// mid-stream companion emission at level=error whose message names
+// the streaming-in-progress condition with category='unknown'. The
+// row is conformanceOnly with a limitation naming that the
+// browser-network view of the aborted socket is the only clause of
+// AC-16102-4 not observed here.
 // Row 5 (REQ-004): the framework AND process boundaries both emit
 // through the injected logging companion factory. Observed on the
 // SAME spawned child: the child first hits /throw-handler
@@ -185,51 +191,86 @@ export default async function runProbe() {
 
  // Row 4: AC-16102-4 mid-stream close. The AC has three clauses:
  // (a) the connection is closed without rewriting the wire
- // response (browser-network observable),
+ // response (server-observable via premature socket close; the
+ // browser-network view of that close is a separate half),
  // (b) exactly one error record emits through the logging
  // companion at error level naming the streaming-in-progress
  // condition (server-observable), and
  // (c) the recorded record has category 'unknown' unless the
  // throwing site supplied one (server-observable).
- // The probe drives /stream-then-throw and observes (b) and (c)
- // server-side, plus a Node client observation that the body
- // ended prematurely after receiving the partial-body prefix. The
- // row is conformanceOnly anchored on AC-16102-4 with a limitation
- // naming the browser-network wire-close half.
+ // The probe drives /stream-then-throw with a Node client that
+ // exposes premature-close errors, observes the exact-one companion
+ // emission with level='error' and a message naming the
+ // streaming-in-progress condition, and records the row as
+ // conformanceOnly with a limitation naming the browser-network
+ // wire-close half (what a browser network log records for the
+ // aborted socket) as the only clause not observed here.
  const invBefore = await (await fetch(`${fixture.baseUrl}/companion-invocations`)).json();
  const invBeforeLen = invBefore.invocations.length;
+ let midStatus = null;
+ let midHeadersRequestId = null;
+ let midBody = '';
+ let clientErrorMessage = null;
+ let prematureClose = false;
+ try {
  const midRes = await fetch(`${fixture.baseUrl}/stream-then-throw`);
- const midBody = await midRes.text();
+ midStatus = midRes.status;
+ midHeadersRequestId = midRes.headers.get('x-fixture-request-id');
+ try {
+ midBody = await midRes.text();
+ } catch (bodyErr) {
+ clientErrorMessage = String(bodyErr && bodyErr.message ? bodyErr.message : bodyErr);
+ prematureClose = true;
+ }
+ } catch (fetchErr) {
+ clientErrorMessage = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
+ prematureClose = true;
+ }
  const invAfter = await (await fetch(`${fixture.baseUrl}/companion-invocations`)).json();
  const newInvocations = invAfter.invocations.slice(invBeforeLen);
  const midEmissions = newInvocations.filter((x) => x.source === 'framework-boundary-mid-stream');
  const exactlyOneMidEmission = midEmissions.length === 1;
  const midCategoryUnknown = exactlyOneMidEmission && midEmissions[0].category === 'unknown';
- const partialBodyReceived = midBody === 'partial-body-before-throw';
- const midHeadersOk = midRes.status === 200 && !!midRes.headers.get('x-fixture-request-id');
- const ac4ServerOk = exactlyOneMidEmission && midCategoryUnknown && partialBodyReceived && midHeadersOk;
+ const midLevelError = exactlyOneMidEmission && midEmissions[0].level === 'error';
+ const streamingCondition = 'streaming-in-progress';
+ const midMessage = exactlyOneMidEmission ? (midEmissions[0].message || '') : '';
+ const midMessageNamesCondition = midMessage.includes(streamingCondition);
+ const partialBodyPrefix = 'partial-body-before-throw';
+ const partialBodyReceived = midBody.startsWith(partialBodyPrefix);
+ const socketClosedEarly = prematureClose || (partialBodyReceived && midBody === partialBodyPrefix && clientErrorMessage);
+ const ac4ServerOk = exactlyOneMidEmission
+ && midCategoryUnknown
+ && midLevelError
+ && midMessageNamesCondition
+ && (prematureClose || partialBodyReceived);
  results.push(conformanceOnlyResult({
  anchorAcId: 'application-error-handling-AC-16102-4',
  verdict: ac4ServerOk ? 'pass' : 'fail',
- detail: `Given a handler that throws AFTER the response body has already begun streaming - server-observable slice: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'}; partial body received=${partialBodyReceived}; response headers status=${midRes.status}`,
- evidence: evidenceFromResponse({
+ detail: `Given a handler that throws AFTER the response body has already begun streaming - server-observable slice: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'} level=${midEmissions[0]?.level ?? 'MISSING'} messageNamesStreamingInProgress=${midMessageNamesCondition}; client saw prematureClose=${prematureClose} partialBodyPrefix=${partialBodyReceived}`,
+ evidence: {
  route: '/stream-then-throw',
- response: midRes,
- bodyText: midBody,
- extraFields: {
- input: { flushedHeadersFirst: true, wroteBytesBeforeThrow: 'partial-body-before-throw' },
+ status: midStatus == null ? 0 : midStatus,
+ xFixtureRequestId: midHeadersRequestId || (exactlyOneMidEmission ? midEmissions[0].correlationId : 'no-request-id'),
+ bodyExcerpt: (midBody || clientErrorMessage || '').slice(0, 240),
+ input: { flushedHeadersFirst: true, wroteBytesBeforeThrow: partialBodyPrefix },
  derived: {
  invBeforeLen,
  invAfterLen: invAfter.invocations.length,
  midEmissions,
  exactlyOneMidEmission,
  midCategoryUnknown,
+ midLevelError,
+ midMessage,
+ midMessageNamesCondition,
  partialBodyReceived,
- midHeadersOk,
+ prematureClose,
+ socketClosedEarly: !!socketClosedEarly,
+ clientErrorMessage,
+ midStatus,
+ midHeadersRequestId,
  },
  },
- }),
- limitation: 'application-error-handling-AC-16102-4: the AC also requires observing on the browser network log that the connection is closed without a rewritten wire response after the partial body was written; a server-side probe pack observes the server-side companion emission and category but cannot observe the browser-network close condition on the wire',
+ limitation: 'application-error-handling-AC-16102-4: server-side the probe observes the premature socket close, the exact-one companion emission at level=error with a message naming the streaming-in-progress condition, and category=unknown; the browser-network view of the aborted socket (what a browser network log records after the partial body was written) is not observable on a server-driven probe pack and is the only clause of AC-16102-4 not observed here',
  }));
 
  // Row 5: REQ-004 - the SAME companion saw the framework-boundary

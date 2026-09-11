@@ -1,4 +1,4 @@
-// record-shape-adr-1701 probe for application-error-handling v1.0.8.
+// record-shape-adr-1701 probe for application-error-handling v1.0.9.
 //
 // Verifies REQ-002: the constructed record carries exactly the six
 // ADR-1701 fields (code, category, message, correlationId, cause,

@@ -1,4 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-file-upload v1.2.5 shelf blueprint (, spec section 5.2).
+// Anatomy + apply + probe-pack test for the application-file-upload v1.2.6 shelf blueprint (, spec section 5.2).
 //
 // Covers TS-054.
 
@@ -31,7 +31,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)', async () => {
  const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
  assert.equal(doc.slug, 'application-file-upload');
- assert.equal(doc.version, '1.2.5');
+ assert.equal(doc.version, '1.2.6');
  assert.equal(doc.category, 'application');
  assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
  assert.deepEqual(doc.capabilities, ['virusScan'], 'capabilities declares virusScan (F-3 close, 1.2.0)');

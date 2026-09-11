@@ -44,9 +44,11 @@ function makeDefaultCompanion() {
  // through this companion. Callers MUST NOT write the record
  // to stdout/stderr directly.
  const source = (record && record.context && record.context.source) || null;
- invocations.push({ category: record.category, correlationId: record.correlationId, source, at: new Date().toISOString() });
  const boundary = source && source.startsWith('process-boundary') ? 'process' : 'framework';
- const line = { level: 'error', boundary, record, at: new Date().toISOString() };
+ const level = 'error';
+ const message = (record && record.message) || null;
+ invocations.push({ category: record.category, correlationId: record.correlationId, source, level, message, at: new Date().toISOString() });
+ const line = { level, boundary, record, at: new Date().toISOString() };
  try { process.stderr.write(JSON.stringify(line) + '\n'); } catch { /* stderr closed */ }
  },
  invocations,
@@ -102,14 +104,19 @@ function makeHandler({ companion, emitted, crashOnRequest }) {
  // naming the streaming-in-progress condition, records the
  // emitted record with category 'unknown' unless the throwing
  // site supplied one, and closes the socket without rewriting the
- // wire response. The browser-network wire-close half is
- // observable only on a browser network log.
+ // wire response. The socket is torn down via req.socket.destroy()
+ // so the client sees a premature-close error and no further wire
+ // bytes are written.
  res.writeHead(200, {
  'content-type': 'text/plain; charset=utf-8',
  'x-fixture-request-id': requestId,
  'x-request-id': requestId,
  });
- res.write('partial-body-before-throw');
+ res.flushHeaders();
+ // Write the partial body and only tear the socket down once the
+ // OS has drained it to the client, so the client observes the
+ // 200 headers and the partial body before the premature close.
+ res.write('partial-body-before-throw', 'utf8', () => {
  let record;
  try {
  const err = new Error('handler threw AFTER response streaming began');
@@ -125,13 +132,14 @@ function makeHandler({ companion, emitted, crashOnRequest }) {
  companion.emit(record);
  emitted.push({ ...record, boundary: 'framework-mid-stream', requestId });
  }
- // End the response after the partial body so the client sees a
- // normal HTTP round-trip with headers, a partial body, and no
- // rewritten wire response. The browser-network close-condition is
- // notObservableHere on a server-driven probe pack; this endpoint
- // is the server-side surface for AC-16102-4's emission/category
- // clauses only.
- res.end();
+ // Tear down the socket. res.end() is deliberately NOT called:
+ // AC-16102-4 requires the connection be closed without rewriting
+ // the wire response after the partial body was written.
+ // req.socket.destroy() aborts the TCP connection, so a
+ // well-behaved client observes a premature-close error after
+ // receiving the 200 headers and the partial body prefix.
+ try { req.socket.destroy(); } catch { /* socket already gone */ }
+ });
  return;
  }
  if (url.pathname === '/throw-handler') {

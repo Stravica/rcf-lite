@@ -1,4 +1,4 @@
-// per-file-progressbar probe for application-file-upload v1.2.5.
+// per-file-progressbar probe for application-file-upload v1.2.6.
 //
 // Row 1 (AC-23102-1, browser-only): rendered live-region text and
 // per-file DOM values are notObservableHere.

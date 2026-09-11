@@ -1,5 +1,11 @@
 # application-file-upload CHANGELOG
 
+## 1.2.6 - 2026-09-11
+
+- Corrects the stale chunked-transport-endpoints probe header: the AC-23104-1 row drives one declared 16 KiB file split into four sequential 4 KiB chunks against one sessionId, and the header now says so rather than "three real chunk POSTs with distinct byte payloads"; the code and evidence were already the four-equal-chunk shape.
+- Anatomy test pin bumped to 1.2.6.
+
+
 ## 1.2.5 - 2026-09-11
 
 - Adds a contributions/probes pack meeting rule 7d.

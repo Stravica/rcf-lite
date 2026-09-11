@@ -1,8 +1,10 @@
-// chunked-transport-endpoints probe for application-file-upload v1.2.5.
+// chunked-transport-endpoints probe for application-file-upload v1.2.6.
 //
-// Row 1 (AC-23104-1): multipart transport - three real chunk POSTs
-// with distinct byte payloads advance a byte-derived total on the
-// server.
+// Row 1 (AC-23104-1): multipart transport - one declared file is
+// sent as four sequential equal-sized 4 KiB chunk POSTs against
+// one sessionId; the server's per-session byte accounting advances
+// by the actual body bytes of each chunk and the completion GET
+// reports chunksUploaded higher than one and complete=true.
 // Row 2 (AC-23104-3): tus transport - Upload-Offset writes bytes
 // durably; a mismatched offset returns 409 WITHOUT advancing the
 // stored offset; the probe then re-reads the state and issues a
