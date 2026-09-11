@@ -206,6 +206,15 @@ export function parseComposeYaml(text) {
         } else {
           obj[key] = decodeScalar(val.trim());
           parent.push(obj);
+          // Push the list-item object onto the stack so subsequent
+          // lines indented deeper than the list marker are added as
+          // sibling fields on the same object (e.g. the compose
+          // long-form service-secret entry:
+          //   - source: web-token
+          //     target: web-token
+          //     mode: 0400
+          // must land as {source, target, mode} on one item).
+          stack.push({ indent, node: obj });
         }
       } else {
         parent.push(decodeScalar(rest.trim()));

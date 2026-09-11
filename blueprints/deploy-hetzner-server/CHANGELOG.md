@@ -1,18 +1,20 @@
-## 1.1.5 - 2026-09-11
+## 1.1.6 - 2026-09-11
 
-- `hcloud-dry-run-mock` now observes BOTH clauses of AC-37101-1: a source-tree grep across the fixture directory confirms only `src/provisioner-facade.mjs` names `HETZNER_ACCOUNT_API_KEY` on a non-comment line (any other reader fails the row), and the `provisionerReady` event fires with the metadata-only `{tool, apiHost}` payload.
-- AC-37109-1 event-secrecy scan gains a payload-key allow-list per event (subset of the REQ-006 named metadata set). A lifecycle event whose payload carries a key outside the allow-list fails the row alongside the existing token / ssh-key / user-data substring scan.
-- `real-account-cloud-init-hardened` now fails the row when the post-teardown `hcloud server list` call throws (was recorded as `postTeardownListError` but did not change the verdict); teardown-confirmation failure is a defect worth failing on.
-- Mock rows that observe fixture-shape only stay de-claimed (`anchorAcId: null`, `conformanceOnly: true`, `limitation` string, `notObservableHere.ac` naming the live AC).
-- Real-account provision + snapshot probes OBSERVE lifecycle events (`hetznerServerProvisioned`, `hetznerSnapshotTaken`) via an injected `eventSink`; `snapshot-verb.mjs` emits `hetznerSnapshotTaken` only after the vendor list call confirms the id landed.
-- `real-account-throwaway-server-provision` fails the row when `hcloud server list` after provision or after teardown throws.
+- `createProvisionerFacade` in `src/provisioner-facade.mjs` now defaults the `token` parameter to `process.env.HETZNER_ACCOUNT_API_KEY`, making the facade module the sole non-comment reader of that operator variable across the fixture `.mjs`/`.js` source. Callers that inject an explicit token override the default; the mock probe still passes a synthetic literal.
+- `hcloud-dry-run-mock` observes BOTH clauses of AC-37101-1 in a SINGLE result row: the source-tree grep confirms exactly one non-comment reader inside `src/provisioner-facade.mjs` (the row FAILS on zero readers, and FAILS on any reader outside that file), and the `provisionerReady` event fires with the metadata-only `{tool, apiHost}` payload; extra keys on the event body also FAIL the row.
+- Mock-path rows that observe the shape of `hetznerServerProvisioned`, `hetznerSnapshotTaken` and `hetznerServerDestroyed` are `anchorAcId: null`, `conformanceOnly: true`, with a `limitation` string starting with the shipped AC id and naming the live probe that observes the AC. `notObservableHere` is not used on these rows: the ACs are process/live-observable on the real-account probes, not shelf-only, so the browser-only marker does not apply.
+- The `hetznerServerDestroyed` mock-path row carries `wallClockTime` and `payloadKeys` in evidence alongside the destroyed id.
+- AC-37109-1 event-secrecy scan carries a payload-key allow-list per event (subset of the REQ-006 named metadata set). A lifecycle event whose payload carries a key outside the allow-list FAILS the row alongside the token / ssh-key / user-data substring scan.
+- `real-account-cloud-init-hardened` FAILS the row when the post-teardown `hcloud server list` call throws.
+- Real-account provision and snapshot probes observe lifecycle events (`hetznerServerProvisioned`, `hetznerSnapshotTaken`) via an injected `eventSink`; `snapshot-verb.mjs` emits `hetznerSnapshotTaken` only after the vendor list call confirms the id landed.
+- `real-account-throwaway-server-provision` FAILS the row when `hcloud server list` after provision or after teardown throws.
 - Firewall validation binds each rule name to its required protocol/direction/port and refuses duplicate names.
 - `destroy.mjs` propagates a snapshot-list failure before deletion rather than swallowing it as an empty list.
-- Every result row on every probe carries an `evidence` object with BOTH a non-empty identity value (id/name/target/eventName/service/manifestName/...) AND a non-empty observation value (bodyExcerpt/payloadKeys/statusCode/mode/event/...); anatomy tests assert the strict shape (a numeric zero is not an observation; `{probeName, reason}` alone never counts).
-- Skip helpers `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`.
-- `probe-utils.mjs` accepts `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
-- Blueprint content otherwise unchanged from 1.1.2.
-- Anatomy test titles for the two `deploy-hetzner-server` checks NOT bound to any rcf-chain testPointer (shelf-shape row and the probe-utils empty-results contract) had their lane prefix stripped so the register scan reports `hits=0`. AC-anchored test titles cited verbatim by testPointers in `packages/rcf-lite/rcf/test-suites/ts-140.json` keep their existing chain-facing prefix.
+- Every result row on every probe carries an `evidence` object with BOTH a non-empty identifier (vendor id, event name, artefact path, or resource name) AND a non-empty observation (excerpt, statusCode, mode, wallClockTime, vendor-return value, non-zero count, or derived structured observation). Anatomy assertions enforce the shape inline with an explicit identifier set, an explicit observation set, an empty browser-only set (so any `notObservableHere` row FAILS), and a shipped-AC requirement on every `conformanceOnly` row's `limitation`.
+- Skip helpers `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`; anatomy asserts the reason is one of the declared gate variables in the fixture README env-vars section.
+- `probe-utils.mjs` accepts `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch directory and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
+- Anatomy test titles are plain descriptive strings (blueprint slug + AC id + one-line summary); paired `testPointer` fields in `packages/rcf-lite/rcf/test-suites/ts-140.json` are updated in the same commit.
+- Blueprint content otherwise unchanged from 1.1.2 (no ACs, REQs, TACs, ADRs or elicits added or removed).
 
 # Changelog
 

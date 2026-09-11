@@ -118,6 +118,12 @@ export default async function runProbe() {
       overlapCount: burst.overlapCount,
       firstOverlapStart: burst.firstOverlapStart, lastOverlapEnd: burst.lastOverlapEnd,
       mode: burst.mode,
+      // The fixture returns clockDomain: 'server' to make explicit
+      // that every timestamp in the burst object (burstStartedAt,
+      // reloadStartedAt, per-request startedAt/endedAt, overlap
+      // extrema) originates from the on-server undici script's own
+      // Date.now(); the runner does no local-to-remote rebase.
+      clockDomain: burst.clockDomain,
       onServerNodeVersion: burst.onServerNodeVersion,
       reloadStderrExcerpt: burst.reloadStderrExcerpt,
       burstStderrExcerpt: burst.burstStderrExcerpt,

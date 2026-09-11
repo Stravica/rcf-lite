@@ -23,63 +23,63 @@
       "acId": "AC-11001-1",
       "description": "Cover AC-11001-1 via anatomy test: provisioner facade boot emits provisionerReady with metadata-only payload and only the facade reads the token",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11001-1 provisioner boot and sole reader"
     },
     {
       "id": "TC-140-manifest-schema-shape-valid",
       "acId": "AC-11101-1",
       "description": "Cover AC-11101-1 via anatomy test: hetzner-server.schema.json validates the fixture manifests",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11101-1 manifest schema shape valid"
     },
     {
       "id": "TC-140-manifest-applies-mocked-provision",
       "acId": "AC-11102-1",
       "description": "Cover AC-11102-1 via anatomy test: mocked hcloud shell path returns id, primaryIpv4, location, serverType and hetznerServerProvisioned fires",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11102-1 manifest applies to mocked provision"
     },
     {
       "id": "TC-140-cloud-init-render-baseline-present",
       "acId": "AC-11201-1",
       "description": "Cover AC-11201-1 via anatomy test: rendered cloud-init YAML carries the six baseline blocks",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11201-1 cloud-init render baseline present"
     },
     {
       "id": "TC-140-cloud-init-hardened-account-bound-probe",
       "acId": "AC-11202-1",
       "description": "Cover AC-11202-1 via anatomy test: probe module manifest declares accountBound true and the fixture readme documents the ssh baseline checks",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared"
     },
     {
       "id": "TC-140-firewall-shape-valid-and-refuses-open-ssh",
       "acId": "AC-11301-1",
       "description": "Cover AC-11301-1 via anatomy test: schema accepts a rule set with 22 restricted plus 80/443 open and refuses an open-ssh mutation",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh"
     },
     {
       "id": "TC-140-snapshot-cadence-enum",
       "acId": "AC-11401-1",
       "description": "Cover AC-11401-1 via anatomy test: snapshotCadence enum is weekly, daily, off",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11401-1 snapshot cadence enum"
     },
     {
       "id": "TC-140-snapshot-on-demand-account-bound-probe",
       "acId": "AC-11402-1",
       "description": "Cover AC-11402-1 via anatomy test: snapshot on-demand probe declares accountBound true and readme names the hcloud image list check",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared"
     },
     {
       "id": "TC-140-lifecycle-events-metadata-only",
       "acId": "AC-11501-1",
       "description": "Cover AC-11501-1 via anatomy test: hcloud dry-run mock drives four lifecycle events, payloads carry only metadata fields, event-secrecy mutation FAILS",
       "status": "pending",
-      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)"
+      "testPointer": "test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11501-1 lifecycle events metadata only"
     }
   ],
   "status": "draft"

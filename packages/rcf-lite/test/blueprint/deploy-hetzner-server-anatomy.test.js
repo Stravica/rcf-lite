@@ -1,7 +1,7 @@
 // Anatomy + shape + probe + fixture + shelf-doc test for the
-// deploy-hetzner-server blueprint (deploy-hetzner-server of the Hetzner shipped hetzner-server spec,
-// 2026-09-07 section 5.6). Covers TC-140 (nine TCs) on the deploy-hetzner-server repo
-// v1.1.5 shape pins.
+// deploy-hetzner-server blueprint (Hetzner shipped hetzner-server
+// spec, 2026-09-07 section 5.6). Enforces the strict inline row
+// shape at the shelf and the v1.1.x pins.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -37,82 +37,153 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Strict evidence shape (rule 14): a row PASSES only if it is
-//   (a) an honest skip: accountBoundSkipped === true AND reason is a
-//       non-empty string naming the unset variable, OR
-//   (b) a notObservableHere row: notObservableHere.ac is a non-empty
-//       string naming the AC the observation cannot be made against
-//       from here, OR
-//   (c) evidence carries BOTH a non-empty resource-identity value AND
-//       a non-empty observation value.
+// Strict inline row shape (semantic, not key-name allow-list):
+//   (a) an honest skip: accountBoundSkipped === true AND reason is
+//       exactly one of the declared gate variables in the fixture
+//       README env-var table for this blueprint, OR
+//   (b) evidence carries BOTH a non-empty identifier from the
+//       identifier set (request / resource / vendor-returned ids,
+//       event names, or artefact file paths) AND a non-empty
+//       observation from the observation set (body excerpt, mode,
+//       statusCode, wallClockTime, payload keys, non-zero counts,
+//       vendor-return field values, etc.).
+//   `notObservableHere` is reserved for browser-only ACs. The
+//   deploy-hetzner-server blueprint has no browser-only ACs, so
+//   BROWSER_ONLY_ACS is EMPTY and any notObservableHere row FAILS.
+//   `conformanceOnly` rows must carry a `limitation` string whose
+//   first token is a shipped AC id in the blueprint user stories.
 // A row that only carries `{probeName, reason}` never counts, and a
-// numeric identity value of zero (statusCode 0, exit 0) is not an
-// observation.
+// numeric identity value of zero is not an observation.
 const IDENTITY_FIELDS = new Set([
-  'requestId', 'resourceId', 'id', 'serverId', 'snapshotId', 'imageId',
-  'firewallId', 'eventName', 'service', 'secretName', 'manifestName',
-  'composeMountLine', 'engineLabel', 'target', 'file', 'path',
-  'ruleNames', 'scannedFiles', 'url', 'name', 'containerId',
-  'mountPath', 'expectedReader',
+  // Vendor-returned or resource IDs
+  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId', 'containerId', 'requestId',
+  // Event identifier
+  'eventName',
+  // Artefact / file paths
+  'file', 'path', 'renderedPath', 'manifestName', 'scannedFiles', 'expectedReader',
+  // Named application / service / resource identifier
+  'service', 'secretName', 'mountPath', 'target', 'url', 'name',
 ]);
 const OBSERVATION_FIELDS = new Set([
-  'bodyExcerpt', 'tailExcerpt', 'snippet', 'exitStatus', 'payloadKeys',
-  'expectedKeys', 'observedKeys', 'source', 'statusCode', 'headers',
-  'mode', 'event', 'sourceIps', 'healthcheckKeys', 'driver',
-  'observedDrivers', 'observedBinding', 'allowed', 'protocol',
-  'direction', 'port', 'ports', 'restart', 'wallClockTime',
-  'appearsIn', 'unhealthyServices', 'missingServices', 'expected',
-  'observed', 'errorMessage', 'errors',
-  'snapshotCadence', 'shippedEnum', 'requiredFields',
-  'observedEvents', 'services', 'presentBlocks', 'missingBlocks',
-  'renderedByteLength', 'renderHashSample', 'eventCount', 'leaks',
-  'unexpectedKeys', 'allowedKeysByEvent', 'distinct',
-  'engineNote', 'tail', 'expectedTotal', 'total', 'twoXx', 'drops',
-  'reloadDurationMs', 'overlapCount', 'elicitedTimeoutSeconds',
-  'outcomes', 'readers', 'readerCount', 'unexpectedReaders',
-  'consumingServices', 'declaredMode',
+  // Textual samples / excerpts
+  'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample',
+  // Vendor-return field values (concrete observed values)
+  'primaryIpv4', 'location', 'serverType',
+  // Numeric derived values (non-zero required by isNonEmpty)
+  'statusCode', 'mode', 'wallClockTime', 'renderedByteLength', 'exitStatus',
+  'reloadDurationMs', 'overlapCount', 'twoXx', 'total', 'drops', 'expectedTotal',
+  'elicitedTimeoutSeconds', 'burstDurationMs', 'readerCount', 'eventCount', 'fileCount',
+  // Structured derived observations (non-empty required by isNonEmpty)
+  'payloadKeys', 'observedKeys', 'presentBlocks', 'missingBlocks', 'sourceIps',
+  'ruleNames', 'observedDrivers', 'observedBinding', 'observedEvents', 'eventTrail',
+  'readers', 'headers', 'healthcheckKeys', 'requiredFields', 'shippedEnum',
+  'snapshotCadence', 'allowedKeysByEvent', 'scannedMarkers', 'unexpectedKeys',
+  'unexpectedReaders', 'leaks',
+  'baselineServerIds', 'baselineSnapshotIds', 'postProvisionServerIds',
+  'postTeardownServerIds', 'postCreateSnapshotIds', 'postTeardownSnapshotIds',
+  'postCreateSnapshotCarriedId', 'postProvisionMatch', 'labelMatch',
+  'hetznerServerProvisionedEvent', 'hetznerSnapshotTakenEvent',
+  'sshReadiness', 'cloudInit', 'baselineChecks', 'teardown', 'observedSecretModes',
+  'expected', 'observed', 'event', 'observedNames', 'declaredServices',
 ]);
+// Browser-only ACs are the only ones that may legitimately carry a
+// notObservableHere row. The deploy-hetzner-server blueprint ships
+// process/live-observable ACs only, so this set is EMPTY.
+const BROWSER_ONLY_ACS = new Set();
+// Declared gate variables (fixture README env-vars section);
+// accountBoundSkipped reason must be exactly one of these.
+const DECLARED_SKIP_VARS = new Set([
+  'CI_HAS_HETZNER_ACCOUNT', 'HCLOUD_TOKEN', 'GITHUB_RUN_ID',
+  'RCF_LITE_CI_SSH_KEY', 'RCF_LITE_CI_SSH_KEY_NAME',
+  'RCF_FIXTURE_MANIFEST_DIR',
+]);
+// Shipped ACs for this blueprint, loaded from the user stories at
+// test start-up so conformanceOnly rows can be checked against a
+// concrete set rather than a regex-only match.
+let SHIPPED_ACS = null;
+async function loadShippedAcs() {
+  if (SHIPPED_ACS) return SHIPPED_ACS;
+  const dir = join(BLUEPRINT_ROOT, 'contributions', 'user-stories');
+  const files = (await readdir(dir)).filter((f) => f.endsWith('.json'));
+  const acs = new Set();
+  for (const f of files) {
+    const doc = JSON.parse(await readFile(join(dir, f), 'utf8'));
+    for (const ac of doc.acceptanceCriteria || []) if (ac && ac.id) acs.add(ac.id);
+  }
+  SHIPPED_ACS = acs;
+  return acs;
+}
 function isNonEmpty(v) {
   if (v === null || v === undefined) return false;
   if (typeof v === 'string') return v.length > 0;
-  if (typeof v === 'number') return v !== 0;
+  if (typeof v === 'number') return Number.isFinite(v) && v !== 0;
   if (Array.isArray(v)) return v.length > 0;
   if (typeof v === 'object') return Object.keys(v).length > 0;
-  if (typeof v === 'boolean') return true;
-  return true;
+  if (typeof v === 'boolean') return v === true;
+  return false;
 }
-function assertRowsCarry7dShape(rows, label) {
+async function assertRowsCarry7dShape(rows, label) {
   assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
+  const shipped = await loadShippedAcs();
   for (const r of rows) {
-    const skipped = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-    const notObservable = r.notObservableHere && typeof r.notObservableHere === 'object' && typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0;
-    if (skipped || notObservable) continue;
+    if (r.accountBoundSkipped === true) {
+      assert.equal(typeof r.reason, 'string', `${label}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${label}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
+      continue;
+    }
+    if (r.notObservableHere) {
+      const ac = r.notObservableHere && r.notObservableHere.ac;
+      assert.ok(BROWSER_ONLY_ACS.has(ac), `${label}: notObservableHere is reserved for browser-only ACs; deploy-hetzner-server has NONE, so any notObservableHere row FAILS anatomy. Row claims ac=${JSON.stringify(ac)}: ${JSON.stringify(r).slice(0, 300)}`);
+    }
+    if (r.conformanceOnly) {
+      assert.equal(typeof r.limitation, 'string', `${label}: conformanceOnly row must carry a limitation string: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(r.anchorAcId, null, `${label}: conformanceOnly row must carry anchorAcId: null: ${JSON.stringify(r).slice(0, 300)}`);
+      const m = r.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
+      assert.ok(m, `${label}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
+      assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on deploy-hetzner-server`);
+    }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
     const identityKeysPresent = Object.keys(ev).filter((k) => IDENTITY_FIELDS.has(k) && isNonEmpty(ev[k]));
     const observationKeysPresent = Object.keys(ev).filter((k) => OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    assert.ok(identityKeysPresent.length > 0, `${label}: row evidence lacks a non-empty identity field: ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a non-empty observation field: ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(identityKeysPresent.length > 0, `${label}: row evidence lacks a non-empty identity field (vendor id, event name, artefact path, or resource name); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a non-empty observation field (excerpt, statusCode, mode, vendor-return value, non-zero count, or derived structured observation); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
 
-test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
+test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.5');
+  assert.equal(bp.version, '1.1.6');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
-  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
   const readyResult = out.results.find((r) => r.anchorAcId === 'AC-37101-1' && r.detail.includes('provisionerReady fired'));
   assert.ok(readyResult, `expected a provisionerReady pass result; got: ${JSON.stringify(out.results, null, 2)}`);
   assert.equal(readyResult.verdict, 'pass');
   assert.ok(readyResult.evidence && readyResult.evidence.eventName === 'provisionerReady', 'evidence must carry eventName');
+  // AC-37101-1 clause (a): the provisioner facade module is the SOLE
+  // reader of the operator variable HETZNER_ACCOUNT_API_KEY (the
+  // default token source reads process.env of that name; callers may
+  // still inject an explicit token). Assert the facade file names it
+  // on at least one non-comment line and no other .mjs/.js file in
+  // the fixture source tree names it.
   const facadeText = await readFile(join(FIXTURE_ROOT, 'src/provisioner-facade.mjs'), 'utf8');
-  const otherTokenReaders = facadeText.split('\n').filter((l) => l.includes('HETZNER_ACCOUNT_API_KEY'));
-  assert.equal(otherTokenReaders.length, 0, `facade must not name HETZNER_ACCOUNT_API_KEY (it captures via the injected token; grep found: ${otherTokenReaders.join(' | ')})`);
+  const facadeNonCommentReaders = facadeText.split('\n').filter((l) => {
+    if (!l.includes('HETZNER_ACCOUNT_API_KEY')) return false;
+    const t = l.trim();
+    return !(t.startsWith('//') || t.startsWith('*'));
+  });
+  assert.ok(facadeNonCommentReaders.length >= 1, `provisioner facade must name HETZNER_ACCOUNT_API_KEY on at least one non-comment line (it is the sole reader clause of AC-37101-1); found ${facadeNonCommentReaders.length} matching line(s).`);
+  assert.equal(readyResult.evidence.readerCount >= 1, true, `AC-37101-1 row must observe at least one reader; got readerCount=${readyResult.evidence.readerCount}`);
+  assert.deepEqual(
+    readyResult.evidence.readers && readyResult.evidence.readers.every((r) => typeof r === 'string' && r.startsWith('src/provisioner-facade.mjs:')),
+    true,
+    `AC-37101-1 row must observe every reader inside src/provisioner-facade.mjs; got readers=${JSON.stringify(readyResult.evidence.readers)}`,
+  );
 });
 
-test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)', async () => {
+test('deploy-hetzner-server AC-11101-1 manifest schema shape valid', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   const required = ['name', 'serverType', 'location', 'image', 'sshKeyIds', 'firewallId', 'cloudInitPath', 'labels', 'firewallRules', 'snapshotCadence'];
   for (const f of required) assert.ok(schema.required.includes(f), `schema.required missing ${f}`);
@@ -123,7 +194,7 @@ test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-m
     for (const f of required) assert.ok(f in doc, `manifest ${name} missing ${f}`);
   }
   const out = await runProbe('manifest-schema-validate');
-  assertRowsCarry7dShape(out.results, 'manifest-schema-validate');
+  await assertRowsCarry7dShape(out.results, 'manifest-schema-validate');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `manifest-schema-validate should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
   // Per-property anchoring: at least one row anchors to AC-37106-1
@@ -132,25 +203,24 @@ test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-m
   assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37107-1'), 'manifest-schema-validate must emit a snapshotCadence-anchored row');
 });
 
-test('T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)', async () => {
+test('deploy-hetzner-server AC-11102-1 manifest applies to mocked provision', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
-  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
-  // v1.1.4 v1.1.5: the mock-path row that observes the
-  // hetznerServerProvisioned event shape is de-claimed (anchorAcId: null,
-  // conformanceOnly, notObservableHere.ac = 'AC-37103-1') because the AC
-  // requires the real-account inventory diff; the live evidence lives on
-  // real-account-throwaway-server-provision. Assert the de-claim shape.
-  const provisionedResult = out.results.find((r) => r.notObservableHere && r.notObservableHere.ac === 'AC-37103-1' && r.evidence && r.evidence.eventName === 'hetznerServerProvisioned');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  // The mock-path row that observes the hetznerServerProvisioned
+  // event shape is de-claimed (anchorAcId: null, conformanceOnly,
+  // limitation names AC-37103-1) because the AC requires the
+  // real-account inventory diff; the live evidence lives on
+  // real-account-throwaway-server-provision. Assert the de-claim
+  // shape via the shipped-AC limitation prefix.
+  const provisionedResult = out.results.find((r) => r.conformanceOnly === true && r.anchorAcId === null && typeof r.limitation === 'string' && r.limitation.startsWith('AC-37103-1') && r.evidence && r.evidence.eventName === 'hetznerServerProvisioned');
   assert.ok(provisionedResult, `expected a de-claimed row for AC-37103-1 observing the hetznerServerProvisioned event shape; got: ${JSON.stringify(out.results, null, 2)}`);
-  assert.equal(provisionedResult.anchorAcId, null);
-  assert.equal(provisionedResult.conformanceOnly, true);
-  assert.ok(typeof provisionedResult.limitation === 'string' && provisionedResult.limitation.length > 0, 'de-claimed row must carry a limitation string');
   assert.equal(provisionedResult.verdict, 'pass');
   assert.equal(provisionedResult.evidence.location, 'fsn1');
   assert.equal(provisionedResult.evidence.serverType, 'cx23');
+  assert.ok(!provisionedResult.notObservableHere, 'de-claimed row must NOT carry notObservableHere; that field is reserved for browser-only ACs (empty set on this blueprint)');
 });
 
-test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)', async () => {
+test('deploy-hetzner-server AC-11201-1 cloud-init render baseline present', async () => {
   const tmpl = await readFile(TEMPLATE_PATH, 'utf8');
   assert.match(tmpl, /PermitRootLogin no/);
   assert.match(tmpl, /PasswordAuthentication no/);
@@ -159,24 +229,24 @@ test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (T
   assert.match(tmpl, /fail2ban/);
   assert.match(tmpl, /50unattended-upgrades/);
   const out = await runProbe('cloud-init-render-lint');
-  assertRowsCarry7dShape(out.results, 'cloud-init-render-lint');
+  await assertRowsCarry7dShape(out.results, 'cloud-init-render-lint');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `cloud-init-render-lint should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
 });
 
-test('T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)', async () => {
+test('deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-cloud-init-hardened.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   assert.match(readme, /six ssh baseline checks/);
   const out = await runProbe('real-account-cloud-init-hardened', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  assertRowsCarry7dShape(out.results, 'real-account-cloud-init-hardened skip');
+  await assertRowsCarry7dShape(out.results, 'real-account-cloud-init-hardened skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-test('T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)', async () => {
+test('deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'manifest-schema-validate.mjs')).href + '?ts=' + Date.now();
   const { validate } = await import(modUrl);
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
@@ -189,24 +259,24 @@ test('T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open
   assert.ok(errors.some((e) => (e.message || '').includes('0.0.0.0/0')), `expected refusal for open-ssh mutation, got: ${JSON.stringify(errors)}`);
 });
 
-test('T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)', async () => {
+test('deploy-hetzner-server AC-11401-1 snapshot cadence enum', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   assert.deepEqual(schema.properties.snapshotCadence.enum.sort(), ['daily', 'off', 'weekly']);
 });
 
-test('T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)', async () => {
+test('deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-snapshot-on-demand.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
   const out = await runProbe('real-account-snapshot-on-demand', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  assertRowsCarry7dShape(out.results, 'real-account-snapshot-on-demand skip');
+  await assertRowsCarry7dShape(out.results, 'real-account-snapshot-on-demand skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-test('T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)', async () => {
+test('deploy-hetzner-server AC-11501-1 lifecycle events metadata only', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
-  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
   const secrecy = out.results.find((r) => r.anchorAcId === 'AC-37109-1');
   assert.ok(secrecy, `expected an event-secrecy scan result`);
   assert.equal(secrecy.verdict, 'pass', `event-secrecy scan should pass on canonical state; got: ${secrecy.detail}`);
@@ -241,7 +311,7 @@ test('deploy-hetzner-server shelf shape: section 6a cloudHost row and docs/topic
 // blueprint user stories do not declare AC-14501-1); the RCF chain
 // artefacts remain the sole owners of that AC and this test carries
 // the observation on their behalf.
-test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)', async () => {
+test('deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads', async () => {
   const rendererPath = pathToFileURL(join(FIXTURE_ROOT, 'src/cloud-init-renderer.mjs')).href;
   const { renderCloudInitToFile } = await import(rendererPath);
   const manifest = JSON.parse(await readFile(join(FIXTURE_ROOT, 'hetzner/servers/ci-throwaway.json'), 'utf8'));
@@ -279,7 +349,7 @@ test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name varia
     assert.ok(section.includes('`' + v + '`'), 'deploy-hetzner-server declared env vars table missing ' + v);
   }
   const provisionSkip = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  assertRowsCarry7dShape(provisionSkip.results, 'provision skip');
+  await assertRowsCarry7dShape(provisionSkip.results, 'provision skip');
   assert.equal(provisionSkip.results[0].accountBoundSkipped, true);
   assert.equal(provisionSkip.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
   assert.match(provisionSkip.results[0].detail, /set-but-not-true/);
@@ -288,7 +358,7 @@ test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name varia
   delete process.env.HCLOUD_TOKEN;
   try {
     const provSecondTier = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'true' });
-    assertRowsCarry7dShape(provSecondTier.results, 'provision second-tier skip');
+    await assertRowsCarry7dShape(provSecondTier.results, 'provision second-tier skip');
     assert.equal(provSecondTier.results[0].accountBoundSkipped, true);
     assert.equal(provSecondTier.results[0].reason, 'HCLOUD_TOKEN');
   } finally {

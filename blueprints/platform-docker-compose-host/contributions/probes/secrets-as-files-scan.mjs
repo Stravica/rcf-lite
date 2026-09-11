@@ -235,13 +235,15 @@ export default async function runProbe() {
           },
         });
         // Mode row: this offline scan CANNOT observe the in-container
-        // mode. De-claim the row so no invented "default 0o400" claim
-        // reaches the record.
+        // mode; the observation is a process-level fact (docker exec
+        // stat) that lives on real-account-minimal-stack-up, so the
+        // row is a plain conformanceOnly de-claim with a shipped-AC
+        // limitation. notObservableHere is reserved for browser-only
+        // ACs and is not applicable to this blueprint.
         results.push({
           anchorAcId: null,
           conformanceOnly: true,
-          limitation: 'offline scan cannot observe the in-container mode; AC-composeHost-secretShape "mounted at mode 0o400" clause is observed by real-account-minimal-stack-up which runs docker exec stat -c %a inside the consuming container.',
-          notObservableHere: { ac: 'AC-composeHost-secretShape' },
+          limitation: 'AC-composeHost-secretShape: "mounted at mode 0o400" clause is not observed by this offline scan; the process-level observation lives on real-account-minimal-stack-up (docker exec stat -c %a inside the consuming container).',
           verdict: 'pass',
           detail: `service '${svcName}' secret '${secretName}' declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)}; in-container mode observation lives on the real-account probe.`,
           evidence: {
