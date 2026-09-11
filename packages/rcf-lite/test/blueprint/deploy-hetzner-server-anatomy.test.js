@@ -37,7 +37,7 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Per-probe requirement map (v1.1.10). Every counting row (a row
+// Per-probe requirement map (v1.1.11). Every counting row (a row
 // that is not `accountBoundSkipped`, not `notObservableHere`, and
 // not `conformanceOnly`) must belong to a probe declared in
 // `PROBE_REQUIREMENTS`, match one of its declared rows by
@@ -179,6 +179,43 @@ function checkIdShape(shape, value) {
   if (shape === 'hex64') return isHex64(value);
   return false;
 }
+// Per-field value validators (v1.1.11). isPresent-only acceptance is
+// gone: an empty string, an empty collection, `false`, `NaN` or a
+// malformed value FAILS. Every required observation field named in
+// PROBE_REQUIREMENTS must have an entry here.
+function isIpv4(v) {
+  if (typeof v !== 'string') return false;
+  return /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})){3}$/.test(v);
+}
+// Vendor Hetzner location codes the fixture declares. Empty / unknown fails.
+const VENDOR_LOCATIONS = new Set(['fsn1', 'nbg1', 'hel1', 'ash', 'hil']);
+function isVendorLocation(v) { return typeof v === 'string' && VENDOR_LOCATIONS.has(v); }
+function isBaselineChecksArray(v) {
+  if (!Array.isArray(v) || v.length === 0) return false;
+  for (const c of v) {
+    if (!c || typeof c !== 'object' || Array.isArray(c)) return false;
+    if (typeof c.id !== 'string' || c.id.length === 0) return false;
+    const status = c.verdict !== undefined ? c.verdict : c.status;
+    if (typeof status === 'string' ? status.length === 0 : typeof status !== 'boolean') return false;
+  }
+  return true;
+}
+function isNonNegInt(v) { return typeof v === 'number' && Number.isInteger(v) && v >= 0; }
+function isCloudInitObj(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  return typeof v.code === 'number' && Number.isFinite(v.code);
+}
+function isNonEmptyVendorIdArray(v) { return Array.isArray(v) && v.length > 0 && v.every(isVendorId); }
+function isVendorIdArrayMaybeEmpty(v) { return Array.isArray(v) && v.every(isVendorId); }
+const FIELD_VALIDATORS = {
+  primaryIpv4: isIpv4,
+  location: isVendorLocation,
+  baselineChecks: isBaselineChecksArray,
+  exitStatus: isNonNegInt,
+  cloudInit: isCloudInitObj,
+  postCreateSnapshotIds: isNonEmptyVendorIdArray,
+  postTeardownSnapshotIds: isVendorIdArrayMaybeEmpty,
+};
 function deepFind(node, fieldName, visited) {
   const seen = visited || new Set();
   if (node === null || typeof node !== 'object' || seen.has(node)) return undefined;
@@ -219,15 +256,23 @@ function validateCountingRowAgainstMap(row, probeName) {
     throw new Error(`${probeName} / ${rule.anchorAcId}: identifier ${rule.identifier.field} (shape ${rule.identifier.shape}) missing or malformed; got ${JSON.stringify(idValue)}`);
   }
   for (const obs of rule.requiredAll) {
+    const validator = FIELD_VALIDATORS[obs];
+    if (!validator) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: no per-field validator registered for required observation ${obs}; add it to FIELD_VALIDATORS`);
+    }
     const v = deepFind(ev, obs);
-    if (!isPresent(v)) {
-      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or empty in evidence tree`);
+    if (!validator(v)) {
+      const seen = JSON.stringify(v);
+      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or malformed in evidence tree (got ${seen === undefined ? 'undefined' : seen.slice(0, 160)})`);
     }
   }
   for (const group of rule.requiredAnyOf) {
-    const some = group.some((f) => isPresent(deepFind(ev, f)));
+    const some = group.some((f) => {
+      const validator = FIELD_VALIDATORS[f];
+      return typeof validator === 'function' && validator(deepFind(ev, f));
+    });
     if (!some) {
-      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] present in evidence tree`);
+      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] are present and valid in evidence tree`);
     }
   }
   return true;
@@ -238,6 +283,14 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
   const shipped = await loadShippedAcs();
   for (const r of rows) {
     if (r.accountBoundSkipped === true) {
+      assert.ok(
+        !UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName),
+        `${displayLabel}: probe ${probeName} is UNMAPPED (offline / mock) and MUST NOT emit accountBoundSkipped rows - such probes have no declared gate variable to skip on; only conformanceOnly rows are permitted. Row: ${JSON.stringify(r).slice(0, 300)}`,
+      );
+      assert.ok(
+        PROBE_REQUIREMENTS[probeName],
+        `${displayLabel}: probe ${probeName} is not declared in PROBE_REQUIREMENTS nor UNMAPPED_PROBES_CONFORMANCE_ONLY; classify it before shipping a skip row: ${JSON.stringify(r).slice(0, 300)}`,
+      );
       assert.equal(typeof r.reason, 'string', `${displayLabel}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
       assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${displayLabel}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
       continue;
@@ -257,7 +310,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
       // counting rows only.
       continue;
     }
-    // Counting row: enforce per-probe requirement map (v1.1.10).
+    // Counting row: enforce per-probe requirement map (v1.1.11).
     try {
       validateCountingRowAgainstMap(r, probeName);
     } catch (e) {
@@ -269,7 +322,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.10');
+  assert.equal(bp.version, '1.1.11');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -508,44 +561,44 @@ test('deploy-hetzner-server probe-utils empty results FAIL with detail exactly "
   assert.equal(row.verdict, 'fail');
 });
 
-// Per-probe requirement map: negative proof for v1.1.10.
+// Per-probe requirement map: negative proof for v1.1.11.
 // A synthetic counting row from a MAPPED probe is accepted only when
 // its identifier has the right shape AND every required observation
 // is present in the evidence tree (deep-search); missing fields, a
 // non-vendor identifier value, or cross-probe combinations FAIL.
 test('deploy anatomy per-probe map: valid provision row accepted', async () => {
-  const row = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197', location: 'fsn1' } };
+  const row = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 424242, primaryIpv4: '198.51.100.10', location: 'fsn1' } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-throwaway-server-provision'), true);
 });
 test('deploy anatomy per-probe map: valid cloud-init row accepted (cloudInit.code satisfies exitStatus/cloudInit anyOf)', async () => {
-  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: 'pass' }] } };
+  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: 'pass' }] } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-cloud-init-hardened'), true);
 });
 test('deploy anatomy per-probe map: valid snapshot row accepted (empty postTeardownSnapshotIds proves absence)', async () => {
   // The live-record semantic: postTeardownSnapshotIds must be
   // PRESENT to prove the check ran; an empty array is a valid
   // observation (snapshot destroyed and absent from inventory).
-  const row = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779], postTeardownSnapshotIds: [] } };
+  const row = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [] } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-snapshot-on-demand'), true);
   // A missing key (undefined) still FAILS.
-  const bad = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779] } };
+  const bad = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424] } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-snapshot-on-demand'), /postTeardownSnapshotIds missing/);
 });
 test('deploy anatomy per-probe map: row missing a required observation FAILS', async () => {
   // provision missing location:
-  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197' } };
+  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 424242, primaryIpv4: '198.51.100.10' } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /location missing/);
   // cloud-init missing baselineChecks:
-  const bad2 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, cloudInit: { code: 0 } } };
+  const bad2 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 } } };
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-cloud-init-hardened'), /baselineChecks missing/);
 });
 test('deploy anatomy per-probe map: cross-probe combination of fields FAILS', async () => {
   // baselineChecks + primaryIpv4 supplied under the provision probe is a cross-probe combination;
   // the provision rule requires location, which is absent.
-  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197', baselineChecks: [{ id: 'x', verdict: 'pass' }] } };
+  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 424242, primaryIpv4: '198.51.100.10', baselineChecks: [{ id: 'x', verdict: 'pass' }] } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /location missing/);
   // snapshot rule anchored under provision probe FAILS (wrong AC for this probe):
-  const bad2 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779], postTeardownSnapshotIds: [999] } };
+  const bad2 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [999] } };
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-throwaway-server-provision'), /not declared in PROBE_REQUIREMENTS/);
 });
 test('deploy anatomy per-probe map: non-vendor identifier value FAILS shape check', async () => {
@@ -555,11 +608,188 @@ test('deploy anatomy per-probe map: non-vendor identifier value FAILS shape chec
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-throwaway-server-provision'), /identifier serverId .* missing or malformed/);
 });
 test('deploy anatomy per-probe map: UNMAPPED probe producing a counting row FAILS', async () => {
-  const bad = { anchorAcId: 'AC-37101-1', verdict: 'pass', evidence: { serverId: 165530661 } };
+  const bad = { anchorAcId: 'AC-37101-1', verdict: 'pass', evidence: { serverId: 424242 } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'hcloud-dry-run-mock'), /UNMAPPED in PROBE_REQUIREMENTS/);
 });
 test('deploy anatomy per-probe map: nested observation under evidence.<group> is found by deep search', async () => {
   // Simulate a shape where observations live nested under a sub-object.
-  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, results: { cloudInit: { code: 0 }, baselineChecks: [{ id: 'ok', verdict: 'pass' }] } } };
+  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, results: { cloudInit: { code: 0 }, baselineChecks: [{ id: 'ok', verdict: 'pass' }] } } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-cloud-init-hardened'), true);
+});
+
+// Per-field value validators: negative cases (v1.1.11). isPresent-
+// only acceptance is gone; each required field runs its own
+// per-field validator and empty / malformed values FAIL. Synthetic
+// values below sit in the documentation ranges (198.51.100.0/24) or
+// carry unmistakably synthetic vendor-id integers; no live-account
+// fragments.
+test('deploy anatomy field validators: malformed primaryIpv4 FAILS', async () => {
+  for (const v of ['', '999.1.1.1', 'not-an-ip', '10.0.0', '10.0.0.0.0']) {
+    const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 424242, primaryIpv4: v, location: 'fsn1' } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /primaryIpv4 missing or malformed/, `expected FAIL on primaryIpv4=${JSON.stringify(v)}`);
+  }
+});
+test('deploy anatomy field validators: empty or unknown location FAILS', async () => {
+  for (const v of ['', 'not-a-location', 'FSN1']) {
+    const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 424242, primaryIpv4: '198.51.100.10', location: v } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /location missing or malformed/, `expected FAIL on location=${JSON.stringify(v)}`);
+  }
+});
+test('deploy anatomy field validators: empty or malformed baselineChecks FAILS', async () => {
+  const shapes = [
+    [],
+    [{ id: 'x' }],                                // no verdict/status
+    [{ id: '', verdict: 'pass' }],                // empty name
+    [{ verdict: 'pass' }],                        // missing id
+    [{ id: 'x', verdict: '' }],                   // empty status string
+    'string-not-array',
+  ];
+  for (const v of shapes) {
+    const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: v } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'), /baselineChecks missing or malformed/, `expected FAIL on baselineChecks=${JSON.stringify(v)}`);
+  }
+});
+test('deploy anatomy field validators: cloud-init anyOf FAILS when both alternatives malformed', async () => {
+  // exitStatus non-integer AND cloudInit lacks numeric code:
+  const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: '0', cloudInit: {} } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'), /none of the observation alternatives \[exitStatus, cloudInit\]/);
+  // both absent:
+  const bad2 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-cloud-init-hardened'), /none of the observation alternatives \[exitStatus, cloudInit\]/);
+});
+test('deploy anatomy field validators: postCreateSnapshotIds must be non-empty vendor-id array', async () => {
+  for (const v of [[], [-1], ['abc'], [0], 'not-array']) {
+    const bad = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: v, postTeardownSnapshotIds: [] } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-snapshot-on-demand'), /postCreateSnapshotIds missing or malformed/, `expected FAIL on postCreateSnapshotIds=${JSON.stringify(v)}`);
+  }
+});
+test('deploy anatomy field validators: postTeardownSnapshotIds must be vendor-id array (empty is fine, malformed entries FAIL)', async () => {
+  // empty is fine:
+  const ok = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [] } };
+  assert.equal(validateCountingRowAgainstMap(ok, 'real-account-snapshot-on-demand'), true);
+  // malformed entries FAIL:
+  for (const v of ['not-array', [-1], ['abc']]) {
+    const bad = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: v } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-snapshot-on-demand'), /postTeardownSnapshotIds missing or malformed/, `expected FAIL on postTeardownSnapshotIds=${JSON.stringify(v)}`);
+  }
+});
+
+// Unmapped-probe skip rule (v1.1.11). Offline / mock probes on this
+// blueprint (hcloud-dry-run-mock, manifest-schema-validate,
+// cloud-init-render-lint) have no declared gate variable to skip on:
+// their entire row set is either conformanceOnly / notObservableHere.
+// An accountBoundSkipped row from any of them FAILS anatomy, even
+// when the reason names a declared skip variable.
+test('deploy anatomy: unmapped probe emitting accountBoundSkipped FAILS anatomy', async () => {
+  const rows = [{ accountBoundSkipped: true, reason: 'CI_HAS_HETZNER_ACCOUNT', detail: 'set-but-not-true' }];
+  await assert.rejects(
+    async () => assertRowsCarry7dShape(rows, 'hcloud-dry-run-mock', 'unmapped-skip-negative'),
+    /MUST NOT emit accountBoundSkipped/,
+  );
+});
+test('deploy anatomy: mapped live probe emitting the exact one-variable skip is accepted (declared gate variable, absent)', async () => {
+  const rows = [{ accountBoundSkipped: true, reason: 'HCLOUD_TOKEN', detail: 'HCLOUD_TOKEN not set' }];
+  await assertRowsCarry7dShape(rows, 'real-account-throwaway-server-provision', 'mapped-skip-positive');
+});
+
+// Record walk (v1.1.11). When a local run has produced records under
+// `.rcf/reports/blueprints/deploy-hetzner-server/`, validate every
+// counting row against the per-probe map and check that the mapped
+// identifier appears in the record's own inventory or event trail
+// (serverId in `eventTrail` / `postRunInventory` / `postTeardownServerIds` /
+// `teardown`; snapshotId in `postCreateSnapshotIds`). When no
+// records are present the walk reports "no local records" and does
+// not fail (CI path).
+function walkRecordRow({ row, probeName, name, shipped, record }) {
+  if (row.accountBoundSkipped === true) {
+    assert.ok(!UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName), `${name}: unmapped probe ${probeName} produced accountBoundSkipped in walk.`);
+    assert.equal(typeof row.reason, 'string');
+    assert.ok(DECLARED_SKIP_VARS.has(row.reason), `${name}: skip reason ${row.reason} not declared.`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  if (row.conformanceOnly) {
+    assert.equal(typeof row.limitation, 'string');
+    assert.equal(row.anchorAcId, null);
+    const m = row.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
+    assert.ok(m && shipped.has(m[1]), `${name}: conformanceOnly limitation names ${m ? m[1] : '(none)'}, not shipped on this blueprint.`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  if (row.notObservableHere) {
+    assert.ok(BROWSER_ONLY_ACS.has(row.notObservableHere && row.notObservableHere.ac), `${name}: notObservableHere reserved for browser-only ACs (none shipped on this blueprint).`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  // Counting row: per-probe map first.
+  validateCountingRowAgainstMap(row, probeName);
+  // Inventory correlation is against the WHOLE record (the identifier
+  // must appear in the record's own inventory or event trail), not
+  // just the row's evidence subtree.
+  const rule = PROBE_REQUIREMENTS[probeName].rows.find((r) => r.anchorAcId === row.anchorAcId);
+  const ev = row.evidence || {};
+  const searchSpace = record || ev;
+  const idField = rule.identifier.field;
+  const idValue = deepFind(ev, idField);
+  let inventoryHit = false;
+  if (idField === 'serverId') {
+    const trail = deepFind(searchSpace, 'eventTrail');
+    const inv = deepFind(searchSpace, 'postRunInventory');
+    const teardownIds = deepFind(searchSpace, 'postTeardownServerIds');
+    const teardown = deepFind(searchSpace, 'teardown');
+    const idStr = String(idValue);
+    const trailHit = Array.isArray(trail) && trail.some((t) => JSON.stringify(t).includes(idStr));
+    const invHit = Array.isArray(inv) && inv.some((s) => (s && typeof s === 'object') ? String(s.id) === idStr : String(s) === idStr);
+    const teardownHit = Array.isArray(teardownIds) && teardownIds.map(String).includes(idStr);
+    const teardownRefHit = !!teardown && typeof teardown === 'object' && (String(teardown.destroyed) === idStr || String(teardown.provisioned) === idStr);
+    inventoryHit = trailHit || invHit || teardownHit || teardownRefHit;
+    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail / postRunInventory / postTeardownServerIds / teardown.`);
+  } else if (idField === 'snapshotId') {
+    const create = deepFind(searchSpace, 'postCreateSnapshotIds');
+    inventoryHit = Array.isArray(create) && create.map(String).includes(String(idValue));
+    assert.ok(inventoryHit, `${name}: snapshotId ${idValue} is not present in this record's postCreateSnapshotIds.`);
+  } else {
+    // Not a serverId/snapshotId identifier (e.g. containerId). This blueprint has none, so nothing to correlate.
+    inventoryHit = true;
+  }
+  return { walked: true, inventoryHit, counted: true };
+}
+test('deploy-hetzner-server v1.1.11 record walk: local records validate against the per-probe map with inventory correlation, or report no records', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'deploy-hetzner-server');
+  let entries = [];
+  try {
+    entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
+  } catch (e) {
+    console.log('deploy-hetzner-server v1.1.11 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    return;
+  }
+  if (entries.length === 0) {
+    console.log('deploy-hetzner-server v1.1.11 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    return;
+  }
+  const shipped = await loadShippedAcs();
+  let walkableRows = 0;
+  let inventoryHits = 0;
+  let countingRows = 0;
+  let stubs = 0;
+  for (const fileName of entries) {
+    const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
+    const probeName = rec.probeName || fileName.replace(/\.json$/, '');
+    const rows = Array.isArray(rec.results) ? rec.results : [];
+    for (const row of rows) {
+      const hasShape = !!row && (
+        row.evidence !== undefined
+        || (row.conformanceOnly && typeof row.limitation === 'string')
+        || (row.accountBoundSkipped === true && typeof row.reason === 'string')
+        || (row.notObservableHere && row.notObservableHere.ac)
+      );
+      if (!hasShape) { stubs++; continue; }
+      walkableRows++;
+      const r = walkRecordRow({ row, probeName, name: fileName, shipped, record: rec });
+      if (r.counted) countingRows++;
+      if (r.inventoryHit) inventoryHits++;
+    }
+  }
+  if (walkableRows === 0) {
+    console.log(`deploy-hetzner-server v1.1.11 record walk: no walkable rows in ${entries.length} record file(s) (${stubs} stub row(s)); no local records path.`);
+    return;
+  }
+  console.log(`deploy-hetzner-server v1.1.11 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s), ${stubs} stub row(s) skipped across ${entries.length} record file(s).`);
 });

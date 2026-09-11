@@ -37,7 +37,7 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Per-probe requirement map (v1.1.10). Every counting row (a row
+// Per-probe requirement map (v1.1.11). Every counting row (a row
 // that is not `accountBoundSkipped`, not `notObservableHere`, and
 // not `conformanceOnly`) must belong to a probe declared in
 // `PROBE_REQUIREMENTS`, match one of its declared rows by
@@ -176,6 +176,30 @@ function checkIdShape(shape, value) {
   if (shape === 'hex64') return isHex64(value);
   return false;
 }
+// Per-field value validators (v1.1.11). isPresent-only acceptance is
+// gone: an empty string, an empty collection, `false`, `NaN`, or a
+// malformed value FAILS. Every required observation field named in
+// PROBE_REQUIREMENTS must have an entry here.
+function isNonNegInt(v) { return typeof v === 'number' && Number.isInteger(v) && v >= 0; }
+function isOctalMode(v) { return typeof v === 'string' && /^0?[0-7]{3}$/.test(v); }
+function isNonEmptyStringArray(v) { return Array.isArray(v) && v.length > 0 && v.every((s) => typeof s === 'string' && s.length > 0); }
+function isObservedSecretModesShape(v) {
+  const arr = Array.isArray(v)
+    ? v
+    : (v && typeof v === 'object' && Array.isArray(v.observations) ? v.observations : null);
+  if (!Array.isArray(arr) || arr.length === 0) return false;
+  return arr.every((o) => o && typeof o === 'object' && isOctalMode(o.mode));
+}
+const FIELD_VALIDATORS = {
+  observedSecretModes: isObservedSecretModesShape,
+  observedNames: isNonEmptyStringArray,
+  healthcheckKeys: isNonEmptyStringArray,
+  mode: isOctalMode,
+  total: isNonNegInt,
+  twoXx: isNonNegInt,
+  drops: isNonNegInt,
+  overlapCount: isNonNegInt,
+};
 function deepFind(node, fieldName, visited) {
   const seen = visited || new Set();
   if (node === null || typeof node !== 'object' || seen.has(node)) return undefined;
@@ -216,21 +240,43 @@ function validateCountingRowAgainstMap(row, probeName) {
     throw new Error(`${probeName} / ${rule.anchorAcId}: identifier ${rule.identifier.field} (shape ${rule.identifier.shape}) missing or malformed; got ${JSON.stringify(idValue)}`);
   }
   for (const obs of rule.requiredAll) {
+    const validator = FIELD_VALIDATORS[obs];
+    if (!validator) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: no per-field validator registered for required observation ${obs}; add it to FIELD_VALIDATORS`);
+    }
     const v = deepFind(ev, obs);
-    if (!isPresent(v)) {
-      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or empty in evidence tree`);
+    if (!validator(v)) {
+      const seen = JSON.stringify(v);
+      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or malformed in evidence tree (got ${seen === undefined ? 'undefined' : seen.slice(0, 160)})`);
     }
   }
   for (const group of rule.requiredAnyOf) {
-    const some = group.some((f) => isPresent(deepFind(ev, f)));
+    const some = group.some((f) => {
+      const validator = FIELD_VALIDATORS[f];
+      return typeof validator === 'function' && validator(deepFind(ev, f));
+    });
     if (!some) {
-      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] present in evidence tree`);
+      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] are present and valid in evidence tree`);
     }
   }
   for (const exact of rule.requiredExact || []) {
     const v = deepFind(ev, exact.field);
     if (v !== exact.equals) {
       throw new Error(`${probeName} / ${rule.anchorAcId}: required ${exact.field} must equal ${JSON.stringify(exact.equals)}; got ${JSON.stringify(v)}`);
+    }
+  }
+  // Reload-burst cross-field consistency (v1.1.11): twoXx <= total AND
+  // drops === total - twoXx. Only applies when the row rule already
+  // requires this tuple.
+  if ((rule.requiredAll || []).includes('total') && (rule.requiredAll || []).includes('twoXx') && (rule.requiredAll || []).includes('drops')) {
+    const total = deepFind(ev, 'total');
+    const twoXx = deepFind(ev, 'twoXx');
+    const drops = deepFind(ev, 'drops');
+    if (twoXx > total) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: burst counters inconsistent: twoXx (${twoXx}) > total (${total})`);
+    }
+    if (drops !== total - twoXx) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: burst counters inconsistent: drops (${drops}) !== total (${total}) - twoXx (${twoXx})`);
     }
   }
   return true;
@@ -241,6 +287,14 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
   const shipped = await loadShippedAcs();
   for (const r of rows) {
     if (r.accountBoundSkipped === true) {
+      assert.ok(
+        !UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName),
+        `${displayLabel}: probe ${probeName} is UNMAPPED (offline / mock) and MUST NOT emit accountBoundSkipped rows - such probes have no declared gate variable to skip on; only conformanceOnly rows are permitted. Row: ${JSON.stringify(r).slice(0, 300)}`,
+      );
+      assert.ok(
+        PROBE_REQUIREMENTS[probeName],
+        `${displayLabel}: probe ${probeName} is not declared in PROBE_REQUIREMENTS nor UNMAPPED_PROBES_CONFORMANCE_ONLY; classify it before shipping a skip row: ${JSON.stringify(r).slice(0, 300)}`,
+      );
       assert.equal(typeof r.reason, 'string', `${displayLabel}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
       assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${displayLabel}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
       continue;
@@ -260,7 +314,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
       // counting rows only.
       continue;
     }
-    // Counting row: enforce per-probe requirement map (v1.1.10).
+    // Counting row: enforce per-probe requirement map (v1.1.11).
     try {
       validateCountingRowAgainstMap(r, probeName);
     } catch (e) {
@@ -272,7 +326,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.10');
+  assert.equal(bp.version, '1.1.11');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -442,15 +496,15 @@ test('platform-docker-compose-host probe-utils empty results FAIL with detail ex
   assert.equal(row.verdict, 'fail');
 });
 
-// Per-probe requirement map: negative proof for v1.1.10.
+// Per-probe requirement map: negative proof for v1.1.11.
 // A synthetic counting row from a MAPPED probe is accepted only when
 // its identifier has the right shape AND every required observation
 // is present in the evidence tree (deep-search); missing fields, a
 // non-vendor identifier value, or cross-probe combinations FAIL.
-const HEX64 = '8ee04e01c2e53b3c8840c0cd843f5856c09a09e081eabc59c98c660dc99bca93';
+const HEX64 = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
 test('compose anatomy per-probe map: valid upClean row accepted (containerId deep under observedSecretModes)', async () => {
   const row = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: {
-    serverId: 165553938,
+    serverId: 424245,
     observedNames: ['rcf-lite-throwaway-caddy', 'rcf-lite-throwaway-web'],
     observedSecretModes: {
       observations: [{ service: 'web', containerId: HEX64, mode: '400' }],
@@ -464,8 +518,8 @@ test('compose anatomy per-probe map: valid secretShape row accepted', async () =
 });
 test('compose anatomy per-probe map: valid reload-burst row accepted (fields nested under evidence.burst)', async () => {
   const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
-    serverId: 165550539,
-    burst: { total: 6192, twoXx: 6192, drops: 1, overlapCount: 225, clockDomain: 'server' },
+    serverId: 424246,
+    burst: { total: 6192, twoXx: 6192, drops: 0, overlapCount: 225, clockDomain: 'server' },
   } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
 });
@@ -474,12 +528,12 @@ test('compose anatomy per-probe map: row missing a required observation FAILS', 
   const bad = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { containerId: HEX64, observedNames: ['x'] } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /observedSecretModes missing/);
   // reload-burst without overlapCount:
-  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 1, clockDomain: 'server' } } };
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 1, clockDomain: 'server' } } };
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /overlapCount missing/);
 });
 test('compose anatomy per-probe map: cross-probe combination of fields FAILS', async () => {
   // reload-burst tuple carried under minimal-stack-up produces no containerId; FAILS on identity.
-  const bad = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
+  const bad = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
   // stack-up secretShape id + observedNames declared as a reload-burst row FAILS on required tuple.
   const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { containerId: HEX64, mode: '400' } };
@@ -492,7 +546,7 @@ test('compose anatomy per-probe map: non-hex64 containerId FAILS shape check', a
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
 });
 test('compose anatomy per-probe map: reload-burst clockDomain must equal "server"', async () => {
-  const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 1, clockDomain: 'runner' } } };
+  const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 1, clockDomain: 'runner' } } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), /clockDomain must equal .server./);
 });
 test('compose anatomy per-probe map: UNMAPPED probe producing a counting row FAILS', async () => {
@@ -501,9 +555,191 @@ test('compose anatomy per-probe map: UNMAPPED probe producing a counting row FAI
 });
 test('compose anatomy per-probe map: nested reload-burst tuple under evidence.burst is found by deep search', async () => {
   const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
-    serverId: 165550539,
+    serverId: 424246,
     warm: { statusCode: 200 },
     burst: { total: 6192, twoXx: 6192, drops: 0, overlapCount: 225, clockDomain: 'server' },
   } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
+});
+
+// Per-field value validators: negative cases (v1.1.11). isPresent-
+// only acceptance is gone; each required field runs its own
+// per-field validator and empty / malformed values FAIL. HEX64 above
+// is a synthetic 64-hex value ("deadbeef" repeated eight times); no
+// live-account container id is in this file.
+test('compose anatomy field validators: observedSecretModes must be non-empty and every entry carries an octal mode', async () => {
+  // Every row also carries a top-level containerId so the identifier
+  // check passes and the failure is on observedSecretModes.
+  const upCleanRowWith = (osm) => ({
+    anchorAcId: 'AC-composeHost-upClean',
+    verdict: 'pass',
+    evidence: { serverId: 424246, containerId: HEX64, observedNames: ['x'], observedSecretModes: osm },
+  });
+  // empty
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith({ observations: [] }), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith([]), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+  // entries lacking mode
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith({ observations: [{ containerId: HEX64 }] }), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+  // entries with non-octal mode
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith({ observations: [{ containerId: HEX64, mode: 'ffff' }] }), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith({ observations: [{ containerId: HEX64, mode: '' }] }), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+  // top-level string is not a valid shape
+  assert.throws(() => validateCountingRowAgainstMap(upCleanRowWith('not-an-array'), 'real-account-minimal-stack-up'), /observedSecretModes missing or malformed/);
+});
+test('compose anatomy field validators: observedNames / healthcheckKeys anyOf FAILS when both empty or malformed', async () => {
+  const row = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { containerId: HEX64, observedSecretModes: { observations: [{ containerId: HEX64, mode: '400' }] }, observedNames: [], healthcheckKeys: '' } };
+  assert.throws(() => validateCountingRowAgainstMap(row, 'real-account-minimal-stack-up'), /none of the observation alternatives \[observedNames, healthcheckKeys\]/);
+});
+test('compose anatomy field validators: mode must match octal pattern (400 / 0400 pass, other values FAIL)', async () => {
+  const good = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: '0400' } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-minimal-stack-up'), true);
+  for (const v of ['', 'abc', '9', '400 ', '4000']) {
+    const bad = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: v } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /mode missing or malformed/, `expected FAIL on mode=${JSON.stringify(v)}`);
+  }
+});
+test('compose anatomy field validators: burst counters must be non-negative integers', async () => {
+  for (const field of ['total', 'twoXx', 'drops', 'overlapCount']) {
+    const burst = { total: 100, twoXx: 100, drops: 0, overlapCount: 42, clockDomain: 'server' };
+    burst[field] = -1;
+    const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), new RegExp(`${field} missing or malformed`), `expected FAIL on ${field}=-1`);
+  }
+  const badFloat = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 1.5, twoXx: 1.5, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
+  assert.throws(() => validateCountingRowAgainstMap(badFloat, 'real-account-reload-burst'), /total missing or malformed/);
+});
+test('compose anatomy field validators: burst counters must satisfy twoXx <= total and drops === total - twoXx', async () => {
+  // twoXx > total (drops is a non-neg int so per-field passes; the cross-field guard fires):
+  const bad1 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 11, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad1, 'real-account-reload-burst'), /counters inconsistent/);
+  // drops !== total - twoXx:
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 8, drops: 5, overlapCount: 0, clockDomain: 'server' } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /counters inconsistent/);
+  // consistent counters accepted (drops = total - twoXx):
+  const good = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 8, drops: 2, overlapCount: 0, clockDomain: 'server' } } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-reload-burst'), true);
+});
+
+// Unmapped-probe skip rule (v1.1.11). Offline probes on this
+// blueprint (caddyfile-validate, compose-config-lint,
+// secrets-as-files-scan) have no declared gate variable to skip on:
+// their entire row set is either conformanceOnly / notObservableHere.
+// An accountBoundSkipped row from any of them FAILS anatomy.
+test('compose anatomy: unmapped probe emitting accountBoundSkipped FAILS anatomy', async () => {
+  const rows = [{ accountBoundSkipped: true, reason: 'CI_HAS_HETZNER_ACCOUNT', detail: 'set-but-not-true' }];
+  await assert.rejects(
+    async () => assertRowsCarry7dShape(rows, 'compose-config-lint', 'unmapped-skip-negative'),
+    /MUST NOT emit accountBoundSkipped/,
+  );
+});
+test('compose anatomy: mapped live probe emitting the exact one-variable skip is accepted', async () => {
+  const rows = [{ accountBoundSkipped: true, reason: 'HCLOUD_TOKEN', detail: 'HCLOUD_TOKEN not set' }];
+  await assertRowsCarry7dShape(rows, 'real-account-minimal-stack-up', 'mapped-skip-positive');
+});
+
+// Record walk (v1.1.11). When a local run has produced records under
+// `.rcf/reports/blueprints/platform-docker-compose-host/`, validate
+// every counting row against the per-probe map and check that the
+// mapped identifier appears in the record's own inventory or event
+// trail. For serverId, in eventTrail / postRunInventory /
+// postTeardownServerIds / teardown. For containerId, in the record's
+// observedSecretModes.observations tree (which is where docker
+// exec/inspect ran to obtain the id) or in the compose ps listing
+// (evidence.services / evidence.observedNames when the row carries
+// a containerName matching one of them). When no records are present
+// the walk reports "no local records" and does not fail (CI path).
+function walkComposeRecordRow({ row, probeName, name, shipped, record }) {
+  if (row.accountBoundSkipped === true) {
+    assert.ok(!UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName), `${name}: unmapped probe ${probeName} produced accountBoundSkipped in walk.`);
+    assert.equal(typeof row.reason, 'string');
+    assert.ok(DECLARED_SKIP_VARS.has(row.reason), `${name}: skip reason ${row.reason} not declared.`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  if (row.conformanceOnly) {
+    assert.equal(typeof row.limitation, 'string');
+    assert.equal(row.anchorAcId, null);
+    const m = row.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
+    assert.ok(m && shipped.has(m[1]), `${name}: conformanceOnly limitation names ${m ? m[1] : '(none)'}, not shipped on this blueprint.`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  if (row.notObservableHere) {
+    assert.ok(BROWSER_ONLY_ACS.has(row.notObservableHere && row.notObservableHere.ac), `${name}: notObservableHere reserved for browser-only ACs (none shipped).`);
+    return { walked: true, inventoryHit: false, counted: false };
+  }
+  validateCountingRowAgainstMap(row, probeName);
+  const rule = PROBE_REQUIREMENTS[probeName].rows.find((r) => r.anchorAcId === row.anchorAcId);
+  const ev = row.evidence || {};
+  const searchSpace = record || ev;
+  const idField = rule.identifier.field;
+  const idValue = deepFind(ev, idField);
+  const idStr = String(idValue);
+  let inventoryHit = false;
+  if (idField === 'serverId') {
+    const trail = deepFind(searchSpace, 'eventTrail');
+    const inv = deepFind(searchSpace, 'postRunInventory');
+    const teardownIds = deepFind(searchSpace, 'postTeardownServerIds');
+    const teardown = deepFind(searchSpace, 'teardown');
+    const trailHit = Array.isArray(trail) && trail.some((t) => JSON.stringify(t).includes(idStr));
+    const invHit = Array.isArray(inv) && inv.some((s) => (s && typeof s === 'object') ? String(s.id) === idStr : String(s) === idStr);
+    const teardownHit = Array.isArray(teardownIds) && teardownIds.map(String).includes(idStr);
+    const teardownRefHit = !!teardown && typeof teardown === 'object' && (String(teardown.destroyed) === idStr || String(teardown.provisioned) === idStr);
+    inventoryHit = trailHit || invHit || teardownHit || teardownRefHit;
+    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail / postRunInventory / postTeardownServerIds / teardown.`);
+  } else if (idField === 'containerId') {
+    const osm = deepFind(searchSpace, 'observedSecretModes');
+    const arr = Array.isArray(osm) ? osm : (osm && Array.isArray(osm.observations) ? osm.observations : []);
+    const osmHit = arr.some((o) => o && String(o.containerId) === idStr);
+    const services = deepFind(searchSpace, 'services');
+    const composeNames = Array.isArray(services) ? services.map((s) => (s && typeof s === 'object' && typeof s.name === 'string') ? s.name : null).filter(Boolean) : [];
+    const observedNames = deepFind(searchSpace, 'observedNames') || [];
+    const containerName = deepFind(ev, 'containerName');
+    const nameHit = typeof containerName === 'string' && (composeNames.includes(containerName) || (Array.isArray(observedNames) && observedNames.includes(containerName)));
+    inventoryHit = osmHit || nameHit;
+    assert.ok(inventoryHit, `${name}: containerId ${idStr} is not present in this record's observedSecretModes tree, and its containerName is absent from the compose ps listing.`);
+  } else {
+    inventoryHit = true;
+  }
+  return { walked: true, inventoryHit, counted: true };
+}
+test('platform-docker-compose-host v1.1.11 record walk: local records validate against the per-probe map with inventory correlation, or report no records', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'platform-docker-compose-host');
+  let entries = [];
+  try {
+    entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
+  } catch (e) {
+    console.log('platform-docker-compose-host v1.1.11 record walk: no local records under .rcf/reports/blueprints/platform-docker-compose-host (CI path).');
+    return;
+  }
+  if (entries.length === 0) {
+    console.log('platform-docker-compose-host v1.1.11 record walk: no local records under .rcf/reports/blueprints/platform-docker-compose-host (CI path).');
+    return;
+  }
+  const shipped = await loadShippedAcs();
+  let walkableRows = 0;
+  let inventoryHits = 0;
+  let countingRows = 0;
+  let stubs = 0;
+  for (const fileName of entries) {
+    const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
+    const probeName = rec.probeName || fileName.replace(/\.json$/, '');
+    const rows = Array.isArray(rec.results) ? rec.results : [];
+    for (const row of rows) {
+      const hasShape = !!row && (
+        row.evidence !== undefined
+        || (row.conformanceOnly && typeof row.limitation === 'string')
+        || (row.accountBoundSkipped === true && typeof row.reason === 'string')
+        || (row.notObservableHere && row.notObservableHere.ac)
+      );
+      if (!hasShape) { stubs++; continue; }
+      walkableRows++;
+      const r = walkComposeRecordRow({ row, probeName, name: fileName, shipped, record: rec });
+      if (r.counted) countingRows++;
+      if (r.inventoryHit) inventoryHits++;
+    }
+  }
+  if (walkableRows === 0) {
+    console.log(`platform-docker-compose-host v1.1.11 record walk: no walkable rows in ${entries.length} record file(s) (${stubs} stub row(s)); no local records path.`);
+    return;
+  }
+  console.log(`platform-docker-compose-host v1.1.11 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s), ${stubs} stub row(s) skipped across ${entries.length} record file(s).`);
 });
