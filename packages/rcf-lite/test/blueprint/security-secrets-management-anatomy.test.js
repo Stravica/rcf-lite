@@ -55,6 +55,6 @@ for (const probe of ['encrypt-decrypt-round-trip', 'add-recipient-rotation', 'ke
 
 test('security-secrets-management blueprint.json: version bumped and updatedAt refreshed', async () => {
   const manifest = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
-  assert.equal(manifest.version, '1.1.4', `expected exact pin 1.1.4; observed ${manifest.version}`);
+  assert.equal(manifest.version, '1.1.5', `expected exact pin 1.1.5; observed ${manifest.version}`);
   assert.ok(manifest.updatedAt, 'blueprint.json must carry an updatedAt');
 });

@@ -1,9 +1,8 @@
-// Session-bridge shape probe. Conformance-only per _closure3.md:
-// no dispatch of a protected request, no cookie inspection, no
-// request.auth population; malformed provider inputs do not
-// substitute for missing/invalid session handles. Rows keep local
-// bridge observations; integration harness (the auth integration harness follow-up)
-// is the surface where AC-level properties become observable.
+// Session-bridge shape probe. Conformance-only. Every row records
+// anchorAcId=null with a limitation naming the shipped AC whose
+// request/cookie property the local bridge observation does not
+// exercise. The integration harness follow-up is the surface where
+// the AC-level properties become observable.
 //
 // capability: sessionInventory. engine: fixture. accountBound: false.
 

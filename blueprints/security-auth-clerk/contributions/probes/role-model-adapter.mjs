@@ -1,10 +1,9 @@
 // Role-model adapter probe for security-auth-clerk.
-// Conformance-only. Every row de-claims its former REQ-004 anchor
-// per _closure3.md: role-token validation is not REQ-004's
-// can/assert project-verb adapter (that adapter is exercised in
-// the integration harness against a verified session token, not
-// against a raw claim string). The rows keep the observations
-// against the fixture role adapter.
+// Conformance-only. Every row records anchorAcId=null with a
+// limitation naming the shipped AC whose can/assert project-verb
+// adapter behaviour the fixture-layer probe does not observe. The
+// integration harness follow-up exercises the adapter against a
+// verified session token.
 //
 // capability: roleModel. engine: fixture. accountBound: false.
 

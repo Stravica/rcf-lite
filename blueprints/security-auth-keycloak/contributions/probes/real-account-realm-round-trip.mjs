@@ -11,7 +11,7 @@
 // state until an estate-owned realm is wired to CI.
 //
 // capability: principalDirectory + sessionInventory (composite).
-// Anchor (per closure): AC-11112-2 (live cloud-hosted-realm smoke
+// Anchor: AC-11112-2 (live cloud-hosted-realm smoke
 //   completes a full authorisation-code + PKCE round-trip and
 //   issues a project session whose Principal carries the
 //   deployment's realm slug).
@@ -55,7 +55,7 @@ export default async function runProbe() {
     };
   }
 
-  // One result row per unset second-tier variable per closure rule 4.
+  // One result row per unset second-tier variable per rule 4.
   const unsetRows = [];
   for (const v of SECOND_TIER_VARS) {
     if (!process.env[v]) {

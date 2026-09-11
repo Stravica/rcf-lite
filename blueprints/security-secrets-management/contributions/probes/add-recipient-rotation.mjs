@@ -20,7 +20,7 @@ import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
 
-// Rule (closure section 1 / addendum rule 10): probes pass an
+// Rule (master-brief addendum 2 rule 10): probes pass an
 // explicit minimal env to sops children, never a spread of the
 // entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
 // HOME are forwarded; the fixture README's env-var table is the
@@ -32,7 +32,7 @@ function sopsEnv(keyPath) {
     HOME: process.env.HOME || '',
   };
 }
-const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (auth integration harness follow-up).";
+const CONFORMANCE_LIM = "security-secrets-management-AC-8102-1: probe drives the SOPS binary at the crypto layer; the AC states the project exposes one Secrets Manager module (get, getRequired, list, refresh) that is the only importer of the vendor binding, which requires observing the deployed manager through the integration harness follow-up.";
 export const anchorAcId = null; // No AC/REQ observes SOPS-native rotation.
 export const capability = 'secretsProvider';
 export const accountBound = false;
@@ -53,7 +53,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (enc.status !== 0) {
-      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native initial encrypt failed (no AC/REQ anchor) status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native initial encrypt failed (no AC anchor) status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const before = readSopsMetadata(await readFile(cipherPath, 'utf8'));
@@ -65,7 +65,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (rot.status !== 0) {
-      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native --rotate failed (no AC/REQ anchor) status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native --rotate failed (no AC anchor) status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const after = readSopsMetadata(await readFile(cipherPath, 'utf8'));

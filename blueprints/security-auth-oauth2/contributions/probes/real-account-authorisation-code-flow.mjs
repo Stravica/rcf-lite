@@ -7,10 +7,10 @@
 // probe honest-skips when the gate variables are not set, and when
 // credentials ARE supplied the probe explicitly reports that the
 // live-provider branch is not yet implemented and returns a FAIL
-// per closure addendum rule (never a misleading pass).
+// per rule (never a misleading pass).
 //
 // capability: authorisationCodeFlow.
-// Anchor (per closure): AC-10110-2 (a live public-provider smoke
+// Anchor: AC-10110-2 (a live public-provider smoke
 //   against a real IdP completes a full authorisation-code + PKCE
 //   round-trip and issues a project session).
 // accountBound: true.
@@ -24,7 +24,7 @@ export const accountBound = true;
 const SECOND_TIER_VARS = ['OAUTH2_ISSUER_URL', 'OAUTH2_CLIENT_ID', 'OAUTH2_CLIENT_SECRET', 'OAUTH2_REDIRECT_URI'];
 
 function gateResult(varName, value) {
-  // Distinguishes unset from set-but-not-true per closure addendum rule 4.
+  // Distinguishes unset from set-but-not-true per rule 4 of the master brief.
   if (value === undefined || value === '') {
     return { kind: 'unset', reason: varName };
   }
@@ -59,7 +59,7 @@ export default async function runProbe() {
   }
 
   // Second-tier variable check: one result row per unset variable
-  // per closure addendum rule 4.
+  // per rule 4 of the master brief.
   const unsetRows = [];
   for (const v of SECOND_TIER_VARS) {
     if (!process.env[v]) {

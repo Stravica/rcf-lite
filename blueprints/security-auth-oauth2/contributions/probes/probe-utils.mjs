@@ -157,7 +157,7 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
-// De-claim helper. When the third closure disputed an anchor, the row keeps its
+// De-claim helper. When the shipped AC does not observe what the probe observes, the row keeps its
 // verdict, evidence and engine as they are, but the anchor drops to null and the
 // row carries conformanceOnly:true plus a limitation string naming the AC that
 // this probe does NOT observe and why. The integration-harness follow-up (the auth integration harness follow-up)

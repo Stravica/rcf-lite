@@ -1,10 +1,9 @@
 // Hosted-identity-UI configuration probe for security-auth-clerk.
-// Conformance-only. Every row de-claims its former REQ-005 anchor
-// per _closure3.md (section 1): hosted URL validation is not
-// REQ-005's signInStrategy/hosted-component contract. The rows keep
-// their observations of the fixture URL validator; the integration
-// harness (the auth integration harness follow-up) is the surface where the AC-level
-// property becomes observable.
+// Conformance-only. Every row records anchorAcId=null with
+// a limitation naming the shipped AC whose property the fixture URL
+// validator does not observe. The integration harness follow-up is
+// the surface where the AC-level property becomes observable.
+//
 //
 // capability: hostedIdentityUi. engine: fixture. accountBound: false.
 

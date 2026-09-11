@@ -1,10 +1,9 @@
 // OIDC discovery-URL derivation and document-shape probe for
-// security-auth-keycloak. Conformance-only per _closure3.md:
-// URL construction and document validation are not the
-// boot-time fetch/population/refusal properties the ACs state.
-// Rows keep their observations against the fixture discovery
-// client; integration-harness follow-up (the auth integration harness follow-up)
-// is the surface where AC-level properties become observable.
+// security-auth-keycloak. Conformance-only. Every row records
+// anchorAcId=null with a limitation naming the shipped AC whose
+// boot-time fetch/population/refusal property the fixture discovery
+// client does not observe. The integration harness follow-up is
+// the surface where the AC-level properties become observable.
 //
 // capability: principalDirectory. engine: fixture. accountBound: false.
 

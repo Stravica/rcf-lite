@@ -1,10 +1,8 @@
-// Provider-adapter shape probe. Conformance-only per _closure3.md:
-// validator/selector calls do not exercise the missing-field,
-// boot/listener/event/controller behaviour the ACs bind; the
-// second-provider round trip and project session redirects are
-// not exercised. Rows keep local adapter observations; integration
-// harness (the auth integration harness follow-up) is where AC-level properties
-// become observable.
+// Provider-adapter shape probe. Conformance-only. Every row records
+// anchorAcId=null with a limitation naming the shipped AC whose
+// route/boot property the local validator/selector helper does not
+// exercise. The integration harness follow-up is the surface where
+// the AC-level properties become observable.
 //
 // capability: principalDirectory. engine: fixture. accountBound: false.
 

@@ -17,7 +17,7 @@ import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
 
-// Rule (closure section 1 / addendum rule 10): probes pass an
+// Rule (master-brief addendum 2 rule 10): probes pass an
 // explicit minimal env to sops children, never a spread of the
 // entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
 // HOME are forwarded; the fixture README's env-var table is the
@@ -29,7 +29,7 @@ function sopsEnv(keyPath) {
     HOME: process.env.HOME || '',
   };
 }
-const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (auth integration harness follow-up).";
+const CONFORMANCE_LIM = "security-secrets-management-AC-8102-1: probe drives the SOPS binary at the crypto layer; the AC states the project exposes one Secrets Manager module (get, getRequired, list, refresh) that is the only importer of the vendor binding, which requires observing the deployed manager through the integration harness follow-up.";
 export const anchorAcId = null; // No AC/REQ observes SOPS-native mismatched-key refusal.
 export const capability = 'secretsProvider';
 export const accountBound = false;

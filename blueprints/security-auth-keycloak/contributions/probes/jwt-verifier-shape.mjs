@@ -1,9 +1,9 @@
 // JWT verifier shape probe for security-auth-keycloak.
-// Conformance-only per _closure3.md: local RS256 sign+verify on
-// throwaway keys does not observe the JWKS cache/kid behaviour,
-// the audit event or a verified-token session; rows keep their
-// verifier observations. Integration harness (the auth integration harness follow-up)
-// is the surface where the AC-level properties become observable.
+// Conformance-only. Every row records anchorAcId=null with a
+// limitation naming the shipped AC whose JWKS/handler/audit
+// property the local RS256 sign+verify observation does not
+// exercise. The integration harness follow-up is the surface where
+// the AC-level properties become observable.
 //
 // capability: credentialSelfService. engine: fixture. accountBound: false.
 
@@ -23,7 +23,7 @@ const LIM_KID = 'security-auth-keycloak-AC-11103-1: probe verifies against an in
 const LIM_SIG = 'security-auth-keycloak-AC-11104-2: probe verifies against a static public key; the AC requires refresh-then-refuse when the kid is unpublished, needs the integration harness (the auth integration harness follow-up).';
 const LIM_EXP = 'security-auth-keycloak-AC-11104-1: probe checks expiry-refusal on a synthetic token; the AC requires session absence + 4xx + audit event at the request handler, needs the integration harness (the auth integration harness follow-up).';
 const LIM_ISS = 'security-auth-keycloak-AC-11117-7: probe observes iss mismatch refusal; the AC states an audit event with reasonClass=issuer_mismatch is emitted at the handler, needs the integration harness (the auth integration harness follow-up).';
-const LIM_ALG = 'security-auth-keycloak-REQ-003: probe observes alg=none refusal at the verifier; REQ-003 covers the verifier interface contract at the TAC-1202 boundary, which the integration harness (the auth integration harness follow-up) exercises.';
+const LIM_ALG = 'security-auth-keycloak-AC-11104-2: probe observes alg=none refusal on the local verifier; the AC states the verifier refuses a token signed under an unpublished key with KEYCLOAK_JWT_SIGNATURE_INVALID after one JWKS refresh, which requires observing the deployed verifier through the integration harness follow-up.';
 
 export default async function runProbe() {
   const { generateThrowawayKeypair, signRs256, verifyRs256 } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'jwt-verifier.mjs')).href);
@@ -80,7 +80,7 @@ export default async function runProbe() {
     verdict: !badAlg.ok && /alg must be RS256/.test(badAlg.error) ? 'pass' : 'fail',
     detail: `alg=none refused: ok=${badAlg.ok} error=${JSON.stringify(badAlg.error)}`,
     evidence: { verifierReturn: badAlg },
-  }, { ac: 'security-auth-keycloak-REQ-003', limitation: LIM_ALG }));
+  }, { ac: 'security-auth-keycloak-AC-11104-2', limitation: LIM_ALG }));
 
   return { results, extra: {} };
 }

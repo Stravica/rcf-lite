@@ -2,16 +2,12 @@
 // code flow. Boots the fixture's local mock authorisation server
 // (a hand-rolled RFC 6749 / RFC 7636 stub) on a port in the security
 // family's declared 47400-47449 range and drives the full code flow
-// against it end to end.
-//
-// Conformance-only per _closure3.md. The mock is a fixture, not the
-// OAuth2 engine (per closure addendum rule 2). Rows /authorize,
-// /token, /callback-check and PKCE-mismatch keep their observations
-// but the AC anchors drop to null and each row records a limitation
-// naming the AC that IS observable only in the integration harness
-// (the auth integration harness follow-up). preExchange is now OBSERVED from the
-// mock's requestNo record ordering (callback runs before /token
-// only if the token exchange has not consumed the code yet), not
+// against it end to end. The mock is a fixture, not a live IdP;
+// every row records anchorAcId=null with a limitation naming the
+// shipped AC whose route-level property the fixture-layer
+// observation does not exercise. preExchange is OBSERVED from the
+// mock's requestNo record ordering (callback runs before /token only
+// if the token exchange has not consumed the code yet), not
 // asserted as a constant.
 //
 // capability: authorisationCodeFlow. engine: fixture. accountBound: false.

@@ -1,55 +1,38 @@
-// Real-account sign-in-token surface probe for security-auth-clerk.
+// Real-account sign-in-token surface smoke for security-auth-clerk.
 //
-// Scope of observation. The blueprint's session-inventory
-// AC-9112-1 (a `list()` call from an authenticated caller returns
-// one row per active project session, currentSession=true|false,
-// deviceLabel, lastActive) and AC-9112-5 (revoke of an unknown
-// session refuses without a side effect) both require an
-// authenticated browser sign-in flow: Clerk's Backend API does
-// not create authenticated sessions read-and-write-only from the
-// server side. (Sessions are created by Clerk's Frontend API
-// exchanging a `sign_in_token` via a browser; the Backend API
-// exposes list/get/revoke/refresh/verify on the Sessions resource
-// but no create. See the Sessions and Sign-in-Tokens tags at
-// https://clerk.com/docs/reference/backend-api verifiedOn
-// 2026-09-11.) The property AC-9112-1 / AC-9112-5 name is not
-// observable from this surface; those rows require the shelf-
-// level integration harness for auth blueprints noted in the
-// closure follow-up.
+// Scope of observation. The blueprint's session-inventory ACs bind
+// authenticated browser sessions and inventory operations that
+// Clerk's Backend API cannot author from the server side (Sessions
+// are created by Clerk's Frontend API in a browser flow; the
+// Backend API exposes only list/get/revoke/refresh/verify). This
+// probe therefore does not observe the session-inventory
+// properties AC-9112-1, AC-9112-3, AC-9112-4 or AC-9112-5 name;
+// each row is emitted with `anchorAcId: null` and a limitation
+// citing the nearest shipped session-inventory AC whose runtime
+// property the probe does not observe.
 //
-// What THIS probe observes. The Backend API's sign-in-token
-// surface end-to-end: create a scratch user, mint a sign-in
-// token for that user with `POST /v1/sign_in_tokens`, capture the
-// token id and X-Request-Id, revoke it with
-// `POST /v1/sign_in_tokens/{id}/revoke`, and re-fetch the token
-// to observe the `revoked` status flip. Then delete the user in
-// the finally block. Positive evidence per rule 7d: the Clerk
-// request-id header on every call, the Clerk-assigned token id
-// (created-then-revoked resource id in the token's lifecycle
-// state, shape 3), and the HTTP statuses.
+// What THIS probe drives at the Backend API surface. Create a
+// scratch user; mint a sign-in token for that user with
+// `POST /v1/sign_in_tokens`; capture the token id and X-Request-Id;
+// revoke it with `POST /v1/sign_in_tokens/{id}/revoke`; re-fetch
+// the token to observe the `revoked` status flip (or 404). Delete
+// the user in the finally block. Positive evidence per rule 7d is
+// preserved: the Clerk request-id header on every call, the
+// Clerk-assigned token id (created-then-revoked resource id in the
+// token's lifecycle state, shape 3), and the HTTP statuses.
 //
-// Anchor. REQ-008 (Runtime acceptance rides a real Clerk
-// development instance): this probe proves the sign-in-token
-// surface is reachable and behaves as the Backend API docs
-// specify for the project's live Clerk dev instance. The
-// AC-9112-1 / AC-9112-5 rows are not observable at this surface
-// and the row's `detail` says so.
 // engine: clerk-backend-api (live) or skip:CI_HAS_CLERK_ACCOUNT.
 // accountBound: true.
 
 import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } from './probe-utils.mjs';
 
-// Conformance-only. _closure3.md de-claimed REQ-008 for this probe.
-// The rows keep their real HTTP evidence (X-Request-IDs, token ids,
-// revoke-then-404 lifecycle observation); anchor drops to null and
-// each row records a limitation naming the AC that IS observable
-// only in the integration harness (the auth integration harness follow-up).
 export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = true;
-const LIM_MINT = 'security-auth-clerk-AC-9112-3: probe drives sign-in-token mint on the Backend API; the AC binds session revocation by session id from the inventory surface, needs a browser-driven runner (auth integration harness follow-up).';
-const LIM_REVOKE = 'security-auth-clerk-AC-9112-4: probe drives sign-in-token revoke on the Backend API; the AC binds project session revocation, needs the integration harness (the auth integration harness follow-up).';
-const LIM_NOTOBS = 'security-auth-clerk-AC-9112-1: two shaped active sessions cannot be authored server-side against the Clerk Backend API; the AC needs a browser-driven runner (auth integration harness follow-up).';
+const LIM_MINT = 'security-auth-clerk-AC-9112-3: probe drives the Backend API sign-in-token mint from a probe process; the AC binds revokeAllExceptCurrent semantics on the project session-inventory interface, which requires a browser-driven runner (the integration harness follow-up).';
+const LIM_REVOKE = 'security-auth-clerk-AC-9112-4: probe drives the Backend API sign-in-token revoke from a probe process; the AC binds SESSION_INVENTORY_UNAUTHENTICATED refusal at the project inventory operations, which requires a browser-driven runner (the integration harness follow-up).';
+const LIM_NOT_OBS_1 = 'security-auth-clerk-AC-9112-1: two shaped active sessions cannot be authored server-side against the Clerk Backend API; the AC needs a browser-driven runner (the integration harness follow-up).';
+const LIM_NOT_OBS_5 = 'security-auth-clerk-AC-9112-5: revoke against an unowned or already-revoked session id cannot be authored server-side against the Backend API; the AC needs a browser-driven runner (the integration harness follow-up).';
 
 const BASE_URL_DEFAULT = 'https://api.clerk.com/v1';
 
@@ -130,17 +113,32 @@ export default async function runProbe() {
   const results = [];
   const rowSignIn = { anchorAcId: null, conformanceOnly: true, limitation: LIM_MINT, capability, verdict: 'fail', detail: '' };
   const rowRevoke = { anchorAcId: null, conformanceOnly: true, limitation: LIM_REVOKE, capability, verdict: 'fail', detail: '' };
-  const rowNotObservable = {
+  const rowNotObservable1 = {
     anchorAcId: null,
     conformanceOnly: true,
-    limitation: LIM_NOTOBS,
+    limitation: LIM_NOT_OBS_1,
     capability,
     verdict: 'pass',
     detail:
-      'AC-9112-1 (two shaped active sessions) and AC-9112-5 (revoke absence) are NOT observable at the Backend API surface: Clerk creates authenticated sessions via the Frontend API in a browser flow, and the Backend API exposes only list/get/revoke/refresh/verify on Sessions (no server-side session-create). This probe anchors REQ-008 and drives the sign-in-token surface (create -> revoke -> re-fetch) that IS reachable read-and-write-only from the Backend API. Full AC-9112-1 / AC-9112-5 observation requires a shelf-level browser-driven auth harness, tracked as a separate follow-up.',
+      'AC-9112-1 (two shaped active sessions per Backend API list()) is not observable at the Backend API surface: Clerk creates authenticated sessions via the Frontend API in a browser flow, and the Backend API exposes only list/get/revoke/refresh/verify on Sessions (no server-side session-create). Full AC-9112-1 observation requires a shelf-level browser-driven auth harness, tracked as a separate follow-up.',
     evidence: {
-      notObservableACs: ['security-auth-clerk-AC-9112-1', 'security-auth-clerk-AC-9112-5'],
+      notObservableACs: ['security-auth-clerk-AC-9112-1'],
       notObservableReason: 'Clerk Backend API cannot create authenticated browser sessions from the server side; observation requires a Frontend-API-driven browser flow.',
+      docsUrl: 'https://clerk.com/docs/reference/backend-api',
+      docsVerifiedOn: '2026-09-11',
+    },
+  };
+  const rowNotObservable5 = {
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_NOT_OBS_5,
+    capability,
+    verdict: 'pass',
+    detail:
+      'AC-9112-5 (revoke against an unowned or already-revoked session id refuses with SESSION_INVENTORY_UNKNOWN_SESSION and audit event) is not observable at the Backend API surface: the AC is bound to the project session-inventory interface driven from an authenticated caller, and the Backend API cannot create such an authenticated caller server-side. Full AC-9112-5 observation requires a shelf-level browser-driven auth harness, tracked as a separate follow-up.',
+    evidence: {
+      notObservableACs: ['security-auth-clerk-AC-9112-5'],
+      notObservableReason: 'AC-9112-5 binds a project session-inventory refusal that requires an authenticated project caller; the Backend API cannot create one server-side.',
       docsUrl: 'https://clerk.com/docs/reference/backend-api',
       docsVerifiedOn: '2026-09-11',
     },
@@ -149,29 +147,27 @@ export default async function runProbe() {
   let createdTokenId = null;
 
   try {
-    // 1. Create the scratch principal.
     const created = await clerkFetch({
       baseUrl, path: '/users', method: 'POST', token,
       body: {
         email_address: [emailAddress],
-        first_name: 'QAProbe', last_name: short,
-        username: `qa_e_clerk_${short}`,
+        first_name: 'ProbeUser', last_name: short,
+        username: `probe_clerk_${short}`,
         skip_password_requirement: true,
       },
     });
     evidence.calls.push({ verb: 'POST /users', status: created.status, requestId: created.requestId, resourceId: created.payload && created.payload.id });
     if (!created.ok || !(created.payload && created.payload.id)) {
-      rowSignIn.detail = `REQ-008: precondition POST /v1/users failed status=${created.status} requestId=${created.requestId} bodyExcerpt=${JSON.stringify(created.payload).slice(0, 200)}`;
+      rowSignIn.detail = `precondition POST /v1/users failed status=${created.status} requestId=${created.requestId} bodyExcerpt=${JSON.stringify(created.payload).slice(0, 200)}`;
       rowSignIn.evidence = { call: evidence.calls[evidence.calls.length - 1] };
       rowRevoke.detail = 'skipped: precondition POST /users failed';
       rowRevoke.evidence = { skipped: 'precondition failed' };
-      results.push(rowSignIn, rowRevoke, rowNotObservable);
+      results.push(rowSignIn, rowRevoke, rowNotObservable1, rowNotObservable5);
       return { results, extra: evidence };
     }
     createdUserId = created.payload.id;
     evidence.createdUserId = createdUserId;
 
-    // 2. POST /v1/sign_in_tokens for that user.
     const mint = await clerkFetch({
       baseUrl, path: '/sign_in_tokens', method: 'POST', token,
       body: { user_id: createdUserId, expires_in_seconds: 300 },
@@ -184,8 +180,8 @@ export default async function runProbe() {
     createdTokenId = (mint.payload && mint.payload.id) || null;
     rowSignIn.verdict = mintOk ? 'pass' : 'fail';
     rowSignIn.detail = mintOk
-      ? `REQ-008 (sign-in-token mint reachable at the live Clerk dev instance): POST /v1/sign_in_tokens user_id=${createdUserId} status=${mint.status} requestId=${mint.requestId} tokenId=${createdTokenId} tokenStatus=pending.`
-      : `REQ-008 mint failure: status=${mint.status} requestId=${mint.requestId} bodyExcerpt=${JSON.stringify(mint.payload).slice(0, 200)}`;
+      ? `Clerk Backend API sign-in-token mint observed: POST /v1/sign_in_tokens user_id=${createdUserId} status=${mint.status} requestId=${mint.requestId} tokenId=${createdTokenId} tokenStatus=pending.`
+      : `Clerk Backend API sign-in-token mint failed: status=${mint.status} requestId=${mint.requestId} bodyExcerpt=${JSON.stringify(mint.payload).slice(0, 200)}`;
     rowSignIn.evidence = {
       requestId: mint.requestId,
       status: mint.status,
@@ -197,11 +193,10 @@ export default async function runProbe() {
     if (!createdTokenId) {
       rowRevoke.detail = 'skipped: mint did not return a token id';
       rowRevoke.evidence = { skipped: 'no tokenId' };
-      results.push(rowSignIn, rowRevoke, rowNotObservable);
+      results.push(rowSignIn, rowRevoke, rowNotObservable1, rowNotObservable5);
       return { results, extra: evidence };
     }
 
-    // 3. Revoke the sign-in token.
     const revoked = await clerkFetch({
       baseUrl, path: `/sign_in_tokens/${createdTokenId}/revoke`, method: 'POST', token,
     });
@@ -209,7 +204,6 @@ export default async function runProbe() {
       verb: `POST /sign_in_tokens/${createdTokenId}/revoke`, status: revoked.status, requestId: revoked.requestId,
       status_flag: revoked.payload && revoked.payload.status,
     });
-    // 4. Re-fetch the token to prove the revoke landed.
     const readBack = await clerkFetch({
       baseUrl, path: `/sign_in_tokens/${createdTokenId}`, method: 'GET', token,
     });
@@ -218,17 +212,12 @@ export default async function runProbe() {
       status_flag: readBack.payload && readBack.payload.status,
     });
     const revokedFlag = readBack.payload && (readBack.payload.status === 'revoked' || readBack.payload.revoked === true);
-    // Clerk's Backend API returns 404 for a revoked-and-cleared token
-    // (the resource no longer resolves). Either shape -- 200 with a
-    // revoked status flag, or 404 not-found -- is positive evidence
-    // the revoke landed and the token no longer resolves to an active
-    // resource.
     const goneAfterRevoke = revokedFlag || readBack.status === 404 || readBack.status === 410;
     const revokeOk = revoked.ok && goneAfterRevoke;
     rowRevoke.verdict = revokeOk ? 'pass' : 'fail';
     rowRevoke.detail = revokeOk
-      ? `REQ-008 (sign-in-token revoke lifecycle reachable): revoke POST status=${revoked.status} requestId=${revoked.requestId}; re-fetch status=${readBack.status} tokenStatus=${readBack.payload && readBack.payload.status || (readBack.status === 404 ? 'gone-404' : 'unknown')}; the created-then-revoked tokenId (${createdTokenId}) proves the token lifecycle transition on the live Clerk dev instance (404 after revoke means the resource no longer resolves; equivalent-or-stronger evidence than a revoked-status flag).`
-      : `REQ-008 revoke failure: revokeStatus=${revoked.status} readBackStatus=${readBack.status} readBackStatusFlag=${readBack.payload && readBack.payload.status}`;
+      ? `Clerk Backend API sign-in-token revoke observed: revoke POST status=${revoked.status} requestId=${revoked.requestId}; re-fetch status=${readBack.status} tokenStatus=${readBack.payload && readBack.payload.status || (readBack.status === 404 ? 'gone-404' : 'unknown')}; the created-then-revoked tokenId (${createdTokenId}) records the Backend API lifecycle transition (404 after revoke means the resource no longer resolves).`
+      : `Clerk Backend API sign-in-token revoke failed: revokeStatus=${revoked.status} readBackStatus=${readBack.status} readBackStatusFlag=${readBack.payload && readBack.payload.status}`;
     rowRevoke.evidence = {
       revokeStatus: revoked.status,
       revokeRequestId: revoked.requestId,
@@ -239,13 +228,13 @@ export default async function runProbe() {
       createdThenRevokedTokenId: createdTokenId,
     };
 
-    results.push(rowSignIn, rowRevoke, rowNotObservable);
+    results.push(rowSignIn, rowRevoke, rowNotObservable1, rowNotObservable5);
   } catch (err) {
     rowSignIn.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
     rowSignIn.evidence = { threw: err && err.message ? err.message : String(err) };
     rowRevoke.detail = 'skipped: probe threw before completing';
     rowRevoke.evidence = { skipped: 'threw' };
-    results.push(rowSignIn, rowRevoke, rowNotObservable);
+    results.push(rowSignIn, rowRevoke, rowNotObservable1, rowNotObservable5);
     evidence.threw = err && err.message ? err.message : String(err);
   } finally {
     if (createdUserId) {

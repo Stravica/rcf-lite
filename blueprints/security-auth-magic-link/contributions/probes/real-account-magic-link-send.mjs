@@ -1,25 +1,19 @@
-// Real-account magic-link send probe. Exercises AC-3110-1 (the
-// email-delivery-adapter contract) end-to-end against a real Resend
-// binding. The probe issues a real magic-link token via the fixture
-// manager, constructs the sign-in URL, and hands the message to the
-// fixture's `email-delivery-adapter` whose default binding is Resend.
-// The probe inspects the adapter's returned shape (`{ ok,
-// providerStatus, providerMessageId, error }`) -- the ONLY surface the
-// magic-link routes and managers talk to per AC-3110-1 -- and then
-// verifies the token locally so the end-to-end shape (issue + send-
-// through-adapter + verify) is exercised in a single run.
+// Real-account magic-link send smoke. Conformance-only. The probe
+// issues a real magic-link token via the fixture manager, hands the
+// resulting message to the fixture's `email-delivery-adapter` whose
+// default binding is Resend, and verifies the issued token locally.
+// The probe observes what the adapter returned and what the fixture
+// manager did; it does not observe the shipped ACs on the project's
+// routes and managers, and the row records that limit alongside the
+// raw adapter evidence it did capture.
 //
-// Positive evidence per rule 7d: the Resend-assigned `providerMessageId`
-// returned by the adapter (created-resource id), the adapter's
-// `providerStatus` HTTP code, and the `requestId` header the adapter
-// captures. All three are read off the adapter's return, not off a
-// direct vendor call -- the AC's surface is the adapter, not Resend.
+// Positive evidence per rule 7d that is preserved on the row: the
+// Resend-assigned `providerMessageId` returned by the adapter
+// (created-resource id), the adapter's `providerStatus` HTTP code,
+// and the `requestId` header the adapter captures. All three are
+// read off the adapter's return, not off a direct vendor call.
 //
 // capability: principalDirectory.
-// Anchor: AC-3110-1 (email-delivery-adapter's send returns
-// `{ ok, providerStatus, providerMessageId, error }`; the routes
-// and managers invoke ONLY the declared method with ONLY the
-// declared arguments and consume ONLY the declared fields).
 // engine: resend (live) or skip:CI_HAS_RESEND_ACCOUNT.
 // accountBound: true.
 
@@ -34,17 +28,17 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-magic-link', 'src');
 
-// Conformance-only per _closure3.md: the Resend adapter is called,
-// but the row does not prove that project routes and managers use
-// ONLY the adapter or contain no provider-specific fields. Real
-// HTTP evidence (providerMessageId, providerStatus, requestId) is
-// kept; anchor drops to null. The row now requires ALL FOUR
-// declared keys (ok, providerStatus, providerMessageId, error) ,
-// the previous permissive check allowed missing `error`.
 export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = true;
-const DECLAIM_LIMITATION = 'security-auth-magic-link-AC-3110-1: probe observes the adapter return only; the AC states project routes and managers invoke ONLY the declared adapter method with ONLY the declared arguments and consume ONLY the declared fields, needs the integration harness (the auth integration harness follow-up).';
+// AC-3110-1 binds the routes-and-managers side of the
+// email-delivery-adapter contract: only the declared send method,
+// only the declared arguments, only the declared fields consumed.
+// This probe drives the adapter directly from a probe process, so
+// it cannot observe the routes-and-managers property; the row
+// records that limit next to the adapter-return evidence it did
+// capture.
+const DECLAIM_LIMITATION = 'security-auth-magic-link-AC-3110-1: probe drives the email-delivery-adapter directly from a probe process; the AC states the project routes and managers invoke only the declared adapter method with only the declared arguments and consume only the declared fields, which requires observing the deployed runtime through the integration harness follow-up.';
 
 function gateResult(varName, value) {
  if (value === undefined || value === '') return { kind: 'unset', reason: varName };
@@ -89,28 +83,19 @@ export default async function runProbe() {
  const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);
  const { createResendAdapter } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'email-delivery-adapter.mjs')).href);
 
- // 1. Local manager mints a real single-use token.
  const mgr = createMagicLinkManager({ ttlSeconds: 900 });
  const issued = await mgr.issue({ emailAddress: to });
  const magicLink = `https://app.example.com/auth/magic?token=${encodeURIComponent(issued.token)}`;
 
- // 2. Send through the adapter (Resend binding). The probe calls
- // ONLY the adapter's declared method with ONLY the declared
- // arguments -- no direct vendor call.
  const adapter = createResendAdapter({ apiKey: process.env.RESEND_API_KEY, baseUrl, from });
  const outcome = await adapter.send({
  to,
- subject: 'QA-e-magic-link-send probe',
+ subject: 'Sign-in link',
  textBody: `Sign in to your account by opening this magic link: ${magicLink}\n\nIf you did not request this, ignore this email.`,
  });
 
- // 3. Local verify -- proves the end-to-end shape (issue + send-through-adapter + verify).
  const verified = await mgr.verify({ token: issued.token, emailAddress: to });
 
- // Adapter outcome shape observation: the outcome carries ALL FOUR
- // declared fields (`ok`, `providerStatus`, `providerMessageId`,
- // `error`) , no missing keys, no unknown keys except `requestId`
- // which is documented as a diagnostic side-channel.
  const declaredKeys = ['ok', 'providerStatus', 'providerMessageId', 'error'];
  const outcomeKeys = Object.keys(outcome).sort();
  const extraKeys = outcomeKeys.filter((k) => !declaredKeys.includes(k));
@@ -122,9 +107,9 @@ export default async function runProbe() {
  if (adapterOk && shapeOk && verifyOk) {
  resultRow.verdict = 'pass';
  resultRow.detail =
- `AC-3110-1 (adapter.send returns { ok, providerStatus, providerMessageId, error } shape end-to-end via the shipped adapter): ` +
+ `Resend adapter return observed at the probe boundary: ` +
  `outcome.ok=true providerMessageId=${outcome.providerMessageId} providerStatus=${outcome.providerStatus} ` +
- `(requestId=${outcome.requestId || 'n/a'}); local verify consumed the token single-use and returned ok=true.`;
+ `(requestId=${outcome.requestId || 'n/a'}); fixture magic-link manager verify consumed the token single-use and returned ok=true.`;
  resultRow.evidence = {
  providerMessageId: outcome.providerMessageId,
  providerStatus: outcome.providerStatus,
@@ -142,7 +127,7 @@ export default async function runProbe() {
  requestId: outcome.requestId || null,
  });
  } else {
- resultRow.detail = `AC-3110-1 failure: outcome.ok=${outcome && outcome.ok} shapeOk=${shapeOk} extraKeys=${JSON.stringify(extraKeys)} providerMessageId=${outcome && outcome.providerMessageId} providerStatus=${outcome && outcome.providerStatus} error=${outcome && outcome.error} verifyOk=${verifyOk}`;
+ resultRow.detail = `adapter return did not match the declared shape: outcome.ok=${outcome && outcome.ok} shapeOk=${shapeOk} extraKeys=${JSON.stringify(extraKeys)} providerMessageId=${outcome && outcome.providerMessageId} providerStatus=${outcome && outcome.providerStatus} error=${outcome && outcome.error} verifyOk=${verifyOk}`;
  resultRow.evidence = { outcome, outcomeKeys, shapeOk, verifyOk };
  }
  } catch (err) {

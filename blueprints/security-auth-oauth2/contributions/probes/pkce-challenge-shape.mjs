@@ -1,13 +1,9 @@
-// PKCE challenge-and-verify shape probe. Conformance-only per
-// _closure3.md: helper derivation is not the project sign-in
-// route, verifier-mismatch collision is not invalid_grant with
-// flow termination, and REQ-002 describes provider-record fields
-// rather than a verifier length band. Rows keep their local
-// derivation observations; integration harness
-// (the auth integration harness follow-up) is the surface where AC-level
-// properties become observable.
+// PKCE challenge-and-verify shape probe. Conformance-only. Every
+// row records anchorAcId=null with a limitation naming the shipped
+// AC whose route-level flow property the local helper derivation
+// does not observe. The integration harness follow-up is the
+// surface where the AC-level properties become observable.
 //
-// capability: authorisationCodeFlow. engine: fixture. accountBound: false.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
@@ -24,7 +20,7 @@ export const accountBound = false;
 
 const LIM_HAPPY = 'security-auth-oauth2-AC-10101-1: probe checks S256 derivation only; the AC states the project sign-in route redirects to the provider /authorize with a valid code_challenge, needs the integration harness (the auth integration harness follow-up).';
 const LIM_MISMATCH = 'security-auth-oauth2-AC-10103-2: probe observes verifier-hash divergence only; the AC states invalid_grant at /token, flow termination, and absence of session issue, needs the integration harness (the auth integration harness follow-up).';
-const LIM_LEN = 'security-auth-oauth2-REQ-002: REQ-002 describes provider-record fields, not a PKCE verifier length band; the length band belongs to RFC 7636 not this REQ.';
+const LIM_LEN = 'security-auth-oauth2-AC-10101-1: probe checks the local verifier length band against RFC 7636 sec 4.1; the AC states the project sign-in route redirects to the provider /authorize with a valid code_challenge, which requires observing the deployed route through the integration harness follow-up.';
 
 export default async function runProbe() {
   const { generatePkcePair } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'mock-authorization-server.mjs')).href);
@@ -56,7 +52,7 @@ export default async function runProbe() {
     detail: `RFC 7636 sec 4.1 verifier length in [43,128]: observed=${pair.verifier.length}.`,
     evidence: { verifierLength: pair.verifier.length, min: 43, max: 128 },
     vendorCitation: { url: 'https://datatracker.ietf.org/doc/html/rfc7636#section-4.1', verifiedOn: '2026-09-11' },
-  }, { ac: 'security-auth-oauth2-REQ-002', limitation: LIM_LEN }));
+  }, { ac: 'security-auth-oauth2-AC-10101-1', limitation: LIM_LEN }));
 
   return { results, extra: {} };
 }

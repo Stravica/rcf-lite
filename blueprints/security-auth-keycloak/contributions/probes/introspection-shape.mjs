@@ -1,11 +1,9 @@
 // RFC 7662 introspection request/response shape probe for
-// security-auth-keycloak. Conformance-only per _closure3.md:
-// fixture parser observations are not HTTP introspection round-
-// trips, and REQ-004 mandates HTTP Basic authentication that a
-// form-body builder does not observe. Rows keep their local
-// parser observations; the integration harness
-// (the auth integration harness follow-up) is the surface where the AC-level
-// properties become observable.
+// security-auth-keycloak. Conformance-only. Every row records
+// anchorAcId=null with a limitation naming the shipped AC whose
+// HTTP introspection round-trip the fixture parser observation does
+// not exercise. The integration harness follow-up is the surface
+// where the AC-level properties become observable.
 //
 // capability: sessionInventory. engine: fixture. accountBound: false.
 
@@ -21,7 +19,7 @@ export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = false;
 
-const LIM_REQ = 'security-auth-keycloak-REQ-004: probe builds an introspection form body only; REQ-004 requires HTTP Basic authentication over the wire, needs a real Keycloak endpoint (auth integration harness follow-up).';
+const LIM_REQ = 'security-auth-keycloak-AC-11105-1: probe builds an introspection form body against the fixture parser; the AC states the client issues a real POST to the introspection endpoint with HTTP Basic authentication and consumes the JSON body, which requires observing the deployed client through the integration harness follow-up.';
 const LIM_PARSE = 'security-auth-keycloak-AC-11105-1: probe parses a fabricated introspection object; the AC states an opaque token round-trips through the introspection endpoint, needs the integration harness (the auth integration harness follow-up).';
 const LIM_INACTIVE = 'security-auth-keycloak-AC-11105-2: probe observes fixture parser only; the AC requires the client-layer refusal (4xx + KEYCLOAK_INTROSPECTION_INACTIVE + no cookie + audit event), needs the integration harness (the auth integration harness follow-up).';
 const LIM_MALFORMED = 'security-auth-keycloak-AC-11105-3: probe parses a malformed shape locally; the AC states the endpoint returns a non-2xx response with KEYCLOAK_INTROSPECTION_ENDPOINT_ERROR, needs the integration harness (the auth integration harness follow-up).';
@@ -52,7 +50,7 @@ export default async function runProbe() {
     verdict: hasFields ? 'pass' : 'fail',
     detail: `form built (client_secret redacted): ok=${req.ok} bodyKeys=${JSON.stringify(reqEv.bodyKeys)}`,
     evidence: { adapterReturn: reqEv },
-  }, { ac: 'security-auth-keycloak-REQ-004', limitation: LIM_REQ }));
+  }, { ac: 'security-auth-keycloak-AC-11105-1', limitation: LIM_REQ }));
 
   const badReq = buildIntrospectionForm({ token: '', clientId: 'x', clientSecret: 'PLACEHOLDER_SECRET_2' });
   results.push(deClaim({
@@ -60,7 +58,7 @@ export default async function runProbe() {
     verdict: !badReq.ok && /token required/.test(badReq.error) ? 'pass' : 'fail',
     detail: `empty-token refusal: ok=${badReq.ok} error=${JSON.stringify(badReq.error)}`,
     evidence: { adapterReturn: { ok: badReq.ok, error: badReq.error } },
-  }, { ac: 'security-auth-keycloak-REQ-004', limitation: LIM_REQ }));
+  }, { ac: 'security-auth-keycloak-AC-11105-1', limitation: LIM_REQ }));
 
   const active = parseIntrospectionResponse({ active: true, sub: 'user-1', scope: 'openid profile', username: 'alice' });
   results.push(deClaim({

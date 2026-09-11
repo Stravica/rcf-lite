@@ -1,29 +1,34 @@
 // Shared shape asserter for the five security-family criterion-e
-// anatomy tests. Enforces the four 7d evidence shapes per _closure3.md
-// addendum: field COMBINATIONS, not single keys.
+// anatomy tests. Enforces the four 7d evidence shapes by field
+// COMBINATIONS, not single keys.
 //
 // Four accepted shapes:
-//   1. httpRoundTrip    , requestId (truthy) AND status (truthy) AND
-//                         at least one body-carrying key (bodyExcerpt,
-//                         bodyKeys, bodyRedacted, adapterReturn,
-//                         parserReturn, validatorReturn, verifierReturn,
-//                         payload, calls) OR a resource id
-//                         (createdUserId, createdThenRevokedTokenId,
-//                         resourceId, providerMessageId, tokenId).
-//   2. inventoryDiff    , a created-then-deleted resource id
-//                         (createdUserId or createdThenRevokedTokenId
-//                         or createdId or resourceId) AND an absence
-//                         observation (listPostAbsence truthy or
-//                         listPreContainsCreated truthy).
-//   3. deploy           , deployId or deploymentUrl (non-empty).
-//   4. conformanceOnly  , row carries `conformanceOnly: true` AND
-//                         `limitation` is a non-empty string whose
-//                         first token names an AC or REQ (matches
-//                         /^security-auth-[a-z]+-(AC|REQ)-\d+/ or a
-//                         bare AC-\d+ / REQ-\d+).
-//   Skip                , row carries `accountBoundSkipped: true`
-//                         AND `reason` names one env var
-//                         (non-empty string, no whitespace).
+//   1. httpRoundTrip   , requestId (truthy) AND status (truthy) AND
+//                        at least one body-carrying key (bodyExcerpt,
+//                        bodyKeys, bodyRedacted, adapterReturn,
+//                        parserReturn, validatorReturn, verifierReturn,
+//                        payload, calls) OR a resource id
+//                        (createdUserId, createdThenRevokedTokenId,
+//                        resourceId, providerMessageId, tokenId).
+//   2. inventoryDiff   , a created-then-deleted resource id
+//                        (createdUserId or createdThenRevokedTokenId
+//                        or createdId or resourceId) AND a post-delete
+//                        ABSENCE observation (listPostAbsence truthy).
+//                        Pre-delete presence never satisfies this
+//                        shape on its own.
+//   3. deploy          , deployId or deploymentUrl (non-empty).
+//   4. conformanceOnly , row carries `conformanceOnly: true` AND
+//                        `anchorAcId === null` AND `limitation` is a
+//                        non-empty string that begins with a shipped
+//                        AC id of shape `<slug>-AC-<num>-<num>` (or
+//                        bare `AC-<num>-<num>`). REQ-shaped anchors
+//                        are refused, per the ratified rule that
+//                        conformance-only rows cite the nearest
+//                        SHIPPED AC whose property they do not
+//                        observe.
+//   Skip               , row carries `accountBoundSkipped: true` AND
+//                        `reason` names one env var (non-empty,
+//                        no whitespace).
 //
 // Bare-diagnostic bodies fail on purpose:
 //   {status: 0}, {reason: 'x'} (without accountBoundSkipped),
@@ -40,9 +45,13 @@ const RESOURCE_ID_KEYS = [
   'createdUserId', 'createdThenRevokedTokenId', 'createdId', 'resourceId',
   'providerMessageId', 'tokenId',
 ];
-const ABSENCE_KEYS = ['listPostAbsence', 'listPreContainsCreated'];
+const ABSENCE_KEYS = ['listPostAbsence'];
 const DEPLOY_KEYS = ['deployId', 'deploymentUrl'];
-const LIM_ANCHOR_RE = /^(security-[a-z0-9-]+-)?(AC|REQ)-\d+/;
+// Limitation must open with a shipped AC id. `AC-<num>-<num>` bare, or
+// prefixed by a slug segment. A `REQ-` prefix is rejected: REQ ids are
+// not shipped acceptance criteria and cannot stand in as a limitation
+// anchor.
+const LIM_ANCHOR_RE = /^(?:[a-z][a-z0-9-]*-)?AC-\d+-\d+/;
 
 function truthy(v) {
   if (v === undefined || v === null) return false;
@@ -71,11 +80,17 @@ export function classifyShape(row) {
   }
 
   if (row.conformanceOnly === true) {
-    const lim = row.limitation;
-    if (typeof lim === 'string' && lim.length > 0 && LIM_ANCHOR_RE.test(lim)) {
-      return { shape: 'conformanceOnly', ok: true };
+    if (row.anchorAcId !== null) {
+      return { shape: 'conformanceOnly', ok: false, why: 'conformanceOnly requires anchorAcId to be exactly null' };
     }
-    return { shape: 'conformanceOnly', ok: false, why: 'conformanceOnly requires a non-empty limitation naming an AC or REQ id' };
+    const lim = row.limitation;
+    if (typeof lim !== 'string' || lim.length === 0) {
+      return { shape: 'conformanceOnly', ok: false, why: 'conformanceOnly requires a non-empty limitation' };
+    }
+    if (!LIM_ANCHOR_RE.test(lim)) {
+      return { shape: 'conformanceOnly', ok: false, why: `conformanceOnly limitation must open with a shipped AC id of shape AC-<n>-<n> (REQ-prefixed anchors are refused); got ${JSON.stringify(lim.slice(0, 60))}` };
+    }
+    return { shape: 'conformanceOnly', ok: true };
   }
 
   if (!ev) {

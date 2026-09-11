@@ -1,9 +1,8 @@
-// Keycloak role-adapter shape probe. Conformance-only per
-// _closure3.md: raw claim objects are not verified tokens, and
-// REQ-006 explicitly says roles are not remapped to a project
-// allow-list. Rows keep their fixture-adapter observations;
-// integration harness (the auth integration harness follow-up) is the surface
-// where the AC-level properties become observable.
+// Keycloak role-adapter shape probe. Conformance-only. Every row
+// records anchorAcId=null with a limitation naming the shipped AC
+// whose verified-session behaviour the raw-claim fixture-adapter
+// observation does not exercise. The integration harness follow-up
+// is the surface where the AC-level properties become observable.
 //
 // capability: roleModel. engine: fixture. accountBound: false.
 
@@ -22,7 +21,7 @@ export const accountBound = false;
 const LIM_CLIENT = 'security-auth-keycloak-AC-11107-1: probe receives a raw claim object, not a verified access token; the AC requires the client-roles path from a verified session, needs the integration harness (the auth integration harness follow-up).';
 const LIM_ABSENT = 'security-auth-keycloak-AC-11107-2: probe receives an empty raw claim object; the AC requires absent-claim behaviour on a verified session, needs the integration harness (the auth integration harness follow-up).';
 const LIM_MALFORMED = 'security-auth-keycloak-AC-11107-3: probe receives a raw claim object; the AC requires the malformed-claim refusal path on a verified session, needs the integration harness (the auth integration harness follow-up).';
-const LIM_REQ006 = 'security-auth-keycloak-REQ-006: REQ-006 explicitly says roles are NOT remapped to a project allow-list; unknown-role refusal here is a fixture adapter behaviour outside the REQ.';
+const LIM_REQ006 = 'security-auth-keycloak-AC-11107-3: probe observes an unknown-role refusal at the fixture adapter; the AC states a verified token whose expected claim path is present but not an array of strings is refused with KEYCLOAK_ROLES_MALFORMED, which requires observing the deployed adapter through the integration harness follow-up.';
 
 export default async function runProbe() {
   const { mapKeycloakRoles, knownRoles } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'role-adapter.mjs')).href);
@@ -64,7 +63,7 @@ export default async function runProbe() {
     verdict: !unknown.ok && /root-emperor/.test(unknown.error) ? 'pass' : 'fail',
     detail: `unknown-role refusal (fixture adapter): ok=${unknown.ok} error=${JSON.stringify(unknown.error)}`,
     evidence: { adapterReturn: unknown },
-  }, { ac: 'security-auth-keycloak-REQ-006', limitation: LIM_REQ006 }));
+  }, { ac: 'security-auth-keycloak-AC-11107-3', limitation: LIM_REQ006 }));
 
   return { results, extra: {} };
 }

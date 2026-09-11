@@ -10,12 +10,12 @@
 //
 // capability: secretsProvider.
 // Anchor honesty. No AC or REQ observes the SOPS-native
-//   byte-equality property this probe evidences. Per closure
+//   byte-equality property this probe evidences. Per
 //   addendum rule 1 the honest posture here is to leave the
 //   probe unanchored (anchorAcId=null) and record the evidence
 //   as vendor-conformance for ADR-902's default vendor (sops+age).
 //   The slug reads AMBER on criterion e until a manager-client
-//   probe is added that observes REQ-002 at its own boundary.
+//   probe is added that observes AC-8102-1 at the module boundary.
 // accountBound: false (real sops+age engine on this machine).
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -25,12 +25,12 @@ import { Buffer } from 'node:buffer';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
-const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (auth integration harness follow-up).";
+const CONFORMANCE_LIM = "security-secrets-management-AC-8102-1: probe drives the SOPS binary at the crypto layer; the AC states the project exposes one Secrets Manager module (get, getRequired, list, refresh) that is the only importer of the vendor binding, which requires observing the deployed manager through the integration harness follow-up.";
 export const anchorAcId = null; // No AC or REQ observes the SOPS-native encrypt/decrypt/rotation/mismatched-key property; see probe file comment.
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
-// Rule (closure section 1 / addendum rule 10): probes pass an
+// Rule (master-brief addendum 2 rule 10): probes pass an
 // explicit minimal env to sops children, never a spread of the
 // entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
 // HOME are forwarded; the fixture README's env-var table is the
@@ -77,8 +77,8 @@ export default async function runProbe() {
       anchorAcId,
       capability,
       verdict: cipherMeta.mac && cipherMeta.lastmodified && cipherMeta.recipients.includes(scope.recipient) ? 'pass' : 'fail',
-      detail: `SOPS-native ciphertext-metadata observation (vendor-conformance evidence for ADR-902's default vendor sops+age; NO AC or REQ states the SOPS-native property this probe observes; slug reads AMBER on criterion e until a manager-client probe is added that observes REQ-002 at its own boundary). mac=${cipherMeta.mac ? cipherMeta.mac.slice(0, 40) : null} lastmodified=${cipherMeta.lastmodified} recipients=${JSON.stringify(cipherMeta.recipients)}`,
-      evidence: { sopsMetadata: cipherMeta, notObservableACsOrREQs: 'SOPS-native crypto layer; slug is AMBER on criterion-e until a manager-client probe is added that observes REQ-002 at its boundary.' },
+      detail: `SOPS-native ciphertext-metadata observation (vendor-conformance evidence for ADR-902's default vendor sops+age; NO AC or REQ states the SOPS-native property this probe observes; slug reads AMBER on criterion e until a manager-client probe is added that observes the Secrets Manager module (get, getRequired, list, refresh) at its own boundary (AC-8102-1)). mac=${cipherMeta.mac ? cipherMeta.mac.slice(0, 40) : null} lastmodified=${cipherMeta.lastmodified} recipients=${JSON.stringify(cipherMeta.recipients)}`,
+      evidence: { sopsMetadata: cipherMeta, notObservableACsOrREQs: 'SOPS-native crypto layer; slug is AMBER on criterion-e until a manager-client probe is added that observes the Secrets Manager module (get, getRequired, list, refresh) at its boundary.' },
     });
 
     // Decrypt with sops --output <file> so binary bytes survive the
