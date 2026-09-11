@@ -1,5 +1,18 @@
 # security-auth-keycloak CHANGELOG
 
+## 1.4.4 - 2026-09-11
+
+- Criterion-e probe pack refinement: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (introspection `REQ-004` rows move to `AC-11105-1`; JWT `REQ-003` row moves to `AC-11104-2`; role-adapter `REQ-006` row moves to `AC-11107-3`). The retained live-branch anchor on `real-account-realm-round-trip` (`AC-11112-2`) is unchanged and honest-skips on `CI_HAS_KEYCLOAK_ACCOUNT`; when skipped the row records `engine: keycloak`, not `engine: skip:...`. Detail strings on de-claimed rows describe only what was observed at the fixture-parser or fixture-verifier surface and no longer claim a REQ or AC as observed end to end. The anatomy helper enforces conformance-only rows to satisfy `anchorAcId === null`, requires limitations to open with an `AC-<n>-<n>` id that resolves to a shipped acceptance criterion on the blueprint's user stories (REQ-prefixed anchors are refused and fabricated ids are rejected), and does not count pre-delete presence as an absence observation on the inventory-diff shape.
+
+## 1.4.3 - 2026-09-11
+
+- Every conformance-only anchor on the criterion-e probe pack is de-claimed to `conformanceOnly` with a limitation naming the shipped AC that is observable only in the integration harness follow-up; the retained live-branch anchor on `real-account-realm-round-trip` (`AC-11112-2`) is preserved and honest-skips on `CI_HAS_KEYCLOAK_ACCOUNT`. `discovery-shape`, `jwt-verifier-shape`, `introspection-shape` and `role-adapter-shape` rows keep their fixture-layer observations under the same shape.
+
+## 1.4.2 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the four declared capabilities: `discovery-shape` (principalDirectory; OIDC discovery URL derivation and validator), `jwt-verifier-shape` (credentialSelfService; node:crypto RS256 sign+verify with alg/exp/iss/signature-tamper refusal paths on throwaway keys), `introspection-shape` (sessionInventory; RFC 7662 request/response shape), `role-adapter-shape` (roleModel; realm+resource-access role mapper). `real-account-realm-round-trip` (LIVE) honest-skips on `CI_HAS_KEYCLOAK_ACCOUNT` because this estate does not expose a Keycloak client to shelf probes. Fixture at `packages/rcf-lite/test/fixtures/security-auth-keycloak/` declares every env var the pack reads; anatomy test pins pack shape, fixture manifest and the account-bound skip contract.
+- Iteration on the probe pack labelled every local-fixture row `engine: fixture`, redacted the placeholder client secret out of the introspection body evidence, and settled `aggregate([])` / null-result normalisation to `detail: 'no checks ran'` exactly. `real-account-realm-round-trip` honest-skips on `CI_HAS_KEYCLOAK_ACCOUNT`; when skipped the record's `engine.kind` remains `keycloak`. Slug reads AMBER on criterion e.
+
 ## 1.4.1
 
 - Closure fix pass (F-8): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
