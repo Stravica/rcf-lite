@@ -3,7 +3,7 @@
 // Verifies AC-19103-1: every tile state (loading, empty, error,
 // populated) is rendered on each of two named tiles. The probe
 // drives ?tile=primary&state=<state> AND ?tile=active-users&state=<state>
-// so each state is observed on two tiles ( - the
+// so each state is observed on two tiles (the
 // varied input is the state and tile id, the derived output is the
 // state attribute and cue on the correct tile's region).
 //

@@ -1,7 +1,7 @@
 // two-boundaries-registered probe for application-error-handling v1.0.10.
 //
 // Row 1 (AC-16102-2): the framework-level boundary catches a thrown
-// handler exception whose induced stack carries system-path substrings and a file-URI substring
+// handler exception whose induced stack carries system-path and file-URI
 // substrings, and the wire response body carries none of them.
 // This observation targets the specific scrub AC.
 // Row 2 (AC-16102-1): the framework-level boundary produces a

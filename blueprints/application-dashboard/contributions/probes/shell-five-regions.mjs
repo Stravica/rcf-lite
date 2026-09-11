@@ -3,7 +3,7 @@
 // AC-19101-1: the DOM carries five labelled role="region" elements.
 // The fixture accepts a startServer({ regions: [...] }) override, so
 // the probe DRIVES two distinct region sets and asserts the
-// rendered DOM follows each input ( - derived, not
+// rendered DOM follows each input (derived, not
 // fixed inventory).
 //
 // anchorAcId: application-dashboard-AC-19101-1.

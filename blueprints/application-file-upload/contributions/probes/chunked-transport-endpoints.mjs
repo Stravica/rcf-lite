@@ -120,7 +120,7 @@ export default async function runProbe() {
  const patchBadBody = await patchBad.text();
  // AC-23104-3 post-failure state check: stored offset must NOT
  // have moved, and the client re-reads Upload-Offset before
- // resuming ( - post-409 state check + resume PATCH).
+ // resuming (post-409 state check plus resume PATCH).
  const postFail = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
  const postFailBody = await postFail.text();
  const postFailParsed = JSON.parse(postFailBody);

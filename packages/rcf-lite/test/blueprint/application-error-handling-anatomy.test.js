@@ -93,7 +93,7 @@ test('application-error-handling: the pack probes/ pack carries probe-utils and 
  }
 });
 
-test('application-error-handling: every the pack probe module exports an anchorReqId naming a contributed REQ and accountBound=false (TC-crit-e-anchors)', async () => {
+test('application-error-handling: every probe module in the pack exports an anchorReqId naming a contributed REQ and accountBound=false (TC-crit-e-anchors)', async () => {
  const reqDir = _joinCritE(_CRIT_E_BP_ROOT, 'contributions', 'requirements');
  const { readFile: _rf } = await import('node:fs/promises');
  const reqFiles = (await _readdirCritE(reqDir)).filter((f) => f.endsWith('.json'));
@@ -119,7 +119,7 @@ test('application-error-handling: sample-app fixture README declares env vars fo
  assert.match(readme, /47300-47399/);
 });
 
-test('every the pack probe result carries one of the four 7d evidence shapes (TC-crit-e-evidence-shape)', async () => {
+test('application-error-handling: every probe result in the pack carries one of the four 7d evidence shapes (TC-crit-e-evidence-shape)', async () => {
  const _usDir = _joinCritE(_CRIT_E_BP_ROOT, 'contributions', 'user-stories');
  const _acIds = new Set();
  for (const f of (await _readdirCritE(_usDir)).filter((n) => n.endsWith('.json'))) {

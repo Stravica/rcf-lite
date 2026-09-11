@@ -1,6 +1,6 @@
 // apg-table-shape probe for application-datatable v1.0.9.
 //
-// AC-17107-1 (server-observable, ): the rendered
+// AC-17107-1 (server-observable): the rendered
 // datatable is a <table role="grid"> with <th> cells scoped to col;
 // this is a real DOM shape the probe reads directly from the shell
 // route. The row is a plain anchor (not conformanceOnly, not

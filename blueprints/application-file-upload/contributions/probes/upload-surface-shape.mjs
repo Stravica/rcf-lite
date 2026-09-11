@@ -4,8 +4,8 @@
 // plus a labelled input, drop-zone and open-picker button. The
 // browser-observable half (Enter-press and focus movement) is
 // covered by the conformanceOnly limitation on the single row - no
-// duplicate notObservableHere row (
-// "same-AC positive rows alongside notObservable rows").
+// duplicate notObservableHere row (a same-AC positive row alongside a
+// notObservable row would duplicate the anchor).
 //
 // anchorAcId: application-file-upload-AC-23101-1.
 

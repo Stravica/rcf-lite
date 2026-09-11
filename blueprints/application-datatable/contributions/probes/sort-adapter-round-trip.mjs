@@ -4,8 +4,8 @@
 // (server-observable) and the browser DOM re-render after clicking
 // the header (browser-only). This probe records ONE conformanceOnly
 // row carrying the API observation with a limitation naming the
-// browser half - no separate notObservableHere row (
-// section 2: same-AC positive + amber duplicates were the defect).
+// browser half - no separate notObservableHere row (a same-AC positive
+// plus amber pair would duplicate the anchor).
 //
 // anchorAcId: application-datatable-AC-17101-1.
 
