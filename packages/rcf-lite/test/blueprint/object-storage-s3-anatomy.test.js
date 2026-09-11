@@ -24,7 +24,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
   // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
   // for the Hetzner Object Storage adapter (total 25).
-  assert.equal(doc.version, '1.2.2');
+  assert.equal(doc.version, '1.2.3');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
   assert.equal(doc.contributions.length, 25);
@@ -185,6 +185,28 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'object-store.mjs'), 'utf8');
   assert.match(storeSrc, /from ['"]@aws-sdk\/client-s3['"]/,
     'src/object-store.mjs must import @aws-sdk/client-s3');
+  // 7d conformance: T-2 pack Declared env vars table names the first-tier
+  // gates plus every second-tier variable each real-account probe reads.
+  assert.match(readme, /^## Declared env vars \(T-2 object-storage-s3 pack\)/m);
+  for (const v of [
+    'S3_ENDPOINT_URL', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
+    'CI_HAS_CLOUDFLARE_ACCOUNT', 'R2_ACCOUNT_ID', 'R2_BUCKET',
+    'CI_HAS_HETZNER_OBJECT_STORAGE',
+    'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID', 'HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY',
+    'HETZNER_OBJECT_STORAGE_BUCKET', 'HETZNER_OBJECT_STORAGE_LOCATION',
+  ]) {
+    assert.match(readme, new RegExp(`\`${v}\``), `T-2 Declared env vars must name ${v}`);
+  }
+  // R2 and Hetzner real-account probes carry DECLARED_ENV exports and
+  // record the skip reason naming the exact unset variable.
+  const r2Src = await readFile(join(REPO_ROOT, 'blueprints', 'object-storage-s3', 'contributions', 'probes', 'r2-real-account-smoke.mjs'), 'utf8');
+  assert.match(r2Src, /export const DECLARED_ENV/, 'r2-real-account-smoke must export DECLARED_ENV');
+  assert.match(r2Src, /accountBoundSkipped: true/);
+  assert.match(r2Src, /reason/);
+  const hetznerSrc = await readFile(join(REPO_ROOT, 'blueprints', 'object-storage-s3', 'contributions', 'probes', 'hetzner-object-storage-round-trip.mjs'), 'utf8');
+  assert.match(hetznerSrc, /export const DECLARED_ENV/, 'hetzner-object-storage-round-trip must export DECLARED_ENV');
+  assert.match(hetznerSrc, /accountBoundSkipped: true/);
+  assert.match(hetznerSrc, /reason/);
 });
 
 test('section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)', async () => {

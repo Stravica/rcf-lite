@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.3 - 2026-09-11
+
+Positive-evidence rule (authoring standard section 7d) conformance pass on the probe pack, plus live-engine runs under the infra-data hardening dispatch (criterion e). The r2-real-account-smoke and hetzner-object-storage-round-trip skip records now carry a `reason` field naming the exact unset env var, alongside `accountBoundSkipped: true`; both probes export a `DECLARED_ENV` list and gate every second-tier variable so an undeclared short-circuit is impossible. The r2-real-account-smoke probe additionally records the S3 endpoint, scratch bucket, key, byteCount, and a listObjects inventory diff (key present before delete, absent after) as positive evidence per section 7d shape 3. probe-utils' `runShim` accepts the `{results, extra}` envelope so real-account probes surface `accountBoundSkipped`, `envDeclared` and `evidence` bags on the aggregate report; the aggregate flips to pass when every result is an accountBoundSkip per spec section 3.5. The infra-s3-and-queue fixture README gains a Declared env vars table for the T-2 pack (endpoint quintet, R2 tier, Hetzner tier, induced-failure switches). All five local probes run against qa-e-infra-data-minio (MinIO on port 47210), the R2 branch runs against the Cloudflare R2 QA account with a throwaway `qa-e-s3-<short>` bucket created and destroyed inside the dispatch, and the Hetzner branch honestly skips with `reason: CI_HAS_HETZNER_OBJECT_STORAGE unset`.
+
+
 ## 1.2.2 (register patch, 2026-09-10)
 
 - Register: remove residual internal editorial and provenance phrases from README and guide (closes F-1, F-2 register findings).

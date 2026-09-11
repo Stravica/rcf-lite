@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.5 - 2026-09-11
+
+Positive-evidence rule (authoring standard section 7d) conformance pass on the shared infra-s3-and-queue fixture, plus a live-engine run under the infra-data hardening dispatch (criterion e). The infra-s3-and-queue fixture README gains a Declared env vars table for the T-4 pack (QUEUE_NAME, DLQ_NAME, QUEUE_MAX_RETRIES, SIMULATE_HANDLER_THROW, SIMULATE_PII_IN_JOB_INPUT), so a probe that reads any variable off the table is refused at the reviewer gate. All five probes run against the in-memory queue-driver seam and fake-clock scheduler as shipped, producing rcf-lite bin exit codes, stable-message-id tags, sidecar contents, jobId-and-attempts trajectories, and a run-log grep-clean over the PII fixture literals as positive evidence. Anatomy test extended to pin the T-4 Declared env vars section on the fixture README.
+
+
 ## 1.1.4 - 2026-09-10
 
 Register cleanup on shipped prose: neutral wording in README, `jobs-background-REQ-001.description`, `ADR-3103.consequences` and `TAC-3101.dependencies[2].description` with no capability change. README opening now names the applied-capability mechanism directly. REQ-001 states the exit-code and stable-message-id assertions in neutral form. ADR-3103 describes the sidecar-note construction in plain external terms without the internal repo-path reference. TAC-3101 reads "via the applied-capability mechanism". REQ-001, ADR-3103 and TAC-3101 patch-bumped. Anatomy pin updated to 1.1.4. Chain-consistency lint zero on pass 1 and pass 2. Closes criterion-f findings 3, 4, 5 and 7 for jobs-background; findings 2 and 6 were already closed on origin/main.

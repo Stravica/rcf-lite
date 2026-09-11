@@ -106,7 +106,7 @@ test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secr
   // Follow-up adapter minor bump (round-7 spec section 5.4) took the
   // blueprint to v1.1.0; the shipped requiresAppliedCapabilities /
   // allowSkipFlag shape is unchanged.
-  assert.equal(doc.version, '1.2.2');
+  assert.equal(doc.version, '1.2.3');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   // Predecessor-family word is derived from the allowSkipFlag name;
@@ -296,7 +296,7 @@ test('jobs-background --allow-no-queue-yet override writes sidecar with queue-fa
   const raw = await readFile(join(scratch, result.sidecarPath), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'jobs-background');
-  assert.equal(doc.version, '1.1.4');
+  assert.equal(doc.version, '1.1.5');
   assert.equal(doc.allowNoAuthYet, true);
   assert.deepEqual(doc.appliedCapabilities, []);
   // Family word derives from allowSkipFlag; the queue override must read

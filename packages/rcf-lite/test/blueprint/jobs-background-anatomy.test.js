@@ -30,7 +30,7 @@ async function pathExists(p) {
 test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)', async () => {
   const bp = await readJson(join(BP_DIR, 'blueprint.json'));
   assert.equal(bp.slug, 'jobs-background');
-  assert.equal(bp.version, '1.1.4');
+  assert.equal(bp.version, '1.1.5');
   assert.equal(bp.category, 'jobs');
   assert.deepEqual(bp.capabilities, ['backgroundJobs']);
   assert.deepEqual(bp.requiresAppliedCapabilities, {
@@ -105,6 +105,13 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   assert.match(readme, /retry-and-fail/);
   assert.match(readme, /event-secrecy/);
   assert.match(readme, /jobs\//);
+  // 7d conformance: T-4 Declared env vars table on the shared fixture
+  // README names every variable the T-4 probes read (authoring standard
+  // section 7d).
+  assert.match(readme, /^## Declared env vars \(T-4 jobs-background pack\)/m);
+  for (const v of ['QUEUE_NAME', 'DLQ_NAME', 'QUEUE_MAX_RETRIES', 'SIMULATE_HANDLER_THROW', 'SIMULATE_PII_IN_JOB_INPUT']) {
+    assert.match(readme, new RegExp(`\`${v}\``), `T-4 Declared env vars must name ${v}`);
+  }
   // The two toy jobs export the shape.
   const url1 = new URL('../../test/fixtures/infra-s3-and-queue/jobs/send-welcome-email.mjs', import.meta.url);
   const url2 = new URL('../../test/fixtures/infra-s3-and-queue/jobs/refresh-cache.mjs', import.meta.url);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3 - 2026-09-11
+
+Positive-evidence rule (authoring standard section 7d) conformance pass on the probe pack, plus a live-engine run under the infra-data hardening dispatch (criterion e). The recovery-restore-round-trip probe now reads `POSTGRES_SOURCE_CONTAINER`, `POSTGRES_RESTORE_CONTAINER` and `POSTGRES_RESTORE_PORT` from env so a hardening dispatch on a non-default docker-compose container name or port can run it without patching the probe. The infra-postgres fixture README gains a Declared env vars table naming every environment variable a probe or the fixture reads (POSTGRES_* connection quintet, the three container/port overrides, SIMULATE_MIGRATION_FAILURE, SIMULATE_CONSTRAINT_VIOLATION), so a probe that reads any variable off the table is refused at the reviewer gate. Anatomy test extended to pin the Declared env vars section on the README. All six probes run for real against qa-e-infra-data-pg (postgres:17-alpine on port 47201) with the recovery probe standing up and tearing down its own restore container.
+
+
 ## 1.1.2 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-004: REQ description now references the transaction-helper interface owned on TAC-2803.interfaces.withTransaction rather than restating the driver control literals for begin, commit and rollback. Chain-consistency lint zero on pass 1 and pass 2.

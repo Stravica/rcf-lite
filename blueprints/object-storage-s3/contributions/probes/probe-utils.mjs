@@ -31,33 +31,60 @@ export function aggregate(results) {
 }
 
 /**
+ * Return true when every result is an account-bound skip; the
+ * aggregate then flips to pass per spec section 3.5 and authoring
+ * standard section 7d.
+ */
+export function isAccountBoundSkipped(results) {
+  return results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
+}
+
+/**
  * Write the per-blueprint probe report at
  * .rcf/reports/blueprints/object-storage-s3/<probeName>.json
- * per spec section 3.4.
+ * per spec section 3.4. Accepts an optional extra bag that is
+ * spread onto the report envelope (e.g. envDeclared, evidence,
+ * accountBoundSkipped) so real-account probes can surface positive
+ * evidence per authoring standard section 7d.
  */
-export async function writeReport({ probeName, engine, results }) {
+export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
+  const raw = aggregate(results);
+  const aggregateVerdict = isAccountBoundSkipped(results) ? 'pass' : raw;
   const report = {
     slug: 'object-storage-s3',
     probeName,
     runAt: new Date().toISOString(),
     engine,
     results,
-    aggregateVerdict: aggregate(results),
+    aggregateVerdict,
+    ...(extra ?? {}),
   };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2), 'utf8');
   return { report, path };
 }
 
+function normaliseMain(value) {
+  if (Array.isArray(value)) return { results: value, extra: {} };
+  if (value && Array.isArray(value.results)) {
+    const { results, ...extra } = value;
+    return { results, extra };
+  }
+  throw new Error('probe main must return an array or an object with a results[] field');
+}
+
 /**
  * Drive an async main() and exit 0 on aggregate pass, 1 otherwise.
  * Prints the report JSON to stdout for the gate-reviewer to read.
+ * The probe main may return either an array of result records or an
+ * envelope { results, ...extra } whose extra bag is written onto the
+ * report envelope alongside the aggregateVerdict.
  */
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const results = await mainFn();
-    const { report, path } = await writeReport({ probeName, engine, results });
+    const { results, extra } = normaliseMain(await mainFn());
+    const { report, path } = await writeReport({ probeName, engine, results, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stdout.write(`report written to ${path}\n`);
     process.exit(report.aggregateVerdict === 'pass' ? 0 : 1);

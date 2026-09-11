@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.2');
+  assert.equal(doc.version, '1.1.3');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);
@@ -154,6 +154,21 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(readme, /SIMULATE_CONSTRAINT_VIOLATION/);
   assert.match(readme, /postgres:17-alpine/);
   assert.match(readme, /podman/i);
+  // 7d conformance: fixture README carries a Declared env vars section listing
+  // every env var a probe or the fixture reads (authoring standard section 7d).
+  assert.match(readme, /^## Declared env vars/m);
+  for (const v of [
+    'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB',
+    'POSTGRES_SOURCE_CONTAINER', 'POSTGRES_RESTORE_CONTAINER', 'POSTGRES_RESTORE_PORT',
+    'SIMULATE_MIGRATION_FAILURE', 'SIMULATE_CONSTRAINT_VIOLATION',
+  ]) {
+    assert.match(readme, new RegExp(`\`${v}\``), `Declared env vars table must name ${v}`);
+  }
+  // recovery-restore-round-trip must read the three container/port overrides via env
+  const recoverySrc = await readFile(join(REPO_ROOT, 'blueprints', 'persistence-data-postgres', 'contributions', 'probes', 'recovery-restore-round-trip.mjs'), 'utf8');
+  assert.match(recoverySrc, /process\.env\.POSTGRES_SOURCE_CONTAINER/);
+  assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_CONTAINER/);
+  assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_PORT/);
   // Store.mjs (TAC-2801 facade) is the sole reader of pg on the request
   // path per REQ-001; asserting it imports pg.
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'store.mjs'), 'utf8');

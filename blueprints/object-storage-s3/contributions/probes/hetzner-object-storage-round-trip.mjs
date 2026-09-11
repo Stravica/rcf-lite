@@ -36,17 +36,40 @@
 import { probeKey } from './probe-utils.mjs';
 
 export const accountBound = true;
+export const DECLARED_ENV = Object.freeze([
+  'CI_HAS_HETZNER_OBJECT_STORAGE',
+  'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID',
+  'HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY',
+  'HETZNER_OBJECT_STORAGE_BUCKET',
+  'HETZNER_OBJECT_STORAGE_LOCATION',
+]);
 
 const VENDOR_PATTERN = /^https:\/\/[^./]+\.(fsn1|hel1|nbg1)\.your-objectstorage\.com$/;
 
-export default async function runProbe() {
-  if (!process.env.CI_HAS_HETZNER_OBJECT_STORAGE) {
-    return [{
+function skipResult(reason) {
+  return {
+    results: [{
       anchorAcId: 'AC-28110-1',
       verdict: 'pass',
-      detail: 'accountBound: skipped (no CI_HAS_HETZNER_OBJECT_STORAGE)',
+      detail: `accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
-    }];
+      reason,
+    }],
+    extra: { accountBoundSkipped: true, reason, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
+export default async function runProbe() {
+  if (process.env.CI_HAS_HETZNER_OBJECT_STORAGE !== 'true') {
+    return skipResult('CI_HAS_HETZNER_OBJECT_STORAGE unset');
+  }
+  for (const varName of [
+    'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID',
+    'HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY',
+    'HETZNER_OBJECT_STORAGE_BUCKET',
+    'HETZNER_OBJECT_STORAGE_LOCATION',
+  ]) {
+    if (!process.env[varName]) return skipResult(`${varName} unset`);
   }
 
   // Dynamic imports so the accountBoundSkipped path above loads

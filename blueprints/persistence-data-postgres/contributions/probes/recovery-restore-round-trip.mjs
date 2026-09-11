@@ -30,9 +30,15 @@ const PROJECT_ROOT = resolve(HERE, '..', '..', '..', '..');
 const ARTEFACT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/persistence-data-postgres/recovery');
 const ARTEFACT = resolve(ARTEFACT_DIR, 'backup.sql');
 const ARTEFACT_REL = relative(PROJECT_ROOT, ARTEFACT);
-const SOURCE_CONTAINER = 'infra-postgres-postgres-1';
-const RESTORE_CONTAINER = 'infra-postgres-restore';
-const RESTORE_PORT = '55432';
+// Source container defaults to the fixture's docker-compose service
+// name; a CI runner (or a hardening dispatch) may override via
+// POSTGRES_SOURCE_CONTAINER. Restore container name and port are
+// similarly overridable so parallel runs and non-default docker
+// networks can pick free ports; both env vars are declared on the
+// fixture's Declared env vars table.
+const SOURCE_CONTAINER = process.env.POSTGRES_SOURCE_CONTAINER || 'infra-postgres-postgres-1';
+const RESTORE_CONTAINER = process.env.POSTGRES_RESTORE_CONTAINER || 'infra-postgres-restore';
+const RESTORE_PORT = process.env.POSTGRES_RESTORE_PORT || '55432';
 
 async function dockerExec(container, cmd, opts = {}) {
   return execFileAsync('docker', ['exec', container, ...cmd], { maxBuffer: 64 * 1024 * 1024, ...opts });
