@@ -90,17 +90,23 @@ const PROBE_DECLARED_ENV = Object.freeze([
 //   - `affirmativelyAbsent`
 //                        : the AFFIRMATIVE absence shape the vendor
 //                          returns for an unprovisioned account,
-//                          either HTTP 404 with error code 10007 OR
-//                          HTTP 200 with `success: true` and an
-//                          empty / missing `result.subdomain`. The
-//                          probe records an accountBoundSkipped
-//                          declared skip.
-//   - `unclassified`     : any other shape (401, 403, 429, 5xx,
-//                          malformed body, unexpected status/code
-//                          combination). The probe fails the verdict
+//                          EITHER HTTP 404 with error code 10007 OR
+//                          HTTP 200 with `success: true` and a plain
+//                          `result` object whose own `subdomain` key
+//                          is present and is exactly null or the
+//                          empty string ''. The probe records an
+//                          accountBoundSkipped declared skip.
+//   - `unclassified`     : any other shape - non-2xx/non-404, a 200
+//                          success body missing `result` or with
+//                          `result` an array / primitive / null, a
+//                          missing `subdomain` key, a `subdomain` of
+//                          the wrong JSON type (number, boolean,
+//                          object, array, whitespace-only string),
+//                          malformed JSON, unexpected status/code
+//                          combination. The probe fails the verdict
 //                          with the observed status and body code
-//                          in detail; a skip on a non-absence shape
-//                          is a 7d violation.
+//                          in detail; a skip on a non-absence /
+//                          schema-malformed shape is a 7d violation.
 async function preflightWorkersDevSubdomain() {
   const accountId = process.env.CF_ACCOUNT_ID;
   const token = process.env.CF_API_TOKEN;
@@ -114,15 +120,47 @@ async function preflightWorkersDevSubdomain() {
   let parseError = null;
   try { json = JSON.parse(text); } catch (err) { parseError = err && err.message ? err.message : 'JSON parse failed'; }
   const errorCode = json && Array.isArray(json.errors) && json.errors[0] && json.errors[0].code;
-  const result = json && json.result;
-  const subdomain = result && typeof result.subdomain === 'string' && result.subdomain.trim().length > 0 ? result.subdomain : null;
+  // Documented success response shape (per Cloudflare API docs for
+  // GET /accounts/{account_id}/workers/subdomain, verifiedOn
+  // 2026-09-11 via https://developers.cloudflare.com/api/operations/
+  // worker-subdomain-get-subdomain): result is an object with a
+  // `subdomain` field of type string (example: "my-subdomain"). The
+  // vendor does not document the unprovisioned shape explicitly, so
+  // this classifier applies the strictest defensible interpretation:
+  //   - provisioned         : result is a plain object, has own
+  //                           `subdomain` key, value is a NON-EMPTY
+  //                           string.
+  //   - affirmativelyAbsent : result is a plain object, has own
+  //                           `subdomain` key, value is EXACTLY null
+  //                           OR the empty string ''.
+  //   - unclassified        : every other structural shape - result
+  //                           missing / null / array / primitive,
+  //                           subdomain key absent, subdomain of any
+  //                           other type (number, boolean, object,
+  //                           array, whitespace-only string, etc).
+  // Schema-malformed success bodies (e.g. `{"success":true}` with no
+  // result, or result an array, or subdomain of the wrong type) are
+  // NOT treated as absence - they fail as unclassified so a reviewer
+  // sees the exact vendor signal rather than a silent skip.
+  const isPlainResultObject = json !== null
+    && typeof json === 'object'
+    && Object.prototype.hasOwnProperty.call(json, 'result')
+    && json.result !== null
+    && typeof json.result === 'object'
+    && !Array.isArray(json.result);
+  const hasSubdomainKey = isPlainResultObject
+    && Object.prototype.hasOwnProperty.call(json.result, 'subdomain');
+  const subdomainRaw = hasSubdomainKey ? json.result.subdomain : undefined;
+  const subdomainIsProvisionedString = typeof subdomainRaw === 'string' && subdomainRaw.length > 0 && subdomainRaw === subdomainRaw.trim() && subdomainRaw.trim().length > 0;
+  const subdomainIsAbsenceSentinel = subdomainRaw === null || subdomainRaw === '';
+  const subdomain = subdomainIsProvisionedString ? subdomainRaw : null;
   let classification = 'unclassified';
   if (parseError === null && json) {
-    if (resp.status === 200 && json.success === true && subdomain !== null) {
+    if (resp.status === 200 && json.success === true && hasSubdomainKey && subdomainIsProvisionedString) {
       classification = 'provisioned';
     } else if (resp.status === 404 && json.success === false && errorCode === 10007) {
       classification = 'affirmativelyAbsent';
-    } else if (resp.status === 200 && json.success === true && subdomain === null) {
+    } else if (resp.status === 200 && json.success === true && hasSubdomainKey && subdomainIsAbsenceSentinel) {
       classification = 'affirmativelyAbsent';
     }
   }

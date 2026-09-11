@@ -367,4 +367,44 @@ test('H-2 queue AC-29108-2 pre-flight affirmative-absence (HTTP 404 code 10007) 
     assert.equal(r.verdict, 'fail', `malformed body must fail; detail=${r.detail}`);
     assert.match(r.detail, /parseError=/, 'detail names the JSON parse error');
   });
+
+  // Non-absence failure: STRUCTURALLY malformed success bodies. Parsed
+  // JSON, HTTP 200, success:true - but the body does not conform to
+  // the vendor's documented result shape (result missing, result an
+  // array, subdomain key absent, subdomain of the wrong type, or a
+  // whitespace-only string). Each of these MUST fail as unclassified;
+  // a silent skip on a schema-malformed body would violate the 7d
+  // positive-evidence rule and swallow a real vendor / auth /
+  // proxy-rewrite regression as an accountBound skip.
+  const malformedStructures = [
+    { label: 'result missing',            body: { success: true, errors: [] } },
+    { label: 'result is null',            body: { success: true, errors: [], result: null } },
+    { label: 'result is an array',        body: { success: true, errors: [], result: [] } },
+    { label: 'result is a string',        body: { success: true, errors: [], result: 'my-subdomain' } },
+    { label: 'subdomain key absent',      body: { success: true, errors: [], result: {} } },
+    { label: 'subdomain is a number',     body: { success: true, errors: [], result: { subdomain: 42 } } },
+    { label: 'subdomain is a boolean',    body: { success: true, errors: [], result: { subdomain: false } } },
+    { label: 'subdomain is an object',    body: { success: true, errors: [], result: { subdomain: {} } } },
+    { label: 'subdomain is an array',     body: { success: true, errors: [], result: { subdomain: [] } } },
+    { label: 'subdomain is whitespace',   body: { success: true, errors: [], result: { subdomain: '   ' } } },
+  ];
+  for (const { label, body } of malformedStructures) {
+    await withMockSubdomain((req, res) => {
+      if (req.url.endsWith('/workers/subdomain')) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(body));
+        return;
+      }
+      res.writeHead(500, {});
+      res.end();
+    }, async () => {
+      const out = await mod.default();
+      const rs = Array.isArray(out) ? out : (out && out.results) || [];
+      const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+      assert.ok(r, `${label}: must include an AC-29108-2 result`);
+      assert.equal(r.verdict, 'fail', `${label}: structurally malformed 200 must fail; detail=${r.detail}`);
+      assert.equal(r.accountBoundSkipped, undefined, `${label}: schema-malformed fail does not carry accountBoundSkipped`);
+      assert.match(r.detail, /status=200/, `${label}: detail names observed 200 status`);
+    });
+  }
 });
