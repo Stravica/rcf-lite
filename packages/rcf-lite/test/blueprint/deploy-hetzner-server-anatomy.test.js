@@ -311,7 +311,7 @@ test('deploy-hetzner-server shelf shape: section 6a cloudHost row and docs/topic
 // blueprint user stories do not declare AC-14501-1); the RCF chain
 // artefacts remain the sole owners of that AC and this test carries
 // the observation on their behalf.
-test('deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads', async () => {
+test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)', async () => {
   const rendererPath = pathToFileURL(join(FIXTURE_ROOT, 'src/cloud-init-renderer.mjs')).href;
   const { renderCloudInitToFile } = await import(rendererPath);
   const manifest = JSON.parse(await readFile(join(FIXTURE_ROOT, 'hetzner/servers/ci-throwaway.json'), 'utf8'));
