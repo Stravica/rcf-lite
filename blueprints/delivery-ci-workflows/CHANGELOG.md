@@ -1,5 +1,10 @@
 # Changelog: delivery-ci-workflows blueprint
 
+## 2.3.2 - 2026-09-11
+
+Adds a contributions/probes/ pack (workflow-template-shape, node-gate-entrypoint, real-account-github-actions-run-record) with a fixture-side workflow linter under packages/rcf-lite/test/fixtures/probe-pack-delivery-ci-workflows/. Local probes load every YAML template under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/, assert top-level shape, checkout step and the 'node scripts/rcf-*.js' single-substrate contract, and optionally invoke actionlint when the binary is on PATH. The real-account probe is gated on CI_HAS_GITHUB_ACTIONS with 'gh auth status' as the pre-flight observation, queries 'gh run list -R Stravica/rcf-lite --limit 5 --json' read-only and records the latest run's id, conclusion, event, workflowName and htmlUrl as positive evidence of a real deploy record. The probe never triggers a workflow. Vendor citation https://docs.github.com/en/rest/actions/workflow-runs (verified 2026-09-11).
+
+
 ## 2.3.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

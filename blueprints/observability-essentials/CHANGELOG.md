@@ -1,5 +1,10 @@
 # observability-essentials CHANGELOG
 
+## 2.1.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (liveness-probe, readiness-probe, metrics-endpoint) with a fixture-side node:http probe server on 127.0.0.1. Probes drive real HTTP round-trips against the fixture, record the x-request-id header the server echoes and the response body excerpts; readiness records the per-dependency status list; metrics asserts the Prometheus 0.0.4 content-type. No account gate.
+
+
 ## 2.1.2 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-007: REQ description now references the JSON media-type header owned on TAC-801.responsibilities[1] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.

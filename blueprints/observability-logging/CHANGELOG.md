@@ -1,5 +1,10 @@
 # observability-logging CHANGELOG
 
+## 1.3.2 - 2026-09-11
+
+Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes emit through the real factory, capture stdout / stderr on the injected sinks, assert the seven-field minimum set, BigInt fold, reserved-key collision, correlationId ambient flow via AsyncLocalStorage, and PII redaction category strings on the emitted line. No account gate.
+
+
 ## 1.3.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

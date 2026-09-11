@@ -1,5 +1,10 @@
 # observability-probe-endpoints CHANGELOG
 
+## 1.2.2 - 2026-09-11
+
+Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry + node:http materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Materialises the kubernetes-request-listener and kubernetes-startup profiles on 127.0.0.1, drives real HTTP GETs against declared paths, asserts the startup-phase flip from 503 to 200, and refuses partial profiles at boot with a named missing key. No account gate.
+
+
 ## 1.2.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

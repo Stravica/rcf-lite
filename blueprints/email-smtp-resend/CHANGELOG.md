@@ -1,5 +1,10 @@
 # email-smtp-resend CHANGELOG
 
+## 1.1.4 - 2026-09-11
+
+Adds a contributions/probes/ pack (smtp-round-trip, unverified-sender-refusal, real-account-resend-send) with a fixture-side node:net catch-all SMTP server + minimal SMTP dialler under packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/. Local probes assert full EHLO/MAIL/RCPT/DATA round-trip with a per-connection message id and the 5.7.1 unverified-sender rejection contract. The real-account probe is gated on CI_HAS_RESEND_ACCOUNT and sends to delivered@resend.dev from onboarding@resend.dev, recording the real email id returned by Resend. Vendor citation https://resend.com/docs/dashboard/emails/send-test-emails (verified 2026-09-11).
+
+
 ## 1.1.3 - 2026-09-10
 
 Second closure fix on the dimension-d ownership sweep for REQ-001: removed the send-signature and outcome-field restatements from `AC-4101-2` (description and then-clause), `AC-4102-1` (description and then-clause), and the guide's "What a good outcome looks like" bullets; each surface now references the outcome record owned on `TAC-401-email-smtp-resend-send-adapter.interfaces.send` and, where relevant, the classification owned on `responsibilities[3]`. US-4101 and US-4102 patch-bumped. Chain-consistency lint zero on pass 1 and pass 2. Third-pass residues cleared without a further bump: the AC-4101-2 and AC-4102-1 when-clauses now reference the send interface owned on `TAC-401-email-smtp-resend-send-adapter.interfaces.send` instead of restating the `adapter.send(...)` signature.

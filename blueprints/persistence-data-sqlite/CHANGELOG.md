@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2 - 2026-09-11
+
+Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24, record real integer row ids, the applied-migration list from schema_migrations, and the wal_checkpoint(TRUNCATE) counters, and the WAL sidecar shrink after truncate. No account gate.
+
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

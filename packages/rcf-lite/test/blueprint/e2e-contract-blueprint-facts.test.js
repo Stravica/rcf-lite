@@ -84,7 +84,7 @@ test('AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the fou
   // US-6124 and AC-6124-1 are unchanged; the version marker advances only.
   // Test name kept verbatim so the rcf-lite dogfood TC-031-ci-us-6124
   // testPointer stays resolved (audit coverage golden depends on it).
-  assert.equal(meta.version, '2.3.1');
+  assert.equal(meta.version, '2.3.2');
   const us6124Ref = meta.contributions.find(
     (c) => c.id === 'delivery-ci-workflows-US-6124',
   );

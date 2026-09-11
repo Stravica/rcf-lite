@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (facade-round-trip, migrations-forward-only, real-account-d1-round-trip) with a fixture-side sqlite-backed D1 binding mock and persistence facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/. The real-account probe is gated on CI_HAS_CLOUDFLARE_ACCOUNT and creates a scratch D1 database (name prefix qa-e-d1-), applies a migration and a query, deletes the database and confirms the uuid is absent from the account's D1 inventory (created-then-deleted-resource-id shape). Vendor citation https://developers.cloudflare.com/api/operations/cloudflare-d1-list-databases (verified 2026-09-11).
+
+
 
 ## 1.1.2 - 2026-09-10
 

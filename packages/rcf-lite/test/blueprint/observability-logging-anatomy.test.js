@@ -26,7 +26,7 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
   const raw = await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'observability-logging');
-  assert.equal(doc.version, '1.3.1');
+  assert.equal(doc.version, '1.3.2');
   assert.equal(doc.category, 'observability');
   assert.deepEqual(doc.providesRoles, ['logging']);
   // Hardening pass B4 (2026-09-09): sessionInventory removed per section 7c
@@ -78,7 +78,7 @@ test('observability-logging: apply into a fresh fixture succeeds and writes the 
   const res = await applyBlueprint({ projectRoot: root, tree, source: BLUEPRINT_ROOT });
   assert.equal(res.applied, true, JSON.stringify(res));
   assert.equal(res.slug, 'observability-logging');
-  assert.equal(res.version, '1.3.1');
+  assert.equal(res.version, '1.3.2');
   const adrPath = join(root, 'rcf', 'adrs', 'adr-1601-observability-logging-line-shape.json');
   const st = await stat(adrPath);
   assert.ok(st.isFile(), 'expected ADR-1601 file on disk after apply');
@@ -95,4 +95,28 @@ test('observability-logging: anatomy files exist with the required sections (TC-
   assert.match(topics, /`logging`/);
   assert.match(topics, /15101-15899/);
   assert.match(topics, /16xx/);
+});
+
+// e-mixed (2026-09-11): pin the criterion e probe pack files added under
+// contributions/probes/ and the fixture under packages/rcf-lite/test/
+// fixtures/probe-pack-observability-logging/.
+test('observability-logging: contributions/probes/ pack is present and every probe declares its anchor + accountBound (TC-e-mixed-probe-pack)', async () => {
+  const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
+  const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'probe-pack-observability-logging');
+  const probes = ['line-shape-and-fields', 'correlation-id-flow', 'redaction-boundary'];
+  for (const p of probes) {
+    const modUrl = new URL(`file://${join(PROBES_DIR, `${p}.mjs`)}`);
+    const mod = await import(modUrl.href);
+    assert.ok(typeof mod.default === 'function', `${p}: default export must be an async probe fn`);
+    assert.ok(typeof mod.anchorAcId === 'string' && mod.anchorAcId.length > 0, `${p}: anchorAcId string required`);
+    assert.equal(typeof mod.accountBound, 'boolean', `${p}: accountBound boolean required`);
+    const runShimPath = join(PROBES_DIR, `run-${p}.mjs`);
+    const text = await readFile(runShimPath, 'utf8');
+    assert.match(text, /runShim\(/, `run-${p}.mjs must invoke runShim`);
+  }
+  const fixReadme = await readFile(join(FIXTURE_DIR, 'README.md'), 'utf8');
+  assert.match(fixReadme, /Declared env vars/, 'fixture README must declare env vars');
+  assert.match(fixReadme, /RCF_FIXTURE_LOGGER_CORRELATION_HEADER/, 'fixture README must name RCF_FIXTURE_LOGGER_CORRELATION_HEADER');
+  const utils = await readFile(join(PROBES_DIR, 'probe-utils.mjs'), 'utf8');
+  assert.match(utils, /DECLARED_ENV/, 'probe-utils must export DECLARED_ENV');
 });
