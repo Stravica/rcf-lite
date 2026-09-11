@@ -12,6 +12,8 @@ import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 export const anchorAcId = 'application-account-settings-AC-25101-1';
 export const accountBound = false;
 
+const FIRST_EIGHT = 'Given an authenticated principal AND an applied auth';
+
 function countTabs(body) {
   return (body.match(/<a role="tab"[^>]*>/g) || []).length;
 }
@@ -39,8 +41,8 @@ export default async function runProbe() {
         anchorAcId,
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `GET /account?caps=${cfg.caps.join(',')}&apps=${cfg.apps.join(',')} (${cfg.name}) returned 200 with role="tablist" nav and derived tab count=${count} matching expected=${cfg.expected}; x-fixture-request-id=${r.requestId}`
-          : `${cfg.name} evidence gap: status=${r.status} rid=${r.requestId} tabs=${count} expected=${cfg.expected} tablist=${tablistPresent}`,
+          ? `${FIRST_EIGHT} blueprint declaring principalDirectory, GET /account?caps=${cfg.caps.join(',')}&apps=${cfg.apps.join(',')} (${cfg.name}) returned 200 with role="tablist" nav and derived tab count=${count} matching expected=${cfg.expected} (always-on profile plus one tab per applied capability); x-fixture-request-id=${r.requestId}`
+          : `${FIRST_EIGHT} blueprint gap for ${cfg.name}: status=${r.status} rid=${r.requestId} tabs=${count} expected=${cfg.expected} tablist=${tablistPresent}`,
         evidence: {
           requestId: r.requestId,
           responseStatus: r.status,

@@ -23,6 +23,15 @@
 //   ?apps=<list>                   Override apps for one page load.
 //   ?security-surface-shape=<s>    Override security shape.
 //   ?theme-persistence=<s>         Override theme persistence.
+//   ?provider=<clerk|keycloak|oauth2>  Label the applied auth provider
+//                                  supplying sessionInventory for the
+//                                  AC-25106-1 uniform-render contract
+//                                  observation. Sessions surface emits
+//                                  <meta data-observed-provider="X"> so a
+//                                  probe can verify the render contract is
+//                                  identical regardless of the applied
+//                                  auth blueprint. Ignored when
+//                                  sessionInventory is not in caps.
 //   ?authed=false                  Simulate an unauthenticated principal
 //                                  (renders the forbidden state from T-1).
 //   ?break=leak-tab                Render the security tab even when neither
@@ -81,7 +90,9 @@ function parseQuery(url) {
   const themePersist = q.get('theme-persistence') ?? DEFAULT_THEME_PERSIST;
   const authed = q.get('authed') !== 'false';
   const breakSwitch = q.get('break') ?? '';
-  return { caps, apps, securityShape, themePersist, authed, breakSwitch };
+  const providerRaw = q.get('provider');
+  const provider = ['clerk', 'keycloak', 'oauth2'].includes(providerRaw) ? providerRaw : null;
+  return { caps, apps, securityShape, themePersist, authed, breakSwitch, provider };
 }
 
 function shellTabs({ caps, apps, breakSwitch }) {
@@ -193,7 +204,7 @@ function securitySurface({ caps, securityShape, breakSwitch }) {
   return `<h2>Security</h2><p>Security surface shape not resolved for the applied capability set.</p>`;
 }
 
-function sessionsSurface({ caps, breakSwitch }) {
+function sessionsSurface({ caps, breakSwitch, provider }) {
   if (!caps.has('sessionInventory')) return '<h2>Sessions</h2><p>Sessions surface is not applied on this project.</p>';
   const rows = [
     { id: 's1', device: 'MacBook Pro (Safari)', lastActive: '2026-09-06T20:14:00Z', current: true },
@@ -213,9 +224,16 @@ function sessionsSurface({ caps, breakSwitch }) {
   <button type="button" data-action="terminate-confirm">Yes, end session</button>
   <button type="button" data-action="terminate-cancel">Cancel</button>
 </div>`;
+  // AC-25106-1: the sessions render contract is identical regardless of
+  // which applied auth blueprint supplied sessionInventory. The optional
+  // provider label rides in as a stripped-on-normalise meta tag so a
+  // probe can vary the provider input, observe the label was honoured,
+  // and prove the derived DOM shape is byte-identical across providers.
+  const providerMeta = provider ? `<meta data-observed-provider="${provider}">` : '';
   return `
 <h2>Sessions</h2>
 <div data-surface="sessions">
+  ${providerMeta}
   <table>
     <thead><tr><th>Device</th><th>Last active</th><th>Action</th></tr></thead>
     <tbody>${trs}</tbody>

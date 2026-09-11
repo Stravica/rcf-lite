@@ -1,5 +1,10 @@
 # application-admin-console CHANGELOG
 
+## 1.3.2 - 2026-09-11
+
+- users-directory-surface split into per-AC rows: AC-21102-1 anchors the directory listing observation; AC-21102-2 anchors the invite and deactivate controls (previously conflated on one row). org-switcher-surface fixture now returns HTTP 404 on the no-tenancy path so the probe can observe the AC-21104-2 refusal status (previously the fixture returned 200 with not-found HTML, contradicting the AC). audit-log-surface probe now drives a real round-trip: POST /api/members/:id/role writes an audit entry and GET /admin/audit reads it back, observing AC-21105-1 rather than a hard-coded table. sign-in-access-gated-surface fixture now returns HTTP 403 when the Authorization header is absent (per AC-21815-1 request.auth requirement and AC-21815-2 refusal contract); the local-fallback row rows anchored under AC-21815-2 and AC-21816-1 as appropriate. permission-matrix-grid vacuous `.every()` over an empty label array replaced with a check that asserts at least one label exists and every cell carries one per AC-21103-1. Positive-anchor-on-absence broken-variant rows removed. Rule 10 applied to every row detail. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
 ## 1.3.1 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 5 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/server.js` answers: `users-directory-surface`, `permission-matrix-grid`, `org-switcher-surface`, `audit-log-surface`, `sign-in-access-gated-surface`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-admin-console-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

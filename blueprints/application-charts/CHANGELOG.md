@@ -1,5 +1,10 @@
 # application-charts CHANGELOG
 
+## 1.0.6 - 2026-09-11
+
+- Rule-10 sweep on every probe row detail: each row now opens with the verbatim first eight words of its anchored AC's description (AC-18102-1, AC-18103-1, AC-18103-3, AC-18104-1, AC-18104-3) so the property claimed sits next to the observation made. Register cleanup on probe-utils.mjs, the anatomy test and the fixture README: reworded citations that carried banned lane-label tokens to describe the rule by name.
+
+
 ## 1.0.5 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 3 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-charts/server.js` answers: `non-colour-distinction`, `text-alternative-table`, `keyboard-traversal`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-charts-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

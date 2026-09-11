@@ -3,11 +3,21 @@
 // with inputs carrying autocomplete tokens "name", "email", "bday",
 // and "country". Derived observation: parse the form's input elements
 // and match each required field to the autocomplete token it carries.
+//
+// A previous revision carried a second row that drove the
+// ?break=no-autocomplete rig and asserted "every autocomplete token
+// is dropped" while positive-anchoring to AC-25102-1. That row is
+// removed: the shipped AC forbids the absence, so pass-on-absence
+// under the positive anchor was a de-claim violation. The negative
+// rig still exists in the fixture for anatomy-test coverage of the
+// break switches; it is not evidence for AC-25102-1.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
 export const anchorAcId = 'application-account-settings-AC-25102-1';
 export const accountBound = false;
+
+const FIRST_EIGHT = 'GET /account/profile renders a <form data-surface="profile"> with inputs';
 
 const REQUIRED = [
   { field: 'name', autocomplete: 'name' },
@@ -39,31 +49,13 @@ export default async function runProbe() {
       anchorAcId,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `GET /account/profile: <form data-surface="profile"> present; every required input carries the AC-25102-1 autocomplete token (name/email/bday/country); derived: ${JSON.stringify(autos)}; x-fixture-request-id=${r.requestId}`
-        : `profile autocomplete evidence gap: status=${r.status} rid=${r.requestId} surface=${surfacePresent} autos=${JSON.stringify(autos)} missing=${JSON.stringify(missing)}`,
+        ? `${FIRST_EIGHT} carrying autocomplete tokens name/email/bday/country: the profile form renders and every required input carries the AC-25102-1 token verbatim; derived autocompletes=${JSON.stringify(autos)}; x-fixture-request-id=${r.requestId}`
+        : `${FIRST_EIGHT} autocomplete gap: status=${r.status} rid=${r.requestId} surface=${surfacePresent} autos=${JSON.stringify(autos)} missing=${JSON.stringify(missing)}`,
       evidence: {
         requestId: r.requestId,
         responseStatus: r.status,
         bodyExcerpt: excerpt((r.body.match(/<form data-surface="profile"[^]{0,240}/) || [''])[0]),
-        derived: { autos, missing },
-      },
-    });
-
-    const broken = await fixtureFetch(fixture.url, '/account/profile?break=no-autocomplete');
-    const brokenAutos = inputAutocompletes(broken.body);
-    const noneAuto = Object.values(brokenAutos).every((v) => v === null);
-    const varyPass = broken.status === 200 && !!broken.requestId && noneAuto;
-    results.push({
-      anchorAcId,
-      verdict: varyPass ? 'pass' : 'fail',
-      detail: varyPass
-        ? `GET /account/profile?break=no-autocomplete returns 200 with every input's autocomplete token dropped; derived: ${JSON.stringify(brokenAutos)}; the AC-25102-1 check would refuse; x-fixture-request-id=${broken.requestId}`
-        : `break=no-autocomplete gap: status=${broken.status} rid=${broken.requestId} autos=${JSON.stringify(brokenAutos)}`,
-      evidence: {
-        requestId: broken.requestId,
-        responseStatus: broken.status,
-        bodyExcerpt: excerpt((broken.body.match(/<form data-surface="profile"[^]{0,240}/) || [''])[0]),
-        derived: { brokenAutos },
+        derived: { autos, missing, surfacePresent },
       },
     });
   } finally {

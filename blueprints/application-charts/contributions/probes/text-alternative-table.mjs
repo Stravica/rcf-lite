@@ -81,8 +81,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: landmarkPass ? 'pass' : 'fail',
       detail: landmarkPass
-        ? `GET / carries ${regions.length} <section class="chartRegion" role="region"> landmarks; every landmark holds one <table class="chartAltTable"> as AC-18103-1 requires ("a <table> element carrying the same data lives in the same landmark"); x-fixture-request-id=${golden.requestId}`
-        : `landmark evidence gap: status=${golden.status} rid=${golden.requestId} regions=${regions.length}`,
+        ? `Given a rendered chart, a \`<table>\` element carrying; GET / carries ${regions.length} <section class="chartRegion" role="region"> landmarks; every landmark holds one <table class="chartAltTable"> as AC-18103-1 requires ("a <table> element carrying the same data lives in the same landmark"); x-fixture-request-id=${golden.requestId}`
+        : `Given a rendered chart, a \`<table>\` element carrying; landmark evidence gap: status=${golden.status} rid=${golden.requestId} regions=${regions.length}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,
@@ -121,8 +121,8 @@ export default async function runProbe() {
       anchorAcId: 'application-charts-AC-18103-3',
       verdict: cellPass ? 'pass' : 'fail',
       detail: cellPass
-        ? `Every one of ${totalCoords} rendered (series, x) coordinates matches its paired <td> cell text at the same precision the chart emits (per-region counts: ${JSON.stringify(perRegion)}); a mismatched or missing cell would fail per AC-18103-3; x-fixture-request-id=${golden.requestId}`
-        : `AC-18103-3 evidence gap: total coords=${totalCoords} mismatches=${JSON.stringify(mismatches.slice(0, 4))}`,
+        ? `Given a rendered chart, when the pack inspects; Every one of ${totalCoords} rendered (series, x) coordinates matches its paired <td> cell text at the same precision the chart emits (per-region counts: ${JSON.stringify(perRegion)}); a mismatched or missing cell would fail per AC-18103-3; x-fixture-request-id=${golden.requestId}`
+        : `Given a rendered chart, when the pack inspects; AC-18103-3 evidence gap: total coords=${totalCoords} mismatches=${JSON.stringify(mismatches.slice(0, 4))}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,

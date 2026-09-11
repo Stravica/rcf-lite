@@ -1,5 +1,10 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.2.2 - 2026-09-11
+
+- Probes rewritten to observe declared AC properties instead of static constants. live-region-preseeding now enumerates elements by `[data-live-region]` and asserts polite (aria-live="polite", empty) and assertive (role="alert", empty) semantics per AC-20101-1; positive-anchor-on-absence broken-variant row removed. toast-contract row de-claimed to notObservableHere for AC-20102-1 (role mapping, elapsed timeout and focus pausing are client-JS-driven and only observable in a browser); the static timeout-floor constant-echo row is dropped. centre-acknowledge-round-trip broken-variant shortcut row removed; the positive round-trip row keeps derived evidence (acknowledgedAt flips null to ISO plus the server-side request log entry). Rule 10 applied to every row detail. Anatomy test extended to accept the notObservableHere row shape (non-empty reason + non-empty anchorAcId) alongside evidence-object and honest-skip. Register cleanup.
+
+
 ## 1.2.1 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 3 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-notifications-in-app/server.js` answers: `live-region-preseeding`, `toast-contract`, `centre-acknowledge-round-trip`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-notifications-in-app-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

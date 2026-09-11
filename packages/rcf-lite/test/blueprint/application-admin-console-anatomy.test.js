@@ -28,7 +28,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 34 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.3.1');
+  assert.equal(doc.version, '1.3.2');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent per spec 5.5.3');
   const reqs = doc.contributions.filter((c) => c.kind === 'req');
@@ -261,8 +261,8 @@ test('application-admin-console criterion-e run records carry rule-7d evidence w
     const { readdir } = await import('node:fs/promises');
     entries = await readdir(reportsDir);
   } catch (_) {
-    // Reports must exist for this check to mean anything (master
-    // brief addendum 2026-09-11 point 8: the reviewer reads the
+    // Reports must exist for this check to mean anything (the
+    // run-record inspection rule: the check runner reads the
     // records; so do you). A missing reports directory is a fail:
     // run 'pnpm test:blueprint-probes' or 'node blueprints/application-admin-console/contributions/probes/run-*.mjs'
     // before the anatomy suite.
@@ -278,8 +278,8 @@ test('application-admin-console criterion-e run records carry rule-7d evidence w
     for (const r of doc.results) {
       // The anchor is either a real AC/REQ id string or null (an
       // exception-fallback row). The literal string "unknown" is
-      // refused: probe-utils no longer emits it (master brief
-      // addendum §3).
+      // refused: probe-utils no longer emits it (per the
+      // positive-evidence rule).
       assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
@@ -288,7 +288,15 @@ test('application-admin-console criterion-e run records carry rule-7d evidence w
       const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
       const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
       const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+      // Not-observable-here contract: a row may declare notObservableHere===true
+      // with a non-empty reason and a non-empty anchorAcId when the
+      // AC it names is a browser-only half not observable to the
+      // fixture probe. Such rows carry verdict==='warn' and no
+      // evidence object.
+      const isNotObservableHere = r.notObservableHere === true
+        && typeof r.reason === 'string' && r.reason.length > 0
+        && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
+      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip and no notObservableHere');
     }
   }
 });

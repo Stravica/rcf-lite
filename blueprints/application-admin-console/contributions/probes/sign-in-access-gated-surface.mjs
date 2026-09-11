@@ -1,14 +1,24 @@
-// application-admin-console probe: sign-in Access-gated surface
-// (AC-21815-1). Admin-console v1.1.0 requires: with
-// zeroTrustGate applied, /admin/sign-in renders
-// [data-surface=access-gated], no [data-surface=local-login] region
-// is present, and a [data-role=principal-read] element carries the
-// principal email; without zeroTrustGate, the local-login surface
-// renders with a [data-role=local-login-form].
+// application-admin-console probe: sign-in surface across the three
+// shipped ACs for the sign-in stories - the Access-gated render with
+// request.auth present (AC-21815-1), the 403 refusal when
+// request.auth is missing (AC-21815-2) and the local-login fallback
+// when zeroTrustGate is not applied (AC-21816-1). Each row detail
+// opens on the first eight words of the AC it anchors (rule 10).
 //
-// The probe drives two caps configurations, derives which surface
-// renders, and asserts mutual exclusion. Varies with ?break=principal-read
-// on the gated branch and asserts the principal-read element drops.
+// AC-21815-1 requires: with zeroTrustGate applied, GET /admin/sign-in
+// renders [data-surface=access-gated], no [data-surface=local-login]
+// region is present, and [data-role=principal-read] carries the
+// principal email read from request.auth.
+//
+// AC-21815-2 requires: with zeroTrustGate applied but request.auth
+// absent, the route refuses with HTTP 403, the DOM carries the
+// access-denied surface, no principal-read element is rendered and
+// no protected data is served.
+//
+// AC-21816-1 requires: without zeroTrustGate applied, GET /admin/sign-in
+// renders [data-surface=local-login] and no [data-surface=access-gated]
+// region; the local login form ships with data-role=local-login-form
+// and data-action=local-sign-in controls.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
@@ -19,74 +29,87 @@ export default async function runProbe() {
   const results = [];
   const principalEmail = 'probe-signin@example.test';
 
-  const gated = await startFixture({ env: { ADMIN_CONSOLE_CAPS: 'principalDirectory,zeroTrustGate', ADMIN_CONSOLE_PRINCIPAL_EMAIL: principalEmail } });
+  const gated = await startFixture({ env: { ADMIN_CONSOLE_CAPS: 'principalDirectory,zeroTrustGate' } });
   try {
-    const r = await fixtureFetch(gated.url, '/admin/sign-in');
-    const accessGatedPresent = /data-surface="access-gated"/.test(r.body);
-    const localLoginPresent = /data-surface="local-login"/.test(r.body);
-    const principalReadPresent = /data-role="principal-read"/.test(r.body);
-    const principalEmailPresent = r.body.includes(principalEmail);
-    const pass = r.status === 200 && !!r.requestId
+    // Row 1: AC-21815-1 with an Authorization header populating request.auth.
+    const withAuth = await fixtureFetch(gated.url, '/admin/sign-in', {
+      headers: { authorization: `Bearer ${principalEmail}` },
+    });
+    const accessGatedPresent = /data-surface="access-gated"/.test(withAuth.body);
+    const localLoginPresent = /data-surface="local-login"/.test(withAuth.body);
+    const principalReadPresent = /data-role="principal-read"/.test(withAuth.body);
+    const principalEmailPresent = withAuth.body.includes(principalEmail);
+    const gatedPass = withAuth.status === 200 && !!withAuth.requestId
       && accessGatedPresent && !localLoginPresent
       && principalReadPresent && principalEmailPresent;
     results.push({
-      anchorAcId,
-      verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `GET /admin/sign-in with zeroTrustGate applied: derived access-gated surface present, local-login surface absent (mutual exclusion holds), principal-read element carries the elicited email "${principalEmail}"; x-fixture-request-id=${r.requestId}`
-        : `sign-in gated evidence gap: status=${r.status} rid=${r.requestId} gated=${accessGatedPresent} localLogin=${localLoginPresent} principalRead=${principalReadPresent} emailPresent=${principalEmailPresent}`,
+      anchorAcId: 'application-admin-console-AC-21815-1',
+      verdict: gatedPass ? 'pass' : 'fail',
+      detail: gatedPass
+        ? `When application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities: GET /admin/sign-in with Authorization: Bearer ${principalEmail} returned 200 rendering [data-surface="access-gated"] with no [data-surface="local-login"] and a [data-role="principal-read"] element carrying the principal email read from request.auth; x-fixture-request-id=${withAuth.requestId}`
+        : `When application-admin-console v1.1.0 is applied with zeroTrustGate in appliedCapabilities (gap): status=${withAuth.status} rid=${withAuth.requestId} gated=${accessGatedPresent} localLogin=${localLoginPresent} principalRead=${principalReadPresent} emailPresent=${principalEmailPresent}`,
       evidence: {
-        requestId: r.requestId,
-        responseStatus: r.status,
-        bodyExcerpt: excerpt((r.body.match(/data-surface="access-gated"[^]{0,220}/) || [''])[0]),
+        requestId: withAuth.requestId,
+        responseStatus: withAuth.status,
+        bodyExcerpt: excerpt((withAuth.body.match(/data-surface="access-gated"[^]{0,240}/) || [''])[0]),
         derived: { accessGatedPresent, localLoginPresent, principalReadPresent, principalEmailPresent },
       },
     });
 
-    const broken = await fixtureFetch(gated.url, '/admin/sign-in?break=principal-read');
-    const brokenPrincipal = /data-role="principal-read"/.test(broken.body);
-    const brokenGated = /data-surface="access-gated"/.test(broken.body);
-    const varyPass = broken.status === 200 && !!broken.requestId && brokenGated && !brokenPrincipal;
+    // Row 2: AC-21815-2 with NO Authorization header (request.auth absent).
+    const noAuth = await fixtureFetch(gated.url, '/admin/sign-in');
+    const refusedStatus = noAuth.status === 403;
+    const deniedSurfacePresent = /data-surface="access-denied"/.test(noAuth.body);
+    const noPrincipalRead = !/data-role="principal-read"/.test(noAuth.body);
+    const noProtectedEmail = !noAuth.body.includes(principalEmail);
+    const refusedPass = !!noAuth.requestId
+      && refusedStatus
+      && deniedSurfacePresent
+      && noPrincipalRead
+      && noProtectedEmail;
     results.push({
-      anchorAcId,
-      verdict: varyPass ? 'pass' : 'fail',
-      detail: varyPass
-        ? `GET /admin/sign-in?break=principal-read (zeroTrustGate applied): derived principal-read element dropped while access-gated surface remains; the AC-21815-1 gated-branch check would refuse; x-fixture-request-id=${broken.requestId}`
-        : `break=principal-read evidence gap: status=${broken.status} rid=${broken.requestId} brokenPrincipal=${brokenPrincipal} brokenGated=${brokenGated}`,
+      anchorAcId: 'application-admin-console-AC-21815-2',
+      verdict: refusedPass ? 'pass' : 'fail',
+      detail: refusedPass
+        ? `When zeroTrustGate is applied but the incoming request lacks request.auth: GET /admin/sign-in with no Authorization header returned 403 rendering [data-surface="access-denied"] with no [data-role="principal-read"] element and no protected principal email echoed into the DOM; x-fixture-request-id=${noAuth.requestId}`
+        : `When zeroTrustGate is applied but the incoming request refusal gap: status=${noAuth.status} rid=${noAuth.requestId} refusedStatus=${refusedStatus} deniedSurface=${deniedSurfacePresent} noPrincipalRead=${noPrincipalRead} noProtectedEmail=${noProtectedEmail}`,
       evidence: {
-        requestId: broken.requestId,
-        responseStatus: broken.status,
-        bodyExcerpt: excerpt((broken.body.match(/data-surface="access-gated"[^]{0,220}/) || [''])[0]),
-        derived: { brokenPrincipal, brokenGated },
+        requestId: noAuth.requestId,
+        responseStatus: noAuth.status,
+        bodyExcerpt: excerpt((noAuth.body.match(/data-surface="access-denied"[^]{0,240}/) || [''])[0]),
+        derived: { refusedStatus, deniedSurfacePresent, noPrincipalRead, noProtectedEmail },
       },
     });
   } finally {
-    gated.kill();
+    await gated.kill();
   }
 
   const local = await startFixture({ env: { ADMIN_CONSOLE_CAPS: 'principalDirectory' } });
   try {
+    // Row 3: AC-21816-1 fallback branch (zeroTrustGate not applied).
     const r = await fixtureFetch(local.url, '/admin/sign-in');
     const accessGatedPresent = /data-surface="access-gated"/.test(r.body);
     const localLoginPresent = /data-surface="local-login"/.test(r.body);
     const localFormPresent = /data-role="local-login-form"/.test(r.body);
+    const localSignInControl = /data-action="local-sign-in"/.test(r.body);
     const pass = r.status === 200 && !!r.requestId
-      && !accessGatedPresent && localLoginPresent && localFormPresent;
+      && !accessGatedPresent && localLoginPresent
+      && localFormPresent && localSignInControl;
     results.push({
-      anchorAcId,
+      anchorAcId: 'application-admin-console-AC-21816-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `GET /admin/sign-in without zeroTrustGate: derived local-login surface present with a local-login-form; access-gated absent (mutual exclusion holds on the fallback branch); x-fixture-request-id=${r.requestId}`
-        : `sign-in fallback evidence gap: status=${r.status} rid=${r.requestId} gated=${accessGatedPresent} localLogin=${localLoginPresent} form=${localFormPresent}`,
+        ? `When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities: GET /admin/sign-in returned 200 rendering [data-surface="local-login"] with no [data-surface="access-gated"] region; the local login form carries data-role="local-login-form" and a data-action="local-sign-in" submit control; x-fixture-request-id=${r.requestId}`
+        : `When application-admin-console v1.1.0 is applied without zeroTrustGate in appliedCapabilities (gap): status=${r.status} rid=${r.requestId} gated=${accessGatedPresent} localLogin=${localLoginPresent} form=${localFormPresent} signInControl=${localSignInControl}`,
       evidence: {
         requestId: r.requestId,
         responseStatus: r.status,
-        bodyExcerpt: excerpt((r.body.match(/data-surface="local-login"[^]{0,220}/) || [''])[0]),
-        derived: { accessGatedPresent, localLoginPresent, localFormPresent },
+        bodyExcerpt: excerpt((r.body.match(/data-surface="local-login"[^]{0,240}/) || [''])[0]),
+        derived: { accessGatedPresent, localLoginPresent, localFormPresent, localSignInControl },
       },
     });
   } finally {
-    local.kill();
+    await local.kill();
   }
   return { results };
 }

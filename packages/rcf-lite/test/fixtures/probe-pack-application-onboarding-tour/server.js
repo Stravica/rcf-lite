@@ -256,7 +256,12 @@ function tourClientScript({ store, breakSwitch, firstRun, complete }) {
     if (COMPLETE) {
       openStep(steps.length - 1);
       finishTour();
-    } else if (FIRST_RUN || !alreadyDone) {
+    } else if (!alreadyDone) {
+      // AC-26101-1: the tour opens on the highest-value surface for a first-run
+      // principal (i.e. when no completion record is present); a stored completion
+      // record suppresses the auto-open on subsequent loads. The FIRST_RUN
+      // client-script constant is now a diagnostic breadcrumb only, not an
+      // override that forces the dialog past persistence state.
       openStep(0);
     }
   }

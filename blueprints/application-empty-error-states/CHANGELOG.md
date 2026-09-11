@@ -1,5 +1,10 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.2 - 2026-09-11
+
+- forbidden-and-server-error probes now compare positive state-copy tokens rendered in the response HTML against the AC-22102-1 (forbidden) and AC-22103-1 (server-error) contracts, replacing the fixture-specific data-leak marker key that did not observe the state copy. permission-denied-and-offline offline row de-claimed to notObservableHere for AC-22105-1 (buffer lifecycle intercepted-write, buffered, reconnect, flushed sequence is client-driven and only observable in a browser). error-boundary-alert reanchored to AC-22108-1 active crash state; the standby-absence row that lacked a positive anchor is removed. Positive-anchor-on-absence broken-variant rows removed. Rule 10 applied to every row detail. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
 ## 1.2.1 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 5 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/server.js` answers: `not-found-and-recovery`, `forbidden-and-server-error`, `permission-denied-and-offline`, `empty-list-and-no-search`, `error-boundary-alert`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-empty-error-states-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

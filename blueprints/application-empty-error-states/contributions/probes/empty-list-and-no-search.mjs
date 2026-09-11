@@ -1,6 +1,8 @@
 // application-empty-error-states probe: empty-list state
 // (AC-22106-1) and no-search-results state echoing the query
-// (AC-22107-1).
+// (AC-22107-1). Broken-variant row on empty-list?break=no-recovery
+// was removed under the positive-anchor cleanup (positive-anchor on
+// absence is void).
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
@@ -20,30 +22,13 @@ export default async function runProbe() {
       anchorAcId,
       verdict: emptyPass ? 'pass' : 'fail',
       detail: emptyPass
-        ? `GET /probe/empty-list returned 200 with role="region", data-visual="empty-list" wrapper and keyboard-reachable data-recovery="create" link; x-fixture-request-id=${empty.requestId}`
-        : `empty-list evidence gap: status=${empty.status} rid=${empty.requestId} region=${region} visual=${visualWrapper} recovery=${recoveryLink}`,
+        ? `Given a listing endpoint returning an empty array, observed role="region", data-visual="empty-list" wrapper and keyboard-reachable [data-recovery="create"] link on the rendered surface; x-fixture-request-id=${empty.requestId}`
+        : `Given a listing endpoint returning an empty array, evidence gap: status=${empty.status} rid=${empty.requestId} region=${region} visual=${visualWrapper} recovery=${recoveryLink}`,
       evidence: {
         requestId: empty.requestId,
         responseStatus: empty.status,
         bodyExcerpt: excerpt((empty.body.match(/data-surface="empty-list"[^]{0,220}/) || [''])[0]),
         derived: { region, visualWrapper, recoveryLink },
-      },
-    });
-
-    const broken = await fixtureFetch(fixture.url, '/probe/empty-list?break=no-recovery');
-    const brokenRecovery = /data-recovery="create"/.test(broken.body);
-    const brokenPass = broken.status === 200 && !!broken.requestId && !brokenRecovery;
-    results.push({
-      anchorAcId,
-      verdict: brokenPass ? 'pass' : 'fail',
-      detail: brokenPass
-        ? `GET /probe/empty-list?break=no-recovery returned 200 and dropped data-recovery="create"; the AC-22106-1 recovery-link check would refuse; x-fixture-request-id=${broken.requestId}`
-        : `no-recovery break gap: status=${broken.status} rid=${broken.requestId} recoveryPresent=${brokenRecovery}`,
-      evidence: {
-        requestId: broken.requestId,
-        responseStatus: broken.status,
-        bodyExcerpt: excerpt((broken.body.match(/data-visual="empty-list"[^]{0,200}/) || [''])[0]),
-        derived: { brokenRecovery },
       },
     });
 
@@ -61,8 +46,8 @@ export default async function runProbe() {
       anchorAcId: 'application-empty-error-states-AC-22107-1',
       verdict: nsPass ? 'pass' : 'fail',
       detail: nsPass
-        ? `GET /probe/search?q=${query} returned 200; derived data-query span echoed the varied query verbatim ("${derivedQ}"); data-visual="no-search-results" and clear-filters recovery present; x-fixture-request-id=${noSearch.requestId}`
-        : `no-search evidence gap: status=${noSearch.status} rid=${noSearch.requestId} region=${nsRegion} visual=${nsVisual} echoed=${echoed} derived="${derivedQ}" expected="${query}" clear=${clearControl}`,
+        ? `Given a search or filter yielding zero rows, observed role="region", data-visual="no-search-results" wrapper, [data-recovery="clear-filters"] control and a data-query span echoing the varied query verbatim ("${derivedQ}"); x-fixture-request-id=${noSearch.requestId}`
+        : `Given a search or filter yielding zero rows, evidence gap: status=${noSearch.status} rid=${noSearch.requestId} region=${nsRegion} visual=${nsVisual} echoed=${echoed} derived="${derivedQ}" expected="${query}" clear=${clearControl}`,
       evidence: {
         requestId: noSearch.requestId,
         responseStatus: noSearch.status,

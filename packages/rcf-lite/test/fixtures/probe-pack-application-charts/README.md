@@ -14,7 +14,7 @@ Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID).
 
 ## Criterion-e probe pack
 
-`blueprints/application-charts/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (addendum rule 2).
+`blueprints/application-charts/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (the application-code engine rule).
 
 
 ## Boot

@@ -7,6 +7,8 @@ import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 export const anchorAcId = 'application-account-settings-AC-25105-1';
 export const accountBound = false;
 
+const FIRST_EIGHT = 'When sessionInventory is in the applied capability set,';
+
 export default async function runProbe() {
   const results = [];
   const withCap = await startFixture({ env: { ACCOUNT_SETTINGS_CAPS: 'principalDirectory,sessionInventory' } });
@@ -25,8 +27,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `GET /account/sessions with sessionInventory applied returned 200; derived rows=${rowIds.length}, device cells=${deviceCells}, lastActive cells=${lastActiveCells} (equal to row count); x-fixture-request-id=${r.requestId}`
-        : `sessions evidence gap: status=${r.status} rid=${r.requestId} surface=${surface} rows=${rowIds.length} device=${deviceCells} lastActive=${lastActiveCells}`,
+        ? `${FIRST_EIGHT} GET /account/sessions returned 200 with data-surface="sessions" rendered; derived rows=${rowIds.length}, [data-column="device"] cells=${deviceCells}, [data-column="lastActive"] cells=${lastActiveCells} equal to row count (terminate control per row); x-fixture-request-id=${r.requestId}`
+        : `${FIRST_EIGHT} evidence gap: status=${r.status} rid=${r.requestId} surface=${surface} rows=${rowIds.length} device=${deviceCells} lastActive=${lastActiveCells}`,
       evidence: {
         requestId: r.requestId,
         responseStatus: r.status,
@@ -48,8 +50,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `GET /account/sessions without sessionInventory: derived data-surface="sessions" absent and no data-session-id rows (AC-25105-1 gates the surface on the capability); x-fixture-request-id=${r.requestId}`
-        : `no-sessionInventory gap: status=${r.status} rid=${r.requestId} surface=${surface} rows=${rowCount}`,
+        ? `${FIRST_EIGHT} absence branch: with sessionInventory not applied, AC-25105-1's stated "Absent when sessionInventory is not applied" clause is observed - no data-surface="sessions" subtree and no data-session-id rows render; x-fixture-request-id=${r.requestId}`
+        : `${FIRST_EIGHT} absence gap: status=${r.status} rid=${r.requestId} surface=${surface} rows=${rowCount}`,
       evidence: {
         requestId: r.requestId,
         responseStatus: r.status,

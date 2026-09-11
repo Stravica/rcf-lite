@@ -87,8 +87,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: keyboardPass ? 'pass' : 'fail',
       detail: keyboardPass
-        ? `DOM source-order walk of focusable [.chartDataPoint tabindex=0] elements returned ${order.length}/${totalDataPoints} points, grouped series-by-series per chart (${JSON.stringify(traversal.byForm && Object.fromEntries(Object.entries(traversal.byForm).map(([f, l]) => [f, [...new Set(l.map((p) => p.series))].join('->')])))}); reduced-motion rule zeros transition-duration on the surface, satisfying AC-18104-1; x-fixture-request-id=${golden.requestId}`
-        : `AC-18104-1 gap: focusable=${order.length}/${totalDataPoints} seriesOrderOk=${traversal.ok} reducedMotion=${reducedMotion} rid=${golden.requestId}`,
+        ? `Given an interactive chart (data points are clickable; DOM source-order walk of focusable [.chartDataPoint tabindex=0] elements returned ${order.length}/${totalDataPoints} points, grouped series-by-series per chart (${JSON.stringify(traversal.byForm && Object.fromEntries(Object.entries(traversal.byForm).map(([f, l]) => [f, [...new Set(l.map((p) => p.series))].join('->')])))}); reduced-motion rule zeros transition-duration on the surface, satisfying AC-18104-1; x-fixture-request-id=${golden.requestId}`
+        : `Given an interactive chart (data points are clickable; AC-18104-1 gap: focusable=${order.length}/${totalDataPoints} seriesOrderOk=${traversal.ok} reducedMotion=${reducedMotion} rid=${golden.requestId}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,
@@ -121,8 +121,8 @@ export default async function runProbe() {
       anchorAcId: 'application-charts-AC-18104-3',
       verdict: shapePass ? 'pass' : 'fail',
       detail: shapePass
-        ? `Every one of ${order.length} focusable data points announces "<seriesName>, <xValue>, <yValue> <unit>" and each token matches the point's own data-series / data-x / data-y attributes; x-fixture-request-id=${golden.requestId}`
-        : `AC-18104-3 gap: firstBad=${JSON.stringify(firstBad)}`,
+        ? `Given an interactive chart, when the keyboard focus; Every one of ${order.length} focusable data points announces "<seriesName>, <xValue>, <yValue> <unit>" and each token matches the point's own data-series / data-x / data-y attributes; x-fixture-request-id=${golden.requestId}`
+        : `Given an interactive chart, when the keyboard focus; AC-18104-3 gap: firstBad=${JSON.stringify(firstBad)}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,

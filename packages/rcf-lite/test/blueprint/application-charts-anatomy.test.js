@@ -27,7 +27,7 @@ const PACK_ABS = join(BLUEPRINT_ROOT, 'probe-packs', 'application-charts.pack.mj
 test('application-charts: blueprint.json declares the ratified shape (TC-048-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-charts');
-  assert.equal(doc.version, '1.0.5');
+  assert.equal(doc.version, '1.0.6');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -155,8 +155,8 @@ test('application-charts criterion-e run records carry rule-7d evidence when pre
     const { readdir } = await import('node:fs/promises');
     entries = await readdir(reportsDir);
   } catch (_) {
-    // Reports must exist for this check to mean anything (master
-    // brief addendum 2026-09-11 point 8: the reviewer reads the
+    // Reports must exist for this check to mean anything (the
+    // run-record inspection rule: the check runner reads the
     // records; so do you). A missing reports directory is a fail:
     // run 'pnpm test:blueprint-probes' or 'node blueprints/application-charts/contributions/probes/run-*.mjs'
     // before the anatomy suite.
@@ -172,8 +172,8 @@ test('application-charts criterion-e run records carry rule-7d evidence when pre
     for (const r of doc.results) {
       // The anchor is either a real AC/REQ id string or null (an
       // exception-fallback row). The literal string "unknown" is
-      // refused: probe-utils no longer emits it (master brief
-      // addendum §3).
+      // refused: probe-utils no longer emits it (per the
+      // positive-evidence rule).
       assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;

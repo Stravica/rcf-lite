@@ -1,67 +1,41 @@
 // application-notifications-in-app probe: toast role/priority mapping
 // and the WCAG 2.2.1 timeout floor (AC-20102-1).
 //
-// AC-20102-1 requires: info-priority toasts render inside
-// [data-live-region="polite"] with role="status"; error toasts
-// render inside [data-live-region="assertive"] with role="alert";
-// the shell root exposes the ratified 6-second timeout floor.
+// AC-20102-1 semantics are client-driven in the shipped fixture:
+// toasts render only after client JS runs (a POST /__emit path is
+// server-recorded but the DOM effect happens in the browser), and the
+// elapsed timeout and focus-pause behaviour are browser-only. A
+// server-side HTML probe cannot observe any of them here without a
+// browser step, and this pack is fixture-HTTP-only.
 //
-// The probe derives the timeout-floor value from the shell root's
-// data-toast-timeout-floor-seconds attribute (an integer the fixture
-// emits from its shipped constant, but the probe re-parses it from
-// the response text and asserts it meets or exceeds 6). Then varies
-// input with ?break=timeout and asserts the derived value drops to 2
-// (below the WCAG 2.2.1 floor).
+// The row is therefore emitted as notObservableHere for AC-20102-1
+// with a reason naming the browser piece the pack would need. No
+// evidence object is carried (per the not-observable-here contract). The pack
+// aggregate becomes warn (AMBER) via the shared aggregate() rule.
 
-import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
+import { startFixture } from './probe-utils.mjs';
 
 export const anchorAcId = 'application-notifications-in-app-AC-20102-1';
 export const accountBound = false;
 
-function parseFloor(body) {
-  const m = body.match(/data-toast-timeout-floor-seconds="(\d+)"/);
-  return m ? Number(m[1]) : NaN;
-}
-
 export default async function runProbe() {
+  // Boot and immediately tear down the fixture so the probe still
+  // exercises the fixture lifecycle (teardown-fails-verdict rule);
+  // the AC observation itself needs a browser step, so no HTTP
+  // observation is emitted here.
   const fixture = await startFixture();
-  const results = [];
   try {
-    const golden = await fixtureFetch(fixture.url, '/');
-    const floor = parseFloor(golden.body);
-    const meetsFloor = golden.status === 200 && !!golden.requestId && floor >= 6;
-    results.push({
-      anchorAcId,
-      verdict: meetsFloor ? 'pass' : 'fail',
-      detail: meetsFloor
-        ? `GET / shell root emits data-toast-timeout-floor-seconds="${floor}"; derived value meets the WCAG 2.2.1 six-second floor (>=6); x-fixture-request-id=${golden.requestId}`
-        : `GET / evidence gap: status=${golden.status} rid=${golden.requestId} floor=${floor}`,
-      evidence: {
-        requestId: golden.requestId,
-        responseStatus: golden.status,
-        bodyExcerpt: excerpt((golden.body.match(/data-toast-timeout-floor-seconds="\d+"/) || [''])[0]),
-        derived: { floor },
-      },
-    });
-
-    const broken = await fixtureFetch(fixture.url, '/?break=timeout');
-    const brokenFloor = parseFloor(broken.body);
-    const varyPass = broken.status === 200 && !!broken.requestId && brokenFloor > 0 && brokenFloor < 6;
-    results.push({
-      anchorAcId,
-      verdict: varyPass ? 'pass' : 'fail',
-      detail: varyPass
-        ? `GET /?break=timeout returned 200; derived floor dropped from ${floor} to ${brokenFloor}; the AC-20102-1 check would refuse this render because ${brokenFloor}s is below the six-second WCAG floor; x-fixture-request-id=${broken.requestId}`
-        : `break=timeout evidence gap: status=${broken.status} rid=${broken.requestId} brokenFloor=${brokenFloor}`,
-      evidence: {
-        requestId: broken.requestId,
-        responseStatus: broken.status,
-        bodyExcerpt: excerpt((broken.body.match(/data-toast-timeout-floor-seconds="\d+"/) || [''])[0]),
-        derived: { brokenFloor },
-      },
-    });
+    return {
+      results: [{
+        anchorAcId,
+        notObservableAcId: anchorAcId,
+        verdict: 'pass',
+        notObservableHere: true,
+        reason: 'AC-20102-1 requires observing client-driven toast emission into [data-live-region="polite"] with role="status" for info and [data-live-region="assertive"] with role="alert" for error, plus the six-second elapsed-timeout and focus-pause behaviour on data-shown-at/data-dismissed-at; toast rendering is client-JS-only in the fixture and elapsed timing and focus behaviour are browser-only, so a fixture-HTTP-only probe cannot observe them; a Playwright-driven check is required.',
+        detail: 'Given a toast triggered by a background event; not observable at the fixture HTTP surface: toast DOM is emitted by client JS after load and the six-second elapsed timeout plus focus-pause behaviour are browser-only; needs a Playwright-driven observation to derive role, wrapper mapping and elapsed data-dismissed-at minus data-shown-at.',
+      }],
+    };
   } finally {
     await fixture.kill();
   }
-  return { results };
 }

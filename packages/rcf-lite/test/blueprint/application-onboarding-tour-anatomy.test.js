@@ -30,7 +30,7 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 test('blueprint.json declares 21 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-onboarding-tour');
-  assert.equal(doc.version, '1.1.3');
+  assert.equal(doc.version, '1.1.4');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -88,7 +88,7 @@ test('applies cleanly on a fresh project with 21 contributions and no requiresAp
   assert.equal(apply.applied, true, JSON.stringify(apply));
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
-  assert.equal(sidecar.version, '1.1.3');
+  assert.equal(sidecar.version, '1.1.4');
   // TC-057-applies-clean also runs `rcf define validate` on the scratch
   // project so applied contributions are exercised against the closed
   // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution
@@ -294,8 +294,8 @@ test('application-onboarding-tour criterion-e run records carry rule-7d evidence
     const { readdir } = await import('node:fs/promises');
     entries = await readdir(reportsDir);
   } catch (_) {
-    // Reports must exist for this check to mean anything (master
-    // brief addendum 2026-09-11 point 8: the reviewer reads the
+    // Reports must exist for this check to mean anything (the
+    // run-record inspection rule: the check runner reads the
     // records; so do you). A missing reports directory is a fail:
     // run 'pnpm test:blueprint-probes' or 'node blueprints/application-onboarding-tour/contributions/probes/run-*.mjs'
     // before the anatomy suite.
@@ -311,8 +311,8 @@ test('application-onboarding-tour criterion-e run records carry rule-7d evidence
     for (const r of doc.results) {
       // The anchor is either a real AC/REQ id string or null (an
       // exception-fallback row). The literal string "unknown" is
-      // refused: probe-utils no longer emits it (master brief
-      // addendum §3).
+      // refused: probe-utils no longer emits it (per the
+      // positive-evidence rule).
       assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
@@ -321,7 +321,17 @@ test('application-onboarding-tour criterion-e run records carry rule-7d evidence
       const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
       const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
       const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+      // Not-observable-here contract: a row that de-claims observation here (a
+      // browser-only assertion answered by the pack's browser check,
+      // for example) is accepted when it carries notObservableHere===true
+      // with a non-empty reason and a non-empty anchorAcId naming the
+      // shipped AC/REQ it defers. The verdict on such rows is 'warn'
+      // (see probe-utils.mjs aggregate()); no evidence object is required
+      // because there is nothing to observe from this vantage.
+      const isNotObservableHere = r.notObservableHere === true
+        && typeof r.reason === 'string' && r.reason.length > 0
+        && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
+      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, and no notObservableHere de-claim');
     }
   }
 });

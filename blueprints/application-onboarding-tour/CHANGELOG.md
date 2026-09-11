@@ -1,5 +1,10 @@
 # application-onboarding-tour CHANGELOG
 
+## 1.1.4 - 2026-09-11
+
+- Fixture tour-open runtime condition corrected from `FIRST_RUN || !alreadyDone` to `!alreadyDone` alone per AC-26101-1 (the tour opens on first run once, not any time FIRST_RUN is set past a stored completion). first-run-detection, stepper-role-dialog and completion-persistence probes de-claimed to notObservableHere with their AC anchors (AC-26101-1, AC-26102-1, AC-26104-1) because the observable properties - tour open behaviour, dialog focus lifecycle, focus return, responsive placement, completion write-and-restart-read - are all client-JS-driven and only observable in a browser. checklist-anchor-open remains observed (server-side surfaces the applied-capability-driven checklist state); rule 10 applied to both branches. Positive-anchor-on-absence broken-variant rows removed. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
 ## 1.1.3 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 4 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-onboarding-tour/server.js` answers: `first-run-detection`, `stepper-role-dialog`, `checklist-anchor-open`, `completion-persistence`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-onboarding-tour-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

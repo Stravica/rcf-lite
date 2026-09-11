@@ -86,7 +86,7 @@ export async function startFixture({ port, env = {} } = {}) {
     url,
     port: boundPort,
     // Await child exit and propagate any error. A teardown failure
-    // must fail the verdict (master brief addendum 2026-09-11 §5);
+    // must fail the verdict (the teardown-propagation rule);
     // no swallowed errors here.
     kill: () => new Promise((res, rej) => {
       let settled = false;
@@ -118,7 +118,7 @@ export function excerpt(body, maxLen = 240) {
 }
 
 export function aggregate(results) {
-  // Master brief addendum 2026-09-11 §3: no-checks-ran is a fail.
+  // Positive-evidence rule: no-checks-ran is a fail.
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
@@ -150,7 +150,7 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${filepath}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
-    // Master brief addendum 2026-09-11 §3: exception rows have no
+    // Positive-evidence rule (exception fallback): exception rows have no
     // observed AC; anchor null (never a fabricated id like
     // "unknown"), carry an evidence object with the error excerpt.
     const message = err && err.message ? err.message : String(err);

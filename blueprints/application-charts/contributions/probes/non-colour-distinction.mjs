@@ -3,8 +3,8 @@
 // (AC-18102-1). The observation runs per-series (not by aggregate
 // counts): each series must carry a data-pattern attribute AND a
 // labelled text node bearing its name. A series with two patterns
-// and another with none does not satisfy the AC  -  the closure's
-// false-pass path.
+// and another with none does not satisfy the AC  -  the per-series
+// check's false-pass path.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
@@ -49,8 +49,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: goldenPass ? 'pass' : 'fail',
       detail: goldenPass
-        ? `Per-series check on ${perSeries.length} series (${perSeries.map((s) => s.name).join(', ')}): every series carries a data-pattern attribute AND a data-series-label text node  -  the AC-18102-1 non-colour distinction contract is satisfied at every series; x-fixture-request-id=${golden.requestId}`
-        : `AC-18102-1 per-series gap: ${JSON.stringify(perSeries)} rid=${golden.requestId}`,
+        ? `Given a rendered chart with N series, the; Per-series check on ${perSeries.length} series (${perSeries.map((s) => s.name).join(', ')}): every series carries a data-pattern attribute AND a data-series-label text node  -  the AC-18102-1 non-colour distinction contract is satisfied at every series; x-fixture-request-id=${golden.requestId}`
+        : `Given a rendered chart with N series, the; AC-18102-1 per-series gap: ${JSON.stringify(perSeries)} rid=${golden.requestId}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,

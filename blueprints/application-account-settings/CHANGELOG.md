@@ -1,5 +1,10 @@
 # application-account-settings CHANGELOG
 
+## 1.2.2 - 2026-09-11
+
+- sessions-adapter-uniform now drives real provider variance: fixture accepts a `?provider=<clerk|keycloak|oauth2>` query switch and emits a `<meta data-observed-provider="X">` marker inside `[data-surface="sessions"]`; the probe runs one row per provider label and asserts the normalised session shape is identical across all three, and fails when the sessionInventory adapter subtree is empty (per AC-25106-1). theme-radiogroup interaction half de-claimed to notObservableHere for AC-25108-1 (theme selection, root data-theme attribute change and persisted round trip are client-driven); a conformance-only DOM-shape row keeps observation on the radiogroup markup. profile-form-autocomplete positive-anchor-on-absence broken row removed. Rule 10 applied to every row detail across all five probes. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
 ## 1.2.1 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering 5 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-account-settings/server.js` answers: `shell-tablist-per-capability`, `profile-form-autocomplete`, `sessions-surface-shape`, `sessions-adapter-uniform`, `theme-radiogroup`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-account-settings-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.

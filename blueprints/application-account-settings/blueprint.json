@@ -1,6 +1,6 @@
 {
   "slug": "application-account-settings",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -251,5 +251,5 @@
       "standardsTraceClause": "WCAG 3.3.4 Error Prevention (Legal, Financial, Data)"
     }
   ],
-  "updatedAt": "2026-09-11T13:54:04Z"
+  "updatedAt": "2026-09-11T18:02:00Z"
 }
