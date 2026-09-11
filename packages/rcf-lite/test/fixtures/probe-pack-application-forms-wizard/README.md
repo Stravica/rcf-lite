@@ -50,7 +50,7 @@ Prints `LISTENING <port>` once bound.
 - `GET /drafts` returns the in-memory server-draft-table JSON body for the synthetic operator.
 - `POST /drafts` accepts `{ step, field, value }` and writes into the in-memory draft table.
 
-## Manual boot for the gate reviewer
+## Manual boot
 
 ```
 PORT=4321 node server.js

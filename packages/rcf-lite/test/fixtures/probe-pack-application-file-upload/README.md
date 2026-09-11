@@ -43,7 +43,7 @@ Prints `LISTENING <port>` once bound.
 - `POST /upload/chunk` synthetic acknowledgement endpoint for the multipart branch.
 - `PATCH /upload/tus` synthetic acknowledgement endpoint for the tus branch (echoes `Upload-Offset`).
 
-## Manual boot for the gate reviewer
+## Manual boot
 
 ```
 PORT=4321 node server.js

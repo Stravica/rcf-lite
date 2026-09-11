@@ -298,7 +298,7 @@ function renderInProgressPage(url) {
  // empty-list surface. Fixture renders the same [data-surface] and
  // [data-recovery="create"] wrapper the sibling blueprint's pack
  // asserts, so a consumer that has applied both blueprints reads
- // the same surface from either lane.
+ // the same surface from either blueprint.
  return { status: 200, body: `<!doctype html><html><head>${shellHead('In progress forms')}</head><body>${bodyOpen()}
 <h1>In progress</h1>
 <section data-surface="empty-list">
