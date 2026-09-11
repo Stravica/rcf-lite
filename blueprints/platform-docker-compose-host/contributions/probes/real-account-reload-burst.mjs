@@ -31,7 +31,7 @@ export default async function runProbe() {
   }
   const { provisionThrowawayServer } = await import(resolve(FIXTURE_DIR, 'provision.mjs'));
   const { destroyThrowawayServer } = await import(resolve(FIXTURE_DIR, 'destroy.mjs'));
-  const { bringUpStack, reloadBurst, tearDownStack, httpProbe } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
+  const { bringUpStack, reloadBurst, tearDownStack, httpProbe, httpProbeOnServer } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
 
   let provisioned = null;
   try {
@@ -43,16 +43,21 @@ export default async function runProbe() {
         extra: { serverId: provisioned.id, brought },
       };
     }
-    const url = `http://${provisioned.primaryIpv4}/`;
-    // Warm-up probe: baseline the caddy answer before the burst.
-    const warm = await httpProbe(url);
+    // Warm-up probe: baseline the caddy answer on the throwaway server's
+    // loopback via ssh (the T-1 cloud-init hardening DOCKER-USER DROP
+    // refuses off-host traffic to the docker-mapped port, so this is the
+    // reachable path for the shipped fixture; see minimal-stack-up
+    // probe for the discussion).
+    const warm = await httpProbeOnServer(provisioned, '/');
     if (!warm.ok || warm.statusCode !== 200) {
       return {
-        results: [{ anchorAcId, verdict: 'fail', detail: `caddy did not answer 200 before the burst on ${url}: statusCode=${warm.statusCode} error=${warm.error || 'none'}` }],
+        results: [{ anchorAcId, verdict: 'fail', detail: `caddy did not answer 200 before the burst on ${warm.target}: statusCode=${warm.statusCode} error=${warm.error || 'none'}` }],
         extra: { serverId: provisioned.id, warm },
       };
     }
-    const burst = await reloadBurst(provisioned, url, { total: 40, concurrency: 8 });
+    // Burst probe path: fire the burst from the same on-server loopback
+    // to keep every request on the same reachable path as the warm baseline.
+    const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, onServer: true });
     if (burst.reloadExit !== 0) {
       return {
         results: [{ anchorAcId, verdict: 'fail', detail: `caddy reload exited non-zero (${burst.reloadExit}): ${burst.reloadStderrExcerpt}` }],
@@ -73,7 +78,7 @@ export default async function runProbe() {
       extra: {
         serverId: provisioned.id,
         primaryIpv4: provisioned.primaryIpv4,
-        deployedStackUrl: url,
+        deployedStackUrl: warm.target,
         warm, burst,
         eventTrail: brought.events,
       },

@@ -198,7 +198,7 @@ test('T-2 platform-docker-compose-host v1.1.3 env vars declared and compose-stac
   assert.match(reloadSkip.results[0].detail, /CI_HAS_HETZNER_ACCOUNT/);
   const driverPath = join(FIXTURE_ROOT, 'src', 'compose-stack-driver.mjs');
   const driver = await readFile(driverPath, 'utf8');
-  for (const sym of ['export async function bringUpStack', 'export async function httpProbe', 'export async function reloadBurst', 'export async function tearDownStack']) {
+  for (const sym of ['export async function bringUpStack', 'export async function httpProbe', 'export async function httpProbeOnServer', 'export async function reloadBurst', 'export async function tearDownStack']) {
     assert.ok(driver.includes(sym), 'compose-stack-driver.mjs missing ' + sym);
   }
 });

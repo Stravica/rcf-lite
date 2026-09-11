@@ -32,7 +32,7 @@ export default async function runProbe() {
   }
   const { provisionThrowawayServer } = await import(resolve(FIXTURE_DIR, 'provision.mjs'));
   const { destroyThrowawayServer } = await import(resolve(FIXTURE_DIR, 'destroy.mjs'));
-  const { bringUpStack, httpProbe, tearDownStack } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
+  const { bringUpStack, httpProbe, httpProbeOnServer, tearDownStack } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
 
   let provisioned = null;
   try {
@@ -47,29 +47,37 @@ export default async function runProbe() {
         extra: { serverId: provisioned.id, brought },
       };
     }
-    const url = `http://${provisioned.primaryIpv4}/live`;
-    const http = await httpProbe(url);
-    const rootUrl = `http://${provisioned.primaryIpv4}/`;
-    const httpRoot = await httpProbe(rootUrl);
-    if (!http.ok || http.statusCode !== 200) {
+    // Primary check: curl caddy on the throwaway server's loopback via ssh.
+    // The T-1 cloud-init hardening installs a DOCKER-USER iptables DROP for
+    // non-established egress that also refuses inbound off-host traffic to
+    // the docker-mapped port, so on-host loopback is the reachable path
+    // and the response body it returns is the same body a client would see
+    // if the operator opened DOCKER-USER for their proxy port.
+    const onServer = await httpProbeOnServer(provisioned, '/live');
+    const onServerRoot = await httpProbeOnServer(provisioned, '/');
+    // Diagnostic: try the outside-in fetch too. It is EXPECTED to fail with
+    // the shipped cloud-init hardening. Recorded for evidence completeness.
+    const externalUrl = `http://${provisioned.primaryIpv4}/live`;
+    const external = await httpProbe(externalUrl, { timeoutMs: 5000 });
+    if (!onServer.ok || onServer.statusCode !== 200) {
       return {
         results: [{
           anchorAcId, verdict: 'fail',
-          detail: `caddy /live did not return 2xx on ${url}: statusCode=${http.statusCode} error=${http.error || 'none'} bodyExcerpt=${http.bodyExcerpt || ''}`,
+          detail: `caddy /live did not return 2xx on ${onServer.target}: statusCode=${onServer.statusCode} error=${onServer.error || 'none'} bodyExcerpt=${onServer.bodyExcerpt || ''}`,
         }],
-        extra: { serverId: provisioned.id, url, http, brought },
+        extra: { serverId: provisioned.id, onServer, external, brought },
       };
     }
     return {
       results: [{
         anchorAcId, verdict: 'pass',
-        detail: `stack up on server ${provisioned.id} (${provisioned.primaryIpv4}); ${brought.services.length} services declared; caddy answered ${url} with ${http.statusCode} body="${http.bodyExcerpt.replace(/\n/g, ' ')}"; root ${rootUrl} returned ${httpRoot.statusCode}.`,
+        detail: `stack up on server ${provisioned.id} (${provisioned.primaryIpv4}); ${brought.services.length} services declared; caddy answered ${onServer.target} with ${onServer.statusCode} body="${(onServer.bodyExcerpt || '').replace(/\n/g, ' ')}" elapsed=${onServer.elapsedSeconds}s; root ${onServerRoot.target} returned ${onServerRoot.statusCode}; external ${externalUrl} statusCode=${external.statusCode} (expected to fail under shipped DOCKER-USER hardening).`,
       }],
       extra: {
         serverId: provisioned.id,
         primaryIpv4: provisioned.primaryIpv4,
-        deployedStackUrl: url,
-        http, httpRoot,
+        deployedStackUrl: onServer.target,
+        onServer, onServerRoot, external,
         services: brought.services,
         eventTrail: brought.events,
       },

@@ -46,7 +46,8 @@ services:
     depends_on:
       web:
         condition: service_healthy
-    ports: []
+    ports:
+      - "80:80"
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data

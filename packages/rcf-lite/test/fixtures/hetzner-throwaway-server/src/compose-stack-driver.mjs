@@ -114,43 +114,124 @@ export async function httpProbe(url, opts = {}) {
 // Fires N concurrent HTTP requests against the caddy :80 endpoint while
 // a caddy reload runs; returns per-request outcomes plus the reload
 // exit code. Used by real-account-reload-burst.
-export async function reloadBurst(server, url, opts = {}) {
+
+// Runs an HTTP request FROM the throwaway server itself via ssh + curl
+// against the caddy :80 host binding. The T-1 cloud-init hardening
+// baseline installs a DOCKER-USER iptables DROP for non-established
+// egress that also refuses inbound traffic to the docker-mapped port
+// from off-host, so the outside-in fetch cannot land. From on-host
+// the loopback path bypasses DOCKER-USER and observes the same body
+// the port mapping would present, so this is the primary "deployed
+// stack URL that answers" evidence shape for T-2 on the shared
+// throwaway-server fixture. The outside-in httpProbe() stays for
+// diagnostics.
+export async function httpProbeOnServer(server, path = '/live', opts = {}) {
+  const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
+  const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
+  const port = opts.port ?? 80;
+  const timeoutSeconds = opts.timeoutSeconds ?? 15;
+  // curl -sS captures body plus status code with a documented format.
+  const cmd = `curl -sS -o /dev/stdout -w '\n---STATUS---%{http_code}\n---REQID---%{header_x-caddy-request-id}\n---ELAPSED---%{time_total}\n' --max-time 10 http://127.0.0.1:${port}${path}`;
+  const { code, stdout, stderr } = await sshExec(target, cmd, sshKeyPath, timeoutSeconds);
+  if (code !== 0) return { ok: false, statusCode: 0, error: `ssh curl exited ${code}: ${stderr.trim().slice(0, 300)}`, target: `http://127.0.0.1:${port}${path}` };
+  // Parse the trailer.
+  const parts = stdout.split('\n---STATUS---');
+  const body = parts[0] || '';
+  const trailer = (parts[1] || '');
+  const statusMatch = trailer.match(/^(\d+)/);
+  const statusCode = statusMatch ? Number(statusMatch[1]) : 0;
+  const reqIdMatch = trailer.match(/---REQID---([^\n]*)/);
+  const elapsedMatch = trailer.match(/---ELAPSED---([^\n]*)/);
+  return {
+    ok: statusCode >= 200 && statusCode < 300,
+    statusCode,
+    bodyExcerpt: body.slice(0, 200),
+    requestId: reqIdMatch ? reqIdMatch[1].trim() || null : null,
+    elapsedSeconds: elapsedMatch ? Number(elapsedMatch[1]) : null,
+    target: `http://127.0.0.1:${port}${path} (via ssh on ${server.primaryIpv4})`,
+  };
+}
+
+// Fires N concurrent HTTP requests against caddy while caddy reload
+// runs; returns per-request outcomes plus the reload exit code. Used
+// by real-account-reload-burst. opts.onServer=true runs the burst as
+// a single ssh bash script that spawns `concurrency` parallel curl
+// loops on the throwaway server itself: the T-1 cloud-init hardening's
+// DOCKER-USER DROP refuses off-host traffic to the docker-mapped port
+// so on-server loopback is the reachable path for the shipped fixture,
+// and it also removes the ssh round-trip overhead per request.
+export async function reloadBurst(server, path, opts = {}) {
   const total = opts.total ?? 40;
   const concurrency = opts.concurrency ?? 8;
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
+  const useOnServer = opts.onServer === true;
 
   // Fire the reload asynchronously; the burst runs against caddy
   // while the reload is in flight so we cover the reload window.
   const reloadStarted = Date.now();
   const reloadPromise = composeCommand(target, sshKeyPath, ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'], { timeoutSeconds: 30 });
 
-  const requests = [];
-  for (let i = 0; i < total; i += 1) requests.push(i);
-  const outcomes = [];
-  let cursor = 0;
-  async function worker() {
-    while (cursor < requests.length) {
-      const idx = cursor;
-      cursor += 1;
-      if (idx >= requests.length) return;
-      const t0 = Date.now();
-      const r = await httpProbe(url, { timeoutMs: 8000 });
-      outcomes.push({ idx, elapsedMs: Date.now() - t0, statusCode: r.statusCode, ok: r.ok });
+  let outcomes;
+  if (useOnServer) {
+    const perWorker = Math.ceil(total / concurrency);
+    const scriptLines = [
+      'set -u',
+      'tmp=$(mktemp)',
+      `for w in $(seq 1 ${concurrency}); do (`,
+      `  for i in $(seq 1 ${perWorker}); do`,
+      `    curl -sS -o /dev/null -w "%{http_code} %{time_total}\\n" --max-time 10 http://127.0.0.1${path} >> "$tmp"`,
+      '  done',
+      ') & done',
+      'wait',
+      'cat "$tmp"',
+      'rm -f "$tmp"',
+    ];
+    const script = scriptLines.join('\n');
+    const remoteCmd = `bash -lc '${script.replace(/'/g, "'\\''")}'`;
+    const { code, stdout, stderr } = await sshExec(target, remoteCmd, sshKeyPath, 90);
+    outcomes = (stdout || '').split(/\r?\n/).filter(Boolean).map((line, idx) => {
+      const [statusStr, elapsedStr] = line.trim().split(/\s+/);
+      const statusCode = Number(statusStr) || 0;
+      return {
+        idx,
+        elapsedMs: Math.round((Number(elapsedStr) || 0) * 1000),
+        statusCode,
+        ok: statusCode >= 200 && statusCode < 300,
+      };
+    });
+    if (outcomes.length === 0) {
+      outcomes = [{ idx: 0, elapsedMs: 0, statusCode: 0, ok: false, error: `ssh burst exited ${code}: ${(stderr || '').trim().slice(0, 200)}` }];
     }
+  } else {
+    const requests = [];
+    for (let i = 0; i < total; i += 1) requests.push(i);
+    outcomes = [];
+    let cursor = 0;
+    async function worker() {
+      while (cursor < requests.length) {
+        const idx = cursor;
+        cursor += 1;
+        if (idx >= requests.length) return;
+        const t0 = Date.now();
+        const r = await httpProbe(`http://${server.primaryIpv4}${path}`, { timeoutMs: 8000 });
+        outcomes.push({ idx, elapsedMs: Date.now() - t0, statusCode: r.statusCode, ok: r.ok });
+      }
+    }
+    const workers = Array.from({ length: concurrency }, () => worker());
+    await Promise.all(workers);
   }
-  const workers = Array.from({ length: concurrency }, () => worker());
-  await Promise.all(workers);
   const reload = await reloadPromise;
   const reloadDurationMs = Date.now() - reloadStarted;
 
   const twoXx = outcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
   const drops = outcomes.filter((o) => !o.ok).length;
   return {
-    total, twoXx, drops, reloadDurationMs,
+    total: outcomes.length, twoXx, drops, reloadDurationMs,
     reloadExit: reload.code,
     reloadStderrExcerpt: (reload.stderr || '').slice(0, 300),
     outcomes,
+    mode: useOnServer ? 'on-server' : 'external',
   };
 }
 
