@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1101-1",
-      "description": "The project maintains a declared route inventory naming every route; no navigable surface exists outside it. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The project maintains a declared route inventory naming every route; no navigable surface exists outside it. Applying agent sets: the source location of the declared route inventory (a manifest, module export, or route table) and the enumeration of every reachable navigation target the inventory compares against.",
       "given": "the application source tree",
       "when": "the route inventory is compared against reachable navigation targets",
       "then": "every reachable target appears in the inventory and every inventory entry is reachable",

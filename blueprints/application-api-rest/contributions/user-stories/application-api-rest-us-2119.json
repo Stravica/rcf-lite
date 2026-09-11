@@ -59,7 +59,7 @@
     },
     {
       "id": "AC-2119-5",
-      "description": "The conformance run is part of the standard verification pipeline and its per-operation results are reported, so contract conformance is visible at every build, not sampled occasionally. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The conformance run is part of the standard verification pipeline and its per-operation results are reported, so contract conformance is visible at every build, not sampled occasionally. Applying agent sets: the verification-pipeline definition (the pipeline file, workflow, or configuration) that runs the conformance check, and the per-operation reporting sink the pipeline writes results into.",
       "given": "the project's verification pipeline",
       "when": "it runs",
       "then": "the conformance results appear per operation and a conformance failure fails the pipeline",

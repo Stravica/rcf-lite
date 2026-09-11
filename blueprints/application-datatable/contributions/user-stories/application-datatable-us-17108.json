@@ -2,7 +2,7 @@
   "usId": "application-datatable-US-17108",
   "prdId": "PRD-001",
   "reqId": "application-datatable-REQ-002",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "status": "approved",
   "title": "URL state serialisation preserves sort, filter and page across reload and share",
   "asA": "operator sharing a specific datatable view with a colleague",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-17108-2",
-      "description": "Given the elicited client-side sort alternative (ADR-1802 elicited variant) applied to a small in-memory collection, the sort direction still writes to the URL so reload stability is preserved; the client-side branch never invents a URL state divergent from the server-side default. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given the elicited client-side query adapter mode (`query-adapter-mode=client-side` per `blueprint.json:elicits[query-adapter-mode]`) applied to a small in-memory collection, the sort direction still writes to the URL so reload stability is preserved; the client-side branch never invents a URL state divergent from the server-side default. Applying agent sets: the elicited value on `blueprint.json:elicits[query-adapter-mode]` (`server-side` or `client-side`). The URL `sort=<column>:<asc|desc>` grammar is fixed on TAC-1802-application-datatable-query-adapter.responsibilities[0].",
       "given": "a rendered datatable applying the client-side sort alternative",
       "when": "the operator activates a sort control",
       "then": "the URL query parameters update with `sort=<column>:<direction>` in the same shape as the server-side default",
@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-17108-3",
-      "description": "Given a rendered datatable, the default page size on the recommended default (ADR-1803) applies when no `pageSize` is present in the URL; the operator's elicited page-size override at apply time changes the default without changing the URL contract. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given a rendered datatable, the default page size on the recommended default (ADR-1803) applies when no `pageSize` is present in the URL; the operator's elicited page-size override at apply time changes the default without changing the URL contract. Applying agent sets: the applied default page size from ADR-1803-application-datatable-page-size (25 unless the operator elicits an override on `blueprint.json:elicits[page-size]`). The query parameter name `pageSize` is fixed on TAC-1802-application-datatable-query-adapter.responsibilities[0].",
       "given": "a rendered datatable landed at the shell route without a `pageSize` query parameter",
       "when": "the initial render fetches the first page",
       "then": "the fetch carries `pageSize=<applied-default>` and the URL is left untouched",

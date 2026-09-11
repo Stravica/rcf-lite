@@ -2,7 +2,7 @@
   "tacId": "TAC-1803-application-datatable-selection-model",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "name": "Datatable selection model",
   "purpose": "Owns the per-row, per-page and (elicited) cross-page selection state, plus the accessible count the shell renders adjacent to the bulk action controls. Substitutable interface so tests can drive selection without mounting the shell.",
@@ -10,7 +10,7 @@
     "Track the selected row-id set across shell mount / unmount cycles (AC-17109-1, AC-17109-2).",
     "Expose a keyboard-reachable per-row toggle and a page-level toggle that flips the visible page (AC-17104-1).",
     "Expose the running count the shell renders adjacent to the bulk-action controls (AC-17109-2).",
-    "Reset selection on advance when the operator did not elicit cross-page persistence (AC-17109-3)."
+    "Reset selection on advance when the operator did not elicit cross-page persistence, and attach a `data-selection-persistence` marker on the bulk-action region carrying the elicited value from `blueprint.json:elicits[selection-persistence]` (`per-page` or `cross-page`) so the accessible copy on the bulk-action region names the mode operators are working under (AC-17109-3)."
   ],
   "internalStructure": "One factory `createSelectionModel({ persistence: 'perPage' | 'crossPage' })` returning `{ toggle(rowId), togglePage(rowIds), selectedIds(), size(), reset(), onChange(listener) }`. The shell (TAC-1801) reads selectedIds() to render checkbox state and size() to render the running count.",
   "interfaces": [

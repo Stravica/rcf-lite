@@ -27,7 +27,7 @@ const PACK_ABS = join(BLUEPRINT_ROOT, 'probe-packs', 'application-datatable.pack
 test('application-datatable: blueprint.json declares the ratified shape (TC-047-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-datatable');
-  assert.equal(doc.version, '1.0.3');
+  assert.equal(doc.version, '1.0.4');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined);
   assert.equal(doc.suggestedCompanions.length, 2);

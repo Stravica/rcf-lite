@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-1106-2",
-      "description": "Every semantic token declared for the light theme has a declared dark value; parity is verified over the token file, and a missing pair fails the build. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Every semantic token declared for the light theme has a declared dark value; parity is verified over the token file, and a missing pair fails the build. Applying agent sets: the semantic-token file path (default `assets/tokens/design-tokens.json`) and any project-added token keys the light/dark parity check must cover on top of the shipped set.",
       "given": "assets/tokens/design-tokens.json as integrated into the project",
       "when": "the token sets are diffed by key",
       "then": "the light and dark key sets are identical",
