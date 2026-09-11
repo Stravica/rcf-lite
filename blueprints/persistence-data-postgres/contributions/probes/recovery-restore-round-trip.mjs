@@ -90,7 +90,7 @@ async function waitHealthy(container, maxSeconds = 30) {
  * it. Absent = docker exits non-zero WITH `No such object` on stderr.
  * Any other error (daemon unreachable, permission denied) fails the
  * assertion; the caller can then FAIL the row rather than treat it as
- * "no problem here" (Codex 2026-09-11 recovery finding).
+ * "no problem here" (follow-up review recovery finding).
  */
 async function assertContainerAbsent(container) {
   try {
