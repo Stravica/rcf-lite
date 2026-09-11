@@ -52,7 +52,7 @@ async function runProbe(name, env = {}) {
 test('T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.2');
+  assert.equal(bp.version, '1.1.3');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -175,4 +175,30 @@ test('T-2 platform-docker-compose-host anatomy: README, CHANGELOG, guide and doc
   assert.match(topics, /\| platform-docker-compose-host \| 38101-38899/);
   const authoring = await readFile(AUTHORING, 'utf8');
   assert.match(authoring, /\| `containerHost` \|/, 'blueprint-authoring section 6a gains the containerHost row');
+});
+
+// TC-150-env-vars-declared-and-real-driver-wired (positive-evidence
+// gate row 7d): fixture README carries a declared env vars table for
+// the T-2 probe surface (every env var read on the account-bound path
+// is named on the manifest), the two T-2 skip reasons name their gate
+// var literally, and the compose-stack driver the real-account probes
+// import lives on the fixture with the four contract exports.
+test('T-2 platform-docker-compose-host v1.1.3 env vars declared and compose-stack driver wired (TC-150-env-vars-declared-and-real-driver-wired)', async () => {
+  const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
+  const section = readme.split('## Declared env vars (platform-docker-compose-host probes)')[1] || '';
+  assert.ok(section.length > 0, 'fixture README is missing the T-2 declared env vars section');
+  for (const v of ['CI_HAS_HETZNER_ACCOUNT', 'HCLOUD_TOKEN', 'GITHUB_RUN_ID', 'RCF_LITE_CI_SSH_KEY', 'RCF_LITE_CI_SSH_KEY_NAME']) {
+    assert.ok(section.includes('`' + v + '`'), 'T-2 declared env vars table missing ' + v);
+  }
+  const stackUpSkip = await runProbe('real-account-minimal-stack-up', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assert.equal(stackUpSkip.results[0].accountBoundSkipped, true);
+  assert.match(stackUpSkip.results[0].detail, /CI_HAS_HETZNER_ACCOUNT/);
+  const reloadSkip = await runProbe('real-account-reload-burst', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assert.equal(reloadSkip.results[0].accountBoundSkipped, true);
+  assert.match(reloadSkip.results[0].detail, /CI_HAS_HETZNER_ACCOUNT/);
+  const driverPath = join(FIXTURE_ROOT, 'src', 'compose-stack-driver.mjs');
+  const driver = await readFile(driverPath, 'utf8');
+  for (const sym of ['export async function bringUpStack', 'export async function httpProbe', 'export async function reloadBurst', 'export async function tearDownStack']) {
+    assert.ok(driver.includes(sym), 'compose-stack-driver.mjs missing ' + sym);
+  }
 });

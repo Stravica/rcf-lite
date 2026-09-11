@@ -101,7 +101,7 @@ export async function runSshBaselineChecks(server, { sshUser = 'deploy', sshKeyP
   return { serverId: server.id, primaryIpv4: server.primaryIpv4, readiness, cloudInit, checks, diagnostics };
 }
 
-function sshExec(target, cmd, keyPath, connectTimeoutSeconds = 10) {
+export function sshExec(target, cmd, keyPath, connectTimeoutSeconds = 10) {
   return new Promise((resolvePromise, reject) => {
     const args = [
       '-o', 'StrictHostKeyChecking=accept-new',

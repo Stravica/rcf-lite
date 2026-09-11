@@ -53,7 +53,7 @@ async function runProbe(name, env = {}) {
 test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.2');
+  assert.equal(bp.version, '1.1.3');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -218,4 +218,27 @@ test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud
       `${name}.mjs probe body reads a process.env.SIMULATE_ switch; move it to the fixture-side shim per H-1 mutation-purity gate row.`,
     );
   }
+});
+
+// TC-140-env-vars-declared-on-fixture-manifest (positive-evidence
+// gate row 7d): every env var the T-1 probes read is declared on the
+// fixture manifest (README section "Declared env vars
+// (deploy-hetzner-server probes)"), skip reasons on the two probes we
+// re-authored name their gate var literally, and the runShim helper
+// exists on the pack. Guards against silent additions of undeclared
+// env vars past the gate.
+test('T-1 deploy-hetzner-server v1.1.3 env vars declared on the fixture manifest (TC-140-env-vars-declared-on-fixture-manifest)', async () => {
+  const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
+  const section = readme.split('## Declared env vars (deploy-hetzner-server probes)')[1] || '';
+  assert.ok(section.length > 0, 'fixture README is missing the T-1 declared env vars section');
+  for (const v of ['CI_HAS_HETZNER_ACCOUNT', 'HCLOUD_TOKEN', 'GITHUB_RUN_ID', 'RCF_LITE_CI_SSH_KEY', 'RCF_LITE_CI_SSH_KEY_NAME', 'RCF_FIXTURE_MANIFEST_DIR']) {
+    assert.ok(section.includes('`' + v + '`'), 'T-1 declared env vars table missing ' + v);
+  }
+  const provisionSkip = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assert.equal(provisionSkip.results[0].accountBoundSkipped, true);
+  assert.match(provisionSkip.results[0].detail, /CI_HAS_HETZNER_ACCOUNT/, 'throwaway-server-provision skip reason must name CI_HAS_HETZNER_ACCOUNT literally');
+  const utilsPath = join(PROBES_DIR, 'probe-utils.mjs');
+  const utils = await readFile(utilsPath, 'utf8');
+  assert.match(utils, /export async function runShim/);
+  assert.match(utils, /export function accountBoundSkippedResult/);
 });

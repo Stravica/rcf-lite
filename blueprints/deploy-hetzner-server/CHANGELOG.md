@@ -1,3 +1,7 @@
+## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
+
+- Fixture manifest now carries a `Declared env vars (deploy-hetzner-server probes)` table naming every first- and second-tier variable the three T-1 real-account probes read, plus every fixture-mutation switch (positive-evidence gate row 7d). Skip reasons on the real-account probes name `CI_HAS_HETZNER_ACCOUNT` literally; the three real-account probes run under the criterion-e core-shelf hardening dispatch (server id created then absent from the post-run `hcloud server list` inventory, cloud-init render hash and six ssh baseline blocks observed, snapshot id created then deleted with the server). Blueprint content otherwise byte-identical to 1.1.2; anatomy test extended.
+
 # Changelog
 
 ## 1.1.2 (register patch, 2026-09-10)

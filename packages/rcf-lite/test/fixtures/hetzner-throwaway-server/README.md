@@ -143,6 +143,29 @@ runtime T-2 stands up. Neither track modifies the ci-throwaway
 manifest; both add their own `run-<probe>.mjs` shims here that call
 their own blueprint probes with the same delegate pattern.
 
+## Declared env vars (deploy-hetzner-server probes)
+
+Every environment variable the `deploy-hetzner-server` probes hosted
+against this fixture read is declared here. Includes the first-tier
+`CI_HAS_*` gate variable and every second-tier variable the
+account-bound branch reads once past the gate. An undeclared env var
+that a probe or the fixture reads is refused by the positive-evidence
+gate row (authoring standard section 7d and the checklist rows in
+section 6).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the three T-1 real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `deploy-hetzner-server/real-account-throwaway-server-provision`, `deploy-hetzner-server/real-account-cloud-init-hardened`, `deploy-hetzner-server/real-account-snapshot-on-demand` |
+| `HCLOUD_TOKEN` | second | Hetzner Cloud API token consumed by the fixture `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, `src/snapshot-verb.mjs` and `src/cloud-init-renderer.mjs` (ssh-key describe) via the `hcloud` CLI on the account-bound path. Unset on the skip path. | shared `hetzner-throwaway-server` provisioner surface consumed by every `deploy-hetzner-server` real-account probe |
+| `GITHUB_RUN_ID` | second, optional | Runner-supplied run id used to tag the throwaway server labels on the account-bound path; the probes fall back to the string `local` when unset. Read at `blueprints/deploy-hetzner-server/contributions/probes/real-account-*.mjs`. | every `deploy-hetzner-server` real-account probe |
+| `RCF_LITE_CI_SSH_KEY` | second, optional | Filesystem path to an ssh private key the real-account cloud-init hardened probe uses to reach the throwaway server; falls back to the default ssh-agent key when unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/ssh-baseline-check.mjs`. | `deploy-hetzner-server/real-account-cloud-init-hardened` |
+| `RCF_LITE_CI_SSH_KEY_NAME` | second, optional | Comma-separated list of Hetzner Cloud ssh-key NAMES to use in place of the manifest `sshKeyIds` at provision time; the manifest value stays the default when the override is unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/provision.mjs`. | shared `hetzner-throwaway-server` provisioner surface consumed by every `deploy-hetzner-server` real-account probe |
+| `RCF_FIXTURE_MANIFEST_DIR` | fixture-mutation | Absolute path to a scratch manifest directory used by the fixture-side `run-manifest-schema-validate.mjs` shim when a mutation switch is set; unset on the shipped verdict path. Read at `blueprints/deploy-hetzner-server/contributions/probes/probe-utils.mjs`. | `deploy-hetzner-server/manifest-schema-validate` (fixture-shim path) |
+| `SIMULATE_HARDENING_DRIFT` | fixture-mutation | Fixture-side switch on `run-cloud-init-render-lint.mjs`; strips a hardening block from the rendered YAML so `cloud-init-render-lint` FAILS naming the missing line. Never read by the probe body. | fixture-side `run-cloud-init-render-lint.mjs` |
+| `SIMULATE_MANIFEST_INVALID` | fixture-mutation | Fixture-side switch on `run-manifest-schema-validate.mjs`; replaces `location` with `mars1` so `manifest-schema-validate` FAILS naming the offending field. Never read by the probe body. | fixture-side `run-manifest-schema-validate.mjs` |
+| `SIMULATE_JSON_PARSE_STRIP` | fixture-mutation | Fixture-side switch on `run-hcloud-dry-run-mock.mjs`; the mocked `hcloud server create` returns non-JSON stdout so the facade's JSON parser throws and the probe FAILS. Never read by the probe body. | fixture-side `run-hcloud-dry-run-mock.mjs` |
+| `SIMULATE_EVENT_SECRECY_LEAK` | fixture-mutation | Fixture-side switch on `run-hcloud-dry-run-mock.mjs`; the facade injects the token into the `hetznerServerProvisioned` payload so the event-secrecy scan FAILS naming the leaked field. Never read by the probe body. | fixture-side `run-hcloud-dry-run-mock.mjs` |
+
 ## T-2 (platform-docker-compose-host v1.0.0) extension
 
 Round-7 T-2 extends this fixture with a minimal compose stack that proves
@@ -198,6 +221,30 @@ CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-rea
 - `SIMULATE_INVALID_CADDYFILE=true` on `run-caddyfile-validate.mjs`:
   appends an unclosed-block syntax error to a scratch copy of the
   Caddyfile; `caddy validate` exits non-zero and the probe FAILS.
+
+## Declared env vars (platform-docker-compose-host probes)
+
+Every environment variable the `platform-docker-compose-host` probes
+hosted against this fixture read is declared here. Includes the
+first-tier `CI_HAS_*` gate variable and every second-tier variable the
+account-bound branch reads once past the gate. An undeclared env var
+that a probe or the fixture reads is refused by the positive-evidence
+gate row (authoring standard section 7d and the checklist rows in
+section 6).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the two T-2 real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
+| `HCLOUD_TOKEN` | second | Hetzner Cloud API token consumed by the shared fixture provisioner surface on the account-bound path so the T-2 probes can stand a throwaway server up before shipping the compose bundle. Unset on the skip path. | shared `hetzner-throwaway-server` provisioner surface consumed by every T-2 real-account probe |
+| `GITHUB_RUN_ID` | second, optional | Runner-supplied run id used to tag the throwaway server labels on the account-bound path; the probes fall back to `local-<epoch-ms>` when unset. Read at `blueprints/platform-docker-compose-host/contributions/probes/real-account-*.mjs`. | every `platform-docker-compose-host` real-account probe |
+| `RCF_LITE_CI_SSH_KEY` | second, optional | Filesystem path to an ssh private key the compose-stack driver uses to reach the throwaway server for the docker install, rsync, `docker compose up`, HTTP probe and `caddy reload` calls; falls back to the default ssh-agent key when unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/ssh-baseline-check.mjs` and re-read by `src/compose-stack-driver.mjs`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
+| `RCF_LITE_CI_SSH_KEY_NAME` | second, optional | Comma-separated list of Hetzner Cloud ssh-key NAMES to use in place of the manifest `sshKeyIds` at provision time; the manifest value stays the default when the override is unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/provision.mjs`. | shared `hetzner-throwaway-server` provisioner surface consumed by every T-2 real-account probe |
+| `SIMULATE_MISSING_HEALTHCHECK` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; strips the `healthcheck:` block from the web service so the lint FAILS naming the service. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
+| `SIMULATE_UNCLASSIFIED_RESTART` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; rewrites the web `restart:` policy to `always` so the lint FAILS naming the disallowed value. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
+| `SIMULATE_UNCLASSIFIED_LOG_DRIVER` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; rewrites the web `logging.driver` to `syslog` so the lint FAILS naming the disallowed value. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
+| `SIMULATE_EVENT_SECRECY_LEAK` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; injects the fixture web-token literal into the `composeStackReady` event body so the event-secrecy scan FAILS naming the leaked field. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
+| `SIMULATE_PLAINTEXT_SECRET` | fixture-mutation | Fixture-side switch on `run-secrets-as-files-scan.mjs`; writes a plaintext `WEB_TOKEN` literal into a scratch copy of `compose.yaml` so the probe FAILS naming the file and the literal. Never read by the probe body. | fixture-side `run-secrets-as-files-scan.mjs` |
+| `SIMULATE_INVALID_CADDYFILE` | fixture-mutation | Fixture-side switch on `run-caddyfile-validate.mjs`; appends an unclosed-block syntax error to a scratch copy of the Caddyfile so `caddy validate` exits non-zero and the probe FAILS. Never read by the probe body. | fixture-side `run-caddyfile-validate.mjs` |
 
 ## T-3 (edge-cloudflare-tunnel v1.0.0) extension
 

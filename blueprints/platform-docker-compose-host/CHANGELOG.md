@@ -1,3 +1,9 @@
+## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
+
+- Real-account probes wired: `real-account-minimal-stack-up` and `real-account-reload-burst` now provision a throwaway cx23, install docker over ssh, ship the fixture compose bundle to `/home/deploy/stack`, run `docker compose up -d --wait`, and HTTP-probe the caddy `:80` endpoint from the runner so the runs carry the "deployed stack URL that answers" 7d evidence shape. Reload-burst fires a 40 request 8 concurrent burst against caddy while `caddy reload` runs and asserts zero drops. Server is destroyed in `always()` and the absence is verified in the post-run `hcloud server list` inventory.
+- Fixture manifest gains a `Declared env vars (platform-docker-compose-host probes)` table naming every first- and second-tier variable the T-2 probes read on the account-bound path plus every fixture-mutation switch (positive-evidence gate row 7d). Skip reasons name `CI_HAS_HETZNER_ACCOUNT` literally.
+- Fixture ships a new `src/compose-stack-driver.mjs` (bringUpStack, httpProbe, reloadBurst, tearDownStack) that reuses the T-1 fixture's `waitForSshReady`, `waitForCloudInit` and `sshExec` primitives (now exported from `src/ssh-baseline-check.mjs`). Anatomy test extended to pin the driver's contract exports.
+
 # platform-docker-compose-host CHANGELOG
 
 ## 1.1.2 - 2026-09-10

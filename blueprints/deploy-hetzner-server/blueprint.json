@@ -1,6 +1,6 @@
 {
   "slug": "deploy-hetzner-server",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "category": "deploy",
   "capabilities": [
     "cloudHost"
@@ -229,5 +229,6 @@
       "elicited": false,
       "standardsTraceClause": "Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-round-7-spec-2026-09-07.md"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-11T11:59:04.000Z"
 }
