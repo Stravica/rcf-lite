@@ -20,7 +20,9 @@ export default async function runProbe() {
     const emptyPass = empty.status === 200 && !!empty.requestId && region && visualWrapper && recoveryLink;
     results.push({
       anchorAcId,
-      verdict: emptyPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22106-1: this row observes the empty-list state renders role=region, data-visual wrapper and a create recovery link, a partial observation of AC-22106-1; the AC also requires the create control to carry an accessible name resolved by assistive tech - AT accessible-name resolution is browser-driven and not observed by this Node HTTP probe',
+      verdict: emptyPass ? 'warn' : 'fail',
       detail: emptyPass
         ? `Given a listing endpoint returning an empty array, observed role="region", data-visual="empty-list" wrapper and keyboard-reachable [data-recovery="create"] link on the rendered surface; x-fixture-request-id=${empty.requestId}`
         : `Given a listing endpoint returning an empty array, evidence gap: status=${empty.status} rid=${empty.requestId} region=${region} visual=${visualWrapper} recovery=${recoveryLink}`,
@@ -44,7 +46,9 @@ export default async function runProbe() {
     const nsPass = noSearch.status === 200 && !!noSearch.requestId && nsRegion && nsVisual && echoed && clearControl;
     results.push({
       anchorAcId: 'application-empty-error-states-AC-22107-1',
-      verdict: nsPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22107-1: this row observes the no-search-results state renders role=region, data-visual wrapper, the clear-filters control and echoes the varied query verbatim, a partial observation of AC-22107-1; the AC also requires the clear-filters control to be activated and to remove the search parameters - clear-control activation and follow-up navigation are browser-driven and not observed by this Node HTTP probe',
+      verdict: nsPass ? 'warn' : 'fail',
       detail: nsPass
         ? `Given a search or filter yielding zero rows, observed role="region", data-visual="no-search-results" wrapper, [data-recovery="clear-filters"] control and a data-query span echoing the varied query verbatim ("${derivedQ}"); x-fixture-request-id=${noSearch.requestId}`
         : `Given a search or filter yielding zero rows, evidence gap: status=${noSearch.status} rid=${noSearch.requestId} region=${nsRegion} visual=${nsVisual} echoed=${echoed} derived="${derivedQ}" expected="${query}" clear=${clearControl}`,

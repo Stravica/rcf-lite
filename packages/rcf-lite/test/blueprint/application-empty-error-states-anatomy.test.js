@@ -32,7 +32,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 21 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-empty-error-states');
-  assert.equal(doc.version, '1.2.3');
+  assert.equal(doc.version, '1.2.4');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
@@ -285,6 +285,39 @@ async function loadContributedAnchorIds(blueprintRoot, slug) {
   await collect('requirements');
   return ids;
 }
+
+function aggregateOf(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r && r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r && r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+test('application-empty-error-states criterion-e probes aggregate to fail under each shipped fixture break (TC-criterion-e-negative-variants)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-empty-error-states', 'contributions', 'probes');
+  // Break switch -> probes that must aggregate fail when the fixture
+  // is booted with that break as PROBE_BREAK. Only observable-side
+  // breaks are covered; client-JS-only breaks are documented as
+  // browser-verify territory in the fixture README.
+  const brokenExpectations = [{"brk":"leak-id","probes":["forbidden-and-server-error"]},{"brk":"stack-trace","probes":["forbidden-and-server-error"]},{"brk":"no-recovery","probes":["empty-list-and-no-search"]}];
+  for (const { brk, probes: probeNames } of brokenExpectations) {
+    for (const name of probeNames) {
+      const prior = process.env.PROBE_BREAK;
+      process.env.PROBE_BREAK = brk;
+      try {
+        const modUrl = pathToFileURL(join(probesDir, name + '.mjs')).href + '?nv=' + brk;
+        const mod = await import(modUrl);
+        const outcome = await mod.default();
+        const results = (outcome && outcome.results) || [];
+        const agg = aggregateOf(results);
+        assert.equal(agg, 'fail', name + ' under PROBE_BREAK=' + brk + ' aggregated ' + agg + ' expected fail; verdicts=' + JSON.stringify(results.map((r) => r.verdict)));
+      } finally {
+        if (prior === undefined) delete process.env.PROBE_BREAK;
+        else process.env.PROBE_BREAK = prior;
+      }
+    }
+  }
+});
 
 test('application-empty-error-states criterion-e probes invoked in-memory carry rule-7d evidence rows (TC-criterion-e-evidence-shape)', async () => {
   const probesDir = join(REPO_ROOT, 'blueprints', 'application-empty-error-states', 'contributions', 'probes');

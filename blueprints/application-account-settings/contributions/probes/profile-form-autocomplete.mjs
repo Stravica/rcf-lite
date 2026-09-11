@@ -47,7 +47,9 @@ export default async function runProbe() {
     const pass = r.status === 200 && !!r.requestId && surfacePresent && missing.length === 0;
     results.push({
       anchorAcId,
-      verdict: pass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-account-settings-AC-25102-1: this row observes the profile form renders with every required input carrying the AC-25102-1 autocomplete token verbatim, a partial observation of AC-25102-1; the AC also requires the save action to succeed on a submit and to surface a save-success or save-failure semantic on a subsequent GET - save-action activation and outcome semantics are browser-driven and not observed by this Node HTTP probe',
+      verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `${FIRST_EIGHT} carrying autocomplete tokens name/email/bday/country: the profile form renders and every required input carries the AC-25102-1 token verbatim; derived autocompletes=${JSON.stringify(autos)}; x-fixture-request-id=${r.requestId}`
         : `${FIRST_EIGHT} autocomplete gap: status=${r.status} rid=${r.requestId} surface=${surfacePresent} autos=${JSON.stringify(autos)} missing=${JSON.stringify(missing)}`,

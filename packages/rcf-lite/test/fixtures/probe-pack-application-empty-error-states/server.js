@@ -321,7 +321,7 @@ function readPrincipalId(req, url) {
 
 function requestHandler(req, res) {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
-  const break_ = reqUrl.searchParams.get('break') || DEFAULT_BREAK;
+  const break_ = reqUrl.searchParams.get('break') || process.env.PROBE_BREAK || DEFAULT_BREAK;
   const principalId = readPrincipalId(req, reqUrl);
 
   // AC-22105-1 server-side buffer lifecycle endpoints. Enqueue during

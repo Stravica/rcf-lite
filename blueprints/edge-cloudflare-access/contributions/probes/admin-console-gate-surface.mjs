@@ -46,14 +46,7 @@ async function bootServer() {
 
 async function fetchDom(url, caps) {
   const target = `${url}/admin/sign-in?caps=${encodeURIComponent(caps)}`;
-  // Cloudflare Access injects the JWT header upstream of the origin;
-  // this probe simulates that when driving the gated capability set
-  // so the fixture observes request.auth as populated (AC-21815-1).
-  // Without zeroTrustGate no auth is required (AC-21816-1 fallback).
-  const headers = /zeroTrustGate/.test(caps)
-    ? { authorization: 'Principal probe-cf-access@example.test' }
-    : undefined;
-  const res = await fetch(target, { headers });
+  const res = await fetch(target);
   return { status: res.status, body: await res.text(), target };
 }
 

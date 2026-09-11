@@ -30,7 +30,9 @@ export default async function runProbe() {
     const pass = r.status === 200 && !!r.requestId && switcherCount >= 1 && orgsLinkInNav;
     results.push({
       anchorAcId: 'application-admin-console-AC-21104-1',
-      verdict: pass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21104-1: this row observes a general header org selector server-side, a partial observation of AC-21104-1; the AC specifically requires the users invite-path to carry an organization selector for scoping the invite - the invite-path selector control is not observed by this Node HTTP probe',
+      verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `Given an applied blueprint declaring tenancy, the shell rendered [data-role="org-switcher"] count=${switcherCount} on the console header and the Orgs link is present in the primary navigation; GET /admin/orgs returned 200; x-fixture-request-id=${r.requestId}`
         : `Given an applied blueprint declaring tenancy, the shell tenancy-on gap: status=${r.status} rid=${r.requestId} switcher=${switcherCount} orgsNavLink=${orgsLinkInNav}`,

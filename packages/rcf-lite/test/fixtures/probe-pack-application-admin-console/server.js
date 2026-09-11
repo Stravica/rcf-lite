@@ -382,7 +382,7 @@ const server = http.createServer(withRequestId__(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const caps = capsFor(reqUrl);
   const asAdmin = reqUrl.searchParams.get('asAdmin') !== 'false';
-  const breakSwitch = reqUrl.searchParams.get('break') ?? DEFAULT_BREAK;
+  const breakSwitch = reqUrl.searchParams.get('break') ?? process.env.PROBE_BREAK ?? DEFAULT_BREAK;
 
   if (req.method === 'GET' && reqUrl.pathname === '/__requests') {
     return jsonResponse(res, 200, { rows: requestLog });

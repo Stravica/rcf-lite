@@ -498,7 +498,7 @@ async function readJsonBody(req) {
 
 function handler(req, res) {
   const url = new URL(req.url, 'http://127.0.0.1');
-  const brk = normaliseBreak(url.searchParams.get('break'));
+  const brk = normaliseBreak(url.searchParams.get('break')) ?? normaliseBreak(process.env.PROBE_BREAK);
   if (req.method === 'GET') {
     if (url.pathname === '/' || url.pathname === '/index.html') {
       const timeoutMs = readTimeoutMs(url, brk);

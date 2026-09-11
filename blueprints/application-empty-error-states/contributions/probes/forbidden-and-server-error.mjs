@@ -72,7 +72,9 @@ export default async function runProbe() {
     const forbiddenPass = forbidden.status === 403 && !!forbidden.requestId && region && control && stateCopyPresent && noSensitiveHit && roundTrip;
     results.push({
       anchorAcId,
-      verdict: forbiddenPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22102-1: this row observes the 403 forbidden state renders role=region, request-access control and POST round-trip, and the surface holds no sensitive-pattern hit against the fixture-served copy, a partial observation of AC-22102-1; the AC also requires the confidentiality property to hold against varied sensitive-input the origin might have leaked (resource ids, tenant slugs the probe injects) - varied-input confidentiality derivation against a shipped origin is not observed by this Node HTTP probe against a fixed fixture',
+      verdict: forbiddenPass ? 'warn' : 'fail',
       detail: forbiddenPass
         ? `Given a 403 response, the forbidden state renders: observed role="region", [data-action="request-access"] control, state-copy "You do not have scope on this workspace" on the rendered document text, no sensitive-pattern hit on the surface; POST /api/request-access returned 200 with ok=true; x-fixture-request-id (state)=${forbidden.requestId}, (action)=${post.requestId}`
         : `Given a 403 response, the forbidden state renders (evidence gap): status=${forbidden.status} rid=${forbidden.requestId} region=${region} control=${control} stateCopy=${stateCopyPresent} noSensitive=${noSensitiveHit} roundTrip=${roundTrip}`,
@@ -93,7 +95,9 @@ export default async function runProbe() {
     const svPass = server.status === 500 && !!server.requestId && svRegion && svRetry && svStateCopy && svNoPattern;
     results.push({
       anchorAcId: 'application-empty-error-states-AC-22103-1',
-      verdict: svPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22103-1: this row observes the 500 server-error state renders role=region, retry control and no backtrace/source-path/env-var/framework-frame hit against the fixture-served copy, a partial observation of AC-22103-1; the AC also requires the confidentiality property to hold against varied stack traces and bare NAME= environment-key forms the origin might have leaked - varied-input confidentiality against a shipped origin is not observed by this Node HTTP probe against a fixed fixture',
+      verdict: svPass ? 'warn' : 'fail',
       detail: svPass
         ? `Given a mocked 500 response, the server-error state renders: observed role="region", [data-recovery="retry"] control, state-copy "The server hit an internal failure" on the rendered document text, no backtrace/source-path/env-var/framework-frame hit on the surface; x-fixture-request-id=${server.requestId}`
         : `Given a mocked 500 response, the server-error state renders (evidence gap): status=${server.status} rid=${server.requestId} region=${svRegion} retry=${svRetry} stateCopy=${svStateCopy} noPattern=${svNoPattern}`,

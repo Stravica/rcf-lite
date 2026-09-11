@@ -79,7 +79,9 @@ export default async function runProbe() {
       && regions.every((r) => /<table class="chartAltTable"/.test(r));
     results.push({
       anchorAcId,
-      verdict: landmarkPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-charts-AC-18103-1: this row observes that a table element lives in every chart landmark server-side, which is a partial observation of AC-18103-1; the AC also requires the paired table to be focus-reachable and traversable by assistive tech - browser focus movement and AT traversal are browser-driven and not observed by this Node HTTP probe',
+      verdict: landmarkPass ? 'warn' : 'fail',
       detail: landmarkPass
         ? `Given a rendered chart, a \`<table>\` element carrying; GET / carries ${regions.length} <section class="chartRegion" role="region"> landmarks; every landmark holds one <table class="chartAltTable"> as AC-18103-1 requires ("a <table> element carrying the same data lives in the same landmark"); x-fixture-request-id=${golden.requestId}`
         : `Given a rendered chart, a \`<table>\` element carrying; landmark evidence gap: status=${golden.status} rid=${golden.requestId} regions=${regions.length}`,

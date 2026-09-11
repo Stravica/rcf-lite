@@ -39,7 +39,9 @@ export default async function runProbe() {
       const pass = r.status === 200 && !!r.requestId && count === cfg.expected && tablistPresent;
       results.push({
         anchorAcId,
-        verdict: pass ? 'pass' : 'fail',
+        conformanceOnly: true,
+        limitation: 'application-account-settings-AC-25101-1: this row observes the derived tab count on the rendered role=tablist matches the sum of always-on plus enabled capability tabs across three caps configurations, a partial observation of AC-25101-1; the AC also requires the tab-to-capability MAPPING to be correct per capability (each tab labels the correct capability) - capability-to-tab-label mapping is not verified against a shipped tab-label registry by this Node HTTP probe',
+        verdict: pass ? 'warn' : 'fail',
         detail: pass
           ? `${FIRST_EIGHT} blueprint declaring principalDirectory, GET /account?caps=${cfg.caps.join(',')}&apps=${cfg.apps.join(',')} (${cfg.name}) returned 200 with role="tablist" nav and derived tab count=${count} matching expected=${cfg.expected} (always-on profile plus one tab per applied capability); x-fixture-request-id=${r.requestId}`
           : `${FIRST_EIGHT} blueprint gap for ${cfg.name}: status=${r.status} rid=${r.requestId} tabs=${count} expected=${cfg.expected} tablist=${tablistPresent}`,

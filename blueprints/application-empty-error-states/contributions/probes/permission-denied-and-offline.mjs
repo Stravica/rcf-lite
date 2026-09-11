@@ -36,7 +36,9 @@ export default async function runProbe() {
     const pass = pd.status === 403 && !!pd.requestId && region && causeShape && action && causeClass;
     results.push({
       anchorAcId,
-      verdict: pass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22104-1: this row observes the 403 permission-denied state renders role=region, request-access control, a class-level cause without a 4+ digit run and data-cause-class=scope-missing, a partial observation of AC-22104-1; the AC also requires the exact cause-shape regex (no UUID form, no identifier-prefixed slug) - the stricter cause-shape derivation is not enforced by this Node HTTP probe',
+      verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `Given a mocked 403 response with a per-resource cause: observed role="region", class-level cause "${causeText}" (no 4+ digit run), [data-action="request-access"] control and data-cause-class="scope-missing" on the rendered surface; x-fixture-request-id=${pd.requestId}`
         : `Given a mocked 403 response with a per-resource cause (evidence gap): status=${pd.status} rid=${pd.requestId} region=${region} cause="${causeText}" causeShape=${causeShape} action=${action} causeClass=${causeClass}`,
@@ -119,7 +121,9 @@ export default async function runProbe() {
       && enqueueGrew && deduped && secondEnqueueGrew && flushedMatches && drained && deliveredMatches;
     results.push({
       anchorAcId: 'application-empty-error-states-AC-22105-1',
-      verdict: bufferPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22105-1: this row observes the server-side buffer lifecycle (flip offline, enqueue distinct tokens, dedupe on duplicate, reconnect drains, delivered count rises), a partial observation of AC-22105-1; the AC also requires the polite live-region announcement of the flushed count and the rendered banner/buffer-count visible on the surface - polite live-region announcements and rendered-banner observation on the SPA are browser-driven and not observed by this Node HTTP probe',
+      verdict: bufferPass ? 'warn' : 'fail',
       detail: bufferPass
         ? `Given navigator.onLine simulated false via the runtime seam: with the server-side buffer keyed to a fresh principalId, POST /probe/offline/state{state:offline} flipped the state; two distinct idempotency tokens enqueued (buffer count seededCount=${seededCount} -> ${bufferAfterA1} -> ${bufferAfterB}); duplicate token deduped (deduped=${enqA2Body.deduped}, count stayed ${bufferAfterA2}); POST /probe/offline/reconnect drained ${flushedCount} writes; final state shows bufferCount=0, state=online, deliveredCount=${deliveredAfter} equal to flushedCount; x-fixture-request-id (initial GET)=${initial.requestId}`
         : `Given navigator.onLine simulated false via the runtime seam (evidence gap): seeded=${seededCount} afterA1=${bufferAfterA1} afterA2=${bufferAfterA2} afterB=${bufferAfterB} flushed=${flushedCount} delivered=${deliveredAfter} state=${finalStateBody.state} enqueueGrew=${enqueueGrew} deduped=${deduped} secondGrew=${secondEnqueueGrew} flushedMatches=${flushedMatches} drained=${drained} deliveredMatches=${deliveredMatches}`,

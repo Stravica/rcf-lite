@@ -89,7 +89,7 @@ function parseQuery(url) {
   const securityShape = q.get('security-surface-shape') ?? DEFAULT_SECURITY_SHAPE;
   const themePersist = q.get('theme-persistence') ?? DEFAULT_THEME_PERSIST;
   const authed = q.get('authed') !== 'false';
-  const breakSwitch = q.get('break') ?? '';
+  const breakSwitch = q.get('break') ?? process.env.PROBE_BREAK ?? '';
   const providerRaw = q.get('provider');
   const provider = ['clerk', 'keycloak', 'oauth2'].includes(providerRaw) ? providerRaw : null;
   return { caps, apps, securityShape, themePersist, authed, breakSwitch, provider };

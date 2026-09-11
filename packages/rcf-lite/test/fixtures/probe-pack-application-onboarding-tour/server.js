@@ -80,7 +80,7 @@ function parseQuery(url) {
   const firstRun = q.get('first-run') === '1';
   const complete = q.get('complete') === '1';
   const anchorOverride = q.get('anchor');
-  const breakSwitch = q.get('break') ?? '';
+  const breakSwitch = q.get('break') ?? process.env.PROBE_BREAK ?? '';
   const derivedAnchor = apps.has('application-dashboard') ? 'dashboard-top' : 'settings-page';
   const anchor = anchorOverride || DEFAULT_ANCHOR || derivedAnchor;
   return { apps, store, firstRun, complete, breakSwitch, anchor };

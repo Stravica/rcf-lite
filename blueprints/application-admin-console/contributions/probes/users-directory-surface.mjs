@@ -46,7 +46,9 @@ export default async function runProbe() {
       && lastActiveColumnPresent;
     results.push({
       anchorAcId: 'application-admin-console-AC-21102-1',
-      verdict: listingPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21102-1: this row observes the directory shell renders with a non-empty user list and column headers, a partial observation of AC-21102-1; the AC also requires that every principal in the provider inventory is rendered with populated role, last-active and status values - inventory-completeness reconciliation against the applied provider adapter is not observed by this Node HTTP probe against a fixed fixture',
+      verdict: listingPass ? 'warn' : 'fail',
       detail: listingPass
         ? `Given an authenticated admin AND an applied auth blueprint declaring principalDirectory: GET /admin/users returned 200 with distinct data-user-id rows=${distinctRowIds.length}, role column present with cells=${roleCellCount} matching row count, status column present, lastActive column present; x-fixture-request-id=${r.requestId}`
         : `Given an authenticated admin AND an applied auth blueprint listing gap: status=${r.status} rid=${r.requestId} rows=${distinctRowIds.length} roleColumn=${roleColumnPresent} roleCells=${roleCellCount} statusColumn=${statusColumnPresent} lastActiveColumn=${lastActiveColumnPresent}`,
@@ -73,7 +75,9 @@ export default async function runProbe() {
       && actionButtonsAreButtons;
     results.push({
       anchorAcId: 'application-admin-console-AC-21102-2',
-      verdict: actionPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21102-2: this row observes at least one action control per row server-side, a partial observation of AC-21102-2; the AC also requires the action set to correlate with the row-principal state (deactivate offered on active sessions, invite offered on pending) - state-to-action correlation against varied per-principal states is not observed by this Node HTTP probe',
+      verdict: actionPass ? 'warn' : 'fail',
       detail: actionPass
         ? `Each row exposes an invite control for a principal without an active session and a deactivate control for an active principal; derived invite buttons=${inviteBtnCount}, deactivate buttons=${deactivateBtnCount}, total=${inviteBtnCount + deactivateBtnCount} matches row count ${distinctRowIds.length}, all rendered as keyboard-reachable <button> elements; x-fixture-request-id=${r.requestId}`
         : `Each row exposes an invite control for a action gap: status=${r.status} rid=${r.requestId} invite=${inviteBtnCount} deactivate=${deactivateBtnCount} rows=${distinctRowIds.length} perRowAction=${perRowAction} buttonElements=${actionButtonsAreButtons}`,
@@ -100,7 +104,9 @@ export default async function runProbe() {
       && !roleColumnPresent;
     results.push({
       anchorAcId: 'application-admin-console-AC-21102-1',
-      verdict: suppressionPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21102-1: this row observes the role column is suppressed on the users directory when roleModel is not applied, a partial observation of AC-21102-1; the AC also requires the full directory-listing contract (every provider principal enumerated with populated status and last-active) - full inventory reconciliation is not observed by this Node HTTP probe against a fixed fixture',
+      verdict: suppressionPass ? 'warn' : 'fail',
       detail: suppressionPass
         ? `Given an authenticated admin AND an applied auth blueprint on caps=principalDirectory only: GET /admin/users returned 200 with distinct rows=${distinctRowIds.length} unchanged and the role column suppressed as the AC requires when roleModel is not applied; x-fixture-request-id=${r.requestId}`
         : `Given an authenticated admin AND an applied auth blueprint suppression gap: status=${r.status} rid=${r.requestId} rows=${distinctRowIds.length} roleColumn=${roleColumnPresent}`,
@@ -119,7 +125,9 @@ export default async function runProbe() {
     const deniedPass = denied.status === 200 && !!denied.requestId && hasDeniedRegion && hasRequestAccess;
     results.push({
       anchorAcId: 'application-admin-console-AC-21102-1',
-      verdict: deniedPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21102-1: this row observes the denied surface renders with request-access control on the users directory in the not-authorised branch, a partial observation of AC-21102-1; the AC also requires the request-access control activation and outcome to be observed against a routed API - control activation and outcome are browser-driven and not observed by this Node HTTP probe',
+      verdict: deniedPass ? 'warn' : 'fail',
       detail: deniedPass
         ? `Given an authenticated admin AND an applied auth blueprint (denied branch): GET /admin/users?asAdmin=false returned 200 with the [data-surface="denied"] region and a keyboard-reachable [data-action="request-access"] control routing to POST /api/request-access; x-fixture-request-id=${denied.requestId}`
         : `Given an authenticated admin AND an applied auth blueprint denied-branch gap: status=${denied.status} rid=${denied.requestId} deniedRegion=${hasDeniedRegion} requestAccess=${hasRequestAccess}`,

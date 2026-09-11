@@ -45,7 +45,9 @@ export default async function runProbe() {
     const crashPass = crash.status === 200 && !!crash.requestId && alertRegion && retryControl && errorClass && plainSummary && noStack;
     results.push({
       anchorAcId,
-      verdict: crashPass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22108-1: this row observes the error-boundary state renders role=alert, retry control, class-level error label, plain summary and no stack-frame pattern hit, a partial observation of AC-22108-1; the AC also requires the plain summary contract to hold across varied crash payloads the origin might have leaked (framework internal frames, arbitrary env keys) - varied-input plain-summary derivation against a shipped origin is not observed by this Node HTTP probe against a fixed fixture',
+      verdict: crashPass ? 'warn' : 'fail',
       detail: crashPass
         ? `Given a synthetic client-side render exception thrown via the sample-app /probe/error-boundary?crash=1 route: observed role="alert" region, [data-recovery="retry"] control, data-error-class="render-failure" label and plain summary "Widget failed to render" on the rendered surface; no stack-frame pattern hit; x-fixture-request-id=${crash.requestId}`
         : `Given a synthetic client-side render exception thrown via /probe/error-boundary?crash=1 (evidence gap): status=${crash.status} rid=${crash.requestId} alert=${alertRegion} retry=${retryControl} errorClass=${errorClass} summary=${plainSummary} noStack=${noStack}`,

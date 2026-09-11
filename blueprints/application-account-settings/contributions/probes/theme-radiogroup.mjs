@@ -49,7 +49,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      verdict: shapePass ? 'pass' : 'fail',
+      verdict: shapePass ? 'warn' : 'fail',
       limitation: 'application-account-settings-AC-25108-1: interaction half (user selecting a radio, client script flipping html data-theme, spa-local-storage write) is browser-driven and not observed from a Node HTTP probe',
       detail: shapePass
         ? `${FIRST_EIGHT_SPA} /account/theme's server-rendered shell is a radiogroup with role="radiogroup", aria-label="Theme", data-persist="${derivedPersist}" (reflects the theme-persistence elicit input=${persist}), and three radios ${JSON.stringify(options)} matching light/dark/system; conformance-only observation of the DOM-shape half of AC-25108-1`

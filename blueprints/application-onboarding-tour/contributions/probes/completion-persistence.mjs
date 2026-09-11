@@ -76,7 +76,9 @@ export default async function runProbe() {
 
     results.push({
       anchorAcId,
-      verdict: pass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-onboarding-tour-AC-26104-1: this row observes the server-side per-principal completion store (GET/POST/DELETE cycle) and settings-surface reachability of the restart-tour control, a partial observation of AC-26104-1; the AC also requires the operator activates the restart-tour control on the SPA and the tour re-opens on that user event - restart-control activation and tour re-opening are browser-driven and not observed by this Node HTTP probe',
+      verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `${FIRST_EIGHT} for a fresh principalId ${principalId}: initial GET /api/tour/completion returned 404 (no record); POST wrote a record with completedAt=${completedAt} and 3 stepIds; a subsequent GET returned the same record (server-scoped persistence across requests); settings surface reachable with data-action="restart-tour" present; DELETE cleared the record; a final GET returned 404 (restart clear observed); x-fixture-request-id (final)=${afterClear.requestId}`
         : `${FIRST_EIGHT} evidence gap: initial=${initial.status}/${initialAbsent} write=${writeRes.status}/${writePass} read=${readRes.status}/${readPass} settings=${settings.status}/${settingsReachable} clear=${clearRes.status}/${clearPass} afterClear=${afterClear.status}/${afterClearAbsent}`,

@@ -96,7 +96,7 @@ export async function startFixture({ port, env = {} } = {}) {
       try { child.kill('SIGTERM'); } catch (err) { return done(err); }
       setTimeout(() => {
         if (settled) return;
-        try { child.kill('SIGKILL'); } catch (_) { /* already gone */ }
+        try { child.kill('SIGKILL'); } catch (err) { return done(err); }
       }, 4000);
     }),
   };
@@ -121,17 +121,11 @@ export function aggregate(results) {
   // Positive-evidence rule: no-checks-ran is a fail.
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
-  // notObservableHere rows document AC halves that cannot be observed by
-  // this probe (a browser-only clause of the AC). They do NOT
-  // contribute to the aggregate: the aggregate answers "did any
-  // positive-evidence observation land here", not "is every AC clause
-  // observable here". The amber-on-the-shelf verdict for each
-  // notObservableHere AC lives on that row (verdict===warn plus
-  // notObservableHere===true). An all-notObservable probe therefore
-  // aggregates to 'pass' - no negative signal, honest deferral -
-  // and shelf amber is captured row-by-row.
-  const primary = results.filter((r) => r && r.notObservableHere !== true);
-  if (primary.some((r) => r.verdict === 'warn')) return 'warn';
+  // Any warn row lifts the aggregate to warn, including honest
+  // notObservableHere de-claims. A probe whose rows are all warn
+  // aggregates to warn, not pass; the shelf reads amber and the tally
+  // accepts a warn aggregate as problems=0 when no fail row is present.
+  if (results.some((r) => r && r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
 

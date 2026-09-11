@@ -91,7 +91,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      verdict: shapeObserved ? 'pass' : 'fail',
+      verdict: shapeObserved ? 'warn' : 'fail',
       limitation: 'application-charts-AC-18104-1: browser Tab focus sequence is not observed by this Node HTTP probe; the DOM source-order walk is a proxy for Tab order (true when no tabindex reorders focusable elements) but not a browser-observed focus movement',
       detail: shapeObserved
         ? `Given an interactive chart (data points are clickable): DOM source-order walk of focusable [.chartDataPoint tabindex=0] elements returned ${order.length}/${totalDataPoints} points, grouped series-by-series per chart (${JSON.stringify(traversal.byForm && Object.fromEntries(Object.entries(traversal.byForm).map(([f, l]) => [f, [...new Set(l.map((p) => p.series))].join(' then ')])))}); reduced-motion rule zeros transition-duration on the surface; conformance-only observation of the DOM-shape half of AC-18104-1; x-fixture-request-id=${golden.requestId}`
@@ -131,7 +131,9 @@ export default async function runProbe() {
     // browser + AT territory and not asserted here.
     results.push({
       anchorAcId: 'application-charts-AC-18104-3',
-      verdict: shapePass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-charts-AC-18104-3: this row observes the aria-label token derivation on every focusable data point server-side, a partial observation of AC-18104-3; the AC also requires that on keyboard focus the derived string is announced by assistive tech - the browser focus event and the AT announcement are browser-driven and not observed by this Node HTTP probe',
+      verdict: shapePass ? 'warn' : 'fail',
       detail: shapePass
         ? `Given an interactive chart, when the keyboard focus; Every one of ${order.length} focusable data points renders an aria-label of the form "<seriesName>, <xValue>, <yValue> <unit>" where each token matches the point's own data-series / data-x / data-y attributes (derived-output check); x-fixture-request-id=${golden.requestId}`
         : `Given an interactive chart, when the keyboard focus; AC-18104-3 gap: firstBad=${JSON.stringify(firstBad)}`,

@@ -1,5 +1,9 @@
 # application-charts CHANGELOG
 
+## 1.0.8 - 2026-09-11
+
+- Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. Overclaiming rows across every probe are de-claimed to `conformanceOnly:true` with `verdict:'warn'` on the observable half and a `limitation` field naming the anchored AC and the browser-only or varied-input clause that lives outside the Node HTTP probe. Positive-observation rows kept on `application-charts-AC-18103-3` (paired table cell-vs-coordinate equality) and on the anatomy-only fixture shape assertions. Anatomy test extended with a negative-variant assertion that each shipped fixture break switch drives the affected probe aggregate to fail.
+
 ## 1.0.7 - 2026-09-11
 
 - keyboard-traversal AC-18104-1 row de-claimed to conformance-only (null anchor + `limitation` naming the AC clause NOT observed here: browser Tab focus movement is not observable by a Node HTTP probe; the DOM source-order walk of `[.chartDataPoint tabindex=0]` elements is a proxy but not authoritative). AC-18104-3 row keeps the AC anchor (aria-label token derivation is server-observable). Anatomy test extended to (a) enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and `contributions/requirements/*.json` and refuse any row whose `anchorAcId` or `notObservableAcId` is not in that set, and (b) accept the conformance-only row shape (null anchor + non-empty `limitation`).

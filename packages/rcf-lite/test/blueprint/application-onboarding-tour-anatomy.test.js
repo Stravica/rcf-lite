@@ -30,7 +30,7 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 test('blueprint.json declares 21 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-onboarding-tour');
-  assert.equal(doc.version, '1.1.5');
+  assert.equal(doc.version, '1.1.6');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -88,7 +88,7 @@ test('applies cleanly on a fresh project with 21 contributions and no requiresAp
   assert.equal(apply.applied, true, JSON.stringify(apply));
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
-  assert.equal(sidecar.version, '1.1.5');
+  assert.equal(sidecar.version, '1.1.6');
   // TC-057-applies-clean also runs `rcf define validate` on the scratch
   // project so applied contributions are exercised against the closed
   // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution
@@ -307,6 +307,39 @@ async function loadContributedAnchorIds(blueprintRoot, slug) {
   await collect('requirements');
   return ids;
 }
+
+function aggregateOf(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r && r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r && r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+test('application-onboarding-tour criterion-e probes aggregate to fail under each shipped fixture break (TC-criterion-e-negative-variants)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-onboarding-tour', 'contributions', 'probes');
+  // Break switch -> probes that must aggregate fail when the fixture
+  // is booted with that break as PROBE_BREAK. Only observable-side
+  // breaks are covered; client-JS-only breaks are documented as
+  // browser-verify territory in the fixture README.
+  const brokenExpectations = [{"brk":"no-collapse","probes":["checklist-anchor-open"]}];
+  for (const { brk, probes: probeNames } of brokenExpectations) {
+    for (const name of probeNames) {
+      const prior = process.env.PROBE_BREAK;
+      process.env.PROBE_BREAK = brk;
+      try {
+        const modUrl = pathToFileURL(join(probesDir, name + '.mjs')).href + '?nv=' + brk;
+        const mod = await import(modUrl);
+        const outcome = await mod.default();
+        const results = (outcome && outcome.results) || [];
+        const agg = aggregateOf(results);
+        assert.equal(agg, 'fail', name + ' under PROBE_BREAK=' + brk + ' aggregated ' + agg + ' expected fail; verdicts=' + JSON.stringify(results.map((r) => r.verdict)));
+      } finally {
+        if (prior === undefined) delete process.env.PROBE_BREAK;
+        else process.env.PROBE_BREAK = prior;
+      }
+    }
+  }
+});
 
 test('application-onboarding-tour criterion-e probes invoked in-memory carry rule-7d evidence rows (TC-criterion-e-evidence-shape)', async () => {
   const probesDir = join(REPO_ROOT, 'blueprints', 'application-onboarding-tour', 'contributions', 'probes');

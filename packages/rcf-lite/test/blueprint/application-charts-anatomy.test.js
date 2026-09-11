@@ -27,7 +27,7 @@ const PACK_ABS = join(BLUEPRINT_ROOT, 'probe-packs', 'application-charts.pack.mj
 test('application-charts: blueprint.json declares the ratified shape (TC-048-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-charts');
-  assert.equal(doc.version, '1.0.7');
+  assert.equal(doc.version, '1.0.8');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -174,6 +174,43 @@ async function loadContributedAnchorIds(blueprintRoot, slug) {
   await collect('requirements');
   return ids;
 }
+
+function aggregateOf(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r && r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r && r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+test('application-charts criterion-e probes aggregate to fail under each shipped fixture break (TC-criterion-e-negative-variants)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-charts', 'contributions', 'probes');
+  // Break switch -> probes that must aggregate fail when the fixture
+  // is booted with that break as PROBE_BREAK. The mapping tracks each
+  // shipped ?break switch on the fixture and names every probe whose
+  // server-observable row detects the mutation.
+  const brokenExpectations = [
+    { brk: 'table', probes: ['text-alternative-table'] },
+    { brk: 'pattern', probes: ['non-colour-distinction'] },
+    { brk: 'keyboard', probes: ['keyboard-traversal'] },
+  ];
+  for (const { brk, probes: probeNames } of brokenExpectations) {
+    for (const name of probeNames) {
+      const prior = process.env.PROBE_BREAK;
+      process.env.PROBE_BREAK = brk;
+      try {
+        const modUrl = pathToFileURL(join(probesDir, name + '.mjs')).href + '?nv=' + brk;
+        const mod = await import(modUrl);
+        const outcome = await mod.default();
+        const results = (outcome && outcome.results) || [];
+        const agg = aggregateOf(results);
+        assert.equal(agg, 'fail', name + ' under PROBE_BREAK=' + brk + ' aggregated ' + agg + ' expected fail; verdicts=' + JSON.stringify(results.map((r) => r.verdict)));
+      } finally {
+        if (prior === undefined) delete process.env.PROBE_BREAK;
+        else process.env.PROBE_BREAK = prior;
+      }
+    }
+  }
+});
 
 test('application-charts criterion-e probes invoked in-memory carry rule-7d evidence rows (TC-criterion-e-evidence-shape)', async () => {
   const probesDir = join(REPO_ROOT, 'blueprints', 'application-charts', 'contributions', 'probes');

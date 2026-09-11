@@ -260,7 +260,8 @@ function handler(req, res) {
     return;
   }
   if (url.pathname === '/' || url.pathname === '/index.html') {
-    const brk = normaliseBreak(url.searchParams.get('break'));
+    const envBrk = normaliseBreak(process.env.PROBE_BREAK);
+    const brk = normaliseBreak(url.searchParams.get('break')) ?? envBrk;
     respondHtml(res, renderShellHtml({ break: brk }));
     return;
   }

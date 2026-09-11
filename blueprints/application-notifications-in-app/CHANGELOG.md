@@ -1,5 +1,9 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.2.4 - 2026-09-11
+
+- Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. centre-acknowledge AC-20103-1 row de-claimed to `conformanceOnly:true` with `verdict:'warn'` and a `limitation` naming the browser-only clause (control activation and DOM `data-acknowledged` mutation are not observed by a Node HTTP probe). toast-contract row keeps `notObservableHere:true` + `verdict:'warn'`; live-region-preseeding stays as a positive-observation row that fails under `?break=preseed`. Anatomy test extended with a negative-variant assertion that the shipped preseed break switch drives the live-region-preseeding aggregate to fail.
+
 ## 1.2.3 - 2026-09-11
 
 - toast-contract `notObservableHere` row for AC-20102-1 now emits `verdict:'warn'` (previously `pass`); the aggregate correctly reports amber for the browser-only halves of AC-20102-1 (role mapping, elapsed timeout and focus-pause behaviour on `data-shown-at`/`data-dismissed-at`) rather than a false pass. Anatomy test extended to (a) enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and refuse any row whose `anchorAcId` or `notObservableAcId` is not in that set, and (b) accept the conformance-only row shape (null anchor + non-empty `limitation`).

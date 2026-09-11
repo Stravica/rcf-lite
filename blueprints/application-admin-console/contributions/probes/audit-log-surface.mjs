@@ -59,7 +59,9 @@ export default async function runProbe() {
 
     results.push({
       anchorAcId: 'application-admin-console-AC-21105-1',
-      verdict: pass ? 'pass' : 'fail',
+      conformanceOnly: true,
+      limitation: 'application-admin-console-AC-21105-1: this row observes a write-then-read cycle (POST role change and GET audit surfaces the new row with correlationId), a partial observation of AC-21105-1; the AC also requires positive assertions on actor, target and timestamp values and companion-log provenance (external correlation) - actor/target/timestamp equality and companion-log source provenance are not verified against a shipped log adapter by this Node HTTP probe',
+      verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `Given a role change AND the auditLog capability applied: POST /api/members/${targetMemberId}/role returned 200 with auditId=${newAuditId} before=${postBefore} after=${postAfter}; subsequent GET /admin/audit surfaced the new row with data-audit-id=${newAuditId}, before/after cells matching the round-trip and a correlationId cell present; all six required columns (actor/target/before/after/timestamp/correlationId) rendered; x-fixture-request-id=${r.requestId}`
         : `Given a role change AND the auditLog capability applied round-trip gap: postStatus=${postRes.status} auditStatus=${r.status} rid=${r.requestId} newAuditId=${newAuditId} newRowFound=${rowIds.includes(String(newAuditId))} allCols=${allColumnsPresent} rowHasBefore=${rowHasBefore} rowHasAfter=${rowHasAfter} rowHasCorrelation=${rowHasCorrelation} everyCellHasDataColumn=${everyCellHasDataColumn}`,
