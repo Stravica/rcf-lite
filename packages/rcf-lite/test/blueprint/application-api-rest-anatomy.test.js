@@ -115,3 +115,7 @@ test('application-api-rest: every probe result carries one of the four 7d eviden
           || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
         assert.ok(hasBodyOrDerived,
           name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));
+      }
+    }
+  }
+});

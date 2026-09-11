@@ -167,3 +167,7 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
           || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
         assert.ok(hasBodyOrDerived,
           name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));
+      }
+    }
+  }
+});

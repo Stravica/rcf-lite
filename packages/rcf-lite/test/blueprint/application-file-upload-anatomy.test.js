@@ -149,9 +149,16 @@ test('sample-app fixture serves both transport branches on the default branch (T
     // The synthetic acknowledgement endpoints exist for both branches.
     const chunkRes = await fetch(`http://127.0.0.1:${port}/upload/chunk?n=1`, { method: 'POST' });
     assert.equal(chunkRes.status, 200, 'POST /upload/chunk returns 200');
-    const tusPatch = await fetch(`http://127.0.0.1:${port}/upload/tus`, { method: 'PATCH', headers: { 'Upload-Offset': '512' } });
-    assert.equal(tusPatch.status, 204, 'PATCH /upload/tus returns 204');
-    assert.equal(tusPatch.headers.get('upload-offset'), '512', 'PATCH /upload/tus echoes Upload-Offset');
+    // AC-23104-3: the fixture now enforces the expected offset per tus.io semantics,
+    // so a fresh upload starts at Upload-Offset: 0 and advances by the bytes actually
+    // written; here 512 body bytes -> new offset 512.
+    const tusPatch = await fetch(`http://127.0.0.1:${port}/upload/tus?uploadId=fixture-serves-transports`, {
+      method: 'PATCH',
+      headers: { 'Upload-Offset': '0' },
+      body: 'x'.repeat(512),
+    });
+    assert.equal(tusPatch.status, 204, 'PATCH /upload/tus returns 204 after writing 512 body bytes at Upload-Offset 0');
+    assert.equal(tusPatch.headers.get('upload-offset'), '512', 'PATCH /upload/tus echoes the advanced Upload-Offset');
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -330,3 +337,7 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
           || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
         assert.ok(hasBodyOrDerived,
           name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));
+      }
+    }
+  }
+});
