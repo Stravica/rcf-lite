@@ -1,9 +1,9 @@
-// Probe: real-account-reload-burst (v1.1.4 closure fix).
-//
+// Probe: real-account-reload-burst (v1.1.5).
+
 // anchorAcId: AC-composeHost-zeroDowntimeReload.
 // accountBound: true.
-//
-// Addendum-driven contract:
+
+// Contract:
 //   - First-tier gate CI_HAS_HETZNER_ACCOUNT must equal exactly the
 //     string "true"; anything else records an honest skip row.
 //   - Second-tier HCLOUD_TOKEN missing carries its own honest skip row.
@@ -13,7 +13,7 @@
 //     window (RELOAD_WINDOW_SECONDS, default 10s per AC).
 //   - The AC requires the elicited 10-second window to bound the
 //     reload duration; a reload that exceeds the window FAILS.
-//   - Teardown failure FAILS the verdict (Addendum rule 5).
+//   - Teardown failure FAILS the verdict (the shape rule).
 
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';

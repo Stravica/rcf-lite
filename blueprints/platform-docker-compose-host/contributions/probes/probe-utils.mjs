@@ -1,13 +1,13 @@
 // Shared helpers for platform-docker-compose-host probes (v1.1.4,
-// criterion e closure fix pass, 2026-09-11).
-//
+// v1.1.5, 2026-09-11).
+
 // Every result row a probe returns MUST carry either an `evidence`
 // object naming the observed artefact (compose service list, on-server
 // response body excerpt, burst counters, event body sample) OR
 // `accountBoundSkipped: true` with a `reason` field naming exactly
-// one unset variable (Addendum rule 3). Empty or null probe outcomes
+// one unset variable (the shape rule). Empty or null probe outcomes
 // FAIL with detail exactly `no checks ran`.
-//
+
 // Runtime-dependency posture:
 // - compose-config-lint shells to docker compose config against the applied
 //   fixture compose.yaml; the docker daemon must be reachable locally for
@@ -74,7 +74,7 @@ export function isSkipped(results) {
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
-  // Addendum 2 rule 10: every row's detail starts with the first eight
+  // the anchor-prefix rule: every row's detail starts with the first eight
   // words of the anchored AC text. The prepend is idempotent so a
   // caller that already wrapped its detail via `anchored()` does not
   // double up.
@@ -112,7 +112,7 @@ export async function runShim(probeName, engine, mainFn) {
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
     // A probe that throws has no known anchor at this layer; use null
-    // rather than the invented "unknown" fallback (reclosure BLOCKER).
+    // rather than the invented "unknown" fallback (defect).
     const results = [{
       anchorAcId: null,
       verdict: 'fail',
@@ -131,7 +131,7 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
-// Skip helper (Addendum rule 4): the reason field names exactly one
+// Skip helper (the shape rule): the reason field names exactly one
 // unset variable; the gateState field distinguishes unset from
 // set-but-not-true, so a variable set to `false` is never reported as
 // unset. Callers hand the anchor plus a short note.
@@ -150,7 +150,7 @@ export function firstTierGateSkipResult(anchorAcId, varName = 'CI_HAS_HETZNER_AC
   };
 }
 
-// Second-tier skip helper (Addendum rule 4): the account-bound branch
+// Second-tier skip helper (the shape rule): the account-bound branch
 // requires HCLOUD_TOKEN once the first-tier gate is true. When only the
 // second-tier is missing the skip row names HCLOUD_TOKEN literally and
 // still aggregates to pass; missing configuration is a skip, not a
@@ -254,20 +254,20 @@ export function whichCaddy() {
   return r.status === 0 ? (r.stdout || '').trim() : null;
 }
 
-// Addendum 2 rule 10: every result row's detail starts with the first
+// the anchor-prefix rule: every result row's detail starts with the first
 // eight words of the anchored AC text. This map holds those prefixes
 // for the platform-docker-compose-host ACs; callers wrap their detail
 // via `anchored(anchorAcId, detail)`.
 export const AC_ANCHOR_PREFIX = {
-  'AC-composeHost-upClean': 'The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps',
-  'AC-composeHost-zeroDowntimeReload': 'The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs',
-  'AC-composeHost-healthcheckLint': 'The compose-config-lint probe shells to docker compose config',
-  'AC-composeHost-restartClassification': 'The compose-config-lint probe asserts every service in the',
-  'AC-composeHost-logDriverClassification': 'Every service in the applied compose.yaml declares a',
-  'AC-composeHost-reverseProxyArtefactValid': 'The applied fixture ships caddy/Caddyfile under a caddy/',
-  'AC-composeHost-secretsAreFiles': 'The secrets-as-files-scan probe walks compose.yaml plus every referenced',
-  'AC-composeHost-secretShape': 'The applied compose.yaml declares at least one secret',
-  'AC-38107-4': 'Read-only bind-mount: the reverse-proxy config bind-mount in compose.yaml',
+  'AC-composeHost-upClean': 'The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps the',
+  'AC-composeHost-zeroDowntimeReload': 'The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici',
+  'AC-composeHost-healthcheckLint': 'The compose-config-lint probe shells to docker compose config against',
+  'AC-composeHost-restartClassification': 'The compose-config-lint probe asserts every service in the compose.yaml',
+  'AC-composeHost-logDriverClassification': 'Every service in the applied compose.yaml declares a logging',
+  'AC-composeHost-reverseProxyArtefactValid': 'The applied fixture ships caddy/Caddyfile under a caddy/ directory',
+  'AC-composeHost-secretsAreFiles': 'The secrets-as-files-scan probe walks compose.yaml plus every referenced service',
+  'AC-composeHost-secretShape': 'The applied compose.yaml declares at least one secret under',
+  'AC-38107-4': 'Read-only bind-mount: the reverse-proxy config bind-mount in compose.yaml is',
 };
 
 export function anchored(anchorAcId, body) {

@@ -1,26 +1,26 @@
 // provision.mjs (v1.0.1)
-//
+
 // Real-account provisioner entry point for the shared throwaway-Hetzner-
 // server fixture. Requires HCLOUD_TOKEN on env and hcloud on PATH.
-//
+
 // v1.0.1 behaviour:
 //   - Reads hetzner/servers/ci-throwaway.json for the manifest shape;
 //   - Applies the RCF_LITE_CI_SSH_KEY_NAME env override on manifest
 //     sshKeyIds (per-key comma-separated); the manifest value stays
-//     the default when the override is unset (H-1 defect (9));
+//     the default when the override is unset (defect (9));
 //   - Renders the shipped cloud-init template to
 //     hetzner/servers/rendered/<name>.cloud-init.yaml via
 //     src/cloud-init-renderer.mjs; the renderer resolves each ssh key
 //     name to its public-key material via hcloud ssh-key describe so
-//     the deploy user has a working authorized_keys entry (H-1
+//     the deploy user has a working authorized_keys entry (hardening
 //     defects (2), (3));
 //   - Shells hcloud server create --user-data-from-file <rendered>
 //     --output json and reads snake_case fields off the response
 //     (public_net.ipv4.ip, datacenter.location.name, server_type.name;
-//     H-1 defect (1));
+//     defect (1));
 //   - Writes the created server id to scratch/last-throwaway.json for
 //     destroy.mjs to pick up in its always-block teardown.
-//
+
 // The scratch file and the rendered file both sit under git-ignored
 // directories (see .gitignore) so the fixture stays clean between
 // runs. Callers set { runId } to distinguish CI runs from local
@@ -70,7 +70,7 @@ export async function provisionThrowawayServer({ runId, eventSink } = {}) {
   };
   await mkdir(SCRATCH_DIR, { recursive: true });
   await writeFile(SCRATCH_PATH, JSON.stringify(record, null, 2) + '\n', 'utf8');
-  // Emit hetznerServerProvisioned on the injected sink (reclosure Item
+  // Emit hetznerServerProvisioned on the injected sink ( Item
   // 6) so the caller OBSERVES the event rather than constructing it
   // from the return value. Payload is metadata-only per REQ-006.
   if (typeof eventSink === 'function') {

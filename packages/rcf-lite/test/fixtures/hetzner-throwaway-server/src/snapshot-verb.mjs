@@ -1,14 +1,14 @@
 // Snapshot verb (v1.0.2): real-account path called by
 // real-account-snapshot-on-demand. Shells `hcloud server create-image
 // --type snapshot --description <label> <id>` (the actual hcloud verb;
-// v1.0.0 called a non-existent `hcloud image create-image`, H-1 defect
+// v1.0.0 called a non-existent `hcloud image create-image`, defect
 // (5)) and recovers the created snapshot id via `hcloud image list
 // --type=snapshot --output json` by matching the serverName label.
 // Depends on hcloud being on PATH and the HCLOUD_TOKEN env var being
 // set (the operator supplies both via the applying project's
 // security-secrets-management binding).
-//
-// v1.0.2 (closure re-run fix, reclosure Item 7): the verb now emits
+
+// v1.0.2 (v1.1.5, defect): the verb now emits
 // `hetznerSnapshotTaken` on an optional injected eventSink, so the
 // snapshot probe can OBSERVE the emitted event rather than constructing
 // it from the return value. The emit fires only after the vendor list

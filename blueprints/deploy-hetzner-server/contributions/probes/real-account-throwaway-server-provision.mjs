@@ -1,8 +1,8 @@
-// Probe: real-account throwaway-server provision (v1.1.4 closure fix).
+// Probe: real-account throwaway-server provision (v1.1.5).
 //
 // anchorAcId: AC-37103-1. accountBound: true.
 //
-// Addendum-driven contract:
+// Contract:
 //   - First-tier gate CI_HAS_HETZNER_ACCOUNT must equal exactly the
 //     string "true"; anything else records an honest skip row naming
 //     the variable (set-but-not-true distinguished from unset).
@@ -80,7 +80,7 @@ export default async function runProbe() {
   const evidence = {};
   let provisioned;
   const resultRow = { anchorAcId, verdict: 'fail', detail: '', evidence };
-  // Observed event sink (reclosure Item 6). We OBSERVE the emitted
+  // Observed event sink (defect). We OBSERVE the emitted
   // hetznerServerProvisioned event rather than constructing one from
   // the return value.
   const observedEvents = [];
@@ -115,7 +115,7 @@ export default async function runProbe() {
     }
     evidence.hetznerServerProvisionedEvent = provisionedEvent;
     // Observe the server-list AFTER provision to prove the id landed.
-    // A list failure at this step FAILS the row (reclosure Item 6:
+    // A list failure at this step FAILS the row (defect:
     // the new list failure is no longer allowed to continue to pass).
     let postListError = null;
     try {
@@ -153,7 +153,7 @@ export default async function runProbe() {
         await destroyThrowawayServer(provisioned);
         evidence.teardown = { destroyed: provisioned.id };
         // Confirm absence by re-listing. Failure to confirm FAILS the
-        // row (reclosure Item on partly-fixed teardown: post-teardown
+        // row ( Item on partly-fixed teardown: post-teardown
         // inventory failures were being swallowed).
         try {
           const finalList = await hcloudJson(['server', 'list', '--output', 'json']);
@@ -168,7 +168,7 @@ export default async function runProbe() {
           resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown hcloud server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
-        // Teardown failure fails the verdict (Addendum rule 5).
+        // Teardown failure fails the verdict (the shape rule).
         resultRow.verdict = 'fail';
         resultRow.detail = `${resultRow.detail} TEARDOWN FAILED for server ${provisioned.id}: ${err.message}. Orphan surfaced through sweep-orphans on next run.`;
         evidence.teardownError = err.message;

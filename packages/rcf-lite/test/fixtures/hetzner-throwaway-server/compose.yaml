@@ -1,4 +1,4 @@
-# Round-7 T-2 fixture: minimal healthchecked compose stack proving the
+# baseline fixture: minimal healthchecked compose stack proving the
 # platform-docker-compose-host v1.0.0 blueprint contract on the shared
 # throwaway-Hetzner-server fixture.
 #

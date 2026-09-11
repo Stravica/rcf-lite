@@ -1,12 +1,12 @@
 // Shared helpers for deploy-hetzner-server probes (v1.1.4, criterion e
-// closure fix pass, 2026-09-11).
+// v1.1.5, 2026-09-11).
 //
 // Every result row a probe returns MUST carry either an `evidence`
 // object naming the observed artefact (server id, inventory-diff,
 // response body excerpt, deploy record) OR `accountBoundSkipped: true`
 // with a `reason` field naming exactly one unset variable. Empty or
 // null probe outcomes FAIL with detail exactly `no checks ran` per
-// binding rule 3 of the criterion e Addendum.
+// binding rule 3 of the criterion e .
 //
 // Runtime-dependency posture:
 // - cloud-init-render-lint, manifest-schema-validate and
@@ -38,7 +38,7 @@ export const REPORT_DIR = process.env.RCF_REPORT_DIR_OVERRIDE
   ? resolve(process.env.RCF_REPORT_DIR_OVERRIDE, 'blueprints/deploy-hetzner-server')
   : resolve(PROJECT_ROOT, '.rcf/reports/blueprints/deploy-hetzner-server');
 
-// Aggregation rule (Addendum rule 3): an empty results array is never
+// Aggregation rule (the shape rule): an empty results array is never
 // pass; it is a fail with detail `no checks ran`. Callers hand the
 // empty case a synthesised fail row via `emptyResultsFail()` before
 // aggregating so the report body itself carries the row.
@@ -69,7 +69,7 @@ export function isSkipped(results) {
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
-  // Addendum 2 rule 10: every row's detail starts with the first eight
+  // the anchor-prefix rule: every row's detail starts with the first eight
   // words of the anchored AC text. The prepend is idempotent so a
   // caller that already wrapped its detail via `anchored()` does not
   // double up.
@@ -107,7 +107,7 @@ export async function runShim(probeName, engine, mainFn) {
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
     // A probe that throws has no known anchor at this layer; use null
-    // rather than the invented "unknown" fallback (reclosure BLOCKER).
+    // rather than the invented "unknown" fallback (defect).
     // The runShim caller carries the probeName so evidence names it.
     const results = [{
       anchorAcId: null,
@@ -145,7 +145,7 @@ export async function readManifestFiles(dir = MANIFEST_DIR) {
   return { present: entries.length > 0, entries, files };
 }
 
-// Skip helper (Addendum rule 4): the reason field names exactly one
+// Skip helper (the shape rule): the reason field names exactly one
 // unset variable. A gate variable set to a value other than 'true'
 // is reported as `set-but-not-true` with the observed value, not as
 // `unset`. Callers hand the exact variable name and a short note.
@@ -164,7 +164,7 @@ export function firstTierGateSkipResult(anchorAcId, varName = 'CI_HAS_HETZNER_AC
   };
 }
 
-// Second-tier skip helper (Addendum rule 4): the account-bound branch
+// Second-tier skip helper (the shape rule): the account-bound branch
 // requires HCLOUD_TOKEN once the first-tier gate is true. When only the
 // second-tier is missing, the skip row names HCLOUD_TOKEN in `reason`,
 // carries accountBoundSkipped: true, and the aggregate still flips to
@@ -180,13 +180,13 @@ export function secondTierMissingSkipResult(anchorAcId, varName, note = '') {
   };
 }
 
-// Legacy shim (kept during the closure fix cutover for callers not yet
+// Legacy shim (kept during the update cutover for callers not yet
 // updated). Prefer firstTierGateSkipResult / secondTierMissingSkipResult.
 export function accountBoundSkippedResult(anchorAcId, note) {
   return firstTierGateSkipResult(anchorAcId, 'CI_HAS_HETZNER_ACCOUNT', note);
 }
 
-// Addendum 2 rule 10: every result row's detail starts with the first
+// the anchor-prefix rule: every result row's detail starts with the first
 // eight words of the anchored AC text. This map holds those prefixes
 // for the deploy-hetzner-server ACs and the shared AC-14501-1 chain
 // artefact (used elsewhere in the estate); callers wrap their detail

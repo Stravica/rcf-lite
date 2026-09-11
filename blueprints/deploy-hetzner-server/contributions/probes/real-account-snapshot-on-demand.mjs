@@ -1,8 +1,8 @@
-// Probe: real-account snapshot on demand (v1.1.4 closure fix).
+// Probe: real-account snapshot on demand (v1.1.5).
 //
 // anchorAcId: AC-37108-1. accountBound: true.
 //
-// Addendum-driven contract:
+// Contract:
 //   - First-tier gate CI_HAS_HETZNER_ACCOUNT must equal exactly the
 //     string "true"; anything else records an honest skip row.
 //   - Second-tier HCLOUD_TOKEN missing carries its own honest skip row.
@@ -11,7 +11,7 @@
 //     snapshot id was created then deleted), the snapshot id, the
 //     hetznerSnapshotTaken event shape (serverName, snapshotId, ts),
 //     and the label-match evidence.
-//   - Teardown failure FAILS the verdict (Addendum rule 5); the
+//   - Teardown failure FAILS the verdict (the shape rule); the
 //     evidence tree carries the orphan snapshot id and server id when
 //     the destroy leaks.
 
@@ -79,7 +79,7 @@ export default async function runProbe() {
   const evidence = {};
   const resultRow = { anchorAcId, verdict: 'fail', detail: '', evidence };
   let provisioned;
-  // Observed events on injected sinks (reclosure Item 7): the snapshot
+  // Observed events on injected sinks (defect): the snapshot
   // verb emits hetznerSnapshotTaken; the provision emits
   // hetznerServerProvisioned. Both are OBSERVED, not constructed here.
   const observedEvents = [];
@@ -108,7 +108,7 @@ export default async function runProbe() {
     } : null;
     // OBSERVE the hetznerSnapshotTaken event from the sink. The event
     // body is derived by snapshot-verb.mjs after the vendor list call
-    // confirmed the id landed (reclosure Item 7: was constructed here
+    // confirmed the id landed (defect: was constructed here
     // in v1.1.4; now observed from the sink emit).
     evidence.observedEvents = observedEvents.map((e) => ({ event: e.event, keys: Object.keys(e).sort() }));
     const snapshotEvent = observedEvents.find((e) => e && e.event === 'hetznerSnapshotTaken');

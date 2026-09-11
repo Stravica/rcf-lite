@@ -1,11 +1,11 @@
 // ssh baseline check module (v1.0.1). Polls ssh readiness before firing
-// (H-1 defect (6): v1.0.0 spawned ssh before cloud-init finished, so
+// (defect (6): v1.0.0 spawned ssh before cloud-init finished, so
 // every check timed out on connection refused / operation timed out).
 // Then waits for cloud-init to finish (`cloud-init status --wait`,
 // exit-code ignored) so subsequent baseline checks see the settled
 // system state. Then runs the six baseline ssh checks against the
 // provisioned Hetzner server. The deploy user now carries NOPASSWD
-// sudo via the cloud-init sudoers.d fragment (H-1 defect (7)), so the
+// sudo via the cloud-init sudoers.d fragment (defect (7)), so the
 // sudoed baseline commands no longer block on a tty prompt.
 //
 // The six baseline verdicts each check for the observable side effect

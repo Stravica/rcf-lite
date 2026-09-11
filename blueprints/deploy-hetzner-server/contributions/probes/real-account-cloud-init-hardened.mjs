@@ -1,8 +1,8 @@
-// Probe: real-account cloud-init hardened (v1.1.4 closure fix).
+// Probe: real-account cloud-init hardened (v1.1.5).
 //
 // anchorAcId: AC-37105-1. accountBound: true.
 //
-// Addendum-driven contract:
+// Contract:
 //   - First-tier gate CI_HAS_HETZNER_ACCOUNT must equal exactly the
 //     string "true"; anything else records an honest skip row.
 //   - Second-tier HCLOUD_TOKEN missing carries its own honest skip row.
@@ -13,7 +13,7 @@
 //     verdict; the six baseline checks that follow are diagnostic in
 //     that case rather than the verdict.
 //   - Teardown lives in a finally block and its failure FAILS the
-//     verdict (Addendum rule 5).
+//     verdict (the shape rule).
 
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
@@ -130,6 +130,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown hcloud server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
         resultRow.verdict = 'fail';

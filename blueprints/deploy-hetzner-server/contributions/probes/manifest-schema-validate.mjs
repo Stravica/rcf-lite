@@ -1,13 +1,13 @@
-// Probe: manifest schema validate (v1.1.4 closure fix).
+// Probe: manifest schema validate (v1.1.5).
 //
 // Splits per-property observations into their own result rows so the
-// AC anchoring is faithful (Addendum rule 1):
+// AC anchoring is faithful (the shape rule):
 //   - AC-37102-1  general nine-required-fields schema shape,
 //   - AC-37106-1  firewall rule shape (ssh restricted, 80/443 open,
 //                 no other inbound),
 //   - AC-37107-1  snapshotCadence enum {weekly, daily, off}.
 // A single manifest emits ONE row per property, each carrying its own
-// `evidence` object (Addendum rule 3).
+// `evidence` object (the shape rule).
 //
 // Purity: no process.env.SIMULATE_ switch is read. Fixture-side
 // mutations live in the fixture-side run-manifest-schema-validate.mjs
@@ -92,7 +92,7 @@ export default async function runProbe() {
       }
     } else if (Array.isArray(doc.firewallRules)) {
       const rules = doc.firewallRules;
-      // Reclosure Item 8: bind each required rule NAME to its required
+      // defect: bind each required rule NAME to its required
       // shape (protocol, direction, port, source-ranges) and prohibit
       // duplicates. A missing binding fails; a duplicate name fails.
       const REQUIRED_BINDING = {
@@ -214,7 +214,7 @@ export function validate(schema, doc, pathPrefix = '#') {
         });
       }
     }
-    // Reject duplicate rule names (reclosure Item 8: firewall
+    // Reject duplicate rule names (defect: firewall
     // validation must prohibit duplicates).
     const counts = {};
     for (const r of doc.firewallRules) if (r && typeof r.name === 'string') counts[r.name] = (counts[r.name] || 0) + 1;
@@ -228,7 +228,7 @@ export function validate(schema, doc, pathPrefix = '#') {
       }
     }
     // Bind each required rule name to protocol/direction/port
-    // (reclosure Item 8).
+    // (defect).
     const bindings = { ssh: { protocol: 'tcp', direction: 'in', port: 22 }, http: { protocol: 'tcp', direction: 'in', port: 80 }, https: { protocol: 'tcp', direction: 'in', port: 443 } };
     for (const [name, want] of Object.entries(bindings)) {
       const rule = doc.firewallRules.find((r) => r && r.name === name);

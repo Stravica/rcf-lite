@@ -1,21 +1,40 @@
-// compose-stack-driver.mjs (v1.1.3 real-account driver for the
-// platform-docker-compose-host platform-docker-compose-host probes).
-//
+// compose-stack-driver.mjs (v1.1.5 real-account driver for the
+// platform-docker-compose-host probes).
+
 // Reuses the ssh readiness and cloud-init wait helpers from
 // ssh-baseline-check.mjs, installs docker via the vendor convenience
 // script, ships the fixture compose bundle to /home/deploy/stack over
 // rsync, runs docker compose up -d --wait, and terminates the run
 // with an HTTP probe against the caddy :80 endpoint so the run
 // carries the "deployed stack URL that answers" 7d evidence shape.
-//
+
 // Callers:
 // - real-account-minimal-stack-up: bringUpStack() + healthCheck()
-// - real-account-reload-burst: bringUpStack() + reloadBurst() +
-//   curl-loop assertion against zero drops during the reload window.
-//
+//   + observeSecretModes() (docker exec stat -c %a inside each
+//   consuming container).
+// - real-account-reload-burst: bringUpStack() + reloadBurst() (an
+//   on-server ES-module script that ALSO triggers the caddy reload
+//   itself and stamps every observation from one server clock, so
+//   the overlap proof runs in one clock domain with no rebase).
+
 // The driver never reads a secret; the fixture-shipped
 // secrets/web-token is copied by rsync from disk. HCLOUD_TOKEN and the
 // ssh key discipline live in provision.mjs and the ssh helpers.
+
+// Vendor references used by this driver:
+// - Docker Engine convenience install script
+//   https://docs.docker.com/engine/install/ubuntu/ verifiedOn
+//   2026-09-11.
+// - Ubuntu 24.04 nodejs apt package (Node 18+ with global fetch
+//   powered by undici)
+//   https://packages.ubuntu.com/noble/nodejs verifiedOn 2026-09-11.
+// - Docker Compose secret file mode default
+//   https://docs.docker.com/reference/compose-file/secrets/ verifiedOn
+//   2026-09-11 ("The default mode is 0444"); the fixture mounts read
+//   the observed in-container mode via `docker exec ... stat -c %a`
+//   and reports whatever Compose actually applied. The applying
+//   project pins the desired mode via the service-level secrets
+//   long-form `mode:` field.
 
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -47,17 +66,28 @@ const STACK_FILES = [
   'secrets/web-token',
 ];
 
+// Elicited compose-up wait timeout. Default is the shipped
+// `healthcheck-timeout-seconds` blueprint elicit value (30) so a
+// probe run without explicit configuration matches the elicited
+// baseline. Callers may pass `composeUpTimeoutSeconds` to override;
+// the env var COMPOSE_UP_TIMEOUT_SECONDS overrides the default and
+// is declared in the fixture README manifest.
+const DEFAULT_COMPOSE_UP_TIMEOUT_SECONDS = 30;
+
 export async function bringUpStack(server, opts = {}) {
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
-  // Elicited compose-up wait timeout (reclosure Item 9: was hardcoded
-  // 120s). Env var COMPOSE_UP_TIMEOUT_SECONDS, default 120, matches
-  // AC-composeHost-upClean's "elicited timeout".
-  const composeUpTimeoutSeconds = Math.max(30, Number(opts.composeUpTimeoutSeconds ?? process.env.COMPOSE_UP_TIMEOUT_SECONDS ?? 120));
+  const composeUpTimeoutSeconds = Math.max(
+    5,
+    Number(
+      opts.composeUpTimeoutSeconds
+      ?? process.env.COMPOSE_UP_TIMEOUT_SECONDS
+      ?? DEFAULT_COMPOSE_UP_TIMEOUT_SECONDS,
+    ),
+  );
   const composeUpOverallSeconds = composeUpTimeoutSeconds + 60; // grace for docker overhead
   const events = [];
   const record = (event, detail) => events.push({ event, at: new Date().toISOString(), detail });
-
   const readiness = await waitForSshReady(target, sshKeyPath);
   record('sshReady', `attempts=${readiness.attempts} waitedMs=${readiness.waitedMs} ready=${readiness.ready}`);
   if (!readiness.ready) {
@@ -89,9 +119,9 @@ export async function bringUpStack(server, opts = {}) {
 
   const composeStatus = await composeCommand(target, sshKeyPath, ['ps', '--format', 'json'], { timeoutSeconds: 30 });
   const services = parseComposePs(composeStatus.stdout || '');
-  // Declared-services equality (reclosure Item 9): read the shipped
-  // compose.yaml and assert every declared service is present, in
-  // state=running, and health=healthy where a healthcheck is declared.
+  // Declared-services equality: read the shipped compose.yaml and
+  // assert every declared service is present, in state=running, and
+  // health=healthy where a healthcheck is declared.
   const declared = await readDeclaredServices();
   const observedNames = services.map((s) => s.name || '').filter(Boolean);
   const missingServices = declared.filter((d) => !services.some((s) => (s.name || '').includes(d.name)));
@@ -132,7 +162,6 @@ async function readDeclaredServices() {
     let inServices = false;
     let currentName = null;
     let currentHasHealthcheck = false;
-    let currentIndent = -1;
     const flush = () => {
       if (currentName) services.push({ name: currentName, hasHealthcheck: currentHasHealthcheck });
       currentName = null;
@@ -148,7 +177,6 @@ async function readDeclaredServices() {
       if (m && m[1].length === 2) {
         flush();
         currentName = m[2];
-        currentIndent = m[1].length;
         continue;
       }
       if (currentName && /^\s{4}healthcheck:\s*$/.test(raw)) currentHasHealthcheck = true;
@@ -168,7 +196,7 @@ export async function httpProbe(url, opts = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-t2-probe/1.1.3' } });
+    const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-t2-probe/1.1.5' } });
     const text = await res.text();
     return {
       ok: res.ok,
@@ -187,20 +215,16 @@ export async function httpProbe(url, opts = {}) {
   }
 }
 
-// Fires N concurrent HTTP requests against the caddy :80 endpoint while
-// a caddy reload runs; returns per-request outcomes plus the reload
-// exit code. Used by real-account-reload-burst.
-
 // Runs an HTTP request FROM the throwaway server itself via ssh + curl
-// against the caddy :80 host binding. The deploy-hetzner-server cloud-init hardening
-// baseline installs a DOCKER-USER iptables DROP for non-established
-// egress that also refuses inbound traffic to the docker-mapped port
-// from off-host, so the outside-in fetch cannot land. From on-host
-// the loopback path bypasses DOCKER-USER and observes the same body
-// the port mapping would present, so this is the primary "deployed
-// stack URL that answers" evidence shape for platform-docker-compose-host on the shared
-// throwaway-server fixture. The outside-in httpProbe() stays for
-// diagnostics.
+// against the caddy :80 host binding. The deploy-hetzner-server
+// cloud-init hardening baseline installs a DOCKER-USER iptables DROP
+// for non-established egress that also refuses inbound traffic to the
+// docker-mapped port from off-host, so the outside-in fetch cannot
+// land. From on-host the loopback path bypasses DOCKER-USER and
+// observes the same body the port mapping would present, so this is
+// the primary "deployed stack URL that answers" evidence shape for
+// platform-docker-compose-host on the shared throwaway-server fixture.
+// The outside-in httpProbe() stays for diagnostics.
 export async function httpProbeOnServer(server, path = '/live', opts = {}) {
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
@@ -228,16 +252,110 @@ export async function httpProbeOnServer(server, path = '/live', opts = {}) {
   };
 }
 
-// Fires N concurrent HTTP requests against caddy while caddy reload
-// runs; returns per-request outcomes plus the reload exit code. Used
-// by real-account-reload-burst. The burst runs ON the throwaway
-// server via a small Node script shipped over ssh, so undici (Node's
-// global fetch) drives the requests against http://127.0.0.1:80 from
-// inside the loopback. The shipped deploy-hetzner-server cloud-init
-// hardening's DOCKER-USER DROP refuses off-host traffic to the
-// docker-mapped port, so loopback is the only reachable path for the
-// shipped fixture; running on-server also removes the per-request ssh
-// round-trip overhead.
+// Observe the in-container mode of every mounted secret for every
+// consuming service in the applied compose.yaml. Runs `docker exec
+// <container> stat -c %a /run/secrets/<name>` for each mounted
+// secret and returns { service, secretName, mode, containerId,
+// mountPath }. Also returns any secret whose declared mount path
+// could not be observed with an error string.
+export async function observeSecretModes(server, opts = {}) {
+  const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
+  const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
+  const psJson = await composeCommand(target, sshKeyPath, ['ps', '--format', 'json'], { timeoutSeconds: 30 });
+  const services = parseComposePs(psJson.stdout || '');
+  const doc = await readComposeYaml();
+  const observations = [];
+  const errors = [];
+  const secretsBlock = doc.secrets || {};
+  const declaredSecretNames = Object.keys(secretsBlock);
+  const consumingByName = {};
+  for (const name of declaredSecretNames) consumingByName[name] = [];
+  for (const [svcName, svcSpec] of Object.entries(doc.services || {})) {
+    const svcSecrets = Array.isArray(svcSpec && svcSpec.secrets) ? svcSpec.secrets : [];
+    for (const entry of svcSecrets) {
+      const secretName = typeof entry === 'string' ? entry : (entry && entry.source) || null;
+      if (!secretName || !declaredSecretNames.includes(secretName)) continue;
+      const target_ = (entry && typeof entry === 'object' && entry.target) ? entry.target : secretName;
+      const mountPath = target_.startsWith('/') ? target_ : `/run/secrets/${target_}`;
+      const ps = services.find((s) => (s.name || '').includes(svcName));
+      if (!ps || !ps.name) {
+        errors.push({ service: svcName, secretName, error: 'no container id found in docker compose ps' });
+        continue;
+      }
+      const cmd = `sudo docker exec ${quoteShell(ps.name)} stat -c %a ${quoteShell(mountPath)}`;
+      const r = await sshExec(target, `bash -lc '${cmd.replace(/'/g, "'\\''")}'`, sshKeyPath, 20);
+      if (r.code !== 0) {
+        errors.push({ service: svcName, secretName, mountPath, containerId: ps.name, error: `docker exec stat exited ${r.code}: ${(r.stderr || '').slice(0, 200)}` });
+        continue;
+      }
+      const mode = (r.stdout || '').trim();
+      observations.push({ service: svcName, secretName, mountPath, containerId: ps.name, mode });
+      consumingByName[secretName].push(svcName);
+    }
+  }
+  return { observations, errors, declaredSecretNames, consumingServicesBySecret: consumingByName };
+}
+
+async function readComposeYaml() {
+  // Minimal loader reusing the fixture's shipped compose.yaml. We do
+  // not want a second YAML dep for this small check, so we re-import
+  // the probe-side parser via a tiny shim: the probe layer supplies a
+  // richer parser, but for the mode + consumer check we only need
+  // services + secrets, both of which are simple mapping blocks.
+  const text = await readFile(join(FIXTURE_DIR, 'compose.yaml'), 'utf8');
+  const doc = { services: {}, secrets: {} };
+  const lines = text.split(/\r?\n/);
+  let context = null;
+  let currentService = null;
+  let subContext = null;
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    if (!raw || raw.trim() === '' || raw.trim().startsWith('#')) continue;
+    if (/^services:\s*$/.test(raw)) { context = 'services'; currentService = null; subContext = null; continue; }
+    if (/^secrets:\s*$/.test(raw)) { context = 'secrets'; currentService = null; subContext = null; continue; }
+    if (/^\S/.test(raw)) { context = null; currentService = null; subContext = null; continue; }
+    if (context === 'services') {
+      const svc = raw.match(/^  ([A-Za-z0-9_-]+):\s*$/);
+      if (svc) { currentService = svc[1]; doc.services[currentService] = { secrets: [] }; subContext = null; continue; }
+      if (!currentService) continue;
+      const subKey = raw.match(/^    ([A-Za-z0-9_-]+):\s*$/);
+      if (subKey) { subContext = subKey[1]; continue; }
+      if (subContext === 'secrets') {
+        const shortForm = raw.match(/^\s{6}-\s+([A-Za-z0-9_-]+)\s*$/);
+        if (shortForm) { doc.services[currentService].secrets.push(shortForm[1]); continue; }
+        const longStart = raw.match(/^\s{6}-\s+source:\s*([A-Za-z0-9_-]+)\s*$/);
+        if (longStart) {
+          const entry = { source: longStart[1] };
+          // Collect subsequent lines with more indent as fields.
+          for (let j = i + 1; j < lines.length; j++) {
+            const kv = lines[j].match(/^\s{8}([A-Za-z0-9_-]+):\s*(.*)$/);
+            if (!kv) break;
+            entry[kv[1]] = kv[2].trim();
+            i = j;
+          }
+          doc.services[currentService].secrets.push(entry);
+          continue;
+        }
+      }
+    } else if (context === 'secrets') {
+      const name = raw.match(/^  ([A-Za-z0-9_-]+):\s*$/);
+      if (name) { doc.secrets[name[1]] = {}; continue; }
+      const kv = raw.match(/^    ([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (kv && Object.keys(doc.secrets).length > 0) {
+        const lastName = Object.keys(doc.secrets).pop();
+        doc.secrets[lastName][kv[1]] = kv[2].trim();
+      }
+    }
+  }
+  return doc;
+}
+
+// Fires a duration-driven undici burst against caddy while the burst
+// script ALSO triggers `docker compose exec caddy caddy reload`
+// itself; the script stamps burst start, each request, reload start
+// and reload end from the server's own Date.now() clock. The runner
+// receives the JSON blob and uses those server-clock timestamps
+// directly; no rebase from the ssh call time.
 export async function reloadBurst(server, path, opts = {}) {
   const expectedTotal = opts.total ?? 40;
   const concurrency = opts.concurrency ?? 8;
@@ -266,13 +384,14 @@ export async function reloadBurst(server, path, opts = {}) {
       burstStartedAt: 0, burstEndedAt: 0,
       onServerNodeVersion: null,
       burstWindowContainsReloadWindow: false,
+      clockDomain: 'server',
     };
   }
 
   // Ship the burst script to /tmp/rcf-lite-burst.mjs via a base64
   // heredoc so ssh needs no stdin. The script is a pure ES module
-  // that runs the concurrent undici fetches on-server and emits one
-  // JSON blob to stdout.
+  // that runs the concurrent undici fetches on-server AND spawns
+  // the caddy reload itself, so every observation shares one clock.
   const scriptB64 = Buffer.from(BURST_SCRIPT, 'utf8').toString('base64');
   const shipCmd = `bash -lc 'printf %s ${scriptB64} | base64 -d > /tmp/rcf-lite-burst.mjs'`;
   const ship = await sshExec(target, shipCmd, sshKeyPath, 30);
@@ -287,108 +406,88 @@ export async function reloadBurst(server, path, opts = {}) {
       burstStartedAt: 0, burstEndedAt: 0,
       onServerNodeVersion: (nodeInstall.version || '').trim() || null,
       burstWindowContainsReloadWindow: false,
+      clockDomain: 'server',
     };
   }
 
-  // AC-composeHost-zeroDowntimeReload requires undici GETs against the
-  // proxy service while caddy reload runs. Fire the on-server burst
-  // FIRST so its first request is already in flight, then trigger
-  // the caddy reload; the burst runs for BURST_DURATION_MS
-  // (defaults to the elicited reload-window-seconds converted to
-  // millis) and its window brackets the reload window on a single
-  // runner clock.
   const burstDurationMs = opts.burstDurationMs ?? Math.max(5_000, (opts.reloadWindowMs ?? 10_000));
   const warmupMs = opts.warmupMs ?? 500;
-  const burstEnv = `BURST_MIN_TOTAL=${expectedTotal} BURST_CONCURRENCY=${concurrency} BURST_URL='${onServerUrl}' BURST_DURATION_MS=${burstDurationMs} BURST_TIMEOUT_MS=${perRequestTimeoutMs}`;
-  const burstStartedAt = Date.now();
-  const burstPromise = sshExec(target, `bash -lc '${burstEnv} node /tmp/rcf-lite-burst.mjs'`, sshKeyPath, Math.max(60, Math.round((burstDurationMs + 30_000) / 1000)));
-  // Small warm-up so the on-server node process is up and the first
-  // undici request is in flight before the reload is triggered.
-  await new Promise((r) => setTimeout(r, warmupMs));
-  const reloadStartedAt = Date.now();
-  const reloadPromise = composeCommand(target, sshKeyPath,
-    ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'],
-    { timeoutSeconds: 30 });
-  const reload = await reloadPromise;
-  const reloadEndedAt = Date.now();
-  const reloadDurationMs = reloadEndedAt - reloadStartedAt;
-  const burstResp = await burstPromise;
-  const burstEndedAt = Date.now();
+  const burstEnv = [
+    `BURST_MIN_TOTAL=${expectedTotal}`,
+    `BURST_CONCURRENCY=${concurrency}`,
+    `BURST_URL='${onServerUrl}'`,
+    `BURST_DURATION_MS=${burstDurationMs}`,
+    `BURST_TIMEOUT_MS=${perRequestTimeoutMs}`,
+    `BURST_WARMUP_MS=${warmupMs}`,
+    `BURST_REMOTE_STACK_DIR='${REMOTE_STACK_DIR}'`,
+  ].join(' ');
+  // The script self-triggers the reload; the runner just waits for
+  // its JSON blob. Give the ssh call the burst window plus generous
+  // grace for reload + docker exec overhead.
+  const sshTimeoutSeconds = Math.max(60, Math.round((burstDurationMs + 60_000) / 1000));
+  const burstResp = await sshExec(
+    target,
+    `bash -lc '${burstEnv} node /tmp/rcf-lite-burst.mjs'`,
+    sshKeyPath,
+    sshTimeoutSeconds,
+  );
 
-  let outcomes = [];
-  let startedWallAt = burstStartedAt;
-  let endedWallAt = burstEndedAt;
+  let parsed = {};
   let parseError = null;
   try {
-    const parsed = JSON.parse(burstResp.stdout || '{}');
-    outcomes = Array.isArray(parsed.outcomes) ? parsed.outcomes : [];
-    if (typeof parsed.startedWallAt === 'number') startedWallAt = parsed.startedWallAt;
-    if (typeof parsed.endedWallAt === 'number') endedWallAt = parsed.endedWallAt;
+    parsed = JSON.parse(burstResp.stdout || '{}');
   } catch (err) {
     parseError = `on-server burst stdout not JSON: ${err.message}; stdout head=${(burstResp.stdout || '').slice(0, 200)}; stderr head=${(burstResp.stderr || '').slice(0, 200)}`;
   }
+  const outcomes = Array.isArray(parsed.outcomes) ? parsed.outcomes : [];
+  const startedWallAt = typeof parsed.startedWallAt === 'number' ? parsed.startedWallAt : 0;
+  const endedWallAt = typeof parsed.endedWallAt === 'number' ? parsed.endedWallAt : 0;
+  const reloadStartedAt = typeof parsed.reloadStartedAt === 'number' ? parsed.reloadStartedAt : 0;
+  const reloadEndedAt = typeof parsed.reloadEndedAt === 'number' ? parsed.reloadEndedAt : 0;
+  const reloadDurationMs = reloadEndedAt && reloadStartedAt ? reloadEndedAt - reloadStartedAt : 0;
+  const reloadExit = typeof parsed.reloadExit === 'number' ? parsed.reloadExit : -1;
+  const reloadStderrExcerpt = typeof parsed.reloadStderr === 'string' ? parsed.reloadStderr.slice(0, 300) : '';
 
-  // Translate on-server per-request timestamps to the runner clock so
-  // the overlap check runs in one clock domain. Offset is the
-  // difference between the ssh call's start on the runner and the
-  // script's first Date.now() on the server.
-  const clockOffsetMs = burstStartedAt - startedWallAt;
-  const rebasedOutcomes = outcomes.map((o) => ({
-    idx: o.idx,
-    startedAt: o.startedAt + clockOffsetMs,
-    endedAt: o.endedAt + clockOffsetMs,
-    elapsedMs: o.elapsedMs,
-    statusCode: o.statusCode,
-    ok: o.statusCode >= 200 && o.statusCode < 300,
-    error: o.error,
-  }));
-
-  // Overlap proof: an outcome overlaps the reload window if its
-  // [startedAt, endedAt] intersects [reloadStartedAt, reloadEndedAt].
-  const overlaps = rebasedOutcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
+  // All timestamps live on the server clock — the runner does no
+  // rebase. Overlap and containment are computed from those stamps
+  // directly.
+  const overlaps = outcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
   const overlapCount = overlaps.length;
   const firstOverlapStart = overlaps.length ? Math.min(...overlaps.map((o) => o.startedAt)) : null;
   const lastOverlapEnd = overlaps.length ? Math.max(...overlaps.map((o) => o.endedAt)) : null;
 
-  // Burst window brackets (rebased onto the runner clock) run from
-  // the first request's start to the last request's end. The burst
-  // window contains the reload window iff every reload millisecond
-  // falls inside the burst-request window. Proves the burst was
-  // firing undici requests for the entire reload, per the AC's
-  // "undici GETs against the proxy service while docker compose
-  // exec caddy caddy reload runs".
-  const firstRequestStartedAt = rebasedOutcomes.length ? Math.min(...rebasedOutcomes.map((o) => o.startedAt)) : burstStartedAt;
-  const lastRequestEndedAt = rebasedOutcomes.length ? Math.max(...rebasedOutcomes.map((o) => o.endedAt)) : burstEndedAt;
-  const burstWindowContainsReloadWindow = (
-    firstRequestStartedAt <= reloadStartedAt && lastRequestEndedAt >= reloadEndedAt
+  const firstRequestStartedAt = outcomes.length ? Math.min(...outcomes.map((o) => o.startedAt)) : startedWallAt;
+  const lastRequestEndedAt = outcomes.length ? Math.max(...outcomes.map((o) => o.endedAt)) : endedWallAt;
+  const burstWindowContainsReloadWindow = Boolean(
+    reloadStartedAt && reloadEndedAt
+    && firstRequestStartedAt <= reloadStartedAt
+    && lastRequestEndedAt >= reloadEndedAt,
   );
 
-  const twoXx = rebasedOutcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
-  const drops = rebasedOutcomes.filter((o) => !o.ok).length;
+  const twoXx = outcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
+  const drops = outcomes.filter((o) => !(o.statusCode >= 200 && o.statusCode < 300)).length;
 
-  // Preserve the expected vs observed distinction: returning
-  // `total: outcomes.length` alone allowed <40-result runs to pass
-  // silently. Both counts are reported and the caller checks.
   return {
     expectedTotal,
-    total: rebasedOutcomes.length,
+    total: outcomes.length,
     twoXx, drops, reloadDurationMs,
     reloadStartedAt, reloadEndedAt,
-    burstStartedAt, burstEndedAt,
+    burstStartedAt: startedWallAt, burstEndedAt: endedWallAt,
     firstRequestStartedAt, lastRequestEndedAt,
     burstDurationMs,
     burstWindowContainsReloadWindow,
     overlapCount,
     firstOverlapStart, lastOverlapEnd,
-    reloadExit: reload.code,
-    reloadStderrExcerpt: (reload.stderr || '').slice(0, 300),
-    outcomes: rebasedOutcomes,
+    reloadExit,
+    reloadStderrExcerpt,
+    outcomes,
     mode,
     onServerNodeVersion: (nodeInstall.version || '').trim() || null,
     burstScriptShipExit: ship.code,
     burstSshExit: burstResp.code,
     burstStderrExcerpt: (burstResp.stderr || '').slice(0, 300),
     burstParseError: parseError,
+    clockDomain: 'server',
   };
 }
 
@@ -403,6 +502,9 @@ export async function tearDownStack(server, opts = {}) {
 
 async function installDocker(target, sshKeyPath) {
   const started = Date.now();
+  // Vendor: Docker Engine convenience install script
+  // https://docs.docker.com/engine/install/ubuntu/ verifiedOn
+  // 2026-09-11 ("Install using the convenience script").
   const script = [
     'set -e',
     'if command -v docker >/dev/null; then',
@@ -477,9 +579,10 @@ function parseComposePs(text) {
 
 // Install Node on the throwaway server if not already present. Used
 // exclusively by the reload-burst probe path. Idempotent: the shell
-// short-circuits when `node` is already resolvable. Ubuntu 24.04's
-// `nodejs` apt package ships Node 18+, which carries the global
-// fetch (undici) the AC requires.
+// short-circuits when `node` is already resolvable. Vendor:
+// Ubuntu 24.04's `nodejs` apt package ships Node 18+
+// (https://packages.ubuntu.com/noble/nodejs verifiedOn 2026-09-11),
+// which carries the global fetch (undici) the AC requires.
 async function installNodeIfNeeded(target, sshKeyPath) {
   const started = Date.now();
   const script = [
@@ -498,28 +601,41 @@ async function installNodeIfNeeded(target, sshKeyPath) {
 
 // Node ES-module burst script shipped to /tmp/rcf-lite-burst.mjs on
 // the throwaway server. Reads BURST_URL, BURST_MIN_TOTAL,
-// BURST_DURATION_MS, BURST_CONCURRENCY and BURST_TIMEOUT_MS from
-// env; drives concurrent undici fetches for the whole duration and
-// at least BURST_MIN_TOTAL requests, whichever is longer; writes
-// one JSON blob to stdout with the per-request outcomes plus the
-// wall-clock brackets recorded on the server. The duration-based
-// loop keeps the burst in flight for the whole reload so the
-// burst window brackets the reload window (AC-composeHost-zeroDowntimeReload
-// "runs undici GETs against the proxy service while docker compose
-// exec caddy caddy reload runs").
+// BURST_DURATION_MS, BURST_CONCURRENCY, BURST_TIMEOUT_MS,
+// BURST_WARMUP_MS and BURST_REMOTE_STACK_DIR from env.
+
+// The script:
+//   1. Fires a warmup, records `startedWallAt`.
+//   2. Spawns the burst workers (undici fetch loops).
+//   3. Records `reloadStartedAt`, spawns
+//      `sudo docker compose exec -T caddy caddy reload --config
+//      /etc/caddy/Caddyfile` from the stack dir.
+//   4. When the reload child exits, records `reloadEndedAt`,
+//      `reloadExit`, `reloadStderr`.
+//   5. Waits for BURST_DURATION_MS AND at least BURST_MIN_TOTAL
+//      requests, whichever is longer.
+//   6. Records `endedWallAt` and writes ONE JSON blob to stdout
+//      with all fields and the per-request outcomes.
+
+// Every timestamp comes from Date.now() ON THIS PROCESS on the
+// server, so overlap and containment are computed in one clock
+// domain by the runner with no rebase.
 const BURST_SCRIPT = `
 const minTotal = Number(process.env.BURST_MIN_TOTAL || 40);
 const durationMs = Number(process.env.BURST_DURATION_MS || 10000);
 const concurrency = Number(process.env.BURST_CONCURRENCY || 8);
+const warmupMs = Number(process.env.BURST_WARMUP_MS || 500);
 const url = process.env.BURST_URL;
 const perRequestTimeoutMs = Number(process.env.BURST_TIMEOUT_MS || 5000);
+const stackDir = process.env.BURST_REMOTE_STACK_DIR || '/home/deploy/stack';
 if (!url) { process.stderr.write('BURST_URL missing\\n'); process.exit(2); }
+const { spawn } = await import('node:child_process');
 const outcomes = [];
-const startedWallAt = Date.now();
-const endBy = startedWallAt + durationMs;
 let idxCounter = 0;
+let stopBurstAt = 0;
+
 async function worker() {
-  while (Date.now() < endBy || outcomes.length < minTotal) {
+  while (Date.now() < stopBurstAt || outcomes.length < minTotal) {
     const idx = idxCounter++;
     const startedAt = Date.now();
     let statusCode = 0;
@@ -527,7 +643,7 @@ async function worker() {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), perRequestTimeoutMs);
     try {
-      const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-reload-burst/1.1.4 (undici-on-server)' } });
+      const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-reload-burst/1.1.5 (undici-on-server)' } });
       statusCode = res.status;
       try { await res.text(); } catch (_) {}
     } catch (err) {
@@ -537,10 +653,37 @@ async function worker() {
     outcomes.push({ idx, startedAt, endedAt, elapsedMs: endedAt - startedAt, statusCode, ok: statusCode >= 200 && statusCode < 300, error });
   }
 }
+
+function runReload() {
+  return new Promise((resolve) => {
+    const child = spawn('bash', ['-lc', 'cd ' + stackDir + ' && sudo docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    let stderr = '';
+    child.stderr.on('data', (d) => { stderr += d.toString(); });
+    child.on('close', (code) => resolve({ exit: typeof code === 'number' ? code : -1, stderr }));
+    child.on('error', (err) => resolve({ exit: -1, stderr: err && err.message ? err.message : String(err) }));
+  });
+}
+
 (async () => {
-  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  const startedWallAt = Date.now();
+  stopBurstAt = startedWallAt + warmupMs + durationMs;
+  // Kick off burst workers first so requests are already in flight
+  // when the reload is triggered.
+  const burstPromise = Promise.all(Array.from({ length: concurrency }, () => worker()));
+  // Warm-up so the first fetch is in flight before the reload fires.
+  await new Promise((r) => setTimeout(r, warmupMs));
+  const reloadStartedAt = Date.now();
+  const reload = await runReload();
+  const reloadEndedAt = Date.now();
+  await burstPromise;
   const endedWallAt = Date.now();
   outcomes.sort((a, b) => a.idx - b.idx);
-  process.stdout.write(JSON.stringify({ startedWallAt, endedWallAt, outcomes }));
+  process.stdout.write(JSON.stringify({
+    startedWallAt, endedWallAt,
+    reloadStartedAt, reloadEndedAt,
+    reloadExit: reload.exit,
+    reloadStderr: (reload.stderr || '').slice(0, 300),
+    outcomes,
+  }));
 })().catch((err) => { process.stderr.write(String(err && err.stack || err)); process.exit(3); });
 `;

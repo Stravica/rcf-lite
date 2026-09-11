@@ -1,23 +1,17 @@
-## 1.1.4 (criterion-e closure re-run fix pass, 2026-09-11)
+## 1.1.5 - 2026-09-11
 
-- Anchoring: mock-path rows that observe fixture-shape only are de-claimed (`anchorAcId: null`, `conformanceOnly: true`, a `limitation` string and `notObservableHere.ac` naming the live AC the row cannot observe). The rows previously claiming `AC-37103-1`, `AC-37108-1` and `AC-37109-3` on the mock path no longer make live-only claims; the live inventory-diff and once-per-lifecycle observations belong to the real-account probes.
-- Invented anchor fallbacks removed: `probe-utils.emptyResultsFail` and the `runShim` error branch no longer synthesise `anchorAcId: 'unknown'`; when the anchor is unknowable the row carries `anchorAcId: null` and evidence naming the probe and error.
-- Real-account provision + snapshot probes now OBSERVE emitted lifecycle events (`hetznerServerProvisioned`, `hetznerSnapshotTaken`) via an injected `eventSink` on `provisionThrowawayServer` and `takeAndVerifySnapshot`, rather than constructing the event bodies from return values. `snapshot-verb.mjs` v1.0.2 now emits `hetznerSnapshotTaken` after the vendor list call confirms the id landed.
-- `real-account-throwaway-server-provision` FAILS when `hcloud server list` after provision or after teardown throws (the failure was being swallowed as diagnostic).
-- Firewall validation binds each rule name to its required protocol/direction/port and refuses duplicate names: ssh (tcp/in/22, no `0.0.0.0/0`), http (tcp/in/80, must include `0.0.0.0/0`), https (tcp/in/443, must include `0.0.0.0/0`); the `validate()` helper also rejects duplicate rule names for defence in depth.
-- `destroy.mjs` propagates a snapshot-list failure before deletion rather than swallowing it as an empty list (was risking orphan snapshots surviving under a passing verdict).
-- Every result row on every probe carries an `evidence` object with BOTH an identity key (id/name/target/eventName/service/manifestName/...) AND an observation key (bodyExcerpt/payloadKeys/observedBinding/exitStatus/...); anatomy tests pin the strict shape.
-- Skip helpers retained: `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`.
-- The two per-blueprint `probe-utils.mjs` accept `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
-- Anatomy test extended to pin the v1.1.4 de-claim shape (mock rows carry `notObservableHere` + `conformanceOnly` + `limitation`), the strict identity+observation evidence shape, and the two skip tiers.
-
-## 1.1.4-superseded-note (2026-09-11)
-
-The 1.1.4 entry above supersedes an earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" summary claimed changes that were not present in the shipped diff.
-
-## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
-
-- Fixture manifest now carries a `Declared env vars (deploy-hetzner-server probes)` table naming every first- and second-tier variable the three deploy-hetzner-server real-account probes read, plus every fixture-mutation switch (positive-evidence gate row 7d). Skip reasons on the real-account probes name `CI_HAS_HETZNER_ACCOUNT` literally; the three real-account probes were exercised end-to-end on the shipped fixture (server id created then absent from the post-run `hcloud server list` inventory, cloud-init render hash and six ssh baseline blocks observed, snapshot id created then deleted with the server). Blueprint content otherwise byte-identical to 1.1.2; anatomy test extended.
+- `hcloud-dry-run-mock` now observes BOTH clauses of AC-37101-1: a source-tree grep across the fixture directory confirms only `src/provisioner-facade.mjs` names `HETZNER_ACCOUNT_API_KEY` on a non-comment line (any other reader fails the row), and the `provisionerReady` event fires with the metadata-only `{tool, apiHost}` payload.
+- AC-37109-1 event-secrecy scan gains a payload-key allow-list per event (subset of the REQ-006 named metadata set). A lifecycle event whose payload carries a key outside the allow-list fails the row alongside the existing token / ssh-key / user-data substring scan.
+- `real-account-cloud-init-hardened` now fails the row when the post-teardown `hcloud server list` call throws (was recorded as `postTeardownListError` but did not change the verdict); teardown-confirmation failure is a defect worth failing on.
+- Mock rows that observe fixture-shape only stay de-claimed (`anchorAcId: null`, `conformanceOnly: true`, `limitation` string, `notObservableHere.ac` naming the live AC).
+- Real-account provision + snapshot probes OBSERVE lifecycle events (`hetznerServerProvisioned`, `hetznerSnapshotTaken`) via an injected `eventSink`; `snapshot-verb.mjs` emits `hetznerSnapshotTaken` only after the vendor list call confirms the id landed.
+- `real-account-throwaway-server-provision` fails the row when `hcloud server list` after provision or after teardown throws.
+- Firewall validation binds each rule name to its required protocol/direction/port and refuses duplicate names.
+- `destroy.mjs` propagates a snapshot-list failure before deletion rather than swallowing it as an empty list.
+- Every result row on every probe carries an `evidence` object with BOTH a non-empty identity value (id/name/target/eventName/service/manifestName/...) AND a non-empty observation value (bodyExcerpt/payloadKeys/statusCode/mode/event/...); anatomy tests assert the strict shape (a numeric zero is not an observation; `{probeName, reason}` alone never counts).
+- Skip helpers `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`.
+- `probe-utils.mjs` accepts `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
+- Blueprint content otherwise unchanged from 1.1.2.
 
 # Changelog
 
@@ -35,7 +29,7 @@ Adds deliveredBy on REQ-001, REQ-002 and REQ-004. Adds ownerRef on AC-37102-1 (m
 
 ## 1.0.1
 
-Round-7 real-account gate hardening patch train. Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
+baseline real-account gate hardening patch train. Fixes nine real-path defects in the shared throwaway-Hetzner-server fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/ so the three real-account probes return aggregateVerdict pass on a live Hetzner Cloud project unpatched, and destroy plus sweep-orphans never leak a server. Every existing v1.0.0 contribution id byte-identical apart from the cloud-init template bodies (baseline unchanged; adds a NOPASSWD sudoers.d fragment for the deploy user) and the three mocked probe bodies (mutation-purity clean plus a new rendered-file assertion).
 
 Defect list fixed:
 
@@ -50,7 +44,7 @@ Defect list fixed:
 
 Also: the three mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (the H hardening requirement / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
 
-Chain: the operator estate hardening block covering the H hardening requirement..149 / the H mock-purity suite..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for shipped gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
+Chain: the operator estate hardening block covering the H hardening requirement..149 / the H mock-purity suite..179 /  /  per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for shipped gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
 
 Defect (8) container-host and edge-tunnel stub drivers are OUT of scope for the shipped real-account gate pass (the review train owns them).
 

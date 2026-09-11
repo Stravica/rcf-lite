@@ -1,8 +1,8 @@
-// Probe: cloud-init render lint (v1.1.4 closure fix).
+// Probe: cloud-init render lint (v1.1.5).
 //
 // anchorAcId: AC-37104-1. accountBound: false.
 //
-// Every result row carries an `evidence` object (Addendum rule 3).
+// Every result row carries an `evidence` object (the shape rule).
 // Purity: the probe body reads no process.env.SIMULATE_ switch;
 // fixture-side mutations live in src/cloud-init-renderer.mjs.
 

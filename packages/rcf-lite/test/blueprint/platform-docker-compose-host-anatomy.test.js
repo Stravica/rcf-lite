@@ -1,7 +1,6 @@
 // Anatomy + shape + probe + fixture + shelf-doc test for the
 // platform-docker-compose-host blueprint (platform-docker-compose-host of the Hetzner shipped
-// spec, 2026-09-07 section 5.6) with the v1.1.4 criterion e closure
-// fix pass pins.
+// spec, 2026-09-07 section 5.6) with the v1.1.5 shape pins.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -37,34 +36,44 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Strict shape (reclosure Item 3): every non-skip / non-notObservable
-// row's evidence carries BOTH an identity key AND an observation key.
-const IDENTITY_KEYS = new Set([
+// Strict shape (rule 14): a row PASSES only if it is an honest skip
+// (accountBoundSkipped + non-empty reason), a notObservableHere row
+// (notObservableHere.ac non-empty), OR its evidence carries BOTH a
+// non-empty identity value AND a non-empty observation value. A
+// bare `{probeName, reason}` never counts; zero is not an observation.
+const IDENTITY_FIELDS = new Set([
   'requestId', 'resourceId', 'id', 'serverId', 'snapshotId', 'imageId',
   'firewallId', 'eventName', 'service', 'secretName', 'manifestName',
   'composeMountLine', 'engineLabel', 'target', 'file', 'path',
-  'ruleNames', 'scannedFiles', 'url', 'probeName', 'name',
-  'discoveredConfigSources', 'elicitedDriver', 'dockerVersion',
-  'caddyLocal', 'scannedMarkers', 'reverseProxy', 'envEntry',
+  'ruleNames', 'scannedFiles', 'url', 'name', 'containerId',
+  'mountPath',
 ]);
-const OBSERVATION_KEYS = new Set([
+const OBSERVATION_FIELDS = new Set([
   'bodyExcerpt', 'tailExcerpt', 'snippet', 'exitStatus', 'payloadKeys',
   'expectedKeys', 'observedKeys', 'source', 'statusCode', 'headers',
   'mode', 'event', 'sourceIps', 'healthcheckKeys', 'driver',
   'observedDrivers', 'observedBinding', 'allowed', 'protocol',
   'direction', 'port', 'ports', 'restart', 'wallClockTime',
   'appearsIn', 'unhealthyServices', 'missingServices', 'expected',
-  'observed', 'error', 'errors', 'errorMessage', 'reason',
+  'observed', 'errorMessage', 'errors',
   'snapshotCadence', 'shippedEnum', 'requiredFields', 'fileCount',
-  'observedEvents', 'services', 'fileSource', 'spec',
-  'engineNote', 'suffix',
-  'presentBlocks', 'missingBlocks', 'renderedByteLength',
-  'renderHashSample', 'eventCount', 'leaks', 'distinct',
-  'tail', 'expectedTotal', 'total', 'twoXx',
-  'drops', 'reloadDurationMs', 'overlapCount',
-  'elicitedTimeoutSeconds', 'outcomes', 'declaredSecrets',
-  'hasHealthcheck', 'inlineHits',
+  'observedEvents', 'services', 'fileSource',
+  'engineNote', 'suffix', 'presentBlocks', 'missingBlocks',
+  'renderedByteLength', 'renderHashSample', 'eventCount', 'leaks',
+  'distinct', 'tail', 'expectedTotal', 'total', 'twoXx', 'drops',
+  'reloadDurationMs', 'overlapCount', 'elicitedTimeoutSeconds',
+  'outcomes', 'declaredSecrets', 'discoveredConfigSources',
+  'consumingServices', 'declaredMode',
 ]);
+function isNonEmpty(v) {
+  if (v === null || v === undefined) return false;
+  if (typeof v === 'string') return v.length > 0;
+  if (typeof v === 'number') return v !== 0;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === 'object') return Object.keys(v).length > 0;
+  if (typeof v === 'boolean') return true;
+  return true;
+}
 function assertRowsCarry7dShape(rows, label) {
   assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
   for (const r of rows) {
@@ -72,19 +81,17 @@ function assertRowsCarry7dShape(rows, label) {
     const notObservable = r.notObservableHere && typeof r.notObservableHere === 'object' && typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0;
     if (skipped || notObservable) continue;
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
-    const keys = Object.keys(ev);
-    assert.ok(keys.length > 0, `${label}: row has empty or missing evidence: ${JSON.stringify(r).slice(0, 400)}`);
-    const hasIdentity = keys.some((k) => IDENTITY_KEYS.has(k));
-    const hasObservation = keys.some((k) => OBSERVATION_KEYS.has(k));
-    assert.ok(hasIdentity, `${label}: row evidence lacks an identity key: ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(hasObservation, `${label}: row evidence lacks an observation key: ${JSON.stringify(r).slice(0, 400)}`);
+    const identityKeysPresent = Object.keys(ev).filter((k) => IDENTITY_FIELDS.has(k) && isNonEmpty(ev[k]));
+    const observationKeysPresent = Object.keys(ev).filter((k) => OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
+    assert.ok(identityKeysPresent.length > 0, `${label}: row evidence lacks a non-empty identity field: ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a non-empty observation field: ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
 
-test('T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
+test('platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.4');
+  assert.equal(bp.version, '1.1.5');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -97,7 +104,7 @@ test('T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC
   assert.match(text, /env_file:\s*\n\s+-\s+\.env/, 'compose.yaml references .env via env_file');
 });
 
-test('T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)', async () => {
+test('platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)', async () => {
   const text = await readFile(COMPOSE, 'utf8');
   assert.match(text, /^secrets:\s*$/m, 'compose.yaml declares top-level secrets');
   assert.match(text, /^\s{2}web-token:\s*\n\s+file:\s+\.\/secrets\/web-token/m, 'web-token secret has file: source');
@@ -106,7 +113,7 @@ test('T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-1
   assert.ok(secretPresent.length > 0, 'fixture secret file exists');
 });
 
-test('T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)', async () => {
+test('platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)', async () => {
   const clean = await runProbe('secrets-as-files-scan');
   assertRowsCarry7dShape(clean.results, 'secrets-as-files clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected clean scan to pass, got: ${JSON.stringify(clean.results, null, 2)}`);
@@ -116,7 +123,7 @@ test('T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on
   assert.ok(fail, `expected mutation to fail with plaintext-literal detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)', async () => {
+test('platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)', async () => {
   const clean = await runProbe('compose-config-lint');
   assertRowsCarry7dShape(clean.results, 'compose-config-lint clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected canonical compose-config-lint to pass, got: ${JSON.stringify(clean.results.filter((r) => r.verdict === 'fail'), null, 2)}`);
@@ -126,7 +133,7 @@ test('T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses mi
   assert.ok(fail, `expected SIMULATE_MISSING_HEALTHCHECK to fail with missing-healthcheck detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)', async () => {
+test('platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-minimal-stack-up.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -144,14 +151,14 @@ test('T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up 
   }
 });
 
-test('T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)', async () => {
+test('platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_RESTART: 'true' });
   assertRowsCarry7dShape(mutated.results, 'compose-config-lint restart mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes('restart: always'));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_RESTART to fail with restart: always detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)', async () => {
+test('platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)', async () => {
   const cf = await readFile(CADDYFILE, 'utf8');
   assert.match(cf, /reverse_proxy web:8080/, 'Caddyfile references the web service');
   const clean = await runProbe('caddyfile-validate');
@@ -163,7 +170,7 @@ test('T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses inv
   assert.ok(clean.results.some((r) => r.anchorAcId === 'AC-38107-4' && r.verdict === 'pass'), 'caddyfile-validate must observe the read-only bind-mount and pass on AC-38107-4');
 });
 
-test('T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)', async () => {
+test('platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-reload-burst.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -181,14 +188,14 @@ test('T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst decl
   }
 });
 
-test('T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)', async () => {
+test('platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_LOG_DRIVER: 'true' });
   assertRowsCarry7dShape(mutated.results, 'compose-config-lint log-driver mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes("logging driver 'syslog'"));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_LOG_DRIVER to fail naming syslog, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('T-2 platform-docker-compose-host anatomy: README, CHANGELOG, guide and docs/topics.md land with expected contents', async () => {
+test('platform-docker-compose-host anatomy: README, CHANGELOG, guide and docs/topics.md land with expected contents', async () => {
   const readme = await readFile(README, 'utf8');
   assert.match(readme, /platform-docker-compose-host v1\.0\.0/);
   assert.match(readme, /containerHost/);
@@ -242,7 +249,7 @@ test('platform-docker-compose-host v1.1.4 env vars declared and compose-stack dr
   }
 });
 
-// Aggregation and empty-result contract (Addendum rule 3).
+// Aggregation and empty-result contract (the shape rule).
 test('platform-docker-compose-host probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'probe-utils.mjs')).href + '?ts=' + Date.now();
   const { aggregate, emptyResultsFail } = await import(modUrl);

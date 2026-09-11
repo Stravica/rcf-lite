@@ -1,9 +1,9 @@
-// Probe: caddyfile-validate (v1.1.4 closure fix).
+// Probe: caddyfile-validate (v1.1.5).
 //
 // anchorAcId: AC-composeHost-reverseProxyArtefactValid.
 // accountBound: false.
 //
-// Every result row carries an `evidence` object (Addendum rule 3).
+// Every result row carries an `evidence` object (the shape rule).
 // The probe now also observes the compose bind-mount for the
 // Caddyfile is read-only (:ro suffix or read_only: true on the
 // long-form) and anchors the observation to AC-38107-4 (read-only

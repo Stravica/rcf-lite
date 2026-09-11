@@ -1,8 +1,8 @@
-// Probe: compose-config-lint (v1.1.4 closure fix).
+// Probe: compose-config-lint (v1.1.5).
 //
 // Splits per-property observations into their own result rows so the
-// AC anchoring is faithful (Addendum rule 1). Each row carries its own
-// `evidence` object (Addendum rule 3):
+// AC anchoring is faithful (the shape rule). Each row carries its own
+// `evidence` object (the shape rule):
 //   - AC-composeHost-healthcheckLint  per HTTP-terminating service.
 //   - AC-composeHost-restartClassification  per service.
 //   - AC-composeHost-logDriverClassification  per service, and one

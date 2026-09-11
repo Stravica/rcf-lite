@@ -6,12 +6,12 @@ Minted by shipped deploy-hetzner-server (`deploy-hetzner-server` v1.0.0); extend
 Ships one `cx23` shape in `fsn1` from `ubuntu-24.04` under
 `hetzner/servers/ci-throwaway.json`, three real-account entry points
 (`provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`), a mocked hcloud
-shim (`src/hcloud-mock.mjs`), and six fixture-side reviewer-boot
+shim (`src/hcloud-mock.mjs`), and six fixture-side sample-boot
 scripts (`run-<probe>.mjs`) that delegate to the shipped blueprint
 probes at
 `blueprints/deploy-hetzner-server/contributions/probes/run-<probe>.mjs`.
 
-## Two-line reviewer boot (mocked, no account)
+## Two-line sample boot (mocked, no account)
 
 Every local probe runs from THIS directory as written. `hcloud` must be
 on `PATH` (see install notes below) for the dry-run mock; the mock
@@ -26,7 +26,7 @@ Each probe writes its report envelope to
 `.rcf/reports/blueprints/deploy-hetzner-server/<probe-name>.json`
 under the repo root (tracked in git per spec section 3.4).
 
-## Two-line reviewer boot (real account, throwaway server)
+## Two-line sample boot (real account, throwaway server)
 
 Sets `CI_HAS_HETZNER_ACCOUNT=true` plus `HCLOUD_TOKEN`; provisions,
 probes, tears down. Cost ceiling per run: one `cx23` at approximately
@@ -45,7 +45,7 @@ probe records `accountBoundSkipped: true` and the aggregate flips to
 
 ## hcloud install
 
-The reviewer needs `hcloud` on `PATH` even for the mocked runs (the
+The sample needs `hcloud` on `PATH` even for the mocked runs (the
 shim intercepts spawn but the binary is expected to resolve). Two
 install routes:
 
@@ -54,7 +54,7 @@ install routes:
 - Release binary: download the OS/arch tarball from
   https://github.com/hetznercloud/cli/releases/latest, verify against
   `checksums.txt`, drop the extracted `hcloud` binary on your `PATH`.
-  This is the route the shipped deploy-hetzner-server gate reviewer used on
+  This is the route the shipped deploy-hetzner-server sample boot used on
   darwin-arm64 (1.67.0).
 
 ## Fixture layout
@@ -81,7 +81,7 @@ install routes:
   `hcloud image create-image` and verifies via `hcloud image list`.
 - `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`. Real-account
   entry points.
-- `run-<probe>.mjs`. Six fixture-side reviewer-boot shims that
+- `run-<probe>.mjs`. Six fixture-side sample-boot shims that
   delegate to the shipped blueprint probe run-* scripts.
 - `.gitignore` hides `scratch/` (holds `last-throwaway.json` between
   `provision.mjs` and `destroy.mjs`).
@@ -182,7 +182,7 @@ the platform-docker-compose-host v1.0.0 blueprint contract:
 - `src/serve.mjs`: Node stub the web service runs; listens on port 8080
   (via `WEB_LISTEN_PORT` from `.env`), returns 200 on `/live`.
 
-## platform-docker-compose-host reviewer boot (mocked, no account)
+## platform-docker-compose-host sample boot (mocked, no account)
 
 Every platform-docker-compose-host local probe runs from THIS directory as written. Docker must
 be reachable for `compose-config-lint` and `caddyfile-validate` (which
@@ -194,7 +194,7 @@ cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
 node ./run-compose-config-lint.mjs && node ./run-secrets-as-files-scan.mjs && node ./run-caddyfile-validate.mjs
 ```
 
-## platform-docker-compose-host reviewer boot (real account, throwaway server)
+## platform-docker-compose-host sample boot (real account, throwaway server)
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
@@ -248,6 +248,7 @@ section 6).
 | `REVERSE_PROXY` | second, optional | Elicited reverse-proxy topology on `caddyfile-validate`; unset or `caddy` runs the Caddy validation branch; other values (`traefik`, `none`) record a skipped row. Read at `blueprints/platform-docker-compose-host/contributions/probes/caddyfile-validate.mjs`. | `platform-docker-compose-host/caddyfile-validate` |
 | `LOG_DRIVER` | second, optional | Elicited log driver on `compose-config-lint`; unset defaults to `journald` and every service must match the elicited value. Read at `blueprints/platform-docker-compose-host/contributions/probes/compose-config-lint.mjs`. | `platform-docker-compose-host/compose-config-lint` |
 | `RELOAD_WINDOW_SECONDS` | second, optional | Elicited reload-window on `real-account-reload-burst` (default 10; ceiling per AC-composeHost-zeroDowntimeReload); a reload duration that exceeds this many seconds FAILS the verdict. Read at `blueprints/platform-docker-compose-host/contributions/probes/real-account-reload-burst.mjs`. | `platform-docker-compose-host/real-account-reload-burst` |
+| `COMPOSE_UP_TIMEOUT_SECONDS` | second, optional | Elicited compose-up wait timeout in seconds on the platform-docker-compose-host account-bound branch; overrides the shipped elicit default (`healthcheck-timeout-seconds` = 30). Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/compose-stack-driver.mjs`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
 | `WEB_APP_NAME` | second, optional | Fixture web-service app name read by the throwaway web container's `src/serve.mjs`; declared here so the account-bound stack-up probe's response body (`{"appName": ...}`) has a documented source. | fixture `src/serve.mjs` consumed on the real-account branch |
 | `WEB_LISTEN_PORT` | second, optional | Fixture web-service listen port (default 8080) read by `src/serve.mjs`; declared here so the caddy `reverse_proxy web:8080` binding and the compose healthcheck have a documented source. | fixture `src/serve.mjs` consumed on the real-account branch |
 | `WEB_HEALTH_PATH` | second, optional | Fixture web-service health path (default `/live`) read by `src/serve.mjs`; the compose healthcheck and the on-server curl assertion both target this path. | fixture `src/serve.mjs` consumed on the real-account branch |
@@ -292,7 +293,7 @@ public-hostname when absent):
   the two applied-blueprint sidecars aud-presence-check reads to prove
   the shape flips.
 
-## edge-cloudflare-tunnel reviewer boot (mocked, no account)
+## edge-cloudflare-tunnel sample boot (mocked, no account)
 
 Three local probes; the tunnel schema validator is named
 `run-tunnel-manifest-schema-validate.mjs` to avoid colliding with deploy-hetzner-server's
@@ -309,7 +310,7 @@ one is on PATH; when it is not, it runs `cloudflared tunnel --config
 /etc/cloudflared/<mode>.yaml ingress validate` via the vendor container
 image `cloudflare/cloudflared:2026.8.3` (docker must be reachable).
 
-## edge-cloudflare-tunnel reviewer boot (real account, throwaway server)
+## edge-cloudflare-tunnel sample boot (real account, throwaway server)
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server

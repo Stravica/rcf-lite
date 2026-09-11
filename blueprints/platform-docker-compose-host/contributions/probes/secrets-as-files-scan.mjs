@@ -1,22 +1,37 @@
-// Probe: secrets-as-files-scan (v1.1.4 closure re-run fix).
-//
-// anchorAcIds: AC-composeHost-secretsAreFiles (primary),
-// AC-composeHost-secretShape.
+// Probe: secrets-as-files-scan (v1.1.5).
+
+// anchorAcIds: AC-composeHost-secretsAreFiles (service-level reference
+// shape rows), AC-composeHost-secretShape (top-level file: source
+// rows). This offline probe cannot observe the in-container mode a
+// compose stack applies at runtime; the mode observation belongs to
+// real-account-minimal-stack-up, which runs
+// `docker exec ... stat -c %a /run/secrets/<name>` inside every
+// consuming container. The mode rows here are conformanceOnly with
+// `notObservableHere.ac = 'AC-composeHost-secretShape'` and a
+// limitation naming the AC clause the offline scan does not observe.
 // accountBound: false.
-//
-// Every result row carries an `evidence` object (Addendum rule 3).
-//
-// Scans (reclosure Item 11):
-//   - compose.yaml: every declared secret references a file: source
-//     (secretShape); AND for every consuming service, the reference
-//     lives in the service-level secrets: array (not env); AND the
-//     mounted mode (if declared) is 0o400.
-//   - compose.yaml, .env, plus EVERY file under EVERY service's
+
+// Every result row carries an `evidence` object with an identity key
+// AND an observation key or a body excerpt / derived value.
+
+// Scans:
+//   - compose.yaml: every declared top-level secret references a
+//     file: source (secretShape); every top-level secret has at
+//     least one consuming service (a top-level entry no service
+//     references is an orphan and fails).
+//   - compose.yaml: for every consuming service, the reference lives
+//     in the service-level secrets: array (never in environment).
+//     A long-form entry with an explicit `mode` field is recorded
+//     verbatim; missing modes are NOT assumed to be 0o400 here (that
+//     assertion belongs to the real-account probe that observes the
+//     mounted file inside the container).
+//   - compose.yaml, .env, plus every file under every service's
 //     bind-mount source directory (config discovery walks the compose
-//     service list, not the hardcoded caddy/ dir): no plaintext token
+//     service list, not a hardcoded caddy/ dir): no plaintext token
 //     literal appears.
 //   - The mutation switch SIMULATE_PLAINTEXT_SECRET writes a plaintext
-//     literal into compose.yaml and the probe FAILS naming file+line.
+//     literal into a scratch copy of compose.yaml and the probe FAILS
+//     naming file+line.
 
 import { readFile, cp, rm, mkdir, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -77,7 +92,7 @@ async function scanFileForLiteral(file, secret) {
 // Enumerate every filesystem source referenced by every service in the
 // applied compose.yaml. Handles both short-form (`- ./caddy:/etc/caddy:ro`)
 // and long-form (`- type: bind, source: ./caddy, target: ...`) volume
-// entries. Reclosure Item 11: config discovery was hardcoded to caddy/.
+// entries.
 function collectServiceConfigSources(doc, composeDir) {
   const sources = new Set();
   const services = doc.services ?? {};
@@ -107,25 +122,12 @@ function collectServiceConfigSources(doc, composeDir) {
 // Return the mode declared for a service-level secrets entry (if any).
 // Compose long-form: - source: web-token, mode: 0400 (as int or oct).
 function getServiceSecretMode(svcSecretsEntry) {
-  if (typeof svcSecretsEntry === 'string') return null; // short-form: no explicit mode, default 0o400
+  if (typeof svcSecretsEntry === 'string') return null; // short-form: mode not declared here
   if (svcSecretsEntry && typeof svcSecretsEntry === 'object') {
     if (svcSecretsEntry.mode === undefined || svcSecretsEntry.mode === null) return null;
     return svcSecretsEntry.mode;
   }
   return null;
-}
-
-function isAcceptableSecretMode(mode) {
-  // Compose supports both int (256 = 0o400) and octal literal (0o400
-  // or 0400 in YAML). We accept only 0o400 / 256; anything else fails.
-  if (mode === null || mode === undefined) return true; // default = 0o400
-  if (mode === 256) return true;
-  if (typeof mode === 'string') {
-    const trimmed = mode.trim();
-    if (trimmed === '0400' || trimmed === '0o400' || trimmed === '400') return true;
-    return false;
-  }
-  return false;
 }
 
 export default async function runProbe() {
@@ -147,7 +149,8 @@ export default async function runProbe() {
     const secretNames = Object.keys(secretsBlock);
     extra.declaredSecrets = secretNames;
 
-    // Per-declared-secret shape row (AC-composeHost-secretShape).
+    // Per-declared-secret shape row (AC-composeHost-secretShape): the
+    // file: source clause of the AC.
     for (const name of secretNames) {
       const spec = secretsBlock[name] ?? {};
       if (!spec.file) {
@@ -167,13 +170,46 @@ export default async function runProbe() {
       }
     }
 
-    // Reclosure Item 11: for every consuming service, VALIDATE that the
-    // reference lives in the service-level secrets: array (not env),
-    // AND the mounted mode (long-form only) is 0o400.
+    // Consuming-service row: every top-level secret must be
+    // referenced by at least one service (an orphan top-level entry
+    // is a defect).
     const services = doc.services ?? {};
+    const consumerBySecret = {};
+    for (const name of secretNames) consumerBySecret[name] = [];
     for (const [svcName, svc] of Object.entries(services)) {
       const svcSecrets = Array.isArray(svc && svc.secrets) ? svc.secrets : [];
-      // Row (per service+secret): service-level reference exists?
+      for (const entry of svcSecrets) {
+        const secretName = typeof entry === 'string' ? entry : (entry && entry.source) || null;
+        if (secretName && secretNames.includes(secretName)) consumerBySecret[secretName].push(svcName);
+      }
+    }
+    for (const name of secretNames) {
+      const consumers = consumerBySecret[name];
+      if (consumers.length === 0) {
+        results.push({
+          anchorAcId: 'AC-composeHost-secretShape',
+          verdict: 'fail',
+          detail: `compose secret '${name}' is declared at the top level but no service references it via the service-level secrets: array (orphan)`,
+          evidence: { secretName: name, consumingServices: [], expected: 'at least one consuming service' },
+        });
+      } else {
+        results.push({
+          anchorAcId: 'AC-composeHost-secretShape',
+          verdict: 'pass',
+          detail: `compose secret '${name}' is referenced by ${consumers.length} service(s): ${consumers.join(', ')}`,
+          evidence: { secretName: name, consumingServices: consumers, source: 'compose.yaml services block' },
+        });
+      }
+    }
+
+    // Service-level shape rows (AC-composeHost-secretsAreFiles):
+    // every service-level reference must live in the service secrets:
+    // array (never in env), and long-form entries carry their mode
+    // verbatim into the evidence. The AC's "mounted 0o400" clause is
+    // observed by the real-account probe (docker exec stat), not
+    // here.
+    for (const [svcName, svc] of Object.entries(services)) {
+      const svcSecrets = Array.isArray(svc && svc.secrets) ? svc.secrets : [];
       for (const entry of svcSecrets) {
         const secretName = typeof entry === 'string' ? entry : (entry && entry.source) || null;
         if (!secretName) continue;
@@ -186,22 +222,35 @@ export default async function runProbe() {
           });
           continue;
         }
-        const mode = getServiceSecretMode(entry);
-        if (!isAcceptableSecretMode(mode)) {
-          results.push({
-            anchorAcId: 'AC-composeHost-secretsAreFiles',
-            verdict: 'fail',
-            detail: `service '${svcName}' mounts secret '${secretName}' with mode '${String(mode)}'; AC requires 0o400 (compose default)`,
-            evidence: { service: svcName, secretName, mode: String(mode), expected: '0o400 (256) or unset (compose default)' },
-          });
-        } else {
-          results.push({
-            anchorAcId: 'AC-composeHost-secretsAreFiles',
-            verdict: 'pass',
-            detail: `service '${svcName}' references secret '${secretName}' via service-level secrets: (mode=${mode === null ? 'default 0o400' : String(mode)})`,
-            evidence: { service: svcName, secretName, mode: mode === null ? 'default(0o400)' : String(mode), source: 'compose.yaml service secrets: block' },
-          });
-        }
+        const declaredMode = getServiceSecretMode(entry);
+        results.push({
+          anchorAcId: 'AC-composeHost-secretsAreFiles',
+          verdict: 'pass',
+          detail: `service '${svcName}' references secret '${secretName}' via service-level secrets: (declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)})`,
+          evidence: {
+            service: svcName,
+            secretName,
+            declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
+            source: 'compose.yaml service secrets: block',
+          },
+        });
+        // Mode row: this offline scan CANNOT observe the in-container
+        // mode. De-claim the row so no invented "default 0o400" claim
+        // reaches the record.
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: 'offline scan cannot observe the in-container mode; AC-composeHost-secretShape "mounted at mode 0o400" clause is observed by real-account-minimal-stack-up which runs docker exec stat -c %a inside the consuming container.',
+          notObservableHere: { ac: 'AC-composeHost-secretShape' },
+          verdict: 'pass',
+          detail: `service '${svcName}' secret '${secretName}' declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)}; in-container mode observation lives on the real-account probe.`,
+          evidence: {
+            service: svcName,
+            secretName,
+            declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
+            source: 'compose.yaml service secrets: block',
+          },
+        });
       }
       // A service that mentions a secret NAME in env or environment
       // without a corresponding service-level secrets: entry fails.
@@ -222,8 +271,8 @@ export default async function runProbe() {
       }
     }
 
-    // Config discovery (reclosure Item 11): walk every service's bind
-    // mount source, not the hardcoded caddy/ dir.
+    // Config discovery: walk every service's bind mount source, not a
+    // hardcoded caddy/ dir.
     const composeDir = dirname(composePathToScan);
     const scanTargets = [composePathToScan, ENV_PATH];
     const configSources = collectServiceConfigSources(doc, composeDir);

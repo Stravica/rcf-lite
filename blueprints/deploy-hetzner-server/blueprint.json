@@ -1,6 +1,6 @@
 {
   "slug": "deploy-hetzner-server",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "category": "deploy",
   "capabilities": [
     "cloudHost"
@@ -201,7 +201,7 @@
       "topic": "linuxCloudHostContract",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "Hetzner Cloud API server resource and cloud-init user-data contract per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Hetzner Cloud API server resource and cloud-init user-data contract per hetzner-baseline-spec-2026-09-07.md"
     },
     {
       "id": "ADR-3802-deploy-hetzner-server-snapshot-cadence",
@@ -211,7 +211,7 @@
       "topic": "snapshotAndBackupCadence",
       "recommendedDefault": true,
       "elicited": true,
-      "standardsTraceClause": "Hetzner Cloud backups-and-snapshots documented pricing and mechanism per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Hetzner Cloud backups-and-snapshots documented pricing and mechanism per hetzner-baseline-spec-2026-09-07.md"
     },
     {
       "id": "ADR-3803-deploy-hetzner-server-provisioning-tool",
@@ -219,7 +219,7 @@
       "path": "adrs/adr-3803-deploy-hetzner-server-provisioning-tool.json",
       "recommendedDefault": true,
       "elicited": true,
-      "standardsTraceClause": "Hetzner Cloud CLI documented resource verbs per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Hetzner Cloud CLI documented resource verbs per hetzner-baseline-spec-2026-09-07.md"
     },
     {
       "id": "ADR-3804-deploy-hetzner-server-hardening-baseline",
@@ -227,8 +227,8 @@
       "path": "adrs/adr-3804-deploy-hetzner-server-hardening-baseline.json",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-round-7-spec-2026-09-07.md"
+      "standardsTraceClause": "Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-baseline-spec-2026-09-07.md"
     }
   ],
-  "updatedAt": "2026-09-11T13:11:31.000Z"
+  "updatedAt": "2026-09-11T16:30:46.000Z"
 }
