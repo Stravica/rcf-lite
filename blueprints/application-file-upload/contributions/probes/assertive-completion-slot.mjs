@@ -1,14 +1,18 @@
-// assertive-completion-slot probe for application-file-upload v1.2.2.
+// assertive-completion-slot probe for application-file-upload v1.2.3.
 //
-// Verifies AC-23105-1: after the upload set completes the surface
-// carries an assertive-slot with aria-live="assertive" whose text
-// matches /^\d+ files uploaded successfully$/. The probe drives
-// /upload?complete=3 so the completion string appears in the
-// initial DOM (no JS runner needed) and asserts the text.
+// Verifies AC-23105-1: after the upload SET completes the assertive
+// slot carries "N files uploaded successfully". Under Addendum 3
+// rule 13 the probe MUST drive real chunk uploads to reach the
+// completion state, not seed ?complete=<N>. The probe declares a
+// session, POSTs three real chunk payloads whose byte total meets
+// the declared total, then re-fetches the /upload shell with
+// ?sessionId=<the session id> and observes the fixture-computed
+// completion string. Remove/retry control observation is browser-only.
 //
 // anchorAcId: application-file-upload-AC-23105-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult } from './probe-utils.mjs';
+import { randomUUID } from 'node:crypto';
 
 export const anchorReqId = 'application-file-upload-REQ-005';
 export const accountBound = false;
@@ -20,39 +24,70 @@ export default async function runProbe() {
   const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
-    // Idle: assertive slot is present but empty (AC-23105-1 says
-    // the completion announcement fires AFTER completion; empty on
-    // idle is correct).
-    const idleRes = await fetch(`${fixture.baseUrl}/upload`);
-    const idleBody = await idleRes.text();
-    const idleSlotMatch = idleBody.match(/<div[^>]+data-assertive-slot[^>]+aria-live="assertive"[^>]*>([^<]*)<\/div>/);
-    const idleShapeOk = !!idleSlotMatch;
 
-    // Complete: text advances to the completion announcement.
-    const completeRes = await fetch(`${fixture.baseUrl}/upload?complete=3`);
-    const completeBody = await completeRes.text();
-    const completeSlotMatch = completeBody.match(/<div[^>]+data-assertive-slot[^>]+aria-live="assertive"[^>]*>([^<]+)<\/div>/);
-    const completeText = completeSlotMatch ? completeSlotMatch[1] : null;
-    const completionOk = !!completeText && COMPLETION_RE.test(completeText);
+    const sessionId = `probe-${randomUUID()}`;
+    const files = [{ name: 'p.bin', bytes: 100 }, { name: 'q.bin', bytes: 200 }, { name: 'r.bin', bytes: 300 }];
+    const total = files.reduce((s, f) => s + f.bytes, 0);
+    // Declare the session so completion is derived from bytes, not seeded.
+    await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ totalExpectedBytes: total, files }),
+    });
+    // Drive three real chunk uploads.
+    for (const [i, f] of files.entries()) {
+      await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, {
+        method: 'POST', body: Buffer.alloc(f.bytes, 65 + i),
+      });
+    }
+    // Ask the fixture for its derived completion state.
+    const completionRes = await fetch(`${fixture.baseUrl}/upload/completion?sessionId=${sessionId}`);
+    const completionBody = await completionRes.text();
+    const completionParsed = JSON.parse(completionBody);
+    const completeDerived = completionParsed.complete === true && completionParsed.uploadedBytes === total
+      && COMPLETION_RE.test(completionParsed.completionText);
 
-    const pass = idleRes.status === 200 && idleShapeOk && completeRes.status === 200 && completionOk;
+    // Re-fetch the shell with ?sessionId=... and confirm the
+    // assertive slot carries the fixture-computed text.
+    const shellRes = await fetch(`${fixture.baseUrl}/upload?sessionId=${sessionId}`);
+    const shellBody = await shellRes.text();
+    const slotMatch = shellBody.match(/<div[^>]+data-assertive-slot[^>]+aria-live="assertive"[^>]*>([^<]*)<\/div>/);
+    const slotText = slotMatch ? slotMatch[1].trim() : '';
+    const shellOk = shellRes.status === 200 && !!slotMatch && COMPLETION_RE.test(slotText)
+      && slotText === completionParsed.completionText;
+    const pass = completeDerived && shellOk;
     results.push({
       anchorAcId: 'application-file-upload-AC-23105-1',
       anchorReqId: 'application-file-upload-REQ-005',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `After the fixture completes the upload set the - assertive-slot present; after ?complete=3 textContent="${completeText}" matches /^\\d+ files uploaded successfully$/`
-        : `After the fixture completes the upload set the - assertive-slot fault: idleShape=${idleShapeOk} completeText=${completeText}`,
+      detail: `Given an upload set that reaches completion, - drove three real chunk uploads (${total} bytes) under sessionId=${sessionId}; fixture derived completionText="${completionParsed.completionText}"; shell assertive-slot text="${slotText}"`,
       evidence: evidenceFromResponse({
-        route: '/upload?complete=3',
-        response: completeRes,
-        bodyText: completeBody,
+        route: `/upload?sessionId=${sessionId}`,
+        response: shellRes,
+        bodyText: shellBody,
         extraFields: {
-          input: { complete: 3 },
-          derived: { idleText: idleSlotMatch ? idleSlotMatch[1] : null, completeText, regex: '^\\d+ files uploaded successfully$' },
+          input: { sessionId, files, totalExpectedBytes: total },
+          derived: {
+            uploadedBytes: completionParsed.uploadedBytes,
+            complete: completionParsed.complete,
+            completionText: completionParsed.completionText,
+            assertiveSlotText: slotText,
+          },
+          altBodyExcerpt: completionBody.slice(0, 240),
         },
       }),
     });
+
+    // Row 2: completed-row remove/retry controls are DOM-observed;
+    // browser-only per Addendum 3 rule 11.
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-file-upload-AC-23105-1',
+      anchorReqId: 'application-file-upload-REQ-005',
+      ac: 'application-file-upload-AC-23105-1',
+      detail: 'Given an upload set that reaches completion, - completed-row remove/retry controls need DOM inspection; browser-only per Addendum 3 rule 11',
+      reason: 'AC-23105-1 also requires observing per-row remove and retry controls after completion; server-side probe pack cannot inspect the rendered DOM',
+      evidence: { requires: 'browser DOM observation of per-row controls' },
+    }));
+
     return { results };
   } finally {
     await fixture.close();

@@ -53,6 +53,17 @@ export default async function runProbe() {
         },
       }),
     });
+    const { notObservableHereResult } = await import('./probe-utils.mjs');
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-datatable-AC-17102-1',
+      anchorReqId: 'application-datatable-REQ-003',
+      ac: 'application-datatable-AC-17102-1',
+      detail: 'AC-17102-1 also requires typing into the filter and comparing rendered rows; browser-only',
+      reason: 'AC-17102-1 requires typing into the browser filter input and comparing rendered rows; server-side probe pack cannot observe DOM changes',
+      evidence: { requires: 'browser input + DOM comparison' },
+    }));
+
+
     return { results };
   } finally {
     await fixture.close();

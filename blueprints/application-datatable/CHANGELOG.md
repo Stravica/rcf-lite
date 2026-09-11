@@ -1,15 +1,13 @@
 # application-datatable CHANGELOG
 
-## 1.0.6 (criterion-e closure follow-ups, 2026-09-11)
+## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
 
-- Follow-up fixes to the criterion-e pack (external review, 2026-09-11):
-  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
-  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
-  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
-  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
-  - Anatomy strengthened to pin the four 7d evidence shapes per row.
-  - Register: passive voice on the empty-results comment (no first-person plural).
-- Fixture: ?state=no-results renders the noResultsRegion server-side so the AC-17105-1 four-state observation reads real DOM. x-fixture-request-id stamped natively.
+- Second closure follow-up on the criterion-e pack:
+  - Anatomy test hardened to Addendum 3 rule 14.
+  - Arrow-key cell focus (AC-17107-5) is notObservableHere per Addendum 3 rule 11.
+  - APG rendered interactive shell/accessibility tree is notObservableHere(AC-17107-1); the server-observable half (source module shape, grid role, aria-rowcount) remains real evidence.
+  - Sort and search adapter round trips remain as real evidence for the server-observable derivation; browser interaction / DOM comparison rows are notObservableHere.
+  - No-results row now sends q=zzz-no-hits together with state=no-results so the fixture's region renders under an active filter (AC-17105-1's condition).
 
 ## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
 

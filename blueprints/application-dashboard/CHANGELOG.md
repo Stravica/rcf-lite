@@ -1,15 +1,12 @@
 # application-dashboard CHANGELOG
 
-## 1.0.6 (criterion-e closure follow-ups, 2026-09-11)
+## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
 
-- Follow-up fixes to the criterion-e pack (external review, 2026-09-11):
-  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
-  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
-  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
-  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
-  - Anatomy strengthened to pin the four 7d evidence shapes per row.
-  - Register: passive voice on the empty-results comment (no first-person plural).
-- Fixture: x-fixture-request-id stamped natively. Probes now parse <section role="region"> blocks and assert unique aria-label per AC-19101-4; four-tile-states asserts role/aria-live/aria-label/state-cue against two tiles; primary-KPI observes grid-column-start:1 AND grid-row-start:1 AND data-kpi-kind in the ADR-2001 enum.
+- Second closure follow-up on the criterion-e pack:
+  - Anatomy test hardened to Addendum 3 rule 14.
+  - Primary-KPI at 1440/1024/360 is a browser-only property; the row is recorded as notObservableHere(AC-19102-1) per Addendum 3 rule 11 rather than faking with static markup checks. A separate row asserts the shell markup satisfies the server-observable half (data-kpi-kind in ADR-2001 enum, non-empty inline styles) with request-id + body excerpt evidence.
+  - Export-format focus-return-on-Escape and control-activation are notObservableHere(AC-19106-1); the server-observable half (three format handles rendered with distinct downloads) remains a real row with evidence.
+  - Four-tile-states: the "supporting tile" checks now iterate each of the four states rather than always evaluating populated; the probe walks two tiles across four states.
 
 ## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
 

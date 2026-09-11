@@ -1,17 +1,14 @@
 // chunked-transport-endpoints probe for application-file-upload
-// v1.2.2.
+// v1.2.3.
 //
-// Verifies AC-23104-1 (multipart chunk count > 1 is real, not an
-// echoed constant) and AC-23104-3 (tus Upload-Offset is a durable
-// server-side write - a subsequent request observes the stored
-// offset). The multipart branch drives three real POSTs and
-// asserts chunksUploaded advances; the tus branch PATCHes an
-// offset then GETs to prove the offset survived the request.
+// Verifies AC-23104-1 (multipart transport: three real chunk POSTs
+// with distinct byte payloads advance a byte-derived total on the
+// server) and AC-23104-3 (tus transport: Upload-Offset writes bytes
+// durably, an expected-offset mismatch returns 409).
 //
-// anchorAcId: application-file-upload-AC-23104-1 (row 1) and
-// application-file-upload-AC-23104-3 (row 2).
+// anchorAcId: per-row.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult } from './probe-utils.mjs';
 import { randomUUID } from 'node:crypto';
 
 export const anchorReqId = 'application-file-upload-REQ-004';
@@ -23,79 +20,100 @@ export default async function runProbe() {
   try {
     const results = [];
 
-    // Row 1: multipart chunks - three real POSTs under one session,
-    // stateful count on the server side, cumulative count advances.
+    // Row 1 (AC-23104-1): multipart chunks - three real POSTs with
+    // distinct byte payloads.
     const sessionId = `session-${randomUUID()}`;
-    const chunkCounts = [];
-    let lastChunkRes;
-    let lastChunkBody = '';
-    for (let n = 1; n <= 3; n += 1) {
-      const r = await fetch(`${fixture.baseUrl}/upload/chunk?n=${n}&sessionId=${sessionId}`, { method: 'POST' });
+    const files = [{ name: 'x.bin', bytes: 1024 }, { name: 'y.bin', bytes: 2048 }, { name: 'z.bin', bytes: 4096 }];
+    const total = files.reduce((s, f) => s + f.bytes, 0);
+    await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ totalExpectedBytes: total, files }),
+    });
+    const chunkResults = [];
+    let lastChunkRes, lastChunkBody = '';
+    for (const [i, f] of files.entries()) {
+      const payload = Buffer.alloc(f.bytes, 65 + i);
+      const r = await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, { method: 'POST', body: payload });
       const b = await r.text();
-      chunkCounts.push(JSON.parse(b).chunksUploaded);
-      lastChunkRes = r;
-      lastChunkBody = b;
+      const parsed = JSON.parse(b);
+      chunkResults.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes });
+      lastChunkRes = r; lastChunkBody = b;
     }
-    const chunkOk = chunkCounts.length === 3 && chunkCounts[0] === 1 && chunkCounts[1] === 2 && chunkCounts[2] === 3;
+    const chunkOk = chunkResults[0].bytesReceived === files[0].bytes
+      && chunkResults[1].bytesReceived === files[1].bytes
+      && chunkResults[2].bytesReceived === files[2].bytes
+      && chunkResults[2].uploadedBytes === total;
     results.push({
       anchorAcId: 'application-file-upload-AC-23104-1',
       anchorReqId: 'application-file-upload-REQ-004',
       verdict: chunkOk ? 'pass' : 'fail',
-      detail: chunkOk
-        ? `On the ?transport=multipart branch the fixture returns 200 - multipart chunk count derived from three POSTs advanced 1->2->3 under sessionId=${sessionId}`
-        : `On the ?transport=multipart branch the fixture returns 200 - multipart chunk fault: counts=${JSON.stringify(chunkCounts)}`,
+      detail: `On the ?transport=multipart branch the fixture returns 200 - multipart chunks recorded bytes ${chunkResults.map((c) => c.bytesReceived).join(',')} advancing cumulative to ${chunkResults[2]?.uploadedBytes ?? 0} of ${total} (sessionId=${sessionId})`,
       evidence: evidenceFromResponse({
         route: `/upload/chunk (sessionId=${sessionId})`,
         response: lastChunkRes,
         bodyText: lastChunkBody,
         extraFields: {
-          input: { sessionId, chunkNs: [1, 2, 3] },
-          derived: { chunkCounts },
+          input: { sessionId, files, totalExpectedBytes: total },
+          derived: { chunkResults, totalOk: chunkResults[2]?.uploadedBytes === total },
         },
       }),
     });
 
-    // Row 2: tus offset is a durable server-side write. PATCH with
-    // Upload-Offset: 4096 then GET the stored value; the value in
-    // the GET body proves the write survived the request boundary
-    // (AC-23104-3).
+    // Row 2 (AC-23104-3): tus offset write plus 409 on mismatch.
     const uploadId = `upload-${randomUUID()}`;
+    // Correct PATCH #1: declared offset 0, write 4096 bytes; server
+    // stored offset becomes 4096.
     const patch1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH',
-      headers: { 'upload-offset': '4096' },
+      method: 'PATCH', headers: { 'upload-offset': '0' }, body: Buffer.alloc(4096, 65),
     });
+    const patch1Offset = patch1.headers.get('upload-offset');
     const get1 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
     const get1Body = await get1.text();
     const get1Parsed = JSON.parse(get1Body);
-    // Overwrite with a larger offset and GET again to observe the
-    // stored value change.
+    // Correct PATCH #2: declared offset 4096, write 8192 more bytes.
     const patch2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
-      method: 'PATCH',
-      headers: { 'upload-offset': '8192' },
+      method: 'PATCH', headers: { 'upload-offset': '4096' }, body: Buffer.alloc(8192, 66),
     });
+    const patch2Offset = patch2.headers.get('upload-offset');
     const get2 = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`);
     const get2Body = await get2.text();
     const get2Parsed = JSON.parse(get2Body);
-    const tusOk = patch1.status === 204 && patch1.headers.get('upload-offset') === '4096'
-      && get1Parsed.storedOffset === 4096
-      && patch2.status === 204 && get2Parsed.storedOffset === 8192;
+    // Mismatch PATCH: declared offset 99999 while stored is 12288.
+    const patchBad = await fetch(`${fixture.baseUrl}/upload/tus?uploadId=${uploadId}`, {
+      method: 'PATCH', headers: { 'upload-offset': '99999' }, body: Buffer.alloc(10, 67),
+    });
+    const patchBadBody = await patchBad.text();
+    const badExpected = patchBad.status === 409;
+    const tusOk = patch1.status === 204 && patch1Offset === '4096' && get1Parsed.storedBytes === 4096
+      && patch2.status === 204 && patch2Offset === '12288' && get2Parsed.storedBytes === 12288
+      && badExpected;
     results.push({
       anchorAcId: 'application-file-upload-AC-23104-3',
       anchorReqId: 'application-file-upload-REQ-004',
       verdict: tusOk ? 'pass' : 'fail',
-      detail: tusOk
-        ? `Upload-Offset on the tus branch matches the byte - tus offset written durably: PATCH 4096 -> GET storedOffset=4096; PATCH 8192 -> GET storedOffset=8192 (uploadId=${uploadId})`
-        : `Upload-Offset on the tus branch matches the byte - tus fault: patch1=${patch1.status}/offset=${patch1.headers.get('upload-offset')} stored1=${get1Parsed.storedOffset} patch2=${patch2.status} stored2=${get2Parsed.storedOffset}`,
+      detail: `Upload-Offset on the tus branch matches the byte - tus writes byte-derived: PATCH#1 stored=${get1Parsed.storedBytes}, PATCH#2 stored=${get2Parsed.storedBytes}, mismatch PATCH -> ${patchBad.status}`,
       evidence: evidenceFromResponse({
         route: `/upload/tus (uploadId=${uploadId})`,
         response: get2,
         bodyText: get2Body,
         extraFields: {
-          input: { uploadId, patches: [4096, 8192] },
-          derived: { firstAck: patch1.headers.get('upload-offset'), storedAfterFirst: get1Parsed.storedOffset, storedAfterSecond: get2Parsed.storedOffset },
+          input: { uploadId, patches: [{ offset: 0, bytes: 4096 }, { offset: 4096, bytes: 8192 }, { offset: 99999, bytes: 10 }] },
+          derived: { patch1Offset, patch2Offset, stored1: get1Parsed.storedBytes, stored2: get2Parsed.storedBytes, mismatchStatus: patchBad.status, mismatchBody: patchBadBody.slice(0, 240) },
         },
       }),
     });
+
+    // Row 3: DOM transport marker + browser network observation is
+    // browser-only per Addendum 3 rule 11.
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-file-upload-AC-23104-1',
+      anchorReqId: 'application-file-upload-REQ-004',
+      ac: 'application-file-upload-AC-23104-1',
+      detail: 'On the ?transport=multipart branch the fixture returns 200 - DOM transport marker and browser network observation are browser-only per Addendum 3 rule 11',
+      reason: 'AC-23104-1 also requires observing DOM transport markers and browser network activity; server-side probe pack cannot observe DOM or the browser network stack',
+      evidence: { requires: 'browser Network panel + DOM inspection' },
+    }));
+
     return { results };
   } finally {
     await fixture.close();

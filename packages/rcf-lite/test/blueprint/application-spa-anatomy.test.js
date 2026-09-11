@@ -1,4 +1,4 @@
-// Anatomy + probe-pack test for the application-spa v1.5.8 shelf
+// Anatomy + probe-pack test for the application-spa v1.5.9 shelf
 // blueprint. Pins the criterion-e contributions/probes pack shape
 // (three probes, matching run-*.mjs wrappers, probe-utils helper).
 //
@@ -26,7 +26,7 @@ test('application-spa: blueprint.json declares the shipped shape', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-spa');
   assert.equal(doc.category, 'application');
-  assert.equal(typeof doc.version, 'string');
+  assert.equal(doc.version, '1.5.9');
 });
 
 test('application-spa: contributions/probes carries probe-utils and every named probe with its run-*.mjs wrapper', async () => {
@@ -69,22 +69,44 @@ test('application-spa: every probe result carries one of the four 7d evidence sh
     assert.ok(Array.isArray(results) && results.length > 0, `${name} returned no results`);
     for (const r of results) {
       const shaped = (r && typeof r.evidence === 'object' && r.evidence)
-        || r.accountBoundSkipped === true;
+        || r.accountBoundSkipped === true
+        || (r && typeof r.notObservableHere === 'object' && r.notObservableHere !== null);
       assert.ok(shaped, `${name} result missing evidence or accountBoundSkipped: ${JSON.stringify(r).slice(0, 200)}`);
+      if (r.accountBoundSkipped === true) {
+        assert.ok(typeof r.reason === 'string' && r.reason.length > 0,
+          name + ' account-bound skip missing named reason: ' + JSON.stringify(r).slice(0, 200));
+        continue;
+      }
+      if (r && typeof r.notObservableHere === 'object' && r.notObservableHere !== null) {
+        assert.ok(typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0,
+          name + ' notObservableHere row missing .ac id: ' + JSON.stringify(r).slice(0, 200));
+        assert.ok(typeof r.notObservableHere.reason === 'string' && r.notObservableHere.reason.length > 0,
+          name + ' notObservableHere row missing .reason: ' + JSON.stringify(r).slice(0, 200));
+        continue;
+      }
+      if (r && r.conformanceOnly === true) {
+        assert.ok(typeof r.limitation === 'string' && r.limitation.length > 0,
+          name + ' conformanceOnly row missing limitation: ' + JSON.stringify(r).slice(0, 200));
+        // conformanceOnly rows still carry real evidence; fall through to the strict checks below.
+      }
+      
       if (r.evidence) {
         const ev = r.evidence;
-        // Rule 7d addendum (external review 2026-09-11): every real
-        // evidence row carries a route, a status and either a
-        // fixture-stamped request id or a named fallback reason.
+        // Rule 7d addendum 3 (2026-09-11) rule 14: STRICT.
+        // A row passes only with a non-empty request id AND a
+        // non-empty body excerpt or a derived value; a bare
+        // "reason" never counts and status zero never counts.
+        // notObservableHere and accountBoundSkipped rows have
+        // already been handled above.
         assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
           name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
-        assert.ok(Number.isFinite(ev.status) && ev.status >= 0,
-          name + ' evidence missing numeric status: ' + JSON.stringify(ev).slice(0, 200));
+        assert.ok(Number.isFinite(ev.status) && ev.status > 0,
+          name + ' evidence status zero never counts: ' + JSON.stringify(ev).slice(0, 200));
         const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
-        const namedFallback = typeof ev.reason === 'string' && ev.reason.length > 0;
-        assert.ok(hasRequestId || namedFallback,
-          `${name} evidence missing requestId, body excerpt or status: ${JSON.stringify(ev).slice(0, 200)}`);
-      }
-    }
-  }
-});
+        assert.ok(hasRequestId,
+          name + ' evidence missing non-empty request id: ' + JSON.stringify(ev).slice(0, 200));
+        const hasBodyOrDerived = (typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0)
+          || (ev && typeof ev.derived === 'object' && ev.derived !== null)
+          || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
+        assert.ok(hasBodyOrDerived,
+          name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));

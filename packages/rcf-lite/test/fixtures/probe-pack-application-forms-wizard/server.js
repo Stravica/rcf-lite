@@ -375,23 +375,61 @@ function handle(req, res) {
     return sendHtml(res, status, body);
   }
   if (path === '/drafts' && req.method === 'GET') {
-    return sendJson(res, 200, serializeDraftsForOperator());
+    const operatorId = url.searchParams.get('operatorId') || 'operator-1';
+    const wizardSlug = url.searchParams.get('wizardSlug') || 'application-forms-wizard';
+    const state = drafts[operatorId] && drafts[operatorId][wizardSlug];
+    return sendJson(res, 200, state
+      ? { operatorId, wizardSlug, fields: state.fields, updatedAt: state.updatedAt }
+      : { operatorId, wizardSlug, fields: {}, updatedAt: null }
+    );
   }
   if (path === '/drafts' && req.method === 'POST') {
-    // Consume the body (no state change beyond the preseed path).
+    // AC-24105-1: request body must carry operatorId and wizardSlug
+    // in addition to step/field/value. The fixture reads them from
+    // the body rather than hard-coding, so a probe drives real state
+    // scoped to the operator+wizard pair.
     let raw = '';
     req.on('data', (chunk) => { raw += chunk; });
     req.on('end', () => {
       try {
         const parsed = JSON.parse(raw || '{}');
-        if (parsed && parsed.step && parsed.field && parsed.value !== undefined) {
-          drafts['operator-1']['application-forms-wizard'] = drafts['operator-1']['application-forms-wizard'] || { fields: {}, updatedAt: null };
-          drafts['operator-1']['application-forms-wizard'].fields[`${parsed.step}.${parsed.field}`] = parsed.value;
-          drafts['operator-1']['application-forms-wizard'].updatedAt = isoNow();
+        const operatorId = typeof parsed.operatorId === 'string' && parsed.operatorId.length > 0 ? parsed.operatorId : null;
+        const wizardSlug = typeof parsed.wizardSlug === 'string' && parsed.wizardSlug.length > 0 ? parsed.wizardSlug : null;
+        if (!operatorId || !wizardSlug) {
+          sendJson(res, 400, { ok: false, error: 'operatorId and wizardSlug are required on the draft body (AC-24105-1)' });
+          return;
         }
-      } catch { /* tolerate a bad body on the fixture */ }
-      sendJson(res, 200, { ok: true });
+        if (parsed.step && parsed.field && parsed.value !== undefined) {
+          drafts[operatorId] = drafts[operatorId] || {};
+          drafts[operatorId][wizardSlug] = drafts[operatorId][wizardSlug] || { fields: {}, updatedAt: null };
+          drafts[operatorId][wizardSlug].fields[`${parsed.step}.${parsed.field}`] = parsed.value;
+          drafts[operatorId][wizardSlug].updatedAt = isoNow();
+          sendJson(res, 200, { ok: true, operatorId, wizardSlug });
+          return;
+        }
+        sendJson(res, 400, { ok: false, error: 'step/field/value required' });
+      } catch {
+        sendJson(res, 400, { ok: false, error: 'malformed body' });
+      }
     });
+    return;
+  }
+  if (path === '/__task-manifest' && req.method === 'GET') {
+    // Independent source of truth for the task list, so the
+    // task-list-surface probe reads the manifest here rather than
+    // duplicating it in the probe.
+    sendJson(res, 200, { steps: STEP_MANIFEST.map((s) => ({ slug: s.slug, title: s.title })), allowedStates: ['Not started', 'In progress', 'Cannot start yet', 'Completed'] });
+    return;
+  }
+  if (path === '/drafts' && req.method === 'GET') {
+    // Query allows scoping to a specific operator+wizard.
+    const operatorId = url.searchParams.get('operatorId') || 'operator-1';
+    const wizardSlug = url.searchParams.get('wizardSlug') || 'application-forms-wizard';
+    const state = drafts[operatorId] && drafts[operatorId][wizardSlug];
+    sendJson(res, 200, state
+      ? { operatorId, wizardSlug, fields: state.fields, updatedAt: state.updatedAt }
+      : { operatorId, wizardSlug, fields: {}, updatedAt: null }
+    );
     return;
   }
   return sendHtml(res, 404, `<!doctype html><html><head>${shellHead('Not found')}</head><body>${bodyOpen()}<h1>Not found</h1>${bodyClose()}</body></html>`);

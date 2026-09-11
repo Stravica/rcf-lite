@@ -1,6 +1,6 @@
 {
   "slug": "application-datatable",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -172,5 +172,5 @@
       "standardsTraceClause": "generic enterprise practice"
     }
   ],
-  "updatedAt": "2026-09-11T14:30:00Z"
+  "updatedAt": "2026-09-11T14:22:52Z"
 }

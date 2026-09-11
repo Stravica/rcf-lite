@@ -1,11 +1,10 @@
-// designed-empty-state probe for application-spa v1.5.8.
+// designed-empty-state probe for application-spa v1.5.9.
 //
-// Verifies AC-1117-1 on the /reports route: the surface renders a
-// designed empty state - a data-empty-state region with named
-// content and a per-context filling action - instead of a generic
-// frame. The probe asserts data-route-state="empty" on the main
-// element AND the region carries a per-context cue AND a
-// data-empty-cta button naming the action.
+// Verifies AC-1117-1: every data-bearing route renders a designed
+// loading, empty, error and success state (not a generic frame).
+// The probe drives every data-bearing route through each of the
+// four state values via ?state= and asserts the state-specific
+// region markers.
 //
 // anchorAcId: application-spa-AC-1117-1.
 
@@ -14,33 +13,55 @@ import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 export const anchorReqId = 'application-spa-REQ-010';
 export const accountBound = false;
 
+const STATES = ['loading', 'empty', 'error', 'success'];
+
+function stateMarkers(state) {
+  if (state === 'loading') return { attr: /data-route-state="loading"/, region: /aria-busy="true"/ };
+  if (state === 'empty') return { attr: /data-route-state="empty"/, region: /data-empty-state=/ };
+  if (state === 'error') return { attr: /data-route-state="error"/, region: /data-state="error"/ };
+  return { attr: /data-route-state="success"/, region: /data-state="success"/ };
+}
+
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-spa/server.js');
   const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
-    const res = await fetch(`${fixture.baseUrl}/reports`);
-    const body = await res.text();
-    const stateAttr = /<main[^>]+data-route-state="empty"/.test(body);
-    const emptyRegionMatch = body.match(/<section[^>]+role="region"[^>]+data-empty-state="reports"[^>]*>([\s\S]*?)<\/section>/);
-    const hasEmptyRegion = !!emptyRegionMatch;
-    const hasCta = hasEmptyRegion && /data-empty-cta="reports"/.test(emptyRegionMatch[1]);
-    const hasNamedCopy = hasEmptyRegion && /No reports yet/.test(emptyRegionMatch[1]);
-    const pass = res.status === 200 && stateAttr && hasEmptyRegion && hasCta && hasNamedCopy;
+
+    const routesRes = await fetch(`${fixture.baseUrl}/__routes`);
+    const routesJson = JSON.parse(await routesRes.text());
+    const dataBearing = (routesJson.routes || []).filter((r) => r.dataBearing);
+
+    const matrix = {};
+    let allPass = true;
+    let lastRes = null, lastBody = null, lastRoute = null;
+    for (const r of dataBearing) {
+      matrix[r.path] = {};
+      for (const state of STATES) {
+        const res = await fetch(`${fixture.baseUrl}${r.path}?state=${state}`);
+        const body = await res.text();
+        lastRes = res; lastBody = body; lastRoute = `${r.path}?state=${state}`;
+        const markers = stateMarkers(state);
+        const attrOk = markers.attr.test(body);
+        const regionOk = markers.region.test(body);
+        const pass = res.status === 200 && attrOk && regionOk;
+        matrix[r.path][state] = { status: res.status, attrOk, regionOk, pass };
+        if (!pass) allPass = false;
+      }
+    }
+    const overallPass = allPass && dataBearing.length > 0;
     results.push({
       anchorAcId: 'application-spa-AC-1117-1',
       anchorReqId: 'application-spa-REQ-010',
-      verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? 'GET /reports renders main[data-route-state="empty"] with per-context empty region and CTA'
-        : `Every data-bearing route renders designed loading, empty, error, - empty-state fault: stateAttr=${stateAttr} emptyRegion=${hasEmptyRegion} cta=${hasCta} copy=${hasNamedCopy} status=${res.status}`,
+      verdict: overallPass ? 'pass' : 'fail',
+      detail: `Every data-bearing route renders designed loading, empty, error, - drove ${dataBearing.length} data-bearing routes through 4 states each (${dataBearing.length * 4} observations); all state markers present: ${allPass}`,
       evidence: evidenceFromResponse({
-        route: '/reports',
-        response: res,
-        bodyText: body,
+        route: lastRoute || '/reports?state=empty',
+        response: lastRes,
+        bodyText: lastBody,
         extraFields: {
-          input: { route: '/reports' },
-          derived: { stateAttr, hasEmptyRegion, hasCta, hasNamedCopy },
+          input: { dataBearingPaths: dataBearing.map((r) => r.path), states: STATES },
+          derived: { matrix, allPass },
         },
       }),
     });

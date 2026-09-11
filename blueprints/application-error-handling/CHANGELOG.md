@@ -1,15 +1,13 @@
 # application-error-handling CHANGELOG
 
-## 1.0.5 (criterion-e closure follow-ups, 2026-09-11)
+## 1.0.6 (criterion-e closure follow-up, 2026-09-11)
 
-- Follow-up fixes to the criterion-e pack (external review, 2026-09-11):
-  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
-  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
-  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
-  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
-  - Anatomy strengthened to pin the four 7d evidence shapes per row.
-  - Register: passive voice on the empty-results comment (no first-person plural).
-- Fixture: record shape switched to the exact ADR-1701 six fields (code, category, message, correlationId, cause, context). Category vocabulary switched to the ADR-1702 defaults (transient, permanent, unknown); unelicited tokens refused at construction per AC-16105-4. Framework boundary at /throw-handler proves stack/path/URL scrubbing per AC-16102-2; process boundary at /crash-process reports didExit=1 per AC-16101-1.
+- Second closure follow-up on the criterion-e pack:
+  - Anatomy test hardened to Addendum 3 rule 14; header refreshed from v1.0.0 to v1.0.6.
+  - Process-boundary probe (AC-16101-1) now spawns the fixture as a child process, POSTs /crash-process to induce an uncaught exception, and records the child's OS exit code from process.on('exit'), replacing the fixture-authored didExit field (Addendum 3 rule 12).
+  - Companion factory (REQ-004): fixture accepts a companion-factory injection via startServer({ companion }); the probe asserts the companion is invoked and observes emissions independently.
+  - Cause records now nest a full six-field ADR-1701 record inside cause[] rather than {message,category}; record-shape probe walks the nested cause list.
+  - notObservableHereResult helper added.
 
 ## 1.0.4 (criterion-e positive-evidence probes, 2026-09-11)
 

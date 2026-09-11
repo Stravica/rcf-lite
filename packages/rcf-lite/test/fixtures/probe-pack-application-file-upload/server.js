@@ -43,8 +43,18 @@ function stampRequestId(req, res) {
 }
 
 // Durable server-side state for the transport probes (AC-23104-3).
-// A multipart upload accumulates per-session chunk counts under a
-// session key; a tus upload records the last acknowledged offset
+// Byte-derived state (AC-23102-2, AC-23104-3): every /upload/chunk
+// POST reads its body length and adds it to the per-session byte
+// total; every /upload/tus PATCH stores the bytes it wrote and
+// enforces expected-offset. Completion is derived from bytes, not
+// from a caller-supplied ?complete= seed. The fixture keeps a
+// per-session totalExpectedBytes that a caller declares on session
+// start so completion is a real derivation.
+const multipartSessionBytes = new Map(); // sessionId -> uploadedBytes
+const multipartSessionMeta = new Map();  // sessionId -> { totalExpectedBytes, files }
+const tusUploadBytes = new Map();        // uploadId -> stored bytes
+
+
 // under an upload id, and a subsequent GET returns the stored
 // value so the probe observes durable acknowledgment rather than a
 // bare echo.
@@ -126,11 +136,13 @@ function uploadPage({ transport, break_, seed, autostart, complete }) {
     ? ''
     : '<div data-live-region="polite" aria-live="polite" aria-atomic="true">0 of 0 files, 0 percent</div>';
   // AC-23105-1: after the set completes the assertive slot carries
-  // "N files uploaded successfully". A probe reads the /upload
-  // shell with ?complete=<N> so the completion string is present
-  // in the initial DOM without needing a JS runner.
-  const completedText = typeof complete === 'number' && complete > 0
-    ? `${complete} files uploaded successfully`
+  // "N files uploaded successfully". Under Addendum 3 rule 13 the
+  // fixture no longer accepts a ?complete=<N> seed of the value
+  // under test; the completion text is derived from the byte total
+  // for the sessionId query - a probe drives real chunk uploads to
+  // reach the completion state, then re-fetches the shell.
+  const completedText = complete && typeof complete === 'string' && complete.length > 0
+    ? complete
     : '';
   const assertiveSlot = `<div data-assertive-slot aria-live="assertive">${completedText}</div>`;
   const seedJson = JSON.stringify(seed || 'demo');
@@ -349,41 +361,122 @@ function requestHandler(req, res) {
   const transport = reqUrl.searchParams.get('transport') === 'tus' ? 'tus' : 'multipart';
   const seed = reqUrl.searchParams.get('seed') || 'demo';
   const autostart = reqUrl.searchParams.get('autostart') === '1' || seed === 'refused';
-  const completeParam = Number.parseInt(reqUrl.searchParams.get('complete') || '', 10);
-  const complete = Number.isFinite(completeParam) && completeParam > 0 ? completeParam : 0;
+  // The completion text is now derived from the sessionId's byte
+  // total. If a sessionId query is present, look up the fixture's
+  // computed completionText and pass it to the shell.
+  const shellSessionId = reqUrl.searchParams.get('sessionId') || '';
+  let complete = '';
+  if (shellSessionId) {
+    const meta = multipartSessionMeta.get(shellSessionId) || { totalExpectedBytes: 0, files: [] };
+    const bytes = multipartSessionBytes.get(shellSessionId) ?? 0;
+    if (meta.totalExpectedBytes > 0 && bytes >= meta.totalExpectedBytes) {
+      complete = `${meta.files.length} files uploaded successfully`;
+    }
+  }
 
-  // Multipart chunk endpoint: state under sessionId; each POST
-  // increments the per-session chunk counter and the response
-  // carries the cumulative count. AC-23104-1.
+  // POST /upload/session: declare totalExpectedBytes for a session so
+  // completion is derived from bytes uploaded, not seeded on the
+  // shell URL. AC-23102-2 / AC-23105-1.
+  if (req.method === 'POST' && reqUrl.pathname === '/upload/session') {
+    const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
+    let raw = '';
+    req.on('data', (c) => { raw += c; });
+    req.on('end', () => {
+      let body = {};
+      try { body = JSON.parse(raw || '{}'); } catch {}
+      const totalExpectedBytes = Number.parseInt(body.totalExpectedBytes ?? '0', 10) || 0;
+      const files = Array.isArray(body.files) ? body.files : [];
+      multipartSessionMeta.set(sessionId, { totalExpectedBytes, files });
+      multipartSessionBytes.set(sessionId, 0);
+      jsonResponse(res, 200, { ok: true, sessionId, totalExpectedBytes, fileCount: files.length });
+    });
+    return;
+  }
+  // Multipart chunk endpoint: reads the ACTUAL request body length
+  // and adds it to the per-session byte total (AC-23104-1). The
+  // response carries the count of chunks and cumulative bytes; the
+  // fixture also increments a chunk counter for compatibility with
+  // older probes.
   if (req.method === 'POST' && reqUrl.pathname === '/upload/chunk') {
     const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
     const n = reqUrl.searchParams.get('n');
     const current = (multipartSessions.get(sessionId) ?? 0) + 1;
     multipartSessions.set(sessionId, current);
-    return jsonResponse(res, 200, { ok: true, sessionId, chunk: n, chunksUploaded: current });
+    // Read the actual body bytes.
+    const chunks = [];
+    let total = 0;
+    req.on('data', (c) => { chunks.push(c); total += c.length; });
+    req.on('end', () => {
+      const previous = multipartSessionBytes.get(sessionId) ?? 0;
+      const newTotal = previous + total;
+      multipartSessionBytes.set(sessionId, newTotal);
+      const meta = multipartSessionMeta.get(sessionId) || { totalExpectedBytes: 0 };
+      const expected = meta.totalExpectedBytes || 0;
+      const complete = expected > 0 && newTotal >= expected;
+      jsonResponse(res, 200, { ok: true, sessionId, chunk: n, chunksUploaded: current, bytesReceived: total, uploadedBytes: newTotal, totalExpectedBytes: expected, complete });
+    });
+    return;
   }
   if (req.method === 'GET' && reqUrl.pathname === '/upload/chunk') {
     const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
     const current = multipartSessions.get(sessionId) ?? 0;
-    return jsonResponse(res, 200, { sessionId, chunksUploaded: current });
+    const bytes = multipartSessionBytes.get(sessionId) ?? 0;
+    const meta = multipartSessionMeta.get(sessionId) || { totalExpectedBytes: 0, files: [] };
+    const complete = meta.totalExpectedBytes > 0 && bytes >= meta.totalExpectedBytes;
+    return jsonResponse(res, 200, { sessionId, chunksUploaded: current, uploadedBytes: bytes, totalExpectedBytes: meta.totalExpectedBytes, files: meta.files, complete });
   }
-  // tus.io PATCH: store the acknowledged Upload-Offset under an
-  // uploadId. A subsequent GET returns the durable value; the
-  // probe observes that the offset survives across requests
-  // (AC-23104-3), not merely that it was echoed on the PATCH.
+  // GET /upload/completion?sessionId=X returns the derived completion
+  // string the fixture would render, computed from bytes uploaded vs
+  // totalExpectedBytes - not from a query seed.
+  if (req.method === 'GET' && reqUrl.pathname === '/upload/completion') {
+    const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
+    const meta = multipartSessionMeta.get(sessionId) || { totalExpectedBytes: 0, files: [] };
+    const bytes = multipartSessionBytes.get(sessionId) ?? 0;
+    const complete = meta.totalExpectedBytes > 0 && bytes >= meta.totalExpectedBytes;
+    const fileCount = meta.files.length;
+    return jsonResponse(res, 200, {
+      sessionId,
+      uploadedBytes: bytes,
+      totalExpectedBytes: meta.totalExpectedBytes,
+      complete,
+      fileCount,
+      completionText: complete ? `${fileCount} files uploaded successfully` : '',
+    });
+  }
+  // tus.io PATCH: writes body BYTES to the per-upload state, and
+  // enforces the expected offset. If the incoming Upload-Offset does
+  // not match the currently stored offset, respond 409 Conflict per
+  // tus.io semantics (AC-23104-3 non-2xx path). Only on a matching
+  // offset does the fixture accept the body and advance the offset
+  // by the actual number of bytes read.
   if (req.method === 'PATCH' && reqUrl.pathname === '/upload/tus') {
     const uploadId = reqUrl.searchParams.get('uploadId') || 'default';
     const incoming = req.headers['upload-offset'];
     const parsed = Number.parseInt(String(incoming ?? '0'), 10);
-    const offset = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-    tusOffsets.set(uploadId, offset);
-    res.writeHead(204, { 'Upload-Offset': String(offset) });
-    return res.end();
+    const declared = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    const stored = tusUploadBytes.get(uploadId) ?? 0;
+    if (declared !== stored) {
+      // AC-23104-3: expected-offset mismatch -> 409 Conflict.
+      res.writeHead(409, { 'content-type': 'application/json', 'Upload-Offset': String(stored) });
+      return res.end(JSON.stringify({ error: 'offset-mismatch', declared, stored }));
+    }
+    const chunks = [];
+    let bytes = 0;
+    req.on('data', (c) => { chunks.push(c); bytes += c.length; });
+    req.on('end', () => {
+      const next = stored + bytes;
+      tusUploadBytes.set(uploadId, next);
+      // Preserve legacy tusOffsets map for older code paths.
+      tusOffsets.set(uploadId, next);
+      res.writeHead(204, { 'Upload-Offset': String(next), 'X-Bytes-Written': String(bytes) });
+      res.end();
+    });
+    return;
   }
   if (req.method === 'GET' && reqUrl.pathname === '/upload/tus') {
     const uploadId = reqUrl.searchParams.get('uploadId') || 'default';
-    const stored = tusOffsets.get(uploadId) ?? 0;
-    return jsonResponse(res, 200, { uploadId, storedOffset: stored });
+    const stored = tusUploadBytes.get(uploadId) ?? tusOffsets.get(uploadId) ?? 0;
+    return jsonResponse(res, 200, { uploadId, storedOffset: stored, storedBytes: stored });
   }
   if (req.method !== 'GET') {
     return jsonResponse(res, 405, { error: 'method not allowed' });

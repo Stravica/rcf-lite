@@ -1,15 +1,14 @@
-// per-file-progressbar probe for application-file-upload v1.2.2.
+// per-file-progressbar probe for application-file-upload v1.2.3.
 //
-// Verifies AC-23102-1: per-file rows carry [data-file-progress] with
-// role="progressbar" and aria-valuemin/max/now, AND that progress
-// advances monotonically across successive chunk uploads. The probe
-// drives real POSTs against /upload/chunk under a session id and
-// reads the cumulative chunksUploaded value across three calls; the
-// advance is the derived output.
+// Rendered per-file progress values are browser-only (they update in
+// the client), so AC-23102-1 is recorded as notObservableHere per
+// Addendum 3 rule 11. The server-observable half - aggregate byte
+// progress derived from real chunk uploads (AC-23102-2 byte-weighted
+// aggregate) - is a real evidence row.
 //
-// anchorAcId: application-file-upload-AC-23102-1.
+// anchorAcId: application-file-upload-AC-23102-1 and -23102-2.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult } from './probe-utils.mjs';
 import { randomUUID } from 'node:crypto';
 
 export const anchorReqId = 'application-file-upload-REQ-002';
@@ -20,43 +19,59 @@ export default async function runProbe() {
   const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
-    const res = await fetch(`${fixture.baseUrl}/upload`);
-    const body = await res.text();
-    const fileRows = (body.match(/data-file-row[^"]*data-file-name/g) || []).length;
-    const refusedRows = (body.match(/data-file-row[^>]+data-refused="true"/g) || []).length;
-    const progressBars = (body.match(/role="progressbar"[^>]+aria-valuemin="0"[^>]+aria-valuemax="100"/g) || []).length;
-    const shapeOk = res.status === 200 && (fileRows - refusedRows) >= 1 && progressBars >= (fileRows - refusedRows);
 
-    // Drive advance: three chunk POSTs against the same session
-    // observe cumulative chunksUploaded 1 -> 2 -> 3 (monotonic).
-    const sessionId = `probe-${randomUUID()}`;
-    const counts = [];
-    let lastRes;
-    let lastBody = '';
-    for (let n = 1; n <= 3; n += 1) {
-      const chunkRes = await fetch(`${fixture.baseUrl}/upload/chunk?n=${n}&sessionId=${sessionId}`, { method: 'POST' });
-      const chunkBody = await chunkRes.text();
-      const parsed = JSON.parse(chunkBody);
-      counts.push(parsed.chunksUploaded);
-      lastRes = chunkRes;
-      lastBody = chunkBody;
-    }
-    const monotonic = counts.length === 3 && counts[0] === 1 && counts[1] === 2 && counts[2] === 3;
-    const pass = shapeOk && monotonic;
-    results.push({
+    // Row 1: notObservableHere for the live-region + per-file DOM value.
+    results.push(notObservableHereResult({
       anchorAcId: 'application-file-upload-AC-23102-1',
       anchorReqId: 'application-file-upload-REQ-002',
-      verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `The upload region ships a [data-live-region="polite"] wrapper with - ${(fileRows - refusedRows)} of ${fileRows} acceptable rows carry role=progressbar; server-side chunksUploaded advanced 1->2->3 under sessionId=${sessionId}`
-        : `The upload region ships a [data-live-region="polite"] wrapper with - progress fault: rows=${fileRows} refused=${refusedRows} progressBars=${progressBars} counts=${JSON.stringify(counts)}`,
+      ac: 'application-file-upload-AC-23102-1',
+      detail: 'The upload region ships a [data-live-region="polite"] wrapper with - rendered live-region text and per-file DOM values are browser-only per Addendum 3 rule 11',
+      reason: 'AC-23102-1 requires observing the rendered aria-live text and the per-file DOM progressbar value change; server-side probe pack cannot observe DOM mutation',
+      evidence: { requires: 'browser DOM observation' },
+    }));
+
+    // Row 2 (AC-23102-2 byte-weighted aggregate): drive real chunk
+    // uploads with distinct byte payloads and observe the fixture's
+    // aggregate byte total advance. The derivation is bytes uploaded
+    // vs totalExpectedBytes, computed server-side from real bodies.
+    const sessionId = `probe-${randomUUID()}`;
+    const files = [{ name: 'a.bin', bytes: 100 }, { name: 'b.bin', bytes: 200 }, { name: 'c.bin', bytes: 300 }];
+    const totalExpectedBytes = files.reduce((s, f) => s + f.bytes, 0);
+    await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ totalExpectedBytes, files }),
+    });
+    const progresses = [];
+    let lastRes, lastBody = '';
+    for (const [i, f] of files.entries()) {
+      const payload = Buffer.alloc(f.bytes, 65 + i);
+      const chunkRes = await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, {
+        method: 'POST', body: payload,
+      });
+      const chunkBody = await chunkRes.text();
+      const parsed = JSON.parse(chunkBody);
+      progresses.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes, complete: parsed.complete });
+      lastRes = chunkRes; lastBody = chunkBody;
+    }
+    const expectedRunning = [100, 300, 600];
+    const runOk = progresses.length === 3
+      && progresses[0].uploadedBytes === expectedRunning[0]
+      && progresses[1].uploadedBytes === expectedRunning[1]
+      && progresses[2].uploadedBytes === expectedRunning[2]
+      && progresses[2].complete === true;
+    results.push({
+      anchorAcId: 'application-file-upload-AC-23102-2',
+      anchorReqId: 'application-file-upload-REQ-002',
+      verdict: runOk ? 'pass' : 'fail',
+      detail: `The upload region ships a [data-live-region="polite"] wrapper with - byte-weighted aggregate advanced ${progresses.map((p) => p.uploadedBytes).join('->')} bytes over ${files.length} real chunks totalling ${totalExpectedBytes}; completion derived server-side: ${progresses[2]?.complete}`,
       evidence: evidenceFromResponse({
-        route: '/upload/chunk (three POSTs)',
+        route: `/upload/chunk (sessionId=${sessionId})`,
         response: lastRes,
         bodyText: lastBody,
         extraFields: {
-          input: { sessionId, chunkNs: [1, 2, 3] },
-          derived: { fileRows, refusedRows, progressBars, chunkCounts: counts, monotonic },
+          input: { sessionId, filesDeclared: files, totalExpectedBytes },
+          derived: { progresses, byteWeightedAggregateAdvanced: runOk },
         },
       }),
     });

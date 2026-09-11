@@ -1,15 +1,12 @@
 # application-forms-wizard CHANGELOG
 
-## 1.2.2 (criterion-e closure follow-ups, 2026-09-11)
+## 1.2.3 (criterion-e closure follow-up, 2026-09-11)
 
-- Follow-up fixes to the criterion-e pack (external review, 2026-09-11):
-  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
-  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
-  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
-  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
-  - Anatomy strengthened to pin the four 7d evidence shapes per row.
-  - Register: passive voice on the empty-results comment (no first-person plural).
-- Fixture: ?blurred=1 and ?corrected=1 timing markers plus a POST /validate endpoint drive AC-24102-1 blur/submit-failure/change/rebuild derivations. x-fixture-request-id stamped natively.
+- Second closure follow-up on the criterion-e pack:
+  - Anatomy test hardened to Addendum 3 rule 14.
+  - Validation timing browser events (focus/blur/submit/input) are notObservableHere(AC-24102-1) per Addendum 3 rule 11; the fixture-selected shape rows are dropped in favour of that honest amber row.
+  - Draft POST body now carries operator identifier and wizard slug from the probe; fixture consumes them from the body rather than hard-coded keys.
+  - Task-list-surface probe reads the manifest from a fixture endpoint (/__task-manifest) and compares against the rendered enum, rather than duplicating the expected manifest in the probe.
 
 ## 1.2.1 (criterion-e positive-evidence probes, 2026-09-11)
 

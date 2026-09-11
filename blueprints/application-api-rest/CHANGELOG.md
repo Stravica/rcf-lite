@@ -1,15 +1,14 @@
 # application-api-rest CHANGELOG
 
-## 2.1.7 (criterion-e closure follow-ups, 2026-09-11)
+## 2.1.8 (criterion-e closure follow-up, 2026-09-11)
 
-- Follow-up fixes to the criterion-e pack (external review, 2026-09-11):
-  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
-  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
-  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
-  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
-  - Anatomy strengthened to pin the four 7d evidence shapes per row.
-  - Register: passive voice on the empty-results comment (no first-person plural).
-- Fixture: pagination envelope switched to next/prev per REQ-007 (was nextCursor); total only when ?count=true. Health probes emit REQ-006 checks/pending shapes.
+- Second closure follow-up on the criterion-e pack:
+  - Anatomy test hardened to Addendum 3 rule 14 (strict evidence; status zero never counts).
+  - Version pin exact (2.1.8) in the anatomy test.
+  - Cursor opacity: fixture cursors switched to opaque base64url tokens over an internal marker; malformed cursor now returns a problem+json with type=cursor.invalid rather than normalising to page zero; the max-limit cap returns problem+json with type=limit.exceeded rather than silently clamping. Cursor-pagination probe asserts the returned cursors are opaque (not decodable numeric offsets) and drives a malformed round-trip that expects a 400 problem body.
+  - Health probes: fixture exposes ?deps=down,up,unknown query so liveness varies dependency availability; readiness now requires every declared check to pass rather than "at least one non-empty" - probe asserts that with an intentionally-down dependency; startup probe drives both mid-init (503 with pending!=[]) and completed (200 with pending==[]) states.
+  - Request-id-echoed probe now inspects the request-scoped log line the fixture emits on /__logs?requestId=... so both the response echo and the log line are compared.
+  - notObservableHereResult helper added to probe-utils for AC parts that need a browser runner.
 
 ## 2.1.6 (criterion-e positive-evidence probes, 2026-09-11)
 

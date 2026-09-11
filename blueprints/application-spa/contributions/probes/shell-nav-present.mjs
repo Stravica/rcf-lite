@@ -1,11 +1,9 @@
-// shell-nav-present probe for application-spa v1.5.8.
+// shell-nav-present probe for application-spa v1.5.9.
 //
-// Verifies AC-1102-1: the shell provides a top-level primary <nav>
-// with an accessible name and a route link per declared inventory
-// entry. The probe crawls the JSON inventory and asserts one link
-// per inventory entry appears inside the primary <nav> block,
-// matching by data-route-name; the crawl vs shell comparison is
-// two independent server observations.
+// Verifies AC-1102-1: navigation renders on every route (not only
+// the shell root). The probe crawls every declared inventory path,
+// GETs each, and asserts the primary <nav> block appears in every
+// rendered page with one link per inventory entry.
 //
 // anchorAcId: application-spa-AC-1102-1.
 
@@ -22,35 +20,45 @@ export default async function runProbe() {
 
     const routesRes = await fetch(`${fixture.baseUrl}/__routes`);
     const routesJson = JSON.parse(await routesRes.text());
-    const inventoryNames = (routesJson.routes || []).map((r) => r.name);
+    const inventory = routesJson.routes || [];
+    const inventoryNames = inventory.map((r) => r.name);
 
-    const shellRes = await fetch(`${fixture.baseUrl}/`);
-    const body = await shellRes.text();
-    const navMatch = body.match(/<nav[^>]+aria-label="Primary"[^>]+data-region="primary-nav"[^>]*>([\s\S]*?)<\/nav>/);
-    const hasNav = !!navMatch;
-    const linksInNav = hasNav
-      ? Array.from(navMatch[1].matchAll(/data-route-name="([^"]+)"/g)).map((m) => m[1])
-      : [];
-    const pass = shellRes.status === 200
-      && hasNav
-      && inventoryNames.length > 0
-      && linksInNav.length === inventoryNames.length
-      && inventoryNames.every((n) => linksInNav.includes(n));
+    const perRoute = {};
+    let allPerRoutePass = true;
+    let firstFailBody = '';
+    let lastRoute = null;
+    let lastBody = null;
+    let lastRes = null;
+
+    for (const r of inventory) {
+      const shellRes = await fetch(`${fixture.baseUrl}${r.path}`);
+      const body = await shellRes.text();
+      lastRes = shellRes; lastBody = body; lastRoute = r.path;
+      const navMatch = body.match(/<nav[^>]+aria-label="Primary"[^>]+data-region="primary-nav"[^>]*>([\s\S]*?)<\/nav>/);
+      const hasNav = !!navMatch;
+      const linksInNav = hasNav
+        ? Array.from(navMatch[1].matchAll(/data-route-name="([^"]+)"/g)).map((m) => m[1])
+        : [];
+      const linksParity = linksInNav.length === inventoryNames.length
+        && inventoryNames.every((n) => linksInNav.includes(n));
+      const routePass = shellRes.status === 200 && hasNav && linksParity;
+      perRoute[r.path] = { status: shellRes.status, hasNav, linksInNav, routePass };
+      if (!routePass) { allPerRoutePass = false; if (!firstFailBody) firstFailBody = body.slice(0, 240); }
+    }
+    const pass = allPerRoutePass && inventory.length > 0;
 
     results.push({
       anchorAcId: 'application-spa-AC-1102-1',
       anchorReqId: 'application-spa-REQ-002',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `Top navigation renders on every route from the - primary <nav aria-label="Primary"> carries ${linksInNav.length} links matching inventory names [${inventoryNames.join(',')}]`
-        : `Top navigation renders on every route from the - nav parity fault: navPresent=${hasNav} linksInNav=[${linksInNav.join(',')}] inventoryNames=[${inventoryNames.join(',')}]`,
+      detail: `Top navigation renders on every route from the - primary <nav aria-label="Primary"> renders on all ${Object.keys(perRoute).length} routes; every route carries links [${inventoryNames.join(',')}]`,
       evidence: evidenceFromResponse({
-        route: '/',
-        response: shellRes,
-        bodyText: body,
+        route: lastRoute || '/',
+        response: lastRes,
+        bodyText: lastBody,
         extraFields: {
-          input: { inventoryNames },
-          derived: { navPresent: hasNav, linksInNav },
+          input: { inventoryPaths: inventory.map((r) => r.path), inventoryNames },
+          derived: { perRoute, allRoutesRenderNav: allPerRoutePass, firstFailBody },
         },
       }),
     });

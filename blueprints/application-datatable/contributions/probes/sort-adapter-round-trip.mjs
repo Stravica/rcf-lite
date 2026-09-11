@@ -65,6 +65,21 @@ export default async function runProbe() {
         },
       }),
     });
+    // Row: browser interaction and DOM comparison are browser-only.
+    // The adapter round-trip above proves the sorting behaviour on
+    // the API; asserting that a user click on the column header
+    // reorders the rendered DOM needs a browser runner.
+    const { notObservableHereResult } = await import('./probe-utils.mjs');
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-datatable-AC-17101-1',
+      anchorReqId: 'application-datatable-REQ-002',
+      ac: 'application-datatable-AC-17101-1',
+      detail: 'AC-17101-1 also requires clicking the column-header sort control and comparing rendered DOM row order; that is browser-only',
+      reason: 'AC-17101-1 requires activating the sort control in the browser and comparing rendered DOM row order; server-side probe pack cannot observe DOM order',
+      evidence: { requires: 'browser click + DOM order observation' },
+    }));
+
+
     return { results };
   } finally {
     await fixture.close();

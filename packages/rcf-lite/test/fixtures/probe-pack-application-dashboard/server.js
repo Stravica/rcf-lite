@@ -104,9 +104,9 @@ function renderTileRow({ brk, pinned }) {
     brk,
   });
   const supportingTiles = [
-    renderTile({ tileId: 'active-users', title: 'Active users', kind: null, role: null, state: 'populated', brk }),
-    renderTile({ tileId: 'error-rate', title: 'Error rate', kind: null, role: null, state: 'populated', brk }),
-    renderTile({ tileId: 'throughput', title: 'Throughput', kind: null, role: null, state: 'populated', brk }),
+    renderTile({ tileId: 'active-users', title: 'Active users', kind: null, role: null, state: pinned?.tileId === 'active-users' ? pinned.state : 'populated', brk }),
+    renderTile({ tileId: 'error-rate', title: 'Error rate', kind: null, role: null, state: pinned?.tileId === 'error-rate' ? pinned.state : 'populated', brk }),
+    renderTile({ tileId: 'throughput', title: 'Throughput', kind: null, role: null, state: pinned?.tileId === 'throughput' ? pinned.state : 'populated', brk }),
   ].join('');
   const tiles = primaryFirst
     ? primaryTile + supportingTiles

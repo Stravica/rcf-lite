@@ -1,13 +1,14 @@
-// export-handle-formats probe for application-dashboard v1.0.6.
+// export-handle-formats probe for application-dashboard v1.0.7.
 //
-// Verifies AC-19106-1: the export handle region contains a labelled
-// <button> with aria-haspopup="listbox" AND a role="listbox" with
-// at least the three shipped formats (csv, pdf, png-chart), each
-// carrying a data-export-format value.
+// Server-observable half of AC-19106-1: the export handle region
+// carries a labelled button with aria-haspopup="listbox" AND a
+// role="listbox" enumerating the three shipped formats
+// (csv, pdf, png-chart). Browser-observable parts of AC-19106-1
+// (control activation, focus return on Escape) are notObservableHere.
 //
 // anchorAcId: application-dashboard-AC-19106-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-dashboard-REQ-005';
 export const accountBound = false;
@@ -28,13 +29,11 @@ export default async function runProbe() {
     const formats = Array.from(inner.matchAll(/data-export-format="([^"]+)"/g)).map((m) => m[1]);
     const formatsOk = EXPECTED_FORMATS.every((f) => formats.includes(f));
     const pass = res.status === 200 && !!exportRegion && hasBtn && listbox && formatsOk;
-    results.push({
+    results.push(conformanceOnlyResult({
       anchorAcId: 'application-dashboard-AC-19106-1',
       anchorReqId: 'application-dashboard-REQ-005',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `Given a rendered dashboard surface, the export handle - export-handle region carries a labelled aria-haspopup="listbox" button and a role="listbox" naming [${formats.join(', ')}]`
-        : `Given a rendered dashboard surface, the export handle - export handle fault: regionPresent=${!!exportRegion} button=${hasBtn} listbox=${listbox} formats=${JSON.stringify(formats)}`,
+      detail: `Given a rendered dashboard surface, the export handle - listbox button and format enum rendered with formats=[${formats.join(', ')}] (server-observable half of AC-19106-1)`,
       evidence: evidenceFromResponse({
         route: '/',
         response: res,
@@ -44,7 +43,18 @@ export default async function runProbe() {
           derived: { hasButton: hasBtn, hasListbox: listbox, formatsFound: formats },
         },
       }),
-    });
+      limitation: 'application-dashboard-AC-19106-1: control activation and Escape/focus-return are browser-only',
+    }));
+
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-dashboard-AC-19106-1',
+      anchorReqId: 'application-dashboard-REQ-005',
+      ac: 'application-dashboard-AC-19106-1',
+      detail: 'Given a rendered dashboard surface, the export handle - control activation and focus return on Escape are browser-only',
+      reason: 'AC-19106-1 requires activating the control and observing focus return on Escape; server-side probe pack cannot observe focus movement',
+      evidence: { expectedFormats: EXPECTED_FORMATS, browserBehaviour: 'click / Escape / focus-return' },
+    }));
+
     return { results };
   } finally {
     await fixture.close();

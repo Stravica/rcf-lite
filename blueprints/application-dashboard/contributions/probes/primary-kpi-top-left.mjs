@@ -1,15 +1,14 @@
-// primary-kpi-top-left probe for application-dashboard v1.0.6.
+// primary-kpi-top-left probe for application-dashboard v1.0.7.
 //
-// Verifies AC-19102-1: on the rendered surface the tile carrying
-// data-tile-role="primary-kpi" is first in DOM order inside the
-// tile row, the tile's inline CSS carries grid-column-start:1 AND
-// grid-row-start:1, and the tile carries a data-kpi-kind whose
-// value is one of the ADR-2001 enum (revenue, active-users,
-// error-rate, throughput, custom).
+// AC-19102-1 requires computed layout at 1440/1024/360 viewports;
+// that observation is browser-only and recorded as notObservableHere
+// per Addendum 3 rule 11. The server-observable half - primary tile
+// first in DOM order, inline grid-column-start:1 AND grid-row-start:1,
+// data-kpi-kind in the ADR-2001 enum - remains a real evidence row.
 //
 // anchorAcId: application-dashboard-AC-19102-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-dashboard-REQ-002';
 export const accountBound = false;
@@ -24,8 +23,6 @@ export default async function runProbe() {
 
     const okRes = await fetch(`${fixture.baseUrl}/`);
     const okBody = await okRes.text();
-    // Isolate the tile-row region and inspect the first <article>
-    // inside it so DOM order is a real observation of the tile row.
     const tileRowMatch = okBody.match(/<section[^>]+data-region="tile-row"[^>]*>([\s\S]*?)<\/section>/);
     const firstArticle = tileRowMatch ? tileRowMatch[1].match(/<article[^>]*>/) : null;
     const firstAttrs = firstArticle ? firstArticle[0] : '';
@@ -37,13 +34,11 @@ export default async function runProbe() {
     const kindOk = kindValue !== null && KPI_ENUM.includes(kindValue);
     const okPass = okRes.status === 200 && isPrimaryFirst && hasColumnStart && hasRowStart && kindOk;
 
-    results.push({
+    results.push(conformanceOnlyResult({
       anchorAcId: 'application-dashboard-AC-19102-1',
       anchorReqId: 'application-dashboard-REQ-002',
       verdict: okPass ? 'pass' : 'fail',
-      detail: okPass
-        ? `Given a rendered dashboard surface at each of - primary KPI tile is first in tile-row DOM order with grid-column-start:1, grid-row-start:1 and data-kpi-kind="${kindValue}"`
-        : `Given a rendered dashboard surface at each of - primary-first fault: primaryFirst=${isPrimaryFirst} colStart=${hasColumnStart} rowStart=${hasRowStart} kind=${kindValue}`,
+      detail: `Given a rendered dashboard surface at each of - primary tile first in DOM order with inline grid-column-start:1, grid-row-start:1, data-kpi-kind="${kindValue}" (server-observable half of AC-19102-1)`,
       evidence: evidenceFromResponse({
         route: '/',
         response: okRes,
@@ -53,7 +48,19 @@ export default async function runProbe() {
           derived: { firstArticleAttrs: firstAttrs.slice(0, 240), primaryFirst: isPrimaryFirst, colStart: hasColumnStart, rowStart: hasRowStart, kindValue },
         },
       }),
-    });
+      limitation: 'application-dashboard-AC-19102-1: computed CSS layout at 1440/1024/360 viewports is browser-only',
+    }));
+
+    // Second row: honest notObservableHere for the browser-only half.
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-dashboard-AC-19102-1',
+      anchorReqId: 'application-dashboard-REQ-002',
+      ac: 'application-dashboard-AC-19102-1',
+      detail: 'Given a rendered dashboard surface at each of - computed layout at 1440/1024/360 viewports is browser-only; notObservableHere per Addendum 3 rule 11',
+      reason: 'AC-19102-1 requires computed CSS at 1440/1024/360 viewports; server-side probe pack cannot observe computed layout',
+      evidence: { adr2001Enum: KPI_ENUM, viewports: [1440, 1024, 360] },
+    }));
+
     return { results };
   } finally {
     await fixture.close();

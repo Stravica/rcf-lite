@@ -5,35 +5,36 @@
 //
 //   - A published route inventory (AC-1101-1), served both as an
 //     HTML meta shape at / and as JSON at /__routes.
+//   - A second source of truth at /__mounted returning the actually
+//     mounted paths from a separate MOUNTED_PATHS constant, so the
+//     inventory-vs-mounted comparison can detect an undeclared
+//     surface (Addendum 3 rule 11 companion, positive evidence not
+//     browser-observable).
+//   - Per-route render supporting ?state=loading|empty|error|success
+//     so a probe can drive the full state matrix on any data-bearing
+//     route (AC-1117-1).
 //   - The application shell HTML with a top-level primary <nav>
-//     region carrying a data-region marker (AC-1102-1) and
-//     data-route-name attributes on each nav link.
-//   - The empty-state variant at /reports carrying a designed
-//     data-empty-state region (AC-1117-1).
-//   - A per-route render for every declared inventory path so a
-//     reachable-route crawl compared against the inventory has a
-//     real DOM to observe (Addendum rule 2).
+//     region carrying a data-region marker (AC-1102-1).
 //
 // Every response carries an x-fixture-request-id header stamped by
-// the fixture request pipeline before the handler writes. That id
-// is the fixture's own; probes read it as positive evidence per
-// rule 7d.
-//
-// Exports startServer({ port }) so probes and anatomy tests drive
-// the fixture on ephemeral or fixed ports without a subprocess.
-// Ports 47300-47399 are reserved for shelf-gate probe packs; the
-// default is 3000 for manual runs.
+// the fixture request pipeline before the handler writes.
 
 import http from 'node:http';
 import { URL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
 export const ROUTE_INVENTORY = [
-  { path: '/', name: 'landing', state: 'populated' },
-  { path: '/dashboard', name: 'dashboard', state: 'populated' },
-  { path: '/settings', name: 'settings', state: 'populated' },
-  { path: '/reports', name: 'reports', state: 'empty' },
+  { path: '/', name: 'landing', state: 'populated', dataBearing: false },
+  { path: '/dashboard', name: 'dashboard', state: 'populated', dataBearing: true },
+  { path: '/settings', name: 'settings', state: 'populated', dataBearing: false },
+  { path: '/reports', name: 'reports', state: 'empty', dataBearing: true },
 ];
+
+// Independent source of truth: the actually mounted paths. If a new
+// content route is added here without also being added to
+// ROUTE_INVENTORY, the route-inventory-published probe detects the
+// undeclared surface (AC-1101-1).
+export const MOUNTED_PATHS = ['/', '/dashboard', '/settings', '/reports'];
 
 function shellHead(title) {
   return `<meta charset="utf-8"><title>${title}</title>` +
@@ -41,28 +42,41 @@ function shellHead(title) {
     `<meta name="theme-tokens" content="surface,on-surface,primary,on-primary,danger">`;
 }
 
-function shellBody(route) {
+function renderStateSection(routeName, state) {
+  if (state === 'loading') {
+    return `<section role="region" aria-label="${routeName}" aria-busy="true" data-state="loading"><p>Loading ${routeName}...</p></section>`;
+  }
+  if (state === 'empty') {
+    return `<section role="region" aria-label="${routeName}" data-empty-state="${routeName}"><p>No ${routeName} yet. Create your first ${routeName}.</p><button type="button" data-empty-cta="${routeName}">Create first ${routeName}</button></section>`;
+  }
+  if (state === 'error') {
+    return `<section role="region" aria-label="${routeName}" data-state="error" role="alert"><p>Could not load ${routeName}. Retry?</p><button type="button" data-error-cta="${routeName}">Retry</button></section>`;
+  }
+  return `<section role="region" aria-label="${routeName}" data-state="success"><h1>${routeName}</h1><p>Route body for ${routeName}.</p></section>`;
+}
+
+function shellBody(route, requestedState) {
+  const state = requestedState || route.state;
   return `<body class="tokenSurface" data-token-scope="app">` +
     `<nav aria-label="Primary" data-region="primary-nav"><ul>` +
     ROUTE_INVENTORY.map((r) => `<li><a href="${r.path}" data-route-name="${r.name}">${r.name}</a></li>`).join('') +
     `</ul></nav>` +
-    `<main role="main" data-route="${route.name}" data-route-state="${route.state}">` +
-    (route.state === 'empty'
-      ? `<section role="region" aria-label="Reports" data-empty-state="reports"><p>No reports yet. Create your first report.</p><button type="button" data-empty-cta="reports">Create first report</button></section>`
-      : `<section role="region" aria-label="${route.name}"><h1>${route.name}</h1><p>Route body for ${route.path}.</p></section>`) +
+    `<main role="main" data-route="${route.name}" data-route-state="${state}">` +
+    renderStateSection(route.name, state) +
     `</main></body>`;
 }
 
-function renderRoute(routePath) {
+function renderRoute(routePath, requestedState) {
   const route = ROUTE_INVENTORY.find((r) => r.path === routePath);
   if (!route) return null;
-  return `<!doctype html><html lang="en"><head>${shellHead('spa fixture')}</head>${shellBody(route)}</html>`;
+  return `<!doctype html><html lang="en"><head>${shellHead('spa fixture')}</head>${shellBody(route, requestedState)}</html>`;
 }
 
 function stampRequestId(req, res) {
   const inbound = req.headers['x-request-id'];
   const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
   res.setHeader('x-fixture-request-id', id);
+  res.setHeader('x-request-id', id);
   return id;
 }
 
@@ -74,12 +88,18 @@ function handler(req, res) {
     res.end(JSON.stringify({ routes: ROUTE_INVENTORY }));
     return;
   }
+  if (url.pathname === '/__mounted') {
+    res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ paths: MOUNTED_PATHS }));
+    return;
+  }
   if (url.pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
     return;
   }
-  const html = renderRoute(url.pathname);
+  const requestedState = url.searchParams.get('state');
+  const html = renderRoute(url.pathname, requestedState);
   if (html === null) {
     res.writeHead(404, { 'content-type': 'text/html; charset=utf-8' });
     res.end('<!doctype html><title>not found</title>not found');

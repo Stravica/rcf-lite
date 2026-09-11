@@ -1,17 +1,14 @@
-// upload-surface-shape probe for application-file-upload v1.2.2.
+// upload-surface-shape probe for application-file-upload v1.2.3.
 //
-// Verifies AC-23101-1: the upload region carries
-// [data-surface="file-upload"] AND a labelled file input, a
-// [data-drop-zone] region and a [data-open-picker] button, all
-// with the required accessible-name and control attributes. The
-// probe cannot press Enter on a server-rendered fixture, so the
-// keyboard-focus branch of AC-23101-1 is proven at project-side
-// review; the probe records this partial-observation gap on the
-// evidence object and refuses to claim positive on it.
+// Server-observable half of AC-23101-1: the upload region carries
+// [data-surface="file-upload"] plus a labelled input, drop-zone and
+// open-picker button. Browser-observable parts (Enter-press on the
+// button and focus movement) are notObservableHere per Addendum 3
+// rule 11 - no static-markup substitute.
 //
 // anchorAcId: application-file-upload-AC-23101-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, notObservableHereResult, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-file-upload-REQ-001';
 export const accountBound = false;
@@ -28,15 +25,12 @@ export default async function runProbe() {
     const input = /<input[^>]+id="filePicker"[^>]+type="file"[^>]+multiple/.test(body);
     const dropZoneMatch = body.match(/<div[^>]+data-drop-zone[^>]+aria-label="([^"]+)"[^>]*>/);
     const pickerMatch = body.match(/<button[^>]+data-open-picker[^>]+aria-label="([^"]+)"[^>]*>/);
-    const pickerScriptWiredForEnter = /data-open-picker/.test(body) && /keydown/.test(body);
     const pass = res.status === 200 && surface && label && input && !!dropZoneMatch && !!pickerMatch;
-    results.push({
+    results.push(conformanceOnlyResult({
       anchorAcId: 'application-file-upload-AC-23101-1',
       anchorReqId: 'application-file-upload-REQ-001',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `The upload region carries [data-surface="file-upload"] and inside it: - upload surface renders labelled input, drop-zone (aria-label="${dropZoneMatch[1]}") and open-picker button (aria-label="${pickerMatch[1]}"); Enter-to-focus JS wire is present in the fixture, but the DOM press cannot be observed from this server-only probe`
-        : `The upload region carries [data-surface="file-upload"] and inside it: - upload surface fault: surface=${surface} label=${label} input=${input} dropZone=${!!dropZoneMatch} picker=${!!pickerMatch}`,
+      detail: `The upload region carries [data-surface="file-upload"] and inside it: - server-observable half of AC-23101-1: labelled input, drop-zone (aria-label="${dropZoneMatch?.[1] ?? 'null'}") and open-picker button (aria-label="${pickerMatch?.[1] ?? 'null'}")`,
       evidence: evidenceFromResponse({
         route: '/upload',
         response: res,
@@ -45,14 +39,22 @@ export default async function runProbe() {
           input: { path: '/upload' },
           derived: {
             surface, label, input,
-            dropZoneAriaLabel: dropZoneMatch ? dropZoneMatch[1] : null,
-            pickerAriaLabel: pickerMatch ? pickerMatch[1] : null,
-            enterKeyWireInSource: pickerScriptWiredForEnter,
-            observationGap: 'Enter-key focus-return is JS-driven; not observed by server-only probe',
+            dropZoneAriaLabel: dropZoneMatch?.[1] ?? null,
+            pickerAriaLabel: pickerMatch?.[1] ?? null,
           },
         },
       }),
-    });
+      limitation: 'application-file-upload-AC-23101-1: Enter-press on the button and focus return are browser-only',
+    }));
+
+    results.push(notObservableHereResult({
+      anchorAcId: 'application-file-upload-AC-23101-1',
+      anchorReqId: 'application-file-upload-REQ-001',
+      ac: 'application-file-upload-AC-23101-1',
+      detail: 'The upload region carries [data-surface="file-upload"] and inside it: - Enter-press and focus observation are browser-only per Addendum 3 rule 11',
+      reason: 'AC-23101-1 requires pressing Enter on the open-picker control and observing focus movement; server-side probe pack cannot cause a browser Enter or observe focus',
+      evidence: { requires: 'browser keydown + focus observation' },
+    }));
     return { results };
   } finally {
     await fixture.close();

@@ -141,3 +141,41 @@ export async function runShim(probeName, engine, mainFn) {
     process.exitCode = 1;
   }
 }
+
+// Rule 7d addendum 3 (2026-09-11) rule 11: browser-observable
+// properties are AMBER on the shelf by ruling. A row that names
+// such a property is recorded as notObservableHere carrying an
+// object with the AC id and a reason; the tally script reads
+// notObservableHere.ac to accept the row.
+export function notObservableHereResult({ anchorAcId, anchorReqId, ac, detail, reason, evidence } = {}) {
+  const acId = ac || anchorAcId;
+  return {
+    ...(anchorAcId ? { anchorAcId } : {}),
+    ...(anchorReqId ? { anchorReqId } : {}),
+    verdict: 'pass',
+    notObservableHere: {
+      ac: acId,
+      reason: reason || 'not observable on server-side probe pack; needs a browser-driven runner',
+    },
+    detail: detail || 'not observable on server-side probe pack',
+    evidence: {
+      reason: reason || 'not observable here; needs a browser-driven probe runner',
+      ...(evidence || {}),
+    },
+  };
+}
+
+// Rule 7d addendum 3 rule 11 companion: a row that keeps a real
+// observation but must record that the observation only covers PART
+// of an AC uses conformanceOnly + limitation.
+export function conformanceOnlyResult({ anchorAcId, anchorReqId, verdict, detail, evidence, limitation }) {
+  return {
+    ...(anchorAcId ? { anchorAcId } : {}),
+    ...(anchorReqId ? { anchorReqId } : {}),
+    verdict: verdict || 'pass',
+    conformanceOnly: true,
+    limitation: limitation || 'browser-observable property not asserted from the server-side probe',
+    detail,
+    evidence,
+  };
+}

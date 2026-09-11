@@ -362,8 +362,15 @@ export function startServer({ port } = {}) {
     const url = new URL(req.url, 'http://127.0.0.1');
     stampRequestId(req, res);
     if (url.pathname === '/' || url.pathname === '/datatable-shell') {
-      const stateName = url.searchParams.get('state') ?? 'populated';
+      let stateName = url.searchParams.get('state') ?? 'populated';
       const q = url.searchParams.get('q') ?? '';
+      // AC-17105-1: the no-results region is defined as "an active
+      // filter with zero matches". Reject state=no-results without a
+      // non-empty q by folding it back to the populated grid; only a
+      // real active-filter zero-match renders the no-results region.
+      if (stateName === 'no-results' && q.trim().length === 0) {
+        stateName = 'populated';
+      }
       const sort = url.searchParams.get('sort') ?? '';
       const page = Number(url.searchParams.get('page') ?? '1') || 1;
       const pageSize = Number(url.searchParams.get('pageSize') ?? String(DEFAULT_PAGE_SIZE)) || DEFAULT_PAGE_SIZE;
