@@ -2,18 +2,13 @@
 
 ## 2.3.3 - 2026-09-11
 
-Third fix pass (criterion e closure-3). node-gate-entrypoint AC-6102-1 row de-claimed (anchorAcId=null, conformanceOnly, limitation naming AC-6101-1: the runtime aggregate report's runner.entryPoint field is not observable on the shelf and the shipped templates deliberately name distinct canonical entries per gate-suite). workflow-template-shape actionlint row de-claimed with limitation naming AC-6101-3 (actionlint observes yaml syntax, not materialiser refusal/error code/filesystem effect); AC-6101-2 row records notObservableHere{ac,reason}. real-account-github-actions-run-record de-claimed with limitation naming AC-6101-1 (a gh run list record is not evidence of configured branch-model triggers or the aggregate report's trigger field). Every detail line starts with what was observed; every de-claim row carries the shipped AC id and what the row does not observe.
+Adds a contributions/probes/ pack (workflow-template-shape, node-gate-entrypoint, real-account-github-actions-run-record) with a fixture-side workflow-lint helper under packages/rcf-lite/test/fixtures/probe-pack-delivery-ci-workflows/. Probes run against the shipped workflow templates on Node 24 and against real GitHub Actions on the account-bound branch (CI_HAS_GITHUB_ACTIONS gate + RCF_FIXTURE_CIW_REPO, one variable per skip row).
 
-
-## 2.3.2 - 2026-09-11
-
-Adds a contributions/probes/ pack (workflow-template-shape, node-gate-entrypoint, real-account-github-actions-run-record) with a fixture-side workflow linter under packages/rcf-lite/test/fixtures/probe-pack-delivery-ci-workflows/. Local probes load every YAML template under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/, assert top-level shape, checkout step and the node scripts/rcf-*.js single-substrate contract, and optionally invoke actionlint when the binary is on PATH. The real-account probe is gated on CI_HAS_GITHUB_ACTIONS with `gh auth status` as the pre-flight observation and requires the caller to name a repository through RCF_FIXTURE_CIW_REPO; no default repository is embedded. Vendor citation https://docs.github.com/en/rest/actions/workflow-runs (verified 2026-09-11).
-
-Fix pass on this patch:
-
-- node-gate-entrypoint drops the stub-of-runner shape (self-fulfilling), reads only the shipped templates, and asserts per-job exactly one node scripts/rcf-*.js invocation, per the one-Node-entry-point-per-job property.
-- workflow-template-shape anchors REQ-009 for the illustrative-file shape scan, keeps actionlint under AC-6101-3 with an honest SKIP when the binary is not runnable, and files AC-6101-2 as AMBER with a named unobservable reason.
-- real-account-github-actions-run-record restricts the qualifying set to commit-triggered workflow names only (pull-request-checks, default-branch-checks), requires conclusion === "success", treats gh auth failure with the gate set as FAIL, and adds a second AMBER row naming the aggregate-pipeline-report artefact-download step the current probe does not perform.
+Anchoring: every row is de-claimed (conformanceOnly, anchorAcId=null) with a limitation naming a shipped AC id:
+- workflow-template-shape: template shape row -> AC-6101-1 (materialiser wiring not observed); actionlint row -> AC-6101-3 (materialiser refusal not observed; honest accountBoundSkipped naming RCF_FIXTURE_CIW_ACTIONLINT_PATH when the binary is not runnable); branch-protection row -> AC-6101-2 (repository merge-policy not observable at shelf without a probe-controlled repository).
+- node-gate-entrypoint: single-line invocation row -> AC-6102-2 (absence of gate-specific logic elsewhere in the job not observed); entry-point unique row -> AC-6102-1 (runtime aggregate report and project tree unavailable).
+- real-account-github-actions-run-record: every row -> AC-6101-1 (a gh run list record is not evidence of the configured trigger set nor of the aggregate pipeline report's `trigger` field); accountBoundSkipped rows name exactly one declared variable; a gh auth failure with the gate set is a FAIL.
+probe-utils aggregate follows the standard fail>warn>pass rule with no warn-to-pass promotion; every warn-shaped row was converted to a conformanceOnly or accountBoundSkipped row so aggregate=pass carries only pass rows. probe-utils fallback anchor is null.
 
 ## 2.3.1 (register-sweep patch, 2026-09-10)
 

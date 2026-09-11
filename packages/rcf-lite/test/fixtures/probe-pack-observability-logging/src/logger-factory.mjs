@@ -132,7 +132,7 @@ export const LEVEL_ORDER = LEVELS;
 // constant both sides authored.
 
 import { createServer } from 'node:http';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 // The fixture DERIVES per-request outputs from the inbound correlation
 // id rather than copying it into three surfaces. Contract:
@@ -151,17 +151,13 @@ export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
   const norm = headerName.toLowerCase();
   let sequence = 0;
   const server = createServer((req, res) => {
-    const inbound = req.headers[norm];
+    const suppliedHeader = req.headers[norm];
+    const inbound = suppliedHeader ?? randomUUID();
+    const mintedFromAbsent = !suppliedHeader;
     const bodyChunks = [];
     req.on('data', (c) => bodyChunks.push(c));
     req.on('end', () => {
       const requestBody = Buffer.concat(bodyChunks).toString('utf8');
-      if (!inbound) {
-        res.statusCode = 400;
-        res.setHeader('content-type', 'application/json');
-        res.end(JSON.stringify({ error: 'missing-correlation-header', headerName: norm }));
-        return;
-      }
       sequence += 1;
       const thisSequence = sequence;
       const hash = createHash('sha256').update(`${inbound}:${thisSequence}`).digest('hex').slice(0, 16);
@@ -170,7 +166,7 @@ export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
         res.setHeader(headerName, inbound);
         res.setHeader('content-type', 'application/json');
         res.statusCode = 200;
-        res.end(JSON.stringify({ ok: true, sequence: thisSequence, hash }));
+        res.end(JSON.stringify({ ok: true, sequence: thisSequence, hash, mintedFromAbsent, correlationId: inbound }));
       });
     });
   });
@@ -184,7 +180,7 @@ export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
       return { port: server.address().port };
     },
     async close() {
-      // Teardown propagates errors (Addendum rule 5).
+      // Teardown callbacks propagate errors on close.
       await new Promise((resolve, reject) => {
         server.close((err) => { if (err) reject(err); else resolve(); });
       });

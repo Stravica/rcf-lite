@@ -1,5 +1,8 @@
-// Line-shape probe for observability-logging. Anchors AC-15101-1/3/4.
-// Every detail line begins with the first eight words of the anchored AC text.
+// Line-shape probe for observability-logging.
+// Anchors AC-15101-1 (with the row extended to type-check each of the
+// shared minimum fields, so a numeric or object value cannot pass a
+// presence-only check), AC-15101-3 (BigInt-safe folding) and
+// AC-15101-4 (reserved-key collision safety).
 import { createLogger, LEVEL_ORDER } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-logging/src/logger-factory.mjs';
 
 export const anchorAcId = 'AC-15101-1';
@@ -18,17 +21,31 @@ export default async function runProbe() {
   const results = [];
   const parsed = [];
   let allOk = lines.length === LEVEL_ORDER.length;
+  let typeFailures = [];
   for (const ln of lines) {
     let obj = null; let ok = true;
     try { obj = JSON.parse(ln); } catch { ok = false; }
     parsed.push(obj);
-    if (!ok || required.some((k) => !(k in (obj || {})))) allOk = false;
+    if (!ok) { allOk = false; continue; }
+    for (const k of required) {
+      if (!(k in obj)) { allOk = false; typeFailures.push({ key: k, reason: 'missing' }); continue; }
+      // correlationId is explicitly nullable when the emission has no
+      // ambient correlation context (AC-15102-3). Every other field
+      // must be a non-empty string.
+      if (k === 'correlationId') {
+        if (obj[k] !== null && (typeof obj[k] !== 'string' || obj[k].length === 0)) { allOk = false; typeFailures.push({ key: k, reason: `correlationId must be null or non-empty string (got ${typeof obj[k]})` }); }
+      } else if (typeof obj[k] !== 'string' || obj[k].length === 0) {
+        allOk = false; typeFailures.push({ key: k, reason: `not-non-empty-string (got ${typeof obj[k]})` });
+      }
+    }
+    // timestamp additionally must ISO-8601 parse.
+    if (typeof obj.timestamp === 'string' && Number.isNaN(Date.parse(obj.timestamp))) { allOk = false; typeFailures.push({ key: 'timestamp', reason: 'not ISO-8601 parseable' }); }
   }
   results.push({
     anchorAcId: 'AC-15101-1',
     verdict: allOk ? 'pass' : 'fail',
-    detail: `${AC1} call site  -  observed ${lines.length} lines on stdout; each JSON.parses and carries the seven minimum fields; expected=${LEVEL_ORDER.length}.`,
-    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level) },
+    detail: `${AC1} call site  -  observed ${lines.length} lines on stdout; each JSON.parses and carries the seven minimum fields as non-empty strings (timestamp parses ISO-8601); expected=${LEVEL_ORDER.length}; typeFailures=${JSON.stringify(typeFailures)}.`,
+    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level), typeFailures },
   });
   outBuf.length = 0; errBuf.length = 0;
   log.info('bigint', { id: 9007199254740993n });

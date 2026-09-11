@@ -1,22 +1,27 @@
 // Profile-boot-materialisation probe for observability-probe-endpoints.
-// Resolves the shipped 'kubernetes' profile (per AC-14101-1) and
-// materialises it on 127.0.0.1 via the fixture registry; issues real
-// HTTP GETs to the resolved liveness and readiness paths with a
-// probe-varied x-request-id header per request. Records the response
-// header echo and body excerpt and asserts the resolved profile
-// name equals 'kubernetes' and the bound listener answers on the
-// profile's declared paths.
 //
-// Anchors AC-14101-1 which requires binding probe handlers whose
-// paths match the resolved Kubernetes profile.
-// Every detail line begins with the first eight words.
+// Resolves the shipped 'kubernetes' profile and materialises it on
+// 127.0.0.1 via the fixture registry; issues real HTTP GETs to the
+// resolved liveness and readiness paths with a probe-varied
+// x-request-id header per request. Records the response header echo
+// and body excerpt and asserts the resolved profile name equals
+// 'kubernetes' and the bound listener answers on the profile's
+// declared paths.
+//
+// AC-14101-1 additionally requires observation of fused/separate port
+// topology AND absence of handlers outside the resolved path set.
+// This row observes only bound-path behaviour; it does not check
+// port topology or verify no additional handlers were bound. Row
+// de-claimed (conformanceOnly, anchorAcId=null) with the limitation
+// naming AC-14101-1.
+
 import { randomUUID } from 'node:crypto';
 import { materialise, resolveProfile } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/src/profile-registry.mjs';
 import { primaryPort } from './probe-utils.mjs';
 
 export const anchorAcId = 'AC-14101-1';
 export const accountBound = false;
-const AC1 = 'A process configured with `probeInterface.profile: kubernetes` boots and';
+const LIM_14101_1 = `AC-14101-1: requires a process configured with probeInterface.profile: kubernetes to bind probe handlers whose paths match the resolved profile AND to observe fused/separate port topology AND absence of handlers outside the resolved path set. This row observes bound-path behaviour (liveness and readiness respond 200 with body.status='pass') but does not verify port-topology or handler-absence clauses.`;
 
 async function get(url, rid) {
   const res = await fetch(url, { headers: { 'x-request-id': rid } });
@@ -40,9 +45,11 @@ export default async function runProbe() {
     const nameOk = inst.profile.name === 'kubernetes';
     const pathsOk = inst.profile.paths.liveness === '/live' && inst.profile.paths.readiness === '/ready';
     results.push({
-      anchorAcId: 'AC-14101-1',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_14101_1,
       verdict: liveOk && readyOk && nameOk && pathsOk ? 'pass' : 'fail',
-      detail: `${AC1}  -  observed resolved profile.name='${inst.profile.name}' paths=${JSON.stringify(inst.profile.paths)} on port ${inst.requestPort}; live status=${live.status} echoed rid=${live.requestId === suppliedLive} body.status='${live.parsed?.status}' body.profile='${live.parsed?.profile}'; ready status=${ready.status} echoed rid=${ready.requestId === suppliedReady} body.status='${ready.parsed?.status}' body.profile='${ready.parsed?.profile}'.`,
+      detail: `observed resolved profile.name='${inst.profile.name}' paths=${JSON.stringify(inst.profile.paths)} on port ${inst.requestPort}; live status=${live.status} echoed rid=${live.requestId === suppliedLive} body.status='${live.parsed?.status}' body.profile='${live.parsed?.profile}'; ready status=${ready.status} echoed rid=${ready.requestId === suppliedReady} body.status='${ready.parsed?.status}' body.profile='${ready.parsed?.profile}'.`,
       evidence: {
         acceptedProfile: inst.profile.name,
         resolvedTransport: inst.profile.transport,

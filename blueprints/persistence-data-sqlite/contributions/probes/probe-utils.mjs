@@ -42,7 +42,7 @@ export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const normalised = (Array.isArray(results) && results.length > 0)
     ? results
-    : [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
+    : [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
   const raw = aggregate(normalised);
   const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
   const report = {
@@ -69,7 +69,7 @@ export async function runShim(probeName, engine, mainFn) {
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
     const results = [{
-      anchorAcId: 'unknown',
+      anchorAcId: null, harnessError: true,
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
       evidence: { thrown: true, message: err && err.message ? err.message : String(err), name: err && err.name ? err.name : 'Error', probeName, runAt: new Date().toISOString(), engine },

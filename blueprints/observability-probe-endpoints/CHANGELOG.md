@@ -2,17 +2,9 @@
 
 ## 1.2.3 - 2026-09-11
 
-Third fix pass (criterion e closure-3). Fixture profile-registry materialises the SIX shipped profile names named on AC-14103-1 (kubernetes, loadBalancer, uptimeMonitor, systemd, dockerHealthcheck, reverseProxy) with each carrying transport, path/command/notify surface, responseContract and semanticModel; resolveProfile('kubernetes', { startup: { enabled: true } }) supports the AC-14102-4 startup-enabled shape. refuseIfPartial now throws with a stable PROBE_PROFILE_INCOMPLETE code and a missingKey property. profile-boot-materialisation uses resolveProfile('kubernetes'); partial-profile-refusal exercises stripped-transport and startup-missing-startup-path refusals AND every shipped profile's shape (AC-14103-1) AND the loadBalancer singleHealthSignal semantic (AC-14103-3). Materialiser teardown propagates callback errors.
+Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry and HTTP materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Probes run against the fixture on Node 24. No account gate.
 
-
-## 1.2.2 - 2026-09-11
-
-Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry + node:http materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Materialises the kubernetes-request-listener and kubernetes-startup profiles on 127.0.0.1, drives real HTTP GETs against declared paths, asserts the startup-phase flip from 503 to 200, and refuses partial profiles at boot with a named missing key. No account gate.
-Fix pass on this patch: profile-registry fixture returns body.status=pass on liveness/readiness and pass/fail on startup per AC-14102-1/3/4 (no more live/ready/starting body strings); kubernetes-startup-enabled re-anchors to AC-14102-4; partial-profile-refusal re-anchors refusal rows to AC-14103-2 and the well-formed acceptance to AC-14103-1; every detail line starts with the first eight words of the anchored AC text.
-
-
-
-Fix pass (2026-09-11, criterion e closure): profile-boot-materialisation now reads AND records the Response objects (headers with echoed x-request-id, body excerpts). kubernetes-startup-enabled varies request-id per call and asserts fixture echoes it. All probes vary inputs and assert derived outputs.
+Anchoring: kubernetes-startup-enabled anchors AC-14102-4 with BOTH the enabled clause (three-path resolution; pre-ready GET /startup answers HTTP 503 body.status='fail'; post-markStartupReady GET answers HTTP 200 body.status='pass') AND the disabled clause (no enable flag: resolver returns two paths, GET /startup returns 404 with no /startup handler registered). profile-boot-materialisation observes bound-path behaviour for /live and /ready under the shipped kubernetes profile; the row de-claims (conformanceOnly, anchorAcId=null) with the limitation naming AC-14101-1 (port topology and handler-absence not observed). partial-profile-refusal observes an in-process refuseIfPartial refusal (stripped transport; startupEnabled without paths.startup) with the row de-claiming AC-14103-2 (process-level non-zero exit not observed at shelf); the shape presence check for the six shipped profiles de-claims AC-14103-1 (enum-membership per field not observed); the loadBalancer profile shape row de-claims AC-14103-3 (profile is not materialised and probed for handler absence). probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 1.2.1 (register-sweep patch, 2026-09-10)
 

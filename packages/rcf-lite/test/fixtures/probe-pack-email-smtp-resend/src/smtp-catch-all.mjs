@@ -67,7 +67,7 @@ export function createCatchAllSmtp() {
       return { port: server.address().port };
     },
     async close() {
-      // Teardown propagates errors (Addendum rule 5).
+      // Teardown propagates errors on close.
       await new Promise((resolve, reject) => {
         server.close((err) => { if (err) reject(err); else resolve(); });
       });

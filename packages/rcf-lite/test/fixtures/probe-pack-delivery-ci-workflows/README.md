@@ -24,7 +24,7 @@ Live branch (GitHub Actions read-only):
 - `RCF_FIXTURE_CIW_REPO` (optional): overrides the read-only repo
   the real-account probe queries; no default (probe skips honestly when unset).
 
-## Reviewer boot
+## Local run
 
 ```
 # ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)

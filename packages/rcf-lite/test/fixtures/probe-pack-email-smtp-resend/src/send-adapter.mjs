@@ -9,7 +9,7 @@
 //   - 'resendRest': dials Resend's REST API (a real vendor call). Used
 //     by the real-account probe: the adapter is the module the probe
 //     observes; Resend is the substrate BEHIND the adapter, per master
-//     brief Addendum rule 2.
+//     send adapter contract.
 //   - 'catchAllSmtp': dials a local SMTP catch-all fixture; used by
 //     the offline round-trip probe.
 //   - 'catchAllSmtpUnverifiedSender': dials the local SMTP catch-all

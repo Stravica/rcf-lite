@@ -1,41 +1,46 @@
 // Shared anatomy helpers for the criterion e probe packs.
 // Not a test file; imported by *-anatomy.test.js siblings.
 //
-// Strict-evidence contract (per master brief Addendum rules 3, 6,
-// 11 and 14, and closure-3 §6 rulings). A result row passes only
-// when one of the following holds:
+// Strict-evidence contract. A result row passes only when one of the
+// following shapes holds:
 //
 //   1. accountBoundSkipped:true with a non-empty `reason` naming
-//      one declared unset env variable.
-//   2. notObservableHere:{ac, reason} with a non-empty reason
-//      (Addendum rule 11; browser-observable or process-level
-//      properties a shelf probe cannot see honestly).
+//      exactly one declared unset env variable (enforced by each
+//      anatomy test against DECLARED_ENV; per-variable one row).
+//   2. notObservableHere:{ac, reason} with a non-empty reason and
+//      an `ac` matching a real shipped AC id shape (AC-NNNN-N).
 //   3. conformanceOnly:true with anchorAcId=null AND a non-empty
-//      `limitation` naming the shipped AC id the row does not
-//      observe (closure-3 de-claim shape).
+//      `limitation` that names a real shipped AC id (AC-NNNN-N).
 //   4. an evidence object carrying BOTH (a) a non-empty request id
 //      or a non-empty inbound/echoed identifier, AND (b) a non-empty
 //      body excerpt or derived value / hash / row id / migration
 //      list / resource id / adapter outcome / event field / template
-//      shape entry (Addendum rule 14: request id alone never passes).
+//      shape entry. A lone `bodyExcerpt` never counts twice.
 //   5. warn:{unobservableReason:string} that names why the property
 //      cannot be observed here.
 //
-// Note: bare `note`, `templateCount:0`, `presentAfterDelete:false`
-// without a resource id, arbitrary `valueOnLine` strings, empty
-// arrays, and skip rows whose `reason` is not one declared unset
-// var name all FAIL.
+// Notes:
+//   - `bodyExcerpt` counts ONLY as a derived value, never as an
+//     identifier (see the strict-shape rule).
+//   - bare `note`, `templateCount:0`, `presentAfterDelete:false`
+//     without a resource id, arbitrary `valueOnLine` strings, empty
+//     arrays, and skip rows whose `reason` is not one declared unset
+//     var name all FAIL.
+//   - Dynamic `process.env[<expr>]` access is disallowed; the collector
+//     emits the sentinel '__DYNAMIC__' so anatomy tests reject the file.
 
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+// Regex that matches a real shipped AC id (AC-NNNN-N or AC-NN-N).
+export const AC_ID_RE = /\bAC-\d{2,5}-\d{1,3}\b/;
+
 // Collect every process.env.<NAME> read across a set of .mjs files.
 // Captures both the dot-form process.env.X and the bracket form with
 // a string literal. Dynamic access (process.env[<expr>] where <expr>
 // is not a literal) records the sentinel '__DYNAMIC__' so anatomy
-// tests can decide whether to accept it; anatomy tests are expected
-// to REJECT __DYNAMIC__ unless the file explicitly declares it.
+// tests reject it as a failure (never as an exemption).
 export async function collectEnvReads(files) {
   const names = new Set();
   for (const p of files) {
@@ -79,34 +84,41 @@ function nonEmptyObj(v) { return v && typeof v === 'object' && !Array.isArray(v)
 export function resultHasEvidenceShape(r) {
   if (!r || typeof r !== 'object') return { ok: false, reason: 'result is not an object' };
 
-  // Skip shape (Addendum rule 4). reason must be a non-empty string; the
-  // anatomy test in each blueprint additionally checks the reason names
-  // exactly one declared unset variable.
+  // Skip shape. `reason` must be a non-empty string; each anatomy test
+  // additionally checks the reason names exactly one declared unset
+  // env variable.
   if (r.accountBoundSkipped === true) {
     if (nonEmptyString(r.reason)) return { ok: true, kind: 'honest-skip' };
     return { ok: false, reason: 'accountBoundSkipped without a non-empty reason string' };
   }
 
-  // notObservableHere shape (Addendum rule 11).
+  // notObservableHere shape (for browser-only or process-level properties
+  // a shelf probe cannot observe). Must name a real shipped AC id.
   if (r.notObservableHere && typeof r.notObservableHere === 'object') {
-    if (nonEmptyString(r.notObservableHere.ac) && nonEmptyString(r.notObservableHere.reason)) return { ok: true, kind: 'not-observable-here' };
-    return { ok: false, reason: 'notObservableHere present but missing ac or reason' };
+    if (!nonEmptyString(r.notObservableHere.ac)) return { ok: false, reason: 'notObservableHere.ac required' };
+    if (!AC_ID_RE.test(r.notObservableHere.ac)) return { ok: false, reason: 'notObservableHere.ac must match AC-NNNN-N shape: ' + r.notObservableHere.ac };
+    if (!nonEmptyString(r.notObservableHere.reason)) return { ok: false, reason: 'notObservableHere.reason required' };
+    return { ok: true, kind: 'not-observable-here' };
   }
 
-  // conformance-only de-claim shape (closure-3 §6 ruling).
+  // De-claim shape: the row acknowledges it does not observe the AC it
+  // would otherwise claim; `limitation` must name a real shipped AC id.
   if (r.conformanceOnly === true) {
     if (r.anchorAcId !== null) return { ok: false, reason: 'conformanceOnly rows must set anchorAcId:null so no AC is claimed' };
     if (!nonEmptyString(r.limitation)) return { ok: false, reason: 'conformanceOnly rows must carry a non-empty limitation naming the shipped AC' };
+    if (!AC_ID_RE.test(r.limitation)) return { ok: false, reason: 'conformanceOnly.limitation must name a real shipped AC id (AC-NNNN-N): ' + r.limitation.slice(0, 120) };
     return { ok: true, kind: 'conformance-only' };
   }
 
   const ev = r.evidence;
   if (!ev || typeof ev !== 'object') return { ok: false, reason: 'result has neither honest skip, notObservableHere, conformanceOnly nor an evidence object' };
 
-  // Honest-warn (rule 14): a warn row with unobservableReason string.
+  // Honest-warn: a warn row with a non-empty unobservableReason.
   if (r.verdict === 'warn' && nonEmptyString(ev.unobservableReason)) return { ok: true, kind: 'honest-warn' };
 
   // Identifier presence: at least one non-empty id-like field.
+  // NOTE: `bodyExcerpt` is intentionally NOT in this list; it is a
+  // derived-value only, so a lone bodyExcerpt cannot satisfy both halves.
   const idCandidates = [
     ev.requestId, ev.createRequestId, ev.queryRequestId, ev.deleteRequestId,
     ev.inventoryRequestId,
@@ -167,8 +179,6 @@ export function resultHasEvidenceShape(r) {
     nonEmptyArray(ev.migrationsApplied),
     nonEmptyArray(ev.migrationRows),
     nonEmptyArray(ev.appliedMigrations),
-    // migrationsAppliedOnReopen must be a NON-EMPTY array of non-empty strings
-    // to count as evidence.
     nonEmptyArray(ev.migrationsAppliedOnReopen) && ev.migrationsAppliedOnReopen.every((s) => nonEmptyString(s)),
     positiveNumber(ev.schemaVersion),
     positiveNumber(ev.walSizeBefore),
@@ -184,8 +194,6 @@ export function resultHasEvidenceShape(r) {
     (nonEmptyString(ev.providerMessageId) && positiveNumber(ev.providerStatus)),
     nonEmptyString(ev.messageId),
     nonEmptyObj(ev.envelope) && nonEmptyString(ev.envelope.from),
-    // Adapter refusal outcome: recipientAbsentInError must be true AND
-    // the returned error string carries a stable class code.
     typeof ev.recipientInError === 'boolean' && ev.recipientInError === false && nonEmptyString(ev.errorString),
     typeof ev.recipientInRefusal === 'boolean' && ev.recipientInRefusal === false && nonEmptyString(ev.lastLine),
     positiveNumber(ev.code) && nonEmptyString(ev.lastLine),
@@ -204,14 +212,13 @@ export function resultHasEvidenceShape(r) {
   let hasDerived = derivedCandidates.some((v) => v === true);
 
   // Additional identifier candidates.
+  // NOTE: `bodyExcerpt` and `acceptedProfile` are intentionally excluded
+  // from these lists so a lone bodyExcerpt cannot satisfy both halves.
   const extraId = (
     (nonEmptyString(ev.errorString) && (Object.hasOwn(ev, 'recipientInError') || Object.hasOwn(ev, 'startsWithClass')))
     || (nonEmptyString(ev.line) && ev.line.trim().startsWith('{'))
     || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.message))
     || nonEmptyString(ev.acceptedProfile)
-    || nonEmptyString(ev.bodyExcerpt)
-    ||
-    nonEmptyString(ev.errorString) && nonEmptyString(ev.startsWithClass !== undefined ? ev.errorString : '')
     || (typeof ev.startsWithClass === 'boolean' && ev.startsWithClass === true && nonEmptyString(ev.errorString))
     || (nonEmptyArray(ev.linesExcerpt) && ev.linesExcerpt.every((l) => nonEmptyString(l)))
     || (nonEmptyString(ev.acceptedProfile) && (nonEmptyArray(ev.shape) || nonEmptyObj(ev.resolvedPaths)))
@@ -224,18 +231,12 @@ export function resultHasEvidenceShape(r) {
 
   // Additional derived candidates.
   const extraDerived = (
-    // Adapter-refusal absence-scan shape (AC-4102-2): every recipient/subject/body flag is false AND errorString is non-empty.
     (nonEmptyString(ev.errorString) && ev.recipientInError === false && ev.subjectInError === false && ev.bodyInError === false)
-    // Readiness checks nested under observed.
     || (nonEmptyObj(ev.observed) && nonEmptyObj(ev.observed.checks))
-    // A serialised JSON line as a string.
     || (nonEmptyString(ev.line) && ev.line.trim().startsWith('{'))
-    // A parsed log-line object with the seven-field minimum set present.
     || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.message) && nonEmptyString(ev.line.level))
-    // Profile shape observation: acceptedProfile + semanticModel.
     || (nonEmptyString(ev.acceptedProfile) && (nonEmptyString(ev.semanticModel) || nonEmptyObj(ev.semanticModel)))
-    ||
-    (nonEmptyString(ev.errorString) && typeof ev.startsWithClass === 'boolean')
+    || (nonEmptyString(ev.errorString) && typeof ev.startsWithClass === 'boolean')
     || (typeof ev.ok === 'boolean' && positiveNumber(ev.providerStatus) && (nonEmptyString(ev.errorString) || nonEmptyString(ev.messageId)))
     || (nonEmptyArray(ev.linesExcerpt) && nonEmptyArray(ev.levelsSeen))
     || (nonEmptyArray(ev.shape) && ev.shape.every((s) => nonEmptyObj(s) && nonEmptyString(s.name)))
@@ -248,4 +249,14 @@ export function resultHasEvidenceShape(r) {
   if (hasIdentifier && hasDerived) return { ok: true, kind: 'id+derived' };
   if (!hasIdentifier) return { ok: false, reason: `evidence object present but no non-empty identifier / request id / echoed header / resource id recognised: ${JSON.stringify(ev).slice(0, 200)}` };
   return { ok: false, reason: `evidence object has identifier but no non-empty derived value/body/excerpt/hash/list/adapter outcome recognised: ${JSON.stringify(ev).slice(0, 200)}` };
+}
+
+// Assert that a skip row's `reason` names exactly ONE declared variable
+// from `declared`. Returns { ok, reason } for anatomy tests to assert on.
+export function skipReasonNamesExactlyOneDeclared(reason, declared) {
+  if (!nonEmptyString(reason)) return { ok: false, reason: 'skip reason must be a non-empty string' };
+  const decls = declared instanceof Set ? [...declared] : Array.from(declared || []);
+  const named = decls.filter((v) => new RegExp('\\b' + v + '\\b').test(reason));
+  if (named.length === 1) return { ok: true, named: named[0] };
+  return { ok: false, reason: 'skip reason must name exactly one declared variable; named=' + JSON.stringify(named) + ' declared=' + JSON.stringify(decls) };
 }

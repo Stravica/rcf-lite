@@ -13,7 +13,7 @@
 // paths.startup and semanticModel.startup, and the materialiser
 // binds the /startup handler with the AC-14102-4 fail/pass semantics.
 //
-// Teardown callbacks propagate errors (Addendum rule 5).
+// Teardown callbacks propagate errors on close.
 
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -188,7 +188,7 @@ export async function materialise({ profile, listenerPort, separateListenerPort 
     markStartupReady() { startupReady = true; },
     registerTeardown(fn) { if (typeof fn === 'function') teardowns.push(fn); },
     async close() {
-      // Teardown callbacks propagate errors (Addendum rule 5).
+      // Teardown callbacks propagate errors on close.
       await new Promise((resolve, reject) => request.close((err) => (err ? reject(err) : resolve())));
       if (separate) await new Promise((resolve, reject) => separate.close((err) => (err ? reject(err) : resolve())));
       let firstError = null;

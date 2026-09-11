@@ -1,31 +1,31 @@
 // Facade round-trip probe for persistence-data-d1.
 //
-// REQ-001 says every persistent entity lives in one D1 database
-// accessed through one facade module. The 'facadeReady' event
-// count-per-open is fixture-added observation, not text stated on
-// REQ-001; per closure-3 §(2) that row is de-claimed
-// (anchorAcId=null, conformanceOnly true) with the limitation.
+// The 'facadeReady' event count-per-open is a fixture-added observation
+// not stated on any shipped AC; the nearest shipped AC on facade shape
+// is AC-13101-1 (single source-tree reader of the binding). Row
+// de-claimed (conformanceOnly, anchorAcId=null) with the limitation
+// naming AC-13101-1.
 //
-// AC-13101-2 (named domain verbs) is observable: the probe calls
-// facade.insertItem, facade.findItemByName, facade.deleteItem -- no
-// raw SQL leaves the facade. Kept.
+// AC-13101-2 (named domain verbs; no general-purpose query method
+// accepting raw SQL) requires an exhaustive scan of the facade's
+// public surface to prove absence of a general-purpose query method
+// on top of the runtime CRUD observation. This probe observes the
+// runtime CRUD half only; rows de-claimed with the limitation naming
+// AC-13101-2.
 //
-// AC-13101-4 (missing binding refusal with d1BindingMissing) is
-// observable and kept.
-//
-// Every detail line begins with the first eight words of the
-// anchored AC or REQ text.
+// AC-13101-4 (missing-binding refusal with d1BindingMissing) IS
+// observable and kept as a real AC anchor.
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createD1Binding } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/d1-binding-mock.mjs';
 import { openFacade } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/facade.mjs';
 
-export const anchorAcId = 'AC-13101-2';
+export const anchorAcId = 'AC-13101-4';
 export const accountBound = false;
-const AC2 = 'The facade exposes named domain verbs for every';
 const AC4 = 'Dependency not ready: D1 binding absent from the';
-const REQ1_LIM = `REQ-001 requires the facade module to be the SOLE reader of the D1 binding across the project's source modules (a repo-scan property, plus the runtime binding shape). A fixture-added 'facadeReady' event count per open is not evidence stated on REQ-001.`;
+const LIM_13101_1 = `AC-13101-1: requires exactly one source-tree module to read the D1 binding from the Worker env. A fixture-added 'facadeReady' event count per open is not evidence of the import-graph sole-reader property AC-13101-1 states.`;
+const LIM_13101_2 = `AC-13101-2: requires the facade to expose named domain verbs for every persistence operation AND not to export the raw D1 binding or a general-purpose query method accepting a raw SQL string. Runtime CRUD round-trips through the facade demonstrate the named verbs work; a probe would still need an exhaustive scan of the facade's public surface to prove absence of a general-purpose query method.`;
 
 export default async function runProbe() {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-d1-'));
@@ -41,32 +41,38 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: REQ1_LIM,
+      limitation: LIM_13101_1,
       verdict: ready.length === 1 && facade.bindingName === 'DB' ? 'pass' : 'fail',
-      detail: `observed facadeReady x${ready.length} on bindingName='${facade.bindingName}'; migrations=${JSON.stringify(facade.migrationsApplied)}. Fixture-added event; not stated on REQ-001.`,
+      detail: `observed facadeReady x${ready.length} on bindingName='${facade.bindingName}'; migrations=${JSON.stringify(facade.migrationsApplied)}. Fixture-added event; the import-graph sole-reader property on AC-13101-1 is not observed at runtime.`,
       evidence: { event: ready[0], bindingName: facade.bindingName, migrationsApplied: facade.migrationsApplied, bodyExcerpt: `facadeReady=${ready.length} binding=${facade.bindingName}` },
     });
     const ins = await facade.insertItem({ name: 'probe-item-1', note: 'from probe' });
     rowId = ins.rowId;
     results.push({
-      anchorAcId: 'AC-13101-2',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_13101_2,
       verdict: Number.isInteger(ins.rowId) && ins.rowId > 0 && ins.changes === 1 ? 'pass' : 'fail',
-      detail: `${AC2} persistence operation the domain requires  -  observed insertItem returned real rowId=${ins.rowId} changes=${ins.changes} through the facade's named domain verb (no raw SQL).`,
+      detail: `observed insertItem returned real rowId=${ins.rowId} changes=${ins.changes} through the facade's named insert verb (no raw SQL leaves the facade at runtime).`,
       evidence: { rowId: ins.rowId, changes: ins.changes, bodyExcerpt: `insertItem rowId=${ins.rowId} changes=${ins.changes}` },
     });
     const found = await facade.findItemByName('probe-item-1');
     results.push({
-      anchorAcId: 'AC-13101-2',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_13101_2,
       verdict: found && found.name === 'probe-item-1' && found.id === ins.rowId ? 'pass' : 'fail',
-      detail: `${AC2} persistence operation the domain requires  -  observed findItemByName returned id=${found?.id} name=${found?.name} through the facade's named domain verb.`,
+      detail: `observed findItemByName returned id=${found?.id} name=${found?.name} through the facade's named find verb.`,
       evidence: { found, rowIdOnRead: found?.id, bodyExcerpt: `findItemByName id=${found?.id} name=${found?.name}` },
     });
     const del = await facade.deleteItem({ name: 'probe-item-1' });
     const after = await facade.findItemByName('probe-item-1');
     results.push({
-      anchorAcId: 'AC-13101-2',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_13101_2,
       verdict: del.changes === 1 && after === null ? 'pass' : 'fail',
-      detail: `${AC2} persistence operation the domain requires  -  observed deleteItem changes=${del.changes}; find-after-delete=${after ? 'present' : 'absent'} through the facade's named delete then find verbs.`,
+      detail: `observed deleteItem changes=${del.changes}; find-after-delete=${after ? 'present' : 'absent'} through the facade's named delete and find verbs.`,
       evidence: { rowIdCreatedThenDeleted: rowId, deleteChanges: del.changes, presentAfterDelete: Boolean(after), bodyExcerpt: `deleteItem changes=${del.changes} presentAfterDelete=${Boolean(after)}` },
     });
     binding.__closeForFixture();

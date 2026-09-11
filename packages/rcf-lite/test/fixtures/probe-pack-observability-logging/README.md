@@ -25,7 +25,7 @@ in-process against the real logger factory and asserts positive
 evidence (parsed JSON lines, exact correlationId round-trip, exact
 redaction category strings on the emitted line).
 
-## Reviewer boot
+## Local run
 
 ```
 # ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)

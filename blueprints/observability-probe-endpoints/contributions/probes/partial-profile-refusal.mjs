@@ -1,30 +1,37 @@
 // Partial-profile-refusal probe for observability-probe-endpoints.
 //
-// AC-14103-2: a profile missing any of transport, path/command/notify
-// surface, response contract, or semantic model is refused at boot
-// with a stable-coded PROBE_PROFILE_INCOMPLETE error naming the
-// missing field. This probe strips a required field from each of the
-// six shipped profiles in turn and asserts the refusal.
+// AC-14103-2 requires the process to exit non-zero when a profile
+// missing a required field is loaded at boot. This probe catches an
+// in-process refusal via refuseIfPartial rather than spawning a
+// child process and observing its OS exit code. Rows de-claimed
+// (conformanceOnly, anchorAcId=null) with the limitation naming
+// AC-14103-2.
 //
-// AC-14103-1: each of the six shipped profiles resolves to a config
-// object whose transport, paths (or command/notify equivalent),
-// responseContract and semanticModel are all present. This probe
-// asserts that shape for every shipped profile name.
+// AC-14103-1 requires every field's value to belong to its enumerated
+// set (not just presence). This row asserts presence only. Row
+// de-claimed with the limitation naming AC-14103-1.
 //
-// Every detail line begins with the first eight words of the AC text.
-import { refuseIfPartial, resolveProfile, SHIPPED_PROFILES } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/src/profile-registry.mjs';
+// AC-14103-3 requires the loadBalancer profile to be materialised
+// and observed to expose exactly one /health handler and no /live
+// or /ready handlers. This row asserts the resolved config shape but
+// does not materialise and probe for extra handlers. Row de-claimed
+// with the limitation naming AC-14103-3.
+
+import { refuseIfPartial, resolveProfile } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/src/profile-registry.mjs';
 
 export const anchorAcId = 'AC-14103-2';
 export const accountBound = false;
-const AC2 = 'A profile whose configuration is missing any one';
-const AC1 = 'Each of the shipped profiles (`kubernetes`, `loadBalancer`, `uptimeMonitor`, `systemd`,';
 
 const SHIPPED_NAMES = ['kubernetes', 'loadBalancer', 'uptimeMonitor', 'systemd', 'dockerHealthcheck', 'reverseProxy'];
+
+const LIM_14103_2 = `AC-14103-2: requires the process to exit non-zero when a profile missing a required field is loaded at boot. This row catches an in-process refusal via refuseIfPartial rather than spawning a child process and observing its OS exit code.`;
+const LIM_14103_1 = `AC-14103-1: requires every field's value to belong to its enumerated set (not just presence: transport must be an enum value, paths/command/notify each carry typed contents, semanticModel is one of a small set). This row asserts presence of each field only.`;
+const LIM_14103_3 = `AC-14103-3: requires the loadBalancer profile to be materialised and observed to expose exactly one /health handler and no /live or /ready handlers. This row asserts the resolved config shape but does not materialise the profile and issue HTTP GETs against /live and /ready to prove absence of those handlers.`;
 
 export default async function runProbe() {
   const results = [];
 
-  // AC-14103-2: refusal with stable code. Strip 'transport' from the
+  // AC-14103-2 refusal via refuseIfPartial: strip 'transport' from the
   // kubernetes profile.
   const bad = { ...resolveProfile('kubernetes') };
   delete bad.transport;
@@ -33,9 +40,11 @@ export default async function runProbe() {
   let refusalMissing = null;
   try { refuseIfPartial(bad); } catch (e) { refusalMessage = e.message; refusalCode = e.code; refusalMissing = e.missingKey; }
   results.push({
-    anchorAcId: 'AC-14103-2',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_14103_2,
     verdict: refusalCode === 'PROBE_PROFILE_INCOMPLETE' && refusalMissing === 'transport' ? 'pass' : 'fail',
-    detail: `${AC2} of transport, path  -  observed stripped-transport kubernetes profile refused with code='${refusalCode}' missingKey='${refusalMissing}' message='${refusalMessage}'.`,
+    detail: `observed stripped-transport kubernetes profile refused via refuseIfPartial with code='${refusalCode}' missingKey='${refusalMissing}' message='${refusalMessage}'. Process-level non-zero exit not observed here.`,
     evidence: { refusalMessage, refusalCode, missingKey: refusalMissing },
   });
 
@@ -47,15 +56,15 @@ export default async function runProbe() {
   let refusalMissing2 = null;
   try { refuseIfPartial(bad2); } catch (e) { refusalMessage2 = e.message; refusalCode2 = e.code; refusalMissing2 = e.missingKey; }
   results.push({
-    anchorAcId: 'AC-14103-2',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_14103_2,
     verdict: refusalCode2 === 'PROBE_PROFILE_INCOMPLETE' && refusalMissing2 === 'paths.startup' ? 'pass' : 'fail',
-    detail: `${AC2} of transport, path  -  observed kubernetes with startupEnabled but no paths.startup refused with code='${refusalCode2}' missingKey='${refusalMissing2}' message='${refusalMessage2}'.`,
+    detail: `observed kubernetes with startupEnabled but no paths.startup refused via refuseIfPartial with code='${refusalCode2}' missingKey='${refusalMissing2}' message='${refusalMessage2}'. Process-level non-zero exit not observed here.`,
     evidence: { refusalMessage: refusalMessage2, refusalCode: refusalCode2, missingKey: refusalMissing2 },
   });
 
-  // AC-14103-1: every shipped profile name resolves to a complete
-  // shape. Assert transport, one of paths/command/notify present,
-  // responseContract, and semanticModel are all present.
+  // AC-14103-1 presence shape check for all six profiles.
   const shape = [];
   let allShapeOk = true;
   for (const name of SHIPPED_NAMES) {
@@ -68,20 +77,23 @@ export default async function runProbe() {
     shape.push({ name, transport: resolved?.transport, hasSurface: Boolean(surfaceOk), hasResponseContract: Boolean(resolved?.responseContract), hasSemanticModel: Boolean(resolved?.semanticModel), err });
   }
   results.push({
-    anchorAcId: 'AC-14103-1',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_14103_1,
     verdict: allShapeOk ? 'pass' : 'fail',
-    detail: `${AC1}  -  observed shape check for all six shipped profiles: ${JSON.stringify(shape)}.`,
+    detail: `observed presence-only shape check for all six shipped profiles: ${JSON.stringify(shape)}. Enum-membership per field is not observed here.`,
     evidence: { acceptedProfile: 'all-six', resolvedTransport: 'mixed', resolvedPaths: {}, shape, shippedNames: SHIPPED_NAMES },
   });
 
-  // AC-14103-3: loadBalancer resolves to a single-endpoint HTTP GET
-  // with semanticModel === 'singleHealthSignal'; no live/ready split.
+  // AC-14103-3 loadBalancer shape observation (not materialised).
   const lb = resolveProfile('loadBalancer');
   const lbOk = lb.paths?.health && !lb.paths?.liveness && !lb.paths?.readiness && lb.semanticModel === 'singleHealthSignal';
   results.push({
-    anchorAcId: 'AC-14103-3',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_14103_3,
     verdict: lbOk ? 'pass' : 'fail',
-    detail: `AC-14103-3 loadBalancer profile  -  observed resolved paths=${JSON.stringify(lb.paths)} semanticModel='${lb.semanticModel}'; expected paths.health present with no paths.liveness/paths.readiness and semanticModel==='singleHealthSignal'.`,
+    detail: `The loadBalancer profile resolves to a single-endpoint HTTP GET  -  observed resolved paths=${JSON.stringify(lb.paths)} semanticModel='${lb.semanticModel}'; expected paths.health present with no paths.liveness/paths.readiness and semanticModel==='singleHealthSignal'. Materialised handler absence not observed here.`,
     evidence: { acceptedProfile: lb.name, resolvedTransport: lb.transport, resolvedPaths: lb.paths, semanticModel: lb.semanticModel },
   });
 

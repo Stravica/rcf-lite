@@ -12,7 +12,7 @@ Local branch:
 
 - `RCF_FIXTURE_SMTP_PORT` (optional): overrides the port the fixture
   SMTP server binds; default 0 (kernel-assigned). Range 47550 for
-  the criterion-e family per the master brief.
+  the port range used by this probe pack.
 
 Live branch (Resend):
 
@@ -28,7 +28,7 @@ domain is documented here:
 https://resend.com/docs/dashboard/emails/send-test-emails
 (verified 2026-09-11 for criterion e).
 
-## Reviewer boot
+## Local run
 
 ```
 # ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)

@@ -10,7 +10,7 @@
 // error: 'RESEND_SENDER_UNVERIFIED: ...' }.
 //
 // AC-4102-1: the adapter's `error` begins with 'RESEND_SENDER_UNVERIFIED'
-// (adapter refusal outcome, per master brief Addendum rule 2).
+// (adapter refusal outcome).
 // AC-4102-2: recipient, subject, textBody do not appear on the
 // adapter's returned `error`, on any line emitted to the adapter's
 // injected log sink during the call, or on any exception the adapter

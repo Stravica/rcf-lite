@@ -29,7 +29,7 @@ in-process against the real `node:sqlite` engine and asserts positive
 evidence (a real integer row id, the applied-migration list, the WAL
 checkpoint counters).
 
-## Reviewer boot
+## Local run
 
 Run from the repo root with Node 24 first on PATH:
 

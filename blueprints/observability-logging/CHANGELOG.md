@@ -2,17 +2,9 @@
 
 ## 1.3.3 - 2026-09-11
 
-Third fix pass (criterion e closure-3). redaction-boundary nested-pii rows de-claimed with limitation naming AC-15103-4 (the AC's specific { user: { id, pii: { email } } } shape requires a user wrapper and a preserved id sibling this row did not observe); a new AC-15103-4-shaped row was added and passes. AC-15103-3 note row de-claimed with limitation (a bare 'note' field does not exercise the AC's valid-but-unconfigured category-shaped grammar). correlation-id-flow monotonic-sequence row de-claimed with limitation naming AC-15102-1 (monotonicity is anti-echo signalling, not the correlation-ID property). Logger fixture teardown now propagates server.close errors (Addendum rule 5).
+Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory and HTTP transport under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes run against the fixture on Node 24. No account gate.
 
-
-## 1.3.2 - 2026-09-11
-
-Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes emit through the real factory, capture stdout / stderr on the injected sinks, assert the seven-field minimum set, BigInt fold, reserved-key collision, correlationId ambient flow via AsyncLocalStorage, and PII redaction category strings on the emitted line. No account gate.
-Fix pass on this patch: correlation-id-flow: the fixture now derives a per-request sequence and a SHA-256 hash of id + ":" + sequence; the probe recomputes the hash and asserts equality (fixture no longer copies the inbound id into three places). redaction-boundary re-anchors top-level default categories to AC-15103-1, the nested pii.* payload to AC-15103-4 and the negative-control note to AC-15103-3. Every detail line starts with the first eight words of the anchored AC text.
-
-
-
-Fix pass (2026-09-11, criterion e closure): correlation-id-flow rewritten to drive an HTTP transport in the fixture; the probe VARIES the inbound correlation-id header per request and observes the derived output (the log line's correlationId and the response's echoed header) - assertion is on values the fixture propagates, not on constants both sides authored. redaction-boundary now uses register-clean placeholder values; DECLARED_ENV asserted.
+Anchoring: line-shape-and-fields anchors AC-15101-1/3/4 (seven-field minimum with per-field non-empty-string type checks and ISO-8601 timestamp; BigInt folded to a decimal string; reserved-key collision safety). correlation-id-flow anchors AC-15102-1 with BOTH the header-present clause (three varied inbound ids echoed on the response header, response body and emitted log line with a fixture-computed sequence and hash the probe recomputes locally) AND the header-absent clause (fixture mints a v4 UUID, response body carries mintedFromAbsent=true and the correlationId, the emitted line matches); also anchors AC-15102-3 (bare emission with no ambient context carries correlationId=null). The monotonic-sequence row de-claims with the limitation naming AC-15102-1. redaction-boundary anchors AC-15103-1 (top-level recommended-default category folded with `[REDACTED:<category>]` AND the caller's original payload object unmutated after log.info returns) and AC-15103-4 (the { user: { id, pii: { email } } } shape with user.id preserved and user.pii.email redacted, plus caller unmutated). The nested top-level pii row and the bare `note` row de-claim with limitations naming AC-15103-4 and AC-15103-3 respectively. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 1.3.1 (register-sweep patch, 2026-09-10)
 

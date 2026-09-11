@@ -28,15 +28,14 @@ Live branch (real Cloudflare D1):
   D1 scope is what the probe exercises. When the gate is set and
   credentials are set, a 401/403/auth-code response from the vendor
   is recorded as a FAIL (not a skip): the operator has asserted an
-  account is present so an auth failure is a real failure, per the
-  master brief for criterion e 2026-09-11 addendum.
+  account is present so an auth failure is a real failure. 
 
 The account-bound probe creates a scratch D1 database named
 `qa-e-d1-<short>`, runs one migration and one query against it,
 then deletes it and confirms the id is absent from the account's
 D1 inventory (created-then-deleted-resource-id inventory-diff shape).
 
-## Reviewer boot
+## Local run
 
 Local (no account):
 

@@ -8,14 +8,15 @@ export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixture
 export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/delivery-ci-workflows');
 export const DECLARED_ENV = new Set(['RCF_FIXTURE_CIW_ACTIONLINT_PATH', 'CI_HAS_GITHUB_ACTIONS', 'RCF_FIXTURE_CIW_REPO']);
 
+// Standard aggregate: any fail -> fail; any warn -> warn; else pass.
+// Rows that cannot be observed here are declared as `conformanceOnly`
+// (naming the shipped AC id whose property the row does not observe)
+// or `accountBoundSkipped` (naming exactly one declared unset env
+// variable). Neither shape emits a warn.
 export function aggregate(results) {
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
-  // Row-level 'warn' rows are honest AMBER per master brief Addendum
-  // (properties this shelf probe cannot observe without a repository
-  // it controls, e.g. AC-6101-2 branch-protection). The row detail
-  // names the unobservable reason; the aggregate rolls up to 'pass'
-  // when no row is 'fail'. Consumers keep row-level verdicts intact.
+  if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
 export function isSkipped(results) { return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true); }
@@ -23,7 +24,7 @@ export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const normalised = (Array.isArray(results) && results.length > 0)
     ? results
-    : [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
+    : [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
   const raw = aggregate(normalised); const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
   const report = { slug: 'delivery-ci-workflows', probeName, runAt: new Date().toISOString(), engine, results: normalised, aggregateVerdict, ...(extra ?? {}) };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
@@ -39,7 +40,7 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
-    const results = [{ anchorAcId: 'unknown', verdict: 'fail', detail: `probe threw: ${err?.message ?? err}`, evidence: { thrown: true, message: err?.message ?? String(err), name: err?.name ?? 'Error', probeName, runAt: new Date().toISOString(), engine } }];
+    const results = [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: `probe threw: ${err?.message ?? err}`, evidence: { thrown: true, message: err?.message ?? String(err), name: err?.name ?? 'Error', probeName, runAt: new Date().toISOString(), engine } }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stderr.write(`probe error: ${err?.stack ?? err}\n`);

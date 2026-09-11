@@ -22,7 +22,7 @@
 //
 // Teardown callbacks propagate errors: srv.close() will reject if
 // any registered teardown throws so the probe fails the verdict per
-// Addendum rule 5.
+// on-close error propagation.
 
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -145,7 +145,7 @@ export function createProbeServer() {
         server.close((err) => { if (err) reject(err); else resolve(); });
       });
       // Run every registered teardown; if any throws, propagate the
-      // FIRST error after running the rest. Per Addendum rule 5, no
+      // FIRST error after running the rest. Per on-close error propagation, no
       // teardown error is swallowed.
       let firstError = null;
       for (const fn of teardowns) {

@@ -14,7 +14,7 @@ response.
 
 No account gate.
 
-## Reviewer boot
+## Local run
 
 ```
 # ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)

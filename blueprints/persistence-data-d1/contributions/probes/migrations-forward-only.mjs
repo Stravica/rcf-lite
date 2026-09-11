@@ -2,27 +2,25 @@
 //
 // AC-13102-2 requires the wrangler `list -> apply -> list` sequence
 // against a fresh local D1. This probe uses the fixture's openFacade
-// (which drives a sqlite-backed d1 binding), not wrangler; per
-// closure-3 §(2) the row is de-claimed (anchorAcId=null,
-// conformanceOnly true) with the limitation naming AC-13102-2.
+// (which drives a sqlite-backed D1 binding), not a wrangler CLI. Row
+// de-claimed (conformanceOnly, anchorAcId=null) with the limitation
+// naming AC-13102-2.
 //
 // AC-13102-3 requires reading the configured bookkeeping table
-// (`migrations_table`, default `d1_migrations`). This probe queries
+// (`migrations_table`; default `d1_migrations`). This probe queries
 // `schema_migrations`, the fixture's internal table name, not the
-// configured `d1_migrations`. Per closure-3 §(2) the row is
-// de-claimed with the limitation naming AC-13102-3.
-//
-// Every detail line begins with what was actually observed.
+// configured `d1_migrations`. Row de-claimed with the limitation
+// naming AC-13102-3.
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createD1Binding } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/d1-binding-mock.mjs';
 import { openFacade } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/facade.mjs';
 
-export const anchorAcId = 'REQ-002-persistence-data-d1';
+export const anchorAcId = 'AC-13102-2';
 export const accountBound = false;
-const AC2_LIM = `AC-13102-2 requires the wrangler 'list -> apply -> list' sequence against a fresh local D1 (wrangler CLI observed). openFacade is the fixture-embedded migration runner; a wrangler CLI is not spawned.`;
-const AC3_LIM = `AC-13102-3 requires reading the configured bookkeeping table (migrations_table; default d1_migrations). The fixture's internal table is schema_migrations, not the configured d1_migrations.`;
+const AC2_LIM = `AC-13102-2: requires the wrangler 'list -> apply -> list' sequence against a fresh local D1 (wrangler CLI observed). openFacade is the fixture-embedded migration runner; a wrangler CLI is not spawned.`;
+const AC3_LIM = `AC-13102-3: requires reading the configured bookkeeping table (migrations_table; default d1_migrations). The fixture's internal table is schema_migrations, not the configured d1_migrations.`;
 
 export default async function runProbe() {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-d1-mig-'));

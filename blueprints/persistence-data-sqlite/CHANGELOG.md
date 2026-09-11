@@ -2,17 +2,9 @@
 
 ## 1.1.3 - 2026-09-11
 
-Third fix pass (criterion e closure-3). wal-checkpoint TRUNCATE size row and walCheckpoint event row de-claimed with limitations naming REQ-005 (crash recovery, not checkpoint mechanics) and REQ-006 (walCheckpoint is not one of the four defined lifecycle events). facade-round-trip CRUD rows and event row de-claimed with limitations naming REQ-007 (sole-importer is a repo-scan property) and REQ-006 (fixture-added entry* events are not among the four defined). boot-open-migrate storeOpened-count row de-claimed with limitation naming AC-5101-1 (single named export invoked exactly once before handlers bind is not observable from a sink event); reopen row de-claimed with limitation naming AC-5101-3 (reopen idempotency is a related but distinct property). probe-utils normalised sentinel and thrown rows now carry an evidence object.
+Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24; record real integer row ids, applied-migration lists, and wal_checkpoint(TRUNCATE) counters with the WAL sidecar shrink after truncate. No account gate.
 
-
-## 1.1.2 - 2026-09-11
-
-Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24, record real integer row ids, the applied-migration list from schema_migrations, and the wal_checkpoint(TRUNCATE) counters, and the WAL sidecar shrink after truncate. No account gate.
-Fix pass on this patch: facade-round-trip re-anchors CRUD rows to REQ-007 (facade boundary + narrow verbs) and events row to REQ-006 (event log with defined fields); wal-checkpoint re-anchors to REQ-005 (WAL crash safety, the durability posture no shipped AC states directly); probe-utils writes the normalised results into the persisted report; every detail line starts with the first eight words of the anchored AC or REQ text.
-
-
-
-Fix pass (2026-09-11, criterion e closure): wal-checkpoint pass predicate now requires a non-null pre-checkpoint WAL size AND a reduction to zero; aggregate([]) fails; DECLARED_ENV derived and asserted.
+Anchoring: boot-open-migrate anchors AC-5101-3 (open returns only after migrations run); the AC-5101-1 export-order row and the AC-5101-2 path-from-config row are de-claimed (conformanceOnly, anchorAcId=null) with limitations naming their respective ACs; the reopen row de-claims from AC-5101-3. wal-checkpoint anchors AC-5105-3 (durability posture set at open); the size-transition row and the walCheckpoint event row de-claim from AC-5105-1 and AC-5106-1 respectively. facade-round-trip anchors AC-5107-2 as its module anchor with the runtime CRUD rows de-claiming from AC-5107-2 (facade surface not exhaustively scanned) and the event row de-claiming from AC-5106-1. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null (harnessError marks the row) rather than any placeholder id.
 
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 

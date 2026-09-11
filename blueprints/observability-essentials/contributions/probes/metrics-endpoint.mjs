@@ -1,7 +1,7 @@
 // Status-page probe for observability-essentials (kept under the
 // legacy metrics-endpoint filename so the run-metrics-endpoint.mjs
 // wrapper and the anatomy test's PROBES list continue to resolve
-// without shipping a rename in the same fix pass).
+// without shipping a rename in the same patch).
 //
 // Anchors AC-7104-1/2/3 by asking the fixture for /status with
 // declared components in mixed states. AC-7104-1 requires EXACT

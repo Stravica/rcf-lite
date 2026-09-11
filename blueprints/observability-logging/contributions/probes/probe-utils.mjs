@@ -20,7 +20,7 @@ export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const normalised = (Array.isArray(results) && results.length > 0)
     ? results
-    : [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
+    : [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
   const raw = aggregate(normalised);
   const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
   const report = { slug: 'observability-logging', probeName, runAt: new Date().toISOString(), engine, results: normalised, aggregateVerdict, ...(extra ?? {}) };
@@ -37,7 +37,7 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
-    const results = [{ anchorAcId: 'unknown', verdict: 'fail', detail: `probe threw: ${err?.message ?? err}`, evidence: { thrown: true, message: err?.message ?? String(err), name: err?.name ?? 'Error', probeName, runAt: new Date().toISOString(), engine } }];
+    const results = [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: `probe threw: ${err?.message ?? err}`, evidence: { thrown: true, message: err?.message ?? String(err), name: err?.name ?? 'Error', probeName, runAt: new Date().toISOString(), engine } }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stderr.write(`probe error: ${err?.stack ?? err}\n`);
