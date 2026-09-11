@@ -44,7 +44,7 @@ function extractRenderedPoints(regionHtml) {
 function extractTableCells(regionHtml) {
   // Parse <thead><tr><th>Day</th><th>SeriesA (unit)</th>...</tr></thead>
   // <tbody><tr><th>Mon</th><td>30</td>...</tr>...</tbody>
-  // and produce a Map keyed as "series|x" → cell text.
+  // and produce a Map keyed as "series|x" to cell text.
   const tableMatch = regionHtml.match(/<table class="chartAltTable"[\s\S]*?<\/table>/);
   if (!tableMatch) return null;
   const table = tableMatch[0];
