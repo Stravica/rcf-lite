@@ -22,21 +22,33 @@
 //      supplied input), AND (b) a non-empty derived value / body
 //      excerpt / hash / migration list / template list / adapter
 //      outcome / event record / pragma value / metric delta.
-//   5. warn:{unobservableReason:string} that names why the property
-//      cannot be observed here.
+//
+// the strict-evidence contract tightening (identifier half):
+//   - Parsed log objects, log-line arrays, an object log line whose
+//     only signal is a `message`, `linesExcerpt`, parsed component
+//     lists, rendered-state or -order lists, `perFile`, `entries`
+//     and `commitEntries` are DERIVED content, never identifiers.
+//   - A row-authored `callTrackingId` (locally invented) is not a
+//     resource identifier and does not satisfy the identifier half.
+//   - The pass-5 honest-warn shape (WARN carrying only
+//     `evidence.unobservableReason`) is refused: a WARN row must
+//     still satisfy exact-skip, notObservableHere (browser-only) or
+//     identifier-plus-derived.
+//   - When `shippedAcIds` is supplied, any non-null retained
+//     `anchorAcId` MUST match a shipped AC in the caller's set.
 //
 // Notes:
 //   - `bodyExcerpt` counts ONLY as a derived value, never as an
 //     identifier (see the strict-shape rule).
 //   - Schema versions, WAL/journal mode, binding names, profile
 //     names, migration lists and template entries are DERIVED only;
-//     they are never identifiers on their own (see closure 5 §6).
+//     they are never identifiers on their own (see the strict-evidence contract).
 //   - A single JSON log line string that starts with `{` is derived
 //     only; the caller must supply a parsed object with a message
 //     field (or a request/correlation id elsewhere) to satisfy the
 //     identifier half.
 //   - `acceptedProfile` is never an identifier (matches the header
-//     comment; closure 5 §6 acceptedProfile mismatch).
+//     comment; the strict-evidence contract acceptedProfile mismatch).
 //   - bare `note`, `templateCount:0`, `presentAfterDelete:false`
 //     without a resource id, arbitrary `valueOnLine` strings, empty
 //     arrays, and skip rows whose `reason` is not one declared unset
@@ -122,12 +134,21 @@ function nonEmptyObj(v) { return v && typeof v === 'object' && !Array.isArray(v)
 //                                 notObservableHere.ac must be in it.
 // opts.browserOnlyAcIds Set<string>  optional (default empty);
 //                                 notObservableHere is refused unless
-//                                 its `ac` is in this set — the
-//                                 process-level ruling from closure 5.
+//                                 its `ac` is in this set - the
+//                                 process-level ruling from the strict-evidence contract.
 export function resultHasEvidenceShape(r, opts = {}) {
   const shippedAcIds = opts.shippedAcIds instanceof Set ? opts.shippedAcIds : null;
   const browserOnlyAcIds = opts.browserOnlyAcIds instanceof Set ? opts.browserOnlyAcIds : new Set();
   if (!r || typeof r !== 'object') return { ok: false, reason: 'result is not an object' };
+
+  // Retained-anchor existence: whenever a row carries a non-null
+  // anchorAcId (any shape below), that id MUST match a shipped AC
+  // in the caller-supplied set. Rows that de-claim (conformanceOnly)
+  // set anchorAcId:null and are covered by the conformanceOnly path.
+  if (shippedAcIds && nonEmptyString(r.anchorAcId)) {
+    if (!AC_ID_RE.test(r.anchorAcId)) return { ok: false, reason: 'anchorAcId must match AC-NNNN-N shape: ' + r.anchorAcId };
+    if (!shippedAcIds.has(r.anchorAcId)) return { ok: false, reason: 'retained anchorAcId ' + r.anchorAcId + ' is not a shipped AC id in this blueprint' };
+  }
 
   // Skip shape. `reason` must be a non-empty string; each anatomy test
   // additionally checks the reason names exactly one declared unset
@@ -139,14 +160,14 @@ export function resultHasEvidenceShape(r, opts = {}) {
 
   // notObservableHere shape (for browser-only properties a shelf
   // probe cannot observe). Must name a real shipped AC id AND that
-  // AC must be in the caller-supplied browserOnlyAcIds set —
+  // AC must be in the caller-supplied browserOnlyAcIds set -
   // process-level properties are never notObservableHere.
   if (r.notObservableHere && typeof r.notObservableHere === 'object') {
     if (!nonEmptyString(r.notObservableHere.ac)) return { ok: false, reason: 'notObservableHere.ac required' };
     if (!AC_ID_RE.test(r.notObservableHere.ac)) return { ok: false, reason: 'notObservableHere.ac must match AC-NNNN-N shape: ' + r.notObservableHere.ac };
     if (!nonEmptyString(r.notObservableHere.reason)) return { ok: false, reason: 'notObservableHere.reason required' };
     if (!browserOnlyAcIds.has(r.notObservableHere.ac)) {
-      return { ok: false, reason: 'notObservableHere is only permitted for browser-only ACs (closure 5 process-level ruling); AC ' + r.notObservableHere.ac + ' is not in browserOnlyAcIds' };
+      return { ok: false, reason: 'notObservableHere is only permitted for browser-only ACs (the process-level ruling); AC ' + r.notObservableHere.ac + ' is not in browserOnlyAcIds' };
     }
     if (shippedAcIds && !shippedAcIds.has(r.notObservableHere.ac)) {
       return { ok: false, reason: 'notObservableHere.ac ' + r.notObservableHere.ac + ' is not a shipped AC id in this blueprint' };
@@ -173,11 +194,14 @@ export function resultHasEvidenceShape(r, opts = {}) {
   const ev = r.evidence;
   if (!ev || typeof ev !== 'object') return { ok: false, reason: 'result has neither honest skip, notObservableHere, conformanceOnly nor an evidence object' };
 
-  // Honest-warn: a warn row with a non-empty unobservableReason.
-  if (r.verdict === 'warn' && nonEmptyString(ev.unobservableReason)) return { ok: true, kind: 'honest-warn' };
+  // The pass-5 honest-warn shortcut (a WARN row carrying a non-empty
+  // unobservableReason) is refused here: a WARN row MUST also satisfy
+  // one of the identifier-plus-derived, exact-skip or notObservableHere
+  // (browser-only) shapes above. `unobservableReason` on its own is
+  // free-form text; it is not an identifier or a derived value.
 
   // ─────────────────────────────────────────────────────────────
-  // Strong identifiers (closure 5 §6 tightening).
+  // Strong identifiers (the strict-evidence contract tightening).
   //   Removed from identifier consideration:
   //     - pragmaJournalMode / pragmaSynchronous     (WAL/durability mode)
   //     - schemaVersion                              (schema versions)
@@ -200,17 +224,18 @@ export function resultHasEvidenceShape(r, opts = {}) {
     ev.rowId, ev.rowIdCreatedThenDeleted, ev.rowIdOnRead,
     ev.line?.correlationId,
   ];
+  // the strict-evidence contract §6 tightening: parsed component lists, rendered-state/
+  // order lists, per-file lists, template/commit entries and
+  // linesExcerpt arrays are DERIVED content, never identifiers. The
+  // identifier half is a request id, resource id (uuid / message id /
+  // row id / server id / file path of a created artefact) or a
+  // vendor-returned id. A single log-line correlation id (real UUID
+  // minted or supplied per emission) still counts as an identifier.
   const observedNestedId = (
     (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.echoedHeader) || nonEmptyString(o?.requestId) || nonEmptyString(o?.supplied)))
     || (nonEmptyObj(ev.observed) && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.requestId)))
     || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.headerEcho) || nonEmptyString(o?.supplied)))
     || nonEmptyString(ev.line?.correlationId)
-    || nonEmptyArray(ev.parsedComponents)
-    || nonEmptyArray(ev.stateAttrs)
-    || nonEmptyArray(ev.renderedOrder)
-    || nonEmptyArray(ev.perFile)
-    || nonEmptyArray(ev.entries)
-    || nonEmptyArray(ev.commitEntries)
   );
   let hasIdentifier = idCandidates.some((v) => nonEmptyString(v) || positiveNumber(v)) || observedNestedId;
 
@@ -266,26 +291,26 @@ export function resultHasEvidenceShape(r, opts = {}) {
     nonEmptyArray(ev.observedRoundTrips) && ev.observedRoundTrips.every((o) => nonEmptyObj(o) && (positiveNumber(o.bodySequence) || nonEmptyString(o.bodyHash) || nonEmptyString(o.headerEcho))),
     nonEmptyArray(ev.observed) && ev.observed.every((o) => nonEmptyObj(o)),
     nonEmptyString(ev.derivedResponseHeader) && nonEmptyString(ev.suppliedInput),
-    // The single JSON log-line STRING is derived only (closure 5 §6).
+    // The single JSON log-line STRING is derived only (the strict-evidence contract).
     nonEmptyString(ev.line) && ev.line.trim().startsWith('{'),
   ];
   let hasDerived = derivedCandidates.some((v) => v === true);
 
   // Additional identifier candidates. Deliberately kept narrow:
-  // acceptedProfile removed (comment says excluded — closure 5 §6);
-  // single-line log string removed (moved to derived only);
-  // schema versions / migration lists / binding names / etc removed.
+  // the strict-evidence contract tightening removes error strings, log objects with a
+  // `message`, `linesExcerpt` arrays, `startsWithClass` prefixes and
+  // a locally invented `callTrackingId` from the identifier set -
+  // an identifier must be a request id, resource id (uuid / message
+  // id / row id / server id / file path of a created artefact) or a
+  // vendor-returned id. What remains is echoed header/input pairs,
+  // real per-emission correlation ids and user-id-on-line strings
+  // that carry a real value the payload supplied.
   const extraId = (
-    (nonEmptyString(ev.errorString) && (Object.hasOwn(ev, 'recipientInError') || Object.hasOwn(ev, 'startsWithClass')))
-    || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.message))
-    || (typeof ev.startsWithClass === 'boolean' && ev.startsWithClass === true && nonEmptyString(ev.errorString))
-    || (nonEmptyArray(ev.linesExcerpt) && ev.linesExcerpt.every((l) => nonEmptyString(l)))
-    || (typeof ev.observed === 'object' && ev.observed && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.supplied)))
+    (typeof ev.observed === 'object' && ev.observed && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.supplied)))
     || (nonEmptyString(ev.variedInput) && ev.observed && nonEmptyString(ev.observed.echoedHeader))
     || nonEmptyString(ev.acShapedExcerpt?.correlationId)
     || nonEmptyString(ev.userIdOnLine)
     || nonEmptyString(ev.correlationIdEchoed)
-    || nonEmptyString(ev.callTrackingId)
     || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => nonEmptyString(o?.correlationId)))
   );
   if (extraId) hasIdentifier = true;

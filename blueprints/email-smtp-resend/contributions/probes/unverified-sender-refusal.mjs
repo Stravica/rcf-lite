@@ -20,10 +20,24 @@ import { createCatchAllSmtp } from '../../../../packages/rcf-lite/test/fixtures/
 import { createSendAdapter, createCatchAllSmtpProvider } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/src/send-adapter.mjs';
 import { envPort } from './probe-utils.mjs';
 
+// the strict-evidence contract tightening: the refusal is driven by a local catch-all
+// SMTP fixture, which is a fixture-as-engine substitute for the
+// Resend provider; the outcome record carries no Resend-returned
+// message id or request id (providerMessageId is required to be
+// null on the refusal). Both rows are de-claimed to conformanceOnly
+// naming AC-4102-1 and AC-4102-2. The Resend API is not driven for
+// this refusal because there is no way to elicit an unverified-sender
+// refusal on Resend without an unverified sender identity available
+// to the harness.
+// The module anchor names the AC this probe observes as a property;
+// individual rows may still de-claim (conformanceOnly) when the
+// evidence shape does not carry an engine-returned identifier.
 export const anchorAcId = 'AC-4102-1';
 export const accountBound = false;
 const AC1 = 'When the provider refuses the submission because the';
 const AC2 = 'On any adapter refusal, the recipient address, subject,';
+const LIM_4102_1 = `AC-4102-1: requires the refusal outcome shape returned by the Resend send interface when the provider refuses the submission. This probe drives a local catch-all SMTP fixture (fixture-as-engine), not the Resend API, and the adapter's error string is derived content rather than a Resend-returned identifier; the identifier half of the strict-evidence contract is not satisfied here.`;
+const LIM_4102_2 = `AC-4102-2: requires the refusal outcome from the same Resend send interface to hold no recipient/subject/body echo across the returned error, adapter log lines, and thrown exception. This probe observes the property against the local catch-all SMTP fixture; the row is de-claimed because the observation is fixture-as-engine and carries no Resend-returned identifier.`;
 
 export default async function runProbe() {
   const srv = createCatchAllSmtp();
@@ -56,23 +70,27 @@ export default async function runProbe() {
     const subjectInThrown = Boolean(thrownMessage && thrownMessage.includes(distinctiveSubject));
     const bodyInThrown = Boolean(thrownMessage && thrownMessage.includes(distinctiveBody));
     const cleanCall = !recipientInError && !subjectInError && !bodyInError && !recipientInLogs && !subjectInLogs && !bodyInLogs && !recipientInThrown && !subjectInThrown && !bodyInThrown;
-    // AC-4102-1 refusal outcome: closure 5 requires the row to
+    // AC-4102-1 refusal outcome: the strict-evidence contract requires the row to
     // assert BOTH a valid providerStatus AND providerMessageId===null
     // alongside the RESEND_SENDER_UNVERIFIED class prefix; the shape
     // is owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send.
     const providerStatusValid = typeof outcome?.providerStatus === 'number' && Number.isInteger(outcome.providerStatus) && outcome.providerStatus > 0;
     const providerMessageIdIsNull = outcome?.providerMessageId === null;
     results.push({
-      anchorAcId: 'AC-4102-1',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_4102_1,
       verdict: outcome?.ok === false && startsWithClass && providerStatusValid && providerMessageIdIsNull && thrownMessage === null ? 'pass' : 'fail',
-      detail: `${AC1} sender is unverified  -  observed adapter.send() outcome ok=${outcome?.ok} providerStatus=${outcome?.providerStatus} providerStatusValid=${providerStatusValid} providerMessageId=${JSON.stringify(outcome?.providerMessageId ?? null)} providerMessageIdIsNull=${providerMessageIdIsNull} error='${errorString}' startsWithClass=${startsWithClass} thrown=${thrownMessage === null ? 'null' : `'${thrownMessage}'`}. Adapter classified the fixture's 550 5.7.1 refusal to RESEND_SENDER_UNVERIFIED per TAC-401.responsibilities[3] and the refusal outcome shape owned on TAC-401.interfaces.send (providerStatus valid positive integer AND providerMessageId===null).`,
-      evidence: { ok: outcome?.ok, providerStatus: outcome?.providerStatus, providerStatusValid, providerMessageIdIsNull, errorString, startsWithClass, thrownMessage, code: outcome?.providerStatus, messageId: outcome?.providerMessageId ?? null, lastLine: emittedLines[emittedLines.length - 1] ?? null },
+      detail: `observed adapter.send() against the local catch-all SMTP fixture: ok=${outcome?.ok} providerStatus=${outcome?.providerStatus} providerStatusValid=${providerStatusValid} providerMessageId=${JSON.stringify(outcome?.providerMessageId ?? null)} providerMessageIdIsNull=${providerMessageIdIsNull} error='${errorString}' startsWithClass=${startsWithClass} thrown=${thrownMessage === null ? 'null' : `'${thrownMessage}'`}. Fixture-as-engine; Resend API not called for this refusal.`,
+      evidence: { ok: outcome?.ok, providerStatus: outcome?.providerStatus, providerStatusValid, providerMessageIdIsNull, errorString, startsWithClass, thrownMessage, code: outcome?.providerStatus, messageId: outcome?.providerMessageId ?? null, lastLine: emittedLines[emittedLines.length - 1] ?? null, bodyExcerpt: `refusal ok=${outcome?.ok} providerStatus=${outcome?.providerStatus} error='${errorString}'` },
     });
     results.push({
-      anchorAcId: 'AC-4102-2',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_4102_2,
       verdict: cleanCall && srv.messages.length === 0 ? 'pass' : 'fail',
-      detail: `${AC2} subject and body do not  -  observed recipient/subject/body in adapter.error=${recipientInError}/${subjectInError}/${bodyInError}; in emitted log lines=${recipientInLogs}/${subjectInLogs}/${bodyInLogs}; in thrown exception=${recipientInThrown}/${subjectInThrown}/${bodyInThrown}; server accepted messages=${srv.messages.length} (must be 0 on unverified-sender refusal).`,
-      evidence: { recipientInError, subjectInError, bodyInError, recipientInLogs, subjectInLogs, bodyInLogs, recipientInThrown, subjectInThrown, bodyInThrown, serverAcceptedMessages: srv.messages.length, errorString, recipientInRefusal: recipientInError, lastLine: emittedLines[emittedLines.length - 1] ?? null, emittedLines },
+      detail: `observed recipient/subject/body in adapter.error=${recipientInError}/${subjectInError}/${bodyInError}; in emitted log lines=${recipientInLogs}/${subjectInLogs}/${bodyInLogs}; in thrown exception=${recipientInThrown}/${subjectInThrown}/${bodyInThrown}; server accepted messages=${srv.messages.length} (must be 0 on unverified-sender refusal). Fixture-as-engine; Resend API not called for this refusal.`,
+      evidence: { recipientInError, subjectInError, bodyInError, recipientInLogs, subjectInLogs, bodyInLogs, recipientInThrown, subjectInThrown, bodyInThrown, serverAcceptedMessages: srv.messages.length, errorString, recipientInRefusal: recipientInError, lastLine: emittedLines[emittedLines.length - 1] ?? null, emittedLines, bodyExcerpt: `cleanCall=${cleanCall} serverAcceptedMessages=${srv.messages.length}` },
     });
   } finally {
     await srv.close();

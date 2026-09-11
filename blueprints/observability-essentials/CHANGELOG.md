@@ -1,8 +1,12 @@
 # Changelog
 
+## 2.1.6 - 2026-09-11
+
+metrics-endpoint (status-page) probe now supplies an x-request-id header on the GET /status call and asserts the fixture echoes it; AC-7104-2 and AC-7104-3 rows record the echoed request id as the identifier alongside the derived rendered-state and rendered-order lists. AC-7104-1 (configured-path clause) is de-claimed to conformanceOnly because the shipped probe-server hard-codes '/status' rather than accepting a paths.status option, so the configuration-provenance property is not observed here.
+
 ## 2.1.5 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): readiness-probe AC-7102-1 anchor now observes the configuration-sourced path clause and the distinct-from-liveness clause. The probe boots the fixture with an explicit non-default readiness path (/readiness-cfg-v2) alongside a distinct liveness path (/live-cfg-v2), asserts the fixture serves the configured readiness path AND that the shipped default /ready returns 404 (default absent) AND that a GET at the configured liveness path returns the liveness body shape (no checks{}). The fixture probe-server accepts { paths: { liveness, readiness } } and refuses boot with PROBE_INTERFACE_PATHS_NOT_DISTINCT when the two are equal.
+readiness-probe AC-7102-1 anchor now observes the configuration-sourced path clause and the distinct-from-liveness clause. The probe boots the fixture with an explicit non-default readiness path (/readiness-cfg-v2) alongside a distinct liveness path (/live-cfg-v2), asserts the fixture serves the configured readiness path AND that the shipped default /ready returns 404 (default absent) AND that a GET at the configured liveness path returns the liveness body shape (no checks{}). The fixture probe-server accepts { paths: { liveness, readiness } } and refuses boot with PROBE_INTERFACE_PATHS_NOT_DISTINCT when the two are equal.
 
 # observability-essentials CHANGELOG
 

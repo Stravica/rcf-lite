@@ -1,8 +1,12 @@
 # Changelog
 
+## 2.3.5 - 2026-09-11
+
+probe-utils.writeReport no longer promotes an all-accountBoundSkipped row set to PASS via a separate override; aggregate() already returns PASS for a pure-skip set on its own and returns WARN when any WARN row is present, so an all-skipped array carrying a WARN row is no longer silently promoted. Anatomy suite tracks the strengthened shared helper.
+
 ## 2.3.4 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): shared anatomy helper tightened; delivery-ci-workflows anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
+shared anatomy helper tightened; delivery-ci-workflows anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
 
 # Changelog: delivery-ci-workflows blueprint
 

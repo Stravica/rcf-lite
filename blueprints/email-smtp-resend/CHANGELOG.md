@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.1.7 - 2026-09-11
+
+unverified-sender-refusal AC-4102-1 and AC-4102-2 rows are de-claimed to conformanceOnly. The refusal is driven by the local catch-all SMTP fixture (fixture-as-engine) and carries no Resend-returned message id, so the identifier half of the strict-evidence contract is not satisfied here. The live real-account-resend-send row (AC-4101-2) is unchanged.
+
 ## 1.1.6 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): unverified-sender-refusal AC-4102-1 verdict now requires the complete refusal outcome shape owned on TAC-401.interfaces.send — providerStatus a valid positive integer AND providerMessageId===null AND thrownMessage===null, alongside the RESEND_SENDER_UNVERIFIED class prefix.
+unverified-sender-refusal AC-4102-1 verdict now requires the complete refusal outcome shape owned on TAC-401.interfaces.send: providerStatus a valid positive integer AND providerMessageId===null AND thrownMessage===null, alongside the RESEND_SENDER_UNVERIFIED class prefix.
 
 # email-smtp-resend CHANGELOG
 

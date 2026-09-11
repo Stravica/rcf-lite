@@ -26,7 +26,7 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
   const raw = await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8');
   const doc = JSON.parse(raw);
   assert.equal(doc.slug, 'observability-logging');
-  assert.equal(doc.version, '1.3.4');
+  assert.equal(doc.version, '1.3.5');
   assert.equal(doc.category, 'observability');
   assert.deepEqual(doc.providesRoles, ['logging']);
   // Hardening pass B4 (2026-09-09): sessionInventory removed per section 7c
@@ -78,7 +78,7 @@ test('observability-logging: apply into a fresh fixture succeeds and writes the 
   const res = await applyBlueprint({ projectRoot: root, tree, source: BLUEPRINT_ROOT });
   assert.equal(res.applied, true, JSON.stringify(res));
   assert.equal(res.slug, 'observability-logging');
-  assert.equal(res.version, '1.3.4');
+  assert.equal(res.version, '1.3.5');
   const adrPath = join(root, 'rcf', 'adrs', 'adr-1601-observability-logging-line-shape.json');
   const st = await stat(adrPath);
   assert.ok(st.isFile(), 'expected ADR-1601 file on disk after apply');

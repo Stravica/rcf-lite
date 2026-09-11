@@ -13,19 +13,26 @@
 // runtime CRUD half only; rows de-claimed with the limitation naming
 // AC-13101-2.
 //
-// AC-13101-4 (missing-binding refusal with d1BindingMissing) IS
-// observable and kept as a real AC anchor.
+// the strict-evidence contract tightening: AC-13101-4 (missing-binding refusal with
+// d1BindingMissing) is observed via the local fixture openFacade
+// throwing on a missing DB binding. The refusal never reaches the D1
+// engine, so no engine-returned request id or resource identifier is
+// available; the row is de-claimed to conformanceOnly naming AC-13101-4.
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createD1Binding } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/d1-binding-mock.mjs';
 import { openFacade } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/src/facade.mjs';
 
+// The module anchor names the AC this probe observes as a property;
+// individual rows may still de-claim (conformanceOnly) when the
+// evidence shape does not carry an engine-returned identifier.
 export const anchorAcId = 'AC-13101-4';
 export const accountBound = false;
 const AC4 = 'Dependency not ready: D1 binding absent from the';
 const LIM_13101_1 = `AC-13101-1: requires exactly one source-tree module to read the D1 binding from the Worker env. A fixture-added 'facadeReady' event count per open is not evidence of the import-graph sole-reader property AC-13101-1 states.`;
 const LIM_13101_2 = `AC-13101-2: requires the facade to expose named domain verbs for every persistence operation AND not to export the raw D1 binding or a general-purpose query method accepting a raw SQL string. Runtime CRUD round-trips through the facade demonstrate the named verbs work; a probe would still need an exhaustive scan of the facade's public surface to prove absence of a general-purpose query method.`;
+const LIM_13101_4 = `AC-13101-4: the missing-binding refusal is thrown by the local fixture's openFacade before any call reaches the D1 engine. No engine-returned request id or resource identifier is available on the refusal path; the credential-leak-absent predicate is observed, but the identifier half of the strict-evidence contract requires an id the engine or its response headers produced.`;
 
 export default async function runProbe() {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-d1-'));
@@ -76,13 +83,13 @@ export default async function runProbe() {
       evidence: { rowIdCreatedThenDeleted: rowId, deleteChanges: del.changes, presentAfterDelete: Boolean(after), bodyExcerpt: `deleteItem changes=${del.changes} presentAfterDelete=${Boolean(after)}` },
     });
     binding.__closeForFixture();
-    // Fake sentinels stashed on the env passed alongside the missing
-    // DB binding. AC-13101-4 requires the refusal to leak neither the
+    // Sentinels stashed on the env passed alongside the missing DB
+    // binding. AC-13101-4 requires the refusal to leak neither the
     // account id nor the API token; we drive a positive predicate by
     // proving neither sentinel appears anywhere in the refusal error's
-    // message, kind, bindingName, stack or JSON serialisation, then
-    // report a callTrackingId as the row identifier.
-    const callTrackingId = 'track-' + Math.random().toString(36).slice(2, 10);
+    // message, kind, bindingName, stack or JSON serialisation. Row
+    // de-claimed to conformanceOnly (the strict-evidence contract): the refusal never
+    // reaches the D1 engine so no engine-returned identifier exists.
     const accountIdSentinel = 'acct-sentinel-' + Math.random().toString(36).slice(2, 12);
     const apiTokenSentinel = 'token-sentinel-' + Math.random().toString(36).slice(2, 12);
     let refusal = null;
@@ -108,12 +115,13 @@ export default async function runProbe() {
     const credentialLeakAbsent = accountIdInRefusal === false && apiTokenInRefusal === false;
     const readyAfterRefusal = events.filter((e) => e.event === 'facadeReady').length;
     results.push({
-      anchorAcId: 'AC-13101-4',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIM_13101_4,
       verdict: refusal?.kind === 'd1BindingMissing' && refusal?.bindingName === 'DB' && readyAfterRefusal === 1 && credentialLeakAbsent ? 'pass' : 'fail',
-      detail: `${AC4} Worker env  -  observed refusal kind='${refusal?.kind}' bindingName='${refusal?.bindingName}' after openFacade with env carrying sentinel account-id and api-token but no DB binding; accountIdInRefusal=${accountIdInRefusal}; apiTokenInRefusal=${apiTokenInRefusal}; credentialLeakAbsent=${credentialLeakAbsent}; facadeReady after refusal=${readyAfterRefusal} (unchanged; no extra event fired). callTrackingId=${callTrackingId}.`,
+      detail: `observed refusal kind='${refusal?.kind}' bindingName='${refusal?.bindingName}' after openFacade with env carrying sentinel account-id and api-token but no DB binding; accountIdInRefusal=${accountIdInRefusal}; apiTokenInRefusal=${apiTokenInRefusal}; credentialLeakAbsent=${credentialLeakAbsent}; facadeReady after refusal=${readyAfterRefusal} (unchanged; no extra event fired). Refusal never reaches the D1 engine; no engine-returned identifier is available.`,
       evidence: {
         ...refusal,
-        callTrackingId,
         refusalMessage: refusal?.message,
         kind: refusal?.kind,
         bindingName: refusal?.bindingName,

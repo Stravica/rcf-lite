@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['workflow-template-shape', 'node-gate-entrypoint', 'real-account-github-actions-run-record'];
 
-test('delivery-ci-workflows: blueprint.json version pinned at 2.3.4 (TC-crit-e-blueprint-json-version)', async () => {
+test('delivery-ci-workflows: blueprint.json version pinned at 2.3.5 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'delivery-ci-workflows');
-  assert.equal(doc.version, '2.3.4');
+  assert.equal(doc.version, '2.3.5');
 });
 
 test('delivery-ci-workflows: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

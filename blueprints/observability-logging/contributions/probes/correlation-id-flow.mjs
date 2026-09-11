@@ -142,10 +142,12 @@ export default async function runProbe() {
     logger.info('bare');
     const bare = JSON.parse(outBuf.join('').split('\n').filter(Boolean)[0]);
     results.push({
-      anchorAcId: 'AC-15102-3',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-15102-3: the bare emission with no ambient correlation context is a single emitted log line whose only recorded value is the null correlationId itself. The row observes the property but carries no request or resource identifier the engine returned; identifier-plus-derived evidence is not available here (the strict-evidence contract tightening).`,
       verdict: bare.correlationId === null ? 'pass' : 'fail',
-      detail: `${AC3}  -  observed bare emission (no runWithCorrelation) carries correlationId=${JSON.stringify(bare.correlationId)} (expected null per AC-15102-3)`,
-      evidence: { line: bare },
+      detail: `${AC3}  -  observed bare emission (no runWithCorrelation) carries correlationId=${JSON.stringify(bare.correlationId)} (expected null per AC-15102-3); de-claimed to conformanceOnly per the strict-evidence contract because no engine-returned identifier is available for a bare emission.`,
+      evidence: { bareLineCorrelationId: bare.correlationId, bodyExcerpt: JSON.stringify(bare).slice(0, 200) },
     });
   } finally {
     await http.close();

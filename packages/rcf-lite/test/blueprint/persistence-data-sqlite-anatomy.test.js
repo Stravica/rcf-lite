@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['boot-open-migrate', 'facade-round-trip', 'wal-checkpoint'];
 
-test('persistence-data-sqlite: blueprint.json version pinned at 1.1.4 (TC-crit-e-blueprint-json-version)', async () => {
+test('persistence-data-sqlite: blueprint.json version pinned at 1.1.5 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-sqlite');
-  assert.equal(doc.version, '1.1.4');
+  assert.equal(doc.version, '1.1.5');
 });
 
 test('persistence-data-sqlite: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

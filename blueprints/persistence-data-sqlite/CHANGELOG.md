@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.1.5 - 2026-09-11
+
+Strengthens the shared probe anatomy helper the seven core-shelf blueprints all lean on: rows whose only signal is a parsed log object with a message, a linesExcerpt array, a parsed component list, a rendered-state or -order list, a perFile / entries / commitEntries list, or a locally invented callTrackingId are refused as identifier evidence; retained anchor ids are checked against the applicable blueprint's shipped AC set; the WARN row shortcut that accepted a bare unobservableReason is removed and every WARN must now satisfy exact-skip, notObservableHere (browser-only) or identifier-plus-derived. No SQLite probe change was needed; SQLite remains GREEN.
+
 ## 1.1.4 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): wal-checkpoint AC-5105-3 anchor now observes the complete durability posture (PRAGMA journal_mode=wal + PRAGMA synchronous>=NORMAL + consumer-source grep) with a real integer rowId from a seed put through the facade; boot-open-migrate AC-5101-3 also carries a real rowId. Fixture store.mjs sets PRAGMA synchronous=NORMAL at open time and exposes synchronousNow(). Shared anatomy helper tightened per closure 5 §6 (strict identifier set, existence check for shipped-AC limitation and notObservableHere.ac, exact-variable skip reason wire-up in all seven anatomy tests, notObservableHere is now refused for non-browser-only ACs, acceptedProfile removed from identifier lists, single JSON log-line string is derived only).
+wal-checkpoint AC-5105-3 anchor now observes the complete durability posture (PRAGMA journal_mode=wal + PRAGMA synchronous>=NORMAL + consumer-source grep) with a real integer rowId from a seed put through the facade; boot-open-migrate AC-5101-3 also carries a real rowId. Fixture store.mjs sets PRAGMA synchronous=NORMAL at open time and exposes synchronousNow(). Shared anatomy helper tightened per the strict-evidence contract (strict identifier set, existence check for shipped-AC limitation and notObservableHere.ac, exact-variable skip reason wire-up in all seven anatomy tests, notObservableHere is now refused for non-browser-only ACs, acceptedProfile removed from identifier lists, single JSON log-line string is derived only).
 
 ## 1.1.3 - 2026-09-11
 

@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.2.5 - 2026-09-11
+
+Anatomy suite tracks the strengthened shared helper (WARN-only shortcut removed, log objects and content lists no longer identifiers, retained anchor existence check). No probe changes required.
+
 ## 1.2.4 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): shared anatomy helper tightened; probe-endpoints anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
+shared anatomy helper tightened; probe-endpoints anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
 
 # observability-probe-endpoints CHANGELOG
 

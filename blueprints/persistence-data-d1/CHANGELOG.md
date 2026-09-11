@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.1.6 - 2026-09-11
+
+facade-round-trip AC-13101-4 (missing-binding refusal) row is de-claimed to conformanceOnly (anchorAcId=null on the row; the module anchor is unchanged). The refusal is thrown by the local fixture's openFacade before any call reaches the D1 engine, so no engine-returned request id or resource identifier is available; the credential-leak-absent predicate is retained on the row. The earlier CHANGELOG description of a locally minted callTrackingId as a resource identifier is corrected: the field is dropped from the probe's evidence and the language does not appear here.
+
 ## 1.1.5 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): AC-13101-4 anchor now positively asserts no-credential-leak — a sentinel account id and API token are stashed on the env passed to openFacade alongside the missing DB binding, and the row verdict requires neither sentinel appears in the refusal error message, kind, bindingName, stack or JSON serialisation (credentialLeakAbsent=true); the row carries a callTrackingId as its resource identifier. CHANGELOG history restored (the 1.1.0/1.1.1/1.1.2 entries were unintentionally overwritten in the previous pass) and the 1.1.5 mixed-pass-5 entry is prepended.
+AC-13101-4 anchor now positively asserts no-credential-leak: a sentinel account id and API token are stashed on the env passed to openFacade alongside the missing DB binding, and the row verdict requires neither sentinel appears in the refusal error message, kind, bindingName, stack or JSON serialisation (credentialLeakAbsent=true); the row records a locally minted row correlation string on the row (no engine identifier is available on the refusal path). CHANGELOG history restored (the 1.1.0/1.1.1/1.1.2 entries were unintentionally overwritten in the previous pass) and the 1.1.5 mixed-pass-5 entry is prepended.
 
 ## 1.1.4 - 2026-09-11
 

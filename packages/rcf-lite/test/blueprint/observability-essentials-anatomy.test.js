@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['liveness-probe', 'readiness-probe', 'metrics-endpoint'];
 
-test('observability-essentials: blueprint.json version pinned at 2.1.5 (TC-crit-e-blueprint-json-version)', async () => {
+test('observability-essentials: blueprint.json version pinned at 2.1.6 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'observability-essentials');
-  assert.equal(doc.version, '2.1.5');
+  assert.equal(doc.version, '2.1.6');
 });
 
 test('observability-essentials: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

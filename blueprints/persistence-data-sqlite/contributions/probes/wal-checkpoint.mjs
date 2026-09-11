@@ -57,7 +57,7 @@ async function listMjs(dir) {
 
 // Consumer grep: every probe file + every fixture src file except the
 // facade store.mjs. A hit is a direct PRAGMA journal_mode / synchronous
-// statement outside the facade — which AC-5105-3 forbids.
+// statement outside the facade - which AC-5105-3 forbids.
 async function greppConsumerFilesForPragmaLeaks() {
   const probeFiles = (await listMjs(PROBES_DIR)).filter((p) => !p.endsWith('probe-utils.mjs'));
   const fixtureFilesAll = await listMjs(FIXTURE_SRC_DIR);

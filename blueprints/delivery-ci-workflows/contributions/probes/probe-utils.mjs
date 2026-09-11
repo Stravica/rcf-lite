@@ -25,7 +25,13 @@ export async function writeReport({ probeName, engine, results, extra }) {
   const normalised = (Array.isArray(results) && results.length > 0)
     ? results
     : [{ anchorAcId: null, harnessError: true, verdict: 'fail', detail: 'no checks ran', evidence: { reason: 'no checks ran', probeName, runAt: new Date().toISOString(), engine } }];
-  const raw = aggregate(normalised); const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
+  // the strict-evidence contract tightening: an all-skipped row set aggregates as
+  // whatever aggregate() returns (skip is neither fail nor warn, so
+  // aggregate() returns 'pass' for the pure-skip case on its own).
+  // The previous isSkipped ? 'pass' : raw override could promote an
+  // all-skipped WARN row set to PASS; it is removed. WARN rows always
+  // survive; all-skipped rows still pass via aggregate() directly.
+  const aggregateVerdict = aggregate(normalised);
   const report = { slug: 'delivery-ci-workflows', probeName, runAt: new Date().toISOString(), engine, results: normalised, aggregateVerdict, ...(extra ?? {}) };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');

@@ -22,7 +22,14 @@
 // bare `note` field does not exercise the "valid-but-unconfigured
 // kebab/dotted grammar" the AC names. Row de-claimed with the
 // limitation naming AC-15103-3.
-import { createLogger } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-logging/src/logger-factory.mjs';
+//
+// Every emission the probe records is wrapped in
+// runWithCorrelation(randomUUID(), ...) so the emitted log line
+// carries a real per-emission correlation id; each redaction-boundary
+// row records the correlation id as its identifier alongside the
+// derived redacted value.
+import { randomUUID } from 'node:crypto';
+import { createLogger, runWithCorrelation } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-logging/src/logger-factory.mjs';
 
 export const anchorAcId = 'AC-15103-1';
 export const accountBound = false;
@@ -39,7 +46,8 @@ export default async function runProbe() {
   const log = createLogger({ environment: 'qa', serviceName: 'probe-svc', serviceVersion: '0.0.1', outSink: (s) => outBuf.push(s), errSink: () => {} });
   const payload = { credential: 'SAMPLE_CRED_VALUE', token: 'SAMPLE_TOKEN_VALUE', bearer: 'SAMPLE_BEARER_VALUE', pii: { email: 'sample@example.com', name: 'Sample Person', address: '1 Sample St' }, note: 'this stays' };
   const beforePayload = deepClone(payload);
-  log.info('with-pii', payload);
+  const withPiiCorrelationId = randomUUID();
+  await runWithCorrelation(withPiiCorrelationId, async () => { log.info('with-pii', payload); });
   const payloadUnmutated = sameShape(payload, beforePayload);
   const line1 = JSON.parse(outBuf.join('').split('\n').filter(Boolean)[0]);
 
@@ -47,7 +55,8 @@ export default async function runProbe() {
   outBuf.length = 0;
   const acShapedPayload = { user: { id: 'u-1', pii: { email: 'a@b' } } };
   const acShapedBefore = deepClone(acShapedPayload);
-  log.info('ac-15103-4-shape', acShapedPayload);
+  const acShapedCorrelationId = randomUUID();
+  await runWithCorrelation(acShapedCorrelationId, async () => { log.info('ac-15103-4-shape', acShapedPayload); });
   const acShapedUnmutated = sameShape(acShapedPayload, acShapedBefore);
   const acShapedLine = JSON.parse(outBuf.join('').split('\n').filter(Boolean)[0]);
 

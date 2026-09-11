@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.3.5 - 2026-09-11
+
+redaction-boundary probe now wraps each emission in runWithCorrelation(randomUUID(), ...) so every AC-15103-1 row and the AC-15103-4-shaped row carry a real per-emission correlation id as the identifier alongside the derived redacted value; the run-notes claim about redaction-boundary correlation ids is now true to the recorded rows. correlation-id-flow AC-15102-3 row (bare emission with correlationId=null by design) is de-claimed to conformanceOnly, since a bare emission carries no engine-returned identifier.
+
 ## 1.3.4 - 2026-09-11
 
-Mixed pass 5 (closure 5 disposition): line-shape-and-fields probe now wraps every emission (per-level, BigInt, reserved-key-collision) in runWithCorrelation(randomUUID(), ...) so each emitted log line carries a real correlation id; the AC-15101-1/-3/-4 rows record the parsed line object plus a correlationIdEchoed identifier and a bodyExcerpt derived value.
+line-shape-and-fields probe now wraps every emission (per-level, BigInt, reserved-key-collision) in runWithCorrelation(randomUUID(), ...) so each emitted log line carries a real correlation id; the AC-15101-1/-3/-4 rows record the parsed line object plus a correlationIdEchoed identifier and a bodyExcerpt derived value.
 
 # observability-logging CHANGELOG
 
