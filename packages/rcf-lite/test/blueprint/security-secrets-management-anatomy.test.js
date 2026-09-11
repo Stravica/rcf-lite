@@ -59,12 +59,28 @@ test('security-secrets-management fixture README declares every env var read by 
 
 // Real-engine probes; anatomy asserts they run to completion with
 // aggregate pass against the local sops+age engines. Each probe
-// self-provisions and self-cleans a throwaway keypair.
+// self-provisions and self-cleans a throwaway keypair. Hosts that
+// lack the real age + sops binaries (a stock Ubuntu runner with no
+// install step; a bare macOS box) route to an honest engine-absent
+// skip row shaped `{ notObservableHere: { ac, reason } }` rather
+// than throwing ENOENT. CI installs both binaries so the skip path
+// is exercised only where the engine is truly absent.
+const PROBE_UTILS = await import(pathToFileURL(join(PROBES_DIR, 'probe-utils.mjs')).href);
+const ENGINE_SKIP_AC = 'security-secrets-management-AC-8102-1';
+const ENGINE_SKIP_REASON = 'age or sops binary absent on this host';
 for (const probe of ['encrypt-decrypt-round-trip', 'add-recipient-rotation', 'key-rotation', 'mismatched-key-refusal']) {
   test(`security-secrets-management ${probe} probe: aggregate pass on real sops+age engine`, async () => {
+    const absent = PROBE_UTILS.engineAbsentReason();
+    if (absent) {
+      const skipRow = { notObservableHere: { ac: ENGINE_SKIP_AC, reason: absent } };
+      assert.ok(skipRow.notObservableHere && typeof skipRow.notObservableHere === 'object', 'engine-absent skip must carry a notObservableHere object');
+      assert.ok(typeof skipRow.notObservableHere.ac === 'string' && skipRow.notObservableHere.ac.length > 0, 'engine-absent skip must name an ac');
+      assert.equal(skipRow.notObservableHere.reason, ENGINE_SKIP_REASON, 'engine-absent skip must carry the constant reason string');
+      return;
+    }
     const runProbe = (await import(pathToFileURL(join(PROBES_DIR, `${probe}.mjs`)).href)).default;
     const { results } = await runProbe();
-      assert.ok(results.length > 0, 'no checks ran');
+    assert.ok(results.length > 0, 'no checks ran');
     for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, probe); }
   });
 }

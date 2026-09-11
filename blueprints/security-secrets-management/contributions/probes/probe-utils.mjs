@@ -144,6 +144,31 @@ export async function runShim(probeName, engine, mainFn) {
 // Returns { dir, keyPath, recipient } and a cleanup function.
 import { execFileSync } from 'node:child_process';
 
+// Engine-absent detection. The security-secrets-management probes
+// drive real age + sops binaries in-process; when either binary is
+// missing on the host (a stock Ubuntu runner without the install
+// step; a bare macOS box) the honest posture is a skip that names
+// the missing engine, not an ENOENT throw from execFileSync. The
+// anatomy test consumes this reason and records a skip row shaped
+// `{ notObservableHere: { ac, reason } }` rather than failing.
+const ENGINE_ABSENT_REASON = 'age or sops binary absent on this host';
+const REQUIRED_ENGINE_BINARIES = Object.freeze(['age-keygen', 'sops']);
+export function engineAbsentReason() {
+  for (const bin of REQUIRED_ENGINE_BINARIES) {
+    try { execFileSync(bin, ['--version'], { stdio: 'ignore' }); }
+    catch { return ENGINE_ABSENT_REASON; }
+  }
+  return null;
+}
+export class EngineAbsentError extends Error {
+  constructor() {
+    super(ENGINE_ABSENT_REASON);
+    this.name = 'EngineAbsentError';
+    this.engineAbsent = true;
+    this.reason = ENGINE_ABSENT_REASON;
+  }
+}
+
 // De-claim helper. When the shipped AC does not observe what the probe observes, the row keeps its
 // verdict, evidence and engine as they are, but the anchor drops to null and the
 // row carries conformanceOnly:true plus a limitation string naming the AC that
@@ -166,6 +191,11 @@ export function deClaim(row, { ac, limitation }) {
 }
 
 export async function createScratchAgeScope({ prefix = 'pxe-secrets-' } = {}) {
+  // Engine-absent probes must never reach execFileSync('age-keygen')
+  // and dump an ENOENT stack; the anatomy test's honest posture is a
+  // typed EngineAbsentError the caller can route to a skip row.
+  const absent = engineAbsentReason();
+  if (absent) throw new EngineAbsentError();
   const base = process.env.RCF_SECRETS_SCRATCH_DIR || tmpdir();
   await mkdir(base, { recursive: true });
   const dir = await mkdtemp(join(base, prefix));
