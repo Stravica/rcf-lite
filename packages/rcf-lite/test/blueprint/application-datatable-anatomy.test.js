@@ -113,7 +113,7 @@ test('application-datatable sample-app fixture: startServer returns rows on /api
 });
 
 // ---------------------------------------------------------------
-// the pack probe pack pinning (2026-09-11)
+// Probe-pack pinning for the criterion e pack (2026-09-11): the probes directory, its run wrappers and the evidence rows.
 // The pack lives at blueprints/application-datatable/contributions/probes/ and
 // exercises the local fixture at packages/rcf-lite/test/fixtures/
 // probe-pack-application-datatable/. Each probe records the fixture-echoed

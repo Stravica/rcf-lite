@@ -3,7 +3,7 @@
 ## 2.1.10 - 2026-09-11
 
 - Adds a contributions/probes pack meeting rule 7d: each probe drives a real HTTP round trip against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/ and records the fixture-echoed x-fixture-request-id, response status, a distinctive body excerpt, the varied input and the derived output on every result row.
-- Probes: cursor-pagination-round-trip, problem-details-on-error, health-probes-distinct, record-shape-adr-1701, request-id-echoed.
+- Probes: cursor-pagination-round-trip, problem-details-on-error, health-probes-distinct, request-id-echoed.
 - Cursor probe varies limits and derives forward/backward traversal from server-side cursor state (opaque UUID keys over a CURSOR_MAP, not positional JSON); malformed cursor and over-limit rows produce 400 with problem-details bodies anchored on AC-2109-3 and AC-2109-5.
 - Liveness returns 200 with zero dependency checks and readiness reports checked dependencies (matches AC-2108-1).
 - Detail texts open with the first eight words of the AC or REQ text they observe, then " - " and the derived observation.

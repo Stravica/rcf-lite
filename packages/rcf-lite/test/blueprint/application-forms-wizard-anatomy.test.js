@@ -242,7 +242,7 @@ test('application-forms-wizard: no em-dashes in shipped prose', async () => {
 });
 
 // ---------------------------------------------------------------
-// the pack probe pack pinning (2026-09-11)
+// Probe-pack pinning for the criterion e pack (2026-09-11): the probes directory, its run wrappers and the evidence rows.
 // The pack lives at blueprints/application-forms-wizard/contributions/probes/ and
 // exercises the local fixture at packages/rcf-lite/test/fixtures/
 // probe-pack-application-forms-wizard/. Each probe records the fixture-echoed
