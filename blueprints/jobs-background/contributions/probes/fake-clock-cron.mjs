@@ -66,6 +66,12 @@ export default async function runProbe() {
 
   const results = [];
 
+  // Engine-minted jobId (from the jobStarted or jobScheduled event)
+  // is carried on every row so anatomy strict validation sees a real
+  // id witness alongside the derived counters.
+  const engineJobId = (jobStarted && typeof jobStarted.jobId === 'string' && jobStarted.jobId)
+    || (jobScheduled && typeof jobScheduled.jobId === 'string' && jobScheduled.jobId)
+    || null;
   const firesPass = fires === 1;
   results.push({
     anchorAcId: 'AC-jobs-scheduledRunsOnCron',
@@ -73,7 +79,7 @@ export default async function runProbe() {
     detail: firesPass
       ? `${AC_FIRST8} - scheduler.tick() published exactly 1 fire after clock.advance(60000)`
       : `${AC_FIRST8} - expected fires=1, got fires=${fires}`,
-    evidence: { fires, cron: '* * * * *', fireEventCount: fires, firePresent: fires === 1 },
+    evidence: { jobId: engineJobId, fires, cron: '* * * * *', fireEventCount: fires, firePresent: fires === 1 },
   });
 
   const startedOk = jobStarted && jobStarted.attempts === 1;
@@ -83,7 +89,7 @@ export default async function runProbe() {
     detail: startedOk
       ? `${AC_FIRST8} - jobStarted fired for refresh-cache with attempts=${jobStarted.attempts}`
       : `${AC_FIRST8} - jobStarted missing or attempts wrong: ${JSON.stringify(jobStarted)}`,
-    evidence: { jobStartedEvent: jobStarted || null, jobStartedTimestamp: jobStarted ? jobStarted.timestamp : null, jobStartedAttempts: jobStarted ? jobStarted.attempts : null },
+    evidence: { jobId: engineJobId, jobStartedEvent: jobStarted || null, jobStartedTimestamp: jobStarted ? jobStarted.timestamp : null, jobStartedAttempts: jobStarted ? jobStarted.attempts : null },
   });
 
   const completedOk = jobCompleted != null;
@@ -94,7 +100,7 @@ export default async function runProbe() {
     detail: completedOk && durationOk
       ? `${AC_FIRST8} - jobCompleted fired for refresh-cache with duration=${jobCompleted.duration}ms within timeoutMs=${registry.get('refresh-cache').timeoutMs}`
       : `${AC_FIRST8} - completedOk=${completedOk} durationOk=${durationOk}; jobCompleted=${JSON.stringify(jobCompleted)}`,
-    evidence: { jobCompletedEvent: jobCompleted || null, timeoutMs: registry.get('refresh-cache').timeoutMs, jobCompletedDurationMs: jobCompleted ? jobCompleted.duration : null, jobCompletedTimestamp: jobCompleted ? jobCompleted.timestamp : null },
+    evidence: { jobId: engineJobId, jobCompletedEvent: jobCompleted || null, timeoutMs: registry.get('refresh-cache').timeoutMs, jobCompletedDurationMs: jobCompleted ? jobCompleted.duration : null, jobCompletedTimestamp: jobCompleted ? jobCompleted.timestamp : null },
   });
 
   // The fake-clock setup means "scheduledAt" is not a real wall-clock

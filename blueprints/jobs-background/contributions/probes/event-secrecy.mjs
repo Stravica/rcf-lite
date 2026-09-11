@@ -59,6 +59,10 @@ export default async function runProbe() {
   }
   const results = [];
   const pass = leaks.length === 0 && wrongKeys.size === 0 && events.some((e) => e.event === 'jobCompleted');
+  const engineJobId = (() => {
+    for (const e of events) if (typeof e.jobId === 'string' && e.jobId) return e.jobId;
+    return null;
+  })();
   results.push({
     anchorAcId: 'AC-jobs-eventSecrecy',
     verdict: pass ? 'pass' : 'fail',
@@ -66,6 +70,7 @@ export default async function runProbe() {
       ? `${AC_FIRST8} - no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
       : `${AC_FIRST8} - leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
     evidence: {
+      jobId: engineJobId,
       piiLiteralsChecked: PII_LITERALS,
       leakedLiterals: leaks,
       whitelist: [...EVENT_WHITELIST],

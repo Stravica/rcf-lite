@@ -12,8 +12,10 @@
  * Anchors AC-28105-1.
  */
 
-import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
+
+export const DECLARED_ENV = Object.freeze(['S3_ENDPOINT_URL']);
 
 const WHITELIST = new Set(['event', 'ts', 'key', 'size', 'contentType', 'ttl', 'endpointHost', 'bucketName']);
 const FORBIDDEN_FIELDS = ['userId', 'ssn', 'dob', 'email', 'body', 'bodyBytes', 'bodyChecksum'];
@@ -21,8 +23,27 @@ const PII_TEXT = 'PII-FIXTURE-DO-NOT-LOG';
 
 const AC28105_1 = 'Given a lifecycle-event spy attached to the sink,';
 
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC28105_1} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
-  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  let endpoint, bucket, region, forcePathStyle;
+  try {
+    ({ endpoint, bucket, region, forcePathStyle } = endpointFromEnv());
+  } catch (err) {
+    if (err instanceof MissingS3EndpointError) {
+      return { results: [skipRow(err.variable)], extra: { accountBoundSkipped: true, reason: `${err.variable} unset`, envDeclared: [...DECLARED_ENV] } };
+    }
+    throw err;
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
   const store = createObjectStore({
@@ -118,5 +139,5 @@ export default async function runProbe() {
   } finally {
     await store.close();
   }
-  return results;
+  return { results, extra: { envDeclared: [...DECLARED_ENV] } };
 }

@@ -23,12 +23,35 @@
  * AC-28104-2).
  */
 
-import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 import { probeKey } from './probe-utils.mjs';
 
+export const DECLARED_ENV = Object.freeze(['S3_ENDPOINT_URL']);
+
+const AC28104_FIRST8 = 'Given the elicited multipart threshold at 8 MiB';
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC28104_FIRST8} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
-  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  let endpoint, bucket, region, forcePathStyle;
+  try {
+    ({ endpoint, bucket, region, forcePathStyle } = endpointFromEnv());
+  } catch (err) {
+    if (err instanceof MissingS3EndpointError) {
+      return { results: [skipRow(err.variable)], extra: { accountBoundSkipped: true, reason: `${err.variable} unset`, envDeclared: [...DECLARED_ENV] } };
+    }
+    throw err;
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
   const store = createObjectStore({

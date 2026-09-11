@@ -56,6 +56,7 @@ export default async function runProbe() {
   const oneJobId = jobIds.size === 1;
   const failedOk = !!jobFailed && typeof jobFailed.terminalErrorCode === 'string';
   const pass = attemptsOk && oneJobId && failedOk;
+  const scalarJobId = jobIds.size > 0 ? [...jobIds][0] : null;
   results.push({
     anchorAcId: 'AC-jobs-retryOnHandlerFailure',
     verdict: pass ? 'pass' : 'fail',
@@ -63,8 +64,9 @@ export default async function runProbe() {
       ? `${AC_FIRST8} - three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
       : `${AC_FIRST8} - attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
     evidence: {
+      jobId: scalarJobId,
       attemptsSequence: attemptsSeq,
-      jobIds: [...jobIds],
+      distinctJobIdList: [...jobIds],
       jobStartedCount: jobStartedEvents.length,
       terminalJobFailed: jobFailed || null,
       dlqInvoked,

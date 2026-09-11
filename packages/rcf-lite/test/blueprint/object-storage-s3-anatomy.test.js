@@ -229,10 +229,13 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     for (const ac of doc.acceptanceCriteria || []) SHIPPED_AC_IDS.add(ac.id);
   }
   function extractAcIdsRaw(text) {
-    // Every AC id substring, unfiltered - membership against the
-    // shipped user-story set is checked per id at the call site so
-    // an invented id alongside a real one cannot pass.
-    return [...String(text).matchAll(/AC-(?:\d+-\d+|jobs-[a-z][a-zA-Z0-9]*)/g)].map((m) => m[0]);
+    // Every AC-token substring, unfiltered. The regex is a broad
+    // `AC-[A-Za-z0-9-]+` sweep so an invented token like AC-invented
+    // is extracted and then rejected at the call site against the
+    // shipped set. A narrower AC-\d+-\d+ / AC-jobs-* pattern silently
+    // dropped invented tokens and let a real id plus an invented one
+    // pass, which the closure flagged.
+    return [...String(text).matchAll(/AC-[A-Za-z0-9-]+/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
   // Strict identifier predicate (round-6 closure): id witness MUST be
@@ -267,12 +270,12 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
+    // Round-7 ruling: a counting row's identifier is a NON-EMPTY
+    // STRING under an engine-minted id key. Booleans, numbers and
+    // objects (arrays included) never qualify.
     if (!STRICT_ID_KEYS.has(k)) return false;
-    if (v == null) return false;
-    if (typeof v === 'string' && v.length === 0) return false;
-    if (Array.isArray(v) && v.length === 0) return false;
-    if (typeof v === 'number' && !Number.isFinite(v)) return false;
-    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+    if (typeof v !== 'string') return false;
+    if (v.length === 0) return false;
     return true;
   }
   function isDerivedWitness(k, v) {
@@ -291,17 +294,16 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     return new Set([...m[1].matchAll(/'([A-Z][A-Z0-9_]+)'/g)].map((x) => x[1]));
   }
   const probeNamesLocal = ["facade-round-trip","put-get-round-trip","presigned-url","multipart-upload","event-secrecy","r2-real-account-smoke","hetzner-object-storage-round-trip"];
-  // Engine-absent detection: S3_ENDPOINT_URL is a required declared variable; when unset the local MinIO container is not reachable and the anatomy asserts the exact-one-variable skip shape.
-  const engineGateSet = typeof process.env.S3_ENDPOINT_URL === 'string' && process.env.S3_ENDPOINT_URL.length > 0;
+  // Round-7 ruling: the probe owns its skip. The anatomy ALWAYS
+  // invokes every probe and validates whatever comes back. A CI
+  // environment with S3_ENDPOINT_URL unset lands the five local
+  // probes on the exact-one-variable accountBoundSkipped row emitted
+  // by the fixture helper's MissingS3EndpointError; the two
+  // account-bound probes (R2, Hetzner) return their own
+  // exact-one-variable skips against CI_HAS_CLOUDFLARE_ACCOUNT and
+  // CI_HAS_HETZNER_OBJECT_STORAGE respectively. Locally with MinIO
+  // and real accounts up the probes run live.
   for (const name of probeNamesLocal) {
-    if (!engineGateSet) {
-      const skipRow = { accountBoundSkipped: true, reason: 'S3_ENDPOINT_URL unset', anchorAcId: null };
-      assert.equal(skipRow.accountBoundSkipped, true);
-      assert.match(skipRow.reason, / unset$/);
-      const varName = skipRow.reason.replace(/ unset$| \(not "true"\)$/, '').trim();
-      assert.match(varName, /^[A-Z][A-Z0-9_]+$/);
-      continue;
-    }
     const runProbe = (await import(pathToFileURL(join(PROBES_DIR, name + '.mjs')).href)).default;
     const declaredEnv = await loadDeclaredEnv(name);
     let probeReturn;
@@ -310,8 +312,10 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     } catch (err) {
       assert.fail(name + ': probe threw ' + (err && err.code ? err.code : err && err.message ? err.message : String(err)));
     }
-    assert.ok(probeReturn && Array.isArray(probeReturn.results) && probeReturn.results.length > 0,
+    const rows = Array.isArray(probeReturn) ? probeReturn : (probeReturn && Array.isArray(probeReturn.results) ? probeReturn.results : null);
+    assert.ok(rows && rows.length > 0,
       name + ': runProbe must return a non-empty results array');
+    probeReturn = { results: rows };
     for (const row of probeReturn.results) {
       assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
         'row in ' + name + ' must have verdict in {pass, warn, fail}, saw ' + row.verdict);

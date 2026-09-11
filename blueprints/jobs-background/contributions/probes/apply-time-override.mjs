@@ -84,8 +84,15 @@ export default async function runProbe() {
       notesNotSecretsFamily: !notes.includes('no secrets-management yet'),
     };
     const pass = Object.values(checks).every(Boolean);
+    // The apply-time-override property is observed by CLI exit code
+    // and sidecar-notes grep; no engine-minted id is produced on this
+    // row (a sidecar-notes assertion, not a runtime job/message id).
+    // Row is conformanceOnly against AC-jobs-overrideRecorded with
+    // the no-engine-id clause named on the limitation.
     results.push({
-      anchorAcId: 'AC-jobs-overrideRecorded',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-jobs-overrideRecorded: with the override flag the apply verb exits 0 and the sidecar carries 'no queue yet' and '--allow-no-queue-yet' on notes; observed here through CLI exit code and sidecar grep. Not observed on this row: an engine-minted id (the sidecar-notes assertion is compose-time, not runtime).`,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
         ? `${AC_FIRST8} - exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`

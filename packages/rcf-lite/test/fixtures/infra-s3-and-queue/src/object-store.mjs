@@ -42,12 +42,32 @@ const DEFAULT_PRESIGN_TTL = 15 * 60; // 15 minutes per ADR-2902
 const PRESIGN_TTL_FLOOR = 60; // 1 minute per ADR-2902
 
 /**
- * Read the endpoint URL and bucket from environment defaults. MinIO on
- * localhost:9000 by default; overridden via env for CI runners and R2.
+ * Named error kind emitted when S3_ENDPOINT_URL is not set. Probes
+ * catch this and convert it to the exact-one-variable
+ * accountBoundSkipped row the anatomy asserts on; no literal endpoint
+ * host default lives in shipped fixture code (Dave ruling 2026-09-11).
+ */
+export class MissingS3EndpointError extends Error {
+  constructor() {
+    super('S3_ENDPOINT_URL is not set; set S3_ENDPOINT_URL to a reachable S3-compatible endpoint before invoking endpointFromEnv');
+    this.name = 'MissingS3EndpointError';
+    this.kind = 'missingS3Endpoint';
+    this.variable = 'S3_ENDPOINT_URL';
+  }
+}
+
+/**
+ * Read the endpoint URL and bucket from environment defaults. S3_ENDPOINT_URL
+ * is a required declared variable with no literal default; when it is
+ * unset the helper throws MissingS3EndpointError so consumers can emit
+ * the exact-one-variable accountBoundSkipped row rather than a generic
+ * driver failure.
  */
 export function endpointFromEnv() {
+  const endpoint = process.env.S3_ENDPOINT_URL;
+  if (!endpoint) throw new MissingS3EndpointError();
   return {
-    endpoint: process.env.S3_ENDPOINT_URL || 'http://localhost:9000',
+    endpoint,
     bucket: process.env.S3_BUCKET || 'rcf-test',
     region: process.env.S3_REGION || 'auto',
     forcePathStyle: (process.env.S3_FORCE_PATH_STYLE || 'true') === 'true',

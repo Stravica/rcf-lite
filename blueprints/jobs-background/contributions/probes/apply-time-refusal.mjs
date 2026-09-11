@@ -66,8 +66,15 @@ export default async function runProbe() {
     const overrideMatch = apply.stderr.includes('--allow-no-queue-yet');
     const codeMatch = apply.code === 3;
     const pass = codeMatch && tagMatch && providerMatch && overrideMatch;
+    // The compose-time refusal is observed by CLI exit code and
+    // stderr grep; no engine-minted id is produced on this row (the
+    // apply pipeline refuses before minting any job/message id).
+    // Row is conformanceOnly against AC-jobs-requiresQueue with the
+    // no-engine-id clause named on the limitation.
     results.push({
-      anchorAcId: 'AC-jobs-requiresQueue',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-jobs-requiresQueue: on a bare project the apply verb refuses with exit 3 and stderr carrying [jobs-background-no-queue]; observed here through CLI exit code and stderr grep. Not observed on this row: an engine-minted id (the refusal happens before any job or message id is minted).`,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
         ? `${AC_FIRST8} - exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`

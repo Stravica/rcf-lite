@@ -213,10 +213,13 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     for (const ac of doc.acceptanceCriteria || []) SHIPPED_AC_IDS.add(ac.id);
   }
   function extractAcIdsRaw(text) {
-    // Every AC id substring, unfiltered - membership against the
-    // shipped user-story set is checked per id at the call site so
-    // an invented id alongside a real one cannot pass.
-    return [...String(text).matchAll(/AC-(?:\d+-\d+|jobs-[a-z][a-zA-Z0-9]*)/g)].map((m) => m[0]);
+    // Every AC-token substring, unfiltered. The regex is a broad
+    // `AC-[A-Za-z0-9-]+` sweep so an invented token like AC-invented
+    // is extracted and then rejected at the call site against the
+    // shipped set. A narrower AC-\d+-\d+ / AC-jobs-* pattern silently
+    // dropped invented tokens and let a real id plus an invented one
+    // pass, which the closure flagged.
+    return [...String(text).matchAll(/AC-[A-Za-z0-9-]+/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
   // Strict identifier predicate (round-6 closure): id witness MUST be
@@ -251,12 +254,12 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
+    // Round-7 ruling: a counting row's identifier is a NON-EMPTY
+    // STRING under an engine-minted id key. Booleans, numbers and
+    // objects (arrays included) never qualify.
     if (!STRICT_ID_KEYS.has(k)) return false;
-    if (v == null) return false;
-    if (typeof v === 'string' && v.length === 0) return false;
-    if (Array.isArray(v) && v.length === 0) return false;
-    if (typeof v === 'number' && !Number.isFinite(v)) return false;
-    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+    if (typeof v !== 'string') return false;
+    if (v.length === 0) return false;
     return true;
   }
   function isDerivedWitness(k, v) {
@@ -278,35 +281,28 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     'facade-round-trip', 'migration-apply', 'prepared-statement-scan',
     'transaction-atomicity', 'recovery-restore-round-trip', 'pool-posture-smoke',
   ];
-  // Engine-absent detection: POSTGRES_HOST is a required declared
-  // variable (round-6 endpoint-hosts ruling); when unset the probe's
-  // container is not reachable from this host and the anatomy asserts
-  // the exact-one-variable skip shape. When set, every probe runs live
-  // against the local postgres:17-alpine container and each returned
-  // row is validated in-memory (the branch never commits .rcf/reports).
-  const postgresHostSet = typeof process.env.POSTGRES_HOST === 'string' && process.env.POSTGRES_HOST.length > 0;
+  // Round-7 ruling: the probe owns its skip. The anatomy ALWAYS
+  // invokes every probe and validates whatever comes back. A CI
+  // environment with POSTGRES_HOST unset lands every probe on its
+  // exact-one-variable accountBoundSkipped row; locally with the
+  // postgres:17-alpine container up every probe runs live and each
+  // returned row is validated in-memory (the branch never commits
+  // .rcf/reports).
   for (const name of probeNamesLocal) {
-    if (!postgresHostSet) {
-      // Honest engine-absent skip: assert the exact-one-variable skip
-      // shape the probe would emit when POSTGRES_HOST is unset. No
-      // report file is read; the assertion is pure shape.
-      const skipRow = { accountBoundSkipped: true, reason: 'POSTGRES_HOST unset', anchorAcId: null };
-      assert.equal(skipRow.accountBoundSkipped, true);
-      assert.match(skipRow.reason, / unset$/);
-      const varName = skipRow.reason.replace(/ unset$| \(not "true"\)$/, '').trim();
-      assert.match(varName, /^[A-Z][A-Z0-9_]+$/);
-      continue;
-    }
     const runProbe = (await import(pathToFileURL(join(PROBES_DIR, name + '.mjs')).href)).default;
     const declaredEnv = await loadDeclaredEnv(name);
     let probeReturn;
     try {
       probeReturn = await runProbe();
     } catch (err) {
-      assert.fail(name + ': probe threw ' + (err && err.code ? err.code : err && err.message ? err.message : String(err)) + '; if the engine is absent the probe is expected to return an accountBoundSkipped row rather than throw');
+      assert.fail(name + ': probe threw ' + (err && err.code ? err.code : err && err.message ? err.message : String(err)) + '; a probe must return an accountBoundSkipped row when a declared variable is unset rather than throw');
     }
-    assert.ok(probeReturn && Array.isArray(probeReturn.results) && probeReturn.results.length > 0,
+    // Accept either { results: [...] } or a bare array.
+    const rows = Array.isArray(probeReturn) ? probeReturn : (probeReturn && Array.isArray(probeReturn.results) ? probeReturn.results : null);
+    assert.ok(rows && rows.length > 0,
       name + ': runProbe must return a non-empty results array (authoring-standard rule 3)');
+    const probeReturnLike = { results: rows };
+    probeReturn = probeReturnLike;
     for (const row of probeReturn.results) {
       assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
         'row in ' + name + ' must have verdict in {pass, warn, fail}, saw ' + row.verdict);
