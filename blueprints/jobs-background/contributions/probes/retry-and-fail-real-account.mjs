@@ -1,17 +1,14 @@
 /**
- * Retry-and-fail real-account probe (route-a live-engine coverage).
+ * Retry-and-fail real-account probe (live-engine coverage).
  *
- * Proves AC-jobs-retryOnHandlerFailure against REAL Cloudflare Queues
- * on the the real-account credentials account, exercising the retry-to-terminal
- * trajectory end-to-end through the vendor's own pull-consumer +
- * dead-letter-queue mechanism (per
+ * Exercises REAL Cloudflare Queues end-to-end through the vendor's
+ * pull-consumer + dead-letter-queue mechanism (per
  * https://developers.cloudflare.com/queues/configuration/pull-consumers/
  * and https://developers.cloudflare.com/queues/configuration/dead-letter-queues/).
  *
  * Flow:
- *   1. Mint a scratch queue `probe-scratch-q-<short>` and DLQ
- *      `probe-scratch-dlq-<short>` under the QA account via the CF REST
- *      Queues API.
+ *   1. Mint a scratch queue `qa-e-jobs-q-<short>` and DLQ
+ *      `qa-e-jobs-dlq-<short>` via the CF REST Queues API.
  *   2. Attach an `http_pull` consumer to the main queue with
  *      max_retries=3, dead_letter_queue=<dlq name>, visibility timeout
  *      short (2 s) so the observation window stays tight. Attach an
@@ -28,7 +25,20 @@
  *
  * Skip on missing account creds: exactly one variable per skip row.
  *
- * Anchors AC-jobs-retryOnHandlerFailure.
+ * Row anchoring:
+ *  - The account-bound skip row anchors REQ-004 (jobs retry contract)
+ *    with `accountBoundSkipped: true` and a `reason` naming the one
+ *    unset gate variable.
+ *  - The attempts-counter row observes REQ-004's "applied queue
+ *    redelivers per its own retry contract; the jobs runtime records
+ *    the attempt counter" property; it anchors REQ-004.
+ *  - The provisioning row, the DLQ landing row and the teardown row
+ *    are recorded as `conformanceOnly: true` with `anchorAcId: null`:
+ *    no jobs-background AC or REQ states queue provisioning, DLQ
+ *    landing (that concern lives on the messaging-queue blueprint per
+ *    AC-30109-1 which pins the in-memory driver, not this real
+ *    account), or queue teardown. The `limitation` field on each row
+ *    names the closest shipped AC/REQ and explains the gap.
  */
 
 export const accountBound = true;
@@ -40,12 +50,17 @@ export const DECLARED_ENV = Object.freeze([
 
 const API_BASE = 'https://api.cloudflare.com/client/v4';
 
+const REQ004_FIRST8 = 'A handler that throws a retryable error causes';
+const REQ004_PROVISION_LIMITATION = 'jobs-background-REQ-004: REQ-004 states handler-retryable-throw plus applied-queue redelivery and attempt-counter behaviour; this row records vendor queue and DLQ provisioning, which no jobs-background AC or REQ states';
+const REQ004_DLQ_LIMITATION = 'jobs-background-REQ-004: REQ-004 does not state DLQ landing (only terminal jobFailed after maxAttempts); AC-30109-1 states DLQ-producer invocation on the in-memory driver, not on real Cloudflare Queues; this row records real DLQ landing, which no jobs-background AC or REQ states';
+const REQ004_TEARDOWN_LIMITATION = 'jobs-background-REQ-004: REQ-004 does not state scratch-resource teardown; this row records real Cloudflare Queues DELETE + post-run absence, which no jobs-background AC or REQ states';
+
 function skipRow(reason) {
   return {
     results: [{
       anchorReqId: 'jobs-background-REQ-004',
       verdict: 'pass',
-      detail: `A handler that throws a retryable error causes - accountBound: skipped (${reason})`,
+      detail: `${REQ004_FIRST8} - accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
       evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
@@ -82,8 +97,8 @@ export default async function runProbe() {
   const accountId = process.env.CF_ACCOUNT_ID;
   const token = process.env.CF_API_TOKEN;
   const short = shortId();
-  const queueName = `probe-scratch-q-${short}`;
-  const dlqName = `probe-scratch-dlq-${short}`;
+  const queueName = `qa-e-jobs-q-${short}`;
+  const dlqName = `qa-e-jobs-dlq-${short}`;
   const results = [];
   const teardown = { deletePrimary: null, deleteDlq: null, primaryAbsent: null, dlqAbsent: null };
   let qid = null;
@@ -111,9 +126,11 @@ export default async function runProbe() {
     if (!(primaryConsumer.json && primaryConsumer.json.success)) throw new Error(`primary consumer attach failed: ${primaryConsumer.raw}`);
 
     results.push({
-      anchorReqId: 'jobs-background-REQ-004',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: REQ004_PROVISION_LIMITATION,
       verdict: 'pass',
-      detail: `A handler that throws a retryable error causes - provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
+      detail: `conformanceOnly (${REQ004_PROVISION_LIMITATION}) - provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
       evidence: {
         queueName, dlqName,
         primaryConsumerResponseMetadata: primaryConsumer.json && primaryConsumer.json.result,
@@ -192,30 +209,40 @@ export default async function runProbe() {
     // Assertion 1: observed attempts sequence includes non-zero values
     // (real engine incremented the counter).
     const uniqueAttempts = [...new Set(attemptsObserved.filter((a) => a.attempts != null).map((a) => a.attempts))].sort((a, b) => a - b);
-    // AC/REQ says maxAttempts terminal deliveries; with max_retries=3 the counter should reach at least 3 across distinct pulls
-    const sawRetries = uniqueAttempts.length >= 3 && uniqueAttempts[uniqueAttempts.length - 1] >= 3;
+    // REQ-004 states the applied queue redelivers per its own retry
+    // contract (Cloudflare Queues ceiling 100 per ADR-3003) and the
+    // jobs runtime records the attempt counter on each jobStarted
+    // event. With max_retries=3 the vendor's attempts counter must
+    // reach exactly the [0..3] consecutive sequence (initial delivery
+    // 0 plus three retries 1, 2, 3). A gapped sequence such as [0,2,3]
+    // fails the row.
+    const expectedAttempts = [0, 1, 2, 3];
+    const sawRetries = uniqueAttempts.length === expectedAttempts.length
+      && uniqueAttempts.every((v, i) => v === expectedAttempts[i]);
     results.push({
       anchorReqId: 'jobs-background-REQ-004',
       verdict: sawRetries ? 'pass' : 'fail',
       detail: sawRetries
-        ? `A handler that throws a retryable error causes - Cloudflare Queues incremented the attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
-        : `A handler that throws a retryable error causes - did not observe the attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
+        ? `${REQ004_FIRST8} - Cloudflare Queues incremented the attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
+        : `${REQ004_FIRST8} - did not observe the attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
       evidence: { attemptsObserved, uniqueAttempts, messageId: messageIdObserved, queueName },
     });
 
     // Assertion 2: message ended up on DLQ (positive dead-letter
     // landing in a real Cloudflare Queue).
     results.push({
-      anchorReqId: 'jobs-background-REQ-004',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: REQ004_DLQ_LIMITATION,
       verdict: seenInDlq ? 'pass' : 'fail',
       detail: seenInDlq
-        ? `A handler that throws a retryable error causes - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, payload-id-match=true for ${publishJobId})`
-        : `A handler that throws a retryable error causes - published payload jobId ${publishJobId} did not appear on the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} observedDlqPayloadIds=${JSON.stringify(dlqPayloadIds)} primary pulls=${attemptsObserved.length}`,
+        ? `conformanceOnly (${REQ004_DLQ_LIMITATION}) - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, payload-id-match=true for ${publishJobId})`
+        : `conformanceOnly (${REQ004_DLQ_LIMITATION}) - published payload jobId ${publishJobId} did not appear on the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} observedDlqPayloadIds=${JSON.stringify(dlqPayloadIds)} primary pulls=${attemptsObserved.length}`,
       evidence: { dlqName, dlqId, dlqBacklog, dlqTransportMessageIds: dlqMsgs.map((mm) => mm.id), dlqPayloadJobIds: dlqPayloadIds, expectedPayloadJobId: publishJobId, primaryTransportMessageId: messageIdObserved, payloadIdMatch: idMatch, dlqPollAttempts: dlqPullAttempts },
     });
   } finally {
     // 6. Teardown: delete both queues; confirm absent from listing.
-    // A teardown failure FAILS the verdict (Addendum rule 5).
+    // A teardown failure FAILS the verdict (authoring-standard rule 5).
     if (qid) {
       try {
         const d = await cf('DELETE', `/accounts/${accountId}/queues/${qid}`, token);
@@ -247,11 +274,13 @@ export default async function runProbe() {
       && teardown.primaryAbsent && teardown.primaryAbsent.ok
       && teardown.dlqAbsent && teardown.dlqAbsent.ok;
     results.push({
-      anchorReqId: 'jobs-background-REQ-004',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: REQ004_TEARDOWN_LIMITATION,
       verdict: teardownOk ? 'pass' : 'fail',
       detail: teardownOk
-        ? `A handler that throws a retryable error causes - scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
-        : `A handler that throws a retryable error causes - queue teardown FAILED: ${JSON.stringify(teardown)}`,
+        ? `conformanceOnly (${REQ004_TEARDOWN_LIMITATION}) - scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
+        : `conformanceOnly (${REQ004_TEARDOWN_LIMITATION}) - queue teardown FAILED: ${JSON.stringify(teardown)}`,
       evidence: { teardown },
     });
   }

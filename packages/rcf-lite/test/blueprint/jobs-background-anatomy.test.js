@@ -124,7 +124,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   // Anatomy check on evidence shape: every jobs-background probe
   // result row carries either an `evidence` object OR
   // `accountBoundSkipped: true` with a reason (authoring standard
-  // section 7d, Addendum rule 3 of 2026-09-11, per-row rule of the
+  // section 7d, authoring-standard rule 3 of 2026-09-11, per-row rule of the
   // 2026-09-11 follow-up review). Source-level lexical check is the
   // floor; if a run record is present under
   // `.rcf/reports/blueprints/<slug>/<probe>.json`, EVERY row is
@@ -132,25 +132,65 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   const probesDir = join(BP_DIR, 'contributions', 'probes');
   for (const name of ['apply-time-refusal', 'apply-time-override', 'fake-clock-cron', 'retry-and-fail', 'retry-and-fail-real-account', 'event-secrecy']) {
     const src = await readFile(join(probesDir, `${name}.mjs`), 'utf8');
-    assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
-      `probe ${name}.mjs must attach evidence per result or record an accountBoundSkipped honest skip`);
+    // Per-row source check: every results.push({ ... }) must carry
+    // evidence:, accountBoundSkipped: true, or conformanceOnly: true.
+    const pushOpens = [...src.matchAll(/results\.push\(\s*\{/g)];
+    for (const opener of pushOpens) {
+      const start = opener.index;
+      let depth = 1;
+      let i = opener.index + opener[0].length;
+      while (i < src.length && depth > 0) {
+        const c = src[i];
+        if (c === '{') depth += 1;
+        else if (c === '}') depth -= 1;
+        i += 1;
+      }
+      const block = src.slice(start, i);
+      assert.ok(/evidence\s*:/.test(block) || /accountBoundSkipped\s*:\s*true/.test(block) || /conformanceOnly\s*:\s*true/.test(block),
+        `probe ${name}.mjs: results.push at offset ${start} must carry evidence, accountBoundSkipped:true, or conformanceOnly:true (7d per-row rule)`);
+    }
     const reportPath = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'jobs-background', `${name}.json`);
     try {
       const raw = await readFile(reportPath, 'utf8');
       const rep = JSON.parse(raw);
       assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
-        `run record ${name}.json must carry a non-empty results[] (Addendum rule 3)`);
+        `run record ${name}.json must carry a non-empty results[] (authoring-standard rule 3)`);
       for (const row of rep.results) {
         assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
-          `row anchored to ${row.anchorAcId || row.anchorReqId} in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
-        const anchor = row.anchorAcId || row.anchorReqId;
-        assert.ok(anchor && typeof anchor === 'string',
-          `every row in ${name}.json must anchor an AC or REQ`);
-        assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (Addendum rule 1)`);
-        const evOk = row.evidence && typeof row.evidence === 'object' && Object.keys(row.evidence).length > 0;
-        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
-        assert.ok(evOk || skipOk,
-          `row anchored to ${anchor} in ${name}.json must carry either a non-empty evidence object OR an accountBoundSkipped true + reason (7d rule)`);
+          `row in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
+        const anchor = row.anchorAcId ?? row.anchorReqId;
+        const declaimed = row.conformanceOnly === true;
+        if (!declaimed) {
+          assert.ok(typeof anchor === 'string' && anchor.length > 0,
+            `every non-conformanceOnly row in ${name}.json must anchor an AC or REQ`);
+          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown"`);
+        } else {
+          assert.equal(row.anchorAcId, null,
+            `conformanceOnly row in ${name}.json must set anchorAcId: null`);
+          assert.ok(typeof row.limitation === 'string' && /(REQ|AC)-/.test(row.limitation),
+            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC or REQ`);
+        }
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && / unset$| \(not "true"\)$/.test(row.reason);
+        const ev = row.evidence;
+        const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
+        const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
+        function isWitness(k, v) {
+          if (trivialAdminKeys.has(k)) return false;
+          if (v == null) return false;
+          if (typeof v === 'string' && v.length === 0) return false;
+          if (Array.isArray(v) && v.length === 0) return false;
+          return true;
+        }
+        if (skipOk) {
+          assert.ok(evOk && (ev.skip === true || Object.keys(ev).some((k) => isWitness(k, ev[k]))),
+            `skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+        } else {
+          assert.ok(evOk,
+            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) must carry a non-empty evidence object`);
+          const witnessKeys = Object.entries(ev).filter(([k, v]) => isWitness(k, v)).map(([k]) => k);
+          assert.ok(witnessKeys.length > 0,
+            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) evidence must carry at least one 7d witness key (non-admin, non-empty); got keys=${Object.keys(ev).join(',')}`);
+        }
       }
       assert.equal(rep.aggregateVerdict, 'pass',
         `run record ${name}.json aggregateVerdict must be pass, saw ${rep.aggregateVerdict}`);

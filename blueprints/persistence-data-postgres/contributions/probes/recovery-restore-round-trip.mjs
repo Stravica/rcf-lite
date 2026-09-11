@@ -21,7 +21,7 @@
  * Cleanup: TRUNCATE users on source; stops the restore container and
  * removes its volume; deletes the artefact directory. Every teardown
  * step records its exit status in the report's `teardown` bag; a
- * teardown failure FAILS the verdict per Addendum rule 5.
+ * teardown failure FAILS the verdict per authoring-standard rule 5.
  */
 
 import { spawn, execFile } from 'node:child_process';
@@ -134,7 +134,7 @@ async function bringUpRestore() {
 
 /**
  * Attempt one teardown step; record its outcome on the accumulator.
- * The step is the literal command reported so a reviewer sees exactly
+ * The step is the literal command reported so a reader sees exactly
  * what ran.
  */
 async function recordTeardown(accumulator, label, fn) {
@@ -194,10 +194,16 @@ export default async function runProbe() {
     // positively re-check absence. Any failure here (permission
     // denied, filesystem error) fails the row loudly.
     try {
-      const preExist = await stat(ARTEFACT_DIR).catch(() => null);
+      const preExist = await stat(ARTEFACT_DIR).catch((err) => {
+        if (err && err.code === 'ENOENT') return null;
+        throw err;
+      });
       if (preExist) {
         await rm(ARTEFACT_DIR, { recursive: true, force: true });
-        const after = await stat(ARTEFACT_DIR).catch(() => null);
+        const after = await stat(ARTEFACT_DIR).catch((err) => {
+          if (err && err.code === 'ENOENT') return null;
+          throw err;
+        });
         if (after) throw new Error(`pre-run: destination ${ARTEFACT_REL} still exists after rm -rf`);
       }
     } catch (err) {
@@ -274,7 +280,7 @@ export default async function runProbe() {
     });
   } finally {
     // Teardown, every step recorded. A failure here becomes a FAIL row
-    // on the results per Addendum rule 5.
+    // on the results per authoring-standard rule 5.
     await recordTeardown(teardown, 'TRUNCATE users on source', async () => {
       try {
         await store.getPool().query('TRUNCATE users RESTART IDENTITY');
@@ -305,17 +311,22 @@ export default async function runProbe() {
       });
     }
   }
-  // Fold teardown outcomes into the result set (Addendum rule 5).
+  // Fold teardown outcomes into the result set (authoring-standard rule 5).
   const failedTeardown = teardown.filter((t) => !t.ok);
-  // Teardown outcomes anchor to REQ-005 (recovery model) as an
-  // operational assertion; AC-27105-1 states rowset round-trip and
-  // backupExported, not cleanup, so cleanup does not anchor there.
+  // AC-27105-1 states rowset round-trip and backupExported; REQ-005
+  // states the recovery model. Neither states cleanup, so this row
+  // is CONFORMANCE-ONLY: it records the operational teardown of the
+  // scratch restore container and artefact so a reader can see the
+  // run left no state behind, without claiming an AC or REQ property.
+  const REQ005_TEARDOWN_LIMITATION = 'persistence-data-postgres-REQ-005: REQ-005 states the two-path recovery model; AC-27105-1 states rowset round-trip + backupExported; neither states scratch-resource teardown, so this operational cleanup row is CONFORMANCE-ONLY';
   results.push({
-    anchorReqId: 'persistence-data-postgres-REQ-005',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: REQ005_TEARDOWN_LIMITATION,
     verdict: failedTeardown.length === 0 ? 'pass' : 'fail',
     detail: failedTeardown.length === 0
-      ? `The recovery model is two-path and both paths - teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
-      : `The recovery model is two-path and both paths - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+      ? `conformanceOnly (${REQ005_TEARDOWN_LIMITATION}) - teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
+      : `conformanceOnly (${REQ005_TEARDOWN_LIMITATION}) - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
     evidence: { teardown },
   });
   return { results, extra: { teardown, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT } };

@@ -19,6 +19,7 @@ import { resolve } from 'node:path';
 
 const PII_LITERALS = ['1234', '123-45-6789', 'test@example.com'];
 const EVENT_WHITELIST = new Set(['event', 'jobId', 'jobName', 'attempts', 'duration', 'timestamp', 'terminalErrorCode']);
+const AC_FIRST8 = 'With SIMULATE_PII_IN_JOB_INPUT=true set on the shared sample-app fixture,';
 
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
@@ -62,8 +63,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-jobs-eventSecrecy',
     verdict: pass ? 'pass' : 'fail',
     detail: pass
-      ? `no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
-      : `leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
+      ? `${AC_FIRST8} - no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
+      : `${AC_FIRST8} - leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
     evidence: {
       piiLiteralsChecked: PII_LITERALS,
       leakedLiterals: leaks,

@@ -46,12 +46,15 @@ export const DECLARED_ENV = Object.freeze([
 
 const VENDOR_PATTERN = /^https:\/\/[^./]+\.(fsn1|hel1|nbg1)\.your-objectstorage\.com$/;
 
+const AC28110_1 = 'Given the extended infra-s3-and-queue fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ carrying';
+const REQ001 = 'The application accesses object storage through a single';
+
 function skipResult(reason) {
   return {
     results: [{
       anchorAcId: 'AC-28110-1',
       verdict: 'pass',
-      detail: `accountBound: skipped (${reason})`,
+      detail: `${AC28110_1} - accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
       evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
@@ -93,7 +96,8 @@ export default async function runProbe() {
     return [{
       anchorAcId: 'AC-28110-1',
       verdict: 'fail',
-      detail: 'CI_HAS_HETZNER_OBJECT_STORAGE set but one or more required env vars missing (HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID, HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY, HETZNER_OBJECT_STORAGE_BUCKET, HETZNER_OBJECT_STORAGE_LOCATION)',
+      detail: `${AC28110_1} - CI_HAS_HETZNER_OBJECT_STORAGE set but one or more required env vars missing (HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID, HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY, HETZNER_OBJECT_STORAGE_BUCKET, HETZNER_OBJECT_STORAGE_LOCATION)`,
+      evidence: { envSet: false },
     }];
   }
 
@@ -105,14 +109,16 @@ export default async function runProbe() {
     return [{
       anchorAcId: 'AC-28110-1',
       verdict: 'fail',
-      detail: `endpoint composition threw on field ${err.field || 'unknown'}: ${err.message}`,
+      detail: `${AC28110_1} - endpoint composition threw on field ${err.field || 'unknown'}: ${err.message}`,
+      evidence: { endpointCompositionError: err && err.message, endpointField: err.field || 'unknown' },
     }];
   }
   if (!VENDOR_PATTERN.test(endpoint)) {
     return [{
       anchorAcId: 'AC-28110-1',
       verdict: 'fail',
-      detail: `composed endpoint does not match vendor pattern <bucket>.<location>.your-objectstorage.com; got ${endpoint}; missing subdomain: your-objectstorage.com`,
+      detail: `${AC28110_1} - composed endpoint does not match vendor pattern <bucket>.<location>.your-objectstorage.com; got ${endpoint}; missing subdomain: your-objectstorage.com`,
+      evidence: { composedEndpoint: endpoint, vendorPatternMatched: false },
     }];
   }
 
@@ -145,8 +151,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28110-1',
       verdict: roundTripEqual ? 'pass' : 'fail',
       detail: roundTripEqual
-        ? `Hetzner Object Storage round-trip byte-equal against the composed vendor endpoint`
-        : `Hetzner Object Storage round-trip failed byte equality; expected 1024 bytes got ${got.body.length}`,
+        ? `${AC28110_1} - Hetzner Object Storage round-trip byte-equal against the composed vendor endpoint`
+        : `${AC28110_1} - Hetzner Object Storage round-trip failed byte equality; expected 1024 bytes got ${got.body.length}`,
       evidence: { endpointVendorPatternMatched: true, bucketNamePresent: Boolean(bucket), locationCode: location, byteCount: got.body.length },
     });
     const evAssertion = assertMetadataOnlyEventRecords(events);
@@ -154,8 +160,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28110-1',
       verdict: evAssertion.pass ? 'pass' : 'fail',
       detail: evAssertion.pass
-        ? `every lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
-        : `event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
+        ? `${AC28110_1} - every lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
+        : `${AC28110_1} - event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
       evidence: { whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [], eventCount: events.length },
     });
   } finally {
@@ -174,7 +180,7 @@ export default async function runProbe() {
       results.push({
         anchorReqId: 'object-storage-s3-REQ-001',
         verdict: 'fail',
-        detail: `One facade module is the sole reader of - facade close FAILED on Hetzner teardown: ${facadeCloseError}`,
+        detail: `${REQ001} - facade close FAILED on Hetzner teardown: ${facadeCloseError}`,
         evidence: { teardownStep: 'facade close', error: facadeCloseError },
       });
     }
@@ -182,8 +188,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28110-1',
       verdict: teardown.deleteObject && teardown.deleteObject.ok ? 'pass' : 'fail',
       detail: teardown.deleteObject && teardown.deleteObject.ok
-        ? `scratch object ${key} deleted on teardown`
-        : `scratch object teardown FAILED: ${JSON.stringify(teardown.deleteObject)}`,
+        ? `${AC28110_1} - scratch object ${key} deleted on teardown`
+        : `${AC28110_1} - scratch object teardown FAILED: ${JSON.stringify(teardown.deleteObject)}`,
       evidence: { teardown },
     });
   }

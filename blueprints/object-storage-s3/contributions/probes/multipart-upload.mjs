@@ -19,7 +19,7 @@
  * The abort branch is REQUIRED , the probe sets SIMULATE_PART_UPLOAD
  * _FAIL locally on process.env for the second put (restoring the
  * previous value afterwards) so AC-28104-2 always carries observed
- * behaviour, never "path not run" (closure remark 2026-09-11 on
+ * behaviour, never "path not run" (conformance remark 2026-09-11 on
  * AC-28104-2).
  */
 
@@ -97,8 +97,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28104-2',
       verdict: abortPass ? 'pass' : 'fail',
       detail: abortPass
-        ? `Given a simulated part-upload failure mid-multipart - propagated (${observedError.name || observedError.message}), aborted upload id=${observedUploadId}, no in-flight uploads for ${failKey}, abort call itself succeeded`
-        : `Given a simulated part-upload failure mid-multipart - abort-on-failure conditions not all met: errorObserved=${observedError !== null} inflightCount=${failInflight.length} uploadIdPresent=${uploadIdPresent} abortSucceeded=${abortSucceeded}${observedAbortError ? ` abortError=${JSON.stringify(observedAbortError)}` : ''}`,
+        ? `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - propagated (${observedError.name || observedError.message}), aborted upload id=${observedUploadId}, no in-flight uploads for ${failKey}, abort call itself succeeded`
+        : `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - abort-on-failure conditions not all met: errorObserved=${observedError !== null} inflightCount=${failInflight.length} uploadIdPresent=${uploadIdPresent} abortSucceeded=${abortSucceeded}${observedAbortError ? ` abortError=${JSON.stringify(observedAbortError)}` : ''}`,
       evidence: {
         failKey,
         observedError,

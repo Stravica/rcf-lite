@@ -36,6 +36,8 @@ import { PROJECT_ROOT } from './probe-utils.mjs';
 import { resolve } from 'node:path';
 
 const FIRE_TOLERANCE_MS = 30000;
+const AC_FIRST8 = 'With messaging-queue-cloudflare and jobs-background both applied on the';
+const TOLERANCE_LIMITATION = 'AC-jobs-scheduledRunsOnCron: the AC states a jobStarted fires within fireToleranceMs (default 30000 ms) of the scheduled cron boundary; this row observes dispatch latency in a fake-clock domain and does NOT assert the elicited fireToleranceMs (a fake-clock scheduled boundary is not a wall-clock boundary comparable to the wall-clock Date.now() the runtime stamps on jobStarted)';
 
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
@@ -69,8 +71,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-jobs-scheduledRunsOnCron',
     verdict: firesPass ? 'pass' : 'fail',
     detail: firesPass
-      ? `Given the scheduler configured with an inProcess cron - scheduler.tick() published exactly 1 fire after clock.advance(60000)`
-      : `Given the scheduler configured with an inProcess cron - expected fires=1, got fires=${fires}`,
+      ? `${AC_FIRST8} - scheduler.tick() published exactly 1 fire after clock.advance(60000)`
+      : `${AC_FIRST8} - expected fires=1, got fires=${fires}`,
     evidence: { fires, cron: '* * * * *' },
   });
 
@@ -79,8 +81,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-jobs-scheduledRunsOnCron',
     verdict: startedOk ? 'pass' : 'fail',
     detail: startedOk
-      ? `Given the scheduler configured with an inProcess cron - jobStarted fired for refresh-cache with attempts=${jobStarted.attempts}`
-      : `Given the scheduler configured with an inProcess cron - jobStarted missing or attempts wrong: ${JSON.stringify(jobStarted)}`,
+      ? `${AC_FIRST8} - jobStarted fired for refresh-cache with attempts=${jobStarted.attempts}`
+      : `${AC_FIRST8} - jobStarted missing or attempts wrong: ${JSON.stringify(jobStarted)}`,
     evidence: { jobStartedEvent: jobStarted || null },
   });
 
@@ -90,8 +92,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-jobs-scheduledRunsOnCron',
     verdict: completedOk && durationOk ? 'pass' : 'fail',
     detail: completedOk && durationOk
-      ? `Given the scheduler configured with an inProcess cron - jobCompleted fired for refresh-cache with duration=${jobCompleted.duration}ms within timeoutMs=${registry.get('refresh-cache').timeoutMs}`
-      : `Given the scheduler configured with an inProcess cron - completedOk=${completedOk} durationOk=${durationOk}; jobCompleted=${JSON.stringify(jobCompleted)}`,
+      ? `${AC_FIRST8} - jobCompleted fired for refresh-cache with duration=${jobCompleted.duration}ms within timeoutMs=${registry.get('refresh-cache').timeoutMs}`
+      : `${AC_FIRST8} - completedOk=${completedOk} durationOk=${durationOk}; jobCompleted=${JSON.stringify(jobCompleted)}`,
     evidence: { jobCompletedEvent: jobCompleted || null, timeoutMs: registry.get('refresh-cache').timeoutMs },
   });
 
@@ -99,7 +101,7 @@ export default async function runProbe() {
   // boundary the way a live cron would be; the delta between jobScheduled
   // and jobStarted here is dispatch-latency, not a meaningful wait from
   // a scheduled boundary. This row RECORDS the observed dispatch
-  // latency for reviewer inspection but does NOT claim it satisfies
+  // latency for reader inspection but does NOT claim it satisfies
   // an "elicited fireToleranceMs" - no AC states such a tolerance for
   // fake-clock fires. Anchor stays on AC-jobs-scheduledRunsOnCron
   // because the property this row proves is "the runtime dispatched
@@ -111,11 +113,13 @@ export default async function runProbe() {
     scheduledToStartedMs = Date.parse(jobStarted.timestamp) - Date.parse(jobScheduled.timestamp);
   }
   results.push({
-    anchorAcId: 'AC-jobs-scheduledRunsOnCron',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: TOLERANCE_LIMITATION,
     verdict: (jobScheduled && jobStarted) ? 'pass' : 'fail',
     detail: (jobScheduled && jobStarted)
-      ? `Given the scheduler configured with an inProcess cron - the fired refresh-cache job produced both jobScheduled and jobStarted on the run-log; dispatch latency observed (not asserted) at ${scheduledToStartedMs}ms`
-      : `Given the scheduler configured with an inProcess cron - jobScheduled or jobStarted missing: jobScheduled=${JSON.stringify(jobScheduled)} jobStarted=${JSON.stringify(jobStarted)}`,
+      ? `conformanceOnly (${TOLERANCE_LIMITATION}) - the fired refresh-cache job produced both jobScheduled and jobStarted on the run-log; dispatch latency observed (not asserted) at ${scheduledToStartedMs}ms`
+      : `conformanceOnly (${TOLERANCE_LIMITATION}) - jobScheduled or jobStarted missing: jobScheduled=${JSON.stringify(jobScheduled)} jobStarted=${JSON.stringify(jobStarted)}`,
     evidence: {
       jobScheduledTimestamp: jobScheduled && jobScheduled.timestamp,
       jobStartedTimestamp: jobStarted && jobStarted.timestamp,

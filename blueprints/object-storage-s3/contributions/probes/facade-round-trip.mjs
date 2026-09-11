@@ -11,7 +11,7 @@
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 
-const AC28101_1 = 'On process boot, the facade opens against';
+const AC28101_1 = 'On process boot, the facade opens an S3';
 
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();

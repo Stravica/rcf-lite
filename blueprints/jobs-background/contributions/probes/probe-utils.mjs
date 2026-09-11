@@ -31,7 +31,7 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/jobs-ba
  */
 export function aggregate(results) {
   // Empty or null result sets are a FAIL: a probe that emitted no rows
-  // proved nothing (Addendum rule 3, criterion e closure 2026-09-11).
+  // proved nothing (authoring-standard rule 3, criterion e conformance 2026-09-11).
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
@@ -61,7 +61,7 @@ export async function writeReport({ probeName, engine, results, extra = {} }) {
 
 /**
  * Drive an async main() and exit 0 on aggregate pass, 1 otherwise.
- * Prints the report JSON to stdout for the gate-reviewer to read.
+ * Prints the report JSON to stdout for the gate-operator to read.
  */
 export async function runShim(probeName, engine, mainFn) {
   try {
@@ -87,7 +87,7 @@ export async function runShim(probeName, engine, mainFn) {
 
 function normaliseMain(value) {
   if (value == null) {
-    // A probe that returned null / undefined proved nothing (Addendum rule 3).
+    // A probe that returned null / undefined proved nothing (authoring-standard rule 3).
     return { results: [{ anchorReqId: 'jobs-background-REQ-001', verdict: 'fail', detail: 'no checks ran (probe returned null / undefined)', evidence: { probeReturnedNullOrUndefined: true } }], extra: {} };
   }
   if (Array.isArray(value)) return { results: value, extra: {} };

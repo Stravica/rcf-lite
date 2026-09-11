@@ -75,7 +75,7 @@ Removes the container and the named volume so a fresh boot re-applies migrations
 
 ## Declared env vars
 
-Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). None of the persistence-data-postgres probes are account-bound; the engine is a locally-run `postgres:17-alpine` container (docker compose or a hardening-dispatch-managed container name).
+Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). None of the persistence-data-postgres probes are account-bound; the engine is a locally-run `postgres:17-alpine` container (docker compose or a caller-supplied container name via the `POSTGRES_SOURCE_CONTAINER` / `POSTGRES_RESTORE_CONTAINER` env vars).
 
 | Env var | Purpose | Consumed by |
 |---|---|---|

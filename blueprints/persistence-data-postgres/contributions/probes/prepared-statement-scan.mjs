@@ -13,12 +13,12 @@
  * observation anchored to REQ-003 (facade query-parameterisation
  * discipline) plus a second row that records the AC-level walk as
  * `accountBoundSkipped` (reason names the missing parser dependency)
- * so the reviewer sees the boundary explicitly.
+ * so the reader sees the boundary explicitly.
  *
  * The REQ-003 row records, per call site:
  *   - `firstArgKind` (stringLiteral, templateStatic, wrapperPassthrough,
  *     migrationRunnerBody, or violation),
- *   - the extracted literal text (truncated) so a reviewer can inspect,
+ *   - the extracted literal text (truncated) so a reader can inspect,
  *   - a count of `$N` placeholders discovered in the literal,
  *   - a per-site note on wrapper-pattern sites explaining why they are
  *     not consumer-supplied SQL (the transaction helper's
@@ -260,12 +260,15 @@ export default async function runProbe() {
     }
   }
   const results = [];
+  const REQ003_LIMITATION = 'persistence-data-postgres-REQ-003: REQ-003 states every pg.query first argument in the facade module is a static string literal; two wrapper sites in this fixture pass identifier first-arguments (migrate.mjs client.query(body) reads a vetted .sql migration body from disk; store.mjs withTransaction helper client.query(sql, params) passes a callback-supplied literal). The tokeniser records them as wrapper-passthrough sites; it does not prove they satisfy the static-literal property REQ-003 requires. Row emits a per-site inventory as CONFORMANCE-ONLY evidence.';
   results.push({
-    anchorReqId: 'persistence-data-postgres-REQ-003',
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: REQ003_LIMITATION,
     verdict: violations.length === 0 && totalCalls > 0 ? 'pass' : 'fail',
     detail: violations.length === 0 && totalCalls > 0
-      ? `Every call to pg.query (whether via the pool, a client, or the transaction helper) in the facade dir carries a static-literal or documented-wrapper first argument: ${literalOrStatic} literal sites (${totalPlaceholders} $N placeholders), ${wrapperPassthrough} wrapper-passthrough sites (transaction helper callback + migration runner reading vetted .sql files), across ${totalCalls} total .query call sites in ${files.length} facade file(s)`
-      : `Every call to pg.query - ${violations.length} violation(s): ${JSON.stringify(violations)}`,
+      ? `conformanceOnly (${REQ003_LIMITATION}) - per-site inventory: ${literalOrStatic} literal sites (${totalPlaceholders} $N placeholders), ${wrapperPassthrough} wrapper-passthrough sites (transaction helper callback + migration runner reading vetted .sql files), across ${totalCalls} total .query call sites in ${files.length} facade file(s)`
+      : `conformanceOnly (${REQ003_LIMITATION}) - ${violations.length} violation(s): ${JSON.stringify(violations)}`,
     evidence: {
       scannedFiles: files.map((f) => relative(PROJECT_ROOT, f)),
       totalCalls,

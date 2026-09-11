@@ -13,6 +13,10 @@ import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../.
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 import { probeKey } from './probe-utils.mjs';
 
+const AC28102_1 = 'Given a putObject through the facade for a';
+const AC28102_2 = 'Given a deleteObject through the facade for a';
+const AC28102_3 = 'Given at least three objects put under a';
+
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
   const credentials = await credentialsFromShim(secretsShim);
@@ -44,8 +48,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28102-1',
       verdict: roundTripPass && eventPass ? 'pass' : 'fail',
       detail: roundTripPass && eventPass
-        ? `1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
-        : `roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
+        ? `${AC28102_1} - 1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
+        : `${AC28102_1} - roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
       evidence: { key, requestedContentType: contentType, gotContentType: got.contentType, gotSize: got.body.length, byteEqual: got.body.equals(body), objectPutEvent: putEvent || null },
     });
 
@@ -56,7 +60,9 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-28102-3',
       verdict: listPass ? 'pass' : 'fail',
-      detail: listPass ? `list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}` : `listed=${JSON.stringify(listed)}`,
+      detail: listPass
+        ? `${AC28102_3} - list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}`
+        : `${AC28102_3} - listed=${JSON.stringify(listed)}`,
       evidence: { prefix, expectedKeys: listKeys, returnedKeys: listed.keys, isTruncated: listed.isTruncated },
     });
 
@@ -72,13 +78,13 @@ export default async function runProbe() {
       anchorAcId: 'AC-28102-2',
       verdict: deletedEvent && notFound ? 'pass' : 'fail',
       detail: deletedEvent && notFound
-        ? 'objectDeleted fired and get after delete returned NoSuchKey'
-        : `deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
+        ? `${AC28102_2} - objectDeleted fired and get after delete returned NoSuchKey`
+        : `${AC28102_2} - deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
       evidence: { key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
     });
     // Teardown: delete the list keys and close the facade. Every
     // teardown step is recorded on the teardown[] accumulator and any
-    // failure emits its own row (Addendum rule 5).
+    // failure emits its own row (authoring-standard rule 5).
   } finally {
     const teardown = [];
     for (const k of listKeys) {
@@ -92,7 +98,7 @@ export default async function runProbe() {
       results.push({
         anchorReqId: 'object-storage-s3-REQ-002',
         verdict: 'fail',
-        detail: `The facade exposes named domain verbs (putObject, - teardown FAILED: ${failed.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+        detail: `The facade exposes named domain verbs (putObject, getObject, - teardown FAILED: ${failed.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
         evidence: { teardown },
       });
     }

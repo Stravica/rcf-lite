@@ -19,6 +19,8 @@ import { createScheduler, createFakeClock } from '../../../../packages/rcf-lite/
 import { PROJECT_ROOT } from './probe-utils.mjs';
 import { resolve } from 'node:path';
 
+const AC_FIRST8 = 'With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture,';
+
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
   // maxRetries on the driver matches send-welcome-email.maxAttempts=3.
@@ -58,8 +60,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-jobs-retryOnHandlerFailure',
     verdict: pass ? 'pass' : 'fail',
     detail: pass
-      ? `three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
-      : `attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
+      ? `${AC_FIRST8} - three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
+      : `${AC_FIRST8} - attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
     evidence: {
       attemptsSequence: attemptsSeq,
       jobIds: [...jobIds],

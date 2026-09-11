@@ -19,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 
 import { PROJECT_ROOT } from './probe-utils.mjs';
 
+const AC_FIRST8 = 'On a fresh init scratch project with NO';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BLUEPRINT_DIR = resolve(HERE, '..', '..');
 const RCF_BIN = resolve(PROJECT_ROOT, 'packages/rcf-lite/bin/rcf.js');
@@ -42,7 +44,8 @@ export default async function runProbe() {
       return [{
         anchorAcId: 'AC-jobs-overrideRecorded',
         verdict: 'fail',
-        detail: `rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `${AC_FIRST8} - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
     const apply = await runNode(
@@ -53,7 +56,8 @@ export default async function runProbe() {
       return [{
         anchorAcId: 'AC-jobs-overrideRecorded',
         verdict: 'fail',
-        detail: `apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
+        detail: `${AC_FIRST8} - apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
+        evidence: { applyExitCode: apply.code, applyStderrSample: apply.stderr.slice(0, 400) },
       }];
     }
     // Sidecar path.
@@ -62,7 +66,8 @@ export default async function runProbe() {
       return [{
         anchorAcId: 'AC-jobs-overrideRecorded',
         verdict: 'fail',
-        detail: `sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
+        detail: `${AC_FIRST8} - sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
+        evidence: { sidecarPathAbsent: true },
       }];
     }
     const doc = JSON.parse(await readFile(sidecarPath, 'utf8'));
@@ -83,8 +88,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-jobs-overrideRecorded',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`
-        : `checks=${JSON.stringify(checks)}; notes='${notes}'`,
+        ? `${AC_FIRST8} - exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`
+        : `${AC_FIRST8} - checks=${JSON.stringify(checks)}; notes='${notes}'`,
       evidence: { checks, sidecarDoc: doc, exitCode: apply.code },
     });
     // Do NOT include the sidecarPath (a per-run tmp path) in the report;
@@ -95,7 +100,7 @@ export default async function runProbe() {
       results.push({
         anchorReqId: 'jobs-background-REQ-001',
         verdict: 'fail',
-        detail: 'Requires an applied queue capability; refuses apply - scratch dir teardown failed: ' + (err && err.message),
+        detail: 'The jobs-background blueprint composes on an applied queue - scratch dir teardown failed: ' + (err && err.message),
         evidence: { teardownStep: 'rm scratch', error: err && err.message },
       });
     }

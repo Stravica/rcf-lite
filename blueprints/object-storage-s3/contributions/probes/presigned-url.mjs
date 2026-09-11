@@ -18,8 +18,8 @@ import { probeKey } from './probe-utils.mjs';
 import { createHash } from 'node:crypto';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const AC28103_1 = 'Given the elicited presigned-TTL of 60 seconds';
-const REQ003 = 'The facade exposes a presignGetUrl verb that';
+const AC28103_1 = 'Given a presignGetUrl call with ttl=60 seconds for';
+const REQ003 = 'The facade exposes a presignGetUrl verb that issues';
 
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();

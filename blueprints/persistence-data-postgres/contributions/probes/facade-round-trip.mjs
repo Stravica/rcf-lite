@@ -51,7 +51,7 @@ export default async function runProbe() {
     });
   } finally {
     // Teardown - record every step so a failure surfaces as a row and
-    // fails the aggregate per Addendum rule 5.
+    // fails the aggregate per authoring-standard rule 5.
     const teardown = [];
     try {
       await store.getPool().query('TRUNCATE users');

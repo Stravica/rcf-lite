@@ -64,7 +64,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-27106-1',
       verdict: (succeeded === 20 && failed === 0 && cappedA && cappedB) ? 'pass' : 'fail',
-      detail: `Given two facade instances opened concurrently against - 20 dispatched, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
+      detail: `Given two facade instances opened concurrently against the - 20 dispatched, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
       evidence: {
         dispatched: 20,
         succeeded,
@@ -85,11 +85,11 @@ export default async function runProbe() {
   }
   const failedTeardown = teardown.filter((t) => !t.ok);
   if (failedTeardown.length > 0) {
-    // Teardown failure fails the verdict (Addendum rule 5).
+    // Teardown failure fails the verdict (authoring-standard rule 5).
     results.push({
       anchorReqId: 'persistence-data-postgres-REQ-006',
       verdict: 'fail',
-      detail: `The connection pool posture is elicited (pool-size - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+      detail: `The facade opens a long-lived pg.Pool for the - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
       evidence: { teardown },
     });
   }

@@ -24,9 +24,15 @@
  *  - The account-bound skip anchors AC-28108-1 (the skip acceptance).
  *  - The object round trip + inventory diff anchor AC-28108-2 (the
  *    live-account round trip).
- *  - Bucket lifecycle (create + list + delete + absent-after) anchors
- *    REQ-002 (put/get/delete/list contract on typed keys); no AC
- *    states bucket-lifecycle behaviour explicitly.
+ *  - Bucket lifecycle rows (bucket create / bucket delete / post-run
+ *    bucket-inventory diff) are recorded as `conformanceOnly: true`
+ *    with `anchorAcId: null`: no shipped AC states bucket-lifecycle
+ *    behaviour, and REQ-002's verb contract is the four object-level
+ *    verbs (putObject / getObject / deleteObject / listObjects), not
+ *    CreateBucket / DeleteBucket / ListBuckets. The `limitation`
+ *    field on each row names REQ-002 and explains the gap so a
+ *    reader sees the property that was NOT observed alongside the
+ *    observation that WAS made.
  *  - Endpoint-resolution failure after the preflight gates all pass
  *    is a FAIL anchored to REQ-001 (facade opens on boot), never a
  *    compound account skip.
@@ -47,8 +53,8 @@ export const DECLARED_ENV = Object.freeze([
 
 const AC28108_1_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim';
 const AC28108_2_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint';
-const REQ002_FIRST8 = 'The facade exposes named domain verbs (putObject,';
-const REQ001_FIRST8 = 'One facade module is the sole reader of';
+const REQ001_FIRST8 = 'The application accesses object storage through a single';
+const REQ002_LIMITATION = 'object-storage-s3-REQ-002: REQ-002 states the putObject/getObject/deleteObject/listObjects verb contract on typed keys; this row records bucket-level lifecycle (CreateBucket / DeleteBucket / ListBuckets), which is not a property REQ-002 states';
 
 function skipResult(reason) {
   return {
@@ -96,7 +102,7 @@ export default async function runProbe() {
     };
   }
   const credentials = await credentialsFromShim(secretsShim);
-  const scratchBucket = `probe-scratch-${shortId()}`;
+  const scratchBucket = `qa-e-s3-${shortId()}`;
   const endpointHostRedacted = new URL(r2.endpoint).host.replace(/^[0-9a-f]+/, '[account-id]');
   const evidence = { endpointHostRedacted, scratchBucket, envDeclared: [...DECLARED_ENV] };
   const results = [];
@@ -129,20 +135,24 @@ export default async function runProbe() {
       listAfterCreateRequestId = list.raw && list.raw.$metadata && list.raw.$metadata.requestId;
     } catch (err) {
       results.push({
-        anchorReqId: 'object-storage-s3-REQ-002',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: REQ002_LIMITATION,
         verdict: 'fail',
-        detail: `${REQ002_FIRST8} - ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL`,
+        detail: `conformanceOnly (${REQ002_LIMITATION}) - ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL`,
         evidence: { scratchBucket, error: err && err.message, endpointHostRedacted },
       });
       throw err;
     }
     const seenAfterCreate = bucketsAfterCreate.includes(scratchBucket);
     results.push({
-      anchorReqId: 'object-storage-s3-REQ-002',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: REQ002_LIMITATION,
       verdict: seenAfterCreate ? 'pass' : 'fail',
       detail: seenAfterCreate
-        ? `${REQ002_FIRST8} - scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff)`
-        : `${REQ002_FIRST8} - scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
+        ? `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff on bucket-level lifecycle)`
+        : `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
       evidence: {
         scratchBucket,
         seenAfterCreate,
@@ -166,7 +176,7 @@ export default async function runProbe() {
       onEvent: (e) => events.push(e),
     });
     await store.ready();
-    const key = probeKey('probe-scratch/r2-smoke');
+    const key = probeKey('qa-e-s3/r2-smoke');
     const body = Buffer.alloc(1024, 0x52);
     const put = await store.putObject(key, 'application/octet-stream', body);
     const got = await store.getObject(key);
@@ -267,13 +277,18 @@ export default async function runProbe() {
       } catch (err) {
         teardown.bucketAbsentAfter = { ok: false, error: err && err.message };
       }
-      const teardownOk = teardown.deleteBucket && teardown.deleteBucket.ok && teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.ok;
+      const facadeCloseOk = !teardown.facadeClose || teardown.facadeClose.ok !== false;
+      const teardownOk = teardown.deleteBucket && teardown.deleteBucket.ok
+        && teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.ok
+        && facadeCloseOk;
       results.push({
-        anchorReqId: 'object-storage-s3-REQ-002',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: REQ002_LIMITATION,
         verdict: teardownOk ? 'pass' : 'fail',
         detail: teardownOk
-          ? `${REQ002_FIRST8} - scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets (deleteBucket http=${teardown.deleteBucket.httpStatus}, listBuckets http=${teardown.bucketAbsentAfter.httpStatus})`
-          : `${REQ002_FIRST8} - bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
+          ? `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets (deleteBucket http=${teardown.deleteBucket.httpStatus}, listBuckets http=${teardown.bucketAbsentAfter.httpStatus})`
+          : `conformanceOnly (${REQ002_LIMITATION}) - bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}; facadeClose=${JSON.stringify(teardown.facadeClose)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
         evidence: {
           teardown,
           scratchBucket,
@@ -281,6 +296,7 @@ export default async function runProbe() {
           deleteBucketRequestId: teardown.deleteBucket && teardown.deleteBucket.requestId,
           postRunListHttpStatus: teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.httpStatus,
           postRunListRequestId: teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.requestId,
+          facadeCloseOk,
         },
       });
     }

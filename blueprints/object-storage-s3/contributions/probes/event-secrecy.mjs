@@ -19,7 +19,7 @@ const WHITELIST = new Set(['event', 'ts', 'key', 'size', 'contentType', 'ttl', '
 const FORBIDDEN_FIELDS = ['userId', 'ssn', 'dob', 'email', 'body', 'bodyBytes', 'bodyChecksum'];
 const PII_TEXT = 'PII-FIXTURE-DO-NOT-LOG';
 
-const AC28105_1 = 'Every event on the shipped lifecycle sink';
+const AC28105_1 = 'Given a lifecycle-event spy attached to the sink,';
 
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
@@ -67,8 +67,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: nonWhitelistKeys.size === 0 ? 'pass' : 'fail',
       detail: nonWhitelistKeys.size === 0
-        ? `every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
-        : `unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
+        ? `${AC28105_1} - every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
+        : `${AC28105_1} - unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
       evidence: { whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
@@ -83,8 +83,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: foundForbidden.length === 0 ? 'pass' : 'fail',
       detail: foundForbidden.length === 0
-        ? 'no forbidden PII field name appeared on any event'
-        : `forbidden fields present: ${foundForbidden.join(',')}`,
+        ? `${AC28105_1} - no forbidden PII field name appeared on any event`
+        : `${AC28105_1} - forbidden fields present: ${foundForbidden.join(',')}`,
       evidence: { forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
@@ -99,8 +99,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: leaks.length === 0 ? 'pass' : 'fail',
       detail: leaks.length === 0
-        ? `no event value contained the PII fixture text ${PII_TEXT}`
-        : `PII fixture text leaked in: ${leaks.join(',')}`,
+        ? `${AC28105_1} - no event value contained the PII fixture text ${PII_TEXT}`
+        : `${AC28105_1} - PII fixture text leaked in: ${leaks.join(',')}`,
       evidence: { piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
@@ -111,8 +111,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: keyPass ? 'pass' : 'fail',
       detail: keyPass
-        ? `objectPut carried the key ${key} as an opaque string; no userId extraction`
-        : `key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
+        ? `${AC28105_1} - objectPut carried the key ${key} as an opaque string; no userId extraction`
+        : `${AC28105_1} - key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
       evidence: { expectedKey: key, objectPutEvent: putEvent || null, vendorRequestIds: vendorReq },
     });
   } finally {

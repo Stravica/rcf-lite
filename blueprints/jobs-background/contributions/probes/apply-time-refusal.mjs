@@ -24,6 +24,8 @@ import { fileURLToPath } from 'node:url';
 
 import { PROJECT_ROOT } from './probe-utils.mjs';
 
+const AC_FIRST8 = 'On a fresh init scratch project with NO';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BLUEPRINT_DIR = resolve(HERE, '..', '..');
 const RCF_BIN = resolve(PROJECT_ROOT, 'packages/rcf-lite/bin/rcf.js');
@@ -48,7 +50,8 @@ export default async function runProbe() {
       return [{
         anchorAcId: 'AC-jobs-requiresQueue',
         verdict: 'fail',
-        detail: `rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `${AC_FIRST8} - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
     // 2. Attempt to apply jobs-background on the bare project.
@@ -67,8 +70,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-jobs-requiresQueue',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`
-        : `expected exit=3 AND first-line tag [jobs-background-no-queue] AND messaging-queue-cloudflare AND --allow-no-queue-yet; got exit=${apply.code}; firstLine='${firstLine}'; tagMatch=${tagMatch}; providerMatch=${providerMatch}; overrideMatch=${overrideMatch}`,
+        ? `${AC_FIRST8} - exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`
+        : `${AC_FIRST8} - expected exit=3 AND first-line tag [jobs-background-no-queue] AND messaging-queue-cloudflare AND --allow-no-queue-yet; got exit=${apply.code}; firstLine='${firstLine}'; tagMatch=${tagMatch}; providerMatch=${providerMatch}; overrideMatch=${overrideMatch}`,
       evidence: { exitCode: apply.code, stderrFirstLine: firstLine, tagPresent: tagMatch, providerPresent: providerMatch, overrideFlagPresent: overrideMatch },
     });
     // Do NOT include the scratch dir path in the committed report; it is
@@ -82,7 +85,7 @@ export default async function runProbe() {
       results.push({
         anchorReqId: 'jobs-background-REQ-001',
         verdict: 'fail',
-        detail: 'Requires an applied queue capability; refuses apply - scratch dir teardown failed: ' + (err && err.message),
+        detail: 'The jobs-background blueprint composes on an applied queue - scratch dir teardown failed: ' + (err && err.message),
         evidence: { teardownStep: 'rm scratch', error: err && err.message },
       });
     }

@@ -212,7 +212,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   // Anatomy check on 7d evidence shape: every object-storage-s3 probe
   // module attaches an evidence bag on its result rows or records an
   // accountBoundSkipped honest skip (authoring standard section 7d,
-  // Addendum rule 3 of 2026-09-11; per-row rule of the 2026-09-11
+  // authoring-standard rule 3 of 2026-09-11; per-row rule of the 2026-09-11
   // follow-up review). When a run record is present under
   // `.rcf/reports/blueprints/<slug>/<probe>.json`, EVERY result row is
   // validated in-place.
@@ -222,25 +222,77 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     'hetzner-object-storage-round-trip',
   ]) {
     const src = await readFile(join(REPO_ROOT, 'blueprints', 'object-storage-s3', 'contributions', 'probes', `${name}.mjs`), 'utf8');
-    assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
-      `probe ${name}.mjs must attach evidence per result or record an accountBoundSkipped honest skip`);
+    // Source-level per-row check: every `results.push({` opens a block
+    // that must carry either `evidence:` or `accountBoundSkipped:`
+    // before its closing `});`. A single file-level `evidence:` token
+    // no longer satisfies the check (closure3 concern: file-level
+    // regex fallback accepted probes whose other rows carried no
+    // evidence).
+    const pushOpens = [...src.matchAll(/results\.push\(\s*\{/g)];
+    for (const opener of pushOpens) {
+      const start = opener.index;
+      let depth = 1;
+      let i = opener.index + opener[0].length;
+      while (i < src.length && depth > 0) {
+        const c = src[i];
+        if (c === '{') depth += 1;
+        else if (c === '}') depth -= 1;
+        i += 1;
+      }
+      const block = src.slice(start, i);
+      assert.ok(/evidence\s*:/.test(block) || /accountBoundSkipped\s*:\s*true/.test(block) || /conformanceOnly\s*:\s*true/.test(block),
+        `probe ${name}.mjs: results.push at offset ${start} must carry evidence, accountBoundSkipped:true, or conformanceOnly:true (7d per-row rule)`);
+    }
     const reportPath = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'object-storage-s3', `${name}.json`);
     try {
       const raw = await readFile(reportPath, 'utf8');
       const rep = JSON.parse(raw);
       assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
-        `run record ${name}.json must carry a non-empty results[] (Addendum rule 3)`);
+        `run record ${name}.json must carry a non-empty results[] (authoring-standard rule 3)`);
       for (const row of rep.results) {
         assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
-          `row anchored to ${row.anchorAcId || row.anchorReqId} in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
-        const anchor = row.anchorAcId || row.anchorReqId;
-        assert.ok(anchor && typeof anchor === 'string',
-          `every row in ${name}.json must anchor an AC or REQ`);
-        assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (Addendum rule 1)`);
-        const evOk = row.evidence && typeof row.evidence === 'object' && Object.keys(row.evidence).length > 0;
-        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
-        assert.ok(evOk || skipOk,
-          `row anchored to ${anchor} in ${name}.json must carry either a non-empty evidence object OR an accountBoundSkipped true + reason (7d rule)`);
+          `row in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
+        const anchor = row.anchorAcId ?? row.anchorReqId;
+        const declaimed = row.conformanceOnly === true;
+        if (!declaimed) {
+          assert.ok(typeof anchor === 'string' && anchor.length > 0,
+            `every non-conformanceOnly row in ${name}.json must anchor an AC or REQ`);
+          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (authoring-standard rule 1)`);
+        } else {
+          assert.equal(row.anchorAcId, null,
+            `conformanceOnly row in ${name}.json must set anchorAcId: null`);
+          assert.ok(typeof row.limitation === 'string' && /(REQ|AC)-/.test(row.limitation),
+            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC or REQ`);
+        }
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && / unset$| \(not "true"\)$/.test(row.reason);
+        const ev = row.evidence;
+        const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
+        // Strict per-row 7d shape: for a non-skip row, evidence must
+        // carry AT LEAST ONE key that looks like a 7d witness (request
+        // id, response body/derived value, inventory diff, or process
+        // record). A bare `reason` string never counts.
+        // 7d witness: a request id, a status/http code, a
+        // body/derived value, an inventory-diff or event-record key,
+        // or a process-level observation. Bare admin strings
+        // (`reason`, `note`, `error`, `verdict`) do not count.
+        const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
+        function isWitness(k, v) {
+          if (trivialAdminKeys.has(k)) return false;
+          if (v == null) return false;
+          if (typeof v === 'string' && v.length === 0) return false;
+          if (Array.isArray(v) && v.length === 0) return false;
+          return true;
+        }
+        if (skipOk) {
+          assert.ok(evOk && (ev.skip === true || Object.keys(ev).some((k) => isWitness(k, ev[k]))),
+            `skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+        } else {
+          assert.ok(evOk,
+            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) must carry a non-empty evidence object`);
+          const witnessKeys = Object.entries(ev).filter(([k, v]) => isWitness(k, v)).map(([k]) => k);
+          assert.ok(witnessKeys.length > 0,
+            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) evidence must carry at least one 7d witness key (non-admin, non-empty); got keys=${Object.keys(ev).join(',')}`);
+        }
       }
       assert.equal(rep.aggregateVerdict, 'pass',
         `run record ${name}.json aggregateVerdict must be pass, saw ${rep.aggregateVerdict}`);

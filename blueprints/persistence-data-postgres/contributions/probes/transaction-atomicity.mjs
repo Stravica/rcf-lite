@@ -11,12 +11,12 @@
  * Anchors AC-27104-1.
  *
  * Cleans up: TRUNCATE users on exit; closes the pool. A teardown
- * failure emits its own row (Addendum rule 5).
+ * failure emits its own row (authoring-standard rule 5).
  */
 
 import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
 
-const AC = 'Given the transaction helper wrapping a callback';
+const AC = 'Given the transaction helper wrapping a callback that';
 
 export default async function runProbe() {
   const events = [];
