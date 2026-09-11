@@ -6,9 +6,9 @@
 // part of its own request pipeline (no probe-side monkey-patch), so
 // the identifier the probe records is the identifier the engine
 // itself issued. Probes call the fixture over real HTTP via node's
-// fetch, vary inputs and assert derived outputs and record request-id, status, body excerpt, the
-// varied input and the derived output as evidence on every result
-// row .//
+// fetch, vary inputs, assert derived outputs, and record the
+// request-id, status, body excerpt, the varied input and the derived
+// output as evidence on every result row.
 // No account-bound branch: the engine is a local fixture, not a
 // third-party account, so no CI_HAS_* gate is invented. Every env
 // var this pack reads is declared on the fixture README.
@@ -144,8 +144,8 @@ export async function runShim(probeName, engine, mainFn) {
 // carrying an object with the AC id and a reason; the tally script
 // reads notObservableHere.ac to accept the row.
 export function notObservableHereResult({ ac, anchorAcId, detail, reason, evidence } = {}) {
-  // Per a notObservableHere row anchors nothing
-  // else: no anchorAcId, no anchorReqId - only notObservableHere.ac.
+  // A notObservableHere row anchors nothing else: no anchorAcId,
+  // no anchorReqId - only notObservableHere.ac.
   const acId = ac || anchorAcId;
   return {
     verdict: 'pass',

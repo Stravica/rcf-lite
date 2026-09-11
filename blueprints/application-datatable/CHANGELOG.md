@@ -12,7 +12,7 @@
 
 ## 1.0.4 - 2026-09-10
 
-Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8. Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, elicited query-adapter mode, applied default page size, elicited selection-persistence value, accessible-copy text near the bulk-action control) in place of the generic phrasing. TAC-1802 owns the `sort=<column>:<asc|desc>` grammar and the fixed `pageSize` query-parameter name; TAC-1803-application-datatable-selection-model patch-bumped to 1.0.2 with the `data-selection-persistence` marker on the bulk-action region added to responsibilities[3] and referenced from AC-17109-3. Register cleanup on the datatable README (removed the dated visual-specification reference and the residual mechanism-reach gap parenthetical) and on the guide (neutralised the dashboard-blueprint mention).
+Template-AC fill-in clauses on AC-17101-3, AC-17102-1, AC-17108-2, AC-17108-3, AC-17109-1 and AC-17109-3 now enumerate the specific applying-project substitutions (column-id set, query-adapter endpoint and debounce, elicited query-adapter mode, applied default page size, elicited selection-persistence value, accessible-copy text near the bulk-action control) in place of the earlier generic phrasing, so applying projects have precise values to fill in. TAC-1802 owns the `sort=<column>:<asc|desc>` grammar and the fixed `pageSize` query-parameter name; TAC-1803-application-datatable-selection-model patch-bumped to 1.0.2 with the `data-selection-persistence` marker on the bulk-action region added to responsibilities[3] and referenced from AC-17109-3. Datatable README and guide shipped prose neutralised: the dated visual-specification reference and the residual mechanism-reach gap parenthetical have been dropped from the README, and the dashboard-blueprint mention has been rewritten in the guide.
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)
@@ -28,7 +28,7 @@ Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8. Template-AC fill-in cla
 ## 1.0.1 (application-core hardening, 2026-09-09)
 
 - Hardening cleanup: chain-consistency lint clean at baseline; added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b.
-- Added AC-17101-4, AC-17102-4, AC-17103-4 and AC-17105-4 (loading indicator clears, announced error region replaces the pending state, last successful rows retained) covering the 2026-09-08 review finding F-1 on TAC-1802.internalStructure for sort, filter, pagination and URL-state page requests that reject.
+- Added AC-17101-4, AC-17102-4, AC-17103-4 and AC-17105-4 (loading indicator clears, announced error region replaces the pending state, last successful rows retained) on TAC-1802.internalStructure for sort, filter, pagination and URL-state page requests that reject, so applying projects have explicit acceptance criteria for the four request-reject paths.
 
 
 ## 1.0.0 (2026-09-04)

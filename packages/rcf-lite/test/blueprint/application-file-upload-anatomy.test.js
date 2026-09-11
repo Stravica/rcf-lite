@@ -1,4 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-file-upload v1.2.6 shelf blueprint (, spec section 5.2).
+// Anatomy + apply + probe-pack test for the application-file-upload v1.2.6 shelf blueprint (spec section 5.2).
 //
 // Covers TS-054.
 

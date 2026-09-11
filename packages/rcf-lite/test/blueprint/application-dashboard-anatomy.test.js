@@ -1,4 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-dashboard v1.0.9 shelf blueprint (, spec section 5.3).
+// Anatomy + apply + probe-pack test for the application-dashboard v1.0.9 shelf blueprint (spec section 5.3).
 //
 // Covers TS-049.
 

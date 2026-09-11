@@ -5,7 +5,7 @@
 // role="listbox" enumerating the applied formats. The fixture
 // accepts a startServer({ exportFormats: [...] }) override so the
 // probe DRIVES two distinct format sets and asserts the rendered
-// listbox follows the input (). Browser-observable
+// listbox follows the input on each run. Browser-observable
 // activation and focus-return are covered by the conformanceOnly
 // limitation on the single row.
 //

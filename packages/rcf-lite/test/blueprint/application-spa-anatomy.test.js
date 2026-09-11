@@ -1,6 +1,6 @@
 // Anatomy + probe-pack test for the application-spa v1.5.11 shelf
-// blueprint. Pins the the pack contributions/probes pack shape
-// (three probes, matching run-*.mjs wrappers, probe-utils helper).
+// blueprint. Pins the pack's contributions/probes shape (three
+// probes, matching run-*.mjs wrappers, probe-utils helper).
 //
 // The probes themselves execute against the local fixture at
 // packages/rcf-lite/test/fixtures/probe-pack-application-spa/. Each

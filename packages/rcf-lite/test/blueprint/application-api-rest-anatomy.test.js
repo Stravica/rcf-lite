@@ -1,7 +1,6 @@
 // Anatomy + probe-pack test for the application-api-rest v2.1.10
-// shelf blueprint. Pins the the pack contributions/probes pack
-// shape (four probes, matching run-*.mjs wrappers, probe-utils
-// helper).
+// shelf blueprint. Pins the pack's contributions/probes shape
+// (four probes, matching run-*.mjs wrappers, probe-utils helper).
 //
 // Each probe runs against the local fixture at
 // packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/

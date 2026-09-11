@@ -11,11 +11,12 @@
 // synthetic uncaught exception, maps it to the wire body without
 // leaking a stack, filesystem path or file:// URL, and appends
 // the emitted record to /emitted (AC-16102-1).
-// - /crash-process: a process-level boundary path that emits a
-// record and then exits with code 1 via a real
-// process.nextTick handler; a probe spawns the child that
-// imports this fixture and reads the child's exit code from the
-// OS, satisfying// - /emitted: JSON list of records the boundaries have emitted.
+// - /crash-process: a report-only boundary path that emits a record
+// and returns it in the response body alongside a didExit:1 signal.
+// The fixture does NOT terminate under it, so in-process tests
+// continue running. The real process-exit semantics for AC-16101-1
+// are covered by /crash-real invoked from a spawned child.
+// - /emitted: JSON list of records the boundaries have emitted.
 // - /companion-invocations: JSON list of {category, correlationId}
 // the companion factory saw, so REQ-004 has real derived
 // evidence.
@@ -192,9 +193,8 @@ function makeHandler({ companion, emitted, crashOnRequest }) {
  return;
  }
  if (url.pathname === '/crash-real' && crashOnRequest) {
- // AC-16101-1: induce a REAL uncaughtException on the runtime
- //. The
- // process-boundary uncaughtException handler registered in
+ // AC-16101-1: induce a REAL uncaughtException on the runtime.
+ // The process-boundary uncaughtException handler registered in
  // startServer({ crashOnRequest: true }) constructs the record
  // with category "unknown", emits ONE JSON line at level=error
  // with the stack on cause, and exits with code 1. The handler

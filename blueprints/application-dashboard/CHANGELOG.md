@@ -12,7 +12,7 @@
 
 ## 1.0.4 - 2026-09-10
 
-Findings closed: F-1, F-2, F-3, F-4, F-5, F-6. Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2 and AC-19107-2 now enumerate the specific applying-project substitutions (auto-refresh interval, export-button accessible name and format list, chart-selection mechanism, primary-kpi kind and tile inventory) in place of the generic phrasing. AC-19107-1 changed to `disposition: fixed` (no project-side substitution: the shipped guidance file satisfies the AC directly). Register cleanup on README shipped prose (removed the dated visual-specification reference and neutralised the pack-browser seam-extension paragraph).
+Template-AC fill-in clauses on AC-19104-2, AC-19106-1, AC-19106-2 and AC-19107-2 now enumerate the specific applying-project substitutions (auto-refresh interval, export-button accessible name and format list, chart-selection mechanism, primary-kpi kind and tile inventory) in place of the earlier generic phrasing, so applying projects have precise values to fill in. AC-19107-1 changed to `disposition: fixed` (no project-side substitution: the shipped guidance file satisfies the AC directly). README shipped prose neutralised: the dated visual-specification reference has been dropped and the pack-browser seam-extension paragraph has been rewritten.
 
 
 ## 1.0.3 (register-sweep patch, 2026-09-10)
@@ -28,7 +28,7 @@ Findings closed: F-1, F-2, F-3, F-4, F-5, F-6. Template-AC fill-in clauses on AC
 ## 1.0.1 (application-core hardening, 2026-09-09)
 
 - Hardening cleanup: chain-consistency lint clean; added deliveredBy to every REQ, added ownerRef and disposition to every AC per section 7b, closed `primary-KPI` case drifts in AC-19107-2, ADR-2001 and the guide body to match the `primary-kpi` spelling owned by TAC-2001.responsibilities[0].
-- Added AC-19104-2 (fan-out partial failure: failed tiles render error state with aria-live and retry control, shared refresh-stamp advances only after every tile has settled) covering the 2026-09-08 review finding F-1 on TAC-2002.responsibilities[3]. Added AC-19106-2 and AC-19106-3 (export success and rejection cases: valid blob/filename on the current slice, no download on rejection with an announced failure) covering F-2 on TAC-2003.interfaces[0].
+- Added AC-19104-2 (fan-out partial failure: failed tiles render error state with aria-live and retry control, shared refresh-stamp advances only after every tile has settled) on TAC-2002.responsibilities[3]. Added AC-19106-2 and AC-19106-3 (export success and rejection cases: valid blob/filename on the current slice, no download on rejection with an announced failure) on TAC-2003.interfaces[0]. Applying projects now have explicit acceptance criteria for the fan-out partial-failure and export success/rejection paths.
 
 
 ## 1.0.0 (2026-09-04)

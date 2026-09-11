@@ -6,7 +6,7 @@
 // four-state GOV.UK enum. The probe DRIVES a varied manifest via
 // `?manifest=slug1|slug2|slug3|slug4` so the rendered rows AND
 // /__task-manifest both derive from the same varied input rather
-// than duplicating the fixture's module constant ().
+// than duplicating the fixture's module constant.
 //
 // anchorAcId: application-forms-wizard-AC-24101-1.
 

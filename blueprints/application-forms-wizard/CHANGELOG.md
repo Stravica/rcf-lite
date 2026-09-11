@@ -32,7 +32,7 @@
 
 ### Added
 
-- Failure-path acceptance criteria on US-24101 (STEP_STATE_UNKNOWN refusal, Cannot start yet blocker announcement), US-24102 (error summary field bindings, throwing validator surface), US-24103 (submit refusal focus and summary link focus contract), US-24104 (summary submit failure preserves answers), US-24105 (server-side POST failure with unsaved banner, localStorage denial with fallback, hydrate failure), US-24106 (step-indicator apply refusal for values outside the closed set), US-24107 (in-progress list read failure with cache, cross-principal draft refusal), US-24108 (fallback empty message when application-empty-error-states not applied). Closes review finding F-1.
+- Failure-path acceptance criteria added on US-24101 (STEP_STATE_UNKNOWN refusal, Cannot start yet blocker announcement), US-24102 (error summary field bindings, throwing validator surface), US-24103 (submit refusal focus and summary link focus contract), US-24104 (summary submit failure preserves answers), US-24105 (server-side POST failure with unsaved banner, localStorage denial with fallback, hydrate failure), US-24106 (step-indicator apply refusal for values outside the closed set), US-24107 (in-progress list read failure with cache, cross-principal draft refusal), US-24108 (fallback empty message when application-empty-error-states not applied), so applying projects have explicit failure-path acceptance criteria on each story.
 - Vendor citations on the GOV.UK task-list-pages and error-summary acceptance criteria (verified 2026-09-10).
 
 ### Changed

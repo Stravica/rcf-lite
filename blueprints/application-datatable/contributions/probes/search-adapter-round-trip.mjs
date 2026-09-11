@@ -3,7 +3,7 @@
 // AC-17102-1: the query adapter reads `q` and returns rows matching
 // the filter. The API round-trip is server-observable and the row is
 // a conformanceOnly with a limitation naming the browser half; no
-// duplicate notObservableHere row ().
+// duplicate notObservableHere row is emitted for the same AC.
 //
 // anchorAcId: application-datatable-AC-17102-1.
 
