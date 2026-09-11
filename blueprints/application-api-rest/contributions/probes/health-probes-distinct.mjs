@@ -1,4 +1,4 @@
-// health-probes-distinct probe for application-api-rest v2.1.9.
+// health-probes-distinct probe for application-api-rest v2.1.10.
 //
 // AC-2108-1: liveness returns 200 with no dependency checks whatsoever.
 // AC-2108-2: readiness returns 200 only when every declared check passes.

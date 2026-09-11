@@ -1,4 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-forms-wizard v1.2.4 shelf blueprint (, spec section 5.3).
+// Anatomy + apply + probe-pack test for the application-forms-wizard v1.2.5 shelf blueprint (, spec section 5.3).
 //
 // Covers TS-055.
 

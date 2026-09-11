@@ -1,4 +1,4 @@
-// step-page-shape probe for application-forms-wizard v1.2.4.
+// step-page-shape probe for application-forms-wizard v1.2.5.
 //
 // AC-24102-1 describes blur/change/submit browser events on the
 // wizard step. The full AC is browser-only; the /validate rebuild

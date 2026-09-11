@@ -1,4 +1,4 @@
-// draft-persistence-round-trip probe for application-forms-wizard v1.2.4.
+// draft-persistence-round-trip probe for application-forms-wizard v1.2.5.
 //
 // Verifies AC-24105-1: POST /drafts with { operatorId, wizardSlug,
 // step, field, value } persists the answer scoped to the operator

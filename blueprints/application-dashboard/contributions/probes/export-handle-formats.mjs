@@ -1,4 +1,4 @@
-// export-handle-formats probe for application-dashboard v1.0.8.
+// export-handle-formats probe for application-dashboard v1.0.9.
 //
 // AC-19106-1 (server-observable half): the export handle region
 // carries a labelled button with aria-haspopup="listbox" AND a

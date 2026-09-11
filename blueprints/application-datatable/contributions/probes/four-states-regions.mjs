@@ -1,4 +1,4 @@
-// four-states-regions probe for application-datatable v1.0.8.
+// four-states-regions probe for application-datatable v1.0.9.
 //
 // Verifies AC-17105-1: each of the four AC-declared states
 // (empty, loading, error, no-results) renders inside its own

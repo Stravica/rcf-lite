@@ -1,4 +1,4 @@
-// apg-table-shape probe for application-datatable v1.0.8.
+// apg-table-shape probe for application-datatable v1.0.9.
 //
 // AC-17107-1 (server-observable, ): the rendered
 // datatable is a <table role="grid"> with <th> cells scoped to col;
@@ -45,7 +45,7 @@ export default async function runProbe() {
 
  results.push(notObservableHereResult({
  ac: 'application-datatable-AC-17107-5',
- detail: 'Given a role="grid" shell, when the operator uses - arrow-key cell focus is browser-only per the browser-only rule',
+ detail: 'Given a `role="grid"` shell, when the operator uses - arrow-key cell focus is browser-only per the browser-only rule',
  reason: 'AC-17107-5 requires observing arrow-key cell focus movement; server-side probe pack cannot observe focus',
  evidence: { requires: 'browser keydown events + focus observation' },
  }));

@@ -5,7 +5,7 @@
 - Adds a contributions/probes pack meeting rule 7d.
 - Probes: task-list-surface, step-page-shape, draft-persistence-round-trip.
 - Task-list order and progressbar values are derived from two varied manifests the probe controls; AC-24101-1 is a conformanceOnly row because the closed enum is validated against the fixture's /__task-manifest rather than a shipped enum from the applying project; the row carries a limitation naming that gap and the AC id.
-- Validation timing (focus/blur/submit/input) is notObservableHere with the AC id and reason; the row anchors nothing else.
+- Validation timing (blur/change/submit) is a conformanceOnly row anchored on AC-24102-1: the probe drives /validate twice (an invalid submit then a valid submit that references the prior errorCount) and asserts the /validate rebuild count differs across the two calls; the limitation names that the DOM-side blur/change/submit browser events are not observable on a server-driven probe pack.
 - Anatomy test pin bumped to 1.2.5.
 
 

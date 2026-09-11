@@ -1,4 +1,4 @@
-// cursor-pagination-round-trip probe for application-api-rest v2.1.9.
+// cursor-pagination-round-trip probe for application-api-rest v2.1.10.
 //
 // AC-2109-1 envelope, AC-2109-2 traversal, AC-2109-3 opacity and
 // malformed cursor, AC-2109-5 declared max limit enforcement.

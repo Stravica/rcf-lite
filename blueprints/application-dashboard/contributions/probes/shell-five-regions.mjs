@@ -1,4 +1,4 @@
-// shell-five-regions probe for application-dashboard v1.0.8.
+// shell-five-regions probe for application-dashboard v1.0.9.
 //
 // AC-19101-1: the DOM carries five labelled role="region" elements.
 // The fixture accepts a startServer({ regions: [...] }) override, so

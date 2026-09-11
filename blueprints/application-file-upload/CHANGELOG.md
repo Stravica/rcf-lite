@@ -5,7 +5,7 @@
 - Adds a contributions/probes pack meeting rule 7d.
 - Probes: upload-surface-shape, per-file-progressbar, chunked-transport-endpoints, assertive-completion-slot.
 - Chunked-transport row for AC-23104-1 is conformanceOnly: the probe observes multipart chunk-count bytes server-side; the DOM half ([data-transport], [data-chunks-uploaded]) and the browser-network half (PATCH requests carrying Upload-Offset) are notObservableHere. AC-23104-3 remains a positive row on the tus branch (post-409 state read + resume PATCH from the acknowledged offset).
-- Per-file aggregate row for AC-23102-2 is conformanceOnly with limitation: the plain-HTTP round trip cannot discriminate byte-weighted from plain averages once all three files have completed uploading; the row records the byte-derived counts from the fixture as evidence.
+- Per-file aggregate row for AC-23102-2 is conformanceOnly with limitation naming that the polite live region's rendered aggregate announcement text is browser-only; the row drives three files of 1/2/5 MiB through /upload/chunk and shows byte-weighted percent differs materially from plain per-file average at the intermediate steps (12.5% vs 33.33% after file 1; 37.5% vs 66.67% after file 2) and converges to 100% at completion.
 - Enter-press / focus surface (AC-23101-1) is conformanceOnly with limitation naming that the button-Enter-open-picker interaction is browser-only.
 - Aggregate completion is derived from request-body bytes.
 - Anatomy test pin bumped to 1.2.5.

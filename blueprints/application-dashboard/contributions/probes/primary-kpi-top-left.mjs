@@ -1,4 +1,4 @@
-// primary-kpi-top-left probe for application-dashboard v1.0.8.
+// primary-kpi-top-left probe for application-dashboard v1.0.9.
 //
 // AC-19102-1 requires computed layout at 1440/1024/360 viewports;
 // that observation is browser-only and recorded as notObservableHere

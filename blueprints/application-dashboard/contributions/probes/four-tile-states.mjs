@@ -1,4 +1,4 @@
-// four-tile-states probe for application-dashboard v1.0.8.
+// four-tile-states probe for application-dashboard v1.0.9.
 //
 // Verifies AC-19103-1: every tile state (loading, empty, error,
 // populated) is rendered on each of two named tiles. The probe

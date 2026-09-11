@@ -1,4 +1,4 @@
-// shell-nav-present probe for application-spa v1.5.10.
+// shell-nav-present probe for application-spa v1.5.11.
 //
 // Verifies AC-1102-1: navigation renders on every route (not only
 // the shell root). The probe crawls every declared inventory path,

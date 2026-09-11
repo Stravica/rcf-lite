@@ -1,4 +1,4 @@
-// route-inventory-published probe for application-spa v1.5.10.
+// route-inventory-published probe for application-spa v1.5.11.
 //
 // Verifies AC-1101-1: the project maintains a declared route
 // inventory naming every route AND no navigable surface exists
@@ -18,7 +18,7 @@
 //
 // anchorAcId: application-spa-AC-1101-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-spa-REQ-001';
 export const accountBound = false;
@@ -142,8 +142,13 @@ export default async function runProbe() {
  }),
  });
 
- // Second row: the shell HTML's <meta name="route-inventory">
- // agrees with /__routes and /__mounted under both injected sets.
+ // Second row: shell <meta name="route-inventory"> agrees with
+ // /__routes and /__mounted under run A. This observation covers
+ // only a same-run agreement slice of AC-1101-1 (route-inventory
+ // completeness across the app) and is emitted as conformanceOnly
+ // anchored on AC-1101-1 with a limitation naming the property the
+ // slice does not observe. The first row already carries the full
+ // positive AC-1101-1 observation across two injected sets.
  const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-spa/server.js');
  const fixture = await startFixture({ startServer: (opts) => startServer({ ...opts, routes: RUN_A_ROUTES }), port: 0 });
  let shellRes; let shellBody; let shellPaths = []; let shellAgreesJson = false; let shellAgreesMounted = false;
@@ -159,11 +164,11 @@ export default async function runProbe() {
  await fixture.close();
  }
  const agreeAll = shellAgreesJson && shellAgreesMounted;
- results.push({
+ results.push(conformanceOnlyResult({
  anchorAcId: 'application-spa-AC-1101-1',
  anchorReqId: 'application-spa-REQ-001',
  verdict: agreeAll ? 'pass' : 'fail',
- detail: `The project maintains a declared route inventory naming every route; no navigable surface exists outside it - shell <meta name="route-inventory"> ${shellPaths.join(',')} agrees with /__routes JSON: ${shellAgreesJson} and /__mounted: ${shellAgreesMounted}`,
+ detail: `The project maintains a declared route inventory naming every route - same-run agreement slice: shell <meta name="route-inventory"> ${shellPaths.join(',')} agrees with /__routes JSON: ${shellAgreesJson} and /__mounted: ${shellAgreesMounted}`,
  evidence: evidenceFromResponse({
  route: '/',
  response: shellRes,
@@ -173,7 +178,8 @@ export default async function runProbe() {
  derived: { shellAgreesJson, shellAgreesMounted, agreeAll },
  },
  }),
- });
+ limitation: 'application-spa-AC-1101-1: this row observes only same-run agreement between the shell meta, /__routes and /__mounted for one injected set; the AC also requires that no navigable surface exists outside the declared inventory, which the first AC-1101-1 row observes by injecting two independent route sets and confirming outsiders return 404',
+ }));
 
  return { results };
 }

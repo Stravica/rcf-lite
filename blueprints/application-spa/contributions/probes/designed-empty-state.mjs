@@ -1,4 +1,4 @@
-// designed-empty-state probe for application-spa v1.5.10.
+// designed-empty-state probe for application-spa v1.5.11.
 //
 // Verifies AC-1117-1: every data-bearing route renders a designed
 // loading, empty, error and success state (not a generic frame).

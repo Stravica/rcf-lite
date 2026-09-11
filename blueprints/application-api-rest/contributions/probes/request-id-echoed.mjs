@@ -1,4 +1,4 @@
-// request-id-echoed probe for application-api-rest v2.1.9.
+// request-id-echoed probe for application-api-rest v2.1.10.
 //
 // Verifies AC-2117-1 (supplied x-request-id echoed verbatim AND the
 // same id appears on the request-scoped log line) and AC-2117-2 (an

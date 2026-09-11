@@ -1,4 +1,4 @@
-// problem-details-on-error probe for application-api-rest v2.1.9.
+// problem-details-on-error probe for application-api-rest v2.1.10.
 //
 // Verifies AC-2111-1 (RFC 7807 shape and content-type on any error
 // path) and AC-2111-3 (envelope status equals HTTP status line).

@@ -37,7 +37,18 @@ const CATEGORIES = new Set(['transient', 'permanent', 'unknown']);
 function makeDefaultCompanion() {
  const invocations = [];
  return {
- emit(record) { invocations.push({ category: record.category, correlationId: record.correlationId, source: (record && record.context && record.context.source) || null, at: new Date().toISOString() }); },
+ emit(record) {
+ // Companion factory owns the emission surface for REQ-004:
+ // (1) record the invocation for the companion-dump readback,
+ // (2) render the record as ONE level=error JSON line on stderr
+ // through this companion. Callers MUST NOT write the record
+ // to stdout/stderr directly.
+ const source = (record && record.context && record.context.source) || null;
+ invocations.push({ category: record.category, correlationId: record.correlationId, source, at: new Date().toISOString() });
+ const boundary = source && source.startsWith('process-boundary') ? 'process' : 'framework';
+ const line = { level: 'error', boundary, record, at: new Date().toISOString() };
+ try { process.stderr.write(JSON.stringify(line) + '\n'); } catch { /* stderr closed */ }
+ },
  invocations,
  };
 }
@@ -84,6 +95,45 @@ function makeHandler({ companion, emitted, crashOnRequest }) {
  }
  if (url.pathname === '/emitted') { sendJson(res, 200, { emitted }); return; }
  if (url.pathname === '/companion-invocations') { sendJson(res, 200, { invocations: companion.invocations }); return; }
+ if (url.pathname === '/stream-then-throw') {
+ // AC-16102-4 mid-stream close. Flush headers, write partial body,
+ // then the framework boundary catches a mid-stream exception,
+ // emits EXACTLY ONE record via the companion at error level
+ // naming the streaming-in-progress condition, records the
+ // emitted record with category 'unknown' unless the throwing
+ // site supplied one, and closes the socket without rewriting the
+ // wire response. The browser-network wire-close half is
+ // observable only on a browser network log.
+ res.writeHead(200, {
+ 'content-type': 'text/plain; charset=utf-8',
+ 'x-fixture-request-id': requestId,
+ 'x-request-id': requestId,
+ });
+ res.write('partial-body-before-throw');
+ let record;
+ try {
+ const err = new Error('handler threw AFTER response streaming began');
+ throw err;
+ } catch (thrown) {
+ record = constructRecord({
+ category: 'unknown',
+ source: 'framework-boundary-mid-stream',
+ correlationId: randomUUID(),
+ cause: null,
+ });
+ record.message = 'framework boundary observed a mid-stream throw; streaming-in-progress condition; connection is closed without rewriting the wire';
+ companion.emit(record);
+ emitted.push({ ...record, boundary: 'framework-mid-stream', requestId });
+ }
+ // End the response after the partial body so the client sees a
+ // normal HTTP round-trip with headers, a partial body, and no
+ // rewritten wire response. The browser-network close-condition is
+ // notObservableHere on a server-driven probe pack; this endpoint
+ // is the server-side surface for AC-16102-4's emission/category
+ // clauses only.
+ res.end();
+ return;
+ }
  if (url.pathname === '/throw-handler') {
  let record;
  try {
@@ -219,10 +269,14 @@ export function startServer({ port, companion, crashOnRequest } = {}) {
  context: { source: 'process-boundary', fixture: 'application-error-handling' },
  };
  // Emit through the injected companion so REQ-004 observes
- // both boundaries via the SAME companion instance.
+ // both boundaries via the SAME companion instance. The uncaught
+ // handler MUST NOT itself write the error record to stdout/stderr
+ // per REQ-004; the companion is the sole emission surface for
+ // the error record. The companion-dump line below is metadata
+ // (invocations state), not the error record, and serves as the
+ // process-boundary evidence the probe reads from the child's
+ // stderr before OS exit.
  try { c.emit(record); } catch { /* companion failure must not stop teardown */ }
- const line = { level: 'error', boundary: 'process', record, at: new Date().toISOString() };
- process.stderr.write(JSON.stringify(line) + '\n');
  // Dump companion state so the probe can prove that both the
  // framework and process boundaries reached the companion in
  // this same child run.

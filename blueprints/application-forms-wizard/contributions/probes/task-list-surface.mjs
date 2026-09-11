@@ -1,4 +1,4 @@
-// task-list-surface probe for application-forms-wizard v1.2.4.
+// task-list-surface probe for application-forms-wizard v1.2.5.
 //
 // AC-24101-1 (server-observable): the task-list surface exposes
 // data-surface="task-list" carrying a role="progressbar" and one

@@ -1,4 +1,4 @@
-// search-adapter-round-trip probe for application-datatable v1.0.8.
+// search-adapter-round-trip probe for application-datatable v1.0.9.
 //
 // AC-17102-1: the query adapter reads `q` and returns rows matching
 // the filter. The API round-trip is server-observable and the row is

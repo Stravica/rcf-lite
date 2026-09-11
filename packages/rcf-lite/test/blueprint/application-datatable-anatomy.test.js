@@ -1,4 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-datatable v1.0.8 shelf blueprint (, spec section 5.1).
+// Anatomy + apply + probe-pack test for the application-datatable v1.0.9 shelf blueprint (, spec section 5.1).
 //
 // Covers TS-047.
 

@@ -1,4 +1,4 @@
-// Anatomy + probe-pack test for the application-spa v1.5.10 shelf
+// Anatomy + probe-pack test for the application-spa v1.5.11 shelf
 // blueprint. Pins the the pack contributions/probes pack shape
 // (three probes, matching run-*.mjs wrappers, probe-utils helper).
 //

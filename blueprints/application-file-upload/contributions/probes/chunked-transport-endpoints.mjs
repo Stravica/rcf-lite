@@ -1,4 +1,4 @@
-// chunked-transport-endpoints probe for application-file-upload v1.2.4.
+// chunked-transport-endpoints probe for application-file-upload v1.2.5.
 //
 // Row 1 (AC-23104-1): multipart transport - three real chunk POSTs
 // with distinct byte payloads advance a byte-derived total on the
@@ -23,49 +23,62 @@ export default async function runProbe() {
  try {
  const results = [];
 
- // Row 1 (AC-23104-1 server-observable half): multipart chunks.
+ // Row 1 (AC-23104-1 server-observable half): ONE file forced into
+ // multiple chunks on the ?transport=multipart branch. AC-23104-1
+ // requires a file large enough to force chunking with a completed
+ // chunk count higher than 1. The probe declares one file of
+ // sixteen KiB and posts four sequential 4 KiB chunks against the
+ // same sessionId; the fixture's per-session byte accounting
+ // advances by the actual body bytes of each chunk and the final
+ // response reports the file as complete. AC-23104-1 has three
+ // halves: multipart chunk-count in the DOM (browser), tus PATCH
+ // with Upload-Offset on the browser network log (browser), and
+ // the underlying server-side byte accounting for one file forced
+ // into multiple chunks (server-observable). The probe positively
+ // observes the third half and records the row as conformanceOnly
+ // with a limitation naming the two browser halves not observed
+ // here.
  const sessionId = `session-${randomUUID()}`;
- const files = [{ name: 'x.bin', bytes: 1024 }, { name: 'y.bin', bytes: 2048 }, { name: 'z.bin', bytes: 4096 }];
- const total = files.reduce((s, f) => s + f.bytes, 0);
+ const oneFileBytes = 16 * 1024;
+ const chunkBytes = 4 * 1024;
+ const chunkCount = oneFileBytes / chunkBytes;
+ const files = [{ name: 'one-large-file.bin', bytes: oneFileBytes }];
  await fetch(`${fixture.baseUrl}/upload/session?sessionId=${sessionId}`, {
  method: 'POST', headers: { 'content-type': 'application/json' },
- body: JSON.stringify({ totalExpectedBytes: total, files }),
+ body: JSON.stringify({ totalExpectedBytes: oneFileBytes, files }),
  });
  const chunkResults = [];
  let lastChunkRes, lastChunkBody = '';
- for (const [i, f] of files.entries()) {
- const payload = Buffer.alloc(f.bytes, 65 + i);
+ for (let i = 0; i < chunkCount; i += 1) {
+ const payload = Buffer.alloc(chunkBytes, 65 + i);
  const r = await fetch(`${fixture.baseUrl}/upload/chunk?n=${i + 1}&sessionId=${sessionId}`, { method: 'POST', body: payload });
  const b = await r.text();
  const parsed = JSON.parse(b);
- chunkResults.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes });
+ chunkResults.push({ chunk: i + 1, bytesReceived: parsed.bytesReceived, uploadedBytes: parsed.uploadedBytes, chunksUploaded: parsed.chunksUploaded, complete: parsed.complete });
  lastChunkRes = r; lastChunkBody = b;
  }
- const chunkOk = chunkResults[0].bytesReceived === files[0].bytes
- && chunkResults[1].bytesReceived === files[1].bytes
- && chunkResults[2].bytesReceived === files[2].bytes
- && chunkResults[2].uploadedBytes === total;
- // AC-23104-1 has three halves: multipart chunk-count in the DOM
- // (browser), tus PATCH with Upload-Offset on the browser network
- // log (browser), and the underlying server-side byte accounting
- // (server-observable). The probe positively observes the third
- // and records the row as conformanceOnly with limitation naming
- // that the DOM half and the browser-network half are not
- // observed here.
+ const finalRes = await fetch(`${fixture.baseUrl}/upload/chunk?sessionId=${sessionId}`);
+ const finalBody = await finalRes.text();
+ const finalParsed = JSON.parse(finalBody);
+ const allChunksAcceptedFor4KiB = chunkResults.every((c) => c.bytesReceived === chunkBytes);
+ const chunksHigherThanOne = finalParsed.chunksUploaded > 1;
+ const bytesAdvanced = finalParsed.uploadedBytes === oneFileBytes;
+ const completeAtEnd = finalParsed.complete === true;
+ const chunkOk = allChunksAcceptedFor4KiB && chunksHigherThanOne && bytesAdvanced && completeAtEnd;
  results.push(conformanceOnlyResult({
  anchorAcId: 'application-file-upload-AC-23104-1',
  verdict: chunkOk ? 'pass' : 'fail',
- detail: `On the ?transport=multipart branch the fixture returns 200 - multipart chunks recorded bytes ${chunkResults.map((c) => c.bytesReceived).join(',')} advancing cumulative to ${chunkResults[2]?.uploadedBytes ?? 0} of ${total} (sessionId=${sessionId})`,
+ detail: `On the ?transport=multipart branch the fixture returns 200 - one file (${oneFileBytes} B) forced into ${chunkCount} chunks of ${chunkBytes} B; chunksUploaded=${finalParsed.chunksUploaded} (>1: ${chunksHigherThanOne}); uploadedBytes=${finalParsed.uploadedBytes}/${oneFileBytes} (complete=${completeAtEnd})`,
  evidence: evidenceFromResponse({
  route: `/upload/chunk (sessionId=${sessionId})`,
  response: lastChunkRes,
  bodyText: lastChunkBody,
  extraFields: {
- input: { sessionId, files, totalExpectedBytes: total },
- derived: { chunkResults, totalOk: chunkResults[2]?.uploadedBytes === total },
+ input: { sessionId, files, totalExpectedBytes: oneFileBytes, chunkBytes, chunkCount },
+ derived: { chunkResults, finalParsed, allChunksAcceptedFor4KiB, chunksHigherThanOne, bytesAdvanced, completeAtEnd },
  },
  }),
- limitation: 'application-file-upload-AC-23104-1: [data-transport] and [data-chunks-uploaded] DOM values, and the browser-network PATCH log carrying Upload-Offset, are not observable on a server-driven probe pack',
+ limitation: 'application-file-upload-AC-23104-1: [data-transport] and [data-chunks-uploaded] DOM values, and the browser-network PATCH log carrying Upload-Offset on the tus branch, are not observable on a server-driven probe pack; this row observes the server-side byte accounting of one file forced into multiple chunks only',
  }));
  results.push(notObservableHereResult({
  ac: 'application-file-upload-AC-23104-1',

@@ -1,4 +1,4 @@
-// Anatomy + apply test for the application-error-handling v1.0.7
+// Anatomy + apply test for the application-error-handling v1.0.8
 // shelf blueprint (core-companions train, spec section 1.2).
 //
 // Covers TS-039.

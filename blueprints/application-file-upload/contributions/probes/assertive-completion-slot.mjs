@@ -1,4 +1,4 @@
-// assertive-completion-slot probe for application-file-upload v1.2.4.
+// assertive-completion-slot probe for application-file-upload v1.2.5.
 //
 // AC-23105-1 (server-observable half): after the fixture completes
 // the upload set, the assertive-slot in the shell reads

@@ -1,4 +1,4 @@
-// sort-adapter-round-trip probe for application-datatable v1.0.8.
+// sort-adapter-round-trip probe for application-datatable v1.0.9.
 //
 // AC-17101-1 has two halves: the API sort response ordering
 // (server-observable) and the browser DOM re-render after clicking
