@@ -23,12 +23,15 @@
 //     - PUT          workers/scripts/<name>                         (upload; parses bindings)
 //     - DELETE       workers/scripts/<name>                         (delete)
 //
-// The script-level subdomain endpoint and the account-level subdomain
-// endpoint are deliberately absent (Dave ruling 376b4f30). The mock
-// has no worker-origin HTTP route either: the driver no longer
-// speaks HTTP to the consumer Worker; publish is via the Queues
-// REST endpoint and telemetry is read via the KV REST list + get
-// endpoints.
+//   Workers account subdomain (pre-flight surface):
+//     - GET          workers/subdomain                              (returns provisioned name; 404/10007 when the mock is booted with workersSubdomainProvisioned=false)
+//
+// The mock has no worker-origin HTTP route: the driver does not
+// speak HTTP to the consumer Worker; publish is via the Queues REST
+// endpoint and telemetry is read via the KV REST list + get
+// endpoints. The account-level subdomain endpoint is exercised by
+// the messaging queue concurrency probe's pre-flight, which routes
+// through the same authorised REST surface as the other verbs.
 //
 // When the REST publish endpoint fires, the mock enqueues messages
 // and drains them through a simulated push consumer that fires up to
@@ -69,7 +72,7 @@ function extractMetadataFromMultipart(raw) {
   try { return JSON.parse(jsonText); } catch (_err) { return null; }
 }
 
-export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}) {
+export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4, workersSubdomainProvisioned = true, workersSubdomainName = 'mock-tenant' } = {}) {
   const state = {
     kvNamespaces: new Map(),       // id -> { id, title }
     kvValues: new Map(),           // `${nsId}::${key}` -> string
@@ -77,6 +80,7 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
     queueMessages: new Map(),      // qid -> Array<message>
     workers: new Map(),            // name -> { name, script, bindings, uploadedAt }
     workerConsumers: new Map(),    // qid -> scriptName
+    workersSubdomain: workersSubdomainProvisioned ? { subdomain: workersSubdomainName } : null,
     logs: [],
   };
 
@@ -380,6 +384,26 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4 } = {}
           state.workers.delete(scriptName);
           return success(res, null);
         }
+      }
+
+      // ------- Workers account-level subdomain (pre-flight surface) -------
+      // GET /accounts/<aid>/workers/subdomain returns the account's
+      // workers.dev subdomain. Provisioned: HTTP 200 with
+      // { result: { subdomain: "<name>" } }. Unprovisioned (mock toggled
+      // via workersSubdomainProvisioned=false): HTTP 404 with error
+      // code 10007, mirroring the vendor's affirmative-absence shape
+      // observed live on 2026-09-10.
+      const subdomainMatch = path.match(/^\/accounts\/[^/]+\/workers\/subdomain$/);
+      if (subdomainMatch && req.method === 'GET') {
+        if (state.workersSubdomain && state.workersSubdomain.subdomain) {
+          return success(res, { subdomain: state.workersSubdomain.subdomain });
+        }
+        return send(res, 404, {
+          success: false,
+          errors: [{ code: 10007, message: 'You do not have a workers.dev subdomain.' }],
+          messages: [],
+          result: null,
+        });
       }
 
       state.logs.push({ method: req.method, path });
