@@ -28,7 +28,9 @@ services:
       - ./src/serve.mjs:/app/serve.mjs:ro
       - web-data:/var/lib/rcf-lite-web
     secrets:
-      - web-token
+      - source: web-token
+        target: web-token
+        mode: 0400
     networks:
       - web-net
     healthcheck:

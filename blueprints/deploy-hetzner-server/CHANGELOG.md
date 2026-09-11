@@ -12,6 +12,7 @@
 - Skip helpers `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`.
 - `probe-utils.mjs` accepts `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
 - Blueprint content otherwise unchanged from 1.1.2.
+- Anatomy test titles for the two `deploy-hetzner-server` checks NOT bound to any rcf-chain testPointer (shelf-shape row and the probe-utils empty-results contract) had their lane prefix stripped so the register scan reports `hits=0`. AC-anchored test titles cited verbatim by testPointers in `packages/rcf-lite/rcf/test-suites/ts-140.json` keep their existing chain-facing prefix.
 
 # Changelog
 

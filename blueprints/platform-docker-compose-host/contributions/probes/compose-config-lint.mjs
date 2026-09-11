@@ -77,7 +77,7 @@ function scanHealthchecks(doc, extra) {
         anchorAcId: 'AC-composeHost-healthcheckLint',
         verdict: 'fail',
         detail: `HTTP-terminating service '${name}' is missing a healthcheck: block`,
-        evidence: { service: name, hasHealthcheck: false },
+        evidence: { service: name, missingServices: [name], expected: 'healthcheck block', observed: 'absent' },
       });
     } else {
       results.push({
@@ -232,6 +232,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `docker compose config exit 0 (docker ${dockerVersion})`,
         evidence: {
+          file: 'compose.yaml',
           dockerVersion,
           engineNote: 'Docker Engine (compose sub-command); vendor documentation https://docs.docker.com/compose/compose-file/, verifiedOn 2026-09-11',
           exitStatus: 0,
@@ -243,6 +244,7 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: `docker compose config exit ${cfg.status}: ${(cfg.stderr || cfg.stdout || '').slice(0, 400)}`,
         evidence: {
+          file: 'compose.yaml',
           dockerVersion,
           exitStatus: cfg.status,
           stderr: (cfg.stderr || '').slice(0, 400),

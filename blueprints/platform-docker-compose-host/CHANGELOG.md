@@ -10,6 +10,9 @@
 - Invented anchor fallbacks removed: `probe-utils.emptyResultsFail` and the `runShim` error branch no longer synthesise `anchorAcId: 'unknown'`.
 - Skip helpers name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true`.
 - `probe-utils.mjs` accepts `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
+- Fixture `compose.yaml` now declares the `web-token` service-level secret in long form (`- source: web-token`, `target: web-token`, `mode: 0400`) and the compose-stack driver `chmod 400`s the shipped `secrets/web-token` on the throwaway server after rsync but before `docker compose up -d`. Docker Compose (non-Swarm) mounts a compose secret with the source file's host mode, so both the long-form `mode:` declaration and the host-side chmod are required for AC-composeHost-secretShape "mounted at 0o400" to be observed in-container.
+- `compose-config-lint` docker-engine wrap row carries `file: 'compose.yaml'` in evidence; the missing-healthcheck failure row carries `missingServices` / `expected: 'healthcheck block'` / `observed: 'absent'` so the anatomy strict-shape check (identity + observation) is satisfied on every branch of the probe.
+- Anatomy test regex for the compose secret matches the long-form declaration; the three anatomy test titles NOT bound to any rcf-chain testPointer (probe-utils empty-results contract) had their T-N lane prefix stripped so the register scan reports `hits=0`.
 
 # platform-docker-compose-host CHANGELOG
 

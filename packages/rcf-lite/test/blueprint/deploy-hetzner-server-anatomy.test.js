@@ -216,7 +216,7 @@ test('T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-14
   }
 });
 
-test('T-1 deploy-hetzner-server shelf shape: section 6a cloudHost row and docs/topics.md registry entries', async () => {
+test('deploy-hetzner-server shelf shape: section 6a cloudHost row and docs/topics.md registry entries', async () => {
   const authoring = await readFile(AUTHORING, 'utf8');
   assert.match(authoring, /^\|\s*`cloudHost`\s*\|/m, 'blueprint-authoring.md section 6a is missing the cloudHost row');
   const readme = await readFile(README, 'utf8');
@@ -302,7 +302,7 @@ test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name varia
 });
 
 // Aggregation and empty-result contract (the shape rule).
-test('T-1 deploy-hetzner-server probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
+test('deploy-hetzner-server probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'probe-utils.mjs')).href + '?ts=' + Date.now();
   const { aggregate, emptyResultsFail } = await import(modUrl);
   assert.equal(aggregate([]), 'fail');

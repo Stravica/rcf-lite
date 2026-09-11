@@ -534,7 +534,7 @@ async function shipStack(target, sshKeyPath) {
   // Ensure remote dir with correct layout exists.
   const mkdir = await sshExec(target, `mkdir -p ${REMOTE_STACK_DIR}/src ${REMOTE_STACK_DIR}/caddy ${REMOTE_STACK_DIR}/secrets && chmod 700 ${REMOTE_STACK_DIR}/secrets`, sshKeyPath);
   if (mkdir.code !== 0) return { code: mkdir.code, stderr: mkdir.stderr };
-  return await new Promise((resolvePromise, reject) => {
+  const rsyncOutcome = await new Promise((resolvePromise, reject) => {
     const args = ['-avz', '--relative', '-e', sshCmd, ...STACK_FILES, `${target}:${REMOTE_STACK_DIR}/`];
     const p = spawn('rsync', args, { cwd: FIXTURE_DIR, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
@@ -544,6 +544,17 @@ async function shipStack(target, sshKeyPath) {
     p.on('error', reject);
     p.on('close', (code) => resolvePromise({ code, stdout, stderr }));
   });
+  if (rsyncOutcome.code !== 0) return rsyncOutcome;
+  // Docker Compose (non-Swarm) mounts a compose secret with the SOURCE
+  // file's host mode. The AC-composeHost-secretShape "mounted at
+  // 0o400" clause requires the file to be 0o400 on the host before
+  // docker compose up. Tightening the mode here is the compose-secrets
+  // pattern the blueprint documents.
+  const chmodOutcome = await sshExec(target, `chmod 400 ${REMOTE_STACK_DIR}/secrets/web-token`, sshKeyPath);
+  if (chmodOutcome.code !== 0) {
+    return { code: chmodOutcome.code, stdout: rsyncOutcome.stdout, stderr: `chmod 400 on remote secrets/web-token failed: ${chmodOutcome.stderr}` };
+  }
+  return rsyncOutcome;
 }
 
 async function composeCommand(target, sshKeyPath, subArgs, { timeoutSeconds = 60 } = {}) {

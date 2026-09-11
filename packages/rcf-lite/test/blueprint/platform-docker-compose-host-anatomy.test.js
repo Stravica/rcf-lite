@@ -108,7 +108,7 @@ test('T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-1
   const text = await readFile(COMPOSE, 'utf8');
   assert.match(text, /^secrets:\s*$/m, 'compose.yaml declares top-level secrets');
   assert.match(text, /^\s{2}web-token:\s*\n\s+file:\s+\.\/secrets\/web-token/m, 'web-token secret has file: source');
-  assert.match(text, /^\s{4}secrets:\s*\n\s+-\s+web-token/m, 'web service references web-token via service-level secrets:');
+  assert.match(text, /^\s{4}secrets:\s*\n\s+-\s+source:\s+web-token[\s\S]+?\n\s+mode:\s+0?400/m, 'web service references web-token via long-form secrets: with mode 0400');
   const secretPresent = await readFile(SECRET, 'utf8');
   assert.ok(secretPresent.length > 0, 'fixture secret file exists');
 });
@@ -250,7 +250,7 @@ test('platform-docker-compose-host v1.1.4 env vars declared and compose-stack dr
 });
 
 // Aggregation and empty-result contract (the shape rule).
-test('T-2 platform-docker-compose-host probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
+test('platform-docker-compose-host probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'probe-utils.mjs')).href + '?ts=' + Date.now();
   const { aggregate, emptyResultsFail } = await import(modUrl);
   assert.equal(aggregate([]), 'fail');
