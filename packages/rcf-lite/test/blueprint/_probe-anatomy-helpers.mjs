@@ -30,7 +30,7 @@
 //     and `commitEntries` are DERIVED content, never identifiers.
 //   - A row-authored `callTrackingId` (locally invented) is not a
 //     resource identifier and does not satisfy the identifier half.
-//   - The pass-5 honest-warn shape (WARN carrying only
+//   - The honest-warn shape (WARN carrying only
 //     `evidence.unobservableReason`) is refused: a WARN row must
 //     still satisfy exact-skip, notObservableHere (browser-only) or
 //     identifier-plus-derived.
@@ -194,7 +194,7 @@ export function resultHasEvidenceShape(r, opts = {}) {
   const ev = r.evidence;
   if (!ev || typeof ev !== 'object') return { ok: false, reason: 'result has neither honest skip, notObservableHere, conformanceOnly nor an evidence object' };
 
-  // The pass-5 honest-warn shortcut (a WARN row carrying a non-empty
+  // The honest-warn shortcut (a WARN row carrying a non-empty
   // unobservableReason) is refused here: a WARN row MUST also satisfy
   // one of the identifier-plus-derived, exact-skip or notObservableHere
   // (browser-only) shapes above. `unobservableReason` on its own is
@@ -212,32 +212,56 @@ export function resultHasEvidenceShape(r, opts = {}) {
   //     - a single JSON log-line STRING starts with `{`
   //   These remain valid DERIVED values (see below).
   // ─────────────────────────────────────────────────────────────
+  // Engine-returned resource ids: stand alone as identifiers because
+  // the caller did not choose them - the D1/Resend/GitHub/SQLite engine
+  // minted the value and the probe recorded exactly what came back.
   const idCandidates = [
     ev.requestId, ev.createRequestId, ev.queryRequestId, ev.deleteRequestId,
     ev.inventoryRequestId,
     ev.derived?.requestId, ev.derivedLive?.requestId, ev.derivedReady?.requestId, ev.derivedStarting?.requestId,
-    ev.derivedResponseHeader, ev.echoedHeader,
     ev.databaseUuid,
     ev.messageId, ev.providerMessageId,
-    ev.runId, ev.workflowName,
-    ev.headerName, ev.suppliedInput,
+    ev.runId,
     ev.rowId, ev.rowIdCreatedThenDeleted, ev.rowIdOnRead,
-    ev.line?.correlationId,
   ];
-  // the strict-evidence contract §6 tightening: parsed component lists, rendered-state/
-  // order lists, per-file lists, template/commit entries and
-  // linesExcerpt arrays are DERIVED content, never identifiers. The
-  // identifier half is a request id, resource id (uuid / message id /
-  // row id / server id / file path of a created artefact) or a
-  // vendor-returned id. A single log-line correlation id (real UUID
-  // minted or supplied per emission) still counts as an identifier.
-  const observedNestedId = (
-    (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.echoedHeader) || nonEmptyString(o?.requestId) || nonEmptyString(o?.supplied)))
-    || (nonEmptyObj(ev.observed) && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.requestId)))
-    || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.headerEcho) || nonEmptyString(o?.supplied)))
-    || nonEmptyString(ev.line?.correlationId)
+  // Pairing rule (the strict-evidence contract, identifier pairing):
+  // a probe-supplied value only qualifies as an identifier when the
+  // engine's echo of THAT specific value is recorded alongside it.
+  // Bare `suppliedInput`, `headerName`, `workflowName`, `line.correlationId`,
+  // `observed[].supplied` and `observedRoundTrips[].supplied` on their
+  // own are supplied inputs or on-wire reads without pairing evidence,
+  // and are refused. Legitimate pairs:
+  //   - suppliedInput + (derivedResponseHeader | echoedHeader | line.correlationId matching suppliedInput)
+  //   - headerName    + (derivedResponseHeader | echoedHeader)
+  //   - workflowName  + (runId returned for the same run record)
+  //   - line.correlationId matching a probe-supplied correlationId on
+  //     the same emission (suppliedInput or a per-emission entry in
+  //     observedEmissions), or matching `correlationIdEchoed`
+  //   - `observed[].supplied`     paired with echoedHeader | requestId | echoedBody in the same item
+  //   - `observedRoundTrips[].supplied` paired with headerEcho | requestId in the same item
+  const suppliedEchoPair = (
+    (nonEmptyString(ev.suppliedInput) && (
+      nonEmptyString(ev.derivedResponseHeader)
+      || nonEmptyString(ev.echoedHeader)
+      || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId) && ev.line.correlationId === ev.suppliedInput)
+    ))
+    || (nonEmptyString(ev.headerName) && (nonEmptyString(ev.derivedResponseHeader) || nonEmptyString(ev.echoedHeader)))
+    || (nonEmptyString(ev.workflowName) && (positiveNumber(ev.runId) || nonEmptyString(ev.runId)))
   );
-  let hasIdentifier = idCandidates.some((v) => nonEmptyString(v) || positiveNumber(v)) || observedNestedId;
+  const lineCorrelationPair = (
+    nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId)
+    && (
+      (nonEmptyString(ev.suppliedInput) && ev.line.correlationId === ev.suppliedInput)
+      || (nonEmptyString(ev.correlationIdEchoed) && ev.line.correlationId === ev.correlationIdEchoed)
+      || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => o?.correlationId === ev.line.correlationId))
+    )
+  );
+  const observedNestedId = (
+    (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.supplied) && (nonEmptyString(o?.echoedHeader) || nonEmptyString(o?.requestId) || nonEmptyString(o?.echoedBody))))
+    || (nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.supplied) && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.requestId) || nonEmptyString(ev.observed.echoedBody)))
+    || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.supplied) && (nonEmptyString(o?.headerEcho) || nonEmptyString(o?.requestId))))
+  );
+  let hasIdentifier = idCandidates.some((v) => nonEmptyString(v) || positiveNumber(v)) || suppliedEchoPair || lineCorrelationPair || observedNestedId;
 
   // Derived-value presence: at least one non-empty derived field
   // (body excerpt, resource id, adapter outcome, event record,
@@ -302,16 +326,19 @@ export function resultHasEvidenceShape(r, opts = {}) {
   // a locally invented `callTrackingId` from the identifier set -
   // an identifier must be a request id, resource id (uuid / message
   // id / row id / server id / file path of a created artefact) or a
-  // vendor-returned id. What remains is echoed header/input pairs,
-  // real per-emission correlation ids and user-id-on-line strings
-  // that carry a real value the payload supplied.
+  // vendor-returned id. What remains after the identifier pairing rule is:
+  //   - variedInput paired with observed.echoedHeader (a single-value pair);
+  //   - correlationIdEchoed proven on the wire (matches line.correlationId
+  //     or appears verbatim in linesExcerpt) - the bare value alone is a
+  //     supplied read and no longer qualifies.
   const extraId = (
-    (typeof ev.observed === 'object' && ev.observed && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.supplied)))
-    || (nonEmptyString(ev.variedInput) && ev.observed && nonEmptyString(ev.observed.echoedHeader))
-    || nonEmptyString(ev.acShapedExcerpt?.correlationId)
-    || nonEmptyString(ev.userIdOnLine)
-    || nonEmptyString(ev.correlationIdEchoed)
-    || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => nonEmptyString(o?.correlationId)))
+    (nonEmptyString(ev.variedInput) && nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.echoedHeader) && ev.observed.echoedHeader === ev.variedInput)
+    || (
+      nonEmptyString(ev.correlationIdEchoed) && (
+        (nonEmptyObj(ev.line) && ev.line.correlationId === ev.correlationIdEchoed)
+        || (nonEmptyArray(ev.linesExcerpt) && ev.linesExcerpt.some((s) => typeof s === 'string' && s.includes(ev.correlationIdEchoed)))
+      )
+    )
   );
   if (extraId) hasIdentifier = true;
 

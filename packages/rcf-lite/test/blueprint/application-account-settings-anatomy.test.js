@@ -255,7 +255,7 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   // with security-auth-clerk TAC-1003 interfaces.sessionInventory. The
   // account-settings sessions surface reads the union across applied
   // blueprints (this shelf-wide test) unchanged.
-  assert.equal(log.version, '1.3.5');
+  assert.equal(log.version, '1.3.6');
   assert.deepEqual([...log.capabilities].sort(), ['auditLog']);
   // Section 6a table extension carries the three new capability strings.
   const authoring = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md'), 'utf8');

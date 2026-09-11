@@ -6,7 +6,7 @@ facade-round-trip AC-13101-4 (missing-binding refusal) row is de-claimed to conf
 
 ## 1.1.5 - 2026-09-11
 
-AC-13101-4 anchor now positively asserts no-credential-leak: a sentinel account id and API token are stashed on the env passed to openFacade alongside the missing DB binding, and the row verdict requires neither sentinel appears in the refusal error message, kind, bindingName, stack or JSON serialisation (credentialLeakAbsent=true); the row records a locally minted row correlation string on the row (no engine identifier is available on the refusal path). CHANGELOG history restored (the 1.1.0/1.1.1/1.1.2 entries were unintentionally overwritten in the previous pass) and the 1.1.5 mixed-pass-5 entry is prepended.
+AC-13101-4 anchor now positively asserts no-credential-leak: a sentinel account id and API token are stashed on the env passed to openFacade alongside the missing DB binding, and the row verdict requires neither sentinel appears in the refusal error message, kind, bindingName, stack or JSON serialisation (credentialLeakAbsent=true); the row records a locally minted row correlation string on the row (no engine identifier is available on the refusal path). CHANGELOG history restored (the 1.1.0/1.1.1/1.1.2 entries were unintentionally overwritten in the previous pass) and this 1.1.5 entry is added.
 
 ## 1.1.4 - 2026-09-11
 
