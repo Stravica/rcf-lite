@@ -27,19 +27,33 @@ export async function exportDatabase({
   destination = DEFAULT_DESTINATION,
   onEvent = () => {},
   pgDumpArgs = ['--no-owner', '--no-acl', '--format=plain'],
+  // Optional escape hatch for probes running the fixture against a
+  // Postgres container where pg_dump is not on the host PATH: the
+  // caller supplies a function that returns the dump body as a UTF-8
+  // string. The shipped default calls pg_dump on PATH unchanged.
+  runPgDump = null,
 } = {}) {
   await mkdir(dirname(destination), { recursive: true });
   const tmp = `${destination}.tmp-${Date.now()}`;
-  const { stdout } = await execFileAsync(
-    'pg_dump',
-    [connectionUrl, ...pgDumpArgs],
-    { maxBuffer: 64 * 1024 * 1024 },
-  );
-  await writeFile(tmp, stdout, 'utf8');
+  let dumpBody;
+  if (typeof runPgDump === 'function') {
+    dumpBody = await runPgDump({ connectionUrl, pgDumpArgs });
+    if (typeof dumpBody !== 'string') {
+      throw new Error('runPgDump override must resolve to a UTF-8 string');
+    }
+  } else {
+    const { stdout } = await execFileAsync(
+      'pg_dump',
+      [connectionUrl, ...pgDumpArgs],
+      { maxBuffer: 64 * 1024 * 1024 },
+    );
+    dumpBody = stdout;
+  }
+  await writeFile(tmp, dumpBody, 'utf8');
   await rename(tmp, destination);
   const completedAt = new Date().toISOString();
   onEvent({ event: 'backupExported', ts: Date.now(), artefactPath: destination, completedAt });
-  return { artefactPath: destination, completedAt };
+  return { artefactPath: destination, completedAt, bytes: Buffer.byteLength(dumpBody, 'utf8') };
 }
 
 /**

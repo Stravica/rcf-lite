@@ -35,6 +35,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-27106-1',
       verdict: succeeded === 20 && failed === 0 ? 'pass' : 'fail',
       detail: `20 concurrent queries dispatched across two pool-size-5 facades; ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms`,
+      evidence: { dispatched: 20, succeeded, failed, elapsedMs: elapsed, facadeA: 'storeA', facadeB: 'storeB' },
     });
     // Observed max concurrent in-use per pool must be <= configured pool size
     // pg's pg.Pool exposes totalCount / idleCount / waitingCount; peak in-use ~ totalCount - idleCount.
@@ -47,6 +48,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-27106-1',
       verdict: inUseCap ? 'pass' : 'fail',
       detail: `pool.options.max on both facades: A=${maxA}, B=${maxB} (each configured to 5)`,
+      evidence: { poolAMax: maxA, poolBMax: maxB, configured: 5 },
     });
   } finally {
     await storeA.close();

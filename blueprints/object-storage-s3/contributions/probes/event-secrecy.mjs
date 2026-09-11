@@ -54,6 +54,7 @@ export default async function runProbe() {
       detail: nonWhitelistKeys.size === 0
         ? `every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
         : `unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
+      evidence: { whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length },
     });
 
     // No forbidden field names
@@ -69,6 +70,7 @@ export default async function runProbe() {
       detail: foundForbidden.length === 0
         ? 'no forbidden PII field name appeared on any event'
         : `forbidden fields present: ${foundForbidden.join(',')}`,
+      evidence: { forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length },
     });
 
     // No event value contains the PII fixture text
@@ -84,6 +86,7 @@ export default async function runProbe() {
       detail: leaks.length === 0
         ? `no event value contained the PII fixture text ${PII_TEXT}`
         : `PII fixture text leaked in: ${leaks.join(',')}`,
+      evidence: { piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length },
     });
 
     // The key itself is passed through unchanged; it is not decomposed
@@ -95,6 +98,7 @@ export default async function runProbe() {
       detail: keyPass
         ? `objectPut carried the key ${key} as an opaque string; no userId extraction`
         : `key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
+      evidence: { expectedKey: key, objectPutEvent: putEvent || null },
     });
   } finally {
     await store.close();

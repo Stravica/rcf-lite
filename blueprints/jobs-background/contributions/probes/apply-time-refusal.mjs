@@ -69,6 +69,7 @@ export default async function runProbe() {
       detail: pass
         ? `exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`
         : `expected exit=3 AND first-line tag [jobs-background-no-queue] AND messaging-queue-cloudflare AND --allow-no-queue-yet; got exit=${apply.code}; firstLine='${firstLine}'; tagMatch=${tagMatch}; providerMatch=${providerMatch}; overrideMatch=${overrideMatch}`,
+      evidence: { exitCode: apply.code, stderrFirstLine: firstLine, tagPresent: tagMatch, providerPresent: providerMatch, overrideFlagPresent: overrideMatch },
     });
     // Do NOT include the scratch dir path in the committed report; it is
     // a per-run tmp path and would leak the machine's tmp naming into the

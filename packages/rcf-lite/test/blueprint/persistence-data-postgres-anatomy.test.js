@@ -169,6 +169,22 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(recoverySrc, /process\.env\.POSTGRES_SOURCE_CONTAINER/);
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_CONTAINER/);
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_PORT/);
+  // Anatomy check on 7d evidence shape: every persistence-data-postgres
+  // probe attaches an evidence bag on its result rows (authoring
+  // standard section 7d, Addendum rule 3 of 2026-09-11).
+  for (const name of [
+    'facade-round-trip', 'migration-apply', 'prepared-statement-scan',
+    'transaction-atomicity', 'recovery-restore-round-trip', 'pool-posture-smoke',
+  ]) {
+    const src = await readFile(join(REPO_ROOT, 'blueprints', 'persistence-data-postgres', 'contributions', 'probes', `${name}.mjs`), 'utf8');
+    assert.ok(/evidence:\s*\{/.test(src),
+      `probe ${name}.mjs must attach an evidence bag on its result rows`);
+  }
+  // Recovery probe must call the shipped exportDatabase runner (not
+  // shell out to pg_dump directly) so the backupExported event is
+  // observed positively.
+  assert.match(recoverySrc, /exportDatabase/);
+  assert.match(recoverySrc, /backupExported/);
   // Store.mjs (TAC-2801 facade) is the sole reader of pg on the request
   // path per REQ-001; asserting it imports pg.
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'store.mjs'), 'utf8');

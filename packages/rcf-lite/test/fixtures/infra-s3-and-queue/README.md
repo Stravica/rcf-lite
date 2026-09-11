@@ -217,42 +217,46 @@ The remaining three probe shims (`run-apply-time-override.mjs`, `run-retry-and-f
 
 The reserved v1.1.0 `workflows` scheduler mode is documented in the guide but not shipped at v1.0.0; the `fake-clock-cron.mjs` probe adds a `workflows-scheduler` variant when the v1.1.0 minor lands per section 5.7 of the spec.
 
-## Declared env vars (T-2 object-storage-s3 pack)
+## Declared env vars (object-storage-s3 pack)
 
-Every environment variable this fixture or any T-2 probe it hosts reads is declared here. A first-tier `CI_HAS_*` variable gates the account-bound branch of a real-account probe; a second-tier variable, when unset with the gate set, causes the probe to record `accountBoundSkipped: true` and a `reason` field naming the missing variable per authoring standard section 7d. A probe that reads any variable not on this table fails the positive-evidence gate row at review time.
+Every environment variable this fixture or any object-storage-s3 probe it hosts reads is declared here. A first-tier `CI_HAS_*` variable gates the account-bound branch of a real-account probe; a second-tier variable, when unset with the gate set, causes the probe to record `accountBoundSkipped: true` and a `reason` field naming the missing variable per authoring standard section 7d. A probe that reads any variable not on this table fails the positive-evidence gate row at review time.
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
-| `S3_ENDPOINT_URL` | override | S3 endpoint URL (default `http://localhost:9000` for MinIO; overridden per CI runner or hardening dispatch). | every non-R2/non-Hetzner probe via `endpointFromEnv` on `src/object-store.mjs` |
-| `S3_BUCKET` | override | Bucket name (default `rcf-test`). | same probes |
+| `S3_ENDPOINT_URL` | override | S3 endpoint URL (default: fixture-local MinIO on port 9000; overridden per CI runner or hardening dispatch). | every non-R2/non-Hetzner probe via `endpointFromEnv` on `src/object-store.mjs` |
+| `S3_BUCKET` | override | Bucket name (default: fixture-local scratch). | same probes |
 | `S3_REGION` | override | AWS region (default `auto`). | same probes |
 | `S3_FORCE_PATH_STYLE` | override | Force path-style addressing (default `true`; MinIO requires, R2 accepts). | same probes |
-| `S3_ACCESS_KEY_ID` | second (R2) | S3-API access key id (defaults to MinIO fixture `rcf-dev` when unset). | `src/secrets.mjs`; `r2-real-account-smoke` reads it as a second-tier gate. |
-| `S3_SECRET_ACCESS_KEY` | second (R2) | S3-API secret access key (defaults to `rcf-dev-only`). | same |
-| `MINIO_PORT` / `MINIO_CONSOLE_PORT` | override | `docker-compose.yml` host-port overrides for MinIO API (9000) and console (9001). | `docker-compose.yml` |
+| `S3_ACCESS_KEY_ID` | second (R2) | S3-API access key id (defaults to a fixture-only value when unset). | `src/secrets.mjs`; the R2 real-account probe reads it as a second-tier gate |
+| `S3_SECRET_ACCESS_KEY` | second (R2) | S3-API secret access key (fixture-only default when unset). | same |
+| `MINIO_PORT` / `MINIO_CONSOLE_PORT` | override | `docker-compose.yml` host-port overrides for the MinIO API and console. | `docker-compose.yml` |
 | `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the R2 real-account branch. | `r2-real-account-smoke.mjs` |
-| `R2_ACCOUNT_ID` | second (R2) | Cloudflare account id that resolves the R2 S3-API host (`<accountId>.r2.cloudflarestorage.com`). | `src/secrets.mjs` `getSecret('r2Endpoint')`; `r2-real-account-smoke.mjs` |
+| `R2_ACCOUNT_ID` | second (R2) | Cloudflare account id used to resolve the R2 S3-API endpoint. | `src/secrets.mjs` `getSecret('r2Endpoint')`; `r2-real-account-smoke.mjs` |
 | `R2_BUCKET` | second (R2) | Scratch R2 bucket the real-account probe writes into. A hardening dispatch mints a `qa-e-s3-<short>` bucket and deletes it in teardown. | same |
 | `CI_HAS_HETZNER_OBJECT_STORAGE` | first | Gate for the Hetzner Object Storage real-account branch. | `hetzner-object-storage-round-trip.mjs` |
 | `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID` | second (Hetzner) | Hetzner S3-API access key id. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
 | `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY` | second (Hetzner) | Hetzner S3-API secret access key. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
 | `HETZNER_OBJECT_STORAGE_BUCKET` | second (Hetzner) | Hetzner Object Storage bucket name. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
-| `HETZNER_OBJECT_STORAGE_LOCATION` | second (Hetzner) | Hetzner location code (`fsn1`, `hel1`, or `nbg1`); composes into `<bucket>.<location>.your-objectstorage.com`. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
+| `HETZNER_OBJECT_STORAGE_LOCATION` | second (Hetzner) | Hetzner location code (`fsn1`, `hel1`, or `nbg1`). Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
 | `SIMULATE_403_ON_GET` | switch | Induced-failure switch forcing `getObject` to throw `AccessDenied` with `$metadata.httpStatusCode: 403`. | `src/object-store.mjs` |
 | `SIMULATE_PART_UPLOAD_FAIL` | switch | Induced-failure switch failing the second part of a multipart put so the abort-on-failure surface is exercised. | `src/object-store.mjs`, `multipart-upload` probe |
 | `SIMULATE_PRESIGN_MALFORMED` | switch | Induced-failure switch that corrupts the `X-Amz-Signature` on a presigned URL so a downstream fetch returns 403 without waiting on TTL wall-clock. | `src/object-store.mjs`, `presigned-url` probe |
-| `SIMULATE_PRESIGN_EXPIRE` | switch | Wall-clock switch: `presigned-url` probe sleeps past the TTL and asserts the second fetch returns 403 (default: not set, uses the tampered-signature shortcut). | `presigned-url` probe |
 | `SIMULATE_HETZNER_ENDPOINT_MISSHAPEN` | switch | Fixture-side induced-failure switch on `src/hetzner-endpoint.mjs`. | `src/hetzner-endpoint.mjs` |
 | `SIMULATE_HETZNER_EVENT_LEAK` | switch | Fixture-side induced-failure switch on `src/hetzner-endpoint.mjs`. | `src/hetzner-endpoint.mjs` |
 
-## Declared env vars (T-4 jobs-background pack)
+## Declared env vars (jobs-background pack)
 
-The T-4 probes drive the in-memory queue-driver seam and the fake-clock scheduler seam rather than a real Cloudflare Queues account; the live-only wrangler-dev cron-trigger path remains an accepted per-AC mechanism-reach gap per SDR-3-a on US-29107. No probe in this pack is account-bound.
+The jobs-background probes drive the in-memory queue-driver seam and the fake-clock scheduler seam rather than a real Cloudflare Queues account; the live-only wrangler-dev cron-trigger path remains an accepted per-AC mechanism-reach gap. No probe in this pack is account-bound.
+
+The env vars named below are the ones the code actually reads (`src/producer.mjs`'s `queueConfigFromEnv`). Legacy names (`QUEUE_NAME`, `DLQ_NAME`, `QUEUE_MAX_RETRIES`) previously appeared in this table but do not correspond to any process.env read on the shipped code path; they were removed on 2026-09-11 so a probe that reads any variable off the table below is refused at the reviewer gate.
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
-| `QUEUE_NAME` | override | Queue binding name (default `RCF_TEST_QUEUE`). | `src/producer.mjs` `queueConfigFromEnv` |
-| `DLQ_NAME` | override | DLQ binding name (default `RCF_TEST_DLQ`). | same |
-| `QUEUE_MAX_RETRIES` | override | Consumer `max_retries` ceiling (default `3`). | same |
+| `RCF_QUEUE_NAME` | override | Queue binding name (default `rcf-test-queue`). | `src/producer.mjs` `queueConfigFromEnv` |
+| `RCF_DLQ_NAME` | override | DLQ binding name (default `rcf-test-dlq`). | same |
+| `RCF_MAX_RETRIES` | override | Consumer `max_retries` ceiling (default `3`). | same |
+| `RCF_BATCH_SIZE` | override | Consumer max batch size (default `10`). | same |
+| `RCF_BATCH_TIMEOUT_MS` | override | Consumer max batch wait window in milliseconds (default `5000`). | same |
+| `WRANGLER_DEV_PORT` | override | Local port for a real `wrangler dev` process (default `8787`). | same |
 | `SIMULATE_HANDLER_THROW` | switch | Induced-failure switch: the shared jobs-runtime throws a retryable error on every dispatch so the retry-and-fail probe exercises the attempts=[1,2,3] then terminal jobFailed trajectory. | `src/jobs-runtime.mjs`, `retry-and-fail` probe |
 | `SIMULATE_PII_IN_JOB_INPUT` | switch | Induced-failure switch used by `event-secrecy` to seed a job input carrying the PII fixture body; the probe asserts none of the PII literals appear on the serialised run-log event stream. | `src/jobs-runtime.mjs`, `event-secrecy` probe |

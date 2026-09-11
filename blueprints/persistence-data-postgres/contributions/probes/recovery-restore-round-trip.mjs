@@ -1,28 +1,36 @@
 /**
  * Recovery restore round-trip probe.
  *
- * Seeds the running postgres:17-alpine fixture with a small rowset,
- * runs pg_dump via `docker exec` against the source container (pg_dump
- * ships inside the postgres:17-alpine image; on a shipped project the
- * fixture's src/recovery.mjs drives pg_dump on PATH per TAC-2804),
- * brings up a second postgres:17-alpine container on a spare port,
- * pipes the artefact through psql into the second container, and
- * asserts row-count and checksum equality between source and restored
- * databases.
+ * Drives the shipped fixture recovery runner (src/recovery.mjs
+ * exportDatabase, TAC-2804) to produce the dump artefact and asserts
+ * the runner emits `backupExported` per AC-27105-1. Because pg_dump is
+ * not on the host PATH in every CI runner, the probe supplies the
+ * runPgDump override on `exportDatabase` that shells out to
+ * `docker exec <sourceContainer> pg_dump ...`. The shipped runner is
+ * still the code path under test; only the pg_dump invocation is
+ * container-hosted.
+ *
+ * Brings up a second postgres:17-alpine container on a spare port,
+ * pipes the artefact through psql into that container (via the same
+ * docker exec pattern), and asserts row-count and md5 checksum
+ * equality between source and restored databases.
  *
  * Anchors AC-27105-1 (recovery exported, restore round-trips the row
- * set).
+ * set, backupExported event fires).
  *
- * Cleans up: TRUNCATE users on source; stops the restore container and
- * removes its volume; deletes the artefact file.
+ * Cleanup: TRUNCATE users on source; stops the restore container and
+ * removes its volume; deletes the artefact directory. Every teardown
+ * step records its exit status in the report's `teardown` bag; a
+ * teardown failure FAILS the verdict per Addendum rule 5.
  */
 
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdir, writeFile, unlink, rm } from 'node:fs/promises';
+import { mkdir, writeFile, rm, stat } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+import { exportDatabase } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/recovery.mjs';
 
 const execFileAsync = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -49,7 +57,7 @@ async function dockerExec(container, cmd, opts = {}) {
  * accept stdin buffers, so use spawn.
  */
 async function dockerExecStdin(container, cmd, stdinBuffer) {
-  return new Promise((resolve2, reject) => {
+  return new Promise((resolveP, reject) => {
     const child = spawn('docker', ['exec', '-i', container, ...cmd]);
     const chunks = [];
     const errChunks = [];
@@ -57,7 +65,7 @@ async function dockerExecStdin(container, cmd, stdinBuffer) {
     child.stderr.on('data', (d) => errChunks.push(d));
     child.on('error', reject);
     child.on('exit', (code) => {
-      if (code === 0) return resolve2({ stdout: Buffer.concat(chunks).toString('utf8'), stderr: Buffer.concat(errChunks).toString('utf8') });
+      if (code === 0) return resolveP({ stdout: Buffer.concat(chunks).toString('utf8'), stderr: Buffer.concat(errChunks).toString('utf8') });
       reject(new Error(`docker exec exit ${code}: ${Buffer.concat(errChunks).toString('utf8')}`));
     });
     child.stdin.write(stdinBuffer);
@@ -95,8 +103,24 @@ async function bringUpRestore() {
   await waitHealthy(RESTORE_CONTAINER, 30);
 }
 
-async function tearDownRestore() {
-  await execFileAsync('docker', ['rm', '-f', '-v', RESTORE_CONTAINER]).catch(() => {});
+/**
+ * Attempt one teardown step; record its outcome on the accumulator.
+ * The step is the literal command reported so a reviewer sees exactly
+ * what ran.
+ */
+async function recordTeardown(accumulator, label, fn) {
+  const entry = { step: label, ok: false, exitCode: null, error: null };
+  try {
+    const out = await fn();
+    entry.ok = true;
+    entry.exitCode = 0;
+    if (out && typeof out === 'object' && 'exitCode' in out) entry.exitCode = out.exitCode;
+  } catch (err) {
+    entry.error = err && err.message ? err.message : String(err);
+    entry.exitCode = err && typeof err.code === 'number' ? err.code : 1;
+  }
+  accumulator.push(entry);
+  return entry;
 }
 
 export default async function runProbe() {
@@ -106,6 +130,9 @@ export default async function runProbe() {
     onEvent: (e) => events.push(e),
   });
   const results = [];
+  const teardown = [];
+  let restoreBrought = false;
+  let artefactWritten = false;
   try {
     await store.ready();
     const pool = store.getPool();
@@ -124,23 +151,52 @@ export default async function runProbe() {
       await pool.query('INSERT INTO users(name, email) VALUES ($1, $2)', [name, email]);
     }
 
-    // Compute source row-count and checksum (md5 over concatenated name|email ordered by id)
+    // Compute source row-count and checksum
     const srcCount = (await pool.query('SELECT count(*)::int AS n FROM users')).rows[0].n;
     const srcCk = (await pool.query('SELECT md5(string_agg(name || $1 || email, $2 ORDER BY id))::text AS ck FROM users', ['|', ','])).rows[0].ck;
 
-    // pg_dump inside the source container to stdout, capture as artefact
+    // Drive the shipped exportDatabase runner (TAC-2804) with a
+    // runPgDump override that shells out to docker exec inside the
+    // source container. The shipped runner still writes the artefact
+    // and emits backupExported; we prove both.
     await mkdir(ARTEFACT_DIR, { recursive: true });
-    const dump = await dockerExec(SOURCE_CONTAINER, ['pg_dump', '-U', 'rcf', '-d', 'rcf_test', '--no-owner', '--no-acl', '--format=plain']);
-    await writeFile(ARTEFACT, dump.stdout, 'utf8');
-    const bytes = Buffer.byteLength(dump.stdout, 'utf8');
+    const runnerEvents = [];
+    const exported = await exportDatabase({
+      destination: ARTEFACT,
+      onEvent: (e) => runnerEvents.push(e),
+      runPgDump: async ({ pgDumpArgs }) => {
+        const dump = await dockerExec(SOURCE_CONTAINER, ['pg_dump', '-U', 'rcf', '-d', 'rcf_test', ...pgDumpArgs]);
+        return dump.stdout;
+      },
+    });
+    artefactWritten = true;
+    const artefactStat = await stat(ARTEFACT);
+
+    // Assert the runner emitted backupExported per AC-27105-1
+    const backupEvent = runnerEvents.find((e) => e.event === 'backupExported');
+    results.push({
+      anchorAcId: 'AC-27105-1',
+      verdict: (backupEvent && typeof backupEvent.artefactPath === 'string' && typeof backupEvent.completedAt === 'string') ? 'pass' : 'fail',
+      detail: backupEvent
+        ? `shipped exportDatabase emitted backupExported with artefactPath=${relative(PROJECT_ROOT, backupEvent.artefactPath)} completedAt=${backupEvent.completedAt}`
+        : `expected backupExported event on the shipped exportDatabase runner; runnerEvents=${JSON.stringify(runnerEvents)}`,
+      evidence: {
+        artefactPath: ARTEFACT_REL,
+        artefactBytesOnDisk: artefactStat.size,
+        bytesReportedByRunner: exported.bytes,
+        backupExportedEvent: backupEvent || null,
+      },
+    });
 
     // Bring up restore container
     await bringUpRestore();
+    restoreBrought = true;
 
-    // Pipe artefact into psql on restore
-    await dockerExecStdin(RESTORE_CONTAINER, ['psql', '-U', 'rcf', '-d', 'rcf_test', '-v', 'ON_ERROR_STOP=1'], Buffer.from(dump.stdout, 'utf8'));
+    // Pipe artefact into psql on restore (the container ships psql).
+    await dockerExecStdin(RESTORE_CONTAINER, ['psql', '-U', 'rcf', '-d', 'rcf_test', '-v', 'ON_ERROR_STOP=1'], Buffer.from(await import('node:fs').then((fs) => fs.promises.readFile(ARTEFACT))));
 
-    // Read row-count and checksum on restored
+    // Read row-count and checksum on restored via a connection to the
+    // restore container's exposed port.
     const dstStore = createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@localhost:${RESTORE_PORT}/rcf_test` });
     let dstCount = -1;
     let dstCk = 'unset';
@@ -155,25 +211,64 @@ export default async function runProbe() {
 
     results.push({
       anchorAcId: 'AC-27105-1',
-      verdict: bytes > 0 ? 'pass' : 'fail',
-      detail: `pg_dump artefact written to ${ARTEFACT_REL} (${bytes} bytes)`,
-    });
-    results.push({
-      anchorAcId: 'AC-27105-1',
       verdict: srcCount === dstCount ? 'pass' : 'fail',
       detail: `row-count source=${srcCount} restored=${dstCount}`,
+      evidence: { srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
     });
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: srcCk === dstCk && srcCk != null ? 'pass' : 'fail',
       detail: `checksum source=${srcCk} restored=${dstCk}`,
+      evidence: { srcChecksumMd5: srcCk, dstChecksumMd5: dstCk },
     });
   } finally {
-    // Cleanup: truncate source, tear down restore, delete artefact
-    try { await store.getPool().query('TRUNCATE users RESTART IDENTITY'); } catch { /* ignore */ }
-    await store.close();
-    await tearDownRestore();
-    await rm(ARTEFACT_DIR, { recursive: true, force: true }).catch(() => {});
+    // Teardown, every step recorded. A failure here becomes a FAIL row
+    // on the results per Addendum rule 5.
+    await recordTeardown(teardown, 'TRUNCATE users on source', async () => {
+      try {
+        await store.getPool().query('TRUNCATE users RESTART IDENTITY');
+      } catch (err) {
+        // If the source is unreachable we still want the store closed;
+        // rethrow so the accumulator records the failure.
+        throw err;
+      }
+    });
+    await recordTeardown(teardown, 'close source pool', async () => {
+      await store.close();
+    });
+    if (restoreBrought) {
+      await recordTeardown(teardown, `docker rm -f -v ${RESTORE_CONTAINER}`, async () => {
+        await execFileAsync('docker', ['rm', '-f', '-v', RESTORE_CONTAINER]);
+      });
+      // Positively confirm the container is gone.
+      await recordTeardown(teardown, `docker inspect ${RESTORE_CONTAINER} (expected: absent)`, async () => {
+        try {
+          await execFileAsync('docker', ['inspect', RESTORE_CONTAINER]);
+          throw new Error(`container ${RESTORE_CONTAINER} still exists after docker rm -f -v`);
+        } catch (err) {
+          // docker inspect on absent container exits non-zero, which is
+          // what we want; if it succeeded, the rethrow above ran.
+          if (err && err.stderr && /No such object|Error: No such/.test(err.stderr)) return { exitCode: 0 };
+          if (err && err.message && err.message.includes('still exists')) throw err;
+          return { exitCode: 0 };
+        }
+      });
+    }
+    if (artefactWritten) {
+      await recordTeardown(teardown, `rm -rf ${ARTEFACT_REL}`, async () => {
+        await rm(ARTEFACT_DIR, { recursive: true, force: true });
+      });
+    }
   }
-  return results;
+  // Fold teardown outcomes into the result set (Addendum rule 5).
+  const failedTeardown = teardown.filter((t) => !t.ok);
+  results.push({
+    anchorAcId: 'AC-27105-1',
+    verdict: failedTeardown.length === 0 ? 'pass' : 'fail',
+    detail: failedTeardown.length === 0
+      ? `teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
+      : `teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+    evidence: { teardown },
+  });
+  return { results, extra: { teardown, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT } };
 }

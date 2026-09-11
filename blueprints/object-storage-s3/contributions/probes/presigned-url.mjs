@@ -1,11 +1,15 @@
 /**
  * Presigned URL probe.
  *
- * Issues a presigned URL with TTL 60 seconds, fetches it with Node
- * built-in fetch, asserts 200 within TTL. Sleeps to TTL+2 seconds,
- * fetches again, asserts 403 or the storage-side 403-equivalent.
+ * Per AC-28103-1 the property is: with a bounded TTL, a fetch WITHIN
+ * TTL returns 200, and the SAME URL fetched after TTL+2 seconds
+ * returns 403 (S3-shape AccessDenied). This probe proves the property
+ * exactly: it presigns a URL at the ADR-2902 floor of 60s, fetches it
+ * within TTL and records 200 + body-equal, then sleeps TTL+2s and
+ * fetches the SAME URL again and records 403.
  *
- * Anchors AC-28103-1.
+ * The floor-refusal below the 60s floor is also asserted (a separate
+ * result row) per ADR-2902.
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
@@ -32,70 +36,70 @@ export default async function runProbe() {
   try {
     await store.ready();
     await store.putObject(key, 'text/plain', body);
+
+    // AC-28103-1 canonical timing test: TTL=60, fetch within TTL, then
+    // fetch the SAME URL after TTL+2s.
     const ttl = 60;
     const url = await store.presignGetUrl(key, ttl);
+    const issuedAt = Date.now();
     const first = await fetch(url);
     const firstBody = Buffer.from(await first.arrayBuffer());
-    const firstPass = first.status === 200 && firstBody.equals(body);
+    const firstStatus = first.status;
+    const firstEqual = firstBody.equals(body);
     const issued = events.find((e) => e.event === 'presignedIssued' && e.key === key && e.ttl === ttl);
     results.push({
       anchorAcId: 'AC-28103-1',
-      verdict: firstPass && issued ? 'pass' : 'fail',
-      detail: firstPass && issued
-        ? `fetch within TTL returned ${first.status} with matching body; presignedIssued fired with ttl=${ttl}`
-        : `firstStatus=${first.status} bodyMatch=${firstBody.equals(body)} issued=${Boolean(issued)}`,
+      verdict: firstStatus === 200 && firstEqual && issued ? 'pass' : 'fail',
+      detail: firstStatus === 200 && firstEqual && issued
+        ? `fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=${ttl}`
+        : `firstStatus=${firstStatus} bodyMatch=${firstEqual} issued=${Boolean(issued)}`,
+      evidence: {
+        key,
+        ttl,
+        firstStatus,
+        firstBodyBytes: firstBody.length,
+        firstBodyEqual: firstEqual,
+        presignedIssuedEvent: issued || null,
+        elapsedMsSincePresign: Date.now() - issuedAt,
+      },
     });
 
-    // Test TTL expiration: sleep past TTL, expect 403
-    // NOTE: TTL floor probe (below the 1-minute floor) is asserted via a
-    // separate try/catch below to avoid a 60+ second sleep in CI.
-    const shortUrl = await store.presignGetUrl(key, 60);
-    // Sleep past the 60s TTL is too slow for CI: instead we test the
-    // signature-expiry surface by asserting the presign floor refuses.
-    // The 200-then-403 expiration behaviour is asserted at real-time via
-    // the second URL fetch after a much shorter tampered TTL below.
+    // Wait past TTL and fetch the SAME URL. AC-28103-1 explicitly says
+    // "the same URL". This is a wall-clock wait; the probe budget
+    // includes it.
+    const waitMs = (ttl + 2) * 1000;
+    await sleep(waitMs);
+    const second = await fetch(url);
+    const secondStatus = second.status;
+    results.push({
+      anchorAcId: 'AC-28103-1',
+      verdict: secondStatus === 403 ? 'pass' : 'fail',
+      detail: secondStatus === 403
+        ? `after TTL+2s the SAME presigned URL returned 403 (AccessDenied / expired-URL family per S3 vendor doc)`
+        : `after TTL+2s the SAME presigned URL returned ${secondStatus}, expected 403`,
+      evidence: {
+        key,
+        ttl,
+        waitedMs: waitMs,
+        secondStatus,
+        totalElapsedMsSincePresign: Date.now() - issuedAt,
+      },
+    });
 
-    // Truncated ttl test: use a 1s-expired presign by generating a URL
-    // with a very short (but at-floor) TTL and awaiting past it.
-    const shortTtl = 60;
-    const shortUrl2 = await store.presignGetUrl(key, shortTtl);
-    // We simulate expiry by tampering the X-Amz-Date to a stale value
-    // via SIMULATE_PRESIGN_MALFORMED; the real 200-then-403 timing test
-    // runs with SIMULATE_PRESIGN_EXPIRE=true which sleeps TTL+2 seconds.
-    if (process.env.SIMULATE_PRESIGN_EXPIRE === 'true') {
-      await sleep((shortTtl + 2) * 1000);
-      const second = await fetch(shortUrl2);
-      results.push({
-        anchorAcId: 'AC-28103-1',
-        verdict: second.status === 403 ? 'pass' : 'fail',
-        detail: `after TTL fetch returned ${second.status} (expected 403)`,
-      });
-    } else {
-      // Time-shortened path: presign at floor and immediately corrupt
-      // the signature so the endpoint returns 403 without a wall-clock
-      // wait. This proves the 403-shape on tampered signatures; the
-      // real timing test remains available via SIMULATE_PRESIGN_EXPIRE.
-      const tampered = shortUrl2.replace(/X-Amz-Signature=[^&]*/, 'X-Amz-Signature=deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef');
-      const second = await fetch(tampered);
-      results.push({
-        anchorAcId: 'AC-28103-1',
-        verdict: second.status === 403 ? 'pass' : 'fail',
-        detail: `tampered signature fetch returned ${second.status} (expected 403; set SIMULATE_PRESIGN_EXPIRE=true for full TTL wall-clock)`,
-      });
-    }
-
-    // Floor refusal (1 minute per ADR-2902)
+    // ADR-2902 floor refusal (separate concern)
     let refusedBelowFloor = false;
-    try { await store.presignGetUrl(key, 30); } catch { refusedBelowFloor = true; }
+    let refusedError = null;
+    try { await store.presignGetUrl(key, 30); } catch (err) { refusedBelowFloor = true; refusedError = err && err.message; }
     results.push({
       anchorAcId: 'AC-28103-1',
       verdict: refusedBelowFloor ? 'pass' : 'fail',
-      detail: refusedBelowFloor ? 'presign below 60s floor refused per ADR-2902' : 'presign below floor did not refuse',
+      detail: refusedBelowFloor ? `presign below 60s floor refused per ADR-2902 (${refusedError})` : 'presign below floor did not refuse',
+      evidence: { requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError },
     });
 
     await store.deleteObject(key);
   } finally {
     await store.close();
   }
-  return results;
+  return { results, extra: { key } };
 }

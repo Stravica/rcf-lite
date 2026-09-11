@@ -185,9 +185,11 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'object-store.mjs'), 'utf8');
   assert.match(storeSrc, /from ['"]@aws-sdk\/client-s3['"]/,
     'src/object-store.mjs must import @aws-sdk/client-s3');
-  // 7d conformance: T-2 pack Declared env vars table names the first-tier
-  // gates plus every second-tier variable each real-account probe reads.
-  assert.match(readme, /^## Declared env vars \(T-2 object-storage-s3 pack\)/m);
+  // 7d conformance: the object-storage-s3 pack's Declared env vars
+  // table names the first-tier gates plus every second-tier variable
+  // each real-account probe reads. Section header is register-neutral
+  // (no work-item lane label).
+  assert.match(readme, /^## Declared env vars \(object-storage-s3 pack\)/m);
   for (const v of [
     'S3_ENDPOINT_URL', 'S3_BUCKET', 'S3_ACCESS_KEY_ID', 'S3_SECRET_ACCESS_KEY',
     'CI_HAS_CLOUDFLARE_ACCOUNT', 'R2_ACCOUNT_ID', 'R2_BUCKET',
@@ -195,7 +197,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID', 'HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY',
     'HETZNER_OBJECT_STORAGE_BUCKET', 'HETZNER_OBJECT_STORAGE_LOCATION',
   ]) {
-    assert.match(readme, new RegExp(`\`${v}\``), `T-2 Declared env vars must name ${v}`);
+    assert.match(readme, new RegExp(`\`${v}\``), `Declared env vars must name ${v}`);
   }
   // R2 and Hetzner real-account probes carry DECLARED_ENV exports and
   // record the skip reason naming the exact unset variable.
@@ -207,6 +209,19 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   assert.match(hetznerSrc, /export const DECLARED_ENV/, 'hetzner-object-storage-round-trip must export DECLARED_ENV');
   assert.match(hetznerSrc, /accountBoundSkipped: true/);
   assert.match(hetznerSrc, /reason/);
+  // Anatomy check on 7d evidence shape: every object-storage-s3 probe
+  // module attaches an evidence bag on its result rows or records an
+  // accountBoundSkipped honest skip (authoring standard section 7d,
+  // Addendum rule 3 of 2026-09-11).
+  for (const name of [
+    'facade-round-trip', 'put-get-round-trip', 'presigned-url',
+    'multipart-upload', 'event-secrecy', 'r2-real-account-smoke',
+    'hetzner-object-storage-round-trip',
+  ]) {
+    const src = await readFile(join(REPO_ROOT, 'blueprints', 'object-storage-s3', 'contributions', 'probes', `${name}.mjs`), 'utf8');
+    assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
+      `probe ${name}.mjs must attach evidence per result or record an accountBoundSkipped honest skip`);
+  }
 });
 
 test('section 6a table gains an objectStorage row and every shipped blueprint docs/topics.md gains an object-storage-s3 row at 28101-28899 / 29xx (TC-071-shelf-doc-consistency)', async () => {

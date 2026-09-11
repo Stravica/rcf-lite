@@ -35,6 +35,7 @@ export default async function runProbe() {
       detail: pass
         ? `facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}`
         : `facadeReady did not fire cleanly; events=${JSON.stringify(events)}`,
+      evidence: { facadeReadyEvent: ready || null, endpointHost, bucketName: bucket, allEvents: events },
     });
   } finally {
     await store.close();

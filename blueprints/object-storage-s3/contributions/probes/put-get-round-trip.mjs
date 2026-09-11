@@ -44,6 +44,7 @@ export default async function runProbe() {
       detail: roundTripPass && eventPass
         ? `1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
         : `roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
+      evidence: { key, requestedContentType: contentType, gotContentType: got.contentType, gotSize: got.body.length, byteEqual: got.body.equals(body), objectPutEvent: putEvent || null },
     });
 
     // list under prefix
@@ -56,6 +57,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-28102-3',
       verdict: listPass ? 'pass' : 'fail',
       detail: listPass ? `list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}` : `listed=${JSON.stringify(listed)}`,
+      evidence: { prefix, expectedKeys: listKeys, returnedKeys: listed.keys, isTruncated: listed.isTruncated },
     });
 
     // delete and confirm 404
@@ -72,6 +74,7 @@ export default async function runProbe() {
       detail: deletedEvent && notFound
         ? 'objectDeleted fired and get after delete returned NoSuchKey'
         : `deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
+      evidence: { key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
     });
     // clean up the list keys
     for (const k of listKeys) {

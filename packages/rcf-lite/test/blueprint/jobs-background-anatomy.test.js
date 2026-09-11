@@ -57,7 +57,7 @@ test('blueprint.json declares 22 contributions with capabilities backgroundJobs,
 test('every probe module exports the section 3.2 verdict envelope with an anchorAcId matching a contributed AC id (TC-076-probe-anchor-ids-cross-check)', async () => {
   const probesDir = join(BP_DIR, 'contributions', 'probes');
   const entries = await readdir(probesDir);
-  const probeNames = ['apply-time-refusal', 'apply-time-override', 'fake-clock-cron', 'retry-and-fail', 'event-secrecy'];
+  const probeNames = ['apply-time-refusal', 'apply-time-override', 'fake-clock-cron', 'retry-and-fail', 'retry-and-fail-real-account', 'event-secrecy'];
   for (const name of probeNames) {
     assert.ok(entries.includes(`${name}.mjs`), `probe module ${name}.mjs missing`);
     assert.ok(entries.includes(`run-${name}.mjs`), `probe shim run-${name}.mjs missing`);
@@ -68,6 +68,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
     'apply-time-override': 'AC-jobs-overrideRecorded',
     'fake-clock-cron': 'AC-jobs-scheduledRunsOnCron',
     'retry-and-fail': 'AC-jobs-retryOnHandlerFailure',
+    'retry-and-fail-real-account': 'AC-jobs-retryOnHandlerFailure',
     'event-secrecy': 'AC-jobs-eventSecrecy',
   };
   // Anchor ids must appear in the blueprint's contribution set (either
@@ -105,12 +106,31 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   assert.match(readme, /retry-and-fail/);
   assert.match(readme, /event-secrecy/);
   assert.match(readme, /jobs\//);
-  // 7d conformance: T-4 Declared env vars table on the shared fixture
-  // README names every variable the T-4 probes read (authoring standard
-  // section 7d).
-  assert.match(readme, /^## Declared env vars \(T-4 jobs-background pack\)/m);
-  for (const v of ['QUEUE_NAME', 'DLQ_NAME', 'QUEUE_MAX_RETRIES', 'SIMULATE_HANDLER_THROW', 'SIMULATE_PII_IN_JOB_INPUT']) {
-    assert.match(readme, new RegExp(`\`${v}\``), `T-4 Declared env vars must name ${v}`);
+  // 7d conformance: the jobs-background Declared env vars table on the
+  // shared fixture README names every variable the code actually reads
+  // (authoring standard section 7d). Derived from the concrete
+  // process.env reads on `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/producer.mjs`.
+  assert.match(readme, /^## Declared env vars \(jobs-background pack\)/m);
+  const producerSrc = await readFile(join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'infra-s3-and-queue', 'src', 'producer.mjs'), 'utf8');
+  const producerEnvReads = [...producerSrc.matchAll(/env\.([A-Z][A-Z0-9_]+)/g)].map((m) => m[1]);
+  const uniqueProducerEnv = [...new Set(producerEnvReads)];
+  assert.ok(uniqueProducerEnv.length >= 5, `producer.mjs must read at least 5 env vars; got ${uniqueProducerEnv.join(',')}`);
+  for (const v of uniqueProducerEnv) {
+    assert.match(readme, new RegExp(`\`${v}\``), `jobs-background Declared env vars must name the process.env read ${v}`);
+  }
+  for (const v of ['SIMULATE_HANDLER_THROW', 'SIMULATE_PII_IN_JOB_INPUT']) {
+    assert.match(readme, new RegExp(`\`${v}\``), `jobs-background Declared env vars must name ${v}`);
+  }
+  // Anatomy check on evidence shape: every jobs-background probe result
+  // row carries either `evidence` OR `accountBoundSkipped: true` per
+  // authoring standard section 7d and the Addendum rule 3 of 2026-09-11.
+  const probesDir = join(BP_DIR, 'contributions', 'probes');
+  for (const name of ['apply-time-refusal', 'apply-time-override', 'fake-clock-cron', 'retry-and-fail', 'retry-and-fail-real-account', 'event-secrecy']) {
+    const src = await readFile(join(probesDir, `${name}.mjs`), 'utf8');
+    // The probe's push-shape must reference an evidence bag (either
+    // literal `evidence:` key or `accountBoundSkipped: true`).
+    assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
+      `probe ${name}.mjs must attach evidence per result or record an accountBoundSkipped honest skip`);
   }
   // The two toy jobs export the shape.
   const url1 = new URL('../../test/fixtures/infra-s3-and-queue/jobs/send-welcome-email.mjs', import.meta.url);

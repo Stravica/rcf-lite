@@ -29,12 +29,14 @@ export default async function runProbe() {
     await pool.query('TRUNCATE users');
     const facadeReadyFired = events.some((e) => e.event === 'facadeReady');
     const facadeReadyDbName = facadeReadyFired ? events.find((e) => e.event === 'facadeReady').databaseName : null;
+    const facadeReadyEvent = facadeReadyFired ? events.find((e) => e.event === 'facadeReady') : null;
     results.push({
       anchorAcId: 'AC-27101-1',
       verdict: facadeReadyFired && facadeReadyDbName === 'rcf_test' ? 'pass' : 'fail',
       detail: facadeReadyFired
         ? `facadeReady fired with databaseName=${facadeReadyDbName}`
         : 'facadeReady did not fire before first query',
+      evidence: { facadeReadyEvent, allEvents: events },
     });
     const id = await store.createUser('probe-facade-round-trip', 'facade-round-trip@rcf.test');
     const row = await store.getUserById(id);
@@ -45,6 +47,7 @@ export default async function runProbe() {
       detail: roundTripPass
         ? `round-trip put id=${id} and got name=${row.name}`
         : `round-trip failed: id=${id}, row=${JSON.stringify(row)}`,
+      evidence: { insertedId: id, retrievedRow: row },
     });
   } finally {
     try {

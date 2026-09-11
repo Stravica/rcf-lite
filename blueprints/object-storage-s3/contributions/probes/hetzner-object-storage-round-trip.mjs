@@ -54,14 +54,19 @@ function skipResult(reason) {
       detail: `accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
+      evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
     }],
     extra: { accountBoundSkipped: true, reason, envDeclared: [...DECLARED_ENV] },
   };
 }
 
 export default async function runProbe() {
-  if (process.env.CI_HAS_HETZNER_OBJECT_STORAGE !== 'true') {
+  const gate = process.env.CI_HAS_HETZNER_OBJECT_STORAGE;
+  if (gate == null || gate === '') {
     return skipResult('CI_HAS_HETZNER_OBJECT_STORAGE unset');
+  }
+  if (gate !== 'true') {
+    return skipResult(`CI_HAS_HETZNER_OBJECT_STORAGE set to ${JSON.stringify(gate)} (not "true")`);
   }
   for (const varName of [
     'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID',
@@ -140,8 +145,9 @@ export default async function runProbe() {
       anchorAcId: 'AC-28110-1',
       verdict: roundTripEqual ? 'pass' : 'fail',
       detail: roundTripEqual
-        ? `Hetzner Object Storage round-trip byte-equal against ${endpoint} bucket=${bucket} location=${location}`
+        ? `Hetzner Object Storage round-trip byte-equal against the composed vendor endpoint`
         : `Hetzner Object Storage round-trip failed byte equality; expected 1024 bytes got ${got.body.length}`,
+      evidence: { endpointVendorPatternMatched: true, bucketNamePresent: Boolean(bucket), locationCode: location, byteCount: got.body.length },
     });
     const evAssertion = assertMetadataOnlyEventRecords(events);
     results.push({
@@ -150,10 +156,27 @@ export default async function runProbe() {
       detail: evAssertion.pass
         ? `every lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
         : `event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
+      evidence: { whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [], eventCount: events.length },
     });
   } finally {
-    try { await store.deleteObject(key); } catch { /* teardown best effort */ }
-    await store.close();
+    // Teardown outcomes are recorded on the results per Addendum rule
+    // 5; a teardown FAILURE fails the verdict.
+    const teardown = { deleteObject: null };
+    try {
+      await store.deleteObject(key);
+      teardown.deleteObject = { key, ok: true };
+    } catch (err) {
+      teardown.deleteObject = { key, ok: false, error: err && err.message };
+    }
+    try { await store.close(); } catch { /* facade close best-effort */ }
+    results.push({
+      anchorAcId: 'AC-28110-1',
+      verdict: teardown.deleteObject && teardown.deleteObject.ok ? 'pass' : 'fail',
+      detail: teardown.deleteObject && teardown.deleteObject.ok
+        ? `scratch object ${key} deleted on teardown`
+        : `scratch object teardown FAILED: ${JSON.stringify(teardown.deleteObject)}`,
+      evidence: { teardown },
+    });
   }
-  return results;
+  return { results, extra: { envDeclared: [...DECLARED_ENV] } };
 }

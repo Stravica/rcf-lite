@@ -104,9 +104,14 @@ export function createScheduler({ mode = 'inProcess', clock, publisher, runLog }
         }
       }
       return fires;
-      async function publishOne(schedule, ms) {
+      async function publishOne(schedule, _ms) {
+        // Record scheduledAt from the SAME time domain as the runtime's
+        // jobStarted timestamp (Date.now()) so the scheduled-to-started
+        // delta is a meaningful tolerance in one clock. The fake clock
+        // still drives WHEN a cron fires; only the recorded ISO
+        // timestamp shifts to the runtime's domain.
         const jobId = mintJobId();
-        const scheduledAt = new Date(ms).toISOString();
+        const scheduledAt = new Date().toISOString();
         const body = { jobName: schedule.jobName, jobInput: schedule.input, jobId, scheduledAt };
         await publisher.publish(body);
         if (typeof runLog === 'function') {

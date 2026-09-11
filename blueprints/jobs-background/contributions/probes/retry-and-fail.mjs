@@ -60,6 +60,13 @@ export default async function runProbe() {
     detail: pass
       ? `three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
       : `attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
+    evidence: {
+      attemptsSequence: attemptsSeq,
+      jobIds: [...jobIds],
+      jobStartedCount: jobStartedEvents.length,
+      terminalJobFailed: jobFailed || null,
+      dlqInvoked,
+    },
   });
   return { results, extra: { events, dlqInvoked, attemptsSeq } };
 }

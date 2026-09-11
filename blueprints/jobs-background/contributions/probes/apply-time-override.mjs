@@ -85,6 +85,7 @@ export default async function runProbe() {
       detail: pass
         ? `exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`
         : `checks=${JSON.stringify(checks)}; notes='${notes}'`,
+      evidence: { checks, sidecarDoc: doc, exitCode: apply.code },
     });
     // Do NOT include the sidecarPath (a per-run tmp path) in the report;
     // the sidecar contents (doc) is the load-bearing evidence.

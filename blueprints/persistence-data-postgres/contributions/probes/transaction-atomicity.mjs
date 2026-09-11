@@ -48,6 +48,7 @@ export default async function runProbe() {
       detail: errorThrown
         ? `withTransaction re-threw underlying error code=${caught.code}`
         : 'withTransaction did not throw on the constraint violation',
+      evidence: { thrownErrorCode: caught && caught.code, thrownMessage: caught && caught.message },
     });
 
     const rolledBackEvent = events.find((e) => e.event === 'transactionRolledBack');
@@ -58,6 +59,7 @@ export default async function runProbe() {
       detail: rolledBackEvent
         ? `transactionRolledBack fired with statementIndex=${rolledBackEvent.statementIndex} code=${rolledBackEvent.code}`
         : `transactionRolledBack did not fire; events=${JSON.stringify(events)}`,
+      evidence: { transactionRolledBackEvent: rolledBackEvent || null, allEvents: events },
     });
 
     const count = await store.countUsers();
@@ -68,6 +70,7 @@ export default async function runProbe() {
       detail: noRowsPersist
         ? 'users table empty after rollback (no partial commit landed)'
         : `users table carries ${count} row(s) after rollback (partial commit leaked)`,
+      evidence: { postRollbackUserCount: count },
     });
   } finally {
     try {

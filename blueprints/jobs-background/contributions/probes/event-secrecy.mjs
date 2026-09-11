@@ -64,6 +64,14 @@ export default async function runProbe() {
     detail: pass
       ? `no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
       : `leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
+    evidence: {
+      piiLiteralsChecked: PII_LITERALS,
+      leakedLiterals: leaks,
+      whitelist: [...EVENT_WHITELIST],
+      nonWhitelistedKeys: [...wrongKeys],
+      eventCount: events.length,
+      jobCompletedFired: events.some((e) => e.event === 'jobCompleted'),
+    },
   });
   return { results, extra: { events, piiLiterals: PII_LITERALS } };
 }

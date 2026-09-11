@@ -82,7 +82,7 @@ Every environment variable this fixture or any probe it hosts reads is declared 
 | `POSTGRES_HOST` | Connection host (default `localhost`). | `src/store.mjs` (via `connectionUrlFromEnv`) |
 | `POSTGRES_PORT` | Connection port (default `5432`; docker-compose accepts the same var to override the host-side bind). | `src/store.mjs`, `docker-compose.yml` |
 | `POSTGRES_USER` | Connection user (default `rcf`). | `src/store.mjs` |
-| `POSTGRES_PASSWORD` | Connection password (default `rcf-dev-only`, fixture-only). | `src/store.mjs` |
+| `POSTGRES_PASSWORD` | Connection password (fixture-only default; a project overrides via env). | `src/store.mjs` |
 | `POSTGRES_DB` | Connection database (default `rcf_test`). | `src/store.mjs` |
 | `POSTGRES_SOURCE_CONTAINER` | Docker container name of the source postgres for the recovery-restore-round-trip probe's `pg_dump` exec (default `infra-postgres-postgres-1`; a CI runner or hardening dispatch overrides to the actual container name in use). | `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` |
 | `POSTGRES_RESTORE_CONTAINER` | Docker container name the recovery-restore-round-trip probe uses for its throwaway restore container (default `infra-postgres-restore`). | same probe |
