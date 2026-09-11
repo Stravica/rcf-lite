@@ -10,7 +10,7 @@
 
 ## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
 
-- Fixture manifest now carries a `Declared env vars (deploy-hetzner-server probes)` table naming every first- and second-tier variable the three T-1 real-account probes read, plus every fixture-mutation switch (positive-evidence gate row 7d). Skip reasons on the real-account probes name `CI_HAS_HETZNER_ACCOUNT` literally; the three real-account probes run under the criterion-e core-shelf hardening dispatch (server id created then absent from the post-run `hcloud server list` inventory, cloud-init render hash and six ssh baseline blocks observed, snapshot id created then deleted with the server). Blueprint content otherwise byte-identical to 1.1.2; anatomy test extended.
+- Fixture manifest now carries a `Declared env vars (deploy-hetzner-server probes)` table naming every first- and second-tier variable the three deploy-hetzner-server real-account probes read, plus every fixture-mutation switch (positive-evidence gate row 7d). Skip reasons on the real-account probes name `CI_HAS_HETZNER_ACCOUNT` literally; the three real-account probes were exercised end-to-end on the shipped fixture (server id created then absent from the post-run `hcloud server list` inventory, cloud-init render hash and six ssh baseline blocks observed, snapshot id created then deleted with the server). Blueprint content otherwise byte-identical to 1.1.2; anatomy test extended.
 
 # Changelog
 
@@ -41,11 +41,11 @@ Defect list fixed:
 - (7) contributions/templates/cloud-init.yaml.tmpl adds a write_files sudoers.d fragment at /etc/sudoers.d/90-deploy-nopasswd (mode 0440) that grants NOPASSWD to the deploy user, so the sudoed baseline checks (cloud-init status --wait, ufw status, iptables -L, systemctl is-active fail2ban) never block on a tty prompt.
 - (9) provision.mjs reads an env override RCF_LITE_CI_SSH_KEY_NAME (per-key comma-separated) for the manifest sshKeyIds, with the manifest value staying the default when the override is unset. Documented in the fixture README.
 
-Also: the three mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (REQ-145 / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
+Also: the three mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (the H hardening requirement / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
 
-Chain: the operator estate hardening block covering REQ-145..149 / TS-175..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for round 7 gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
+Chain: the operator estate hardening block covering the H hardening requirement..149 / the H mock-purity suite..179 / FBS-165..169 / CN-510..519 per the operator estate chain-block ruling 2026-09-08. Real run under the project maintainer one-off approval 2026-09-08: yes, one-off for shipped gates; Ensure that after any testing etc the Hertner account leaves NO orphaned resources behind. Leave it in the state it started in.
 
-Defect (8) container-host and edge-tunnel stub drivers are OUT of scope for the round-7 real-account gate pass (the review train owns them).
+Defect (8) container-host and edge-tunnel stub drivers are OUT of scope for the shipped real-account gate pass (the review train owns them).
 
 # deploy-hetzner-server changelog
 
@@ -78,8 +78,8 @@ Mints the shared `hetzner-throwaway-server` fixture under
 `packages/rcf-lite/test/fixtures/` (`platform-docker-compose-host` and `edge-cloudflare-tunnel` EXTEND it,
 they do not ship a second copy).
 
-Trace: hetzner-round-7-spec-2026-09-07.md section 5.1;
+Trace: hetzner-shipped-spec-2026-09-07.md section 5.1;
 maintainer ruling 2026-09-07 09:50Z (decisions 18 through 24 approved as
-recommended, "round 7 - agreee to all").
+recommended, "shipped - agreee to all").
 
 Review-fix (2026-09-09): Adds three option-binding ACs to close section 7c on the elicits catalogue - provisioning-tool raw-api (AC-37101-5), server-type SKU enum (AC-37103-4 naming every shipped SKU), location enum (AC-37103-5 naming every shipped datacentre). Adds deliveredBy on REQ-003, REQ-005, REQ-006. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-37101-2, AC-37105-1, AC-37108-1, AC-37108-2, AC-37108-3).

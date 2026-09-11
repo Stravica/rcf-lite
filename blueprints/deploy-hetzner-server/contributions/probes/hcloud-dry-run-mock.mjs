@@ -1,4 +1,4 @@
-// Probe: hcloud dry-run mock (v1.1.4 closure fix, criterion e pass).
+// Probe: hcloud dry-run mock (v1.1.4 closure fix).
 //
 // accountBound: false. Anchors each result row to the AC whose
 // observable property that row actually observes:
@@ -52,7 +52,7 @@ export default async function runProbe() {
   // the same file; the assertion that the file carries the deploy
   // ssh-key and NOPASSWD lines is now the sole responsibility of
   // cloud-init-render-lint (AC-37104-1) and the real cloud-init
-  // baseline probe (AC-37105-1). We keep the render step here so the
+  // baseline probe (AC-37105-1). The render step is retained so the
   // mocked facade lifecycle runs against a coherent input, but no
   // manufactured AC anchors a result row on the rendered file.
   const publicKeys = ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForMockedRunHardeningH1 rcf-lite-ci-mock'];

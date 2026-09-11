@@ -102,7 +102,7 @@ export default async function runProbe() {
     };
     evidence.external = {
       url: externalUrl, statusCode: external.statusCode, error: external.error || null,
-      note: 'off-host fetch expected to fail under the T-1 DOCKER-USER hardening',
+      note: 'off-host fetch expected to fail under the deploy-hetzner-server DOCKER-USER hardening',
     };
     if (!onServer.ok || onServer.statusCode !== 200) {
       resultRow.verdict = 'fail';

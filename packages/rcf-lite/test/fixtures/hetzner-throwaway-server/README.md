@@ -1,8 +1,8 @@
 # hetzner-throwaway-server fixture
 
-Shared throwaway-Hetzner-server CI fixture for the round-7 tracks.
-Minted by round-7 T-1 (`deploy-hetzner-server` v1.0.0); extended by T-2
-(`platform-docker-compose-host`) and T-3 (`edge-cloudflare-tunnel`).
+Shared throwaway-Hetzner-server CI fixture for the shipped tracks.
+Minted by shipped deploy-hetzner-server (`deploy-hetzner-server` v1.0.0); extended by platform-docker-compose-host
+(`platform-docker-compose-host`) and edge-cloudflare-tunnel (`edge-cloudflare-tunnel`).
 Ships one `cx23` shape in `fsn1` from `ubuntu-24.04` under
 `hetzner/servers/ci-throwaway.json`, three real-account entry points
 (`provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`), a mocked hcloud
@@ -41,7 +41,7 @@ CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-rea
 
 Without `CI_HAS_HETZNER_ACCOUNT` set to `true` every real-account
 probe records `accountBoundSkipped: true` and the aggregate flips to
-`pass` per hetzner-round-7-spec-2026-09-07.md section 3.5.
+`pass` per hetzner-shipped-spec-2026-09-07.md section 3.5.
 
 ## hcloud install
 
@@ -54,7 +54,7 @@ install routes:
 - Release binary: download the OS/arch tarball from
   https://github.com/hetznercloud/cli/releases/latest, verify against
   `checksums.txt`, drop the extracted `hcloud` binary on your `PATH`.
-  This is the route the round-7 T-1 gate reviewer used on
+  This is the route the shipped deploy-hetzner-server gate reviewer used on
   darwin-arm64 (1.67.0).
 
 ## Fixture layout
@@ -132,14 +132,14 @@ in the same call. The nightly `sweep-orphans.mjs` runs a bounded
 `throwawayServerSweptCount` metric so a run of leaks surfaces on the
 observability sink.
 
-## Extending in T-2 and T-3
+## Extending in platform-docker-compose-host and edge-cloudflare-tunnel
 
-`platform-docker-compose-host` (T-2) and `edge-cloudflare-tunnel`
-(T-3) reuse THIS fixture rather than shipping a second copy.
-T-2 mounts its `docker` and `compose` verbs on the same throwaway
+`platform-docker-compose-host` (platform-docker-compose-host) and `edge-cloudflare-tunnel`
+(edge-cloudflare-tunnel) reuse THIS fixture rather than shipping a second copy.
+platform-docker-compose-host mounts its `docker` and `compose` verbs on the same throwaway
 server after `run-cloud-init-render-lint.mjs` seals the cloud-init
-baseline. T-3 mounts its `cloudflared` connector on the compose
-runtime T-2 stands up. Neither track modifies the ci-throwaway
+baseline. edge-cloudflare-tunnel mounts its `cloudflared` connector on the compose
+runtime platform-docker-compose-host stands up. Neither track modifies the ci-throwaway
 manifest; both add their own `run-<probe>.mjs` shims here that call
 their own blueprint probes with the same delegate pattern.
 
@@ -155,7 +155,7 @@ section 6).
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
-| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the three T-1 real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `deploy-hetzner-server/real-account-throwaway-server-provision`, `deploy-hetzner-server/real-account-cloud-init-hardened`, `deploy-hetzner-server/real-account-snapshot-on-demand` |
+| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the three deploy-hetzner-server real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `deploy-hetzner-server/real-account-throwaway-server-provision`, `deploy-hetzner-server/real-account-cloud-init-hardened`, `deploy-hetzner-server/real-account-snapshot-on-demand` |
 | `HCLOUD_TOKEN` | second | Hetzner Cloud API token consumed by the fixture `provision.mjs`, `destroy.mjs`, `sweep-orphans.mjs`, `src/snapshot-verb.mjs` and `src/cloud-init-renderer.mjs` (ssh-key describe) via the `hcloud` CLI on the account-bound path. Unset on the skip path. | shared `hetzner-throwaway-server` provisioner surface consumed by every `deploy-hetzner-server` real-account probe |
 | `GITHUB_RUN_ID` | second, optional | Runner-supplied run id used to tag the throwaway server labels on the account-bound path; the probes fall back to the string `local` when unset. Read at `blueprints/deploy-hetzner-server/contributions/probes/real-account-*.mjs`. | every `deploy-hetzner-server` real-account probe |
 | `RCF_LITE_CI_SSH_KEY` | second, optional | Filesystem path to an ssh private key the real-account cloud-init hardened probe uses to reach the throwaway server; falls back to the default ssh-agent key when unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/ssh-baseline-check.mjs`. | `deploy-hetzner-server/real-account-cloud-init-hardened` |
@@ -166,9 +166,9 @@ section 6).
 | `SIMULATE_JSON_PARSE_STRIP` | fixture-mutation | Fixture-side switch on `run-hcloud-dry-run-mock.mjs`; the mocked `hcloud server create` returns non-JSON stdout so the facade's JSON parser throws and the probe FAILS. Never read by the probe body. | fixture-side `run-hcloud-dry-run-mock.mjs` |
 | `SIMULATE_EVENT_SECRECY_LEAK` | fixture-mutation | Fixture-side switch on `run-hcloud-dry-run-mock.mjs`; the facade injects the token into the `hetznerServerProvisioned` payload so the event-secrecy scan FAILS naming the leaked field. Never read by the probe body. | fixture-side `run-hcloud-dry-run-mock.mjs` |
 
-## T-2 (platform-docker-compose-host v1.0.0) extension
+## platform-docker-compose-host (platform-docker-compose-host v1.0.0) extension
 
-Round-7 T-2 extends this fixture with a minimal compose stack that proves
+Round-7 platform-docker-compose-host extends this fixture with a minimal compose stack that proves
 the platform-docker-compose-host v1.0.0 blueprint contract:
 
 - `compose.yaml`: two services (`web`, `caddy`), one named network
@@ -182,9 +182,9 @@ the platform-docker-compose-host v1.0.0 blueprint contract:
 - `src/serve.mjs`: Node stub the web service runs; listens on port 8080
   (via `WEB_LISTEN_PORT` from `.env`), returns 200 on `/live`.
 
-## T-2 reviewer boot (mocked, no account)
+## platform-docker-compose-host reviewer boot (mocked, no account)
 
-Every T-2 local probe runs from THIS directory as written. Docker must
+Every platform-docker-compose-host local probe runs from THIS directory as written. Docker must
 be reachable for `compose-config-lint` and `caddyfile-validate` (which
 uses the `caddy:2` container when a local `caddy` binary is not on
 PATH); the two real-account probes skip without `CI_HAS_HETZNER_ACCOUNT`.
@@ -194,14 +194,14 @@ cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
 node ./run-compose-config-lint.mjs && node ./run-secrets-as-files-scan.mjs && node ./run-caddyfile-validate.mjs
 ```
 
-## T-2 reviewer boot (real account, throwaway server)
+## platform-docker-compose-host reviewer boot (real account, throwaway server)
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
 CI_HAS_HETZNER_ACCOUNT=true HCLOUD_TOKEN=$HETZNER_ACCOUNT_API_KEY node ./run-real-account-minimal-stack-up.mjs && node ./run-real-account-reload-burst.mjs
 ```
 
-## T-2 induced-failure switches (mutation checks)
+## platform-docker-compose-host induced-failure switches (mutation checks)
 
 - `SIMULATE_MISSING_HEALTHCHECK=true` on `run-compose-config-lint.mjs`:
   strips the healthcheck: block from the web service; the lint FAILS
@@ -234,11 +234,11 @@ section 6).
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
-| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the two T-2 real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
-| `HCLOUD_TOKEN` | second | Hetzner Cloud API token consumed by the shared fixture provisioner surface on the account-bound path so the T-2 probes can stand a throwaway server up before shipping the compose bundle. Unset on the skip path. | shared `hetzner-throwaway-server` provisioner surface consumed by every T-2 real-account probe |
+| `CI_HAS_HETZNER_ACCOUNT` | first | Gate for the Hetzner-account branch on the two platform-docker-compose-host real-account probes. Without it each probe records `accountBoundSkipped: true` with `reason` naming this variable and aggregates to `pass`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
+| `HCLOUD_TOKEN` | second | Hetzner Cloud API token consumed by the shared fixture provisioner surface on the account-bound path so the platform-docker-compose-host probes can stand a throwaway server up before shipping the compose bundle. Unset on the skip path. | shared `hetzner-throwaway-server` provisioner surface consumed by every platform-docker-compose-host real-account probe |
 | `GITHUB_RUN_ID` | second, optional | Runner-supplied run id used to tag the throwaway server labels on the account-bound path; the probes fall back to `local-<epoch-ms>` when unset. Read at `blueprints/platform-docker-compose-host/contributions/probes/real-account-*.mjs`. | every `platform-docker-compose-host` real-account probe |
 | `RCF_LITE_CI_SSH_KEY` | second, optional | Filesystem path to an ssh private key the compose-stack driver uses to reach the throwaway server for the docker install, rsync, `docker compose up`, HTTP probe and `caddy reload` calls; falls back to the default ssh-agent key when unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/src/ssh-baseline-check.mjs` and re-read by `src/compose-stack-driver.mjs`. | `platform-docker-compose-host/real-account-minimal-stack-up`, `platform-docker-compose-host/real-account-reload-burst` |
-| `RCF_LITE_CI_SSH_KEY_NAME` | second, optional | Comma-separated list of Hetzner Cloud ssh-key NAMES to use in place of the manifest `sshKeyIds` at provision time; the manifest value stays the default when the override is unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/provision.mjs`. | shared `hetzner-throwaway-server` provisioner surface consumed by every T-2 real-account probe |
+| `RCF_LITE_CI_SSH_KEY_NAME` | second, optional | Comma-separated list of Hetzner Cloud ssh-key NAMES to use in place of the manifest `sshKeyIds` at provision time; the manifest value stays the default when the override is unset. Read at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/provision.mjs`. | shared `hetzner-throwaway-server` provisioner surface consumed by every platform-docker-compose-host real-account probe |
 | `SIMULATE_MISSING_HEALTHCHECK` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; strips the `healthcheck:` block from the web service so the lint FAILS naming the service. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
 | `SIMULATE_UNCLASSIFIED_RESTART` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; rewrites the web `restart:` policy to `always` so the lint FAILS naming the disallowed value. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
 | `SIMULATE_UNCLASSIFIED_LOG_DRIVER` | fixture-mutation | Fixture-side switch on `run-compose-config-lint.mjs`; rewrites the web `logging.driver` to `syslog` so the lint FAILS naming the disallowed value. Never read by the probe body. | fixture-side `run-compose-config-lint.mjs` |
@@ -252,10 +252,10 @@ section 6).
 | `WEB_LISTEN_PORT` | second, optional | Fixture web-service listen port (default 8080) read by `src/serve.mjs`; declared here so the caddy `reverse_proxy web:8080` binding and the compose healthcheck have a documented source. | fixture `src/serve.mjs` consumed on the real-account branch |
 | `WEB_HEALTH_PATH` | second, optional | Fixture web-service health path (default `/live`) read by `src/serve.mjs`; the compose healthcheck and the on-server curl assertion both target this path. | fixture `src/serve.mjs` consumed on the real-account branch |
 
-## T-3 (edge-cloudflare-tunnel v1.0.0) extension
+## edge-cloudflare-tunnel (edge-cloudflare-tunnel v1.0.0) extension
 
-Round-7 T-3 extends this fixture with a cloudflared connector in both
-runtime shapes (compose-service alongside the T-2 web and caddy services
+Round-7 edge-cloudflare-tunnel extends this fixture with a cloudflared connector in both
+runtime shapes (compose-service alongside the platform-docker-compose-host web and caddy services
 when `containerHost` is applied; systemd-unit for a bare `cloudHost`) and
 both hostname modes (access-gated when `zeroTrustGate` is applied;
 public-hostname when absent):
@@ -277,11 +277,11 @@ public-hostname when absent):
   the two applied-blueprint sidecars aud-presence-check reads to prove
   the shape flips.
 
-## T-3 reviewer boot (mocked, no account)
+## edge-cloudflare-tunnel reviewer boot (mocked, no account)
 
 Three local probes; the tunnel schema validator is named
-`run-tunnel-manifest-schema-validate.mjs` to avoid colliding with T-1's
-`run-manifest-schema-validate.mjs` (T-1's shim still delegates to the
+`run-tunnel-manifest-schema-validate.mjs` to avoid colliding with deploy-hetzner-server's
+`run-manifest-schema-validate.mjs` (deploy-hetzner-server's shim still delegates to the
 deploy-hetzner-server probe as it did before).
 
 ```
@@ -294,7 +294,7 @@ one is on PATH; when it is not, it runs `cloudflared tunnel --config
 /etc/cloudflared/<mode>.yaml ingress validate` via the vendor container
 image `cloudflare/cloudflared:2026.8.3` (docker must be reachable).
 
-## T-3 reviewer boot (real account, throwaway server)
+## edge-cloudflare-tunnel reviewer boot (real account, throwaway server)
 
 ```
 cd packages/rcf-lite/test/fixtures/hetzner-throwaway-server
@@ -305,12 +305,12 @@ CI_HAS_HETZNER_ACCOUNT=true CI_HAS_CLOUDFLARE_ACCOUNT=true CI_HAS_CLOUDFLARE_ACC
 ```
 
 The access-gated sub-case additionally reads `CI_HAS_CLOUDFLARE_ACCESS`
-per the round-7 Q4 ratification; sub-cases skip independently.
+per the shipped Q4 ratification; sub-cases skip independently.
 
-## T-3 induced-failure switches (mutation checks)
+## edge-cloudflare-tunnel induced-failure switches (mutation checks)
 
 Every switch lives in the fixture-side delegate shim (the probe modules
-never read a `SIMULATE_` env var, per the T-2 gate ruling).
+never read a `SIMULATE_` env var, per the platform-docker-compose-host gate ruling).
 
 - `SIMULATE_MANIFEST_INVALID_TUNNEL_ID=true` on `run-tunnel-manifest-schema-validate.mjs`:
   rewrites the tunnel-id to a non-uuid literal; schema validate FAILS.

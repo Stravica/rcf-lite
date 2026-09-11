@@ -1,5 +1,5 @@
 // compose-stack-driver.mjs (v1.1.3 real-account driver for the
-// platform-docker-compose-host T-2 probes).
+// platform-docker-compose-host platform-docker-compose-host probes).
 //
 // Reuses the ssh readiness and cloud-init wait helpers from
 // ssh-baseline-check.mjs, installs docker via the vendor convenience
@@ -116,13 +116,13 @@ export async function httpProbe(url, opts = {}) {
 // exit code. Used by real-account-reload-burst.
 
 // Runs an HTTP request FROM the throwaway server itself via ssh + curl
-// against the caddy :80 host binding. The T-1 cloud-init hardening
+// against the caddy :80 host binding. The deploy-hetzner-server cloud-init hardening
 // baseline installs a DOCKER-USER iptables DROP for non-established
 // egress that also refuses inbound traffic to the docker-mapped port
 // from off-host, so the outside-in fetch cannot land. From on-host
 // the loopback path bypasses DOCKER-USER and observes the same body
 // the port mapping would present, so this is the primary "deployed
-// stack URL that answers" evidence shape for T-2 on the shared
+// stack URL that answers" evidence shape for platform-docker-compose-host on the shared
 // throwaway-server fixture. The outside-in httpProbe() stays for
 // diagnostics.
 export async function httpProbeOnServer(server, path = '/live', opts = {}) {
@@ -156,7 +156,7 @@ export async function httpProbeOnServer(server, path = '/live', opts = {}) {
 // runs; returns per-request outcomes plus the reload exit code. Used
 // by real-account-reload-burst. opts.onServer=true runs the burst as
 // a single ssh bash script that spawns `concurrency` parallel curl
-// loops on the throwaway server itself: the T-1 cloud-init hardening's
+// loops on the throwaway server itself: the deploy-hetzner-server cloud-init hardening's
 // DOCKER-USER DROP refuses off-host traffic to the docker-mapped port
 // so on-server loopback is the reachable path for the shipped fixture,
 // and it also removes the ssh round-trip overhead per request.
