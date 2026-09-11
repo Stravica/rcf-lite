@@ -36,7 +36,20 @@ export async function destroyThrowawayServer(record) {
     return null;
   }
   await hcloud(['server', 'delete', String(target.id)]);
-  const snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']).catch(() => []);
+  // Propagate a snapshot-list failure rather than swallowing it as an
+  // empty list (reclosure Item on partly-fixed teardown swallowing:
+  // an empty-list fallback risked skipping required deletions while
+  // reporting success). If the list call throws we surface the error
+  // so the caller's finally block can fail the verdict.
+  let snapshots;
+  try {
+    snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']);
+  } catch (err) {
+    const listErr = new Error(`snapshot list before deletion failed: ${err.message}; cannot confirm the server's snapshots were reaped.`);
+    listErr.snapshotListError = err.message;
+    listErr.destroyedServerId = target.id;
+    throw listErr;
+  }
   const list = Array.isArray(snapshots) ? snapshots : (snapshots && Array.isArray(snapshots.images) ? snapshots.images : []);
   const snapshotErrors = [];
   for (const img of list) {

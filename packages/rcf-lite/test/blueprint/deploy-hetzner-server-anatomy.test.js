@@ -37,14 +37,59 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Addendum rule 3: every result row carries either an `evidence`
-// object or `accountBoundSkipped: true` with a `reason` field.
+// Addendum rule 3 (strict, reclosure Item 3): every result row is
+// EITHER an honest skip (accountBoundSkipped + reason) or an honest
+// not-observable-here row (notObservableHere.ac named), OR it carries
+// evidence containing BOTH:
+//   - an identity key (e.g. requestId, resourceId, id, serverId,
+//     snapshotId, imageId, eventName, service, secretName,
+//     manifestName, composeMountLine, engineLabel, target, file, path,
+//     ruleNames), AND
+//   - an observation key (e.g. bodyExcerpt, tailExcerpt, snippet,
+//     exitStatus, payloadKeys, expectedKeys, observedKeys, source,
+//     statusCode, headers, mode, event, sourceIps, healthcheckKeys,
+//     driver, observedDrivers, observedBinding, allowed, protocol,
+//     direction, port, scannedFiles, snapshotId, wallClockTime,
+//     ports, restart, appearsIn, unhealthyServices, missingServices,
+//     conformanceOnly, expected, reason, error).
+// A non-empty evidence object is NOT sufficient on its own.
+const IDENTITY_KEYS = new Set([
+  'requestId', 'resourceId', 'id', 'serverId', 'snapshotId', 'imageId',
+  'firewallId', 'eventName', 'service', 'secretName', 'manifestName',
+  'composeMountLine', 'engineLabel', 'target', 'file', 'path',
+  'ruleNames', 'scannedFiles', 'url', 'probeName', 'name',
+  'elicitedDriver', 'dockerVersion', 'caddyLocal', 'scannedMarkers',
+  'reverseProxy',
+]);
+const OBSERVATION_KEYS = new Set([
+  'bodyExcerpt', 'tailExcerpt', 'snippet', 'exitStatus', 'payloadKeys',
+  'expectedKeys', 'observedKeys', 'source', 'statusCode', 'headers',
+  'mode', 'event', 'sourceIps', 'healthcheckKeys', 'driver',
+  'observedDrivers', 'observedBinding', 'allowed', 'protocol',
+  'direction', 'port', 'ports', 'restart', 'wallClockTime',
+  'appearsIn', 'unhealthyServices', 'missingServices', 'expected',
+  'observed', 'error', 'errors', 'errorMessage', 'reason',
+  'snapshotCadence', 'shippedEnum', 'requiredFields',
+  'observedEvents', 'services',
+  'presentBlocks', 'missingBlocks', 'renderedByteLength',
+  'renderHashSample', 'eventCount', 'leaks', 'distinct',
+  'engineNote', 'tail', 'expectedTotal', 'total', 'twoXx',
+  'drops', 'reloadDurationMs', 'overlapCount',
+  'elicitedTimeoutSeconds', 'outcomes',
+]);
 function assertRowsCarry7dShape(rows, label) {
   assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
   for (const r of rows) {
     const skipped = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-    const hasEvidence = r.evidence && typeof r.evidence === 'object' && Object.keys(r.evidence).length > 0;
-    assert.ok(skipped || hasEvidence, `${label}: row missing evidence or honest skip: ${JSON.stringify(r).slice(0, 400)}`);
+    const notObservable = r.notObservableHere && typeof r.notObservableHere === 'object' && typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0;
+    if (skipped || notObservable) continue;
+    const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
+    const keys = Object.keys(ev);
+    assert.ok(keys.length > 0, `${label}: row has empty or missing evidence: ${JSON.stringify(r).slice(0, 400)}`);
+    const hasIdentity = keys.some((k) => IDENTITY_KEYS.has(k));
+    const hasObservation = keys.some((k) => OBSERVATION_KEYS.has(k));
+    assert.ok(hasIdentity, `${label}: row evidence lacks an identity key (${[...IDENTITY_KEYS].join('|')}): ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(hasObservation, `${label}: row evidence lacks an observation key (${[...OBSERVATION_KEYS].join('|')}): ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
 
@@ -88,11 +133,19 @@ test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-m
 test('T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
   assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
-  const provisionedResult = out.results.find((r) => r.anchorAcId === 'AC-37103-1' && r.detail.includes('hetznerServerProvisioned fired'));
-  assert.ok(provisionedResult, `expected a hetznerServerProvisioned pass result anchored to AC-37103-1; got: ${JSON.stringify(out.results, null, 2)}`);
+  // v1.1.4 closure re-run fix: the mock-path row that observes the
+  // hetznerServerProvisioned event shape is de-claimed (anchorAcId: null,
+  // conformanceOnly, notObservableHere.ac = 'AC-37103-1') because the AC
+  // requires the real-account inventory diff; the live evidence lives on
+  // real-account-throwaway-server-provision. Assert the de-claim shape.
+  const provisionedResult = out.results.find((r) => r.notObservableHere && r.notObservableHere.ac === 'AC-37103-1' && r.evidence && r.evidence.eventName === 'hetznerServerProvisioned');
+  assert.ok(provisionedResult, `expected a de-claimed row for AC-37103-1 observing the hetznerServerProvisioned event shape; got: ${JSON.stringify(out.results, null, 2)}`);
+  assert.equal(provisionedResult.anchorAcId, null);
+  assert.equal(provisionedResult.conformanceOnly, true);
+  assert.ok(typeof provisionedResult.limitation === 'string' && provisionedResult.limitation.length > 0, 'de-claimed row must carry a limitation string');
   assert.equal(provisionedResult.verdict, 'pass');
-  assert.match(provisionedResult.detail, /location=fsn1/);
-  assert.match(provisionedResult.detail, /serverType=cx23/);
+  assert.equal(provisionedResult.evidence.location, 'fsn1');
+  assert.equal(provisionedResult.evidence.serverType, 'cx23');
 });
 
 test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)', async () => {

@@ -81,10 +81,22 @@ export default async function runProbe() {
     evidence.primaryIpv4 = provisioned.primaryIpv4;
     const brought = await bringUpStack(provisioned);
     evidence.services = brought.services;
+    evidence.declaredServices = brought.declared;
+    evidence.observedNames = brought.observedNames;
     evidence.eventTrail = brought.events;
+    evidence.elicitedTimeoutSeconds = brought.elicitedTimeoutSeconds;
     if (!brought.ok) {
       resultRow.verdict = 'fail';
-      resultRow.detail = `stack failed at phase ${brought.phase} on server ${provisioned.id}: ${JSON.stringify(brought).slice(0, 500)}`;
+      const detailPieces = [`stack failed at phase ${brought.phase} on server ${provisioned.id} (elicited timeout ${brought.elicitedTimeoutSeconds}s)`];
+      if (brought.missingServices && brought.missingServices.length > 0) {
+        detailPieces.push(`missing services: ${brought.missingServices.map((m) => m.name).join(', ')}`);
+        evidence.missingServices = brought.missingServices;
+      }
+      if (brought.unhealthy && brought.unhealthy.length > 0) {
+        detailPieces.push(`unhealthy services: ${brought.unhealthy.map((u) => `${u.service}(${u.reason})`).join('; ')}`);
+        evidence.unhealthyServices = brought.unhealthy;
+      }
+      resultRow.detail = `${detailPieces.join('; ')}. Trailer: ${JSON.stringify(brought).slice(0, 400)}`;
       return { results: [resultRow], extra: evidence };
     }
     const onServer = await httpProbeOnServer(provisioned, '/live');
@@ -143,6 +155,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown hcloud server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
         resultRow.verdict = 'fail';

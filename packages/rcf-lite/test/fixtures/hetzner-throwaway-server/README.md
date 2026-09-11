@@ -168,7 +168,7 @@ section 6).
 
 ## platform-docker-compose-host (platform-docker-compose-host v1.0.0) extension
 
-Round-7 platform-docker-compose-host extends this fixture with a minimal compose stack that proves
+The `platform-docker-compose-host` blueprint extends this fixture with a minimal compose stack that proves
 the platform-docker-compose-host v1.0.0 blueprint contract:
 
 - `compose.yaml`: two services (`web`, `caddy`), one named network
@@ -254,7 +254,7 @@ section 6).
 
 ## edge-cloudflare-tunnel (edge-cloudflare-tunnel v1.0.0) extension
 
-Round-7 edge-cloudflare-tunnel extends this fixture with a cloudflared connector in both
+The `edge-cloudflare-tunnel` blueprint extends this fixture with a cloudflared connector in both
 runtime shapes (compose-service alongside the platform-docker-compose-host web and caddy services
 when `containerHost` is applied; systemd-unit for a bare `cloudHost`) and
 both hostname modes (access-gated when `zeroTrustGate` is applied;

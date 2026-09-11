@@ -99,10 +99,17 @@ export default async function runProbe() {
       resultRow.detail = `caddy did not answer 200 before the burst on ${warm.target}: statusCode=${warm.statusCode} error=${warm.error || 'none'}`;
       return { results: [resultRow], extra: evidence };
     }
-    const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, onServer: true });
+    // Reclosure Items 2 and 10: use the undici burst (Node global
+    // fetch is undici) and require request/reload overlap timestamps.
+    const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, mode: 'undici-external' });
     evidence.burst = {
-      total: burst.total, twoXx: burst.twoXx, drops: burst.drops,
+      expectedTotal: burst.expectedTotal,
+      total: burst.total,
+      twoXx: burst.twoXx, drops: burst.drops,
       reloadDurationMs: burst.reloadDurationMs, reloadExit: burst.reloadExit,
+      reloadStartedAt: burst.reloadStartedAt, reloadEndedAt: burst.reloadEndedAt,
+      overlapCount: burst.overlapCount,
+      firstOverlapStart: burst.firstOverlapStart, lastOverlapEnd: burst.lastOverlapEnd,
       mode: burst.mode,
       reloadStderrExcerpt: burst.reloadStderrExcerpt,
       elicitedReloadWindowMs: reloadWindowMs,
@@ -112,9 +119,23 @@ export default async function runProbe() {
       resultRow.detail = `caddy reload exited non-zero (${burst.reloadExit}): ${burst.reloadStderrExcerpt}`;
       return { results: [resultRow], extra: evidence };
     }
+    // expectedTotal vs total mismatch fails (reclosure Item 10: was
+    // `total = outcomes.length` and <40-result runs slipped through).
+    if (burst.total !== burst.expectedTotal) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `undici burst produced ${burst.total} outcomes, expected ${burst.expectedTotal}; AC-composeHost-zeroDowntimeReload requires every requested GET to be observed.`;
+      return { results: [resultRow], extra: evidence };
+    }
     if (burst.drops > 0 || burst.twoXx < burst.total) {
       resultRow.verdict = 'fail';
       resultRow.detail = `zero-downtime-reload violated on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, ${burst.drops} dropped connections during a ${burst.reloadDurationMs}ms reload.`;
+      return { results: [resultRow], extra: evidence };
+    }
+    // Overlap proof: at least one undici request straddled the reload
+    // window (reclosure Item 2: "no request timestamps prove overlap").
+    if (burst.overlapCount === 0) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `undici burst produced ${burst.total} 2xx results but ZERO request windows [startedAt,endedAt] overlapped the reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}]; AC-composeHost-zeroDowntimeReload requires the burst to run WHILE the reload runs.`;
       return { results: [resultRow], extra: evidence };
     }
     if (burst.reloadDurationMs > reloadWindowMs) {
@@ -123,7 +144,7 @@ export default async function runProbe() {
       return { results: [resultRow], extra: evidence };
     }
     resultRow.verdict = 'pass';
-    resultRow.detail = `zero-downtime-reload observed on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, 0 dropped connections during a ${burst.reloadDurationMs}ms reload (under the elicited ${reloadWindowSeconds}s window); warm baseline statusCode=${warm.statusCode}.`;
+    resultRow.detail = `zero-downtime-reload OBSERVED on server ${provisioned.id}: ${burst.twoXx}/${burst.total} undici 2xx, 0 dropped connections; ${burst.overlapCount}/${burst.total} request windows overlapped the ${burst.reloadDurationMs}ms reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}] (under the elicited ${reloadWindowSeconds}s window); warm baseline statusCode=${warm.statusCode}.`;
   } catch (err) {
     resultRow.verdict = 'fail';
     resultRow.detail = `reload-burst threw: ${err.message}`;
@@ -155,6 +176,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown hcloud server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
         resultRow.verdict = 'fail';

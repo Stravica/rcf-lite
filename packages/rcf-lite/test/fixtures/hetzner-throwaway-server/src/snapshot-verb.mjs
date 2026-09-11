@@ -1,4 +1,4 @@
-// Snapshot verb (v1.0.1): real-account path called by
+// Snapshot verb (v1.0.2): real-account path called by
 // real-account-snapshot-on-demand. Shells `hcloud server create-image
 // --type snapshot --description <label> <id>` (the actual hcloud verb;
 // v1.0.0 called a non-existent `hcloud image create-image`, H-1 defect
@@ -7,10 +7,17 @@
 // Depends on hcloud being on PATH and the HCLOUD_TOKEN env var being
 // set (the operator supplies both via the applying project's
 // security-secrets-management binding).
+//
+// v1.0.2 (closure re-run fix, reclosure Item 7): the verb now emits
+// `hetznerSnapshotTaken` on an optional injected eventSink, so the
+// snapshot probe can OBSERVE the emitted event rather than constructing
+// it from the return value. The emit fires only after the vendor list
+// call carries the created id (i.e. the snapshot really landed).
 
 import { spawn } from 'node:child_process';
 
-export async function takeAndVerifySnapshot(server) {
+export async function takeAndVerifySnapshot(server, opts = {}) {
+  const eventSink = typeof opts.eventSink === 'function' ? opts.eventSink : null;
   const wallClockTime = new Date().toISOString();
   const description = `${server.name ?? server.id}-${wallClockTime}`;
   const createArgs = [
@@ -30,6 +37,18 @@ export async function takeAndVerifySnapshot(server) {
   const listArray = Array.isArray(list) ? list : (list && Array.isArray(list.images) ? list.images : []);
   const match = listArray.find((i) => (i.labels || {}).serverName === (server.name ?? String(server.id)));
   const snapshotId = match ? match.id : null;
+  // Emit hetznerSnapshotTaken ONLY after the list confirmed the id
+  // landed. The event body is metadata-only per REQ-006.
+  if (eventSink && snapshotId) {
+    eventSink({
+      event: 'hetznerSnapshotTaken',
+      serverName: server.name ?? String(server.id),
+      serverId: server.id,
+      snapshotId,
+      ts: Date.parse(wallClockTime),
+      wallClockTime,
+    });
+  }
   return { snapshotId, wallClockTime, match, listCount: listArray.length };
 }
 

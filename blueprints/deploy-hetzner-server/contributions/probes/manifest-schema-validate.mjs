@@ -92,21 +92,71 @@ export default async function runProbe() {
       }
     } else if (Array.isArray(doc.firewallRules)) {
       const rules = doc.firewallRules;
-      const ssh = rules.find((r) => r && r.name === 'ssh');
-      const http = rules.find((r) => r && r.name === 'http');
-      const https = rules.find((r) => r && r.name === 'https');
-      results.push({
-        anchorAcId: 'AC-37106-1',
-        verdict: 'pass',
-        detail: `manifest ${f.name} firewall rule shape valid: ssh restricted to ${(ssh && ssh.sourceIps || []).join(', ')} (no 0.0.0.0/0), http and https open on 80/443.`,
-        evidence: {
-          manifestName: f.name,
-          ruleNames: rules.map((r) => r && r.name).filter(Boolean),
-          sshSourceIps: ssh ? ssh.sourceIps : null,
-          httpPort: http && (http.port || (http.ports || [null])[0]) || null,
-          httpsPort: https && (https.port || (https.ports || [null])[0]) || null,
-        },
-      });
+      // Reclosure Item 8: bind each required rule NAME to its required
+      // shape (protocol, direction, port, source-ranges) and prohibit
+      // duplicates. A missing binding fails; a duplicate name fails.
+      const REQUIRED_BINDING = {
+        ssh:   { protocol: 'tcp', direction: 'in', port: 22,  sourceMustOpen: false },
+        http:  { protocol: 'tcp', direction: 'in', port: 80,  sourceMustOpen: true },
+        https: { protocol: 'tcp', direction: 'in', port: 443, sourceMustOpen: true },
+      };
+      const nameCounts = {};
+      for (const r of rules) if (r && typeof r.name === 'string') nameCounts[r.name] = (nameCounts[r.name] || 0) + 1;
+      const duplicates = Object.entries(nameCounts).filter(([, n]) => n > 1).map(([n]) => n);
+      const bindingErrors = [];
+      const bindingEvidence = {};
+      for (const [name, want] of Object.entries(REQUIRED_BINDING)) {
+        const rule = rules.find((r) => r && r.name === name);
+        if (!rule) {
+          bindingErrors.push(`missing required rule '${name}'`);
+          continue;
+        }
+        const observed = {
+          name, protocol: rule.protocol, direction: rule.direction,
+          port: rule.port, sourceIps: Array.isArray(rule.sourceIps) ? rule.sourceIps : [],
+        };
+        bindingEvidence[name] = observed;
+        if (rule.protocol !== want.protocol) bindingErrors.push(`'${name}' protocol '${rule.protocol}' != required '${want.protocol}'`);
+        if (rule.direction !== want.direction) bindingErrors.push(`'${name}' direction '${rule.direction}' != required '${want.direction}'`);
+        if (rule.port !== want.port) bindingErrors.push(`'${name}' port ${rule.port} != required ${want.port}`);
+        if (!Array.isArray(rule.sourceIps) || rule.sourceIps.length === 0) {
+          bindingErrors.push(`'${name}' sourceIps empty or not array`);
+        } else if (want.sourceMustOpen) {
+          const hasOpen = rule.sourceIps.includes('0.0.0.0/0');
+          if (!hasOpen) bindingErrors.push(`'${name}' must include '0.0.0.0/0' per open-service contract`);
+        } else if (name === 'ssh') {
+          const openLeak = rule.sourceIps.filter((s) => s === '0.0.0.0/0' || s === '::/0');
+          if (openLeak.length > 0) bindingErrors.push(`'ssh' sourceIps must not include ${openLeak.join(', ')}; use operator-nominated set per TAC-3804`);
+        }
+      }
+      if (duplicates.length > 0) bindingErrors.push(`duplicate rule names: ${duplicates.join(', ')}`);
+      if (bindingErrors.length > 0) {
+        results.push({
+          anchorAcId: 'AC-37106-1',
+          verdict: 'fail',
+          detail: `manifest ${f.name} firewall rule shape violation: ${bindingErrors.join('; ')}.`,
+          evidence: {
+            manifestName: f.name,
+            ruleNames: rules.map((r) => r && r.name).filter(Boolean),
+            observedBinding: bindingEvidence,
+            duplicates,
+            errors: bindingErrors,
+          },
+        });
+      } else {
+        const ssh = rules.find((r) => r && r.name === 'ssh');
+        results.push({
+          anchorAcId: 'AC-37106-1',
+          verdict: 'pass',
+          detail: `manifest ${f.name} firewall rule shape valid: ssh (tcp/in/22, restricted to ${(ssh && ssh.sourceIps || []).join(', ')}, no 0.0.0.0/0), http (tcp/in/80, open), https (tcp/in/443, open); no duplicates.`,
+          evidence: {
+            manifestName: f.name,
+            ruleNames: rules.map((r) => r && r.name).filter(Boolean),
+            observedBinding: bindingEvidence,
+            duplicates: [],
+          },
+        });
+      }
     }
     const snapshotErrors = errors.filter((e) => e.field === 'snapshotCadence' || (e.path || '').includes('snapshotCadence'));
     if (snapshotErrors.length > 0) {
@@ -162,6 +212,35 @@ export function validate(schema, doc, pathPrefix = '#') {
           field: 'firewallRules',
           message: `firewallRules is missing the required ${n} rule per TAC-3804.`,
         });
+      }
+    }
+    // Reject duplicate rule names (reclosure Item 8: firewall
+    // validation must prohibit duplicates).
+    const counts = {};
+    for (const r of doc.firewallRules) if (r && typeof r.name === 'string') counts[r.name] = (counts[r.name] || 0) + 1;
+    for (const [name, n] of Object.entries(counts)) {
+      if (n > 1) {
+        errors.push({
+          path: `${pathPrefix}/firewallRules`,
+          field: 'firewallRules',
+          message: `firewallRules contains a duplicate rule named '${name}' (${n} occurrences); each of {ssh, http, https} must appear exactly once.`,
+        });
+      }
+    }
+    // Bind each required rule name to protocol/direction/port
+    // (reclosure Item 8).
+    const bindings = { ssh: { protocol: 'tcp', direction: 'in', port: 22 }, http: { protocol: 'tcp', direction: 'in', port: 80 }, https: { protocol: 'tcp', direction: 'in', port: 443 } };
+    for (const [name, want] of Object.entries(bindings)) {
+      const rule = doc.firewallRules.find((r) => r && r.name === name);
+      if (!rule) continue;
+      for (const k of ['protocol', 'direction', 'port']) {
+        if (rule[k] !== want[k]) {
+          errors.push({
+            path: `${pathPrefix}/firewallRules/${name}/${k}`,
+            field: 'firewallRules',
+            message: `firewallRules '${name}' ${k} '${rule[k]}' does not match required '${want[k]}' per TAC-3804.`,
+          });
+        }
       }
     }
   }

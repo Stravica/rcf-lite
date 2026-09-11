@@ -79,6 +79,11 @@ export default async function runProbe() {
   const evidence = {};
   const resultRow = { anchorAcId, verdict: 'fail', detail: '', evidence };
   let provisioned;
+  // Observed events on injected sinks (reclosure Item 7): the snapshot
+  // verb emits hetznerSnapshotTaken; the provision emits
+  // hetznerServerProvisioned. Both are OBSERVED, not constructed here.
+  const observedEvents = [];
+  const eventSink = (body) => observedEvents.push(body);
   try {
     // Pre-snapshot inventory: capture the snapshot ids present before
     // the run so the inventory-diff evidence shape is honest.
@@ -88,26 +93,33 @@ export default async function runProbe() {
     } catch (err) {
       evidence.baselineListError = err.message;
     }
-    provisioned = await provisionThrowawayServer({ runId: process.env.GITHUB_RUN_ID ?? 'local' });
+    provisioned = await provisionThrowawayServer({
+      runId: process.env.GITHUB_RUN_ID ?? 'local',
+      eventSink,
+    });
     evidence.serverId = provisioned.id;
     evidence.serverName = provisioned.name;
-    const outcome = await takeAndVerifySnapshot(provisioned);
+    const outcome = await takeAndVerifySnapshot(provisioned, { eventSink });
     evidence.snapshotId = outcome.snapshotId;
     evidence.wallClockTime = outcome.wallClockTime;
     evidence.labelMatch = outcome.match ? {
       id: outcome.match.id,
       serverNameLabel: (outcome.match.labels || {}).serverName,
     } : null;
-    // hetznerSnapshotTaken event shape per AC-37108-3: {serverName,
-    // snapshotId, ts}. The fixture verb returns the same fields; the
-    // event body is derived here so the row carries a shape-check the
-    // AC actually names.
-    evidence.hetznerSnapshotTakenEvent = outcome.snapshotId ? {
-      event: 'hetznerSnapshotTaken',
-      serverName: provisioned.name,
-      snapshotId: outcome.snapshotId,
-      ts: Date.parse(outcome.wallClockTime),
-    } : null;
+    // OBSERVE the hetznerSnapshotTaken event from the sink. The event
+    // body is derived by snapshot-verb.mjs after the vendor list call
+    // confirmed the id landed (reclosure Item 7: was constructed here
+    // in v1.1.4; now observed from the sink emit).
+    evidence.observedEvents = observedEvents.map((e) => ({ event: e.event, keys: Object.keys(e).sort() }));
+    const snapshotEvent = observedEvents.find((e) => e && e.event === 'hetznerSnapshotTaken');
+    if (outcome.snapshotId && !snapshotEvent) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `snapshot verb returned snapshotId ${outcome.snapshotId} but no hetznerSnapshotTaken event was observed on the injected sink; AC-37108-3 event-shape observation is missing.`;
+      evidence.eventName = 'hetznerSnapshotTaken';
+      evidence.eventObserved = false;
+      return { results: [resultRow], extra: evidence };
+    }
+    evidence.hetznerSnapshotTakenEvent = snapshotEvent ?? null;
     // Post-create inventory: prove the id appears in the vendor
     // snapshot list so the AC's inventory-diff evidence is real.
     try {
@@ -148,6 +160,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown snapshot list threw (${err.message}); cannot confirm snapshot ${evidence.snapshotId || 'n/a'} was deleted.`;
         }
         try {
           const finalServers = await hcloudJson(['server', 'list', '--output', 'json']);
@@ -158,6 +172,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownServerListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
         resultRow.verdict = 'fail';

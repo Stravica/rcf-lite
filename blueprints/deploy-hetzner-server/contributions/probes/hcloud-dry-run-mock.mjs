@@ -1,20 +1,19 @@
-// Probe: hcloud dry-run mock (v1.1.4 closure fix).
+// Probe: hcloud dry-run mock (v1.1.4 closure re-run fix).
 //
 // accountBound: false. Anchors each result row to the AC whose
-// observable property that row actually observes:
+// observable property THIS MOCK actually observes:
 //   - AC-37101-1 (provisioner facade sole reader + provisionerReady):
 //     the facade opens and provisionerReady fires with a metadata-only
 //     {tool, apiHost} payload.
-//   - AC-37103-1 (manifest applies to createServer):
-//     hetznerServerProvisioned fires with id, primaryIpv4, location=fsn1,
-//     serverType=cx23.
-//   - AC-37108-1 (snapshot on demand + hetznerSnapshotTaken):
-//     hetznerSnapshotTaken fires with snapshot id and wall-clock time.
-//   - AC-37109-3 (event fires once per lifecycle moment):
-//     hetznerServerDestroyed fires with the destroyed id.
 //   - AC-37109-1 (event-secrecy across the lifecycle):
 //     no event body carries the token bytes, the ssh private-key marker,
 //     or the rendered user-data bytes.
+// Rows that observe the MOCK-PATH shape of hetznerServerProvisioned,
+// hetznerSnapshotTaken and hetznerServerDestroyed carry anchorAcId: null
+// with conformanceOnly: true, a limitation naming the mock scope, and
+// notObservableHere: { ac: 'AC-3710x-1' } pointing at the live AC the
+// row cannot observe (a mock cannot supply the AC's live inventory-diff
+// evidence). The live inventory rows live on the real-account-* probes.
 // The rendered-file agreement check (mock consumes the same rendered
 // artefact as the real path) is left to `cloud-init-render-lint`
 // (AC-37104-1) and `real-account-cloud-init-hardened` (AC-37105-1)
@@ -104,20 +103,32 @@ export default async function runProbe() {
       });
     }
 
-    // AC-37103-1: hetznerServerProvisioned observed via the mocked
-    // createServer path (mock-path evidence: this observation stands
-    // alongside the live inventory-diff evidence carried by
-    // real-account-throwaway-server-provision).
+    // AC-37103-1 is a LIVE-only AC (its acceptance text requires the
+    // real-account apply plus a live `hcloud server list`). The mocked
+    // createServer path here can only observe the facade emitted the
+    // event with the shape we asked the mock to return, so the row is
+    // de-claimed: anchorAcId is null, conformanceOnly with a limitation
+    // pointing to the live-only AC, and notObservableHere names the AC
+    // this row cannot observe. Do not invent a live-AC claim on mock
+    // input (reclosure Item 1).
     if (!provisioned || !provisioned.id || !provisioned.primaryIpv4 || provisioned.location !== 'fsn1' || provisioned.serverType !== 'cx23') {
       results.push({
-        anchorAcId: 'AC-37103-1', verdict: 'fail',
-        detail: `hetznerServerProvisioned event missing or malformed: ${JSON.stringify(provisioned)}`,
-        evidence: { event: provisioned || null, expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'] },
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37103-1 requires the real-account inventory diff carried by real-account-throwaway-server-provision.',
+        notObservableHere: { ac: 'AC-37103-1' },
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerServerProvisioned event body is missing or malformed: ${JSON.stringify(provisioned)}`,
+        evidence: { eventName: 'hetznerServerProvisioned', event: provisioned || null, expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'] },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-37103-1', verdict: 'pass',
-        detail: `hetznerServerProvisioned fired (mock-path evidence) with id=${provisioned.id} primaryIpv4=${provisioned.primaryIpv4} location=fsn1 serverType=cx23.`,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37103-1 requires the real-account inventory diff carried by real-account-throwaway-server-provision.',
+        notObservableHere: { ac: 'AC-37103-1' },
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerServerProvisioned with the expected key shape (id, primaryIpv4, location, serverType).`,
         evidence: {
           eventName: 'hetznerServerProvisioned',
           id: provisioned.id,
@@ -125,45 +136,70 @@ export default async function runProbe() {
           location: provisioned.location,
           serverType: provisioned.serverType,
           source: 'mock-facade',
+          expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'],
         },
       });
     }
 
-    // AC-37108-1: hetznerSnapshotTaken with snapshot id and time.
+    // AC-37108-1 is LIVE-only (requires the real hcloud image list
+    // inventory to carry the snapshot id). The mock row observes only
+    // that the facade emitted hetznerSnapshotTaken with the expected
+    // shape; de-claim per reclosure Item 1.
     if (!snapped || !snapped.snapshotId || !snapped.wallClockTime) {
       results.push({
-        anchorAcId: 'AC-37108-1', verdict: 'fail',
-        detail: `hetznerSnapshotTaken event missing or malformed: ${JSON.stringify(snapped)}`,
-        evidence: { event: snapped || null, expectedKeys: ['snapshotId', 'wallClockTime'] },
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37108-1 requires the real-account snapshot inventory carried by real-account-snapshot-on-demand.',
+        notObservableHere: { ac: 'AC-37108-1' },
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerSnapshotTaken event body is missing or malformed: ${JSON.stringify(snapped)}`,
+        evidence: { eventName: 'hetznerSnapshotTaken', event: snapped || null, expectedKeys: ['snapshotId', 'wallClockTime'] },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-37108-1', verdict: 'pass',
-        detail: `hetznerSnapshotTaken fired (mock-path evidence) with snapshotId=${snapped.snapshotId} wallClockTime=${snapped.wallClockTime}.`,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37108-1 requires the real-account snapshot inventory carried by real-account-snapshot-on-demand.',
+        notObservableHere: { ac: 'AC-37108-1' },
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerSnapshotTaken with the expected key shape (snapshotId, wallClockTime).`,
         evidence: {
           eventName: 'hetznerSnapshotTaken',
           snapshotId: snapped.snapshotId,
           wallClockTime: snapped.wallClockTime,
           source: 'mock-facade',
+          expectedKeys: ['snapshotId', 'wallClockTime'],
         },
       });
     }
 
-    // AC-37109-3: hetznerServerDestroyed fires once per lifecycle moment.
+    // AC-37109-3 (fires once per lifecycle moment) needs repeat-run
+    // observation, which the mock does not exercise. De-claim the row
+    // as a fixture-shape check that the destroy event fires; the AC
+    // observation lives on the real-account provision + repeat run.
     if (!destroyed || !destroyed.id) {
       results.push({
-        anchorAcId: 'AC-37109-3', verdict: 'fail',
-        detail: `hetznerServerDestroyed event missing or malformed: ${JSON.stringify(destroyed)}`,
-        evidence: { event: destroyed || null, expectedKeys: ['id'] },
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37109-3 requires the repeat-run once-per-lifecycle observation.',
+        notObservableHere: { ac: 'AC-37109-3' },
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerServerDestroyed event body is missing or malformed: ${JSON.stringify(destroyed)}`,
+        evidence: { eventName: 'hetznerServerDestroyed', event: destroyed || null, expectedKeys: ['id'] },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-37109-3', verdict: 'pass',
-        detail: `hetznerServerDestroyed fired with id=${destroyed.id}.`,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'mock-path fixture-shape check only; AC-37109-3 requires the repeat-run once-per-lifecycle observation.',
+        notObservableHere: { ac: 'AC-37109-3' },
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerServerDestroyed with the destroyed id in the payload.`,
         evidence: {
           eventName: 'hetznerServerDestroyed',
           id: destroyed.id,
           source: 'mock-facade',
+          expectedKeys: ['id'],
         },
       });
     }

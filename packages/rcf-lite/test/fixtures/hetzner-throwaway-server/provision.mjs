@@ -38,7 +38,7 @@ const SCRATCH_DIR = resolve(HERE, 'scratch');
 const SCRATCH_PATH = join(SCRATCH_DIR, 'last-throwaway.json');
 const RENDERED_DIR = resolve(HERE, 'hetzner/servers/rendered');
 
-export async function provisionThrowawayServer({ runId }) {
+export async function provisionThrowawayServer({ runId, eventSink } = {}) {
   const manifest = JSON.parse(await readFile(MANIFEST_PATH, 'utf8'));
   applySshKeyOverride(manifest);
   const { renderedPath } = await renderCloudInitToFile(manifest);
@@ -70,6 +70,20 @@ export async function provisionThrowawayServer({ runId }) {
   };
   await mkdir(SCRATCH_DIR, { recursive: true });
   await writeFile(SCRATCH_PATH, JSON.stringify(record, null, 2) + '\n', 'utf8');
+  // Emit hetznerServerProvisioned on the injected sink (reclosure Item
+  // 6) so the caller OBSERVES the event rather than constructing it
+  // from the return value. Payload is metadata-only per REQ-006.
+  if (typeof eventSink === 'function') {
+    eventSink({
+      event: 'hetznerServerProvisioned',
+      id: record.id,
+      name: record.name,
+      primaryIpv4: record.primaryIpv4,
+      location: record.location,
+      serverType: record.serverType,
+      ts: Date.now(),
+    });
+  }
   return record;
 }
 

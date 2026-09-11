@@ -34,10 +34,9 @@ export const MANIFEST_DIR = process.env.RCF_FIXTURE_MANIFEST_DIR
   ? resolve(process.env.RCF_FIXTURE_MANIFEST_DIR)
   : resolve(FIXTURE_DIR, 'hetzner/servers');
 export const SCHEMA_PATH = resolve(HERE, '..', 'schemas', 'hetzner-server.schema.json');
-export const REPORT_DIR = resolve(
-  PROJECT_ROOT,
-  '.rcf/reports/blueprints/deploy-hetzner-server',
-);
+export const REPORT_DIR = process.env.RCF_REPORT_DIR_OVERRIDE
+  ? resolve(process.env.RCF_REPORT_DIR_OVERRIDE, 'blueprints/deploy-hetzner-server')
+  : resolve(PROJECT_ROOT, '.rcf/reports/blueprints/deploy-hetzner-server');
 
 // Aggregation rule (Addendum rule 3): an empty results array is never
 // pass; it is a fail with detail `no checks ran`. Callers hand the
@@ -50,12 +49,16 @@ export function aggregate(results) {
   return 'pass';
 }
 
-export function emptyResultsFail(anchorAcId = 'unknown') {
+// An empty results array is an honest failure of the probe: no anchor
+// can be manufactured. Callers that KNOW the anchor may pass it in;
+// otherwise the row carries anchorAcId: null so downstream tallies do
+// not see an invented AC id.
+export function emptyResultsFail(anchorAcId = null) {
   return {
-    anchorAcId,
+    anchorAcId: anchorAcId ?? null,
     verdict: 'fail',
     detail: 'no checks ran',
-    evidence: { reason: 'the probe returned zero result rows' },
+    evidence: { reason: 'the probe returned zero result rows', probeName: '(unknown at empty-fail construction)' },
   };
 }
 
@@ -103,11 +106,18 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
+    // A probe that throws has no known anchor at this layer; use null
+    // rather than the invented "unknown" fallback (reclosure BLOCKER).
+    // The runShim caller carries the probeName so evidence names it.
     const results = [{
-      anchorAcId: 'unknown',
+      anchorAcId: null,
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
-      evidence: { errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800) },
+      evidence: {
+        probeName,
+        errorMessage: err && err.message ? err.message : String(err),
+        errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800),
+      },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

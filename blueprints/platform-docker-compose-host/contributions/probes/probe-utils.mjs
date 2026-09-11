@@ -43,10 +43,9 @@ export const COMPOSE_PATH = resolve(FIXTURE_DIR, 'compose.yaml');
 export const CADDYFILE_PATH = resolve(FIXTURE_DIR, 'caddy/Caddyfile');
 export const SECRET_PATH = resolve(FIXTURE_DIR, 'secrets/web-token');
 export const ENV_PATH = resolve(FIXTURE_DIR, '.env');
-export const REPORT_DIR = resolve(
-  PROJECT_ROOT,
-  '.rcf/reports/blueprints/platform-docker-compose-host',
-);
+export const REPORT_DIR = process.env.RCF_REPORT_DIR_OVERRIDE
+  ? resolve(process.env.RCF_REPORT_DIR_OVERRIDE, 'blueprints/platform-docker-compose-host')
+  : resolve(PROJECT_ROOT, '.rcf/reports/blueprints/platform-docker-compose-host');
 
 export function aggregate(results) {
   if (!Array.isArray(results) || results.length === 0) return 'fail';
@@ -55,12 +54,16 @@ export function aggregate(results) {
   return 'pass';
 }
 
-export function emptyResultsFail(anchorAcId = 'unknown') {
+// An empty results array is an honest failure of the probe: no anchor
+// can be manufactured. Callers that KNOW the anchor may pass it in;
+// otherwise the row carries anchorAcId: null so downstream tallies do
+// not see an invented AC id.
+export function emptyResultsFail(anchorAcId = null) {
   return {
-    anchorAcId,
+    anchorAcId: anchorAcId ?? null,
     verdict: 'fail',
     detail: 'no checks ran',
-    evidence: { reason: 'the probe returned zero result rows' },
+    evidence: { reason: 'the probe returned zero result rows', probeName: '(unknown at empty-fail construction)' },
   };
 }
 
@@ -108,11 +111,17 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
+    // A probe that throws has no known anchor at this layer; use null
+    // rather than the invented "unknown" fallback (reclosure BLOCKER).
     const results = [{
-      anchorAcId: 'unknown',
+      anchorAcId: null,
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
-      evidence: { errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800) },
+      evidence: {
+        probeName,
+        errorMessage: err && err.message ? err.message : String(err),
+        errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800),
+      },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

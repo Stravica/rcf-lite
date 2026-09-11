@@ -1,12 +1,19 @@
-## 1.1.4 (criterion-e closure fix pass, 2026-09-11)
+## 1.1.4 (criterion-e closure re-run fix pass, 2026-09-11)
 
-- Every result row on every probe (mocked and real-account) now carries its own `evidence` object per Addendum rule 3 (server id created, pre- and post-run inventory ids, cloud-init exit and baseline blocks, snapshot id created and absent, mocked event bodies with shape checks). Report envelopes carry the extras that used to be hoisted to the top level.
-- `probe-utils.aggregate([])` and nullish outcomes now FAIL with detail exactly `no checks ran`.
-- Skip helpers split into `firstTierGateSkipResult` and `secondTierMissingSkipResult`; every skip row carries `reason` naming exactly one variable, distinguishing `unset` from `set-but-not-true (observed value ...)`. The three real-account probes now emit an honest second-tier skip row when `HCLOUD_TOKEN` is unset while `CI_HAS_HETZNER_ACCOUNT=true`.
-- AC anchoring corrected: `hcloud-dry-run-mock` splits into per-AC rows (AC-37101-1 provisionerReady, AC-37103-1 hetznerServerProvisioned, AC-37108-1 hetznerSnapshotTaken, AC-37109-3 hetznerServerDestroyed, AC-37109-1 event-secrecy); the invented `AC-14501-1` rendered-file anchor is retired (Addendum rule 1: do not invent). `manifest-schema-validate` splits per-property (AC-37102-1 nine-required-fields, AC-37106-1 firewall shape, AC-37107-1 snapshotCadence enum).
-- `real-account-throwaway-server-provision` runs `hcloud server list` before and after and asserts the created server id lands in the post-run inventory. `real-account-cloud-init-hardened` FAILS when `cloud-init status --wait` returns non-zero (the six baseline checks become diagnostic in that case). `real-account-snapshot-on-demand` observes the `hetznerSnapshotTaken` event shape (`{serverName, snapshotId, ts}`) and the pre-/post-create snapshot inventory.
-- Teardown failures now FAIL the verdict on every real-account probe (Addendum rule 5). `destroy.mjs` propagates snapshot-delete failures instead of swallowing them; the probe finally block catches, appends a `TEARDOWN FAILED` note to the detail, records the orphan id on evidence and flips the verdict to `fail`.
-- Anatomy test extended to pin the v1.1.4 anchoring and evidence shape on every result row (skipped or otherwise), the two skip tiers, and the `no checks ran` empty-result contract.
+- Anchoring: mock-path rows that observe fixture-shape only are de-claimed (`anchorAcId: null`, `conformanceOnly: true`, a `limitation` string and `notObservableHere.ac` naming the live AC the row cannot observe). The rows previously claiming `AC-37103-1`, `AC-37108-1` and `AC-37109-3` on the mock path no longer make live-only claims; the live inventory-diff and once-per-lifecycle observations belong to the real-account probes.
+- Invented anchor fallbacks removed: `probe-utils.emptyResultsFail` and the `runShim` error branch no longer synthesise `anchorAcId: 'unknown'`; when the anchor is unknowable the row carries `anchorAcId: null` and evidence naming the probe and error.
+- Real-account provision + snapshot probes now OBSERVE emitted lifecycle events (`hetznerServerProvisioned`, `hetznerSnapshotTaken`) via an injected `eventSink` on `provisionThrowawayServer` and `takeAndVerifySnapshot`, rather than constructing the event bodies from return values. `snapshot-verb.mjs` v1.0.2 now emits `hetznerSnapshotTaken` after the vendor list call confirms the id landed.
+- `real-account-throwaway-server-provision` FAILS when `hcloud server list` after provision or after teardown throws (the failure was being swallowed as diagnostic).
+- Firewall validation binds each rule name to its required protocol/direction/port and refuses duplicate names: ssh (tcp/in/22, no `0.0.0.0/0`), http (tcp/in/80, must include `0.0.0.0/0`), https (tcp/in/443, must include `0.0.0.0/0`); the `validate()` helper also rejects duplicate rule names for defence in depth.
+- `destroy.mjs` propagates a snapshot-list failure before deletion rather than swallowing it as an empty list (was risking orphan snapshots surviving under a passing verdict).
+- Every result row on every probe carries an `evidence` object with BOTH an identity key (id/name/target/eventName/service/manifestName/...) AND an observation key (bodyExcerpt/payloadKeys/observedBinding/exitStatus/...); anatomy tests pin the strict shape.
+- Skip helpers retained: `firstTierGateSkipResult` and `secondTierMissingSkipResult` name exactly one variable in `reason` and distinguish `unset` from `set-but-not-true (observed value ...)`.
+- The two per-blueprint `probe-utils.mjs` accept `RCF_REPORT_DIR_OVERRIDE` so local runs write to a scratch dir and the tracked `.rcf/reports/` stays byte-identical to `origin/main`.
+- Anatomy test extended to pin the v1.1.4 de-claim shape (mock rows carry `notObservableHere` + `conformanceOnly` + `limitation`), the strict identity+observation evidence shape, and the two skip tiers.
+
+## 1.1.4-superseded-note (2026-09-11)
+
+The 1.1.4 fix-pass CHANGELOG entry above supersedes the earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" claims did not match the shipped code at closure review time (reclosure Item 4).
 
 ## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
 

@@ -37,13 +37,47 @@ async function runProbe(name, env = {}) {
   }
 }
 
+// Strict shape (reclosure Item 3): every non-skip / non-notObservable
+// row's evidence carries BOTH an identity key AND an observation key.
+const IDENTITY_KEYS = new Set([
+  'requestId', 'resourceId', 'id', 'serverId', 'snapshotId', 'imageId',
+  'firewallId', 'eventName', 'service', 'secretName', 'manifestName',
+  'composeMountLine', 'engineLabel', 'target', 'file', 'path',
+  'ruleNames', 'scannedFiles', 'url', 'probeName', 'name',
+  'discoveredConfigSources', 'elicitedDriver', 'dockerVersion',
+  'caddyLocal', 'scannedMarkers', 'reverseProxy', 'envEntry',
+]);
+const OBSERVATION_KEYS = new Set([
+  'bodyExcerpt', 'tailExcerpt', 'snippet', 'exitStatus', 'payloadKeys',
+  'expectedKeys', 'observedKeys', 'source', 'statusCode', 'headers',
+  'mode', 'event', 'sourceIps', 'healthcheckKeys', 'driver',
+  'observedDrivers', 'observedBinding', 'allowed', 'protocol',
+  'direction', 'port', 'ports', 'restart', 'wallClockTime',
+  'appearsIn', 'unhealthyServices', 'missingServices', 'expected',
+  'observed', 'error', 'errors', 'errorMessage', 'reason',
+  'snapshotCadence', 'shippedEnum', 'requiredFields', 'fileCount',
+  'observedEvents', 'services', 'fileSource', 'spec',
+  'engineNote', 'suffix',
+  'presentBlocks', 'missingBlocks', 'renderedByteLength',
+  'renderHashSample', 'eventCount', 'leaks', 'distinct',
+  'tail', 'expectedTotal', 'total', 'twoXx',
+  'drops', 'reloadDurationMs', 'overlapCount',
+  'elicitedTimeoutSeconds', 'outcomes', 'declaredSecrets',
+  'hasHealthcheck', 'inlineHits',
+]);
 function assertRowsCarry7dShape(rows, label) {
   assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
   for (const r of rows) {
     const skipped = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-    const hasEvidence = r.evidence && typeof r.evidence === 'object' && Object.keys(r.evidence).length > 0;
-    // A skipped-with-warn is allowed to carry only evidence too.
-    assert.ok(skipped || hasEvidence, `${label}: row missing evidence or honest skip: ${JSON.stringify(r).slice(0, 400)}`);
+    const notObservable = r.notObservableHere && typeof r.notObservableHere === 'object' && typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0;
+    if (skipped || notObservable) continue;
+    const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
+    const keys = Object.keys(ev);
+    assert.ok(keys.length > 0, `${label}: row has empty or missing evidence: ${JSON.stringify(r).slice(0, 400)}`);
+    const hasIdentity = keys.some((k) => IDENTITY_KEYS.has(k));
+    const hasObservation = keys.some((k) => OBSERVATION_KEYS.has(k));
+    assert.ok(hasIdentity, `${label}: row evidence lacks an identity key: ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(hasObservation, `${label}: row evidence lacks an observation key: ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
 

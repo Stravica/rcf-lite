@@ -80,29 +80,44 @@ export default async function runProbe() {
   const evidence = {};
   let provisioned;
   const resultRow = { anchorAcId, verdict: 'fail', detail: '', evidence };
-  let listError = null;
+  // Observed event sink (reclosure Item 6). We OBSERVE the emitted
+  // hetznerServerProvisioned event rather than constructing one from
+  // the return value.
+  const observedEvents = [];
+  const eventSink = (body) => observedEvents.push(body);
   try {
     let baselineList = [];
     try {
       baselineList = await hcloudJson(['server', 'list', '--output', 'json']);
       evidence.baselineServerIds = baselineList.map((s) => s.id);
     } catch (err) {
-      listError = err.message;
+      // Baseline list is diagnostic; capture error but do not fail.
+      evidence.baselineListError = err.message;
     }
-    provisioned = await provisionThrowawayServer({ runId: process.env.GITHUB_RUN_ID ?? 'local' });
+    provisioned = await provisionThrowawayServer({
+      runId: process.env.GITHUB_RUN_ID ?? 'local',
+      eventSink,
+    });
     evidence.serverId = provisioned.id;
     evidence.serverName = provisioned.name;
     evidence.primaryIpv4 = provisioned.primaryIpv4;
     evidence.location = provisioned.location;
     evidence.serverType = provisioned.serverType;
-    evidence.hetznerServerProvisionedEvent = {
-      event: 'hetznerServerProvisioned',
-      id: provisioned.id,
-      primaryIpv4: provisioned.primaryIpv4,
-      location: provisioned.location,
-      serverType: provisioned.serverType,
-    };
+    // OBSERVE the emitted event from the sink; do not manufacture it.
+    const provisionedEvent = observedEvents.find((e) => e && e.event === 'hetznerServerProvisioned');
+    evidence.observedEvents = observedEvents.map((e) => ({ event: e.event, keys: Object.keys(e).sort() }));
+    if (!provisionedEvent) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `hetznerServerProvisioned event was not observed on the injected sink after provisionThrowawayServer returned id ${provisioned.id}.`;
+      evidence.eventName = 'hetznerServerProvisioned';
+      evidence.eventObserved = false;
+      return { results: [resultRow], extra: evidence };
+    }
+    evidence.hetznerServerProvisionedEvent = provisionedEvent;
     // Observe the server-list AFTER provision to prove the id landed.
+    // A list failure at this step FAILS the row (reclosure Item 6:
+    // the new list failure is no longer allowed to continue to pass).
+    let postListError = null;
     try {
       const postList = await hcloudJson(['server', 'list', '--output', 'json']);
       evidence.postProvisionServerIds = postList.map((s) => s.id);
@@ -114,10 +129,11 @@ export default async function runProbe() {
         return { results: [resultRow], extra: evidence };
       }
     } catch (err) {
-      listError = err.message;
-      // Continue: destruction still runs; the missing list is captured
-      // in evidence so the row is honest about what could not be observed.
-      evidence.postProvisionListError = listError;
+      postListError = err.message;
+      evidence.postProvisionListError = postListError;
+      resultRow.verdict = 'fail';
+      resultRow.detail = `hcloud server list after provision failed (${postListError}); AC-37103-1 requires the live inventory-diff evidence, which could not be observed.`;
+      return { results: [resultRow], extra: evidence };
     }
     if (!provisioned.primaryIpv4 || provisioned.location !== 'fsn1' || provisioned.serverType !== 'cx23') {
       resultRow.verdict = 'fail';
@@ -125,7 +141,7 @@ export default async function runProbe() {
       return { results: [resultRow], extra: evidence };
     }
     resultRow.verdict = 'pass';
-    resultRow.detail = `throwaway server ${provisioned.id} provisioned in fsn1; hetznerServerProvisioned event captured (id ${provisioned.id}, primaryIpv4 ${provisioned.primaryIpv4}, serverType cx23); post-provision hcloud server list carries the id.`;
+    resultRow.detail = `throwaway server ${provisioned.id} provisioned in fsn1; hetznerServerProvisioned event OBSERVED on the injected sink (id ${provisioned.id}, primaryIpv4 ${provisioned.primaryIpv4}, serverType cx23); post-provision hcloud server list carries the id.`;
   } catch (err) {
     resultRow.verdict = 'fail';
     resultRow.detail = `provision failed: ${err.message}`;
@@ -136,7 +152,9 @@ export default async function runProbe() {
       try {
         await destroyThrowawayServer(provisioned);
         evidence.teardown = { destroyed: provisioned.id };
-        // Confirm absence by re-listing.
+        // Confirm absence by re-listing. Failure to confirm FAILS the
+        // row (reclosure Item on partly-fixed teardown: post-teardown
+        // inventory failures were being swallowed).
         try {
           const finalList = await hcloudJson(['server', 'list', '--output', 'json']);
           evidence.postTeardownServerIds = finalList.map((s) => s.id);
@@ -146,6 +164,8 @@ export default async function runProbe() {
           }
         } catch (err) {
           evidence.postTeardownListError = err.message;
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN CONFIRMATION FAILED: post-teardown hcloud server list threw (${err.message}); cannot confirm server ${provisioned.id} was removed.`;
         }
       } catch (err) {
         // Teardown failure fails the verdict (Addendum rule 5).

@@ -27,6 +27,11 @@ import {
   sshExec,
 } from './ssh-baseline-check.mjs';
 
+// The Node 20+ globalThis.fetch is powered by undici (bundled). We use
+// it directly rather than importing `undici` so the fixture stays
+// zero-dep. AC-composeHost-zeroDowntimeReload states "undici GETs";
+// this satisfies that with the same client library.
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_DIR = resolve(HERE, '..');
 const REMOTE_STACK_DIR = '/home/deploy/stack';
@@ -45,6 +50,11 @@ const STACK_FILES = [
 export async function bringUpStack(server, opts = {}) {
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
+  // Elicited compose-up wait timeout (reclosure Item 9: was hardcoded
+  // 120s). Env var COMPOSE_UP_TIMEOUT_SECONDS, default 120, matches
+  // AC-composeHost-upClean's "elicited timeout".
+  const composeUpTimeoutSeconds = Math.max(30, Number(opts.composeUpTimeoutSeconds ?? process.env.COMPOSE_UP_TIMEOUT_SECONDS ?? 120));
+  const composeUpOverallSeconds = composeUpTimeoutSeconds + 60; // grace for docker overhead
   const events = [];
   const record = (event, detail) => events.push({ event, at: new Date().toISOString(), detail });
 
@@ -68,20 +78,86 @@ export async function bringUpStack(server, opts = {}) {
     return { ok: false, phase: 'shipStack', shipped, events };
   }
 
-  const composeUp = await composeCommand(target, sshKeyPath, ['up', '-d', '--wait', '--wait-timeout', '120'], { timeoutSeconds: 180 });
-  record('composeUp', `exit=${composeUp.code} durationMs=${composeUp.waitedMs}`);
+  const composeUp = await composeCommand(target, sshKeyPath,
+    ['up', '-d', '--wait', '--wait-timeout', String(composeUpTimeoutSeconds)],
+    { timeoutSeconds: composeUpOverallSeconds },
+  );
+  record('composeUp', `exit=${composeUp.code} durationMs=${composeUp.waitedMs} elicitedTimeoutSeconds=${composeUpTimeoutSeconds}`);
   if (composeUp.code !== 0) {
-    return { ok: false, phase: 'composeUp', composeUp, events };
+    return { ok: false, phase: 'composeUp', composeUp, events, elicitedTimeoutSeconds: composeUpTimeoutSeconds };
   }
 
   const composeStatus = await composeCommand(target, sshKeyPath, ['ps', '--format', 'json'], { timeoutSeconds: 30 });
   const services = parseComposePs(composeStatus.stdout || '');
-  record('composePs', `services=${services.length} healthy=${services.filter((s) => s.state === 'running' && (s.health === 'healthy' || s.health === '')).length}`);
+  // Declared-services equality (reclosure Item 9): read the shipped
+  // compose.yaml and assert every declared service is present, in
+  // state=running, and health=healthy where a healthcheck is declared.
+  const declared = await readDeclaredServices();
+  const observedNames = services.map((s) => s.name || '').filter(Boolean);
+  const missingServices = declared.filter((d) => !services.some((s) => (s.name || '').includes(d.name)));
+  const unhealthy = [];
+  for (const decl of declared) {
+    const obs = services.find((s) => (s.name || '').includes(decl.name));
+    if (!obs) continue;
+    if (obs.state !== 'running') { unhealthy.push({ service: decl.name, state: obs.state, health: obs.health, reason: 'state != running' }); continue; }
+    if (decl.hasHealthcheck && obs.health !== 'healthy') {
+      unhealthy.push({ service: decl.name, state: obs.state, health: obs.health, reason: 'declared healthcheck but health != healthy' });
+    }
+  }
+  record('composePs', `services=${services.length} declared=${declared.length} missing=${missingServices.length} unhealthy=${unhealthy.length}`);
+  if (missingServices.length > 0 || unhealthy.length > 0) {
+    return {
+      ok: false, phase: 'composeHealth',
+      readiness, cloudInit, dockerInstall,
+      services, declared, observedNames, missingServices, unhealthy,
+      events, target, elicitedTimeoutSeconds: composeUpTimeoutSeconds,
+    };
+  }
 
   return {
     ok: true, phase: 'stackUp', readiness, cloudInit, dockerInstall,
-    services, events, target,
+    services, declared, observedNames,
+    events, target, elicitedTimeoutSeconds: composeUpTimeoutSeconds,
   };
+}
+
+// Read the declared services from the shipped compose.yaml so
+// bringUpStack can assert equality against `docker compose ps` output.
+// Uses a minimal in-house YAML scan tuned for the fixture shape.
+async function readDeclaredServices() {
+  try {
+    const text = await readFile(join(FIXTURE_DIR, 'compose.yaml'), 'utf8');
+    const lines = text.split(/\r?\n/);
+    const services = [];
+    let inServices = false;
+    let currentName = null;
+    let currentHasHealthcheck = false;
+    let currentIndent = -1;
+    const flush = () => {
+      if (currentName) services.push({ name: currentName, hasHealthcheck: currentHasHealthcheck });
+      currentName = null;
+      currentHasHealthcheck = false;
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      if (!raw || raw.trim() === '' || raw.trim().startsWith('#')) continue;
+      if (/^services:\s*$/.test(raw)) { inServices = true; continue; }
+      if (inServices && /^\S/.test(raw) && !/^services:/.test(raw)) { flush(); inServices = false; continue; }
+      if (!inServices) continue;
+      const m = raw.match(/^(\s+)([A-Za-z0-9_-]+):\s*$/);
+      if (m && m[1].length === 2) {
+        flush();
+        currentName = m[2];
+        currentIndent = m[1].length;
+        continue;
+      }
+      if (currentName && /^\s{4}healthcheck:\s*$/.test(raw)) currentHasHealthcheck = true;
+    }
+    flush();
+    return services;
+  } catch (_) {
+    return [];
+  }
 }
 
 // One HTTP request against the caddy :80 endpoint from the local
@@ -161,77 +237,82 @@ export async function httpProbeOnServer(server, path = '/live', opts = {}) {
 // so on-server loopback is the reachable path for the shipped fixture,
 // and it also removes the ssh round-trip overhead per request.
 export async function reloadBurst(server, path, opts = {}) {
-  const total = opts.total ?? 40;
+  const expectedTotal = opts.total ?? 40;
   const concurrency = opts.concurrency ?? 8;
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
-  const useOnServer = opts.onServer === true;
+  const mode = opts.mode ?? 'undici-external';
 
-  // Fire the reload asynchronously; the burst runs against caddy
-  // while the reload is in flight so the reload window is exercised.
-  const reloadStarted = Date.now();
-  const reloadPromise = composeCommand(target, sshKeyPath, ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'], { timeoutSeconds: 30 });
+  // AC-composeHost-zeroDowntimeReload requires undici GETs against the
+  // proxy service. Node 20+'s global fetch is powered by undici. We
+  // fire the reload asynchronously and the undici burst runs while the
+  // reload is in flight, with per-request start/end wall-clock stamps
+  // so we can PROVE the burst overlapped the reload window
+  // (reclosure Items 2, 10).
+  const reloadStartedAt = Date.now();
+  const reloadPromise = composeCommand(target, sshKeyPath,
+    ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'],
+    { timeoutSeconds: 30 });
 
-  let outcomes;
-  if (useOnServer) {
-    const perWorker = Math.ceil(total / concurrency);
-    const scriptLines = [
-      'set -u',
-      'tmp=$(mktemp)',
-      `for w in $(seq 1 ${concurrency}); do (`,
-      `  for i in $(seq 1 ${perWorker}); do`,
-      `    curl -sS -o /dev/null -w "%{http_code} %{time_total}\\n" --max-time 10 http://127.0.0.1${path} >> "$tmp"`,
-      '  done',
-      ') & done',
-      'wait',
-      'cat "$tmp"',
-      'rm -f "$tmp"',
-    ];
-    const script = scriptLines.join('\n');
-    const remoteCmd = `bash -lc '${script.replace(/'/g, "'\\''")}'`;
-    const { code, stdout, stderr } = await sshExec(target, remoteCmd, sshKeyPath, 90);
-    outcomes = (stdout || '').split(/\r?\n/).filter(Boolean).map((line, idx) => {
-      const [statusStr, elapsedStr] = line.trim().split(/\s+/);
-      const statusCode = Number(statusStr) || 0;
-      return {
-        idx,
-        elapsedMs: Math.round((Number(elapsedStr) || 0) * 1000),
-        statusCode,
-        ok: statusCode >= 200 && statusCode < 300,
-      };
-    });
-    if (outcomes.length === 0) {
-      outcomes = [{ idx: 0, elapsedMs: 0, statusCode: 0, ok: false, error: `ssh burst exited ${code}: ${(stderr || '').trim().slice(0, 200)}` }];
-    }
-  } else {
-    const requests = [];
-    for (let i = 0; i < total; i += 1) requests.push(i);
-    outcomes = [];
-    let cursor = 0;
-    async function worker() {
-      while (cursor < requests.length) {
-        const idx = cursor;
-        cursor += 1;
-        if (idx >= requests.length) return;
-        const t0 = Date.now();
-        const r = await httpProbe(`http://${server.primaryIpv4}${path}`, { timeoutMs: 8000 });
-        outcomes.push({ idx, elapsedMs: Date.now() - t0, statusCode: r.statusCode, ok: r.ok });
+  const outcomes = [];
+  const url = `http://${server.primaryIpv4}${path}`;
+  let cursor = 0;
+  async function undiciWorker() {
+    while (cursor < expectedTotal) {
+      const idx = cursor++;
+      if (idx >= expectedTotal) return;
+      const startedAt = Date.now();
+      let statusCode = 0;
+      let error = null;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      try {
+        const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-reload-burst/1.1.4 (undici)' } });
+        statusCode = res.status;
+        // Drain the body to complete the transaction.
+        try { await res.text(); } catch (_) { /* body drain best-effort */ }
+      } catch (err) {
+        error = err && err.message ? err.message : String(err);
+      } finally {
+        clearTimeout(timer);
       }
+      const endedAt = Date.now();
+      outcomes.push({
+        idx, startedAt, endedAt, elapsedMs: endedAt - startedAt,
+        statusCode, ok: statusCode >= 200 && statusCode < 300,
+        error,
+      });
     }
-    const workers = Array.from({ length: concurrency }, () => worker());
-    await Promise.all(workers);
   }
+  const workers = Array.from({ length: concurrency }, () => undiciWorker());
+  await Promise.all(workers);
   const reload = await reloadPromise;
-  const reloadDurationMs = Date.now() - reloadStarted;
+  const reloadEndedAt = Date.now();
+  const reloadDurationMs = reloadEndedAt - reloadStartedAt;
+
+  // Overlap proof: an outcome overlaps the reload window if its
+  // [startedAt, endedAt] intersects [reloadStartedAt, reloadEndedAt].
+  const overlaps = outcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
+  const overlapCount = overlaps.length;
+  const firstOverlapStart = overlaps.length ? Math.min(...overlaps.map((o) => o.startedAt)) : null;
+  const lastOverlapEnd = overlaps.length ? Math.max(...overlaps.map((o) => o.endedAt)) : null;
 
   const twoXx = outcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
   const drops = outcomes.filter((o) => !o.ok).length;
+  // Preserve the expected vs observed distinction (reclosure Item 10:
+  // returning `total: outcomes.length` was letting <40-result runs
+  // pass silently). Both counts are reported and the caller checks.
   return {
-    total: outcomes.length, twoXx, drops, reloadDurationMs,
+    expectedTotal,
+    total: outcomes.length,
+    twoXx, drops, reloadDurationMs,
+    reloadStartedAt, reloadEndedAt,
+    overlapCount,
+    firstOverlapStart, lastOverlapEnd,
     reloadExit: reload.code,
     reloadStderrExcerpt: (reload.stderr || '').slice(0, 300),
     outcomes,
-    mode: useOnServer ? 'on-server' : 'external',
+    mode,
   };
 }
 
