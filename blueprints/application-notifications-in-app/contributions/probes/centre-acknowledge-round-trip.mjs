@@ -61,9 +61,9 @@ export default async function runProbe() {
       && !!ackServerLog;
 
     results.push({
-      anchorAcId,
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-notifications-in-app-AC-20103-1: this row observes the acknowledge API round trip server-side (POST then GET showing acknowledgedAt flipped and the delivery-log entry), a partial observation of AC-20103-1; the AC also requires observing the user activating the control and the DOM data-acknowledged attribute flipping in response to that user event - client-side DOM mutation and event dispatch are browser-driven and not observed by this Node HTTP probe',
+      limitation: 'application-notifications-in-app-AC-20103-1: user activation of the acknowledge control and the DOM data-acknowledged attribute flipping in response to that user event (the AC clauses beyond the server-side round trip) are browser-driven and not observed by this Node HTTP probe; the acknowledge-API round trip is a partial observation of AC-20103-1',
       verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `Given the notification centre route with a seeded; round-trip on notificationId=${notificationId} against the seeded backlog: POST /api/notifications/acknowledge returned 200 { ok: true, notificationId }; delivery-log acknowledgedAt flipped from null to ${afterRow.acknowledgedAt}; /__requests recorded one acknowledge-server entry; x-fixture-request-id on the POST=${ack.requestId}`

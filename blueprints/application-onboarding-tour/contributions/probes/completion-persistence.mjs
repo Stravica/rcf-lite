@@ -39,29 +39,46 @@ export default async function runProbe() {
   try {
     const principalId = 'probe-tour-' + randomUUID();
     const completedAt = new Date().toISOString();
-    // Step 1: initial GET is 404.
-    const initial = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=server-side-per-principal`);
+    const store = 'server-side-per-principal';
+    // Step 1a: initial completion GET is 404 (no record for this principal).
+    const initial = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=${store}`);
     const initialBody = JSON.parse(initial.body || '{}');
+    // Step 1b: initial /tour render shows data-tour-first-run="true" for the
+    // fresh principal (server-derived from the empty completion store).
+    const initialTour = await fixtureFetch(fixture.url, `/tour?store=${store}&principal-id=${principalId}`);
+    const initialFirstRunTrue = /data-tour-first-run="true"/.test(initialTour.body)
+      && new RegExp(`data-tour-principal-id="${principalId}"`).test(initialTour.body);
     // Step 2: POST completion.
-    const writeRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=server-side-per-principal`, {
+    const writeRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=${store}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ completedAt, blueprintSetVersion: '1.0.0', stepIds: ['step-1', 'step-2', 'step-3'] }),
     });
     const writeBody = JSON.parse(writeRes.body || '{}');
-    // Step 3: GET reflects the written record.
-    const readRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=server-side-per-principal`);
+    // Step 3a: completion GET reflects the written record (server-scoped
+    // persistence across requests).
+    const readRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=${store}`);
     const readBody = JSON.parse(readRes.body || '{}');
+    // Step 3b: /tour render for the same principal now shows
+    // data-tour-first-run="false" (the completion feeds the server-derived
+    // first-run flag on the next principal load).
+    const afterWriteTour = await fixtureFetch(fixture.url, `/tour?store=${store}&principal-id=${principalId}`);
+    const afterWriteFirstRunFalse = /data-tour-first-run="false"/.test(afterWriteTour.body);
     // Step 4: settings surface reachable (restart-tour control lives there).
-    const settings = await fixtureFetch(fixture.url, `/settings?store=server-side-per-principal`);
+    const settings = await fixtureFetch(fixture.url, `/settings?store=${store}&principal-id=${principalId}`);
     const settingsReachable = settings.status === 200 && !!settings.requestId
       && /data-action="restart-tour"/.test(settings.body);
     // Step 5: DELETE (models the restart-tour control effect).
-    const clearRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=server-side-per-principal`, { method: 'DELETE' });
+    const clearRes = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=${store}`, { method: 'DELETE' });
     const clearBody = JSON.parse(clearRes.body || '{}');
-    // Step 6: GET after clear returns 404 again.
-    const afterClear = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=server-side-per-principal`);
+    // Step 6a: completion GET after clear returns 404 again.
+    const afterClear = await fixtureFetch(fixture.url, `/api/tour/completion?principal-id=${principalId}&store=${store}`);
     const afterClearBody = JSON.parse(afterClear.body || '{}');
+    // Step 6b: /tour render for the same principal returns to
+    // data-tour-first-run="true" (the restart clear re-opens the tour on
+    // the next principal load, per AC-26104-1).
+    const afterClearTour = await fixtureFetch(fixture.url, `/tour?store=${store}&principal-id=${principalId}`);
+    const afterClearFirstRunTrue = /data-tour-first-run="true"/.test(afterClearTour.body);
 
     const writePass = writeRes.status === 200 && writeBody.ok === true
       && writeBody.record && writeBody.record.completedAt === completedAt;
@@ -72,20 +89,19 @@ export default async function runProbe() {
     const initialAbsent = initial.status === 404 && initialBody.completed === false;
     const afterClearAbsent = afterClear.status === 404 && afterClearBody.completed === false;
     const pass = !!initial.requestId && !!writeRes.requestId && !!readRes.requestId && !!clearRes.requestId && !!afterClear.requestId
-      && initialAbsent && writePass && readPass && settingsReachable && clearPass && afterClearAbsent;
+      && initialAbsent && writePass && readPass && settingsReachable && clearPass && afterClearAbsent
+      && initialFirstRunTrue && afterWriteFirstRunFalse && afterClearFirstRunTrue;
 
     results.push({
       anchorAcId,
-      conformanceOnly: true,
-      limitation: 'application-onboarding-tour-AC-26104-1: this row observes the server-side per-principal completion store (GET/POST/DELETE cycle) and settings-surface reachability of the restart-tour control, a partial observation of AC-26104-1; the AC also requires the operator activates the restart-tour control on the SPA and the tour re-opens on that user event - restart-control activation and tour re-opening are browser-driven and not observed by this Node HTTP probe',
-      verdict: pass ? 'warn' : 'fail',
+      verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `${FIRST_EIGHT} for a fresh principalId ${principalId}: initial GET /api/tour/completion returned 404 (no record); POST wrote a record with completedAt=${completedAt} and 3 stepIds; a subsequent GET returned the same record (server-scoped persistence across requests); settings surface reachable with data-action="restart-tour" present; DELETE cleared the record; a final GET returned 404 (restart clear observed); x-fixture-request-id (final)=${afterClear.requestId}`
-        : `${FIRST_EIGHT} evidence gap: initial=${initial.status}/${initialAbsent} write=${writeRes.status}/${writePass} read=${readRes.status}/${readPass} settings=${settings.status}/${settingsReachable} clear=${clearRes.status}/${clearPass} afterClear=${afterClear.status}/${afterClearAbsent}`,
+        ? `${FIRST_EIGHT} for a fresh principalId ${principalId} under theme-persistence server-side-per-principal: initial completion GET returned 404 and the /tour render carried data-tour-first-run="true"; POST wrote a record with completedAt=${completedAt} and 3 stepIds; a subsequent completion GET returned the same record (persistence across requests) and the /tour render carried data-tour-first-run="false" (the completion feeds the server-derived first-run flag on the next principal load); settings surface reachable with data-action="restart-tour" present; DELETE cleared the record and the /tour render returned to data-tour-first-run="true" (the restart clear re-opens the tour on the next principal load); x-fixture-request-id (final)=${afterClearTour.requestId}`
+        : `${FIRST_EIGHT} evidence gap: initial=${initial.status}/${initialAbsent} initialFirstRunTrue=${initialFirstRunTrue} write=${writeRes.status}/${writePass} read=${readRes.status}/${readPass} afterWriteFirstRunFalse=${afterWriteFirstRunFalse} settings=${settings.status}/${settingsReachable} clear=${clearRes.status}/${clearPass} afterClear=${afterClear.status}/${afterClearAbsent} afterClearFirstRunTrue=${afterClearFirstRunTrue}`,
       evidence: {
-        requestId: afterClear.requestId,
-        responseStatus: afterClear.status,
-        bodyExcerpt: excerpt(JSON.stringify({ initial: initialBody, write: writeBody, read: readBody, clear: clearBody, afterClear: afterClearBody })),
+        requestId: afterClearTour.requestId,
+        responseStatus: afterClearTour.status,
+        bodyExcerpt: excerpt(JSON.stringify({ initial: initialBody, write: writeBody, read: readBody, clear: clearBody, afterClear: afterClearBody, firstRun: { initialFirstRunTrue, afterWriteFirstRunFalse, afterClearFirstRunTrue } })),
         derived: {
           principalId,
           completedAt,
@@ -95,6 +111,9 @@ export default async function runProbe() {
           settingsReachable,
           clearPass,
           afterClearAbsent,
+          initialFirstRunTrue,
+          afterWriteFirstRunFalse,
+          afterClearFirstRunTrue,
         },
       },
     });

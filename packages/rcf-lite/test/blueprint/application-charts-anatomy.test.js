@@ -27,7 +27,7 @@ const PACK_ABS = join(BLUEPRINT_ROOT, 'probe-packs', 'application-charts.pack.mj
 test('application-charts: blueprint.json declares the ratified shape (TC-048-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-charts');
-  assert.equal(doc.version, '1.0.8');
+  assert.equal(doc.version, '1.0.9');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -239,20 +239,59 @@ test('application-charts criterion-e probes invoked in-memory carry rule-7d evid
       if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
         assert.ok(validAnchorIds.has(r.notObservableAcId), name + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
       }
-      const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
-      const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
-      const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
-      const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-      const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-      const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
-      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      const isNotObservableHere = r.notObservableHere === true
-        && typeof r.reason === 'string' && r.reason.length > 0
-        && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
-      const isConformanceOnly = r.conformanceOnly === true
-        && (r.anchorAcId === null || r.anchorAcId === undefined)
-        && typeof r.limitation === 'string' && r.limitation.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, name + ' row ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
+      assertRule7dRowShape(r, name);
     }
   }
+});
+
+// Rule-7d row-shape helper (extracted so the negative-case test can
+// verify the check refuses an anchored conformanceOnly row without
+// duplicating the shape logic). A valid row is exactly one of:
+//   - conformanceOnly: null anchor + non-empty limitation;
+//   - notObservableHere: non-empty anchorAcId + non-empty reason;
+//   - accountBoundSkipped: non-empty reason;
+//   - a positive-evidence row with a non-empty anchorAcId AND a
+//     rule-7d evidence object (requestId | bodyExcerpt | derived |
+//     errorExcerpt). No other shape is accepted; a row that carries
+//     conformanceOnly=true with a non-null anchor is rejected even if
+//     it happens to also carry an evidence field.
+function assertRule7dRowShape(r, name) {
+  const ev = r && r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
+  const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
+  const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+  const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
+  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
+  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  if (r.conformanceOnly === true) {
+    const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
+    assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
+      name + ' conformanceOnly row anchorAcId=' + r.anchorAcId + ' violates the rule-7d null-anchor + limitation shape');
+    return;
+  }
+  if (r.notObservableHere === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0
+      && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+      name + ' notObservableHere row violates the rule-7d anchor + reason shape');
+    return;
+  }
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0,
+      name + ' accountBoundSkipped row is missing a reason field (rule 7d)');
+    return;
+  }
+  assert.ok(typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+    name + ' positive-evidence row has no anchorAcId (rule 7d)');
+  assert.ok(hasEvidenceObject, name + ' positive-evidence row anchorAcId=' + r.anchorAcId + ' has no rule-7d evidence object');
+}
+
+test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criterion-e-evidence-shape-negative)', async () => {
+  const badRow = {
+    anchorAcId: 'application-charts-AC-18103-1',
+    conformanceOnly: true,
+    limitation: 'a partial observation',
+    verdict: 'warn',
+    evidence: { requestId: 'r', bodyExcerpt: 'x', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
+    /conformanceOnly row anchorAcId=application-charts-AC-18103-1 violates the rule-7d null-anchor \+ limitation shape/);
 });

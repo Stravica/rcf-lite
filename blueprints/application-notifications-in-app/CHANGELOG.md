@@ -1,5 +1,9 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.2.5 - 2026-09-12
+
+- Rule-7d shape fix on the centre-acknowledge row: the AC-20103-1 de-claim now carries `anchorAcId: null` and names AC-20103-1 in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to a per-request `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws. Product-term usage of "round trip" / "round-trip" (request/response cycle in AC-20103-1 and in the `centre-acknowledge-round-trip` module name) stays as shipped; the register-scan pattern for review-round labels matches `round<space><digit>` and does not overlap the product term.
+
 ## 1.2.4 - 2026-09-11
 
 - Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. centre-acknowledge AC-20103-1 row de-claimed to `conformanceOnly:true` with `verdict:'warn'` and a `limitation` naming the browser-only clause (control activation and DOM `data-acknowledged` mutation are not observed by a Node HTTP probe). toast-contract row keeps `notObservableHere:true` + `verdict:'warn'`; live-region-preseeding stays as a positive-observation row that fails under `?break=preseed`. Anatomy test extended with a negative-variant assertion that the shipped preseed break switch drives the live-region-preseeding aggregate to fail.

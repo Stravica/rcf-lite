@@ -46,9 +46,9 @@ export default async function runProbe() {
       && rowHeaderCount >= rowCount
       && everyLabelHonoursContract;
     results.push({
-      anchorAcId: 'application-admin-console-AC-21103-1',
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-admin-console-AC-21103-1: this row observes labels are rendered on each cell with permission-vocabulary tokens, a partial observation of AC-21103-1; the AC also requires each cell label to correspond to the actual role permission and state (row-role x column-permission mapping) - permission-derivation checking against role-permission tables is not observed by this Node HTTP probe against a fixed fixture',
+      limitation: 'application-admin-console-AC-21103-1: permission-derivation checking against role-permission tables (each cell label corresponding to the actual role permission and state, row-role x column-permission mapping) is not observed by this Node HTTP probe against a fixed fixture; the label-shape walk over gridcell aria-labels is a partial observation of AC-21103-1',
       verdict: derivedPass ? 'warn' : 'fail',
       detail: derivedPass
         ? `Given the roles surface AND an applied auth blueprint declaring roleModel: GET /admin/roles returned 200 with role="grid" present, ${rowCount} role ranks, ${columnCount} permission columnheaders, ${gridcellCount} gridcells (=rows*columns), ${rowHeaderCount} rowheader cells, and all ${cellLabels.length} gridcell aria-labels honour the "<role> allowed/denied: <permission>" contract; x-fixture-request-id=${r.requestId}`

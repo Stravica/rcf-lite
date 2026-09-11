@@ -27,7 +27,7 @@ export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixture
 export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/application-account-settings');
 export const PORT_RANGE_START = 47620;
 export const PORT_RANGE_END = 47629;
-export const DECLARED_ENV = Object.freeze(['PORT', 'ACCOUNT_SETTINGS_CAPS', 'ACCOUNT_SETTINGS_APPS', 'ACCOUNT_SETTINGS_SECURITY_SHAPE', 'ACCOUNT_SETTINGS_HOSTED_URL', 'ACCOUNT_SETTINGS_THEME_PERSIST']);
+export const DECLARED_ENV = Object.freeze(['PORT', 'ACCOUNT_SETTINGS_CAPS', 'ACCOUNT_SETTINGS_APPS', 'ACCOUNT_SETTINGS_SECURITY_SHAPE', 'ACCOUNT_SETTINGS_HOSTED_URL', 'ACCOUNT_SETTINGS_THEME_PERSIST', 'PROBE_BREAK']);
 export const REQUEST_ID_HEADER = 'x-fixture-request-id';
 
 // Pick a free port from the fixture family range. Falls back to

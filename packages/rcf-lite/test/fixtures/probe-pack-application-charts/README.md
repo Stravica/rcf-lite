@@ -9,6 +9,7 @@ Every environment variable the fixture or a `contributions/probes/` probe reads 
 | Var | Purpose |
 |---|---|
 | `PORT` | default 3000; probe picks 47650-47659 |
+| `PROBE_BREAK` | optional default `?break=` switch across every request; per-request `?break=` still wins when both are set. Values: `table`, `pattern`, `keyboard` |
 
 Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
 

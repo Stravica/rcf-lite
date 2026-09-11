@@ -88,8 +88,8 @@ export default async function runProbe() {
       anchorAcId,
       verdict: serverScopedPass ? 'pass' : 'fail',
       detail: serverScopedPass
-        ? `When application-spa is applied with theme-persistence=server-scoped: for a fresh principalId, initial GET rendered html data-theme=${beforeTheme}; POST /api/theme?theme=${chosenTheme} wrote the record; a subsequent GET rendered html data-theme=${afterHtmlTheme} with data-server-scoped-theme=${afterDataServerScoped} and the dark radio checked; DELETE /api/theme cleared; a final GET fell back to html data-theme=${clearedHtmlTheme}. Server-scoped persistence observed across requests; x-fixture-request-id (final)=${cleared.requestId}`
-        : `When application-spa is applied with theme-persistence=server-scoped (gap): before=${beforeTheme} write=${write.status}/${writeBody.ok} afterHtmlTheme=${afterHtmlTheme} afterServerScoped=${afterDataServerScoped} afterDarkChecked=${afterDarkChecked} clear=${clear.status} clearedHtmlTheme=${clearedHtmlTheme}`,
+        ? `${FIRST_EIGHT_SPA} /account/theme with theme-persistence=server-scoped: for a fresh principalId, initial GET rendered html data-theme=${beforeTheme}; POST /api/theme?theme=${chosenTheme} wrote the record; a subsequent GET rendered html data-theme=${afterHtmlTheme} with data-server-scoped-theme=${afterDataServerScoped} and the dark radio checked; DELETE /api/theme cleared; a final GET fell back to html data-theme=${clearedHtmlTheme}. Server-scoped persistence observed across requests; x-fixture-request-id (final)=${cleared.requestId}`
+        : `${FIRST_EIGHT_SPA} /account/theme with theme-persistence=server-scoped (gap): before=${beforeTheme} write=${write.status}/${writeBody.ok} afterHtmlTheme=${afterHtmlTheme} afterServerScoped=${afterDataServerScoped} afterDarkChecked=${afterDarkChecked} clear=${clear.status} clearedHtmlTheme=${clearedHtmlTheme}`,
       evidence: {
         requestId: cleared.requestId,
         responseStatus: cleared.status,
@@ -108,9 +108,9 @@ export default async function runProbe() {
 
     // Row 3: interaction half is browser-only. notObservableHere
     // anchored to AC-25108-1 with verdict warn (never pass). The
-    // aggregate() rule skips notObservableHere rows: the browser-only
-    // half is amber-on-the-shelf, captured on this row, without
-    // pulling the whole probe to warn.
+    // aggregate() rule lifts any warn row to a warn aggregate, so this
+    // row makes the probe amber-on-the-shelf honestly without letting
+    // the interaction clause pass unobserved.
     results.push({
       anchorAcId,
       notObservableAcId: anchorAcId,

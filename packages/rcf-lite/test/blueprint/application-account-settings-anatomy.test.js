@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.2.4');
+  assert.equal(doc.version, '1.2.5');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.2.4');
+  assert.equal(sidecar.version, '1.2.5');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
@@ -368,20 +368,51 @@ test('application-account-settings criterion-e probes invoked in-memory carry ru
       if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
         assert.ok(validAnchorIds.has(r.notObservableAcId), name + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
       }
-      const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
-      const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
-      const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
-      const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-      const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-      const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
-      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      const isNotObservableHere = r.notObservableHere === true
-        && typeof r.reason === 'string' && r.reason.length > 0
-        && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
-      const isConformanceOnly = r.conformanceOnly === true
-        && (r.anchorAcId === null || r.anchorAcId === undefined)
-        && typeof r.limitation === 'string' && r.limitation.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, name + ' row ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
+      assertRule7dRowShape(r, name);
     }
   }
+});
+
+// Rule-7d row-shape helper (see application-charts-anatomy.test.js
+// for the full rationale). Kept per-file so each anatomy suite carries
+// its own negative-case test with no shared-helper coupling.
+function assertRule7dRowShape(r, name) {
+  const ev = r && r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
+  const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
+  const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+  const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
+  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
+  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  if (r.conformanceOnly === true) {
+    const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
+    assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
+      name + ' conformanceOnly row anchorAcId=' + r.anchorAcId + ' violates the rule-7d null-anchor + limitation shape');
+    return;
+  }
+  if (r.notObservableHere === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0
+      && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+      name + ' notObservableHere row violates the rule-7d anchor + reason shape');
+    return;
+  }
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0,
+      name + ' accountBoundSkipped row is missing a reason field (rule 7d)');
+    return;
+  }
+  assert.ok(typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+    name + ' positive-evidence row has no anchorAcId (rule 7d)');
+  assert.ok(hasEvidenceObject, name + ' positive-evidence row anchorAcId=' + r.anchorAcId + ' has no rule-7d evidence object');
+}
+
+test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criterion-e-evidence-shape-negative)', async () => {
+  const badRow = {
+    anchorAcId: 'application-account-settings-AC-25101-1',
+    conformanceOnly: true,
+    limitation: 'a partial observation',
+    verdict: 'warn',
+    evidence: { requestId: 'r', bodyExcerpt: 'x', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
+    /conformanceOnly row anchorAcId=application-account-settings-AC-25101-1 violates the rule-7d null-anchor \+ limitation shape/);
 });

@@ -130,9 +130,9 @@ export default async function runProbe() {
     // the ORAL announcement (assistive-tech reads the label aloud) is
     // browser + AT territory and not asserted here.
     results.push({
-      anchorAcId: 'application-charts-AC-18104-3',
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-charts-AC-18104-3: this row observes the aria-label token derivation on every focusable data point server-side, a partial observation of AC-18104-3; the AC also requires that on keyboard focus the derived string is announced by assistive tech - the browser focus event and the AT announcement are browser-driven and not observed by this Node HTTP probe',
+      limitation: 'application-charts-AC-18104-3: assistive-tech announcement of the derived string on keyboard focus (the AC clause beyond the DOM-attribute derivation) is browser + AT driven and not observed by this Node HTTP probe; the aria-label derivation walk is a partial observation of AC-18104-3',
       verdict: shapePass ? 'warn' : 'fail',
       detail: shapePass
         ? `Given an interactive chart, when the keyboard focus; Every one of ${order.length} focusable data points renders an aria-label of the form "<seriesName>, <xValue>, <yValue> <unit>" where each token matches the point's own data-series / data-x / data-y attributes (derived-output check); x-fixture-request-id=${golden.requestId}`

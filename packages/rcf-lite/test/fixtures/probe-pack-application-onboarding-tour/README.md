@@ -12,6 +12,7 @@ Every environment variable the fixture or a `contributions/probes/` probe reads 
 | `TOUR_APPS` | comma list mirroring appliedBlueprints[] |
 | `TOUR_STORE` | `spa-local-storage`|`spa-session-storage`|`server-side-per-principal`; default `spa-local-storage` |
 | `TOUR_ANCHOR` | `dashboard-top`|`settings-page`|`custom-anchor`; default derived from TOUR_APPS |
+| `PROBE_BREAK` | optional default `?break=` switch across every request; per-request `?break=` still wins when set. Values: `no-role`, `focus-escape`, `no-collapse`, `no-persist` |
 
 Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
 

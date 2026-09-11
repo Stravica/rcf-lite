@@ -40,9 +40,9 @@ export default async function runProbe() {
     const roundTripPass = regionCheckPass && followStatus === 200 && !!followRid;
 
     results.push({
-      anchorAcId,
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-empty-error-states-AC-22101-1: this row observes the 404 response renders role=region with parent-surface recovery link and search-input, and the parent link follows to a 200, a partial observation of AC-22101-1; the AC also requires the browser document title reflects the missing resource kind and the accessible name is resolved by assistive tech - browser title state and AT accessible-name resolution are browser-driven and not observed by this Node HTTP probe',
+      limitation: 'application-empty-error-states-AC-22101-1: browser document-title state reflecting the missing resource kind and assistive-tech accessible-name resolution (the AC clauses beyond the DOM shape) are browser + AT driven and not observed by this Node HTTP probe; the 404 region + parent-link follow-through walk is a partial observation of AC-22101-1',
       verdict: roundTripPass ? 'warn' : 'fail',
       detail: roundTripPass
         ? `Given a 404 response on a route the SPA declares: observed role="region" named for the missing resource, [data-recovery="parent-surface"] link (${parentHref}) and [data-recovery="search"] input on the rendered surface; follow-through GET ${parentHref} returned 200; x-fixture-request-id (not-found)=${nf.requestId}, (parent)=${followRid}`

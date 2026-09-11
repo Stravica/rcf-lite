@@ -27,7 +27,7 @@ export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixture
 export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/application-onboarding-tour');
 export const PORT_RANGE_START = 47610;
 export const PORT_RANGE_END = 47619;
-export const DECLARED_ENV = Object.freeze(['PORT', 'TOUR_APPS', 'TOUR_STORE', 'TOUR_ANCHOR']);
+export const DECLARED_ENV = Object.freeze(['PORT', 'TOUR_APPS', 'TOUR_STORE', 'TOUR_ANCHOR', 'PROBE_BREAK']);
 export const REQUEST_ID_HEADER = 'x-fixture-request-id';
 
 // Pick a free port from the fixture family range. Falls back to

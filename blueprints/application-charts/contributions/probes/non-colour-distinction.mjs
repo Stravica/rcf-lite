@@ -46,9 +46,9 @@ export default async function runProbe() {
     const everyOne = perSeries.length >= 2 && perSeries.every((s) => s.hasPattern && s.hasLabel);
     const goldenPass = golden.status === 200 && !!golden.requestId && everyOne;
     results.push({
-      anchorAcId,
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-charts-AC-18102-1: this row observes per-series data-pattern attribute and data-series-label text-node existence server-side, which is a partial observation of AC-18102-1; the AC also requires that the non-colour distinction is perceivable adjacent to the series (label placement) and remains distinguishable at applied colour choices - browser layout / rendered-colour distinguishability is browser-driven and not observed by this Node HTTP probe',
+      limitation: 'application-charts-AC-18102-1: browser layout of the label adjacent to the series and rendered-colour distinguishability at applied colour choices (the AC clauses beyond DOM shape) are browser-driven and not observed by this Node HTTP probe; the per-series DOM-attribute walk is a partial observation of AC-18102-1',
       verdict: goldenPass ? 'warn' : 'fail',
       detail: goldenPass
         ? `Given a rendered chart with N series, the; Per-series check on ${perSeries.length} series (${perSeries.map((s) => s.name).join(', ')}): every series carries a data-pattern attribute AND a data-series-label text node  -  the AC-18102-1 non-colour distinction contract is satisfied at every series; x-fixture-request-id=${golden.requestId}`

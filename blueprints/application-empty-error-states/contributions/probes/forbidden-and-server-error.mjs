@@ -18,6 +18,7 @@
 // under the positive-anchor cleanup (they positively-anchor on absence and are void).
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
+import { randomUUID } from 'node:crypto';
 
 export const anchorAcId = 'application-empty-error-states-AC-22102-1';
 export const accountBound = false;
@@ -46,12 +47,16 @@ function forbiddenSensitiveHit(text) {
 
 function serverErrorSensitiveHit(text) {
   // Sensitive-pattern list per AC-22103-1: backtrace frame, source
-  // path (with file extension), env-var key shape, framework-internal
-  // frame. Correlation-id tokens without file:line context are not
-  // stack frames and are ignored.
+  // path (with file extension), env-var key shape (either process.env.NAME
+  // or a bare NAME=value form), framework-internal frame. Correlation-id
+  // tokens without file:line context are not stack frames and are ignored.
   if (/\bat\s+[A-Za-z_$][A-Za-z0-9_$.]*\s*\([^)]+:\d+:\d+\)/.test(text)) return true;
   if (/(^|\s)(\.\.?\/|\/)[A-Za-z0-9_./-]+\.(js|mjs|cjs|ts|tsx|jsx)\b/i.test(text)) return true;
   if (/process\.env\.[A-Z_][A-Z0-9_]*/.test(text)) return true;
+  // Bare NAME=value: an uppercase env-key style token followed by '=' and a
+  // non-whitespace value. Matches leaked lines like "DB_PASSWORD=hunter2"
+  // that a naive error handler might have echoed back to the surface.
+  if (/(^|[^A-Z0-9_])[A-Z][A-Z0-9_]{2,}=[^\s]+/.test(text)) return true;
   if (/\bnode_modules\//.test(text)) return true;
   return false;
 }
@@ -60,52 +65,99 @@ export default async function runProbe() {
   const fixture = await startFixture();
   const results = [];
   try {
-    const forbidden = await fixtureFetch(fixture.url, '/probe/forbidden');
+    // Mint varied sensitive tokens per run and inject them into the
+    // request that drives the 403. The confidentiality property under
+    // AC-22102-1 holds when none of the injected tokens appears in the
+    // rendered error copy (a real varied-input observation, not a fixed
+    // safe-copy self-agreement).
+    const leakToken = 'sk-live-' + randomUUID().replace(/-/g, '');
+    const leakResourceId = 'widget-' + Math.floor(Math.random() * 1_000_000) + '-' + randomUUID().slice(0, 6);
+    const leakEmail = 'probe-leak-' + randomUUID().slice(0, 8) + '@example.test';
+    const leakEnvKey = 'PROBE_LEAK_' + randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase();
+    const leakEnvValue = 'v-' + randomUUID().slice(0, 12);
+    const leakEnvPair = `${leakEnvKey}=${leakEnvValue}`;
+
+    const injectedForbidden = new URLSearchParams({
+      'leak-token': leakToken,
+      'leak-resource-id': leakResourceId,
+      'leak-email': leakEmail,
+      'leak-env': leakEnvPair,
+      'x-injected-name': leakEnvKey,
+      'x-injected-value': leakEnvValue,
+    }).toString();
+    const forbidden = await fixtureFetch(fixture.url, `/probe/forbidden?${injectedForbidden}`, {
+      headers: { 'x-probe-leak-token': leakToken, 'x-probe-leak-email': leakEmail, 'x-probe-leak-env': leakEnvPair },
+    });
     const surfaceText = stripHtml(forbidden.body);
     const region = /data-surface="forbidden"[^>]*role="region"/.test(forbidden.body);
     const control = /data-action="request-access"/.test(forbidden.body);
     const stateCopyPresent = /You do not have scope on this workspace/.test(surfaceText);
-    const noSensitiveHit = !forbiddenSensitiveHit(surfaceText);
+    const noSensitivePatternHit = !forbiddenSensitiveHit(surfaceText);
+    const injectedAbsent = !forbidden.body.includes(leakToken)
+      && !forbidden.body.includes(leakResourceId)
+      && !forbidden.body.includes(leakEmail)
+      && !forbidden.body.includes(leakEnvPair)
+      && !forbidden.body.includes(leakEnvValue);
     const post = await fixtureFetch(fixture.url, '/api/request-access', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
     let postBody = null; try { postBody = JSON.parse(post.body); } catch (_) { /* parse */ }
     const roundTrip = post.status === 200 && !!post.requestId && postBody && postBody.ok === true;
-    const forbiddenPass = forbidden.status === 403 && !!forbidden.requestId && region && control && stateCopyPresent && noSensitiveHit && roundTrip;
+    const forbiddenPass = forbidden.status === 403 && !!forbidden.requestId
+      && region && control && stateCopyPresent
+      && noSensitivePatternHit && injectedAbsent && roundTrip;
     results.push({
-      anchorAcId,
-      conformanceOnly: true,
-      limitation: 'application-empty-error-states-AC-22102-1: this row observes the 403 forbidden state renders role=region, request-access control and POST round-trip, and the surface holds no sensitive-pattern hit against the fixture-served copy, a partial observation of AC-22102-1; the AC also requires the confidentiality property to hold against varied sensitive-input the origin might have leaked (resource ids, tenant slugs the probe injects) - varied-input confidentiality derivation against a shipped origin is not observed by this Node HTTP probe against a fixed fixture',
-      verdict: forbiddenPass ? 'warn' : 'fail',
+      anchorAcId: 'application-empty-error-states-AC-22102-1',
+      verdict: forbiddenPass ? 'pass' : 'fail',
       detail: forbiddenPass
-        ? `Given a 403 response, the forbidden state renders: observed role="region", [data-action="request-access"] control, state-copy "You do not have scope on this workspace" on the rendered document text, no sensitive-pattern hit on the surface; POST /api/request-access returned 200 with ok=true; x-fixture-request-id (state)=${forbidden.requestId}, (action)=${post.requestId}`
-        : `Given a 403 response, the forbidden state renders (evidence gap): status=${forbidden.status} rid=${forbidden.requestId} region=${region} control=${control} stateCopy=${stateCopyPresent} noSensitive=${noSensitiveHit} roundTrip=${roundTrip}`,
+        ? `Given a 403 response, the forbidden state renders inside role="region" with a keyboard-reachable [data-action="request-access"] control that POSTs to /api/request-access; the probe minted varied sensitive input per run (token, resource id, email, NAME=value pair) and injected them via query and headers into the request that triggered the 403; the rendered document text contains none of the injected tokens and no sensitive-pattern hit on the surface; POST /api/request-access returned 200 with ok=true; x-fixture-request-id (state)=${forbidden.requestId}, (action)=${post.requestId}`
+        : `Given a 403 response, the forbidden state renders (evidence gap): status=${forbidden.status} rid=${forbidden.requestId} region=${region} control=${control} stateCopy=${stateCopyPresent} noSensitivePattern=${noSensitivePatternHit} injectedAbsent=${injectedAbsent} roundTrip=${roundTrip}`,
       evidence: {
         requestId: forbidden.requestId,
         responseStatus: forbidden.status,
         bodyExcerpt: excerpt(surfaceText),
-        derived: { region, control, stateCopyPresent, noSensitiveHit, actionStatus: post.status, actionOk: !!(postBody && postBody.ok) },
+        derived: { region, control, stateCopyPresent, noSensitivePatternHit, injectedAbsent, injectedTokens: { leakToken, leakResourceId, leakEmail, leakEnvPair }, actionStatus: post.status, actionOk: !!(postBody && postBody.ok) },
       },
     });
 
-    const server = await fixtureFetch(fixture.url, '/probe/server-error');
+    // Mint a fresh set of tokens for the 500 leg and inject via query +
+    // headers into the request that triggers the server-error surface.
+    const svLeakStack = `at leakedFn__${randomUUID().slice(0, 6)} (/opt/leak/${randomUUID().slice(0, 8)}.js:${Math.floor(Math.random() * 500) + 1}:${Math.floor(Math.random() * 80) + 1})`;
+    const svLeakEnvKey = 'SV_LEAK_' + randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase();
+    const svLeakEnvValue = randomUUID().slice(0, 12);
+    const svLeakEnvPair = `${svLeakEnvKey}=${svLeakEnvValue}`;
+    const svLeakPath = `/opt/leak/${randomUUID().slice(0, 8)}.mjs`;
+    const svInjected = new URLSearchParams({
+      'leak-stack': svLeakStack,
+      'leak-env': svLeakEnvPair,
+      'leak-path': svLeakPath,
+    }).toString();
+    const server = await fixtureFetch(fixture.url, `/probe/server-error?${svInjected}`, {
+      headers: { 'x-probe-leak-stack': svLeakStack, 'x-probe-leak-env': svLeakEnvPair, 'x-probe-leak-path': svLeakPath },
+    });
     const svText = stripHtml(server.body);
     const svRegion = /data-surface="server-error"[^>]*role="region"/.test(server.body);
     const svRetry = /data-recovery="retry"/.test(server.body);
     const svStateCopy = /The server hit an internal failure/.test(svText);
-    const svNoPattern = !serverErrorSensitiveHit(svText);
-    const svPass = server.status === 500 && !!server.requestId && svRegion && svRetry && svStateCopy && svNoPattern;
+    const svNoPatternHit = !serverErrorSensitiveHit(svText);
+    const svInjectedAbsent = !server.body.includes(svLeakStack)
+      && !server.body.includes(svLeakEnvPair)
+      && !server.body.includes(svLeakEnvValue)
+      && !server.body.includes(svLeakPath);
+    // The matcher itself must catch a bare NAME=value form: probe it here so
+    // regressions on the matcher are surfaced as a hard fail on this row.
+    const matcherCatchesBareName = serverErrorSensitiveHit('the payload was DB_PASSWORD=hunter2 rest');
+    const svPass = server.status === 500 && !!server.requestId && svRegion && svRetry && svStateCopy
+      && svNoPatternHit && svInjectedAbsent && matcherCatchesBareName;
     results.push({
       anchorAcId: 'application-empty-error-states-AC-22103-1',
-      conformanceOnly: true,
-      limitation: 'application-empty-error-states-AC-22103-1: this row observes the 500 server-error state renders role=region, retry control and no backtrace/source-path/env-var/framework-frame hit against the fixture-served copy, a partial observation of AC-22103-1; the AC also requires the confidentiality property to hold against varied stack traces and bare NAME= environment-key forms the origin might have leaked - varied-input confidentiality against a shipped origin is not observed by this Node HTTP probe against a fixed fixture',
-      verdict: svPass ? 'warn' : 'fail',
+      verdict: svPass ? 'pass' : 'fail',
       detail: svPass
-        ? `Given a mocked 500 response, the server-error state renders: observed role="region", [data-recovery="retry"] control, state-copy "The server hit an internal failure" on the rendered document text, no backtrace/source-path/env-var/framework-frame hit on the surface; x-fixture-request-id=${server.requestId}`
-        : `Given a mocked 500 response, the server-error state renders (evidence gap): status=${server.status} rid=${server.requestId} region=${svRegion} retry=${svRetry} stateCopy=${svStateCopy} noPattern=${svNoPattern}`,
+        ? `Given a mocked 500 response, the server-error state renders inside role="region" with a keyboard-reachable [data-recovery="retry"] control; the probe minted varied sensitive input per run (backtrace-frame line, bare NAME=value env-key pair, source path) and injected them via query and headers into the request that triggered the 500; the rendered document text contains none of the injected tokens and no backtrace/source-path/env-var/framework-frame hit on the surface; the sensitive-value matcher positively catches a bare NAME=value form; x-fixture-request-id=${server.requestId}`
+        : `Given a mocked 500 response, the server-error state renders (evidence gap): status=${server.status} rid=${server.requestId} region=${svRegion} retry=${svRetry} stateCopy=${svStateCopy} noPatternHit=${svNoPatternHit} injectedAbsent=${svInjectedAbsent} matcherCatchesBareName=${matcherCatchesBareName}`,
       evidence: {
         requestId: server.requestId,
         responseStatus: server.status,
         bodyExcerpt: excerpt(svText),
-        derived: { region: svRegion, retry: svRetry, stateCopy: svStateCopy, noPattern: svNoPattern },
+        derived: { region: svRegion, retry: svRetry, stateCopy: svStateCopy, noPatternHit: svNoPatternHit, injectedAbsent: svInjectedAbsent, matcherCatchesBareName, injectedTokens: { svLeakStack, svLeakEnvPair, svLeakPath } },
       },
     });
   } finally {

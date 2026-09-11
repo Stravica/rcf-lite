@@ -83,7 +83,10 @@ function parseQuery(url) {
   const breakSwitch = q.get('break') ?? process.env.PROBE_BREAK ?? '';
   const derivedAnchor = apps.has('application-dashboard') ? 'dashboard-top' : 'settings-page';
   const anchor = anchorOverride || DEFAULT_ANCHOR || derivedAnchor;
-  return { apps, store, firstRun, complete, breakSwitch, anchor };
+  const principalId = typeof q.get('principal-id') === 'string' && q.get('principal-id').length > 0
+    ? q.get('principal-id')
+    : 'fixture-default-principal';
+  return { apps, store, firstRun, complete, breakSwitch, anchor, principalId };
 }
 
 function esc(s) {
@@ -296,9 +299,30 @@ function page(title, bodyHtml, opts) {
     '</body>\n</html>\n';
 }
 
+// Server-side first-run derivation: when the applied completion-state
+// store is 'server-side-per-principal', the server-scoped completion
+// record decides whether the current principal is first-run on the
+// next page load. When the store is a browser-only store, the server
+// cannot see the client's local-storage state so it renders the
+// first-run attribute as 'unknown' and defers to the client script.
+function firstRunAttrs(ctx) {
+  if (ctx.store === 'server-side-per-principal') {
+    var completed = serverCompletionStore.has(ctx.principalId);
+    return {
+      firstRun: !completed,
+      attrs: ' data-tour-first-run="' + (completed ? 'false' : 'true') + '" data-tour-completion-source="server-side-per-principal" data-tour-principal-id="' + esc(ctx.principalId) + '"',
+    };
+  }
+  return {
+    firstRun: null,
+    attrs: ' data-tour-first-run="unknown" data-tour-completion-source="' + esc(ctx.store) + '"',
+  };
+}
+
 function tourPage(ctx) {
+  var fr = firstRunAttrs(ctx);
   var body = '' +
-    '<main>' +
+    '<main' + fr.attrs + '>' +
     '  <h1>Onboarding tour</h1>' +
     '  <p>The tour opens on a first-run principal; use <code>?first-run=1</code> to force it.</p>' +
     '  <p><button type="button" id="anchor-1">Anchor 1</button> <button type="button" id="anchor-2">Anchor 2</button> <button type="button" id="anchor-3">Anchor 3</button></p>' +

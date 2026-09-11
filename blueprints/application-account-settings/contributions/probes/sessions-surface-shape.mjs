@@ -24,9 +24,9 @@ export default async function runProbe() {
       && deviceCells === rowIds.length
       && lastActiveCells === rowIds.length;
     results.push({
-      anchorAcId,
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-account-settings-AC-25105-1: this row observes the sessions surface renders with rows carrying device and lastActive columns under sessionInventory, a partial observation of AC-25105-1; the AC also requires a terminate control per row wired to a session-termination API and observable through an activation cycle - per-row termination operation activation and outcome are not verified by this Node HTTP probe against the current fixture',
+      limitation: 'application-account-settings-AC-25105-1: per-row terminate control wired to a session-termination API and its activation cycle (the AC clauses beyond the DOM shape) are not present in this fixture and not observed by this Node HTTP probe; the sessions-surface row + device + lastActive walk under sessionInventory is a partial observation of AC-25105-1',
       verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `${FIRST_EIGHT} GET /account/sessions returned 200 with data-surface="sessions" rendered; derived rows=${rowIds.length}, [data-column="device"] cells=${deviceCells}, [data-column="lastActive"] cells=${lastActiveCells} equal to row count (terminate control per row); x-fixture-request-id=${r.requestId}`
@@ -49,9 +49,9 @@ export default async function runProbe() {
     const rowCount = (r.body.match(/data-session-id="[^"]+"/g) || []).length;
     const pass = r.status === 200 && !!r.requestId && !surface && rowCount === 0;
     results.push({
-      anchorAcId,
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-account-settings-AC-25105-1: this row observes the sessions surface is absent when sessionInventory is not applied, a partial observation of AC-25105-1 absence branch; the AC also requires a terminate control per row wired to a session-termination API when sessions are present - the termination-operation contract lives in the positive branch and is not verified by this Node HTTP probe against the current fixture',
+      limitation: 'application-account-settings-AC-25105-1: per-row terminate control wired to a session-termination API (the positive-branch contract the AC also carries) is not present in this fixture and not observed by this Node HTTP probe; the sessions-absence walk when sessionInventory is not applied is a partial observation of AC-25105-1',
       verdict: pass ? 'warn' : 'fail',
       detail: pass
         ? `${FIRST_EIGHT} absence branch: with sessionInventory not applied, AC-25105-1's stated "Absent when sessionInventory is not applied" clause is observed - no data-surface="sessions" subtree and no data-session-id rows render; x-fixture-request-id=${r.requestId}`

@@ -68,9 +68,9 @@ export default async function runProbe() {
     const refusalPass = noAuth.status === 403 && !!noAuth.requestId
       && deniedPresent && noPrincipalRead && noGatedSurface;
     results.push({
-      anchorAcId: 'application-admin-console-AC-21815-2',
+      anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-admin-console-AC-21815-2: this row observes the fixture returns HTTP 403 with [data-surface=access-denied] and no principal-read or gated content when zeroTrustGate is applied and Authorization is missing, a partial observation of AC-21815-2; the AC also requires that a refusal-log capability set records the refusal event with the required capability fields - refusal-log capability field checking against a shipped log adapter is not observed by this Node HTTP probe',
+      limitation: 'application-admin-console-AC-21815-2: refusal-log capability field checking against a shipped log adapter (the AC clause requiring the refusal event to be recorded with the required capability fields) is not observed by this Node HTTP probe; the HTTP-403 + access-denied surface walk when zeroTrustGate is applied and Authorization is missing is a partial observation of AC-21815-2',
       verdict: refusalPass ? 'warn' : 'fail',
       detail: refusalPass
         ? `When zeroTrustGate is applied but the incoming request lacks request.auth: GET /admin/sign-in with no Authorization header returned HTTP 403 rendering [data-surface="access-denied"], with no [data-role="principal-read"] element and no [data-surface="access-gated"] region; x-fixture-request-id=${noAuth.requestId}`

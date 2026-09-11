@@ -14,6 +14,7 @@ Every environment variable the fixture or a `contributions/probes/` probe reads 
 | `ACCOUNT_SETTINGS_SECURITY_SHAPE` | elicited `security-surface-shape`; default `self-service` |
 | `ACCOUNT_SETTINGS_HOSTED_URL` | elicited `hosted-identity-url`; default `https://hosted.example.com/account` |
 | `ACCOUNT_SETTINGS_THEME_PERSIST` | elicited `theme-persistence`; default `spa-local-storage` |
+| `PROBE_BREAK` | optional default `?break=` switch across every request; per-request `?break=` still wins when set. Values: `leak-tab`, `no-autocomplete`, `no-dialog`, `no-persist` |
 
 Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
 

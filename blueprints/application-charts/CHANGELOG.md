@@ -1,5 +1,9 @@
 # application-charts CHANGELOG
 
+## 1.0.9 - 2026-09-12
+
+- Rule-7d shape fix on the three de-claimed conformance rows across text-alternative-table (AC-18103-1), non-colour-distinction (AC-18102-1) and keyboard-traversal (AC-18104-3): each row now carries `anchorAcId: null` and names the anchored AC in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to a per-request `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws.
+
 ## 1.0.8 - 2026-09-11
 
 - Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. Overclaiming rows across every probe are de-claimed to `conformanceOnly:true` with `verdict:'warn'` on the observable half and a `limitation` field naming the anchored AC and the browser-only or varied-input clause that lives outside the Node HTTP probe. Positive-observation rows kept on `application-charts-AC-18103-3` (paired table cell-vs-coordinate equality) and on the anatomy-only fixture shape assertions. Anatomy test extended with a negative-variant assertion that each shipped fixture break switch drives the affected probe aggregate to fail.
