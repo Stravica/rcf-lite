@@ -24,7 +24,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
   // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
   // for the Hetzner Object Storage adapter (total 25).
-  assert.equal(doc.version, '1.2.4');
+  assert.equal(doc.version, '1.2.5');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
   assert.equal(doc.contributions.length, 25);

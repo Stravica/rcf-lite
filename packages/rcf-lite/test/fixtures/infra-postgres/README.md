@@ -75,7 +75,7 @@ Removes the container and the named volume so a fresh boot re-applies migrations
 
 ## Declared env vars
 
-Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). `POSTGRES_HOST` is a required declared variable with no literal default in fixture code (Dave ruling 2026-09-11): when it is unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and each probe records the exact one-variable `accountBoundSkipped` row rather than trying to reach a hard-coded endpoint. To run the probes against the local `postgres:17-alpine` container from `docker compose up -d postgres`, set `POSTGRES_HOST=localhost` (or the reachable host) explicitly before invoking the probe or the anatomy test.
+Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). `POSTGRES_HOST` is a required declared variable with no literal default in fixture code (Dave ruling 2026-09-11): when it is unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and each probe records the exact one-variable `accountBoundSkipped` row rather than trying to reach a hard-coded endpoint. To run the probes against the local `postgres:17-alpine` container from `docker compose up -d postgres`, set `POSTGRES_HOST` explicitly (to the reachable host or docker-compose host name) before invoking the probe or the anatomy test.
 
 | Env var | Purpose | Consumed by |
 |---|---|---|

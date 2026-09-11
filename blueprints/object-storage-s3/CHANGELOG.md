@@ -1,9 +1,19 @@
 # Changelog
 
 
+## 1.2.5 - 2026-09-11
+
+Round-7 closure follow-through: the probe owns its skip, the anatomy invokes every probe unconditionally, and no endpoint-host literal remains in shipped fixture code. The infra-s3-and-queue fixture helper `endpointFromEnv` no longer carries an endpoint-host default: when `S3_ENDPOINT_URL` is unset the helper throws a typed `MissingS3EndpointError` and each S3 local probe (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy) declares `DECLARED_ENV=['S3_ENDPOINT_URL']`, catches the error, and returns the exact one-variable `accountBoundSkipped` row rather than reaching a hard-coded endpoint. The anatomy no longer fabricates a skip row when the gate is unset; it invokes every probe and validates whatever comes back. The identifier predicate is now string-only (booleans, numbers, arrays and objects never qualify) and the limitation-token check sweeps every `AC-[A-Za-z0-9-]+` token. Anatomy pin bumped to 1.2.5.
+
+- fix: `endpointFromEnv` throws `MissingS3EndpointError` when `S3_ENDPOINT_URL` is unset; the retired endpoint-host default is gone from shipped fixture code.
+- fix: every S3 local probe (facade, put-get, presigned, multipart, event-secrecy) catches `MissingS3EndpointError` and returns the exact one-variable `accountBoundSkipped` row per authoring-standard section 7d.
+- fix: anatomy identifier predicate is string-only and non-empty; booleans, numbers, arrays and objects never satisfy an engine-minted id key.
+- fix: anatomy limitation-token regex broadened to `AC-[A-Za-z0-9-]+` so every AC token is checked for membership in the shipped user-story AC set.
+
+
 ## 1.2.4 - 2026-09-11
 
-Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation and every notObservableHere.ac (must exist in the shipped user-story set), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND), requires the run record to be present (no lexical source fallback, no ENOENT swallow), and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV. Anatomy pin bumped to 1.2.4. Probe enrichment scope: presigned-url row 2 now carries `refusalFired` and `refusalCode` alongside the `refused`/`requestedTtlSeconds`/`floorSeconds` derived witnesses. Section-header comment on the anatomy test rewritten to drop internal work-item terminology.
+Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation and every notObservableHere.ac (must exist in the shipped user-story set), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND), invokes every probe directly and validates each returned row in-memory, and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV. Anatomy pin bumped to 1.2.4. Probe enrichment scope: presigned-url row 2 now carries `refusalFired` and `refusalCode` alongside the `refused`/`requestedTtlSeconds`/`floorSeconds` derived witnesses. Section-header comment on the anatomy test rewritten to drop internal work-item terminology.
 
 - fix: run-notes correction so the DeleteBucket HTTP status matches the record (204).
 

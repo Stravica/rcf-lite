@@ -1,9 +1,22 @@
 # Changelog
 
 
+## 1.1.7 - 2026-09-11
+
+Round-7 closure follow-through: the probe owns its skip, the anatomy invokes every probe unconditionally, and the anatomy-only `RCF_ANATOMY_RUN_PROBES` gate is retired. The jobs-background anatomy test now removes the outer gate, invokes each probe directly, and validates whatever comes back: local probes (apply-time-refusal, apply-time-override, fake-clock-cron, retry-and-fail, event-secrecy) drive the in-memory queue driver and the rcf-lite CLI on scratch dirs and produce real evidence rows; the live probe (retry-and-fail-real-account) returns its own exact one-variable `accountBoundSkipped` row when `CF_API_BASE` or an account variable is unset. Anatomy pin bumped to 1.1.7.
+
+- fix: `RCF_ANATOMY_RUN_PROBES` outer gate retired from the jobs anatomy test; the probe owns its skip.
+- fix: fake-clock-cron rows carry a scalar `jobId` (from the jobStarted / jobScheduled event) so the strict AND-witness check sees a real engine-minted id alongside the derived counters.
+- fix: retry-and-fail row carries a scalar `jobId` (the first observed jobStarted event); the distinct-jobId list moves to `distinctJobIdList` (a non-id key).
+- fix: event-secrecy row carries a scalar `jobId` (from the first event on the run-log stream) alongside the whitelist and leaked-literal derived witnesses.
+- fix: apply-time-refusal and apply-time-override rows are honestly de-claimed to `conformanceOnly` against their real ACs (AC-jobs-requiresQueue and AC-jobs-overrideRecorded): compose-time refusal and sidecar-notes properties are observed by CLI exit code and stderr/notes grep, not by a minted engine id.
+- fix: anatomy identifier predicate is string-only and non-empty; booleans, numbers, arrays and objects never satisfy an engine-minted id key.
+- fix: anatomy limitation-token regex broadened to `AC-[A-Za-z0-9-]+` so every AC token is checked for membership in the shipped user-story AC set.
+
+
 ## 1.1.6 - 2026-09-11
 
-Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation and every notObservableHere.ac against the shipped user-story set (numeric AC-30xxx-x and labelled AC-jobs-* both accepted), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND, never OR), requires the run record present (no lexical source fallback, no ENOENT swallow), and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV list. Anatomy pin bumped to 1.1.6.
+Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation and every notObservableHere.ac against the shipped user-story set (numeric AC-30xxx-x and labelled AC-jobs-* both accepted), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND, never OR), invokes every probe directly and validates each returned row in-memory, and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV list. Anatomy pin bumped to 1.1.6.
 
 - fix: fake-clock-cron probe row 0 now carries `fireEventCount` and `firePresent` alongside `fires`/`cron`; row 1 carries `jobStartedTimestamp` and `jobStartedAttempts` alongside `jobStartedEvent`; row 2 carries `jobCompletedDurationMs` and `jobCompletedTimestamp` alongside `jobCompletedEvent`. The `extra.engineNote` now honestly acknowledges that the paired real-account probe does NOT exercise cron and therefore does NOT supply cron-trigger evidence; live wrangler-dev cron-trigger firing under workerCron scheduler mode remains a per-AC mechanism-reach gap.
 - fix: retry-and-fail-real-account.mjs API base URL is now a required declared variable: `CF_API_BASE` is on `DECLARED_ENV` and the probe reads it directly with no literal endpoint host in source. When unset the probe records an exact one-variable skip on the row.
