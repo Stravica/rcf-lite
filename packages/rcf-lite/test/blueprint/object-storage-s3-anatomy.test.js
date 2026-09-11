@@ -1,6 +1,6 @@
 // Anatomy + shape + probe-shape + fixture + shelf-doc test for the
 // object-storage-s3 v1.1.0 shelf blueprint (round-7 follow-up spec
-// section 5.4; v1.0.0 anatomy per infra batch 5 spec section 5.2).
+// section 5.4; v1.0.0 anatomy per infra round 5 spec section 5.2).
 // Covers TS-071 (v1.0.0 shape) plus additive assertions for the
 // v1.1.0 Hetzner Object Storage adapter delta.
 
@@ -33,7 +33,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
     return acc;
   }, {});
   assert.equal(kinds.req, 7);
-  assert.equal(kinds.the probe, 9);
+  assert.equal(kinds.us, 9);
   assert.equal(kinds.tac, 4);
   assert.equal(kinds.adr, 5);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -52,7 +52,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   const ids = new Set(doc.contributions.map((c) => c.id));
   for (const id of [
     'object-storage-s3-REQ-101',
-    'object-storage-s3-user-story-28110',
+    'object-storage-s3-US-28110',
     'TAC-2904-object-storage-s3-hetzner-endpoint-helper',
     'ADR-2905-object-storage-s3-hetzner-object-storage-provider',
   ]) {
@@ -61,9 +61,9 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   const shippedV100Ids = [
     'object-storage-s3-REQ-001', 'object-storage-s3-REQ-002', 'object-storage-s3-REQ-003',
     'object-storage-s3-REQ-004', 'object-storage-s3-REQ-005', 'object-storage-s3-REQ-006',
-    'object-storage-s3-user-story-28101', 'object-storage-s3-user-story-28102', 'object-storage-s3-user-story-28103',
-    'object-storage-s3-user-story-28104', 'object-storage-s3-user-story-28105', 'object-storage-s3-user-story-28106',
-    'object-storage-s3-user-story-28107', 'object-storage-s3-user-story-28108',
+    'object-storage-s3-US-28101', 'object-storage-s3-US-28102', 'object-storage-s3-US-28103',
+    'object-storage-s3-US-28104', 'object-storage-s3-US-28105', 'object-storage-s3-US-28106',
+    'object-storage-s3-US-28107', 'object-storage-s3-US-28108',
     'TAC-2901-object-storage-s3-facade', 'TAC-2902-object-storage-s3-multipart-uploader',
     'TAC-2903-object-storage-s3-event-sink',
     'ADR-2901-object-storage-s3-adapter', 'ADR-2902-object-storage-s3-presigned-ttl-floor',
@@ -77,7 +77,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
 });
 
 test('apply object-storage-s3 refuses on a bare fixture without security-secrets-management and lands with --allow-no-secrets-yet (TC-071-apply-refusal-and-override)', async () => {
-  // The compose-time refusal AC (AC-4101-3) is enforced via the 
+  // The compose-time refusal AC (AC-4101-3) is enforced via the T-5
   // capability mechanism (visual round spec 5.5.1) as folded into this
   // train by coordinator ruling: security-secrets-management v1.0.1
   // declares capabilities: ["secretsProvider"], and object-storage-s3
@@ -89,7 +89,7 @@ test('apply object-storage-s3 refuses on a bare fixture without security-secrets
   // rcf/blueprints/object-storage-s3.applied.json.
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.ok(doc.requiresAppliedCapabilities,
-    'per infra batch 5 spec 5.2 (Baz decision 6) and coordinator fold-in ruling, object-storage-s3 declares requiresAppliedCapabilities via the  mechanism');
+    'per infra round 5 spec 5.2 (Baz decision 6) and coordinator fold-in ruling, object-storage-s3 declares requiresAppliedCapabilities via the T-5 mechanism');
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['secretsProvider']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-secrets-yet');
   assert.equal(doc.requiresAppliedCapabilities.refusalMessageId, 'object-storage-s3-no-secrets');
@@ -112,7 +112,7 @@ test('apply object-storage-s3 lands 21 contributions on a scratch project with s
     assert.ok(s.isFile(), `contribution file ${c.path} must exist`);
     const body = JSON.parse(await readFile(filePath, 'utf8'));
     if (c.kind === 'req') assert.equal(body.reqId, c.id);
-    if (c.kind === 'the probe') assert.equal(body.usId, c.id);
+    if (c.kind === 'us') assert.equal(body.usId, c.id);
     if (c.kind === 'tac') assert.equal(body.tacId, c.id);
     if (c.kind === 'adr') assert.equal(body.adrId, c.id);
   }
@@ -122,7 +122,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
   const blueprintDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   const contributedAcIds = new Set();
   for (const c of blueprintDoc.contributions) {
-    if (c.kind !== 'the probe') continue;
+    if (c.kind !== 'us') continue;
     const usPath = join(BLUEPRINT_ROOT, 'contributions', c.path);
     const usDoc = JSON.parse(await readFile(usPath, 'utf8'));
     for (const ac of usDoc.acceptanceCriteria || []) {
