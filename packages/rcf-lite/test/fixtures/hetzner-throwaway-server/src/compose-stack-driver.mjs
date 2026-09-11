@@ -291,24 +291,29 @@ export async function reloadBurst(server, path, opts = {}) {
   }
 
   // AC-composeHost-zeroDowntimeReload requires undici GETs against the
-  // proxy service while caddy reload runs. The reload is fired
-  // asynchronously; the on-server burst is fired in parallel and
-  // records its own per-request start/end wall-clock stamps. Both
-  // windows are bracketed on the runner clock, so overlap is proven
-  // on a single clock from the record.
+  // proxy service while caddy reload runs. Fire the on-server burst
+  // FIRST so its first request is already in flight, then trigger
+  // the caddy reload; the burst runs for BURST_DURATION_MS
+  // (defaults to the elicited reload-window-seconds converted to
+  // millis) and its window brackets the reload window on a single
+  // runner clock.
+  const burstDurationMs = opts.burstDurationMs ?? Math.max(5_000, (opts.reloadWindowMs ?? 10_000));
+  const warmupMs = opts.warmupMs ?? 500;
+  const burstEnv = `BURST_MIN_TOTAL=${expectedTotal} BURST_CONCURRENCY=${concurrency} BURST_URL='${onServerUrl}' BURST_DURATION_MS=${burstDurationMs} BURST_TIMEOUT_MS=${perRequestTimeoutMs}`;
+  const burstStartedAt = Date.now();
+  const burstPromise = sshExec(target, `bash -lc '${burstEnv} node /tmp/rcf-lite-burst.mjs'`, sshKeyPath, Math.max(60, Math.round((burstDurationMs + 30_000) / 1000)));
+  // Small warm-up so the on-server node process is up and the first
+  // undici request is in flight before the reload is triggered.
+  await new Promise((r) => setTimeout(r, warmupMs));
   const reloadStartedAt = Date.now();
   const reloadPromise = composeCommand(target, sshKeyPath,
     ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'],
     { timeoutSeconds: 30 });
-
-  const burstEnv = `BURST_TOTAL=${expectedTotal} BURST_CONCURRENCY=${concurrency} BURST_URL='${onServerUrl}' BURST_TIMEOUT_MS=${perRequestTimeoutMs}`;
-  const burstStartedAt = Date.now();
-  const burstResp = await sshExec(target, `bash -lc '${burstEnv} node /tmp/rcf-lite-burst.mjs'`, sshKeyPath, 120);
-  const burstEndedAt = Date.now();
-
   const reload = await reloadPromise;
   const reloadEndedAt = Date.now();
   const reloadDurationMs = reloadEndedAt - reloadStartedAt;
+  const burstResp = await burstPromise;
+  const burstEndedAt = Date.now();
 
   let outcomes = [];
   let startedWallAt = burstStartedAt;
@@ -345,12 +350,17 @@ export async function reloadBurst(server, path, opts = {}) {
   const firstOverlapStart = overlaps.length ? Math.min(...overlaps.map((o) => o.startedAt)) : null;
   const lastOverlapEnd = overlaps.length ? Math.max(...overlaps.map((o) => o.endedAt)) : null;
 
-  // Burst window contains the reload window iff every reload
-  // millisecond falls inside the burst window. Proves the burst was
-  // running for the entire reload, per the AC's "undici requests
-  // overlapping the reload".
+  // Burst window brackets (rebased onto the runner clock) run from
+  // the first request's start to the last request's end. The burst
+  // window contains the reload window iff every reload millisecond
+  // falls inside the burst-request window. Proves the burst was
+  // firing undici requests for the entire reload, per the AC's
+  // "undici GETs against the proxy service while docker compose
+  // exec caddy caddy reload runs".
+  const firstRequestStartedAt = rebasedOutcomes.length ? Math.min(...rebasedOutcomes.map((o) => o.startedAt)) : burstStartedAt;
+  const lastRequestEndedAt = rebasedOutcomes.length ? Math.max(...rebasedOutcomes.map((o) => o.endedAt)) : burstEndedAt;
   const burstWindowContainsReloadWindow = (
-    burstStartedAt <= reloadStartedAt && burstEndedAt >= reloadEndedAt
+    firstRequestStartedAt <= reloadStartedAt && lastRequestEndedAt >= reloadEndedAt
   );
 
   const twoXx = rebasedOutcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
@@ -365,6 +375,8 @@ export async function reloadBurst(server, path, opts = {}) {
     twoXx, drops, reloadDurationMs,
     reloadStartedAt, reloadEndedAt,
     burstStartedAt, burstEndedAt,
+    firstRequestStartedAt, lastRequestEndedAt,
+    burstDurationMs,
     burstWindowContainsReloadWindow,
     overlapCount,
     firstOverlapStart, lastOverlapEnd,
@@ -485,23 +497,30 @@ async function installNodeIfNeeded(target, sshKeyPath) {
 }
 
 // Node ES-module burst script shipped to /tmp/rcf-lite-burst.mjs on
-// the throwaway server. Reads BURST_URL, BURST_TOTAL,
-// BURST_CONCURRENCY and BURST_TIMEOUT_MS from env; drives the
-// concurrent undici fetches; writes one JSON blob to stdout with the
-// per-request outcomes plus the wall-clock brackets recorded on the
-// server.
+// the throwaway server. Reads BURST_URL, BURST_MIN_TOTAL,
+// BURST_DURATION_MS, BURST_CONCURRENCY and BURST_TIMEOUT_MS from
+// env; drives concurrent undici fetches for the whole duration and
+// at least BURST_MIN_TOTAL requests, whichever is longer; writes
+// one JSON blob to stdout with the per-request outcomes plus the
+// wall-clock brackets recorded on the server. The duration-based
+// loop keeps the burst in flight for the whole reload so the
+// burst window brackets the reload window (AC-composeHost-zeroDowntimeReload
+// "runs undici GETs against the proxy service while docker compose
+// exec caddy caddy reload runs").
 const BURST_SCRIPT = `
-const total = Number(process.env.BURST_TOTAL || 40);
+const minTotal = Number(process.env.BURST_MIN_TOTAL || 40);
+const durationMs = Number(process.env.BURST_DURATION_MS || 10000);
 const concurrency = Number(process.env.BURST_CONCURRENCY || 8);
 const url = process.env.BURST_URL;
-const perRequestTimeoutMs = Number(process.env.BURST_TIMEOUT_MS || 10000);
+const perRequestTimeoutMs = Number(process.env.BURST_TIMEOUT_MS || 5000);
 if (!url) { process.stderr.write('BURST_URL missing\\n'); process.exit(2); }
 const outcomes = [];
-let cursor = 0;
+const startedWallAt = Date.now();
+const endBy = startedWallAt + durationMs;
+let idxCounter = 0;
 async function worker() {
-  while (true) {
-    const idx = cursor++;
-    if (idx >= total) return;
+  while (Date.now() < endBy || outcomes.length < minTotal) {
+    const idx = idxCounter++;
     const startedAt = Date.now();
     let statusCode = 0;
     let error = null;
@@ -519,7 +538,6 @@ async function worker() {
   }
 }
 (async () => {
-  const startedWallAt = Date.now();
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
   const endedWallAt = Date.now();
   outcomes.sort((a, b) => a.idx - b.idx);
