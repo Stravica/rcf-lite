@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-magic-link",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "category": "security",
   "capabilities": [
     "principalDirectory"
@@ -169,5 +169,5 @@
       "path": "adrs/adr-505-security-auth-magic-link-rate-limiting.json"
     }
   ],
-  "updatedAt": "2026-09-11T13:04:32Z"
+  "updatedAt": "2026-09-11T14:46:50.044Z"
 }

@@ -1,5 +1,9 @@
 # security-auth-oauth2 CHANGELOG
 
+## 1.3.5 - 2026-09-11
+
+- Third closure remediation (2026-09-11): every AC/REQ anchor on the criterion-e probe pack is de-claimed to conformanceOnly with a limitation naming the AC that is observable only in the auth integration harness follow-up. The mock authorisation server keeps real consumed-code state; `/callback-check` reads that record and callers now OBSERVE preExchange from the mock's request-order records instead of asserting it as a constant. Fixture README and mock header comment stop calling the mock a "local engine" or `X-Mock-Request-Id` a rule 7d shape — the mock is a fixture, and a real engine here is a live commercial IdP. Anatomy helper rewritten to enforce field combinations per shape. This pack is criterion-e conformance evidence pending the integration harness. `real-account-authorisation-code-flow` honest-skips on `CI_HAS_OAUTH2_PROVIDER` as before.
+
 ## 1.3.4 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering the six declared capabilities via five probes: `pkce-challenge-shape` and `authorisation-code-flow-shape` (authorisationCodeFlow via a local mock RFC 6749 + RFC 7636 server on ports 47400-47449), `provider-adapter-shape` (principalDirectory + credentialSelfService), `session-bridge-shape` (sessionInventory + hostedIdentityUi), and `real-account-authorisation-code-flow` (LIVE; honest-skips on `CI_HAS_OAUTH2_PROVIDER` since this estate has no live commercial IdP). Fixture at `packages/rcf-lite/test/fixtures/security-auth-oauth2/` declares every env var the pack reads; anatomy test at `packages/rcf-lite/test/blueprint/security-auth-oauth2-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.

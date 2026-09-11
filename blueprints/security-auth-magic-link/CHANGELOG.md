@@ -1,5 +1,9 @@
 # security-auth-magic-link CHANGELOG
 
+## 1.2.6 - 2026-09-11
+
+- Third closure remediation (2026-09-11): every AC/REQ anchor on the criterion-e probe pack is de-claimed to conformanceOnly with a limitation naming the AC that is observable only in the auth integration harness follow-up. The Resend adapter now returns `error: null` on success so the four declared keys (ok, providerStatus, providerMessageId, error) are always present, and the probe now requires all four (the previous check allowed missing `error`). Live evidence on `real-account-magic-link-send` (Resend HTTP send through the adapter) is preserved; anchor drops to null and limitation says why. Anatomy helper rewritten to enforce field combinations per shape. This pack is criterion-e conformance evidence pending the integration harness.
+
 ## 1.2.5 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering the principalDirectory capability across three probes: `token-issue-verify` (single-use, TTL-bounded, email-bound token with constant-time compare; local, deterministic clock), `token-entropy-shape` (1,000-token uniqueness + base64url shape sweep), and `real-account-magic-link-send` (LIVE; drives Resend's HTTP API sending to sandbox recipient `delivered@resend.dev` from sandbox sender `onboarding@resend.dev` and records the Resend-assigned email id, HTTP status and `cf-ray` request id as positive evidence; verifies the issued token locally for end-to-end shape). Fixture at `packages/rcf-lite/test/fixtures/security-auth-magic-link/` declares every env var; anatomy test pins pack shape, fixture manifest and the account-bound skip contract.

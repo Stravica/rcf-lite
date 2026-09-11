@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-keycloak",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "category": "security",
   "requiresAppliedCapabilities": {
     "capabilities": [
@@ -292,5 +292,5 @@
       ]
     }
   ],
-  "updatedAt": "2026-09-11T13:04:32Z"
+  "updatedAt": "2026-09-11T14:46:50.044Z"
 }

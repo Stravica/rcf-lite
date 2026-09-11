@@ -1,29 +1,28 @@
-// Session-bridge shape probe for security-auth-oauth2. Exercises
-// TAC-1103 session bridge: a token response plus a userinfo record
-// maps to the application's session record. The bridged session
-// carries an opaque handle and a reduced principal; the provider's
-// access token is deliberately NOT exposed on the returned session
-// (AC-10106-3: session bridge does not expose provider tokens on
-// request.auth).
+// Session-bridge shape probe. Conformance-only per _closure3.md:
+// no dispatch of a protected request, no cookie inspection, no
+// request.auth population; malformed provider inputs do not
+// substitute for missing/invalid session handles. Rows keep local
+// bridge observations; integration harness (w-2026-09-11-dave-015)
+// is the surface where AC-level properties become observable.
 //
-// capability: sessionInventory (session record shape).
-// Anchors (per closure): AC-10106-1 (Principal on request) for the
-//   happy path; AC-10106-3 (no accessToken on request.auth) for the
-//   absence assertion; AC-10101-3 (session cookie carries an
-//   opaque project handle, not a provider token) for the handle
-//   shape assertion.
-// accountBound: false.
+// capability: sessionInventory. engine: fixture. accountBound: false.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deClaim } from './probe-utils.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-oauth2', 'src');
 
-export const anchorAcId = 'security-auth-oauth2-AC-10106-1';
+export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = false;
+
+const LIM_P = 'security-auth-oauth2-AC-10106-1: probe returns a bridged session object; the AC states request.auth carries a Principal on a protected request, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_LEAK = 'security-auth-oauth2-AC-10106-3: probe inspects the bridge return; the AC states request.auth on a protected request does not expose provider tokens, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_H = 'security-auth-oauth2-AC-10101-3: probe inspects a bridge handle string; the AC states the session cookie carries an opaque project handle, needs a real cookie set at the response, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_INV = 'security-auth-oauth2-AC-10106-2: probe uses malformed provider inputs; the AC states a request lacking a valid handle is refused before session issue, needs the integration harness (w-2026-09-11-dave-015).';
 
 export default async function runProbe() {
   const { bridgeSession } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'provider-adapter.mjs')).href);
@@ -33,62 +32,48 @@ export default async function runProbe() {
     tokenResponse: { access_token: 'tok-abc', expires_in: 3600, scope: 'openid profile' },
     userinfo: { sub: 'user-123', email: 'u@example.com' },
   });
-  results.push({
-    anchorAcId,
+  results.push(deClaim({
     capability,
     verdict: good.ok && good.session && good.session.principalId === 'user-123' ? 'pass' : 'fail',
-    detail: `AC-10106-1 (Principal on request.auth): ok=${good.ok} principalId=${good.session && good.session.principalId}`,
+    detail: `bridge returns session with principalId: ok=${good.ok} principalId=${good.session && good.session.principalId}`,
     evidence: { adapterReturn: good },
-  });
+  }, { ac: 'security-auth-oauth2-AC-10106-1', limitation: LIM_P }));
 
-  // AC-10106-3: the session bridge MUST NOT expose provider tokens
-  // on request.auth. Assert accessToken (and any other provider-
-  // token shape) is absent from the returned session.
   const sessionKeys = good.ok ? Object.keys(good.session) : [];
   const providerTokenLeaks = sessionKeys.filter((k) => /^(access|refresh|id)_?[Tt]oken$/.test(k));
-  results.push({
-    anchorAcId: 'security-auth-oauth2-AC-10106-3',
+  results.push(deClaim({
     capability,
     verdict: good.ok && providerTokenLeaks.length === 0 ? 'pass' : 'fail',
-    detail: `AC-10106-3 (no provider tokens on request.auth): sessionKeys=${JSON.stringify(sessionKeys)} providerTokenLeaks=${JSON.stringify(providerTokenLeaks)}`,
+    detail: `bridge return omits provider tokens: sessionKeys=${JSON.stringify(sessionKeys)} leaks=${JSON.stringify(providerTokenLeaks)}`,
     evidence: { sessionKeys, providerTokenLeaks },
-  });
+  }, { ac: 'security-auth-oauth2-AC-10106-3', limitation: LIM_LEAK }));
 
-  // AC-10101-3: the session handle is an opaque project-issued value
-  // (not a provider token). The bridge mints an opaque handle prefixed
-  // pss_ that is not derived from the access_token.
   const handleOk = good.ok
     && typeof good.session.handle === 'string'
     && good.session.handle.length >= 20
     && !good.session.handle.includes('tok-abc');
-  results.push({
-    anchorAcId: 'security-auth-oauth2-AC-10101-3',
+  results.push(deClaim({
     capability,
     verdict: handleOk ? 'pass' : 'fail',
-    detail: `AC-10101-3 (opaque project handle not a provider token): handleLen=${good.session && good.session.handle && good.session.handle.length} containsProviderToken=${good.session && good.session.handle && good.session.handle.includes('tok-abc')}`,
+    detail: `bridge handle is opaque and not derived from access_token: handleLen=${good.session && good.session.handle && good.session.handle.length}`,
     evidence: { handlePrefix: good.session && good.session.handle && good.session.handle.slice(0, 4), handleLen: good.session && good.session.handle && good.session.handle.length },
-  });
+  }, { ac: 'security-auth-oauth2-AC-10101-3', limitation: LIM_H }));
 
-  // AC-10106-2: request lacking a valid handle is refused. The bridge
-  // returning ok:false + error on missing sub / missing access_token
-  // proves the guard runs before a session issue.
   const missingSub = bridgeSession({ tokenResponse: { access_token: 'tok-abc' }, userinfo: {} });
-  results.push({
-    anchorAcId: 'security-auth-oauth2-AC-10106-2',
+  results.push(deClaim({
     capability,
     verdict: !missingSub.ok && /userinfo\.sub/.test(missingSub.error) ? 'pass' : 'fail',
-    detail: `AC-10106-2 (bridge refuses malformed input, no session issued): ok=${missingSub.ok} error=${JSON.stringify(missingSub.error)}`,
+    detail: `bridge refuses missing userinfo.sub: ok=${missingSub.ok} error=${JSON.stringify(missingSub.error)}`,
     evidence: { adapterReturn: missingSub },
-  });
+  }, { ac: 'security-auth-oauth2-AC-10106-2', limitation: LIM_INV }));
 
   const missingTok = bridgeSession({ tokenResponse: {}, userinfo: { sub: 'x' } });
-  results.push({
-    anchorAcId: 'security-auth-oauth2-AC-10106-2',
+  results.push(deClaim({
     capability,
     verdict: !missingTok.ok && /access_token/.test(missingTok.error) ? 'pass' : 'fail',
-    detail: `AC-10106-2 (bridge refuses missing access_token, no session issued): ok=${missingTok.ok} error=${JSON.stringify(missingTok.error)}`,
+    detail: `bridge refuses missing access_token: ok=${missingTok.ok} error=${JSON.stringify(missingTok.error)}`,
     evidence: { adapterReturn: missingTok },
-  });
+  }, { ac: 'security-auth-oauth2-AC-10106-2', limitation: LIM_INV }));
 
   return { results, extra: {} };
 }

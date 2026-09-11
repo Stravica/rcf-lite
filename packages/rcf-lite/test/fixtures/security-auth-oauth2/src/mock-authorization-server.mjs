@@ -3,9 +3,20 @@
 // the RFC 7636 PKCE extension on the S256 method; refuses on missing
 // or mismatched code_verifier. The server binds a per-instance
 // request counter and echoes it as `X-Mock-Request-Id` on every
-// response so probes can capture a real request id from the local
-// engine (rule 7d evidence shape 1). The mock is process-local and
-// self-terminates on stop().
+// response — this is a fixture request id for local diagnostics,
+// not a rule 7d engine id and not evidence of a real OAuth 2.0
+// engine (the real engine is a live IdP; this mock is a fixture).
+// The server is process-local and self-terminates on stop().
+//
+// Consumed-state tracking. `authCodes` holds the ACTIVE codes an
+// /authorize call issued; `consumedCodes` holds a record of every
+// code the /token endpoint has consumed, with the request-counter
+// snapshot at consumption time so /callback-check can distinguish
+// "never issued" from "issued and consumed", and downstream probes
+// can observe the ORDER of requests (a callback that happens
+// BEFORE any /token has ever run has consumedCodes empty; a
+// callback after the token exchange finds the code in
+// consumedCodes with its consumedAtRequestNo).
 //
 // References:
 // - RFC 6749 (OAuth 2.0) https://datatracker.ietf.org/doc/html/rfc6749 verifiedOn 2026-09-11
@@ -15,12 +26,15 @@ import { createServer } from 'node:http';
 import { createHash, randomBytes } from 'node:crypto';
 
 export function createMockAuthServer({ port = 47400, clientId = 'mock-client', redirectUri = 'http://127.0.0.1:47499/callback', oidc = true, issuer = 'https://mock-issuer.example.test' } = {}) {
-  const authCodes = new Map(); // code -> { verifierChallenge, method, principal, expiresAt }
-  const tokens = new Map();    // access_token -> { principal, expiresAt }
+  const authCodes = new Map();     // code -> { verifierChallenge, method, principal, nonce, expiresAt, issuedAtRequestNo }
+  const consumedCodes = new Map(); // code -> { consumedAtRequestNo, tokenIssued }
+  const tokens = new Map();        // access_token -> { principal, expiresAt }
   let requestCounter = 0;
+  let tokenCallCounter = 0;
 
   const server = createServer((req, res) => {
-    const requestId = `mock-req-${++requestCounter}-${randomBytes(4).toString('hex')}`;
+    const requestNo = ++requestCounter;
+    const requestId = `mock-req-${requestNo}-${randomBytes(4).toString('hex')}`;
     res.setHeader('X-Mock-Request-Id', requestId);
     res.setHeader('Content-Type', 'application/json');
 
@@ -47,9 +61,8 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         principal: { sub: `mock-user-${randomBytes(3).toString('hex')}` },
         nonce,
         expiresAt: Date.now() + 60_000,
+        issuedAtRequestNo: requestNo,
       });
-      // Simulate the user-agent redirect target as a JSON body (the
-      // fixture calls it directly instead of following redirects).
       const location = `${redirectUri}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
       res.statusCode = 302;
       res.setHeader('Location', location);
@@ -59,6 +72,7 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
 
     // POST /token: RFC 6749 sec 4.1.3 + RFC 7636 sec 4.5
     if (req.method === 'POST' && url.pathname === '/token') {
+      tokenCallCounter++;
       let body = '';
       req.on('data', (c) => { body += c; });
       req.on('end', () => {
@@ -75,13 +89,21 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         }
         const record = authCodes.get(code);
         if (!record) {
+          const priorConsumed = consumedCodes.get(code);
           res.statusCode = 400;
-          res.end(JSON.stringify({ error: 'invalid_grant', requestId, detail: 'code not found or already redeemed' }));
+          res.end(JSON.stringify({
+            error: 'invalid_grant',
+            requestId,
+            detail: priorConsumed
+              ? `code already consumed at request ${priorConsumed.consumedAtRequestNo}`
+              : 'code not found',
+          }));
           return;
         }
-        // Consume the code (single-use per RFC 6749 sec 4.1.2).
+        // Consume the code (single-use per RFC 6749 sec 4.1.2) and
+        // stamp the consumption in the persistent consumedCodes map.
         authCodes.delete(code);
-        // PKCE verify per RFC 7636 sec 4.6: derive S256 challenge from verifier and compare.
+        consumedCodes.set(code, { consumedAtRequestNo: requestNo, tokenIssued: false });
         const derived = createHash('sha256').update(codeVerifier || '').digest('base64url');
         if (derived !== record.verifierChallenge) {
           res.statusCode = 400;
@@ -90,11 +112,10 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         }
         const accessToken = `mock-at-${randomBytes(12).toString('hex')}`;
         tokens.set(accessToken, { principal: record.principal, expiresAt: Date.now() + 3_600_000 });
-        // When oidc, emit an id_token in the OIDC-mandated JWS shape:
-        // three base64url segments separated by dots. The mock uses
-        // an HS256-labelled header and a fixed shared-secret signature
-        // deterministic from the accessToken; probes verify shape,
-        // aud, iss, sub and nonce only (not signature).
+        // Update the consumption record to note the token issue.
+        const consumed = consumedCodes.get(code);
+        consumed.tokenIssued = true;
+        consumedCodes.set(code, consumed);
         let idToken = undefined;
         if (oidc) {
           const nowSec = Math.floor(Date.now() / 1000);
@@ -126,11 +147,12 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
       return;
     }
 
-    // GET /callback-check: the mock's callback tier. Refuses a code
-    // whose state is unknown or whose code has already been consumed.
-    // This is the "callback refusal before any new token request"
-    // shape AC-10102-2 names; the endpoint never issues a /token
-    // request on its own.
+    // GET /callback-check: the mock's callback tier. Reads the real
+    // consumedCodes record and refuses when the presented code has
+    // been consumed. The returned body carries consumedAtRequestNo
+    // and the request-order stamp so a probe can OBSERVE whether the
+    // callback ran BEFORE or AFTER any /token exchange for this code
+    // (rather than asserting `preExchange` as a constant).
     if (req.method === 'GET' && url.pathname === '/callback-check') {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
@@ -139,18 +161,27 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         res.end(JSON.stringify({ error: 'invalid_request', requestId, detail: 'code and state required' }));
         return;
       }
-      // If the code is still in the active codes map, this is a fresh
-      // (unconsumed) callback and the mock accepts it; otherwise the
-      // code has been consumed by a prior /token exchange and the
-      // callback refuses without any new /token request.
-      const stillActive = authCodes.has(code);
-      if (!stillActive) {
+      const consumed = consumedCodes.get(code);
+      const active = authCodes.get(code);
+      if (consumed) {
         res.statusCode = 400;
-        res.end(JSON.stringify({ error: 'invalid_grant', requestId, detail: 'authorisation code already consumed; callback refused pre-exchange' }));
+        res.end(JSON.stringify({
+          error: 'invalid_grant',
+          requestId,
+          detail: `authorisation code already consumed; callback refused pre-exchange (consumedAtRequestNo=${consumed.consumedAtRequestNo} thisRequestNo=${requestNo} tokenIssued=${consumed.tokenIssued})`,
+          consumedAtRequestNo: consumed.consumedAtRequestNo,
+          thisRequestNo: requestNo,
+          tokenIssued: consumed.tokenIssued,
+        }));
+        return;
+      }
+      if (!active) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'invalid_grant', requestId, detail: 'authorisation code not found (never issued or expired)' }));
         return;
       }
       res.statusCode = 200;
-      res.end(JSON.stringify({ ok: true, requestId, note: 'code accepted for exchange (fresh)' }));
+      res.end(JSON.stringify({ ok: true, requestId, note: 'code accepted for exchange (fresh)', thisRequestNo: requestNo }));
       return;
     }
 
@@ -167,7 +198,9 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
       await new Promise((r) => server.close(r));
     },
     get requestCount() { return requestCounter; },
+    get tokenCallCount() { return tokenCallCounter; },
     activeCodes: authCodes,
+    consumedCodes,
     activeTokens: tokens,
   };
 }

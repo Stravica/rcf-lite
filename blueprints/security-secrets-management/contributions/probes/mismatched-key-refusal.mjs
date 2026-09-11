@@ -29,6 +29,7 @@ function sopsEnv(keyPath) {
     HOME: process.env.HOME || '',
   };
 }
+const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (integration harness w-2026-09-11-dave-015).";
 export const anchorAcId = null; // No AC/REQ observes SOPS-native mismatched-key refusal.
 export const capability = 'secretsProvider';
 export const accountBound = false;
@@ -49,7 +50,7 @@ export default async function runProbe() {
     evidence.badStatus = badDec.status;
     evidence.badStderrExcerpt = (badDec.stderr || '').slice(0, 200);
     const refused = badDec.status !== 0 && !badDec.stdout.includes('mismatch-probe');
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId,
       capability,
       verdict: refused ? 'pass' : 'fail',
@@ -58,7 +59,7 @@ export default async function runProbe() {
     });
     // Sanity: A can still decrypt.
     const goodDec = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeA.keyPath) });
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId: null,
       capability,
       verdict: goodDec.status === 0 && JSON.stringify(JSON.parse(goodDec.stdout)) === JSON.stringify(JSON.parse(plaintext)) ? 'pass' : 'fail',

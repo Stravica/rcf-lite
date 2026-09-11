@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-clerk",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "category": "security",
   "capabilities": [
     "principalDirectory",
@@ -177,5 +177,5 @@
       "path": "user-stories/security-auth-clerk-us-9113.json"
     }
   ],
-  "updatedAt": "2026-09-11T13:04:32Z"
+  "updatedAt": "2026-09-11T14:46:50.044Z"
 }

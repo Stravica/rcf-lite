@@ -36,7 +36,7 @@ export function createStubAdapter() {
  kind: 'stub',
  async send({ to, subject, textBody, htmlBody }) {
  calls.push({ to, subject, textBody, htmlBody });
- return { ok: true, providerStatus: 200, providerMessageId: 'stub' };
+ return { ok: true, providerStatus: 200, providerMessageId: 'stub', error: null };
  },
  get calls() { return calls.slice(); },
  };
@@ -91,6 +91,7 @@ export function createResendAdapter({ apiKey, baseUrl = RESEND_API_BASE_URL_DEFA
  ok: true,
  providerStatus: res.status,
  providerMessageId,
+ error: null,
  requestId,
  };
  },

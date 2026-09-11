@@ -39,9 +39,17 @@
 
 import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } from './probe-utils.mjs';
 
-export const anchorAcId = 'security-auth-clerk-REQ-008';
+// Conformance-only. _closure3.md de-claimed REQ-008 for this probe.
+// The rows keep their real HTTP evidence (X-Request-IDs, token ids,
+// revoke-then-404 lifecycle observation); anchor drops to null and
+// each row records a limitation naming the AC that IS observable
+// only in the integration harness (w-2026-09-11-dave-015).
+export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = true;
+const LIM_MINT = 'security-auth-clerk-AC-9112-3: probe drives sign-in-token mint on the Backend API; the AC binds session revocation by session id from the inventory surface, needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
+const LIM_REVOKE = 'security-auth-clerk-AC-9112-4: probe drives sign-in-token revoke on the Backend API; the AC binds project session revocation, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_NOTOBS = 'security-auth-clerk-AC-9112-1: two shaped active sessions cannot be authored server-side against the Clerk Backend API; the AC needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
 
 const BASE_URL_DEFAULT = 'https://api.clerk.com/v1';
 
@@ -91,15 +99,16 @@ export default async function runProbe() {
   const gate = gateResult('CI_HAS_CLERK_ACCOUNT', process.env.CI_HAS_CLERK_ACCOUNT);
   if (gate.kind === 'unset') {
     return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_CLERK_ACCOUNT')],
+      results: [accountBoundSkippedResult(null, capability, 'CI_HAS_CLERK_ACCOUNT')],
       extra: { accountBoundSkipped: true, reason: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
     };
   }
   if (gate.kind === 'set-not-true') {
     return {
       results: [{
-        anchorAcId, capability, verdict: 'fail',
-        detail: `REQ-008: CI_HAS_CLERK_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+        anchorAcId: null, capability, verdict: 'fail',
+        conformanceOnly: true, limitation: LIM_MINT,
+        detail: `conformance-only: CI_HAS_CLERK_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
         evidence: { gate: 'CI_HAS_CLERK_ACCOUNT', observedValue: gate.observedValue, expected: 'true' },
       }],
       extra: { gateMisconfigured: true, gate: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
@@ -107,7 +116,7 @@ export default async function runProbe() {
   }
   if (!process.env.CLERK_SECRET_KEY) {
     return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'CLERK_SECRET_KEY')],
+      results: [accountBoundSkippedResult(null, capability, 'CLERK_SECRET_KEY')],
       extra: { accountBoundSkipped: true, reason: 'CLERK_SECRET_KEY', envDeclared: [...DECLARED_ENV] },
     };
   }
@@ -119,10 +128,12 @@ export default async function runProbe() {
 
   const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, scratchEmailAddress: emailAddress, calls: [] };
   const results = [];
-  const rowSignIn = { anchorAcId, capability, verdict: 'fail', detail: '' };
-  const rowRevoke = { anchorAcId, capability, verdict: 'fail', detail: '' };
+  const rowSignIn = { anchorAcId: null, conformanceOnly: true, limitation: LIM_MINT, capability, verdict: 'fail', detail: '' };
+  const rowRevoke = { anchorAcId: null, conformanceOnly: true, limitation: LIM_REVOKE, capability, verdict: 'fail', detail: '' };
   const rowNotObservable = {
-    anchorAcId,
+    anchorAcId: null,
+    conformanceOnly: true,
+    limitation: LIM_NOTOBS,
     capability,
     verdict: 'pass',
     detail:

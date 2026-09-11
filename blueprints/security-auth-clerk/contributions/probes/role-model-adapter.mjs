@@ -1,60 +1,54 @@
-// Role-model adapter probe for security-auth-clerk. Exercises the
-// TAC-1002 authorisation adapter contract: a Clerk user's
-// publicMetadata.roles claim maps to an application role set, with
-// unknown role tokens refused.
+// Role-model adapter probe for security-auth-clerk.
+// Conformance-only. Every row de-claims its former REQ-004 anchor
+// per _closure3.md: role-token validation is not REQ-004's
+// can/assert project-verb adapter (that adapter is exercised in
+// the integration harness against a verified session token, not
+// against a raw claim string). The rows keep the observations
+// against the fixture role adapter.
 //
-// capability: roleModel (blueprint.json declared capability).
-// Anchor (per closure): no AC covers the raw-role-to-project-role
-// reduction the fixture mapRoles performs; anchoring REQ-004
-// (Authorisation adapter maps Clerk claims onto project verbs),
-// per closure rule 1.
-// accountBound: false.
+// capability: roleModel. engine: fixture. accountBound: false.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deClaim } from './probe-utils.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-clerk', 'src');
 
-export const anchorAcId = 'security-auth-clerk-REQ-004';
+export const anchorAcId = null;
 export const capability = 'roleModel';
 export const accountBound = false;
 
+const LIM = 'security-auth-clerk-AC-9107-1: probe checks raw-role reduction only; the AC states the can/assert adapter refuses a role token absent from the project verb list against a verified session, which needs the integration harness (w-2026-09-11-dave-015).';
+
 export default async function runProbe() {
   const { mapRoles, knownRoles } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'role-adapter.mjs')).href);
-
   const results = [];
 
-  // Happy path: known roles pass through.
   const good = mapRoles({ roles: ['viewer', 'admin'] });
-  results.push({
-    anchorAcId,
+  results.push(deClaim({
     capability,
     verdict: good.ok && good.roles.join(',') === 'viewer,admin' ? 'pass' : 'fail',
-    detail: `REQ-004 (no AC covers raw-role reduction; anchoring REQ). known-role mapping: ok=${good.ok} roles=${JSON.stringify(good.roles)}; knownRoles=${JSON.stringify(knownRoles)}`,
+    detail: `known-role mapping: ok=${good.ok} roles=${JSON.stringify(good.roles)}; knownRoles=${JSON.stringify(knownRoles)}`,
     evidence: { input: ['viewer', 'admin'], output: good.roles, adapterReturn: good },
-  });
+  }, { ac: 'security-auth-clerk-AC-9107-1', limitation: LIM }));
 
-  // Refusal path: unknown role token refused with error naming the token.
   const bad = mapRoles({ roles: ['viewer', 'root-emperor'] });
-  results.push({
-    anchorAcId: 'security-auth-clerk-REQ-004',
+  results.push(deClaim({
     capability,
     verdict: !bad.ok && /root-emperor/.test(bad.error) ? 'pass' : 'fail',
-    detail: `REQ-004 (no AC covers unknown-role refusal at reduction; anchoring REQ). unknown-role refusal: ok=${bad.ok} error=${JSON.stringify(bad.error)}`,
+    detail: `unknown-role refusal: ok=${bad.ok} error=${JSON.stringify(bad.error)}`,
     evidence: { input: ['viewer', 'root-emperor'], adapterReturn: bad },
-  });
+  }, { ac: 'security-auth-clerk-AC-9107-1', limitation: LIM }));
 
-  // Refusal path: non-array publicMetadata.roles refused.
   const bad2 = mapRoles({ roles: 'admin' });
-  results.push({
-    anchorAcId: 'security-auth-clerk-REQ-004',
+  results.push(deClaim({
     capability,
     verdict: !bad2.ok && /must be an array/.test(bad2.error) ? 'pass' : 'fail',
-    detail: `REQ-004 (no AC covers non-array refusal at reduction; anchoring REQ). non-array-refusal: ok=${bad2.ok} error=${JSON.stringify(bad2.error)}`,
+    detail: `non-array-refusal: ok=${bad2.ok} error=${JSON.stringify(bad2.error)}`,
     evidence: { input: 'admin', adapterReturn: bad2 },
-  });
+  }, { ac: 'security-auth-clerk-AC-9107-1', limitation: LIM }));
 
   return { results, extra: {} };
 }

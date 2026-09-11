@@ -1,6 +1,6 @@
 {
   "slug": "security-auth-oauth2",
-  "version": "1.3.4",
+  "version": "1.3.5",
   "category": "security",
   "capabilities": [
     "principalDirectory",
@@ -199,5 +199,5 @@
       "path": "user-stories/security-auth-oauth2-us-10114.json"
     }
   ],
-  "updatedAt": "2026-09-11T13:04:32Z"
+  "updatedAt": "2026-09-11T14:46:50.044Z"
 }

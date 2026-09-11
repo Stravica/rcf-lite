@@ -25,6 +25,7 @@ import { Buffer } from 'node:buffer';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
+const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (integration harness w-2026-09-11-dave-015).";
 export const anchorAcId = null; // No AC or REQ observes the SOPS-native encrypt/decrypt/rotation/mismatched-key property; see probe file comment.
 export const capability = 'secretsProvider';
 export const accountBound = false;
@@ -62,7 +63,7 @@ export default async function runProbe() {
       { env: sopsEnv(scope.keyPath) },
     );
     if (encRes.status !== 0) {
-      results.push({
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
         anchorAcId, capability, verdict: 'fail',
         detail: `SOPS-native encrypt failed (vendor-conformance evidence for ADR-902 sops+age; no AC/REQ anchor) status=${encRes.status} stderr=${encRes.stderr.slice(0, 200)}`,
         evidence: { encStatus: encRes.status, encStderr: encRes.stderr.slice(0, 200) },
@@ -72,7 +73,7 @@ export default async function runProbe() {
     const cipherText = await readFile(cipherPath, 'utf8');
     const cipherMeta = readSopsMetadata(cipherText);
     evidence.cipherMeta = cipherMeta;
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId,
       capability,
       verdict: cipherMeta.mac && cipherMeta.lastmodified && cipherMeta.recipients.includes(scope.recipient) ? 'pass' : 'fail',
@@ -89,7 +90,7 @@ export default async function runProbe() {
       { env: sopsEnv(scope.keyPath) },
     );
     if (decRes.status !== 0) {
-      results.push({
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
         anchorAcId, capability, verdict: 'fail',
         detail: `SOPS-native decrypt failed (vendor-conformance evidence for ADR-902 sops+age; no AC/REQ anchor) status=${decRes.status} stderr=${decRes.stderr.slice(0, 200)}`,
         evidence: { decStatus: decRes.status, decStderr: decRes.stderr.slice(0, 200) },
@@ -108,7 +109,7 @@ export default async function runProbe() {
       decryptedSha256: decryptedHash,
       bytesEqual,
     };
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId,
       capability,
       verdict: bytesEqual ? 'pass' : 'fail',

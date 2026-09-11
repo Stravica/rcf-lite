@@ -237,16 +237,16 @@ test('sample-app fixture break switches surface the four defects (TC-056-negativ
 
 test('four amended auth blueprints declare the ratified capability sets and observability-logging drops sessionInventory (TC-056-shelf-doc-consistency)', async () => {
   const clerk = JSON.parse(await readFile(join(CLERK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(clerk.version, '1.5.2');
+  assert.equal(clerk.version, '1.5.3');
   assert.deepEqual([...clerk.capabilities].sort(), ['hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const kc = JSON.parse(await readFile(join(KEYCLOAK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(kc.version, '1.4.2');
+  assert.equal(kc.version, '1.4.3');
   assert.deepEqual([...kc.capabilities].sort(), ['credentialSelfService', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ox = JSON.parse(await readFile(join(OAUTH2_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ox.version, '1.3.4');
+  assert.equal(ox.version, '1.3.5');
   assert.deepEqual([...ox.capabilities].sort(), ['authorisationCodeFlow', 'credentialSelfService', 'hostedIdentityUi', 'principalDirectory', 'roleModel', 'sessionInventory']);
   const ml = JSON.parse(await readFile(join(MAGIC_LINK_BP, 'blueprint.json'), 'utf8'));
-  assert.equal(ml.version, '1.2.5');
+  assert.equal(ml.version, '1.2.6');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);
   const log = JSON.parse(await readFile(join(LOGGING_BP, 'blueprint.json'), 'utf8'));
   // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes

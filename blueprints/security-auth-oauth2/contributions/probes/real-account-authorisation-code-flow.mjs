@@ -48,12 +48,11 @@ export default async function runProbe() {
     };
   }
   if (gate.kind === 'set-not-true') {
-    // Explicit set-but-not-true is not the same as unset (rule 4).
     return {
       results: [{
         anchorAcId, capability, verdict: 'fail',
-        detail: `AC-10110-2: CI_HAS_OAUTH2_PROVIDER is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
-        evidence: { gate: 'CI_HAS_OAUTH2_PROVIDER', observedValue: gate.observedValue, expected: 'true' },
+        detail: `AC-10110-2 gate: CI_HAS_OAUTH2_PROVIDER is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+        evidence: { gate: 'CI_HAS_OAUTH2_PROVIDER', observedValue: gate.observedValue, expected: 'true', status: 400 },
       }],
       extra: { gateMisconfigured: true, gate: 'CI_HAS_OAUTH2_PROVIDER', envDeclared: [...DECLARED_ENV] },
     };

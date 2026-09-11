@@ -32,6 +32,7 @@ function sopsEnv(keyPath) {
     HOME: process.env.HOME || '',
   };
 }
+const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (integration harness w-2026-09-11-dave-015).";
 export const anchorAcId = null; // No AC/REQ observes SOPS-native rotation.
 export const capability = 'secretsProvider';
 export const accountBound = false;
@@ -52,7 +53,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (enc.status !== 0) {
-      results.push({ anchorAcId, capability, verdict: 'fail', detail: `SOPS-native initial encrypt failed (no AC/REQ anchor) status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native initial encrypt failed (no AC/REQ anchor) status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const before = readSopsMetadata(await readFile(cipherPath, 'utf8'));
@@ -64,7 +65,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (rot.status !== 0) {
-      results.push({ anchorAcId, capability, verdict: 'fail', detail: `SOPS-native --rotate failed (no AC/REQ anchor) status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
+      results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM, anchorAcId, capability, verdict: 'fail', detail: `SOPS-native --rotate failed (no AC/REQ anchor) status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const after = readSopsMetadata(await readFile(cipherPath, 'utf8'));
@@ -72,7 +73,7 @@ export default async function runProbe() {
 
     // Assertion 1: recipient list grew and now contains B.
     const bothRecipients = after.recipients.includes(scopeA.recipient) && after.recipients.includes(scopeB.recipient);
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId,
       capability,
       verdict: bothRecipients ? 'pass' : 'fail',
@@ -81,7 +82,7 @@ export default async function runProbe() {
     });
 
     // Assertion 2: mac changed (data key re-wrapped => the payload's MAC is regenerated).
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId: null,
       capability,
       verdict: after.mac !== before.mac ? 'pass' : 'fail',
@@ -91,7 +92,7 @@ export default async function runProbe() {
 
     // Assertion 3: recipient B can decrypt with only its key.
     const decB = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeB.keyPath) });
-    results.push({
+    results.push({ conformanceOnly: true, limitation: CONFORMANCE_LIM,
       anchorAcId: null,
       capability,
       verdict: decB.status === 0 && JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext)) ? 'pass' : 'fail',

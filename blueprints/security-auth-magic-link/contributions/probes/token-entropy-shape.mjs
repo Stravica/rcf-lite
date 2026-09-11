@@ -1,34 +1,25 @@
-// Magic-link TOKEN entropy shape probe. Issues 1,000 magic-link
-// tokens against the fixture manager and asserts no collisions,
-// base64url shape and length band, and no JWT-shaped delimiter.
+// Magic-link TOKEN entropy shape probe. Conformance-only per
+// _closure3.md: REQ-002 does not state high entropy, base64url
+// form, JWT-delimiter absence or wrong-email refusal. Rows keep
+// the fixture-manager sample observations; integration harness
+// (w-2026-09-11-dave-015) is the surface where the AC-level
+// properties become observable.
 //
-// Anchor honesty. AC-3103-1 and AC-3103-2 (story-3103) bind SESSION
-// HANDLE entropy and shape, not magic-link-token entropy. The
-// fixture is a magic-link TOKEN manager (TAC-501), not a session
-// manager (TAC-502); the two live at different layers of the sign-
-// in flow. Anchoring AC-3103-* here would mis-state what the probe
-// observes. This probe therefore anchors REQ-002 (issue produces a
-// single-use TTL-bounded, high-entropy magic-link token) with the
-// "no AC covers this property at the token layer" fact stated in
-// `detail`, per closure addendum rule 1. On the shelf review this
-// row reads AMBER for the AC-3103-* properties; a probe that
-// samples session handles from a session manager is the follow-up
-// that would turn AC-3103-* rows green.
-//
-// capability: principalDirectory.
-// engine: fixture.
-// accountBound: false.
+// capability: principalDirectory. engine: fixture. accountBound: false.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deClaim } from './probe-utils.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-magic-link', 'src');
 
-export const anchorAcId = 'security-auth-magic-link-REQ-002';
+export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = false;
+
+const LIM = 'security-auth-magic-link-REQ-002: REQ-002 does not state token entropy, base64url form or JWT-delimiter absence at the token layer; a probe against session handles from a session manager (TAC-502) needs the integration harness (w-2026-09-11-dave-015).';
 
 export default async function runProbe() {
   const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);
@@ -48,26 +39,23 @@ export default async function runProbe() {
     }
   }
   const results = [];
-  results.push({
-    anchorAcId,
+  results.push(deClaim({
     capability,
     verdict: tokens.size === N ? 'pass' : 'fail',
-    detail: `REQ-002 (no AC states the magic-link-token entropy property at the TOKEN manager layer; AC-3103-1 binds SESSION HANDLES, not magic-link tokens; anchoring REQ per closure rule 1): distinct tokens across ${N} issues; observed unique=${tokens.size}. Fixture-layer observation.`,
-    evidence: { uniqueCount: tokens.size, requested: N, notObservableACs: ['security-auth-magic-link-AC-3103-1', 'security-auth-magic-link-AC-3103-2'], notObservableReason: 'AC-3103-* target session handles from a session manager (TAC-502); this fixture is a magic-link TOKEN manager (TAC-501).' },
-  });
-  results.push({
-    anchorAcId,
+    detail: `distinct-token sample across ${N} issues: unique=${tokens.size}`,
+    evidence: { uniqueCount: tokens.size, requested: N },
+  }, { ac: 'security-auth-magic-link-REQ-002', limitation: LIM }));
+  results.push(deClaim({
     capability,
     verdict: shapeBad.length === 0 ? 'pass' : 'fail',
-    detail: `REQ-002 (magic-link tokens are base64url of >=24 bytes of entropy at the TOKEN layer; AC-3103-1 binds session-handle shape, not magic-link-token shape): shapeViolations=${JSON.stringify(shapeBad)}. Fixture-layer observation.`,
+    detail: `base64url shape sweep at token layer: violations=${JSON.stringify(shapeBad)}`,
     evidence: { shapeBadSample: shapeBad, sampledN: N },
-  });
-  results.push({
-    anchorAcId,
+  }, { ac: 'security-auth-magic-link-REQ-002', limitation: LIM }));
+  results.push(deClaim({
     capability,
     verdict: jwtShaped.length === 0 ? 'pass' : 'fail',
-    detail: `REQ-002 (magic-link tokens carry no JWT-shaped delimiter at the TOKEN layer; AC-3103-2 binds session-handle shape): jwtShapedTokens=${JSON.stringify(jwtShaped)}. Fixture-layer observation.`,
+    detail: `JWT-delimiter absence sweep at token layer: violations=${JSON.stringify(jwtShaped)}`,
     evidence: { jwtShapedSample: jwtShaped, sampledN: N },
-  });
+  }, { ac: 'security-auth-magic-link-REQ-002', limitation: LIM }));
   return { results, extra: {} };
 }

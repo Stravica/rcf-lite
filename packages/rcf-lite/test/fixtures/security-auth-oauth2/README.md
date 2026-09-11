@@ -12,9 +12,14 @@ branch when no account is available.
 - `src/mock-authorization-server.mjs` - an in-process HTTP server
   speaking the RFC 6749 authorisation-code flow with the RFC 7636
   S256 PKCE method. Binds a per-instance `X-Mock-Request-Id` header
-  on every response (rule 7d evidence shape 1). Refuses on missing
-  challenge, wrong `code_challenge_method`, unknown client_id,
-  code replay, and PKCE verifier mismatch.
+  on every response — this is a fixture request id for local
+  diagnostics, not a rule 7d engine id (a real engine here is a
+  live commercial IdP, not this mock). Refuses on missing challenge,
+  wrong `code_challenge_method`, unknown client_id, code replay,
+  and PKCE verifier mismatch. Tracks consumed codes in a persistent
+  map so `/callback-check` observes real consumed state and probes
+  can OBSERVE pre-exchange vs. post-exchange callback runs from the
+  mock's request-order records.
 - `src/provider-adapter.mjs` - TAC-1102 provider-adapter shape
   (`chooseDiscoveryUrl`), TAC-1103 session-bridge (`bridgeSession`),
   and TAC-1104 provider-selector (`selectProvider`, `knownProviders`).

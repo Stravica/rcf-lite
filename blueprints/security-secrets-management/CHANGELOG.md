@@ -1,5 +1,9 @@
 # security-secrets-management changelog
 
+## 1.1.4 - 2026-09-11
+
+- Third closure remediation (2026-09-11): every SOPS-native result row is now marked `conformanceOnly: true` with a limitation naming REQ-002 (the manager-client boundary REQ-002 states, which the SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe). Anchors stay `null` as before. Anatomy helper rewritten to enforce field combinations per shape — bare diagnostic evidence like `{macDiverged}`, `{sameRecipients}` or `{status,matched}` now passes only under the conformanceOnly+limitation shape. This pack is criterion-e conformance evidence pending the manager-client probe (the integration harness follow-up).
+
 ## 1.1.3 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering the secretsProvider capability across four probes running against real `sops(1)` + `age(1)` engines with throwaway keypairs the probes self-provision and self-clean under `RCF_SECRETS_SCRATCH_DIR`: `encrypt-decrypt-round-trip` (scratch scope encrypt then decrypt; sops metadata captured as evidence excerpts), `add-recipient-rotation` (`--rotate --add-age` extends recipient list, regenerates mac, and lets the new recipient decrypt), `key-rotation` (`--rotate` re-keys the payload without changing recipients), and `mismatched-key-refusal` (foreign-key decrypt returns non-zero with no plaintext). The estate vault at `.vault/scopes/` is never touched. Fixture at `packages/rcf-lite/test/fixtures/security-secrets-management/` declares every env var the pack reads; anatomy test pins pack shape, fixture manifest and per-probe aggregate pass on the real engine.

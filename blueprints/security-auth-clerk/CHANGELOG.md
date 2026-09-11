@@ -1,5 +1,9 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.3 - 2026-09-11
+
+- Third closure remediation (2026-09-11): every AC/REQ anchor on the criterion-e probe pack is de-claimed to conformanceOnly with a limitation naming the AC that is observable only in the auth integration harness follow-up. Live evidence on the two `real-account-*` probes (Clerk Backend API principal-directory round-trip, sign-in-token mint+revoke lifecycle) is preserved on the rows; the anchor drops to null and the limitation says why. `hosted-identity-ui-config` and `role-model-adapter` rows keep their fixture-adapter observations under the same de-claim shape. Anatomy helper rewritten to enforce field COMBINATIONS per shape (request id + status + body-carrying key, created-then-deleted resource id with absence observation, conformanceOnly with limitation naming an AC or REQ) instead of a flat key allow-list. This pack is criterion-e conformance evidence pending the integration harness.
+
 ## 1.5.2 - 2026-09-11
 
 - Added a criterion-e probe pack (`contributions/probes/`) covering the four declared capabilities: `role-model-adapter` (roleModel; local), `hosted-identity-ui-config` (hostedIdentityUi; local, https-only refusal), `real-account-principal-directory-round-trip` (principalDirectory; live against Clerk Backend API, creates a scratch principal, reads back, list-diff, deletes), and `real-account-session-inventory` (sessionInventory; live against the Clerk sessions endpoint per TAC-1003). Fixture at `packages/rcf-lite/test/fixtures/security-auth-clerk/` declares every env var the pack reads (`CI_HAS_CLERK_ACCOUNT`, `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_API_BASE_URL`, `GITHUB_RUN_ID`); anatomy test at `packages/rcf-lite/test/blueprint/security-auth-clerk-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.

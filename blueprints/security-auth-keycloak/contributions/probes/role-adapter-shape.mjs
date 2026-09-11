@@ -1,80 +1,70 @@
-// Keycloak role-adapter shape probe (TAC-1205). Combines
-// realm_access.roles and resource_access.<clientId>.roles per the
-// Keycloak token contract
-// (https://www.keycloak.org/securing-apps/token-introspection-endpoint
-// verifiedOn 2026-09-11) and refuses unknown role tokens.
+// Keycloak role-adapter shape probe. Conformance-only per
+// _closure3.md: raw claim objects are not verified tokens, and
+// REQ-006 explicitly says roles are not remapped to a project
+// allow-list. Rows keep their fixture-adapter observations;
+// integration harness (w-2026-09-11-dave-015) is the surface
+// where the AC-level properties become observable.
 //
-// capability: roleModel.
-// Anchors (per closure): AC-11107-1 (client-roles claim path
-// lifts onto Principal.roles), AC-11107-2 (absent claim yields empty
-// roles), AC-11107-3 (KEYCLOAK_ROLES_MALFORMED on non-array claim).
-// accountBound: false.
+// capability: roleModel. engine: fixture. accountBound: false.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deClaim } from './probe-utils.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-keycloak', 'src');
 
-export const anchorAcId = 'security-auth-keycloak-AC-11107-1';
+export const anchorAcId = null;
 export const capability = 'roleModel';
 export const accountBound = false;
+
+const LIM_CLIENT = 'security-auth-keycloak-AC-11107-1: probe receives a raw claim object, not a verified access token; the AC requires the client-roles path from a verified session, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_ABSENT = 'security-auth-keycloak-AC-11107-2: probe receives an empty raw claim object; the AC requires absent-claim behaviour on a verified session, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_MALFORMED = 'security-auth-keycloak-AC-11107-3: probe receives a raw claim object; the AC requires the malformed-claim refusal path on a verified session, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_REQ006 = 'security-auth-keycloak-REQ-006: REQ-006 explicitly says roles are NOT remapped to a project allow-list; unknown-role refusal here is a fixture adapter behaviour outside the REQ.';
 
 export default async function runProbe() {
   const { mapKeycloakRoles, knownRoles } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'role-adapter.mjs')).href);
   const results = [];
 
-  // AC-11107-1: client-roles-only (a realm record with
-  // roleClaimShape='client-roles' lifts resource_access.<clientId>.roles
-  // onto Principal.roles; no realm-role merge). The fixture is
-  // exercised with clientId + roleClaimShape='client-roles' and no
-  // realm_access is consulted for this row.
   const clientOnly = mapKeycloakRoles({
     resource_access: { 'app-x': { roles: ['editor', 'admin'] } },
   }, { clientId: 'app-x', roleClaimShape: 'client-roles' });
-  results.push({
-    anchorAcId,
+  results.push(deClaim({
     capability,
     verdict: clientOnly.ok && JSON.stringify(clientOnly.roles) === JSON.stringify(['editor', 'admin']) && clientOnly.source && clientOnly.source.client === 2 && (clientOnly.source.realm ?? 0) === 0 ? 'pass' : 'fail',
-    detail: `AC-11107-1 (client-roles path lifts resource_access.<clientId>.roles onto Principal.roles; no realm merge on this claim shape): ok=${clientOnly.ok} roles=${JSON.stringify(clientOnly.roles)} source=${JSON.stringify(clientOnly.source)}. Fixture-layer observation; AC-11107-1 requires a verified access token in a live-realm setting.`,
+    detail: `client-roles claim path lifts resource_access.<clientId>.roles: ok=${clientOnly.ok} roles=${JSON.stringify(clientOnly.roles)} source=${JSON.stringify(clientOnly.source)}`,
     evidence: { adapterReturn: clientOnly, knownRoles },
-  });
+  }, { ac: 'security-auth-keycloak-AC-11107-1', limitation: LIM_CLIENT }));
 
-  // AC-11107-2: absent claim path yields empty roles.
   const absentPath = mapKeycloakRoles({}, { clientId: 'app-x', roleClaimShape: 'client-roles' });
-  results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11107-2',
+  results.push(deClaim({
     capability,
     verdict: absentPath.ok && Array.isArray(absentPath.roles) && absentPath.roles.length === 0 ? 'pass' : 'fail',
-    detail: `AC-11107-2 (absent claim path yields empty roles, not refusal): ok=${absentPath.ok} roles=${JSON.stringify(absentPath.roles)}. Fixture-layer observation.`,
+    detail: `absent-claim yields empty roles: ok=${absentPath.ok} roles=${JSON.stringify(absentPath.roles)}`,
     evidence: { adapterReturn: absentPath },
-  });
+  }, { ac: 'security-auth-keycloak-AC-11107-2', limitation: LIM_ABSENT }));
 
-  // AC-11107-3: NON-ARRAY claim path is refused with KEYCLOAK_ROLES_MALFORMED.
   const nonArray = mapKeycloakRoles({
     resource_access: { 'app-x': { roles: 'admin' } },
   }, { clientId: 'app-x', roleClaimShape: 'client-roles' });
-  results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11107-3',
+  results.push(deClaim({
     capability,
     verdict: !nonArray.ok && /KEYCLOAK_ROLES_MALFORMED|must be an array/i.test(nonArray.error) ? 'pass' : 'fail',
-    detail: `AC-11107-3 (non-array claim path refused with KEYCLOAK_ROLES_MALFORMED): ok=${nonArray.ok} error=${JSON.stringify(nonArray.error)}. Fixture-layer observation.`,
+    detail: `non-array claim refused: ok=${nonArray.ok} error=${JSON.stringify(nonArray.error)}`,
     evidence: { adapterReturn: nonArray },
-  });
+  }, { ac: 'security-auth-keycloak-AC-11107-3', limitation: LIM_MALFORMED }));
 
-  // REQ-006 supplementary check: unknown-role token refused (not an
-  // AC-11107-3 property; refusal at the known-roles gate anchors REQ-006).
   const unknown = mapKeycloakRoles({
     resource_access: { 'app-x': { roles: ['viewer', 'root-emperor'] } },
   }, { clientId: 'app-x', roleClaimShape: 'client-roles' });
-  results.push({
-    anchorAcId: 'security-auth-keycloak-REQ-006',
+  results.push(deClaim({
     capability,
     verdict: !unknown.ok && /root-emperor/.test(unknown.error) ? 'pass' : 'fail',
-    detail: `REQ-006 (no AC covers unknown-role refusal at the role adapter; anchoring REQ per closure rule 1). unknown-role refusal: ok=${unknown.ok} error=${JSON.stringify(unknown.error)}. Fixture-layer observation.`,
+    detail: `unknown-role refusal (fixture adapter): ok=${unknown.ok} error=${JSON.stringify(unknown.error)}`,
     evidence: { adapterReturn: unknown },
-  });
+  }, { ac: 'security-auth-keycloak-REQ-006', limitation: LIM_REQ006 }));
 
   return { results, extra: {} };
 }

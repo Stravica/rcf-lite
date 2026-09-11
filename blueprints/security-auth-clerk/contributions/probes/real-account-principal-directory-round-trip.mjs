@@ -29,9 +29,17 @@
 
 import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } from './probe-utils.mjs';
 
-export const anchorAcId = 'security-auth-clerk-REQ-008';
+// Conformance-only. _closure3.md de-claimed REQ-008 for this probe:
+// runtime acceptance of the blueprint's session ACs is not observed
+// by a Backend-API principal-directory smoke. The row keeps its
+// real HTTP evidence (X-Request-IDs, statuses, created-then-deleted
+// user_ id in the pre/post inventory diff); the anchor drops to
+// null and the row records limitation naming the AC that IS
+// observable only in the integration harness (w-2026-09-11-dave-015).
+export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = true;
+const DECLAIM_LIMITATION = 'security-auth-clerk-AC-9108-1: probe drives the Clerk Backend API principal-directory (users) surface, which is not the runtime "sign-in strategy renders" property the AC states; needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
 
 const BASE_URL_DEFAULT = 'https://api.clerk.com/v1';
 
@@ -81,15 +89,16 @@ export default async function runProbe() {
   const gate = gateResult('CI_HAS_CLERK_ACCOUNT', process.env.CI_HAS_CLERK_ACCOUNT);
   if (gate.kind === 'unset') {
     return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_CLERK_ACCOUNT')],
+      results: [accountBoundSkippedResult(null, capability, 'CI_HAS_CLERK_ACCOUNT')],
       extra: { accountBoundSkipped: true, reason: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
     };
   }
   if (gate.kind === 'set-not-true') {
     return {
       results: [{
-        anchorAcId, capability, verdict: 'fail',
-        detail: `REQ-008: CI_HAS_CLERK_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+        anchorAcId: null, capability, verdict: 'fail',
+        conformanceOnly: true, limitation: DECLAIM_LIMITATION,
+        detail: `conformance-only: CI_HAS_CLERK_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
         evidence: { gate: 'CI_HAS_CLERK_ACCOUNT', observedValue: gate.observedValue, expected: 'true' },
       }],
       extra: { gateMisconfigured: true, gate: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
@@ -97,7 +106,7 @@ export default async function runProbe() {
   }
   if (!process.env.CLERK_SECRET_KEY) {
     return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'CLERK_SECRET_KEY')],
+      results: [accountBoundSkippedResult(null, capability, 'CLERK_SECRET_KEY')],
       extra: { accountBoundSkipped: true, reason: 'CLERK_SECRET_KEY', envDeclared: [...DECLARED_ENV] },
     };
   }
@@ -115,7 +124,7 @@ export default async function runProbe() {
     runId,
     calls: [],
   };
-  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
+  const resultRow = { anchorAcId: null, conformanceOnly: true, limitation: DECLAIM_LIMITATION, capability, verdict: 'fail', detail: '', evidence: {} };
   let createdUserId = null;
 
   try {

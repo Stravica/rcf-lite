@@ -34,9 +34,17 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-magic-link', 'src');
 
-export const anchorAcId = 'security-auth-magic-link-AC-3110-1';
+// Conformance-only per _closure3.md: the Resend adapter is called,
+// but the row does not prove that project routes and managers use
+// ONLY the adapter or contain no provider-specific fields. Real
+// HTTP evidence (providerMessageId, providerStatus, requestId) is
+// kept; anchor drops to null. The row now requires ALL FOUR
+// declared keys (ok, providerStatus, providerMessageId, error) —
+// the previous permissive check allowed missing `error`.
+export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = true;
+const DECLAIM_LIMITATION = 'security-auth-magic-link-AC-3110-1: probe observes the adapter return only; the AC states project routes and managers invoke ONLY the declared adapter method with ONLY the declared arguments and consume ONLY the declared fields, needs the integration harness (w-2026-09-11-dave-015).';
 
 function gateResult(varName, value) {
  if (value === undefined || value === '') return { kind: 'unset', reason: varName };
@@ -48,15 +56,16 @@ export default async function runProbe() {
  const gate = gateResult('CI_HAS_RESEND_ACCOUNT', process.env.CI_HAS_RESEND_ACCOUNT);
  if (gate.kind === 'unset') {
  return {
- results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_RESEND_ACCOUNT')],
+ results: [accountBoundSkippedResult(null, capability, 'CI_HAS_RESEND_ACCOUNT')],
  extra: { accountBoundSkipped: true, reason: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
  };
  }
  if (gate.kind === 'set-not-true') {
  return {
  results: [{
- anchorAcId, capability, verdict: 'fail',
- detail: `AC-3110-1: CI_HAS_RESEND_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+ anchorAcId: null, capability, verdict: 'fail',
+ conformanceOnly: true, limitation: DECLAIM_LIMITATION,
+ detail: `conformance-only gate: CI_HAS_RESEND_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
  evidence: { gate: 'CI_HAS_RESEND_ACCOUNT', observedValue: gate.observedValue, expected: 'true' },
  }],
  extra: { gateMisconfigured: true, gate: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
@@ -64,7 +73,7 @@ export default async function runProbe() {
  }
  if (!process.env.RESEND_API_KEY) {
  return {
- results: [accountBoundSkippedResult(anchorAcId, capability, 'RESEND_API_KEY')],
+ results: [accountBoundSkippedResult(null, capability, 'RESEND_API_KEY')],
  extra: { accountBoundSkipped: true, reason: 'RESEND_API_KEY', envDeclared: [...DECLARED_ENV] },
  };
  }
@@ -74,7 +83,7 @@ export default async function runProbe() {
  const to = process.env.RESEND_SANDBOX_TO || RESEND_SANDBOX_TO_DEFAULT;
 
  const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, from, to };
- const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
+ const resultRow = { anchorAcId: null, conformanceOnly: true, limitation: DECLAIM_LIMITATION, capability, verdict: 'fail', detail: '', evidence: {} };
 
  try {
  const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);
@@ -98,17 +107,15 @@ export default async function runProbe() {
  // 3. Local verify -- proves the end-to-end shape (issue + send-through-adapter + verify).
  const verified = await mgr.verify({ token: issued.token, emailAddress: to });
 
- // AC-3110-1 shape observation: the outcome has exactly the
- // declared field surface (`ok`, `providerStatus`,
- // `providerMessageId`, `error`) and the ok path returns a
- // provider-assigned message id.
+ // Adapter outcome shape observation: the outcome carries ALL FOUR
+ // declared fields (`ok`, `providerStatus`, `providerMessageId`,
+ // `error`) — no missing keys, no unknown keys except `requestId`
+ // which is documented as a diagnostic side-channel.
  const declaredKeys = ['ok', 'providerStatus', 'providerMessageId', 'error'];
  const outcomeKeys = Object.keys(outcome).sort();
  const extraKeys = outcomeKeys.filter((k) => !declaredKeys.includes(k));
- // `requestId` is allowed as a diagnostic side-channel on the
- // adapter's returned shape (documented in the adapter comment);
- // any OTHER extra field would be a shape violation.
- const shapeOk = extraKeys.every((k) => k === 'requestId');
+ const missingKeys = declaredKeys.filter((k) => !(k in outcome));
+ const shapeOk = extraKeys.every((k) => k === 'requestId') && missingKeys.length === 0;
  const adapterOk = outcome && outcome.ok === true && typeof outcome.providerMessageId === 'string' && outcome.providerMessageId.length > 0 && typeof outcome.providerStatus === 'number';
  const verifyOk = verified.ok;
 

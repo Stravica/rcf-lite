@@ -155,6 +155,27 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
+// De-claim helper. When the third closure disputed an anchor, the row keeps its
+// verdict, evidence and engine as they are, but the anchor drops to null and the
+// row carries conformanceOnly:true plus a limitation string naming the AC that
+// this probe does NOT observe and why. The integration-harness follow-up (w-2026-09-11-dave-015)
+// is the surface where those AC-level properties become observable.
+export function deClaim(row, { ac, limitation }) {
+  const acId = ac || 'unknown-AC';
+  const limText = (limitation || '').trim();
+  const finalLim = /^(security-[a-z0-9-]+-)?(AC|REQ)-/.test(limText) ? limText : (limText ? `${acId}: ${limText}` : `${acId}: not observable at this probe surface; needs the integration harness (w-2026-09-11-dave-015)`);
+  const out = { ...row };
+  out.anchorAcId = null;
+  if ('anchorReqId' in out) delete out.anchorReqId;
+  out.conformanceOnly = true;
+  out.limitation = finalLim;
+  const tag = ` :: conformance-only (${finalLim})`;
+  if (typeof out.detail === 'string' && !out.detail.includes('conformance-only')) {
+    out.detail = out.detail + tag;
+  }
+  return out;
+}
+
 export function accountBoundSkippedResult(anchorAcId, capability, reason) {
   return {
     anchorAcId,
