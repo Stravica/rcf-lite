@@ -37,74 +37,90 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Strict inline row shape (semantic, not key-name allow-list):
-//   (a) an honest skip: accountBoundSkipped === true AND reason is
-//       exactly one of the declared gate variables in the fixture
-//       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty VENDOR-MINTED IDENTIFIER
-//       and a non-empty ROW-SPECIFIC DERIVED OBSERVATION.
+// Per-probe requirement map (v1.1.10). Every counting row (a row
+// that is not `accountBoundSkipped`, not `notObservableHere`, and
+// not `conformanceOnly`) must belong to a probe declared in
+// `PROBE_REQUIREMENTS`, match one of its declared rows by
+// `anchorAcId`, and carry the row rule's REQUIRED identifier
+// (with shape check) plus every REQUIRED observation field in its
+// evidence tree. A row from a mapped probe that is missing one of
+// these fields FAILS; a row from an UNMAPPED probe (or a mapped
+// probe with an unknown `anchorAcId`) FAILS on the spot - unmapped
+// probes may only emit skip / conformanceOnly / notObservableHere
+// rows.
 //
-// Vendor-minted identifier: one of a small explicit set of fields
-// whose value was minted by the vendor API for this row (a
-// vendor-returned server id, snapshot id, firewall id, image id,
-// vendor request id, or the 64-hex Docker container id from
-// `docker inspect --format '{{.Id}}'`). Nothing else counts:
-// probe-computed hashes, event names, file paths, service or
-// manifest names, container names Compose or the probe chose, and
-// probe inputs are derived context, never identity. There is no
-// supplied/echo path for this family: a value the probe supplied
-// is not evidence that the engine echoed it back with vendor-minted
-// state.
+// Identifier shape checks:
+//   - vendorId: a positive integer or a non-empty numeric string
+//     (`^[0-9]+$`), as the vendor API returns for a resource id.
+//   - hex64: a 64-character hex string (`^[a-f0-9]{64}$`, case
+//     insensitive), as `docker inspect --format '{{.Id}}'` returns
+//     for a Docker container id.
 //
-// Mock and offline rows have no vendor-minted identifier by nature
-// and are always `conformanceOnly` de-claims with `anchorAcId: null`
-// and a `limitation` string naming the shipped AC clause they do
-// not observe; identity and observation checks apply to anchored
-// (counting) rows only.
+// Observation fields are located by a DEEP search into the row's
+// `evidence` tree so that a field nested under (for example)
+// `evidence.burst` or `evidence.observedSecretModes.observations`
+// still counts. Arbitrary cross-probe combinations of fields fail:
+// a row anchored to a reload-burst AC must carry the reload-burst
+// tuple, not (say) `mode` alone. Generic keys (`observed`, `port`,
+// `protocol`, `direction`, bare `id` or `resourceId`) are not part
+// of any probe's rule; a supplied/echoed pair is not evidence.
 //
-// Row-specific derived observation: for each counting probe on this
-// blueprint the field(s) that constitute its observation are named
-// below, and only those satisfy the observation half. Generic
-// fields (`observed`, `port`, `protocol`, `direction`) do not
-// count.
+// Compose probe rules (this file):
+//   real-account-minimal-stack-up / AC-composeHost-upClean
+//     identifier: containerId (hex64) - present at
+//       evidence.observedSecretModes.observations[].containerId
+//     required: observedSecretModes; one of [observedNames,
+//       healthcheckKeys]
+//   real-account-minimal-stack-up / AC-composeHost-secretShape
+//     identifier: containerId (hex64) - top-level on this row
+//     required: mode
+//   real-account-reload-burst / AC-composeHost-zeroDowntimeReload
+//     identifier: serverId (vendorId)
+//     required: total, twoXx, drops, overlapCount (all nested
+//       under evidence.burst on the live record) AND
+//       burst.clockDomain === "server"
 //
-//   minimal-stack-up (AC-composeHost-upClean, secretShape,
-//     healthcheckLint-adjacent): healthy services observed as
-//     `observedNames` or `healthcheckKeys`, and the in-container
-//     secret mode observed as `observedSecretModes` or `mode`.
-//   reload-burst (AC-composeHost-zeroDowntimeReload): `total`,
-//     `twoXx`, `drops`, `overlapCount` and `clockDomain` all on
-//     the same server clock.
+// Unmapped probes on this blueprint (offline / mock; every row
+// must be conformanceOnly or account-bound-skipped):
+//   caddyfile-validate, compose-config-lint, secrets-as-files-scan
 //
-//   `notObservableHere` is reserved for browser-only ACs. The
-//   platform-docker-compose-host blueprint has no browser-only ACs,
-//   so BROWSER_ONLY_ACS is EMPTY and any notObservableHere row
-//   FAILS. `conformanceOnly` rows must carry a `limitation` string
-//   whose first token is a shipped AC id.
-// A row that only carries `{probeName, reason}` never counts, and a
-// numeric identity value of zero is not an observation.
-const ENGINE_MINTED_ID_FIELDS = new Set([
-  // Vendor-minted or resource ids returned by the vendor API, plus
-  // the 64-hex `containerId` from `docker inspect --format
-  // '{{.Id}}'`. Generic `id` and `resourceId` are NOT accepted; a
-  // counting row must carry the resource-specific field.
-  'serverId', 'snapshotId', 'firewallId', 'imageId',
-  'containerId', 'vendorRequestId', 'requestId',
-]);
-const DERIVED_OBSERVATION_FIELDS = new Set([
-  // minimal-stack-up: healthy services and the in-container secret
-  // mode observed on the 64-hex containerId
-  'observedNames', 'healthcheckKeys', 'observedSecretModes', 'mode',
-  // reload-burst: request totals and reload-overlap counts, on the
-  // server clock
-  'total', 'twoXx', 'drops', 'overlapCount', 'clockDomain',
-  'reloadDurationMs', 'burstDurationMs', 'expectedTotal',
-  // Support fields for the counting-row observations above
-  'statusCode', 'bodyExcerpt', 'tailExcerpt', 'wallClockTime',
-  // Skip-row / offline conformanceOnly rows still need at least
-  // one derived observation to satisfy the shape check when they
-  // are wrongly anchored; keep a small tail here for that.
-  'exitStatus', 'renderedByteLength', 'eventCount',
+// `notObservableHere` remains reserved for browser-only ACs; the
+// platform-docker-compose-host blueprint has no browser-only ACs,
+// so BROWSER_ONLY_ACS is EMPTY and any notObservableHere row FAILS.
+// `conformanceOnly` rows must carry a `limitation` whose first
+// token is a shipped AC id. A row that only carries
+// `{probeName, reason}` never counts.
+const PROBE_REQUIREMENTS = {
+  'real-account-minimal-stack-up': {
+    rows: [
+      {
+        anchorAcId: 'AC-composeHost-upClean',
+        identifier: { field: 'containerId', shape: 'hex64' },
+        requiredAll: ['observedSecretModes'],
+        requiredAnyOf: [['observedNames', 'healthcheckKeys']],
+      },
+      {
+        anchorAcId: 'AC-composeHost-secretShape',
+        identifier: { field: 'containerId', shape: 'hex64' },
+        requiredAll: ['mode'],
+        requiredAnyOf: [],
+      },
+    ],
+  },
+  'real-account-reload-burst': {
+    rows: [
+      {
+        anchorAcId: 'AC-composeHost-zeroDowntimeReload',
+        identifier: { field: 'serverId', shape: 'vendorId' },
+        requiredAll: ['total', 'twoXx', 'drops', 'overlapCount'],
+        requiredAnyOf: [],
+        requiredExact: [{ field: 'clockDomain', equals: 'server' }],
+      },
+    ],
+  },
+};
+const UNMAPPED_PROBES_CONFORMANCE_ONLY = new Set([
+  'caddyfile-validate', 'compose-config-lint', 'secrets-as-files-scan',
 ]);
 // The platform-docker-compose-host blueprint ships process/live-
 // observable ACs only; no browser-only rendering is in scope. This
@@ -144,42 +160,119 @@ function isNonEmpty(v) {
   if (typeof v === 'boolean') return v === true;
   return false;
 }
-async function assertRowsCarry7dShape(rows, label) {
-  assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
+function isPresent(v) {
+  return v !== undefined && v !== null;
+}
+function isVendorId(v) {
+  if (typeof v === 'number') return Number.isInteger(v) && v > 0;
+  if (typeof v === 'string') return /^[0-9]+$/.test(v) && v !== '0';
+  return false;
+}
+function isHex64(v) {
+  return typeof v === 'string' && /^[a-f0-9]{64}$/i.test(v);
+}
+function checkIdShape(shape, value) {
+  if (shape === 'vendorId') return isVendorId(value);
+  if (shape === 'hex64') return isHex64(value);
+  return false;
+}
+function deepFind(node, fieldName, visited) {
+  const seen = visited || new Set();
+  if (node === null || typeof node !== 'object' || seen.has(node)) return undefined;
+  seen.add(node);
+  if (Array.isArray(node)) {
+    for (const it of node) {
+      const found = deepFind(it, fieldName, seen);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  }
+  if (Object.prototype.hasOwnProperty.call(node, fieldName)) return node[fieldName];
+  for (const k of Object.keys(node)) {
+    const found = deepFind(node[k], fieldName, seen);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+}
+// Enforce the per-probe requirement map on ONE counting row.
+// Throws an Error naming the missing field / shape mismatch, so
+// callers (the anatomy walker AND the negative-proof tests below)
+// can convert into an assertion failure with context.
+function validateCountingRowAgainstMap(row, probeName) {
+  const bundle = PROBE_REQUIREMENTS[probeName];
+  if (!bundle) {
+    if (UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName)) {
+      throw new Error(`${probeName}: this probe is UNMAPPED in PROBE_REQUIREMENTS; only skip / conformanceOnly / notObservableHere rows are permitted, but a counting row was produced: ${JSON.stringify(row).slice(0, 300)}`);
+    }
+    throw new Error(`${probeName}: probe is not declared in PROBE_REQUIREMENTS nor UNMAPPED_PROBES_CONFORMANCE_ONLY; add it before shipping a counting row: ${JSON.stringify(row).slice(0, 300)}`);
+  }
+  const rule = bundle.rows.find((r) => r.anchorAcId === row.anchorAcId);
+  if (!rule) {
+    throw new Error(`${probeName}: counting row anchors ${JSON.stringify(row.anchorAcId)}, which is not declared in PROBE_REQUIREMENTS for this probe; declared: ${bundle.rows.map((r) => r.anchorAcId).join(', ')}`);
+  }
+  const ev = (row.evidence && typeof row.evidence === 'object') ? row.evidence : {};
+  const idValue = deepFind(ev, rule.identifier.field);
+  if (!checkIdShape(rule.identifier.shape, idValue)) {
+    throw new Error(`${probeName} / ${rule.anchorAcId}: identifier ${rule.identifier.field} (shape ${rule.identifier.shape}) missing or malformed; got ${JSON.stringify(idValue)}`);
+  }
+  for (const obs of rule.requiredAll) {
+    const v = deepFind(ev, obs);
+    if (!isPresent(v)) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or empty in evidence tree`);
+    }
+  }
+  for (const group of rule.requiredAnyOf) {
+    const some = group.some((f) => isPresent(deepFind(ev, f)));
+    if (!some) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] present in evidence tree`);
+    }
+  }
+  for (const exact of rule.requiredExact || []) {
+    const v = deepFind(ev, exact.field);
+    if (v !== exact.equals) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: required ${exact.field} must equal ${JSON.stringify(exact.equals)}; got ${JSON.stringify(v)}`);
+    }
+  }
+  return true;
+}
+async function assertRowsCarry7dShape(rows, probeName, label) {
+  const displayLabel = label ?? probeName;
+  assert.ok(Array.isArray(rows) && rows.length > 0, `${displayLabel}: no results returned`);
   const shipped = await loadShippedAcs();
   for (const r of rows) {
     if (r.accountBoundSkipped === true) {
-      assert.equal(typeof r.reason, 'string', `${label}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
-      assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${label}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(typeof r.reason, 'string', `${displayLabel}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${displayLabel}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
       continue;
     }
     if (r.notObservableHere) {
       const ac = r.notObservableHere && r.notObservableHere.ac;
-      assert.ok(BROWSER_ONLY_ACS.has(ac), `${label}: notObservableHere is reserved for browser-only ACs; platform-docker-compose-host has NONE, so any notObservableHere row FAILS anatomy. Row claims ac=${JSON.stringify(ac)}: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.ok(BROWSER_ONLY_ACS.has(ac), `${displayLabel}: notObservableHere is reserved for browser-only ACs; platform-docker-compose-host has NONE, so any notObservableHere row FAILS anatomy. Row claims ac=${JSON.stringify(ac)}: ${JSON.stringify(r).slice(0, 300)}`);
     }
     if (r.conformanceOnly) {
-      assert.equal(typeof r.limitation, 'string', `${label}: conformanceOnly row must carry a limitation string: ${JSON.stringify(r).slice(0, 300)}`);
-      assert.equal(r.anchorAcId, null, `${label}: conformanceOnly row must carry anchorAcId: null: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(typeof r.limitation, 'string', `${displayLabel}: conformanceOnly row must carry a limitation string: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(r.anchorAcId, null, `${displayLabel}: conformanceOnly row must carry anchorAcId: null: ${JSON.stringify(r).slice(0, 300)}`);
       const m = r.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
-      assert.ok(m, `${label}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
-      assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on platform-docker-compose-host`);
+      assert.ok(m, `${displayLabel}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
+      assert.ok(shipped.has(m[1]), `${displayLabel}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on platform-docker-compose-host`);
       // conformanceOnly rows attest to a limitation, not a live
       // observation; identity and observation checks are for
-      // anchored rows only.
+      // counting rows only.
       continue;
     }
-    const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
-    const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    assert.ok(engineIdKeysPresent.length > 0, `${label}: row evidence lacks a vendor-minted identifier (serverId, snapshotId, firewallId, imageId, containerId, vendorRequestId or requestId returned by the vendor API); no supplied/echo path exists for this family. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a row-specific derived observation (see the per-probe observation fields at the top of this file: observedNames/healthcheckKeys and observedSecretModes/mode for minimal-stack-up; total, twoXx, drops, overlapCount and clockDomain for reload-burst); generic fields like 'observed', 'port', 'protocol' do not count. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    // Counting row: enforce per-probe requirement map (v1.1.10).
+    try {
+      validateCountingRowAgainstMap(r, probeName);
+    } catch (e) {
+      assert.fail(`${displayLabel}: ${e.message}`);
+    }
   }
 }
 
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.9');
+  assert.equal(bp.version, '1.1.10');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -203,20 +296,20 @@ test('platform-docker-compose-host AC-12101-1 secrets file mount shape', async (
 
 test('platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext', async () => {
   const clean = await runProbe('secrets-as-files-scan');
-  await assertRowsCarry7dShape(clean.results, 'secrets-as-files clean');
+  await assertRowsCarry7dShape(clean.results, 'secrets-as-files-scan', 'secrets-as-files clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected clean scan to pass, got: ${JSON.stringify(clean.results, null, 2)}`);
   const mutated = await runProbe('secrets-as-files-scan', { SIMULATE_PLAINTEXT_SECRET: 'true' });
-  await assertRowsCarry7dShape(mutated.results, 'secrets-as-files mutated');
+  await assertRowsCarry7dShape(mutated.results, 'secrets-as-files-scan', 'secrets-as-files mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes('plaintext secret literal'));
   assert.ok(fail, `expected mutation to fail with plaintext-literal detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
 test('platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck', async () => {
   const clean = await runProbe('compose-config-lint');
-  await assertRowsCarry7dShape(clean.results, 'compose-config-lint clean');
+  await assertRowsCarry7dShape(clean.results, 'compose-config-lint', 'compose-config-lint clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected canonical compose-config-lint to pass, got: ${JSON.stringify(clean.results.filter((r) => r.verdict === 'fail'), null, 2)}`);
   const mutated = await runProbe('compose-config-lint', { SIMULATE_MISSING_HEALTHCHECK: 'true' });
-  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint mutated');
+  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint', 'compose-config-lint mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes('missing a healthcheck'));
   assert.ok(fail, `expected SIMULATE_MISSING_HEALTHCHECK to fail with missing-healthcheck detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
@@ -230,7 +323,7 @@ test('platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up decl
   delete process.env.CI_HAS_HETZNER_ACCOUNT;
   try {
     const out = await mod.default();
-    await assertRowsCarry7dShape(out.results, 'minimal-stack-up skip');
+    await assertRowsCarry7dShape(out.results, 'real-account-minimal-stack-up', 'minimal-stack-up skip');
     const skipped = out.results.find((r) => r.accountBoundSkipped === true);
     assert.ok(skipped, `expected accountBoundSkipped record without CI_HAS_HETZNER_ACCOUNT, got ${JSON.stringify(out.results)}`);
     assert.equal(skipped.reason, 'CI_HAS_HETZNER_ACCOUNT');
@@ -241,7 +334,7 @@ test('platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up decl
 
 test('platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_RESTART: 'true' });
-  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint restart mutated');
+  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint', 'compose-config-lint restart mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes('restart: always'));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_RESTART to fail with restart: always detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
@@ -250,7 +343,7 @@ test('platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid
   const cf = await readFile(CADDYFILE, 'utf8');
   assert.match(cf, /reverse_proxy web:8080/, 'Caddyfile references the web service');
   const clean = await runProbe('caddyfile-validate');
-  await assertRowsCarry7dShape(clean.results, 'caddyfile-validate clean');
+  await assertRowsCarry7dShape(clean.results, 'caddyfile-validate', 'caddyfile-validate clean');
   const noFail = !clean.results.some((r) => r.verdict === 'fail');
   assert.ok(noFail, `expected canonical caddyfile-validate not to fail; got: ${JSON.stringify(clean.results, null, 2)}`);
   // Bind-mount read-only de-claim for AC-38107-4 lands on the
@@ -268,7 +361,7 @@ test('platform-docker-compose-host AC-12402-1 real-account-reload-burst declared
   delete process.env.CI_HAS_HETZNER_ACCOUNT;
   try {
     const out = await mod.default();
-    await assertRowsCarry7dShape(out.results, 'reload-burst skip');
+    await assertRowsCarry7dShape(out.results, 'real-account-reload-burst', 'reload-burst skip');
     const skipped = out.results.find((r) => r.accountBoundSkipped === true);
     assert.ok(skipped, `expected accountBoundSkipped record without CI_HAS_HETZNER_ACCOUNT`);
     assert.equal(skipped.reason, 'CI_HAS_HETZNER_ACCOUNT');
@@ -279,7 +372,7 @@ test('platform-docker-compose-host AC-12402-1 real-account-reload-burst declared
 
 test('platform-docker-compose-host AC-12501-1 log driver classification', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_LOG_DRIVER: 'true' });
-  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint log-driver mutated');
+  await assertRowsCarry7dShape(mutated.results, 'compose-config-lint', 'compose-config-lint log-driver mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes("logging driver 'syslog'"));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_LOG_DRIVER to fail naming syslog, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
@@ -312,12 +405,12 @@ test('platform-docker-compose-host v1.1.4 env vars declared and compose-stack dr
     assert.ok(section.includes('`' + v + '`'), 'platform-docker-compose-host declared env vars table missing ' + v);
   }
   const stackUpSkip = await runProbe('real-account-minimal-stack-up', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  await assertRowsCarry7dShape(stackUpSkip.results, 'stack-up skip');
+  await assertRowsCarry7dShape(stackUpSkip.results, 'real-account-minimal-stack-up', 'stack-up skip');
   assert.equal(stackUpSkip.results[0].accountBoundSkipped, true);
   assert.equal(stackUpSkip.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
   assert.match(stackUpSkip.results[0].detail, /set-but-not-true/);
   const reloadSkip = await runProbe('real-account-reload-burst', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  await assertRowsCarry7dShape(reloadSkip.results, 'reload-burst skip');
+  await assertRowsCarry7dShape(reloadSkip.results, 'real-account-reload-burst', 'reload-burst skip');
   assert.equal(reloadSkip.results[0].accountBoundSkipped, true);
   assert.equal(reloadSkip.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
   // Second-tier skip: CI_HAS_HETZNER_ACCOUNT=true but HCLOUD_TOKEN unset.
@@ -325,7 +418,7 @@ test('platform-docker-compose-host v1.1.4 env vars declared and compose-stack dr
   delete process.env.HCLOUD_TOKEN;
   try {
     const secondTier = await runProbe('real-account-minimal-stack-up', { CI_HAS_HETZNER_ACCOUNT: 'true' });
-    await assertRowsCarry7dShape(secondTier.results, 'stack-up second-tier skip');
+    await assertRowsCarry7dShape(secondTier.results, 'real-account-minimal-stack-up', 'stack-up second-tier skip');
     assert.equal(secondTier.results[0].accountBoundSkipped, true);
     assert.equal(secondTier.results[0].reason, 'HCLOUD_TOKEN');
   } finally {
@@ -347,4 +440,70 @@ test('platform-docker-compose-host probe-utils empty results FAIL with detail ex
   const row = emptyResultsFail('AC-any');
   assert.equal(row.detail, 'no checks ran');
   assert.equal(row.verdict, 'fail');
+});
+
+// Per-probe requirement map: negative proof for v1.1.10.
+// A synthetic counting row from a MAPPED probe is accepted only when
+// its identifier has the right shape AND every required observation
+// is present in the evidence tree (deep-search); missing fields, a
+// non-vendor identifier value, or cross-probe combinations FAIL.
+const HEX64 = '8ee04e01c2e53b3c8840c0cd843f5856c09a09e081eabc59c98c660dc99bca93';
+test('compose anatomy per-probe map: valid upClean row accepted (containerId deep under observedSecretModes)', async () => {
+  const row = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: {
+    serverId: 165553938,
+    observedNames: ['rcf-lite-throwaway-caddy', 'rcf-lite-throwaway-web'],
+    observedSecretModes: {
+      observations: [{ service: 'web', containerId: HEX64, mode: '400' }],
+    },
+  } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-minimal-stack-up'), true);
+});
+test('compose anatomy per-probe map: valid secretShape row accepted', async () => {
+  const row = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: '400', mountPath: '/run/secrets/web-token' } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-minimal-stack-up'), true);
+});
+test('compose anatomy per-probe map: valid reload-burst row accepted (fields nested under evidence.burst)', async () => {
+  const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
+    serverId: 165550539,
+    burst: { total: 6192, twoXx: 6192, drops: 1, overlapCount: 225, clockDomain: 'server' },
+  } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
+});
+test('compose anatomy per-probe map: row missing a required observation FAILS', async () => {
+  // upClean without observedSecretModes:
+  const bad = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { containerId: HEX64, observedNames: ['x'] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /observedSecretModes missing/);
+  // reload-burst without overlapCount:
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 1, clockDomain: 'server' } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /overlapCount missing/);
+});
+test('compose anatomy per-probe map: cross-probe combination of fields FAILS', async () => {
+  // reload-burst tuple carried under minimal-stack-up produces no containerId; FAILS on identity.
+  const bad = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
+  // stack-up secretShape id + observedNames declared as a reload-burst row FAILS on required tuple.
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { containerId: HEX64, mode: '400' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /identifier serverId .* missing or malformed/);
+});
+test('compose anatomy per-probe map: non-hex64 containerId FAILS shape check', async () => {
+  const bad = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: 'rcf-lite-throwaway-web', mode: '400' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
+  const bad2 = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64.slice(0, 32), mode: '400' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
+});
+test('compose anatomy per-probe map: reload-burst clockDomain must equal "server"', async () => {
+  const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 165550539, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 1, clockDomain: 'runner' } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), /clockDomain must equal .server./);
+});
+test('compose anatomy per-probe map: UNMAPPED probe producing a counting row FAILS', async () => {
+  const bad = { anchorAcId: 'AC-composeHost-healthcheckLint', verdict: 'pass', evidence: { containerId: HEX64, mode: '400' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'compose-config-lint'), /UNMAPPED in PROBE_REQUIREMENTS/);
+});
+test('compose anatomy per-probe map: nested reload-burst tuple under evidence.burst is found by deep search', async () => {
+  const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
+    serverId: 165550539,
+    warm: { statusCode: 200 },
+    burst: { total: 6192, twoXx: 6192, drops: 0, overlapCount: 225, clockDomain: 'server' },
+  } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
 });

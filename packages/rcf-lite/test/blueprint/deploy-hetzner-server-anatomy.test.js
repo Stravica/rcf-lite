@@ -37,75 +37,95 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Strict inline row shape (semantic, not key-name allow-list):
-//   (a) an honest skip: accountBoundSkipped === true AND reason is
-//       exactly one of the declared gate variables in the fixture
-//       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty VENDOR-MINTED IDENTIFIER
-//       and a non-empty ROW-SPECIFIC DERIVED OBSERVATION.
+// Per-probe requirement map (v1.1.10). Every counting row (a row
+// that is not `accountBoundSkipped`, not `notObservableHere`, and
+// not `conformanceOnly`) must belong to a probe declared in
+// `PROBE_REQUIREMENTS`, match one of its declared rows by
+// `anchorAcId`, and carry the row rule's REQUIRED identifier
+// (with shape check) plus every REQUIRED observation field in its
+// evidence tree. A row from a mapped probe that is missing one of
+// these fields FAILS; a row from an UNMAPPED probe (or a mapped
+// probe with an unknown `anchorAcId`) FAILS on the spot - unmapped
+// probes may only emit skip / conformanceOnly / notObservableHere
+// rows.
 //
-// Vendor-minted identifier: one of a small explicit set of fields
-// whose value was minted by the vendor API for this row (a
-// vendor-returned server id, snapshot id, firewall id, image id,
-// vendor request id, or a 64-hex Docker container id from
-// `docker inspect`). Nothing else counts: probe-computed hashes,
-// event names, file paths, service or manifest names, container
-// names the runner chose, and probe inputs are derived context,
-// never identity. There is no supplied/echo path for this family:
-// a value the probe supplied is not evidence that the engine
-// echoed it back with vendor-minted state, and the pair is
-// therefore not an identifier.
+// Identifier shape checks:
+//   - vendorId: a positive integer or a non-empty numeric string
+//     (`^[0-9]+$`), as the vendor API returns for a resource id.
+//     `serverId`, `snapshotId`, `firewallId`, `imageId`,
+//     `vendorRequestId` and `requestId` all use this shape.
+//   - hex64: a 64-character hex string (`^[a-f0-9]{64}$`, case
+//     insensitive), as `docker inspect --format '{{.Id}}'` returns
+//     for a Docker container id.
 //
-// Mock and offline rows have no vendor-minted identifier by nature
-// and are always `conformanceOnly` de-claims with `anchorAcId: null`
-// and a `limitation` string naming the shipped AC clause they do
-// not observe; identity and observation checks apply to anchored
-// (counting) rows only.
+// Observation fields are located by a DEEP search into the row's
+// `evidence` tree, so a required field nested under (for example)
+// `evidence.burst` or `evidence.observedSecretModes.observations`
+// still counts. Arbitrary cross-probe combinations of fields fail:
+// a row anchored to a provision AC must carry the provision
+// observations, not (say) `baselineChecks`. Generic keys
+// (`observed`, `port`, `protocol`, `direction`, bare `id` or
+// `resourceId`) are not part of any probe's rule; a
+// supplied/echoed pair is not evidence.
 //
-// Row-specific derived observation: for each counting probe on this
-// blueprint the field(s) that constitute its observation are named
-// below, and only those satisfy the observation half. Generic
-// fields (`observed`, `port`, `protocol`, `direction`) do not
-// count.
+// Deploy probe rules (this file):
+//   real-account-throwaway-server-provision / AC-37103-1
+//     identifier: serverId (vendorId)
+//     required: primaryIpv4, location
+//   real-account-cloud-init-hardened / AC-37105-1
+//     identifier: serverId (vendorId)
+//     required: baselineChecks; one of [exitStatus, cloudInit]
+//       (the live record carries the exit status under
+//       cloudInit.code alongside the six baseline outputs).
+//   real-account-snapshot-on-demand / AC-37108-1
+//     identifier: snapshotId (vendorId)
+//     required: postCreateSnapshotIds, postTeardownSnapshotIds
 //
-//   provision: `primaryIpv4` and `location` returned by the vendor
-//   cloud-init hardened: `exitStatus` on `cloud-init status --wait`
-//     plus the six baseline-check excerpts under `baselineChecks`
-//   snapshot on demand: `postCreateSnapshotIds` (id present after
-//     create) and `postTeardownSnapshotIds` (id absent after
-//     teardown), sampled via `hcloud image list`
+// Unmapped probes on this blueprint (offline / mock; every row
+// must be conformanceOnly or account-bound-skipped):
+//   hcloud-dry-run-mock, manifest-schema-validate,
+//   cloud-init-render-lint
 //
-//   `notObservableHere` is reserved for browser-only ACs. The
-//   deploy-hetzner-server blueprint has no browser-only ACs, so
-//   BROWSER_ONLY_ACS is EMPTY and any notObservableHere row FAILS.
-//   `conformanceOnly` rows must carry a `limitation` string whose
-//   first token is a shipped AC id in the blueprint user stories.
-// A row that only carries `{probeName, reason}` never counts, and a
-// numeric identity value of zero is not an observation.
-const ENGINE_MINTED_ID_FIELDS = new Set([
-  // Vendor-minted or resource ids returned by the vendor API (or,
-  // for the compose blueprint, the 64-hex `containerId` from
-  // `docker inspect`). Generic `id` and `resourceId` are NOT
-  // accepted; a counting row must carry the resource-specific field.
-  'serverId', 'snapshotId', 'firewallId', 'imageId',
-  'containerId', 'vendorRequestId', 'requestId',
-]);
-const DERIVED_OBSERVATION_FIELDS = new Set([
-  // provision (AC-37103-*): vendor-returned resource shape
-  'primaryIpv4', 'location',
-  // cloud-init hardened (AC-37105-*): cloud-init status exit and
-  // six baseline-check bodies
-  'exitStatus', 'baselineChecks', 'sshReadiness',
-  // snapshot on demand (AC-37108-*): id present-then-absent
-  'postCreateSnapshotIds', 'postTeardownSnapshotIds',
-  'postCreateSnapshotCarriedId', 'postProvisionServerIds',
-  'postTeardownServerIds',
-  // Support fields for the counting-row observations above
-  'wallClockTime', 'bodyExcerpt', 'tailExcerpt', 'statusCode',
-  // Skip-row / offline conformanceOnly rows still need at least
-  // one derived observation to satisfy the shape check when they
-  // are wrongly anchored; keep a small tail here for that.
-  'eventCount', 'renderedByteLength',
+// `notObservableHere` remains reserved for browser-only ACs; the
+// deploy-hetzner-server blueprint has no browser-only ACs, so
+// BROWSER_ONLY_ACS is EMPTY and any notObservableHere row FAILS.
+// `conformanceOnly` rows must carry a `limitation` whose first
+// token is a shipped AC id. A row that only carries
+// `{probeName, reason}` never counts.
+const PROBE_REQUIREMENTS = {
+  'real-account-throwaway-server-provision': {
+    rows: [
+      {
+        anchorAcId: 'AC-37103-1',
+        identifier: { field: 'serverId', shape: 'vendorId' },
+        requiredAll: ['primaryIpv4', 'location'],
+        requiredAnyOf: [],
+      },
+    ],
+  },
+  'real-account-cloud-init-hardened': {
+    rows: [
+      {
+        anchorAcId: 'AC-37105-1',
+        identifier: { field: 'serverId', shape: 'vendorId' },
+        requiredAll: ['baselineChecks'],
+        requiredAnyOf: [['exitStatus', 'cloudInit']],
+      },
+    ],
+  },
+  'real-account-snapshot-on-demand': {
+    rows: [
+      {
+        anchorAcId: 'AC-37108-1',
+        identifier: { field: 'snapshotId', shape: 'vendorId' },
+        requiredAll: ['postCreateSnapshotIds', 'postTeardownSnapshotIds'],
+        requiredAnyOf: [],
+      },
+    ],
+  },
+};
+const UNMAPPED_PROBES_CONFORMANCE_ONLY = new Set([
+  'hcloud-dry-run-mock', 'manifest-schema-validate', 'cloud-init-render-lint',
 ]);
 // Browser-only ACs are the only ones that may legitimately carry a
 // notObservableHere row. The deploy-hetzner-server blueprint ships
@@ -143,46 +163,117 @@ function isNonEmpty(v) {
   if (typeof v === 'boolean') return v === true;
   return false;
 }
-async function assertRowsCarry7dShape(rows, label) {
-  assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
+function isPresent(v) {
+  return v !== undefined && v !== null;
+}
+function isVendorId(v) {
+  if (typeof v === 'number') return Number.isInteger(v) && v > 0;
+  if (typeof v === 'string') return /^[0-9]+$/.test(v) && v !== '0';
+  return false;
+}
+function isHex64(v) {
+  return typeof v === 'string' && /^[a-f0-9]{64}$/i.test(v);
+}
+function checkIdShape(shape, value) {
+  if (shape === 'vendorId') return isVendorId(value);
+  if (shape === 'hex64') return isHex64(value);
+  return false;
+}
+function deepFind(node, fieldName, visited) {
+  const seen = visited || new Set();
+  if (node === null || typeof node !== 'object' || seen.has(node)) return undefined;
+  seen.add(node);
+  if (Array.isArray(node)) {
+    for (const it of node) {
+      const found = deepFind(it, fieldName, seen);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  }
+  if (Object.prototype.hasOwnProperty.call(node, fieldName)) return node[fieldName];
+  for (const k of Object.keys(node)) {
+    const found = deepFind(node[k], fieldName, seen);
+    if (found !== undefined) return found;
+  }
+  return undefined;
+}
+// Enforce the per-probe requirement map on ONE counting row.
+// Throws an Error naming the missing field / shape mismatch, so
+// callers (the anatomy walker AND the negative-proof tests below)
+// can convert into an assertion failure with context.
+function validateCountingRowAgainstMap(row, probeName) {
+  const bundle = PROBE_REQUIREMENTS[probeName];
+  if (!bundle) {
+    if (UNMAPPED_PROBES_CONFORMANCE_ONLY.has(probeName)) {
+      throw new Error(`${probeName}: this probe is UNMAPPED in PROBE_REQUIREMENTS; only skip / conformanceOnly / notObservableHere rows are permitted, but a counting row was produced: ${JSON.stringify(row).slice(0, 300)}`);
+    }
+    throw new Error(`${probeName}: probe is not declared in PROBE_REQUIREMENTS nor UNMAPPED_PROBES_CONFORMANCE_ONLY; add it before shipping a counting row: ${JSON.stringify(row).slice(0, 300)}`);
+  }
+  const rule = bundle.rows.find((r) => r.anchorAcId === row.anchorAcId);
+  if (!rule) {
+    throw new Error(`${probeName}: counting row anchors ${JSON.stringify(row.anchorAcId)}, which is not declared in PROBE_REQUIREMENTS for this probe; declared: ${bundle.rows.map((r) => r.anchorAcId).join(', ')}`);
+  }
+  const ev = (row.evidence && typeof row.evidence === 'object') ? row.evidence : {};
+  const idValue = deepFind(ev, rule.identifier.field);
+  if (!checkIdShape(rule.identifier.shape, idValue)) {
+    throw new Error(`${probeName} / ${rule.anchorAcId}: identifier ${rule.identifier.field} (shape ${rule.identifier.shape}) missing or malformed; got ${JSON.stringify(idValue)}`);
+  }
+  for (const obs of rule.requiredAll) {
+    const v = deepFind(ev, obs);
+    if (!isPresent(v)) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: required observation ${obs} missing or empty in evidence tree`);
+    }
+  }
+  for (const group of rule.requiredAnyOf) {
+    const some = group.some((f) => isPresent(deepFind(ev, f)));
+    if (!some) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] present in evidence tree`);
+    }
+  }
+  return true;
+}
+async function assertRowsCarry7dShape(rows, probeName, label) {
+  const displayLabel = label ?? probeName;
+  assert.ok(Array.isArray(rows) && rows.length > 0, `${displayLabel}: no results returned`);
   const shipped = await loadShippedAcs();
   for (const r of rows) {
     if (r.accountBoundSkipped === true) {
-      assert.equal(typeof r.reason, 'string', `${label}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
-      assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${label}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(typeof r.reason, 'string', `${displayLabel}: skip row must carry a string reason: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.ok(DECLARED_SKIP_VARS.has(r.reason), `${displayLabel}: skip reason ${JSON.stringify(r.reason)} is not a declared gate variable in the fixture README env-vars section: ${JSON.stringify(r).slice(0, 300)}`);
       continue;
     }
     if (r.notObservableHere) {
       const ac = r.notObservableHere && r.notObservableHere.ac;
-      assert.ok(BROWSER_ONLY_ACS.has(ac), `${label}: notObservableHere is reserved for browser-only ACs; deploy-hetzner-server has NONE, so any notObservableHere row FAILS anatomy. Row claims ac=${JSON.stringify(ac)}: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.ok(BROWSER_ONLY_ACS.has(ac), `${displayLabel}: notObservableHere is reserved for browser-only ACs; deploy-hetzner-server has NONE, so any notObservableHere row FAILS anatomy. Row claims ac=${JSON.stringify(ac)}: ${JSON.stringify(r).slice(0, 300)}`);
     }
     if (r.conformanceOnly) {
-      assert.equal(typeof r.limitation, 'string', `${label}: conformanceOnly row must carry a limitation string: ${JSON.stringify(r).slice(0, 300)}`);
-      assert.equal(r.anchorAcId, null, `${label}: conformanceOnly row must carry anchorAcId: null: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(typeof r.limitation, 'string', `${displayLabel}: conformanceOnly row must carry a limitation string: ${JSON.stringify(r).slice(0, 300)}`);
+      assert.equal(r.anchorAcId, null, `${displayLabel}: conformanceOnly row must carry anchorAcId: null: ${JSON.stringify(r).slice(0, 300)}`);
       const m = r.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
-      assert.ok(m, `${label}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
-      assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on deploy-hetzner-server`);
+      assert.ok(m, `${displayLabel}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
+      assert.ok(shipped.has(m[1]), `${displayLabel}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on deploy-hetzner-server`);
       // conformanceOnly rows attest to a limitation, not a live
       // observation; identity and observation checks are for
-      // anchored rows only.
+      // counting rows only.
       continue;
     }
-    const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
-    const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    assert.ok(engineIdKeysPresent.length > 0, `${label}: row evidence lacks a vendor-minted identifier (serverId, snapshotId, firewallId, imageId, containerId, vendorRequestId or requestId returned by the vendor API); no supplied/echo path exists for this family. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a row-specific derived observation (see the per-probe observation fields at the top of this file: primaryIpv4/location for provision, exitStatus/baselineChecks for cloud-init hardened, postCreateSnapshotIds/postTeardownSnapshotIds for snapshot on demand); generic fields like 'observed', 'port', 'protocol' do not count. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    // Counting row: enforce per-probe requirement map (v1.1.10).
+    try {
+      validateCountingRowAgainstMap(r, probeName);
+    } catch (e) {
+      assert.fail(`${displayLabel}: ${e.message}`);
+    }
   }
 }
 
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.9');
+  assert.equal(bp.version, '1.1.10');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
-  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock', 'hcloud-dry-run-mock');
   // AC-37101-1 is no longer credited by the offline mock (mock ids
   // are not vendor-minted): the sole-reader and provisionerReady
   // clauses land on a conformanceOnly de-claim whose limitation
@@ -223,7 +314,7 @@ test('deploy-hetzner-server AC-11101-1 manifest schema shape valid', async () =>
     for (const f of required) assert.ok(f in doc, `manifest ${name} missing ${f}`);
   }
   const out = await runProbe('manifest-schema-validate');
-  await assertRowsCarry7dShape(out.results, 'manifest-schema-validate');
+  await assertRowsCarry7dShape(out.results, 'manifest-schema-validate', 'manifest-schema-validate');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `manifest-schema-validate should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
   // Per-property de-claim: at least one row limits AC-37106-1
@@ -237,7 +328,7 @@ test('deploy-hetzner-server AC-11101-1 manifest schema shape valid', async () =>
 
 test('deploy-hetzner-server AC-11102-1 manifest applies to mocked provision', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
-  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock', 'hcloud-dry-run-mock');
   // The mock-path row that observes the hetznerServerProvisioned
   // event shape is de-claimed (anchorAcId: null, conformanceOnly,
   // limitation names AC-37103-1) because the AC requires the
@@ -261,7 +352,7 @@ test('deploy-hetzner-server AC-11201-1 cloud-init render baseline present', asyn
   assert.match(tmpl, /fail2ban/);
   assert.match(tmpl, /50unattended-upgrades/);
   const out = await runProbe('cloud-init-render-lint');
-  await assertRowsCarry7dShape(out.results, 'cloud-init-render-lint');
+  await assertRowsCarry7dShape(out.results, 'cloud-init-render-lint', 'cloud-init-render-lint');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `cloud-init-render-lint should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
 });
@@ -273,7 +364,7 @@ test('deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe d
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   assert.match(readme, /six ssh baseline checks/);
   const out = await runProbe('real-account-cloud-init-hardened', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  await assertRowsCarry7dShape(out.results, 'real-account-cloud-init-hardened skip');
+  await assertRowsCarry7dShape(out.results, 'real-account-cloud-init-hardened', 'real-account-cloud-init-hardened skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
@@ -301,14 +392,14 @@ test('deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe de
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
   const out = await runProbe('real-account-snapshot-on-demand', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  await assertRowsCarry7dShape(out.results, 'real-account-snapshot-on-demand skip');
+  await assertRowsCarry7dShape(out.results, 'real-account-snapshot-on-demand', 'real-account-snapshot-on-demand skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
 test('deploy-hetzner-server AC-11501-1 lifecycle events metadata only', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
-  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock', 'hcloud-dry-run-mock');
   // AC-37109-1 is no longer credited by the offline mock (mock ids
   // are not vendor-minted): the event-secrecy scan lands on a
   // conformanceOnly de-claim whose limitation starts with
@@ -384,7 +475,7 @@ test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name varia
     assert.ok(section.includes('`' + v + '`'), 'deploy-hetzner-server declared env vars table missing ' + v);
   }
   const provisionSkip = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'false' });
-  await assertRowsCarry7dShape(provisionSkip.results, 'provision skip');
+  await assertRowsCarry7dShape(provisionSkip.results, 'real-account-throwaway-server-provision', 'provision skip');
   assert.equal(provisionSkip.results[0].accountBoundSkipped, true);
   assert.equal(provisionSkip.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
   assert.match(provisionSkip.results[0].detail, /set-but-not-true/);
@@ -393,7 +484,7 @@ test('deploy-hetzner-server v1.1.4 env vars declared and skip reasons name varia
   delete process.env.HCLOUD_TOKEN;
   try {
     const provSecondTier = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'true' });
-    await assertRowsCarry7dShape(provSecondTier.results, 'provision second-tier skip');
+    await assertRowsCarry7dShape(provSecondTier.results, 'real-account-throwaway-server-provision', 'provision second-tier skip');
     assert.equal(provSecondTier.results[0].accountBoundSkipped, true);
     assert.equal(provSecondTier.results[0].reason, 'HCLOUD_TOKEN');
   } finally {
@@ -415,4 +506,60 @@ test('deploy-hetzner-server probe-utils empty results FAIL with detail exactly "
   const row = emptyResultsFail('AC-any');
   assert.equal(row.detail, 'no checks ran');
   assert.equal(row.verdict, 'fail');
+});
+
+// Per-probe requirement map: negative proof for v1.1.10.
+// A synthetic counting row from a MAPPED probe is accepted only when
+// its identifier has the right shape AND every required observation
+// is present in the evidence tree (deep-search); missing fields, a
+// non-vendor identifier value, or cross-probe combinations FAIL.
+test('deploy anatomy per-probe map: valid provision row accepted', async () => {
+  const row = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197', location: 'fsn1' } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-throwaway-server-provision'), true);
+});
+test('deploy anatomy per-probe map: valid cloud-init row accepted (cloudInit.code satisfies exitStatus/cloudInit anyOf)', async () => {
+  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: 'pass' }] } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-cloud-init-hardened'), true);
+});
+test('deploy anatomy per-probe map: valid snapshot row accepted (empty postTeardownSnapshotIds proves absence)', async () => {
+  // The live-record semantic: postTeardownSnapshotIds must be
+  // PRESENT to prove the check ran; an empty array is a valid
+  // observation (snapshot destroyed and absent from inventory).
+  const row = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779], postTeardownSnapshotIds: [] } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-snapshot-on-demand'), true);
+  // A missing key (undefined) still FAILS.
+  const bad = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-snapshot-on-demand'), /postTeardownSnapshotIds missing/);
+});
+test('deploy anatomy per-probe map: row missing a required observation FAILS', async () => {
+  // provision missing location:
+  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /location missing/);
+  // cloud-init missing baselineChecks:
+  const bad2 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, cloudInit: { code: 0 } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-cloud-init-hardened'), /baselineChecks missing/);
+});
+test('deploy anatomy per-probe map: cross-probe combination of fields FAILS', async () => {
+  // baselineChecks + primaryIpv4 supplied under the provision probe is a cross-probe combination;
+  // the provision rule requires location, which is absent.
+  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 165530661, primaryIpv4: '167.233.16.197', baselineChecks: [{ id: 'x', verdict: 'pass' }] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /location missing/);
+  // snapshot rule anchored under provision probe FAILS (wrong AC for this probe):
+  const bad2 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 430760779, postCreateSnapshotIds: [430760779], postTeardownSnapshotIds: [999] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-throwaway-server-provision'), /not declared in PROBE_REQUIREMENTS/);
+});
+test('deploy anatomy per-probe map: non-vendor identifier value FAILS shape check', async () => {
+  const bad = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 'not-a-vendor-id', primaryIpv4: '1.2.3.4', location: 'fsn1' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-throwaway-server-provision'), /identifier serverId .* missing or malformed/);
+  const bad2 = { anchorAcId: 'AC-37103-1', verdict: 'pass', evidence: { serverId: 0, primaryIpv4: '1.2.3.4', location: 'fsn1' } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-throwaway-server-provision'), /identifier serverId .* missing or malformed/);
+});
+test('deploy anatomy per-probe map: UNMAPPED probe producing a counting row FAILS', async () => {
+  const bad = { anchorAcId: 'AC-37101-1', verdict: 'pass', evidence: { serverId: 165530661 } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'hcloud-dry-run-mock'), /UNMAPPED in PROBE_REQUIREMENTS/);
+});
+test('deploy anatomy per-probe map: nested observation under evidence.<group> is found by deep search', async () => {
+  // Simulate a shape where observations live nested under a sub-object.
+  const row = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 165530756, results: { cloudInit: { code: 0 }, baselineChecks: [{ id: 'ok', verdict: 'pass' }] } } };
+  assert.equal(validateCountingRowAgainstMap(row, 'real-account-cloud-init-hardened'), true);
 });
