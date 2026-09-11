@@ -27,7 +27,7 @@ export default async function runProbe() {
     const WIZ = 'application-forms-wizard';
     const KEY = 'contact-details.fullName';
 
-    // Round 1: OP_A writes then overwrites.
+    // Step 1: OP_A writes then overwrites.
     const seed1a = { operatorId: OP_A, wizardSlug: WIZ, step: 'contact-details', field: 'fullName', value: 'Probe Runner' };
     const seed2a = { operatorId: OP_A, wizardSlug: WIZ, step: 'contact-details', field: 'fullName', value: 'Second Value' };
     const post1a = await fetch(`${fixture.baseUrl}/drafts`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(seed1a) });
@@ -41,7 +41,7 @@ export default async function runProbe() {
     const persistedA2 = drafts2a.fields && drafts2a.fields[KEY] === seed2a.value;
     const overwrittenA = persistedA1 && persistedA2 && drafts1a.fields[KEY] !== drafts2a.fields[KEY];
 
-    // Round 2: OP_B writes a different value under the same key; if
+    // Step 2: OP_B writes a different value under the same key; if
     // scope is honoured, OP_A's value stays "Second Value" and OP_B
     // gets its own.
     const seedB = { operatorId: OP_B, wizardSlug: WIZ, step: 'contact-details', field: 'fullName', value: 'Op B Value' };

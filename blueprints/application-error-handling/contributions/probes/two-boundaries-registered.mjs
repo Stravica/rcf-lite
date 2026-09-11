@@ -96,12 +96,12 @@ export default async function runProbe() {
     });
     const exitOk = childExit.code === 1;
     // Confirm the emission was captured too (READ from a fresh
-    // in-process fixture is not applicable; we assert via the child
+    // in-process fixture is not applicable; assertion is via the child
     // stdout marker instead: the fixture's /crash-real returns
     // willExit:1 in its body).
     const responseOk = /willExit/.test(childExit.stdout) || /willExit/.test(childExit.stderr);
     // Synth a fake response shape for the evidence helper's request
-    // id slot: the child owned the id; we record the exit code as
+    // id slot: the child owned the id; the probe records the exit code as
     // the derived output and preserve a body excerpt.
     const bodyExcerpt = childExit.stdout || childExit.stderr || 'child produced no output';
     results.push({
@@ -121,7 +121,7 @@ export default async function runProbe() {
 
     // Row 3 (REQ-004): the injected companion saw the framework
     // record. Reads the /companion-invocations endpoint on the
-    // fixture we started for row 1; the injected companion's
+    // fixture started for row 1; the injected companion's
     // invocations are the derived output.
     const ci = await fetch(`${fixture.baseUrl}/companion-invocations`);
     const ciBody = await ci.text();
