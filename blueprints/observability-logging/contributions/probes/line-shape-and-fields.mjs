@@ -51,7 +51,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-1',
     verdict: allOk ? 'pass' : 'fail',
     detail: `${AC1} call site  -  observed ${lines.length} lines on stdout; each JSON.parses and carries the seven minimum fields as non-empty strings (timestamp parses ISO-8601); expected=${LEVEL_ORDER.length}; typeFailures=${JSON.stringify(typeFailures)}.`,
-    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level), typeFailures, observedEmissions: perLevelIds, correlationIdEchoed: perLevelIds[0]?.correlationId },
+    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level), typeFailures, observedEmissions: perLevelIds, suppliedInput: perLevelIds[0]?.correlationId, line: parsed[0] },
   });
   outBuf.length = 0; errBuf.length = 0;
   const bigCid = randomUUID();
@@ -63,7 +63,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-3',
     verdict: bParsed && bParsed.id === '9007199254740993' && errBuf.join('').length === 0 ? 'pass' : 'fail',
     detail: `${AC3} value  -  observed BigInt folded to '${bParsed?.id}' on the emitted line; stderr='${errBuf.join('').trim()}'.`,
-    evidence: { line: bParsed, bodyExcerpt: bLines[0], correlationIdEchoed: bigCid },
+    evidence: { line: bParsed, bodyExcerpt: bLines[0], suppliedInput: bigCid },
   });
   outBuf.length = 0; errBuf.length = 0;
   const collCid = randomUUID();
@@ -76,7 +76,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-4',
     verdict: cParsed?.level === 'info' && cParsed?.timestamp === '2026-09-11T12:00:00.000Z' && errCombined.includes("'level'") && errCombined.includes("'timestamp'") ? 'pass' : 'fail',
     detail: `${AC4} correlationId,  -  observed factory-authored level=${cParsed?.level} timestamp=${cParsed?.timestamp}; stderr excerpt='${errCombined.trim()}' names the reserved keys.`,
-    evidence: { line: cParsed, bodyExcerpt: cLine, stderr: errCombined, correlationIdEchoed: collCid },
+    evidence: { line: cParsed, bodyExcerpt: cLine, stderr: errCombined, suppliedInput: collCid },
   });
   return { results, extra: { envDeclared: ['RCF_FIXTURE_LOGGER_CORRELATION_HEADER'], capturedStdoutBytes: outBuf.reduce((n, s) => n + s.length, 0) } };
 }

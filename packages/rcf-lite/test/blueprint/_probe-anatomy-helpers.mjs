@@ -226,24 +226,42 @@ export function resultHasEvidenceShape(r, opts = {}) {
   ];
   // Pairing rule (the strict-evidence contract, identifier pairing):
   // a probe-supplied value only qualifies as an identifier when the
-  // engine's echo of THAT specific value is recorded alongside it.
+  // engine's echo of THAT specific value is recorded alongside it -
+  // i.e. the supplied and the echo are recorded on the same row AND
+  // are EQUAL. A bare non-empty companion is not enough; a log line
+  // paired only with `correlationIdEchoed` or a `linesExcerpt`
+  // substring does not qualify without the explicit supplied value
+  // present on the row and equal to the echoed one.
+  //
   // Bare `suppliedInput`, `headerName`, `workflowName`, `line.correlationId`,
   // `observed[].supplied` and `observedRoundTrips[].supplied` on their
   // own are supplied inputs or on-wire reads without pairing evidence,
-  // and are refused. Legitimate pairs:
-  //   - suppliedInput + (derivedResponseHeader | echoedHeader | line.correlationId matching suppliedInput)
-  //   - headerName    + (derivedResponseHeader | echoedHeader)
-  //   - workflowName  + (runId returned for the same run record)
-  //   - line.correlationId matching a probe-supplied correlationId on
-  //     the same emission (suppliedInput or a per-emission entry in
-  //     observedEmissions), or matching `correlationIdEchoed`
-  //   - `observed[].supplied`     paired with echoedHeader | requestId | echoedBody in the same item
-  //   - `observedRoundTrips[].supplied` paired with headerEcho | requestId in the same item
+  // and are refused. Legitimate pairs (equality required, not merely
+  // presence, for every value-to-value comparison):
+  //   - suppliedInput === derivedResponseHeader
+  //   - suppliedInput === echoedHeader
+  //   - suppliedInput === line.correlationId
+  //   - suppliedInput === acShapedExcerpt.correlationId
+  //   - headerName    + (derivedResponseHeader | echoedHeader)  (metadata
+  //                     name paired with an engine-echoed value; header
+  //                     names never equal the echoed value they carry)
+  //   - workflowName  + runId                                    (name
+  //                     paired with an engine-minted run id for the same
+  //                     run record)
+  //   - observed[].supplied === observed[].echoedHeader
+  //     (also observed[].supplied === observed[].echoedBody)
+  //   - observed.supplied === observed.echoedHeader              (single-
+  //                     object variant; also === observed.echoedBody)
+  //   - observedRoundTrips[].supplied === observedRoundTrips[].headerEcho
+  //   - a supplied correlation value === observedEmissions[].correlationId
+  //   - variedInput === observed.echoedHeader                    (in the
+  //                     extraId branch below)
   const suppliedEchoPair = (
     (nonEmptyString(ev.suppliedInput) && (
-      nonEmptyString(ev.derivedResponseHeader)
-      || nonEmptyString(ev.echoedHeader)
+      (nonEmptyString(ev.derivedResponseHeader) && ev.derivedResponseHeader === ev.suppliedInput)
+      || (nonEmptyString(ev.echoedHeader) && ev.echoedHeader === ev.suppliedInput)
       || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId) && ev.line.correlationId === ev.suppliedInput)
+      || (nonEmptyObj(ev.acShapedExcerpt) && nonEmptyString(ev.acShapedExcerpt.correlationId) && ev.acShapedExcerpt.correlationId === ev.suppliedInput)
     ))
     || (nonEmptyString(ev.headerName) && (nonEmptyString(ev.derivedResponseHeader) || nonEmptyString(ev.echoedHeader)))
     || (nonEmptyString(ev.workflowName) && (positiveNumber(ev.runId) || nonEmptyString(ev.runId)))
@@ -252,14 +270,19 @@ export function resultHasEvidenceShape(r, opts = {}) {
     nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId)
     && (
       (nonEmptyString(ev.suppliedInput) && ev.line.correlationId === ev.suppliedInput)
-      || (nonEmptyString(ev.correlationIdEchoed) && ev.line.correlationId === ev.correlationIdEchoed)
-      || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => o?.correlationId === ev.line.correlationId))
+      || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => nonEmptyString(o?.correlationId) && o.correlationId === ev.line.correlationId))
     )
   );
   const observedNestedId = (
-    (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.supplied) && (nonEmptyString(o?.echoedHeader) || nonEmptyString(o?.requestId) || nonEmptyString(o?.echoedBody))))
-    || (nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.supplied) && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.requestId) || nonEmptyString(ev.observed.echoedBody)))
-    || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.supplied) && (nonEmptyString(o?.headerEcho) || nonEmptyString(o?.requestId))))
+    (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.supplied) && (
+      (nonEmptyString(o?.echoedHeader) && o.echoedHeader === o.supplied)
+      || (nonEmptyString(o?.echoedBody) && o.echoedBody === o.supplied)
+    )))
+    || (nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.supplied) && (
+      (nonEmptyString(ev.observed.echoedHeader) && ev.observed.echoedHeader === ev.observed.supplied)
+      || (nonEmptyString(ev.observed.echoedBody) && ev.observed.echoedBody === ev.observed.supplied)
+    ))
+    || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.supplied) && nonEmptyString(o?.headerEcho) && o.headerEcho === o.supplied))
   );
   let hasIdentifier = idCandidates.some((v) => nonEmptyString(v) || positiveNumber(v)) || suppliedEchoPair || lineCorrelationPair || observedNestedId;
 
@@ -327,18 +350,13 @@ export function resultHasEvidenceShape(r, opts = {}) {
   // an identifier must be a request id, resource id (uuid / message
   // id / row id / server id / file path of a created artefact) or a
   // vendor-returned id. What remains after the identifier pairing rule is:
-  //   - variedInput paired with observed.echoedHeader (a single-value pair);
-  //   - correlationIdEchoed proven on the wire (matches line.correlationId
-  //     or appears verbatim in linesExcerpt) - the bare value alone is a
-  //     supplied read and no longer qualifies.
+  //   - variedInput paired with observed.echoedHeader by equality (a
+  //     single-value pair). A bare `correlationIdEchoed`, or a
+  //     `linesExcerpt` substring, does not qualify - the row must
+  //     record the explicit supplied value alongside the echoed one
+  //     (handled in `suppliedEchoPair` / `lineCorrelationPair` above).
   const extraId = (
-    (nonEmptyString(ev.variedInput) && nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.echoedHeader) && ev.observed.echoedHeader === ev.variedInput)
-    || (
-      nonEmptyString(ev.correlationIdEchoed) && (
-        (nonEmptyObj(ev.line) && ev.line.correlationId === ev.correlationIdEchoed)
-        || (nonEmptyArray(ev.linesExcerpt) && ev.linesExcerpt.some((s) => typeof s === 'string' && s.includes(ev.correlationIdEchoed)))
-      )
-    )
+    nonEmptyString(ev.variedInput) && nonEmptyObj(ev.observed) && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.echoedHeader) && ev.observed.echoedHeader === ev.variedInput
   );
   if (extraId) hasIdentifier = true;
 

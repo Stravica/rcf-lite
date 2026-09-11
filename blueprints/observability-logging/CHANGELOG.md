@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.7 - 2026-09-11
+
+Identifier-pairing rule tightened to equality. `line-shape-and-fields` now records each AC-15101-1/-3/-4 row's supplied correlation id under `suppliedInput` (with the parsed log-line object under `line`) so the row can be verified as `line.correlationId === suppliedInput`; the AC-15101-1 row also carries the observedEmissions list its detail already names. `correlation-id-flow` AC-15102-1 header-absent row records the fixture-minted UUID as an engine-minted `requestId` (with `absentSuppliedInput: true` for readability) instead of a `<no-header>` sentinel that could not equal the echoed value.
+
 ## 1.3.6 - 2026-09-11
 
 redaction-boundary probe now emits one payload per recommended-default category (credential, token, bearer, pii.email, pii.name, pii.address) inside its own runWithCorrelation(randomUUID(), ...) so each row records a per-emission correlation id paired to the emitted line's correlationId; every one of the six mandatory categories AC-15103-1 names is now anchored to AC-15103-1 with derived redacted value AND payload-unmutated observation. The AC-15103-4-shaped row is emitted in its own correlation context and records the supplied/emitted correlationId pair alongside userId preservation and pii.email redaction. Anatomy helper strict-evidence contract tightened: bare `suppliedInput`, `headerName`, `workflowName`, `line.correlationId`, `observed[].supplied` and `observedRoundTrips[].supplied` no longer satisfy the identifier half on their own; each must be paired with the engine's echo of that value (echoedHeader, derivedResponseHeader, a returned resource id, or a log-line correlationId equal to the value the probe supplied).

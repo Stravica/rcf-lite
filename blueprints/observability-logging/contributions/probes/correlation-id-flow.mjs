@@ -116,7 +116,15 @@ export default async function runProbe() {
       verdict: absentOk ? 'pass' : 'fail',
       detail: `${AC1}  -  observed inbound with NO '${HEADER}' header -> body.correlationId='${mintedId}' (v4?${mintedIsV4}) mintedFromAbsent=${absentBody?.mintedFromAbsent} header echo='${echoedInHeader}' log-line.correlationId='${absentLine?.correlationId}' sequence=${absentLine?.sequence}; observes AC-15102-1 header-absent clause via minted v4 UUID appearing on the emitted line.`,
       evidence: {
-        suppliedInput: '<no-header>',
+        // No header supplied on this request; the fixture mints a v4
+        // UUID and echoes it verbatim on the response header, the
+        // response body and the emitted log line. The minted id is
+        // recorded as a request id (engine-minted lane) because it is
+        // the engine's response identifier, not a probe-supplied
+        // input; a bare `suppliedInput` sentinel would break the
+        // identifier-pairing equality rule.
+        requestId: mintedId,
+        absentSuppliedInput: true,
         derivedLogLine: absentLine ? { message: absentLine.message, correlationId: absentLine.correlationId, path: absentLine.path, sequence: absentLine.sequence, hash: absentLine.hash } : null,
         derivedResponseHeader: echoedInHeader,
         derivedResponseBodySequence: absentBody?.sequence,
