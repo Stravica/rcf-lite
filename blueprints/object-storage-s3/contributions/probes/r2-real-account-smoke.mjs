@@ -54,7 +54,7 @@ export const DECLARED_ENV = Object.freeze([
 const AC28108_1_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim';
 const AC28108_2_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint';
 const REQ001_FIRST8 = 'The application accesses object storage through a single';
-const REQ002_LIMITATION = 'object-storage-s3-REQ-002: REQ-002 states the putObject/getObject/deleteObject/listObjects verb contract on typed keys; this row records bucket-level lifecycle (CreateBucket / DeleteBucket / ListBuckets), which is not a property REQ-002 states';
+const AC28108_2_BUCKET_LIMITATION = 'AC-28108-2: Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint URL, bucket name, and credential pair (all from security-secrets-management), when the r2-real-account-smoke.mjs shim runs, then the facade opens against the R2 bucket, puts a 1 KiB payload, gets it back byte-equal, deletes the temporary object on exit, and the report carries aggregateVerdict pass with accountBoundSkipped absent or false. Not observed on this row: the AC states an object-level round trip on an already-provisioned bucket; this row records bucket-level lifecycle (CreateBucket / DeleteBucket / ListBuckets), which the AC does not state.';
 
 function skipResult(reason) {
   return {
@@ -137,9 +137,9 @@ export default async function runProbe() {
       results.push({
         anchorAcId: null,
         conformanceOnly: true,
-        limitation: REQ002_LIMITATION,
+        limitation: AC28108_2_BUCKET_LIMITATION,
         verdict: 'fail',
-        detail: `conformanceOnly (${REQ002_LIMITATION}) - ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL`,
+        detail: `conformanceOnly (${AC28108_2_BUCKET_LIMITATION}) - ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL`,
         evidence: { scratchBucket, error: err && err.message, endpointHostRedacted },
       });
       throw err;
@@ -148,11 +148,11 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: REQ002_LIMITATION,
+      limitation: AC28108_2_BUCKET_LIMITATION,
       verdict: seenAfterCreate ? 'pass' : 'fail',
       detail: seenAfterCreate
-        ? `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff on bucket-level lifecycle)`
-        : `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
+        ? `conformanceOnly (${AC28108_2_BUCKET_LIMITATION}) - scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff on bucket-level lifecycle)`
+        : `conformanceOnly (${AC28108_2_BUCKET_LIMITATION}) - scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
       evidence: {
         scratchBucket,
         seenAfterCreate,
@@ -284,11 +284,11 @@ export default async function runProbe() {
       results.push({
         anchorAcId: null,
         conformanceOnly: true,
-        limitation: REQ002_LIMITATION,
+        limitation: AC28108_2_BUCKET_LIMITATION,
         verdict: teardownOk ? 'pass' : 'fail',
         detail: teardownOk
-          ? `conformanceOnly (${REQ002_LIMITATION}) - scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets (deleteBucket http=${teardown.deleteBucket.httpStatus}, listBuckets http=${teardown.bucketAbsentAfter.httpStatus})`
-          : `conformanceOnly (${REQ002_LIMITATION}) - bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}; facadeClose=${JSON.stringify(teardown.facadeClose)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
+          ? `conformanceOnly (${AC28108_2_BUCKET_LIMITATION}) - scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets (deleteBucket http=${teardown.deleteBucket.httpStatus}, listBuckets http=${teardown.bucketAbsentAfter.httpStatus})`
+          : `conformanceOnly (${AC28108_2_BUCKET_LIMITATION}) - bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}; facadeClose=${JSON.stringify(teardown.facadeClose)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
         evidence: {
           teardown,
           scratchBucket,

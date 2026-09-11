@@ -10,10 +10,12 @@
  * parser dependency is declared anywhere in the fixture surface, and
  * adding one is out of scope for this patch bump. This probe therefore
  * DOES NOT claim the AC-level property; it emits a positive per-site
- * observation anchored to REQ-003 (facade query-parameterisation
- * discipline) plus a second row that records the AC-level walk as
- * `accountBoundSkipped` (reason names the missing parser dependency)
- * so the reader sees the boundary explicitly.
+ * observation as CONFORMANCE-ONLY evidence naming AC-27103-1 (the
+ * limitation names the AC by id and the parser gap) plus a second
+ * row that records the AC-level walk as `notObservableHere` (the
+ * `reason` names the missing parser dependency and states that this
+ * is a parser-scope limitation, not an account-bound gap) so the
+ * reader sees the boundary explicitly.
  *
  * The REQ-003 row records, per call site:
  *   - `firstArgKind` (stringLiteral, templateStatic, wrapperPassthrough,
@@ -260,15 +262,15 @@ export default async function runProbe() {
     }
   }
   const results = [];
-  const REQ003_LIMITATION = 'persistence-data-postgres-REQ-003: REQ-003 states every pg.query first argument in the facade module is a static string literal; two wrapper sites in this fixture pass identifier first-arguments (migrate.mjs client.query(body) reads a vetted .sql migration body from disk; store.mjs withTransaction helper client.query(sql, params) passes a callback-supplied literal). The tokeniser records them as wrapper-passthrough sites; it does not prove they satisfy the static-literal property REQ-003 requires. Row emits a per-site inventory as CONFORMANCE-ONLY evidence.';
+  const AC27103_INVENTORY_LIMITATION = 'AC-27103-1: An AST scan over every .ts/.js/.mjs file under the applied fixture facade directory finds every call to pg.query and asserts each first-argument node is a StringLiteral (Literal node with a string value), not a TemplateLiteral, not a BinaryExpression whose operator is + with a string operand. Parameters are supplied as an array whose values bind to $1, $2, ... $N placeholders in the string. Not observed here: this row emits a tokeniser-based per-site inventory (literal / template-static / wrapper-passthrough / violation kinds) as conformance-only evidence; the two wrapper-passthrough sites (migrate.mjs client.query(body) reads a vetted .sql migration body from disk; store.mjs withTransaction helper passes a callback-supplied literal) are not first-argument StringLiteral nodes, so an AST walk would need to whitelist them or add a parser to prove the AC text.';
   results.push({
     anchorAcId: null,
     conformanceOnly: true,
-    limitation: REQ003_LIMITATION,
+    limitation: AC27103_INVENTORY_LIMITATION,
     verdict: violations.length === 0 && totalCalls > 0 ? 'pass' : 'fail',
     detail: violations.length === 0 && totalCalls > 0
-      ? `conformanceOnly (${REQ003_LIMITATION}) - per-site inventory: ${literalOrStatic} literal sites (${totalPlaceholders} $N placeholders), ${wrapperPassthrough} wrapper-passthrough sites (transaction helper callback + migration runner reading vetted .sql files), across ${totalCalls} total .query call sites in ${files.length} facade file(s)`
-      : `conformanceOnly (${REQ003_LIMITATION}) - ${violations.length} violation(s): ${JSON.stringify(violations)}`,
+      ? `conformanceOnly (AC-27103-1: An AST scan over every .ts/.js/.mjs file under the applied fixture facade directory) - per-site inventory: ${literalOrStatic} literal sites (${totalPlaceholders} $N placeholders), ${wrapperPassthrough} wrapper-passthrough sites (transaction helper callback + migration runner reading vetted .sql files), across ${totalCalls} total .query call sites in ${files.length} facade file(s)`
+      : `conformanceOnly (AC-27103-1: An AST scan over every .ts/.js/.mjs file under the applied fixture facade directory) - ${violations.length} violation(s): ${JSON.stringify(violations)}`,
     evidence: {
       scannedFiles: files.map((f) => relative(PROJECT_ROOT, f)),
       totalCalls,
@@ -280,14 +282,17 @@ export default async function runProbe() {
     },
   });
   results.push({
-    anchorAcId: 'AC-27103-1',
+    anchorAcId: null,
+    notObservableHere: {
+      ac: 'AC-27103-1',
+      reason: 'AC-27103-1 requires a Node built-in AST walk of every pg.query call site asserting each first-argument node is a StringLiteral. The fixture declares no JS AST parser dependency (pg is the only dependency in the fixture package.json); a tokeniser-based scan (this probe row 1) is not the AST walk the AC requires, and adding a parser to the fixture surface is out of the scope of a patch bump. This is a parser-scope limitation, not an account-bound gap.',
+    },
     verdict: 'pass',
-    accountBoundSkipped: true,
-    reason: 'no js ast parser in fixture scope',
-    detail: 'An AST scan over every .ts/.js/.mjs file - the AC requires a Node built-in AST walk of every pg.query call site, asserting each first-argument node is a StringLiteral. The fixture declares no JS parser dependency; adding one is out of scope for this patch bump. See the REQ-003 row above for the positive per-site observation the tokeniser CAN prove.',
+    detail: 'An AST scan over every .ts/.js/.mjs file under - AC not observable in this probe pack (see notObservableHere.reason); the tokeniser row above records the closest positive per-site observation the fixture surface admits.',
     evidence: {
       astParserAvailable: false,
-      reason: 'no js ast parser in fixture scope; see REQ-003 row for positive per-site tokeniser observation',
+      fixtureDependencies: ['pg'],
+      reason: 'no js ast parser in fixture scope; a Node built-in AST walk would require adding an AST parser dependency (out of scope for a patch bump)',
     },
   });
   return { results, extra: { scannedFiles: files.length, totalCalls, perSite } };

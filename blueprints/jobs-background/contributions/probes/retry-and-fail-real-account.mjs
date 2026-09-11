@@ -7,8 +7,10 @@
  * and https://developers.cloudflare.com/queues/configuration/dead-letter-queues/).
  *
  * Flow:
- *   1. Mint a scratch queue `qa-e-jobs-q-<short>` and DLQ
- *      `qa-e-jobs-dlq-<short>` via the CF REST Queues API.
+ *   1. Mint a scratch queue (name minted at run time from a probe
+ *      constant plus a short random suffix; see the code below and
+ *      the run-notes.md in the evidence tree for the resolved name)
+ *      and a paired DLQ via the CF REST Queues API.
  *   2. Attach an `http_pull` consumer to the main queue with
  *      max_retries=3, dead_letter_queue=<dlq name>, visibility timeout
  *      short (2 s) so the observation window stays tight. Attach an
@@ -26,19 +28,23 @@
  * Skip on missing account creds: exactly one variable per skip row.
  *
  * Row anchoring:
- *  - The account-bound skip row anchors REQ-004 (jobs retry contract)
- *    with `accountBoundSkipped: true` and a `reason` naming the one
- *    unset gate variable.
- *  - The attempts-counter row observes REQ-004's "applied queue
- *    redelivers per its own retry contract; the jobs runtime records
- *    the attempt counter" property; it anchors REQ-004.
- *  - The provisioning row, the DLQ landing row and the teardown row
- *    are recorded as `conformanceOnly: true` with `anchorAcId: null`:
- *    no jobs-background AC or REQ states queue provisioning, DLQ
- *    landing (that concern lives on the messaging-queue blueprint per
- *    AC-30109-1 which pins the in-memory driver, not this real
- *    account), or queue teardown. The `limitation` field on each row
- *    names the closest shipped AC/REQ and explains the gap.
+ *  - The account-bound skip row anchors AC-jobs-retryOnHandlerFailure
+ *    (the shipped retry AC) with `accountBoundSkipped: true` and a
+ *    `reason` naming the one unset gate variable.
+ *  - Every non-skip row is CONFORMANCE-ONLY with `anchorAcId: null`
+ *    and a `limitation` naming the nearest shipped AC id and the
+ *    property it states that this probe does NOT positively observe:
+ *      - Provisioning row -> AC-jobs-requiresQueue (states init-time
+ *        queue requirement; this row records vendor queue creation).
+ *      - Attempts-counter row -> AC-jobs-retryOnHandlerFailure (states
+ *        the applied in-memory queue redelivery and three jobStarted
+ *        events on the sink; this row records Cloudflare Queues'
+ *        vendor attempts counter, not the sink events).
+ *      - DLQ landing row -> AC-30109-1 (states DLQ-producer invocation
+ *        on the in-memory driver; this row records real Cloudflare
+ *        Queues DLQ landing).
+ *      - Teardown row -> AC-jobs-requiresQueue (no AC states scratch
+ *        teardown; this row records DELETE + post-run absence).
  */
 
 export const accountBound = true;
@@ -50,17 +56,19 @@ export const DECLARED_ENV = Object.freeze([
 
 const API_BASE = 'https://api.cloudflare.com/client/v4';
 
-const REQ004_FIRST8 = 'A handler that throws a retryable error causes';
-const REQ004_PROVISION_LIMITATION = 'jobs-background-REQ-004: REQ-004 states handler-retryable-throw plus applied-queue redelivery and attempt-counter behaviour; this row records vendor queue and DLQ provisioning, which no jobs-background AC or REQ states';
-const REQ004_DLQ_LIMITATION = 'jobs-background-REQ-004: REQ-004 does not state DLQ landing (only terminal jobFailed after maxAttempts); AC-30109-1 states DLQ-producer invocation on the in-memory driver, not on real Cloudflare Queues; this row records real DLQ landing, which no jobs-background AC or REQ states';
-const REQ004_TEARDOWN_LIMITATION = 'jobs-background-REQ-004: REQ-004 does not state scratch-resource teardown; this row records real Cloudflare Queues DELETE + post-run absence, which no jobs-background AC or REQ states';
+const AC_RETRY_FIRST8 = 'With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture,';
+const AC_REQUIRES_FIRST8 = 'On a fresh init scratch project with NO';
+const AC_PROVISION_LIMITATION = 'AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records vendor queue and DLQ provisioning on a real Cloudflare account, which the AC does not state (its property is CLI refusal at init time, not vendor-side queue creation).';
+const AC_ATTEMPTS_LIMITATION = 'AC-jobs-retryOnHandlerFailure: With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture, the retry-and-fail probe schedules a job whose handler throws a retryable error; the applied in-memory queue redelivers the message per retryPolicy.maxAttempts. Three jobStarted events fire on the sink with the same jobId and attempts counter 1, 2, 3; after the third failure jobFailed fires with a terminal error code and no further re-delivery follows. Not observed on this row: the AC states applied in-memory queue redelivery and jobStarted-on-sink events; this row records the vendor Cloudflare Queues attempts counter across pulls [0,1,2,3], not the jobStarted sink events the AC states.';
+const AC_DLQ_LIMITATION = 'AC-30109-1: The retry-and-fail probe report, after the three failing attempts, records the DLQ-producer invocation on the in-memory driver via a jobDeadLettered event carrying the terminal job id and the original job body. Not observed on this row: the AC pins the in-memory driver DLQ-producer invocation; this row records real Cloudflare Queues DLQ landing (backlog + payload-id match on a real DLQ), which the AC does not state.';
+const AC_TEARDOWN_LIMITATION = 'AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records scratch Cloudflare Queues DELETE + post-run absence via the account queue listing, which no jobs-background AC or REQ states; the AC used as a signpost is the nearest shipped AC on queue existence.';
 
 function skipRow(reason) {
   return {
     results: [{
-      anchorReqId: 'jobs-background-REQ-004',
+      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
       verdict: 'pass',
-      detail: `${REQ004_FIRST8} - accountBound: skipped (${reason})`,
+      detail: `${AC_RETRY_FIRST8} - accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
       evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
@@ -128,9 +136,9 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: REQ004_PROVISION_LIMITATION,
+      limitation: AC_PROVISION_LIMITATION,
       verdict: 'pass',
-      detail: `conformanceOnly (${REQ004_PROVISION_LIMITATION}) - provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
+      detail: `conformanceOnly (${AC_PROVISION_LIMITATION}) - provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
       evidence: {
         queueName, dlqName,
         primaryConsumerResponseMetadata: primaryConsumer.json && primaryConsumer.json.result,
@@ -199,11 +207,23 @@ export default async function runProbe() {
       : mm.body.jobId))).filter(Boolean);
     const idMatch = dlqPayloadIds.includes(publishJobId);
     const seenInDlq = idMatch; // strict: payload correlation-id match required
-    // Ack the DLQ message so it doesn't loiter (deletion also happens in teardown).
+    // Ack the DLQ message so it doesn't loiter (deletion also happens
+    // in teardown). Ack failures are NOT swallowed - they land on
+    // teardown.dlqAcks so a failure surfaces on the teardown row.
+    teardown.dlqAcks = [];
     for (const mm of dlqMsgs) {
-      await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
-        acks: [{ lease_id: mm.lease_id }],
-      }).catch(() => {});
+      try {
+        const ack = await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
+          acks: [{ lease_id: mm.lease_id }],
+        });
+        teardown.dlqAcks.push({
+          lease_id: mm.lease_id,
+          httpStatus: ack.httpStatus,
+          success: !!(ack.json && ack.json.success === true),
+        });
+      } catch (err) {
+        teardown.dlqAcks.push({ lease_id: mm.lease_id, ok: false, error: err && err.message });
+      }
     }
 
     // Assertion 1: observed attempts sequence includes non-zero values
@@ -220,11 +240,13 @@ export default async function runProbe() {
     const sawRetries = uniqueAttempts.length === expectedAttempts.length
       && uniqueAttempts.every((v, i) => v === expectedAttempts[i]);
     results.push({
-      anchorReqId: 'jobs-background-REQ-004',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: AC_ATTEMPTS_LIMITATION,
       verdict: sawRetries ? 'pass' : 'fail',
       detail: sawRetries
-        ? `${REQ004_FIRST8} - Cloudflare Queues incremented the attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
-        : `${REQ004_FIRST8} - did not observe the attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
+        ? `conformanceOnly (AC-jobs-retryOnHandlerFailure: With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture) - Cloudflare Queues incremented the vendor attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
+        : `conformanceOnly (AC-jobs-retryOnHandlerFailure: With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture) - did not observe the vendor attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
       evidence: { attemptsObserved, uniqueAttempts, messageId: messageIdObserved, queueName },
     });
 
@@ -233,11 +255,11 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: REQ004_DLQ_LIMITATION,
+      limitation: AC_DLQ_LIMITATION,
       verdict: seenInDlq ? 'pass' : 'fail',
       detail: seenInDlq
-        ? `conformanceOnly (${REQ004_DLQ_LIMITATION}) - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, payload-id-match=true for ${publishJobId})`
-        : `conformanceOnly (${REQ004_DLQ_LIMITATION}) - published payload jobId ${publishJobId} did not appear on the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} observedDlqPayloadIds=${JSON.stringify(dlqPayloadIds)} primary pulls=${attemptsObserved.length}`,
+        ? `conformanceOnly (${AC_DLQ_LIMITATION}) - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, payload-id-match=true for ${publishJobId})`
+        : `conformanceOnly (${AC_DLQ_LIMITATION}) - published payload jobId ${publishJobId} did not appear on the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} observedDlqPayloadIds=${JSON.stringify(dlqPayloadIds)} primary pulls=${attemptsObserved.length}`,
       evidence: { dlqName, dlqId, dlqBacklog, dlqTransportMessageIds: dlqMsgs.map((mm) => mm.id), dlqPayloadJobIds: dlqPayloadIds, expectedPayloadJobId: publishJobId, primaryTransportMessageId: messageIdObserved, payloadIdMatch: idMatch, dlqPollAttempts: dlqPullAttempts },
     });
   } finally {
@@ -259,28 +281,68 @@ export default async function runProbe() {
         teardown.deleteDlq = { queueId: dlqId, ok: false, error: err && err.message };
       }
     }
-    // Confirm absence via a queue list
+    // Confirm absence via a queue list. Assert HTTP status 200 AND
+    // json.success === true before treating the listing as authoritative;
+    // record both on the teardown so an unsuccessful response never
+    // normalises to an empty list (absence must be positive evidence).
+    // Cloudflare Queues DELETE is asynchronous - the listing can still
+    // carry the queue for a few seconds after DELETE 200. Poll the
+    // listing up to ~30 s (six 5-second sleeps) before accepting the
+    // result as authoritative. The final observed listing (with the
+    // number of polls it took) lands on teardown.listing.
+    let listingPolls = 0;
+    let list = null;
     try {
-      const list = await cf('GET', `/accounts/${accountId}/queues`, token);
-      const names = ((list.json && list.json.result) || []).map((q) => q.queue_name);
-      teardown.primaryAbsent = { ok: !names.includes(queueName), listedCount: names.length };
-      teardown.dlqAbsent = { ok: !names.includes(dlqName), listedCount: names.length };
+      for (let i = 0; i < 6; i += 1) {
+        listingPolls += 1;
+        list = await cf('GET', `/accounts/${accountId}/queues`, token);
+        const httpOk = list.httpStatus === 200;
+        const successFlag = !!(list.json && list.json.success === true);
+        if (!httpOk || !successFlag) break;
+        const nms = (list.json.result || []).map((q) => q.queue_name);
+        if (!nms.includes(queueName) && !nms.includes(dlqName)) break;
+        await sleep(5000);
+      }
+      const httpOk = list && list.httpStatus === 200;
+      const successFlag = !!(list && list.json && list.json.success === true);
+      const listingOk = httpOk && successFlag;
+      const names = listingOk
+        ? ((list.json && list.json.result) || []).map((q) => q.queue_name)
+        : [];
+      teardown.listing = {
+        httpStatus: list ? list.httpStatus : null,
+        success: successFlag,
+        listingOk,
+        listedCount: names.length,
+        pollsTaken: listingPolls,
+        errors: list && list.json && list.json.errors ? list.json.errors : null,
+      };
+      teardown.primaryAbsent = listingOk
+        ? { ok: !names.includes(queueName), listedCount: names.length, httpStatus: list.httpStatus, success: successFlag }
+        : { ok: false, listedCount: names.length, httpStatus: list.httpStatus, success: successFlag, note: 'listing unsuccessful; absence cannot be asserted' };
+      teardown.dlqAbsent = listingOk
+        ? { ok: !names.includes(dlqName), listedCount: names.length, httpStatus: list.httpStatus, success: successFlag }
+        : { ok: false, listedCount: names.length, httpStatus: list.httpStatus, success: successFlag, note: 'listing unsuccessful; absence cannot be asserted' };
     } catch (err) {
+      teardown.listing = { httpStatus: null, success: false, listingOk: false, error: err && err.message };
       teardown.primaryAbsent = { ok: false, error: err && err.message };
       teardown.dlqAbsent = { ok: false, error: err && err.message };
     }
+    const dlqAcksOk = Array.isArray(teardown.dlqAcks)
+      && teardown.dlqAcks.every((a) => a.success === true);
     const teardownOk = teardown.deletePrimary && teardown.deletePrimary.ok
       && teardown.deleteDlq && teardown.deleteDlq.ok
       && teardown.primaryAbsent && teardown.primaryAbsent.ok
-      && teardown.dlqAbsent && teardown.dlqAbsent.ok;
+      && teardown.dlqAbsent && teardown.dlqAbsent.ok
+      && dlqAcksOk;
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: REQ004_TEARDOWN_LIMITATION,
+      limitation: AC_TEARDOWN_LIMITATION,
       verdict: teardownOk ? 'pass' : 'fail',
       detail: teardownOk
-        ? `conformanceOnly (${REQ004_TEARDOWN_LIMITATION}) - scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
-        : `conformanceOnly (${REQ004_TEARDOWN_LIMITATION}) - queue teardown FAILED: ${JSON.stringify(teardown)}`,
+        ? `conformanceOnly (${AC_TEARDOWN_LIMITATION}) - scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
+        : `conformanceOnly (${AC_TEARDOWN_LIMITATION}) - queue teardown FAILED: ${JSON.stringify(teardown)}`,
       evidence: { teardown },
     });
   }

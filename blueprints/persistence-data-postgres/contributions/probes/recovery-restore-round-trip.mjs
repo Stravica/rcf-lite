@@ -313,20 +313,20 @@ export default async function runProbe() {
   }
   // Fold teardown outcomes into the result set (authoring-standard rule 5).
   const failedTeardown = teardown.filter((t) => !t.ok);
-  // AC-27105-1 states rowset round-trip and backupExported; REQ-005
-  // states the recovery model. Neither states cleanup, so this row
-  // is CONFORMANCE-ONLY: it records the operational teardown of the
-  // scratch restore container and artefact so a reader can see the
-  // run left no state behind, without claiming an AC or REQ property.
-  const REQ005_TEARDOWN_LIMITATION = 'persistence-data-postgres-REQ-005: REQ-005 states the two-path recovery model; AC-27105-1 states rowset round-trip + backupExported; neither states scratch-resource teardown, so this operational cleanup row is CONFORMANCE-ONLY';
+  // AC-27105-1 states rowset round-trip + backupExported. It does not
+  // state scratch-resource teardown, so this row is CONFORMANCE-ONLY:
+  // it records the operational teardown of the scratch restore
+  // container and artefact so a reader can see the run left no state
+  // behind, without claiming the AC's rowset property.
+  const AC27105_TEARDOWN_LIMITATION = 'AC-27105-1: Given a live Postgres containing a small fixture rowset, when the shipped recovery runner exports a backup, then backupExported fires with an artefact path and completedAt timestamp and a subsequent restore against a throwaway container yields byte-equal rowset content. Not observed on this row: this row records only the operational teardown (docker rm of the throwaway restore container plus removal of the pg_dump artefact tree) that follows the AC-observing rows; the AC-observing evidence is on the earlier rows in this same probe.';
   results.push({
     anchorAcId: null,
     conformanceOnly: true,
-    limitation: REQ005_TEARDOWN_LIMITATION,
+    limitation: AC27105_TEARDOWN_LIMITATION,
     verdict: failedTeardown.length === 0 ? 'pass' : 'fail',
     detail: failedTeardown.length === 0
-      ? `conformanceOnly (${REQ005_TEARDOWN_LIMITATION}) - teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
-      : `conformanceOnly (${REQ005_TEARDOWN_LIMITATION}) - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+      ? `conformanceOnly (AC-27105-1: Given a live Postgres containing a small fixture) - teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
+      : `conformanceOnly (AC-27105-1: Given a live Postgres containing a small fixture) - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
     evidence: { teardown },
   });
   return { results, extra: { teardown, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT } };

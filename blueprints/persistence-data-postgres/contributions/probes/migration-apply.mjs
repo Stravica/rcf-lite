@@ -23,13 +23,47 @@
  *
  * Anchors AC-27102-1 (three forward-only .sql migrations apply one
  * file one transaction; migrationsApplied fires with the filename
- * list; per-migration transaction isolation).
+ * list) and AC-27109-1 (a failing migration rolls back its own
+ * transaction, runner exits non-zero with the failing filename in the
+ * runner's diagnostic output). The induced-failure phase runs the
+ * migration runner AS A CHILD PROCESS so the OS exit code and stderr
+ * are observed from the parent, not a `didExit` field the runner
+ * returns.
  *
  * Cleanup: leaves the applied schema for downstream probes.
  */
 
+import { spawn } from 'node:child_process';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { applyAll } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs';
 import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const MIGRATE_CLI = resolve(HERE, '..', '..', '..', '..', 'packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs');
+
+// Spawn the runner as a child process so the OS-level exit code and
+// stderr are observed, not a didExit field the process returns. AC-27109-1
+// requires "the runner exits non-zero" - a spawned child is the only
+// way to observe that clause honestly.
+function spawnRunner({ simulateFailure }) {
+  return new Promise((resolveP) => {
+    const env = { ...process.env };
+    if (simulateFailure) env.SIMULATE_MIGRATION_FAILURE = 'true';
+    else delete env.SIMULATE_MIGRATION_FAILURE;
+    const child = spawn(process.execPath, [MIGRATE_CLI], {
+      env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (b) => { stdout += b.toString(); });
+    child.stderr.on('data', (b) => { stderr += b.toString(); });
+    child.on('close', (code, signal) => {
+      resolveP({ exitCode: code, signal, stdout, stderr });
+    });
+  });
+}
 
 async function resetSchema(url) {
   const store = createStore({ connectionUrl: url });
@@ -109,26 +143,16 @@ export default async function runProbe() {
   }
 
   // --- Phase 2: per-migration transaction-isolation induced failure ---
-  // Reset and re-run with SIMULATE_MIGRATION_FAILURE=true so 002 fails
-  // in flight. Positive proof: 001 committed and its schema effect is
-  // visible; 002 rolled back and its schema effect is absent;
-  // schema_version carries a row for 001 only.
+  // Reset and re-run the migration runner AS A CHILD PROCESS with
+  // SIMULATE_MIGRATION_FAILURE=true so 002 fails in flight. Positive
+  // proof (AC-27109-1 clauses): the child's OS exit code is non-zero,
+  // the failing filename appears in the child's stderr, 001 committed
+  // and its schema effect is visible, 002 rolled back and its schema
+  // effect is absent, schema_version carries a row for 001 only.
   await resetSchema(url);
-  const before = { simulate: process.env.SIMULATE_MIGRATION_FAILURE };
-  process.env.SIMULATE_MIGRATION_FAILURE = 'true';
-  const inducedEvents = [];
-  let thrown = null;
-  try {
-    await applyAll({ connectionUrl: url, onEvent: (e) => inducedEvents.push(e) });
-  } catch (err) {
-    thrown = err;
-  } finally {
-    if (before.simulate === undefined) delete process.env.SIMULATE_MIGRATION_FAILURE;
-    else process.env.SIMULATE_MIGRATION_FAILURE = before.simulate;
-  }
-  const failEvent = inducedEvents.find((e) => e.event === 'migrationApplyFailed');
-  const failingFilename = thrown && thrown.failingFilename;
-  const appliedSoFar = thrown && thrown.appliedSoFar;
+  const childRun = await spawnRunner({ simulateFailure: true });
+  const failingFilename = childRun.stderr.match(/migration failed at (\S+):/);
+  const stderrFailingFilename = failingFilename ? failingFilename[1] : null;
   const store2 = createStore({ connectionUrl: url });
   let atomicityEvidence = null;
   try {
@@ -146,34 +170,38 @@ export default async function runProbe() {
     )).rows : [];
     const svRows = (await pool.query('SELECT filename FROM schema_version ORDER BY filename')).rows;
     atomicityEvidence = {
-      failingFilename,
-      appliedSoFar,
-      migrationApplyFailedEvent: failEvent || null,
+      childExitCode: childRun.exitCode,
+      childSignal: childRun.signal,
+      childStderrExcerpt: childRun.stderr.slice(0, 400),
+      childStdoutExcerpt: childRun.stdout.slice(0, 200),
+      stderrFailingFilename,
       usersExists,
       emailColumnExists: emailUnique,
       uniqueConstraintsOnUsers: constraintRows,
       schemaVersionRows: svRows,
     };
-    // Isolation assertions per AC-27102-1:
-    // 1. 002 rolled back: schema_version has NO row for 002_add_email_unique.sql
+    // Isolation assertions per AC-27109-1:
+    // 1. runner exits non-zero (child OS exit code observed)
+    const exitNonZero = typeof childRun.exitCode === 'number' && childRun.exitCode !== 0;
+    // 2. failing filename in child stderr matches 002_add_email_unique.sql
+    const failingRecorded = stderrFailingFilename === '002_add_email_unique.sql';
+    // 3. 002 rolled back: schema_version has NO row for 002_add_email_unique.sql
     const isolationRolledBack = !svRows.some((r) => r.filename === '002_add_email_unique.sql');
-    // 2. Failing filename recorded on both the thrown error and the event
-    const failingRecorded = failingFilename === '002_add_email_unique.sql'
-      && failEvent && failEvent.filename === '002_add_email_unique.sql';
-    // 3. 001 committed independently: users table exists AND its row is on schema_version
+    // 4. 001 committed independently: users table exists AND its row is on schema_version
     const oneCommitted = usersExists && svRows.some((r) => r.filename === '001_create_users.sql');
-    // 4. The UNIQUE constraint (introduced by 002) is absent, proving 002's DDL rolled back
+    // 5. The UNIQUE constraint (introduced by 002) is absent, proving 002's DDL rolled back
     const uniqueAbsent = constraintRows.length === 0;
-    const isolationPass = isolationRolledBack && failingRecorded && oneCommitted && uniqueAbsent;
-    // Induced-failure row anchors AC-27109-1 (a failing migration rolls
-    // back its own transaction, runner exits non-zero, failing
-    // filename recorded), not the happy-path AC-27102-1.
+    const isolationPass = exitNonZero && failingRecorded && isolationRolledBack && oneCommitted && uniqueAbsent;
+    // Induced-failure row anchors AC-27109-1 (the first file commits,
+    // the second file's transaction rolls back on the invalid statement,
+    // the runner exits non-zero, and the failing filename appears in
+    // the runner's diagnostic output).
     results.push({
       anchorAcId: 'AC-27109-1',
       verdict: isolationPass ? 'pass' : 'fail',
       detail: isolationPass
-        ? `Given a migrations directory whose second file contains - induced failure at 002 proves per-migration transaction isolation: 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), failing filename recorded on the thrown error and on migrationApplyFailed`
-        : `Given a migrations directory whose second file contains - atomicity checks did NOT all pass: isolationRolledBack=${isolationRolledBack} failingRecorded=${failingRecorded} oneCommitted=${oneCommitted} uniqueAbsent=${uniqueAbsent}`,
+        ? `Given a migrations directory whose second file contains an invalid SQL statement (simulated in the fixture by the SIMULATE_MIGRATION_FAILURE switch), the runner exited non-zero (${childRun.exitCode}) with '${stderrFailingFilename}' in stderr, 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), only the first file's row on schema_version.`
+        : `Given a migrations directory whose second file contains an invalid SQL statement - AC clauses did NOT all pass: exitNonZero=${exitNonZero} (code=${childRun.exitCode}) failingRecorded=${failingRecorded} (stderr filename=${stderrFailingFilename}) isolationRolledBack=${isolationRolledBack} oneCommitted=${oneCommitted} uniqueAbsent=${uniqueAbsent}`,
       evidence: atomicityEvidence,
     });
   } finally {

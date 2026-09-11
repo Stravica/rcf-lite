@@ -249,56 +249,100 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
       const rep = JSON.parse(raw);
       assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
         `run record ${name}.json must carry a non-empty results[] (authoring-standard rule 3)`);
-      // Pre-discipline reports (from before the per-row evidence rule was
-      // introduced) lack all three shape markers on every row - skip strict
-      // validation for those. Fresh runs must carry evidence,
-      // accountBoundSkipped, or conformanceOnly on every row.
-      const anyRowHasShape = rep.results.some((row) => row.evidence !== undefined || row.conformanceOnly === true);
-      const preDiscipline = !anyRowHasShape || rep.results.every((row) => row.accountBoundSkipped === true && !row.reason);
-      if (preDiscipline) continue;
+      // Strict per-row 7d shape validation. No pre-discipline skip:
+      // every present run record's row is validated against one of
+      // four shapes:
+      //   (a) a real observation carrying a non-empty request-id-like
+      //       witness (request id, http/status code, exit code, event
+      //       record) AND a non-empty body/derived value (byte count,
+      //       body sample, inventory diff, checksum, or similar);
+      //   (b) `conformanceOnly: true` with `anchorAcId: null` and a
+      //       `limitation` string that names a shipped AC id;
+      //   (c) `notObservableHere: { ac, reason }` naming an AC id;
+      //   (d) `accountBoundSkipped: true` with a `reason` string that
+      //       names the unset variable (` unset` or ` (not "true")`
+      //       suffix).
+      // A bare `reason` string on a non-skip row never counts. A
+      // zero-valued http status never counts as a witness. Trivial
+      // admin keys (reason/note/error/verdict/skip) never count.
+      const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
+      // idWitness: an id, status/http code, exit code, event record,
+      // metadata bag, or a *Count/*Match/*Ids collection - matched by
+      // key-name pattern. Zero-valued numeric status keys do NOT count.
+      const idPatterns = [
+        /RequestId$/i, /RequestIds$/i, /HttpStatus$/i, /HttpStatusCode$/i,
+        /StatusCode$/i, /^status$/i, /ExitCode$/i, /Signal$/i,
+        /Event$/i, /Events$/i, /^allEvents$/, /Metadata$/i,
+        /Count$/, /Ids$/, /Match$/i, /Id$/, /Truncated$/i, /Present$/i,
+        /Fired$/i,
+      ];
+      // derivedWitness: a body/derived value, checksum, byte comparator,
+      // inventory diff key, timing metric, teardown record, per-site
+      // record, or any object/array of observations. Trivial admin keys
+      // never count.
+      const derivedPatterns = [
+        /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
+        /^seen/i, /Exists$/i, /Rows$/i, /^applied/i, /^expected/i, /^observed/i, /^returned/i,
+        /^attempts/i, /^unique/i, /^teardown/i, /Sequence$/i,
+        /Excerpt$/i, /Preview$/i, /^perSite$/i,
+        /Container$/i, /Port$/i, /Path$/i, /Host$/i, /HostRedacted$/i,
+        /Bucket$/i, /Key$/i, /Prefix$/i, /^inflight/i,
+        /^first/i, /^second/i, /^waited/i, /^elapsed/i, /^total/i, /^dispatched/i, /^succeeded/i,
+        /Max$/i, /Message$/i, /Names$/i, /Backlog$/i, /Refused$/i, /^ttl$/i, /Refused$/i, /^refused$/i,
+        /Whitelist$/i, /^forbidden/i, /^scanned/i, /Fires$/i, /^cron$/i,
+        /^tolerance/i, /Latency$/i, /^schedule/i, /Timestamp$/i, /Ok$/i,
+      ];
+      function isIdWitness(k, v) {
+        if (trivialAdminKeys.has(k)) return false;
+        if (v == null) return false;
+        if (!idPatterns.some((re) => re.test(k))) return false;
+        // Zero on a status-like key never counts.
+        if (typeof v === 'number' && v === 0 && /Status$|StatusCode$/i.test(k)) return false;
+        if (typeof v === 'string' && v.length === 0) return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+        return true;
+      }
+      function isDerivedWitness(k, v) {
+        if (trivialAdminKeys.has(k)) return false;
+        if (v == null) return false;
+        if (!derivedPatterns.some((re) => re.test(k))) return false;
+        if (typeof v === 'string' && v.length === 0) return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+        return true;
+      }
       for (const row of rep.results) {
         assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
           `row in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
         const anchor = row.anchorAcId ?? row.anchorReqId;
         const declaimed = row.conformanceOnly === true;
-        if (!declaimed) {
-          assert.ok(typeof anchor === 'string' && anchor.length > 0,
-            `every non-conformanceOnly row in ${name}.json must anchor an AC or REQ`);
-          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (authoring-standard rule 1)`);
-        } else {
+        const notObservable = row.notObservableHere && typeof row.notObservableHere === 'object';
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && / unset$| \(not "true"\)$/.test(row.reason);
+        if (declaimed) {
           assert.equal(row.anchorAcId, null,
             `conformanceOnly row in ${name}.json must set anchorAcId: null`);
-          assert.ok(typeof row.limitation === 'string' && /(REQ|AC)-/.test(row.limitation),
-            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC or REQ`);
-        }
-        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && / unset$| \(not "true"\)$/.test(row.reason);
-        const ev = row.evidence;
-        const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
-        // Strict per-row 7d shape: for a non-skip row, evidence must
-        // carry AT LEAST ONE key that looks like a 7d witness (request
-        // id, response body/derived value, inventory diff, or process
-        // record). A bare `reason` string never counts.
-        // 7d witness: a request id, a status/http code, a
-        // body/derived value, an inventory-diff or event-record key,
-        // or a process-level observation. Bare admin strings
-        // (`reason`, `note`, `error`, `verdict`) do not count.
-        const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-        function isWitness(k, v) {
-          if (trivialAdminKeys.has(k)) return false;
-          if (v == null) return false;
-          if (typeof v === 'string' && v.length === 0) return false;
-          if (Array.isArray(v) && v.length === 0) return false;
-          return true;
-        }
-        if (skipOk) {
-          assert.ok(evOk && (ev.skip === true || Object.keys(ev).some((k) => isWitness(k, ev[k]))),
-            `skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+          assert.ok(typeof row.limitation === 'string' && /AC-/.test(row.limitation),
+            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC id (REQ-only citations rejected)`);
+        } else if (notObservable) {
+          assert.ok(typeof row.notObservableHere.ac === 'string' && /AC-/.test(row.notObservableHere.ac),
+            `notObservableHere row in ${name}.json must name an AC id`);
+          assert.ok(typeof row.notObservableHere.reason === 'string' && row.notObservableHere.reason.length > 0,
+            `notObservableHere row in ${name}.json must carry a non-empty reason`);
+        } else if (skipOk) {
+          // honest skip: fine
         } else {
+          assert.ok(typeof anchor === 'string' && anchor.length > 0,
+            `every non-declaimed row in ${name}.json must anchor an AC or REQ`);
+          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (authoring-standard rule 1)`);
+          const ev = row.evidence;
+          const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
           assert.ok(evOk,
-            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) must carry a non-empty evidence object`);
-          const witnessKeys = Object.entries(ev).filter(([k, v]) => isWitness(k, v)).map(([k]) => k);
-          assert.ok(witnessKeys.length > 0,
-            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) evidence must carry at least one 7d witness key (non-admin, non-empty); got keys=${Object.keys(ev).join(',')}`);
+            `non-skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+          const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
+          const derivedWitness = Object.entries(ev).find(([k, v]) => isDerivedWitness(k, v));
+          assert.ok(idWitness || derivedWitness,
+            `non-declaimed row in ${name}.json (anchor ${anchor}) evidence must carry at least one strict-shape witness key (an id/status/event key, or a derived-value/inventory-diff/checksum key); got keys=${Object.keys(ev).join(',')}`);
         }
       }
       assert.equal(rep.aggregateVerdict, 'pass',

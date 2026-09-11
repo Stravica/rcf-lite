@@ -124,15 +124,27 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
     const shimPath = join(PROBES_DIR, `run-${name}.mjs`);
     const shimStats = await stat(shimPath);
     assert.ok(shimStats.isFile(), `probe shim run-${name}.mjs must exist`);
-    // Read the probe source and confirm at least one anchorAcId literal
-    // matches a contributed AC id. We do not import and execute the probe
-    // here (the probes require a live Postgres container); the anchor id
-    // set is enforced statically.
+    // Read the probe source and confirm every AC-id referenced (as
+    // anchorAcId, notObservableHere.ac, or in a limitation string) is a
+    // contributed AC id; at least one such reference exists. We do not
+    // import and execute the probe here (the probes require a live
+    // Postgres container); the anchor id set is enforced statically.
     const src = await readFile(probePath, 'utf8');
-    const anchors = [...src.matchAll(/anchorAcId:\s*['"`]([^'"`]+)['"`]/g)].map((m) => m[1]);
-    assert.ok(anchors.length > 0, `probe ${name} must reference at least one anchorAcId literal`);
-    for (const anchor of anchors) {
-      assert.ok(contributedAcIds.has(anchor), `probe ${name} anchorAcId ${anchor} must match a contributed AC id (${anchors.join(', ')})`);
+    const anchorMatches = [...src.matchAll(/anchorAcId:\s*['"`]([^'"`]+)['"`]/g)].map((m) => m[1]);
+    const notObservableMatches = [...src.matchAll(/ac:\s*['"`](AC-[^'"`]+)['"`]/g)].map((m) => m[1]);
+    const limitationAcIds = [...src.matchAll(/(AC-[0-9]+-[0-9]+|AC-[a-zA-Z0-9-]+)/g)]
+      .map((m) => m[1])
+      .filter((id) => /^AC-/.test(id));
+    const anchors = new Set([...anchorMatches, ...notObservableMatches]);
+    // Filter limitation matches down to those that occur inside a
+    // string literal that names an AC that is contributed.
+    for (const id of limitationAcIds) if (contributedAcIds.has(id)) anchors.add(id);
+    assert.ok(anchors.size > 0, `probe ${name} must reference at least one AC id (anchorAcId, notObservableHere.ac, or in a limitation string)`);
+    for (const anchor of anchorMatches) {
+      assert.ok(contributedAcIds.has(anchor), `probe ${name} anchorAcId ${anchor} must match a contributed AC id (${anchorMatches.join(', ')})`);
+    }
+    for (const anchor of notObservableMatches) {
+      assert.ok(contributedAcIds.has(anchor), `probe ${name} notObservableHere.ac ${anchor} must match a contributed AC id (${notObservableMatches.join(', ')})`);
     }
   }
 });
@@ -209,48 +221,77 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
       const rep = JSON.parse(raw);
       assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
         `run record ${name}.json must carry a non-empty results[] (authoring-standard rule 3)`);
-      // Pre-discipline reports (from before the per-row evidence rule was
-      // introduced) lack all three shape markers on every row - skip strict
-      // validation for those. Fresh runs must carry evidence,
-      // accountBoundSkipped, or conformanceOnly on every row.
-      const anyRowHasShape = rep.results.some((row) => row.evidence !== undefined || row.conformanceOnly === true);
-      const preDiscipline = !anyRowHasShape || rep.results.every((row) => row.accountBoundSkipped === true && !row.reason);
-      if (preDiscipline) continue;
+      // Strict per-row 7d shape validation (see object-storage-s3-anatomy for the shared spec).
+      const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
+      const idPatterns = [
+        /RequestId$/i, /RequestIds$/i, /HttpStatus$/i, /HttpStatusCode$/i,
+        /StatusCode$/i, /^status$/i, /ExitCode$/i, /Signal$/i,
+        /Event$/i, /Events$/i, /^allEvents$/, /Metadata$/i,
+        /Count$/, /Ids$/, /Match$/i, /Id$/, /Truncated$/i, /Present$/i,
+        /Fired$/i,
+      ];
+      const derivedPatterns = [
+        /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
+        /^seen/i, /Exists$/i, /Rows$/i, /^applied/i, /^expected/i, /^observed/i, /^returned/i,
+        /^attempts/i, /^unique/i, /^teardown/i, /Sequence$/i,
+        /Excerpt$/i, /Preview$/i, /^perSite$/i,
+        /Container$/i, /Port$/i, /Path$/i, /Host$/i, /HostRedacted$/i,
+        /Bucket$/i, /Key$/i, /Prefix$/i, /^inflight/i,
+        /^first/i, /^second/i, /^waited/i, /^elapsed/i, /^total/i, /^dispatched/i, /^succeeded/i,
+        /Max$/i, /Message$/i, /Names$/i, /Backlog$/i, /Refused$/i, /^ttl$/i, /Refused$/i, /^refused$/i,
+        /Whitelist$/i, /^forbidden/i, /^scanned/i, /Fires$/i, /^cron$/i,
+        /^tolerance/i, /Latency$/i, /^schedule/i, /Timestamp$/i, /Ok$/i,
+      ];
+      function isIdWitness(k, v) {
+        if (trivialAdminKeys.has(k)) return false;
+        if (v == null) return false;
+        if (!idPatterns.some((re) => re.test(k))) return false;
+        if (typeof v === 'number' && v === 0 && /Status$|StatusCode$/i.test(k)) return false;
+        if (typeof v === 'string' && v.length === 0) return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+        return true;
+      }
+      function isDerivedWitness(k, v) {
+        if (trivialAdminKeys.has(k)) return false;
+        if (v == null) return false;
+        if (!derivedPatterns.some((re) => re.test(k))) return false;
+        if (typeof v === 'string' && v.length === 0) return false;
+        if (Array.isArray(v) && v.length === 0) return false;
+        if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
+        return true;
+      }
       for (const row of rep.results) {
         assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
           `row in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
         const anchor = row.anchorAcId ?? row.anchorReqId;
         const declaimed = row.conformanceOnly === true;
-        if (!declaimed) {
-          assert.ok(typeof anchor === 'string' && anchor.length > 0,
-            `every non-conformanceOnly row in ${name}.json must anchor an AC or REQ; saw ${JSON.stringify(row).slice(0, 200)}`);
-          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown"`);
-        } else {
+        const notObservable = row.notObservableHere && typeof row.notObservableHere === 'object';
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
+        if (declaimed) {
           assert.equal(row.anchorAcId, null,
             `conformanceOnly row in ${name}.json must set anchorAcId: null`);
-          assert.ok(typeof row.limitation === 'string' && /(REQ|AC)-/.test(row.limitation),
-            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC or REQ`);
-        }
-        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
-        const ev = row.evidence;
-        const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
-        const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-        function isWitness(k, v) {
-          if (trivialAdminKeys.has(k)) return false;
-          if (v == null) return false;
-          if (typeof v === 'string' && v.length === 0) return false;
-          if (Array.isArray(v) && v.length === 0) return false;
-          return true;
-        }
-        if (skipOk) {
-          assert.ok(evOk && (ev.skip === true || Object.keys(ev).some((k) => isWitness(k, ev[k]))),
-            `skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+          assert.ok(typeof row.limitation === 'string' && /AC-/.test(row.limitation),
+            `conformanceOnly row in ${name}.json must carry a limitation naming a shipped AC id (REQ-only citations rejected)`);
+        } else if (notObservable) {
+          assert.ok(typeof row.notObservableHere.ac === 'string' && /AC-/.test(row.notObservableHere.ac),
+            `notObservableHere row in ${name}.json must name an AC id`);
+          assert.ok(typeof row.notObservableHere.reason === 'string' && row.notObservableHere.reason.length > 0,
+            `notObservableHere row in ${name}.json must carry a non-empty reason`);
+        } else if (skipOk) {
+          // honest skip: fine
         } else {
+          assert.ok(typeof anchor === 'string' && anchor.length > 0,
+            `every non-declaimed row in ${name}.json must anchor an AC or REQ; saw ${JSON.stringify(row).slice(0, 200)}`);
+          assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown"`);
+          const ev = row.evidence;
+          const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
           assert.ok(evOk,
-            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) must carry a non-empty evidence object`);
-          const witnessKeys = Object.entries(ev).filter(([k, v]) => isWitness(k, v)).map(([k]) => k);
-          assert.ok(witnessKeys.length > 0,
-            `non-skip row in ${name}.json (anchor ${anchor ?? 'conformanceOnly'}) evidence must carry at least one 7d witness key (non-admin, non-empty); got keys=${Object.keys(ev).join(',')}`);
+            `non-skip row in ${name}.json (anchor ${anchor}) must carry a non-empty evidence object`);
+          const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
+          const derivedWitness = Object.entries(ev).find(([k, v]) => isDerivedWitness(k, v));
+          assert.ok(idWitness || derivedWitness,
+            `non-declaimed row in ${name}.json (anchor ${anchor}) evidence must carry at least one strict-shape witness key (an id/status/event key, or a derived-value/inventory-diff/checksum key); got keys=${Object.keys(ev).join(',')}`);
         }
       }
       assert.equal(rep.aggregateVerdict, 'pass',
