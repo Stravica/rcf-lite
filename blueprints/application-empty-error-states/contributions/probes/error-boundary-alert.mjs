@@ -1,5 +1,5 @@
 // application-empty-error-states probe: error-boundary state
-// (AC-22108-1) — the alert region only renders under ?crash=1.
+// (AC-22108-1)  -  the alert region only renders under ?crash=1.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
@@ -46,7 +46,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    fixture.kill();
+    await fixture.kill();
   }
   return { results };
 }

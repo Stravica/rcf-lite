@@ -154,5 +154,6 @@
       "kind": "string",
       "default": "20"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-11T13:54:04Z"
 }

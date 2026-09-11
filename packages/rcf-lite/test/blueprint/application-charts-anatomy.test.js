@@ -155,23 +155,33 @@ test('application-charts criterion-e run records carry rule-7d evidence when pre
     const { readdir } = await import('node:fs/promises');
     entries = await readdir(reportsDir);
   } catch (_) {
-    // Run records are not committed; when the anatomy test runs on
-    // a fresh checkout there is nothing to inspect. This is not a
-    // failure — the pack files test above is the shape gate.
-    return;
+    // Reports must exist for this check to mean anything (master
+    // brief addendum 2026-09-11 point 8: the reviewer reads the
+    // records; so do you). A missing reports directory is a fail:
+    // run 'pnpm test:blueprint-probes' or 'node blueprints/application-charts/contributions/probes/run-*.mjs'
+    // before the anatomy suite.
+    assert.fail('reports directory absent: ' + reportsDir + ' - run the probes first');
   }
-  for (const filename of entries) {
-    if (!filename.endsWith('.json')) continue;
+  const jsonEntries = entries.filter((f) => f.endsWith('.json'));
+  assert.ok(jsonEntries.length > 0, 'no report files in ' + reportsDir);
+  for (const filename of jsonEntries) {
     const raw = await readFile(join(reportsDir, filename), 'utf8');
     const doc = JSON.parse(raw);
     assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    assert.notEqual(doc.aggregateVerdict, 'fail', filename + ' aggregateVerdict=fail');
     for (const r of doc.results) {
-      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
-        && (typeof r.evidence.requestId === 'string'
-          || typeof r.evidence.responseStatus === 'number'
-          || typeof r.evidence.bodyExcerpt === 'string'
-          || typeof r.evidence.derived === 'object');
-      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      // The anchor is either a real AC/REQ id string or null (an
+      // exception-fallback row). The literal string "unknown" is
+      // refused: probe-utils no longer emits it (master brief
+      // addendum §3).
+      assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
+      const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
+      const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
+      const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+      const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
+      const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
+      const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
       assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
     }
   }

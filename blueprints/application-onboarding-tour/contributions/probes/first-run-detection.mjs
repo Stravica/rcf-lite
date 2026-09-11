@@ -42,7 +42,7 @@ export default async function runProbe() {
       });
     }
   } finally {
-    fixture.kill();
+    await fixture.kill();
   }
   return { results };
 }

@@ -2,7 +2,7 @@
 
 ## 1.0.5 - 2026-09-11
 
-- Added a criterion-e probe pack (`contributions/probes/`) covering 3 propertys the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-charts/server.js` answers: `non-colour-distinction`, `text-alternative-table`, `keyboard-traversal`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-charts-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
+- Added a criterion-e probe pack (`contributions/probes/`) covering 3 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-charts/server.js` answers: `non-colour-distinction`, `text-alternative-table`, `keyboard-traversal`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-charts-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
 
 
 ## 1.0.4 - 2026-09-10

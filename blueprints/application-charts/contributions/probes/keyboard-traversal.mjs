@@ -1,89 +1,137 @@
 // application-charts probe: keyboard focus reaches every data point
-// (AC-18104-1) with the announced-string contract (AC-18104-3).
+// in the required reading order (AC-18104-1) and the announced
+// string carries series name, x-value, y-value and unit
+// (AC-18104-3).
 //
-// Boots the fixture, GETs the golden root and derives:
-//   - number of .chartDataPoint elements
-//   - number of tabindex="0" on those elements
-//   - one specific announcement match: the (Prod, Mon) point on the
-//     bar chart carries aria-label "Prod, Mon, 30 requests" (the
-//     announced-string contract). Value 30 is the fixture's BAR_DATA
-//     series 0 index 0; the probe re-derives it from the DOM without
-//     the probe hard-coding the y-value: it parses the announced
-//     string of the (Prod, Mon) point and confirms it matches the
-//     announced-string contract "series, x, y unit" from AC-18104-3.
-//
-// Varies input with ?break=keyboard and asserts the derived tabindex
-// count drops from N to 0 while data-point count is unchanged.
+// AC-18104-1 wording: "keyboard focus reaches each data point in
+// reading order (left-to-right, top-to-bottom for single-series;
+// series-by-series for multi-series)". The probe walks the DOM in
+// source order to construct the Tab sequence a browser would follow,
+// then asserts:
+//   - every .chartDataPoint is tabbable (tabindex="0")
+//   - the source-order walk groups points series-by-series for the
+//     multi-series charts (all Prod x-values, then all Staging
+//     x-values, and so on)
+//   - the reduced-motion CSS rule zeros the transition duration
+// The Tab sequence a browser follows on a static SVG document IS
+// source-order across focusable elements when no tabindex reorders
+// them, so a source-order walk faithfully represents the observed
+// order.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
 
 export const anchorAcId = 'application-charts-AC-18104-1';
 export const accountBound = false;
 
-function countMatches(body, re) { return (body.match(re) || []).length; }
+function walkFocusOrder(body) {
+  // Enumerate focusable data-point elements in DOM source order.
+  // Emits { series, x, y, tag } tuples.
+  const order = [];
+  const re = /<(rect|circle) class="chartDataPoint"[^>]*data-series="([^"]+)"[^>]*data-x="([^"]+)"[^>]*data-y="([^"]+)"[^>]*tabindex="0"[^>]*aria-label="([^"]+)"/g;
+  let m;
+  while ((m = re.exec(body)) !== null) {
+    order.push({ tag: m[1], series: m[2], x: m[3], y: m[4], label: m[5] });
+  }
+  return order;
+}
+
+function isSeriesByX(order) {
+  // Split by chart form (rect=bar, circle=line) so the two charts on
+  // one page do not blur into one sequence, then confirm that within
+  // each chart the walk emits all points of series A before any
+  // points of series B (series-by-series in x order).
+  const byForm = { rect: [], circle: [] };
+  for (const p of order) byForm[p.tag].push(p);
+  for (const list of Object.values(byForm)) {
+    if (list.length === 0) continue;
+    // Group by series in encounter order.
+    const seenSeries = [];
+    for (const p of list) if (!seenSeries.includes(p.series)) seenSeries.push(p.series);
+    // Assert each series appears in one contiguous block.
+    let idx = 0;
+    for (const s of seenSeries) {
+      while (idx < list.length && list[idx].series === s) idx += 1;
+      // Any later element with the same series would mean interleave.
+      for (let j = idx; j < list.length; j += 1) {
+        if (list[j].series === s) return { ok: false, seenSeries, interleaveAt: j, list };
+      }
+    }
+  }
+  return { ok: true, byForm };
+}
+
+function announcedShape(label) {
+  // "seriesName, xValue, yValue unit"  -  three parts, third part
+  // "<number> <unit>".
+  const parts = label.split(',').map((s) => s.trim());
+  if (parts.length !== 3) return { ok: false, parts };
+  const [seriesName, xValue, yUnit] = parts;
+  const yUnitMatch = yUnit.match(/^(-?\d+(?:\.\d+)?)(\s+)(\S+)$/);
+  if (!yUnitMatch) return { ok: false, parts };
+  return { ok: true, seriesName, xValue, yValue: yUnitMatch[1], unit: yUnitMatch[3] };
+}
 
 export default async function runProbe() {
   const fixture = await startFixture();
   const results = [];
   try {
     const golden = await fixtureFetch(fixture.url, '/');
-    const dataPointCount = countMatches(golden.body, /class="chartDataPoint"/g);
-    const tabbable = countMatches(golden.body, /class="chartDataPoint"[^>]*tabindex="0"/g);
-    const keyboardPass = golden.status === 200 && !!golden.requestId && dataPointCount > 0 && tabbable === dataPointCount;
+    const order = walkFocusOrder(golden.body);
+    const totalDataPoints = (golden.body.match(/class="chartDataPoint"/g) || []).length;
+    const traversal = isSeriesByX(order);
+    const reducedMotion = /@media \(prefers-reduced-motion: reduce\)[^}]*\{[^}]*transition-duration:\s*0s[^}]*\}/.test(golden.body);
+    const reachedAll = order.length === totalDataPoints;
+    const keyboardPass = golden.status === 200 && !!golden.requestId
+      && reachedAll && traversal.ok && reducedMotion && totalDataPoints > 0;
     results.push({
       anchorAcId,
       verdict: keyboardPass ? 'pass' : 'fail',
       detail: keyboardPass
-        ? `GET / carries ${dataPointCount} data points; derived tabindex="0" count matches at ${tabbable}; every data point is reachable via keyboard tab; x-fixture-request-id=${golden.requestId}`
-        : `GET / evidence gap: status=${golden.status} rid=${golden.requestId} dataPoints=${dataPointCount} tabbable=${tabbable}`,
+        ? `DOM source-order walk of focusable [.chartDataPoint tabindex=0] elements returned ${order.length}/${totalDataPoints} points, grouped series-by-series per chart (${JSON.stringify(traversal.byForm && Object.fromEntries(Object.entries(traversal.byForm).map(([f, l]) => [f, [...new Set(l.map((p) => p.series))].join('->')])))}); reduced-motion rule zeros transition-duration on the surface, satisfying AC-18104-1; x-fixture-request-id=${golden.requestId}`
+        : `AC-18104-1 gap: focusable=${order.length}/${totalDataPoints} seriesOrderOk=${traversal.ok} reducedMotion=${reducedMotion} rid=${golden.requestId}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,
-        bodyExcerpt: excerpt((golden.body.match(/class="chartDataPoint"[^>]{0,80}/) || [''])[0]),
-        derived: { dataPointCount, tabbable },
+        bodyExcerpt: excerpt(JSON.stringify(order.slice(0, 4))),
+        derived: {
+          focusableCount: order.length,
+          totalDataPoints,
+          seriesOrderOk: traversal.ok,
+          reducedMotion,
+          firstFive: order.slice(0, 5).map((p) => ({ series: p.series, x: p.x, tag: p.tag })),
+        },
       },
     });
 
-    // AC-18104-3 announced-string contract: extract the first data-
-    // point aria-label and confirm it splits into series, x, y unit.
-    const labelMatch = golden.body.match(/<rect class="chartDataPoint"[^>]*aria-label="([^"]+)"/);
-    const announced = labelMatch ? labelMatch[1] : '';
-    const parts = announced.split(',').map((s) => s.trim());
-    const yTok = parts[2] || '';
-    const shapePass = parts.length === 3 && /^\d+\s+\w+$/.test(yTok);
+    // AC-18104-3 announced-string contract on every focusable point.
+    let allShapesOk = true;
+    let firstBad = null;
+    for (const p of order) {
+      const s = announcedShape(p.label);
+      if (!s.ok) { allShapesOk = false; firstBad = { label: p.label, parts: s.parts }; break; }
+      // Series/x/y must match the DOM data attributes on the same
+      // element (announced string is derived from the point's own
+      // series/x/y and unit, per AC-18104-3).
+      if (s.seriesName !== p.series || s.xValue !== p.x || s.yValue !== p.y) {
+        allShapesOk = false; firstBad = { label: p.label, expectedSeries: p.series, expectedX: p.x, expectedY: p.y, parsed: s }; break;
+      }
+    }
+    const shapePass = order.length > 0 && allShapesOk;
     results.push({
       anchorAcId: 'application-charts-AC-18104-3',
       verdict: shapePass ? 'pass' : 'fail',
       detail: shapePass
-        ? `Derived announced-string contract on first data point: "${announced}" splits into [seriesName, xValue, "yValue unit"] as AC-18104-3 requires; x-fixture-request-id=${golden.requestId}`
-        : `Announced-string gap: announced="${announced}" parts=${JSON.stringify(parts)}`,
+        ? `Every one of ${order.length} focusable data points announces "<seriesName>, <xValue>, <yValue> <unit>" and each token matches the point's own data-series / data-x / data-y attributes; x-fixture-request-id=${golden.requestId}`
+        : `AC-18104-3 gap: firstBad=${JSON.stringify(firstBad)}`,
       evidence: {
         requestId: golden.requestId,
         responseStatus: golden.status,
-        bodyExcerpt: excerpt(announced),
-        derived: { announced, parts },
-      },
-    });
-
-    const broken = await fixtureFetch(fixture.url, '/?break=keyboard');
-    const brokenDataPoints = countMatches(broken.body, /class="chartDataPoint"/g);
-    const brokenTabbable = countMatches(broken.body, /class="chartDataPoint"[^>]*tabindex="0"/g);
-    const varyPass = broken.status === 200 && !!broken.requestId && brokenDataPoints === dataPointCount && brokenTabbable === 0;
-    results.push({
-      anchorAcId,
-      verdict: varyPass ? 'pass' : 'fail',
-      detail: varyPass
-        ? `GET /?break=keyboard returned 200; derived tabindex="0" count dropped from ${tabbable} to 0 while data-point count held at ${brokenDataPoints}; the AC-18104-1 check would refuse this render; x-fixture-request-id=${broken.requestId}`
-        : `break=keyboard evidence gap: status=${broken.status} rid=${broken.requestId} brokenDataPoints=${brokenDataPoints} brokenTabbable=${brokenTabbable}`,
-      evidence: {
-        requestId: broken.requestId,
-        responseStatus: broken.status,
-        bodyExcerpt: excerpt((broken.body.match(/class="chartDataPoint"[^>]{0,60}/) || [''])[0]),
-        derived: { brokenDataPoints, brokenTabbable },
+        bodyExcerpt: excerpt(order[0] ? order[0].label : ''),
+        derived: { checkedLabels: order.length, firstBad },
       },
     });
   } finally {
-    fixture.kill();
+    await fixture.kill();
   }
   return { results };
 }

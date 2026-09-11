@@ -44,8 +44,8 @@ export default async function runProbe() {
       },
     });
   } finally {
-    a.kill();
-    b.kill();
+    await a.kill();
+    await b.kill();
   }
   return { results };
 }

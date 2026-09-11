@@ -8,7 +8,7 @@
 //   - GETs /probe/not-found and derives status=404, the region role
 //     wrapper, the parent-surface recovery link and the search input.
 //   - Follows the parent-surface link and asserts the linked route
-//     responds (200) — the derived observable of "recovery link
+//     responds (200)  -  the derived observable of "recovery link
 //     works" is a two-request round-trip, not a magic string match.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
@@ -53,7 +53,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    fixture.kill();
+    await fixture.kill();
   }
   return { results };
 }

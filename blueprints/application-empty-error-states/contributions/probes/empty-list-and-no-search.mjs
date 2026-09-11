@@ -48,7 +48,7 @@ export default async function runProbe() {
     });
 
     // AC-22107-1: query echoed verbatim inside data-query span.
-    const query = 'qa-e-empty-error-search-' + Math.random().toString(36).slice(2, 8);
+    const query = 'probe-search-' + Math.random().toString(36).slice(2, 8);
     const noSearch = await fixtureFetch(fixture.url, `/probe/search?q=${encodeURIComponent(query)}`);
     const nsRegion = /data-surface="no-search-results"[^>]*role="region"/.test(noSearch.body);
     const nsVisual = /data-visual="no-search-results"/.test(noSearch.body);
@@ -71,7 +71,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    fixture.kill();
+    await fixture.kill();
   }
   return { results };
 }

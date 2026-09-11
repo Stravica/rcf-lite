@@ -1,5 +1,5 @@
 // application-admin-console probe: sign-in Access-gated surface
-// (AC-21815-1). The T-4 admin-console v1.1.0 delta requires: with
+// (AC-21815-1). Admin-console v1.1.0 requires: with
 // zeroTrustGate applied, /admin/sign-in renders
 // [data-surface=access-gated], no [data-surface=local-login] region
 // is present, and a [data-role=principal-read] element carries the
@@ -17,7 +17,7 @@ export const accountBound = false;
 
 export default async function runProbe() {
   const results = [];
-  const principalEmail = 'qa-e-adminconsole-signin@example.test';
+  const principalEmail = 'probe-signin@example.test';
 
   const gated = await startFixture({ env: { ADMIN_CONSOLE_CAPS: 'principalDirectory,zeroTrustGate', ADMIN_CONSOLE_PRINCIPAL_EMAIL: principalEmail } });
   try {

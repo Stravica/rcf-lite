@@ -35,7 +35,7 @@ import { URL } from 'node:url';
 // mock.
 function withRequestId__(handler){
   return async function wrapped__(req,res){
-    const rid=req.headers['x-fixture-request-id']||__rid();
+    const rid=__rid();
     const orig=res.writeHead.bind(res);
     res.writeHead=function patched__(){
       const args=Array.from(arguments);

@@ -40,7 +40,7 @@ import { URL } from 'node:url';
 // mock.
 function withRequestId__(handler){
   return async function wrapped__(req,res){
-    const rid=req.headers['x-fixture-request-id']||__rid();
+    const rid=__rid();
     const orig=res.writeHead.bind(res);
     res.writeHead=function patched__(){
       const args=Array.from(arguments);
@@ -105,10 +105,10 @@ function renderBarChart(dataset, { break: brk }) {
   const seriesCount = dataset.series.length;
   const groupWidth = stepX;
   const barWidth = Math.max(6, Math.floor((groupWidth - 8) / seriesCount));
-  const groups = dataset.xAxis.map((xLabel, xi) => {
-    const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
-    const bars = dataset.series.map((series, si) => {
+  const seriesGroups = dataset.series.map((series, si) => {
+    const bars = dataset.xAxis.map((xLabel, xi) => {
       const value = series.values[xi];
+      const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
       const barHeight = value * scaleY;
       const x = groupX + si * barWidth;
       const y = CHART_HEIGHT - CHART_PAD_BOTTOM - barHeight;
@@ -117,9 +117,14 @@ function renderBarChart(dataset, { break: brk }) {
       const dpFocusAttr = brk === 'keyboard' ? '' : ` tabindex="0" aria-label="${series.name}, ${xLabel}, ${value} ${dataset.unit}"`;
       return `<rect class="chartDataPoint" data-series="${series.name}" data-x="${xLabel}" data-y="${value}"${patternAttr}${dpFocusAttr} x="${x}" y="${y}" width="${barWidth - 2}" height="${barHeight}" stroke="${series.colour}" stroke-width="1"${patternRef} />`;
     }).join('');
-    const labelY = CHART_HEIGHT - CHART_PAD_BOTTOM + 14;
-    return `<g class="chartGroup">${bars}<text class="chartAxisLabel" x="${groupX + groupWidth / 2 - 4}" y="${labelY}" text-anchor="middle" font-size="10" fill="#333">${xLabel}</text></g>`;
+    return `<g class="chartSeriesGroup" data-series="${series.name}"${brk === 'pattern' ? '' : ` data-pattern="${series.pattern}"`}>${bars}</g>`;
   }).join('');
+  const axisLabels = dataset.xAxis.map((xLabel, xi) => {
+    const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
+    const labelY = CHART_HEIGHT - CHART_PAD_BOTTOM + 14;
+    return `<text class="chartAxisLabel" x="${groupX + groupWidth / 2 - 4}" y="${labelY}" text-anchor="middle" font-size="10" fill="#333">${xLabel}</text>`;
+  }).join('');
+  const groups = `${seriesGroups}${axisLabels}`;
   const seriesLabels = dataset.series.map((series, si) => {
     const lastValue = series.values[series.values.length - 1];
     const lastX = CHART_PAD_LEFT + (dataset.xAxis.length - 1) * stepX + si * barWidth + barWidth + 6;

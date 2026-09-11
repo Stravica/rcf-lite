@@ -85,7 +85,20 @@ export async function startFixture({ port, env = {} } = {}) {
     child,
     url,
     port: boundPort,
-    kill: () => { try { child.kill('SIGTERM'); } catch (_) { /* noop */ } },
+    // Await child exit and propagate any error. A teardown failure
+    // must fail the verdict (master brief addendum 2026-09-11 §5);
+    // no swallowed errors here.
+    kill: () => new Promise((res, rej) => {
+      let settled = false;
+      const done = (err) => { if (settled) return; settled = true; err ? rej(err) : res(); };
+      child.once('exit', () => done());
+      child.once('error', (err) => done(err));
+      try { child.kill('SIGTERM'); } catch (err) { return done(err); }
+      setTimeout(() => {
+        if (settled) return;
+        try { child.kill('SIGKILL'); } catch (_) { /* already gone */ }
+      }, 4000);
+    }),
   };
 }
 
@@ -105,6 +118,8 @@ export function excerpt(body, maxLen = 240) {
 }
 
 export function aggregate(results) {
+  // Master brief addendum 2026-09-11 §3: no-checks-ran is a fail.
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
@@ -135,14 +150,23 @@ export async function runShim(probeName, engine, mainFn) {
     process.stdout.write(`report written to ${filepath}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
   } catch (err) {
+    // Master brief addendum 2026-09-11 §3: exception rows have no
+    // observed AC; anchor null (never a fabricated id like
+    // "unknown"), carry an evidence object with the error excerpt.
+    const message = err && err.message ? err.message : String(err);
+    const stack = err && err.stack ? err.stack : String(err);
     const results = [{
-      anchorAcId: 'unknown',
+      anchorAcId: null,
       verdict: 'fail',
-      detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      detail: `probe threw: ${message}`,
+      evidence: {
+        errorMessage: message,
+        errorExcerpt: excerpt(stack, 480),
+      },
     }];
     const { report, path: filepath } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
-    process.stderr.write(`probe error: ${err && err.stack ? err.stack : String(err)}\n`);
+    process.stderr.write(`probe error: ${stack}\n`);
     process.stderr.write(`report written to ${filepath}\n`);
     process.exitCode = 1;
   }

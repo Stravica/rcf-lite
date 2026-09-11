@@ -36,7 +36,7 @@ export default async function runProbe() {
       });
     }
   } finally {
-    withSpa.kill();
+    await withSpa.kill();
   }
 
   const noSpa = await startFixture({ env: { ACCOUNT_SETTINGS_APPS: '' } });
@@ -58,7 +58,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    noSpa.kill();
+    await noSpa.kill();
   }
   return { results };
 }
