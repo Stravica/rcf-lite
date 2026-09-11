@@ -165,7 +165,7 @@ export default async function runProbe() {
       evidence: { whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [], eventCount: events.length },
     });
   } finally {
-    // Teardown outcomes are recorded on the results per Addendum rule
+    // Teardown outcomes are recorded on the results per authoring-standard rule
     // 5; a teardown FAILURE fails the verdict.
     const teardown = { deleteObject: null };
     try {
