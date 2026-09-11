@@ -58,7 +58,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
  assert.ok(adrClauses.every((c) => typeof c === 'string' && c.length > 0), 'every ADR contribution carries standardsTraceClause');
  // ADR-2502 ships WITHOUT recommendedDefault (or with recommendedDefault: false).
  const transportAdr = adrs.find((a) => a.id === 'ADR-2502-application-forms-wizard-save-and-return');
- assert.ok(transportAdr.recommendedDefault === undefined || transportAdr.recommendedDefault === false, 'ADR-2502 does not commit a recommendedDefault (spec section 5.3 and section 6 T-3 gate)');
+ assert.ok(transportAdr.recommendedDefault === undefined || transportAdr.recommendedDefault === false, 'ADR-2502 does not commit a recommendedDefault (spec section governing the shelf-topic gate)');
  assert.equal(transportAdr.elicited, true, 'ADR-2502 carries elicited: true');
  // ADR-2501 (navigation) carries recommendedDefault: true on linear.
  const navAdr = adrs.find((a) => a.id === 'ADR-2501-application-forms-wizard-navigation');
@@ -227,9 +227,9 @@ test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics c
  }
  // CHANGELOG has exactly one 1.0.0 entry.
  assert.match(changelog, /## 1\.0\.0/, 'CHANGELOG carries the 1.0.0 heading');
- // docs/topics.md carries the T-3 shelf registry row plus the cross-reference to application-empty-error-states.
- assert.match(topics, /\| application-forms-wizard \| 24101-24899 \| 25xx \| shipped v1\.0\.0 \| none \|/, 'T-3 shelf registry row present in blueprint docs/topics.md');
- assert.ok(topics.includes('application-empty-error-states'), 'docs/topics.md cross-references application-empty-error-states (T-3 depends on T-1)');
+ // docs/topics.md carries the shelf-topic row for this blueprint.
+ assert.match(topics, /\| application-forms-wizard \| 24101-24899 \| 25xx \| shipped v1\.0\.0 \| none \|/, 'shelf registry row present in blueprint docs/topics.md');
+ assert.ok(topics.includes('application-empty-error-states'), 'docs/topics.md cross-references application-empty-error-states (shelf-topic dependency)');
 });
 
 test('application-forms-wizard: no em-dashes in shipped prose', async () => {

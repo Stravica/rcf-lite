@@ -222,8 +222,8 @@ test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics c
  }
  // CHANGELOG has exactly one 1.0.0 entry.
  assert.match(changelog, /## 1\.0\.0/, 'CHANGELOG carries the 1.0.0 heading');
- // docs/topics.md carries the T-2 shelf registry row.
- assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'T-2 shelf registry row present in blueprint docs/topics.md');
+ // docs/topics.md carries the shelf-topic row for this blueprint.
+ assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'shelf registry row present in blueprint docs/topics.md');
 });
 
 test('application-file-upload: no em-dashes in shipped prose', async () => {
