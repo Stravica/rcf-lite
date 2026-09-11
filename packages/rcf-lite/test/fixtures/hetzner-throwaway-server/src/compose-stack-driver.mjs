@@ -168,7 +168,7 @@ export async function reloadBurst(server, path, opts = {}) {
   const useOnServer = opts.onServer === true;
 
   // Fire the reload asynchronously; the burst runs against caddy
-  // while the reload is in flight so we cover the reload window.
+  // while the reload is in flight so the reload window is exercised.
   const reloadStarted = Date.now();
   const reloadPromise = composeCommand(target, sshKeyPath, ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'], { timeoutSeconds: 30 });
 
@@ -312,7 +312,7 @@ function parseComposePs(text) {
         health: (doc.Health || '').toLowerCase(),
         exitCode: typeof doc.ExitCode === 'number' ? doc.ExitCode : null,
       });
-    } catch (_) { /* not JSON — ignore */ }
+    } catch (_) { /* not JSON, ignore */ }
   }
   return services;
 }

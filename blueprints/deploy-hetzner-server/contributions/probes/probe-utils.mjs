@@ -1,4 +1,12 @@
-// Shared helpers for deploy-hetzner-server probes.
+// Shared helpers for deploy-hetzner-server probes (v1.1.4, criterion e
+// closure fix pass, 2026-09-11).
+//
+// Every result row a probe returns MUST carry either an `evidence`
+// object naming the observed artefact (server id, inventory-diff,
+// response body excerpt, deploy record) OR `accountBoundSkipped: true`
+// with a `reason` field naming exactly one unset variable. Empty or
+// null probe outcomes FAIL with detail exactly `no checks ran` per
+// binding rule 3 of the criterion e Addendum.
 //
 // Runtime-dependency posture:
 // - cloud-init-render-lint, manifest-schema-validate and
@@ -7,9 +15,10 @@
 //   server/. No real API call fires; hcloud is mocked via
 //   src/hcloud-mock.mjs so the shim never crosses the process boundary.
 // - real-account-* probes call the fixture's provision.mjs / destroy.mjs
-//   / snapshot verbs. Without CI_HAS_HETZNER_ACCOUNT they record
-//   accountBoundSkipped: true and the aggregate flips to pass per
-//   hetzner-round-7-spec-2026-09-07.md section 3.5.
+//   / snapshot verbs. Without CI_HAS_HETZNER_ACCOUNT set to exactly the
+//   string "true", each probe records accountBoundSkipped: true and a
+//   reason naming CI_HAS_HETZNER_ACCOUNT (set-but-not-true is reported
+//   as such, distinguished from unset).
 
 import { mkdir, writeFile, readFile, readdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -21,10 +30,6 @@ export const FIXTURE_DIR = resolve(
   PROJECT_ROOT,
   'packages/rcf-lite/test/fixtures/hetzner-throwaway-server',
 );
-// Config override, not a mutation switch: the fixture-side shim for
-// manifest-schema-validate may write a mutated copy to a scratch dir
-// and point MANIFEST_DIR at it via RCF_FIXTURE_MANIFEST_DIR so the
-// probe stays SIMULATE-free (mutation-purity gate row, 2026-09-08).
 export const MANIFEST_DIR = process.env.RCF_FIXTURE_MANIFEST_DIR
   ? resolve(process.env.RCF_FIXTURE_MANIFEST_DIR)
   : resolve(FIXTURE_DIR, 'hetzner/servers');
@@ -34,26 +39,41 @@ export const REPORT_DIR = resolve(
   '.rcf/reports/blueprints/deploy-hetzner-server',
 );
 
+// Aggregation rule (Addendum rule 3): an empty results array is never
+// pass; it is a fail with detail `no checks ran`. Callers hand the
+// empty case a synthesised fail row via `emptyResultsFail()` before
+// aggregating so the report body itself carries the row.
 export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
 
+export function emptyResultsFail(anchorAcId = 'unknown') {
+  return {
+    anchorAcId,
+    verdict: 'fail',
+    detail: 'no checks ran',
+    evidence: { reason: 'the probe returned zero result rows' },
+  };
+}
+
 export function isSkipped(results) {
-  return results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
+  return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
 }
 
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
-  const rawVerdict = aggregate(results);
-  const aggregateVerdict = isSkipped(results) ? 'pass' : rawVerdict;
+  const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
+  const rawVerdict = aggregate(rows);
+  const aggregateVerdict = isSkipped(rows) ? 'pass' : rawVerdict;
   const report = {
     slug: 'deploy-hetzner-server',
     probeName,
     runAt: new Date().toISOString(),
     engine,
-    results,
+    results: rows,
     aggregateVerdict,
     ...(extra ?? {}),
   };
@@ -64,9 +84,11 @@ export async function writeReport({ probeName, engine, results, extra }) {
 
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const outcome = (await mainFn()) ?? { results: [] };
-    const { results, extra } = outcome;
-    const { report, path } = await writeReport({ probeName, engine, results, extra });
+    const outcome = await mainFn();
+    const results = (outcome && Array.isArray(outcome.results)) ? outcome.results : null;
+    const extra = outcome && outcome.extra;
+    const rows = results && results.length > 0 ? results : [emptyResultsFail()];
+    const { report, path } = await writeReport({ probeName, engine, results: rows, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
@@ -75,6 +97,7 @@ export async function runShim(probeName, engine, mainFn) {
       anchorAcId: 'unknown',
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: { errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800) },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -102,11 +125,43 @@ export async function readManifestFiles(dir = MANIFEST_DIR) {
   return { present: entries.length > 0, entries, files };
 }
 
-export function accountBoundSkippedResult(anchorAcId, note) {
+// Skip helper (Addendum rule 4): the reason field names exactly one
+// unset variable. A gate variable set to a value other than 'true'
+// is reported as `set-but-not-true` with the observed value, not as
+// `unset`. Callers hand the exact variable name and a short note.
+export function firstTierGateSkipResult(anchorAcId, varName = 'CI_HAS_HETZNER_ACCOUNT', note = '') {
+  const observed = process.env[varName];
+  const state = observed === undefined
+    ? `unset`
+    : `set-but-not-true (observed value ${JSON.stringify(observed)})`;
   return {
     anchorAcId,
     verdict: 'skipped',
     accountBoundSkipped: true,
-    detail: `accountBound: CI_HAS_HETZNER_ACCOUNT unset; ${note}`,
+    reason: varName,
+    gateState: state,
+    detail: `accountBoundSkipped: gate variable ${varName} ${state}; ${note || 'run with CI_HAS_HETZNER_ACCOUNT=true to exercise the account-bound branch.'}`,
   };
+}
+
+// Second-tier skip helper (Addendum rule 4): the account-bound branch
+// requires HCLOUD_TOKEN once the first-tier gate is true. When only the
+// second-tier is missing, the skip row names HCLOUD_TOKEN in `reason`,
+// carries accountBoundSkipped: true, and the aggregate still flips to
+// pass. Missing configuration is a skip, not a failure.
+export function secondTierMissingSkipResult(anchorAcId, varName, note = '') {
+  return {
+    anchorAcId,
+    verdict: 'skipped',
+    accountBoundSkipped: true,
+    reason: varName,
+    gateState: 'unset',
+    detail: `accountBoundSkipped: second-tier variable ${varName} unset while CI_HAS_HETZNER_ACCOUNT=true; ${note || 'the probe cannot open the vendor client.'}`,
+  };
+}
+
+// Legacy shim (kept during the closure fix cutover for callers not yet
+// updated). Prefer firstTierGateSkipResult / secondTierMissingSkipResult.
+export function accountBoundSkippedResult(anchorAcId, note) {
+  return firstTierGateSkipResult(anchorAcId, 'CI_HAS_HETZNER_ACCOUNT', note);
 }

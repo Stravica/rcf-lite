@@ -1,6 +1,6 @@
 {
   "slug": "platform-docker-compose-host",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "category": "platform",
   "capabilities": [
     "containerHost"
@@ -222,5 +222,5 @@
       "standardsTraceClause": "generic enterprise practice"
     }
   ],
-  "updatedAt": "2026-09-11T11:59:04.000Z"
+  "updatedAt": "2026-09-11T13:11:31.000Z"
 }

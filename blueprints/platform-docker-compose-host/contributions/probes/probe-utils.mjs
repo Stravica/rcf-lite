@@ -1,4 +1,12 @@
-// Shared helpers for platform-docker-compose-host probes.
+// Shared helpers for platform-docker-compose-host probes (v1.1.4,
+// criterion e closure fix pass, 2026-09-11).
+//
+// Every result row a probe returns MUST carry either an `evidence`
+// object naming the observed artefact (compose service list, on-server
+// response body excerpt, burst counters, event body sample) OR
+// `accountBoundSkipped: true` with a `reason` field naming exactly
+// one unset variable (Addendum rule 3). Empty or null probe outcomes
+// FAIL with detail exactly `no checks ran`.
 //
 // Runtime-dependency posture:
 // - compose-config-lint shells to docker compose config against the applied
@@ -6,14 +14,19 @@
 //   the lint stage (skipped-with-warn when the CLI is absent so a
 //   review machine without docker can still see the source-tree assertions).
 // - secrets-as-files-scan runs in-process against the fixture; no external
-//   engine required.
+//   engine required. Scans compose.yaml, .env, every service config
+//   under caddy/, secrets/ metadata and the compose secret-shape.
 // - caddyfile-validate shells to caddy validate. When a local caddy binary
 //   is not on PATH the probe runs the vendor container caddy:2 via docker
-//   run --rm; when docker is also absent it skips-with-warn.
+//   run --rm; when docker is also absent it skips-with-warn. The probe
+//   also asserts the compose file bind-mounts the Caddyfile read-only.
 // - real-account-* probes call the fixture's provision.mjs, drive docker
 //   compose over ssh against the throwaway server, and tear down in
-//   always(). Without CI_HAS_HETZNER_ACCOUNT they record accountBoundSkipped:
-//   true and the aggregate flips to pass per the real-account gate contract, section 3.5.
+//   always(). Without CI_HAS_HETZNER_ACCOUNT set to exactly the string
+//   "true" the probe records accountBoundSkipped: true and a reason
+//   naming CI_HAS_HETZNER_ACCOUNT (set-but-not-true reported as such,
+//   distinguished from unset). A second-tier HCLOUD_TOKEN unset once
+//   past the first-tier gate has its own honest skip row.
 
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -36,25 +49,36 @@ export const REPORT_DIR = resolve(
 );
 
 export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
 
+export function emptyResultsFail(anchorAcId = 'unknown') {
+  return {
+    anchorAcId,
+    verdict: 'fail',
+    detail: 'no checks ran',
+    evidence: { reason: 'the probe returned zero result rows' },
+  };
+}
+
 export function isSkipped(results) {
-  return results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
+  return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
 }
 
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
-  const rawVerdict = aggregate(results);
-  const aggregateVerdict = isSkipped(results) ? 'pass' : rawVerdict;
+  const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
+  const rawVerdict = aggregate(rows);
+  const aggregateVerdict = isSkipped(rows) ? 'pass' : rawVerdict;
   const report = {
     slug: 'platform-docker-compose-host',
     probeName,
     runAt: new Date().toISOString(),
     engine,
-    results,
+    results: rows,
     aggregateVerdict,
     ...(extra ?? {}),
   };
@@ -65,9 +89,11 @@ export async function writeReport({ probeName, engine, results, extra }) {
 
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const outcome = (await mainFn()) ?? { results: [] };
-    const { results, extra } = outcome;
-    const { report, path } = await writeReport({ probeName, engine, results, extra });
+    const outcome = await mainFn();
+    const results = (outcome && Array.isArray(outcome.results)) ? outcome.results : null;
+    const extra = outcome && outcome.extra;
+    const rows = results && results.length > 0 ? results : [emptyResultsFail()];
+    const { report, path } = await writeReport({ probeName, engine, results: rows, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stdout.write(`report written to ${path}\n`);
     if (report.aggregateVerdict === 'fail') process.exitCode = 1;
@@ -76,6 +102,7 @@ export async function runShim(probeName, engine, mainFn) {
       anchorAcId: 'unknown',
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: { errorStack: (err && err.stack ? err.stack : String(err)).slice(0, 800) },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -85,21 +112,46 @@ export async function runShim(probeName, engine, mainFn) {
   }
 }
 
-export function accountBoundSkippedResult(anchorAcId, note) {
+// Skip helper (Addendum rule 4): the reason field names exactly one
+// unset variable; the gateState field distinguishes unset from
+// set-but-not-true, so a variable set to `false` is never reported as
+// unset. Callers hand the anchor plus a short note.
+export function firstTierGateSkipResult(anchorAcId, varName = 'CI_HAS_HETZNER_ACCOUNT', note = '') {
+  const observed = process.env[varName];
+  const state = observed === undefined
+    ? `unset`
+    : `set-but-not-true (observed value ${JSON.stringify(observed)})`;
   return {
     anchorAcId,
     verdict: 'skipped',
     accountBoundSkipped: true,
-    detail: `accountBound: CI_HAS_HETZNER_ACCOUNT unset; ${note}`,
+    reason: varName,
+    gateState: state,
+    detail: `accountBoundSkipped: gate variable ${varName} ${state}; ${note || 'run with CI_HAS_HETZNER_ACCOUNT=true to exercise the account-bound branch.'}`,
   };
 }
 
+// Second-tier skip helper (Addendum rule 4): the account-bound branch
+// requires HCLOUD_TOKEN once the first-tier gate is true. When only the
+// second-tier is missing the skip row names HCLOUD_TOKEN literally and
+// still aggregates to pass; missing configuration is a skip, not a
+// failure.
+export function secondTierMissingSkipResult(anchorAcId, varName, note = '') {
+  return {
+    anchorAcId,
+    verdict: 'skipped',
+    accountBoundSkipped: true,
+    reason: varName,
+    gateState: 'unset',
+    detail: `accountBoundSkipped: second-tier variable ${varName} unset while CI_HAS_HETZNER_ACCOUNT=true; ${note || 'the probe cannot open the vendor client.'}`,
+  };
+}
+
+export function accountBoundSkippedResult(anchorAcId, note) {
+  return firstTierGateSkipResult(anchorAcId, 'CI_HAS_HETZNER_ACCOUNT', note);
+}
+
 // Small YAML subset parser tuned for the fixture compose.yaml shape.
-// The fixture keeps compose.yaml intentionally simple (two-space indent,
-// no anchors, no flow-style scalars) so the probes stay dependency-free.
-// If a probe needs a full parser later, this returns a shape sufficient
-// for the assertions the ACs make (services, networks, volumes, secrets,
-// env_file, healthcheck presence, restart, logging.driver).
 export function parseComposeYaml(text) {
   const doc = {};
   const lines = text.split(/\r?\n/);
@@ -145,7 +197,6 @@ export function parseComposeYaml(text) {
     if (!kv) continue;
     const [, key, val] = kv;
     if (val === '') {
-      // Peek: next non-empty non-comment line starting with '- ' means list.
       let peekIsList = false;
       for (let j = lines.indexOf(raw) + 1; j < lines.length; j++) {
         const nxt = lines[j];

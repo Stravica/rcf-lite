@@ -38,15 +38,26 @@ export async function destroyThrowawayServer(record) {
   await hcloud(['server', 'delete', String(target.id)]);
   const snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']).catch(() => []);
   const list = Array.isArray(snapshots) ? snapshots : (snapshots && Array.isArray(snapshots.images) ? snapshots.images : []);
+  const snapshotErrors = [];
   for (const img of list) {
     const labels = img.labels || {};
     if (labels.serverName === target.name) {
-      await hcloud(['image', 'delete', String(img.id)]).catch((err) => {
-        process.stderr.write(`snapshot delete ${img.id} failed: ${err.message}\n`);
-      });
+      try {
+        await hcloud(['image', 'delete', String(img.id)]);
+      } catch (err) {
+        snapshotErrors.push({ id: img.id, message: err.message });
+      }
     }
   }
-  try { await unlink(SCRATCH_PATH); } catch (_) { /* fine */ }
+  try { await unlink(SCRATCH_PATH); } catch (_) { /* scratch file may already be gone */ }
+  if (snapshotErrors.length > 0) {
+    // Propagate teardown failures so the caller's finally block can
+    // fail the verdict (Addendum rule 5: no swallowed teardown errors).
+    const err = new Error(`snapshot deletes failed: ${snapshotErrors.map((e) => `${e.id}: ${e.message}`).join('; ')}`);
+    err.snapshotErrors = snapshotErrors;
+    err.destroyedServerId = target.id;
+    throw err;
+  }
   return { destroyed: target.id };
 }
 

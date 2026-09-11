@@ -1,41 +1,34 @@
-// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per the round-7 hardening pass).
+// Probe: hcloud dry-run mock (v1.1.4 closure fix, criterion e pass).
 //
-// anchorAcId: AC-37101-1 (provisioner facade sole reader + provisionerReady
-// on boot; also covers AC-37109-1 event-secrecy across the lifecycle;
-// also covers AC-14501-1 mock-consumes-rendered-file assertions per
-// the round-7 hardening block REQ-145).
-// accountBound: false.
-//
-// Drives the provisioner facade with the fixture's ci-throwaway manifest
-// against the mocked hcloud shim (src/hcloud-mock.mjs) and consumes the
-// SAME rendered cloud-init user-data file the real path consumes (the
-// fixture renderer writes it under hetzner/servers/rendered/ before the
-// facade is exercised, and this probe reads it back and asserts an
-// ssh-ed25519/ssh-rsa public-key line under the deploy user plus a
-// NOPASSWD directive naming that user). The rendered-file assertion is
-// what stops a mocked probe from passing while the real path fails on
-// the same artefact (REQ-145 / AC-14501-1).
+// accountBound: false. Anchors each result row to the AC whose
+// observable property that row actually observes:
+//   - AC-37101-1 (provisioner facade sole reader + provisionerReady):
+//     the facade opens and provisionerReady fires with a metadata-only
+//     {tool, apiHost} payload.
+//   - AC-37103-1 (manifest applies to createServer):
+//     hetznerServerProvisioned fires with id, primaryIpv4, location=fsn1,
+//     serverType=cx23.
+//   - AC-37108-1 (snapshot on demand + hetznerSnapshotTaken):
+//     hetznerSnapshotTaken fires with snapshot id and wall-clock time.
+//   - AC-37109-3 (event fires once per lifecycle moment):
+//     hetznerServerDestroyed fires with the destroyed id.
+//   - AC-37109-1 (event-secrecy across the lifecycle):
+//     no event body carries the token bytes, the ssh private-key marker,
+//     or the rendered user-data bytes.
+// The rendered-file agreement check (mock consumes the same rendered
+// artefact as the real path) is left to `cloud-init-render-lint`
+// (AC-37104-1) and `real-account-cloud-init-hardened` (AC-37105-1)
+// after the closure ruled the previously-manufactured AC-14501-1
+// anchor invented (Addendum rule 1: do not invent).
 //
 // The probe body reads NO process.env.SIMULATE_ switch. Fixture-side
 // mutations live in src/cloud-init-renderer.mjs, src/hcloud-mock.mjs
 // and src/provisioner-facade.mjs and alter INPUT only.
 //
-// Assertions:
-//   - the facade opens on ready() and fires provisionerReady with a
-//     metadata-only payload {tool, apiHost}.
-//   - createServer parses the mocked JSON stdout and emits
-//     hetznerServerProvisioned with id, primaryIpv4, location=fsn1,
-//     serverType=cx23.
-//   - takeSnapshot fires hetznerSnapshotTaken with snapshot id and time.
-//   - destroyServer fires hetznerServerDestroyed with the id.
-//   - no event body across the run carries the token, an ssh private-key
-//     marker, or the rendered user-data bytes (event-secrecy check).
-//   - the rendered cloud-init file exists under the fixture's rendered
-//     directory and carries at least one ssh-ed25519 or ssh-rsa
-//     authorized-keys line under the deploy user plus a NOPASSWD
-//     directive naming that user (REQ-145 / AC-14501-1).
+// Every result row carries an `evidence` object naming the observed
+// event body and its shape check (Addendum rule 3).
 
-import { readFile, access } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { FIXTURE_DIR, PROJECT_ROOT } from './probe-utils.mjs';
 
@@ -55,39 +48,15 @@ export default async function runProbe() {
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   const results = [];
 
-  // Render the cloud-init to disk with a fixture-side stubbed public
-  // key (the mock path never calls hcloud ssh-key describe); the real
-  // path resolves the material via hcloud and writes to the same
-  // location. Both consume the same file shape.
+  // Render the cloud-init to disk (both mock and real paths consume
+  // the same file; the assertion that the file carries the deploy
+  // ssh-key and NOPASSWD lines is now the sole responsibility of
+  // cloud-init-render-lint (AC-37104-1) and the real cloud-init
+  // baseline probe (AC-37105-1). We keep the render step here so the
+  // mocked facade lifecycle runs against a coherent input, but no
+  // manufactured AC anchors a result row on the rendered file.
   const publicKeys = ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForMockedRunHardeningH1 rcf-lite-ci-mock'];
   const { renderedPath, rendered } = await renderCloudInitToFile(manifest, { publicKeys });
-
-  //  REQ-145 / AC-14501-1: assert the rendered file carries an
-  // ssh-ed25519 or ssh-rsa line for the deploy user AND a NOPASSWD
-  // directive naming that user. This assertion is what breaks the
-  // "mock passes while real path fails on the same artefact" class.
-  const renderedFromDisk = await readFile(renderedPath, 'utf8');
-  const sshKeyLine = /(ssh-ed25519|ssh-rsa)\s+/i.test(renderedFromDisk);
-  const nopasswdLine = /deploy\s+ALL\s*=\s*\(ALL\)\s+NOPASSWD/i.test(renderedFromDisk);
-  if (!sshKeyLine) {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'fail',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries no ssh-ed25519 or ssh-rsa authorized-keys line for the deploy user; the real path would provision a server with an unusable authorized_keys entry.`,
-    });
-  } else if (!nopasswdLine) {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'fail',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries no NOPASSWD directive for the deploy user; the six sudoed baseline checks would block on a tty prompt.`,
-    });
-  } else {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'pass',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries an ssh public-key line for the deploy user (byteLength ${rendered.length}) and a NOPASSWD sudoers directive for that user; the mock and the real path consume the same artefact.`,
-    });
-  }
 
   const { events, eventSink } = createEventLog();
   const facade = createProvisionerFacade({
@@ -99,31 +68,107 @@ export default async function runProbe() {
   try {
     await facade.ready();
     const server = await facade.createServer(manifest);
-    const snapshot = await facade.takeSnapshot({ id: server.id, name: manifest.name }, `${manifest.name}-${new Date().toISOString()}`);
+    const snapshot = await facade.takeSnapshot(
+      { id: server.id, name: manifest.name },
+      `${manifest.name}-${new Date().toISOString()}`,
+    );
     await facade.destroyServer(server);
     const provisionerReady = events.find((e) => e.event === 'provisionerReady');
     const provisioned = events.find((e) => e.event === 'hetznerServerProvisioned');
     const snapped = events.find((e) => e.event === 'hetznerSnapshotTaken');
     const destroyed = events.find((e) => e.event === 'hetznerServerDestroyed');
+
+    // AC-37101-1: provisionerReady + sole token reader + metadata-only.
     if (!provisionerReady) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: 'provisionerReady event did not fire on ready().' });
+      results.push({
+        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        detail: 'provisionerReady event did not fire on ready().',
+        evidence: { eventFound: false, events: events.map((e) => e.event) },
+      });
     } else if (provisionerReady.tool !== 'hcloud' || provisionerReady.apiHost !== 'https://api.hetzner.cloud/v1') {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `provisionerReady payload shape wrong: ${JSON.stringify(provisionerReady)}` });
+      results.push({
+        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        detail: `provisionerReady payload shape wrong: ${JSON.stringify(provisionerReady)}`,
+        evidence: { event: provisionerReady, expected: { tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1' } },
+      });
     } else {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'pass', detail: 'provisionerReady fired with metadata-only {tool, apiHost} payload.' });
+      results.push({
+        anchorAcId: 'AC-37101-1', verdict: 'pass',
+        detail: 'provisionerReady fired with metadata-only {tool, apiHost} payload.',
+        evidence: {
+          eventName: 'provisionerReady',
+          payloadKeys: Object.keys(provisionerReady).sort(),
+          tool: provisionerReady.tool,
+          apiHost: provisionerReady.apiHost,
+        },
+      });
     }
+
+    // AC-37103-1: hetznerServerProvisioned observed via the mocked
+    // createServer path (mock-path evidence: this observation stands
+    // alongside the live inventory-diff evidence carried by
+    // real-account-throwaway-server-provision).
     if (!provisioned || !provisioned.id || !provisioned.primaryIpv4 || provisioned.location !== 'fsn1' || provisioned.serverType !== 'cx23') {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerServerProvisioned event missing or malformed: ${JSON.stringify(provisioned)}` });
+      results.push({
+        anchorAcId: 'AC-37103-1', verdict: 'fail',
+        detail: `hetznerServerProvisioned event missing or malformed: ${JSON.stringify(provisioned)}`,
+        evidence: { event: provisioned || null, expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'] },
+      });
     } else {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'pass', detail: `hetznerServerProvisioned fired with id=${provisioned.id} primaryIpv4=${provisioned.primaryIpv4} location=fsn1 serverType=cx23.` });
+      results.push({
+        anchorAcId: 'AC-37103-1', verdict: 'pass',
+        detail: `hetznerServerProvisioned fired (mock-path evidence) with id=${provisioned.id} primaryIpv4=${provisioned.primaryIpv4} location=fsn1 serverType=cx23.`,
+        evidence: {
+          eventName: 'hetznerServerProvisioned',
+          id: provisioned.id,
+          primaryIpv4: provisioned.primaryIpv4,
+          location: provisioned.location,
+          serverType: provisioned.serverType,
+          source: 'mock-facade',
+        },
+      });
     }
+
+    // AC-37108-1: hetznerSnapshotTaken with snapshot id and time.
     if (!snapped || !snapped.snapshotId || !snapped.wallClockTime) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerSnapshotTaken event missing or malformed: ${JSON.stringify(snapped)}` });
+      results.push({
+        anchorAcId: 'AC-37108-1', verdict: 'fail',
+        detail: `hetznerSnapshotTaken event missing or malformed: ${JSON.stringify(snapped)}`,
+        evidence: { event: snapped || null, expectedKeys: ['snapshotId', 'wallClockTime'] },
+      });
+    } else {
+      results.push({
+        anchorAcId: 'AC-37108-1', verdict: 'pass',
+        detail: `hetznerSnapshotTaken fired (mock-path evidence) with snapshotId=${snapped.snapshotId} wallClockTime=${snapped.wallClockTime}.`,
+        evidence: {
+          eventName: 'hetznerSnapshotTaken',
+          snapshotId: snapped.snapshotId,
+          wallClockTime: snapped.wallClockTime,
+          source: 'mock-facade',
+        },
+      });
     }
+
+    // AC-37109-3: hetznerServerDestroyed fires once per lifecycle moment.
     if (!destroyed || !destroyed.id) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerServerDestroyed event missing or malformed: ${JSON.stringify(destroyed)}` });
+      results.push({
+        anchorAcId: 'AC-37109-3', verdict: 'fail',
+        detail: `hetznerServerDestroyed event missing or malformed: ${JSON.stringify(destroyed)}`,
+        evidence: { event: destroyed || null, expectedKeys: ['id'] },
+      });
+    } else {
+      results.push({
+        anchorAcId: 'AC-37109-3', verdict: 'pass',
+        detail: `hetznerServerDestroyed fired with id=${destroyed.id}.`,
+        evidence: {
+          eventName: 'hetznerServerDestroyed',
+          id: destroyed.id,
+          source: 'mock-facade',
+        },
+      });
     }
-    // Event-secrecy scan across every event body.
+
+    // AC-37109-1: event-secrecy scan across every event body.
     const leaks = [];
     for (const e of events) {
       const body = JSON.stringify(e);
@@ -133,22 +178,26 @@ export default async function runProbe() {
     }
     if (leaks.length > 0) {
       results.push({
-        anchorAcId: 'AC-37109-1',
-        verdict: 'fail',
-        detail: `event-secrecy leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')} (defensive-fake finding; check for a SIMULATE_EVENT_SECRECY_LEAK mutation in the fixture-side facade shim).`,
+        anchorAcId: 'AC-37109-1', verdict: 'fail',
+        detail: `event-secrecy leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')}.`,
+        evidence: { leaks, eventCount: events.length },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-37109-1',
-        verdict: 'pass',
+        anchorAcId: 'AC-37109-1', verdict: 'pass',
         detail: `event-secrecy scan across ${events.length} event bodies found no leak of the token, ssh private key, or user-data content.`,
+        evidence: {
+          eventCount: events.length,
+          scannedMarkers: ['token value', 'ssh private key', 'user-data marker'],
+          leaks: [],
+        },
       });
     }
   } catch (err) {
     results.push({
-      anchorAcId: 'AC-37101-1',
-      verdict: 'fail',
-      detail: `provisioner facade lifecycle threw: ${err.message} (probable cause: mocked hcloud stdout is not JSON; check for a SIMULATE_JSON_PARSE_STRIP mutation in the fixture-side mock shim).`,
+      anchorAcId: 'AC-37101-1', verdict: 'fail',
+      detail: `provisioner facade lifecycle threw: ${err.message}`,
+      evidence: { error: err.message, stack: (err.stack || '').slice(0, 400) },
     });
   }
   return {
@@ -158,7 +207,6 @@ export default async function runProbe() {
       events: events.map((e) => ({ event: e.event, keys: Object.keys(e).sort() })),
       renderedPath: relative(PROJECT_ROOT, renderedPath),
       renderedByteLength: rendered.length,
-      renderedAssertions: { sshKeyLine, nopasswdLine },
     },
   };
 }

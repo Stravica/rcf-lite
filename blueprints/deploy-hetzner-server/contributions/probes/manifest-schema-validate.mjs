@@ -1,22 +1,17 @@
-// Probe: manifest schema validate.
+// Probe: manifest schema validate (v1.1.4 closure fix).
 //
-// anchorAcId: AC-37102-1 (also covers AC-37106-1 firewall shape and
-// AC-37107-1 snapshot cadence enum via the same schema). accountBound: false.
+// Splits per-property observations into their own result rows so the
+// AC anchoring is faithful (Addendum rule 1):
+//   - AC-37102-1  general nine-required-fields schema shape,
+//   - AC-37106-1  firewall rule shape (ssh restricted, 80/443 open,
+//                 no other inbound),
+//   - AC-37107-1  snapshotCadence enum {weekly, daily, off}.
+// A single manifest emits ONE row per property, each carrying its own
+// `evidence` object (Addendum rule 3).
 //
-// Validates every hetzner/servers/*.json under the shared throwaway-server
-// fixture against blueprints/deploy-hetzner-server/contributions/schemas/
-// hetzner-server.schema.json. A lightweight in-process draft-07 subset
-// validator ships with the probe so the shelf gains no runtime dependency
-// on ajv or similar. See validate() at the bottom.
-//
-// Purity: the probe reads only the manifest dir and the shipped schema;
-// no process.env.SIMULATE_ switch is read here. The fixture-side shim
-// packages/rcf-lite/test/fixtures/hetzner-throwaway-server/
-// run-manifest-schema-validate.mjs is the sole reader of
-// SIMULATE_MANIFEST_INVALID and it mutates INPUT (a temp manifest dir
-// pointed at via RCF_FIXTURE_MANIFEST_DIR) only; the probe then FAILS
-// naming the offending field per hetzner-round-7-spec-2026-09-07.md
-// section 3.4 lesson 4.  (2026-09-08).
+// Purity: no process.env.SIMULATE_ switch is read. Fixture-side
+// mutations live in the fixture-side run-manifest-schema-validate.mjs
+// shim; the probe reads only the schema and manifest tree.
 
 import { readFile } from 'node:fs/promises';
 import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';
@@ -24,15 +19,21 @@ import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';
 export const anchorAcId = 'AC-37102-1';
 export const accountBound = false;
 
+const NINE_REQUIRED = [
+  'name', 'serverType', 'location', 'image', 'sshKeyIds',
+  'firewallId', 'cloudInitPath', 'labels', 'firewallRules', 'snapshotCadence',
+];
+
 export default async function runProbe() {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   const { present, files } = await readManifestFiles();
   if (!present) {
     return {
       results: [{
-        anchorAcId,
+        anchorAcId: 'AC-37102-1',
         verdict: 'fail',
         detail: 'fixture hetzner/servers/ holds zero JSON files; ship at least ci-throwaway.json.',
+        evidence: { manifestCount: 0 },
       }],
     };
   }
@@ -43,27 +44,90 @@ export default async function runProbe() {
       doc = JSON.parse(f.text);
     } catch (err) {
       results.push({
-        anchorAcId,
+        anchorAcId: 'AC-37102-1',
         verdict: 'fail',
         detail: `manifest ${f.name} does not parse: ${err.message}`,
+        evidence: { manifestName: f.name, parseError: err.message },
       });
       continue;
     }
     const errors = validate(schema, doc, `#/${f.name}`);
-    if (errors.length > 0) {
-      for (const e of errors) {
-        const anchor = anchorForError(e);
+    // General schema errors that are neither firewall- nor snapshot-
+    // scoped anchor to AC-37102-1.
+    const generalErrors = errors.filter((e) => (
+      e.field !== 'firewallRules' && !(e.path || '').includes('firewallRules')
+      && e.field !== 'snapshotCadence' && !(e.path || '').includes('snapshotCadence')
+    ));
+    if (generalErrors.length > 0) {
+      for (const e of generalErrors) {
         results.push({
-          anchorAcId: anchor,
+          anchorAcId: 'AC-37102-1',
           verdict: 'fail',
           detail: `manifest ${f.name} schema violation at ${e.path}: ${e.message}`,
+          evidence: { manifestName: f.name, path: e.path, message: e.message, field: e.field || null },
         });
       }
     } else {
+      const observedKeys = Object.keys(doc).sort();
       results.push({
-        anchorAcId,
+        anchorAcId: 'AC-37102-1',
         verdict: 'pass',
-        detail: `manifest ${f.name} validates against hetzner-server.schema.json (nine required fields, firewall rule shape, snapshotCadence enum all satisfied).`,
+        detail: `manifest ${f.name} carries the nine required fields per hetzner-server.schema.json.`,
+        evidence: {
+          manifestName: f.name,
+          requiredFields: NINE_REQUIRED,
+          observedKeys,
+        },
+      });
+    }
+    const firewallErrors = errors.filter((e) => e.field === 'firewallRules' || (e.path || '').includes('firewallRules'));
+    if (firewallErrors.length > 0) {
+      for (const e of firewallErrors) {
+        results.push({
+          anchorAcId: 'AC-37106-1',
+          verdict: 'fail',
+          detail: `manifest ${f.name} firewall rule shape violation at ${e.path}: ${e.message}`,
+          evidence: { manifestName: f.name, path: e.path, message: e.message },
+        });
+      }
+    } else if (Array.isArray(doc.firewallRules)) {
+      const rules = doc.firewallRules;
+      const ssh = rules.find((r) => r && r.name === 'ssh');
+      const http = rules.find((r) => r && r.name === 'http');
+      const https = rules.find((r) => r && r.name === 'https');
+      results.push({
+        anchorAcId: 'AC-37106-1',
+        verdict: 'pass',
+        detail: `manifest ${f.name} firewall rule shape valid: ssh restricted to ${(ssh && ssh.sourceIps || []).join(', ')} (no 0.0.0.0/0), http and https open on 80/443.`,
+        evidence: {
+          manifestName: f.name,
+          ruleNames: rules.map((r) => r && r.name).filter(Boolean),
+          sshSourceIps: ssh ? ssh.sourceIps : null,
+          httpPort: http && (http.port || (http.ports || [null])[0]) || null,
+          httpsPort: https && (https.port || (https.ports || [null])[0]) || null,
+        },
+      });
+    }
+    const snapshotErrors = errors.filter((e) => e.field === 'snapshotCadence' || (e.path || '').includes('snapshotCadence'));
+    if (snapshotErrors.length > 0) {
+      for (const e of snapshotErrors) {
+        results.push({
+          anchorAcId: 'AC-37107-1',
+          verdict: 'fail',
+          detail: `manifest ${f.name} snapshotCadence violation at ${e.path}: ${e.message}`,
+          evidence: { manifestName: f.name, path: e.path, message: e.message },
+        });
+      }
+    } else if (typeof doc.snapshotCadence === 'string') {
+      results.push({
+        anchorAcId: 'AC-37107-1',
+        verdict: 'pass',
+        detail: `manifest ${f.name} snapshotCadence "${doc.snapshotCadence}" is in the shipped enum {weekly, daily, off}.`,
+        evidence: {
+          manifestName: f.name,
+          snapshotCadence: doc.snapshotCadence,
+          shippedEnum: ['weekly', 'daily', 'off'],
+        },
       });
     }
   }
@@ -76,20 +140,8 @@ export default async function runProbe() {
   };
 }
 
-function anchorForError(err) {
-  if (err.field === 'firewallRules' || (err.path || '').includes('firewallRules')) {
-    return 'AC-37106-1';
-  }
-  if (err.field === 'snapshotCadence' || (err.path || '').includes('snapshotCadence')) {
-    return 'AC-37107-1';
-  }
-  return 'AC-37102-1';
-}
-
-// Draft-07 subset validator: required, type, enum, minLength, minItems,
-// additionalProperties, items, properties, required-on-array-items.
-// Extra rule: on firewallRules the ssh rule sourceIps must NOT include
-// 0.0.0.0/0 (per TAC-3804); handled after schema validation.
+// Draft-07 subset validator (unchanged from v1.1.3 apart from the
+// caller splitting per-property).
 export function validate(schema, doc, pathPrefix = '#') {
   const errors = [];
   walk(schema, doc, pathPrefix, errors);

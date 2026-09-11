@@ -1,102 +1,173 @@
-// Probe: real-account-reload-burst.
+// Probe: real-account-reload-burst (v1.1.4 closure fix).
 //
 // anchorAcId: AC-composeHost-zeroDowntimeReload.
 // accountBound: true.
 //
-// On the shared throwaway-Hetzner-server fixture with the container-host
-// compose stack running: fires a small concurrent HTTP burst against
-// the caddy :80 endpoint while `docker compose exec caddy caddy reload`
-// runs. Asserts every request returns 2xx (default 40 requests, 8
-// concurrent) inside the elicited reload window (10 s default) so the
-// zero-downtime-reload contract carries positive evidence.
-//
-// Without CI_HAS_HETZNER_ACCOUNT the probe records
-// accountBoundSkipped: true (reason names the env var) and the
-// aggregate flips to pass per the real-account gate contract,
-// section 3.5. The throwaway server is destroyed in always()
-// regardless of verdict.
+// Addendum-driven contract:
+//   - First-tier gate CI_HAS_HETZNER_ACCOUNT must equal exactly the
+//     string "true"; anything else records an honest skip row.
+//   - Second-tier HCLOUD_TOKEN missing carries its own honest skip row.
+//   - The pass row carries an `evidence` object with the created
+//     server id, the warm baseline response, the burst counters (total,
+//     2xx, drops, reload duration), the reload exit and the elicited
+//     window (RELOAD_WINDOW_SECONDS, default 10s per AC).
+//   - The AC requires the elicited 10-second window to bound the
+//     reload duration; a reload that exceeds the window FAILS.
+//   - Teardown failure FAILS the verdict (Addendum rule 5).
 
+import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
-import { runShim, accountBoundSkippedResult, FIXTURE_DIR } from './probe-utils.mjs';
+import {
+  runShim, firstTierGateSkipResult, secondTierMissingSkipResult, FIXTURE_DIR,
+} from './probe-utils.mjs';
 
 export const anchorAcId = 'AC-composeHost-zeroDowntimeReload';
 export const accountBound = true;
 
+function hcloudJson(argv, { timeoutMs = 60_000 } = {}) {
+  return new Promise((resolvePromise, reject) => {
+    const p = spawn('hcloud', argv, { stdio: ['ignore', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    const timer = setTimeout(() => { try { p.kill('SIGKILL'); } catch (_) {} reject(new Error(`hcloud ${argv.join(' ')} timed out after ${timeoutMs}ms`)); }, timeoutMs);
+    p.stdout.on('data', (d) => { stdout += d.toString(); });
+    p.stderr.on('data', (d) => { stderr += d.toString(); });
+    p.on('error', (err) => { clearTimeout(timer); reject(err); });
+    p.on('close', (code) => {
+      clearTimeout(timer);
+      if (code !== 0) return reject(new Error(`hcloud ${argv.join(' ')} exited ${code}: ${stderr}`));
+      const trimmed = stdout.trim();
+      if (trimmed.length === 0) return resolvePromise([]);
+      try {
+        const parsed = JSON.parse(trimmed);
+        resolvePromise(Array.isArray(parsed) ? parsed : (parsed.servers || []));
+      } catch (err) {
+        reject(new Error(`hcloud stdout not JSON: ${err.message}`));
+      }
+    });
+  });
+}
+
 export default async function runProbe() {
   if (process.env.CI_HAS_HETZNER_ACCOUNT !== 'true') {
     return {
-      results: [accountBoundSkippedResult(anchorAcId, 'real-account reload-burst skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the caddy reload window against a throwaway cx23 stack.')],
+      results: [firstTierGateSkipResult(
+        anchorAcId,
+        'CI_HAS_HETZNER_ACCOUNT',
+        'real-account reload-burst skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the caddy reload window against a throwaway cx23 stack.',
+      )],
       extra: { skipped: true, missingEnv: ['CI_HAS_HETZNER_ACCOUNT'] },
     };
   }
+  if (!process.env.HCLOUD_TOKEN) {
+    return {
+      results: [secondTierMissingSkipResult(
+        anchorAcId,
+        'HCLOUD_TOKEN',
+        'the throwaway cx23 cannot be provisioned without HCLOUD_TOKEN.',
+      )],
+      extra: { skipped: true, missingEnv: ['HCLOUD_TOKEN'] },
+    };
+  }
+  const reloadWindowSeconds = Number(process.env.RELOAD_WINDOW_SECONDS ?? 10);
+  const reloadWindowMs = Math.round(reloadWindowSeconds * 1000);
   const { provisionThrowawayServer } = await import(resolve(FIXTURE_DIR, 'provision.mjs'));
   const { destroyThrowawayServer } = await import(resolve(FIXTURE_DIR, 'destroy.mjs'));
-  const { bringUpStack, reloadBurst, tearDownStack, httpProbe, httpProbeOnServer } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
+  const { bringUpStack, reloadBurst, tearDownStack, httpProbeOnServer } = await import(resolve(FIXTURE_DIR, 'src/compose-stack-driver.mjs'));
 
+  const evidence = { elicitedReloadWindowSeconds: reloadWindowSeconds };
+  const resultRow = { anchorAcId, verdict: 'fail', detail: '', evidence };
   let provisioned = null;
   try {
     provisioned = await provisionThrowawayServer({ runId: process.env.GITHUB_RUN_ID ?? `local-${Date.now()}` });
+    evidence.serverId = provisioned.id;
+    evidence.primaryIpv4 = provisioned.primaryIpv4;
     const brought = await bringUpStack(provisioned);
+    evidence.eventTrail = brought.events;
     if (!brought.ok) {
-      return {
-        results: [{ anchorAcId, verdict: 'fail', detail: `stack failed at phase ${brought.phase} on server ${provisioned.id}: ${JSON.stringify(brought).slice(0, 500)}` }],
-        extra: { serverId: provisioned.id, brought },
-      };
+      resultRow.verdict = 'fail';
+      resultRow.detail = `stack failed at phase ${brought.phase} on server ${provisioned.id}: ${JSON.stringify(brought).slice(0, 500)}`;
+      return { results: [resultRow], extra: evidence };
     }
-    // Warm-up probe: baseline the caddy answer on the throwaway server's
-    // loopback via ssh (the T-1 cloud-init hardening DOCKER-USER DROP
-    // refuses off-host traffic to the docker-mapped port, so this is the
-    // reachable path for the shipped fixture; see minimal-stack-up
-    // probe for the discussion).
     const warm = await httpProbeOnServer(provisioned, '/');
+    evidence.warm = {
+      target: warm.target, statusCode: warm.statusCode,
+      bodyExcerpt: warm.bodyExcerpt, elapsedSeconds: warm.elapsedSeconds,
+    };
     if (!warm.ok || warm.statusCode !== 200) {
-      return {
-        results: [{ anchorAcId, verdict: 'fail', detail: `caddy did not answer 200 before the burst on ${warm.target}: statusCode=${warm.statusCode} error=${warm.error || 'none'}` }],
-        extra: { serverId: provisioned.id, warm },
-      };
+      resultRow.verdict = 'fail';
+      resultRow.detail = `caddy did not answer 200 before the burst on ${warm.target}: statusCode=${warm.statusCode} error=${warm.error || 'none'}`;
+      return { results: [resultRow], extra: evidence };
     }
-    // Burst probe path: fire the burst from the same on-server loopback
-    // to keep every request on the same reachable path as the warm baseline.
     const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, onServer: true });
+    evidence.burst = {
+      total: burst.total, twoXx: burst.twoXx, drops: burst.drops,
+      reloadDurationMs: burst.reloadDurationMs, reloadExit: burst.reloadExit,
+      mode: burst.mode,
+      reloadStderrExcerpt: burst.reloadStderrExcerpt,
+      elicitedReloadWindowMs: reloadWindowMs,
+    };
     if (burst.reloadExit !== 0) {
-      return {
-        results: [{ anchorAcId, verdict: 'fail', detail: `caddy reload exited non-zero (${burst.reloadExit}): ${burst.reloadStderrExcerpt}` }],
-        extra: { serverId: provisioned.id, burst, warm },
-      };
+      resultRow.verdict = 'fail';
+      resultRow.detail = `caddy reload exited non-zero (${burst.reloadExit}): ${burst.reloadStderrExcerpt}`;
+      return { results: [resultRow], extra: evidence };
     }
     if (burst.drops > 0 || burst.twoXx < burst.total) {
-      return {
-        results: [{ anchorAcId, verdict: 'fail', detail: `zero-downtime-reload violated on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, ${burst.drops} dropped connections during a ${burst.reloadDurationMs}ms reload.` }],
-        extra: { serverId: provisioned.id, burst, warm },
-      };
+      resultRow.verdict = 'fail';
+      resultRow.detail = `zero-downtime-reload violated on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, ${burst.drops} dropped connections during a ${burst.reloadDurationMs}ms reload.`;
+      return { results: [resultRow], extra: evidence };
     }
-    return {
-      results: [{
-        anchorAcId, verdict: 'pass',
-        detail: `zero-downtime-reload observed on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, 0 dropped connections during a ${burst.reloadDurationMs}ms reload; warm baseline statusCode=${warm.statusCode}.`,
-      }],
-      extra: {
-        serverId: provisioned.id,
-        primaryIpv4: provisioned.primaryIpv4,
-        deployedStackUrl: warm.target,
-        warm, burst,
-        eventTrail: brought.events,
-      },
-    };
+    if (burst.reloadDurationMs > reloadWindowMs) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `caddy reload duration ${burst.reloadDurationMs}ms exceeded the elicited reload-window-seconds ${reloadWindowSeconds}s (${reloadWindowMs}ms); AC-composeHost-zeroDowntimeReload requires the reload to fit inside the elicited window.`;
+      return { results: [resultRow], extra: evidence };
+    }
+    resultRow.verdict = 'pass';
+    resultRow.detail = `zero-downtime-reload observed on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, 0 dropped connections during a ${burst.reloadDurationMs}ms reload (under the elicited ${reloadWindowSeconds}s window); warm baseline statusCode=${warm.statusCode}.`;
   } catch (err) {
-    return {
-      results: [{ anchorAcId, verdict: 'fail', detail: `reload-burst threw: ${err.message}` }],
-      extra: { serverId: provisioned && provisioned.id, error: err.stack || err.message },
-    };
+    resultRow.verdict = 'fail';
+    resultRow.detail = `reload-burst threw: ${err.message}`;
+    evidence.error = err.stack || err.message;
+    return { results: [resultRow], extra: evidence };
   } finally {
     if (provisioned && provisioned.id) {
-      try { await tearDownStack(provisioned); } catch (_) { /* server destroy below still fires */ }
-      try { await destroyThrowawayServer(provisioned); } catch (_) { /* swept by orphan cron */ }
+      try {
+        const tearDownDown = await tearDownStack(provisioned);
+        evidence.composeDown = { code: tearDownDown && tearDownDown.code, stderrExcerpt: (tearDownDown && tearDownDown.stderr || '').slice(0, 300) };
+        if (tearDownDown && tearDownDown.code !== 0) {
+          resultRow.verdict = 'fail';
+          resultRow.detail = `${resultRow.detail} TEARDOWN docker compose down exited ${tearDownDown.code}: ${(tearDownDown.stderr || '').slice(0, 300)}`;
+        }
+      } catch (err) {
+        resultRow.verdict = 'fail';
+        resultRow.detail = `${resultRow.detail} TEARDOWN docker compose down failed: ${err.message}`;
+        evidence.composeDownError = err.message;
+      }
+      try {
+        await destroyThrowawayServer(provisioned);
+        evidence.teardown = { destroyed: provisioned.id };
+        try {
+          const postList = await hcloudJson(['server', 'list', '--output', 'json']);
+          evidence.postTeardownServerIds = postList.map((s) => s.id);
+          if (postList.some((s) => s.id === provisioned.id)) {
+            resultRow.verdict = 'fail';
+            resultRow.detail = `${resultRow.detail} TEARDOWN INCOMPLETE: server ${provisioned.id} still present in hcloud server list.`;
+          }
+        } catch (err) {
+          evidence.postTeardownListError = err.message;
+        }
+      } catch (err) {
+        resultRow.verdict = 'fail';
+        resultRow.detail = `${resultRow.detail} TEARDOWN FAILED for server ${provisioned.id}: ${err.message}.`;
+        evidence.teardownError = err.message;
+        evidence.orphanServerId = provisioned.id;
+      }
     }
   }
+  return { results: [resultRow], extra: evidence };
 }
 
-const engine = { kind: 'throwaway-server-burst', image: 'undici burst against caddy in the throwaway compose stack', healthy: true };
+const engine = { kind: 'throwaway-server-burst', image: 'curl burst against caddy in the throwaway compose stack', healthy: true };
 if (import.meta.url === `file://${process.argv[1]}`) {
   await runShim('real-account-reload-burst', engine, runProbe);
 }

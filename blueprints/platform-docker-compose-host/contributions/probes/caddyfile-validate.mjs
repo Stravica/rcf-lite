@@ -1,35 +1,33 @@
-// Probe: caddyfile-validate.
+// Probe: caddyfile-validate (v1.1.4 closure fix).
 //
 // anchorAcId: AC-composeHost-reverseProxyArtefactValid.
 // accountBound: false.
 //
-// Runs caddy validate against the applied fixture caddy/Caddyfile. When
-// a local caddy binary is not on PATH the probe uses the caddy:2
-// container image via docker run --rm (pinned tag), so review machines
-// without a local caddy still get a real validation. When neither is
-// available the probe records skipped with a warn note.
-//
-// The applying project may set reverseProxy to a value other than caddy
-// (traefik or none per ADR-3902); when that happens the probe returns
-// skipped with note.
+// Every result row carries an `evidence` object (Addendum rule 3).
+// The probe now also observes the compose bind-mount for the
+// Caddyfile is read-only (:ro suffix or read_only: true on the
+// long-form) and anchors the observation to AC-38107-4 (read-only
+// bind-mount).
 //
 // Mutation:
-// - SIMULATE_INVALID_CADDYFILE=true writes an obviously-invalid
-//   directive (\"not-a-directive-at-all\") into a scratch copy of the
-//   Caddyfile; the probe FAILS naming the offending line.
+// - SIMULATE_INVALID_CADDYFILE=true appends an unclosed-block syntax
+//   error to a scratch copy of the Caddyfile; the probe FAILS naming
+//   the offending tail.
 
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
-import { runShim, CADDYFILE_PATH, whichCaddy, whichDocker } from './probe-utils.mjs';
+import { join } from 'node:path';
+import { runShim, CADDYFILE_PATH, COMPOSE_PATH, whichCaddy, whichDocker } from './probe-utils.mjs';
 
 export const anchorAcId = 'AC-composeHost-reverseProxyArtefactValid';
 export const accountBound = false;
 
+const VENDOR_CADDY = 'https://caddyserver.com/docs/command-line#caddy-validate';
+const VENDOR_DOCKER = 'https://docs.docker.com/reference/cli/docker/container/run/';
+const VENDOR_VERIFIED_ON = '2026-09-11';
+
 function isCaddyReverseProxy() {
-  // Applying project passes reverseProxy via env for the probe run; the
-  // shipped default per ADR-3902 is caddy.
   const v = process.env.REVERSE_PROXY;
   if (v === undefined || v === 'caddy') return true;
   return false;
@@ -45,9 +43,47 @@ export default async function runProbe() {
       anchorAcId,
       verdict: 'skipped',
       detail: `reverseProxy=${extra.reverseProxy}: caddyfile-validate skipped (applies only when reverseProxy=caddy)`,
+      evidence: { reverseProxy: extra.reverseProxy },
     });
     return { results, extra };
   }
+
+  // Bind-mount check: the compose file mounts caddy/Caddyfile
+  // read-only into the caddy service. AC-38107-4 requires the :ro
+  // suffix or read_only: true on the long-form. This is a source-tree
+  // observation that carries its own evidence.
+  try {
+    const composeText = await readFile(COMPOSE_PATH, 'utf8');
+    const caddyMountRe = /\.\/caddy\/Caddyfile:\/etc\/caddy\/Caddyfile:ro/;
+    if (caddyMountRe.test(composeText)) {
+      results.push({
+        anchorAcId: 'AC-38107-4',
+        verdict: 'pass',
+        detail: 'compose.yaml bind-mounts caddy/Caddyfile into the caddy service read-only (:ro suffix present)',
+        evidence: {
+          composeMountLine: (composeText.match(/[^\n]*Caddyfile:\/etc\/caddy\/Caddyfile[^\n]*/) || [''])[0],
+          suffix: ':ro',
+        },
+      });
+    } else {
+      results.push({
+        anchorAcId: 'AC-38107-4',
+        verdict: 'fail',
+        detail: 'compose.yaml Caddyfile bind-mount is not read-only; expected :ro suffix on ./caddy/Caddyfile:/etc/caddy/Caddyfile',
+        evidence: {
+          composeMountLine: (composeText.match(/[^\n]*Caddyfile[^\n]*/) || [''])[0],
+        },
+      });
+    }
+  } catch (err) {
+    results.push({
+      anchorAcId: 'AC-38107-4',
+      verdict: 'fail',
+      detail: `could not read compose.yaml to check the Caddyfile bind-mount: ${err.message}`,
+      evidence: { composePath: COMPOSE_PATH, error: err.message },
+    });
+  }
+
   const scratchDir = join(tmpdir(), `rcf-lite-t2-caddyfile-validate-${Date.now()}`);
   await mkdir(scratchDir, { recursive: true });
   const scratchPath = join(scratchDir, 'Caddyfile');
@@ -76,6 +112,7 @@ export default async function runProbe() {
         anchorAcId,
         verdict: 'warn',
         detail: 'neither caddy binary nor docker on PATH; caddy validate could not be exercised',
+        evidence: { caddyLocal: null, dockerLocal: null },
       });
       return { results, extra };
     }
@@ -88,12 +125,32 @@ export default async function runProbe() {
         anchorAcId,
         verdict: 'pass',
         detail: `caddy validate exit 0 (${engineLabel}); tail: ${tail.slice(-200)}`,
+        evidence: {
+          engineLabel,
+          exitStatus: 0,
+          tailExcerpt: tail.slice(-400),
+          vendorDocs: {
+            caddyValidate: VENDOR_CADDY,
+            dockerRunRm: VENDOR_DOCKER,
+            verifiedOn: VENDOR_VERIFIED_ON,
+          },
+        },
       });
     } else {
       results.push({
         anchorAcId,
         verdict: 'fail',
         detail: `caddy validate exit ${r.status} (${engineLabel}); tail: ${tail.slice(-400)}`,
+        evidence: {
+          engineLabel,
+          exitStatus: r.status,
+          tailExcerpt: tail.slice(-400),
+          vendorDocs: {
+            caddyValidate: VENDOR_CADDY,
+            dockerRunRm: VENDOR_DOCKER,
+            verifiedOn: VENDOR_VERIFIED_ON,
+          },
+        },
       });
     }
   } finally {

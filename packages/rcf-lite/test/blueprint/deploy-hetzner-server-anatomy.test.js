@@ -1,16 +1,7 @@
 // Anatomy + shape + probe + fixture + shelf-doc test for the
-// deploy-hetzner-server v1.0.0 blueprint (T-1 of the Hetzner round 7
-// spec, 2026-09-07 section 5.6). Covers TS-140 (nine TCs) on the T-1
-// repo chain slice: TC-140-manifest-schema-shape-valid,
-// TC-140-manifest-applies-mocked-provision,
-// TC-140-cloud-init-render-baseline-present,
-// TC-140-cloud-init-hardened-account-bound-probe,
-// TC-140-firewall-shape-valid-and-refuses-open-ssh,
-// TC-140-snapshot-cadence-enum,
-// TC-140-snapshot-on-demand-account-bound-probe,
-// TC-140-lifecycle-events-metadata-only,
-// and the provisioner boot + sole reader assertion via the mocked
-// dry-run path (TC-140-provisioner-boot-and-sole-reader).
+// deploy-hetzner-server blueprint (T-1 of the Hetzner round 7 spec,
+// 2026-09-07 section 5.6). Covers TS-140 (nine TCs) on the T-1 repo
+// chain slice plus the criterion e closure fix pass pins for v1.1.4.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -33,7 +24,7 @@ const OWN_TOPICS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 const AUTHORING = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint-authoring.md');
 
 async function runProbe(name, env = {}) {
-  const modUrl = pathToFileURL(join(PROBES_DIR, `${name}.mjs`)).href + '?ts=' + Date.now();
+  const modUrl = pathToFileURL(join(PROBES_DIR, `${name}.mjs`)).href + '?ts=' + Date.now() + Math.random();
   const mod = await import(modUrl);
   const saved = {};
   for (const [k, v] of Object.entries(env)) { saved[k] = process.env[k]; process.env[k] = v; }
@@ -46,28 +37,34 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// TC-140-provisioner-boot-and-sole-reader (AC-11001-1 / AC-37101-1):
-// the hcloud dry-run mock drives the facade through its lifecycle and
-// asserts provisionerReady fires with metadata-only payload; the
-// facade module is grep-clean of any secondary token reader.
+// Addendum rule 3: every result row carries either an `evidence`
+// object or `accountBoundSkipped: true` with a `reason` field.
+function assertRowsCarry7dShape(rows, label) {
+  assert.ok(Array.isArray(rows) && rows.length > 0, `${label}: no results returned`);
+  for (const r of rows) {
+    const skipped = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
+    const hasEvidence = r.evidence && typeof r.evidence === 'object' && Object.keys(r.evidence).length > 0;
+    assert.ok(skipped || hasEvidence, `${label}: row missing evidence or honest skip: ${JSON.stringify(r).slice(0, 400)}`);
+  }
+}
+
 test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.3');
+  assert.equal(bp.version, '1.1.4');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
-  const readyResult = out.results.find((r) => r.detail.includes('provisionerReady fired'));
+  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  const readyResult = out.results.find((r) => r.anchorAcId === 'AC-37101-1' && r.detail.includes('provisionerReady fired'));
   assert.ok(readyResult, `expected a provisionerReady pass result; got: ${JSON.stringify(out.results, null, 2)}`);
   assert.equal(readyResult.verdict, 'pass');
+  assert.ok(readyResult.evidence && readyResult.evidence.eventName === 'provisionerReady', 'evidence must carry eventName');
   const facadeText = await readFile(join(FIXTURE_ROOT, 'src/provisioner-facade.mjs'), 'utf8');
   const otherTokenReaders = facadeText.split('\n').filter((l) => l.includes('HETZNER_ACCOUNT_API_KEY'));
   assert.equal(otherTokenReaders.length, 0, `facade must not name HETZNER_ACCOUNT_API_KEY (it captures via the injected token; grep found: ${otherTokenReaders.join(' | ')})`);
 });
 
-// TC-140-manifest-schema-shape-valid (AC-11101-1 / AC-37102-1):
-// schema validates the shipped fixture manifest and every required
-// field is present.
 test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   const required = ['name', 'serverType', 'location', 'image', 'sshKeyIds', 'firewallId', 'cloudInitPath', 'labels', 'firewallRules', 'snapshotCadence'];
@@ -79,25 +76,25 @@ test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-m
     for (const f of required) assert.ok(f in doc, `manifest ${name} missing ${f}`);
   }
   const out = await runProbe('manifest-schema-validate');
+  assertRowsCarry7dShape(out.results, 'manifest-schema-validate');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `manifest-schema-validate should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
+  // Per-property anchoring: at least one row anchors to AC-37106-1
+  // (firewall) and one to AC-37107-1 (snapshotCadence).
+  assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37106-1'), 'manifest-schema-validate must emit a firewall-anchored row');
+  assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37107-1'), 'manifest-schema-validate must emit a snapshotCadence-anchored row');
 });
 
-// TC-140-manifest-applies-mocked-provision (AC-11102-1 / AC-37103-1):
-// the mocked dry-run path drives createServer and captures a
-// hetznerServerProvisioned event with the expected fields.
 test('T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
-  const provisionedResult = out.results.find((r) => r.detail.includes('hetznerServerProvisioned fired'));
-  assert.ok(provisionedResult, `expected a hetznerServerProvisioned pass result; got: ${JSON.stringify(out.results, null, 2)}`);
+  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
+  const provisionedResult = out.results.find((r) => r.anchorAcId === 'AC-37103-1' && r.detail.includes('hetznerServerProvisioned fired'));
+  assert.ok(provisionedResult, `expected a hetznerServerProvisioned pass result anchored to AC-37103-1; got: ${JSON.stringify(out.results, null, 2)}`);
   assert.equal(provisionedResult.verdict, 'pass');
   assert.match(provisionedResult.detail, /location=fsn1/);
   assert.match(provisionedResult.detail, /serverType=cx23/);
 });
 
-// TC-140-cloud-init-render-baseline-present (AC-11201-1 / AC-37104-1):
-// the six baseline blocks appear in the rendered YAML; template is
-// declaratively wired.
 test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)', async () => {
   const tmpl = await readFile(TEMPLATE_PATH, 'utf8');
   assert.match(tmpl, /PermitRootLogin no/);
@@ -107,27 +104,23 @@ test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (T
   assert.match(tmpl, /fail2ban/);
   assert.match(tmpl, /50unattended-upgrades/);
   const out = await runProbe('cloud-init-render-lint');
+  assertRowsCarry7dShape(out.results, 'cloud-init-render-lint');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `cloud-init-render-lint should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
 });
 
-// TC-140-cloud-init-hardened-account-bound-probe (AC-11202-1 /
-// AC-37105-1): probe module declares accountBound true; fixture README
-// documents the ssh baseline checks.
 test('T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-cloud-init-hardened.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   assert.match(readme, /six ssh baseline checks/);
-  // Ensure the probe reports skipped when the env var is unset.
   const out = await runProbe('real-account-cloud-init-hardened', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assertRowsCarry7dShape(out.results, 'real-account-cloud-init-hardened skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
+  assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-// TC-140-firewall-shape-valid-and-refuses-open-ssh (AC-11301-1 /
-// AC-37106-1): schema accepts the fixture and refuses a mutation that
-// opens 22 to 0.0.0.0/0.
 test('T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'manifest-schema-validate.mjs')).href + '?ts=' + Date.now();
   const { validate } = await import(modUrl);
@@ -141,29 +134,24 @@ test('T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open
   assert.ok(errors.some((e) => (e.message || '').includes('0.0.0.0/0')), `expected refusal for open-ssh mutation, got: ${JSON.stringify(errors)}`);
 });
 
-// TC-140-snapshot-cadence-enum (AC-11401-1 / AC-37107-1): schema enum
-// is {weekly, daily, off}.
 test('T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   assert.deepEqual(schema.properties.snapshotCadence.enum.sort(), ['daily', 'off', 'weekly']);
 });
 
-// TC-140-snapshot-on-demand-account-bound-probe (AC-11402-1 /
-// AC-37108-1): probe module declares accountBound true; skipped
-// record when env var is unset.
 test('T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-snapshot-on-demand.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
   const out = await runProbe('real-account-snapshot-on-demand', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assertRowsCarry7dShape(out.results, 'real-account-snapshot-on-demand skip');
   assert.equal(out.results[0].accountBoundSkipped, true);
+  assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-// TC-140-lifecycle-events-metadata-only (AC-11501-1 / AC-37109-1): the
-// dry-run mock accumulates four events, event-secrecy scan finds no
-// leaked token / private key / user-data content in any body.
 test('T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
+  assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
   const secrecy = out.results.find((r) => r.anchorAcId === 'AC-37109-1');
   assert.ok(secrecy, `expected an event-secrecy scan result`);
   assert.equal(secrecy.verdict, 'pass', `event-secrecy scan should pass on canonical state; got: ${secrecy.detail}`);
@@ -173,9 +161,6 @@ test('T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-14
   }
 });
 
-// Shelf shape assertion: section 6a cloudHost row is present on the
-// authoring doc; docs/topics.md carries the deploy-hetzner-server row
-// on every shipped blueprint's registry.
 test('T-1 shelf shape: section 6a cloudHost row and docs/topics.md registry entries', async () => {
   const authoring = await readFile(AUTHORING, 'utf8');
   assert.match(authoring, /^\|\s*`cloudHost`\s*\|/m, 'blueprint-authoring.md section 6a is missing the cloudHost row');
@@ -189,27 +174,33 @@ test('T-1 shelf shape: section 6a cloudHost row and docs/topics.md registry entr
   assert.match(ownTopics, /deploy-hetzner-server/);
 });
 
-// TC-175-mock-consumes-rendered-file-and-probe-purity (AC-14501-1):
-// H-1 hardening block asserts that (a) the hcloud-dry-run-mock probe
-// reads back the SAME rendered cloud-init file the real path consumes,
-// with an ssh public-key line for the deploy user and a NOPASSWD
-// directive naming that user; and (b) none of the three T-1 mocked
-// probe modules read process.env.SIMULATE_ inside the probe body.
+// TC-175-mock-consumes-rendered-file-and-probe-purity (RCF chain
+// AC-14501-1 / US-14501 / REQ-145 / TS-175 in packages/rcf-lite/rcf/):
+// the mocked probe path renders the shipped cloud-init.yaml.tmpl and
+// consumes the same rendered file the real path consumes; the fixture
+// renderer output carries an ssh public-key line under the deploy user
+// and a NOPASSWD sudoers.d directive naming that user. Plus the H-1
+// mutation-purity assertion that no probe body reads
+// process.env.SIMULATE_. The blueprint-contributed probe rows no
+// longer anchor to AC-14501-1 (criterion e closure fix v1.1.4:
+// blueprint user stories do not declare AC-14501-1); the RCF chain
+// artefacts remain the sole owners of that AC and this test carries
+// the observation on their behalf.
 test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)', async () => {
-  const out = await runProbe('hcloud-dry-run-mock');
-  const rendered = out.results.find((r) => r.anchorAcId === 'AC-14501-1');
-  assert.ok(rendered, 'expected a rendered-file assertion result');
-  assert.equal(rendered.verdict, 'pass', `rendered-file assertion should pass; got: ${rendered.detail}`);
-  assert.ok(out.extra.renderedPath, 'probe should report the rendered path');
-  assert.equal(out.extra.renderedAssertions.sshKeyLine, true);
-  assert.equal(out.extra.renderedAssertions.nopasswdLine, true);
+  const rendererPath = pathToFileURL(join(FIXTURE_ROOT, 'src/cloud-init-renderer.mjs')).href;
+  const { renderCloudInitToFile } = await import(rendererPath);
+  const manifest = JSON.parse(await readFile(join(FIXTURE_ROOT, 'hetzner/servers/ci-throwaway.json'), 'utf8'));
+  const publicKeys = ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForAnatomyTest rcf-lite-ci-anatomy'];
+  const { renderedPath } = await renderCloudInitToFile(manifest, { publicKeys });
+  const renderedFromDisk = await readFile(renderedPath, 'utf8');
+  assert.ok(/(ssh-ed25519|ssh-rsa)\s+/i.test(renderedFromDisk), 'rendered cloud-init must carry an ssh public-key line under the deploy user');
+  assert.ok(/deploy\s+ALL\s*=\s*\(ALL\)\s+NOPASSWD/i.test(renderedFromDisk), 'rendered cloud-init must carry a NOPASSWD directive for the deploy user');
 
-  // Mutation-purity: no probe body reads process.env.SIMULATE_.
+  // Mutation-purity: no T-1 mocked probe body reads
+  // process.env.SIMULATE_. The switches live in the fixture-side shims.
   const probes = ['cloud-init-render-lint', 'manifest-schema-validate', 'hcloud-dry-run-mock'];
   for (const name of probes) {
     const body = await readFile(join(PROBES_DIR, `${name}.mjs`), 'utf8');
-    // Strip block and line comments before scanning; the assertion
-    // must fail on process.env.SIMULATE_ reads only, not documentation.
     const stripped = body
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/^\s*\/\/.*$/gm, '');
@@ -220,14 +211,12 @@ test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud
   }
 });
 
-// TC-140-env-vars-declared-on-fixture-manifest (positive-evidence
-// gate row 7d): every env var the T-1 probes read is declared on the
-// fixture manifest (README section "Declared env vars
-// (deploy-hetzner-server probes)"), skip reasons on the two probes we
-// re-authored name their gate var literally, and the runShim helper
-// exists on the pack. Guards against silent additions of undeclared
-// env vars past the gate.
-test('T-1 deploy-hetzner-server v1.1.3 env vars declared on the fixture manifest (TC-140-env-vars-declared-on-fixture-manifest)', async () => {
+// TC-140-env-vars-declared-on-fixture-manifest (positive-evidence gate
+// row 7d): every env var the T-1 probes read is declared on the fixture
+// manifest, and skip reasons on the three real-account probes name
+// their gate variables literally with the honest set-but-not-true /
+// unset distinction.
+test('T-1 deploy-hetzner-server v1.1.4 env vars declared and skip reasons name variables literally', async () => {
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   const section = readme.split('## Declared env vars (deploy-hetzner-server probes)')[1] || '';
   assert.ok(section.length > 0, 'fixture README is missing the T-1 declared env vars section');
@@ -235,10 +224,35 @@ test('T-1 deploy-hetzner-server v1.1.3 env vars declared on the fixture manifest
     assert.ok(section.includes('`' + v + '`'), 'T-1 declared env vars table missing ' + v);
   }
   const provisionSkip = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'false' });
+  assertRowsCarry7dShape(provisionSkip.results, 'provision skip');
   assert.equal(provisionSkip.results[0].accountBoundSkipped, true);
-  assert.match(provisionSkip.results[0].detail, /CI_HAS_HETZNER_ACCOUNT/, 'throwaway-server-provision skip reason must name CI_HAS_HETZNER_ACCOUNT literally');
+  assert.equal(provisionSkip.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
+  assert.match(provisionSkip.results[0].detail, /set-but-not-true/);
+  // Second-tier skip: CI_HAS_HETZNER_ACCOUNT=true but HCLOUD_TOKEN unset.
+  const savedToken = process.env.HCLOUD_TOKEN;
+  delete process.env.HCLOUD_TOKEN;
+  try {
+    const provSecondTier = await runProbe('real-account-throwaway-server-provision', { CI_HAS_HETZNER_ACCOUNT: 'true' });
+    assertRowsCarry7dShape(provSecondTier.results, 'provision second-tier skip');
+    assert.equal(provSecondTier.results[0].accountBoundSkipped, true);
+    assert.equal(provSecondTier.results[0].reason, 'HCLOUD_TOKEN');
+  } finally {
+    if (savedToken !== undefined) process.env.HCLOUD_TOKEN = savedToken;
+  }
   const utilsPath = join(PROBES_DIR, 'probe-utils.mjs');
   const utils = await readFile(utilsPath, 'utf8');
   assert.match(utils, /export async function runShim/);
-  assert.match(utils, /export function accountBoundSkippedResult/);
+  assert.match(utils, /export function firstTierGateSkipResult/);
+  assert.match(utils, /export function secondTierMissingSkipResult/);
+});
+
+// Aggregation and empty-result contract (Addendum rule 3).
+test('T-1 probe-utils empty results FAIL with detail exactly "no checks ran"', async () => {
+  const modUrl = pathToFileURL(join(PROBES_DIR, 'probe-utils.mjs')).href + '?ts=' + Date.now();
+  const { aggregate, emptyResultsFail } = await import(modUrl);
+  assert.equal(aggregate([]), 'fail');
+  assert.equal(aggregate(null), 'fail');
+  const row = emptyResultsFail('AC-any');
+  assert.equal(row.detail, 'no checks ran');
+  assert.equal(row.verdict, 'fail');
 });
