@@ -34,8 +34,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-27101-1',
       verdict: facadeReadyFired && facadeReadyDbName === 'rcf_test' ? 'pass' : 'fail',
       detail: facadeReadyFired
-        ? `facadeReady fired with databaseName=${facadeReadyDbName}`
-        : 'facadeReady did not fire before first query',
+        ? `On process boot, the facade opens a pg.Pool - facadeReady fired with databaseName=${facadeReadyDbName}`
+        : 'On process boot, the facade opens a pg.Pool - facadeReady did not fire before first query',
       evidence: { facadeReadyEvent, allEvents: events },
     });
     const id = await store.createUser('probe-facade-round-trip', 'facade-round-trip@rcf.test');
@@ -45,15 +45,35 @@ export default async function runProbe() {
       anchorAcId: 'AC-27101-1',
       verdict: roundTripPass ? 'pass' : 'fail',
       detail: roundTripPass
-        ? `round-trip put id=${id} and got name=${row.name}`
-        : `round-trip failed: id=${id}, row=${JSON.stringify(row)}`,
+        ? `On process boot, the facade opens a pg.Pool - round-trip put id=${id} and got name=${row.name}`
+        : `On process boot, the facade opens a pg.Pool - round-trip failed: id=${id}, row=${JSON.stringify(row)}`,
       evidence: { insertedId: id, retrievedRow: row },
     });
   } finally {
+    // Teardown - record every step so a failure surfaces as a row and
+    // fails the aggregate per Addendum rule 5.
+    const teardown = [];
     try {
       await store.getPool().query('TRUNCATE users');
-    } catch { /* ignore */ }
-    await store.close();
+      teardown.push({ step: 'TRUNCATE users on close', ok: true });
+    } catch (err) {
+      teardown.push({ step: 'TRUNCATE users on close', ok: false, error: err && err.message });
+    }
+    try {
+      await store.close();
+      teardown.push({ step: 'close pool', ok: true });
+    } catch (err) {
+      teardown.push({ step: 'close pool', ok: false, error: err && err.message });
+    }
+    const failed = teardown.filter((t) => !t.ok);
+    if (failed.length > 0) {
+      results.push({
+        anchorReqId: 'persistence-data-postgres-REQ-001',
+        verdict: 'fail',
+        detail: `The facade module is the sole reader - teardown FAILED: ${failed.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+        evidence: { teardown },
+      });
+    }
   }
   return results;
 }

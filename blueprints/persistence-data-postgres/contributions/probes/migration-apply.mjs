@@ -74,7 +74,7 @@ export default async function runProbe() {
   results.push({
     anchorAcId: 'AC-27102-1',
     verdict: listsEqual ? 'pass' : 'fail',
-    detail: `applied=${JSON.stringify(applied)} expected=${JSON.stringify(expected)}`,
+    detail: `Given a fresh Postgres database at schema_version 0 - applied=${JSON.stringify(applied)} expected=${JSON.stringify(expected)}`,
     evidence: { applied, expected, phase: 'happy-path' },
   });
   const migratedEvent = events.find((e) => e.event === 'migrationsApplied');
@@ -85,8 +85,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-27102-1',
     verdict: eventFiredCorrectly ? 'pass' : 'fail',
     detail: eventFiredCorrectly
-      ? `migrationsApplied fired with applied=${JSON.stringify(migratedEvent.applied)}`
-      : `migrationsApplied event missing or wrong shape; events=${JSON.stringify(events)}`,
+      ? `Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=${JSON.stringify(migratedEvent.applied)}`
+      : `Given a fresh Postgres database at schema_version 0 - migrationsApplied event missing or wrong shape; events=${JSON.stringify(events)}`,
     evidence: { migrationsAppliedEvent: migratedEvent || null, phase: 'happy-path' },
   });
   // Read schema_version to confirm rows count = 3
@@ -101,7 +101,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-27102-1',
       verdict: versionRowsPass ? 'pass' : 'fail',
-      detail: `schema_version rows=${schemaVersionRows.length} (expected 3, i.e. schema_version advanced to 3)`,
+      detail: `Given a fresh Postgres database at schema_version 0 - schema_version rows=${schemaVersionRows.length} (expected 3, i.e. schema_version advanced to 3)`,
       evidence: { schemaVersionRows, phase: 'happy-path' },
     });
   } finally {
@@ -165,12 +165,15 @@ export default async function runProbe() {
     // 4. The UNIQUE constraint (introduced by 002) is absent, proving 002's DDL rolled back
     const uniqueAbsent = constraintRows.length === 0;
     const isolationPass = isolationRolledBack && failingRecorded && oneCommitted && uniqueAbsent;
+    // Induced-failure row anchors AC-27109-1 (a failing migration rolls
+    // back its own transaction, runner exits non-zero, failing
+    // filename recorded), not the happy-path AC-27102-1.
     results.push({
-      anchorAcId: 'AC-27102-1',
+      anchorAcId: 'AC-27109-1',
       verdict: isolationPass ? 'pass' : 'fail',
       detail: isolationPass
-        ? `induced failure at 002 proves per-migration transaction isolation: 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), failing filename recorded on the thrown error and on migrationApplyFailed`
-        : `atomicity checks did NOT all pass: isolationRolledBack=${isolationRolledBack} failingRecorded=${failingRecorded} oneCommitted=${oneCommitted} uniqueAbsent=${uniqueAbsent}`,
+        ? `Given a migrations directory whose second file contains - induced failure at 002 proves per-migration transaction isolation: 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), failing filename recorded on the thrown error and on migrationApplyFailed`
+        : `Given a migrations directory whose second file contains - atomicity checks did NOT all pass: isolationRolledBack=${isolationRolledBack} failingRecorded=${failingRecorded} oneCommitted=${oneCommitted} uniqueAbsent=${uniqueAbsent}`,
       evidence: atomicityEvidence,
     });
   } finally {

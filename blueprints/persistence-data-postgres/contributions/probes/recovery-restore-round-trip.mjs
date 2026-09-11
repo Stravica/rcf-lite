@@ -85,9 +85,38 @@ async function waitHealthy(container, maxSeconds = 30) {
   throw new Error(`container ${container} did not become healthy within ${maxSeconds}s`);
 }
 
+/**
+ * Positively assert `container` is absent by asking docker to inspect
+ * it. Absent = docker exits non-zero WITH `No such object` on stderr.
+ * Any other error (daemon unreachable, permission denied) fails the
+ * assertion; the caller can then FAIL the row rather than treat it as
+ * "no problem here" (Codex 2026-09-11 recovery finding).
+ */
+async function assertContainerAbsent(container) {
+  try {
+    await execFileAsync('docker', ['inspect', container]);
+    throw new Error(`container ${container} still exists`);
+  } catch (err) {
+    if (err && err.stderr && /No such object|Error: No such/.test(err.stderr)) return { absent: true };
+    if (err && err.message && err.message.includes('still exists')) throw err;
+    // Unrecognized inspect failure - do NOT treat as absent.
+    throw new Error(`docker inspect on ${container} produced an unrecognized error: ${err && (err.stderr || err.message) || 'unknown'}`);
+  }
+}
+
 async function bringUpRestore() {
-  // Remove any prior instance
-  await execFileAsync('docker', ['rm', '-f', RESTORE_CONTAINER]).catch(() => {});
+  // Pre-run cleanup: remove any prior instance, THEN positively assert
+  // the container is gone. If the pre-run rm fails for a reason other
+  // than "container did not exist", let the run fail loudly rather
+  // than proceed to a `docker run` that would collide.
+  try {
+    await execFileAsync('docker', ['rm', '-f', RESTORE_CONTAINER]);
+  } catch (err) {
+    if (!(err && err.stderr && /No such container|Error: No such/.test(err.stderr))) {
+      throw new Error(`pre-run rm of ${RESTORE_CONTAINER} failed and did not name a No-such-container reason: ${err && (err.stderr || err.message) || 'unknown'}`);
+    }
+  }
+  await assertContainerAbsent(RESTORE_CONTAINER);
   await execFileAsync('docker', [
     'run', '-d',
     '--name', RESTORE_CONTAINER,
@@ -159,6 +188,22 @@ export default async function runProbe() {
     // runPgDump override that shells out to docker exec inside the
     // source container. The shipped runner still writes the artefact
     // and emits backupExported; the probe proves both.
+    //
+    // Pre-run: assert the destination directory is absent, then create
+    // it. If a prior run left a stale artefact, remove it and
+    // positively re-check absence. Any failure here (permission
+    // denied, filesystem error) fails the row loudly.
+    try {
+      const preExist = await stat(ARTEFACT_DIR).catch(() => null);
+      if (preExist) {
+        await rm(ARTEFACT_DIR, { recursive: true, force: true });
+        const after = await stat(ARTEFACT_DIR).catch(() => null);
+        if (after) throw new Error(`pre-run: destination ${ARTEFACT_REL} still exists after rm -rf`);
+      }
+    } catch (err) {
+      if (!/still exists/.test(err && err.message)) throw new Error(`pre-run destination cleanup failed unrecognizably: ${err && (err.message || String(err))}`);
+      throw err;
+    }
     await mkdir(ARTEFACT_DIR, { recursive: true });
     const runnerEvents = [];
     const exported = await exportDatabase({
@@ -172,19 +217,25 @@ export default async function runProbe() {
     artefactWritten = true;
     const artefactStat = await stat(ARTEFACT);
 
-    // Assert the runner emitted backupExported per AC-27105-1
+    // Assert the runner emitted backupExported per AC-27105-1.
+    // Sanitize the event's artefactPath (recovery.mjs records it as
+    // the absolute destination) to a project-relative path so a
+    // machine path does not land in the persisted evidence record.
     const backupEvent = runnerEvents.find((e) => e.event === 'backupExported');
+    const backupEventSanitized = backupEvent
+      ? { ...backupEvent, artefactPath: relative(PROJECT_ROOT, backupEvent.artefactPath) }
+      : null;
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: (backupEvent && typeof backupEvent.artefactPath === 'string' && typeof backupEvent.completedAt === 'string') ? 'pass' : 'fail',
       detail: backupEvent
-        ? `shipped exportDatabase emitted backupExported with artefactPath=${relative(PROJECT_ROOT, backupEvent.artefactPath)} completedAt=${backupEvent.completedAt}`
-        : `expected backupExported event on the shipped exportDatabase runner; runnerEvents=${JSON.stringify(runnerEvents)}`,
+        ? `Given a live Postgres containing a small fixture rowset - shipped exportDatabase emitted backupExported with artefactPath=${relative(PROJECT_ROOT, backupEvent.artefactPath)} completedAt=${backupEvent.completedAt}`
+        : `Given a live Postgres containing a small fixture rowset - expected backupExported event on the shipped exportDatabase runner; observed events=${runnerEvents.map((e) => e.event).join(',')}`,
       evidence: {
         artefactPath: ARTEFACT_REL,
         artefactBytesOnDisk: artefactStat.size,
         bytesReportedByRunner: exported.bytes,
-        backupExportedEvent: backupEvent || null,
+        backupExportedEvent: backupEventSanitized,
       },
     });
 
@@ -212,13 +263,13 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: srcCount === dstCount ? 'pass' : 'fail',
-      detail: `row-count source=${srcCount} restored=${dstCount}`,
+      detail: `Given a live Postgres containing a small fixture rowset - row-count source=${srcCount} restored=${dstCount}`,
       evidence: { srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
     });
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: srcCk === dstCk && srcCk != null ? 'pass' : 'fail',
-      detail: `checksum source=${srcCk} restored=${dstCk}`,
+      detail: `Given a live Postgres containing a small fixture rowset - checksum source=${srcCk} restored=${dstCk}`,
       evidence: { srcChecksumMd5: srcCk, dstChecksumMd5: dstCk },
     });
   } finally {
@@ -240,18 +291,12 @@ export default async function runProbe() {
       await recordTeardown(teardown, `docker rm -f -v ${RESTORE_CONTAINER}`, async () => {
         await execFileAsync('docker', ['rm', '-f', '-v', RESTORE_CONTAINER]);
       });
-      // Positively confirm the container is gone.
+      // Positively confirm the container is gone. Any inspect outcome
+      // other than a "No such object" error fails the step so an
+      // unrecognized daemon-side error is not laundered into success.
       await recordTeardown(teardown, `docker inspect ${RESTORE_CONTAINER} (expected: absent)`, async () => {
-        try {
-          await execFileAsync('docker', ['inspect', RESTORE_CONTAINER]);
-          throw new Error(`container ${RESTORE_CONTAINER} still exists after docker rm -f -v`);
-        } catch (err) {
-          // docker inspect on absent container exits non-zero, which is
-          // what the probe wants; if it succeeded, the rethrow above ran.
-          if (err && err.stderr && /No such object|Error: No such/.test(err.stderr)) return { exitCode: 0 };
-          if (err && err.message && err.message.includes('still exists')) throw err;
-          return { exitCode: 0 };
-        }
+        await assertContainerAbsent(RESTORE_CONTAINER);
+        return { exitCode: 0 };
       });
     }
     if (artefactWritten) {
@@ -262,12 +307,15 @@ export default async function runProbe() {
   }
   // Fold teardown outcomes into the result set (Addendum rule 5).
   const failedTeardown = teardown.filter((t) => !t.ok);
+  // Teardown outcomes anchor to REQ-005 (recovery model) as an
+  // operational assertion; AC-27105-1 states rowset round-trip and
+  // backupExported, not cleanup, so cleanup does not anchor there.
   results.push({
-    anchorAcId: 'AC-27105-1',
+    anchorReqId: 'persistence-data-postgres-REQ-005',
     verdict: failedTeardown.length === 0 ? 'pass' : 'fail',
     detail: failedTeardown.length === 0
-      ? `teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
-      : `teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+      ? `The recovery model is two-path and both paths - teardown ok: ${teardown.map((t) => `${t.step} (exit=${t.exitCode})`).join('; ')}`
+      : `The recovery model is two-path and both paths - teardown FAILED (${failedTeardown.length}/${teardown.length}): ${failedTeardown.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
     evidence: { teardown },
   });
   return { results, extra: { teardown, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT } };
