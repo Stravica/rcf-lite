@@ -1,40 +1,52 @@
-// health-probes-distinct probe for application-api-rest v2.1.5.
+// health-probes-distinct probe for application-api-rest v2.1.7.
 //
-// Verifies that the service exposes three distinct health probes
-// (livez / readyz / startupz per REQ-006), each returning 200 with
-// a body naming which probe answered. Records the response identifier
-// and body excerpt for each probe.
+// Verifies AC-2108-1 (liveness), AC-2108-2 (readiness with declared
+// dependency checks) and AC-2108-4 (startup with pending-step
+// enumeration). Each probe endpoint answers its own question and
+// carries a body distinguishable from the others. Row anchoring
+// splits per AC so a defect at one probe surfaces on its own line.
 //
-// anchorReqId: application-api-rest-REQ-006.
+// anchorAcId: application-api-rest-AC-2108-1 (per-row: -1, -2, -4).
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-api-rest-REQ-006';
 export const accountBound = false;
 
 const PROBES = [
-  { route: '/livez', label: 'alive' },
-  { route: '/readyz', label: 'ready' },
-  { route: '/startupz', label: 'started' },
+  { route: '/livez', label: 'alive', expectField: 'probe', expectValue: 'livez', ac: 'application-api-rest-AC-2108-1', expectExtra: () => true },
+  { route: '/readyz', label: 'ready', expectField: 'probe', expectValue: 'readyz', ac: 'application-api-rest-AC-2108-2', expectExtra: (p) => Array.isArray(p.checks) && p.checks.length >= 1 },
+  { route: '/startupz', label: 'started', expectField: 'probe', expectValue: 'startupz', ac: 'application-api-rest-AC-2108-4', expectExtra: (p) => Array.isArray(p.pending) },
 ];
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
     for (const p of PROBES) {
       const res = await fetch(`${fixture.baseUrl}${p.route}`);
       const body = await res.text();
       const parsed = JSON.parse(body);
-      const pass = res.status === 200 && parsed.status === p.label;
+      const answered = parsed.status === p.label && parsed[p.expectField] === p.expectValue;
+      const extra = p.expectExtra(parsed);
+      const pass = res.status === 200 && answered && extra;
       results.push({
+        anchorAcId: p.ac,
         anchorReqId: 'application-api-rest-REQ-006',
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `GET ${p.route} returned status="${p.label}"`
-          : `health fault at ${p.route}: status=${res.status} body=${body.slice(0, 120)}`,
-        evidence: evidenceFromResponse({ route: p.route, response: res, bodyText: body }),
+          ? `GET ${p.route} returned probe="${p.expectValue}" status="${p.label}" with the AC-specific body extension`
+          : `health fault at ${p.route}: httpStatus=${res.status} answered=${answered} extraShape=${extra} body=${body.slice(0, 120)}`,
+        evidence: evidenceFromResponse({
+          route: p.route,
+          response: res,
+          bodyText: body,
+          extraFields: {
+            input: { route: p.route },
+            derived: { probeLabel: parsed.probe, status: parsed.status, extraShape: extra },
+          },
+        }),
       });
     }
     return { results };

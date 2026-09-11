@@ -1,5 +1,16 @@
 # application-dashboard CHANGELOG
 
+## 1.0.6 (criterion-e closure follow-ups, 2026-09-11)
+
+- Follow-up closure fixes to the criterion-e pack (Codex closure 2026-09-11):
+  - AC anchoring: every result row carries anchorAcId (fell back to anchorReqId per Addendum rule 1 only where no AC states the property; noted per row).
+  - Constant-echo removed: probes now vary inputs and assert derived outputs (Addendum rule 2). Sort compares against a JS-side comparator over the returned rows; search asserts row-content narrowing; SPA inventory is crawled per path.
+  - Fixture request-id: probe-side monkey-patch removed; every fixture now stamps x-fixture-request-id from its own request pipeline.
+  - Teardown errors surface (Addendum rule 5): close() rejects on the underlying error.
+  - Anatomy strengthened to pin the four 7d evidence shapes per row.
+  - Register: passive voice on the empty-results comment (no first-person plural).
+- Fixture: x-fixture-request-id stamped natively. Probes now parse <section role="region"> blocks and assert unique aria-label per AC-19101-4; four-tile-states asserts role/aria-live/aria-label/state-cue against two tiles; primary-KPI observes grid-column-start:1 AND grid-row-start:1 AND data-kpi-kind in the ADR-2001 enum.
+
 ## 1.0.5 (criterion-e positive-evidence probes, 2026-09-11)
 
 - Adds a contributions/probes pack that meets rule 7d: real HTTP round trips against the dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-dashboard/. Each probe records the fixture-echoed x-fixture-request-id header, response status and a distinctive body excerpt as evidence.

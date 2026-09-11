@@ -1,37 +1,48 @@
-// designed-empty-state probe for application-spa v1.5.6.
+// designed-empty-state probe for application-spa v1.5.8.
 //
-// Verifies that a data-bearing route ships a designed empty state
-// (REQ-010) rather than falling back to a generic frame. The probe
-// hits /reports (which the fixture declares as state=empty on the
-// route inventory), asserts data-route-state="empty" on the main
-// element and a data-empty-state="reports" region with a labelled
-// call-to-action, then records the response identifier and body
-// excerpt as evidence.
+// Verifies AC-1117-1 on the /reports route: the surface renders a
+// designed empty state - a data-empty-state region with named
+// content and a per-context filling action - instead of a generic
+// frame. The probe asserts data-route-state="empty" on the main
+// element AND the region carries a per-context cue AND a
+// data-empty-cta button naming the action.
 //
-// anchorReqId: application-spa-REQ-010.
+// anchorAcId: application-spa-AC-1117-1.
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-spa-REQ-010';
 export const accountBound = false;
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-spa/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
     const res = await fetch(`${fixture.baseUrl}/reports`);
     const body = await res.text();
-    const hasEmpty = /data-empty-state="reports"/.test(body);
-    const stateAttr = /data-route-state="empty"/.test(body);
-    const pass = res.status === 200 && hasEmpty && stateAttr;
+    const stateAttr = /<main[^>]+data-route-state="empty"/.test(body);
+    const emptyRegionMatch = body.match(/<section[^>]+role="region"[^>]+data-empty-state="reports"[^>]*>([\s\S]*?)<\/section>/);
+    const hasEmptyRegion = !!emptyRegionMatch;
+    const hasCta = hasEmptyRegion && /data-empty-cta="reports"/.test(emptyRegionMatch[1]);
+    const hasNamedCopy = hasEmptyRegion && /No reports yet/.test(emptyRegionMatch[1]);
+    const pass = res.status === 200 && stateAttr && hasEmptyRegion && hasCta && hasNamedCopy;
     results.push({
+      anchorAcId: 'application-spa-AC-1117-1',
       anchorReqId: 'application-spa-REQ-010',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? 'GET /reports renders data-route-state="empty" with data-empty-state="reports" region'
-        : `empty-state fault: status=${res.status} emptyRegion=${hasEmpty} stateAttr=${stateAttr}`,
-      evidence: evidenceFromResponse({ route: '/reports', response: res, bodyText: body }),
+        ? 'GET /reports renders main[data-route-state="empty"] with per-context empty region and CTA'
+        : `empty-state fault: stateAttr=${stateAttr} emptyRegion=${hasEmptyRegion} cta=${hasCta} copy=${hasNamedCopy} status=${res.status}`,
+      evidence: evidenceFromResponse({
+        route: '/reports',
+        response: res,
+        bodyText: body,
+        extraFields: {
+          input: { route: '/reports' },
+          derived: { stateAttr, hasEmptyRegion, hasCta, hasNamedCopy },
+        },
+      }),
     });
     return { results };
   } finally {

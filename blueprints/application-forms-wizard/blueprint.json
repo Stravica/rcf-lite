@@ -1,6 +1,6 @@
 {
   "slug": "application-forms-wizard",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -173,5 +173,5 @@
       "default": "on-blur-then-on-change"
     }
   ],
-  "updatedAt": "2026-09-11"
+  "updatedAt": "2026-09-11T14:30:00Z"
 }

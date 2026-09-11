@@ -32,7 +32,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-file-upload');
-  assert.equal(doc.version, '1.2.1');
+  assert.equal(doc.version, '1.2.2');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.deepEqual(doc.capabilities, ['virusScan'], 'capabilities declares virusScan (F-3 close, 1.2.0)');
@@ -293,9 +293,16 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
       assert.ok(shaped, name + ' result ' + JSON.stringify(r).slice(0, 200) + ' missing evidence or accountBoundSkipped');
       if (r.evidence) {
         const ev = r.evidence;
-        const hasRequestId = typeof ev.xFixtureRequestId === 'string' || typeof ev.xRequestIdEchoed === 'string' || typeof ev.xRequestIdGenerated === 'string';
-        const hasBody = typeof ev.bodyExcerpt === 'string';
-        assert.ok(hasRequestId || hasBody || typeof ev.status === 'number',
+        // Rule 7d addendum (Codex closure 2026-09-11): every real
+        // evidence row carries a route, a status and either a
+        // fixture-stamped request id or a named fallback reason.
+        assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
+          name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
+        assert.ok(Number.isFinite(ev.status) && ev.status >= 0,
+          name + ' evidence missing numeric status: ' + JSON.stringify(ev).slice(0, 200));
+        const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
+        const namedFallback = typeof ev.reason === 'string' && ev.reason.length > 0;
+        assert.ok(hasRequestId || namedFallback,
           name + ' evidence has no requestId, body excerpt or status: ' + JSON.stringify(ev).slice(0, 200));
       }
     }

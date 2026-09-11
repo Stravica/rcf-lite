@@ -3,21 +3,25 @@
 // A dependency-free Node HTTP server that carries the smallest
 // surface the application-api-rest probes assert on:
 //
-//   - Cursor-paginated JSON collection at /v1/widgets (REQ-007) with
-//     a nextCursor field per the shipped shape.
-//   - Health probes at /livez, /readyz, /startupz (REQ-006) that
-//     return distinct JSON status bodies.
-//   - RFC 7807 problem-details error body on any unknown resource
-//     (REQ-009), with the correct application/problem+json content
-//     type and the five required fields.
-//   - Request-id echo at x-request-id (REQ-013): the server accepts
-//     an inbound x-request-id header or synthesises one, and echoes
-//     it on the response.
+//   - Three distinct probe endpoints /livez, /readyz, /startupz
+//     (AC-2108-1, AC-2108-2, AC-2108-4) each answering their own
+//     question with a JSON body naming which probe replied.
+//   - A cursor-paginated collection at /v1/widgets (AC-2109-1) with
+//     the REQ-007 envelope { items, next, prev, total?, requestId }
+//     - next is a cursor string on non-final pages and null on the
+//     last page; prev is a cursor string on non-first pages and
+//     null on the first (AC-2109-2). total is only included when
+//     the client passes ?count=true.
+//   - RFC 7807 problem-details bodies for unknown routes and
+//     unknown widget ids (AC-2111-1) with application/problem+json,
+//     the five required fields, and status equal to the HTTP status
+//     line (AC-2111-3).
+//   - Request-id echoed on x-request-id (AC-2117-1) or generated
+//     when absent (AC-2117-2). The same value is also stamped as
+//     x-fixture-request-id for probes that read via the shared
+//     evidence helper.
 //
-// Exports startServer({ port }) so the probes and anatomy tests
-// can drive the fixture on ephemeral or fixed ports without a
-// subprocess. Ports 47300-47399 are reserved for the shelf-gate
-// probe packs; the default is 3000 to keep manual runs friendly.
+// Ports 47300-47399 are reserved for shelf-gate probe packs.
 
 import http from 'node:http';
 import { URL } from 'node:url';
@@ -38,6 +42,7 @@ function sendProblem(res, status, problem, requestId) {
   res.writeHead(status, {
     'content-type': 'application/problem+json; charset=utf-8',
     'x-request-id': requestId,
+    'x-fixture-request-id': requestId,
   });
   res.end(JSON.stringify(problem));
 }
@@ -50,35 +55,37 @@ function parseCursor(cursor) {
 
 function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`);
-  const inboundReqId = req.headers['x-request-id'];
-  const requestId = typeof inboundReqId === 'string' && inboundReqId.length > 0
-    ? inboundReqId
+  const inbound = req.headers['x-request-id'];
+  const requestId = typeof inbound === 'string' && inbound.length > 0
+    ? inbound
     : randomUUID();
   res.setHeader('x-request-id', requestId);
+  res.setHeader('x-fixture-request-id', requestId);
 
   if (url.pathname === '/livez') {
-    sendJson(res, 200, { status: 'alive', probe: 'livez', requestId }, { 'x-request-id': requestId });
+    sendJson(res, 200, { status: 'alive', probe: 'livez', requestId }, { 'x-request-id': requestId, 'x-fixture-request-id': requestId });
     return;
   }
   if (url.pathname === '/readyz') {
-    sendJson(res, 200, { status: 'ready', probe: 'readyz', requestId }, { 'x-request-id': requestId });
+    sendJson(res, 200, { status: 'ready', probe: 'readyz', requestId, checks: [{ name: 'database', ok: true }] }, { 'x-request-id': requestId, 'x-fixture-request-id': requestId });
     return;
   }
   if (url.pathname === '/startupz') {
-    sendJson(res, 200, { status: 'started', probe: 'startupz', requestId }, { 'x-request-id': requestId });
+    sendJson(res, 200, { status: 'started', probe: 'startupz', requestId, pending: [] }, { 'x-request-id': requestId, 'x-fixture-request-id': requestId });
     return;
   }
   if (url.pathname === '/v1/widgets' && req.method === 'GET') {
     const cursor = parseCursor(url.searchParams.get('cursor'));
     const limit = Math.min(50, Math.max(1, Number.parseInt(url.searchParams.get('limit') ?? '5', 10) || 5));
+    const includeCount = url.searchParams.get('count') === 'true';
     const items = WIDGETS.slice(cursor, cursor + limit);
-    const nextCursor = cursor + limit < WIDGETS.length ? String(cursor + limit) : null;
-    sendJson(res, 200, {
-      items,
-      nextCursor,
-      total: WIDGETS.length,
-      requestId,
-    }, { 'x-request-id': requestId });
+    const nextIndex = cursor + limit;
+    const prevIndex = cursor - limit;
+    const next = nextIndex < WIDGETS.length ? String(nextIndex) : null;
+    const prev = cursor > 0 ? String(Math.max(0, prevIndex)) : null;
+    const body = { items, next, prev, requestId };
+    if (includeCount) body.total = WIDGETS.length;
+    sendJson(res, 200, body, { 'x-request-id': requestId, 'x-fixture-request-id': requestId });
     return;
   }
   if (url.pathname.startsWith('/v1/widgets/') && req.method === 'GET') {
@@ -95,10 +102,11 @@ function handler(req, res) {
       }, requestId);
       return;
     }
-    sendJson(res, 200, { ...w, requestId }, { 'x-request-id': requestId });
+    sendJson(res, 200, { ...w, requestId }, { 'x-request-id': requestId, 'x-fixture-request-id': requestId });
     return;
   }
-  // Unknown route falls through to a problem-details 404.
+  // Unknown route falls through to a problem-details 404 that carries
+  // status inside the envelope matching the HTTP status line.
   sendProblem(res, 404, {
     type: 'https://example.com/probs/route-not-found',
     title: 'Route not found',

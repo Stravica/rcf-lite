@@ -1,4 +1,4 @@
-// Anatomy + probe-pack test for the application-api-rest v2.1.5
+// Anatomy + probe-pack test for the application-api-rest v2.1.7
 // shelf blueprint. Pins the criterion-e contributions/probes pack
 // shape (four probes, matching run-*.mjs wrappers, probe-utils
 // helper).
@@ -78,9 +78,16 @@ test('application-api-rest: every probe result carries one of the four 7d eviden
       assert.ok(shaped, `${name} result missing evidence or accountBoundSkipped: ${JSON.stringify(r).slice(0, 200)}`);
       if (r.evidence) {
         const ev = r.evidence;
-        const hasRequestId = typeof ev.xFixtureRequestId === 'string' || typeof ev.xRequestIdEchoed === 'string' || typeof ev.xRequestIdGenerated === 'string';
-        const hasBody = typeof ev.bodyExcerpt === 'string';
-        assert.ok(hasRequestId || hasBody || typeof ev.status === 'number',
+        // Rule 7d addendum (Codex closure 2026-09-11): every real
+        // evidence row carries a route, a status and either a
+        // fixture-stamped request id or a named fallback reason.
+        assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
+          name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
+        assert.ok(Number.isFinite(ev.status) && ev.status >= 0,
+          name + ' evidence missing numeric status: ' + JSON.stringify(ev).slice(0, 200));
+        const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
+        const namedFallback = typeof ev.reason === 'string' && ev.reason.length > 0;
+        assert.ok(hasRequestId || namedFallback,
           `${name} evidence missing requestId, body excerpt or status: ${JSON.stringify(ev).slice(0, 200)}`);
       }
     }

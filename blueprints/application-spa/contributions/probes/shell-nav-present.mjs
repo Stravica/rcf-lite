@@ -1,46 +1,58 @@
-// shell-nav-present probe for application-spa v1.5.7.
+// shell-nav-present probe for application-spa v1.5.8.
 //
-// Verifies that the shell provides top-level navigation (REQ-002)
-// via a semantic <nav> region carrying an aria-label and a labelled
-// primary-nav data-region. The probe derives its expected route
-// count from a separate HTTP round trip to /__routes rather than
-// importing a fixture-side constant, so the check compares two
-// independent server observations (the JSON inventory vs. the shell
-// DOM) rather than asserting a constant against itself (rule 2 of
-// the 7d addendum, 2026-09-11).
+// Verifies AC-1102-1: the shell provides a top-level primary <nav>
+// with an accessible name and a route link per declared inventory
+// entry. The probe crawls the JSON inventory and asserts one link
+// per inventory entry appears inside the primary <nav> block,
+// matching by data-route-name; the crawl vs shell comparison is
+// two independent server observations.
 //
-// anchorReqId: application-spa-REQ-002.
+// anchorAcId: application-spa-AC-1102-1.
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-spa-REQ-002';
 export const accountBound = false;
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-spa/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
 
-    // Independent round trip to /__routes derives the expected count
-    // from the running server, not from a shared JS constant.
     const routesRes = await fetch(`${fixture.baseUrl}/__routes`);
-    const routesBody = await routesRes.text();
-    const routesJson = JSON.parse(routesBody);
-    const expected = Array.isArray(routesJson.routes) ? routesJson.routes.length : 0;
+    const routesJson = JSON.parse(await routesRes.text());
+    const inventoryNames = (routesJson.routes || []).map((r) => r.name);
 
     const shellRes = await fetch(`${fixture.baseUrl}/`);
     const body = await shellRes.text();
-    const hasNav = /<nav[^>]+aria-label="Primary"[^>]+data-region="primary-nav"/.test(body);
-    const linkCount = (body.match(/data-route-name="/g) || []).length;
-    const pass = shellRes.status === 200 && hasNav && expected > 0 && linkCount === expected;
+    const navMatch = body.match(/<nav[^>]+aria-label="Primary"[^>]+data-region="primary-nav"[^>]*>([\s\S]*?)<\/nav>/);
+    const hasNav = !!navMatch;
+    const linksInNav = hasNav
+      ? Array.from(navMatch[1].matchAll(/data-route-name="([^"]+)"/g)).map((m) => m[1])
+      : [];
+    const pass = shellRes.status === 200
+      && hasNav
+      && inventoryNames.length > 0
+      && linksInNav.length === inventoryNames.length
+      && inventoryNames.every((n) => linksInNav.includes(n));
+
     results.push({
+      anchorAcId: 'application-spa-AC-1102-1',
       anchorReqId: 'application-spa-REQ-002',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `top-level <nav aria-label="Primary"> present with ${linkCount} route links (matches /__routes count ${expected})`
-        : `nav fault: status=${shellRes.status} navPresent=${hasNav} linkCount=${linkCount} inventoryCount=${expected}`,
-      evidence: evidenceFromResponse({ route: '/', response: shellRes, bodyText: body, extraFields: { linkCount, inventoryCount: expected } }),
+        ? `primary <nav aria-label="Primary"> carries ${linksInNav.length} links matching inventory names [${inventoryNames.join(',')}]`
+        : `nav parity fault: navPresent=${hasNav} linksInNav=[${linksInNav.join(',')}] inventoryNames=[${inventoryNames.join(',')}]`,
+      evidence: evidenceFromResponse({
+        route: '/',
+        response: shellRes,
+        bodyText: body,
+        extraFields: {
+          input: { inventoryNames },
+          derived: { navPresent: hasNav, linksInNav },
+        },
+      }),
     });
     return { results };
   } finally {

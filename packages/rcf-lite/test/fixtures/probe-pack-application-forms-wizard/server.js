@@ -30,6 +30,14 @@
 
 import http from 'node:http';
 import { URL } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+function stampRequestId(req, res) {
+  const inbound = req.headers['x-request-id'];
+  const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
+  res.setHeader('x-fixture-request-id', id);
+  return id;
+}
 
 export const STEP_STATES = ['Cannot start yet', 'Not started', 'In progress', 'Completed'];
 export const TRANSPORTS = ['server-draft-table', 'client-local-buffer'];
@@ -151,6 +159,8 @@ function renderStepPage(url, stepIndex) {
   const brk = resolveBreak(url);
   const draftStore = url.searchParams.get('draft-store') || 'server';
   const refused = url.searchParams.get('refused') === '1';
+  const blurred = url.searchParams.get('blurred') === '1';
+  const corrected = url.searchParams.get('corrected') === '1';
   const preseed = url.searchParams.get('preseed') === '1';
   const step = STEP_MANIFEST[stepIndex - 1];
   if (!step) return { status: 404, body: '<h1>Not found</h1>' };
@@ -167,8 +177,23 @@ function renderStepPage(url, stepIndex) {
   const errorSummary = refused && brk !== 'no-summary'
     ? `<section data-surface="error-summary" aria-labelledby="error-summary-heading"><h2 id="error-summary-heading" tabindex="-1">There is a problem</h2><ul><li><a href="#field-fullName">Full name is required</a></li></ul></section>`
     : '';
-  const fieldInvalidAttrs = refused ? ' aria-invalid="true" aria-describedby="err-fullName"' : '';
-  const fieldErrorMessage = refused ? `<p data-error-message id="err-fullName">Full name is required</p>` : '';
+  // AC-24102-1 timing state markers:
+  //   blurred=1  -> field has a message via aria-describedby but no aria-invalid yet
+  //   refused=1  -> post first-submit failure: aria-invalid true AND aria-describedby AND top-summary
+  //   corrected=1 -> submit rebuild: no error-summary, no aria-invalid, no message
+  const fieldInvalidAttrs = refused
+    ? ' aria-invalid="true" aria-describedby="err-fullName"'
+    : (blurred ? ' aria-describedby="err-fullName"' : '');
+  const fieldErrorMessage = (refused || blurred) && !corrected
+    ? `<p data-error-message id="err-fullName">Full name is required</p>`
+    : '';
+  const validationMarker = refused
+    ? '<span data-validation-state="submit-failure" hidden></span>'
+    : blurred
+      ? '<span data-validation-state="blur" hidden></span>'
+      : corrected
+        ? '<span data-validation-state="rebuilt" hidden></span>'
+        : '<span data-validation-state="pristine" hidden></span>';
   const focusScript = refused
     ? `<script>document.addEventListener('DOMContentLoaded', function(){ var h = document.getElementById('error-summary-heading'); if (h && typeof h.focus === 'function') { h.focus(); } });</script>`
     : '';
@@ -184,7 +209,7 @@ function renderStepPage(url, stepIndex) {
   return { status: 200, body: `<!doctype html><html lang="en"><head>${shellHead(`Step ${stepIndex}`)}</head><body>${bodyOpen()}
 <h1>${escapeHtml(step.title)}</h1>
 ${errorSummary}
-<form action="/step/${stepIndex}" method="post">
+<form action="/step/${stepIndex}" method="post" data-step-form="${escapeHtml(step.slug)}">
   <div>
     <label for="field-fullName">Full name</label>
     <input type="text" id="field-fullName" name="fullName"${fieldInvalidAttrs}>
@@ -192,6 +217,7 @@ ${errorSummary}
   </div>
   <button type="submit">Save and continue</button>
 </form>
+${validationMarker}
 <div data-sync-tick data-sync-tick=""></div>
 ${noDraftBanner}
 <div data-live-region="polite" aria-live="polite"></div>
@@ -295,7 +321,32 @@ function sendJson(res, status, obj) {
 
 function handle(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`);
+  stampRequestId(req, res);
   const path = url.pathname;
+  if (path === '/validate' && req.method === 'POST') {
+    // AC-24102-1 rebuild contract: every submit rebuilds the error
+    // set from scratch. The endpoint accepts { fullName } and
+    // returns the current error set for that step.
+    let raw = '';
+    req.on('data', (chunk) => { raw += chunk; });
+    req.on('end', () => {
+      let parsed = {};
+      try { parsed = JSON.parse(raw || '{}'); } catch { parsed = {}; }
+      const errors = {};
+      if (!parsed.fullName || String(parsed.fullName).trim().length === 0) {
+        errors.fullName = 'Full name is required';
+      }
+      const fieldsChecked = ['fullName'];
+      sendJson(res, 200, {
+        stepSlug: parsed.step || 'contact-details',
+        errors,
+        errorCount: Object.keys(errors).length,
+        fieldsChecked,
+        rebuildOf: parsed.previousErrorCount ?? null,
+      });
+    });
+    return;
+  }
   if (path === '/' || path === '/task-list') {
     return sendHtml(res, 200, renderTaskListPage(url));
   }

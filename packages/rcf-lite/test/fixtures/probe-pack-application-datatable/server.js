@@ -18,6 +18,14 @@
 
 import http from 'node:http';
 import { URL } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+function stampRequestId(req, res) {
+  const inbound = req.headers['x-request-id'];
+  const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
+  res.setHeader('x-fixture-request-id', id);
+  return id;
+}
 
 const ALL_ROWS = [
   { id: 1, name: 'Alpha', score: 30, region: 'north' },
@@ -271,6 +279,11 @@ function renderShell(state, initialPayload) {
         <h2 id="errorStateHeading">Error</h2>
         <p>Could not load rows. Try again.</p>
       </section>
+    ` : state.stateName === 'no-results' ? `
+      <section role="region" aria-labelledby="noResultsHeading" aria-live="polite" id="noResultsRegion">
+        <h2 id="noResultsHeading">No results</h2>
+        <p>No rows match the current filter.</p>
+      </section>
     ` : `
       <section role="region" aria-labelledby="gridHeading" aria-live="polite" id="gridRegion">
         <h2 id="gridHeading">Data</h2>
@@ -347,6 +360,7 @@ ${boot}
 export function startServer({ port } = {}) {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://127.0.0.1');
+    stampRequestId(req, res);
     if (url.pathname === '/' || url.pathname === '/datatable-shell') {
       const stateName = url.searchParams.get('state') ?? 'populated';
       const q = url.searchParams.get('q') ?? '';

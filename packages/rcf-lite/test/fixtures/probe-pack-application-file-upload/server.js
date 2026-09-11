@@ -33,6 +33,23 @@
 
 import http from 'node:http';
 import { URL } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+function stampRequestId(req, res) {
+  const inbound = req.headers['x-request-id'];
+  const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
+  res.setHeader('x-fixture-request-id', id);
+  return id;
+}
+
+// Durable server-side state for the transport probes (AC-23104-3).
+// A multipart upload accumulates per-session chunk counts under a
+// session key; a tus upload records the last acknowledged offset
+// under an upload id, and a subsequent GET returns the stored
+// value so the probe observes durable acknowledgment rather than a
+// bare echo.
+const multipartSessions = new Map();
+const tusOffsets = new Map();
 
 export const TRANSPORTS = ['multipart', 'tus'];
 export const STATES = ['idle', 'uploading', 'refused', 'complete'];
@@ -102,13 +119,20 @@ function renderFileRowHtml(f, idx) {
 // input affordances (file input, drop-zone, keyboard opener), the
 // polite live-region wrapper, and the assertive slot. Break
 // switches selectively drop pieces.
-function uploadPage({ transport, break_, seed, autostart }) {
+function uploadPage({ transport, break_, seed, autostart, complete }) {
   const dropInputFileTag = break_ === 'no-input' ? '' : '<input id="filePicker" name="filePicker" type="file" multiple>';
   const dropInputLabel = break_ === 'no-input' ? '' : '<label for="filePicker">Add files</label>';
   const politeWrapper = break_ === 'no-live-region'
     ? ''
     : '<div data-live-region="polite" aria-live="polite" aria-atomic="true">0 of 0 files, 0 percent</div>';
-  const assertiveSlot = '<div data-assertive-slot aria-live="assertive"></div>';
+  // AC-23105-1: after the set completes the assertive slot carries
+  // "N files uploaded successfully". A probe reads the /upload
+  // shell with ?complete=<N> so the completion string is present
+  // in the initial DOM without needing a JS runner.
+  const completedText = typeof complete === 'number' && complete > 0
+    ? `${complete} files uploaded successfully`
+    : '';
+  const assertiveSlot = `<div data-assertive-slot aria-live="assertive">${completedText}</div>`;
   const seedJson = JSON.stringify(seed || 'demo');
   const transportSlug = transport === 'tus' ? 'tus' : 'multipart';
   const breakJson = JSON.stringify(break_ || '');
@@ -320,20 +344,46 @@ function jsonResponse(res, status, body) {
 
 function requestHandler(req, res) {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
+  stampRequestId(req, res);
   const break_ = reqUrl.searchParams.get('break') || DEFAULT_BREAK;
   const transport = reqUrl.searchParams.get('transport') === 'tus' ? 'tus' : 'multipart';
   const seed = reqUrl.searchParams.get('seed') || 'demo';
   const autostart = reqUrl.searchParams.get('autostart') === '1' || seed === 'refused';
+  const completeParam = Number.parseInt(reqUrl.searchParams.get('complete') || '', 10);
+  const complete = Number.isFinite(completeParam) && completeParam > 0 ? completeParam : 0;
 
-  // Synthetic upload endpoints (never actually accept payload; the
-  // client-side loop simulates the wire). The endpoints exist so a
-  // curl round-trip can prove the fixture is up.
+  // Multipart chunk endpoint: state under sessionId; each POST
+  // increments the per-session chunk counter and the response
+  // carries the cumulative count. AC-23104-1.
   if (req.method === 'POST' && reqUrl.pathname === '/upload/chunk') {
-    return jsonResponse(res, 200, { ok: true, chunk: reqUrl.searchParams.get('n') });
+    const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
+    const n = reqUrl.searchParams.get('n');
+    const current = (multipartSessions.get(sessionId) ?? 0) + 1;
+    multipartSessions.set(sessionId, current);
+    return jsonResponse(res, 200, { ok: true, sessionId, chunk: n, chunksUploaded: current });
   }
+  if (req.method === 'GET' && reqUrl.pathname === '/upload/chunk') {
+    const sessionId = reqUrl.searchParams.get('sessionId') || 'default';
+    const current = multipartSessions.get(sessionId) ?? 0;
+    return jsonResponse(res, 200, { sessionId, chunksUploaded: current });
+  }
+  // tus.io PATCH: store the acknowledged Upload-Offset under an
+  // uploadId. A subsequent GET returns the durable value; the
+  // probe observes that the offset survives across requests
+  // (AC-23104-3), not merely that it was echoed on the PATCH.
   if (req.method === 'PATCH' && reqUrl.pathname === '/upload/tus') {
-    res.writeHead(204, { 'Upload-Offset': req.headers['upload-offset'] || '0' });
+    const uploadId = reqUrl.searchParams.get('uploadId') || 'default';
+    const incoming = req.headers['upload-offset'];
+    const parsed = Number.parseInt(String(incoming ?? '0'), 10);
+    const offset = Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+    tusOffsets.set(uploadId, offset);
+    res.writeHead(204, { 'Upload-Offset': String(offset) });
     return res.end();
+  }
+  if (req.method === 'GET' && reqUrl.pathname === '/upload/tus') {
+    const uploadId = reqUrl.searchParams.get('uploadId') || 'default';
+    const stored = tusOffsets.get(uploadId) ?? 0;
+    return jsonResponse(res, 200, { uploadId, storedOffset: stored });
   }
   if (req.method !== 'GET') {
     return jsonResponse(res, 405, { error: 'method not allowed' });
@@ -343,7 +393,7 @@ function requestHandler(req, res) {
     case '/':
       return htmlResponse(res, indexPage(), 200);
     case '/upload':
-      return htmlResponse(res, uploadPage({ transport, break_, seed, autostart }), 200);
+      return htmlResponse(res, uploadPage({ transport, break_, seed, autostart, complete }), 200);
     default:
       return htmlResponse(res, indexPage(), 404);
   }

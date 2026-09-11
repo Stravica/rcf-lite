@@ -1,22 +1,23 @@
-// category-vocabulary probe for application-error-handling v1.0.3.
+// category-vocabulary probe for application-error-handling v1.0.5.
 //
-// Verifies that constructed records honour the ADR-1702 category
-// vocabulary (REQ-003). Iterates every recommended category, calls
-// /construct/<category>, asserts the response carries the same
-// category verbatim, and rejects an unknown category with 400.
+// Verifies the ADR-1702 recommended default vocabulary (transient,
+// permanent, unknown) via REQ-003 for the pass rows and AC-16105-4
+// for the unelicited-token refusal row.
 //
-// anchorReqId: application-error-handling-REQ-003.
+// anchorReqId: application-error-handling-REQ-003 on the accepted
+// vocabulary rows; anchorAcId: application-error-handling-AC-16105-4
+// on the refusal row.
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-error-handling-REQ-003';
 export const accountBound = false;
 
-const RECOMMENDED = ['validation', 'authorization', 'notFound', 'conflict', 'downstream', 'internal'];
+const RECOMMENDED = ['transient', 'permanent', 'unknown'];
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-error-handling/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
     for (const cat of RECOMMENDED) {
@@ -30,20 +31,45 @@ export default async function runProbe() {
         detail: pass
           ? `/construct/${cat} returned record with category="${cat}"`
           : `category fault: cat=${cat} status=${res.status} returnedCategory=${rec.category}`,
-        evidence: evidenceFromResponse({ route: `/construct/${cat}`, response: res, bodyText: body, extraFields: { requestedCategory: cat, returnedCategory: rec.category } }),
+        evidence: evidenceFromResponse({
+          route: `/construct/${cat}`,
+          response: res,
+          bodyText: body,
+          extraFields: {
+            input: { requestedCategory: cat },
+            derived: { returnedCategory: rec.category },
+          },
+        }),
       });
     }
 
+    // AC-16105-4 refusal path: an unelicited token is refused, not
+    // silently mapped. The fixture returns 400 with a body naming
+    // the refused token and the accepted set.
     const bad = await fetch(`${fixture.baseUrl}/construct/notARealCategory`);
     const badBody = await bad.text();
-    const badPass = bad.status === 400 && JSON.parse(badBody).error === 'unknown category';
+    const badParsed = JSON.parse(badBody);
+    const refusalOk = bad.status === 400
+      && badParsed.error === 'unelicited-category'
+      && badParsed.refused === 'notARealCategory'
+      && Array.isArray(badParsed.accepted)
+      && RECOMMENDED.every((c) => badParsed.accepted.includes(c));
     results.push({
+      anchorAcId: 'application-error-handling-AC-16105-4',
       anchorReqId: 'application-error-handling-REQ-003',
-      verdict: badPass ? 'pass' : 'fail',
-      detail: badPass
-        ? 'unknown category rejected with 400'
-        : `unknown-category fault: status=${bad.status} body=${badBody.slice(0, 120)}`,
-      evidence: evidenceFromResponse({ route: '/construct/notARealCategory', response: bad, bodyText: badBody }),
+      verdict: refusalOk ? 'pass' : 'fail',
+      detail: refusalOk
+        ? 'unelicited category refused at record construction (400 with refused/accepted body)'
+        : `refusal fault: status=${bad.status} error=${badParsed.error} refused=${badParsed.refused} accepted=${JSON.stringify(badParsed.accepted)}`,
+      evidence: evidenceFromResponse({
+        route: '/construct/notARealCategory',
+        response: bad,
+        bodyText: badBody,
+        extraFields: {
+          input: { requestedCategory: 'notARealCategory' },
+          derived: { httpStatus: bad.status, refused: badParsed.refused, accepted: badParsed.accepted },
+        },
+      }),
     });
     return { results };
   } finally {

@@ -1,6 +1,6 @@
 {
   "slug": "application-error-handling",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "category": "application",
   "providesRoles": [
     "errorHandling"
@@ -109,5 +109,5 @@
       "standardsTraceClause": "generic enterprise practice"
     }
   ],
-  "updatedAt": "2026-09-11"
+  "updatedAt": "2026-09-11T14:30:00Z"
 }

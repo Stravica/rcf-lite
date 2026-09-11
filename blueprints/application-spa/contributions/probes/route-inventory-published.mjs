@@ -1,55 +1,98 @@
-// route-inventory-published probe for application-spa v1.5.6.
+// route-inventory-published probe for application-spa v1.5.8.
 //
-// Verifies that the running shell publishes a route inventory to the
-// reader (REQ-001). The probe starts the sample-app fixture, GETs
-// /__routes, asserts the JSON body carries a non-empty routes[] with
-// path/name/state per entry, and records the fixture-echoed
-// x-fixture-request-id header plus a body excerpt as positive
-// evidence. It then GETs the shell HTML at / and asserts the same
-// inventory reappears in the <meta name="route-inventory"> attribute
-// so both surfaces agree.
+// Verifies the property AC-1101-1 protects: the shell publishes a
+// declared route inventory and every entry in that inventory is
+// reachable. The probe crawls each declared path from a plain GET
+// and compares the reachable set against the inventory, so both
+// surfaces are independently observed and the check is not the
+// same constant asserted against itself (Addendum rule 2).
 //
-// anchorReqId: application-spa-REQ-001.
+// anchorAcId: application-spa-AC-1101-1.
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-spa-REQ-001';
 export const accountBound = false;
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-spa/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
 
+    // Independent observation A: the JSON inventory.
     const routesRes = await fetch(`${fixture.baseUrl}/__routes`);
     const routesBody = await routesRes.text();
     const routesJson = JSON.parse(routesBody);
-    const shape = Array.isArray(routesJson.routes)
-      && routesJson.routes.length >= 3
+    const declaredPaths = Array.isArray(routesJson.routes)
+      ? routesJson.routes.map((r) => r.path)
+      : [];
+    const shape = declaredPaths.length >= 3
       && routesJson.routes.every((r) => typeof r.path === 'string' && typeof r.name === 'string' && typeof r.state === 'string');
+
+    // Independent observation B: crawl each declared path and record
+    // the reachable set from real HTTP responses. Comparing crawl
+    // vs inventory closes the loop without any shared constant.
+    const reachable = [];
+    const perPath = {};
+    for (const p of declaredPaths) {
+      const r = await fetch(`${fixture.baseUrl}${p}`);
+      const body = await r.text();
+      const ok = r.status === 200 && /<main[^>]+data-route=/.test(body);
+      if (ok) reachable.push(p);
+      perPath[p] = { status: r.status, ok };
+    }
+    const declaredSet = new Set(declaredPaths);
+    const reachableSet = new Set(reachable);
+    const missingFromReachable = declaredPaths.filter((p) => !reachableSet.has(p));
+    const extraInReachable = reachable.filter((p) => !declaredSet.has(p));
+    const parity = missingFromReachable.length === 0 && extraInReachable.length === 0;
+    const inventoryOk = routesRes.status === 200 && shape && declaredPaths.length >= 3;
+
     results.push({
+      anchorAcId: 'application-spa-AC-1101-1',
       anchorReqId: 'application-spa-REQ-001',
-      verdict: routesRes.status === 200 && shape ? 'pass' : 'fail',
-      detail: routesRes.status === 200 && shape
-        ? `GET /__routes returned ${routesJson.routes.length} routes with path/name/state`
-        : `route inventory malformed: status=${routesRes.status} body=${routesBody.slice(0, 120)}`,
-      evidence: evidenceFromResponse({ route: '/__routes', response: routesRes, bodyText: routesBody, extraFields: { routeCount: routesJson.routes ? routesJson.routes.length : 0 } }),
+      verdict: inventoryOk && parity ? 'pass' : 'fail',
+      detail: inventoryOk && parity
+        ? `inventory of ${declaredPaths.length} routes matches the reachable crawl set`
+        : `inventory-vs-crawl mismatch: declared=[${declaredPaths.join(',')}] missing=[${missingFromReachable.join(',')}] extra=[${extraInReachable.join(',')}]`,
+      evidence: evidenceFromResponse({
+        route: '/__routes',
+        response: routesRes,
+        bodyText: routesBody,
+        extraFields: {
+          input: { paths: declaredPaths },
+          derived: { reachableCount: reachable.length, perPath, missingFromReachable, extraInReachable },
+        },
+      }),
     });
 
+    // A second observation of AC-1101-1: the shell's <meta
+    // name="route-inventory"> is compared against the crawl set,
+    // not against the JSON constant. Two independent renderings of
+    // the same property agreeing is the derived output.
     const shellRes = await fetch(`${fixture.baseUrl}/`);
     const shellBody = await shellRes.text();
     const metaMatch = shellBody.match(/<meta name="route-inventory" content="([^"]+)"/);
     const shellPaths = metaMatch ? metaMatch[1].split(',') : [];
-    const jsonPaths = routesJson.routes.map((r) => r.path);
-    const agree = shellPaths.length === jsonPaths.length && shellPaths.every((p, i) => p === jsonPaths[i]);
+    const shellVsCrawl = shellPaths.length === reachable.length && shellPaths.every((p) => reachableSet.has(p));
+
     results.push({
+      anchorAcId: 'application-spa-AC-1101-1',
       anchorReqId: 'application-spa-REQ-001',
-      verdict: agree ? 'pass' : 'fail',
-      detail: agree
-        ? `<meta name="route-inventory"> matches /__routes: ${shellPaths.join(',')}`
-        : `inventory drift: meta=${shellPaths.join(',')} json=${jsonPaths.join(',')}`,
-      evidence: evidenceFromResponse({ route: '/', response: shellRes, bodyText: shellBody, extraFields: { metaPaths: shellPaths } }),
+      verdict: shellVsCrawl ? 'pass' : 'fail',
+      detail: shellVsCrawl
+        ? `<meta name="route-inventory"> ${shellPaths.join(',')} matches the crawled reachable set`
+        : `inventory drift: meta=${shellPaths.join(',')} crawlReachable=${reachable.join(',')}`,
+      evidence: evidenceFromResponse({
+        route: '/',
+        response: shellRes,
+        bodyText: shellBody,
+        extraFields: {
+          input: { metaPaths: shellPaths },
+          derived: { crawlReachable: reachable, shellVsCrawl },
+        },
+      }),
     });
 
     return { results };

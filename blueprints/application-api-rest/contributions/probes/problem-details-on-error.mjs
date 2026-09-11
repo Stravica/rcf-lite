@@ -1,21 +1,21 @@
-// problem-details-on-error probe for application-api-rest v2.1.5.
+// problem-details-on-error probe for application-api-rest v2.1.7.
 //
-// Verifies that error responses carry an RFC 7807 problem-details
-// body (REQ-009): the correct content-type
-// (application/problem+json) and the five required fields (type,
-// title, status, detail, instance). Records the request identifier
-// and body excerpt as evidence.
+// Verifies AC-2111-1 (RFC 7807 shape and content-type on any error
+// path) and AC-2111-3 (envelope status equals HTTP status line).
+// Each observation is a separate row so a defect at one AC does
+// not hide behind the other's pass.
 //
-// anchorReqId: application-api-rest-REQ-009.
+// anchorAcId: application-api-rest-AC-2111-1 (row 1) and
+// application-api-rest-AC-2111-3 (row 2).
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-api-rest-REQ-009';
 export const accountBound = false;
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
 
@@ -25,17 +25,50 @@ export default async function runProbe() {
     const cType = res.headers.get('content-type') || '';
     const requiredFields = ['type', 'title', 'status', 'detail', 'instance'];
     const missing = requiredFields.filter((k) => !(k in parsed));
-    const pass = res.status === 404
+    const shapeOk = res.status === 404
       && cType.includes('application/problem+json')
-      && missing.length === 0
-      && parsed.status === 404;
+      && missing.length === 0;
     results.push({
+      anchorAcId: 'application-api-rest-AC-2111-1',
       anchorReqId: 'application-api-rest-REQ-009',
-      verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `GET /v1/widgets/does-not-exist returned 404 application/problem+json with all five required fields`
-        : `problem-details fault: status=${res.status} contentType=${cType} missingFields=${JSON.stringify(missing)}`,
-      evidence: evidenceFromResponse({ route: '/v1/widgets/does-not-exist', response: res, bodyText: body, extraFields: { contentType: cType, missingFields: missing } }),
+      verdict: shapeOk ? 'pass' : 'fail',
+      detail: shapeOk
+        ? 'GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
+        : `problem-details shape fault: status=${res.status} contentType=${cType} missing=${JSON.stringify(missing)}`,
+      evidence: evidenceFromResponse({
+        route: '/v1/widgets/does-not-exist',
+        response: res,
+        bodyText: body,
+        extraFields: {
+          input: { path: '/v1/widgets/does-not-exist' },
+          derived: { contentType: cType, missingFields: missing },
+        },
+      }),
+    });
+
+    // Row 2: envelope status equals HTTP status line (AC-2111-3).
+    // Drive an unknown route to force a distinct 404 body and check
+    // both status positions agree.
+    const res2 = await fetch(`${fixture.baseUrl}/unknown-route`);
+    const body2 = await res2.text();
+    const parsed2 = JSON.parse(body2);
+    const equalOk = res2.status === 404 && parsed2.status === res2.status;
+    results.push({
+      anchorAcId: 'application-api-rest-AC-2111-3',
+      anchorReqId: 'application-api-rest-REQ-009',
+      verdict: equalOk ? 'pass' : 'fail',
+      detail: equalOk
+        ? `envelope status=${parsed2.status} equals HTTP status ${res2.status}`
+        : `status-equality fault: httpStatus=${res2.status} envelopeStatus=${parsed2.status}`,
+      evidence: evidenceFromResponse({
+        route: '/unknown-route',
+        response: res2,
+        bodyText: body2,
+        extraFields: {
+          input: { path: '/unknown-route' },
+          derived: { httpStatus: res2.status, envelopeStatus: parsed2.status, equal: parsed2.status === res2.status },
+        },
+      }),
     });
     return { results };
   } finally {

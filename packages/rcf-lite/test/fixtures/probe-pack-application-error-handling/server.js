@@ -1,64 +1,78 @@
 // Sample-app fixture for the application-error-handling probe pack.
 //
-// A dependency-free Node HTTP server carrying the smallest surface
-// the application-error-handling probes assert on:
+// A dependency-free Node HTTP server that carries the smallest
+// surface the application-error-handling probes assert on:
 //
 //   - /construct/:category: returns a constructed error record in
-//     the ADR-1701 shape (code, category, message, occurredAt,
-//     traceId, cause, context, remediation) with the requested
-//     category (REQ-002, REQ-003).
-//   - /boundary/framework: returns the record the framework-level
-//     handler produced from a synthetic uncaught exception (REQ-001,
-//     REQ-004). Emission is stubbed here: the record is appended to
-//     an in-memory sink readable at /emitted.
-//   - /boundary/process: same for the process-level handler, marked
-//     with source=process so the probe can pair the two.
-//   - /emitted: JSON list of the records emitted so a probe can pair
-//     the boundary calls with the recorded emits.
-//   - /healthz: liveness ping.
+//     the ADR-1701 exact six-field shape (code, category, message,
+//     correlationId, cause, context). The category vocabulary is
+//     the ADR-1702 recommended default set (transient, permanent,
+//     unknown); an unelicited category is refused per AC-16105-4
+//     with a 400 body naming the refusal.
+//   - /throw-handler: a framework-level boundary path that catches
+//     a synthetic uncaught exception, maps it to the wire body
+//     without leaking a stack, filesystem path or file:// URL, and
+//     appends the emitted record to /emitted (AC-16102-1).
+//   - /crash-process: a process-level boundary path that constructs
+//     one record for the caught exception, records it as emitted,
+//     and returns { didExit: 1 } so the probe can assert exit-code
+//     semantics without actually killing the fixture (AC-16101-1).
+//   - /emitted: JSON list of records the boundaries have emitted.
+//   - Every response carries x-fixture-request-id.
 //
-// Exports startServer({ port }) so probes and anatomy tests can drive
-// on ephemeral or fixed ports without a subprocess. Ports 47300-47399
-// are reserved for the shelf-gate probe packs; default is 3000 for
-// manual runs.
+// Ports 47300-47399 are reserved for shelf-gate probe packs.
 
 import http from 'node:http';
 import { URL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 
-const CATEGORIES = new Set([
-  'validation',
-  'authorization',
-  'notFound',
-  'conflict',
-  'downstream',
-  'internal',
-]);
+// ADR-1702 recommended default vocabulary. Additional categories
+// are elicited per project and are not accepted by the fixture.
+const CATEGORIES = new Set(['transient', 'permanent', 'unknown']);
 
-function constructRecord({ category, source }) {
+function constructRecord({ category, source, correlationId, cause }) {
+  // ADR-1701: exactly six fields; correlationId included; no
+  // occurredAt, no traceId, no remediation on the record.
   return {
     code: 'ERR_SAMPLE_' + category.toUpperCase(),
     category,
     message: `sample ${category} error`,
-    occurredAt: new Date().toISOString(),
-    traceId: randomUUID(),
-    cause: null,
+    correlationId: correlationId || randomUUID(),
+    cause: cause || null,
     context: { source: source || 'app', fixture: 'application-error-handling' },
-    remediation: `retry after correcting the ${category} input`,
   };
 }
 
-// In-memory emission sink. The two boundaries push here so the pair
-// is checkable via GET /emitted.
+// In-memory emission sink. Both boundaries push records here so the
+// pair is checkable via GET /emitted; the process boundary also
+// carries a boundary tag so the pair test can distinguish framework
+// vs process origin.
 const emitted = [];
+
+function stampRequestId(req, res) {
+  const inbound = req.headers['x-request-id'];
+  const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
+  res.setHeader('x-fixture-request-id', id);
+  return id;
+}
 
 function sendJson(res, status, body, headers = {}) {
   res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', ...headers });
   res.end(JSON.stringify(body));
 }
 
+function scrubForWire(text) {
+  // The framework-level boundary strips any /Users/, /home/ and
+  // file:// substring before the transport writes; AC-16102-2.
+  return String(text)
+    .replace(/\/Users\/[^\s"']+/g, '<path>')
+    .replace(/\/home\/[^\s"']+/g, '<path>')
+    .replace(/file:\/\/[^\s"']+/g, '<uri>');
+}
+
 function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || '127.0.0.1'}`);
+  const requestId = stampRequestId(req, res);
   if (url.pathname === '/healthz') {
     res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('ok');
@@ -68,11 +82,66 @@ function handler(req, res) {
     sendJson(res, 200, { emitted });
     return;
   }
+  if (url.pathname === '/throw-handler') {
+    // A handler that throws produces a mapped wire body (AC-16102-1).
+    // The synthetic exception carries a stack with /Users/, /home/
+    // and file:// substrings; the wire body must carry none of them
+    // (AC-16102-2). The record is appended to /emitted with source
+    // marked framework-boundary.
+    let record;
+    try {
+      const err = new Error('handler threw during request');
+      err.stack = 'Error: handler threw during request\n    at handler (/Users/probe/app.js:12:3)\n    at (/home/ci/build/dispatch.js:44:5)\n    at file:///opt/app/router.js:2:1';
+      throw err;
+    } catch (thrown) {
+      record = constructRecord({
+        category: 'permanent',
+        source: 'framework-boundary',
+        cause: { message: scrubForWire(thrown.message), category: 'unknown' },
+      });
+      emitted.push({ ...record, boundary: 'framework', requestId });
+      // Wire response: mapped, no stack, no path, no file:// URL.
+      sendJson(res, 500, {
+        error: {
+          code: record.code,
+          category: record.category,
+          message: record.message,
+          correlationId: record.correlationId,
+        },
+        wireVersion: 1,
+      }, { 'x-fixture-request-id': requestId });
+      return;
+    }
+  }
+  if (url.pathname === '/crash-process') {
+    // Process-level boundary: constructs one record for the caught
+    // exception and reports its intent to exit with code 1
+    // (AC-16101-1). The fixture reports rather than actually
+    // exiting; the response body carries didExit: 1 so the probe
+    // can assert the exit-status contract without the fixture
+    // dying under it.
+    const record = constructRecord({
+      category: 'unknown',
+      source: 'process-boundary',
+      cause: { message: 'synthetic uncaughtException', category: 'unknown' },
+    });
+    emitted.push({ ...record, boundary: 'process', requestId });
+    sendJson(res, 200, { record, didExit: 1 }, { 'x-fixture-request-id': requestId });
+    return;
+  }
   const constructMatch = url.pathname.match(/^\/construct\/([a-zA-Z]+)$/);
   if (constructMatch) {
     const category = constructMatch[1];
     if (!CATEGORIES.has(category)) {
-      sendJson(res, 400, { error: 'unknown category', requested: category, allowed: [...CATEGORIES] });
+      // AC-16105-4: an unelicited token is refused, not silently
+      // accepted. The response body names the refused token and
+      // the accepted set.
+      sendJson(res, 400, {
+        error: 'unelicited-category',
+        refused: category,
+        accepted: [...CATEGORIES],
+        detail: 'category token not in ADR-1702 defaults and not elicited by this project',
+      });
       return;
     }
     const record = constructRecord({ category, source: 'construct' });
@@ -80,14 +149,14 @@ function handler(req, res) {
     return;
   }
   if (url.pathname === '/boundary/framework') {
-    const record = constructRecord({ category: 'internal', source: 'framework-boundary' });
-    emitted.push({ ...record, boundary: 'framework' });
+    const record = constructRecord({ category: 'unknown', source: 'framework-boundary' });
+    emitted.push({ ...record, boundary: 'framework', requestId });
     sendJson(res, 500, { boundary: 'framework', record });
     return;
   }
   if (url.pathname === '/boundary/process') {
-    const record = constructRecord({ category: 'internal', source: 'process-boundary' });
-    emitted.push({ ...record, boundary: 'process' });
+    const record = constructRecord({ category: 'unknown', source: 'process-boundary' });
+    emitted.push({ ...record, boundary: 'process', requestId });
     sendJson(res, 500, { boundary: 'process', record });
     return;
   }

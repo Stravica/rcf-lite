@@ -1,36 +1,52 @@
-// record-shape-adr-1701 probe for application-error-handling v1.0.3.
+// record-shape-adr-1701 probe for application-error-handling v1.0.5.
 //
-// Verifies that a constructed error record carries every field
-// governed by ADR-1701 (REQ-002): code, category, message,
-// occurredAt, traceId, cause, context, remediation. Records the
-// response identifier and body excerpt as evidence.
+// Verifies REQ-002: the constructed error record carries exactly
+// the six ADR-1701 fields (code, category, message, correlationId,
+// cause, context) and no others. REQ-002 is the layer that owns
+// the exact record shape; the check is exact-equality on the field
+// set (no missing, no extras).
 //
-// anchorReqId: application-error-handling-REQ-002.
+// anchorAcId: none owns the exact shape at the AC layer; the check
+// anchors REQ-002 per Addendum rule 1 (fall through to REQ when no
+// AC states the property).
 
-import { startPatchedFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-error-handling-REQ-002';
 export const accountBound = false;
 
-const REQUIRED = ['code', 'category', 'message', 'occurredAt', 'traceId', 'cause', 'context', 'remediation'];
+const REQUIRED_EXACT = ['code', 'category', 'message', 'correlationId', 'cause', 'context'];
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-error-handling/server.js');
-  const fixture = await startPatchedFixture({ startServer, port: 0 });
+  const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
-    const res = await fetch(`${fixture.baseUrl}/construct/validation`);
+    const res = await fetch(`${fixture.baseUrl}/construct/transient`);
     const body = await res.text();
     const rec = JSON.parse(body);
-    const missing = REQUIRED.filter((k) => !(k in rec));
-    const pass = res.status === 200 && missing.length === 0 && typeof rec.occurredAt === 'string' && rec.category === 'validation';
+    const actualKeys = Object.keys(rec).sort();
+    const expectedKeys = [...REQUIRED_EXACT].sort();
+    const missing = REQUIRED_EXACT.filter((k) => !(k in rec));
+    const extras = actualKeys.filter((k) => !REQUIRED_EXACT.includes(k));
+    const exact = missing.length === 0 && extras.length === 0
+      && rec.category === 'transient'
+      && typeof rec.correlationId === 'string' && rec.correlationId.length > 0;
     results.push({
       anchorReqId: 'application-error-handling-REQ-002',
-      verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `constructed record for category="validation" carries all ADR-1701 fields`
-        : `record-shape fault: status=${res.status} missing=${JSON.stringify(missing)} category=${rec.category}`,
-      evidence: evidenceFromResponse({ route: '/construct/validation', response: res, bodyText: body, extraFields: { missingFields: missing } }),
+      verdict: res.status === 200 && exact ? 'pass' : 'fail',
+      detail: res.status === 200 && exact
+        ? 'record has exactly six ADR-1701 fields with a non-empty correlationId'
+        : `record-shape fault: status=${res.status} missing=${JSON.stringify(missing)} extras=${JSON.stringify(extras)} category=${rec.category} correlationId=${rec.correlationId}`,
+      evidence: evidenceFromResponse({
+        route: '/construct/transient',
+        response: res,
+        bodyText: body,
+        extraFields: {
+          input: { category: 'transient' },
+          derived: { actualKeys, expectedKeys, missing, extras, correlationIdLen: rec.correlationId ? rec.correlationId.length : 0 },
+        },
+      }),
     });
     return { results };
   } finally {

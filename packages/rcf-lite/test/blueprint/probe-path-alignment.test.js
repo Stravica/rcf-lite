@@ -105,7 +105,7 @@ test('probe-path alignment pre-condition: blueprint versions', async () => {
   // The compose invariants this test asserts are unchanged; only the version markers move.
   const EXPECTED_ESSENTIALS = '2.1.2';
   const EXPECTED_PROBE_ENDPOINTS = '1.2.1';
-  const EXPECTED_API_REST = '2.1.6';
+  const EXPECTED_API_REST = '2.1.7';
   assert.equal(es.version, EXPECTED_ESSENTIALS, `essentials must be at v${EXPECTED_ESSENTIALS}`);
   assert.equal(pe.version, EXPECTED_PROBE_ENDPOINTS, `probe-endpoints must be at v${EXPECTED_PROBE_ENDPOINTS}`);
   // api-rest bumped to 2.1.0 in the core-companions train (additive

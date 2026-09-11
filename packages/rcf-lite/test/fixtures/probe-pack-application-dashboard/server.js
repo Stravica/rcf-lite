@@ -30,6 +30,14 @@
 
 import http from 'node:http';
 import { URL } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+function stampRequestId(req, res) {
+  const inbound = req.headers['x-request-id'];
+  const id = typeof inbound === 'string' && inbound.length > 0 ? inbound : randomUUID();
+  res.setHeader('x-fixture-request-id', id);
+  return id;
+}
 
 // Fixed as-of stamp (overridable via ?asof=<iso>) so the pack's
 // fan-out check reads a stable value regardless of the wall clock.
@@ -278,6 +286,7 @@ function normaliseTileState(v) {
 
 function handler(req, res) {
   const url = new URL(req.url, 'http://127.0.0.1');
+  stampRequestId(req, res);
   if (req.method !== 'GET') {
     res.writeHead(405, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('method not allowed');
