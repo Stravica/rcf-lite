@@ -21,7 +21,7 @@ recipient for real evidence.
   covers issue, wrong-email refusal, happy verify, replay refusal
   and expired-token refusal on a deterministic clock).
 - `token-entropy-shape` (local, capability `principalDirectory`;
-  200 tokens uniqueness + base64url shape check).
+  1,000 tokens uniqueness + base64url shape check).
 - `real-account-magic-link-send` (live against Resend HTTP API;
   issues a real token, sends to `delivered@resend.dev` from
   `onboarding@resend.dev`, records the Resend-assigned email id

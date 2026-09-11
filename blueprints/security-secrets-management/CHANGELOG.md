@@ -2,7 +2,7 @@
 
 ## 1.1.5 - 2026-09-11
 
-- Criterion-e probe pack fix pass: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (all ten SOPS-native rows move from `REQ-002` to `AC-8102-1`, the manager-module surface these probes do not observe). Detail strings on de-claimed rows describe only what was observed at the SOPS crypto layer and no longer name REQ-002. Anatomy helper tightened: conformance-only rows must satisfy `anchorAcId === null`, limitations must open with an `AC-<n>-<n>` id (REQ-prefixed anchors are refused), and pre-delete presence is no longer counted as an absence observation on the inventory-diff shape. Probe comments and CHANGELOG prose reworded to drop lane/review labels.
+- Criterion-e probe pack refinement: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (all ten SOPS-native rows move from `REQ-002` to `AC-8102-1`, the manager-module surface these probes do not observe). Detail strings on de-claimed rows describe only what was observed at the SOPS crypto layer and no longer name REQ-002. The anatomy helper enforces conformance-only rows to satisfy `anchorAcId === null`, requires limitations to open with an `AC-<n>-<n>` id that resolves to a shipped acceptance criterion on the blueprint's user stories (REQ-prefixed anchors are refused and fabricated ids are rejected), and does not count pre-delete presence as an absence observation on the inventory-diff shape.
 
 ## 1.1.4 - 2026-09-11
 

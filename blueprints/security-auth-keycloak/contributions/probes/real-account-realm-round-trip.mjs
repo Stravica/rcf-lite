@@ -1,14 +1,17 @@
 // Real-account Keycloak realm round-trip for security-auth-
-// keycloak. When a live Keycloak realm is available, discovers the
-// realm's OIDC document, obtains an admin token via client-
-// credentials, creates a scratch user, reads it back, and deletes
-// it - capturing the Keycloak-assigned user id and every response's
-// HTTP status for evidence. When no realm is available, honest-skips
-// per rule 7d naming CI_HAS_KEYCLOAK_ACCOUNT.
-//
-// This estate does not expose a live Keycloak client to the shelf
-// probes; the AMBER outcome on the shelf review is the honest
-// state until an estate-owned realm is wired to CI.
+// keycloak. This estate does not expose a live Keycloak realm to
+// the probe pack. When the gate variable CI_HAS_KEYCLOAK_ACCOUNT is
+// unset the probe honest-skips per rule 7d naming that variable;
+// when every gate and second-tier variable is set the credential-
+// present branch returns a FAIL row with a NOT IMPLEMENTED detail
+// (no live round-trip has been authored) rather than silently
+// passing. The live branch is intended to discover the realm's
+// OIDC document, obtain an admin token via client credentials,
+// create a scratch user, read it back, and delete it, capturing
+// the Keycloak-assigned user id and every response's HTTP status
+// for evidence. It will be authored when an estate-owned realm is
+// wired to CI. The slug reads AMBER on criterion e until that
+// happens.
 //
 // capability: principalDirectory + sessionInventory (composite).
 // Anchor: AC-11112-2 (live cloud-hosted-realm smoke
@@ -77,7 +80,7 @@ export default async function runProbe() {
   return {
     results: [{
       anchorAcId, capability, verdict: 'fail',
-      detail: 'AC-11112-2 live branch is NOT IMPLEMENTED. Every gate variable is set, but the estate has no wired live Keycloak realm and no round-trip code has been authored. Supplying credentials does not silently pass; the branch must be implemented before this result flips to pass. Local shape evidence is proven by the local probes in this pack (AMBER on the live branch is the honest shelf reading).',
+      detail: 'AC-11112-2 live branch is NOT IMPLEMENTED. Every gate variable is set, but the estate has no wired live Keycloak realm and no round-trip code has been authored. Supplying credentials does not silently pass; the branch must be implemented before this result flips to pass. Local shape evidence is proven by the local probes in this pack; the live branch remains AMBER until an estate-owned realm is wired.',
     }],
     extra: {
       envDeclared: [...DECLARED_ENV],

@@ -10,10 +10,9 @@
 //
 // capability: secretsProvider.
 // Anchor honesty. No AC or REQ observes the SOPS-native
-//   byte-equality property this probe evidences. Per
-//   addendum rule 1 the honest posture here is to leave the
-//   probe unanchored (anchorAcId=null) and record the evidence
-//   as vendor-conformance for ADR-902's default vendor (sops+age).
+//   byte-equality property this probe evidences, so the probe is
+//   left unanchored (anchorAcId=null) and records the evidence as
+//   vendor-conformance for ADR-902's default vendor (sops+age).
 //   The slug reads AMBER on criterion e until a manager-client
 //   probe is added that observes AC-8102-1 at the module boundary.
 // accountBound: false (real sops+age engine on this machine).
@@ -30,11 +29,10 @@ export const anchorAcId = null; // No AC or REQ observes the SOPS-native encrypt
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
-// Rule (master-brief addendum 2 rule 10): probes pass an
-// explicit minimal env to sops children, never a spread of the
-// entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
-// HOME are forwarded; the fixture README's env-var table is the
-// declared surface.
+// Probes pass an explicit minimal env to sops children, never a
+// spread of the entire ambient process.env. Only SOPS_AGE_KEY_FILE,
+// PATH and HOME are forwarded; the fixture README's env-var table
+// is the declared surface.
 function sopsEnv(keyPath) {
   return {
     SOPS_AGE_KEY_FILE: keyPath,

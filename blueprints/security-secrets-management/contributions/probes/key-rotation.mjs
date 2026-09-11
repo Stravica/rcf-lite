@@ -18,11 +18,10 @@ import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
 
-// Rule (master-brief addendum 2 rule 10): probes pass an
-// explicit minimal env to sops children, never a spread of the
-// entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
-// HOME are forwarded; the fixture README's env-var table is the
-// declared surface.
+// Probes pass an explicit minimal env to sops children, never a
+// spread of the entire ambient process.env. Only SOPS_AGE_KEY_FILE,
+// PATH and HOME are forwarded; the fixture README's env-var table
+// is the declared surface.
 function sopsEnv(keyPath) {
   return {
     SOPS_AGE_KEY_FILE: keyPath,

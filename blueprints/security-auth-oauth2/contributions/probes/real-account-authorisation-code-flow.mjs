@@ -43,7 +43,7 @@ export default async function runProbe() {
         accountBoundSkipped: true,
         reason: 'CI_HAS_OAUTH2_PROVIDER',
         envDeclared: [...DECLARED_ENV],
-        note: 'No live commercial OAuth 2.0 IdP is available in this estate. Local shipped-shape evidence is authorisation-code-flow-shape against the fixture mock. AMBER on the shelf review is the honest outcome for the live branch.',
+        note: 'No live commercial OAuth 2.0 IdP is available in this estate. Local shipped-shape evidence is authorisation-code-flow-shape against the fixture mock. The live branch reads AMBER on criterion e until an IdP is wired.',
       },
     };
   }
@@ -82,7 +82,7 @@ export default async function runProbe() {
   return {
     results: [{
       anchorAcId, capability, verdict: 'fail',
-      detail: 'AC-10110-2 live branch is NOT IMPLEMENTED. Every gate variable is set, but the estate has no wired live commercial IdP and no round-trip code has been authored. Supplying credentials does not silently pass; the branch must be implemented before this result flips to pass. Local shipped-shape evidence is authorisation-code-flow-shape against the fixture mock (AMBER on the live branch is the honest shelf reading).',
+      detail: 'AC-10110-2 live branch is NOT IMPLEMENTED. Every gate variable is set, but the estate has no wired live commercial IdP and no round-trip code has been authored. Supplying credentials does not silently pass; the branch must be implemented before this result flips to pass. Local shipped-shape evidence is authorisation-code-flow-shape against the fixture mock; the live branch remains AMBER until an IdP is wired.',
     }],
     extra: {
       envDeclared: [...DECLARED_ENV],

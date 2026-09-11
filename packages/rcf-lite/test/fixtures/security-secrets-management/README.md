@@ -45,7 +45,7 @@ The pack reads EXACTLY the four env vars in the table above.
 The sops child processes receive a minimal env constructed by the
 probes' `sopsEnv(keyPath)` helper - `SOPS_AGE_KEY_FILE`, `PATH`,
 `HOME` and nothing else; the entire ambient `process.env` is NEVER
-spread into the sops child (closure addendum rule 10). The pack
+spread into the sops child. The pack
 does NOT read `CLERK_SECRET_KEY`, `RESEND_API_KEY`, `CI_HAS_*`, or
 any external secret; everything runs against scratch keypairs the
 probes generate and destroy in the same run.

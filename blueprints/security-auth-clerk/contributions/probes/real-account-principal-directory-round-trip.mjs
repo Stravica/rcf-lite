@@ -10,9 +10,14 @@
 // row is emitted with `anchorAcId: null` and a limitation naming
 // the nearest shipped AC whose property the probe does not
 // observe. Positive evidence per rule 7d is preserved on the row:
-// the Clerk-assigned user_ id, the X-Request-ID header returned on
-// every call, the created-then-deleted resource id in the pre-diff
-// / post-diff inventory pair, and the HTTP status codes.
+// the Clerk-assigned user_ id, the created-then-deleted resource id
+// in the pre-diff / post-diff inventory pair, and the HTTP status
+// codes. The probe reads the X-Request-Id header from each response
+// and records it on every call, but Clerk's Backend API did not
+// return that header on the instance these records were captured
+// from, so every request-id field is null; the evidence rests on
+// the created id, the inventory-diff pair and the response
+// statuses rather than on request-id capture.
 //
 // Teardown is fail-safe: a mid-run crash leaves the user address
 // deterministic; the finally block always issues DELETE. A

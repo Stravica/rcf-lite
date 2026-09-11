@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { assertShape } from './_security-e-anatomy-shape.mjs';
+import { assertShape, loadShippedAcIds } from './_security-e-anatomy-shape.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -15,12 +15,15 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-auth-keycloak');
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-keycloak');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
-// Anatomy shape asserter , delegates to the shared shape helper in
+// Anatomy shape asserter. Delegates to the shared shape helper in
 // _security-e-anatomy-shape.mjs. The helper enforces the four 7d
 // shape combinations (request id + status + body, created-then-
-// deleted inventory diff, deploy record, skip, conformanceOnly+
-// limitation) rather than a flat allow-list of keys, per _closure3.md.
-function assertEvidenceOrSkip(r, ctx = '') { assertShape(r, ctx); }
+// deleted inventory diff, deploy record, skip, conformanceOnly plus
+// limitation) rather than a flat allow-list of keys, and refuses a
+// conformanceOnly limitation whose AC id does not name a shipped
+// acceptance criterion on this blueprint's user stories.
+const SHIPPED_ACS = await loadShippedAcIds(BLUEPRINT_ROOT);
+function assertEvidenceOrSkip(r, ctx = '') { assertShape(r, ctx, { shippedAcIds: SHIPPED_ACS }); }
 
 
 test('security-auth-keycloak pack: expected probe files present', async () => {

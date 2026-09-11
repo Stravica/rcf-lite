@@ -13,13 +13,18 @@
 //
 // What THIS probe drives at the Backend API surface. Create a
 // scratch user; mint a sign-in token for that user with
-// `POST /v1/sign_in_tokens`; capture the token id and X-Request-Id;
-// revoke it with `POST /v1/sign_in_tokens/{id}/revoke`; re-fetch
-// the token to observe the `revoked` status flip (or 404). Delete
-// the user in the finally block. Positive evidence per rule 7d is
-// preserved: the Clerk request-id header on every call, the
-// Clerk-assigned token id (created-then-revoked resource id in the
-// token's lifecycle state, shape 3), and the HTTP statuses.
+// `POST /v1/sign_in_tokens`; capture the returned token id; revoke
+// it with `POST /v1/sign_in_tokens/{id}/revoke`; re-fetch the
+// token to observe the `revoked` status flip (or 404). Delete the
+// user in the finally block. Positive evidence per rule 7d is
+// preserved: the Clerk-assigned token id (created-then-revoked
+// resource id in the token's lifecycle state, shape 3), and the
+// HTTP statuses. The probe reads the X-Request-Id header from each
+// response and records it on every call, but Clerk's Backend API
+// did not return that header on the instance these records were
+// captured from, so every request-id field is null; the evidence
+// rests on the token lifecycle transitions and response statuses
+// rather than on request-id capture.
 //
 // engine: clerk-backend-api (live) or skip:CI_HAS_CLERK_ACCOUNT.
 // accountBound: true.

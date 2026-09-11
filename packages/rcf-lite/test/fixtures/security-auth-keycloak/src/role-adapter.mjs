@@ -35,7 +35,7 @@ export function mapKeycloakRoles(claims, { clientId, roleClaimShape } = {}) {
     if (!Array.isArray(realmRoles)) return refuseMalformed(`realm_access.roles must be an array; observed ${typeof realmRoles}`);
     pick.realm = realmRoles;
   } else if (shape === 'both-roles') {
-    // Legacy shape kept for pre-closure call sites: combine realm + client.
+    // Legacy shape retained for callers that combine realm + client.
     if (realmRoles !== undefined) {
       if (!Array.isArray(realmRoles)) return refuseMalformed(`realm_access.roles must be an array; observed ${typeof realmRoles}`);
       pick.realm = realmRoles;
