@@ -144,7 +144,7 @@ export default async function runProbe() {
   const body = Buffer.alloc(1024, 0x48);
   try {
     await store.ready();
-    await store.putObject(key, 'application/octet-stream', body);
+    const putRes = await store.putObject(key, 'application/octet-stream', body);
     const got = await store.getObject(key);
     const roundTripEqual = got.body.length === 1024 && got.body.equals(body);
     results.push({
@@ -153,7 +153,12 @@ export default async function runProbe() {
       detail: roundTripEqual
         ? `${AC28110_1} - Hetzner Object Storage round-trip byte-equal against the composed vendor endpoint`
         : `${AC28110_1} - Hetzner Object Storage round-trip failed byte equality; expected 1024 bytes got ${got.body.length}`,
-      evidence: { endpointVendorPatternMatched: true, bucketNamePresent: Boolean(bucket), locationCode: location, byteCount: got.body.length },
+      evidence: {
+        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
+        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
+        endpointVendorPatternMatched: true, bucketNamePresent: Boolean(bucket),
+        locationCode: location, byteCount: got.body.length,
+      },
     });
     const evAssertion = assertMetadataOnlyEventRecords(events);
     results.push({
@@ -162,15 +167,22 @@ export default async function runProbe() {
       detail: evAssertion.pass
         ? `${AC28110_1} - every lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
         : `${AC28110_1} - event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
-      evidence: { whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [], eventCount: events.length },
+      evidence: {
+        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
+        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
+        whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [],
+        eventCount: events.length,
+      },
     });
   } finally {
     // Teardown outcomes are recorded on the results per authoring-standard rule
     // 5; a teardown FAILURE fails the verdict.
     const teardown = { deleteObject: null };
+    let teardownDeleteRequestId = null;
     try {
-      await store.deleteObject(key);
-      teardown.deleteObject = { key, ok: true };
+      const dRes = await store.deleteObject(key);
+      teardownDeleteRequestId = (dRes && dRes.requestId) || null;
+      teardown.deleteObject = { key, ok: true, requestId: teardownDeleteRequestId };
     } catch (err) {
       teardown.deleteObject = { key, ok: false, error: err && err.message };
     }
@@ -190,7 +202,10 @@ export default async function runProbe() {
       detail: teardown.deleteObject && teardown.deleteObject.ok
         ? `${AC28110_1} - scratch object ${key} deleted on teardown`
         : `${AC28110_1} - scratch object teardown FAILED: ${JSON.stringify(teardown.deleteObject)}`,
-      evidence: { teardown },
+      evidence: {
+        vendorRequestId: teardownDeleteRequestId,
+        teardown, teardownOk: teardown.deleteObject && teardown.deleteObject.ok,
+      },
     });
   }
   return { results, extra: { envDeclared: [...DECLARED_ENV] } };

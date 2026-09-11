@@ -65,6 +65,9 @@ export default async function runProbe() {
     const pool = store.getPool();
     await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
     await pool.query('TRUNCATE users');
+    const pidRT = await pool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+    const backendPid = String(pidRT.rows[0].pid);
+    const transactionId = String(pidRT.rows[0].txid);
     const email = 'transaction-atomicity@rcf.test';
     let caught = null;
     try {
@@ -82,7 +85,7 @@ export default async function runProbe() {
       detail: errorThrown
         ? `${AC} - withTransaction re-threw underlying error code=${caught.code}`
         : `${AC} - withTransaction did not throw on the constraint violation`,
-      evidence: { databaseName, thrownErrorCode: caught && caught.code, thrownMessage: caught && caught.message },
+      evidence: { backendPid, transactionId, databaseName, thrownErrorCode: caught && caught.code, thrownMessage: caught && caught.message },
     });
     const rolledBackEvent = events.find((e) => e.event === 'transactionRolledBack');
     const indexIsOne = rolledBackEvent && rolledBackEvent.statementIndex === 1;
@@ -92,7 +95,7 @@ export default async function runProbe() {
       detail: rolledBackEvent
         ? `${AC} - transactionRolledBack fired with statementIndex=${rolledBackEvent.statementIndex} code=${rolledBackEvent.code}`
         : `${AC} - transactionRolledBack did not fire; events=${events.map((e) => e.event).join(',')}`,
-      evidence: { databaseName, transactionRolledBackEvent: rolledBackEvent || null, allEvents: events, rolledBackTimestamp: rolledBackEvent ? new Date(rolledBackEvent.ts).toISOString() : null, rolledBackVerificationOk: !!rolledBackEvent && rolledBackEvent.statementIndex === 1 },
+      evidence: { backendPid, transactionId, databaseName, transactionRolledBackEvent: rolledBackEvent || null, allEvents: events, rolledBackTimestamp: rolledBackEvent ? new Date(rolledBackEvent.ts).toISOString() : null, rolledBackVerificationOk: !!rolledBackEvent && rolledBackEvent.statementIndex === 1 },
     });
     const count = await store.countUsers();
     const noRowsPersist = count === 0;
@@ -102,7 +105,7 @@ export default async function runProbe() {
       detail: noRowsPersist
         ? `${AC} - users table empty after rollback (no partial commit landed)`
         : `${AC} - users table carries ${count} row(s) after rollback (partial commit leaked)`,
-      evidence: { databaseName, postRollbackUserCount: count, postRollbackVerificationOk: count === 0 },
+      evidence: { backendPid, transactionId, databaseName, postRollbackUserCount: count, postRollbackVerificationOk: count === 0 },
     });
   } finally {
     const teardown = [];

@@ -58,7 +58,7 @@ export default async function runProbe() {
   const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
   try {
     await store.ready();
-    await store.putObject(key, contentType, body);
+    const putRes = await store.putObject(key, contentType, body);
     const got = await store.getObject(key);
     const roundTripPass = got.body.length === 1024
       && got.body.equals(body)
@@ -71,11 +71,19 @@ export default async function runProbe() {
       detail: roundTripPass && eventPass
         ? `${AC28102_1} - 1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
         : `${AC28102_1} - roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
-      evidence: { bucketName: bucket, key, requestedContentType: contentType, gotContentType: got.contentType, gotSize: got.body.length, byteEqual: got.body.equals(body), objectPutEvent: putEvent || null },
+      evidence: {
+        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
+        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
+        bucketName: bucket, key,
+        requestedContentType: contentType, gotContentType: got.contentType,
+        gotSize: got.body.length, byteEqual: got.body.equals(body),
+        objectPutEvent: putEvent || null,
+      },
     });
 
     // list under prefix
-    for (const k of listKeys) await store.putObject(k, 'text/plain', Buffer.from(k));
+    const listPuts = [];
+    for (const k of listKeys) listPuts.push(await store.putObject(k, 'text/plain', Buffer.from(k)));
     const listed = await store.listObjects(prefix);
     const listPass = listKeys.every((k) => listed.keys.includes(k)) && typeof listed.isTruncated === 'boolean';
     results.push({
@@ -84,11 +92,16 @@ export default async function runProbe() {
       detail: listPass
         ? `${AC28102_3} - list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}`
         : `${AC28102_3} - listed=${JSON.stringify(listed)}`,
-      evidence: { bucketName: bucket, prefix, expectedKeys: listKeys, returnedKeys: listed.keys, isTruncated: listed.isTruncated },
+      evidence: {
+        vendorRequestId: (listed && listed.requestId) || (listPuts.find((p) => p && p.requestId) || {}).requestId || null,
+        bucketName: bucket, prefix,
+        expectedKeys: listKeys, returnedKeys: listed.keys,
+        isTruncated: listed.isTruncated,
+      },
     });
 
     // delete and confirm 404
-    await store.deleteObject(key);
+    const delRes = await store.deleteObject(key);
     let deletedEvent = events.find((e) => e.event === 'objectDeleted' && e.key === key);
     let notFound = false;
     try { await store.getObject(key); } catch (err) {
@@ -101,7 +114,12 @@ export default async function runProbe() {
       detail: deletedEvent && notFound
         ? `${AC28102_2} - objectDeleted fired and get after delete returned NoSuchKey`
         : `${AC28102_2} - deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
-      evidence: { bucketName: bucket, key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
+      evidence: {
+        vendorRequestId: (delRes && delRes.requestId) || null,
+        bucketName: bucket, key,
+        objectDeletedEvent: deletedEvent || null,
+        getAfterDeleteWasNotFound: notFound,
+      },
     });
     // Teardown: delete the list keys and close the facade. Every
     // teardown step is recorded on the teardown[] accumulator and any

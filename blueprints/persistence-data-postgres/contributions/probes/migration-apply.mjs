@@ -131,10 +131,23 @@ export default async function runProbe() {
   // --- Phase 1: happy path ---
   await resetSchema(url);
   const events = [];
+  // Engine-returned identifier for phase-1 counting rows.
+  let phase1BackendPid = null;
+  let phase1TransactionId = null;
+  let phase1MigrationVersion = null;
   const { applied } = await applyAll({
     connectionUrl: url,
     onEvent: (e) => events.push(e),
   });
+  try {
+    const capStore = await createStore({ connectionUrl: url });
+    await capStore.ready();
+    const capR = await capStore.getPool().query('SELECT pg_backend_pid() AS pid, txid_current() AS txid, (SELECT count(*)::int FROM schema_version) AS v');
+    phase1BackendPid = String(capR.rows[0].pid);
+    phase1TransactionId = String(capR.rows[0].txid);
+    phase1MigrationVersion = String(capR.rows[0].v);
+    await capStore.close();
+  } catch { /* live-only capture; unset stays null */ }
   const expected = ['001_create_users.sql', '002_add_email_unique.sql', '003_add_created_at.sql'];
   const listsEqual = applied.length === expected.length
     && expected.every((f, i) => applied[i] === f);
@@ -143,6 +156,9 @@ export default async function runProbe() {
     verdict: listsEqual ? 'pass' : 'fail',
     detail: `Given a fresh Postgres database at schema_version 0 - applied=${JSON.stringify(applied)} expected=${JSON.stringify(expected)}`,
     evidence: {
+      backendPid: phase1BackendPid,
+      migrationVersion: phase1MigrationVersion,
+      transactionId: phase1TransactionId,
       appliedFilesList: applied,
       applied,
       expected,
@@ -161,6 +177,9 @@ export default async function runProbe() {
       ? `Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=${JSON.stringify(migratedEvent.applied)}`
       : `Given a fresh Postgres database at schema_version 0 - migrationsApplied event missing or wrong shape; events=${JSON.stringify(events)}`,
     evidence: {
+      backendPid: phase1BackendPid,
+      migrationVersion: phase1MigrationVersion,
+      transactionId: phase1TransactionId,
       migrationsAppliedEvent: migratedEvent || null,
       phase: 'happy-path',
       appliedFilesList: migratedEvent && migratedEvent.applied ? migratedEvent.applied : [],
@@ -178,11 +197,17 @@ export default async function runProbe() {
     const r = await pool.query('SELECT filename, applied_at FROM schema_version ORDER BY filename');
     schemaVersionRows = r.rows;
     const versionRowsPass = schemaVersionRows.length === 3;
+    const svPidR = await pool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+    const svBackendPid = String(svPidR.rows[0].pid);
+    const svTxId = String(svPidR.rows[0].txid);
     results.push({
       anchorAcId: 'AC-27102-1',
       verdict: versionRowsPass ? 'pass' : 'fail',
       detail: `Given a fresh Postgres database at schema_version 0 - schema_version rows=${schemaVersionRows.length} (expected 3, i.e. schema_version advanced to 3)`,
       evidence: {
+        backendPid: svBackendPid,
+        transactionId: svTxId,
+        migrationVersion: String(schemaVersionRows.length),
         appliedFilesList: schemaVersionRows.map((r) => r.filename),
         schemaVersionRows,
         phase: 'happy-path',
@@ -206,6 +231,9 @@ export default async function runProbe() {
   const stderrFailingFilename = failingFilename ? failingFilename[1] : null;
   const store2 = await createStore({ connectionUrl: url });
   let atomicityEvidence = null;
+  let inducedBackendPid = null;
+  let inducedTransactionId = null;
+  let inducedMigrationVersion = null;
   try {
     await store2.ready();
     const pool = store2.getPool();
@@ -220,7 +248,14 @@ export default async function runProbe() {
        WHERE t.relname = 'users' AND c.contype = 'u'`,
     )).rows : [];
     const svRows = (await pool.query('SELECT filename FROM schema_version ORDER BY filename')).rows;
+    const inducedR = await pool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid, (SELECT count(*)::int FROM schema_version) AS v');
+    inducedBackendPid = String(inducedR.rows[0].pid);
+    inducedTransactionId = String(inducedR.rows[0].txid);
+    inducedMigrationVersion = String(inducedR.rows[0].v);
     atomicityEvidence = {
+      backendPid: inducedBackendPid,
+      transactionId: inducedTransactionId,
+      migrationVersion: inducedMigrationVersion,
       childExitCode: childRun.exitCode,
       childSignal: childRun.signal,
       childStderrExcerpt: childRun.stderr.slice(0, 400),

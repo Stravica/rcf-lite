@@ -1,6 +1,17 @@
 # Changelog
 
 
+## 1.2.7 - 2026-09-11
+
+Round-8 ruling: engine-returned identifiers only. The object-storage-s3 facade fixture now surfaces `$metadata.requestId` and `ETag` from every operation (`putObject`, `getObject`, `deleteObject`, `listObjects`, `listMultipartUploads`, `completeMultipartUpload`) as return-value scalars. Every counting probe row records `vendorRequestId` (and where the operation returns it, `eTag` or `uploadId`) as its engine-returned identifier witness, alongside its derived witnesses. STRICT_ID_KEYS on the anatomy shrank to engine-returned scalars only; the anatomy now also enforces that idWitness and derivedWitness sit under DIFFERENT keys. Anatomy pin bumped to 1.2.7.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` returns `{ size, requestId, eTag, uploadId }` from `putObject`, `{ body, contentType, requestId, eTag }` from `getObject`, `{ requestId }` from `deleteObject`, `{ keys, isTruncated, nextContinuationToken, requestId }` from `listObjects`, an array with a non-enumerable `requestId` from `listMultipartUploads`. Multipart `completeMultipartUpload` also propagates `uploadId` + `requestId` on the aggregate return.
+- fix: `put-get-round-trip`, `multipart-upload`, `presigned-url`, `event-secrecy`, `r2-real-account-smoke`, `hetzner-object-storage-round-trip` each stamp the engine-returned `vendorRequestId` (and `eTag` / `uploadId` where relevant) as their strict id witness on every counting row.
+- fix: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` STRICT_ID_KEYS retains engine-returned scalars only (`requestId`, `vendorRequestId`, `eTag`, `versionId`, `uploadId`, `queueId`, `messageId`, `jobId`, `rowId`, `insertedId`, `backendPid`, `transactionId`, `migrationVersion` and their labelled siblings). `bucketName`, `scratchBucket`, `queueName`, `databaseName` and the checksum keys were removed. Same-file strict-AND now asserts idWitness and derivedWitness sit under DIFFERENT keys.
+- prose: run-notes now says `S3_ENDPOINT_URL` is a required declared variable with no fixture default; the earlier "fixture default overridden" line was corrected.
+
+
+
 ## 1.2.6 - 2026-09-11
 
 Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI condition where the fixture's `node_modules` has not been installed and `S3_ENDPOINT_URL` is unset, the probe module surface must load without touching `@aws-sdk/client-s3`: an anatomy or tooling walk imports the probe, the probe calls `endpointFromEnv`, catches `MissingS3EndpointError`, and returns the exact one-variable `accountBoundSkipped` row. The prior module-level `import * as awsS3 from '@aws-sdk/client-s3'` and `import { getSignedUrl } from '@aws-sdk/s3-request-presigner'` in `object-store.mjs` resolved the SDK on module load and failed the anatomy TC-071-fixture-and-switches test with `ERR_MODULE_NOT_FOUND` in CI. The SDK is now loaded LAZILY inside `createObjectStore` and via the exported `loadSdk()` helper; `createObjectStore` is async and every probe `await`s it. Anatomy pin bumped to 1.2.6.

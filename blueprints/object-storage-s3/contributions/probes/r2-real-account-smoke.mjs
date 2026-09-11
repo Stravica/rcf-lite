@@ -188,6 +188,8 @@ export default async function runProbe() {
         ? `${AC28108_2_FIRST8} - R2 round-trip byte-equal against ${scratchBucket} through the shipped facade; putObject returned size=${put.size}, getObject body length=${got.body.length}`
         : `${AC28108_2_FIRST8} - R2 round-trip failed byte equality; got ${got.body.length} expected ${body.length}`,
       evidence: {
+        eTag: (put && put.eTag) || (got && got.eTag) || null,
+        vendorRequestId: (put && put.requestId) || (got && got.requestId) || null,
         scratchBucket,
         key,
         putReturnedSize: put.size,
@@ -212,8 +214,8 @@ export default async function runProbe() {
       throw err;
     }
     const seenBefore = listBefore.keys.includes(key);
-    await store.deleteObject(key);
-    teardown.deleteObject = { key, ok: true };
+    const delRes = await store.deleteObject(key);
+    teardown.deleteObject = { key, ok: true, requestId: (delRes && delRes.requestId) || null };
     let listAfter;
     try { listAfter = await store.listObjects(key); }
     catch (err) {
@@ -234,6 +236,7 @@ export default async function runProbe() {
         ? `${AC28108_2_FIRST8} - object inventory diff proves create+delete: key present before delete, absent after (listObjects returned ${listBefore.keys.length} then ${listAfter.keys.length} keys)`
         : `${AC28108_2_FIRST8} - inventory diff mismatch: seenBefore=${seenBefore} seenAfter=${seenAfter}`,
       evidence: {
+        vendorRequestId: (delRes && delRes.requestId) || (listBefore && listBefore.requestId) || (listAfter && listAfter.requestId) || null,
         scratchBucket,
         key,
         seenBefore,

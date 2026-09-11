@@ -66,6 +66,9 @@ export default async function runProbe() {
     databaseName = dbA;
     const poolA = storeA.getPool();
     const poolB = storeB.getPool();
+    const pidRP = await poolA.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+    const backendPid = String(pidRP.rows[0].pid);
+    const transactionId = String(pidRP.rows[0].txid);
     const samplesA = [];
     const samplesB = [];
     let sampling = true;
@@ -100,6 +103,8 @@ export default async function runProbe() {
       verdict: (succeeded === 20 && failed === 0 && cappedA && cappedB) ? 'pass' : 'fail',
       detail: `Given two facade instances opened concurrently against the - 20 checked-out, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
       evidence: {
+        backendPid,
+        transactionId,
         databaseName,
         checkedOut: 20,
         succeeded,

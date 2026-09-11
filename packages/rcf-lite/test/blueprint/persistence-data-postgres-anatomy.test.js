@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.7');
+  assert.equal(doc.version, '1.1.8');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);
@@ -225,19 +225,31 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   // Strict identifier predicate (round-6 closure): id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
+  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // RETURNED for that operation. Postgres row ids / serials, the
+  // migration version the migrations table reports, pg_backend_pid()
+  // and transaction ids the server returned. S3 / R2 return the
+  // ETag, VersionId, UploadId and `x-amz-request-id` (surfaced as
+  // `$metadata.requestId`). Cloudflare Queues return queue id,
+  // message id and request id. The jobs scheduler mints jobId.
+  // Scratch names the probe chose, database names, migration
+  // filenames, checksums the probe computed and any array are NOT
+  // identifiers.
   const STRICT_ID_KEYS = new Set([
+    // http request / metadata ids the engine returned
     'requestId', 'requestIds',
     'vendorRequestId', 'vendorRequestIds',
-    'resourceId',
-    'bucketName', 'scratchBucket',
-    'uploadId', 'observedUploadId',
-    'queueId', 'queueName',
-    'messageId', 'dlqTransportMessageIds', 'primaryTransportMessageId',
+    'metadataRequestId', 'httpRequestId',
+    // S3 / R2 object identifiers returned by the engine
+    'eTag', 'versionId', 'uploadId', 'observedUploadId',
+    // Cloudflare Queues identifiers returned by the API
+    'queueId', 'messageId',
+    'dlqTransportMessageIds', 'primaryTransportMessageId',
+    // jobs scheduler identifiers
     'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
-    'databaseName',
-    'migrationFile', 'migrationFileApplied', 'appliedFilesList', 'stderrFailingFilename',
-    'rowId', 'insertedId',
-    'checksum', 'srcChecksumMd5', 'dstChecksumMd5',
+    // Postgres identifiers the server returned
+    'rowId', 'insertedId', 'backendPid', 'transactionId',
+    'migrationVersion',
   ]);
   const derivedPatterns = [
     /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
@@ -343,10 +355,16 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
         const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
-        const derivedWitness = Object.entries(ev).find(([k, v]) => isDerivedWitness(k, v));
+        // The derived witness must not be the same key as the id
+        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // key such as `observedUploadId` legitimately matches both
+        // STRICT_ID_KEYS and the /^observed/ derived pattern.
+        const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
         assert.ok(idWitness && derivedWitness,
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness (strict AND); got keys=' + Object.keys(ev).join(',') + ', id=' + (idWitness ? idWitness[0] : 'NONE') + ', derived=' + (derivedWitness ? derivedWitness[0] : 'NONE'));
-      }
+
+        assert.notEqual(idWitness[0], derivedWitness[0],
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
     }
   }
     assert.match(recoverySrc, /exportDatabase/);

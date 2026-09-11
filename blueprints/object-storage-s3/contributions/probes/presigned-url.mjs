@@ -59,7 +59,7 @@ export default async function runProbe() {
   const body = Buffer.from('presigned url payload');
   try {
     await store.ready();
-    await store.putObject(key, 'text/plain', body);
+    const putRes = await store.putObject(key, 'text/plain', body);
 
     // AC-28103-1 canonical timing test: TTL=60, fetch within TTL, then
     // fetch the SAME URL after TTL+2s.
@@ -79,6 +79,8 @@ export default async function runProbe() {
         ? `${AC28103_1} - fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=${ttl}; urlSha256=${urlSha256.slice(0, 12)}`
         : `${AC28103_1} - firstStatus=${firstStatus} bodyMatch=${firstEqual} issued=${Boolean(issued)}`,
       evidence: {
+        eTag: (putRes && putRes.eTag) || null,
+        vendorRequestId: (putRes && putRes.requestId) || null,
         bucketName: bucket,
         key,
         ttl,
@@ -105,6 +107,8 @@ export default async function runProbe() {
         ? `${AC28103_1} - after TTL+2s the SAME presigned URL (urlSha256=${urlSha256.slice(0, 12)}) returned 403 (AccessDenied / expired-URL family)`
         : `${AC28103_1} - after TTL+2s the SAME presigned URL returned ${secondStatus}, expected 403`,
       evidence: {
+        eTag: (putRes && putRes.eTag) || null,
+        vendorRequestId: (putRes && putRes.requestId) || null,
         bucketName: bucket,
         key,
         ttl,
@@ -127,7 +131,15 @@ export default async function runProbe() {
       detail: refusedBelowFloor
         ? `${REQ003} - presign below the 60s floor refused per ADR-2902 (${refusedError})`
         : `${REQ003} - presign below the 60s floor did not refuse`,
-      evidence: { bucketName: bucket, requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError, refusalFired: refusedBelowFloor, refusalCode: refusedBelowFloor ? 'below-floor' : 'accepted' },
+      evidence: {
+        eTag: (putRes && putRes.eTag) || null,
+        vendorRequestId: (putRes && putRes.requestId) || null,
+        bucketName: bucket,
+        requestedTtlSeconds: 30, floorSeconds: 60,
+        refused: refusedBelowFloor, error: refusedError,
+        refusalFired: refusedBelowFloor,
+        refusalCode: refusedBelowFloor ? 'below-floor' : 'accepted',
+      },
     });
 
     await store.deleteObject(key);

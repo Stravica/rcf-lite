@@ -1,6 +1,6 @@
 {
   "slug": "jobs-background",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "category": "jobs",
   "capabilities": [
     "backgroundJobs"

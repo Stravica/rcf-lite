@@ -48,9 +48,11 @@ export default async function runProbe() {
     const init = await runNode([RCF_BIN, 'init'], { cwd: scratch });
     if (init.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-requiresQueue',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${REFUSAL_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `${AC_FIRST8} - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `conformanceOnly (${REFUSAL_PRECOND_LIM}) - rcf init failed exit=${init.code} stderr=${init.stderr}`,
         evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
@@ -90,9 +92,11 @@ export default async function runProbe() {
     // scratch path created this call).
     try { await rm(scratch, { recursive: true, force: true }); } catch (err) {
       results.push({
-        anchorReqId: 'jobs-background-REQ-001',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${TEARDOWN_PRECOND_LIM_R}`,
         verdict: 'fail',
-        detail: 'The jobs-background blueprint composes on an applied queue - scratch dir teardown failed: ' + (err && err.message),
+        detail: 'conformanceOnly (' + TEARDOWN_PRECOND_LIM_R + ') - scratch dir teardown failed: ' + (err && err.message),
         evidence: { teardownStep: 'rm scratch', error: err && err.message },
       });
     }

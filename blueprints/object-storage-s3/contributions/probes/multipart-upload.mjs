@@ -70,7 +70,7 @@ export default async function runProbe() {
   try {
     await store.ready();
     // --- AC-28104-1: canonical multipart round-trip ---
-    await store.putObject(key, 'application/octet-stream', body);
+    const putRes = await store.putObject(key, 'application/octet-stream', body);
     const got = await store.getObject(key);
     const sizePass = got.body.length === SIZE && got.body.equals(body);
     const putEvent = events.find((e) => e.event === 'objectPut' && e.key === key);
@@ -81,16 +81,28 @@ export default async function runProbe() {
       detail: sizePass && eventPass
         ? `Given the elicited multipart threshold at 8 MiB - 10 MiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
         : `Given the elicited multipart threshold at 8 MiB - sizePass=${sizePass} eventPass=${eventPass} got.size=${got.body.length} put=${JSON.stringify(putEvent)}`,
-      evidence: { bucketName: bucket, key, size: SIZE, gotSize: got.body.length, byteEqual: sizePass, objectPutEvent: putEvent || null },
+      evidence: {
+        uploadId: (putRes && putRes.uploadId) || null,
+        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
+        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
+        bucketName: bucket, key, size: SIZE,
+        gotSize: got.body.length, byteEqual: sizePass,
+        objectPutEvent: putEvent || null,
+      },
     });
     const inflight = await store.listMultipartUploads(key);
+    const inflightRequestId = (inflight && inflight.requestId) || null;
     results.push({
       anchorAcId: 'AC-28104-1',
       verdict: inflight.length === 0 ? 'pass' : 'fail',
       detail: inflight.length === 0
         ? 'Given the elicited multipart threshold at 8 MiB - no in-flight multipart uploads after complete'
         : `Given the elicited multipart threshold at 8 MiB - unexpected in-flight uploads: ${JSON.stringify(inflight)}`,
-      evidence: { bucketName: bucket, key, inflightCount: inflight.length, inflight },
+      evidence: {
+        vendorRequestId: inflightRequestId,
+        bucketName: bucket, key,
+        inflightCount: inflight.length, inflight: [...inflight],
+      },
     });
     await store.deleteObject(key);
 
@@ -113,6 +125,7 @@ export default async function runProbe() {
       else process.env.SIMULATE_PART_UPLOAD_FAIL = before;
     }
     const failInflight = await store.listMultipartUploads(failKey);
+    const failInflightRequestId = (failInflight && failInflight.requestId) || null;
     const uploadIdPresent = typeof observedUploadId === 'string' && observedUploadId.length > 0;
     const abortSucceeded = observedAbortError === null;
     const abortPass = observedError !== null && failInflight.length === 0 && uploadIdPresent && abortSucceeded;
@@ -123,13 +136,14 @@ export default async function runProbe() {
         ? `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - propagated (${observedError.name || observedError.message}), aborted upload id=${observedUploadId}, no in-flight uploads for ${failKey}, abort call itself succeeded`
         : `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - abort-on-failure conditions not all met: errorObserved=${observedError !== null} inflightCount=${failInflight.length} uploadIdPresent=${uploadIdPresent} abortSucceeded=${abortSucceeded}${observedAbortError ? ` abortError=${JSON.stringify(observedAbortError)}` : ''}`,
       evidence: {
+        observedUploadId,
+        vendorRequestId: failInflightRequestId,
         bucketName: bucket,
         failKey,
         observedError,
-        observedUploadId,
         abortError: observedAbortError,
         inflightCountAfter: failInflight.length,
-        inflightAfter: failInflight,
+        inflightAfter: [...failInflight],
       },
     });
   } finally {

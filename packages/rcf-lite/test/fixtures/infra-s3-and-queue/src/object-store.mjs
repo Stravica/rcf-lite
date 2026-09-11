@@ -141,10 +141,14 @@ export async function createObjectStore({
   async function withReady(fn) { await readyPromise; return fn(); }
 
   async function putSinglePart({ key, contentType, body }) {
-    await client.send(new PutObjectCommand({
+    const res = await client.send(new PutObjectCommand({
       Bucket: bucket, Key: key, ContentType: contentType, Body: body,
     }));
-    return body.length;
+    return {
+      size: body.length,
+      requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
+      eTag: res && typeof res.ETag === 'string' ? res.ETag : null,
+    };
   }
 
   async function putMultipart({ key, contentType, body, partSize }) {
@@ -167,11 +171,16 @@ export async function createObjectStore({
         parts.push({ ETag: upload.ETag, PartNumber: partNumber });
         partNumber += 1;
       }
-      await client.send(new CompleteMultipartUploadCommand({
+      const complete = await client.send(new CompleteMultipartUploadCommand({
         Bucket: bucket, Key: key, UploadId: uploadId,
         MultipartUpload: { Parts: parts },
       }));
-      return body.length;
+      return {
+        size: body.length,
+        uploadId,
+        requestId: complete && complete.$metadata ? complete.$metadata.requestId || null : null,
+        eTag: complete && typeof complete.ETag === 'string' ? complete.ETag : null,
+      };
     } catch (err) {
       // Attach the uploadId to the propagated error so a probe can
       // positively record which upload was aborted; do NOT swallow an
@@ -195,11 +204,12 @@ export async function createObjectStore({
 
     async putObject(key, contentType, body) {
       return withReady(async () => {
-        const size = body.length >= multipartThresholdBytes
+        const engineReturn = body.length >= multipartThresholdBytes
           ? await putMultipart({ key, contentType, body, partSize: partSizeBytes })
           : await putSinglePart({ key, contentType, body });
-        onEvent({ event: 'objectPut', ts: Date.now(), key, size, contentType });
-        return { size };
+        const { size, requestId, eTag, uploadId } = engineReturn;
+        onEvent({ event: 'objectPut', ts: Date.now(), key, size, contentType, requestId, eTag });
+        return { size, requestId, eTag, uploadId: uploadId || null };
       });
     },
 
@@ -215,14 +225,21 @@ export async function createObjectStore({
         const chunks = [];
         for await (const chunk of res.Body) chunks.push(chunk);
         const body = Buffer.concat(chunks);
-        return { body, contentType: res.ContentType };
+        return {
+          body,
+          contentType: res.ContentType,
+          requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
+          eTag: res && typeof res.ETag === 'string' ? res.ETag : null,
+        };
       });
     },
 
     async deleteObject(key) {
       return withReady(async () => {
-        await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
-        onEvent({ event: 'objectDeleted', ts: Date.now(), key });
+        const res = await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        const requestId = res && res.$metadata ? res.$metadata.requestId || null : null;
+        onEvent({ event: 'objectDeleted', ts: Date.now(), key, requestId });
+        return { requestId };
       });
     },
 
@@ -235,6 +252,7 @@ export async function createObjectStore({
           keys: (res.Contents || []).map((o) => o.Key),
           isTruncated: Boolean(res.IsTruncated),
           nextContinuationToken: res.NextContinuationToken || null,
+          requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
         };
       });
     },
@@ -260,7 +278,11 @@ export async function createObjectStore({
         const res = await client.send(new ListMultipartUploadsCommand({
           Bucket: bucket, Prefix: prefix,
         }));
-        return (res.Uploads || []).map((u) => ({ key: u.Key, uploadId: u.UploadId }));
+        const uploads = (res.Uploads || []).map((u) => ({ key: u.Key, uploadId: u.UploadId }));
+        const requestId = res && res.$metadata ? res.$metadata.requestId || null : null;
+        // Non-enumerable requestId keeps prior array-shape callers working
+        Object.defineProperty(uploads, 'requestId', { value: requestId, enumerable: false });
+        return uploads;
       });
     },
 

@@ -1,6 +1,17 @@
 # Changelog
 
 
+## 1.1.8 - 2026-09-11
+
+Round-8 ruling: engine-returned identifiers only. A counting row's identifier is a value the ENGINE RETURNED for that operation (Postgres pg_backend_pid(), txid_current() and the migration version the migrations table reports; row ids or serials the database returned). Scratch names the probe chose, database names, migration filenames, checksums the probe computed and any array are NOT identifiers. STRICT_ID_KEYS on the anatomy shrank to engine-returned scalars only; the anatomy now also enforces that a counting row's identifier and derived witnesses land under DIFFERENT keys (so a checksum can never satisfy both the id and the derived witness). Every persistence-data-postgres counting row now records `backendPid` (and where relevant `transactionId` / `migrationVersion`) alongside its existing derived witnesses. Anatomy pin bumped to 1.1.8.
+
+- fix: `packages/rcf-lite/test/blueprint/persistence-data-postgres-anatomy.test.js` STRICT_ID_KEYS retains only engine-returned scalar keys (`requestId`, `eTag`, `versionId`, `uploadId`, `queueId`, `messageId`, `jobId`, `rowId`, `insertedId`, `backendPid`, `transactionId`, `migrationVersion` and their labelled siblings). `bucketName`, `scratchBucket`, `queueName`, `databaseName`, `migrationFile*`, `appliedFilesList`, `stderrFailingFilename` and the checksum keys were removed.
+- fix: same-file strict-AND now asserts idWitness and derivedWitness sit under DIFFERENT keys; `srcChecksumMd5` was accepted as both id (via STRICT_ID_KEYS) and derived (via `/Md5$/i`) under the pre-8 rule.
+- fix: `facade-round-trip`, `migration-apply` (all three phase-1 rows plus the induced-failure atomicity row), `transaction-atomicity`, `pool-posture-smoke`, `recovery-restore-round-trip` (backup + row-count + checksum rows) each capture `pg_backend_pid()` and `txid_current()` from the same pool that observed the row and stamp them as `backendPid` / `transactionId`. Migration-apply also records `migrationVersion` as the count of committed schema_version rows.
+- prose: run-notes reworded to state engine-returned-only identifiers; the earlier `appliedFilesList` / `checksum` prose was removed.
+
+
+
 ## 1.1.7 - 2026-09-11
 
 Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI condition where the fixture's `node_modules` has not been installed and `POSTGRES_HOST` is unset, the probe module surface must load without touching the `pg` driver: an anatomy or tooling walk imports the probe, the probe calls `connectionUrlFromEnv`, catches `MissingPostgresHostError`, and returns the exact one-variable `accountBoundSkipped` row. The prior module-level `import pg from 'pg'` in the fixture facades (`store.mjs` and `migrate.mjs`) resolved `pg` on module load and failed the anatomy TC-070-fixture-and-switches test with `ERR_MODULE_NOT_FOUND` in CI. The engine client is now loaded LAZILY inside `createStore` and `applyAll`, and both fixture helpers are async; every probe now `await`s the facade calls. Anatomy pin bumped to 1.1.7.

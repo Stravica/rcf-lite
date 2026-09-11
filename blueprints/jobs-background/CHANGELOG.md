@@ -1,6 +1,18 @@
 # Changelog
 
 
+## 1.1.8 - 2026-09-11
+
+Round-8 ruling: engine-returned identifiers only, plus non-"true" gate-skip parseability. The jobs-background anatomy STRICT_ID_KEYS shrank to engine-returned scalars only, the anatomy now enforces distinct idWitness / derivedWitness keys, and the non-"true" gate-skip reason on `retry-and-fail-real-account` was rewritten to the `<VAR> (not "true")` shape the anatomy parses in the same shape as `<VAR> unset`. Pre-condition failure branches on `apply-time-override` and `apply-time-refusal` are now `conformanceOnly` (they fire before any job or message id is minted). A negative unit test in the anatomy proves both skip shapes parse to the bare env-var name and that malformed shapes are rejected. Anatomy pin bumped to 1.1.8.
+
+- fix: `blueprints/jobs-background/contributions/probes/retry-and-fail-real-account.mjs` line 104 now emits `skipRow('CI_HAS_CLOUDFLARE_ACCOUNT (not "true")')` when the gate variable is set to a non-"true" value, matching the shape the anatomy strips via `/ unset$| \(not "true"\)$/`.
+- fix: `packages/rcf-lite/test/blueprint/jobs-background-anatomy.test.js` STRICT_ID_KEYS retains engine-returned scalars only (`requestId`, `eTag`, `versionId`, `uploadId`, `queueId`, `messageId`, `jobId`, `rowId`, `insertedId`, `backendPid`, `transactionId`, `migrationVersion` and their labelled siblings). `bucketName`, `scratchBucket`, `queueName`, `databaseName` and the checksum keys were removed. Same-file strict-AND now asserts idWitness and derivedWitness sit under DIFFERENT keys.
+- fix: `apply-time-override` and `apply-time-refusal` pre-condition failure branches (rcf init / apply failing before the runtime probe path) are declaimed to `conformanceOnly` with a limitation naming the runtime AC and why no engine-minted id exists on this row.
+- add: `packages/rcf-lite/test/blueprint/jobs-background-anatomy.test.js` carries a negative unit test that constructs the `<VAR> unset` and `<VAR> (not "true")` shapes and asserts both parse to the same bare env-var name; malformed shapes such as `<VAR> set to "1" (not "true")` are rejected.
+- prose: run-notes reworded to state engine-returned-only identifiers where relevant.
+
+
+
 ## 1.1.7 - 2026-09-11
 
 Round-7 closure follow-through: the probe owns its skip, the anatomy invokes every probe unconditionally, and the anatomy-only `RCF_ANATOMY_RUN_PROBES` gate is retired. The jobs-background anatomy test now removes the outer gate, invokes each probe directly, and validates whatever comes back: local probes (apply-time-refusal, apply-time-override, fake-clock-cron, retry-and-fail, event-secrecy) drive the in-memory queue driver and the rcf-lite CLI on scratch dirs and produce real evidence rows; the live probe (retry-and-fail-real-account) returns its own exact one-variable `accountBoundSkipped` row when `CF_API_BASE` or an account variable is unset. Anatomy pin bumped to 1.1.7.

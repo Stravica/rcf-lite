@@ -30,7 +30,7 @@ async function pathExists(p) {
 test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)', async () => {
   const bp = await readJson(join(BP_DIR, 'blueprint.json'));
   assert.equal(bp.slug, 'jobs-background');
-  assert.equal(bp.version, '1.1.7');
+  assert.equal(bp.version, '1.1.8');
   assert.equal(bp.category, 'jobs');
   assert.deepEqual(bp.capabilities, ['backgroundJobs']);
   assert.deepEqual(bp.requiresAppliedCapabilities, {
@@ -155,19 +155,31 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   // Strict identifier predicate (round-6 closure): id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
+  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // RETURNED for that operation. Postgres row ids / serials, the
+  // migration version the migrations table reports, pg_backend_pid()
+  // and transaction ids the server returned. S3 / R2 return the
+  // ETag, VersionId, UploadId and `x-amz-request-id` (surfaced as
+  // `$metadata.requestId`). Cloudflare Queues return queue id,
+  // message id and request id. The jobs scheduler mints jobId.
+  // Scratch names the probe chose, database names, migration
+  // filenames, checksums the probe computed and any array are NOT
+  // identifiers.
   const STRICT_ID_KEYS = new Set([
+    // http request / metadata ids the engine returned
     'requestId', 'requestIds',
     'vendorRequestId', 'vendorRequestIds',
-    'resourceId',
-    'bucketName', 'scratchBucket',
-    'uploadId', 'observedUploadId',
-    'queueId', 'queueName',
-    'messageId', 'dlqTransportMessageIds', 'primaryTransportMessageId',
+    'metadataRequestId', 'httpRequestId',
+    // S3 / R2 object identifiers returned by the engine
+    'eTag', 'versionId', 'uploadId', 'observedUploadId',
+    // Cloudflare Queues identifiers returned by the API
+    'queueId', 'messageId',
+    'dlqTransportMessageIds', 'primaryTransportMessageId',
+    // jobs scheduler identifiers
     'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
-    'databaseName',
-    'migrationFile', 'migrationFileApplied', 'appliedFilesList', 'stderrFailingFilename',
-    'rowId', 'insertedId',
-    'checksum', 'srcChecksumMd5', 'dstChecksumMd5',
+    // Postgres identifiers the server returned
+    'rowId', 'insertedId', 'backendPid', 'transactionId',
+    'migrationVersion',
   ]);
   const derivedPatterns = [
     /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
@@ -270,10 +282,16 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
         const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
-        const derivedWitness = Object.entries(ev).find(([k, v]) => isDerivedWitness(k, v));
+        // The derived witness must not be the same key as the id
+        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // key such as `observedUploadId` legitimately matches both
+        // STRICT_ID_KEYS and the /^observed/ derived pattern.
+        const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
         assert.ok(idWitness && derivedWitness,
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness');
-      }
+
+        assert.notEqual(idWitness[0], derivedWitness[0],
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
     }
   }
     // Jobs anatomy also validates that the DECLARED_ENV list on the new
@@ -321,4 +339,49 @@ test('section 6a table gains a backgroundJobs row naming jobs-background and res
     }
   }
   assert.ok(hits >= 1, `expected at least one shipped blueprint docs/topics.md to carry the jobs-background registry row; found ${hits}`);
+});
+
+// Negative unit case for the accountBoundSkipped reason parse (round-8
+// closure). A probe that finds its gate variable set to a non-"true"
+// value emits `<VAR> (not "true")` in the same shape as the unset
+// variant emits `<VAR> unset`. This test constructs synthetic rows and
+// re-runs the exact anatomy strip and env-var validation logic so a
+// regression in either shape fails here immediately.
+test('anatomy accountBoundSkipped reason parses BOTH unset and non-"true" shapes to the same env var (TC-076-skip-shape-negative)', () => {
+  const strip = /^([A-Z][A-Z0-9_]+)(?: unset| \(not "true"\))$/;
+  const declared = new Set(['CI_HAS_CLOUDFLARE_ACCOUNT', 'CF_API_BASE', 'POSTGRES_HOST', 'S3_ENDPOINT_URL']);
+  const cases = [
+    { reason: 'CI_HAS_CLOUDFLARE_ACCOUNT unset', expected: 'CI_HAS_CLOUDFLARE_ACCOUNT' },
+    { reason: 'CI_HAS_CLOUDFLARE_ACCOUNT (not "true")', expected: 'CI_HAS_CLOUDFLARE_ACCOUNT' },
+    { reason: 'CF_API_BASE unset', expected: 'CF_API_BASE' },
+    { reason: 'CF_API_BASE (not "true")', expected: 'CF_API_BASE' },
+  ];
+  for (const c of cases) {
+    const m = c.reason.match(strip);
+    assert.ok(m, 'reason ' + JSON.stringify(c.reason) + ' must parse as <VAR> unset or <VAR> (not "true")');
+    assert.equal(m[1], c.expected, 'stripped var name must be ' + c.expected);
+    assert.ok(declared.has(m[1]), 'stripped var name must be a declared env var');
+    // The two suffix regexes the anatomy uses on the actual assertion
+    // path also both match cleanly.
+    assert.match(c.reason, / unset$| \(not "true"\)$/, 'anatomy suffix regex must match');
+    const stripped = c.reason.replace(/ unset$| \(not "true"\)$/, '').trim();
+    assert.equal(stripped, c.expected, 'anatomy suffix strip must yield the bare var name');
+  }
+  // Negative cases: shapes the anatomy MUST reject.
+  const rejects = [
+    'CI_HAS_CLOUDFLARE_ACCOUNT set to "1" (not "true")',
+    'CI_HAS_CLOUDFLARE_ACCOUNT was empty',
+    'CI_HAS_CLOUDFLARE_ACCOUNT and CF_API_BASE unset',
+    'invalid',
+  ];
+  for (const bad of rejects) {
+    // The strict form is either the suffix regex fails OR the stripped
+    // value is not a bare env-var name.
+    let stripped = null;
+    if (/ unset$| \(not "true"\)$/.test(bad)) {
+      stripped = bad.replace(/ unset$| \(not "true"\)$/, '').trim();
+    }
+    const parsesToBareVar = stripped != null && /^[A-Z][A-Z0-9_]+$/.test(stripped);
+    assert.equal(parsesToBareVar, false, 'anatomy MUST reject ' + JSON.stringify(bad));
+  }
 });

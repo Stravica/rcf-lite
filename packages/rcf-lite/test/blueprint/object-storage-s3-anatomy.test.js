@@ -24,7 +24,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
   // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
   // for the Hetzner Object Storage adapter (total 25).
-  assert.equal(doc.version, '1.2.6');
+  assert.equal(doc.version, '1.2.7');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
   assert.equal(doc.contributions.length, 25);
@@ -246,19 +246,31 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   // Strict identifier predicate (round-6 closure): id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
+  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // RETURNED for that operation. Postgres row ids / serials, the
+  // migration version the migrations table reports, pg_backend_pid()
+  // and transaction ids the server returned. S3 / R2 return the
+  // ETag, VersionId, UploadId and `x-amz-request-id` (surfaced as
+  // `$metadata.requestId`). Cloudflare Queues return queue id,
+  // message id and request id. The jobs scheduler mints jobId.
+  // Scratch names the probe chose, database names, migration
+  // filenames, checksums the probe computed and any array are NOT
+  // identifiers.
   const STRICT_ID_KEYS = new Set([
+    // http request / metadata ids the engine returned
     'requestId', 'requestIds',
     'vendorRequestId', 'vendorRequestIds',
-    'resourceId',
-    'bucketName', 'scratchBucket',
-    'uploadId', 'observedUploadId',
-    'queueId', 'queueName',
-    'messageId', 'dlqTransportMessageIds', 'primaryTransportMessageId',
+    'metadataRequestId', 'httpRequestId',
+    // S3 / R2 object identifiers returned by the engine
+    'eTag', 'versionId', 'uploadId', 'observedUploadId',
+    // Cloudflare Queues identifiers returned by the API
+    'queueId', 'messageId',
+    'dlqTransportMessageIds', 'primaryTransportMessageId',
+    // jobs scheduler identifiers
     'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
-    'databaseName',
-    'migrationFile', 'migrationFileApplied', 'appliedFilesList', 'stderrFailingFilename',
-    'rowId', 'insertedId',
-    'checksum', 'srcChecksumMd5', 'dstChecksumMd5',
+    // Postgres identifiers the server returned
+    'rowId', 'insertedId', 'backendPid', 'transactionId',
+    'migrationVersion',
   ]);
   const derivedPatterns = [
     /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
@@ -361,10 +373,16 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
         const evOk = ev && typeof ev === 'object' && Object.keys(ev).length > 0;
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
-        const derivedWitness = Object.entries(ev).find(([k, v]) => isDerivedWitness(k, v));
+        // The derived witness must not be the same key as the id
+        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // key such as `observedUploadId` legitimately matches both
+        // STRICT_ID_KEYS and the /^observed/ derived pattern.
+        const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
         assert.ok(idWitness && derivedWitness,
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness');
-      }
+
+        assert.notEqual(idWitness[0], derivedWitness[0],
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
     }
   }
 });

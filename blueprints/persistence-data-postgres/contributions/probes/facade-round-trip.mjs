@@ -73,13 +73,16 @@ export default async function runProbe() {
     const facadeReadyFired = events.some((e) => e.event === 'facadeReady');
     const facadeReadyDbName = facadeReadyFired ? events.find((e) => e.event === 'facadeReady').databaseName : null;
     const facadeReadyEvent = facadeReadyFired ? events.find((e) => e.event === 'facadeReady') : null;
+    const pidR = await pool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+    const backendPid = String(pidR.rows[0].pid);
+    const transactionId = String(pidR.rows[0].txid);
     results.push({
       anchorAcId: 'AC-27101-1',
       verdict: facadeReadyFired && facadeReadyDbName === 'rcf_test' ? 'pass' : 'fail',
       detail: facadeReadyFired
         ? `On process boot, the facade opens a pg.Pool - facadeReady fired with databaseName=${facadeReadyDbName}`
         : 'On process boot, the facade opens a pg.Pool - facadeReady did not fire before first query',
-      evidence: { facadeReadyEvent, allEvents: events, databaseName: facadeReadyDbName, poolReadyOk: !!facadeReadyEvent },
+      evidence: { backendPid, transactionId, facadeReadyEvent, allEvents: events, databaseName: facadeReadyDbName, poolReadyOk: !!facadeReadyEvent },
     });
     const id = await store.createUser('probe-facade-round-trip', 'facade-round-trip@rcf.test');
     const row = await store.getUserById(id);

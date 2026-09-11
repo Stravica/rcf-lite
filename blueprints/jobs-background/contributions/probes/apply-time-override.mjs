@@ -42,9 +42,11 @@ export default async function runProbe() {
     const init = await runNode([RCF_BIN, 'init'], { cwd: scratch });
     if (init.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `${AC_FIRST8} - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - rcf init failed exit=${init.code} stderr=${init.stderr}`,
         evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
@@ -54,9 +56,11 @@ export default async function runProbe() {
     );
     if (apply.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `${AC_FIRST8} - apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
         evidence: { applyExitCode: apply.code, applyStderrSample: apply.stderr.slice(0, 400) },
       }];
     }
@@ -64,9 +68,11 @@ export default async function runProbe() {
     const sidecarPath = join(scratch, 'rcf', 'blueprints', 'jobs-background.applied.json');
     try { await stat(sidecarPath); } catch {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `${AC_FIRST8} - sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
         evidence: { sidecarPathAbsent: true },
       }];
     }
@@ -105,9 +111,11 @@ export default async function runProbe() {
   } finally {
     try { await rm(scratch, { recursive: true, force: true }); } catch (err) {
       results.push({
-        anchorReqId: 'jobs-background-REQ-001',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${TEARDOWN_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: 'The jobs-background blueprint composes on an applied queue - scratch dir teardown failed: ' + (err && err.message),
+        detail: 'conformanceOnly (' + TEARDOWN_PRECOND_LIM + ') - scratch dir teardown failed: ' + (err && err.message),
         evidence: { teardownStep: 'rm scratch', error: err && err.message },
       });
     }

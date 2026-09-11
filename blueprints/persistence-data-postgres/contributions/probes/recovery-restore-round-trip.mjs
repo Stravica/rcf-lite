@@ -202,6 +202,9 @@ export default async function runProbe() {
   try {
     databaseName = await store.ready();
     const pool = store.getPool();
+    const pidRR = await pool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+    const backendPidSrc = String(pidRR.rows[0].pid);
+    const transactionIdSrc = String(pidRR.rows[0].txid);
 
     // Seed a known rowset on the source
     await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
@@ -275,6 +278,8 @@ export default async function runProbe() {
         ? `Given a live Postgres containing a small fixture rowset - shipped exportDatabase emitted backupExported with artefactPath=${relative(PROJECT_ROOT, backupEvent.artefactPath)} completedAt=${backupEvent.completedAt}`
         : `Given a live Postgres containing a small fixture rowset - expected backupExported event on the shipped exportDatabase runner; observed events=${runnerEvents.map((e) => e.event).join(',')}`,
       evidence: {
+        backendPid: backendPidSrc,
+        transactionId: transactionIdSrc,
         databaseName,
         artefactPath: ARTEFACT_REL,
         artefactBytesOnDisk: artefactStat.size,
@@ -298,9 +303,14 @@ export default async function runProbe() {
     const dstStore = await createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/rcf_test` });
     let dstCount = -1;
     let dstCk = 'unset';
+    let backendPidDst = null;
+    let transactionIdDst = null;
     try {
       await dstStore.ready();
       const dstPool = dstStore.getPool();
+      const pidRD = await dstPool.query('SELECT pg_backend_pid() AS pid, txid_current() AS txid');
+      backendPidDst = String(pidRD.rows[0].pid);
+      transactionIdDst = String(pidRD.rows[0].txid);
       dstCount = (await dstPool.query('SELECT count(*)::int AS n FROM users')).rows[0].n;
       dstCk = (await dstPool.query('SELECT md5(string_agg(name || $1 || email, $2 ORDER BY id))::text AS ck FROM users', ['|', ','])).rows[0].ck;
     } finally {
@@ -311,13 +321,13 @@ export default async function runProbe() {
       anchorAcId: 'AC-27105-1',
       verdict: srcCount === dstCount ? 'pass' : 'fail',
       detail: `Given a live Postgres containing a small fixture rowset - row-count source=${srcCount} restored=${dstCount}`,
-      evidence: { databaseName, srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
+      evidence: { backendPid: backendPidDst, transactionId: transactionIdDst, databaseName, srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
     });
     results.push({
       anchorAcId: 'AC-27105-1',
       verdict: srcCk === dstCk && srcCk != null ? 'pass' : 'fail',
       detail: `Given a live Postgres containing a small fixture rowset - checksum source=${srcCk} restored=${dstCk}`,
-      evidence: { srcChecksumMd5: srcCk, dstChecksumMd5: dstCk, checksumMatchStatus: (srcCk && dstCk && srcCk === dstCk) ? 'equal' : 'differ' },
+      evidence: { backendPid: backendPidDst, transactionId: transactionIdDst, srcChecksumMd5: srcCk, dstChecksumMd5: dstCk, checksumMatchStatus: (srcCk && dstCk && srcCk === dstCk) ? 'equal' : 'differ' },
     });
   } finally {
     // Teardown, every step recorded. A failure here becomes a FAIL row

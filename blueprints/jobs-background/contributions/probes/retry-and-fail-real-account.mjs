@@ -101,7 +101,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 export default async function runProbe() {
   const gate = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   if (gate == null || gate === '') return skipRow('CI_HAS_CLOUDFLARE_ACCOUNT unset');
-  if (gate !== 'true') return skipRow(`CI_HAS_CLOUDFLARE_ACCOUNT set to ${JSON.stringify(gate)} (not "true")`);
+  if (gate !== 'true') return skipRow('CI_HAS_CLOUDFLARE_ACCOUNT (not "true")');
   if (!process.env.CF_ACCOUNT_ID) return skipRow('CF_ACCOUNT_ID unset');
   if (!process.env.CF_API_TOKEN) return skipRow('CF_API_TOKEN unset');
   if (!process.env.CF_API_BASE) return skipRow('CF_API_BASE unset');
