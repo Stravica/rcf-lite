@@ -3,7 +3,7 @@
 // per _closure3.md (section 1): hosted URL validation is not
 // REQ-005's signInStrategy/hosted-component contract. The rows keep
 // their observations of the fixture URL validator; the integration
-// harness (w-2026-09-11-dave-015) is the surface where the AC-level
+// harness (the auth integration harness follow-up) is the surface where the AC-level
 // property becomes observable.
 //
 // capability: hostedIdentityUi. engine: fixture. accountBound: false.
@@ -20,7 +20,7 @@ export const anchorAcId = null;
 export const capability = 'hostedIdentityUi';
 export const accountBound = false;
 
-const LIM = 'security-auth-clerk-AC-9101-1: probe validates hosted-UI URL shape only; the AC states the project route mounts the Clerk hosted sign-in surface, which needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
+const LIM = 'security-auth-clerk-AC-9101-1: probe validates hosted-UI URL shape only; the AC states the project route mounts the Clerk hosted sign-in surface, which needs a browser-driven runner (auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { validateHostedUiConfig } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'hosted-ui-config.mjs')).href);

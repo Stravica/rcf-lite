@@ -20,7 +20,7 @@ export const anchorAcId = null;
 export const capability = 'roleModel';
 export const accountBound = false;
 
-const LIM = 'security-auth-clerk-AC-9107-1: probe checks raw-role reduction only; the AC states the can/assert adapter refuses a role token absent from the project verb list against a verified session, which needs the integration harness (w-2026-09-11-dave-015).';
+const LIM = 'security-auth-clerk-AC-9107-1: probe checks raw-role reduction only; the AC states the can/assert adapter refuses a role token absent from the project verb list against a verified session, which needs the integration harness (the auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { mapRoles, knownRoles } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'role-adapter.mjs')).href);

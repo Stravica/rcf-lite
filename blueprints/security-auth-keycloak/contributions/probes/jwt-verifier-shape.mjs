@@ -2,7 +2,7 @@
 // Conformance-only per _closure3.md: local RS256 sign+verify on
 // throwaway keys does not observe the JWKS cache/kid behaviour,
 // the audit event or a verified-token session; rows keep their
-// verifier observations. Integration harness (w-2026-09-11-dave-015)
+// verifier observations. Integration harness (the auth integration harness follow-up)
 // is the surface where the AC-level properties become observable.
 //
 // capability: credentialSelfService. engine: fixture. accountBound: false.
@@ -19,11 +19,11 @@ export const anchorAcId = null;
 export const capability = 'credentialSelfService';
 export const accountBound = false;
 
-const LIM_KID = 'security-auth-keycloak-AC-11103-1: probe verifies against an in-process public key; the AC requires JWKS-cache resolution by kid, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_SIG = 'security-auth-keycloak-AC-11104-2: probe verifies against a static public key; the AC requires refresh-then-refuse when the kid is unpublished, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_EXP = 'security-auth-keycloak-AC-11104-1: probe checks expiry-refusal on a synthetic token; the AC requires session absence + 4xx + audit event at the request handler, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_ISS = 'security-auth-keycloak-AC-11117-7: probe observes iss mismatch refusal; the AC states an audit event with reasonClass=issuer_mismatch is emitted at the handler, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_ALG = 'security-auth-keycloak-REQ-003: probe observes alg=none refusal at the verifier; REQ-003 covers the verifier interface contract at the TAC-1202 boundary, which the integration harness (w-2026-09-11-dave-015) exercises.';
+const LIM_KID = 'security-auth-keycloak-AC-11103-1: probe verifies against an in-process public key; the AC requires JWKS-cache resolution by kid, needs the integration harness (the auth integration harness follow-up).';
+const LIM_SIG = 'security-auth-keycloak-AC-11104-2: probe verifies against a static public key; the AC requires refresh-then-refuse when the kid is unpublished, needs the integration harness (the auth integration harness follow-up).';
+const LIM_EXP = 'security-auth-keycloak-AC-11104-1: probe checks expiry-refusal on a synthetic token; the AC requires session absence + 4xx + audit event at the request handler, needs the integration harness (the auth integration harness follow-up).';
+const LIM_ISS = 'security-auth-keycloak-AC-11117-7: probe observes iss mismatch refusal; the AC states an audit event with reasonClass=issuer_mismatch is emitted at the handler, needs the integration harness (the auth integration harness follow-up).';
+const LIM_ALG = 'security-auth-keycloak-REQ-003: probe observes alg=none refusal at the verifier; REQ-003 covers the verifier interface contract at the TAC-1202 boundary, which the integration harness (the auth integration harness follow-up) exercises.';
 
 export default async function runProbe() {
   const { generateThrowawayKeypair, signRs256, verifyRs256 } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'jwt-verifier.mjs')).href);

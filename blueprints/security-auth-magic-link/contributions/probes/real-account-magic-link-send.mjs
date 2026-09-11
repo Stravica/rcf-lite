@@ -39,12 +39,12 @@ const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite'
 // ONLY the adapter or contain no provider-specific fields. Real
 // HTTP evidence (providerMessageId, providerStatus, requestId) is
 // kept; anchor drops to null. The row now requires ALL FOUR
-// declared keys (ok, providerStatus, providerMessageId, error) —
+// declared keys (ok, providerStatus, providerMessageId, error) ,
 // the previous permissive check allowed missing `error`.
 export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = true;
-const DECLAIM_LIMITATION = 'security-auth-magic-link-AC-3110-1: probe observes the adapter return only; the AC states project routes and managers invoke ONLY the declared adapter method with ONLY the declared arguments and consume ONLY the declared fields, needs the integration harness (w-2026-09-11-dave-015).';
+const DECLAIM_LIMITATION = 'security-auth-magic-link-AC-3110-1: probe observes the adapter return only; the AC states project routes and managers invoke ONLY the declared adapter method with ONLY the declared arguments and consume ONLY the declared fields, needs the integration harness (the auth integration harness follow-up).';
 
 function gateResult(varName, value) {
  if (value === undefined || value === '') return { kind: 'unset', reason: varName };
@@ -109,7 +109,7 @@ export default async function runProbe() {
 
  // Adapter outcome shape observation: the outcome carries ALL FOUR
  // declared fields (`ok`, `providerStatus`, `providerMessageId`,
- // `error`) — no missing keys, no unknown keys except `requestId`
+ // `error`) , no missing keys, no unknown keys except `requestId`
  // which is documented as a diagnostic side-channel.
  const declaredKeys = ['ok', 'providerStatus', 'providerMessageId', 'error'];
  const outcomeKeys = Object.keys(outcome).sort();

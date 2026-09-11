@@ -2,7 +2,7 @@
 // no dispatch of a protected request, no cookie inspection, no
 // request.auth population; malformed provider inputs do not
 // substitute for missing/invalid session handles. Rows keep local
-// bridge observations; integration harness (w-2026-09-11-dave-015)
+// bridge observations; integration harness (the auth integration harness follow-up)
 // is the surface where AC-level properties become observable.
 //
 // capability: sessionInventory. engine: fixture. accountBound: false.
@@ -19,10 +19,10 @@ export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = false;
 
-const LIM_P = 'security-auth-oauth2-AC-10106-1: probe returns a bridged session object; the AC states request.auth carries a Principal on a protected request, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_LEAK = 'security-auth-oauth2-AC-10106-3: probe inspects the bridge return; the AC states request.auth on a protected request does not expose provider tokens, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_H = 'security-auth-oauth2-AC-10101-3: probe inspects a bridge handle string; the AC states the session cookie carries an opaque project handle, needs a real cookie set at the response, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_INV = 'security-auth-oauth2-AC-10106-2: probe uses malformed provider inputs; the AC states a request lacking a valid handle is refused before session issue, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_P = 'security-auth-oauth2-AC-10106-1: probe returns a bridged session object; the AC states request.auth carries a Principal on a protected request, needs the integration harness (the auth integration harness follow-up).';
+const LIM_LEAK = 'security-auth-oauth2-AC-10106-3: probe inspects the bridge return; the AC states request.auth on a protected request does not expose provider tokens, needs the integration harness (the auth integration harness follow-up).';
+const LIM_H = 'security-auth-oauth2-AC-10101-3: probe inspects a bridge handle string; the AC states the session cookie carries an opaque project handle, needs a real cookie set at the response, needs the integration harness (the auth integration harness follow-up).';
+const LIM_INV = 'security-auth-oauth2-AC-10106-2: probe uses malformed provider inputs; the AC states a request lacking a valid handle is refused before session issue, needs the integration harness (the auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { bridgeSession } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'provider-adapter.mjs')).href);

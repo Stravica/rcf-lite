@@ -25,7 +25,7 @@ import { Buffer } from 'node:buffer';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
-const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (integration harness w-2026-09-11-dave-015).";
+const CONFORMANCE_LIM = "security-secrets-management-REQ-002: SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe the vendor-agnostic manager-client boundary REQ-002 states; the manager-client probe is the follow-up that would anchor REQ-002 (auth integration harness follow-up).";
 export const anchorAcId = null; // No AC or REQ observes the SOPS-native encrypt/decrypt/rotation/mismatched-key property; see probe file comment.
 export const capability = 'secretsProvider';
 export const accountBound = false;

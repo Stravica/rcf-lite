@@ -3,31 +3,31 @@
 // addendum: field COMBINATIONS, not single keys.
 //
 // Four accepted shapes:
-//   1. httpRoundTrip    — requestId (truthy) AND status (truthy) AND
+//   1. httpRoundTrip    , requestId (truthy) AND status (truthy) AND
 //                         at least one body-carrying key (bodyExcerpt,
 //                         bodyKeys, bodyRedacted, adapterReturn,
 //                         parserReturn, validatorReturn, verifierReturn,
 //                         payload, calls) OR a resource id
 //                         (createdUserId, createdThenRevokedTokenId,
 //                         resourceId, providerMessageId, tokenId).
-//   2. inventoryDiff    — a created-then-deleted resource id
+//   2. inventoryDiff    , a created-then-deleted resource id
 //                         (createdUserId or createdThenRevokedTokenId
 //                         or createdId or resourceId) AND an absence
 //                         observation (listPostAbsence truthy or
 //                         listPreContainsCreated truthy).
-//   3. deploy           — deployId or deploymentUrl (non-empty).
-//   4. conformanceOnly  — row carries `conformanceOnly: true` AND
+//   3. deploy           , deployId or deploymentUrl (non-empty).
+//   4. conformanceOnly  , row carries `conformanceOnly: true` AND
 //                         `limitation` is a non-empty string whose
 //                         first token names an AC or REQ (matches
 //                         /^security-auth-[a-z]+-(AC|REQ)-\d+/ or a
 //                         bare AC-\d+ / REQ-\d+).
-//   Skip                — row carries `accountBoundSkipped: true`
+//   Skip                , row carries `accountBoundSkipped: true`
 //                         AND `reason` names one env var
 //                         (non-empty string, no whitespace).
 //
 // Bare-diagnostic bodies fail on purpose:
 //   {status: 0}, {reason: 'x'} (without accountBoundSkipped),
-//   {skipped: 'x'} — none satisfy any shape above.
+//   {skipped: 'x'} , none satisfy any shape above.
 
 import assert from 'node:assert/strict';
 

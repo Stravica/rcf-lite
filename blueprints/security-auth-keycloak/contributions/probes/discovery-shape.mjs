@@ -3,7 +3,7 @@
 // URL construction and document validation are not the
 // boot-time fetch/population/refusal properties the ACs state.
 // Rows keep their observations against the fixture discovery
-// client; integration-harness follow-up (w-2026-09-11-dave-015)
+// client; integration-harness follow-up (the auth integration harness follow-up)
 // is the surface where AC-level properties become observable.
 //
 // capability: principalDirectory. engine: fixture. accountBound: false.
@@ -20,8 +20,8 @@ export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = false;
 
-const LIM_URL = 'security-auth-keycloak-AC-11102-1: probe checks URL derivation and doc-shape refusal only; the AC states the boot-time discovery fetch fills a cache read at request time, which needs a real Keycloak realm and boot lifecycle (integration harness w-2026-09-11-dave-015).';
-const LIM_REFUSAL = 'security-auth-keycloak-AC-11102-3: probe checks validator refusal only; the AC states the boot itself refuses when the discovery document is malformed, which needs the boot lifecycle (integration harness w-2026-09-11-dave-015).';
+const LIM_URL = 'security-auth-keycloak-AC-11102-1: probe checks URL derivation and doc-shape refusal only; the AC states the boot-time discovery fetch fills a cache read at request time, which needs a real Keycloak realm and boot lifecycle (auth integration harness follow-up).';
+const LIM_REFUSAL = 'security-auth-keycloak-AC-11102-3: probe checks validator refusal only; the AC states the boot itself refuses when the discovery document is malformed, which needs the boot lifecycle (auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { buildDiscoveryUrl, validateDiscoveryDocument } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'discovery-client.mjs')).href);

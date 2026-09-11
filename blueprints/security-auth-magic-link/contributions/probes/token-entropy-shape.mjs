@@ -2,7 +2,7 @@
 // _closure3.md: REQ-002 does not state high entropy, base64url
 // form, JWT-delimiter absence or wrong-email refusal. Rows keep
 // the fixture-manager sample observations; integration harness
-// (w-2026-09-11-dave-015) is the surface where the AC-level
+// (the auth integration harness follow-up) is the surface where the AC-level
 // properties become observable.
 //
 // capability: principalDirectory. engine: fixture. accountBound: false.
@@ -19,7 +19,7 @@ export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = false;
 
-const LIM = 'security-auth-magic-link-REQ-002: REQ-002 does not state token entropy, base64url form or JWT-delimiter absence at the token layer; a probe against session handles from a session manager (TAC-502) needs the integration harness (w-2026-09-11-dave-015).';
+const LIM = 'security-auth-magic-link-REQ-002: REQ-002 does not state token entropy, base64url form or JWT-delimiter absence at the token layer; a probe against session handles from a session manager (TAC-502) needs the integration harness (the auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);

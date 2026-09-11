@@ -21,12 +21,12 @@ export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = false;
 
-const LIM_TTL = 'security-auth-magic-link-AC-3102-3: probe checks the config constant on the manager; the AC states the recorded expiresAt is fifteen minutes after the mint clock on issued tokens, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_ISSUE = 'security-auth-magic-link-REQ-002: probe calls manager.issue directly; REQ-002 does not state a manager-level issue shape, and route-level issue semantics need the integration harness (w-2026-09-11-dave-015).';
-const LIM_EMAIL = 'security-auth-magic-link-REQ-002: probe calls manager.verify with a wrong email; REQ-002 does not state wrong-email refusal semantics, and route-level GET /login/verify observation needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_HAPPY = 'security-auth-magic-link-REQ-002: probe calls manager.verify happy path; REQ-002 does not state a manager-level happy path, and route-level GET /login/verify observation needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_REPLAY = 'security-auth-magic-link-AC-3102-1: probe calls manager.verify twice; the AC states GET /login/verify returns 401 with no Set-Cookie on the second call, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_EXPIRED = 'security-auth-magic-link-AC-3102-2: probe calls manager.verify past expiry; the AC states GET /login/verify returns 401 with no Set-Cookie, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_TTL = 'security-auth-magic-link-AC-3102-3: probe checks the config constant on the manager; the AC states the recorded expiresAt is fifteen minutes after the mint clock on issued tokens, needs the integration harness (the auth integration harness follow-up).';
+const LIM_ISSUE = 'security-auth-magic-link-REQ-002: probe calls manager.issue directly; REQ-002 does not state a manager-level issue shape, and route-level issue semantics need the integration harness (the auth integration harness follow-up).';
+const LIM_EMAIL = 'security-auth-magic-link-REQ-002: probe calls manager.verify with a wrong email; REQ-002 does not state wrong-email refusal semantics, and route-level GET /login/verify observation needs the integration harness (the auth integration harness follow-up).';
+const LIM_HAPPY = 'security-auth-magic-link-REQ-002: probe calls manager.verify happy path; REQ-002 does not state a manager-level happy path, and route-level GET /login/verify observation needs the integration harness (the auth integration harness follow-up).';
+const LIM_REPLAY = 'security-auth-magic-link-AC-3102-1: probe calls manager.verify twice; the AC states GET /login/verify returns 401 with no Set-Cookie on the second call, needs the integration harness (the auth integration harness follow-up).';
+const LIM_EXPIRED = 'security-auth-magic-link-AC-3102-2: probe calls manager.verify past expiry; the AC states GET /login/verify returns 401 with no Set-Cookie, needs the integration harness (the auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);

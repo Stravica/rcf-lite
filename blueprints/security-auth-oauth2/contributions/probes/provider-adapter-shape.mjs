@@ -3,7 +3,7 @@
 // boot/listener/event/controller behaviour the ACs bind; the
 // second-provider round trip and project session redirects are
 // not exercised. Rows keep local adapter observations; integration
-// harness (w-2026-09-11-dave-015) is where AC-level properties
+// harness (the auth integration harness follow-up) is where AC-level properties
 // become observable.
 //
 // capability: principalDirectory. engine: fixture. accountBound: false.
@@ -20,9 +20,9 @@ export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = false;
 
-const LIM_VAL = 'security-auth-oauth2-AC-10111-2: probe calls a validator helper; the AC states the mechanism refuses at boot with a stable-coded error, needs the boot lifecycle (integration harness w-2026-09-11-dave-015).';
-const LIM_SEL1 = 'security-auth-oauth2-AC-10109-1: probe checks selector known-name only; the AC states the second-provider sign-in round-trip issues a project session, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_SEL2 = 'security-auth-oauth2-AC-10109-2: probe calls a selector helper; the AC states the sign-in route refuses an unknown provider and the redirect guard blocks it, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_VAL = 'security-auth-oauth2-AC-10111-2: probe calls a validator helper; the AC states the mechanism refuses at boot with a stable-coded error, needs the boot lifecycle (auth integration harness follow-up).';
+const LIM_SEL1 = 'security-auth-oauth2-AC-10109-1: probe checks selector known-name only; the AC states the second-provider sign-in round-trip issues a project session, needs the integration harness (the auth integration harness follow-up).';
+const LIM_SEL2 = 'security-auth-oauth2-AC-10109-2: probe calls a selector helper; the AC states the sign-in route refuses an unknown provider and the redirect guard blocks it, needs the integration harness (the auth integration harness follow-up).';
 
 export default async function runProbe() {
   const { chooseDiscoveryUrl, selectProvider, knownProviders } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'provider-adapter.mjs')).href);

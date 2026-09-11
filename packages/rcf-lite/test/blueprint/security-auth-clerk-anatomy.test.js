@@ -19,7 +19,7 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-auth-clerk');
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-clerk');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
-// Anatomy shape asserter — delegates to the shared shape helper in
+// Anatomy shape asserter , delegates to the shared shape helper in
 // _security-e-anatomy-shape.mjs. The helper enforces the four 7d
 // shape combinations (request id + status + body, created-then-
 // deleted inventory diff, deploy record, skip, conformanceOnly+

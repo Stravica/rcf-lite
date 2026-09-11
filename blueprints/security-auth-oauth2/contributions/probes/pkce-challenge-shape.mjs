@@ -4,7 +4,7 @@
 // flow termination, and REQ-002 describes provider-record fields
 // rather than a verifier length band. Rows keep their local
 // derivation observations; integration harness
-// (w-2026-09-11-dave-015) is the surface where AC-level
+// (the auth integration harness follow-up) is the surface where AC-level
 // properties become observable.
 //
 // capability: authorisationCodeFlow. engine: fixture. accountBound: false.
@@ -22,8 +22,8 @@ export const anchorAcId = null;
 export const capability = 'authorisationCodeFlow';
 export const accountBound = false;
 
-const LIM_HAPPY = 'security-auth-oauth2-AC-10101-1: probe checks S256 derivation only; the AC states the project sign-in route redirects to the provider /authorize with a valid code_challenge, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_MISMATCH = 'security-auth-oauth2-AC-10103-2: probe observes verifier-hash divergence only; the AC states invalid_grant at /token, flow termination, and absence of session issue, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_HAPPY = 'security-auth-oauth2-AC-10101-1: probe checks S256 derivation only; the AC states the project sign-in route redirects to the provider /authorize with a valid code_challenge, needs the integration harness (the auth integration harness follow-up).';
+const LIM_MISMATCH = 'security-auth-oauth2-AC-10103-2: probe observes verifier-hash divergence only; the AC states invalid_grant at /token, flow termination, and absence of session issue, needs the integration harness (the auth integration harness follow-up).';
 const LIM_LEN = 'security-auth-oauth2-REQ-002: REQ-002 describes provider-record fields, not a PKCE verifier length band; the length band belongs to RFC 7636 not this REQ.';
 
 export default async function runProbe() {

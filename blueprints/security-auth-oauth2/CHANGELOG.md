@@ -2,7 +2,7 @@
 
 ## 1.3.5 - 2026-09-11
 
-- Third closure remediation (2026-09-11): every AC/REQ anchor on the criterion-e probe pack is de-claimed to conformanceOnly with a limitation naming the AC that is observable only in the auth integration harness follow-up. The mock authorisation server keeps real consumed-code state; `/callback-check` reads that record and callers now OBSERVE preExchange from the mock's request-order records instead of asserting it as a constant. Fixture README and mock header comment stop calling the mock a "local engine" or `X-Mock-Request-Id` a rule 7d shape — the mock is a fixture, and a real engine here is a live commercial IdP. Anatomy helper rewritten to enforce field combinations per shape. This pack is criterion-e conformance evidence pending the integration harness. `real-account-authorisation-code-flow` honest-skips on `CI_HAS_OAUTH2_PROVIDER` as before.
+- Third closure remediation (2026-09-11): every AC/REQ anchor on the criterion-e probe pack is de-claimed to conformanceOnly with a limitation naming the AC that is observable only in the auth integration harness follow-up. The mock authorisation server keeps real consumed-code state; `/callback-check` reads that record and callers now OBSERVE preExchange from the mock's request-order records instead of asserting it as a constant. Fixture README and mock header comment stop calling the mock a "local engine" or `X-Mock-Request-Id` a rule 7d shape , the mock is a fixture, and a real engine here is a live commercial IdP. Anatomy helper rewritten to enforce field combinations per shape. This pack is criterion-e conformance evidence pending the integration harness. `real-account-authorisation-code-flow` honest-skips on `CI_HAS_OAUTH2_PROVIDER` as before.
 
 ## 1.3.4 - 2026-09-11
 

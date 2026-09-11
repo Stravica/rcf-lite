@@ -2,7 +2,7 @@
 
 ## 1.1.4 - 2026-09-11
 
-- Third closure remediation (2026-09-11): every SOPS-native result row is now marked `conformanceOnly: true` with a limitation naming REQ-002 (the manager-client boundary REQ-002 states, which the SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe). Anchors stay `null` as before. Anatomy helper rewritten to enforce field combinations per shape — bare diagnostic evidence like `{macDiverged}`, `{sameRecipients}` or `{status,matched}` now passes only under the conformanceOnly+limitation shape. This pack is criterion-e conformance evidence pending the manager-client probe (the integration harness follow-up).
+- Third closure remediation (2026-09-11): every SOPS-native result row is now marked `conformanceOnly: true` with a limitation naming REQ-002 (the manager-client boundary REQ-002 states, which the SOPS-native encrypt/decrypt/rotation/mismatched-key operations do not observe). Anchors stay `null` as before. Anatomy helper rewritten to enforce field combinations per shape , bare diagnostic evidence like `{macDiverged}`, `{sameRecipients}` or `{status,matched}` now passes only under the conformanceOnly+limitation shape. This pack is criterion-e conformance evidence pending the manager-client probe (the integration harness follow-up).
 
 ## 1.1.3 - 2026-09-11
 

@@ -2,7 +2,7 @@
 // _closure3.md: raw claim objects are not verified tokens, and
 // REQ-006 explicitly says roles are not remapped to a project
 // allow-list. Rows keep their fixture-adapter observations;
-// integration harness (w-2026-09-11-dave-015) is the surface
+// integration harness (the auth integration harness follow-up) is the surface
 // where the AC-level properties become observable.
 //
 // capability: roleModel. engine: fixture. accountBound: false.
@@ -19,9 +19,9 @@ export const anchorAcId = null;
 export const capability = 'roleModel';
 export const accountBound = false;
 
-const LIM_CLIENT = 'security-auth-keycloak-AC-11107-1: probe receives a raw claim object, not a verified access token; the AC requires the client-roles path from a verified session, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_ABSENT = 'security-auth-keycloak-AC-11107-2: probe receives an empty raw claim object; the AC requires absent-claim behaviour on a verified session, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_MALFORMED = 'security-auth-keycloak-AC-11107-3: probe receives a raw claim object; the AC requires the malformed-claim refusal path on a verified session, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_CLIENT = 'security-auth-keycloak-AC-11107-1: probe receives a raw claim object, not a verified access token; the AC requires the client-roles path from a verified session, needs the integration harness (the auth integration harness follow-up).';
+const LIM_ABSENT = 'security-auth-keycloak-AC-11107-2: probe receives an empty raw claim object; the AC requires absent-claim behaviour on a verified session, needs the integration harness (the auth integration harness follow-up).';
+const LIM_MALFORMED = 'security-auth-keycloak-AC-11107-3: probe receives a raw claim object; the AC requires the malformed-claim refusal path on a verified session, needs the integration harness (the auth integration harness follow-up).';
 const LIM_REQ006 = 'security-auth-keycloak-REQ-006: REQ-006 explicitly says roles are NOT remapped to a project allow-list; unknown-role refusal here is a fixture adapter behaviour outside the REQ.';
 
 export default async function runProbe() {

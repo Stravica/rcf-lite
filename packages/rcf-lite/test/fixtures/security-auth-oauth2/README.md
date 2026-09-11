@@ -12,7 +12,7 @@ branch when no account is available.
 - `src/mock-authorization-server.mjs` - an in-process HTTP server
   speaking the RFC 6749 authorisation-code flow with the RFC 7636
   S256 PKCE method. Binds a per-instance `X-Mock-Request-Id` header
-  on every response — this is a fixture request id for local
+  on every response , this is a fixture request id for local
   diagnostics, not a rule 7d engine id (a real engine here is a
   live commercial IdP, not this mock). Refuses on missing challenge,
   wrong `code_challenge_method`, unknown client_id, code replay,

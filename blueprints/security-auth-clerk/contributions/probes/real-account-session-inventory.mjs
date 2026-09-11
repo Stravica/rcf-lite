@@ -43,13 +43,13 @@ import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } fro
 // The rows keep their real HTTP evidence (X-Request-IDs, token ids,
 // revoke-then-404 lifecycle observation); anchor drops to null and
 // each row records a limitation naming the AC that IS observable
-// only in the integration harness (w-2026-09-11-dave-015).
+// only in the integration harness (the auth integration harness follow-up).
 export const anchorAcId = null;
 export const capability = 'sessionInventory';
 export const accountBound = true;
-const LIM_MINT = 'security-auth-clerk-AC-9112-3: probe drives sign-in-token mint on the Backend API; the AC binds session revocation by session id from the inventory surface, needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
-const LIM_REVOKE = 'security-auth-clerk-AC-9112-4: probe drives sign-in-token revoke on the Backend API; the AC binds project session revocation, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_NOTOBS = 'security-auth-clerk-AC-9112-1: two shaped active sessions cannot be authored server-side against the Clerk Backend API; the AC needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
+const LIM_MINT = 'security-auth-clerk-AC-9112-3: probe drives sign-in-token mint on the Backend API; the AC binds session revocation by session id from the inventory surface, needs a browser-driven runner (auth integration harness follow-up).';
+const LIM_REVOKE = 'security-auth-clerk-AC-9112-4: probe drives sign-in-token revoke on the Backend API; the AC binds project session revocation, needs the integration harness (the auth integration harness follow-up).';
+const LIM_NOTOBS = 'security-auth-clerk-AC-9112-1: two shaped active sessions cannot be authored server-side against the Clerk Backend API; the AC needs a browser-driven runner (auth integration harness follow-up).';
 
 const BASE_URL_DEFAULT = 'https://api.clerk.com/v1';
 

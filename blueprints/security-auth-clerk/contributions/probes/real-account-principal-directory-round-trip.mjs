@@ -35,11 +35,11 @@ import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } fro
 // real HTTP evidence (X-Request-IDs, statuses, created-then-deleted
 // user_ id in the pre/post inventory diff); the anchor drops to
 // null and the row records limitation naming the AC that IS
-// observable only in the integration harness (w-2026-09-11-dave-015).
+// observable only in the integration harness (the auth integration harness follow-up).
 export const anchorAcId = null;
 export const capability = 'principalDirectory';
 export const accountBound = true;
-const DECLAIM_LIMITATION = 'security-auth-clerk-AC-9108-1: probe drives the Clerk Backend API principal-directory (users) surface, which is not the runtime "sign-in strategy renders" property the AC states; needs a browser-driven runner (integration harness w-2026-09-11-dave-015).';
+const DECLAIM_LIMITATION = 'security-auth-clerk-AC-9108-1: probe drives the Clerk Backend API principal-directory (users) surface, which is not the runtime "sign-in strategy renders" property the AC states; needs a browser-driven runner (auth integration harness follow-up).';
 
 const BASE_URL_DEFAULT = 'https://api.clerk.com/v1';
 

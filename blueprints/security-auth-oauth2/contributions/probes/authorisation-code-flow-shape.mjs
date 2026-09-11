@@ -9,7 +9,7 @@
 // /token, /callback-check and PKCE-mismatch keep their observations
 // but the AC anchors drop to null and each row records a limitation
 // naming the AC that IS observable only in the integration harness
-// (w-2026-09-11-dave-015). preExchange is now OBSERVED from the
+// (the auth integration harness follow-up). preExchange is now OBSERVED from the
 // mock's requestNo record ordering (callback runs before /token
 // only if the token exchange has not consumed the code yet), not
 // asserted as a constant.
@@ -29,10 +29,10 @@ export const anchorAcId = null;
 export const capability = 'authorisationCodeFlow';
 export const accountBound = false;
 
-const LIM_AUTHZ = 'security-auth-oauth2-AC-10101-1: probe calls /authorize on a local mock; the AC states the project sign-in route drives a live IdP through a real browser, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_TOKEN = 'security-auth-oauth2-AC-10101-2: probe calls /token on a local mock; the AC states the project session issues on a real IdP exchange, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_REPLAY = 'security-auth-oauth2-AC-10102-2: probe observes the mock callback-tier refusing a consumed code; the AC states the project callback controller refuses without issuing a session, needs the integration harness (w-2026-09-11-dave-015).';
-const LIM_PKCE = 'security-auth-oauth2-AC-10103-2: probe observes the mock /token refusing a tampered verifier; the AC states the project sign-in flow terminates without issuing a session, needs the integration harness (w-2026-09-11-dave-015).';
+const LIM_AUTHZ = 'security-auth-oauth2-AC-10101-1: probe calls /authorize on a local mock; the AC states the project sign-in route drives a live IdP through a real browser, needs the integration harness (the auth integration harness follow-up).';
+const LIM_TOKEN = 'security-auth-oauth2-AC-10101-2: probe calls /token on a local mock; the AC states the project session issues on a real IdP exchange, needs the integration harness (the auth integration harness follow-up).';
+const LIM_REPLAY = 'security-auth-oauth2-AC-10102-2: probe observes the mock callback-tier refusing a consumed code; the AC states the project callback controller refuses without issuing a session, needs the integration harness (the auth integration harness follow-up).';
+const LIM_PKCE = 'security-auth-oauth2-AC-10103-2: probe observes the mock /token refusing a tampered verifier; the AC states the project sign-in flow terminates without issuing a session, needs the integration harness (the auth integration harness follow-up).';
 
 function pickPort() {
   const override = Number(process.env.OAUTH2_MOCK_PORT);
@@ -91,7 +91,7 @@ export default async function runProbe() {
       evidence: { requestId: authRequestId, status: authRes.status, state: state1, codeIssued: codeFromRes, codeChallengeMethod: 'S256' },
     }, { ac: 'security-auth-oauth2-AC-10101-1', limitation: LIM_AUTHZ }));
 
-    // 2. /callback-check BEFORE any /token exchange — preExchange observed
+    // 2. /callback-check BEFORE any /token exchange , preExchange observed
     // from the mock's consumedCodes record: if the code is not yet in
     // consumedCodes, the callback runs pre-exchange.
     const preCallbackUrl = new URL(`http://127.0.0.1:${port}/callback-check`);
@@ -155,7 +155,7 @@ export default async function runProbe() {
       },
     }, { ac: 'security-auth-oauth2-AC-10101-2', limitation: LIM_TOKEN }));
 
-    // 4. /callback-check AFTER /token — code now in consumedCodes.
+    // 4. /callback-check AFTER /token , code now in consumedCodes.
     // The refusal is observed from the mock's records; preExchange
     // for THIS second callback is false (observed, not asserted).
     const postCallbackUrl = new URL(`http://127.0.0.1:${port}/callback-check`);

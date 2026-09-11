@@ -3,7 +3,7 @@
 // the RFC 7636 PKCE extension on the S256 method; refuses on missing
 // or mismatched code_verifier. The server binds a per-instance
 // request counter and echoes it as `X-Mock-Request-Id` on every
-// response — this is a fixture request id for local diagnostics,
+// response , this is a fixture request id for local diagnostics,
 // not a rule 7d engine id and not evidence of a real OAuth 2.0
 // engine (the real engine is a live IdP; this mock is a fixture).
 // The server is process-local and self-terminates on stop().
