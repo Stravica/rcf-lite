@@ -38,7 +38,7 @@ export default async function runProbe() {
   }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: credentials,
@@ -57,7 +57,7 @@ export default async function runProbe() {
     // rows need per-row vendor evidence).
     let vendorMetadata = null;
     try {
-      const { sdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
+      const { loadSdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs'); const sdk = await loadSdk();
       const head = await store.getClient().send(new sdk.HeadBucketCommand({ Bucket: bucket }));
       vendorMetadata = head && head.$metadata ? {
         httpStatusCode: head.$metadata.httpStatusCode,

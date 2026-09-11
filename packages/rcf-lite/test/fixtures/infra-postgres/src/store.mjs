@@ -12,9 +12,17 @@
  * statement index.
  */
 
-import pg from 'pg';
-
-const { Pool } = pg;
+// The `pg` driver is loaded LAZILY inside `createStore` so this module
+// can be imported (by probes, tools that walk the probe module for its
+// accountBound flag, or the anatomy test surface) under a CI condition
+// where the fixture's `node_modules` has not been installed and the
+// declared variables are unset. Every code path that resolves `pg`
+// runs only after POSTGRES_HOST is present and `createStore` is
+// invoked (Dave ruling 2026-09-11).
+async function loadPool() {
+  const pgMod = await import('pg');
+  return pgMod.default.Pool;
+}
 
 /**
  * Named error kind emitted when POSTGRES_HOST is not set. Probes
@@ -56,7 +64,8 @@ export function connectionUrlFromEnv() {
  *
  * facadeReady fires exactly once after the first successful ready-check.
  */
-export function createStore({ connectionUrl, onEvent = () => {}, poolConfig = {} }) {
+export async function createStore({ connectionUrl, onEvent = () => {}, poolConfig = {} }) {
+  const Pool = await loadPool();
   const pool = new Pool({
     connectionString: connectionUrl,
     max: 10,

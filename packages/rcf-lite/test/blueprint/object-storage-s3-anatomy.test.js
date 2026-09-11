@@ -24,7 +24,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
   // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
   // for the Hetzner Object Storage adapter (total 25).
-  assert.equal(doc.version, '1.2.5');
+  assert.equal(doc.version, '1.2.6');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
   assert.equal(doc.contributions.length, 25);
@@ -181,9 +181,14 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     'unwired switches must not appear in the fixture README (doc-truth)');
   assert.match(readme, /minio\/minio/);
   assert.match(readme, /podman/i);
-  // object-store.mjs (TAC-2901 facade) is the sole reader of @aws-sdk/client-s3
+  // object-store.mjs (TAC-2901 facade) is the sole reader of
+  // @aws-sdk/client-s3. Match either the retired static `from
+  // '@aws-sdk/client-s3'` or the lazy `await import('@aws-sdk/client-s3')`
+  // inside createObjectStore per the maintainer's 2026-09-11
+  // lazy-load ruling.
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'object-store.mjs'), 'utf8');
-  assert.match(storeSrc, /from ['"]@aws-sdk\/client-s3['"]/,
+  assert.match(storeSrc,
+    /(?:from ['"]@aws-sdk\/client-s3['"]|import\(['"]@aws-sdk\/client-s3['"]\))/,
     'src/object-store.mjs must import @aws-sdk/client-s3');
   // 7d conformance: the object-storage-s3 pack's Declared env vars
   // table names the first-tier gates plus every second-tier variable

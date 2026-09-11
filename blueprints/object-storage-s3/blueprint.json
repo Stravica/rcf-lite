@@ -1,6 +1,6 @@
 {
   "slug": "object-storage-s3",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "category": "object-storage",
   "capabilities": [
     "objectStorage"

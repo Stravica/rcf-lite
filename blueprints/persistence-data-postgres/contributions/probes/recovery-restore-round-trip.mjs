@@ -190,7 +190,7 @@ export default async function runProbe() {
     throw err;
   }
   const events = [];
-  const store = createStore({
+  const store = await createStore({
     connectionUrl: url,
     onEvent: (e) => events.push(e),
   });
@@ -295,7 +295,7 @@ export default async function runProbe() {
     // POSTGRES_HOST (the docker host the restore container publishes
     // its port on); no literal host default lives in shipped probe
     // code (maintainer ruling 2026-09-11).
-    const dstStore = createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/rcf_test` });
+    const dstStore = await createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/rcf_test` });
     let dstCount = -1;
     let dstCk = 'unset';
     try {

@@ -46,7 +46,7 @@ export default async function runProbe() {
   }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: credentials,
@@ -62,7 +62,7 @@ export default async function runProbe() {
     await store.ready();
     // Drive one PutObject via SDK directly for per-row vendor
     // evidence, then delete it, then run the shipped-facade path.
-    const { sdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
+    const { loadSdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs'); const sdk = await loadSdk();
     const client = store.getClient();
     const rawPut = await client.send(new sdk.PutObjectCommand({ Bucket: bucket, Key: `${key}.evidence`, Body: body, ContentType: 'image/jpeg' }));
     vendorReq.put = { httpStatus: rawPut.$metadata && rawPut.$metadata.httpStatusCode, requestId: rawPut.$metadata && rawPut.$metadata.requestId };

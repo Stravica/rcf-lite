@@ -86,7 +86,7 @@ function spawnRunner({ simulateFailure }) {
 }
 
 async function resetSchema(url) {
-  const store = createStore({ connectionUrl: url });
+  const store = await createStore({ connectionUrl: url });
   try {
     await store.ready();
     const pool = store.getPool();
@@ -157,7 +157,7 @@ export default async function runProbe() {
     evidence: { migrationsAppliedEvent: migratedEvent || null, phase: 'happy-path', appliedFilesList: migratedEvent && migratedEvent.applied ? migratedEvent.applied : [] },
   });
   // Read schema_version to confirm rows count = 3
-  const store = createStore({ connectionUrl: url });
+  const store = await createStore({ connectionUrl: url });
   let schemaVersionRows;
   try {
     await store.ready();
@@ -186,7 +186,7 @@ export default async function runProbe() {
   const childRun = await spawnRunner({ simulateFailure: true });
   const failingFilename = childRun.stderr.match(/migration failed at (\S+):/);
   const stderrFailingFilename = failingFilename ? failingFilename[1] : null;
-  const store2 = createStore({ connectionUrl: url });
+  const store2 = await createStore({ connectionUrl: url });
   let atomicityEvidence = null;
   try {
     await store2.ready();

@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.6');
+  assert.equal(doc.version, '1.1.7');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);
@@ -352,9 +352,11 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     assert.match(recoverySrc, /exportDatabase/);
   assert.match(recoverySrc, /backupExported/);
   // Store.mjs (TAC-2801 facade) is the sole reader of pg on the request
-  // path per REQ-001; asserting it imports pg.
+  // path per REQ-001; asserting it imports pg (either as a static
+  // `from 'pg'` or via the lazy `await import('pg')` inside
+  // createStore per the maintainer's 2026-09-11 lazy-load ruling).
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'store.mjs'), 'utf8');
-  assert.match(storeSrc, /from ['"]pg['"]/);
+  assert.match(storeSrc, /(?:from ['"]pg['"]|import\(['"]pg['"]\))/);
   // The migration runner (TAC-2802 / migrate.mjs) and the recovery
   // runner (TAC-2804 / recovery.mjs) are separate operator-invoked
   // modules per the spec's four-TAC anatomy, not on the request path.

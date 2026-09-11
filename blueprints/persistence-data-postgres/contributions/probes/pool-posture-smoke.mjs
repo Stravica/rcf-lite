@@ -56,8 +56,8 @@ export default async function runProbe() {
     }
     throw err;
   }
-  const storeA = createStore({ connectionUrl: url, poolConfig: { max: 5 } });
-  const storeB = createStore({ connectionUrl: url, poolConfig: { max: 5 } });
+  const storeA = await createStore({ connectionUrl: url, poolConfig: { max: 5 } });
+  const storeB = await createStore({ connectionUrl: url, poolConfig: { max: 5 } });
   const results = [];
   const teardown = [];
   let databaseName = null;

@@ -123,7 +123,7 @@ export default async function runProbe() {
   }
 
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: { accessKeyId, secretAccessKey },

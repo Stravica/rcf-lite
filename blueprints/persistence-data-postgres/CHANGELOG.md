@@ -1,6 +1,15 @@
 # Changelog
 
 
+## 1.1.7 - 2026-09-11
+
+Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI condition where the fixture's `node_modules` has not been installed and `POSTGRES_HOST` is unset, the probe module surface must load without touching the `pg` driver: an anatomy or tooling walk imports the probe, the probe calls `connectionUrlFromEnv`, catches `MissingPostgresHostError`, and returns the exact one-variable `accountBoundSkipped` row. The prior module-level `import pg from 'pg'` in the fixture facades (`store.mjs` and `migrate.mjs`) resolved `pg` on module load and failed the anatomy TC-070-fixture-and-switches test with `ERR_MODULE_NOT_FOUND` in CI. The engine client is now loaded LAZILY inside `createStore` and `applyAll`, and both fixture helpers are async; every probe now `await`s the facade calls. Anatomy pin bumped to 1.1.7.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs` no longer carries a module-level `import pg from 'pg'`. `createStore` is now async and calls a `loadPool()` helper that dynamically imports `pg` on the run path, after `POSTGRES_HOST` is present and the caller has invoked `createStore`.
+- fix: `packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs` no longer carries a module-level `import pg from 'pg'`. `applyAll` calls a `loadClient()` helper that dynamically imports `pg` on the run path.
+- fix: every probe that instantiates the facade (`facade-round-trip`, `migration-apply`, `pool-posture-smoke`, `transaction-atomicity`, `recovery-restore-round-trip`) prefixes `createStore` with `await`; behaviour on both the run path and the skip path is unchanged.
+
+
 ## 1.1.6 - 2026-09-11
 
 Round-7 closure follow-through: the probe owns its skip and the anatomy invokes every probe unconditionally. The persistence-data-postgres anatomy test now removes the outer POSTGRES_HOST gate, invokes each probe directly, and validates whatever comes back: a skip row for exact one-variable shape, or a counting row against the strict AND-witness rule with a NON-EMPTY STRING identifier under an engine-minted id key (booleans, numbers, arrays and objects never qualify) and a derived-value witness. The limitation-token check now sweeps every `AC-[A-Za-z0-9-]+` token so an invented token alongside a real one is refused. Anatomy pin bumped to 1.1.6.

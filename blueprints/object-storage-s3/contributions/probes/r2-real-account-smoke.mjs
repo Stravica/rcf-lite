@@ -167,7 +167,7 @@ export default async function runProbe() {
 
     // 3) Open facade against scratch bucket and round-trip (AC-28108-2).
     const events = [];
-    store = createObjectStore({
+    store = await createObjectStore({
       endpointUrl: r2.endpoint,
       bucket: scratchBucket,
       credentialsRef: credentials,

@@ -1,6 +1,15 @@
 # Changelog
 
 
+## 1.2.6 - 2026-09-11
+
+Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI condition where the fixture's `node_modules` has not been installed and `S3_ENDPOINT_URL` is unset, the probe module surface must load without touching `@aws-sdk/client-s3`: an anatomy or tooling walk imports the probe, the probe calls `endpointFromEnv`, catches `MissingS3EndpointError`, and returns the exact one-variable `accountBoundSkipped` row. The prior module-level `import * as awsS3 from '@aws-sdk/client-s3'` and `import { getSignedUrl } from '@aws-sdk/s3-request-presigner'` in `object-store.mjs` resolved the SDK on module load and failed the anatomy TC-071-fixture-and-switches test with `ERR_MODULE_NOT_FOUND` in CI. The SDK is now loaded LAZILY inside `createObjectStore` and via the exported `loadSdk()` helper; `createObjectStore` is async and every probe `await`s it. Anatomy pin bumped to 1.2.6.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` no longer carries module-level imports of `@aws-sdk/client-s3` or `@aws-sdk/s3-request-presigner`. The retired top-level `export const sdk = awsS3` is replaced by an exported async `loadSdk()` helper that returns the SDK namespace on demand; `createObjectStore` is async and loads the SDK plus signer inside its body, after `S3_ENDPOINT_URL` is present.
+- fix: every probe that instantiates the facade (`facade-round-trip`, `put-get-round-trip`, `presigned-url`, `multipart-upload`, `event-secrecy`, `r2-real-account-smoke`, `hetzner-object-storage-round-trip`) prefixes `createObjectStore` with `await`; behaviour on both the run path and the skip path is unchanged.
+- fix: the two probes that dip into raw SDK constructors on the run path (`facade-round-trip`, `event-secrecy`) now call `loadSdk()` on the same run-path branch that already dynamically imports the fixture facade; the SDK never resolves on the skip path.
+
+
 ## 1.2.5 - 2026-09-11
 
 Round-7 closure follow-through: the probe owns its skip, the anatomy invokes every probe unconditionally, and no endpoint-host literal remains in shipped fixture code. The infra-s3-and-queue fixture helper `endpointFromEnv` no longer carries an endpoint-host default: when `S3_ENDPOINT_URL` is unset the helper throws a typed `MissingS3EndpointError` and each S3 local probe (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy) declares `DECLARED_ENV=['S3_ENDPOINT_URL']`, catches the error, and returns the exact one-variable `accountBoundSkipped` row rather than reaching a hard-coded endpoint. The anatomy no longer fabricates a skip row when the gate is unset; it invokes every probe and validates whatever comes back. The identifier predicate is now string-only (booleans, numbers, arrays and objects never qualify) and the limitation-token check sweeps every `AC-[A-Za-z0-9-]+` token. Anatomy pin bumped to 1.2.5.

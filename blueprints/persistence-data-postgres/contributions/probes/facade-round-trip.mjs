@@ -59,7 +59,7 @@ export default async function runProbe() {
     throw err;
   }
   const events = [];
-  const store = createStore({
+  const store = await createStore({
     connectionUrl: url,
     onEvent: (e) => events.push(e),
   });

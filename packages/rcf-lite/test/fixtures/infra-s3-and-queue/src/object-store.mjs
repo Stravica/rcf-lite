@@ -14,27 +14,24 @@
  * AbortMultipartUpload on any thrown part-upload error.
  */
 
-import * as awsS3 from '@aws-sdk/client-s3';
-const {
-  S3Client,
-  HeadBucketCommand,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  ListObjectsV2Command,
-  CreateMultipartUploadCommand,
-  UploadPartCommand,
-  CompleteMultipartUploadCommand,
-  AbortMultipartUploadCommand,
-  ListMultipartUploadsCommand,
-} = awsS3;
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+// The @aws-sdk client and its presigner are loaded LAZILY inside
+// `createObjectStore` and via the exported `loadSdk()` helper so this
+// module can be imported (by probes, tools that walk the probe module
+// for its accountBound flag, or the anatomy test surface) under a CI
+// condition where the fixture's `node_modules` has not been installed
+// and S3_ENDPOINT_URL is unset. Every code path that resolves
+// @aws-sdk runs only after S3_ENDPOINT_URL is present and
+// `createObjectStore` is invoked, or a probe explicitly calls
+// `loadSdk()` on the run path (Dave ruling 2026-09-11).
+export async function loadSdk() {
+  return await import('@aws-sdk/client-s3');
+}
 
-// Re-export the SDK's command constructors so blueprint probes (which
-// live outside the fixture's node_modules resolution scope) can build
-// commands via this module rather than importing the SDK directly. The
-// fixture remains the sole reader of the SDK per REQ-001.
-export const sdk = awsS3;
+async function loadSdkAndSigner() {
+  const awsS3 = await import('@aws-sdk/client-s3');
+  const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+  return { awsS3, getSignedUrl };
+}
 
 const DEFAULT_MULTIPART_THRESHOLD = 8 * 1024 * 1024; // 8 MiB per ADR-2903
 const DEFAULT_PART_SIZE = 8 * 1024 * 1024;
@@ -93,7 +90,7 @@ export async function credentialsFromShim(secretsShim) {
  * defaults to 8 MiB per ADR-2903; defaultPresignTtl to 15 minutes per
  * ADR-2902; presignTtlFloor to 60 seconds per the same ADR.
  */
-export function createObjectStore({
+export async function createObjectStore({
   endpointUrl,
   bucket,
   credentialsRef,
@@ -108,6 +105,20 @@ export function createObjectStore({
   if (!credentialsRef) {
     throw new Error('object-storage-s3: credentialsRef is required; wire via security-secrets-management');
   }
+  const { awsS3, getSignedUrl } = await loadSdkAndSigner();
+  const {
+    S3Client,
+    HeadBucketCommand,
+    PutObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand,
+    ListObjectsV2Command,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    CompleteMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    ListMultipartUploadsCommand,
+  } = awsS3;
   const client = new S3Client({
     endpoint: endpointUrl,
     region,
