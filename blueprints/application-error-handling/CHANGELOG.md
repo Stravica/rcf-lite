@@ -1,5 +1,12 @@
 # application-error-handling CHANGELOG
 
+## 1.0.12 - 2026-09-11
+
+- The AC-16102-4 (mid-stream close) row's shipped comment block in two-boundaries-registered.mjs is rewritten to describe the row as a full anchored counting result rather than a conformanceOnly slice with a browser-network limitation: every clause of the AC (connection closed without rewriting the wire, exactly one companion emission at error level naming the streaming-in-progress condition, and category 'unknown' unless supplied) is observable on this pack, and no browser-network sub-clause is carved out.
+- The AC-16102-4 row's detail is rewritten to open with the AC's first eight words ("Given a handler that throws AFTER the response") and describes the observation directly, without the earlier "server-observable slice" wording. The predicate, evidence and verdict are unchanged; only the shipped comment and detail prose move.
+- The shared anatomy result-shape helper (packages/rcf-lite/test/blueprint/_result-shape.mjs) adds a fourth tightening rule: a counting row (a row that reached the post-notObservableHere / post-conformanceOnly branch) must carry at least one shipped anchor - anchorAcId or anchorReqId. A negative synthetic case (unanchored counting row must fail) and a positive synthetic case (anchored counting row must pass) join the existing negative-cases helper; every family's anatomy suite exercises them via runResultShapeNegativeCases.
+- Anatomy test pin bumped to 1.0.12.
+
 ## 1.0.11 - 2026-09-11
 
 - AC-16102-4 (mid-stream close) is now a full counting row anchored on AC-16102-4 rather than conformanceOnly: the shipped AC description names only the connection-close, the exact companion emission, the level, message and category, and every clause is server-observable on this pack. The row records anchorAcId, verdict, a detail opening on the AC's first eight words, and evidence carrying route /stream-then-throw, status 200, the fixture-stamped x-fixture-request-id and a fully-populated derived object with the premature-close, exactly-one mid-stream emission, level, message-names-condition and category flags. The invented "browser-network view" limitation clause is dropped; AC-16102-4 no longer carries a browser-only sub-clause.

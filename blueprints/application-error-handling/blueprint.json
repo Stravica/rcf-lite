@@ -1,6 +1,6 @@
 {
   "slug": "application-error-handling",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "category": "application",
   "providesRoles": [
     "errorHandling"

@@ -1,5 +1,5 @@
 // Shared row-shape assertions for application-* blueprint anatomy
-// tests. One helper carries the three tightening rules the pack
+// tests. One helper carries the four tightening rules the pack
 // contract requires on every counting row:
 //
 // Rule a: every counting row REQUIRES evidence with a non-empty
@@ -16,10 +16,19 @@
 // blueprint's shipped acIds set. A row whose notObservableHere.ac
 // is unresolvable fails here.
 //
+// Rule d: every counting row (a row that reached this point past
+// the accountBoundSkipped, notObservableHere and conformanceOnly
+// branches) MUST carry at least one shipped anchor - anchorAcId
+// or anchorReqId. The value-resolution assertions further down
+// validate an anchor VALUE but do not require the anchor to be
+// present; rule d closes that gap so a counting result cannot land
+// unanchored.
+//
 // `runResultShapeNegativeCases` exercises one negative case per
-// rule against a synthetic acIds set so the tightening itself is
-// covered from the anatomy suite - each family calls it once with
-// its own slug so the family-local coverage is explicit.
+// rule against a synthetic acIds set, plus a positive case for
+// rule d, so the tightening itself is covered from the anatomy
+// suite - each family calls it once with its own slug so the
+// family-local coverage is explicit.
 
 import assert from 'node:assert/strict';
 
@@ -61,6 +70,19 @@ export function assertResultShape(r, { acIds, reqIds, name }) {
     assert.ok(reqIds.has(r.anchorReqId),
       name + ' anchorReqId ' + r.anchorReqId + ' is not a shipped REQ on this blueprint');
   }
+  // Rule d: a counting row (a row that reached this point after the
+  // accountBoundSkipped, notObservableHere, and conformanceOnly
+  // branches above) MUST carry at least one shipped anchor -
+  // anchorAcId or anchorReqId. The value-resolution checks above
+  // validate the anchor's VALUE when present but do not require it
+  // to be present; this assertion closes that gap so an unanchored
+  // counting row cannot pass shape.
+  if (!(r && r.conformanceOnly === true)) {
+    const hasAcAnchor = typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
+    const hasReqAnchor = typeof r.anchorReqId === 'string' && r.anchorReqId.length > 0;
+    assert.ok(hasAcAnchor || hasReqAnchor,
+      name + ' counting row missing anchorAcId and anchorReqId: ' + JSON.stringify(r).slice(0, 200));
+  }
   // Rule a: every counting row REQUIRES evidence with a non-empty
   // request id (not "when present"). The shape gate above lets a
   // counting row reach this point only when evidence is an object;
@@ -84,10 +106,11 @@ export function assertResultShape(r, { acIds, reqIds, name }) {
     name + ' evidence missing body excerpt or non-empty derived value: ' + JSON.stringify(ev).slice(0, 200));
 }
 
-// Three synthetic negative cases - one per rule - each expected to
-// throw. Called from every family's anatomy test so the tightening
-// itself is covered per family, using a shared helper that carries
-// the cases once.
+// Four synthetic negative cases - one per rule - each expected to
+// throw, plus a positive case for rule d that must not throw.
+// Called from every family's anatomy test so the tightening itself
+// is covered per family, using a shared helper that carries the
+// cases once.
 export function runResultShapeNegativeCases({ familySlug }) {
   const shippedAcId = `${familySlug}-AC-99999-9`;
   const shippedReqId = `${familySlug}-REQ-999`;
@@ -132,4 +155,25 @@ export function runResultShapeNegativeCases({ familySlug }) {
     detail: 'synthetic notObservableHere row with unresolved AC',
     evidence: { reason: 'not observable' },
   }, { acIds, reqIds, name }), /is not a shipped AC/, name + ' rule c: notObservableHere.ac must resolve');
+
+  // Rule d (negative): a counting row (not conformanceOnly, not
+  // notObservableHere, not accountBoundSkipped) carrying no
+  // anchorAcId and no anchorReqId must fail. This is the
+  // enforcement of "every counting result be anchored".
+  assert.throws(() => assertResultShape({
+    verdict: 'pass',
+    detail: 'synthetic counting row with no anchor',
+    evidence: { route: '/x', status: 200, xFixtureRequestId: 'r-3', bodyExcerpt: 'x', derived: { k: 1 } },
+  }, { acIds, reqIds, name }), /counting row missing anchorAcId and anchorReqId/, name + ' rule d: unanchored counting row must fail');
+
+  // Rule d (positive): a counting row carrying a resolvable
+  // anchorAcId (with the other rule-a evidence fields present)
+  // must pass shape. This complements the negative case above so
+  // the anchor requirement is proven by both sides.
+  assert.doesNotThrow(() => assertResultShape({
+    anchorAcId: shippedAcId,
+    verdict: 'pass',
+    detail: 'synthetic anchored counting row',
+    evidence: { route: '/x', status: 200, xFixtureRequestId: 'r-4', bodyExcerpt: 'x', derived: { k: 1 } },
+  }, { acIds, reqIds, name }), name + ' rule d positive: anchored counting row must pass shape');
 }

@@ -1,4 +1,4 @@
-// two-boundaries-registered probe for application-error-handling v1.0.11.
+// two-boundaries-registered probe for application-error-handling v1.0.12.
 //
 // Row 1 (AC-16102-2): the framework-level boundary catches a thrown
 // handler exception whose induced stack carries system-path and file-URI
@@ -192,20 +192,23 @@ export default async function runProbe() {
 
  // Row 4: AC-16102-4 mid-stream close. The AC has three clauses:
  // (a) the connection is closed without rewriting the wire
- // response (server-observable via premature socket close; the
- // browser-network view of that close is a separate half),
+ // response, observed as the client's premature socket close on
+ // /stream-then-throw after status 200 and the partial-body
+ // prefix have been flushed,
  // (b) exactly one error record emits through the logging
  // companion at error level naming the streaming-in-progress
- // condition (server-observable), and
+ // condition, and
  // (c) the recorded record has category 'unknown' unless the
- // throwing site supplied one (server-observable).
+ // throwing site supplied one.
  // The probe drives /stream-then-throw with a Node client that
  // exposes premature-close errors, observes the exact-one companion
  // emission with level='error' and a message naming the
- // streaming-in-progress condition, and records the row as
- // conformanceOnly with a limitation naming the browser-network
- // wire-close half (what a browser network log records for the
- // aborted socket) as the only clause not observed here.
+ // streaming-in-progress condition, and records the row as a full
+ // anchored counting result whose predicate requires midStatus 200,
+ // prematureClose true, exactly-one companion emission at error
+ // level naming the streaming-in-progress condition, and the
+ // recorded category 'unknown'. Every clause is observable here;
+ // no browser-network sub-clause is carved out.
  const invBefore = await (await fetch(`${fixture.baseUrl}/companion-invocations`)).json();
  const invBeforeLen = invBefore.invocations.length;
  let midStatus = null;
@@ -284,7 +287,7 @@ export default async function runProbe() {
  results.push({
  anchorAcId: 'application-error-handling-AC-16102-4',
  verdict: ac4ServerOk ? 'pass' : 'fail',
- detail: `Given a handler that throws AFTER the response body - server-observable slice: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'} level=${midEmissions[0]?.level ?? 'MISSING'} messageNamesStreamingInProgress=${midMessageNamesCondition}; client saw prematureClose=${prematureClose} partialBodyPrefix=${partialBodyReceived}`,
+ detail: `Given a handler that throws AFTER the response body: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'} level=${midEmissions[0]?.level ?? 'MISSING'} messageNamesStreamingInProgress=${midMessageNamesCondition}; client saw prematureClose=${prematureClose} partialBodyPrefix=${partialBodyReceived}`,
  evidence: {
  route: '/stream-then-throw',
  status: midStatus == null ? 0 : midStatus,
