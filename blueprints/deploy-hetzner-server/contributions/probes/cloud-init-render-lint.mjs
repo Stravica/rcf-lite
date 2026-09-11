@@ -8,10 +8,15 @@
 
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { FIXTURE_DIR } from './probe-utils.mjs';
 
 export const anchorAcId = 'AC-37104-1';
 export const accountBound = false;
+
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
 
 export default async function runProbe() {
   const rendererPath = resolve(FIXTURE_DIR, 'src/cloud-init-renderer.mjs');
@@ -21,6 +26,7 @@ export default async function runProbe() {
   const rendered = await renderCloudInit(manifest, {
     publicKeys: ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForRenderLintHardeningH1 rcf-lite-ci-mock'],
   });
+  const contentSha256 = sha256(rendered);
   const missing = [];
   const present = [];
   for (const block of BASELINE_BLOCKS) {
@@ -40,6 +46,7 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: `cloud-init hardening baseline block "${m.label}" is missing from the rendered YAML (missing markers: ${m.missingMarkers.join(', ')}).`,
         evidence: {
+          contentSha256,
           manifestName: manifest.name,
           missingBlockId: m.id,
           missingMarkers: m.missingMarkers,
@@ -53,6 +60,7 @@ export default async function runProbe() {
       verdict: 'pass',
       detail: `all ${BASELINE_BLOCKS.length} baseline blocks present in the rendered YAML: ${present.join(', ')}.`,
       evidence: {
+        contentSha256,
         manifestName: manifest.name,
         renderedByteLength: rendered.length,
         presentBlocks: present,

@@ -41,10 +41,25 @@ async function runProbe(name, env = {}) {
 //   (a) an honest skip: accountBoundSkipped === true AND reason is
 //       exactly one of the declared gate variables in the fixture
 //       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty identifier (vendor id,
-//       event name, artefact path, or resource name) AND a non-empty
-//       observation (body excerpt, statusCode, mode, wallClockTime,
-//       payload keys, non-zero counts, vendor-return values, etc.).
+//   (b) evidence carries BOTH a non-empty ENGINE-MINTED IDENTIFIER
+//       and a non-empty DERIVED OBSERVATION.
+//
+// Engine-minted identifier: one of a small explicit set of fields
+// whose value is minted by the engine that produced the row (a
+// vendor-returned server / snapshot / firewall / image / container /
+// request id, or the deterministic content hash of an artefact the
+// engine rendered or scanned) with a non-empty value; OR a
+// supplied/echo pair, where the row carries `supplied<Name>` and a
+// matching `echoed<Name>` field, both non-empty and strictly equal.
+//
+// Event names, file paths, service names, manifest names, resource
+// names the probe chose, and other probe inputs count only as
+// derived context, never as the identifier.
+//
+// Derived observation: a body excerpt, status code, observed mode,
+// engine timestamp, non-zero count, or structured engine-returned
+// object.
+//
 //   `notObservableHere` is reserved for browser-only ACs. The
 //   platform-docker-compose-host blueprint has no browser-only ACs,
 //   so BROWSER_ONLY_ACS is EMPTY and any notObservableHere row
@@ -52,13 +67,15 @@ async function runProbe(name, env = {}) {
 //   whose first token is a shipped AC id.
 // A row that only carries `{probeName, reason}` never counts, and a
 // numeric identity value of zero is not an observation.
-const IDENTITY_FIELDS = new Set([
-  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId', 'containerId', 'requestId',
-  'eventName',
-  'file', 'path', 'renderedPath', 'manifestName', 'scannedFiles', 'composeMountLine',
-  'service', 'secretName', 'mountPath', 'target', 'url', 'name', 'engineLabel',
+const ENGINE_MINTED_ID_FIELDS = new Set([
+  // Vendor-returned or resource ids minted by the vendor / mock /
+  // engine that produced the row.
+  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
+  'containerId', 'requestId', 'vendorRequestId', 'resourceId',
+  // Deterministic content hash of a rendered or scanned artefact.
+  'contentSha256',
 ]);
-const OBSERVATION_FIELDS = new Set([
+const DERIVED_OBSERVATION_FIELDS = new Set([
   // Textual samples / excerpts / hashes
   'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample', 'tail',
   // Vendor-return field values (concrete observed values)
@@ -80,6 +97,12 @@ const OBSERVATION_FIELDS = new Set([
   'postTeardownServerIds', 'unhealthyServices', 'missingServices', 'expected',
   'observed', 'event', 'suffix', 'vendorDocs', 'dockerVersion', 'engineNote',
   'driver', 'restart', 'ports', 'port', 'direction', 'protocol', 'clockDomain',
+  // Context fields (event name, service name, path, manifest name,
+  // engine label) — derived context only under the semantic rule,
+  // never satisfy the identifier half on their own.
+  'eventName', 'manifestName', 'renderedPath', 'file', 'path', 'name',
+  'service', 'target', 'url', 'secretName', 'mountPath', 'scannedFiles',
+  'composeMountLine', 'engineLabel', 'source', 'expectedKeys',
 ]);
 // The platform-docker-compose-host blueprint ships process/live-
 // observable ACs only; no browser-only rendering is in scope. This
@@ -140,17 +163,38 @@ async function assertRowsCarry7dShape(rows, label) {
       assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on platform-docker-compose-host`);
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
-    const identityKeysPresent = Object.keys(ev).filter((k) => IDENTITY_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const observationKeysPresent = Object.keys(ev).filter((k) => OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    assert.ok(identityKeysPresent.length > 0, `${label}: row evidence lacks a non-empty identity field (vendor id, event name, artefact path, or resource name); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a non-empty observation field (excerpt, statusCode, mode, vendor-return value, non-zero count, or derived structured observation); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
+    const suppliedEchoPair = findSuppliedEchoPair(ev);
+    const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
+    const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
+    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, request id, or content hash) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
+}
+
+// A supplied/echo pair is any `supplied<Name>` field paired with a
+// matching `echoed<Name>` field where both are non-empty and
+// strictly equal. Deep equality via JSON stringify covers arrays and
+// plain objects.
+function findSuppliedEchoPair(ev) {
+  for (const k of Object.keys(ev)) {
+    if (!k.startsWith('supplied') || k.length <= 'supplied'.length) continue;
+    const echoKey = 'echoed' + k.slice('supplied'.length);
+    if (!(echoKey in ev)) continue;
+    const a = ev[k];
+    const b = ev[echoKey];
+    if (!isNonEmpty(a) || !isNonEmpty(b)) continue;
+    const aRep = typeof a === 'object' ? JSON.stringify(a) : a;
+    const bRep = typeof b === 'object' ? JSON.stringify(b) : b;
+    if (aRep === bRep) return { key: k, echoKey };
+  }
+  return null;
 }
 
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.6');
+  assert.equal(bp.version, '1.1.7');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');

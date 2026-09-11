@@ -16,9 +16,17 @@
 
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runShim, CADDYFILE_PATH, COMPOSE_PATH, whichCaddy, whichDocker } from './probe-utils.mjs';
+
+// Deterministic content hash of the artefact the row observed; the
+// engine-minted identifier on offline caddyfile-validate rows under
+// the semantic anatomy rule.
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
 
 export const anchorAcId = 'AC-composeHost-reverseProxyArtefactValid';
 export const accountBound = false;
@@ -54,6 +62,7 @@ export default async function runProbe() {
   // observation that carries its own evidence.
   try {
     const composeText = await readFile(COMPOSE_PATH, 'utf8');
+    const composeSha256 = sha256(composeText);
     const caddyMountRe = /\.\/caddy\/Caddyfile:\/etc\/caddy\/Caddyfile:ro/;
     if (caddyMountRe.test(composeText)) {
       results.push({
@@ -61,6 +70,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: 'compose.yaml bind-mounts caddy/Caddyfile into the caddy service read-only (:ro suffix present)',
         evidence: {
+          contentSha256: composeSha256,
           composeMountLine: (composeText.match(/[^\n]*Caddyfile:\/etc\/caddy\/Caddyfile[^\n]*/) || [''])[0],
           suffix: ':ro',
         },
@@ -71,6 +81,7 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: 'compose.yaml Caddyfile bind-mount is not read-only; expected :ro suffix on ./caddy/Caddyfile:/etc/caddy/Caddyfile',
         evidence: {
+          contentSha256: composeSha256,
           composeMountLine: (composeText.match(/[^\n]*Caddyfile[^\n]*/) || [''])[0],
         },
       });
@@ -92,6 +103,7 @@ export default async function runProbe() {
     if (process.env.SIMULATE_INVALID_CADDYFILE === 'true') {
       text = text + "\n{ unclosed_block_that_never_ends_and_is_a_syntax_error_caddy_will_reject\n";
     }
+    const caddyfileSha256 = sha256(text);
     await writeFile(scratchPath, text, 'utf8');
     const localCaddy = whichCaddy();
     const localDocker = whichDocker();
@@ -126,6 +138,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `caddy validate exit 0 (${engineLabel}); tail: ${tail.slice(-200)}`,
         evidence: {
+          contentSha256: caddyfileSha256,
           engineLabel,
           exitStatus: 0,
           tailExcerpt: tail.slice(-400),
@@ -142,6 +155,7 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: `caddy validate exit ${r.status} (${engineLabel}); tail: ${tail.slice(-400)}`,
         evidence: {
+          contentSha256: caddyfileSha256,
           engineLabel,
           exitStatus: r.status,
           tailExcerpt: tail.slice(-400),

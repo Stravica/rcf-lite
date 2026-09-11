@@ -14,7 +14,15 @@
 // shim; the probe reads only the schema and manifest tree.
 
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';
+
+// Deterministic content hash of a text artefact, used as the
+// engine-minted identifier on offline-validator rows: the row
+// attests to a specific manifest byte sequence.
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
 
 export const anchorAcId = 'AC-37102-1';
 export const accountBound = false;
@@ -39,6 +47,7 @@ export default async function runProbe() {
   }
   const results = [];
   for (const f of files) {
+    const contentSha256 = sha256(f.text);
     let doc;
     try {
       doc = JSON.parse(f.text);
@@ -47,7 +56,7 @@ export default async function runProbe() {
         anchorAcId: 'AC-37102-1',
         verdict: 'fail',
         detail: `manifest ${f.name} does not parse: ${err.message}`,
-        evidence: { manifestName: f.name, parseError: err.message },
+        evidence: { contentSha256, manifestName: f.name, parseError: err.message },
       });
       continue;
     }
@@ -64,7 +73,7 @@ export default async function runProbe() {
           anchorAcId: 'AC-37102-1',
           verdict: 'fail',
           detail: `manifest ${f.name} schema violation at ${e.path}: ${e.message}`,
-          evidence: { manifestName: f.name, path: e.path, message: e.message, field: e.field || null },
+          evidence: { contentSha256, manifestName: f.name, path: e.path, message: e.message, field: e.field || null },
         });
       }
     } else {
@@ -74,6 +83,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `manifest ${f.name} carries the nine required fields per hetzner-server.schema.json.`,
         evidence: {
+          contentSha256,
           manifestName: f.name,
           requiredFields: NINE_REQUIRED,
           observedKeys,
@@ -87,7 +97,7 @@ export default async function runProbe() {
           anchorAcId: 'AC-37106-1',
           verdict: 'fail',
           detail: `manifest ${f.name} firewall rule shape violation at ${e.path}: ${e.message}`,
-          evidence: { manifestName: f.name, path: e.path, message: e.message },
+          evidence: { contentSha256, manifestName: f.name, path: e.path, message: e.message },
         });
       }
     } else if (Array.isArray(doc.firewallRules)) {
@@ -136,6 +146,7 @@ export default async function runProbe() {
           verdict: 'fail',
           detail: `manifest ${f.name} firewall rule shape violation: ${bindingErrors.join('; ')}.`,
           evidence: {
+            contentSha256,
             manifestName: f.name,
             ruleNames: rules.map((r) => r && r.name).filter(Boolean),
             observedBinding: bindingEvidence,
@@ -150,6 +161,7 @@ export default async function runProbe() {
           verdict: 'pass',
           detail: `manifest ${f.name} firewall rule shape valid: ssh (tcp/in/22, restricted to ${(ssh && ssh.sourceIps || []).join(', ')}, no 0.0.0.0/0), http (tcp/in/80, open), https (tcp/in/443, open); no duplicates.`,
           evidence: {
+            contentSha256,
             manifestName: f.name,
             ruleNames: rules.map((r) => r && r.name).filter(Boolean),
             observedBinding: bindingEvidence,
@@ -165,7 +177,7 @@ export default async function runProbe() {
           anchorAcId: 'AC-37107-1',
           verdict: 'fail',
           detail: `manifest ${f.name} snapshotCadence violation at ${e.path}: ${e.message}`,
-          evidence: { manifestName: f.name, path: e.path, message: e.message },
+          evidence: { contentSha256, manifestName: f.name, path: e.path, message: e.message },
         });
       }
     } else if (typeof doc.snapshotCadence === 'string') {
@@ -174,6 +186,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `manifest ${f.name} snapshotCadence "${doc.snapshotCadence}" is in the shipped enum {weekly, daily, off}.`,
         evidence: {
+          contentSha256,
           manifestName: f.name,
           snapshotCadence: doc.snapshotCadence,
           shippedEnum: ['weekly', 'daily', 'off'],

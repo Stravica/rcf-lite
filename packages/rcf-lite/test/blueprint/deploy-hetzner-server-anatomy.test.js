@@ -41,12 +41,26 @@ async function runProbe(name, env = {}) {
 //   (a) an honest skip: accountBoundSkipped === true AND reason is
 //       exactly one of the declared gate variables in the fixture
 //       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty identifier from the
-//       identifier set (request / resource / vendor-returned ids,
-//       event names, or artefact file paths) AND a non-empty
-//       observation from the observation set (body excerpt, mode,
-//       statusCode, wallClockTime, payload keys, non-zero counts,
-//       vendor-return field values, etc.).
+//   (b) evidence carries BOTH a non-empty ENGINE-MINTED IDENTIFIER
+//       and a non-empty DERIVED OBSERVATION.
+//
+// Engine-minted identifier: one of a small explicit set of fields
+// whose value is minted by the engine that produced the row (a
+// vendor-returned server / snapshot / firewall / image / container /
+// request id, or the deterministic content hash of an artefact the
+// engine rendered or scanned) with a non-empty value; OR a
+// supplied/echo pair, where the row carries `supplied<Name>` and a
+// matching `echoed<Name>` field, both non-empty and strictly equal
+// (the probe supplied a value, the engine echoed it back).
+//
+// Event names, file paths, service names, manifest names, resource
+// names the probe chose, and other probe inputs count only as
+// derived context, never as the identifier.
+//
+// Derived observation: a body excerpt, status code, observed mode,
+// engine timestamp, non-zero count, or structured engine-returned
+// object.
+//
 //   `notObservableHere` is reserved for browser-only ACs. The
 //   deploy-hetzner-server blueprint has no browser-only ACs, so
 //   BROWSER_ONLY_ACS is EMPTY and any notObservableHere row FAILS.
@@ -54,17 +68,15 @@ async function runProbe(name, env = {}) {
 //   first token is a shipped AC id in the blueprint user stories.
 // A row that only carries `{probeName, reason}` never counts, and a
 // numeric identity value of zero is not an observation.
-const IDENTITY_FIELDS = new Set([
-  // Vendor-returned or resource IDs
-  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId', 'containerId', 'requestId',
-  // Event identifier
-  'eventName',
-  // Artefact / file paths
-  'file', 'path', 'renderedPath', 'manifestName', 'scannedFiles', 'expectedReader',
-  // Named application / service / resource identifier
-  'service', 'secretName', 'mountPath', 'target', 'url', 'name',
+const ENGINE_MINTED_ID_FIELDS = new Set([
+  // Vendor-returned or resource ids minted by the vendor / mock
+  // shim that produced the row.
+  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
+  'containerId', 'requestId', 'vendorRequestId', 'resourceId',
+  // Deterministic content hash of a rendered or scanned artefact.
+  'contentSha256',
 ]);
-const OBSERVATION_FIELDS = new Set([
+const DERIVED_OBSERVATION_FIELDS = new Set([
   // Textual samples / excerpts
   'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample',
   // Vendor-return field values (concrete observed values)
@@ -85,6 +97,13 @@ const OBSERVATION_FIELDS = new Set([
   'hetznerServerProvisionedEvent', 'hetznerSnapshotTakenEvent',
   'sshReadiness', 'cloudInit', 'baselineChecks', 'teardown', 'observedSecretModes',
   'expected', 'observed', 'event', 'observedNames', 'declaredServices',
+  // Context fields (event name, manifest name, path) — derived
+  // context only under the semantic rule; never satisfy the
+  // identifier half on their own.
+  'eventName', 'manifestName', 'renderedPath', 'expectedReader',
+  'file', 'path', 'name', 'service', 'target', 'url', 'secretName',
+  'mountPath', 'scannedFiles', 'source', 'expectedKeys', 'tool',
+  'apiHost', 'labels',
 ]);
 // Browser-only ACs are the only ones that may legitimately carry a
 // notObservableHere row. The deploy-hetzner-server blueprint ships
@@ -143,17 +162,38 @@ async function assertRowsCarry7dShape(rows, label) {
       assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on deploy-hetzner-server`);
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
-    const identityKeysPresent = Object.keys(ev).filter((k) => IDENTITY_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const observationKeysPresent = Object.keys(ev).filter((k) => OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    assert.ok(identityKeysPresent.length > 0, `${label}: row evidence lacks a non-empty identity field (vendor id, event name, artefact path, or resource name); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a non-empty observation field (excerpt, statusCode, mode, vendor-return value, non-zero count, or derived structured observation); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
+    const suppliedEchoPair = findSuppliedEchoPair(ev);
+    const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
+    const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
+    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, request id, or content hash) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
+}
+
+// A supplied/echo pair is any `supplied<Name>` field paired with a
+// matching `echoed<Name>` field where both are non-empty and
+// strictly equal. Deep equality via JSON stringify covers arrays and
+// plain objects.
+function findSuppliedEchoPair(ev) {
+  for (const k of Object.keys(ev)) {
+    if (!k.startsWith('supplied') || k.length <= 'supplied'.length) continue;
+    const echoKey = 'echoed' + k.slice('supplied'.length);
+    if (!(echoKey in ev)) continue;
+    const a = ev[k];
+    const b = ev[echoKey];
+    if (!isNonEmpty(a) || !isNonEmpty(b)) continue;
+    const aRep = typeof a === 'object' ? JSON.stringify(a) : a;
+    const bRep = typeof b === 'object' ? JSON.stringify(b) : b;
+    if (aRep === bRep) return { key: k, echoKey };
+  }
+  return null;
 }
 
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.6');
+  assert.equal(bp.version, '1.1.7');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -299,18 +339,17 @@ test('deploy-hetzner-server shelf shape: section 6a cloudHost row and docs/topic
   assert.match(ownTopics, /deploy-hetzner-server/);
 });
 
-// TC-175-mock-consumes-rendered-file-and-probe-purity (RCF chain
-// AC-14501-1 / the H hardening story / the H hardening requirement / the H mock-purity suite in packages/rcf-lite/rcf/):
-// the mocked probe path renders the shipped cloud-init.yaml.tmpl and
-// consumes the same rendered file the real path consumes; the fixture
-// renderer output carries an ssh public-key line under the deploy user
-// and a NOPASSWD sudoers.d directive naming that user. Plus the hardening
-// mutation-purity assertion that no probe body reads
-// process.env.SIMULATE_. The blueprint-contributed probe rows no
-// longer anchor to AC-14501-1 (v1.1.5:
-// blueprint user stories do not declare AC-14501-1); the RCF chain
-// artefacts remain the sole owners of that AC and this test carries
-// the observation on their behalf.
+// AC-14501-1 lives on the RCF chain (the hardening story and its
+// mocked-probe-purity property). The mocked probe path renders the
+// shipped cloud-init.yaml.tmpl and consumes the same rendered file
+// the real path consumes; the fixture renderer output carries an
+// ssh public-key line under the deploy user and a NOPASSWD
+// sudoers.d directive naming that user. Plus the mutation-purity
+// property that no probe body reads process.env.SIMULATE_. The
+// blueprint-contributed probe rows no longer anchor to AC-14501-1
+// (blueprint v1.1.5+: blueprint user stories do not declare
+// AC-14501-1); the RCF chain artefacts remain the sole owners of
+// that AC and this test carries the observation on their behalf.
 test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud-init and probes carry no SIMULATE reads (TC-175-mock-consumes-rendered-file-and-probe-purity)', async () => {
   const rendererPath = pathToFileURL(join(FIXTURE_ROOT, 'src/cloud-init-renderer.mjs')).href;
   const { renderCloudInitToFile } = await import(rendererPath);
@@ -336,8 +375,8 @@ test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud
   }
 });
 
-// TC-140-env-vars-declared-on-fixture-manifest (positive-evidence gate
-// row 7d): every env var the deploy-hetzner-server probes read is declared on the fixture
+// Positive-evidence gate row 7d: every env var the
+// deploy-hetzner-server probes read is declared on the fixture
 // manifest, and skip reasons on the three real-account probes name
 // their gate variables literally with the honest set-but-not-true /
 // unset distinction.

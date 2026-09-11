@@ -34,9 +34,17 @@
 //     naming file+line.
 
 import { readFile, cp, rm, mkdir, readdir, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, isAbsolute, relative } from 'node:path';
 import { runShim, readCompose, COMPOSE_PATH, SECRET_PATH, ENV_PATH, FIXTURE_DIR } from './probe-utils.mjs';
+
+// Deterministic content hash of the compose text scanned; the
+// engine-minted identifier attached to offline scan rows so the row
+// self-attests to a specific compose.yaml byte sequence.
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
 
 export const anchorAcIds = [
   'AC-composeHost-secretsAreFiles',
@@ -144,6 +152,8 @@ export default async function runProbe() {
     scratchToClean = m.scratch;
   }
   try {
+    const composeTextForHash = await readFile(composePathToScan, 'utf8');
+    const contentSha256 = sha256(composeTextForHash);
     const { doc } = await readCompose();
     const secretsBlock = doc.secrets ?? {};
     const secretNames = Object.keys(secretsBlock);
@@ -158,14 +168,14 @@ export default async function runProbe() {
           anchorAcId: 'AC-composeHost-secretShape',
           verdict: 'fail',
           detail: `compose secret '${name}' is not a file: source`,
-          evidence: { secretName: name, spec, expected: 'file: <path>' },
+          evidence: { contentSha256, secretName: name, spec, expected: 'file: <path>' },
         });
       } else {
         results.push({
           anchorAcId: 'AC-composeHost-secretShape',
           verdict: 'pass',
           detail: `compose secret '${name}' declares file: ${spec.file}`,
-          evidence: { secretName: name, fileSource: spec.file, source: 'compose.yaml top-level secrets block' },
+          evidence: { contentSha256, secretName: name, fileSource: spec.file, source: 'compose.yaml top-level secrets block' },
         });
       }
     }
@@ -190,14 +200,14 @@ export default async function runProbe() {
           anchorAcId: 'AC-composeHost-secretShape',
           verdict: 'fail',
           detail: `compose secret '${name}' is declared at the top level but no service references it via the service-level secrets: array (orphan)`,
-          evidence: { secretName: name, consumingServices: [], expected: 'at least one consuming service' },
+          evidence: { contentSha256, secretName: name, consumingServices: [], expected: 'at least one consuming service' },
         });
       } else {
         results.push({
           anchorAcId: 'AC-composeHost-secretShape',
           verdict: 'pass',
           detail: `compose secret '${name}' is referenced by ${consumers.length} service(s): ${consumers.join(', ')}`,
-          evidence: { secretName: name, consumingServices: consumers, source: 'compose.yaml services block' },
+          evidence: { contentSha256, secretName: name, consumingServices: consumers, source: 'compose.yaml services block' },
         });
       }
     }
@@ -218,7 +228,7 @@ export default async function runProbe() {
             anchorAcId: 'AC-composeHost-secretsAreFiles',
             verdict: 'fail',
             detail: `service '${svcName}' references undeclared secret '${secretName}' via the service-level secrets: block`,
-            evidence: { service: svcName, secretName, declaredSecrets: secretNames },
+            evidence: { contentSha256, service: svcName, secretName, declaredSecrets: secretNames },
           });
           continue;
         }
@@ -228,6 +238,7 @@ export default async function runProbe() {
           verdict: 'pass',
           detail: `service '${svcName}' references secret '${secretName}' via service-level secrets: (declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)})`,
           evidence: {
+            contentSha256,
             service: svcName,
             secretName,
             declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
@@ -247,6 +258,7 @@ export default async function runProbe() {
           verdict: 'pass',
           detail: `service '${svcName}' secret '${secretName}' declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)}; in-container mode observation lives on the real-account probe.`,
           evidence: {
+            contentSha256,
             service: svcName,
             secretName,
             declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
@@ -266,7 +278,7 @@ export default async function runProbe() {
               anchorAcId: 'AC-composeHost-secretsAreFiles',
               verdict: 'fail',
               detail: `service '${svcName}' references secret '${n}' via environment entry '${entry}' instead of the service-level secrets: block`,
-              evidence: { service: svcName, envEntry: String(entry), secretName: n },
+              evidence: { contentSha256, service: svcName, envEntry: String(entry), secretName: n },
             });
           }
         }
@@ -301,7 +313,7 @@ export default async function runProbe() {
           anchorAcId: 'AC-composeHost-secretsAreFiles',
           verdict: 'fail',
           detail: `plaintext secret literal for 'web-token' found in ${h.file}:${h.line} (snippet: ${h.snippet})`,
-          evidence: { file: h.file, line: h.line, snippet: h.snippet, secretName: 'web-token' },
+          evidence: { contentSha256, file: h.file, line: h.line, snippet: h.snippet, secretName: 'web-token' },
         });
       }
     } else {
@@ -310,6 +322,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `no plaintext secret literal for 'web-token' found across ${scanTargets.length} scanned files (compose.yaml, .env, and every file under each service's bind-mount source)`,
         evidence: {
+          contentSha256,
           scannedFiles: scanTargets.map((f) => f.replace(FIXTURE_DIR + '/', '')),
           fileCount: scanTargets.length,
           discoveredConfigSources: extra.discoveredConfigSources,

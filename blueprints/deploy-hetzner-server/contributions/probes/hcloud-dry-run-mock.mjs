@@ -216,6 +216,16 @@ export default async function runProbe() {
             ...soleReaderSummary,
             eventName: 'provisionerReady',
             payloadKeys: Object.keys(provisionerReady).sort(),
+            // Supplied/echo pair: the probe supplied `tool` and
+            // `apiHost` into the facade constructor; the facade
+            // emitted them back on the provisionerReady event
+            // metadata. Strict equality on both closes the identity
+            // half of the semantic anatomy check without inventing
+            // a request id on an offline event.
+            suppliedTool: 'hcloud',
+            echoedTool: provisionerReady.tool,
+            suppliedApiHost: 'https://api.hetzner.cloud/v1',
+            echoedApiHost: provisionerReady.apiHost,
             tool: provisionerReady.tool,
             apiHost: provisionerReady.apiHost,
           },
@@ -339,23 +349,40 @@ export default async function runProbe() {
       const bits = [];
       if (leaks.length > 0) bits.push(`substring leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')}`);
       if (unexpectedKeys.length > 0) bits.push(`payload-key allow-list violated: ${unexpectedKeys.map((u) => u.extraKeys ? `${u.event}: extraKeys=${u.extraKeys.join(',')}` : `${u.event}: ${u.reason}`).join('; ')}`);
+      const failEvidence = {
+        eventName: 'lifecycle-scan',
+        leaks,
+        unexpectedKeys,
+        eventCount: events.length,
+      };
+      if (provisioned && provisioned.id) failEvidence.serverId = provisioned.id;
+      if (snapped && snapped.snapshotId) failEvidence.snapshotId = snapped.snapshotId;
       results.push({
         anchorAcId: 'AC-37109-1', verdict: 'fail',
         detail: `event-secrecy fail: ${bits.join(' | ')}.`,
-        evidence: { eventName: 'lifecycle-scan', leaks, unexpectedKeys, eventCount: events.length },
+        evidence: failEvidence,
       });
     } else {
+      const passEvidence = {
+        eventName: 'lifecycle-scan',
+        // Engine-minted ids that tie this scan to a concrete
+        // lifecycle instance: the mock-facade emitted the provision
+        // and snapshot events with these ids, and both were included
+        // in the scanned event bodies.
+        serverId: (provisioned && provisioned.id) ? provisioned.id : undefined,
+        snapshotId: (snapped && snapped.snapshotId) ? snapped.snapshotId : undefined,
+        eventCount: events.length,
+        scannedMarkers: ['token value', 'ssh private key', 'user-data marker'],
+        allowedKeysByEvent: Object.fromEntries(Object.entries(ALLOWED_EVENT_KEYS).map(([k, v]) => [k, [...v].sort()])),
+        leaks: [],
+        unexpectedKeys: [],
+      };
+      // Drop undefined entries so the row does not carry falsy ids.
+      for (const k of Object.keys(passEvidence)) if (passEvidence[k] === undefined) delete passEvidence[k];
       results.push({
         anchorAcId: 'AC-37109-1', verdict: 'pass',
         detail: `event-secrecy scan across ${events.length} event bodies found no leak of the token, ssh private key, or user-data content; every event payload's keys are a subset of the REQ-006 named metadata set.`,
-        evidence: {
-          eventName: 'lifecycle-scan',
-          eventCount: events.length,
-          scannedMarkers: ['token value', 'ssh private key', 'user-data marker'],
-          allowedKeysByEvent: Object.fromEntries(Object.entries(ALLOWED_EVENT_KEYS).map(([k, v]) => [k, [...v].sort()])),
-          leaks: [],
-          unexpectedKeys: [],
-        },
+        evidence: passEvidence,
       });
     }
   } catch (err) {

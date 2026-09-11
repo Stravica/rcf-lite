@@ -20,7 +20,15 @@
 
 import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { runShim, readCompose, COMPOSE_PATH, FIXTURE_DIR, whichDocker, parseComposeYaml } from './probe-utils.mjs';
+
+// Deterministic content hash of the compose.yaml the row observed;
+// the engine-minted identifier for offline compose-config-lint rows
+// under the semantic anatomy rule.
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
 
 export const anchorAcIds = [
   'AC-composeHost-healthcheckLint',
@@ -66,7 +74,7 @@ function applyMutations(text) {
   return out;
 }
 
-function scanHealthchecks(doc, extra) {
+function scanHealthchecks(doc, extra, contentSha256) {
   const results = [];
   const services = doc.services ?? {};
   const httpNames = Object.keys(services).filter((n) => HTTP_SERVICES.has(n));
@@ -77,7 +85,7 @@ function scanHealthchecks(doc, extra) {
         anchorAcId: 'AC-composeHost-healthcheckLint',
         verdict: 'fail',
         detail: `HTTP-terminating service '${name}' is missing a healthcheck: block`,
-        evidence: { service: name, missingServices: [name], expected: 'healthcheck block', observed: 'absent' },
+        evidence: { contentSha256, service: name, missingServices: [name], expected: 'healthcheck block', observed: 'absent' },
       });
     } else {
       results.push({
@@ -85,6 +93,7 @@ function scanHealthchecks(doc, extra) {
         verdict: 'pass',
         detail: `HTTP-terminating service '${name}' carries a healthcheck: block`,
         evidence: {
+          contentSha256,
           service: name,
           healthcheckKeys: Object.keys(svc.healthcheck || {}).sort(),
         },
@@ -94,7 +103,7 @@ function scanHealthchecks(doc, extra) {
   return results;
 }
 
-function scanRestart(doc) {
+function scanRestart(doc, contentSha256) {
   const results = [];
   const services = doc.services ?? {};
   for (const name of Object.keys(services)) {
@@ -105,28 +114,28 @@ function scanRestart(doc) {
         anchorAcId: 'AC-composeHost-restartClassification',
         verdict: 'fail',
         detail: `service '${name}' declares no restart policy; allowed: unless-stopped, on-failure`,
-        evidence: { service: name, restart: null },
+        evidence: { contentSha256, service: name, restart: null },
       });
     } else if (!ALLOWED_RESTART.has(String(restart))) {
       results.push({
         anchorAcId: 'AC-composeHost-restartClassification',
         verdict: 'fail',
         detail: `service '${name}' declares restart: ${restart}; allowed: unless-stopped, on-failure`,
-        evidence: { service: name, restart: String(restart), allowed: ['unless-stopped', 'on-failure'] },
+        evidence: { contentSha256, service: name, restart: String(restart), allowed: ['unless-stopped', 'on-failure'] },
       });
     } else {
       results.push({
         anchorAcId: 'AC-composeHost-restartClassification',
         verdict: 'pass',
         detail: `service '${name}' declares restart: ${restart}`,
-        evidence: { service: name, restart: String(restart) },
+        evidence: { contentSha256, service: name, restart: String(restart) },
       });
     }
   }
   return results;
 }
 
-function scanLogging(doc) {
+function scanLogging(doc, contentSha256) {
   const results = [];
   const services = doc.services ?? {};
   const elicitedDriver = process.env.LOG_DRIVER || 'journald';
@@ -139,7 +148,7 @@ function scanLogging(doc) {
         anchorAcId: 'AC-composeHost-logDriverClassification',
         verdict: 'fail',
         detail: `service '${name}' declares no logging driver; allowed: journald, loki`,
-        evidence: { service: name, driver: null },
+        evidence: { contentSha256, service: name, driver: null },
       });
       observedDrivers.push(null);
       continue;
@@ -149,7 +158,7 @@ function scanLogging(doc) {
         anchorAcId: 'AC-composeHost-logDriverClassification',
         verdict: 'fail',
         detail: `service '${name}' declares logging driver '${driver}'; allowed: journald, loki`,
-        evidence: { service: name, driver: String(driver), allowed: ['journald', 'loki'] },
+        evidence: { contentSha256, service: name, driver: String(driver), allowed: ['journald', 'loki'] },
       });
       observedDrivers.push(String(driver));
       continue;
@@ -165,21 +174,21 @@ function scanLogging(doc) {
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'fail',
       detail: `services declare more than one log driver (${[...distinct].join(', ')}); the elicited log-driver=${elicitedDriver} requires every service to match`,
-      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers, distinct: [...distinct] },
+      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers, distinct: [...distinct] },
     });
   } else if (distinct.size === 1 && !distinct.has(elicitedDriver)) {
     results.push({
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'fail',
       detail: `services declare log driver ${[...distinct][0]} but the elicited log-driver is ${elicitedDriver}`,
-      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers },
+      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   } else if (distinct.size === 1) {
     results.push({
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'pass',
       detail: `every service uses the elicited log driver ${[...distinct][0]}`,
-      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers },
+      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   }
   return results;
@@ -190,6 +199,8 @@ export default async function runProbe() {
   const extra = {};
   const originalText = await readFile(COMPOSE_PATH, 'utf8');
   const mutatedText = applyMutations(originalText);
+  const contentSha256 = sha256(mutatedText);
+  extra.contentSha256 = contentSha256;
   const mutatedDoc = parseComposeYaml(mutatedText);
   extra.serviceNames = Object.keys(mutatedDoc.services ?? {});
   extra.mutations = {
@@ -197,9 +208,9 @@ export default async function runProbe() {
     unclassifiedRestart: process.env.SIMULATE_UNCLASSIFIED_RESTART === 'true',
     unclassifiedLogDriver: process.env.SIMULATE_UNCLASSIFIED_LOG_DRIVER === 'true',
   };
-  results.push(...scanHealthchecks(mutatedDoc, extra));
-  results.push(...scanRestart(mutatedDoc));
-  results.push(...scanLogging(mutatedDoc));
+  results.push(...scanHealthchecks(mutatedDoc, extra, contentSha256));
+  results.push(...scanRestart(mutatedDoc, contentSha256));
+  results.push(...scanLogging(mutatedDoc, contentSha256));
   const dockerVersion = whichDocker();
   extra.dockerVersion = dockerVersion;
   if (dockerVersion === null) {
@@ -207,7 +218,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-composeHost-healthcheckLint',
       verdict: 'warn',
       detail: 'docker CLI absent on PATH; source-tree assertions ran but docker compose config was not exercised',
-      evidence: { dockerLocal: null },
+      evidence: { contentSha256, dockerLocal: null },
     });
   } else {
     const { writeFile, mkdir, cp } = await import('node:fs/promises');
@@ -232,6 +243,7 @@ export default async function runProbe() {
         verdict: 'pass',
         detail: `docker compose config exit 0 (docker ${dockerVersion})`,
         evidence: {
+          contentSha256,
           file: 'compose.yaml',
           dockerVersion,
           engineNote: 'Docker Engine (compose sub-command); vendor documentation https://docs.docker.com/compose/compose-file/, verifiedOn 2026-09-11',
@@ -244,6 +256,7 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: `docker compose config exit ${cfg.status}: ${(cfg.stderr || cfg.stdout || '').slice(0, 400)}`,
         evidence: {
+          contentSha256,
           file: 'compose.yaml',
           dockerVersion,
           exitStatus: cfg.status,
