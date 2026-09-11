@@ -99,19 +99,26 @@ export default async function runProbe() {
       resultRow.detail = `caddy did not answer 200 before the burst on ${warm.target}: statusCode=${warm.statusCode} error=${warm.error || 'none'}`;
       return { results: [resultRow], extra: evidence };
     }
-    // Reclosure Items 2 and 10: use the undici burst (Node global
-    // fetch is undici) and require request/reload overlap timestamps.
-    const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, mode: 'undici-external' });
+    // Zero-downtime reload: undici GETs on the throwaway server
+    // itself (Node global fetch is undici) fired concurrently with
+    // the caddy reload. The burst window brackets and per-request
+    // timestamps prove the overlap on a single runner clock.
+    const burst = await reloadBurst(provisioned, '/', { total: 40, concurrency: 8, mode: 'undici-on-server' });
     evidence.burst = {
       expectedTotal: burst.expectedTotal,
       total: burst.total,
       twoXx: burst.twoXx, drops: burst.drops,
       reloadDurationMs: burst.reloadDurationMs, reloadExit: burst.reloadExit,
       reloadStartedAt: burst.reloadStartedAt, reloadEndedAt: burst.reloadEndedAt,
+      burstStartedAt: burst.burstStartedAt, burstEndedAt: burst.burstEndedAt,
+      burstWindowContainsReloadWindow: burst.burstWindowContainsReloadWindow,
       overlapCount: burst.overlapCount,
       firstOverlapStart: burst.firstOverlapStart, lastOverlapEnd: burst.lastOverlapEnd,
       mode: burst.mode,
+      onServerNodeVersion: burst.onServerNodeVersion,
       reloadStderrExcerpt: burst.reloadStderrExcerpt,
+      burstStderrExcerpt: burst.burstStderrExcerpt,
+      burstParseError: burst.burstParseError,
       elicitedReloadWindowMs: reloadWindowMs,
     };
     if (burst.reloadExit !== 0) {
@@ -131,8 +138,16 @@ export default async function runProbe() {
       resultRow.detail = `zero-downtime-reload violated on server ${provisioned.id}: ${burst.twoXx}/${burst.total} 2xx, ${burst.drops} dropped connections during a ${burst.reloadDurationMs}ms reload.`;
       return { results: [resultRow], extra: evidence };
     }
-    // Overlap proof: at least one undici request straddled the reload
-    // window (reclosure Item 2: "no request timestamps prove overlap").
+    // Overlap proof: the burst window must contain the reload window
+    // (AC-composeHost-zeroDowntimeReload requires undici requests to
+    // overlap the reload; the burst being in flight for the whole
+    // reload is the strictest reading), and at least one request must
+    // have overlapped the reload window.
+    if (!burst.burstWindowContainsReloadWindow) {
+      resultRow.verdict = 'fail';
+      resultRow.detail = `undici burst window [${burst.burstStartedAt},${burst.burstEndedAt}] did not contain the reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}]; AC-composeHost-zeroDowntimeReload requires the burst to run WHILE the reload runs.`;
+      return { results: [resultRow], extra: evidence };
+    }
     if (burst.overlapCount === 0) {
       resultRow.verdict = 'fail';
       resultRow.detail = `undici burst produced ${burst.total} 2xx results but ZERO request windows [startedAt,endedAt] overlapped the reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}]; AC-composeHost-zeroDowntimeReload requires the burst to run WHILE the reload runs.`;
@@ -144,7 +159,7 @@ export default async function runProbe() {
       return { results: [resultRow], extra: evidence };
     }
     resultRow.verdict = 'pass';
-    resultRow.detail = `zero-downtime-reload OBSERVED on server ${provisioned.id}: ${burst.twoXx}/${burst.total} undici 2xx, 0 dropped connections; ${burst.overlapCount}/${burst.total} request windows overlapped the ${burst.reloadDurationMs}ms reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}] (under the elicited ${reloadWindowSeconds}s window); warm baseline statusCode=${warm.statusCode}.`;
+    resultRow.detail = `zero-downtime-reload OBSERVED on server ${provisioned.id}: ${burst.twoXx}/${burst.total} on-server undici 2xx, 0 dropped connections; burst window [${burst.burstStartedAt},${burst.burstEndedAt}] contains reload window [${burst.reloadStartedAt},${burst.reloadEndedAt}]; ${burst.overlapCount}/${burst.total} request windows overlap the ${burst.reloadDurationMs}ms reload (under the elicited ${reloadWindowSeconds}s window); warm baseline statusCode=${warm.statusCode}.`;
   } catch (err) {
     resultRow.verdict = 'fail';
     resultRow.detail = `reload-burst threw: ${err.message}`;

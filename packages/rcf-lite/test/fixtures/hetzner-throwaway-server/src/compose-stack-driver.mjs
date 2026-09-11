@@ -230,89 +230,153 @@ export async function httpProbeOnServer(server, path = '/live', opts = {}) {
 
 // Fires N concurrent HTTP requests against caddy while caddy reload
 // runs; returns per-request outcomes plus the reload exit code. Used
-// by real-account-reload-burst. opts.onServer=true runs the burst as
-// a single ssh bash script that spawns `concurrency` parallel curl
-// loops on the throwaway server itself: the deploy-hetzner-server cloud-init hardening's
-// DOCKER-USER DROP refuses off-host traffic to the docker-mapped port
-// so on-server loopback is the reachable path for the shipped fixture,
-// and it also removes the ssh round-trip overhead per request.
+// by real-account-reload-burst. The burst runs ON the throwaway
+// server via a small Node script shipped over ssh, so undici (Node's
+// global fetch) drives the requests against http://127.0.0.1:80 from
+// inside the loopback. The shipped deploy-hetzner-server cloud-init
+// hardening's DOCKER-USER DROP refuses off-host traffic to the
+// docker-mapped port, so loopback is the only reachable path for the
+// shipped fixture; running on-server also removes the per-request ssh
+// round-trip overhead.
 export async function reloadBurst(server, path, opts = {}) {
   const expectedTotal = opts.total ?? 40;
   const concurrency = opts.concurrency ?? 8;
   const sshKeyPath = opts.sshKeyPath ?? process.env.RCF_LITE_CI_SSH_KEY;
   const target = `${DEPLOY_USER}@${server.primaryIpv4}`;
-  const mode = opts.mode ?? 'undici-external';
+  const mode = opts.mode ?? 'undici-on-server';
+  const perRequestTimeoutMs = opts.perRequestTimeoutMs ?? 10_000;
+  const port = opts.port ?? 80;
+  const onServerUrl = `http://127.0.0.1:${port}${path}`;
+
+  // Install Node on the throwaway server so undici (Node's global
+  // fetch) drives the burst from the loopback. The shipped
+  // deploy-hetzner-server cloud-init hardening drops off-host traffic
+  // at DOCKER-USER, so an on-runner burst cannot reach the caddy
+  // service. The fixture README declares the reload-burst probe
+  // installs nodejs during setup for exactly this reason.
+  const nodeInstall = await installNodeIfNeeded(target, sshKeyPath);
+  if (nodeInstall.code !== 0) {
+    return {
+      expectedTotal, total: 0, twoXx: 0, drops: 0,
+      reloadDurationMs: 0, reloadStartedAt: 0, reloadEndedAt: 0,
+      overlapCount: 0, firstOverlapStart: null, lastOverlapEnd: null,
+      reloadExit: -1,
+      reloadStderrExcerpt: `installNodeIfNeeded exit=${nodeInstall.code}: ${(nodeInstall.stderr || '').slice(0, 200)}`,
+      outcomes: [], mode,
+      burstStartedAt: 0, burstEndedAt: 0,
+      onServerNodeVersion: null,
+      burstWindowContainsReloadWindow: false,
+    };
+  }
+
+  // Ship the burst script to /tmp/rcf-lite-burst.mjs via a base64
+  // heredoc so ssh needs no stdin. The script is a pure ES module
+  // that runs the concurrent undici fetches on-server and emits one
+  // JSON blob to stdout.
+  const scriptB64 = Buffer.from(BURST_SCRIPT, 'utf8').toString('base64');
+  const shipCmd = `bash -lc 'printf %s ${scriptB64} | base64 -d > /tmp/rcf-lite-burst.mjs'`;
+  const ship = await sshExec(target, shipCmd, sshKeyPath, 30);
+  if (ship.code !== 0) {
+    return {
+      expectedTotal, total: 0, twoXx: 0, drops: 0,
+      reloadDurationMs: 0, reloadStartedAt: 0, reloadEndedAt: 0,
+      overlapCount: 0, firstOverlapStart: null, lastOverlapEnd: null,
+      reloadExit: -1,
+      reloadStderrExcerpt: `burst-script ship exit=${ship.code}: ${(ship.stderr || '').slice(0, 200)}`,
+      outcomes: [], mode,
+      burstStartedAt: 0, burstEndedAt: 0,
+      onServerNodeVersion: (nodeInstall.version || '').trim() || null,
+      burstWindowContainsReloadWindow: false,
+    };
+  }
 
   // AC-composeHost-zeroDowntimeReload requires undici GETs against the
-  // proxy service. Node 20+'s global fetch is powered by undici. We
-  // fire the reload asynchronously and the undici burst runs while the
-  // reload is in flight, with per-request start/end wall-clock stamps
-  // so we can PROVE the burst overlapped the reload window
-  // (reclosure Items 2, 10).
+  // proxy service while caddy reload runs. The reload is fired
+  // asynchronously; the on-server burst is fired in parallel and
+  // records its own per-request start/end wall-clock stamps. Both
+  // windows are bracketed on the runner clock, so overlap is proven
+  // on a single clock from the record.
   const reloadStartedAt = Date.now();
   const reloadPromise = composeCommand(target, sshKeyPath,
     ['exec', '-T', 'caddy', 'caddy', 'reload', '--config', '/etc/caddy/Caddyfile'],
     { timeoutSeconds: 30 });
 
-  const outcomes = [];
-  const url = `http://${server.primaryIpv4}${path}`;
-  let cursor = 0;
-  async function undiciWorker() {
-    while (cursor < expectedTotal) {
-      const idx = cursor++;
-      if (idx >= expectedTotal) return;
-      const startedAt = Date.now();
-      let statusCode = 0;
-      let error = null;
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10_000);
-      try {
-        const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-reload-burst/1.1.4 (undici)' } });
-        statusCode = res.status;
-        // Drain the body to complete the transaction.
-        try { await res.text(); } catch (_) { /* body drain best-effort */ }
-      } catch (err) {
-        error = err && err.message ? err.message : String(err);
-      } finally {
-        clearTimeout(timer);
-      }
-      const endedAt = Date.now();
-      outcomes.push({
-        idx, startedAt, endedAt, elapsedMs: endedAt - startedAt,
-        statusCode, ok: statusCode >= 200 && statusCode < 300,
-        error,
-      });
-    }
-  }
-  const workers = Array.from({ length: concurrency }, () => undiciWorker());
-  await Promise.all(workers);
+  const burstEnv = `BURST_TOTAL=${expectedTotal} BURST_CONCURRENCY=${concurrency} BURST_URL='${onServerUrl}' BURST_TIMEOUT_MS=${perRequestTimeoutMs}`;
+  const burstStartedAt = Date.now();
+  const burstResp = await sshExec(target, `bash -lc '${burstEnv} node /tmp/rcf-lite-burst.mjs'`, sshKeyPath, 120);
+  const burstEndedAt = Date.now();
+
   const reload = await reloadPromise;
   const reloadEndedAt = Date.now();
   const reloadDurationMs = reloadEndedAt - reloadStartedAt;
 
+  let outcomes = [];
+  let startedWallAt = burstStartedAt;
+  let endedWallAt = burstEndedAt;
+  let parseError = null;
+  try {
+    const parsed = JSON.parse(burstResp.stdout || '{}');
+    outcomes = Array.isArray(parsed.outcomes) ? parsed.outcomes : [];
+    if (typeof parsed.startedWallAt === 'number') startedWallAt = parsed.startedWallAt;
+    if (typeof parsed.endedWallAt === 'number') endedWallAt = parsed.endedWallAt;
+  } catch (err) {
+    parseError = `on-server burst stdout not JSON: ${err.message}; stdout head=${(burstResp.stdout || '').slice(0, 200)}; stderr head=${(burstResp.stderr || '').slice(0, 200)}`;
+  }
+
+  // Translate on-server per-request timestamps to the runner clock so
+  // the overlap check runs in one clock domain. Offset is the
+  // difference between the ssh call's start on the runner and the
+  // script's first Date.now() on the server.
+  const clockOffsetMs = burstStartedAt - startedWallAt;
+  const rebasedOutcomes = outcomes.map((o) => ({
+    idx: o.idx,
+    startedAt: o.startedAt + clockOffsetMs,
+    endedAt: o.endedAt + clockOffsetMs,
+    elapsedMs: o.elapsedMs,
+    statusCode: o.statusCode,
+    ok: o.statusCode >= 200 && o.statusCode < 300,
+    error: o.error,
+  }));
+
   // Overlap proof: an outcome overlaps the reload window if its
   // [startedAt, endedAt] intersects [reloadStartedAt, reloadEndedAt].
-  const overlaps = outcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
+  const overlaps = rebasedOutcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
   const overlapCount = overlaps.length;
   const firstOverlapStart = overlaps.length ? Math.min(...overlaps.map((o) => o.startedAt)) : null;
   const lastOverlapEnd = overlaps.length ? Math.max(...overlaps.map((o) => o.endedAt)) : null;
 
-  const twoXx = outcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
-  const drops = outcomes.filter((o) => !o.ok).length;
-  // Preserve the expected vs observed distinction (reclosure Item 10:
-  // returning `total: outcomes.length` was letting <40-result runs
-  // pass silently). Both counts are reported and the caller checks.
+  // Burst window contains the reload window iff every reload
+  // millisecond falls inside the burst window. Proves the burst was
+  // running for the entire reload, per the AC's "undici requests
+  // overlapping the reload".
+  const burstWindowContainsReloadWindow = (
+    burstStartedAt <= reloadStartedAt && burstEndedAt >= reloadEndedAt
+  );
+
+  const twoXx = rebasedOutcomes.filter((o) => o.statusCode >= 200 && o.statusCode < 300).length;
+  const drops = rebasedOutcomes.filter((o) => !o.ok).length;
+
+  // Preserve the expected vs observed distinction: returning
+  // `total: outcomes.length` alone allowed <40-result runs to pass
+  // silently. Both counts are reported and the caller checks.
   return {
     expectedTotal,
-    total: outcomes.length,
+    total: rebasedOutcomes.length,
     twoXx, drops, reloadDurationMs,
     reloadStartedAt, reloadEndedAt,
+    burstStartedAt, burstEndedAt,
+    burstWindowContainsReloadWindow,
     overlapCount,
     firstOverlapStart, lastOverlapEnd,
     reloadExit: reload.code,
     reloadStderrExcerpt: (reload.stderr || '').slice(0, 300),
-    outcomes,
+    outcomes: rebasedOutcomes,
     mode,
+    onServerNodeVersion: (nodeInstall.version || '').trim() || null,
+    burstScriptShipExit: ship.code,
+    burstSshExit: burstResp.code,
+    burstStderrExcerpt: (burstResp.stderr || '').slice(0, 300),
+    burstParseError: parseError,
   };
 }
 
@@ -397,3 +461,68 @@ function parseComposePs(text) {
   }
   return services;
 }
+
+
+// Install Node on the throwaway server if not already present. Used
+// exclusively by the reload-burst probe path. Idempotent: the shell
+// short-circuits when `node` is already resolvable. Ubuntu 24.04's
+// `nodejs` apt package ships Node 18+, which carries the global
+// fetch (undici) the AC requires.
+async function installNodeIfNeeded(target, sshKeyPath) {
+  const started = Date.now();
+  const script = [
+    'set -e',
+    'if command -v node >/dev/null 2>&1; then',
+    '  node --version',
+    '  exit 0',
+    'fi',
+    'sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq',
+    'sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq nodejs',
+    'node --version',
+  ].join('\n');
+  const { code, stdout, stderr } = await sshExec(target, `bash -lc '${script.replace(/'/g, "'\\''")}'`, sshKeyPath, 300);
+  return { code, stdout, stderr, waitedMs: Date.now() - started, version: (stdout || '').trim().split('\n').pop() };
+}
+
+// Node ES-module burst script shipped to /tmp/rcf-lite-burst.mjs on
+// the throwaway server. Reads BURST_URL, BURST_TOTAL,
+// BURST_CONCURRENCY and BURST_TIMEOUT_MS from env; drives the
+// concurrent undici fetches; writes one JSON blob to stdout with the
+// per-request outcomes plus the wall-clock brackets recorded on the
+// server.
+const BURST_SCRIPT = `
+const total = Number(process.env.BURST_TOTAL || 40);
+const concurrency = Number(process.env.BURST_CONCURRENCY || 8);
+const url = process.env.BURST_URL;
+const perRequestTimeoutMs = Number(process.env.BURST_TIMEOUT_MS || 10000);
+if (!url) { process.stderr.write('BURST_URL missing\\n'); process.exit(2); }
+const outcomes = [];
+let cursor = 0;
+async function worker() {
+  while (true) {
+    const idx = cursor++;
+    if (idx >= total) return;
+    const startedAt = Date.now();
+    let statusCode = 0;
+    let error = null;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), perRequestTimeoutMs);
+    try {
+      const res = await fetch(url, { signal: controller.signal, headers: { 'user-agent': 'rcf-lite-reload-burst/1.1.4 (undici-on-server)' } });
+      statusCode = res.status;
+      try { await res.text(); } catch (_) {}
+    } catch (err) {
+      error = err && err.message ? err.message : String(err);
+    } finally { clearTimeout(timer); }
+    const endedAt = Date.now();
+    outcomes.push({ idx, startedAt, endedAt, elapsedMs: endedAt - startedAt, statusCode, ok: statusCode >= 200 && statusCode < 300, error });
+  }
+}
+(async () => {
+  const startedWallAt = Date.now();
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  const endedWallAt = Date.now();
+  outcomes.sort((a, b) => a.idx - b.idx);
+  process.stdout.write(JSON.stringify({ startedWallAt, endedWallAt, outcomes }));
+})().catch((err) => { process.stderr.write(String(err && err.stack || err)); process.exit(3); });
+`;

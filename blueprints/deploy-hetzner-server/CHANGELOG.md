@@ -13,7 +13,7 @@
 
 ## 1.1.4-superseded-note (2026-09-11)
 
-The 1.1.4 fix-pass CHANGELOG entry above supersedes the earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" claims did not match the shipped code at closure review time (reclosure Item 4).
+The 1.1.4 entry above supersedes an earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" summary claimed changes that were not present in the shipped diff.
 
 ## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
 

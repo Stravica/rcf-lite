@@ -106,7 +106,7 @@ export default async function runProbe() {
     // AC-37103-1 is a LIVE-only AC (its acceptance text requires the
     // real-account apply plus a live `hcloud server list`). The mocked
     // createServer path here can only observe the facade emitted the
-    // event with the shape we asked the mock to return, so the row is
+    // event with the shape the mock was asked to return, so the row is
     // de-claimed: anchorAcId is null, conformanceOnly with a limitation
     // pointing to the live-only AC, and notObservableHere names the AC
     // this row cannot observe. Do not invent a live-AC claim on mock

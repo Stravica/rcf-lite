@@ -39,7 +39,7 @@ export async function destroyThrowawayServer(record) {
   // Propagate a snapshot-list failure rather than swallowing it as an
   // empty list (reclosure Item on partly-fixed teardown swallowing:
   // an empty-list fallback risked skipping required deletions while
-  // reporting success). If the list call throws we surface the error
+  // reporting success). A throw from the list call is surfaced
   // so the caller's finally block can fail the verdict.
   let snapshots;
   try {

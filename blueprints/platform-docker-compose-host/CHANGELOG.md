@@ -1,5 +1,6 @@
 ## 1.1.4 (criterion-e closure re-run fix pass, 2026-09-11)
 
+- `real-account-reload-burst` runs the undici GETs ON the throwaway server (Node global fetch, undici under the hood) via a small ES-module script shipped over ssh; the burst reaches caddy through the loopback (`http://127.0.0.1:80`) so the shipped deploy-hetzner-server cloud-init hardening's DOCKER-USER DROP rule (which refuses off-host traffic to the docker-mapped port) does not drop the traffic under measurement. The compose-stack driver installs Node on the throwaway server on first use of the reload-burst path (`installNodeIfNeeded`), declared in the fixture README under "On-server Node install (reload-burst probe path)". The probe records the runner-side burst window brackets alongside the reload window and FAILS unless the burst window contains the reload window; `mode: undici-on-server`.
 - `real-account-reload-burst` now uses undici GETs (Node global `fetch`, undici under the hood) against the throwaway server's caddy `:80` endpoint from the local runner, and records per-request `startedAt`/`endedAt` wall-clock stamps alongside `reloadStartedAt`/`reloadEndedAt`. The probe FAILS if fewer than the expected 40 outcomes are observed (`expectedTotal` vs `total`) OR if zero request windows overlap the reload window (`overlapCount`); AC-composeHost-zeroDowntimeReload requires the burst to run WHILE the reload runs.
 - `real-account-minimal-stack-up` asserts every DECLARED compose service is present, in state=running, and health=healthy where a healthcheck is declared. The compose-up `--wait-timeout` is elicited via `COMPOSE_UP_TIMEOUT_SECONDS` (default 120) rather than hardcoded; on failure the row detail names each missing or unhealthy service.
 - `secrets-as-files-scan` validates every service-level secret reference: it must live in the service `secrets:` array (never inlined in env/environment), and any declared long-form `mode:` must be 0o400 (compose default is 0o400). Config discovery walks every service's bind-mount source (short-form and long-form), not the hardcoded `caddy/` directory; every discovered file plus `compose.yaml` and `.env` is scanned for the plaintext token literal.
@@ -11,7 +12,7 @@
 
 ## 1.1.4-superseded-note (2026-09-11)
 
-The 1.1.4 fix-pass CHANGELOG entry above supersedes the earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" claims did not match the shipped code at closure review time (reclosure Item 4).
+The 1.1.4 entry above supersedes an earlier 1.1.4 note whose "corrected anchoring / observed lifecycle events / complete teardown propagation / pinned evidence shape" summary claimed changes that were not present in the shipped diff.
 
 ## 1.1.3 (criterion-e positive-evidence patch, 2026-09-11)
 

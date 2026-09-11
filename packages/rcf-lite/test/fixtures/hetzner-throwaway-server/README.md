@@ -252,6 +252,21 @@ section 6).
 | `WEB_LISTEN_PORT` | second, optional | Fixture web-service listen port (default 8080) read by `src/serve.mjs`; declared here so the caddy `reverse_proxy web:8080` binding and the compose healthcheck have a documented source. | fixture `src/serve.mjs` consumed on the real-account branch |
 | `WEB_HEALTH_PATH` | second, optional | Fixture web-service health path (default `/live`) read by `src/serve.mjs`; the compose healthcheck and the on-server curl assertion both target this path. | fixture `src/serve.mjs` consumed on the real-account branch |
 
+### On-server Node install (reload-burst probe path)
+
+`real-account-reload-burst` fires undici GETs against
+`http://127.0.0.1:80` from ON the throwaway server, so its bring-up
+path installs Node on the server the first time the probe runs. The
+compose-stack driver's `installNodeIfNeeded()` runs `apt-get install
+-y nodejs` when `command -v node` fails (idempotent short-circuit
+otherwise); Ubuntu 24.04's `nodejs` package ships Node 18+, whose
+global `fetch` is the undici the AC names. The shipped
+deploy-hetzner-server cloud-init hardening's DOCKER-USER DROP rule
+refuses off-host traffic to the docker-mapped port, so the loopback
+burst is the reachable path for the shipped fixture and the on-server
+install is declared here as part of the reload-burst probe's
+provisioning.
+
 ## edge-cloudflare-tunnel (edge-cloudflare-tunnel v1.0.0) extension
 
 The `edge-cloudflare-tunnel` blueprint extends this fixture with a cloudflared connector in both
