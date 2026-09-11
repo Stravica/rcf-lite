@@ -97,7 +97,7 @@ async function assertContainerAbsent(container) {
     await execFileAsync('docker', ['inspect', container]);
     throw new Error(`container ${container} still exists`);
   } catch (err) {
-    if (err && err.stderr && /No such object|Error: No such/.test(err.stderr)) return { absent: true };
+    if (err && err.stderr && /[Nn]o such object|[Ee]rror: [Nn]o such/i.test(err.stderr)) return { absent: true };
     if (err && err.message && err.message.includes('still exists')) throw err;
     // Unrecognized inspect failure - do NOT treat as absent.
     throw new Error(`docker inspect on ${container} produced an unrecognized error: ${err && (err.stderr || err.message) || 'unknown'}`);
@@ -112,7 +112,7 @@ async function bringUpRestore() {
   try {
     await execFileAsync('docker', ['rm', '-f', RESTORE_CONTAINER]);
   } catch (err) {
-    if (!(err && err.stderr && /No such container|Error: No such/.test(err.stderr))) {
+    if (!(err && err.stderr && /[Nn]o such container|[Ee]rror: [Nn]o such/i.test(err.stderr))) {
       throw new Error(`pre-run rm of ${RESTORE_CONTAINER} failed and did not name a No-such-container reason: ${err && (err.stderr || err.message) || 'unknown'}`);
     }
   }

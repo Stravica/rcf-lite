@@ -1,28 +1,88 @@
 {
   "slug": "object-storage-s3",
   "probeName": "multipart-upload",
-  "runAt": "2026-09-06T18:42:15.706Z",
+  "runAt": "2026-09-11T14:27:39.480Z",
   "engine": {
     "kind": "s3",
-    "image": "minio/minio",
-    "healthy": true
+    "vendor": "minio",
+    "endpointHost": "localhost:47230",
+    "healthLive": {
+      "ok": true,
+      "httpStatus": 200,
+      "responseTimeMs": 14,
+      "endpoint": "http://localhost:47230/minio/health/live"
+    }
   },
   "results": [
     {
       "anchorAcId": "AC-28104-1",
       "verdict": "pass",
-      "detail": "10 MiB multipart round-trip byte-equal; objectPut fired with size=10485760"
+      "detail": "Given the elicited multipart threshold at 8 MiB - 10 MiB round-trip byte-equal; objectPut fired with size=10485760",
+      "evidence": {
+        "key": "probe/multipart/1789136859291-nztgc5jg",
+        "size": 10485760,
+        "gotSize": 10485760,
+        "byteEqual": true,
+        "objectPutEvent": {
+          "event": "objectPut",
+          "ts": 1789136859391,
+          "key": "probe/multipart/1789136859291-nztgc5jg",
+          "size": 10485760,
+          "contentType": "application/octet-stream"
+        }
+      }
     },
     {
       "anchorAcId": "AC-28104-1",
       "verdict": "pass",
-      "detail": "no in-flight multipart uploads after complete"
+      "detail": "Given the elicited multipart threshold at 8 MiB - no in-flight multipart uploads after complete",
+      "evidence": {
+        "key": "probe/multipart/1789136859291-nztgc5jg",
+        "inflightCount": 0,
+        "inflight": []
+      }
     },
     {
       "anchorAcId": "AC-28104-2",
       "verdict": "pass",
-      "detail": "abort-on-failure path exercised only when SIMULATE_PART_UPLOAD_FAIL=true; not-run on canonical fixture state"
+      "detail": "Given a simulated part-upload failure mid-multipart - propagated (Error), aborted upload id=Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLjVkNThlMmVlLTFhZDMtNGQ4ZS04MzQ3LTlkYmYzN2ZkNmQ5OHgxNzg5MTM2ODU5NDI4ODk0Mzc1, no in-flight uploads for probe/multipart-fail/1789136859428-5rhxr14f, abort call itself succeeded",
+      "evidence": {
+        "failKey": "probe/multipart-fail/1789136859428-5rhxr14f",
+        "observedError": {
+          "name": "Error",
+          "message": "SIMULATE_PART_UPLOAD_FAIL: part 2 refused",
+          "uploadId": "Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLjVkNThlMmVlLTFhZDMtNGQ4ZS04MzQ3LTlkYmYzN2ZkNmQ5OHgxNzg5MTM2ODU5NDI4ODk0Mzc1"
+        },
+        "observedUploadId": "Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLjVkNThlMmVlLTFhZDMtNGQ4ZS04MzQ3LTlkYmYzN2ZkNmQ5OHgxNzg5MTM2ODU5NDI4ODk0Mzc1",
+        "abortError": null,
+        "inflightCountAfter": 0,
+        "inflightAfter": []
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "key": "probe/multipart/1789136859291-nztgc5jg",
+    "size": 10485760,
+    "events": [
+      {
+        "event": "facadeReady",
+        "ts": 1789136859306,
+        "endpointHost": "localhost:47230",
+        "bucketName": "rcf-test"
+      },
+      {
+        "event": "objectPut",
+        "ts": 1789136859391,
+        "key": "probe/multipart/1789136859291-nztgc5jg",
+        "size": 10485760,
+        "contentType": "application/octet-stream"
+      },
+      {
+        "event": "objectDeleted",
+        "ts": 1789136859428,
+        "key": "probe/multipart/1789136859291-nztgc5jg"
+      }
+    ]
+  }
 }

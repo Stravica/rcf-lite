@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "fake-clock-cron",
-  "runAt": "2026-09-06T20:54:42.724Z",
+  "runAt": "2026-09-11T14:29:39.320Z",
   "engine": {
     "kind": "queues+scheduler",
     "image": "cloudflare/wrangler-dev-equivalent (in-memory driver) + inProcess scheduler with injected fake clock",
@@ -11,7 +11,54 @@
     {
       "anchorAcId": "AC-jobs-scheduledRunsOnCron",
       "verdict": "pass",
-      "detail": "fires=1; jobStarted refresh-cache attempts=1 within fireToleranceMs=30000; jobCompleted duration=0ms within timeoutMs=10000"
+      "detail": "Given the scheduler configured with an inProcess cron - scheduler.tick() published exactly 1 fire after clock.advance(60000)",
+      "evidence": {
+        "fires": 1,
+        "cron": "* * * * *"
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-scheduledRunsOnCron",
+      "verdict": "pass",
+      "detail": "Given the scheduler configured with an inProcess cron - jobStarted fired for refresh-cache with attempts=1",
+      "evidence": {
+        "jobStartedEvent": {
+          "event": "jobStarted",
+          "jobId": "job-000001",
+          "jobName": "refresh-cache",
+          "attempts": 1,
+          "duration": 0,
+          "timestamp": "2026-09-11T14:29:39.320Z"
+        }
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-scheduledRunsOnCron",
+      "verdict": "pass",
+      "detail": "Given the scheduler configured with an inProcess cron - jobCompleted fired for refresh-cache with duration=0ms within timeoutMs=10000",
+      "evidence": {
+        "jobCompletedEvent": {
+          "event": "jobCompleted",
+          "jobId": "job-000001",
+          "jobName": "refresh-cache",
+          "attempts": 1,
+          "duration": 0,
+          "timestamp": "2026-09-11T14:29:39.320Z"
+        },
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-scheduledRunsOnCron",
+      "verdict": "pass",
+      "detail": "Given the scheduler configured with an inProcess cron - the fired refresh-cache job produced both jobScheduled and jobStarted on the run-log; dispatch latency observed (not asserted) at 1ms",
+      "evidence": {
+        "jobScheduledTimestamp": "2026-09-11T14:29:39.319Z",
+        "jobStartedTimestamp": "2026-09-11T14:29:39.320Z",
+        "dispatchLatencyMs": 1,
+        "toleranceAsserted": false,
+        "note": "fake-clock setup; scheduledAt is not a wall-clock cron boundary. The paired live-account probe does not exercise cron either; live wrangler-dev cron-trigger coverage remains a per-AC mechanism-reach gap."
+      }
     }
   ],
   "aggregateVerdict": "pass",
@@ -23,7 +70,7 @@
         "jobName": "refresh-cache",
         "attempts": 0,
         "duration": 0,
-        "timestamp": "1970-01-01T00:01:00.000Z"
+        "timestamp": "2026-09-11T14:29:39.319Z"
       },
       {
         "event": "jobStarted",
@@ -31,7 +78,7 @@
         "jobName": "refresh-cache",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-06T20:54:42.724Z"
+        "timestamp": "2026-09-11T14:29:39.320Z"
       },
       {
         "event": "jobCompleted",
@@ -39,9 +86,10 @@
         "jobName": "refresh-cache",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-06T20:54:42.724Z"
+        "timestamp": "2026-09-11T14:29:39.320Z"
       }
     ],
-    "fireToleranceMs": 30000
+    "fireToleranceMs": 30000,
+    "engineNote": "in-memory queue driver + fake-clock seam; real Cloudflare Queues cron-trigger is the paired real-account row"
   }
 }

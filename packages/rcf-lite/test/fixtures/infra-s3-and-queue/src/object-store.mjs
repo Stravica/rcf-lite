@@ -14,7 +14,8 @@
  * AbortMultipartUpload on any thrown part-upload error.
  */
 
-import {
+import * as awsS3 from '@aws-sdk/client-s3';
+const {
   S3Client,
   HeadBucketCommand,
   PutObjectCommand,
@@ -26,8 +27,14 @@ import {
   CompleteMultipartUploadCommand,
   AbortMultipartUploadCommand,
   ListMultipartUploadsCommand,
-} from '@aws-sdk/client-s3';
+} = awsS3;
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+// Re-export the SDK's command constructors so blueprint probes (which
+// live outside the fixture's node_modules resolution scope) can build
+// commands via this module rather than importing the SDK directly. The
+// fixture remains the sole reader of the SDK per REQ-001.
+export const sdk = awsS3;
 
 const DEFAULT_MULTIPART_THRESHOLD = 8 * 1024 * 1024; // 8 MiB per ADR-2903
 const DEFAULT_PART_SIZE = 8 * 1024 * 1024;

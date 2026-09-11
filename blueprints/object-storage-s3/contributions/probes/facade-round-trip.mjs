@@ -36,8 +36,8 @@ export default async function runProbe() {
     // rows need per-row vendor evidence).
     let vendorMetadata = null;
     try {
-      const { HeadBucketCommand } = await import('@aws-sdk/client-s3');
-      const head = await store.getClient().send(new HeadBucketCommand({ Bucket: bucket }));
+      const { sdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
+      const head = await store.getClient().send(new sdk.HeadBucketCommand({ Bucket: bucket }));
       vendorMetadata = head && head.$metadata ? {
         httpStatusCode: head.$metadata.httpStatusCode,
         requestId: head.$metadata.requestId,

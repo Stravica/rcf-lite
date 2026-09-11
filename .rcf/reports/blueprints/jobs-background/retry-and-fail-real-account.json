@@ -1,0 +1,209 @@
+{
+  "slug": "jobs-background",
+  "probeName": "retry-and-fail-real-account",
+  "runAt": "2026-09-11T14:35:32.922Z",
+  "engine": {
+    "kind": "queue",
+    "vendor": "cloudflare-queues",
+    "observed": "per-request on results"
+  },
+  "results": [
+    {
+      "anchorReqId": "jobs-background-REQ-004",
+      "verdict": "pass",
+      "detail": "A handler that throws a retryable error causes - provisioned scratch queue probe-scratch-q-crj6xy (id=45d1f1441cc54f6aaefeaff02ba28669) with DLQ probe-scratch-dlq-crj6xy (id=c44198543fe847b9ba0c1fd9c83150a9), both with http_pull consumers, max_retries=3",
+      "evidence": {
+        "queueName": "probe-scratch-q-crj6xy",
+        "dlqName": "probe-scratch-dlq-crj6xy",
+        "primaryConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "25fdfa4fb63e48e3838a88532a572ee7",
+          "queue_name": "probe-scratch-q-crj6xy",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 2000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "probe-scratch-dlq-crj6xy",
+          "created_on": "2026-09-11T14:34:35.881521Z"
+        },
+        "dlqConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "4e30a6c2ff204dbebc73e70323d1814a",
+          "queue_name": "probe-scratch-dlq-crj6xy",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 10000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "",
+          "created_on": "2026-09-11T14:34:32.991467Z"
+        }
+      }
+    },
+    {
+      "anchorReqId": "jobs-background-REQ-004",
+      "verdict": "pass",
+      "detail": "A handler that throws a retryable error causes - Cloudflare Queues incremented the attempts counter across pulls: observed attempts values [0,1,2,3]",
+      "evidence": {
+        "attemptsObserved": [
+          {
+            "pulled": 1,
+            "attempts": 0,
+            "id": "d5476dbcbbcad975de1ba759217f3d1d"
+          },
+          {
+            "pulled": 1,
+            "attempts": 1,
+            "id": "d5476dbcbbcad975de1ba759217f3d1d"
+          },
+          {
+            "pulled": 1,
+            "attempts": 2,
+            "id": "d5476dbcbbcad975de1ba759217f3d1d"
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 1,
+            "attempts": 3,
+            "id": "d5476dbcbbcad975de1ba759217f3d1d"
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          }
+        ],
+        "uniqueAttempts": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "messageId": "d5476dbcbbcad975de1ba759217f3d1d",
+        "queueName": "probe-scratch-q-crj6xy"
+      }
+    },
+    {
+      "anchorReqId": "jobs-background-REQ-004",
+      "verdict": "pass",
+      "detail": "A handler that throws a retryable error causes - after 20 primary pulls and 1 DLQ polls the message landed on the DLQ probe-scratch-dlq-crj6xy (backlog=1, payload-id-match=true for job-crj6xy)",
+      "evidence": {
+        "dlqName": "probe-scratch-dlq-crj6xy",
+        "dlqId": "c44198543fe847b9ba0c1fd9c83150a9",
+        "dlqBacklog": 1,
+        "dlqTransportMessageIds": [
+          "f09bf5fb1b264f321ec3a9c9985a36b1"
+        ],
+        "dlqPayloadJobIds": [
+          "job-crj6xy"
+        ],
+        "expectedPayloadJobId": "job-crj6xy",
+        "primaryTransportMessageId": "d5476dbcbbcad975de1ba759217f3d1d",
+        "payloadIdMatch": true,
+        "dlqPollAttempts": 1
+      }
+    },
+    {
+      "anchorReqId": "jobs-background-REQ-004",
+      "verdict": "pass",
+      "detail": "A handler that throws a retryable error causes - scratch queues probe-scratch-q-crj6xy and probe-scratch-dlq-crj6xy deleted and confirmed absent from post-run account queue listing",
+      "evidence": {
+        "teardown": {
+          "deletePrimary": {
+            "queueId": "45d1f1441cc54f6aaefeaff02ba28669",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "deleteDlq": {
+            "queueId": "c44198543fe847b9ba0c1fd9c83150a9",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "primaryAbsent": {
+            "ok": true,
+            "listedCount": 1
+          },
+          "dlqAbsent": {
+            "ok": true,
+            "listedCount": 1
+          }
+        }
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "envDeclared": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "CF_ACCOUNT_ID",
+      "CF_API_TOKEN"
+    ],
+    "queueName": "probe-scratch-q-crj6xy",
+    "dlqName": "probe-scratch-dlq-crj6xy",
+    "teardown": {
+      "deletePrimary": {
+        "queueId": "45d1f1441cc54f6aaefeaff02ba28669",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "deleteDlq": {
+        "queueId": "c44198543fe847b9ba0c1fd9c83150a9",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "primaryAbsent": {
+        "ok": true,
+        "listedCount": 1
+      },
+      "dlqAbsent": {
+        "ok": true,
+        "listedCount": 1
+      }
+    }
+  }
+}

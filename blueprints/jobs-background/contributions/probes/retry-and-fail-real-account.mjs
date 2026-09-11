@@ -130,7 +130,7 @@ export default async function runProbe() {
     // 4. pull + retry loop; observe attempts increasing to 3, then absent
     const attemptsObserved = [];
     let messageIdObserved = null;
-    for (let i = 0; i < 8; i += 1) {
+    for (let i = 0; i < 20; i += 1) {
       const pull = await cf('POST', `/accounts/${accountId}/queues/${qid}/messages/pull`, token, {
         batch_size: 10,
         visibility_timeout_ms: 2000,
@@ -140,7 +140,7 @@ export default async function runProbe() {
         // Wait a bit; message may have been consumed by the retry cycle
         // and not yet visible again, OR moved to DLQ.
         attemptsObserved.push({ pulled: 0 });
-        await sleep(1500);
+        await sleep(2500);
         continue;
       }
       const m = msgs[0];
@@ -170,8 +170,18 @@ export default async function runProbe() {
       dlqBacklog = (dlqPull.json && dlqPull.json.result && dlqPull.json.result.message_backlog_count) || dlqMsgs.length;
       if (dlqMsgs.length > 0 || dlqBacklog >= 1) break;
     }
-    const idMatch = dlqMsgs.some((mm) => mm.id === messageIdObserved);
-    const seenInDlq = idMatch; // strict: id-match required, not just backlog >= 1
+    // Cloudflare Queues assigns fresh transport message ids when a
+    // message lands in the DLQ, so a strict transport id-match is not
+    // achievable at the vendor surface. The probe carries its own
+    // application-level correlation id in the message body payload
+    // (`publishJobId`) and matches on that: the row is only a pass
+    // when the same payload jobId that was published to the primary
+    // is observed on the DLQ landing.
+    const dlqPayloadIds = dlqMsgs.map((mm) => (mm.body && (typeof mm.body === 'string'
+      ? (() => { try { return JSON.parse(mm.body).jobId; } catch { return null; } })()
+      : mm.body.jobId))).filter(Boolean);
+    const idMatch = dlqPayloadIds.includes(publishJobId);
+    const seenInDlq = idMatch; // strict: payload correlation-id match required
     // Ack the DLQ message so it doesn't loiter (deletion also happens in teardown).
     for (const mm of dlqMsgs) {
       await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
@@ -199,9 +209,9 @@ export default async function runProbe() {
       anchorReqId: 'jobs-background-REQ-004',
       verdict: seenInDlq ? 'pass' : 'fail',
       detail: seenInDlq
-        ? `A handler that throws a retryable error causes - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, id-match=${dlqMsgs.some((mm) => mm.id === messageIdObserved)})`
-        : `A handler that throws a retryable error causes - message did not reach the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} primary pulls=${attemptsObserved.length}`,
-      evidence: { dlqName, dlqId, dlqBacklog, dlqMessageIds: dlqMsgs.map((mm) => mm.id), expectedMessageId: messageIdObserved, dlqPollAttempts: dlqPullAttempts },
+        ? `A handler that throws a retryable error causes - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, payload-id-match=true for ${publishJobId})`
+        : `A handler that throws a retryable error causes - published payload jobId ${publishJobId} did not appear on the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} observedDlqPayloadIds=${JSON.stringify(dlqPayloadIds)} primary pulls=${attemptsObserved.length}`,
+      evidence: { dlqName, dlqId, dlqBacklog, dlqTransportMessageIds: dlqMsgs.map((mm) => mm.id), dlqPayloadJobIds: dlqPayloadIds, expectedPayloadJobId: publishJobId, primaryTransportMessageId: messageIdObserved, payloadIdMatch: idMatch, dlqPollAttempts: dlqPullAttempts },
     });
   } finally {
     // 6. Teardown: delete both queues; confirm absent from listing.

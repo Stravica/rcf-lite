@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "prepared-statement-scan",
-  "runAt": "2026-09-11T14:04:58.699Z",
+  "runAt": "2026-09-11T14:25:21.917Z",
   "engine": {
     "kind": "source-scan",
     "target": "infra-postgres/src",

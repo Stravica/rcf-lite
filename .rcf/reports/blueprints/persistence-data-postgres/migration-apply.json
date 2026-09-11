@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "migration-apply",
-  "runAt": "2026-09-06T17:46:06.738Z",
+  "runAt": "2026-09-11T14:25:21.894Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -11,18 +11,128 @@
     {
       "anchorAcId": "AC-27102-1",
       "verdict": "pass",
-      "detail": "applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"] expected=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+      "detail": "Given a fresh Postgres database at schema_version 0 - applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"] expected=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]",
+      "evidence": {
+        "applied": [
+          "001_create_users.sql",
+          "002_add_email_unique.sql",
+          "003_add_created_at.sql"
+        ],
+        "expected": [
+          "001_create_users.sql",
+          "002_add_email_unique.sql",
+          "003_add_created_at.sql"
+        ],
+        "phase": "happy-path"
+      }
     },
     {
       "anchorAcId": "AC-27102-1",
       "verdict": "pass",
-      "detail": "migrationsApplied fired with applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+      "detail": "Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]",
+      "evidence": {
+        "migrationsAppliedEvent": {
+          "event": "migrationsApplied",
+          "ts": 1789136721849,
+          "applied": [
+            "001_create_users.sql",
+            "002_add_email_unique.sql",
+            "003_add_created_at.sql"
+          ]
+        },
+        "phase": "happy-path"
+      }
     },
     {
       "anchorAcId": "AC-27102-1",
       "verdict": "pass",
-      "detail": "schema_version rows=3 (expected 3, i.e. schema_version advanced to 3)"
+      "detail": "Given a fresh Postgres database at schema_version 0 - schema_version rows=3 (expected 3, i.e. schema_version advanced to 3)",
+      "evidence": {
+        "schemaVersionRows": [
+          {
+            "filename": "001_create_users.sql",
+            "applied_at": "2026-09-11T14:25:21.843Z"
+          },
+          {
+            "filename": "002_add_email_unique.sql",
+            "applied_at": "2026-09-11T14:25:21.846Z"
+          },
+          {
+            "filename": "003_add_created_at.sql",
+            "applied_at": "2026-09-11T14:25:21.848Z"
+          }
+        ],
+        "phase": "happy-path"
+      }
+    },
+    {
+      "anchorAcId": "AC-27109-1",
+      "verdict": "pass",
+      "detail": "Given a migrations directory whose second file contains - induced failure at 002 proves per-migration transaction isolation: 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), failing filename recorded on the thrown error and on migrationApplyFailed",
+      "evidence": {
+        "failingFilename": "002_add_email_unique.sql",
+        "appliedSoFar": [
+          "001_create_users.sql"
+        ],
+        "migrationApplyFailedEvent": {
+          "event": "migrationApplyFailed",
+          "ts": 1789136721871,
+          "filename": "002_add_email_unique.sql",
+          "code": "42601"
+        },
+        "usersExists": true,
+        "emailColumnExists": false,
+        "uniqueConstraintsOnUsers": [],
+        "schemaVersionRows": [
+          {
+            "filename": "001_create_users.sql"
+          }
+        ]
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "happyPath": {
+      "applied": [
+        "001_create_users.sql",
+        "002_add_email_unique.sql",
+        "003_add_created_at.sql"
+      ],
+      "schemaVersionRows": [
+        {
+          "filename": "001_create_users.sql",
+          "applied_at": "2026-09-11T14:25:21.843Z"
+        },
+        {
+          "filename": "002_add_email_unique.sql",
+          "applied_at": "2026-09-11T14:25:21.846Z"
+        },
+        {
+          "filename": "003_add_created_at.sql",
+          "applied_at": "2026-09-11T14:25:21.848Z"
+        }
+      ]
+    },
+    "atomicity": {
+      "failingFilename": "002_add_email_unique.sql",
+      "appliedSoFar": [
+        "001_create_users.sql"
+      ],
+      "migrationApplyFailedEvent": {
+        "event": "migrationApplyFailed",
+        "ts": 1789136721871,
+        "filename": "002_add_email_unique.sql",
+        "code": "42601"
+      },
+      "usersExists": true,
+      "emailColumnExists": false,
+      "uniqueConstraintsOnUsers": [],
+      "schemaVersionRows": [
+        {
+          "filename": "001_create_users.sql"
+        }
+      ]
+    }
+  }
 }

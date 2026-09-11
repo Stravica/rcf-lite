@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "recovery-restore-round-trip",
-  "runAt": "2026-09-06T17:46:09.600Z",
+  "runAt": "2026-09-11T14:26:00.176Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -11,18 +11,114 @@
     {
       "anchorAcId": "AC-27105-1",
       "verdict": "pass",
-      "detail": "pg_dump artefact written to .rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql (3040 bytes)"
+      "detail": "Given a live Postgres containing a small fixture rowset - shipped exportDatabase emitted backupExported with artefactPath=.rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql completedAt=2026-09-11T14:25:57.729Z",
+      "evidence": {
+        "artefactPath": ".rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql",
+        "artefactBytesOnDisk": 3042,
+        "bytesReportedByRunner": 3042,
+        "backupExportedEvent": {
+          "event": "backupExported",
+          "ts": 1789136757729,
+          "artefactPath": ".rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql",
+          "completedAt": "2026-09-11T14:25:57.729Z"
+        }
+      }
     },
     {
       "anchorAcId": "AC-27105-1",
       "verdict": "pass",
-      "detail": "row-count source=5 restored=5"
+      "detail": "Given a live Postgres containing a small fixture rowset - row-count source=5 restored=5",
+      "evidence": {
+        "srcCount": 5,
+        "dstCount": 5,
+        "restoreContainer": "qa-e-infra-data-restore",
+        "restorePort": "47212"
+      }
     },
     {
       "anchorAcId": "AC-27105-1",
       "verdict": "pass",
-      "detail": "checksum source=5530cde3560c06e26bc910de6617aae9 restored=5530cde3560c06e26bc910de6617aae9"
+      "detail": "Given a live Postgres containing a small fixture rowset - checksum source=5530cde3560c06e26bc910de6617aae9 restored=5530cde3560c06e26bc910de6617aae9",
+      "evidence": {
+        "srcChecksumMd5": "5530cde3560c06e26bc910de6617aae9",
+        "dstChecksumMd5": "5530cde3560c06e26bc910de6617aae9"
+      }
+    },
+    {
+      "anchorReqId": "persistence-data-postgres-REQ-005",
+      "verdict": "pass",
+      "detail": "The recovery model is two-path and both paths - teardown ok: TRUNCATE users on source (exit=0); close source pool (exit=0); docker rm -f -v qa-e-infra-data-restore (exit=0); docker inspect qa-e-infra-data-restore (expected: absent) (exit=0); rm -rf .rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql (exit=0)",
+      "evidence": {
+        "teardown": [
+          {
+            "step": "TRUNCATE users on source",
+            "ok": true,
+            "exitCode": 0,
+            "error": null
+          },
+          {
+            "step": "close source pool",
+            "ok": true,
+            "exitCode": 0,
+            "error": null
+          },
+          {
+            "step": "docker rm -f -v qa-e-infra-data-restore",
+            "ok": true,
+            "exitCode": 0,
+            "error": null
+          },
+          {
+            "step": "docker inspect qa-e-infra-data-restore (expected: absent)",
+            "ok": true,
+            "exitCode": 0,
+            "error": null
+          },
+          {
+            "step": "rm -rf .rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql",
+            "ok": true,
+            "exitCode": 0,
+            "error": null
+          }
+        ]
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "teardown": [
+      {
+        "step": "TRUNCATE users on source",
+        "ok": true,
+        "exitCode": 0,
+        "error": null
+      },
+      {
+        "step": "close source pool",
+        "ok": true,
+        "exitCode": 0,
+        "error": null
+      },
+      {
+        "step": "docker rm -f -v qa-e-infra-data-restore",
+        "ok": true,
+        "exitCode": 0,
+        "error": null
+      },
+      {
+        "step": "docker inspect qa-e-infra-data-restore (expected: absent)",
+        "ok": true,
+        "exitCode": 0,
+        "error": null
+      },
+      {
+        "step": "rm -rf .rcf/reports/blueprints/persistence-data-postgres/recovery/backup.sql",
+        "ok": true,
+        "exitCode": 0,
+        "error": null
+      }
+    ],
+    "restoreContainer": "qa-e-infra-data-restore",
+    "restorePort": "47212"
+  }
 }

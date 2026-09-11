@@ -1,19 +1,128 @@
 {
   "slug": "object-storage-s3",
   "probeName": "r2-real-account-smoke",
-  "runAt": "2026-09-06T18:42:15.875Z",
+  "runAt": "2026-09-11T14:31:49.298Z",
   "engine": {
     "kind": "s3",
-    "image": "cloudflare-r2",
-    "healthy": true
+    "vendor": "cloudflare-r2",
+    "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com",
+    "listBuckets": {
+      "ok": true,
+      "httpStatus": 200,
+      "bucketCount": 0,
+      "responseTimeMs": 1410
+    }
   },
   "results": [
     {
-      "anchorAcId": "AC-28108-1",
+      "anchorReqId": "object-storage-s3-REQ-002",
       "verdict": "pass",
-      "detail": "accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)",
-      "accountBoundSkipped": true
+      "detail": "The facade exposes named domain verbs (putObject, - scratch bucket probe-scratch-p142hf present in ListBuckets after CreateBucket (positive inventory diff)",
+      "evidence": {
+        "scratchBucket": "probe-scratch-p142hf",
+        "seenAfterCreate": true,
+        "bucketCount": 1,
+        "createBucketHttpStatus": 200,
+        "listBucketsHttpStatus": 200,
+        "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com"
+      }
+    },
+    {
+      "anchorAcId": "AC-28108-2",
+      "verdict": "pass",
+      "detail": "Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint - R2 round-trip byte-equal against probe-scratch-p142hf through the shipped facade; putObject returned size=1024, getObject body length=1024",
+      "evidence": {
+        "scratchBucket": "probe-scratch-p142hf",
+        "key": "probe-scratch/r2-smoke/1789137107682-j0xebm71",
+        "putReturnedSize": 1024,
+        "getSize": 1024,
+        "byteEqual": true,
+        "objectPutEvent": {
+          "event": "objectPut",
+          "ts": 1789137108014,
+          "key": "probe-scratch/r2-smoke/1789137107682-j0xebm71",
+          "size": 1024,
+          "contentType": "application/octet-stream"
+        },
+        "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com"
+      }
+    },
+    {
+      "anchorAcId": "AC-28108-2",
+      "verdict": "pass",
+      "detail": "Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint - object inventory diff proves create+delete: key present before delete, absent after (listObjects returned 1 then 0 keys)",
+      "evidence": {
+        "scratchBucket": "probe-scratch-p142hf",
+        "key": "probe-scratch/r2-smoke/1789137107682-j0xebm71",
+        "seenBefore": true,
+        "seenAfter": false,
+        "keysBeforeCount": 1,
+        "keysAfterCount": 0,
+        "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com"
+      }
+    },
+    {
+      "anchorReqId": "object-storage-s3-REQ-002",
+      "verdict": "pass",
+      "detail": "The facade exposes named domain verbs (putObject, - scratch bucket probe-scratch-p142hf deleted and confirmed absent from post-run ListBuckets (deleteBucket http=204, listBuckets http=200)",
+      "evidence": {
+        "teardown": {
+          "deleteObject": {
+            "key": "probe-scratch/r2-smoke/1789137107682-j0xebm71",
+            "ok": true
+          },
+          "deleteBucket": {
+            "bucket": "probe-scratch-p142hf",
+            "ok": true,
+            "httpStatus": 204
+          },
+          "bucketAbsentAfter": {
+            "ok": true,
+            "bucketCount": 0,
+            "httpStatus": 200
+          }
+        },
+        "scratchBucket": "probe-scratch-p142hf",
+        "deleteBucketHttpStatus": 204,
+        "postRunListHttpStatus": 200
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "evidence": {
+      "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com",
+      "scratchBucket": "probe-scratch-p142hf",
+      "envDeclared": [
+        "CI_HAS_CLOUDFLARE_ACCOUNT",
+        "R2_ACCOUNT_ID",
+        "R2_BUCKET",
+        "S3_ACCESS_KEY_ID",
+        "S3_SECRET_ACCESS_KEY"
+      ]
+    },
+    "envDeclared": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "R2_ACCOUNT_ID",
+      "R2_BUCKET",
+      "S3_ACCESS_KEY_ID",
+      "S3_SECRET_ACCESS_KEY"
+    ],
+    "teardown": {
+      "deleteObject": {
+        "key": "probe-scratch/r2-smoke/1789137107682-j0xebm71",
+        "ok": true
+      },
+      "deleteBucket": {
+        "bucket": "probe-scratch-p142hf",
+        "ok": true,
+        "httpStatus": 204
+      },
+      "bucketAbsentAfter": {
+        "ok": true,
+        "bucketCount": 0,
+        "httpStatus": 200
+      }
+    }
+  }
 }

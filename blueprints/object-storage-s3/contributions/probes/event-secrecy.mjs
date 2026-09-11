@@ -41,14 +41,14 @@ export default async function runProbe() {
     await store.ready();
     // Drive one PutObject via SDK directly for per-row vendor
     // evidence, then delete it, then run the shipped-facade path.
-    const s3 = await import('@aws-sdk/client-s3');
+    const { sdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
     const client = store.getClient();
-    const rawPut = await client.send(new s3.PutObjectCommand({ Bucket: bucket, Key: `${key}.evidence`, Body: body, ContentType: 'image/jpeg' }));
+    const rawPut = await client.send(new sdk.PutObjectCommand({ Bucket: bucket, Key: `${key}.evidence`, Body: body, ContentType: 'image/jpeg' }));
     vendorReq.put = { httpStatus: rawPut.$metadata && rawPut.$metadata.httpStatusCode, requestId: rawPut.$metadata && rawPut.$metadata.requestId };
-    const rawGet = await client.send(new s3.GetObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    const rawGet = await client.send(new sdk.GetObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
     vendorReq.get = { httpStatus: rawGet.$metadata && rawGet.$metadata.httpStatusCode, requestId: rawGet.$metadata && rawGet.$metadata.requestId };
     try { await rawGet.Body.transformToByteArray(); } catch { /* drain */ }
-    const rawDel = await client.send(new s3.DeleteObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    const rawDel = await client.send(new sdk.DeleteObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
     vendorReq.del = { httpStatus: rawDel.$metadata && rawDel.$metadata.httpStatusCode, requestId: rawDel.$metadata && rawDel.$metadata.requestId };
 
     await store.putObject(key, 'image/jpeg', body);
