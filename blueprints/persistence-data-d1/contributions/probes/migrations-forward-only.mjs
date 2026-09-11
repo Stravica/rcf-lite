@@ -1,6 +1,6 @@
 // Migrations-forward-only probe for persistence-data-d1.
 //
-// AC-13102-2 requires the wrangler `list → apply → list` sequence
+// AC-13102-2 requires the wrangler `list -> apply -> list` sequence
 // against a fresh local D1. This probe uses the fixture's openFacade
 // (which drives a sqlite-backed d1 binding), not wrangler; per
 // closure-3 §(2) the row is de-claimed (anchorAcId=null,
@@ -21,7 +21,7 @@ import { openFacade } from '../../../../packages/rcf-lite/test/fixtures/probe-pa
 
 export const anchorAcId = 'REQ-002-persistence-data-d1';
 export const accountBound = false;
-const AC2_LIM = `AC-13102-2 requires the wrangler 'list → apply → list' sequence against a fresh local D1 (wrangler CLI observed). openFacade is the fixture-embedded migration runner; a wrangler CLI is not spawned.`;
+const AC2_LIM = `AC-13102-2 requires the wrangler 'list -> apply -> list' sequence against a fresh local D1 (wrangler CLI observed). openFacade is the fixture-embedded migration runner; a wrangler CLI is not spawned.`;
 const AC3_LIM = `AC-13102-3 requires reading the configured bookkeeping table (migrations_table; default d1_migrations). The fixture's internal table is schema_migrations, not the configured d1_migrations.`;
 
 export default async function runProbe() {

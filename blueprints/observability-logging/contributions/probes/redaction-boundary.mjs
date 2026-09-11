@@ -84,7 +84,7 @@ export default async function runProbe() {
     conformanceOnly: true,
     limitation: AC3_LIM_NOTE,
     verdict: line1.note === 'this stays' ? 'pass' : 'fail',
-    detail: `observed negative-control top-level field 'note'='${line1.note}' (no category tag at all — passes through unredacted).`,
+    detail: `observed negative-control top-level field 'note'='${line1.note}' (no category tag at all -- passes through unredacted).`,
     evidence: { note: line1.note, valueOnLine: line1.note, line: { correlationId: line1.correlationId ?? null, level: line1.level, message: line1.message, note: line1.note } },
   });
 

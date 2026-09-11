@@ -7,7 +7,7 @@
 // (anchorAcId=null, conformanceOnly true) with the limitation.
 //
 // AC-13101-2 (named domain verbs) is observable: the probe calls
-// facade.insertItem, facade.findItemByName, facade.deleteItem — no
+// facade.insertItem, facade.findItemByName, facade.deleteItem -- no
 // raw SQL leaves the facade. Kept.
 //
 // AC-13101-4 (missing binding refusal with d1BindingMissing) is

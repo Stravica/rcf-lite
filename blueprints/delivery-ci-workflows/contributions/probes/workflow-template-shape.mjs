@@ -87,7 +87,7 @@ export default async function runProbe() {
     anchorAcId: null,
     notObservableHere: {
       ac: 'AC-6101-2',
-      reason: 'the merge policy blocks a merge whose most recent required check is not success — the property requires a probe-controlled repository with branch protection wired and an attempted protected merge; a shelf probe cannot create branch protection or issue a protected merge.',
+      reason: 'the merge policy blocks a merge whose most recent required check is not success -- the property requires a probe-controlled repository with branch protection wired and an attempted protected merge; a shelf probe cannot create branch protection or issue a protected merge.',
     },
     verdict: 'warn',
     detail: `${REQ9}  -  AC-6101-2 is not observable from a shelf probe without a probe-controlled repository with branch protection wired and an attempted protected merge; recorded as notObservableHere. A repository-scoped closure would need a scratch repo, branch protection, a failing pipeline record and an attempted merge refused by the platform.`,
