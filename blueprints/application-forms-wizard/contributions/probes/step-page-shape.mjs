@@ -47,7 +47,7 @@ export default async function runProbe() {
       anchorAcId: 'application-forms-wizard-AC-24102-1',
       anchorReqId: 'application-forms-wizard-REQ-002',
       verdict: pristineRes.status === 200 && !pristine.hasErrorSummary && !pristine.ariaInvalid && pristine.stateMarker === 'pristine' ? 'pass' : 'fail',
-      detail: `pristine step 1 observed: ${JSON.stringify(pristine)}`,
+      detail: `On the wizard step route, focusing a field - pristine step 1 observed: ${JSON.stringify(pristine)}`,
       evidence: evidenceFromResponse({
         route: '/step/1',
         response: pristineRes,
@@ -64,7 +64,7 @@ export default async function runProbe() {
       anchorAcId: 'application-forms-wizard-AC-24102-1',
       anchorReqId: 'application-forms-wizard-REQ-002',
       verdict: blurRes.status === 200 && blur.ariaDescribedBy && !blur.ariaInvalid && blur.errorMessage && blur.stateMarker === 'blur' ? 'pass' : 'fail',
-      detail: `blur transition observed: ${JSON.stringify(blur)}`,
+      detail: `On the wizard step route, focusing a field - blur transition observed: ${JSON.stringify(blur)}`,
       evidence: evidenceFromResponse({
         route: '/step/1?blurred=1',
         response: blurRes,
@@ -81,7 +81,7 @@ export default async function runProbe() {
       anchorAcId: 'application-forms-wizard-AC-24102-1',
       anchorReqId: 'application-forms-wizard-REQ-002',
       verdict: refusedRes.status === 200 && refused.hasErrorSummary && refused.ariaInvalid && refused.ariaDescribedBy && refused.stateMarker === 'submit-failure' ? 'pass' : 'fail',
-      detail: `submit-failure observed: ${JSON.stringify(refused)}`,
+      detail: `On the wizard step route, focusing a field - submit-failure observed: ${JSON.stringify(refused)}`,
       evidence: evidenceFromResponse({
         route: '/step/1?refused=1',
         response: refusedRes,
@@ -98,7 +98,7 @@ export default async function runProbe() {
       anchorAcId: 'application-forms-wizard-AC-24102-1',
       anchorReqId: 'application-forms-wizard-REQ-002',
       verdict: correctedRes.status === 200 && !corrected.hasErrorSummary && !corrected.ariaInvalid && !corrected.errorMessage && corrected.stateMarker === 'rebuilt' ? 'pass' : 'fail',
-      detail: `rebuild observed: ${JSON.stringify(corrected)}`,
+      detail: `On the wizard step route, focusing a field - rebuild observed: ${JSON.stringify(corrected)}`,
       evidence: evidenceFromResponse({
         route: '/step/1?corrected=1',
         response: correctedRes,
@@ -130,8 +130,8 @@ export default async function runProbe() {
       anchorReqId: 'application-forms-wizard-REQ-002',
       verdict: rebuildOk ? 'pass' : 'fail',
       detail: rebuildOk
-        ? `/validate rebuild: {fullName:""} -> errorCount=1 fullName error; {fullName:"Alex Example"} -> errorCount=0 rebuildOf=1`
-        : `/validate rebuild fault: failCount=${failParsed.errorCount} okCount=${okParsed.errorCount} rebuildOf=${okParsed.rebuildOf}`,
+        ? `On the wizard step route, focusing a field - /validate rebuild: {fullName:""} -> errorCount=1 fullName error; {fullName:"Alex Example"} -> errorCount=0 rebuildOf=1`
+        : `On the wizard step route, focusing a field - /validate rebuild fault: failCount=${failParsed.errorCount} okCount=${okParsed.errorCount} rebuildOf=${okParsed.rebuildOf}`,
       evidence: evidenceFromResponse({
         route: '/validate',
         response: okRes,

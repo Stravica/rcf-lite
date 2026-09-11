@@ -42,8 +42,8 @@ export default async function runProbe() {
       anchorReqId: 'application-file-upload-REQ-004',
       verdict: chunkOk ? 'pass' : 'fail',
       detail: chunkOk
-        ? `multipart chunk count derived from three POSTs advanced 1->2->3 under sessionId=${sessionId}`
-        : `multipart chunk fault: counts=${JSON.stringify(chunkCounts)}`,
+        ? `On the ?transport=multipart branch the fixture returns 200 - multipart chunk count derived from three POSTs advanced 1->2->3 under sessionId=${sessionId}`
+        : `On the ?transport=multipart branch the fixture returns 200 - multipart chunk fault: counts=${JSON.stringify(chunkCounts)}`,
       evidence: evidenceFromResponse({
         route: `/upload/chunk (sessionId=${sessionId})`,
         response: lastChunkRes,
@@ -84,8 +84,8 @@ export default async function runProbe() {
       anchorReqId: 'application-file-upload-REQ-004',
       verdict: tusOk ? 'pass' : 'fail',
       detail: tusOk
-        ? `tus offset written durably: PATCH 4096 -> GET storedOffset=4096; PATCH 8192 -> GET storedOffset=8192 (uploadId=${uploadId})`
-        : `tus fault: patch1=${patch1.status}/offset=${patch1.headers.get('upload-offset')} stored1=${get1Parsed.storedOffset} patch2=${patch2.status} stored2=${get2Parsed.storedOffset}`,
+        ? `Upload-Offset on the tus branch matches the byte - tus offset written durably: PATCH 4096 -> GET storedOffset=4096; PATCH 8192 -> GET storedOffset=8192 (uploadId=${uploadId})`
+        : `Upload-Offset on the tus branch matches the byte - tus fault: patch1=${patch1.status}/offset=${patch1.headers.get('upload-offset')} stored1=${get1Parsed.storedOffset} patch2=${patch2.status} stored2=${get2Parsed.storedOffset}`,
       evidence: evidenceFromResponse({
         route: `/upload/tus (uploadId=${uploadId})`,
         response: get2,

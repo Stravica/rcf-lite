@@ -48,8 +48,8 @@ export default async function runProbe() {
       anchorReqId: 'application-file-upload-REQ-002',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `${(fileRows - refusedRows)} of ${fileRows} acceptable rows carry role=progressbar; server-side chunksUploaded advanced 1->2->3 under sessionId=${sessionId}`
-        : `progress fault: rows=${fileRows} refused=${refusedRows} progressBars=${progressBars} counts=${JSON.stringify(counts)}`,
+        ? `The upload region ships a [data-live-region="polite"] wrapper with - ${(fileRows - refusedRows)} of ${fileRows} acceptable rows carry role=progressbar; server-side chunksUploaded advanced 1->2->3 under sessionId=${sessionId}`
+        : `The upload region ships a [data-live-region="polite"] wrapper with - progress fault: rows=${fileRows} refused=${refusedRows} progressBars=${progressBars} counts=${JSON.stringify(counts)}`,
       evidence: evidenceFromResponse({
         route: '/upload/chunk (three POSTs)',
         response: lastRes,

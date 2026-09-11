@@ -41,8 +41,8 @@ export default async function runProbe() {
       anchorReqId: 'application-forms-wizard-REQ-001',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `task-list surface carries progressbar (valuemax=${progressbar[2]}) and ${rows.length} step rows in manifest order with states from the closed enum`
-        : `task-list fault: surface=${surface} progressbar=${!!progressbar} rows=${rows.length} statesValid=${statesValid} orderMatches=${orderMatches}`,
+        ? `Given the wizard task-list route, the rendered surface - task-list surface carries progressbar (valuemax=${progressbar[2]}) and ${rows.length} step rows in manifest order with states from the closed enum`
+        : `Given the wizard task-list route, the rendered surface - task-list fault: surface=${surface} progressbar=${!!progressbar} rows=${rows.length} statesValid=${statesValid} orderMatches=${orderMatches}`,
       evidence: evidenceFromResponse({
         route: '/task-list',
         response: res,

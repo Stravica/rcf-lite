@@ -177,7 +177,7 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
       assert.ok(shaped, name + ' result ' + JSON.stringify(r).slice(0, 200) + ' missing evidence or accountBoundSkipped');
       if (r.evidence) {
         const ev = r.evidence;
-        // Rule 7d addendum (Codex closure 2026-09-11): every real
+        // Rule 7d addendum (external review 2026-09-11): every real
         // evidence row carries a route, a status and either a
         // fixture-stamped request id or a named fallback reason.
         assert.ok(typeof ev.route === 'string' && ev.route.length > 0,

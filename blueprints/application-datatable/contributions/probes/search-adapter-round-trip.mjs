@@ -41,8 +41,8 @@ export default async function runProbe() {
       anchorReqId: 'application-datatable-REQ-003',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `search q="${q}" narrowed ${totalUnfiltered} to ${totalFiltered}; every returned row.name contains "${q}"`
-        : `search fault: echoed=${echoed} totalUnfiltered=${totalUnfiltered} totalFiltered=${totalFiltered} narrowed=${narrowed} allMatch=${allMatch} droppedContainsRows=${droppedNamesInclude}`,
+        ? `Given a rendered datatable route with a text - search q="${q}" narrowed ${totalUnfiltered} to ${totalFiltered}; every returned row.name contains "${q}"`
+        : `Given a rendered datatable route with a text - search fault: echoed=${echoed} totalUnfiltered=${totalUnfiltered} totalFiltered=${totalFiltered} narrowed=${narrowed} allMatch=${allMatch} droppedContainsRows=${droppedNamesInclude}`,
       evidence: evidenceFromResponse({
         route: `/api/rows?q=${q}&pageSize=100`,
         response: withQ,

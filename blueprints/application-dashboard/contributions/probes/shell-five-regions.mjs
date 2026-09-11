@@ -58,8 +58,8 @@ export default async function runProbe() {
       anchorReqId: 'application-dashboard-REQ-001',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `shell carries ${regions.length} <section role="region"> elements with unique aria-labels and every expected data-region marker`
-        : `region fault: sectionRoles=${regions.length} missing=${JSON.stringify(missing)} allLabelled=${allLabelled} labelsUnique=${labelsUnique}`,
+        ? `Given a rendered dashboard surface, the DOM carries - shell carries ${regions.length} <section role="region"> elements with unique aria-labels and every expected data-region marker`
+        : `Given a rendered dashboard surface, the DOM carries - region fault: sectionRoles=${regions.length} missing=${JSON.stringify(missing)} allLabelled=${allLabelled} labelsUnique=${labelsUnique}`,
       evidence: evidenceFromResponse({
         route: '/',
         response: res,

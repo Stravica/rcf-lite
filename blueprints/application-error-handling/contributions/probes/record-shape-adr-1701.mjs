@@ -37,7 +37,7 @@ export default async function runProbe() {
       verdict: res.status === 200 && exact ? 'pass' : 'fail',
       detail: res.status === 200 && exact
         ? 'record has exactly six ADR-1701 fields with a non-empty correlationId'
-        : `record-shape fault: status=${res.status} missing=${JSON.stringify(missing)} extras=${JSON.stringify(extras)} category=${rec.category} correlationId=${rec.correlationId}`,
+        : `The internal error record has a stable shape: - record-shape fault: status=${res.status} missing=${JSON.stringify(missing)} extras=${JSON.stringify(extras)} category=${rec.category} correlationId=${rec.correlationId}`,
       evidence: evidenceFromResponse({
         route: '/construct/transient',
         response: res,

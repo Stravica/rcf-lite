@@ -43,7 +43,7 @@ export default async function runProbe() {
       verdict: fwOk ? 'pass' : 'fail',
       detail: fwOk
         ? 'framework boundary returned 500 with a mapped envelope and no stack/path/URL leak'
-        : `framework boundary fault: status=${fw.status} noStack=${noStack} noUsers=${noUsersPath} noHome=${noHomePath} noFileUrl=${noFileUrl} mappedShape=${mappedShape}`,
+        : `A handler that throws produces a wire response - framework boundary fault: status=${fw.status} noStack=${noStack} noUsers=${noUsersPath} noHome=${noHomePath} noFileUrl=${noFileUrl} mappedShape=${mappedShape}`,
       evidence: evidenceFromResponse({
         route: '/throw-handler',
         response: fw,
@@ -72,7 +72,7 @@ export default async function runProbe() {
       verdict: prOk ? 'pass' : 'fail',
       detail: prOk
         ? 'process boundary constructed one record under category=unknown and reported didExit=1'
-        : `process boundary fault: status=${pr.status} recOk=${recOk} didExit=${prParsed.didExit}`,
+        : `An uncaughtException on the Node runtime (or an - process boundary fault: status=${pr.status} recOk=${recOk} didExit=${prParsed.didExit}`,
       evidence: evidenceFromResponse({
         route: '/crash-process',
         response: pr,
@@ -96,8 +96,8 @@ export default async function runProbe() {
       anchorReqId: 'application-error-handling-REQ-004',
       verdict: emOk ? 'pass' : 'fail',
       detail: emOk
-        ? `both boundaries emitted through /emitted (${emitted.length} records total)`
-        : `emission fault: framework=${seenFw} process=${seenPr} total=${emitted.length}`,
+        ? `Error emission goes through the logging companion factory, - both boundaries emitted through /emitted (${emitted.length} records total)`
+        : `Error emission goes through the logging companion factory, - emission fault: framework=${seenFw} process=${seenPr} total=${emitted.length}`,
       evidence: evidenceFromResponse({
         route: '/emitted',
         response: em,

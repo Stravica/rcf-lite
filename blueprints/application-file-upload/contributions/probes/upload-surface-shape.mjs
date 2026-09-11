@@ -35,8 +35,8 @@ export default async function runProbe() {
       anchorReqId: 'application-file-upload-REQ-001',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `upload surface renders labelled input, drop-zone (aria-label="${dropZoneMatch[1]}") and open-picker button (aria-label="${pickerMatch[1]}"); Enter-to-focus JS wire is present in the fixture, but the DOM press cannot be observed from this server-only probe`
-        : `upload surface fault: surface=${surface} label=${label} input=${input} dropZone=${!!dropZoneMatch} picker=${!!pickerMatch}`,
+        ? `The upload region carries [data-surface="file-upload"] and inside it: - upload surface renders labelled input, drop-zone (aria-label="${dropZoneMatch[1]}") and open-picker button (aria-label="${pickerMatch[1]}"); Enter-to-focus JS wire is present in the fixture, but the DOM press cannot be observed from this server-only probe`
+        : `The upload region carries [data-surface="file-upload"] and inside it: - upload surface fault: surface=${surface} label=${label} input=${input} dropZone=${!!dropZoneMatch} picker=${!!pickerMatch}`,
       evidence: evidenceFromResponse({
         route: '/upload',
         response: res,

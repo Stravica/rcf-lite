@@ -33,8 +33,8 @@ export default async function runProbe() {
       anchorReqId: 'application-dashboard-REQ-005',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `export-handle region carries a labelled aria-haspopup="listbox" button and a role="listbox" naming [${formats.join(', ')}]`
-        : `export handle fault: regionPresent=${!!exportRegion} button=${hasBtn} listbox=${listbox} formats=${JSON.stringify(formats)}`,
+        ? `Given a rendered dashboard surface, the export handle - export-handle region carries a labelled aria-haspopup="listbox" button and a role="listbox" naming [${formats.join(', ')}]`
+        : `Given a rendered dashboard surface, the export handle - export handle fault: regionPresent=${!!exportRegion} button=${hasBtn} listbox=${listbox} formats=${JSON.stringify(formats)}`,
       evidence: evidenceFromResponse({
         route: '/',
         response: res,

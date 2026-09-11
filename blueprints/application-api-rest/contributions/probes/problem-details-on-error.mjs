@@ -34,7 +34,7 @@ export default async function runProbe() {
       verdict: shapeOk ? 'pass' : 'fail',
       detail: shapeOk
         ? 'GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
-        : `problem-details shape fault: status=${res.status} contentType=${cType} missing=${JSON.stringify(missing)}`,
+        : `Every 4xx and 5xx response body is an - problem-details shape fault: status=${res.status} contentType=${cType} missing=${JSON.stringify(missing)}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets/does-not-exist',
         response: res,
@@ -58,8 +58,8 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-009',
       verdict: equalOk ? 'pass' : 'fail',
       detail: equalOk
-        ? `envelope status=${parsed2.status} equals HTTP status ${res2.status}`
-        : `status-equality fault: httpStatus=${res2.status} envelopeStatus=${parsed2.status}`,
+        ? `The status field inside the envelope always equals - envelope status=${parsed2.status} equals HTTP status ${res2.status}`
+        : `The status field inside the envelope always equals - status-equality fault: httpStatus=${res2.status} envelopeStatus=${parsed2.status}`,
       evidence: evidenceFromResponse({
         route: '/unknown-route',
         response: res2,

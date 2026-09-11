@@ -41,8 +41,8 @@ export default async function runProbe() {
       anchorReqId: 'application-file-upload-REQ-005',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `assertive-slot present; after ?complete=3 textContent="${completeText}" matches /^\\d+ files uploaded successfully$/`
-        : `assertive-slot fault: idleShape=${idleShapeOk} completeText=${completeText}`,
+        ? `After the fixture completes the upload set the - assertive-slot present; after ?complete=3 textContent="${completeText}" matches /^\\d+ files uploaded successfully$/`
+        : `After the fixture completes the upload set the - assertive-slot fault: idleShape=${idleShapeOk} completeText=${completeText}`,
       evidence: evidenceFromResponse({
         route: '/upload?complete=3',
         response: completeRes,

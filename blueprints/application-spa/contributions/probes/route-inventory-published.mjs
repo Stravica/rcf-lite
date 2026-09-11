@@ -54,8 +54,8 @@ export default async function runProbe() {
       anchorReqId: 'application-spa-REQ-001',
       verdict: inventoryOk && parity ? 'pass' : 'fail',
       detail: inventoryOk && parity
-        ? `inventory of ${declaredPaths.length} routes matches the reachable crawl set`
-        : `inventory-vs-crawl mismatch: declared=[${declaredPaths.join(',')}] missing=[${missingFromReachable.join(',')}] extra=[${extraInReachable.join(',')}]`,
+        ? `The project maintains a declared route inventory naming - inventory of ${declaredPaths.length} routes matches the reachable crawl set`
+        : `The project maintains a declared route inventory naming - inventory-vs-crawl mismatch: declared=[${declaredPaths.join(',')}] missing=[${missingFromReachable.join(',')}] extra=[${extraInReachable.join(',')}]`,
       evidence: evidenceFromResponse({
         route: '/__routes',
         response: routesRes,
@@ -82,8 +82,8 @@ export default async function runProbe() {
       anchorReqId: 'application-spa-REQ-001',
       verdict: shellVsCrawl ? 'pass' : 'fail',
       detail: shellVsCrawl
-        ? `<meta name="route-inventory"> ${shellPaths.join(',')} matches the crawled reachable set`
-        : `inventory drift: meta=${shellPaths.join(',')} crawlReachable=${reachable.join(',')}`,
+        ? `The project maintains a declared route inventory naming - <meta name="route-inventory"> ${shellPaths.join(',')} matches the crawled reachable set`
+        : `The project maintains a declared route inventory naming - inventory drift: meta=${shellPaths.join(',')} crawlReachable=${reachable.join(',')}`,
       evidence: evidenceFromResponse({
         route: '/',
         response: shellRes,

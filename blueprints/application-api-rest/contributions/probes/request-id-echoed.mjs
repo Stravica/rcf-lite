@@ -28,8 +28,8 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-013',
       verdict: suppliedOk ? 'pass' : 'fail',
       detail: suppliedOk
-        ? `supplied x-request-id="${supplied}" echoed verbatim`
-        : `supplied echo fault: sent=${supplied} echoed=${suppliedEcho}`,
+        ? `A request arriving with a valid value in - supplied x-request-id="${supplied}" echoed verbatim`
+        : `A request arriving with a valid value in - supplied echo fault: sent=${supplied} echoed=${suppliedEcho}`,
       evidence: evidenceFromResponse({
         route: '/livez',
         response: suppliedRes,
@@ -50,8 +50,8 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-013',
       verdict: genOk ? 'pass' : 'fail',
       detail: genOk
-        ? `absent x-request-id: server generated ${generated}`
-        : `generated echo fault: header=${generated}`,
+        ? `A request arriving without the request-id header owned - absent x-request-id: server generated ${generated}`
+        : `A request arriving without the request-id header owned - generated echo fault: header=${generated}`,
       evidence: evidenceFromResponse({
         route: '/livez',
         response: genRes,

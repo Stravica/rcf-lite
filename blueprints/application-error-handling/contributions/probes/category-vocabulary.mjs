@@ -29,8 +29,8 @@ export default async function runProbe() {
         anchorReqId: 'application-error-handling-REQ-003',
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `/construct/${cat} returned record with category="${cat}"`
-          : `category fault: cat=${cat} status=${res.status} returnedCategory=${rec.category}`,
+          ? `Every error class is classified transient, permanent or - /construct/${cat} returned record with category="${cat}"`
+          : `Every error class is classified transient, permanent or - category fault: cat=${cat} status=${res.status} returnedCategory=${rec.category}`,
         evidence: evidenceFromResponse({
           route: `/construct/${cat}`,
           response: res,
@@ -60,7 +60,7 @@ export default async function runProbe() {
       verdict: refusalOk ? 'pass' : 'fail',
       detail: refusalOk
         ? 'unelicited category refused at record construction (400 with refused/accepted body)'
-        : `refusal fault: status=${bad.status} error=${badParsed.error} refused=${badParsed.refused} accepted=${JSON.stringify(badParsed.accepted)}`,
+        : `Given a project that elicited additional categories via - refusal fault: status=${bad.status} error=${badParsed.error} refused=${badParsed.refused} accepted=${JSON.stringify(badParsed.accepted)}`,
       evidence: evidenceFromResponse({
         route: '/construct/notARealCategory',
         response: bad,

@@ -33,8 +33,8 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-007',
       verdict: firstRes.status === 200 && envelopeOk ? 'pass' : 'fail',
       detail: firstRes.status === 200 && envelopeOk
-        ? `GET /v1/widgets?limit=5 returned items[5] with next="${first.next}" prev=null (REQ-007 envelope)`
-        : `envelope fault: status=${firstRes.status} itemsLen=${first.items ? first.items.length : 'null'} next=${first.next} prev=${first.prev}`,
+        ? `Every collection endpoint accepts ?cursor= and ?limit= and - GET /v1/widgets?limit=5 returned items[5] with next="${first.next}" prev=null (REQ-007 envelope)`
+        : `Every collection endpoint accepts ?cursor= and ?limit= and - envelope fault: status=${firstRes.status} itemsLen=${first.items ? first.items.length : 'null'} next=${first.next} prev=${first.prev}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=5',
         response: firstRes,
@@ -82,8 +82,8 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-007',
       verdict: traversalOk ? 'pass' : 'fail',
       detail: traversalOk
-        ? `traversal via next visited ${visited.size} unique items, final next=null after ${pages + 1} pages`
-        : `traversal fault: unique=${visited.size} dupes=${dupes} finalNext=${last.next} pages=${pages + 1}`,
+        ? `next is null on the last page and - traversal via next visited ${visited.size} unique items, final next=null after ${pages + 1} pages`
+        : `next is null on the last page and - traversal fault: unique=${visited.size} dupes=${dupes} finalNext=${last.next} pages=${pages + 1}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets (traversal tail)',
         response: lastRes,

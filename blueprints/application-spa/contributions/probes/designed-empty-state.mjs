@@ -33,7 +33,7 @@ export default async function runProbe() {
       verdict: pass ? 'pass' : 'fail',
       detail: pass
         ? 'GET /reports renders main[data-route-state="empty"] with per-context empty region and CTA'
-        : `empty-state fault: stateAttr=${stateAttr} emptyRegion=${hasEmptyRegion} cta=${hasCta} copy=${hasNamedCopy} status=${res.status}`,
+        : `Every data-bearing route renders designed loading, empty, error, - empty-state fault: stateAttr=${stateAttr} emptyRegion=${hasEmptyRegion} cta=${hasCta} copy=${hasNamedCopy} status=${res.status}`,
       evidence: evidenceFromResponse({
         route: '/reports',
         response: res,

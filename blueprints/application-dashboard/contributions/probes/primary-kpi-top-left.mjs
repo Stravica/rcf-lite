@@ -42,8 +42,8 @@ export default async function runProbe() {
       anchorReqId: 'application-dashboard-REQ-002',
       verdict: okPass ? 'pass' : 'fail',
       detail: okPass
-        ? `primary KPI tile is first in tile-row DOM order with grid-column-start:1, grid-row-start:1 and data-kpi-kind="${kindValue}"`
-        : `primary-first fault: primaryFirst=${isPrimaryFirst} colStart=${hasColumnStart} rowStart=${hasRowStart} kind=${kindValue}`,
+        ? `Given a rendered dashboard surface at each of - primary KPI tile is first in tile-row DOM order with grid-column-start:1, grid-row-start:1 and data-kpi-kind="${kindValue}"`
+        : `Given a rendered dashboard surface at each of - primary-first fault: primaryFirst=${isPrimaryFirst} colStart=${hasColumnStart} rowStart=${hasRowStart} kind=${kindValue}`,
       evidence: evidenceFromResponse({
         route: '/',
         response: okRes,

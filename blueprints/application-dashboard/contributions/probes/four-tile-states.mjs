@@ -57,8 +57,8 @@ export default async function runProbe() {
         anchorReqId: 'application-dashboard-REQ-003',
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `state="${state}" region on tile=primary carries role, aria-live=polite, data-tile-state, cue and accessible name "${primary.accessibleName}"; supporting tile inspected`
-          : `state region fault at state="${state}": primary=${JSON.stringify(primary)} supporting=${JSON.stringify(supporting)}`,
+          ? `Given a rendered tile in each of the - state="${state}" region on tile=primary carries role, aria-live=polite, data-tile-state, cue and accessible name "${primary.accessibleName}"; supporting tile inspected`
+          : `Given a rendered tile in each of the - state region fault at state="${state}": primary=${JSON.stringify(primary)} supporting=${JSON.stringify(supporting)}`,
         evidence: evidenceFromResponse({
           route: `/?tile=primary&state=${state}`,
           response: res,

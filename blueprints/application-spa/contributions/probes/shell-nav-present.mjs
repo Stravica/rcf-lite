@@ -42,8 +42,8 @@ export default async function runProbe() {
       anchorReqId: 'application-spa-REQ-002',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `primary <nav aria-label="Primary"> carries ${linksInNav.length} links matching inventory names [${inventoryNames.join(',')}]`
-        : `nav parity fault: navPresent=${hasNav} linksInNav=[${linksInNav.join(',')}] inventoryNames=[${inventoryNames.join(',')}]`,
+        ? `Top navigation renders on every route from the - primary <nav aria-label="Primary"> carries ${linksInNav.length} links matching inventory names [${inventoryNames.join(',')}]`
+        : `Top navigation renders on every route from the - nav parity fault: navPresent=${hasNav} linksInNav=[${linksInNav.join(',')}] inventoryNames=[${inventoryNames.join(',')}]`,
       evidence: evidenceFromResponse({
         route: '/',
         response: shellRes,

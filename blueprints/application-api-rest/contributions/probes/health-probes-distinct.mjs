@@ -36,8 +36,8 @@ export default async function runProbe() {
         anchorReqId: 'application-api-rest-REQ-006',
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `GET ${p.route} returned probe="${p.expectValue}" status="${p.label}" with the AC-specific body extension`
-          : `health fault at ${p.route}: httpStatus=${res.status} answered=${answered} extraShape=${extra} body=${body.slice(0, 120)}`,
+          ? `Probe endpoints: liveness, readiness, and startup with specified - GET ${p.route} returned probe="${p.expectValue}" status="${p.label}" with the AC-specific body extension`
+          : `Probe endpoints: liveness, readiness, and startup with specified - health fault at ${p.route}: httpStatus=${res.status} answered=${answered} extraShape=${extra} body=${body.slice(0, 120)}`,
         evidence: evidenceFromResponse({
           route: p.route,
           response: res,

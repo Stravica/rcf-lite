@@ -53,8 +53,8 @@ export default async function runProbe() {
       anchorReqId: 'application-datatable-REQ-002',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `sort=${sortField}: order changed vs unsorted AND matches a JS-side ascending comparator over the returned ${sortField} values`
-        : `sort fault: echoed=${echoed} changed=${changed} comparatorMatches=${comparatorMatches} unsorted=${unsorted.status} sorted=${sortedRes.status}`,
+        ? `Given a rendered datatable route with a sortable - sort=${sortField}: order changed vs unsorted AND matches a JS-side ascending comparator over the returned ${sortField} values`
+        : `Given a rendered datatable route with a sortable - sort fault: echoed=${echoed} changed=${changed} comparatorMatches=${comparatorMatches} unsorted=${unsorted.status} sorted=${sortedRes.status}`,
       evidence: evidenceFromResponse({
         route: `/api/rows?sort=${sortField}&pageSize=100`,
         response: sortedRes,

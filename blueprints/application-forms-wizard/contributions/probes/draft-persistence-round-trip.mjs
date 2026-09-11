@@ -53,8 +53,8 @@ export default async function runProbe() {
       anchorReqId: 'application-forms-wizard-REQ-005',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `draft persisted and overwritten: ${key1} first="${seed1.value}" then="${seed2.value}" updatedAt=${drafts2.updatedAt}`
-        : `draft round-trip fault: persisted1=${persisted1} stamped1=${stamped1} persisted2=${persisted2} overwritten=${overwritten}`,
+        ? `On ?draft-store=server, entering an answer on step 1 - draft persisted and overwritten: ${key1} first="${seed1.value}" then="${seed2.value}" updatedAt=${drafts2.updatedAt}`
+        : `On ?draft-store=server, entering an answer on step 1 - draft round-trip fault: persisted1=${persisted1} stamped1=${stamped1} persisted2=${persisted2} overwritten=${overwritten}`,
       evidence: evidenceFromResponse({
         route: '/drafts',
         response: get2,

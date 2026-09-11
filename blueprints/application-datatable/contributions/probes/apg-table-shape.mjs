@@ -40,8 +40,8 @@ export default async function runProbe() {
       anchorReqId: 'application-datatable-REQ-001',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `APG grid shape observed: table role=grid; scope=col headers=${colHeaders}; sortControls=${sortControls}; per-row interactivity ships`
-        : `APG shape fault: gridRole=${hasGrid} scopeColHeaders=${colHeaders} sortControls=${sortControls} interactivity=${interactivityShipped} status=${res.status}`,
+        ? `Given a datatable shell that renders interactive per-row - APG grid shape observed: table role=grid; scope=col headers=${colHeaders}; sortControls=${sortControls}; per-row interactivity ships`
+        : `Given a datatable shell that renders interactive per-row - APG shape fault: gridRole=${hasGrid} scopeColHeaders=${colHeaders} sortControls=${sortControls} interactivity=${interactivityShipped} status=${res.status}`,
       evidence: evidenceFromResponse({
         route: '/',
         response: res,

@@ -39,8 +39,8 @@ export default async function runProbe() {
         anchorReqId: 'application-datatable-REQ-005',
         verdict: pass ? 'pass' : 'fail',
         detail: pass
-          ? `state="${state}" renders <section role="region" aria-live="polite" id="${regionId}"> with text naming the state`
-          : `state region fault at ${state}: expected id="${regionId}" with role/aria-live and text; regionOk=${regionOk} textNamed=${textNamed} status=${res.status}`,
+          ? `Given a datatable route in each of the - state="${state}" renders <section role="region" aria-live="polite" id="${regionId}"> with text naming the state`
+          : `Given a datatable route in each of the - state region fault at ${state}: expected id="${regionId}" with role/aria-live and text; regionOk=${regionOk} textNamed=${textNamed} status=${res.status}`,
         evidence: evidenceFromResponse({
           route: `/?state=${state}`,
           response: res,
