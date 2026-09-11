@@ -66,6 +66,16 @@ export function isSkipped(results) {
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
+  // Addendum 2 rule 10: every row's detail starts with the first eight
+  // words of the anchored AC text. The prepend is idempotent so a
+  // caller that already wrapped its detail via `anchored()` does not
+  // double up.
+  for (const r of rows) {
+    const prefix = r && r.anchorAcId && AC_ANCHOR_PREFIX[r.anchorAcId];
+    if (prefix && typeof r.detail === 'string' && !r.detail.startsWith(prefix)) {
+      r.detail = `${prefix}. ${r.detail}`;
+    }
+  }
   const rawVerdict = aggregate(rows);
   const aggregateVerdict = isSkipped(rows) ? 'pass' : rawVerdict;
   const report = {
@@ -164,4 +174,27 @@ export function secondTierMissingSkipResult(anchorAcId, varName, note = '') {
 // updated). Prefer firstTierGateSkipResult / secondTierMissingSkipResult.
 export function accountBoundSkippedResult(anchorAcId, note) {
   return firstTierGateSkipResult(anchorAcId, 'CI_HAS_HETZNER_ACCOUNT', note);
+}
+
+// Addendum 2 rule 10: every result row's detail starts with the first
+// eight words of the anchored AC text. This map holds those prefixes
+// for the deploy-hetzner-server ACs and the shared AC-14501-1 chain
+// artefact (used elsewhere in the estate); callers wrap their detail
+// via `anchored(anchorAcId, detail)`.
+export const AC_ANCHOR_PREFIX = {
+  'AC-37101-1': 'On process boot the provisioner facade opens against',
+  'AC-37102-1': 'manifest-schema-validate.mjs asserts every hetzner/servers/*.json under the shared throwaway-server',
+  'AC-37103-1': 'The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT)',
+  'AC-37104-1': 'cloud-init-render-lint.mjs renders the template with the fixture manifest',
+  'AC-37105-1': 'real-account-cloud-init-hardened.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) waits for',
+  'AC-37106-1': 'manifest-schema-validate.mjs asserts every fixture manifest carries a firewallRules',
+  'AC-37107-1': 'manifest-schema-validate.mjs asserts every fixture manifest carries snapshotCadence with',
+  'AC-37108-1': 'real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the',
+  'AC-37109-1': 'hcloud-dry-run-mock.mjs drives every lifecycle event through the facade',
+  'AC-37109-3': 'Event fires once per lifecycle moment (repeat-run idempotency).',
+};
+
+export function anchored(anchorAcId, body) {
+  const prefix = AC_ANCHOR_PREFIX[anchorAcId];
+  return prefix ? `${prefix}. ${body}` : body;
 }

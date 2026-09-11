@@ -48,7 +48,7 @@ function assertRowsCarry7dShape(rows, label) {
   }
 }
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
+test('T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
   assert.equal(bp.version, '1.1.4');
@@ -65,7 +65,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11001-1 provisioner boot an
   assert.equal(otherTokenReaders.length, 0, `facade must not name HETZNER_ACCOUNT_API_KEY (it captures via the injected token; grep found: ${otherTokenReaders.join(' | ')})`);
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)', async () => {
+test('T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   const required = ['name', 'serverType', 'location', 'image', 'sshKeyIds', 'firewallId', 'cloudInitPath', 'labels', 'firewallRules', 'snapshotCadence'];
   for (const f of required) assert.ok(schema.required.includes(f), `schema.required missing ${f}`);
@@ -85,7 +85,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11101-1 manifest schema sha
   assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37107-1'), 'manifest-schema-validate must emit a snapshotCadence-anchored row');
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)', async () => {
+test('T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
   assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
   const provisionedResult = out.results.find((r) => r.anchorAcId === 'AC-37103-1' && r.detail.includes('hetznerServerProvisioned fired'));
@@ -95,7 +95,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11102-1 manifest applies to
   assert.match(provisionedResult.detail, /serverType=cx23/);
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)', async () => {
+test('T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)', async () => {
   const tmpl = await readFile(TEMPLATE_PATH, 'utf8');
   assert.match(tmpl, /PermitRootLogin no/);
   assert.match(tmpl, /PasswordAuthentication no/);
@@ -109,7 +109,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11201-1 cloud-init render b
   assert.ok(!bad, `cloud-init-render-lint should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)', async () => {
+test('T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-cloud-init-hardened.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -121,7 +121,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11202-1 cloud-init hardened
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)', async () => {
+test('T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'manifest-schema-validate.mjs')).href + '?ts=' + Date.now();
   const { validate } = await import(modUrl);
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
@@ -134,12 +134,12 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11301-1 firewall shape vali
   assert.ok(errors.some((e) => (e.message || '').includes('0.0.0.0/0')), `expected refusal for open-ssh mutation, got: ${JSON.stringify(errors)}`);
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)', async () => {
+test('T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)', async () => {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   assert.deepEqual(schema.properties.snapshotCadence.enum.sort(), ['daily', 'off', 'weekly']);
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)', async () => {
+test('T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-snapshot-on-demand.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -149,7 +149,7 @@ test('deploy-hetzner-server deploy-hetzner-server AC-11402-1 snapshot on demand 
   assert.equal(out.results[0].reason, 'CI_HAS_HETZNER_ACCOUNT');
 });
 
-test('deploy-hetzner-server deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)', async () => {
+test('T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
   assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
   const secrecy = out.results.find((r) => r.anchorAcId === 'AC-37109-1');
@@ -216,7 +216,7 @@ test('H-1 deploy-hetzner-server AC-14501-1 mock consumes the same rendered cloud
 // manifest, and skip reasons on the three real-account probes name
 // their gate variables literally with the honest set-but-not-true /
 // unset distinction.
-test('deploy-hetzner-server deploy-hetzner-server v1.1.4 env vars declared and skip reasons name variables literally', async () => {
+test('T-1 deploy-hetzner-server v1.1.4 env vars declared and skip reasons name variables literally', async () => {
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   const section = readme.split('## Declared env vars (deploy-hetzner-server probes)')[1] || '';
   assert.ok(section.length > 0, 'fixture README is missing the deploy-hetzner-server declared env vars section');

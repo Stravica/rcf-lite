@@ -71,6 +71,16 @@ export function isSkipped(results) {
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const rows = Array.isArray(results) && results.length > 0 ? results : [emptyResultsFail()];
+  // Addendum 2 rule 10: every row's detail starts with the first eight
+  // words of the anchored AC text. The prepend is idempotent so a
+  // caller that already wrapped its detail via `anchored()` does not
+  // double up.
+  for (const r of rows) {
+    const prefix = r && r.anchorAcId && AC_ANCHOR_PREFIX[r.anchorAcId];
+    if (prefix && typeof r.detail === 'string' && !r.detail.startsWith(prefix)) {
+      r.detail = `${prefix}. ${r.detail}`;
+    }
+  }
   const rawVerdict = aggregate(rows);
   const aggregateVerdict = isSkipped(rows) ? 'pass' : rawVerdict;
   const report = {
@@ -233,4 +243,25 @@ export function whichDocker() {
 export function whichCaddy() {
   const r = spawnSync('caddy', ['version'], { encoding: 'utf8' });
   return r.status === 0 ? (r.stdout || '').trim() : null;
+}
+
+// Addendum 2 rule 10: every result row's detail starts with the first
+// eight words of the anchored AC text. This map holds those prefixes
+// for the platform-docker-compose-host ACs; callers wrap their detail
+// via `anchored(anchorAcId, detail)`.
+export const AC_ANCHOR_PREFIX = {
+  'AC-composeHost-upClean': 'The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps',
+  'AC-composeHost-zeroDowntimeReload': 'The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs',
+  'AC-composeHost-healthcheckLint': 'The compose-config-lint probe shells to docker compose config',
+  'AC-composeHost-restartClassification': 'The compose-config-lint probe asserts every service in the',
+  'AC-composeHost-logDriverClassification': 'Every service in the applied compose.yaml declares a',
+  'AC-composeHost-reverseProxyArtefactValid': 'The applied fixture ships caddy/Caddyfile under a caddy/',
+  'AC-composeHost-secretsAreFiles': 'The secrets-as-files-scan probe walks compose.yaml plus every referenced',
+  'AC-composeHost-secretShape': 'The applied compose.yaml declares at least one secret',
+  'AC-38107-4': 'Read-only bind-mount: the reverse-proxy config bind-mount in compose.yaml',
+};
+
+export function anchored(anchorAcId, body) {
+  const prefix = AC_ANCHOR_PREFIX[anchorAcId];
+  return prefix ? `${prefix}. ${body}` : body;
 }

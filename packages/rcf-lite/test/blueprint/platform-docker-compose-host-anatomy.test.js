@@ -47,7 +47,7 @@ function assertRowsCarry7dShape(rows, label) {
   }
 }
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
+test('T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
   assert.equal(bp.version, '1.1.4');
@@ -63,7 +63,7 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12001-1 compo
   assert.match(text, /env_file:\s*\n\s+-\s+\.env/, 'compose.yaml references .env via env_file');
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)', async () => {
+test('T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)', async () => {
   const text = await readFile(COMPOSE, 'utf8');
   assert.match(text, /^secrets:\s*$/m, 'compose.yaml declares top-level secrets');
   assert.match(text, /^\s{2}web-token:\s*\n\s+file:\s+\.\/secrets\/web-token/m, 'web-token secret has file: source');
@@ -72,7 +72,7 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12101-1 secre
   assert.ok(secretPresent.length > 0, 'fixture secret file exists');
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)', async () => {
+test('T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)', async () => {
   const clean = await runProbe('secrets-as-files-scan');
   assertRowsCarry7dShape(clean.results, 'secrets-as-files clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected clean scan to pass, got: ${JSON.stringify(clean.results, null, 2)}`);
@@ -82,7 +82,7 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12102-1 secre
   assert.ok(fail, `expected mutation to fail with plaintext-literal detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)', async () => {
+test('T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)', async () => {
   const clean = await runProbe('compose-config-lint');
   assertRowsCarry7dShape(clean.results, 'compose-config-lint clean');
   assert.ok(!clean.results.some((r) => r.verdict === 'fail'), `expected canonical compose-config-lint to pass, got: ${JSON.stringify(clean.results.filter((r) => r.verdict === 'fail'), null, 2)}`);
@@ -92,7 +92,7 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12201-1 compo
   assert.ok(fail, `expected SIMULATE_MISSING_HEALTHCHECK to fail with missing-healthcheck detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)', async () => {
+test('T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-minimal-stack-up.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -110,14 +110,14 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12202-1 real-
   }
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)', async () => {
+test('T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_RESTART: 'true' });
   assertRowsCarry7dShape(mutated.results, 'compose-config-lint restart mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes('restart: always'));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_RESTART to fail with restart: always detail, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)', async () => {
+test('T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)', async () => {
   const cf = await readFile(CADDYFILE, 'utf8');
   assert.match(cf, /reverse_proxy web:8080/, 'Caddyfile references the web service');
   const clean = await runProbe('caddyfile-validate');
@@ -129,7 +129,7 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12401-1 caddy
   assert.ok(clean.results.some((r) => r.anchorAcId === 'AC-38107-4' && r.verdict === 'pass'), 'caddyfile-validate must observe the read-only bind-mount and pass on AC-38107-4');
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)', async () => {
+test('T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)', async () => {
   const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-reload-burst.mjs')).href;
   const mod = await import(modUrl);
   assert.equal(mod.accountBound, true);
@@ -147,14 +147,14 @@ test('platform-docker-compose-host platform-docker-compose-host AC-12402-1 real-
   }
 });
 
-test('platform-docker-compose-host platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)', async () => {
+test('T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)', async () => {
   const mutated = await runProbe('compose-config-lint', { SIMULATE_UNCLASSIFIED_LOG_DRIVER: 'true' });
   assertRowsCarry7dShape(mutated.results, 'compose-config-lint log-driver mutated');
   const fail = mutated.results.find((r) => r.verdict === 'fail' && r.detail.includes("logging driver 'syslog'"));
   assert.ok(fail, `expected SIMULATE_UNCLASSIFIED_LOG_DRIVER to fail naming syslog, got: ${JSON.stringify(mutated.results, null, 2)}`);
 });
 
-test('platform-docker-compose-host platform-docker-compose-host anatomy: README, CHANGELOG, guide and docs/topics.md land with expected contents', async () => {
+test('T-2 platform-docker-compose-host anatomy: README, CHANGELOG, guide and docs/topics.md land with expected contents', async () => {
   const readme = await readFile(README, 'utf8');
   assert.match(readme, /platform-docker-compose-host v1\.0\.0/);
   assert.match(readme, /containerHost/);
@@ -169,7 +169,7 @@ test('platform-docker-compose-host platform-docker-compose-host anatomy: README,
   assert.match(authoring, /\| `containerHost` \|/, 'blueprint-authoring section 6a gains the containerHost row');
 });
 
-test('platform-docker-compose-host platform-docker-compose-host v1.1.4 env vars declared and compose-stack driver wired (TC-150-env-vars-declared-and-real-driver-wired)', async () => {
+test('T-2 platform-docker-compose-host v1.1.4 env vars declared and compose-stack driver wired (TC-150-env-vars-declared-and-real-driver-wired)', async () => {
   const readme = await readFile(join(FIXTURE_ROOT, 'README.md'), 'utf8');
   const section = readme.split('## Declared env vars (platform-docker-compose-host probes)')[1] || '';
   assert.ok(section.length > 0, 'fixture README is missing the platform-docker-compose-host declared env vars section');
