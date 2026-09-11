@@ -14,7 +14,7 @@
 import { createServer } from 'node:http';
 import { createHash, randomBytes } from 'node:crypto';
 
-export function createMockAuthServer({ port = 47400, clientId = 'mock-client', redirectUri = 'http://127.0.0.1:47499/callback' } = {}) {
+export function createMockAuthServer({ port = 47400, clientId = 'mock-client', redirectUri = 'http://127.0.0.1:47499/callback', oidc = true, issuer = 'https://mock-issuer.example.test' } = {}) {
   const authCodes = new Map(); // code -> { verifierChallenge, method, principal, expiresAt }
   const tokens = new Map();    // access_token -> { principal, expiresAt }
   let requestCounter = 0;
@@ -39,11 +39,13 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         res.end(JSON.stringify({ error: 'invalid_request', requestId, saw: { respType, givenClient, givenRedirect, challenge: Boolean(challenge), method } }));
         return;
       }
+      const nonce = url.searchParams.get('nonce') || null;
       const code = `mock-code-${randomBytes(6).toString('hex')}`;
       authCodes.set(code, {
         verifierChallenge: challenge,
         method,
         principal: { sub: `mock-user-${randomBytes(3).toString('hex')}` },
+        nonce,
         expiresAt: Date.now() + 60_000,
       });
       // Simulate the user-agent redirect target as a JSON body (the
@@ -88,6 +90,28 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
         }
         const accessToken = `mock-at-${randomBytes(12).toString('hex')}`;
         tokens.set(accessToken, { principal: record.principal, expiresAt: Date.now() + 3_600_000 });
+        // When oidc, emit an id_token in the OIDC-mandated JWS shape:
+        // three base64url segments separated by dots. The mock uses
+        // an HS256-labelled header and a fixed shared-secret signature
+        // deterministic from the accessToken; probes verify shape,
+        // aud, iss, sub and nonce only (not signature).
+        let idToken = undefined;
+        if (oidc) {
+          const nowSec = Math.floor(Date.now() / 1000);
+          const header = { alg: 'HS256', typ: 'JWT', kid: 'mock-kid-1' };
+          const payload = {
+            iss: issuer,
+            aud: clientId,
+            sub: record.principal.sub,
+            iat: nowSec,
+            exp: nowSec + 3600,
+            nonce: record.nonce || 'mock-nonce',
+          };
+          const b64 = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+          const signingInput = `${b64(header)}.${b64(payload)}`;
+          const sig = createHash('sha256').update(`${signingInput}.mock-shared-secret`).digest('base64url');
+          idToken = `${signingInput}.${sig}`;
+        }
         res.statusCode = 200;
         res.end(JSON.stringify({
           access_token: accessToken,
@@ -96,6 +120,7 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
           scope: 'openid profile',
           requestId,
           sub: record.principal.sub,
+          ...(idToken ? { id_token: idToken } : {}),
         }));
       });
       return;

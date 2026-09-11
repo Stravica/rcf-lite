@@ -18,6 +18,18 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-auth-clerk');
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-clerk');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
+// Rule 7d evidence-shape asserter (closure addendum rule 6): every
+// result row carries either an `evidence` object (one of the four
+// 7d shapes) or `accountBoundSkipped: true` with a non-empty
+// `reason`. verdict alone never satisfies rule 7d.
+function assertEvidenceOrSkip(r, ctx = '') {
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0, `${ctx} accountBoundSkipped requires a non-empty reason on ${r.anchorAcId}`);
+    return;
+  }
+  assert.ok(r.evidence && typeof r.evidence === 'object', `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+}
+
 test('security-auth-clerk pack: expected probe files present', async () => {
   const required = [
     'probe-utils.mjs',
@@ -50,17 +62,17 @@ test('security-auth-clerk fixture README declares every env var read by the pack
 test('security-auth-clerk role-model-adapter probe: aggregate pass on fixture', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'role-model-adapter.mjs')).href)).default;
   const { results } = await runProbe();
+  assert.ok(results.length > 0, 'no checks ran');
   const kinds = new Set(results.map((r) => r.anchorAcId));
-  assert.ok(kinds.has('security-auth-clerk-AC-9102-1'), 'happy-path result missing');
-  assert.ok(kinds.has('security-auth-clerk-AC-9102-2'), 'unknown-role refusal result missing');
-  assert.ok(kinds.has('security-auth-clerk-AC-9102-3'), 'non-array refusal result missing');
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(kinds.has('security-auth-clerk-REQ-004'), 'role-adapter results must anchor REQ-004 (no AC covers reduction, closure rule 1)');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'role-model'); }
 });
 
 test('security-auth-clerk hosted-identity-ui-config probe: aggregate pass on fixture', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'hosted-identity-ui-config.mjs')).href)).default;
   const { results } = await runProbe();
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(results.length > 0, 'no checks ran');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'hosted-ui'); }
 });
 
 test('security-auth-clerk real-account principal-directory probe: honest skip without CI_HAS_CLERK_ACCOUNT', async () => {
@@ -69,8 +81,8 @@ test('security-auth-clerk real-account principal-directory probe: honest skip wi
   delete process.env.CI_HAS_CLERK_ACCOUNT;
   try {
     const { results, extra } = await runProbe();
-    const r = results.find((x) => x.anchorAcId === 'security-auth-clerk-AC-9101-1');
-    assert.ok(r, 'probe must emit an AC-9101-1 result');
+    const r = results.find((x) => x.anchorAcId === 'security-auth-clerk-REQ-008');
+    assert.ok(r, 'probe must emit a REQ-008 result');
     assert.equal(r.verdict, 'pass');
     assert.equal(r.accountBoundSkipped, true);
     assert.equal(r.reason, 'CI_HAS_CLERK_ACCOUNT');
@@ -86,8 +98,8 @@ test('security-auth-clerk real-account session-inventory probe: honest skip with
   delete process.env.CI_HAS_CLERK_ACCOUNT;
   try {
     const { results, extra } = await runProbe();
-    const r = results.find((x) => x.anchorAcId === 'security-auth-clerk-AC-9103-1');
-    assert.ok(r, 'probe must emit an AC-9103-1 result');
+    const r = results.find((x) => x.anchorAcId === 'security-auth-clerk-AC-9112-1');
+    assert.ok(r, 'probe must emit an AC-9112-1 result');
     assert.equal(r.verdict, 'pass');
     assert.equal(r.accountBoundSkipped, true);
     assert.equal(r.reason, 'CI_HAS_CLERK_ACCOUNT');

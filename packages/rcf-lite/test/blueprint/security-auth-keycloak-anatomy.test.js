@@ -14,6 +14,18 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-auth-keycloak');
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-keycloak');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
+// Rule 7d evidence-shape asserter (closure addendum rule 6): every
+// result row carries either an `evidence` object (one of the four
+// 7d shapes) or `accountBoundSkipped: true` with a non-empty
+// `reason`. verdict alone never satisfies rule 7d.
+function assertEvidenceOrSkip(r, ctx = '') {
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0, `${ctx} accountBoundSkipped requires a non-empty reason on ${r.anchorAcId}`);
+    return;
+  }
+  assert.ok(r.evidence && typeof r.evidence === 'object', `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+}
+
 test('security-auth-keycloak pack: expected probe files present', async () => {
   const required = [
     'probe-utils.mjs',
@@ -37,7 +49,8 @@ for (const probe of ['discovery-shape', 'jwt-verifier-shape', 'introspection-sha
   test(`security-auth-keycloak ${probe} probe: aggregate pass`, async () => {
     const runProbe = (await import(pathToFileURL(join(PROBES_DIR, `${probe}.mjs`)).href)).default;
     const { results } = await runProbe();
-    for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+      assert.ok(results.length > 0, 'no checks ran');
+    for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, probe); }
   });
 }
 
@@ -47,7 +60,7 @@ test('security-auth-keycloak real-account probe: honest skip without CI_HAS_KEYC
   delete process.env.CI_HAS_KEYCLOAK_ACCOUNT;
   try {
     const { results, extra } = await runProbe();
-    const r = results.find((x) => x.anchorAcId === 'security-auth-keycloak-AC-11104-1');
+    const r = results.find((x) => x.anchorAcId === 'security-auth-keycloak-AC-11112-2');
     assert.ok(r);
     assert.equal(r.verdict, 'pass');
     assert.equal(r.accountBoundSkipped, true);

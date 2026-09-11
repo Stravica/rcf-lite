@@ -38,11 +38,17 @@ at `.vault/scopes/` is NEVER touched by any probe in this pack.
 |---|---|---|---|
 | `SOPS_AGE_KEY_FILE` | required-at-call | Path to the age key file `sops(1)` reads for encrypt / decrypt / rotate verbs. Every probe SETS this per-call to point at the throwaway keypair it just generated; the ambient value is preserved but not read. Never logged, never written to a file. | every probe in this pack |
 | `RCF_SECRETS_SCRATCH_DIR` | optional | Override for the scratch directory where throwaway age keys and scratch scope files land. Defaults to the OS tmpdir. When unset the probes still succeed; declared for completeness so orchestrators can pin scratch state under a known root. | every probe in this pack (via `createScratchAgeScope`) |
+| `PATH` | required-at-call | Forwarded verbatim from the ambient process to sops(1) so it can resolve its binary and its plugins (age(1), gpg(1), etc.). No other value is read. | every probe (forwarded into the sops child env) |
+| `HOME` | required-at-call | Forwarded verbatim from the ambient process to sops(1) so it can resolve the caller's HOME-scoped config paths that some sops setups depend on. No other value is read. | every probe (forwarded into the sops child env) |
 
-The pack does NOT read `CLERK_SECRET_KEY`, `RESEND_API_KEY`,
-`CI_HAS_*`, or any external secret; everything runs against
-scratch keypairs the probes generate and destroy in the same
-run.
+The pack reads EXACTLY the four env vars in the table above.
+The sops child processes receive a minimal env constructed by the
+probes' `sopsEnv(keyPath)` helper - `SOPS_AGE_KEY_FILE`, `PATH`,
+`HOME` and nothing else; the entire ambient `process.env` is NEVER
+spread into the sops child (closure addendum rule 10). The pack
+does NOT read `CLERK_SECRET_KEY`, `RESEND_API_KEY`, `CI_HAS_*`, or
+any external secret; everything runs against scratch keypairs the
+probes generate and destroy in the same run.
 
 ## Vendor citations
 

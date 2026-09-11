@@ -6,7 +6,9 @@
 // verifiedOn 2026-09-11).
 //
 // capability: hostedIdentityUi.
-// anchorAcId: security-auth-clerk-AC-9104-1.
+// Anchor (per closure): no AC states the URL-shape property this
+// probe observes; anchoring REQ-005 which declares the hostedIdentityUi
+// capability, per closure rule 1 (no AC → anchor REQ and say so).
 // accountBound: false.
 
 import { pathToFileURL } from 'node:url';
@@ -16,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-clerk', 'src');
 
-export const anchorAcId = 'security-auth-clerk-AC-9104-1';
+export const anchorAcId = 'security-auth-clerk-REQ-005';
 export const capability = 'hostedIdentityUi';
 export const accountBound = false;
 
@@ -33,16 +35,16 @@ export default async function runProbe() {
     anchorAcId,
     capability,
     verdict: good.ok ? 'pass' : 'fail',
-    detail: `hosted-ui happy path: ok=${good.ok} urls=${JSON.stringify(good.urls || good.error)}`,
+    detail: `REQ-005 hostedIdentityUi (no AC covers URL-shape; anchoring REQ). hosted-ui happy path: ok=${good.ok} urls=${JSON.stringify(good.urls || good.error)}`,
     evidence: { input: 'all three https urls', validatorReturn: good },
   });
 
   const missing = validateHostedUiConfig({ signInUrl: 'https://x/y' });
   results.push({
-    anchorAcId: 'security-auth-clerk-AC-9104-2',
+    anchorAcId: 'security-auth-clerk-REQ-005',
     capability,
     verdict: !missing.ok && /missing keys/.test(missing.error) ? 'pass' : 'fail',
-    detail: `hosted-ui missing-keys refusal: ok=${missing.ok} error=${JSON.stringify(missing.error)}`,
+    detail: `REQ-005 (no AC covers URL-shape refusal; anchoring REQ). hosted-ui missing-keys refusal: ok=${missing.ok} error=${JSON.stringify(missing.error)}`,
     evidence: { validatorReturn: missing },
   });
 
@@ -52,10 +54,10 @@ export default async function runProbe() {
     afterSignInRedirect: 'https://app.example.com/',
   });
   results.push({
-    anchorAcId: 'security-auth-clerk-AC-9104-3',
+    anchorAcId: 'security-auth-clerk-REQ-005',
     capability,
     verdict: !nonHttps.ok && /must be https/.test(nonHttps.error) ? 'pass' : 'fail',
-    detail: `hosted-ui non-https refusal: ok=${nonHttps.ok} error=${JSON.stringify(nonHttps.error)}`,
+    detail: `REQ-005 (no AC covers URL-shape non-https refusal; anchoring REQ). hosted-ui non-https refusal: ok=${nonHttps.ok} error=${JSON.stringify(nonHttps.error)}`,
     evidence: { validatorReturn: nonHttps },
   });
 

@@ -22,7 +22,11 @@
 //
 // capability: principalDirectory (magic-link send + verify is the
 //   round-trip verb).
-// anchorAcId: security-auth-magic-link-AC-3103-1.
+// Anchor (per closure): AC-3110-1 (email-delivery adapter's send
+//   returns { ok, providerStatus, providerMessageId, error }; the
+//   Resend response id is the providerMessageId shape the AC
+//   asserts). REQ-010 covers the pluggable email-adapter
+//   contract this smoke exercises.
 // accountBound: true.
 
 import { pathToFileURL } from 'node:url';
@@ -36,7 +40,7 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-magic-link', 'src');
 
-export const anchorAcId = 'security-auth-magic-link-AC-3103-1';
+export const anchorAcId = 'security-auth-magic-link-AC-3110-1';
 export const capability = 'principalDirectory';
 export const accountBound = true;
 
@@ -45,10 +49,21 @@ function pickRequestId(headers) {
 }
 
 export default async function runProbe() {
-  if (process.env.CI_HAS_RESEND_ACCOUNT !== 'true') {
+  const gateVal = process.env.CI_HAS_RESEND_ACCOUNT;
+  if (gateVal === undefined || gateVal === '') {
     return {
       results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_RESEND_ACCOUNT')],
       extra: { accountBoundSkipped: true, reason: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
+    };
+  }
+  if (gateVal !== 'true') {
+    return {
+      results: [{
+        anchorAcId, capability, verdict: 'fail',
+        detail: `AC-3110-1: CI_HAS_RESEND_ACCOUNT is set to "${gateVal}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+        evidence: { gate: 'CI_HAS_RESEND_ACCOUNT', observedValue: gateVal, expected: 'true' },
+      }],
+      extra: { gateMisconfigured: true, gate: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
     };
   }
   if (!process.env.RESEND_API_KEY) {
@@ -63,7 +78,7 @@ export default async function runProbe() {
   const to = process.env.RESEND_SANDBOX_TO || RESEND_SANDBOX_TO_DEFAULT;
 
   const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, from, to, calls: [] };
-  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '' };
+  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
 
   try {
     // Local: issue a real magic-link token for the recipient.
@@ -101,18 +116,28 @@ export default async function runProbe() {
     if (emailIdOk && verifyOk) {
       resultRow.verdict = 'pass';
       resultRow.detail =
-        `real-account magic-link: local issue produced token (${issued.token.length}c base64url); ` +
-        `Resend POST /emails from=${from} to=${to} status=${res.status} requestId=${requestId} emailId=${payload.id}; ` +
+        `AC-3110-1 (email adapter returns providerMessageId shape): local issue produced token (${issued.token.length}c base64url); ` +
+        `Resend POST /emails from=${from} to=${to} status=${res.status} requestId=${requestId} providerMessageId=${payload.id}; ` +
         `local verify consumed the token (single-use) and returned ok=true.`;
-      evidence.emailId = payload.id;
+      resultRow.evidence = {
+        providerMessageId: payload.id,
+        providerStatus: res.status,
+        requestId,
+        from, to,
+        localVerifyOk: true,
+        localTokenLen: issued.token.length,
+      };
+      evidence.providerMessageId = payload.id;
       evidence.status = res.status;
       evidence.requestId = requestId;
       evidence.verifyOk = true;
     } else {
-      resultRow.detail = `send or verify failed: sendOk=${res.ok} status=${res.status} requestId=${requestId} bodyExcerpt=${text.slice(0, 200)} verifyOk=${verifyOk}`;
+      resultRow.detail = `AC-3110-1 failure: sendOk=${res.ok} status=${res.status} requestId=${requestId} bodyExcerpt=${text.slice(0, 200)} verifyOk=${verifyOk}`;
+      resultRow.evidence = { providerStatus: res.status, requestId, sendOk: res.ok, localVerifyOk: verifyOk };
     }
   } catch (err) {
     resultRow.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
+    resultRow.evidence = { threw: err && err.message ? err.message : String(err) };
     evidence.threw = err && err.message ? err.message : String(err);
   }
   return { results: [resultRow], extra: evidence };

@@ -5,7 +5,7 @@
 // throwaway age recipient the probe itself generates in a scratch
 // directory under the operator's scratchpad, encrypts a scratch
 // scope file, and cleans up on completion. The estate's canonical
-// vault at /Users/thefoot/stravica-pa/.vault/ is NEVER touched.
+// vault (repo-root .vault/) is NEVER touched.
 //
 // SOPS metadata (lastmodified, mac, unencrypted_suffix, and the
 // recipients array under sops.age[]) is inspected as positive
@@ -27,9 +27,12 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/securit
 export const DECLARED_ENV = Object.freeze([
   'SOPS_AGE_KEY_FILE',
   'RCF_SECRETS_SCRATCH_DIR',
+  'PATH',
+  'HOME',
 ]);
 
 export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
@@ -48,7 +51,19 @@ export async function writeReport({ probeName, engine, results, extra }) {
 }
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const outcome = (await mainFn()) ?? { results: [] };
+    const outcome = await mainFn();
+    if (!outcome || !Array.isArray(outcome.results) || outcome.results.length === 0) {
+      const results = [{
+        anchorAcId: 'unknown',
+        verdict: 'fail',
+        detail: 'no checks ran (probe returned null/empty results); positive-evidence rule 7d requires each probe to observe a property',
+      }];
+      const { report, path } = await writeReport({ probeName, engine, results });
+      process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+      process.stderr.write(`no-checks-ran fail written to ${path}\n`);
+      process.exitCode = 1;
+      return;
+    }
     const { results, extra } = outcome;
     const { report, path } = await writeReport({ probeName, engine, results, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

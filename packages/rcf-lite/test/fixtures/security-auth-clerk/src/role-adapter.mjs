@@ -1,6 +1,6 @@
 // Role adapter for the security-auth-clerk fixture. Maps a Clerk
 // user's publicMetadata.roles claim to an application role set,
-// carrying the round-6 role-model shape from TAC-1002 (authorisation
+// carrying the role-model shape from TAC-1002 (authorisation
 // adapter). Refuses unknown roles.
 
 const KNOWN_ROLES = Object.freeze(['viewer', 'editor', 'admin']);

@@ -7,7 +7,10 @@
 // recipient.
 //
 // capability: secretsProvider.
-// anchorAcId: security-secrets-management-AC-8102-1.
+// anchorAcId: security-secrets-management-REQ-002.
+// Anchor (per closure): REQ-002 (Secrets are read through one
+// vendor-agnostic manager client interface). No AC covers SOPS
+// engine ops directly; anchoring the REQ per closure rule 1.
 // accountBound: false.
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -16,7 +19,20 @@ import { execFileSync } from 'node:child_process';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
-export const anchorAcId = 'security-secrets-management-AC-8102-1';
+
+// Rule (closure section 1 / addendum rule 10): probes pass an
+// explicit minimal env to sops children, never a spread of the
+// entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
+// HOME are forwarded; the fixture README's env-var table is the
+// declared surface.
+function sopsEnv(keyPath) {
+  return {
+    SOPS_AGE_KEY_FILE: keyPath,
+    PATH: process.env.PATH || '',
+    HOME: process.env.HOME || '',
+  };
+}
+export const anchorAcId = 'security-secrets-management-REQ-002';
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
@@ -33,7 +49,7 @@ export default async function runProbe() {
     // Encrypt against recipient A.
     const enc = runSops(
       ['--age', scopeA.recipient, '--encrypt', '--output', cipherPath, join(scopeA.dir, 'scope.json')],
-      { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeA.keyPath } },
+      { env: sopsEnv(scopeA.keyPath) },
     );
     if (enc.status !== 0) {
       results.push({ anchorAcId, capability, verdict: 'fail', detail: `initial encrypt failed status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
@@ -45,7 +61,7 @@ export default async function runProbe() {
     // Rotate: add recipient B in-place. sops --rotate --in-place --add-age <B>
     const rot = runSops(
       ['--rotate', '--in-place', '--add-age', scopeB.recipient, cipherPath],
-      { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeA.keyPath } },
+      { env: sopsEnv(scopeA.keyPath) },
     );
     if (rot.status !== 0) {
       results.push({ anchorAcId, capability, verdict: 'fail', detail: `sops rotate failed status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
@@ -66,7 +82,7 @@ export default async function runProbe() {
 
     // Assertion 2: mac changed (data key re-wrapped => the payload's MAC is regenerated).
     results.push({
-      anchorAcId: 'security-secrets-management-AC-8102-2',
+      anchorAcId: 'security-secrets-management-REQ-002',
       capability,
       verdict: after.mac !== before.mac ? 'pass' : 'fail',
       detail: `mac before=${before.mac && before.mac.slice(0, 16)}... after=${after.mac && after.mac.slice(0, 16)}... diverged=${after.mac !== before.mac}`,
@@ -74,9 +90,9 @@ export default async function runProbe() {
     });
 
     // Assertion 3: recipient B can decrypt with only its key.
-    const decB = runSops(['--decrypt', cipherPath], { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeB.keyPath } });
+    const decB = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeB.keyPath) });
     results.push({
-      anchorAcId: 'security-secrets-management-AC-8102-3',
+      anchorAcId: 'security-secrets-management-REQ-002',
       capability,
       verdict: decB.status === 0 && JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext)) ? 'pass' : 'fail',
       detail: `recipient B decrypt status=${decB.status} matchesPlaintext=${JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext))}`,

@@ -6,7 +6,9 @@
 //
 // capability: principalDirectory (directory endpoints are the
 //   prerequisite for every downstream operation).
-// anchorAcId: security-auth-keycloak-AC-11101-1.
+// Anchors (per closure): AC-11102-1 (discovery client fetches
+// <issuerBaseUrl>/realms/<realm>/.well-known/openid-configuration at
+// boot); AC-11102-3 (missing required endpoint refuses boot).
 // accountBound: false.
 
 import { pathToFileURL } from 'node:url';
@@ -16,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_SRC = resolve(HERE, '..', '..', '..', '..', 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-keycloak', 'src');
 
-export const anchorAcId = 'security-auth-keycloak-AC-11101-1';
+export const anchorAcId = 'security-auth-keycloak-AC-11102-1';
 export const capability = 'principalDirectory';
 export const accountBound = false;
 
@@ -30,26 +32,26 @@ export default async function runProbe() {
     anchorAcId,
     capability,
     verdict: built.ok && built.discoveryUrl === expected ? 'pass' : 'fail',
-    detail: `discovery URL: ok=${built.ok} url=${built.discoveryUrl}`,
+    detail: `AC-11102-1 (boot-time discovery URL construction): ok=${built.ok} url=${built.discoveryUrl}`,
     evidence: { input: { baseUrl: 'https://keycloak.example.com/', realm: 'stravica-dev' }, adapterReturn: built },
     vendorCitation: { url: 'https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig', verifiedOn: '2026-09-11' },
   });
 
   const insecure = buildDiscoveryUrl({ baseUrl: 'http://insecure.example.com', realm: 'stravica-dev' });
   results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11101-2',
+    anchorAcId: 'security-auth-keycloak-AC-11102-1',
     capability,
     verdict: !insecure.ok && /must be https/.test(insecure.error) ? 'pass' : 'fail',
-    detail: `discovery insecure refusal: ok=${insecure.ok} error=${JSON.stringify(insecure.error)}`,
+    detail: `AC-11102-1 (insecure baseUrl refused at boot): ok=${insecure.ok} error=${JSON.stringify(insecure.error)}`,
     evidence: { adapterReturn: insecure },
   });
 
   const missing = validateDiscoveryDocument({ issuer: 'x', authorization_endpoint: 'x' });
   results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11101-3',
+    anchorAcId: 'security-auth-keycloak-AC-11102-3',
     capability,
     verdict: !missing.ok && /missing required fields/.test(missing.error) ? 'pass' : 'fail',
-    detail: `discovery doc missing-fields refusal: ok=${missing.ok} error=${JSON.stringify(missing.error)}`,
+    detail: `AC-11102-3 (missing required endpoint fields refuses boot): ok=${missing.ok} error=${JSON.stringify(missing.error)}`,
     evidence: { validatorReturn: missing },
   });
 
@@ -60,10 +62,10 @@ export default async function runProbe() {
     jwks_uri: 'https://kc.example.com/realms/dev/protocol/openid-connect/certs',
   });
   results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11101-4',
+    anchorAcId: 'security-auth-keycloak-AC-11102-1',
     capability,
     verdict: good.ok ? 'pass' : 'fail',
-    detail: `discovery doc happy: ok=${good.ok} endpoints=${JSON.stringify(good.endpoints || good.error)}`,
+    detail: `AC-11102-1 (well-formed discovery doc passes boot validation): ok=${good.ok} endpoints=${JSON.stringify(good.endpoints || good.error)}`,
     evidence: { validatorReturn: good },
   });
   return { results, extra: {} };

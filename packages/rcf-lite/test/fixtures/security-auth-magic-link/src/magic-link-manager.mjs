@@ -1,6 +1,6 @@
 // TAC-501 magic-link manager fixture. Issues a single-use,
 // TTL-bounded, cryptographically-random token bound to a principal
-// email address; verifies by consuming (single-use per round-6
+// email address; verifies by consuming (single-use per the shipped
 // contract). Uses an injectable clock so probes stay deterministic
 // without SIMULATE_* switches.
 
@@ -33,5 +33,8 @@ export function createMagicLinkManager({ ttlSeconds = 900, clock = () => Date.no
       return { ok: true, emailAddress: rec.emailAddress };
     },
     get tokenCount() { return tokens.size; },
+    // AC-3102-3: the effective ttl is enumerable at runtime.
+    ttlSeconds,
+    getTtlSeconds() { return ttlSeconds; },
   };
 }

@@ -5,7 +5,10 @@
 // key rather than degrading to unencrypted.
 //
 // capability: secretsProvider.
-// anchorAcId: security-secrets-management-AC-8104-1.
+// anchorAcId: security-secrets-management-REQ-002.
+// Anchor (per closure): REQ-002 (Secrets are read through one
+// vendor-agnostic manager client interface). No AC covers SOPS
+// engine ops directly; anchoring the REQ per closure rule 1.
 // accountBound: false.
 
 import { writeFile } from 'node:fs/promises';
@@ -13,7 +16,20 @@ import { join } from 'node:path';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
-export const anchorAcId = 'security-secrets-management-AC-8104-1';
+
+// Rule (closure section 1 / addendum rule 10): probes pass an
+// explicit minimal env to sops children, never a spread of the
+// entire ambient process.env. Only SOPS_AGE_KEY_FILE, PATH and
+// HOME are forwarded; the fixture README's env-var table is the
+// declared surface.
+function sopsEnv(keyPath) {
+  return {
+    SOPS_AGE_KEY_FILE: keyPath,
+    PATH: process.env.PATH || '',
+    HOME: process.env.HOME || '',
+  };
+}
+export const anchorAcId = 'security-secrets-management-REQ-002';
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
@@ -27,9 +43,9 @@ export default async function runProbe() {
     const plaintext = JSON.stringify({ v: 'mismatch-probe' }, null, 2) + '\n';
     await writeFile(join(scopeA.dir, 'scope.json'), plaintext, 'utf8');
     runSops(['--age', scopeA.recipient, '--encrypt', '--output', cipherPath, join(scopeA.dir, 'scope.json')],
-      { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeA.keyPath } });
+      { env: sopsEnv(scopeA.keyPath) });
     // Attempt decrypt with B only.
-    const badDec = runSops(['--decrypt', cipherPath], { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeB.keyPath } });
+    const badDec = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeB.keyPath) });
     evidence.badStatus = badDec.status;
     evidence.badStderrExcerpt = (badDec.stderr || '').slice(0, 200);
     const refused = badDec.status !== 0 && !badDec.stdout.includes('mismatch-probe');
@@ -41,9 +57,9 @@ export default async function runProbe() {
       evidence: { exitStatus: badDec.status, refused },
     });
     // Sanity: A can still decrypt.
-    const goodDec = runSops(['--decrypt', cipherPath], { env: { ...process.env, SOPS_AGE_KEY_FILE: scopeA.keyPath } });
+    const goodDec = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeA.keyPath) });
     results.push({
-      anchorAcId: 'security-secrets-management-AC-8104-2',
+      anchorAcId: 'security-secrets-management-REQ-002',
       capability,
       verdict: goodDec.status === 0 && JSON.stringify(JSON.parse(goodDec.stdout)) === JSON.stringify(JSON.parse(plaintext)) ? 'pass' : 'fail',
       detail: `correct-key decrypt sanity: status=${goodDec.status} matched=${JSON.stringify(JSON.parse(goodDec.stdout)) === JSON.stringify(JSON.parse(plaintext))}`,

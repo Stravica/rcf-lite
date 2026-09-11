@@ -16,16 +16,26 @@ export function chooseDiscoveryUrl(issuer, { allowInsecure = false } = {}) {
 }
 
 // Session bridge shape: maps token + userinfo into the app's session shape.
+// Rule: the reduced session shape MUST NOT expose provider tokens on
+// request.auth per US-10106 AC-10106-3. The bridge stores nothing that
+// would leak the access token to route handlers; the handle the browser
+// receives is an opaque project session id, minted here as a random
+// string. The provider token is deliberately absent from the returned
+// session object.
+import { randomBytes } from 'node:crypto';
+
 export function bridgeSession({ tokenResponse, userinfo }) {
   if (!tokenResponse || !tokenResponse.access_token) return { ok: false, error: 'missing access_token' };
   if (!userinfo || !userinfo.sub) return { ok: false, error: 'missing userinfo.sub' };
   return {
     ok: true,
     session: {
+      // Opaque project session handle; not derived from any provider token.
+      handle: `pss_${randomBytes(24).toString('base64url')}`,
+      // Reduced principal exposed on request.auth. NO provider tokens.
       principalId: userinfo.sub,
-      accessToken: tokenResponse.access_token,
-      expiresAt: Date.now() + (tokenResponse.expires_in || 3600) * 1000,
       scope: tokenResponse.scope || '',
+      expiresAt: Date.now() + (tokenResponse.expires_in || 3600) * 1000,
     },
   };
 }

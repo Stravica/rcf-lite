@@ -14,6 +14,18 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-auth-oauth2');
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-auth-oauth2');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
+// Rule 7d evidence-shape asserter (closure addendum rule 6): every
+// result row carries either an `evidence` object (one of the four
+// 7d shapes) or `accountBoundSkipped: true` with a non-empty
+// `reason`. verdict alone never satisfies rule 7d.
+function assertEvidenceOrSkip(r, ctx = '') {
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0, `${ctx} accountBoundSkipped requires a non-empty reason on ${r.anchorAcId}`);
+    return;
+  }
+  assert.ok(r.evidence && typeof r.evidence === 'object', `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+}
+
 test('security-auth-oauth2 pack: expected probe files present', async () => {
   const required = [
     'probe-utils.mjs',
@@ -38,25 +50,29 @@ test('security-auth-oauth2 fixture README declares every env var read by the pac
 test('security-auth-oauth2 pkce-challenge-shape probe: aggregate pass', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'pkce-challenge-shape.mjs')).href)).default;
   const { results } = await runProbe();
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(results.length > 0, 'no checks ran');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'pkce'); }
 });
 
 test('security-auth-oauth2 provider-adapter-shape probe: aggregate pass', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'provider-adapter-shape.mjs')).href)).default;
   const { results } = await runProbe();
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(results.length > 0, 'no checks ran');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'provider-adapter'); }
 });
 
 test('security-auth-oauth2 session-bridge-shape probe: aggregate pass', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'session-bridge-shape.mjs')).href)).default;
   const { results } = await runProbe();
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(results.length > 0, 'no checks ran');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'session-bridge'); }
 });
 
 test('security-auth-oauth2 authorisation-code-flow-shape probe: aggregate pass on local mock', async () => {
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'authorisation-code-flow-shape.mjs')).href)).default;
   const { results } = await runProbe();
-  for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+  assert.ok(results.length > 0, 'no checks ran');
+  for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, 'flow'); }
 });
 
 test('security-auth-oauth2 real-account probe: honest skip without CI_HAS_OAUTH2_PROVIDER', async () => {
@@ -65,8 +81,8 @@ test('security-auth-oauth2 real-account probe: honest skip without CI_HAS_OAUTH2
   delete process.env.CI_HAS_OAUTH2_PROVIDER;
   try {
     const { results, extra } = await runProbe();
-    const r = results.find((x) => x.anchorAcId === 'security-auth-oauth2-AC-10105-1');
-    assert.ok(r, 'probe must emit an AC-10105-1 result');
+    const r = results.find((x) => x.anchorAcId === 'security-auth-oauth2-AC-10110-2');
+    assert.ok(r, 'probe must emit an AC-10110-2 result');
     assert.equal(r.verdict, 'pass');
     assert.equal(r.accountBoundSkipped, true);
     assert.equal(r.reason, 'CI_HAS_OAUTH2_PROVIDER');

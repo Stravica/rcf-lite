@@ -3,7 +3,7 @@
 // shape (Keycloak docs
 // https://www.keycloak.org/securing-apps/token-introspection-endpoint
 // verifiedOn 2026-09-11) to the app's role set. Unknown roles
-// are refused per the round-6 posture.
+// are refused per the shipped role-model posture.
 
 const KNOWN_ROLES = Object.freeze(['viewer', 'editor', 'admin']);
 

@@ -36,6 +36,7 @@ export const DECLARED_ENV = Object.freeze([
 export const MOCK_PORT_RANGE = { min: 47400, max: 47449 };
 
 export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
@@ -65,7 +66,19 @@ export async function writeReport({ probeName, engine, results, extra }) {
 
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const outcome = (await mainFn()) ?? { results: [] };
+    const outcome = await mainFn();
+    if (!outcome || !Array.isArray(outcome.results) || outcome.results.length === 0) {
+      const results = [{
+        anchorAcId: 'unknown',
+        verdict: 'fail',
+        detail: 'no checks ran (probe returned null/empty results); positive-evidence rule 7d requires each probe to observe a property',
+      }];
+      const { report, path } = await writeReport({ probeName, engine, results });
+      process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+      process.stderr.write(`no-checks-ran fail written to ${path}\n`);
+      process.exitCode = 1;
+      return;
+    }
     const { results, extra } = outcome;
     const { report, path } = await writeReport({ probeName, engine, results, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

@@ -2,24 +2,29 @@
 //
 // Creates a scratch principal via POST /v1/users, calls GET
 // /v1/sessions?user_id={id} to prove the session-inventory verb
-// returns a paginated array shape for the new user, then deletes
-// the principal. TAC-1003 (session verifier) contracts against
-// exactly this endpoint; a live call proves the endpoint answers,
-// the shape is honoured, and the (empty) session list is returned
-// as an array. Evidence: the X-Request-ID header on the /sessions
-// call, the HTTP status, and the array shape returned.
+// returns a paginated array shape for the new user (AC-9112-1),
+// then deletes the principal and re-queries to prove the resource
+// is absent from the post-run inventory (rule 7d evidence shape 3:
+// created-then-deleted resource id absent in the diff).
+//
+// Positive evidence: the X-Request-ID header on the /sessions call,
+// the HTTP status, the empty array shape (a freshly-created user
+// with no interactive login has zero sessions), the created-then-
+// deleted user id, and the post-delete /sessions call that responds
+// with the expected error class for a no-longer-existing user.
 //
 // Docs: Clerk Backend API - list sessions
 // https://clerk.com/docs/reference/backend-api/tag/Sessions verifiedOn
 // 2026-09-11.
 //
 // capability: sessionInventory.
-// anchorAcId: security-auth-clerk-AC-9103-1.
+// Anchor (per closure): AC-9112-1 (list returns one row per active
+//   project session, shaped per TAC-1003 SessionRow).
 // accountBound: true.
 
 import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } from './probe-utils.mjs';
 
-export const anchorAcId = 'security-auth-clerk-AC-9103-1';
+export const anchorAcId = 'security-auth-clerk-AC-9112-1';
 export const capability = 'sessionInventory';
 export const accountBound = true;
 
@@ -78,7 +83,9 @@ export default async function runProbe() {
   const emailAddress = `${SCRATCH_PRINCIPAL_PREFIX}sess-${short}+clerk_test@example.com`;
 
   const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, scratchEmailAddress: emailAddress, calls: [] };
-  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '' };
+  const results = [];
+  const rowShape = { anchorAcId, capability, verdict: 'fail', detail: '' };
+  const rowAbsence = { anchorAcId: 'security-auth-clerk-AC-9112-5', capability, verdict: 'fail', detail: '' };
   let createdUserId = null;
 
   try {
@@ -97,26 +104,90 @@ export default async function runProbe() {
     });
     evidence.calls.push({ verb: 'POST /users', status: created.status, requestId: created.requestId, resourceId: created.payload && created.payload.id });
     if (!created.ok || !(created.payload && created.payload.id)) {
-      resultRow.detail = `POST /v1/users failed: status=${created.status} requestId=${created.requestId} bodyExcerpt=${JSON.stringify(created.payload).slice(0, 200)}`;
-      return { results: [resultRow], extra: evidence };
+      rowShape.detail = `POST /v1/users failed: status=${created.status} requestId=${created.requestId} bodyExcerpt=${JSON.stringify(created.payload).slice(0, 200)}`;
+      rowShape.evidence = { call: evidence.calls[evidence.calls.length - 1] };
+      rowAbsence.detail = 'skipped: precondition POST /users failed';
+      rowAbsence.evidence = {};
+      results.push(rowShape, rowAbsence);
+      return { results, extra: evidence };
     }
     createdUserId = created.payload.id;
     evidence.createdUserId = createdUserId;
 
+    // AC-9112-1: list returns the expected shape. For a freshly-created
+    // user with no interactive login the expected inventory is exactly []
+    // (zero rows). Any other shape is a fail.
     const sessions = await clerkFetch({ baseUrl, path: `/sessions?user_id=${encodeURIComponent(createdUserId)}`, method: 'GET', token });
-    evidence.calls.push({ verb: `GET /sessions?user_id=${createdUserId}`, status: sessions.status, requestId: sessions.requestId, isArray: Array.isArray(sessions.payload), count: Array.isArray(sessions.payload) ? sessions.payload.length : null });
+    evidence.calls.push({
+      verb: `GET /sessions?user_id=${createdUserId} (pre-delete)`,
+      status: sessions.status, requestId: sessions.requestId,
+      isArray: Array.isArray(sessions.payload),
+      count: Array.isArray(sessions.payload) ? sessions.payload.length : null,
+    });
+    const shapeOk = sessions.ok
+      && Array.isArray(sessions.payload)
+      && sessions.payload.length === 0;
+    rowShape.verdict = shapeOk ? 'pass' : 'fail';
+    rowShape.detail = shapeOk
+      ? `AC-9112-1: GET /v1/sessions?user_id=${createdUserId} status=${sessions.status} requestId=${sessions.requestId}. Response is an array of length 0 (the expected empty inventory for a freshly-created user with no interactive login).`
+      : `AC-9112-1 failure: status=${sessions.status} requestId=${sessions.requestId} isArray=${Array.isArray(sessions.payload)} length=${Array.isArray(sessions.payload) ? sessions.payload.length : 'n/a'} bodyExcerpt=${JSON.stringify(sessions.payload).slice(0, 200)}`;
+    rowShape.evidence = {
+      requestId: sessions.requestId,
+      status: sessions.status,
+      isArray: Array.isArray(sessions.payload),
+      length: Array.isArray(sessions.payload) ? sessions.payload.length : null,
+      createdUserId,
+    };
 
-    const shapeOk = sessions.ok && Array.isArray(sessions.payload);
-    if (shapeOk) {
-      resultRow.verdict = 'pass';
-      resultRow.detail =
-        `real-account clerk session-inventory: created ${createdUserId}; GET /v1/sessions?user_id=${createdUserId} status ${sessions.status} requestId ${sessions.requestId}; ` +
-        `response is array of length ${sessions.payload.length} (a freshly-created user with no interactive login has zero sessions, which is the correct honest shape).`;
-    } else {
-      resultRow.detail = `session-inventory failed: status=${sessions.status} requestId=${sessions.requestId} isArray=${Array.isArray(sessions.payload)} bodyExcerpt=${JSON.stringify(sessions.payload).slice(0, 200)}`;
+    // Delete the principal.
+    const deleted = await clerkFetch({ baseUrl, path: `/users/${createdUserId}`, method: 'DELETE', token });
+    evidence.calls.push({ verb: `DELETE /users/${createdUserId}`, status: deleted.status, requestId: deleted.requestId });
+    const deleteOk = deleted.ok;
+
+    // AC-9112-5: a call against a session id / user id the caller
+    // does not own (or that no longer exists) refuses without a
+    // side effect. Post-delete /sessions?user_id=<gone> must NOT
+    // return an array containing the deleted user's session data;
+    // Clerk returns 404 (or an empty array) here. Positive
+    // absence evidence: the id is gone.
+    const postList = await clerkFetch({ baseUrl, path: `/sessions?user_id=${encodeURIComponent(createdUserId)}`, method: 'GET', token });
+    evidence.calls.push({
+      verb: `GET /sessions?user_id=${createdUserId} (post-delete)`,
+      status: postList.status, requestId: postList.requestId,
+      isArray: Array.isArray(postList.payload),
+      count: Array.isArray(postList.payload) ? postList.payload.length : null,
+    });
+    // Absence is satisfied when the endpoint returns 404 / 4xx OR an
+    // empty array; either shape proves the id no longer resolves to
+    // an active session row.
+    const arrayShape = Array.isArray(postList.payload) ? postList.payload.length === 0 : false;
+    const errorShape = postList.status >= 400;
+    const absenceOk = deleteOk && (errorShape || arrayShape);
+    rowAbsence.verdict = absenceOk ? 'pass' : 'fail';
+    rowAbsence.detail = absenceOk
+      ? `AC-9112-5 (post-delete absence): DELETE /users/${createdUserId} status=${deleted.status}; post-delete GET /sessions?user_id=${createdUserId} status=${postList.status} ${arrayShape ? '(empty array)' : '(refused: deleted user)'}. The id no longer resolves to an active session row.`
+      : `AC-9112-5 failure: deleteOk=${deleteOk} postDeleteStatus=${postList.status} isArray=${Array.isArray(postList.payload)} length=${Array.isArray(postList.payload) ? postList.payload.length : 'n/a'}`;
+    rowAbsence.evidence = {
+      deleteStatus: deleted.status,
+      deleteRequestId: deleted.requestId,
+      postListStatus: postList.status,
+      postListRequestId: postList.requestId,
+      postListIsArray: Array.isArray(postList.payload),
+      postListLength: Array.isArray(postList.payload) ? postList.payload.length : null,
+      createdUserId,
+    };
+
+    if (deleteOk) {
+      // Mark deleted so finally does not attempt another delete.
+      createdUserId = null;
     }
+    results.push(rowShape, rowAbsence);
   } catch (err) {
-    resultRow.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
+    rowShape.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
+    rowShape.evidence = { threw: err && err.message ? err.message : String(err) };
+    rowAbsence.detail = 'skipped: probe threw before completing';
+    rowAbsence.evidence = {};
+    results.push(rowShape, rowAbsence);
     evidence.threw = err && err.message ? err.message : String(err);
   } finally {
     if (createdUserId) {
@@ -124,18 +195,18 @@ export default async function runProbe() {
         const teardown = await clerkFetch({ baseUrl, path: `/users/${createdUserId}`, method: 'DELETE', token });
         evidence.teardownDelete = { status: teardown.status, requestId: teardown.requestId };
         if (!teardown.ok) {
-          resultRow.verdict = 'fail';
-          resultRow.detail = (resultRow.detail ? resultRow.detail + ' ' : '') +
+          for (const r of results) r.verdict = 'fail';
+          for (const r of results) r.detail = (r.detail ? r.detail + ' ' : '') +
             `TEARDOWN FAILED leaving orphan user ${createdUserId}: status=${teardown.status} requestId=${teardown.requestId}.`;
           evidence.orphanUserId = createdUserId;
         }
       } catch (err) {
-        resultRow.verdict = 'fail';
-        resultRow.detail = (resultRow.detail ? resultRow.detail + ' ' : '') +
+        for (const r of results) r.verdict = 'fail';
+        for (const r of results) r.detail = (r.detail ? r.detail + ' ' : '') +
           `TEARDOWN THREW: ${err && err.message ? err.message : String(err)} leaving orphan user ${createdUserId}.`;
         evidence.orphanUserId = createdUserId;
       }
     }
   }
-  return { results: [resultRow], extra: evidence };
+  return { results, extra: evidence };
 }

@@ -14,6 +14,18 @@ const BLUEPRINT_ROOT = join(REPO_ROOT, 'blueprints', 'security-secrets-managemen
 const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'security-secrets-management');
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
+// Rule 7d evidence-shape asserter (closure addendum rule 6): every
+// result row carries either an `evidence` object (one of the four
+// 7d shapes) or `accountBoundSkipped: true` with a non-empty
+// `reason`. verdict alone never satisfies rule 7d.
+function assertEvidenceOrSkip(r, ctx = '') {
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0, `${ctx} accountBoundSkipped requires a non-empty reason on ${r.anchorAcId}`);
+    return;
+  }
+  assert.ok(r.evidence && typeof r.evidence === 'object', `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+}
+
 test('security-secrets-management pack: expected probe files present', async () => {
   const required = [
     'probe-utils.mjs',
@@ -39,12 +51,13 @@ for (const probe of ['encrypt-decrypt-round-trip', 'add-recipient-rotation', 'ke
   test(`security-secrets-management ${probe} probe: aggregate pass on real sops+age engine`, async () => {
     const runProbe = (await import(pathToFileURL(join(PROBES_DIR, `${probe}.mjs`)).href)).default;
     const { results } = await runProbe();
-    for (const r of results) assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`);
+      assert.ok(results.length > 0, 'no checks ran');
+    for (const r of results) { assert.equal(r.verdict, 'pass', `${r.anchorAcId}: ${r.detail}`); assertEvidenceOrSkip(r, probe); }
   });
 }
 
 test('security-secrets-management blueprint.json: version bumped and updatedAt refreshed', async () => {
   const manifest = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
-  assert.match(manifest.version, /^1\.1\./);
+  assert.equal(manifest.version, '1.1.3', `expected exact pin 1.1.3; observed ${manifest.version}`);
   assert.ok(manifest.updatedAt, 'blueprint.json must carry an updatedAt');
 });

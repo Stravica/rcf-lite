@@ -22,12 +22,14 @@
 // capability: principalDirectory, sessionInventory (partial: this
 //   probe carries principalDirectory; sessionInventory has its own
 //   probe below).
-// anchorAcId: security-auth-clerk-AC-9101-1.
+// Anchor (per closure): no AC covers a Clerk Backend API round
+// trip smoke; anchoring REQ-008 (Runtime acceptance rides a real
+// Clerk development instance), per closure rule 1.
 // accountBound: true.
 
 import { DECLARED_ENV, SCRATCH_PRINCIPAL_PREFIX, accountBoundSkippedResult } from './probe-utils.mjs';
 
-export const anchorAcId = 'security-auth-clerk-AC-9101-1';
+export const anchorAcId = 'security-auth-clerk-REQ-008';
 export const capability = 'principalDirectory';
 export const accountBound = true;
 
@@ -96,7 +98,7 @@ export default async function runProbe() {
     runId,
     calls: [],
   };
-  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '' };
+  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
   let createdUserId = null;
 
   try {
@@ -149,16 +151,25 @@ export default async function runProbe() {
       // ensure the finally block does not double-delete.
       resultRow.verdict = 'pass';
       resultRow.detail =
-        `real-account clerk principal-directory: created ${createdUserId} (POST status ${created.status}, requestId ${created.requestId}); ` +
+        `REQ-008 (no AC covers this smoke; anchoring REQ). real-account clerk principal-directory: created ${createdUserId} (POST status ${created.status}, requestId ${created.requestId}); ` +
         `readBack GET ${readBack.status} (requestId ${readBack.requestId}); listPre found=${listPreOk} (${listedIdsPre.length} users); ` +
         `DELETE ${deleted.status} (requestId ${deleted.requestId}); listPost absent=${listPostOk} (${listedIdsPost.length} users).`;
+      resultRow.evidence = {
+        createdUserId,
+        createStatus: created.status, createRequestId: created.requestId,
+        readBackStatus: readBack.status, readBackRequestId: readBack.requestId,
+        listPreCount: listedIdsPre.length, listPreContainsCreated: listPreOk,
+        deleteStatus: deleted.status, deleteRequestId: deleted.requestId,
+        listPostCount: listedIdsPost.length, listPostAbsence: listPostOk,
+      };
       // Mark deleted so finally does not attempt another delete.
       createdUserId = null;
     } else {
-      resultRow.detail = `one or more calls failed: readOk=${readOk} listPreOk=${listPreOk} deleteOk=${deleteOk} listPostOk=${listPostOk}; calls=${JSON.stringify(evidence.calls)}`;
+      resultRow.evidence = { calls: evidence.calls }; resultRow.detail = `one or more calls failed: readOk=${readOk} listPreOk=${listPreOk} deleteOk=${deleteOk} listPostOk=${listPostOk}; calls=${JSON.stringify(evidence.calls)}`;
     }
   } catch (err) {
     resultRow.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
+    resultRow.evidence = { threw: err && err.message ? err.message : String(err) };
     evidence.threw = err && err.message ? err.message : String(err);
   } finally {
     if (createdUserId) {
