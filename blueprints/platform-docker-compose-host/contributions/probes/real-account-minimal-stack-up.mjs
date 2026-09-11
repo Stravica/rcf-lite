@@ -147,7 +147,7 @@ export default async function runProbe() {
           anchorAcId: 'AC-composeHost-secretShape',
           verdict: modePass ? 'pass' : 'fail',
           detail: modePass
-            ? `service '${obs.service}' secret '${obs.secretName}' mounted at ${obs.mountPath} with observed mode ${obs.mode} inside container ${obs.containerId} (docker exec stat -c %a)`
+            ? `service '${obs.service}' secret '${obs.secretName}' mounted at ${obs.mountPath} with observed mode ${obs.mode} inside container ${obs.containerName} (id ${obs.containerId}, docker exec stat -c %a)`
             : `service '${obs.service}' secret '${obs.secretName}' mounted at ${obs.mountPath} with observed mode ${obs.mode}; AC-composeHost-secretShape requires 0o400 (400)`,
           evidence: {
             service: obs.service,
@@ -155,7 +155,8 @@ export default async function runProbe() {
             mode: obs.mode,
             mountPath: obs.mountPath,
             containerId: obs.containerId,
-            source: 'docker exec stat -c %a',
+            containerName: obs.containerName,
+            source: 'docker exec stat -c %a; container id via docker inspect --format {{.Id}}',
           },
         });
       }
@@ -168,6 +169,7 @@ export default async function runProbe() {
             service: err.service,
             secretName: err.secretName,
             error: err.error,
+            containerName: err.containerName || null,
             source: 'docker exec stat -c %a',
           },
         });

@@ -279,17 +279,29 @@ export async function observeSecretModes(server, opts = {}) {
       const mountPath = target_.startsWith('/') ? target_ : `/run/secrets/${target_}`;
       const ps = services.find((s) => (s.name || '').includes(svcName));
       if (!ps || !ps.name) {
-        errors.push({ service: svcName, secretName, error: 'no container id found in docker compose ps' });
+        errors.push({ service: svcName, secretName, error: 'no container name found in docker compose ps' });
+        continue;
+      }
+      // Resolve the container NAME Compose applied to the engine-
+      // minted 64-hex Docker container id via `docker inspect
+      // --format '{{.Id}}'`; the id is what satisfies the semantic
+      // anatomy identifier rule on the mode row. The Compose name
+      // stays as derived context on the observation.
+      const inspectCmd = `sudo docker inspect --format '{{.Id}}' ${quoteShell(ps.name)}`;
+      const idRes = await sshExec(target, `bash -lc '${inspectCmd.replace(/'/g, "'\\''")}'`, sshKeyPath, 20);
+      const containerId = (idRes.stdout || '').trim();
+      if (idRes.code !== 0 || !/^[0-9a-f]{64}$/.test(containerId)) {
+        errors.push({ service: svcName, secretName, mountPath, containerName: ps.name, error: `docker inspect exited ${idRes.code} with unexpected stdout ${JSON.stringify((idRes.stdout || '').slice(0, 200))}: ${(idRes.stderr || '').slice(0, 200)}` });
         continue;
       }
       const cmd = `sudo docker exec ${quoteShell(ps.name)} stat -c %a ${quoteShell(mountPath)}`;
       const r = await sshExec(target, `bash -lc '${cmd.replace(/'/g, "'\\''")}'`, sshKeyPath, 20);
       if (r.code !== 0) {
-        errors.push({ service: svcName, secretName, mountPath, containerId: ps.name, error: `docker exec stat exited ${r.code}: ${(r.stderr || '').slice(0, 200)}` });
+        errors.push({ service: svcName, secretName, mountPath, containerId, containerName: ps.name, error: `docker exec stat exited ${r.code}: ${(r.stderr || '').slice(0, 200)}` });
         continue;
       }
       const mode = (r.stdout || '').trim();
-      observations.push({ service: svcName, secretName, mountPath, containerId: ps.name, mode });
+      observations.push({ service: svcName, secretName, mountPath, containerId, containerName: ps.name, mode });
       consumingByName[secretName].push(svcName);
     }
   }

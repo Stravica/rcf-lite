@@ -45,17 +45,23 @@ async function runProbe(name, env = {}) {
 //       and a non-empty DERIVED OBSERVATION.
 //
 // Engine-minted identifier: one of a small explicit set of fields
-// whose value is minted by the engine that produced the row (a
-// vendor-returned server / snapshot / firewall / image / container /
-// request id, or the deterministic content hash of an artefact the
-// engine rendered or scanned) with a non-empty value; OR a
+// whose value is minted by the engine or vendor that produced the
+// row (a vendor-returned server / snapshot / firewall / image /
+// container id, an engine request id, or the 64-hex Docker
+// container id from `docker inspect`) with a non-empty value; OR a
 // supplied/echo pair, where the row carries `supplied<Name>` and a
 // matching `echoed<Name>` field, both non-empty and strictly equal
 // (the probe supplied a value, the engine echoed it back).
 //
-// Event names, file paths, service names, manifest names, resource
-// names the probe chose, and other probe inputs count only as
-// derived context, never as the identifier.
+// A hash the probe itself computes over an artefact it read is NOT
+// an identifier; event names, file paths, service names, manifest
+// names, resource names the probe chose, and other probe inputs
+// count only as derived context, never as the identifier or the
+// observation. Rows on offline probes (validators, source-tree
+// scans) that have no engine-minted identifier are honest
+// `conformanceOnly` rows naming the shipped AC clause they do not
+// observe; identity and observation checks apply to anchored rows
+// only.
 //
 // Derived observation: a body excerpt, status code, observed mode,
 // engine timestamp, non-zero count, or structured engine-returned
@@ -73,8 +79,6 @@ const ENGINE_MINTED_ID_FIELDS = new Set([
   // shim that produced the row.
   'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
   'containerId', 'requestId', 'vendorRequestId', 'resourceId',
-  // Deterministic content hash of a rendered or scanned artefact.
-  'contentSha256',
 ]);
 const DERIVED_OBSERVATION_FIELDS = new Set([
   // Textual samples / excerpts
@@ -96,14 +100,7 @@ const DERIVED_OBSERVATION_FIELDS = new Set([
   'postCreateSnapshotCarriedId', 'postProvisionMatch', 'labelMatch',
   'hetznerServerProvisionedEvent', 'hetznerSnapshotTakenEvent',
   'sshReadiness', 'cloudInit', 'baselineChecks', 'teardown', 'observedSecretModes',
-  'expected', 'observed', 'event', 'observedNames', 'declaredServices',
-  // Context fields (event name, manifest name, path) — derived
-  // context only under the semantic rule; never satisfy the
-  // identifier half on their own.
-  'eventName', 'manifestName', 'renderedPath', 'expectedReader',
-  'file', 'path', 'name', 'service', 'target', 'url', 'secretName',
-  'mountPath', 'scannedFiles', 'source', 'expectedKeys', 'tool',
-  'apiHost', 'labels',
+  'observed', 'observedNames', 'declaredServices',
 ]);
 // Browser-only ACs are the only ones that may legitimately carry a
 // notObservableHere row. The deploy-hetzner-server blueprint ships
@@ -160,13 +157,17 @@ async function assertRowsCarry7dShape(rows, label) {
       const m = r.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
       assert.ok(m, `${label}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
       assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on deploy-hetzner-server`);
+      // conformanceOnly rows attest to a limitation, not a live
+      // observation; identity and observation checks are for
+      // anchored rows only.
+      continue;
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
     const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
     const suppliedEchoPair = findSuppliedEchoPair(ev);
     const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
     const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
-    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, request id, or content hash) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, engine request id, or a 64-hex Docker container id from docker inspect) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
     assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
@@ -193,7 +194,7 @@ function findSuppliedEchoPair(ev) {
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.7');
+  assert.equal(bp.version, '1.1.8');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -237,10 +238,13 @@ test('deploy-hetzner-server AC-11101-1 manifest schema shape valid', async () =>
   await assertRowsCarry7dShape(out.results, 'manifest-schema-validate');
   const bad = out.results.find((r) => r.verdict !== 'pass');
   assert.ok(!bad, `manifest-schema-validate should pass on the shipped fixture, got: ${bad ? bad.detail : ''}`);
-  // Per-property anchoring: at least one row anchors to AC-37106-1
-  // (firewall) and one to AC-37107-1 (snapshotCadence).
-  assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37106-1'), 'manifest-schema-validate must emit a firewall-anchored row');
-  assert.ok(out.results.some((r) => r.anchorAcId === 'AC-37107-1'), 'manifest-schema-validate must emit a snapshotCadence-anchored row');
+  // Per-property de-claim: at least one row limits AC-37106-1
+  // (firewall) and one limits AC-37107-1 (snapshotCadence). The
+  // offline manifest scan has no engine-minted identifier so every
+  // row is a conformanceOnly de-claim; the live observation lives
+  // on the real-account probes named in each limitation.
+  assert.ok(out.results.some((r) => r.conformanceOnly === true && typeof r.limitation === 'string' && r.limitation.startsWith('AC-37106-1')), 'manifest-schema-validate must emit a firewall-limitation conformanceOnly row starting with AC-37106-1');
+  assert.ok(out.results.some((r) => r.conformanceOnly === true && typeof r.limitation === 'string' && r.limitation.startsWith('AC-37107-1')), 'manifest-schema-validate must emit a snapshotCadence-limitation conformanceOnly row starting with AC-37107-1');
 });
 
 test('deploy-hetzner-server AC-11102-1 manifest applies to mocked provision', async () => {

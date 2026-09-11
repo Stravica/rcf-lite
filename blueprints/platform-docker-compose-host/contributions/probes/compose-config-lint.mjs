@@ -1,8 +1,17 @@
-// Probe: compose-config-lint (v1.1.5).
+// Probe: compose-config-lint (v1.1.8).
 //
-// Splits per-property observations into their own result rows so the
-// AC anchoring is faithful (the shape rule). Each row carries its own
-// `evidence` object (the shape rule):
+// This is an offline validator: it parses the shipped compose.yaml
+// and (when a Docker daemon is reachable) shells out to
+// `docker compose config`. It has no engine-minted identifier - the
+// sha256 of compose.yaml is computed by this probe with Node's
+// `createHash` and the service names are Compose's own choices, not
+// engine-returned identities. Every result row is a
+// `conformanceOnly` de-claim naming the shipped AC clause the
+// offline check does not observe; the live observation for each
+// property lives on the account-bound probes that stand a real
+// compose stack up.
+//
+// Splits per-property observations into their own result rows:
 //   - AC-composeHost-healthcheckLint  per HTTP-terminating service.
 //   - AC-composeHost-restartClassification  per service.
 //   - AC-composeHost-logDriverClassification  per service, and one
@@ -10,11 +19,10 @@
 //     driver (LOG_DRIVER env, default journald).
 //   - AC-composeHost-healthcheckLint  one summary docker-compose-config
 //     exit row when the daemon is reachable.
-// The previous synthetic `composeStackReady` event-secrecy row is
-// removed because no contributed AC states that property; the compose
-// secret mount is covered on the account-bound path where the web
-// service reads `/run/secrets/web-token` and its `/` response reports
-// `tokenPresence: present`.
+//
+// The compose.yaml bytes hash and the observed values (driver,
+// restart policy, healthcheck keys, docker compose config exit)
+// stay on the row as derived context.
 //
 // accountBound: false.
 
@@ -23,23 +31,20 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { runShim, readCompose, COMPOSE_PATH, FIXTURE_DIR, whichDocker, parseComposeYaml } from './probe-utils.mjs';
 
-// Deterministic content hash of the compose.yaml the row observed;
-// the engine-minted identifier for offline compose-config-lint rows
-// under the semantic anatomy rule.
 function sha256(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
-export const anchorAcIds = [
-  'AC-composeHost-healthcheckLint',
-  'AC-composeHost-restartClassification',
-  'AC-composeHost-logDriverClassification',
-];
+export const anchorAcIds = [];
 export const accountBound = false;
 
 const HTTP_SERVICES = new Set(['web', 'caddy']);
 const ALLOWED_RESTART = new Set(['unless-stopped', 'on-failure']);
 const ALLOWED_LOG_DRIVER = new Set(['journald', 'loki']);
+
+const LIMIT_HC = 'AC-composeHost-healthcheckLint: healthcheck presence is validated offline against the shipped compose.yaml; the live observation (a healthy compose service reporting healthy in `docker compose ps`) is carried by real-account-minimal-stack-up.';
+const LIMIT_RESTART = 'AC-composeHost-restartClassification: restart-policy classification is validated offline against the shipped compose.yaml; the live observation (a compose stack applying and honouring the policy) is carried by real-account-minimal-stack-up.';
+const LIMIT_LOG = 'AC-composeHost-logDriverClassification: log-driver classification is validated offline against the shipped compose.yaml against the elicited LOG_DRIVER; the live observation (a compose stack routing logs through the applied driver) lives on the account-bound branch.';
 
 function applyMutations(text) {
   let out = text;
@@ -74,7 +79,7 @@ function applyMutations(text) {
   return out;
 }
 
-function scanHealthchecks(doc, extra, contentSha256) {
+function scanHealthchecks(doc, extra, composeSha256) {
   const results = [];
   const services = doc.services ?? {};
   const httpNames = Object.keys(services).filter((n) => HTTP_SERVICES.has(n));
@@ -82,19 +87,23 @@ function scanHealthchecks(doc, extra, contentSha256) {
     const svc = services[name] ?? {};
     if (!svc.healthcheck) {
       results.push({
-        anchorAcId: 'AC-composeHost-healthcheckLint',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_HC,
         verdict: 'fail',
-        detail: `HTTP-terminating service '${name}' is missing a healthcheck: block`,
-        evidence: { contentSha256, service: name, missingServices: [name], expected: 'healthcheck block', observed: 'absent' },
+        detail: `offline compose-config-lint: HTTP-terminating service '${name}' is missing a healthcheck: block`,
+        evidence: { composeSha256, serviceName: name, missingServices: [name], expectedShape: 'healthcheck block', observedShape: 'absent' },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-composeHost-healthcheckLint',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_HC,
         verdict: 'pass',
-        detail: `HTTP-terminating service '${name}' carries a healthcheck: block`,
+        detail: `offline compose-config-lint: HTTP-terminating service '${name}' carries a healthcheck: block`,
         evidence: {
-          contentSha256,
-          service: name,
+          composeSha256,
+          serviceName: name,
           healthcheckKeys: Object.keys(svc.healthcheck || {}).sort(),
         },
       });
@@ -103,7 +112,7 @@ function scanHealthchecks(doc, extra, contentSha256) {
   return results;
 }
 
-function scanRestart(doc, contentSha256) {
+function scanRestart(doc, composeSha256) {
   const results = [];
   const services = doc.services ?? {};
   for (const name of Object.keys(services)) {
@@ -111,31 +120,37 @@ function scanRestart(doc, contentSha256) {
     const restart = svc.restart;
     if (!restart) {
       results.push({
-        anchorAcId: 'AC-composeHost-restartClassification',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_RESTART,
         verdict: 'fail',
-        detail: `service '${name}' declares no restart policy; allowed: unless-stopped, on-failure`,
-        evidence: { contentSha256, service: name, restart: null },
+        detail: `offline compose-config-lint: service '${name}' declares no restart policy; allowed: unless-stopped, on-failure`,
+        evidence: { composeSha256, serviceName: name, restart: null },
       });
     } else if (!ALLOWED_RESTART.has(String(restart))) {
       results.push({
-        anchorAcId: 'AC-composeHost-restartClassification',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_RESTART,
         verdict: 'fail',
-        detail: `service '${name}' declares restart: ${restart}; allowed: unless-stopped, on-failure`,
-        evidence: { contentSha256, service: name, restart: String(restart), allowed: ['unless-stopped', 'on-failure'] },
+        detail: `offline compose-config-lint: service '${name}' declares restart: ${restart}; allowed: unless-stopped, on-failure`,
+        evidence: { composeSha256, serviceName: name, restart: String(restart), allowed: ['unless-stopped', 'on-failure'] },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-composeHost-restartClassification',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_RESTART,
         verdict: 'pass',
-        detail: `service '${name}' declares restart: ${restart}`,
-        evidence: { contentSha256, service: name, restart: String(restart) },
+        detail: `offline compose-config-lint: service '${name}' declares restart: ${restart}`,
+        evidence: { composeSha256, serviceName: name, restart: String(restart) },
       });
     }
   }
   return results;
 }
 
-function scanLogging(doc, contentSha256) {
+function scanLogging(doc, composeSha256) {
   const results = [];
   const services = doc.services ?? {};
   const elicitedDriver = process.env.LOG_DRIVER || 'journald';
@@ -145,50 +160,57 @@ function scanLogging(doc, contentSha256) {
     const driver = svc.logging && svc.logging.driver;
     if (!driver) {
       results.push({
-        anchorAcId: 'AC-composeHost-logDriverClassification',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_LOG,
         verdict: 'fail',
-        detail: `service '${name}' declares no logging driver; allowed: journald, loki`,
-        evidence: { contentSha256, service: name, driver: null },
+        detail: `offline compose-config-lint: service '${name}' declares no logging driver; allowed: journald, loki`,
+        evidence: { composeSha256, serviceName: name, driver: null },
       });
       observedDrivers.push(null);
       continue;
     }
     if (!ALLOWED_LOG_DRIVER.has(String(driver))) {
       results.push({
-        anchorAcId: 'AC-composeHost-logDriverClassification',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_LOG,
         verdict: 'fail',
-        detail: `service '${name}' declares logging driver '${driver}'; allowed: journald, loki`,
-        evidence: { contentSha256, service: name, driver: String(driver), allowed: ['journald', 'loki'] },
+        detail: `offline compose-config-lint: service '${name}' declares logging driver '${driver}'; allowed: journald, loki`,
+        evidence: { composeSha256, serviceName: name, driver: String(driver), allowed: ['journald', 'loki'] },
       });
       observedDrivers.push(String(driver));
       continue;
     }
     observedDrivers.push(String(driver));
   }
-  // Elicited-driver single-choice check: every service must match the
-  // elicited log-driver (default journald). If any service uses the
-  // other allowed driver the classification is inconsistent.
   const distinct = new Set(observedDrivers.filter(Boolean));
   if (distinct.size > 1) {
     results.push({
-      anchorAcId: 'AC-composeHost-logDriverClassification',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_LOG,
       verdict: 'fail',
-      detail: `services declare more than one log driver (${[...distinct].join(', ')}); the elicited log-driver=${elicitedDriver} requires every service to match`,
-      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers, distinct: [...distinct] },
+      detail: `offline compose-config-lint: services declare more than one log driver (${[...distinct].join(', ')}); the elicited log-driver=${elicitedDriver} requires every service to match`,
+      evidence: { composeSha256, composeFile: 'compose.yaml', elicitedDriver, observedDrivers, distinct: [...distinct] },
     });
   } else if (distinct.size === 1 && !distinct.has(elicitedDriver)) {
     results.push({
-      anchorAcId: 'AC-composeHost-logDriverClassification',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_LOG,
       verdict: 'fail',
-      detail: `services declare log driver ${[...distinct][0]} but the elicited log-driver is ${elicitedDriver}`,
-      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers },
+      detail: `offline compose-config-lint: services declare log driver ${[...distinct][0]} but the elicited log-driver is ${elicitedDriver}`,
+      evidence: { composeSha256, composeFile: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   } else if (distinct.size === 1) {
     results.push({
-      anchorAcId: 'AC-composeHost-logDriverClassification',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_LOG,
       verdict: 'pass',
-      detail: `every service uses the elicited log driver ${[...distinct][0]}`,
-      evidence: { contentSha256, file: 'compose.yaml', elicitedDriver, observedDrivers },
+      detail: `offline compose-config-lint: every service uses the elicited log driver ${[...distinct][0]}`,
+      evidence: { composeSha256, composeFile: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   }
   return results;
@@ -199,8 +221,8 @@ export default async function runProbe() {
   const extra = {};
   const originalText = await readFile(COMPOSE_PATH, 'utf8');
   const mutatedText = applyMutations(originalText);
-  const contentSha256 = sha256(mutatedText);
-  extra.contentSha256 = contentSha256;
+  const composeSha256 = sha256(mutatedText);
+  extra.composeSha256 = composeSha256;
   const mutatedDoc = parseComposeYaml(mutatedText);
   extra.serviceNames = Object.keys(mutatedDoc.services ?? {});
   extra.mutations = {
@@ -208,17 +230,19 @@ export default async function runProbe() {
     unclassifiedRestart: process.env.SIMULATE_UNCLASSIFIED_RESTART === 'true',
     unclassifiedLogDriver: process.env.SIMULATE_UNCLASSIFIED_LOG_DRIVER === 'true',
   };
-  results.push(...scanHealthchecks(mutatedDoc, extra, contentSha256));
-  results.push(...scanRestart(mutatedDoc, contentSha256));
-  results.push(...scanLogging(mutatedDoc, contentSha256));
+  results.push(...scanHealthchecks(mutatedDoc, extra, composeSha256));
+  results.push(...scanRestart(mutatedDoc, composeSha256));
+  results.push(...scanLogging(mutatedDoc, composeSha256));
   const dockerVersion = whichDocker();
   extra.dockerVersion = dockerVersion;
   if (dockerVersion === null) {
     results.push({
-      anchorAcId: 'AC-composeHost-healthcheckLint',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_HC,
       verdict: 'warn',
-      detail: 'docker CLI absent on PATH; source-tree assertions ran but docker compose config was not exercised',
-      evidence: { contentSha256, dockerLocal: null },
+      detail: 'offline compose-config-lint: docker CLI absent on PATH; source-tree assertions ran but docker compose config was not exercised',
+      evidence: { composeSha256, dockerLocal: null },
     });
   } else {
     const { writeFile, mkdir, cp } = await import('node:fs/promises');
@@ -239,12 +263,14 @@ export default async function runProbe() {
     });
     if (cfg.status === 0) {
       results.push({
-        anchorAcId: 'AC-composeHost-healthcheckLint',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_HC,
         verdict: 'pass',
-        detail: `docker compose config exit 0 (docker ${dockerVersion})`,
+        detail: `offline compose-config-lint: docker compose config exit 0 (docker ${dockerVersion})`,
         evidence: {
-          contentSha256,
-          file: 'compose.yaml',
+          composeSha256,
+          composeFile: 'compose.yaml',
           dockerVersion,
           engineNote: 'Docker Engine (compose sub-command); vendor documentation https://docs.docker.com/compose/compose-file/, verifiedOn 2026-09-11',
           exitStatus: 0,
@@ -252,12 +278,14 @@ export default async function runProbe() {
       });
     } else {
       results.push({
-        anchorAcId: 'AC-composeHost-healthcheckLint',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_HC,
         verdict: 'fail',
-        detail: `docker compose config exit ${cfg.status}: ${(cfg.stderr || cfg.stdout || '').slice(0, 400)}`,
+        detail: `offline compose-config-lint: docker compose config exit ${cfg.status}: ${(cfg.stderr || cfg.stdout || '').slice(0, 400)}`,
         evidence: {
-          contentSha256,
-          file: 'compose.yaml',
+          composeSha256,
+          composeFile: 'compose.yaml',
           dockerVersion,
           exitStatus: cfg.status,
           stderr: (cfg.stderr || '').slice(0, 400),

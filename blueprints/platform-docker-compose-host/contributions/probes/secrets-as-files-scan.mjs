@@ -1,24 +1,30 @@
-// Probe: secrets-as-files-scan (v1.1.5).
-
-// anchorAcIds: AC-composeHost-secretsAreFiles (service-level reference
-// shape rows), AC-composeHost-secretShape (top-level file: source
-// rows). This offline probe cannot observe the in-container mode a
-// compose stack applies at runtime; the mode observation belongs to
-// real-account-minimal-stack-up, which runs
+// Probe: secrets-as-files-scan (v1.1.8).
+//
+// This is an offline scanner: it reads the shipped compose.yaml,
+// the shipped .env, and every file under every declared service
+// bind-mount source, looking for a plaintext-token literal and for
+// the file-source shape of every top-level secret. It has no
+// engine-minted identifier - the sha256 of compose.yaml is
+// computed by this probe with Node's `createHash` and the service
+// and secret names are Compose's own choices, not engine-returned
+// identities.
+//
+// Every result row is a `conformanceOnly` de-claim naming the
+// shipped AC clause the offline scan does not observe. The live
+// observation for both AC-composeHost-secretShape ("mounted 0o400"
+// clause, in-container stat) and AC-composeHost-secretsAreFiles
+// (service secrets actually mounted, not present in env) lives on
+// `real-account-minimal-stack-up`, which runs
 // `docker exec ... stat -c %a /run/secrets/<name>` inside every
-// consuming container. The mode rows here are conformanceOnly with
-// `notObservableHere.ac = 'AC-composeHost-secretShape'` and a
-// limitation naming the AC clause the offline scan does not observe.
+// consuming container. The mode observation belongs there, not to
+// this offline scan.
+//
 // accountBound: false.
-
-// Every result row carries an `evidence` object with an identity key
-// AND an observation key or a body excerpt / derived value.
-
+//
 // Scans:
 //   - compose.yaml: every declared top-level secret references a
 //     file: source (secretShape); every top-level secret has at
-//     least one consuming service (a top-level entry no service
-//     references is an orphan and fails).
+//     least one consuming service (an orphan top-level entry fails).
 //   - compose.yaml: for every consuming service, the reference lives
 //     in the service-level secrets: array (never in environment).
 //     A long-form entry with an explicit `mode` field is recorded
@@ -39,18 +45,15 @@ import { tmpdir } from 'node:os';
 import { join, resolve, dirname, isAbsolute, relative } from 'node:path';
 import { runShim, readCompose, COMPOSE_PATH, SECRET_PATH, ENV_PATH, FIXTURE_DIR } from './probe-utils.mjs';
 
-// Deterministic content hash of the compose text scanned; the
-// engine-minted identifier attached to offline scan rows so the row
-// self-attests to a specific compose.yaml byte sequence.
 function sha256(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
-export const anchorAcIds = [
-  'AC-composeHost-secretsAreFiles',
-  'AC-composeHost-secretShape',
-];
+export const anchorAcIds = [];
 export const accountBound = false;
+
+const LIMIT_SHAPE = 'AC-composeHost-secretShape: top-level `file:` source is validated offline against the shipped compose.yaml; the live observation ("mounted at mode 0o400" clause, in-container `stat -c %a /run/secrets/<name>`) is carried by real-account-minimal-stack-up.';
+const LIMIT_FILES = 'AC-composeHost-secretsAreFiles: service-level secrets: reference shape is validated offline against the shipped compose.yaml; the live observation (the service consuming the file mount inside the container) is carried by real-account-minimal-stack-up.';
 
 async function walkFiles(root) {
   const out = [];
@@ -97,10 +100,6 @@ async function scanFileForLiteral(file, secret) {
   }
 }
 
-// Enumerate every filesystem source referenced by every service in the
-// applied compose.yaml. Handles both short-form (`- ./caddy:/etc/caddy:ro`)
-// and long-form (`- type: bind, source: ./caddy, target: ...`) volume
-// entries.
 function collectServiceConfigSources(doc, composeDir) {
   const sources = new Set();
   const services = doc.services ?? {};
@@ -109,8 +108,6 @@ function collectServiceConfigSources(doc, composeDir) {
     if (!Array.isArray(vols)) continue;
     for (const v of vols) {
       if (typeof v === 'string') {
-        // Short-form: SRC:TARGET[:MODE] - extract the SRC before the
-        // first colon; if it starts with ./ or / or ~, treat as a path.
         const idx = v.indexOf(':');
         if (idx <= 0) continue;
         const src = v.slice(0, idx);
@@ -127,10 +124,8 @@ function collectServiceConfigSources(doc, composeDir) {
   return [...sources];
 }
 
-// Return the mode declared for a service-level secrets entry (if any).
-// Compose long-form: - source: web-token, mode: 0400 (as int or oct).
 function getServiceSecretMode(svcSecretsEntry) {
-  if (typeof svcSecretsEntry === 'string') return null; // short-form: mode not declared here
+  if (typeof svcSecretsEntry === 'string') return null;
   if (svcSecretsEntry && typeof svcSecretsEntry === 'object') {
     if (svcSecretsEntry.mode === undefined || svcSecretsEntry.mode === null) return null;
     return svcSecretsEntry.mode;
@@ -153,36 +148,35 @@ export default async function runProbe() {
   }
   try {
     const composeTextForHash = await readFile(composePathToScan, 'utf8');
-    const contentSha256 = sha256(composeTextForHash);
+    const composeSha256 = sha256(composeTextForHash);
     const { doc } = await readCompose();
     const secretsBlock = doc.secrets ?? {};
     const secretNames = Object.keys(secretsBlock);
     extra.declaredSecrets = secretNames;
 
-    // Per-declared-secret shape row (AC-composeHost-secretShape): the
-    // file: source clause of the AC.
     for (const name of secretNames) {
       const spec = secretsBlock[name] ?? {};
       if (!spec.file) {
         results.push({
-          anchorAcId: 'AC-composeHost-secretShape',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_SHAPE,
           verdict: 'fail',
-          detail: `compose secret '${name}' is not a file: source`,
-          evidence: { contentSha256, secretName: name, spec, expected: 'file: <path>' },
+          detail: `offline secrets-as-files-scan: compose secret '${name}' is not a file: source`,
+          evidence: { composeSha256, declaredSecretName: name, spec, expectedShape: 'file: <path>' },
         });
       } else {
         results.push({
-          anchorAcId: 'AC-composeHost-secretShape',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_SHAPE,
           verdict: 'pass',
-          detail: `compose secret '${name}' declares file: ${spec.file}`,
-          evidence: { contentSha256, secretName: name, fileSource: spec.file, source: 'compose.yaml top-level secrets block' },
+          detail: `offline secrets-as-files-scan: compose secret '${name}' declares file: ${spec.file}`,
+          evidence: { composeSha256, declaredSecretName: name, fileSource: spec.file, scannedFrom: 'compose.yaml top-level secrets block' },
         });
       }
     }
 
-    // Consuming-service row: every top-level secret must be
-    // referenced by at least one service (an orphan top-level entry
-    // is a defect).
     const services = doc.services ?? {};
     const consumerBySecret = {};
     for (const name of secretNames) consumerBySecret[name] = [];
@@ -197,27 +191,25 @@ export default async function runProbe() {
       const consumers = consumerBySecret[name];
       if (consumers.length === 0) {
         results.push({
-          anchorAcId: 'AC-composeHost-secretShape',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_SHAPE,
           verdict: 'fail',
-          detail: `compose secret '${name}' is declared at the top level but no service references it via the service-level secrets: array (orphan)`,
-          evidence: { contentSha256, secretName: name, consumingServices: [], expected: 'at least one consuming service' },
+          detail: `offline secrets-as-files-scan: compose secret '${name}' is declared at the top level but no service references it via the service-level secrets: array (orphan)`,
+          evidence: { composeSha256, declaredSecretName: name, consumingServices: [], expectedShape: 'at least one consuming service' },
         });
       } else {
         results.push({
-          anchorAcId: 'AC-composeHost-secretShape',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_SHAPE,
           verdict: 'pass',
-          detail: `compose secret '${name}' is referenced by ${consumers.length} service(s): ${consumers.join(', ')}`,
-          evidence: { contentSha256, secretName: name, consumingServices: consumers, source: 'compose.yaml services block' },
+          detail: `offline secrets-as-files-scan: compose secret '${name}' is referenced by ${consumers.length} service(s): ${consumers.join(', ')}`,
+          evidence: { composeSha256, declaredSecretName: name, consumingServices: consumers, scannedFrom: 'compose.yaml services block' },
         });
       }
     }
 
-    // Service-level shape rows (AC-composeHost-secretsAreFiles):
-    // every service-level reference must live in the service secrets:
-    // array (never in env), and long-form entries carry their mode
-    // verbatim into the evidence. The AC's "mounted 0o400" clause is
-    // observed by the real-account probe (docker exec stat), not
-    // here.
     for (const [svcName, svc] of Object.entries(services)) {
       const svcSecrets = Array.isArray(svc && svc.secrets) ? svc.secrets : [];
       for (const entry of svcSecrets) {
@@ -225,49 +217,31 @@ export default async function runProbe() {
         if (!secretName) continue;
         if (!secretNames.includes(secretName)) {
           results.push({
-            anchorAcId: 'AC-composeHost-secretsAreFiles',
+            anchorAcId: null,
+            conformanceOnly: true,
+            limitation: LIMIT_FILES,
             verdict: 'fail',
-            detail: `service '${svcName}' references undeclared secret '${secretName}' via the service-level secrets: block`,
-            evidence: { contentSha256, service: svcName, secretName, declaredSecrets: secretNames },
+            detail: `offline secrets-as-files-scan: service '${svcName}' references undeclared secret '${secretName}' via the service-level secrets: block`,
+            evidence: { composeSha256, serviceName: svcName, declaredSecretName: secretName, declaredSecrets: secretNames },
           });
           continue;
         }
         const declaredMode = getServiceSecretMode(entry);
         results.push({
-          anchorAcId: 'AC-composeHost-secretsAreFiles',
-          verdict: 'pass',
-          detail: `service '${svcName}' references secret '${secretName}' via service-level secrets: (declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)})`,
-          evidence: {
-            contentSha256,
-            service: svcName,
-            secretName,
-            declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
-            source: 'compose.yaml service secrets: block',
-          },
-        });
-        // Mode row: this offline scan CANNOT observe the in-container
-        // mode; the observation is a process-level fact (docker exec
-        // stat) that lives on real-account-minimal-stack-up, so the
-        // row is a plain conformanceOnly de-claim with a shipped-AC
-        // limitation. notObservableHere is reserved for browser-only
-        // ACs and is not applicable to this blueprint.
-        results.push({
           anchorAcId: null,
           conformanceOnly: true,
-          limitation: 'AC-composeHost-secretShape: "mounted at mode 0o400" clause is not observed by this offline scan; the process-level observation lives on real-account-minimal-stack-up (docker exec stat -c %a inside the consuming container).',
+          limitation: LIMIT_FILES,
           verdict: 'pass',
-          detail: `service '${svcName}' secret '${secretName}' declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)}; in-container mode observation lives on the real-account probe.`,
+          detail: `offline secrets-as-files-scan: service '${svcName}' references secret '${secretName}' via service-level secrets: (declaredMode=${declaredMode === null ? 'unset' : String(declaredMode)})`,
           evidence: {
-            contentSha256,
-            service: svcName,
-            secretName,
+            composeSha256,
+            serviceName: svcName,
+            declaredSecretName: secretName,
             declaredMode: declaredMode === null ? 'unset' : String(declaredMode),
-            source: 'compose.yaml service secrets: block',
+            scannedFrom: 'compose.yaml service secrets: block',
           },
         });
       }
-      // A service that mentions a secret NAME in env or environment
-      // without a corresponding service-level secrets: entry fails.
       const environment = (svc && svc.environment) || [];
       const envList = Array.isArray(environment) ? environment : Object.keys(environment).map((k) => `${k}=${environment[k]}`);
       const svcSecretRefNames = svcSecrets.map((e) => (typeof e === 'string' ? e : (e && e.source) || null)).filter(Boolean);
@@ -275,18 +249,18 @@ export default async function runProbe() {
         for (const n of secretNames) {
           if (String(entry).includes(n) && !svcSecretRefNames.includes(n)) {
             results.push({
-              anchorAcId: 'AC-composeHost-secretsAreFiles',
+              anchorAcId: null,
+              conformanceOnly: true,
+              limitation: LIMIT_FILES,
               verdict: 'fail',
-              detail: `service '${svcName}' references secret '${n}' via environment entry '${entry}' instead of the service-level secrets: block`,
-              evidence: { contentSha256, service: svcName, envEntry: String(entry), secretName: n },
+              detail: `offline secrets-as-files-scan: service '${svcName}' references secret '${n}' via environment entry '${entry}' instead of the service-level secrets: block`,
+              evidence: { composeSha256, serviceName: svcName, envEntry: String(entry), declaredSecretName: n },
             });
           }
         }
       }
     }
 
-    // Config discovery: walk every service's bind mount source, not a
-    // hardcoded caddy/ dir.
     const composeDir = dirname(composePathToScan);
     const scanTargets = [composePathToScan, ENV_PATH];
     const configSources = collectServiceConfigSources(doc, composeDir);
@@ -302,7 +276,6 @@ export default async function runProbe() {
       } catch (_) { /* skip missing/unresolvable sources */ }
     }
 
-    // Plaintext-literal scan across every discovered target.
     const allHits = [];
     for (const t of scanTargets) {
       allHits.push(...await scanFileForLiteral(t, secret));
@@ -310,23 +283,27 @@ export default async function runProbe() {
     if (allHits.length > 0) {
       for (const h of allHits) {
         results.push({
-          anchorAcId: 'AC-composeHost-secretsAreFiles',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_FILES,
           verdict: 'fail',
-          detail: `plaintext secret literal for 'web-token' found in ${h.file}:${h.line} (snippet: ${h.snippet})`,
-          evidence: { contentSha256, file: h.file, line: h.line, snippet: h.snippet, secretName: 'web-token' },
+          detail: `offline secrets-as-files-scan: plaintext secret literal for 'web-token' found in ${h.file}:${h.line} (snippet: ${h.snippet})`,
+          evidence: { composeSha256, scannedFile: h.file, lineNumber: h.line, snippet: h.snippet, declaredSecretName: 'web-token' },
         });
       }
     } else {
       results.push({
-        anchorAcId: 'AC-composeHost-secretsAreFiles',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_FILES,
         verdict: 'pass',
-        detail: `no plaintext secret literal for 'web-token' found across ${scanTargets.length} scanned files (compose.yaml, .env, and every file under each service's bind-mount source)`,
+        detail: `offline secrets-as-files-scan: no plaintext secret literal for 'web-token' found across ${scanTargets.length} scanned files (compose.yaml, .env, and every file under each service's bind-mount source)`,
         evidence: {
-          contentSha256,
-          scannedFiles: scanTargets.map((f) => f.replace(FIXTURE_DIR + '/', '')),
+          composeSha256,
+          scannedFilenames: scanTargets.map((f) => f.replace(FIXTURE_DIR + '/', '')),
           fileCount: scanTargets.length,
           discoveredConfigSources: extra.discoveredConfigSources,
-          secretName: 'web-token',
+          declaredSecretName: 'web-token',
         },
       });
     }

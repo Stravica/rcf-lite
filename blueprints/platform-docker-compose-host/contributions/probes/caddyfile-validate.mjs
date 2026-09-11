@@ -1,13 +1,15 @@
-// Probe: caddyfile-validate (v1.1.5).
+// Probe: caddyfile-validate (v1.1.8).
 //
-// anchorAcId: AC-composeHost-reverseProxyArtefactValid.
-// accountBound: false.
-//
-// Every result row carries an `evidence` object (the shape rule).
-// The probe now also observes the compose bind-mount for the
-// Caddyfile is read-only (:ro suffix or read_only: true on the
-// long-form) and anchors the observation to AC-38107-4 (read-only
-// bind-mount).
+// This is an offline validator: it reads the shipped Caddyfile and
+// the shipped compose.yaml and shells out to `caddy validate` (or
+// a caddy:2 container via `docker run --rm`). It has no engine-
+// minted identifier - the sha256 of the read artefact is computed
+// by this probe with Node's `createHash` and the compose bind-
+// mount line is text the probe extracted. Every result row is a
+// `conformanceOnly` de-claim naming the shipped AC clause the
+// offline check does not observe. The exit status, tail excerpt,
+// the observed bind-mount line and the hash of the read artefact
+// stay on the row as derived context.
 //
 // Mutation:
 // - SIMULATE_INVALID_CADDYFILE=true appends an unclosed-block syntax
@@ -21,19 +23,19 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runShim, CADDYFILE_PATH, COMPOSE_PATH, whichCaddy, whichDocker } from './probe-utils.mjs';
 
-// Deterministic content hash of the artefact the row observed; the
-// engine-minted identifier on offline caddyfile-validate rows under
-// the semantic anatomy rule.
 function sha256(text) {
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
-export const anchorAcId = 'AC-composeHost-reverseProxyArtefactValid';
+export const anchorAcId = null;
 export const accountBound = false;
 
 const VENDOR_CADDY = 'https://caddyserver.com/docs/command-line#caddy-validate';
 const VENDOR_DOCKER = 'https://docs.docker.com/reference/cli/docker/container/run/';
 const VENDOR_VERIFIED_ON = '2026-09-11';
+
+const LIMIT_38107_4 = 'AC-38107-4: compose bind-mount for the reverse-proxy config is validated offline against the shipped compose.yaml text; the live on-server observation (the compose stack applying the read-only mount) is carried by real-account-minimal-stack-up.';
+const LIMIT_REV_PROXY = 'AC-composeHost-reverseProxyArtefactValid: the reverse-proxy artefact is validated offline by `caddy validate` against the shipped Caddyfile; the live observation (the artefact serving traffic on the applied stack) is carried by real-account-reload-burst.';
 
 function isCaddyReverseProxy() {
   const v = process.env.REVERSE_PROXY;
@@ -48,9 +50,11 @@ export default async function runProbe() {
   extra.reverseProxy = process.env.REVERSE_PROXY ?? 'caddy';
   if (!isCaddyReverseProxy()) {
     results.push({
-      anchorAcId,
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_REV_PROXY,
       verdict: 'skipped',
-      detail: `reverseProxy=${extra.reverseProxy}: caddyfile-validate skipped (applies only when reverseProxy=caddy)`,
+      detail: `offline caddyfile-validate: reverseProxy=${extra.reverseProxy}: skipped (applies only when reverseProxy=caddy)`,
       evidence: { reverseProxy: extra.reverseProxy },
     });
     return { results, extra };
@@ -58,39 +62,45 @@ export default async function runProbe() {
 
   // Bind-mount check: the compose file mounts caddy/Caddyfile
   // read-only into the caddy service. AC-38107-4 requires the :ro
-  // suffix or read_only: true on the long-form. This is a source-tree
-  // observation that carries its own evidence.
+  // suffix or read_only: true on the long-form. This is a source-
+  // tree observation carried as a conformanceOnly de-claim.
   try {
     const composeText = await readFile(COMPOSE_PATH, 'utf8');
     const composeSha256 = sha256(composeText);
     const caddyMountRe = /\.\/caddy\/Caddyfile:\/etc\/caddy\/Caddyfile:ro/;
     if (caddyMountRe.test(composeText)) {
       results.push({
-        anchorAcId: 'AC-38107-4',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_38107_4,
         verdict: 'pass',
-        detail: 'compose.yaml bind-mounts caddy/Caddyfile into the caddy service read-only (:ro suffix present)',
+        detail: 'offline caddyfile-validate: compose.yaml bind-mounts caddy/Caddyfile into the caddy service read-only (:ro suffix present)',
         evidence: {
-          contentSha256: composeSha256,
+          composeSha256,
           composeMountLine: (composeText.match(/[^\n]*Caddyfile:\/etc\/caddy\/Caddyfile[^\n]*/) || [''])[0],
-          suffix: ':ro',
+          mountSuffix: ':ro',
         },
       });
     } else {
       results.push({
-        anchorAcId: 'AC-38107-4',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_38107_4,
         verdict: 'fail',
-        detail: 'compose.yaml Caddyfile bind-mount is not read-only; expected :ro suffix on ./caddy/Caddyfile:/etc/caddy/Caddyfile',
+        detail: 'offline caddyfile-validate: compose.yaml Caddyfile bind-mount is not read-only; expected :ro suffix on ./caddy/Caddyfile:/etc/caddy/Caddyfile',
         evidence: {
-          contentSha256: composeSha256,
+          composeSha256,
           composeMountLine: (composeText.match(/[^\n]*Caddyfile[^\n]*/) || [''])[0],
         },
       });
     }
   } catch (err) {
     results.push({
-      anchorAcId: 'AC-38107-4',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: LIMIT_38107_4,
       verdict: 'fail',
-      detail: `could not read compose.yaml to check the Caddyfile bind-mount: ${err.message}`,
+      detail: `offline caddyfile-validate: could not read compose.yaml to check the Caddyfile bind-mount: ${err.message}`,
       evidence: { composePath: COMPOSE_PATH, error: err.message },
     });
   }
@@ -121,9 +131,11 @@ export default async function runProbe() {
       engineLabel = 'caddy:2 container (docker run --rm)';
     } else {
       results.push({
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_REV_PROXY,
         verdict: 'warn',
-        detail: 'neither caddy binary nor docker on PATH; caddy validate could not be exercised',
+        detail: 'offline caddyfile-validate: neither caddy binary nor docker on PATH; caddy validate could not be exercised',
         evidence: { caddyLocal: null, dockerLocal: null },
       });
       return { results, extra };
@@ -134,11 +146,13 @@ export default async function runProbe() {
     const tail = ((r.stderr || '') + (r.stdout || '')).split('\n').slice(-10).join('\n');
     if (r.status === 0) {
       results.push({
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_REV_PROXY,
         verdict: 'pass',
-        detail: `caddy validate exit 0 (${engineLabel}); tail: ${tail.slice(-200)}`,
+        detail: `offline caddyfile-validate: caddy validate exit 0 (${engineLabel}); tail: ${tail.slice(-200)}`,
         evidence: {
-          contentSha256: caddyfileSha256,
+          caddyfileSha256,
           engineLabel,
           exitStatus: 0,
           tailExcerpt: tail.slice(-400),
@@ -151,11 +165,13 @@ export default async function runProbe() {
       });
     } else {
       results.push({
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_REV_PROXY,
         verdict: 'fail',
-        detail: `caddy validate exit ${r.status} (${engineLabel}); tail: ${tail.slice(-400)}`,
+        detail: `offline caddyfile-validate: caddy validate exit ${r.status} (${engineLabel}); tail: ${tail.slice(-400)}`,
         evidence: {
-          contentSha256: caddyfileSha256,
+          caddyfileSha256,
           engineLabel,
           exitStatus: r.status,
           tailExcerpt: tail.slice(-400),

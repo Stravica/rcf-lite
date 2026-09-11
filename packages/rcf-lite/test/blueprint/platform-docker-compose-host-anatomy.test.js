@@ -45,16 +45,22 @@ async function runProbe(name, env = {}) {
 //       and a non-empty DERIVED OBSERVATION.
 //
 // Engine-minted identifier: one of a small explicit set of fields
-// whose value is minted by the engine that produced the row (a
-// vendor-returned server / snapshot / firewall / image / container /
-// request id, or the deterministic content hash of an artefact the
-// engine rendered or scanned) with a non-empty value; OR a
+// whose value is minted by the engine or vendor that produced the
+// row (a vendor-returned server / snapshot / firewall / image /
+// container id, an engine request id, or the 64-hex Docker
+// container id from `docker inspect`) with a non-empty value; OR a
 // supplied/echo pair, where the row carries `supplied<Name>` and a
 // matching `echoed<Name>` field, both non-empty and strictly equal.
 //
-// Event names, file paths, service names, manifest names, resource
-// names the probe chose, and other probe inputs count only as
-// derived context, never as the identifier.
+// A hash the probe itself computes over an artefact it read is NOT
+// an identifier; event names, file paths, service names, manifest
+// names, container names Compose or the probe chose, and other
+// probe inputs count only as derived context, never as the
+// identifier or the observation. Rows on offline probes
+// (validators, source-tree scans) that have no engine-minted
+// identifier are honest `conformanceOnly` rows naming the shipped
+// AC clause they do not observe; identity and observation checks
+// apply to anchored rows only.
 //
 // Derived observation: a body excerpt, status code, observed mode,
 // engine timestamp, non-zero count, or structured engine-returned
@@ -69,14 +75,14 @@ async function runProbe(name, env = {}) {
 // numeric identity value of zero is not an observation.
 const ENGINE_MINTED_ID_FIELDS = new Set([
   // Vendor-returned or resource ids minted by the vendor / mock /
-  // engine that produced the row.
+  // engine that produced the row. `containerId` is the 64-hex
+  // Docker container id from `docker inspect`, never the service
+  // or container name Compose chose.
   'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
   'containerId', 'requestId', 'vendorRequestId', 'resourceId',
-  // Deterministic content hash of a rendered or scanned artefact.
-  'contentSha256',
 ]);
 const DERIVED_OBSERVATION_FIELDS = new Set([
-  // Textual samples / excerpts / hashes
+  // Textual samples / excerpts
   'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample', 'tail',
   // Vendor-return field values (concrete observed values)
   'primaryIpv4', 'location', 'serverType',
@@ -90,19 +96,13 @@ const DERIVED_OBSERVATION_FIELDS = new Set([
   'ruleNames', 'observedDrivers', 'observedBinding', 'observedEvents', 'eventTrail',
   'headers', 'healthcheckKeys', 'requiredFields', 'shippedEnum',
   'allowedKeysByEvent', 'unexpectedKeys', 'leaks',
-  'fileSource', 'discoveredConfigSources', 'consumingServices', 'declaredMode',
+  'discoveredConfigSources', 'consumingServices', 'declaredMode',
   'declaredServices', 'observedNames',
   'observedSecretModes', 'baselineChecks', 'sshReadiness', 'cloudInit', 'teardown',
   'warm', 'burst', 'composeDown', 'onServer', 'onServerRoot', 'external',
-  'postTeardownServerIds', 'unhealthyServices', 'missingServices', 'expected',
-  'observed', 'event', 'suffix', 'vendorDocs', 'dockerVersion', 'engineNote',
-  'driver', 'restart', 'ports', 'port', 'direction', 'protocol', 'clockDomain',
-  // Context fields (event name, service name, path, manifest name,
-  // engine label) — derived context only under the semantic rule,
-  // never satisfy the identifier half on their own.
-  'eventName', 'manifestName', 'renderedPath', 'file', 'path', 'name',
-  'service', 'target', 'url', 'secretName', 'mountPath', 'scannedFiles',
-  'composeMountLine', 'engineLabel', 'source', 'expectedKeys',
+  'postTeardownServerIds', 'unhealthyServices', 'missingServices',
+  'observed', 'dockerVersion', 'driver', 'restart', 'ports', 'port',
+  'direction', 'protocol', 'clockDomain',
 ]);
 // The platform-docker-compose-host blueprint ships process/live-
 // observable ACs only; no browser-only rendering is in scope. This
@@ -161,13 +161,17 @@ async function assertRowsCarry7dShape(rows, label) {
       const m = r.limitation.match(/^(AC-[A-Za-z0-9-]+)\b/);
       assert.ok(m, `${label}: conformanceOnly limitation must start with a shipped AC id token; got ${JSON.stringify(r.limitation).slice(0, 200)}`);
       assert.ok(shipped.has(m[1]), `${label}: conformanceOnly limitation names ${m[1]}, which is not a shipped AC on platform-docker-compose-host`);
+      // conformanceOnly rows attest to a limitation, not a live
+      // observation; identity and observation checks are for
+      // anchored rows only.
+      continue;
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
     const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
     const suppliedEchoPair = findSuppliedEchoPair(ev);
     const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
     const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
-    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, request id, or content hash) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, engine request id, or a 64-hex Docker container id from docker inspect) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
     assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
 }
@@ -194,7 +198,7 @@ function findSuppliedEchoPair(ev) {
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.7');
+  assert.equal(bp.version, '1.1.8');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -268,9 +272,10 @@ test('platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid
   await assertRowsCarry7dShape(clean.results, 'caddyfile-validate clean');
   const noFail = !clean.results.some((r) => r.verdict === 'fail');
   assert.ok(noFail, `expected canonical caddyfile-validate not to fail; got: ${JSON.stringify(clean.results, null, 2)}`);
-  // Bind-mount read-only assertion anchored to AC-38107-4 lands on the
-  // clean pass.
-  assert.ok(clean.results.some((r) => r.anchorAcId === 'AC-38107-4' && r.verdict === 'pass'), 'caddyfile-validate must observe the read-only bind-mount and pass on AC-38107-4');
+  // Bind-mount read-only de-claim for AC-38107-4 lands on the
+  // clean pass as a conformanceOnly row (offline validators have
+  // no engine-minted identifier under v1.1.8 semantic anatomy).
+  assert.ok(clean.results.some((r) => r.conformanceOnly === true && typeof r.limitation === 'string' && r.limitation.startsWith('AC-38107-4') && r.verdict === 'pass'), 'caddyfile-validate must emit a read-only bind-mount conformanceOnly row limitating AC-38107-4 (pass)');
 });
 
 test('platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape', async () => {
