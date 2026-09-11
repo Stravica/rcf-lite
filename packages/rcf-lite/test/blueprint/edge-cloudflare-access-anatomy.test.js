@@ -255,7 +255,13 @@ async function bootAdminConsoleFixture() {
 test('extended admin-console pack fixture flips sign-in surface per applied capability set (TC-117-admin-console-gate-surface)', async () => {
   const { url, stop } = await bootAdminConsoleFixture();
   try {
-    const gated = await fetch(`${url}/admin/sign-in?caps=principalDirectory,roleModel,auditLog,zeroTrustGate`);
+    // Gated combination: fixture refuses unauthenticated gated
+    // requests with HTTP 403 (AC-21815-2), so the probe supplies a
+    // fixture Authorization header to observe the access-gated
+    // surface (AC-21815-1).
+    const gated = await fetch(`${url}/admin/sign-in?caps=principalDirectory,roleModel,auditLog,zeroTrustGate`, {
+      headers: { Authorization: 'Principal probe-signin@example.test' },
+    });
     const gatedBody = await gated.text();
     assert.equal(gated.status, 200);
     assert.ok(gatedBody.includes('data-surface="access-gated"'));
@@ -297,7 +303,17 @@ test('admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination
     const { url, stop } = await bootAdminConsoleFixture();
     try {
       const stubBrowser = {
-        async goto(target) { this._body = await (await fetch(target)).text(); },
+        async goto(target) {
+          // Fixture refuses unauthenticated gated requests with HTTP
+          // 403 (AC-21815-2); when the target URL carries the
+          // zeroTrustGate capability, supply a fixture Authorization
+          // header so the pack check can observe the access-gated
+          // surface.
+          const headers = String(target).includes('zeroTrustGate')
+            ? { Authorization: 'Principal probe-signin@example.test' }
+            : undefined;
+          this._body = await (await fetch(target, headers ? { headers } : undefined)).text();
+        },
         async evaluate(fn) {
           // Parse the DOM shape the check reads via a lightweight matcher.
           const body = this._body ?? '';
