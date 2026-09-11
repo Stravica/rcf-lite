@@ -28,7 +28,7 @@ redaction category strings on the emitted line).
 ## Reviewer boot
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/observability-logging/contributions/probes/run-line-shape-and-fields.mjs
 node ./blueprints/observability-logging/contributions/probes/run-correlation-id-flow.mjs
 node ./blueprints/observability-logging/contributions/probes/run-redaction-boundary.mjs

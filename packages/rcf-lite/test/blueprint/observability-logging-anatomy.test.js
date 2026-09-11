@@ -97,10 +97,10 @@ test('observability-logging: anatomy files exist with the required sections (TC-
   assert.match(topics, /16xx/);
 });
 
-// e-mixed (2026-09-11): pin the criterion e probe pack files added under
+// criterion e (2026-09-11): pin the criterion e probe pack files added under
 // contributions/probes/ and the fixture under packages/rcf-lite/test/
 // fixtures/probe-pack-observability-logging/.
-test('observability-logging: contributions/probes/ pack is present and every probe declares its anchor + accountBound (TC-e-mixed-probe-pack)', async () => {
+test('observability-logging: contributions/probes/ pack is present and every probe declares its anchor + accountBound (TC-crit-e-probe-pack)', async () => {
   const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
   const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'probe-pack-observability-logging');
   const probes = ['line-shape-and-fields', 'correlation-id-flow', 'redaction-boundary'];
@@ -119,4 +119,34 @@ test('observability-logging: contributions/probes/ pack is present and every pro
   assert.match(fixReadme, /RCF_FIXTURE_LOGGER_CORRELATION_HEADER/, 'fixture README must name RCF_FIXTURE_LOGGER_CORRELATION_HEADER');
   const utils = await readFile(join(PROBES_DIR, 'probe-utils.mjs'), 'utf8');
   assert.match(utils, /DECLARED_ENV/, 'probe-utils must export DECLARED_ENV');
+});
+
+// criterion e (positive-evidence) extensions.
+import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape } from './_probe-anatomy-helpers.mjs';
+
+const PROBES_DIR_E = join(BLUEPRINT_ROOT, 'contributions', 'probes');
+const FIXTURE_DIR_E = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'probe-pack-observability-logging');
+const PROBES_E = ['line-shape-and-fields', 'correlation-id-flow', 'redaction-boundary'];
+
+test('observability-logging: DECLARED_ENV covers every process.env read across probes + fixture src (TC-crit-e-env-derivation)', async () => {
+  const probeFiles = await listMjsUnder(PROBES_DIR_E);
+  const fixtureFiles = await listMjsUnder(join(FIXTURE_DIR_E, 'src'));
+  const actualReads = await collectEnvReads([...probeFiles, ...fixtureFiles]);
+  const utils = await importProbe(join(PROBES_DIR_E, 'probe-utils.mjs'));
+  const declared = utils.DECLARED_ENV instanceof Set ? utils.DECLARED_ENV : new Set(Array.from(utils.DECLARED_ENV || []));
+  const missing = [...actualReads].filter((n) => !declared.has(n));
+  assert.equal(missing.length, 0, 'DECLARED_ENV must include every process.env name read by probes or fixture; missing: ' + JSON.stringify(missing) + '; actualReads=' + JSON.stringify([...actualReads]));
+});
+
+test('observability-logging: every probe returns results whose rows each carry a 7d evidence shape or an honest skip (TC-crit-e-result-shape)', async () => {
+  for (const p of PROBES_E) {
+    const mod = await importProbe(join(PROBES_DIR_E, p + '.mjs'));
+    const outcome = await mod.default();
+    const results = outcome && Array.isArray(outcome.results) ? outcome.results : null;
+    assert.ok(results && results.length > 0, p + ': probe returned no results');
+    for (const [i, r] of results.entries()) {
+      const check = resultHasEvidenceShape(r);
+      assert.ok(check.ok, p + ' result[' + i + '] anchor=' + r.anchorAcId + ' verdict=' + r.verdict + ' fails 7d evidence shape: ' + check.reason);
+    }
+  }
 });

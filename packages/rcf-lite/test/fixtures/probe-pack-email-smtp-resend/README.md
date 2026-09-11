@@ -12,7 +12,7 @@ Local branch:
 
 - `RCF_FIXTURE_SMTP_PORT` (optional): overrides the port the fixture
   SMTP server binds; default 0 (kernel-assigned). Range 47550 for
-  the e-mixed family per the master brief.
+  the criterion-e family per the master brief.
 
 Live branch (Resend):
 
@@ -26,12 +26,12 @@ The live probe sends a real message to `delivered@resend.dev` from
 email id and asserts the send returned 200. The Resend sandbox
 domain is documented here:
 https://resend.com/docs/dashboard/emails/send-test-emails
-(verified 2026-09-11 for e-mixed).
+(verified 2026-09-11 for criterion e).
 
 ## Reviewer boot
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/email-smtp-resend/contributions/probes/run-smtp-round-trip.mjs
 node ./blueprints/email-smtp-resend/contributions/probes/run-unverified-sender-refusal.mjs
 node ./blueprints/email-smtp-resend/contributions/probes/run-real-account-resend-send.mjs

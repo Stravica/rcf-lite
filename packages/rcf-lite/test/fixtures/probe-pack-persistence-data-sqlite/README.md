@@ -34,7 +34,7 @@ checkpoint counters).
 Run from the repo root with Node 24 first on PATH:
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/persistence-data-sqlite/contributions/probes/run-boot-open-migrate.mjs
 node ./blueprints/persistence-data-sqlite/contributions/probes/run-facade-round-trip.mjs
 node ./blueprints/persistence-data-sqlite/contributions/probes/run-wal-checkpoint.mjs

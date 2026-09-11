@@ -6,6 +6,8 @@ Adds a contributions/probes/ pack (facade-round-trip, migrations-forward-only, r
 
 
 
+Fix pass (2026-09-11, criterion e closure): real-account probe treats auth failures with credentials PRESENT as FAIL (not accountBoundSkipped); teardown row requires inventoryStatus === 200 and asserts the created uuid is absent from a real post-delete listing. Shared aggregate([]) fails with 'no checks ran'; DECLARED_ENV covers every process.env read across probes and fixture. Fixture README uses generic vault placeholders in reviewer boot.
+
 ## 1.1.2 - 2026-09-10
 
 Second closure fix on the dimension-d ownership sweep for REQ-004: removed the `prepare().bind()` and `db.exec(<consumer string>)` literals from `ADR-1404.context` (the argument now names the prepared-statement discipline owned on `TAC-1401-persistence-data-d1-facade.responsibilities[2]`); added the one-line owner pointer to the facade-shape asset and the batch-usage asset naming the TAC responsibility indices they demonstrate. ADR-1404 bumped to 1.0.1. Chain-consistency lint zero on pass 1 and pass 2.

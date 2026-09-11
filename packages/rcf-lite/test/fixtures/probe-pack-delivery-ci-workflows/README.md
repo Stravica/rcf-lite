@@ -19,15 +19,15 @@ Live branch (GitHub Actions read-only):
   account probe records `accountBoundSkipped: true` and the aggregate
   flips to pass per spec section 3.5. Uses ambient `gh` auth (checked
   via `gh auth status` as a pre-flight observation, per the master
-  brief for e-mixed 2026-09-11 delivery-ci-workflows row); the probe
+  brief for criterion e 2026-09-11 delivery-ci-workflows row); the probe
   never triggers workflows.
 - `RCF_FIXTURE_CIW_REPO` (optional): overrides the read-only repo
-  the real-account probe queries; default `Stravica/rcf-lite`.
+  the real-account probe queries; no default (probe skips honestly when unset).
 
 ## Reviewer boot
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/delivery-ci-workflows/contributions/probes/run-workflow-template-shape.mjs
 node ./blueprints/delivery-ci-workflows/contributions/probes/run-node-gate-entrypoint.mjs
 node ./blueprints/delivery-ci-workflows/contributions/probes/run-real-account-github-actions-run-record.mjs

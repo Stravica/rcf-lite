@@ -45,7 +45,7 @@ export default async function runProbe() {
     walAfter = await safeSize(walPath);
     results.push({
       anchorAcId: 'AC-5103-1',
-      verdict: checkpoint.busy === 0 && Number.isInteger(checkpoint.pagesLog) && Number.isInteger(checkpoint.pagesCheckpointed) ? 'pass' : 'fail',
+      verdict: checkpoint.busy === 0 && Number.isInteger(checkpoint.pagesLog) && Number.isInteger(checkpoint.pagesCheckpointed) && typeof walBefore === 'number' && walBefore > 0 && walAfter === 0 ? 'pass' : 'fail',
       detail: `wal_checkpoint(TRUNCATE) busy=${checkpoint.busy} pagesLog=${checkpoint.pagesLog} pagesCheckpointed=${checkpoint.pagesCheckpointed}; walSizeBytes before=${walBefore} after=${walAfter}`,
       evidence: { checkpoint, walSizeBefore: walBefore, walSizeAfter: walAfter },
     });

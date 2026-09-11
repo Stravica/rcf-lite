@@ -1,14 +1,15 @@
 // Anatomy test for the persistence-data-d1 v1.1.3 shelf blueprint.
-// Covers e-mixed (2026-09-11) probe pack shape + shipped blueprint
-// metadata. Extends the existing test surface only where a criterion
-// e pack has been added; blueprint.json fields not touched here stay
-// under the shelf lint's remit.
+// Covers criterion e (positive-evidence) probe pack shape + shipped
+// blueprint metadata; extends only where a criterion e pack has been
+// added.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
+
+import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape } from './_probe-anatomy-helpers.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -18,16 +19,15 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['facade-round-trip', 'migrations-forward-only', 'real-account-d1-round-trip'];
 
-test('persistence-data-d1: blueprint.json version pinned at 1.1.3 (TC-e-mixed-blueprint-json-version)', async () => {
+test('persistence-data-d1: blueprint.json version pinned at 1.1.3 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-d1');
   assert.equal(doc.version, '1.1.3');
 });
 
-test('persistence-data-d1: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-e-mixed-probe-pack)', async () => {
+test('persistence-data-d1: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {
   for (const p of PROBES) {
-    const modUrl = pathToFileURL(join(PROBES_DIR, p + '.mjs'));
-    const mod = await import(modUrl.href);
+    const mod = await importProbe(join(PROBES_DIR, p + '.mjs'));
     assert.ok(typeof mod.default === 'function', p + ': default export must be an async probe fn');
     assert.ok(typeof mod.anchorAcId === 'string' && mod.anchorAcId.length > 0, p + ': anchorAcId string required');
     assert.equal(typeof mod.accountBound, 'boolean', p + ': accountBound boolean required');
@@ -38,13 +38,35 @@ test('persistence-data-d1: contributions/probes/ pack is present and every probe
   assert.match(utils, /DECLARED_ENV/, 'probe-utils.mjs must export DECLARED_ENV');
 });
 
-test('persistence-data-d1: fixture README declares every env var the probes read (TC-e-mixed-fixture-env-declaration)', async () => {
+test('persistence-data-d1: DECLARED_ENV covers every process.env read across probes + fixture src (TC-crit-e-env-derivation)', async () => {
+  const probeFiles = await listMjsUnder(PROBES_DIR);
+  const fixtureFiles = await listMjsUnder(join(FIXTURE_DIR, 'src'));
+  const actualReads = await collectEnvReads([...probeFiles, ...fixtureFiles]);
+  const utils = await importProbe(join(PROBES_DIR, 'probe-utils.mjs'));
+  const declared = utils.DECLARED_ENV instanceof Set ? utils.DECLARED_ENV : new Set(Array.from(utils.DECLARED_ENV || []));
+  const missing = [...actualReads].filter((n) => !declared.has(n));
+  assert.equal(missing.length, 0, 'DECLARED_ENV must include every process.env name read by probes or fixture; missing: ' + JSON.stringify(missing) + '; actualReads=' + JSON.stringify([...actualReads]));
+});
+
+test('persistence-data-d1: fixture README declares every env var in DECLARED_ENV (TC-crit-e-fixture-env-declaration)', async () => {
   const readme = await readFile(join(FIXTURE_DIR, 'README.md'), 'utf8');
   assert.match(readme, /Declared env vars/, 'fixture README must have a Declared env vars section');
-  const utils = await readFile(join(PROBES_DIR, 'probe-utils.mjs'), 'utf8');
-  const declared = [...utils.matchAll(/'([A-Z][A-Z0-9_]*)'/g)].map((m) => m[1]);
-  const uniq = [...new Set(declared)].filter((n) => n.startsWith('CI_') || n.startsWith('RCF_FIXTURE_') || n.startsWith('CF_') || n.startsWith('RESEND_') || n === 'SIMULATE_D1_RATE_LIMIT');
-  for (const env of uniq) {
+  const utils = await importProbe(join(PROBES_DIR, 'probe-utils.mjs'));
+  const declared = utils.DECLARED_ENV instanceof Set ? [...utils.DECLARED_ENV] : Array.from(utils.DECLARED_ENV || []);
+  for (const env of declared) {
     assert.match(readme, new RegExp(env), 'fixture README must name env var ' + env);
+  }
+});
+
+test('persistence-data-d1: every probe returns results whose rows each carry a 7d evidence shape or an honest skip (TC-crit-e-result-shape)', async () => {
+  for (const p of PROBES) {
+    const mod = await importProbe(join(PROBES_DIR, p + '.mjs'));
+    const outcome = await mod.default();
+    const results = outcome && Array.isArray(outcome.results) ? outcome.results : null;
+    assert.ok(results && results.length > 0, p + ': probe returned no results');
+    for (const [i, r] of results.entries()) {
+      const check = resultHasEvidenceShape(r);
+      assert.ok(check.ok, p + ' result[' + i + '] anchor=' + r.anchorAcId + ' verdict=' + r.verdict + ' fails 7d evidence shape: ' + check.reason);
+    }
   }
 });

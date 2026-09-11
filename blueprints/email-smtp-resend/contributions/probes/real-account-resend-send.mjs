@@ -8,7 +8,7 @@
 //
 // Vendor citation: Resend sandbox addresses,
 // https://resend.com/docs/dashboard/emails/send-test-emails (verified
-// on 2026-09-11 for e-mixed dispatch).
+// on 2026-09-11 for criterion e).
 //
 // Honest skip: without CI_HAS_RESEND_ACCOUNT=true or RESEND_API_KEY,
 // records accountBoundSkipped: true and the reason names the unset
@@ -37,7 +37,7 @@ export default async function runProbe() {
   if (process.env.CI_HAS_RESEND_ACCOUNT !== 'true') return skipResult('CI_HAS_RESEND_ACCOUNT', 'accountBoundSkipped: CI_HAS_RESEND_ACCOUNT is not set to true; the probe did not send.');
   if (!process.env.RESEND_API_KEY) return skipResult('RESEND_API_KEY', 'accountBoundSkipped: RESEND_API_KEY unset; the probe did not send.');
   const results = [];
-  const body = JSON.stringify({ from: 'onboarding@resend.dev', to: 'delivered@resend.dev', subject: 'rcf-lite e-mixed probe', text: 'e-mixed probe send at ' + new Date().toISOString() });
+  const body = JSON.stringify({ from: 'onboarding@resend.dev', to: 'delivered@resend.dev', subject: 'rcf-lite criterion-e probe', text: 'criterion-e probe send at ' + new Date().toISOString() });
   const res = await fetch(API, { method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body });
   const json = await res.json().catch(() => ({}));
   const requestId = res.headers.get('x-request-id') || res.headers.get('resend-request-id');

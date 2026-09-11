@@ -10,18 +10,20 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/observa
 export const DECLARED_ENV = new Set(['RCF_FIXTURE_LOGGER_CORRELATION_HEADER']);
 
 export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
-export function isSkipped(results) {
-  return results.length > 0 && results.every((r) => r.accountBoundSkipped === true);
-}
+export function isSkipped(results) { return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true); }
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
-  const raw = aggregate(results);
-  const aggregateVerdict = isSkipped(results) ? 'pass' : raw;
-  const report = { slug: 'observability-logging', probeName, runAt: new Date().toISOString(), engine, results, aggregateVerdict, ...(extra ?? {}) };
+  const normalised = (Array.isArray(results) && results.length > 0)
+    ? results
+    : [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran' }];
+  const raw = aggregate(normalised);
+  const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
+  const report = { slug: 'observability-logging', probeName, runAt: new Date().toISOString(), engine, results: normalised, aggregateVerdict, ...(extra ?? {}) };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
   return { report, path };

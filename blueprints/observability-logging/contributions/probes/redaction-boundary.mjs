@@ -17,7 +17,7 @@ export const accountBound = false;
 export default async function runProbe() {
   const outBuf = [];
   const log = createLogger({ environment: 'qa', serviceName: 'probe-svc', serviceVersion: '0.0.1', outSink: (s) => outBuf.push(s), errSink: () => {} });
-  const payload = { credential: 'hunter2', token: 'tok-abc', bearer: 'Bearer xyz', pii: { email: 'x@example.com', name: 'Baz', address: '1 Road' }, note: 'this stays' };
+  const payload = { credential: 'SAMPLE_CRED_VALUE', token: 'SAMPLE_TOKEN_VALUE', bearer: 'SAMPLE_BEARER_VALUE', pii: { email: 'sample@example.com', name: 'Sample Person', address: '1 Sample St' }, note: 'this stays' };
   log.info('with-pii', payload);
   const line = JSON.parse(outBuf.join('').split('\n').filter(Boolean)[0]);
   const results = [];

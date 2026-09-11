@@ -17,7 +17,7 @@ No account gate.
 ## Reviewer boot
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/observability-essentials/contributions/probes/run-liveness-probe.mjs
 node ./blueprints/observability-essentials/contributions/probes/run-readiness-probe.mjs
 node ./blueprints/observability-essentials/contributions/probes/run-metrics-endpoint.mjs

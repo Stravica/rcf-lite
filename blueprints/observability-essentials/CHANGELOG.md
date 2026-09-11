@@ -5,6 +5,8 @@
 Adds a contributions/probes/ pack (liveness-probe, readiness-probe, metrics-endpoint) with a fixture-side node:http probe server on 127.0.0.1. Probes drive real HTTP round-trips against the fixture, record the x-request-id header the server echoes and the response body excerpts; readiness records the per-dependency status list; metrics asserts the Prometheus 0.0.4 content-type. No account gate.
 
 
+Fix pass (2026-09-11, criterion e closure): readiness-probe now registers a real TCP dependency the probe controls, and observes the fixture actually dialling it up and (after the probe closes the port) reporting it down with a derived reason; metrics-endpoint asserts the request-counter delta equals the number of requests the probe sent; liveness echoes probe-varied x-request-id headers. All three probes now vary inputs and assert derived outputs, not constants.
+
 ## 2.1.2 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-007: REQ description now references the JSON media-type header owned on TAC-801.responsibilities[1] rather than restating the header literal. Chain-consistency lint zero on pass 1 and pass 2.

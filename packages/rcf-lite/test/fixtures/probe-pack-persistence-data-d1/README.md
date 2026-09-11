@@ -27,7 +27,7 @@ Live branch (real Cloudflare D1):
 - `CF_API_TOKEN` (second-tier): Cloudflare API token; the token's
   D1 scope is what the probe exercises. A 403/10000 on the first
   D1 call is recorded as an honest skip naming the missing scope,
-  not a retry loop, per the master brief for e-mixed 2026-09-11.
+  not a retry loop, per the master brief for criterion e 2026-09-11.
 
 The account-bound probe creates a scratch D1 database named
 `qa-e-d1-<short>`, runs one migration and one query against it,
@@ -39,7 +39,7 @@ D1 inventory (created-then-deleted-resource-id inventory-diff shape).
 Local (no account):
 
 ```
-export PATH=$HOME/.n/n/versions/node/24.14.0/bin:$PATH
+# ensure Node 24 is first on PATH (project-specific incantation; see the repo docs)
 node ./blueprints/persistence-data-d1/contributions/probes/run-facade-round-trip.mjs
 node ./blueprints/persistence-data-d1/contributions/probes/run-migrations-forward-only.mjs
 node ./blueprints/persistence-data-d1/contributions/probes/run-real-account-d1-round-trip.mjs
@@ -48,11 +48,11 @@ node ./blueprints/persistence-data-d1/contributions/probes/run-real-account-d1-r
 The last records `accountBoundSkipped: true` without
 `CI_HAS_CLOUDFLARE_ACCOUNT=true`.
 
-Live (Stravica QA):
+Live (against a real Cloudflare account; supply your own vault reference):
 
 ```
 export CI_HAS_CLOUDFLARE_ACCOUNT=true
-export CF_ACCOUNT_ID="$(pnpm exec secrets get hq-estate/CLOUDFLARE_WORKERS_ACCOUNT_ID_STRAVICA_QA)"
-export CF_API_TOKEN="$(pnpm exec secrets get hq-estate/CLOUDFLARE_WORKERS_API_TOKEN_STRAVICA_QA)"
+export CF_ACCOUNT_ID="$(<your account-id lookup>)"
+export CF_API_TOKEN="$(<your api-token lookup>)"
 node ./blueprints/persistence-data-d1/contributions/probes/run-real-account-d1-round-trip.mjs
 ```

@@ -8,12 +8,20 @@ export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixture
 export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/delivery-ci-workflows');
 export const DECLARED_ENV = new Set(['RCF_FIXTURE_CIW_ACTIONLINT_PATH', 'CI_HAS_GITHUB_ACTIONS', 'RCF_FIXTURE_CIW_REPO']);
 
-export function aggregate(results) { if (results.some((r) => r.verdict === 'fail')) return 'fail'; if (results.some((r) => r.verdict === 'warn')) return 'warn'; return 'pass'; }
-export function isSkipped(results) { return results.length > 0 && results.every((r) => r.accountBoundSkipped === true); }
+export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+export function isSkipped(results) { return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true); }
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
-  const raw = aggregate(results); const aggregateVerdict = isSkipped(results) ? 'pass' : raw;
-  const report = { slug: 'delivery-ci-workflows', probeName, runAt: new Date().toISOString(), engine, results, aggregateVerdict, ...(extra ?? {}) };
+  const normalised = (Array.isArray(results) && results.length > 0)
+    ? results
+    : [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran' }];
+  const raw = aggregate(normalised); const aggregateVerdict = isSkipped(normalised) ? 'pass' : raw;
+  const report = { slug: 'delivery-ci-workflows', probeName, runAt: new Date().toISOString(), engine, results: normalised, aggregateVerdict, ...(extra ?? {}) };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
   return { report, path };

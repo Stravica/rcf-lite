@@ -120,3 +120,51 @@ export function runWithCorrelation(correlationId, fn) {
 
 export const RESERVED_KEYS = RESERVED;
 export const LEVEL_ORDER = LEVELS;
+
+// HTTP transport fixture: a minimal request handler that accepts an
+// inbound correlation header (name is the elicit default X-Correlation-Id
+// unless the caller supplies one), runs the handler under
+// runWithCorrelation so the emitted line carries the header value,
+// and echoes the correlation id back on the response. Used by the
+// correlation-id-flow probe: the probe supplies a varying header per
+// request and observes the derived output (log line + echoed header),
+// so the assertion is on values the transport propagates, not on a
+// constant both sides authored.
+
+import { createServer } from 'node:http';
+
+export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
+  const norm = headerName.toLowerCase();
+  const server = createServer((req, res) => {
+    const inbound = req.headers[norm];
+    const bodyChunks = [];
+    req.on('data', (c) => bodyChunks.push(c));
+    req.on('end', () => {
+      const requestBody = Buffer.concat(bodyChunks).toString('utf8');
+      if (!inbound) {
+        res.statusCode = 400;
+        res.setHeader('content-type', 'application/json');
+        res.end(JSON.stringify({ error: 'missing-correlation-header', headerName: norm }));
+        return;
+      }
+      runWithCorrelation(inbound, () => {
+        logger.info('inbound-request', { path: req.url, method: req.method, bodyBytes: requestBody.length });
+        res.setHeader(headerName, inbound);
+        res.setHeader('content-type', 'application/json');
+        res.statusCode = 200;
+        res.end(JSON.stringify({ ok: true, echoed: inbound }));
+      });
+    });
+  });
+  return {
+    server,
+    async listen(port = 0) {
+      await new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(port, '127.0.0.1', () => resolve());
+      });
+      return { port: server.address().port };
+    },
+    async close() { await new Promise((r) => server.close(() => r())); },
+  };
+}

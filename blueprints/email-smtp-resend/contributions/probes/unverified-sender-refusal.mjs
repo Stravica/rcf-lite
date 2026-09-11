@@ -26,8 +26,8 @@ export default async function runProbe() {
     const leakedRecipient = outcome.transcript.some((l) => l.toLowerCase().includes(recipient.toLowerCase()) && l.startsWith('5'));
     results.push({
       anchorAcId: 'AC-4102-1',
-      verdict: !outcome.ok && outcome.code === 550 && !leakedRecipient ? 'pass' : 'fail',
-      detail: `refusal code=${outcome.code}; lastLine='${outcome.lastLine}'; recipient in refusal=${leakedRecipient}`,
+      verdict: !outcome.ok && outcome.code === 550 && /^550\s+5\.7\.1\b/.test(outcome.lastLine || '') && !leakedRecipient ? 'pass' : 'fail',
+      detail: `refusal code=${outcome.code}; contract '550 5.7.1' matched=${/^550\s+5\.7\.1\b/.test(outcome.lastLine || '')}; lastLine='${outcome.lastLine}'; recipient in refusal=${leakedRecipient}`,
       evidence: { code: outcome.code, lastLine: outcome.lastLine, recipientInRefusal: leakedRecipient },
     });
     results.push({
