@@ -267,10 +267,10 @@ export function resultHasEvidenceShape(r, opts = {}) {
     || (nonEmptyString(ev.workflowName) && (positiveNumber(ev.runId) || nonEmptyString(ev.runId)))
   );
   const lineCorrelationPair = (
-    nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId)
+    nonEmptyObj(ev.line) && nonEmptyString(ev.line.correlationId) && nonEmptyString(ev.suppliedInput)
     && (
-      (nonEmptyString(ev.suppliedInput) && ev.line.correlationId === ev.suppliedInput)
-      || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => nonEmptyString(o?.correlationId) && o.correlationId === ev.line.correlationId))
+      ev.line.correlationId === ev.suppliedInput
+      || (Array.isArray(ev.observedEmissions) && ev.observedEmissions.some((o) => nonEmptyString(o?.correlationId) && o.correlationId === ev.line.correlationId && o.correlationId === ev.suppliedInput))
     )
   );
   const observedNestedId = (

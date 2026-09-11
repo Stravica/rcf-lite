@@ -98,8 +98,14 @@ test('engine-minted requestId alone still qualifies as identifier (engine-minted
   assert.equal(resultHasEvidenceShape(r).ok, true);
 });
 
-test('observedEmissions[].correlationId === line.correlationId qualifies (supplied-per-emission)', () => {
+test('observedEmissions[].correlationId === line.correlationId without suppliedInput no longer qualifies', () => {
   const cid = 'e-cid-3';
   const r = row({ observedEmissions: [{ level: 'info', correlationId: cid }], line: { correlationId: cid, message: 'hi', level: 'info' }, bodyExcerpt: bodyDerived });
+  assert.equal(resultHasEvidenceShape(r).ok, false);
+});
+
+test('observedEmissions[].correlationId matched to suppliedInput and line.correlationId qualifies', () => {
+  const cid = 'e-cid-4';
+  const r = row({ suppliedInput: cid, observedEmissions: [{ level: 'info', correlationId: cid }], line: { correlationId: cid, message: 'hi', level: 'info' }, bodyExcerpt: bodyDerived });
   assert.equal(resultHasEvidenceShape(r).ok, true);
 });
