@@ -142,6 +142,8 @@ export function resultHasEvidenceShape(r) {
     || nonEmptyArray(ev.entries)
     || nonEmptyArray(ev.commitEntries)
     || nonEmptyArray(ev.parsedComponents)
+    || nonEmptyArray(ev.stateAttrs)
+    || nonEmptyArray(ev.renderedOrder)
     || nonEmptyArray(ev.migrationsApplied)
     || nonEmptyArray(ev.migrationRows)
     || nonEmptyArray(ev.appliedMigrations)
