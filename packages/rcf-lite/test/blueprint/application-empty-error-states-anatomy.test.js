@@ -243,7 +243,7 @@ test('application-empty-error-states: no em-dashes in shipped prose', async () =
   const files = [README_ABS, CHANGELOG_ABS, GUIDE_ABS, TOPICS_ABS];
   for (const path of files) {
     const text = await readFile(path, 'utf8');
-    assert.ok(!text.includes(' - '), `${path} contains an em-dash (U+2014)`);
+    assert.ok(!text.includes(String.fromCharCode(0x2014)), `${path} contains an em-dash (U+2014)`);
     assert.ok(!text.includes('–'), `${path} contains an en-dash (U+2013)`);
   }
 });
