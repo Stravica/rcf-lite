@@ -1,5 +1,10 @@
 # email-smtp-resend CHANGELOG
 
+## 1.1.5 - 2026-09-11
+
+Third fix pass (criterion e closure-3). unverified-sender-refusal rewritten to route through createSendAdapter with a new catch-all SMTP provider seam (createCatchAllSmtpProvider) that classifies the fixture's 550 5.7.1 to RESEND_SENDER_UNVERIFIED; the probe now observes adapter.send() outcome (AC-4102-1) and byte-scans the returned error, the injected log lines and any thrown exception for the distinctive recipient/subject/body (AC-4102-2). send-adapter now emits classification log lines through an injectable logSink and rewraps provider throws to RESEND_TRANSPORT_ERROR with payload elision. Live real-account run: adapter dispatched through Resend REST providerMessageId=34c408f0-897b-4838-8603-748c43c1c883 providerStatus=200 ok=true. Every detail line starts with the first eight words of the anchored AC text.
+
+
 ## 1.1.4 - 2026-09-11
 
 Adds a contributions/probes/ pack (smtp-round-trip, unverified-sender-refusal, real-account-resend-send) with a fixture-side node:net catch-all SMTP server + minimal SMTP dialler under packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/. Local probes assert full EHLO/MAIL/RCPT/DATA round-trip with a per-connection message id and the 5.7.1 unverified-sender rejection contract. The real-account probe is gated on CI_HAS_RESEND_ACCOUNT and sends to delivered@resend.dev from onboarding@resend.dev, recording the real email id returned by Resend. Vendor citation https://resend.com/docs/dashboard/emails/send-test-emails (verified 2026-09-11).

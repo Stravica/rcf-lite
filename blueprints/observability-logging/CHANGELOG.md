@@ -1,5 +1,10 @@
 # observability-logging CHANGELOG
 
+## 1.3.3 - 2026-09-11
+
+Third fix pass (criterion e closure-3). redaction-boundary nested-pii rows de-claimed with limitation naming AC-15103-4 (the AC's specific { user: { id, pii: { email } } } shape requires a user wrapper and a preserved id sibling this row did not observe); a new AC-15103-4-shaped row was added and passes. AC-15103-3 note row de-claimed with limitation (a bare 'note' field does not exercise the AC's valid-but-unconfigured category-shaped grammar). correlation-id-flow monotonic-sequence row de-claimed with limitation naming AC-15102-1 (monotonicity is anti-echo signalling, not the correlation-ID property). Logger fixture teardown now propagates server.close errors (Addendum rule 5).
+
+
 ## 1.3.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes emit through the real factory, capture stdout / stderr on the injected sinks, assert the seven-field minimum set, BigInt fold, reserved-key collision, correlationId ambient flow via AsyncLocalStorage, and PII redaction category strings on the emitted line. No account gate.

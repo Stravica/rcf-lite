@@ -1,5 +1,10 @@
 # observability-essentials CHANGELOG
 
+## 2.1.4 - 2026-09-11
+
+Third fix pass (criterion e closure-3). metrics-endpoint (status-page) AC-7104-1 now asserts exact declared component names AND text content AND phantom/missing lists; AC-7104-2 now asserts each rendered state EQUALS the declared state AND is drawn from the enum. readiness-probe AC-7103-2 now asserts checkedAt is not older than the readiness evaluation budget (probe-set 5000ms), in addition to parseable ISO-8601. Every detail line starts with the first eight words of the anchored AC text.
+
+
 ## 2.1.3 - 2026-09-11
 
 Adds a contributions/probes/ pack (liveness-probe, readiness-probe, metrics-endpoint) with a fixture-side node:http probe server on 127.0.0.1. Probes drive real HTTP round-trips against the fixture, record the x-request-id header the server echoes and the response body excerpts; readiness records the per-dependency status list; metrics asserts the Prometheus 0.0.4 content-type. No account gate.

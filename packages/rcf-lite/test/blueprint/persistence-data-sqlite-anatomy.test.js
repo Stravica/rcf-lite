@@ -1,4 +1,4 @@
-// Anatomy test for the persistence-data-sqlite v1.1.2 shelf blueprint.
+// Anatomy test for the persistence-data-sqlite v1.1.3 shelf blueprint.
 // Covers criterion e (positive-evidence) probe pack shape + shipped
 // blueprint metadata; extends only where a criterion e pack has been
 // added.
@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['boot-open-migrate', 'facade-round-trip', 'wal-checkpoint'];
 
-test('persistence-data-sqlite: blueprint.json version pinned at 1.1.2 (TC-crit-e-blueprint-json-version)', async () => {
+test('persistence-data-sqlite: blueprint.json version pinned at 1.1.3 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-sqlite');
-  assert.equal(doc.version, '1.1.2');
+  assert.equal(doc.version, '1.1.3');
 });
 
 test('persistence-data-sqlite: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

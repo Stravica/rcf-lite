@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.3 - 2026-09-11
+
+Third fix pass (criterion e closure-3). wal-checkpoint TRUNCATE size row and walCheckpoint event row de-claimed with limitations naming REQ-005 (crash recovery, not checkpoint mechanics) and REQ-006 (walCheckpoint is not one of the four defined lifecycle events). facade-round-trip CRUD rows and event row de-claimed with limitations naming REQ-007 (sole-importer is a repo-scan property) and REQ-006 (fixture-added entry* events are not among the four defined). boot-open-migrate storeOpened-count row de-claimed with limitation naming AC-5101-1 (single named export invoked exactly once before handlers bind is not observable from a sink event); reopen row de-claimed with limitation naming AC-5101-3 (reopen idempotency is a related but distinct property). probe-utils normalised sentinel and thrown rows now carry an evidence object.
+
+
 ## 1.1.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24, record real integer row ids, the applied-migration list from schema_migrations, and the wal_checkpoint(TRUNCATE) counters, and the WAL sidecar shrink after truncate. No account gate.

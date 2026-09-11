@@ -92,10 +92,12 @@ export default async function runProbe() {
     const seqs = observed.map((o) => o.bodySequence);
     const monotonic = seqs.every((n, i) => typeof n === 'number' && (i === 0 || n === seqs[i - 1] + 1));
     results.push({
-      anchorAcId: 'AC-15102-1',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: 'AC-15102-1 concerns the correlation ID travelling from the inbound header to every emitted log line during the request. Sequence monotonicity is anti-echo signalling that the fixture computes derived state; it is not the AC-15102-1 property.',
       verdict: monotonic ? 'pass' : 'fail',
-      detail: `${AC1}  -  observed fixture per-server sequence as ${JSON.stringify(seqs)}; monotonic step of 1 asserts the fixture computed sequence per-request rather than echoing a shared constant.`,
-      evidence: { suppliedInputs: inputIds, derivedSequences: seqs, derivedResponseHeader: observed.map((o) => o.headerEcho) },
+      detail: `observed fixture per-server sequence as ${JSON.stringify(seqs)}; monotonic step of 1 (anti-echo signal that fixture computes derived state).`,
+      evidence: { suppliedInputs: inputIds, derivedSequences: seqs, derivedResponseHeader: observed[0]?.headerEcho, suppliedInput: inputIds[0], bodyExcerpt: 'seq=' + JSON.stringify(seqs) },
     });
 
     // Bare (no ambient context) emission observed on the same logger

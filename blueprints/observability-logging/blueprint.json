@@ -1,6 +1,6 @@
 {
   "slug": "observability-logging",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "category": "observability",
   "providesRoles": [
     "logging"
@@ -165,5 +165,5 @@
       "path": "requirements/observability-logging-req-006.json"
     }
   ],
-  "updatedAt": "2026-09-11T14:01:53Z"
+  "updatedAt": "2026-09-11"
 }

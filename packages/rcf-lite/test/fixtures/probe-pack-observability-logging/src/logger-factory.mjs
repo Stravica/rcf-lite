@@ -183,6 +183,11 @@ export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
       });
       return { port: server.address().port };
     },
-    async close() { await new Promise((r) => server.close(() => r())); },
+    async close() {
+      // Teardown propagates errors (Addendum rule 5).
+      await new Promise((resolve, reject) => {
+        server.close((err) => { if (err) reject(err); else resolve(); });
+      });
+    },
   };
 }

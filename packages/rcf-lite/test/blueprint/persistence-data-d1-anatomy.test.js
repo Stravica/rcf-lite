@@ -1,4 +1,4 @@
-// Anatomy test for the persistence-data-d1 v1.1.3 shelf blueprint.
+// Anatomy test for the persistence-data-d1 v1.1.4 shelf blueprint.
 // Covers criterion e (positive-evidence) probe pack shape + shipped
 // blueprint metadata; extends only where a criterion e pack has been
 // added.
@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['facade-round-trip', 'migrations-forward-only', 'real-account-d1-round-trip'];
 
-test('persistence-data-d1: blueprint.json version pinned at 1.1.3 (TC-crit-e-blueprint-json-version)', async () => {
+test('persistence-data-d1: blueprint.json version pinned at 1.1.4 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-d1');
-  assert.equal(doc.version, '1.1.3');
+  assert.equal(doc.version, '1.1.4');
 });
 
 test('persistence-data-d1: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

@@ -1,5 +1,10 @@
 # observability-probe-endpoints CHANGELOG
 
+## 1.2.3 - 2026-09-11
+
+Third fix pass (criterion e closure-3). Fixture profile-registry materialises the SIX shipped profile names named on AC-14103-1 (kubernetes, loadBalancer, uptimeMonitor, systemd, dockerHealthcheck, reverseProxy) with each carrying transport, path/command/notify surface, responseContract and semanticModel; resolveProfile('kubernetes', { startup: { enabled: true } }) supports the AC-14102-4 startup-enabled shape. refuseIfPartial now throws with a stable PROBE_PROFILE_INCOMPLETE code and a missingKey property. profile-boot-materialisation uses resolveProfile('kubernetes'); partial-profile-refusal exercises stripped-transport and startup-missing-startup-path refusals AND every shipped profile's shape (AC-14103-1) AND the loadBalancer singleHealthSignal semantic (AC-14103-3). Materialiser teardown propagates callback errors.
+
+
 ## 1.2.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry + node:http materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Materialises the kubernetes-request-listener and kubernetes-startup profiles on 127.0.0.1, drives real HTTP GETs against declared paths, asserts the startup-phase flip from 503 to 200, and refuses partial profiles at boot with a named missing key. No account gate.

@@ -76,8 +76,8 @@ export default async function runProbe() {
     });
     results.push({
       anchorAcId: 'AC-7103-2',
-      verdict: passEntry && (passEntry.state === 'pass' || passEntry.state === 'fail') && typeof passEntry.checkedAt === 'string' && !Number.isNaN(Date.parse(passEntry.checkedAt)) ? 'pass' : 'fail',
-      detail: `${AC72}  -  checks['probe-stub-tcp'] state='${passEntry?.state}' checkedAt='${passEntry?.checkedAt}'; observed per AC-7103-2 which requires state ∈ {pass,fail} and a parseable ISO-8601 checkedAt.`,
+      verdict: passEntry && (passEntry.state === 'pass' || passEntry.state === 'fail') && typeof passEntry.checkedAt === 'string' && !Number.isNaN(Date.parse(passEntry.checkedAt)) && (Date.now() - Date.parse(passEntry.checkedAt)) <= 5000 ? 'pass' : 'fail',
+      detail: `${AC72}  -  checks['probe-stub-tcp'] state='${passEntry?.state}' checkedAt='${passEntry?.checkedAt}'; observed per AC-7103-2 which requires state ∈ {pass,fail}, a parseable ISO-8601 checkedAt AND the timestamp no older than the readiness evaluation budget (probe-set 5000ms).`,
       evidence: { entry: passEntry },
     });
 

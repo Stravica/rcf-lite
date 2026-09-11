@@ -1,6 +1,6 @@
 {
   "slug": "observability-probe-endpoints",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "category": "observability",
   "elicits": [
     {
@@ -172,5 +172,5 @@
       "path": "adrs/adr-1505-observability-probe-endpoints-external-response-secrecy.json"
     }
   ],
-  "updatedAt": "2026-09-11T14:01:53Z"
+  "updatedAt": "2026-09-11"
 }

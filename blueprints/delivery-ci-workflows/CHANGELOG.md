@@ -1,5 +1,10 @@
 # Changelog: delivery-ci-workflows blueprint
 
+## 2.3.3 - 2026-09-11
+
+Third fix pass (criterion e closure-3). node-gate-entrypoint AC-6102-1 row de-claimed (anchorAcId=null, conformanceOnly, limitation naming AC-6101-1: the runtime aggregate report's runner.entryPoint field is not observable on the shelf and the shipped templates deliberately name distinct canonical entries per gate-suite). workflow-template-shape actionlint row de-claimed with limitation naming AC-6101-3 (actionlint observes yaml syntax, not materialiser refusal/error code/filesystem effect); AC-6101-2 row records notObservableHere{ac,reason}. real-account-github-actions-run-record de-claimed with limitation naming AC-6101-1 (a gh run list record is not evidence of configured branch-model triggers or the aggregate report's trigger field). Every detail line starts with what was observed; every de-claim row carries the shipped AC id and what the row does not observe.
+
+
 ## 2.3.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (workflow-template-shape, node-gate-entrypoint, real-account-github-actions-run-record) with a fixture-side workflow linter under packages/rcf-lite/test/fixtures/probe-pack-delivery-ci-workflows/. Local probes load every YAML template under blueprints/delivery-ci-workflows/assets/ci-provider-examples/github-actions/, assert top-level shape, checkout step and the node scripts/rcf-*.js single-substrate contract, and optionally invoke actionlint when the binary is on PATH. The real-account probe is gated on CI_HAS_GITHUB_ACTIONS with `gh auth status` as the pre-flight observation and requires the caller to name a repository through RCF_FIXTURE_CIW_REPO; no default repository is embedded. Vendor citation https://docs.github.com/en/rest/actions/workflow-runs (verified 2026-09-11).

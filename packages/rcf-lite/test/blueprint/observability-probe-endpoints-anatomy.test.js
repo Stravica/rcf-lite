@@ -1,4 +1,4 @@
-// Anatomy test for the observability-probe-endpoints v1.2.2 shelf blueprint.
+// Anatomy test for the observability-probe-endpoints v1.2.3 shelf blueprint.
 // Covers criterion e (positive-evidence) probe pack shape + shipped
 // blueprint metadata; extends only where a criterion e pack has been
 // added.
@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['profile-boot-materialisation', 'kubernetes-startup-enabled', 'partial-profile-refusal'];
 
-test('observability-probe-endpoints: blueprint.json version pinned at 1.2.2 (TC-crit-e-blueprint-json-version)', async () => {
+test('observability-probe-endpoints: blueprint.json version pinned at 1.2.3 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'observability-probe-endpoints');
-  assert.equal(doc.version, '1.2.2');
+  assert.equal(doc.version, '1.2.3');
 });
 
 test('observability-probe-endpoints: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {

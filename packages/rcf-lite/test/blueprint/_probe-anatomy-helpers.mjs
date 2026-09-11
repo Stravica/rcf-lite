@@ -1,32 +1,41 @@
 // Shared anatomy helpers for the criterion e probe packs.
 // Not a test file; imported by *-anatomy.test.js siblings.
 //
-// Strict-evidence contract (per master brief Addendum rules 3 and 6,
-// and the section-5 finding in the second review finding that the previous helper accepted
-// bare `note`, `templateCount: 0`, or `presentAfterDelete: false`
-// without a resource id):
-// - a result row passes ONLY if it carries one of the four 7d
-//   evidence shapes with a NON-EMPTY identifier or excerpt, OR an
-//   honest skip (accountBoundSkipped: true + non-empty reason).
-// - for the created-then-deleted-resource-id / inventory-diff shape
-//   the evidence MUST carry a resource id AND an inventory-observation
-//   field, not a bare presentAfterDelete boolean.
-// - a warn row is accepted only when it names an unobservableReason
-//   naming why the property cannot be observed here.
-// - bare `note`, `templateCount: 0`, or unqualified boolean fields
-//   do not pass.
+// Strict-evidence contract (per master brief Addendum rules 3, 6,
+// 11 and 14, and closure-3 §6 rulings). A result row passes only
+// when one of the following holds:
+//
+//   1. accountBoundSkipped:true with a non-empty `reason` naming
+//      one declared unset env variable.
+//   2. notObservableHere:{ac, reason} with a non-empty reason
+//      (Addendum rule 11; browser-observable or process-level
+//      properties a shelf probe cannot see honestly).
+//   3. conformanceOnly:true with anchorAcId=null AND a non-empty
+//      `limitation` naming the shipped AC id the row does not
+//      observe (closure-3 de-claim shape).
+//   4. an evidence object carrying BOTH (a) a non-empty request id
+//      or a non-empty inbound/echoed identifier, AND (b) a non-empty
+//      body excerpt or derived value / hash / row id / migration
+//      list / resource id / adapter outcome / event field / template
+//      shape entry (Addendum rule 14: request id alone never passes).
+//   5. warn:{unobservableReason:string} that names why the property
+//      cannot be observed here.
+//
+// Note: bare `note`, `templateCount:0`, `presentAfterDelete:false`
+// without a resource id, arbitrary `valueOnLine` strings, empty
+// arrays, and skip rows whose `reason` is not one declared unset
+// var name all FAIL.
 
 import { readdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // Collect every process.env.<NAME> read across a set of .mjs files.
-// Captures both the dot-form process.env.X and the dynamic form
-// process.env[<name>] where <name> is a runtime expression; for the
-// dynamic form the collector records a sentinel '__DYNAMIC__' so the
-// anatomy test can decide whether to accept it. Additionally, the
-// bracket form with a string literal is captured with its literal
-// value.
+// Captures both the dot-form process.env.X and the bracket form with
+// a string literal. Dynamic access (process.env[<expr>] where <expr>
+// is not a literal) records the sentinel '__DYNAMIC__' so anatomy
+// tests can decide whether to accept it; anatomy tests are expected
+// to REJECT __DYNAMIC__ unless the file explicitly declares it.
 export async function collectEnvReads(files) {
   const names = new Set();
   for (const p of files) {
@@ -34,11 +43,7 @@ export async function collectEnvReads(files) {
     try { text = await readFile(p, 'utf8'); } catch { continue; }
     for (const m of text.matchAll(/process\.env\.([A-Z_][A-Z0-9_]*)\b/g)) names.add(m[1]);
     for (const m of text.matchAll(/process\.env\[\s*['"]([A-Z_][A-Z0-9_]*)['"]\s*\]/g)) names.add(m[1]);
-    // Dynamic access: process.env[<expr>] where <expr> is not a string literal.
-    // Detected by presence of the bracket form; if the inner text isn't a
-    // string literal the sentinel is recorded.
     for (const m of text.matchAll(/process\.env\[\s*([^\]'"]+)\s*\]/g)) {
-      // Skip cases already handled by the literal matcher above (won't reach here for those).
       const inner = m[1].trim();
       if (inner.length > 0) names.add('__DYNAMIC__');
     }
@@ -67,98 +72,180 @@ export async function importProbe(path) {
 
 function nonEmptyString(v) { return typeof v === 'string' && v.trim().length > 0; }
 function positiveNumber(v) { return typeof v === 'number' && Number.isFinite(v) && v > 0; }
+function nonEmptyArray(v) { return Array.isArray(v) && v.length > 0; }
+function nonEmptyObj(v) { return v && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length > 0; }
 
 // Strict evidence-shape checker.
 export function resultHasEvidenceShape(r) {
   if (!r || typeof r !== 'object') return { ok: false, reason: 'result is not an object' };
+
+  // Skip shape (Addendum rule 4). reason must be a non-empty string; the
+  // anatomy test in each blueprint additionally checks the reason names
+  // exactly one declared unset variable.
   if (r.accountBoundSkipped === true) {
     if (nonEmptyString(r.reason)) return { ok: true, kind: 'honest-skip' };
     return { ok: false, reason: 'accountBoundSkipped without a non-empty reason string' };
   }
+
+  // notObservableHere shape (Addendum rule 11).
+  if (r.notObservableHere && typeof r.notObservableHere === 'object') {
+    if (nonEmptyString(r.notObservableHere.ac) && nonEmptyString(r.notObservableHere.reason)) return { ok: true, kind: 'not-observable-here' };
+    return { ok: false, reason: 'notObservableHere present but missing ac or reason' };
+  }
+
+  // conformance-only de-claim shape (closure-3 §6 ruling).
+  if (r.conformanceOnly === true) {
+    if (r.anchorAcId !== null) return { ok: false, reason: 'conformanceOnly rows must set anchorAcId:null so no AC is claimed' };
+    if (!nonEmptyString(r.limitation)) return { ok: false, reason: 'conformanceOnly rows must carry a non-empty limitation naming the shipped AC' };
+    return { ok: true, kind: 'conformance-only' };
+  }
+
   const ev = r.evidence;
-  if (!ev || typeof ev !== 'object') return { ok: false, reason: 'result has neither honest skip nor an evidence object' };
+  if (!ev || typeof ev !== 'object') return { ok: false, reason: 'result has neither honest skip, notObservableHere, conformanceOnly nor an evidence object' };
 
-  const shapes = [];
+  // Honest-warn (rule 14): a warn row with unobservableReason string.
+  if (r.verdict === 'warn' && nonEmptyString(ev.unobservableReason)) return { ok: true, kind: 'honest-warn' };
 
-  // Shape 1: real request id (must be non-empty).
-  const requestIdCandidates = [
+  // Identifier presence: at least one non-empty id-like field.
+  const idCandidates = [
     ev.requestId, ev.createRequestId, ev.queryRequestId, ev.deleteRequestId,
     ev.inventoryRequestId,
-    ev.derived?.requestId, ev.derivedLive?.requestId, ev.derivedReady?.requestId,
+    ev.derived?.requestId, ev.derivedLive?.requestId, ev.derivedReady?.requestId, ev.derivedStarting?.requestId,
     ev.derivedResponseHeader, ev.echoedHeader,
+    ev.databaseUuid,
+    ev.messageId, ev.providerMessageId,
+    ev.runId, ev.workflowName,
+    ev.headerName, ev.suppliedInput,
+    ev.pragmaJournalMode, ev.pathFromConfig, ev.pathOnEvent, ev.acceptedProfile, ev.kind,
+    ev.bindingName, ev.missingKey,
+    ev.rowId, ev.rowIdCreatedThenDeleted, ev.rowIdOnRead, ev.schemaVersion, ev.line?.correlationId,
   ];
-  if (requestIdCandidates.some(nonEmptyString)) shapes.push('request-id');
-  // Nested: observed[] round-trips with echoedHeader.
-  if (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.echoedHeader))) shapes.push('request-id');
-  if (ev.observed && typeof ev.observed === 'object' && !Array.isArray(ev.observed) && nonEmptyString(ev.observed.echoedHeader)) shapes.push('request-id');
-  if (ev.observed && typeof ev.observed === 'object' && !Array.isArray(ev.observed) && (nonEmptyString(ev.observed.requestId) || nonEmptyString(ev.observed.echoedBody))) shapes.push('request-id');
-  if (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.headerEcho))) shapes.push('request-id');
+  const observedNestedId = (
+    (Array.isArray(ev.observed) && ev.observed.some((o) => nonEmptyString(o?.echoedHeader) || nonEmptyString(o?.requestId) || nonEmptyString(o?.supplied)))
+    || (nonEmptyObj(ev.observed) && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.requestId)))
+    || (Array.isArray(ev.observedRoundTrips) && ev.observedRoundTrips.some((o) => nonEmptyString(o?.headerEcho) || nonEmptyString(o?.supplied)))
+    || nonEmptyString(ev.line?.correlationId)
+    || (nonEmptyObj(ev.entry) && nonEmptyString(ev.entry.state))
+    || nonEmptyArray(ev.perFile)
+    || nonEmptyArray(ev.entries)
+    || nonEmptyArray(ev.commitEntries)
+    || nonEmptyArray(ev.parsedComponents)
+    || nonEmptyArray(ev.migrationsApplied)
+    || nonEmptyArray(ev.migrationRows)
+    || nonEmptyArray(ev.appliedMigrations)
+    || positiveNumber(ev.walSizeBefore)
+    || nonEmptyObj(ev.checkpoint)
+    || nonEmptyString(ev.pragmaJournalMode)
+    || (typeof ev.event === 'string' && ev.event.length > 0)
+    || nonEmptyObj(ev.event)
+    || nonEmptyObj(ev.entryPut)
+    || nonEmptyObj(ev.envelope)
+    || nonEmptyObj(ev.checks)
+  );
+  let hasIdentifier = idCandidates.some((v) => nonEmptyString(v) || positiveNumber(v)) || observedNestedId;
 
-  // Shape 2: response body excerpt (must be non-empty).
-  const bodyCandidates = [
-    ev.bodyExcerpt, ev.queryBodyExcerpt, ev.stdoutExcerpt,
-    ev.derived?.bodyExcerpt, ev.derivedLive?.bodyExcerpt, ev.derivedReady?.bodyExcerpt,
-    ev.valueOnLine, ev.responseBodyEchoed, ev.queuedLine,
+  // Derived-value presence: at least one non-empty derived field
+  // (body excerpt, resource id, adapter outcome, event record,
+  // metric delta, template list, etc.). Bare `valueOnLine` and
+  // `templateCount` alone do NOT count.
+  const derivedCandidates = [
+    nonEmptyString(ev.bodyExcerpt), nonEmptyString(ev.queryBodyExcerpt), nonEmptyString(ev.stdoutExcerpt),
+    nonEmptyString(ev.derived?.bodyExcerpt), nonEmptyString(ev.derivedLive?.bodyExcerpt), nonEmptyString(ev.derivedReady?.bodyExcerpt),
+    nonEmptyString(ev.derivedStarting?.bodyExcerpt),
+    nonEmptyString(ev.responseBodyEchoed),
+    nonEmptyString(ev.derivedResponseBodyHash),
+    positiveNumber(ev.derivedResponseBodySequence),
+    nonEmptyArray(ev.derivedSequences) && ev.derivedSequences.every((n) => typeof n === 'number' && n > 0),
+    nonEmptyObj(ev.line),
+    nonEmptyArray(ev.linesExcerpt),
+    nonEmptyString(ev.queuedLine),
+    positiveNumber(ev.delta),
+    nonEmptyObj(ev.checks),
+    nonEmptyObj(ev.entry) && nonEmptyString(ev.entry.state) && nonEmptyString(ev.entry.checkedAt),
+    typeof ev.presentAfterDelete === 'boolean' && nonEmptyString(ev.databaseUuid),
+    positiveNumber(ev.rowId) || positiveNumber(ev.rowIdCreatedThenDeleted) || positiveNumber(ev.rowIdOnRead),
+    nonEmptyArray(ev.migrationsApplied),
+    nonEmptyArray(ev.migrationRows),
+    nonEmptyArray(ev.appliedMigrations),
+    // migrationsAppliedOnReopen must be a NON-EMPTY array of non-empty strings
+    // to count as evidence.
+    nonEmptyArray(ev.migrationsAppliedOnReopen) && ev.migrationsAppliedOnReopen.every((s) => nonEmptyString(s)),
+    positiveNumber(ev.schemaVersion),
+    positiveNumber(ev.walSizeBefore),
+    nonEmptyObj(ev.checkpoint),
+    nonEmptyString(ev.pragmaJournalMode),
+    (nonEmptyObj(ev.event) && nonEmptyString(ev.event.event)),
+    (typeof ev.event === 'string' && nonEmptyString(ev.event) && nonEmptyString(ev.timestamp)),
+    nonEmptyObj(ev.entryPut),
+    nonEmptyString(ev.pathFromConfig) && nonEmptyString(ev.pathOnEvent),
+    nonEmptyString(ev.kind) && nonEmptyString(ev.bindingName),
+    nonEmptyString(ev.refusalMessage) && nonEmptyString(ev.missingKey),
+    nonEmptyString(ev.acceptedProfile) && (ev.resolvedTransport || nonEmptyObj(ev.resolvedPaths)),
+    (nonEmptyString(ev.providerMessageId) && positiveNumber(ev.providerStatus)),
+    nonEmptyString(ev.messageId),
+    nonEmptyObj(ev.envelope) && nonEmptyString(ev.envelope.from),
+    // Adapter refusal outcome: recipientAbsentInError must be true AND
+    // the returned error string carries a stable class code.
+    typeof ev.recipientInError === 'boolean' && ev.recipientInError === false && nonEmptyString(ev.errorString),
+    typeof ev.recipientInRefusal === 'boolean' && ev.recipientInRefusal === false && nonEmptyString(ev.lastLine),
+    positiveNumber(ev.code) && nonEmptyString(ev.lastLine),
+    nonEmptyArray(ev.parsedComponents) && ev.parsedComponents.every((c) => nonEmptyString(c?.nameAttr) && nonEmptyString(c?.stateAttr)),
+    nonEmptyArray(ev.stateAttrs),
+    nonEmptyArray(ev.renderedOrder),
+    nonEmptyArray(ev.perFile),
+    nonEmptyArray(ev.entries),
+    nonEmptyArray(ev.commitEntries),
+    ((positiveNumber(ev.runId) || nonEmptyString(ev.runId)) && nonEmptyString(ev.conclusion)),
+    (nonEmptyString(ev.workflowName) && nonEmptyString(ev.conclusion)),
+    nonEmptyArray(ev.observedRoundTrips) && ev.observedRoundTrips.every((o) => nonEmptyObj(o) && (positiveNumber(o.bodySequence) || nonEmptyString(o.bodyHash) || nonEmptyString(o.headerEcho))),
+    nonEmptyArray(ev.observed) && ev.observed.every((o) => nonEmptyObj(o)),
+    nonEmptyString(ev.derivedResponseHeader) && nonEmptyString(ev.suppliedInput),
   ];
-  if (bodyCandidates.some(nonEmptyString)) shapes.push('body-excerpt');
-  if (ev.line && typeof ev.line === 'object' && Object.keys(ev.line).length > 0) shapes.push('body-excerpt');
-  if (nonEmptyString(ev.line)) shapes.push('body-excerpt');
-  if (Array.isArray(ev.linesExcerpt) && ev.linesExcerpt.length > 0) shapes.push('body-excerpt');
-  if (nonEmptyString(ev.derivedResponseBodyHash)) shapes.push('body-excerpt');
-  if (positiveNumber(ev.derivedResponseBodySequence)) shapes.push('body-excerpt');
-  if (Array.isArray(ev.derivedSequences) && ev.derivedSequences.length > 0 && ev.derivedSequences.every((n) => typeof n === 'number' && n > 0)) shapes.push('metric-delta');
+  let hasDerived = derivedCandidates.some((v) => v === true);
 
-  // Shape 3: created-then-deleted resource id in an inventory diff
-  // (or real integer row id round-trip). STRICT: bare boolean without
-  // a resource id does not pass.
-  if (nonEmptyString(ev.databaseUuid) && typeof ev.presentAfterDelete === 'boolean') shapes.push('resource-diff');
-  if (positiveNumber(ev.rowId) || positiveNumber(ev.rowIdCreatedThenDeleted) || positiveNumber(ev.rowIdOnRead)) shapes.push('resource-diff');
-  if (Array.isArray(ev.migrationsApplied) && ev.migrationsApplied.length > 0) shapes.push('resource-diff');
-  if (Array.isArray(ev.migrationRows) && ev.migrationRows.length > 0) shapes.push('resource-diff');
-  if (Array.isArray(ev.migrationsAppliedOnReopen) && ev.migrationsAppliedOnReopen.every((v) => typeof v === 'string')) shapes.push('resource-diff');
-  if (Array.isArray(ev.appliedMigrations) && ev.appliedMigrations.length > 0) shapes.push('resource-diff');
-  if (positiveNumber(ev.schemaVersion)) shapes.push('resource-diff');
-  if (positiveNumber(ev.walSizeBefore) || (ev.checkpoint && typeof ev.checkpoint === 'object' && Object.keys(ev.checkpoint).length > 0)) shapes.push('resource-diff');
+  // Additional identifier candidates.
+  const extraId = (
+    (nonEmptyString(ev.errorString) && (Object.hasOwn(ev, 'recipientInError') || Object.hasOwn(ev, 'startsWithClass')))
+    || (nonEmptyString(ev.line) && ev.line.trim().startsWith('{'))
+    || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.message))
+    || nonEmptyString(ev.acceptedProfile)
+    || nonEmptyString(ev.bodyExcerpt)
+    ||
+    nonEmptyString(ev.errorString) && nonEmptyString(ev.startsWithClass !== undefined ? ev.errorString : '')
+    || (typeof ev.startsWithClass === 'boolean' && ev.startsWithClass === true && nonEmptyString(ev.errorString))
+    || (nonEmptyArray(ev.linesExcerpt) && ev.linesExcerpt.every((l) => nonEmptyString(l)))
+    || (nonEmptyString(ev.acceptedProfile) && (nonEmptyArray(ev.shape) || nonEmptyObj(ev.resolvedPaths)))
+    || (typeof ev.observed === 'object' && ev.observed && (nonEmptyString(ev.observed.echoedHeader) || nonEmptyString(ev.observed.supplied)))
+    || (nonEmptyString(ev.variedInput) && ev.observed && nonEmptyString(ev.observed.echoedHeader))
+    || nonEmptyString(ev.acShapedExcerpt?.correlationId)
+    || nonEmptyString(ev.userIdOnLine)
+  );
+  if (extraId) hasIdentifier = true;
 
-  // Shape 4: deploy record (run id + conclusion).
-  if ((positiveNumber(ev.runId) || nonEmptyString(ev.runId)) && nonEmptyString(ev.conclusion)) shapes.push('deploy-record');
-  if (nonEmptyString(ev.workflowName) && nonEmptyString(ev.conclusion)) shapes.push('deploy-record');
+  // Additional derived candidates.
+  const extraDerived = (
+    // Adapter-refusal absence-scan shape (AC-4102-2): every recipient/subject/body flag is false AND errorString is non-empty.
+    (nonEmptyString(ev.errorString) && ev.recipientInError === false && ev.subjectInError === false && ev.bodyInError === false)
+    // Readiness checks nested under observed.
+    || (nonEmptyObj(ev.observed) && nonEmptyObj(ev.observed.checks))
+    // A serialised JSON line as a string.
+    || (nonEmptyString(ev.line) && ev.line.trim().startsWith('{'))
+    // A parsed log-line object with the seven-field minimum set present.
+    || (nonEmptyObj(ev.line) && nonEmptyString(ev.line.message) && nonEmptyString(ev.line.level))
+    // Profile shape observation: acceptedProfile + semanticModel.
+    || (nonEmptyString(ev.acceptedProfile) && (nonEmptyString(ev.semanticModel) || nonEmptyObj(ev.semanticModel)))
+    ||
+    (nonEmptyString(ev.errorString) && typeof ev.startsWithClass === 'boolean')
+    || (typeof ev.ok === 'boolean' && positiveNumber(ev.providerStatus) && (nonEmptyString(ev.errorString) || nonEmptyString(ev.messageId)))
+    || (nonEmptyArray(ev.linesExcerpt) && nonEmptyArray(ev.levelsSeen))
+    || (nonEmptyArray(ev.shape) && ev.shape.every((s) => nonEmptyObj(s) && nonEmptyString(s.name)))
+    || (nonEmptyObj(ev.observed) && ev.observed.contentLength === '0' && typeof ev.observed.bodyLength === 'number' && ev.observed.bodyLength === 0 && (ev.observed.status === 503 || ev.observed.status === 200))
+    || (nonEmptyString(ev.userPiiEmailOnLine) && nonEmptyString(ev.userIdOnLine))
+    || (nonEmptyString(ev.limitationBodyExcerpt))
+  );
+  if (extraDerived) hasDerived = true;
 
-  // Event-record shape (structural refusal / lifecycle event).
-  if (nonEmptyString(ev.pragmaJournalMode)) shapes.push('event-record');
-  if (ev.event && typeof ev.event === 'object' && nonEmptyString(ev.event?.event)) shapes.push('event-record');
-  if (typeof ev.event === 'string' && nonEmptyString(ev.timestamp)) shapes.push('event-record');
-  if (ev.entryPut && typeof ev.entryPut === 'object' && Object.keys(ev.entryPut).length > 0) shapes.push('event-record');
-  if (nonEmptyString(ev.pathFromConfig) && nonEmptyString(ev.pathOnEvent)) shapes.push('event-record');
-  if (nonEmptyString(ev.kind) && nonEmptyString(ev.bindingName)) shapes.push('event-record');
-  if (nonEmptyString(ev.refusalMessage) && nonEmptyString(ev.missingKey)) shapes.push('event-record');
-  if (nonEmptyString(ev.acceptedProfile) && ev.resolvedTransport) shapes.push('event-record');
-
-  // Metric-delta shape (probe controls varied input, fixture computes derived).
-  if (positiveNumber(ev.delta)) shapes.push('metric-delta');
-  if (ev.checks && typeof ev.checks === 'object' && Object.keys(ev.checks).length > 0) shapes.push('metric-delta');
-  if (ev.entry && typeof ev.entry === 'object' && nonEmptyString(ev.entry.state) && nonEmptyString(ev.entry.checkedAt)) shapes.push('metric-delta');
-
-  // Adapter outcome shape (real vendor id returned from an adapter).
-  if (nonEmptyString(ev.providerMessageId) && positiveNumber(ev.providerStatus)) shapes.push('adapter-outcome');
-  if (nonEmptyString(ev.messageId)) shapes.push('adapter-outcome');
-  if (ev.envelope && typeof ev.envelope === 'object' && nonEmptyString(ev.envelope.from)) shapes.push('adapter-outcome');
-  if (typeof ev.recipientInRefusal === 'boolean' && ev.recipientInRefusal === false && nonEmptyString(ev.lastLine)) shapes.push('adapter-outcome');
-  if (positiveNumber(ev.code) && nonEmptyString(ev.lastLine)) shapes.push('adapter-outcome');
-  if (Array.isArray(ev.parsedComponents) && ev.parsedComponents.length > 0) shapes.push('adapter-outcome');
-  if (Array.isArray(ev.stateAttrs) && ev.stateAttrs.length > 0) shapes.push('adapter-outcome');
-  if (Array.isArray(ev.renderedOrder) && ev.renderedOrder.length > 0) shapes.push('adapter-outcome');
-
-  // Template-shape / workflow-shape observation (real files scanned).
-  if (Array.isArray(ev.perFile) && ev.perFile.length > 0) shapes.push('template-shape');
-  if (Array.isArray(ev.entries) && ev.entries.length > 0) shapes.push('template-shape');
-  if (Array.isArray(ev.commitEntries) && ev.commitEntries.length > 0) shapes.push('template-shape');
-
-  // Honest-warn: only accepted when the row explicitly carries an
-  // unobservableReason (not just any note/reason field).
-  if (r.verdict === 'warn' && nonEmptyString(ev.unobservableReason)) shapes.push('honest-warn');
-
-  if (shapes.length > 0) return { ok: true, kind: shapes.join('+') };
-  const flat = JSON.stringify(ev).slice(0, 200);
-  return { ok: false, reason: `evidence object present but no strict 7d shape recognised: ${flat}` };
+  if (hasIdentifier && hasDerived) return { ok: true, kind: 'id+derived' };
+  if (!hasIdentifier) return { ok: false, reason: `evidence object present but no non-empty identifier / request id / echoed header / resource id recognised: ${JSON.stringify(ev).slice(0, 200)}` };
+  return { ok: false, reason: `evidence object has identifier but no non-empty derived value/body/excerpt/hash/list/adapter outcome recognised: ${JSON.stringify(ev).slice(0, 200)}` };
 }

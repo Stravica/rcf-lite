@@ -1,13 +1,17 @@
 // Profile-boot-materialisation probe for observability-probe-endpoints.
-// Materialises 'kubernetes-request-listener' on 127.0.0.1 via the fixture
-// registry; issues real HTTP GETs to /live and /ready with a probe-
-// varied x-request-id header per request. Records the response header
-// echo and body excerpt. Body status is 'pass' per AC-14102-1 semantics.
-// Anchor: AC-14101-1 (a process configured with `probeInterface.profile:
-// kubernetes` boots and binds probe handlers matching the resolved
-// profile). Every detail line begins with the first eight words.
+// Resolves the shipped 'kubernetes' profile (per AC-14101-1) and
+// materialises it on 127.0.0.1 via the fixture registry; issues real
+// HTTP GETs to the resolved liveness and readiness paths with a
+// probe-varied x-request-id header per request. Records the response
+// header echo and body excerpt and asserts the resolved profile
+// name equals 'kubernetes' and the bound listener answers on the
+// profile's declared paths.
+//
+// Anchors AC-14101-1 which requires binding probe handlers whose
+// paths match the resolved Kubernetes profile.
+// Every detail line begins with the first eight words.
 import { randomUUID } from 'node:crypto';
-import { materialise, SHIPPED_PROFILES } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/src/profile-registry.mjs';
+import { materialise, resolveProfile } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/src/profile-registry.mjs';
 import { primaryPort } from './probe-utils.mjs';
 
 export const anchorAcId = 'AC-14101-1';
@@ -23,21 +27,27 @@ async function get(url, rid) {
 
 export default async function runProbe() {
   const results = [];
-  const inst = await materialise({ profile: SHIPPED_PROFILES['kubernetes-request-listener'], listenerPort: primaryPort() });
+  const resolved = resolveProfile('kubernetes');
+  const inst = await materialise({ profile: resolved, listenerPort: primaryPort() });
   const suppliedLive = randomUUID();
   const suppliedReady = randomUUID();
   let live, ready;
   try {
     live = await get(`http://127.0.0.1:${inst.requestPort}${inst.profile.paths.liveness}`, suppliedLive);
     ready = await get(`http://127.0.0.1:${inst.requestPort}${inst.profile.paths.readiness}`, suppliedReady);
-    const liveOk = live.status === 200 && live.requestId === suppliedLive && live.parsed?.status === 'pass' && live.parsed?.profile === inst.profile.name && live.parsed?.kind === 'liveness';
-    const readyOk = ready.status === 200 && ready.requestId === suppliedReady && ready.parsed?.status === 'pass' && ready.parsed?.profile === inst.profile.name && ready.parsed?.kind === 'readiness';
+    const liveOk = live.status === 200 && live.requestId === suppliedLive && live.parsed?.status === 'pass' && live.parsed?.profile === 'kubernetes' && live.parsed?.kind === 'liveness';
+    const readyOk = ready.status === 200 && ready.requestId === suppliedReady && ready.parsed?.status === 'pass' && ready.parsed?.profile === 'kubernetes' && ready.parsed?.kind === 'readiness';
+    const nameOk = inst.profile.name === 'kubernetes';
+    const pathsOk = inst.profile.paths.liveness === '/live' && inst.profile.paths.readiness === '/ready';
     results.push({
       anchorAcId: 'AC-14101-1',
-      verdict: liveOk && readyOk ? 'pass' : 'fail',
-      detail: `${AC1}  -  observed materialised '${inst.profile.name}' on port ${inst.requestPort}; live status=${live.status} echoed rid=${live.requestId === suppliedLive} body.status='${live.parsed?.status}'; ready status=${ready.status} echoed rid=${ready.requestId === suppliedReady} body.status='${ready.parsed?.status}'.`,
+      verdict: liveOk && readyOk && nameOk && pathsOk ? 'pass' : 'fail',
+      detail: `${AC1}  -  observed resolved profile.name='${inst.profile.name}' paths=${JSON.stringify(inst.profile.paths)} on port ${inst.requestPort}; live status=${live.status} echoed rid=${live.requestId === suppliedLive} body.status='${live.parsed?.status}' body.profile='${live.parsed?.profile}'; ready status=${ready.status} echoed rid=${ready.requestId === suppliedReady} body.status='${ready.parsed?.status}' body.profile='${ready.parsed?.profile}'.`,
       evidence: {
-        profile: inst.profile.name, port: inst.requestPort,
+        acceptedProfile: inst.profile.name,
+        resolvedTransport: inst.profile.transport,
+        resolvedPaths: inst.profile.paths,
+        port: inst.requestPort,
         variedInputs: { liveness: suppliedLive, readiness: suppliedReady },
         derivedLive: { status: live.status, requestId: live.requestId, contentType: live.contentType, bodyExcerpt: live.body.slice(0, 300) },
         derivedReady: { status: ready.status, requestId: ready.requestId, contentType: ready.contentType, bodyExcerpt: ready.body.slice(0, 300) },

@@ -66,7 +66,12 @@ export function createCatchAllSmtp() {
       await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', () => resolve()); });
       return { port: server.address().port };
     },
-    async close() { await new Promise((r) => server.close(() => r())); },
+    async close() {
+      // Teardown propagates errors (Addendum rule 5).
+      await new Promise((resolve, reject) => {
+        server.close((err) => { if (err) reject(err); else resolve(); });
+      });
+    },
   };
 }
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.4 - 2026-09-11
+
+Third fix pass (criterion e closure-3). facadeReady one-fires-per-open row de-claimed with limitation naming REQ-001 (fixture-added event; REQ-001's sole-reader property is a repo-scan). migrations-forward-only AC-13102-2 and AC-13102-3 rows de-claimed (require the wrangler CLI and the configured d1_migrations table; the fixture-embedded runner uses schema_migrations). real-account rows de-claimed with limitation naming REQ-001 (raw REST CRUD is vendor reachability, not evidence of the facade module's sole-reader property). probe-utils normalised sentinel and thrown rows now carry an evidence object. Live real-account run: uuid=9890d73e-e1a5-4972-a063-f77ca71d992e created (cfRay a397c73a2e119038-LHR), query returned count=1 (cfRay a397c74698019038-LHR), deleted (cfRay a397c7488ea49038-LHR), inventory returned count=0 with presentAfterDelete=false.
+
+
 ## 1.1.3 - 2026-09-11
 
 Adds a contributions/probes/ pack (facade-round-trip, migrations-forward-only, real-account-d1-round-trip) with a fixture-side sqlite-backed D1 binding mock and persistence facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/. The real-account probe is gated on CI_HAS_CLOUDFLARE_ACCOUNT and creates a scratch D1 database (name prefix qa-e-d1-), applies a migration and a query, deletes the database and confirms the uuid is absent from the account's D1 inventory (created-then-deleted-resource-id shape). Vendor citation https://developers.cloudflare.com/api/operations/cloudflare-d1-list-databases (verified 2026-09-11).

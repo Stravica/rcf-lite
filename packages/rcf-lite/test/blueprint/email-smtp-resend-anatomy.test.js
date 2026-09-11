@@ -1,4 +1,4 @@
-// Anatomy test for the email-smtp-resend v1.1.4 shelf blueprint.
+// Anatomy test for the email-smtp-resend v1.1.5 shelf blueprint.
 // Covers criterion e (positive-evidence) probe pack shape + shipped
 // blueprint metadata; extends only where a criterion e pack has been
 // added.
@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['smtp-round-trip', 'unverified-sender-refusal', 'real-account-resend-send'];
 
-test('email-smtp-resend: blueprint.json version pinned at 1.1.4 (TC-crit-e-blueprint-json-version)', async () => {
+test('email-smtp-resend: blueprint.json version pinned at 1.1.5 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'email-smtp-resend');
-  assert.equal(doc.version, '1.1.4');
+  assert.equal(doc.version, '1.1.5');
 });
 
 test('email-smtp-resend: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {
