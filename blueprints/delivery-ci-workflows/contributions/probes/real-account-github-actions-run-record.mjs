@@ -9,7 +9,7 @@
 // against the trunk branch, AND requires the aggregate pipeline
 // report's `trigger` field to record the specific triggering event.
 // A `gh run list` record carries `event`, `workflowName` and
-// `conclusion` — none of that is evidence of the CONFIGURED trigger
+// `conclusion` -- none of that is evidence of the CONFIGURED trigger
 // set (branch-model coverage), and the aggregate report `trigger`
 // field is a runtime pipeline-report property that this probe does
 // not read. Per closure-3 §5 the row is de-claimed
