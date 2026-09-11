@@ -106,9 +106,10 @@ function shellTabs({ caps, apps, breakSwitch }) {
   return tabs.filter((t) => t.always || t.show);
 }
 
-function page(title, bodyHtml) {
+function page(title, bodyHtml, initialTheme) {
+  const theme = initialTheme || 'light';
   return `<!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="${theme}">
 <head>
 <meta charset="utf-8">
 <title>${title}</title>
@@ -204,13 +205,57 @@ function securitySurface({ caps, securityShape, breakSwitch }) {
   return `<h2>Security</h2><p>Security surface shape not resolved for the applied capability set.</p>`;
 }
 
+// AC-25106-1 adapter contract: each applied auth provider ships a
+// distinct raw inventory payload (different device labels, different
+// timestamp shapes, different current-session markers). The fixture
+// adapter normalises each raw payload into the common session-row
+// shape a probe can prove is uniform across providers. The three
+// distinct raw payloads are declared inline so a probe can vary the
+// provider input and confirm the derived shape is identical even
+// though the underlying inventories are not.
+const PROVIDER_RAW_INVENTORIES = {
+  clerk: [
+    { session_id: 'clerk-s-01', ua: 'MacBook Pro (Safari)', last_seen_iso: '2026-09-06T20:14:00Z', is_this_session: true },
+    { session_id: 'clerk-s-02', ua: 'iPhone 15 (Mobile Safari)', last_seen_iso: '2026-09-06T18:02:00Z', is_this_session: false },
+    { session_id: 'clerk-s-03', ua: 'Ubuntu 24.04 (Firefox)', last_seen_iso: '2026-09-05T22:41:00Z', is_this_session: false },
+  ],
+  keycloak: [
+    { sid: 'kc.session.a1', client: 'Windows 11 (Edge)', lastAccessed: 1725570000000, active: true },
+    { sid: 'kc.session.b2', client: 'Android 14 (Chrome)', lastAccessed: 1725462000000, active: false },
+  ],
+  oauth2: [
+    { tokenSubject: 'sub-oauth-001', deviceLabel: 'ChromeOS (Chrome)', issuedAt: '2026-09-06T15:30:00Z', currentDevice: true },
+    { tokenSubject: 'sub-oauth-002', deviceLabel: 'macOS (Firefox)', issuedAt: '2026-09-04T09:15:00Z', currentDevice: false },
+    { tokenSubject: 'sub-oauth-003', deviceLabel: 'iPad (Safari)', issuedAt: '2026-09-03T22:00:00Z', currentDevice: false },
+    { tokenSubject: 'sub-oauth-004', deviceLabel: 'Windows (Firefox)', issuedAt: '2026-09-02T18:20:00Z', currentDevice: false },
+  ],
+};
+
+const ADAPTERS = {
+  clerk(raw) {
+    return raw.map((r) => ({ id: r.session_id, device: r.ua, lastActive: r.last_seen_iso, current: r.is_this_session === true }));
+  },
+  keycloak(raw) {
+    return raw.map((r) => ({ id: r.sid, device: r.client, lastActive: new Date(r.lastAccessed).toISOString(), current: r.active === true }));
+  },
+  oauth2(raw) {
+    return raw.map((r) => ({ id: r.tokenSubject, device: r.deviceLabel, lastActive: r.issuedAt, current: r.currentDevice === true }));
+  },
+};
+
+// Default (no provider selected) preserves the shipped s1/s2/s3
+// three-row shape so pre-existing anatomy tests and pack calls that
+// do not name a provider observe the same DOM they did before the
+// per-provider adapter contract was added.
+const DEFAULT_SESSIONS = [
+  { id: 's1', device: 'MacBook Pro (Safari)', lastActive: '2026-09-06T20:14:00Z', current: true },
+  { id: 's2', device: 'iPhone 15 (Mobile Safari)', lastActive: '2026-09-06T18:02:00Z', current: false },
+  { id: 's3', device: 'Ubuntu 24.04 (Firefox)', lastActive: '2026-09-05T22:41:00Z', current: false },
+];
+
 function sessionsSurface({ caps, breakSwitch, provider }) {
   if (!caps.has('sessionInventory')) return '<h2>Sessions</h2><p>Sessions surface is not applied on this project.</p>';
-  const rows = [
-    { id: 's1', device: 'MacBook Pro (Safari)', lastActive: '2026-09-06T20:14:00Z', current: true },
-    { id: 's2', device: 'iPhone 15 (Mobile Safari)', lastActive: '2026-09-06T18:02:00Z', current: false },
-    { id: 's3', device: 'Ubuntu 24.04 (Firefox)', lastActive: '2026-09-05T22:41:00Z', current: false },
-  ];
+  const rows = provider ? ADAPTERS[provider](PROVIDER_RAW_INVENTORIES[provider]) : DEFAULT_SESSIONS;
   const trs = rows.map((r) => `
 <tr data-session-id="${r.id}"${r.current ? ' data-current-session="true"' : ''}>
   <td data-column="device">${r.device}</td>
@@ -260,9 +305,26 @@ function notificationsSurface({ apps }) {
 </div>`;
 }
 
-function themeSurface({ apps, themePersist, breakSwitch }) {
+// AC-25108-1 server-scoped-persistence half: when the applied theme
+// persistence store is 'server-scoped', the fixture holds a
+// per-principal server-side theme record. POST /api/theme?theme=X
+// writes it; subsequent GET /account/theme reflects that written
+// value on the html element data-theme attribute (initial load,
+// no browser JS involved) and pre-selects the matching radio.
+// Principal defaults to a single-tenant fixture default when no
+// X-Principal-Id header is sent (probes can vary it explicitly).
+const serverScopedThemeStore = new Map();
+
+function serverScopedThemeFor(principalId) {
+  return serverScopedThemeStore.get(principalId) || null;
+}
+
+function themeSurface({ apps, themePersist, breakSwitch, principalId }) {
   if (!apps.has('application-spa')) return '<h2>Theme</h2><p>Theme surface requires the application-spa blueprint.</p>';
-  const persistScript = breakSwitch === 'no-persist' ? '' : `
+  const stored = themePersist === 'server-scoped' ? serverScopedThemeFor(principalId) : null;
+  const initial = stored || 'light';
+  const checked = (v) => v === initial ? ' checked' : '';
+  const persistScript = breakSwitch === 'no-persist' || themePersist === 'server-scoped' ? '' : `
 <script>
 document.querySelectorAll('input[name="theme"]').forEach((el) => {
   el.addEventListener('change', (e) => {
@@ -275,12 +337,25 @@ document.querySelectorAll('input[name="theme"]').forEach((el) => {
 </script>`;
   return `
 <h2>Theme</h2>
-<div data-surface="theme" role="radiogroup" aria-label="Theme" data-persist="${themePersist}">
-  <label><input type="radio" name="theme" value="light" checked> Light</label>
-  <label><input type="radio" name="theme" value="dark"> Dark</label>
-  <label><input type="radio" name="theme" value="system"> System</label>
+<div data-surface="theme" role="radiogroup" aria-label="Theme" data-persist="${themePersist}" data-server-scoped-theme="${stored || ''}">
+  <label><input type="radio" name="theme" value="light"${checked('light')}> Light</label>
+  <label><input type="radio" name="theme" value="dark"${checked('dark')}> Dark</label>
+  <label><input type="radio" name="theme" value="system"${checked('system')}> System</label>
 </div>
 ${persistScript}`;
+}
+
+function readPrincipalId(req, url) {
+  const header = req.headers['x-principal-id'];
+  if (typeof header === 'string' && header.length > 0) return header;
+  const q = url.searchParams.get('principal-id');
+  return typeof q === 'string' && q.length > 0 ? q : 'fixture-default-principal';
+}
+
+function themePage(ctx, principalId) {
+  const stored = ctx.themePersist === 'server-scoped' ? serverScopedThemeFor(principalId) : null;
+  const initial = stored || 'light';
+  return page('Theme', renderShell('theme', themeSurface({ ...ctx, principalId }), ctx), initial);
 }
 
 const server = http.createServer(withRequestId__((req, res) => {
@@ -292,13 +367,36 @@ const server = http.createServer(withRequestId__((req, res) => {
     res.setHeader('content-type', mime);
     res.end(body);
   };
+  const principalId = readPrincipalId(req, url);
+
+  // AC-25108-1 server-scoped write endpoint: POST /api/theme?theme=X
+  // stores the theme per principal. Only writes when the applied
+  // theme-persistence store is 'server-scoped'. Returns the stored
+  // record so a probe can observe the write independent of the
+  // subsequent GET.
+  if (req.method === 'POST' && path === '/api/theme') {
+    if (ctx.themePersist !== 'server-scoped') {
+      return send(409, JSON.stringify({ error: 'theme-persistence is not server-scoped', persist: ctx.themePersist }), 'application/json; charset=utf-8');
+    }
+    const chosen = url.searchParams.get('theme');
+    if (!['light', 'dark', 'system'].includes(chosen)) {
+      return send(400, JSON.stringify({ error: 'invalid theme', theme: chosen }), 'application/json; charset=utf-8');
+    }
+    serverScopedThemeStore.set(principalId, chosen);
+    return send(200, JSON.stringify({ ok: true, principalId, theme: chosen }), 'application/json; charset=utf-8');
+  }
+  if (req.method === 'DELETE' && path === '/api/theme') {
+    serverScopedThemeStore.delete(principalId);
+    return send(200, JSON.stringify({ ok: true, principalId }), 'application/json; charset=utf-8');
+  }
+
   if (!ctx.authed) return send(200, forbiddenState());
   if (path === '/account' || path === '/account/') return send(200, page('Account settings', renderShell('profile', profileSurface(ctx), ctx)));
   if (path === '/account/profile') return send(200, page('Profile', renderShell('profile', profileSurface(ctx), ctx)));
   if (path === '/account/security') return send(200, page('Security', renderShell('security', securitySurface(ctx), ctx)));
   if (path === '/account/sessions') return send(200, page('Sessions', renderShell('sessions', sessionsSurface(ctx), ctx)));
   if (path === '/account/notifications') return send(200, page('Notifications', renderShell('notifications', notificationsSurface(ctx), ctx)));
-  if (path === '/account/theme') return send(200, page('Theme', renderShell('theme', themeSurface(ctx), ctx)));
+  if (path === '/account/theme') return send(200, themePage(ctx, principalId));
   return send(404, page('Not found', '<h1>Not found</h1>'));
 }));
 

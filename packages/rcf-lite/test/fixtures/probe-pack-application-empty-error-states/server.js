@@ -56,6 +56,29 @@ const SEED_OFFLINE_BUFFER = [
   { idempotencyToken: 'idempotency-token-seed-write-1', payload: { kind: 'note', body: 'offline draft' }, sequence: 1 },
 ];
 
+// AC-22105-1 server-side buffer lifecycle: enqueue while offline,
+// flush on reconnect, delivery-log records the drained items. The
+// probe drives this via HTTP so the buffer lifecycle IS observable
+// from a server-side vantage (banner state + enqueue count + flushed
+// count). Keyed by principal-id (defaults to a single-tenant fixture
+// principal). Each principal's state is (state, buffer[], delivered[]).
+const offlineBufferState = new Map();
+
+function readOfflineState(principalId) {
+  if (!offlineBufferState.has(principalId)) {
+    offlineBufferState.set(principalId, {
+      state: 'online',
+      buffer: [...SEED_OFFLINE_BUFFER],
+      delivered: [],
+      lastFlushedCount: 0,
+      lastFlushedAt: null,
+      lastEnqueuedAt: null,
+      nextSequence: SEED_OFFLINE_BUFFER.length + 1,
+    });
+  }
+  return offlineBufferState.get(principalId);
+}
+
 // Eight named states the fixture serves. Kept as a constant so the
 // anatomy test can enumerate them.
 export const NAMED_STATES = [
@@ -166,19 +189,31 @@ function permissionDeniedPage({ leakId }) {
 </body></html>`;
 }
 
-function offlinePage({ reconnect, break_ }) {
-  // Seed the buffer so the pack can observe it on the initial GET.
-  const seed = JSON.stringify(SEED_OFFLINE_BUFFER);
-  const liveText = reconnect ? 'Reconnected. Flushing 1 buffered write.' : '';
+function offlinePage({ reconnect, break_, principalId }) {
+  const s = readOfflineState(principalId);
+  // Presence of ?reconnect=1 on the URL is treated as an observation
+  // hint (equivalent to a POST /probe/offline/reconnect). Kept as a
+  // convenience so previous callers still see the reconnected banner.
+  if (reconnect && s.state === 'offline') {
+    flushOfflineBuffer(s);
+  }
+  const bufferCount = s.buffer.length;
+  const flushedCount = s.lastFlushedCount || 0;
+  const banner = s.state === 'offline'
+    ? `<p data-banner="offline">You are offline. Writes are buffering locally and will flush when the network returns.</p>`
+    : `<p data-banner="online">Online. Buffered writes have been flushed.</p>`;
+  const liveText = reconnect ? `Reconnected. Flushing ${flushedCount} buffered write${flushedCount === 1 ? '' : 's'}.` : '';
   const liveWrapper = reconnect && break_ === 'no-live-region'
     ? ''
     : `<div data-live-region="polite" role="status" aria-live="polite">${escapeHtml(liveText)}</div>`;
+  const seed = JSON.stringify(s.buffer);
   return `<!doctype html><html lang="en"><head>${shellHead('Offline')}</head><body>
 <main>
-<section data-surface="offline" role="region" aria-labelledby="offlineHeading">
+<section data-surface="offline" role="region" aria-labelledby="offlineHeading" data-buffer-state="${s.state}" data-buffer-count="${bufferCount}" data-flushed-count="${flushedCount}">
   <h1 id="offlineHeading">Working offline</h1>
-  <p data-banner="offline">You are offline. Writes are buffering locally and will flush when the network returns.</p>
-  <p>Buffered writes: <span id="bufferCount">1</span></p>
+  ${banner}
+  <p>Buffered writes: <span id="bufferCount">${bufferCount}</span></p>
+  <p>Last flushed count: <span data-role="last-flushed-count">${flushedCount}</span></p>
 </section>
 ${liveWrapper}
 <script>
@@ -186,6 +221,16 @@ ${liveWrapper}
 </script>
 </main>
 </body></html>`;
+}
+
+function flushOfflineBuffer(s) {
+  const drained = s.buffer.slice();
+  s.delivered = s.delivered.concat(drained);
+  s.buffer = [];
+  s.state = 'online';
+  s.lastFlushedCount = drained.length;
+  s.lastFlushedAt = new Date().toISOString();
+  return drained;
 }
 
 function emptyListPage({ break_ }) {
@@ -267,9 +312,82 @@ function jsonResponse(res, status, body) {
 // when both are set.
 const DEFAULT_BREAK = process.env.EMPTY_ERROR_STATES_BREAK || null;
 
+function readPrincipalId(req, url) {
+  const header = req.headers['x-principal-id'];
+  if (typeof header === 'string' && header.length > 0) return header;
+  const q = url.searchParams.get('principal-id');
+  return typeof q === 'string' && q.length > 0 ? q : 'fixture-default-principal';
+}
+
 function requestHandler(req, res) {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const break_ = reqUrl.searchParams.get('break') || DEFAULT_BREAK;
+  const principalId = readPrincipalId(req, reqUrl);
+
+  // AC-22105-1 server-side buffer lifecycle endpoints. Enqueue during
+  // 'offline'; flush on reconnect drains the buffer into delivered[].
+  if (reqUrl.pathname === '/probe/offline/state') {
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => { body += c; });
+      req.on('end', () => {
+        let parsed;
+        try { parsed = body.length ? JSON.parse(body) : {}; } catch (e) { parsed = null; }
+        if (!parsed || (parsed.state !== 'online' && parsed.state !== 'offline')) {
+          return jsonResponse(res, 400, { error: 'body must be { state: "online" | "offline" }' });
+        }
+        const s = readOfflineState(principalId);
+        s.state = parsed.state;
+        return jsonResponse(res, 200, { ok: true, principalId, state: s.state, bufferCount: s.buffer.length });
+      });
+      return;
+    }
+    if (req.method === 'GET') {
+      const s = readOfflineState(principalId);
+      return jsonResponse(res, 200, { principalId, state: s.state, bufferCount: s.buffer.length, deliveredCount: s.delivered.length, lastFlushedCount: s.lastFlushedCount });
+    }
+    return jsonResponse(res, 405, { error: 'method not allowed' });
+  }
+  if (reqUrl.pathname === '/probe/offline/buffer') {
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => { body += c; });
+      req.on('end', () => {
+        let parsed;
+        try { parsed = body.length ? JSON.parse(body) : {}; } catch (e) { parsed = null; }
+        const s = readOfflineState(principalId);
+        if (s.state !== 'offline') {
+          return jsonResponse(res, 409, { error: 'buffer accepts writes only when state=offline', state: s.state });
+        }
+        const idempotencyToken = parsed && typeof parsed.idempotencyToken === 'string' ? parsed.idempotencyToken : ('token-' + __rid());
+        // Idempotency: if this token already exists in the buffer, do
+        // not add a duplicate (AC-22105-1 idempotency-per-token contract).
+        const existing = s.buffer.find((b) => b.idempotencyToken === idempotencyToken);
+        if (existing) {
+          return jsonResponse(res, 200, { ok: true, principalId, bufferCount: s.buffer.length, deduped: true, sequence: existing.sequence });
+        }
+        const payload = parsed && parsed.payload ? parsed.payload : {};
+        const sequence = s.nextSequence++;
+        s.buffer.push({ idempotencyToken, payload, sequence });
+        s.lastEnqueuedAt = new Date().toISOString();
+        return jsonResponse(res, 200, { ok: true, principalId, bufferCount: s.buffer.length, sequence });
+      });
+      return;
+    }
+    if (req.method === 'GET') {
+      const s = readOfflineState(principalId);
+      return jsonResponse(res, 200, { principalId, buffer: s.buffer, bufferCount: s.buffer.length });
+    }
+    return jsonResponse(res, 405, { error: 'method not allowed' });
+  }
+  if (reqUrl.pathname === '/probe/offline/reconnect' && req.method === 'POST') {
+    const s = readOfflineState(principalId);
+    if (s.state !== 'offline') {
+      return jsonResponse(res, 409, { error: 'reconnect requires state=offline', state: s.state });
+    }
+    const drained = flushOfflineBuffer(s);
+    return jsonResponse(res, 200, { ok: true, principalId, state: s.state, flushedCount: drained.length, deliveredCount: s.delivered.length });
+  }
 
   if (req.method === 'POST' && reqUrl.pathname === '/api/request-access') {
     return jsonResponse(res, 200, { ok: true });
@@ -293,7 +411,7 @@ function requestHandler(req, res) {
     case '/probe/permission-denied':
       return htmlResponse(res, permissionDeniedPage({ leakId: break_ === 'leak-id' }), 403);
     case '/probe/offline':
-      return htmlResponse(res, offlinePage({ reconnect: reqUrl.searchParams.get('reconnect') === '1', break_ }), 200);
+      return htmlResponse(res, offlinePage({ reconnect: reqUrl.searchParams.get('reconnect') === '1', break_, principalId }), 200);
     case '/probe/empty-list':
       return htmlResponse(res, emptyListPage({ break_ }), 200);
     case '/probe/search':

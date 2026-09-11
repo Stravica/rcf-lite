@@ -1,8 +1,12 @@
 # application-notifications-in-app CHANGELOG
 
+## 1.2.3 - 2026-09-11
+
+- toast-contract `notObservableHere` row for AC-20102-1 now emits `verdict:'warn'` (previously `pass`); the aggregate correctly reports amber for the browser-only halves of AC-20102-1 (role mapping, elapsed timeout and focus-pause behaviour on `data-shown-at`/`data-dismissed-at`) rather than a false pass. Anatomy test extended to (a) enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and refuse any row whose `anchorAcId` or `notObservableAcId` is not in that set, and (b) accept the conformance-only row shape (null anchor + non-empty `limitation`).
+
 ## 1.2.2 - 2026-09-11
 
-- Probes rewritten to observe declared AC properties instead of static constants. live-region-preseeding now enumerates elements by `[data-live-region]` and asserts polite (aria-live="polite", empty) and assertive (role="alert", empty) semantics per AC-20101-1; positive-anchor-on-absence broken-variant row removed. toast-contract row de-claimed to notObservableHere for AC-20102-1 (role mapping, elapsed timeout and focus pausing are client-JS-driven and only observable in a browser); the static timeout-floor constant-echo row is dropped. centre-acknowledge-round-trip broken-variant shortcut row removed; the positive round-trip row keeps derived evidence (acknowledgedAt flips null to ISO plus the server-side request log entry). Rule 10 applied to every row detail. Anatomy test extended to accept the notObservableHere row shape (non-empty reason + non-empty anchorAcId) alongside evidence-object and honest-skip. Register cleanup.
+- Probes rewritten to observe declared AC properties instead of static constants. live-region-preseeding now enumerates elements by `[data-live-region]` and asserts polite (aria-live="polite", empty) and assertive (role="alert", empty) semantics per AC-20101-1; positive-anchor-on-absence broken-variant row removed. toast-contract row de-claimed to notObservableHere for AC-20102-1 (role mapping, elapsed timeout and focus pausing are client-JS-driven and only observable in a browser); the static timeout-floor constant-echo row is dropped. centre-acknowledge broken-variant shortcut row removed; the positive centre-acknowledge row keeps derived evidence (acknowledgedAt flips null to ISO plus the server-side request log entry). Rule 10 applied to every row detail. Anatomy test extended to accept the notObservableHere row shape (non-empty reason + non-empty anchorAcId) alongside evidence-object and honest-skip. Register cleanup.
 
 
 ## 1.2.1 - 2026-09-11

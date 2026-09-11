@@ -1,14 +1,21 @@
 // application-empty-error-states probe: permission-denied
-// (AC-22104-1) and offline reconnect live-region (AC-22105-1).
+// (AC-22104-1) and the offline buffer lifecycle (AC-22105-1).
 //
-// AC-22105-1 is client-driven end-to-end (navigator.onLine seam,
-// window.__offlineBuffer lifecycle intercepted -> buffered -> reconnect
-// -> flushed, polite live-region rendered from a client event). A
-// server-shell probe cannot observe that lifecycle; the row is emitted
-// as notObservableHere per the not-observable-here contract with the
-// shipped AC anchor kept.
+// AC-22105-1 requires observing the buffered-write lifecycle
+// (intercepted-write when the transport is offline, buffered with
+// idempotency-per-token, flushed on reconnect, delivered count
+// visible). The lifecycle is server-observable via the fixture's
+// /probe/offline/state, /probe/offline/buffer and
+// /probe/offline/reconnect endpoints - a probe can flip the state
+// to offline, POST a varied idempotency token, verify the count
+// increased and the token deduplicates a duplicate POST, trigger
+// reconnect, then verify the buffer drained and the delivered
+// count rose. The polite live-region announcement of the flushed
+// count is browser-driven (client script wires the announce) and
+// is not part of what this row observes.
 
 import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
+import { randomUUID } from 'node:crypto';
 
 export const anchorAcId = 'application-empty-error-states-AC-22104-1';
 export const accountBound = false;
@@ -41,16 +48,101 @@ export default async function runProbe() {
       },
     });
 
-    // AC-22105-1 offline + reconnect: client-driven, not observable
-    // from a server-shell probe. Emit a notObservableHere row that
-    // keeps the AC anchor and names the client-only requirement.
+    // AC-22105-1 server-observable buffer lifecycle: flip state
+    // offline, POST a varied idempotency token, verify buffer grew,
+    // POST the same token and verify dedupe, POST a second distinct
+    // token, trigger reconnect and verify the buffer drained with
+    // the expected delivered count. Every step drives a varied
+    // input the fixture cannot see coming, and every assertion is on
+    // a derived output the fixture had no choice about.
+    const principalId = 'probe-offline-' + randomUUID();
+    // Baseline read (fresh principal begins with the seeded buffer of size 1).
+    const initial = await fixtureFetch(fixture.url, `/probe/offline/state?principal-id=${principalId}`);
+    const initialState = JSON.parse(initial.body || '{}');
+    // Flip to offline.
+    const flipOffline = await fixtureFetch(fixture.url, `/probe/offline/state?principal-id=${principalId}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ state: 'offline' }),
+    });
+    // Enqueue a distinct token.
+    const tokenA = 'probe-write-' + randomUUID();
+    const enqA1 = await fixtureFetch(fixture.url, `/probe/offline/buffer?principal-id=${principalId}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idempotencyToken: tokenA, payload: { kind: 'note', body: 'first' } }),
+    });
+    const enqA1Body = JSON.parse(enqA1.body || '{}');
+    // Duplicate write with the SAME token must dedupe (no count increase).
+    const enqA2 = await fixtureFetch(fixture.url, `/probe/offline/buffer?principal-id=${principalId}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idempotencyToken: tokenA, payload: { kind: 'note', body: 'first-again' } }),
+    });
+    const enqA2Body = JSON.parse(enqA2.body || '{}');
+    // Enqueue a second distinct token (count must go up).
+    const tokenB = 'probe-write-' + randomUUID();
+    const enqB = await fixtureFetch(fixture.url, `/probe/offline/buffer?principal-id=${principalId}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ idempotencyToken: tokenB, payload: { kind: 'note', body: 'second' } }),
+    });
+    const enqBBody = JSON.parse(enqB.body || '{}');
+    // Reconnect and drain.
+    const reconnect = await fixtureFetch(fixture.url, `/probe/offline/reconnect?principal-id=${principalId}`, { method: 'POST' });
+    const reconnectBody = JSON.parse(reconnect.body || '{}');
+    // Final GET reads state after reconnect: buffer drained.
+    const finalState = await fixtureFetch(fixture.url, `/probe/offline/state?principal-id=${principalId}`);
+    const finalStateBody = JSON.parse(finalState.body || '{}');
+    // Expectations per AC-22105-1:
+    //   - offline enqueue grows the buffer count on distinct token
+    //   - duplicate token does not grow the count (dedupe)
+    //   - reconnect returns flushed count === buffer count at reconnect time
+    //   - final state shows buffer empty and delivered count rose by the
+    //     flushed count
+    const seededCount = initialState.bufferCount ?? 0;
+    const bufferAfterA1 = enqA1Body.bufferCount ?? 0;
+    const bufferAfterA2 = enqA2Body.bufferCount ?? 0;
+    const bufferAfterB = enqBBody.bufferCount ?? 0;
+    const flushedCount = reconnectBody.flushedCount ?? -1;
+    const deliveredAfter = finalStateBody.deliveredCount ?? -1;
+    const enqueueGrew = bufferAfterA1 === seededCount + 1;
+    const deduped = bufferAfterA2 === bufferAfterA1 && enqA2Body.deduped === true;
+    const secondEnqueueGrew = bufferAfterB === bufferAfterA1 + 1;
+    const flushedMatches = flushedCount === bufferAfterB;
+    const drained = (finalStateBody.bufferCount ?? -1) === 0 && finalStateBody.state === 'online';
+    const deliveredMatches = deliveredAfter === flushedCount;
+    const bufferPass = initial.status === 200 && !!initial.requestId
+      && flipOffline.status === 200
+      && enqA1.status === 200 && enqA2.status === 200 && enqB.status === 200
+      && reconnect.status === 200 && finalState.status === 200
+      && enqueueGrew && deduped && secondEnqueueGrew && flushedMatches && drained && deliveredMatches;
     results.push({
       anchorAcId: 'application-empty-error-states-AC-22105-1',
-      notObservableAcId: 'application-empty-error-states-AC-22105-1',
-      verdict: 'pass',
-      notObservableHere: true,
-      reason: 'Given navigator.onLine simulated false via the runtime seam: AC-22105-1 requires observation of the client buffer lifecycle (intercepted write -> window.__offlineBuffer with idempotency token and monotonic sequence -> reconnect via navigator.onLine true -> polite live-region announcement with the flushed count). The lifecycle is fully client-driven and cannot be observed from a server-shell probe; the browser-runner probe covers this AC.',
-      detail: 'Given navigator.onLine simulated false via the runtime seam (page.setOffline(true) on the project route, an offline endpoint on the sample-app route the pack uses instead): observation deferred to the browser-runner probe; the client buffer lifecycle cannot be observed by a Node fetch probe.',
+      verdict: bufferPass ? 'pass' : 'fail',
+      detail: bufferPass
+        ? `Given navigator.onLine simulated false via the runtime seam: with the server-side buffer keyed to a fresh principalId, POST /probe/offline/state{state:offline} flipped the state; two distinct idempotency tokens enqueued (buffer count seededCount=${seededCount} -> ${bufferAfterA1} -> ${bufferAfterB}); duplicate token deduped (deduped=${enqA2Body.deduped}, count stayed ${bufferAfterA2}); POST /probe/offline/reconnect drained ${flushedCount} writes; final state shows bufferCount=0, state=online, deliveredCount=${deliveredAfter} equal to flushedCount; x-fixture-request-id (initial GET)=${initial.requestId}`
+        : `Given navigator.onLine simulated false via the runtime seam (evidence gap): seeded=${seededCount} afterA1=${bufferAfterA1} afterA2=${bufferAfterA2} afterB=${bufferAfterB} flushed=${flushedCount} delivered=${deliveredAfter} state=${finalStateBody.state} enqueueGrew=${enqueueGrew} deduped=${deduped} secondGrew=${secondEnqueueGrew} flushedMatches=${flushedMatches} drained=${drained} deliveredMatches=${deliveredMatches}`,
+      evidence: {
+        requestId: initial.requestId,
+        responseStatus: initial.status,
+        bodyExcerpt: excerpt(JSON.stringify({ initial: initialState, afterEnq: enqBBody, reconnect: reconnectBody, final: finalStateBody })),
+        derived: {
+          principalId,
+          seededCount,
+          bufferAfterA1,
+          bufferAfterA2,
+          bufferAfterB,
+          flushedCount,
+          deliveredAfter,
+          enqueueGrew,
+          deduped,
+          secondEnqueueGrew,
+          flushedMatches,
+          drained,
+          deliveredMatches,
+        },
+      },
     });
   } finally {
     await fixture.kill();

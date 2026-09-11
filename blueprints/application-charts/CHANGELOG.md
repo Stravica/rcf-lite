@@ -1,8 +1,12 @@
 # application-charts CHANGELOG
 
+## 1.0.7 - 2026-09-11
+
+- keyboard-traversal AC-18104-1 row de-claimed to conformance-only (null anchor + `limitation` naming the AC clause NOT observed here: browser Tab focus movement is not observable by a Node HTTP probe; the DOM source-order walk of `[.chartDataPoint tabindex=0]` elements is a proxy but not authoritative). AC-18104-3 row keeps the AC anchor (aria-label token derivation is server-observable). Anatomy test extended to (a) enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and `contributions/requirements/*.json` and refuse any row whose `anchorAcId` or `notObservableAcId` is not in that set, and (b) accept the conformance-only row shape (null anchor + non-empty `limitation`).
+
 ## 1.0.6 - 2026-09-11
 
-- Rule-10 sweep on every probe row detail: each row now opens with the verbatim first eight words of its anchored AC's description (AC-18102-1, AC-18103-1, AC-18103-3, AC-18104-1, AC-18104-3) so the property claimed sits next to the observation made. Register cleanup on probe-utils.mjs, the anatomy test and the fixture README: reworded citations that carried banned lane-label tokens to describe the rule by name.
+- Rule-10 sweep on every probe row detail: each row now opens with the verbatim first eight words of its anchored AC's description (AC-18102-1, AC-18103-1, AC-18103-3, AC-18104-1, AC-18104-3) so the property claimed sits next to the observation made. Register cleanup on probe-utils.mjs, the anatomy test and the fixture README: reworded citations that carried banned register-label tokens to describe the rule by name.
 
 
 ## 1.0.5 - 2026-09-11

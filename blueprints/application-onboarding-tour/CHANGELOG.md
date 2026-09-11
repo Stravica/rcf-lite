@@ -1,5 +1,9 @@
 # application-onboarding-tour CHANGELOG
 
+## 1.1.5 - 2026-09-11
+
+- completion-persistence probe now observes AC-26104-1's server-observable half. Fixture ships three new endpoints keyed by `x-principal-id` header (or `?principal-id=` query) exercised only when `TOUR_STORE=server-side-per-principal`: `POST /api/tour/completion` writes, `GET /api/tour/completion` reads (404 when absent, 200 with the record when present), `DELETE /api/tour/completion` clears (models the restart-tour control). Probe drives a fresh principal through the full sequence (initial absent -> write -> read -> clear -> absent again) instead of de-claiming as `notObservableHere`. first-run-detection and stepper-role-dialog rows keep `notObservableHere` on the browser-only halves but now emit `verdict:'warn'` (never `pass`) so the aggregate correctly reports amber for those AC halves. Anatomy test extended to enumerate the shipped AC/REQ id set and refuse any row whose anchor is not in it, and to accept the conformance-only row shape.
+
 ## 1.1.4 - 2026-09-11
 
 - Fixture tour-open runtime condition corrected from `FIRST_RUN || !alreadyDone` to `!alreadyDone` alone per AC-26101-1 (the tour opens on first run once, not any time FIRST_RUN is set past a stored completion). first-run-detection, stepper-role-dialog and completion-persistence probes de-claimed to notObservableHere with their AC anchors (AC-26101-1, AC-26102-1, AC-26104-1) because the observable properties - tour open behaviour, dialog focus lifecycle, focus return, responsive placement, completion write-and-restart-read - are all client-JS-driven and only observable in a browser. checklist-anchor-open remains observed (server-side surfaces the applied-capability-driven checklist state); rule 10 applied to both branches. Positive-anchor-on-absence broken-variant rows removed. Anatomy test extended to accept notObservableHere row shape. Register cleanup.

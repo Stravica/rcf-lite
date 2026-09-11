@@ -35,7 +35,7 @@ export default async function runProbe() {
       results.push({
         anchorAcId,
         notObservableAcId: anchorAcId,
-        verdict: 'pass',
+        verdict: 'warn',
         notObservableHere: true,
         reason: 'AC-26101-1 requires observing the tour dialog opening on the SPA, focus movement to the tooltip, and Escape dismissing the dialog on a keyboard-only walk; those are DOM/browser events created by client script and cannot be observed from a fixture HTTP response body. The tour open is deferred to the browser check in application-onboarding-tour.pack.mjs.',
         detail: `Given a first-run principal on the SPA, the tour-open assertion is browser-only for route ${route}; fixture reachability confirmed (status=${res.status}, requestId=${res.requestId || 'absent'}, reachable=${reachable}).`,
@@ -47,7 +47,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId,
       notObservableAcId: anchorAcId,
-      verdict: 'pass',
+      verdict: 'warn',
       notObservableHere: true,
       reason: 'AC-26101-1 also implies a returning-principal branch (a stored completion record must suppress the auto-open on the SPA); that branch is browser-only because the suppression decision is made by the client script against window.localStorage. Deferred to the browser check.',
       detail: 'Given a first-run principal on the SPA, the suppression branch (completion record stored -> no auto-open) is browser-only; recorded here as an explicit non-observation so the operator sees the gap.',

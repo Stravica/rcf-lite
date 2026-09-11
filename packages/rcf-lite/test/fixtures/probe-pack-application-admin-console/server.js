@@ -438,18 +438,19 @@ const server = http.createServer(withRequestId__(async (req, res) => {
       return htmlResponse(res, renderAuditPage(caps, breakSwitch));
     case '/admin/sign-in': {
       if (caps.has('zeroTrustGate')) {
-        // AC-21815-1: request.auth is read from the Authorization header
-        // (Bearer or Principal <email>). Header presence lets the probe
-        // observe that a per-request principal flows into principal-read
-        // (a static env default would prove nothing). Absent header the
-        // fixture falls back to the shipped default so pre-existing
-        // downstream pack checks that call this route without a header
-        // still get 200 with a rendered principal; the 403-on-absence
-        // half of AC-21815-1 is deferred to the auth-integration probe
-        // that owns the real edge validator.
+        // AC-21815-1 (present): request.auth is read from the
+        // Authorization header (Bearer or Principal <email>) so the
+        // probe can observe that a per-request principal flows into
+        // principal-read. AC-21815-2 (absent): when zeroTrustGate is
+        // applied and no Authorization header is present, the fixture
+        // refuses with HTTP 403 and renders the access-denied surface
+        // (no principal-read, no protected data). Consumers that need
+        // the access-gated surface must supply an Authorization header.
         const headerPrincipal = principalFromAuthHeader(req);
-        const principalEmail = headerPrincipal !== null ? headerPrincipal : 'default-principal@example.com';
-        return htmlResponse(res, renderSignIn(caps, principalEmail, breakSwitch));
+        if (headerPrincipal === null) {
+          return htmlResponseWithStatus(res, 403, renderSignInAccessDenied(caps));
+        }
+        return htmlResponse(res, renderSignIn(caps, headerPrincipal, breakSwitch));
       }
       // Fallback branch (AC-21816-1): local login surface.
       return htmlResponse(res, renderSignIn(caps, '', breakSwitch));

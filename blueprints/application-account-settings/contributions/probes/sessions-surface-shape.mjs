@@ -37,7 +37,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    withCap.kill();
+    await withCap.kill();
   }
 
   const noCap = await startFixture({ env: { ACCOUNT_SETTINGS_CAPS: 'principalDirectory' } });
@@ -60,7 +60,7 @@ export default async function runProbe() {
       },
     });
   } finally {
-    noCap.kill();
+    await noCap.kill();
   }
   return { results };
 }

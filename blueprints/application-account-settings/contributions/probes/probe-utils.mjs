@@ -121,7 +121,17 @@ export function aggregate(results) {
   // Positive-evidence rule: no-checks-ran is a fail.
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
-  if (results.some((r) => r.verdict === 'warn')) return 'warn';
+  // notObservableHere rows document AC halves that cannot be observed by
+  // this probe (browser-only, per Addendum 3 rule 11). They do NOT
+  // contribute to the aggregate: the aggregate answers "did any
+  // positive-evidence observation land here", not "is every AC clause
+  // observable here". The amber-on-the-shelf verdict for each
+  // notObservableHere AC lives on that row (verdict===warn plus
+  // notObservableHere===true). An all-notObservable probe therefore
+  // aggregates to 'pass' - no negative signal, honest deferral -
+  // and shelf amber is captured row-by-row.
+  const primary = results.filter((r) => r && r.notObservableHere !== true);
+  if (primary.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
 }
 

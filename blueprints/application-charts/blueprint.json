@@ -1,6 +1,6 @@
 {
   "slug": "application-charts",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -117,5 +117,5 @@
       "standardsTraceClause": "WCAG 2.3.3"
     }
   ],
-  "updatedAt": "2026-09-11T18:02:00Z"
+  "updatedAt": "2026-09-11T19:38:29Z"
 }

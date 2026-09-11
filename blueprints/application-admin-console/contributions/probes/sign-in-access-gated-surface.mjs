@@ -56,21 +56,29 @@ export default async function runProbe() {
       },
     });
 
-    // Row 2: AC-21815-2 (request.auth absent -> HTTP 403 refusal) is
-    // not observable here. The AC governs the edge-validator refusal
-    // path that a real Cloudflare Access sits in front of; the fixture
-    // is a Node HTTP shim without an edge validator, so the 403-on-absence
-    // half of AC-21815 is deferred to the auth-integration probe that
-    // owns the real gate. Deferring at the fixture keeps other consumers
-    // of this fixture (edge-cloudflare-access probes and pack checks
-    // that call /admin/sign-in without a header) unbroken.
+    // Row 2: AC-21815-2 refusal-when-request.auth-absent path,
+    // observed at the fixture itself. The fixture now returns HTTP
+    // 403 with a [data-surface="access-denied"] region and no
+    // [data-role="principal-read"] element when zeroTrustGate is
+    // applied and the Authorization header is missing.
+    const noAuth = await fixtureFetch(gated.url, '/admin/sign-in');
+    const deniedPresent = /data-surface="access-denied"/.test(noAuth.body);
+    const noPrincipalRead = !/data-role="principal-read"/.test(noAuth.body);
+    const noGatedSurface = !/data-surface="access-gated"/.test(noAuth.body);
+    const refusalPass = noAuth.status === 403 && !!noAuth.requestId
+      && deniedPresent && noPrincipalRead && noGatedSurface;
     results.push({
       anchorAcId: 'application-admin-console-AC-21815-2',
-      notObservableAcId: 'application-admin-console-AC-21815-2',
-      notObservableHere: true,
-      verdict: 'pass',
-      reason: 'AC-21815-2 requires observing HTTP 403 plus an access-denied surface and no principal-read element when zeroTrustGate is applied and request.auth is absent (upstream edge validator did not populate it). This fixture is a Node HTTP shim without an edge validator (the validator lives in edge-cloudflare-access), so the refusal path cannot be observed here without a real Access probe; the observation is deferred to the auth-integration probe that owns the real gate.',
-      detail: 'When zeroTrustGate is applied but the incoming request lacks request.auth: refusal is a property of the edge validator that fronts this fixture; the fixture serves the applied-caps render only and cannot observe the upstream 403; the edge-cloudflare-access probe covers this.',
+      verdict: refusalPass ? 'pass' : 'fail',
+      detail: refusalPass
+        ? `When zeroTrustGate is applied but the incoming request lacks request.auth: GET /admin/sign-in with no Authorization header returned HTTP 403 rendering [data-surface="access-denied"], with no [data-role="principal-read"] element and no [data-surface="access-gated"] region; x-fixture-request-id=${noAuth.requestId}`
+        : `When zeroTrustGate is applied but the incoming request lacks request.auth (gap): status=${noAuth.status} rid=${noAuth.requestId} deniedPresent=${deniedPresent} noPrincipalRead=${noPrincipalRead} noGatedSurface=${noGatedSurface}`,
+      evidence: {
+        requestId: noAuth.requestId,
+        responseStatus: noAuth.status,
+        bodyExcerpt: excerpt((noAuth.body.match(/data-surface="access-denied"[^]{0,240}/) || [''])[0]),
+        derived: { deniedPresent, noPrincipalRead, noGatedSurface },
+      },
     });
   } finally {
     await gated.kill();

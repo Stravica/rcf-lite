@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.2.2');
+  assert.equal(doc.version, '1.2.3');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.2.2');
+  assert.equal(sidecar.version, '1.2.3');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
@@ -287,8 +287,29 @@ test('application-account-settings contributions/probes/ pack files exist (TC-cr
   for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
 });
 
+async function loadContributedAnchorIds(blueprintRoot, slug) {
+  const { readdir, readFile: rf } = await import('node:fs/promises');
+  const ids = new Set();
+  async function collect(subdir) {
+    const dir = join(blueprintRoot, 'contributions', subdir);
+    let files = [];
+    try { files = (await readdir(dir)).filter((f) => f.endsWith('.json')); } catch (_) { return; }
+    for (const f of files) {
+      const doc = JSON.parse(await rf(join(dir, f), 'utf8'));
+      if (Array.isArray(doc.acceptanceCriteria)) {
+        for (const ac of doc.acceptanceCriteria) if (typeof ac.id === 'string' && ac.id.length > 0) ids.add(slug + '-' + ac.id);
+      }
+      if (typeof doc.reqId === 'string' && doc.reqId.length > 0) ids.add(doc.reqId);
+    }
+  }
+  await collect('user-stories');
+  await collect('requirements');
+  return ids;
+}
+
 test('application-account-settings criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
   const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-account-settings');
+  const validAnchorIds = await loadContributedAnchorIds(BLUEPRINT_ROOT, 'application-account-settings');
   let entries = [];
   try {
     const { readdir } = await import('node:fs/promises');
@@ -309,11 +330,17 @@ test('application-account-settings criterion-e run records carry rule-7d evidenc
     assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
     assert.notEqual(doc.aggregateVerdict, 'fail', filename + ' aggregateVerdict=fail');
     for (const r of doc.results) {
-      // The anchor is either a real AC/REQ id string or null (an
-      // exception-fallback row). The literal string "unknown" is
-      // refused: probe-utils no longer emits it (per the
-      // positive-evidence rule).
+      // "unknown" is refused; ANY non-null anchor MUST exist in the
+      // blueprint's shipped user stories / requirements. Null anchor
+      // is only acceptable on conformance-only or exception-fallback
+      // rows.
       assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
+      if (typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.anchorAcId), filename + ' anchorAcId=' + r.anchorAcId + ' is not a shipped AC or REQ id');
+      }
+      if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.notObservableAcId), filename + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
+      }
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
       const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
@@ -321,17 +348,13 @@ test('application-account-settings criterion-e run records carry rule-7d evidenc
       const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
       const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
       const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      // Not-observable-here contract: a probe running in an engine that
-      // cannot observe the AC (browser-only halves of a shipped AC)
-      // may emit a notObservableHere row anchored on the AC with a
-      // non-empty reason, carrying no evidence object. aggregate()
-      // pins these rows at verdict:'warn'. This accept sits alongside
-      // the evidence-object and honest-skip accepts; it does not
-      // weaken either.
       const isNotObservableHere = r.notObservableHere === true
         && typeof r.reason === 'string' && r.reason.length > 0
         && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip and no notObservableHere anchor');
+      const isConformanceOnly = r.conformanceOnly === true
+        && (r.anchorAcId === null || r.anchorAcId === undefined)
+        && typeof r.limitation === 'string' && r.limitation.length > 0;
+      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
     }
   }
 });

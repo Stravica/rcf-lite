@@ -29,7 +29,7 @@ export default async function runProbe() {
       results: [{
         anchorAcId,
         notObservableAcId: anchorAcId,
-        verdict: 'pass',
+        verdict: 'warn',
         notObservableHere: true,
         reason: 'AC-20102-1 requires observing client-driven toast emission into [data-live-region="polite"] with role="status" for info and [data-live-region="assertive"] with role="alert" for error, plus the six-second elapsed-timeout and focus-pause behaviour on data-shown-at/data-dismissed-at; toast rendering is client-JS-only in the fixture and elapsed timing and focus behaviour are browser-only, so a fixture-HTTP-only probe cannot observe them; a Playwright-driven check is required.',
         detail: 'Given a toast triggered by a background event; not observable at the fixture HTTP surface: toast DOM is emitted by client JS after load and the six-second elapsed timeout plus focus-pause behaviour are browser-only; needs a Playwright-driven observation to derive role, wrapper mapping and elapsed data-dismissed-at minus data-shown-at.',

@@ -1,5 +1,9 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.3 - 2026-09-11
+
+- Buffer lifecycle for AC-22105-1 is now observed server-side. Fixture ships three new endpoints keyed by `x-principal-id` header (or `?principal-id=` query): `POST /probe/offline/state` flips online/offline, `POST /probe/offline/buffer` enqueues with an idempotency-per-token contract (duplicate token returns `deduped:true` and count stays), `POST /probe/offline/reconnect` drains the buffer and returns the flushed count; `GET` variants return current state. The `/probe/offline` HTML surface now renders `data-buffer-state`, `data-buffer-count`, `data-flushed-count` and a banner reflecting the current transport state. permission-denied-and-offline probe drives a fresh principalId through the full lifecycle (flip offline, enqueue distinct tokens, verify count grew, POST duplicate token and verify dedupe, reconnect and verify drain+delivered) instead of de-claiming as `notObservableHere`. Anatomy test extended to enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and refuse any row whose anchor is not in it, and to accept the conformance-only row shape.
+
 ## 1.2.2 - 2026-09-11
 
 - forbidden-and-server-error probes now compare positive state-copy tokens rendered in the response HTML against the AC-22102-1 (forbidden) and AC-22103-1 (server-error) contracts, replacing the fixture-specific data-leak marker key that did not observe the state copy. permission-denied-and-offline offline row de-claimed to notObservableHere for AC-22105-1 (buffer lifecycle intercepted-write, buffered, reconnect, flushed sequence is client-driven and only observable in a browser). error-boundary-alert reanchored to AC-22108-1 active crash state; the standby-absence row that lacked a positive anchor is removed. Positive-anchor-on-absence broken-variant rows removed. Rule 10 applied to every row detail. Anatomy test extended to accept notObservableHere row shape. Register cleanup.

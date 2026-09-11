@@ -33,7 +33,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId,
       notObservableAcId: anchorAcId,
-      verdict: 'pass',
+      verdict: 'warn',
       notObservableHere: true,
       reason: 'AC-26102-1 requires observing focus movement to the tooltip on open, role="dialog" plus aria-labelledby present on the rendered element, focus return to the anchor on close, and the dialog remaining within the viewport at 1440 and 360 breakpoints. All four assertions are browser-only: the tooltip is created by client script in the DOM, focus and Escape are browser events, and the placement check requires a real viewport. Deferred to the browser check in application-onboarding-tour.pack.mjs.',
       detail: `Given a step showing a tooltip anchored to a UI element, the tooltip-render, focus-lifecycle, and viewport-placement assertions are browser-only; fixture reachability confirmed (status=${res.status}, requestId=${res.requestId || 'absent'}, reachable=${reachable}).`,

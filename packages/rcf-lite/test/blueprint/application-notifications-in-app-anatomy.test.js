@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.2');
+  assert.equal(doc.version, '1.2.3');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -222,8 +222,29 @@ test('application-notifications-in-app contributions/probes/ pack files exist (T
   for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
 });
 
+async function loadContributedAnchorIds(blueprintRoot, slug) {
+  const { readdir, readFile: rf } = await import('node:fs/promises');
+  const ids = new Set();
+  async function collect(subdir) {
+    const dir = join(blueprintRoot, 'contributions', subdir);
+    let files = [];
+    try { files = (await readdir(dir)).filter((f) => f.endsWith('.json')); } catch (_) { return; }
+    for (const f of files) {
+      const doc = JSON.parse(await rf(join(dir, f), 'utf8'));
+      if (Array.isArray(doc.acceptanceCriteria)) {
+        for (const ac of doc.acceptanceCriteria) if (typeof ac.id === 'string' && ac.id.length > 0) ids.add(slug + '-' + ac.id);
+      }
+      if (typeof doc.reqId === 'string' && doc.reqId.length > 0) ids.add(doc.reqId);
+    }
+  }
+  await collect('user-stories');
+  await collect('requirements');
+  return ids;
+}
+
 test('application-notifications-in-app criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
   const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-notifications-in-app');
+  const validAnchorIds = await loadContributedAnchorIds(BLUEPRINT_ROOT, 'application-notifications-in-app');
   let entries = [];
   try {
     const { readdir } = await import('node:fs/promises');
@@ -244,11 +265,17 @@ test('application-notifications-in-app criterion-e run records carry rule-7d evi
     assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
     assert.notEqual(doc.aggregateVerdict, 'fail', filename + ' aggregateVerdict=fail');
     for (const r of doc.results) {
-      // The anchor is either a real AC/REQ id string or null (an
-      // exception-fallback row). The literal string "unknown" is
-      // refused: probe-utils no longer emits it (per the
-      // positive-evidence rule).
+      // The anchor is either a real AC/REQ id string or null (a
+      // conformance-only or exception-fallback row). "unknown" is
+      // refused; ANY non-null anchor MUST exist in the blueprint's
+      // shipped user stories / requirements.
       assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
+      if (typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.anchorAcId), filename + ' anchorAcId=' + r.anchorAcId + ' is not a shipped AC or REQ id');
+      }
+      if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.notObservableAcId), filename + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
+      }
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
       const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
@@ -256,14 +283,13 @@ test('application-notifications-in-app criterion-e run records carry rule-7d evi
       const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
       const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
       const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string' && r.reason.length > 0;
-      // Not-observable-here contract: notObservableHere is an honest skip that
-      // must name a shipped AC (anchorAcId non-empty) and a reason
-      // (non-empty). Such rows carry no evidence object; a bare reason
-      // string never counts, and status zero never counts.
       const isNotObservableHere = r.notObservableHere === true
         && typeof r.reason === 'string' && r.reason.length > 0
         && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip and no notObservableHere with AC id');
+      const isConformanceOnly = r.conformanceOnly === true
+        && (r.anchorAcId === null || r.anchorAcId === undefined)
+        && typeof r.limitation === 'string' && r.limitation.length > 0;
+      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
     }
   }
 });

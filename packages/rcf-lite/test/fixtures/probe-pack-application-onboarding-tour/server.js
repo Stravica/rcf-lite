@@ -332,9 +332,73 @@ function homePage(ctx) {
   return page('Home', body, ctx);
 }
 
+// AC-26104-1 server-scoped completion store: when the applied
+// completion-state store is 'server-side-per-principal', the fixture
+// holds the completion record on the server keyed by principal id
+// (X-Principal-Id header or ?principal-id= query, defaulting to a
+// single-tenant fixture principal so probes can vary it). Endpoints:
+//   POST   /api/tour/completion  -> write completion for principal
+//   GET    /api/tour/completion  -> read (or 404 when absent)
+//   DELETE /api/tour/completion  -> clear (models the restart-tour
+//                                  control effect on the server)
+// The store is per-process, so probes must run the write / read /
+// clear against the same fixture instance.
+var serverCompletionStore = new Map();
+
+function readPrincipalId(req, url) {
+  var header = req.headers['x-principal-id'];
+  if (typeof header === 'string' && header.length > 0) return header;
+  var q = url.searchParams.get('principal-id');
+  return typeof q === 'string' && q.length > 0 ? q : 'fixture-default-principal';
+}
+
+function sendJson(res, status, obj) {
+  res.statusCode = status;
+  res.setHeader('content-type', 'application/json; charset=utf-8');
+  res.end(JSON.stringify(obj));
+}
+
 const server = http.createServer(withRequestId__(function (req, res) {
   var url = new URL(req.url, 'http://' + req.headers.host);
   var ctx = parseQuery(url);
+
+  // AC-26104-1 server-side completion API (only exercised when the
+  // applied store is 'server-side-per-principal').
+  if (url.pathname === '/api/tour/completion') {
+    var principalId = readPrincipalId(req, url);
+    if (ctx.store !== 'server-side-per-principal') {
+      return sendJson(res, 409, { error: 'completion-state store is not server-side-per-principal', store: ctx.store });
+    }
+    if (req.method === 'POST') {
+      var body = '';
+      req.on('data', function (c) { body += c; });
+      req.on('end', function () {
+        var parsed;
+        try { parsed = body.length ? JSON.parse(body) : {}; } catch (e) { parsed = null; }
+        if (!parsed || typeof parsed !== 'object') return sendJson(res, 400, { error: 'invalid body' });
+        var record = {
+          completedAt: typeof parsed.completedAt === 'string' ? parsed.completedAt : new Date().toISOString(),
+          blueprintSetVersion: typeof parsed.blueprintSetVersion === 'string' ? parsed.blueprintSetVersion : '1.0.0',
+          stepIds: Array.isArray(parsed.stepIds) ? parsed.stepIds : STEPS.map(function (s) { return s.id; }),
+          principalId: principalId,
+        };
+        serverCompletionStore.set(principalId, record);
+        return sendJson(res, 200, { ok: true, principalId: principalId, record: record });
+      });
+      return;
+    }
+    if (req.method === 'GET') {
+      var stored = serverCompletionStore.get(principalId);
+      if (!stored) return sendJson(res, 404, { principalId: principalId, completed: false });
+      return sendJson(res, 200, { principalId: principalId, completed: true, record: stored });
+    }
+    if (req.method === 'DELETE') {
+      serverCompletionStore.delete(principalId);
+      return sendJson(res, 200, { ok: true, principalId: principalId });
+    }
+    return sendJson(res, 405, { error: 'method not allowed' });
+  }
+
   res.setHeader('content-type', 'text/html; charset=utf-8');
   if (url.pathname === '/' || url.pathname === '/home') { res.end(homePage(ctx)); return; }
   if (url.pathname === '/tour' || url.pathname === '/onboarding' || url.pathname === '/welcome') { res.end(tourPage(ctx)); return; }
