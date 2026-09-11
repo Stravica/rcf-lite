@@ -1,7 +1,16 @@
 # Changelog
 
 
-## 1.1.4 - 2026-09-11
+## 1.1.5 - 2026-09-11
+
+Endpoint-host discipline follow-through and honest CRUD-row anchoring on the facade-round-trip probe (maintainer rulings 2026-09-11). The fixture helper `connectionUrlFromEnv` in `packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs` no longer carries a literal `localhost` default: when `POSTGRES_HOST` is unset the helper throws a typed `MissingPostgresHostError` and each consumer probe returns the exact one-variable `accountBoundSkipped` row rather than reaching a hard-coded endpoint. The `localhost` literal on the recovery-restore-round-trip probe's restore-container connection string is replaced by `process.env.POSTGRES_HOST`, matching the docker host the restore container publishes its port on. The fixture README declares the new behaviour and stops claiming the pack is entirely locally hosted. Anatomy pin bumped to 1.1.5.
+
+- fix: facade-round-trip row 2 (the CRUD round-trip) is now `conformanceOnly` against AC-27101-1 - the AC states pool opening and the facadeReady event, which row 1 observes; the CRUD observation cites AC-27101-1 as the nearest shipped AC and names the unobserved clause ("a facadeReady event fires on the injected event sink carrying the database name"). Row 1 stays anchored to AC-27101-1 and remains the source of the pool-opening / facadeReady evidence.
+- fix: every probe that calls `connectionUrlFromEnv` declares `POSTGRES_HOST` on its `DECLARED_ENV` list and converts `MissingPostgresHostError` into the exact one-variable `accountBoundSkipped` row per authoring-standard section 7d. The anatomy asserts the honest skip shape in the unset path and validates each row against the strict AND-witness rule in the set path.
+- fix: recovery-restore-round-trip's restore-container URL uses `process.env.POSTGRES_HOST`; no literal endpoint host remains in the shipped probe pack or fixture code.
+- fix: migration-apply row 1 and row 3 each carry `appliedFilesList` as their strict id witness alongside the `applied` derived witness. Pool-posture-smoke and transaction-atomicity add `databaseName` (captured from `store.ready()`) so every counting row satisfies the strict AND-witness rule when POSTGRES_HOST is set.
+
+
 
 Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation string and every notObservableHere.ac (must exist in the shipped user-story set), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND, never OR), requires the run record to be present under `.rcf/reports/blueprints/persistence-data-postgres/` (no lexical source fallback, no ENOENT swallow), and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV list. Anatomy pin bumped to 1.1.4. Probes minimally enriched so every counting row carries BOTH witness shapes.
 

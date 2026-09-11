@@ -29,8 +29,30 @@ import { promisify } from 'node:util';
 import { mkdir, writeFile, rm, stat } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+import { createStore, connectionUrlFromEnv, MissingPostgresHostError } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
 import { exportDatabase } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/recovery.mjs';
+
+export const DECLARED_ENV = Object.freeze([
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'POSTGRES_DB',
+  'POSTGRES_SOURCE_CONTAINER',
+  'POSTGRES_RESTORE_CONTAINER',
+  'POSTGRES_RESTORE_PORT',
+]);
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `Given a live Postgres containing a small fixture rowset - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
 
 const execFileAsync = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -153,17 +175,32 @@ async function recordTeardown(accumulator, label, fn) {
 }
 
 export default async function runProbe() {
+  let url;
+  try {
+    url = connectionUrlFromEnv();
+  } catch (err) {
+    if (err instanceof MissingPostgresHostError) {
+      return {
+        results: [skipRow(err.variable)],
+        accountBoundSkipped: true,
+        reason: `${err.variable} unset`,
+        envDeclared: [...DECLARED_ENV],
+      };
+    }
+    throw err;
+  }
   const events = [];
   const store = createStore({
-    connectionUrl: connectionUrlFromEnv(),
+    connectionUrl: url,
     onEvent: (e) => events.push(e),
   });
   const results = [];
   const teardown = [];
   let restoreBrought = false;
   let artefactWritten = false;
+  let databaseName = null;
   try {
-    await store.ready();
+    databaseName = await store.ready();
     const pool = store.getPool();
 
     // Seed a known rowset on the source
@@ -238,6 +275,7 @@ export default async function runProbe() {
         ? `Given a live Postgres containing a small fixture rowset - shipped exportDatabase emitted backupExported with artefactPath=${relative(PROJECT_ROOT, backupEvent.artefactPath)} completedAt=${backupEvent.completedAt}`
         : `Given a live Postgres containing a small fixture rowset - expected backupExported event on the shipped exportDatabase runner; observed events=${runnerEvents.map((e) => e.event).join(',')}`,
       evidence: {
+        databaseName,
         artefactPath: ARTEFACT_REL,
         artefactBytesOnDisk: artefactStat.size,
         bytesReportedByRunner: exported.bytes,
@@ -253,8 +291,11 @@ export default async function runProbe() {
     await dockerExecStdin(RESTORE_CONTAINER, ['psql', '-U', 'rcf', '-d', 'rcf_test', '-v', 'ON_ERROR_STOP=1'], Buffer.from(await import('node:fs').then((fs) => fs.promises.readFile(ARTEFACT))));
 
     // Read row-count and checksum on restored via a connection to the
-    // restore container's exposed port.
-    const dstStore = createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@localhost:${RESTORE_PORT}/rcf_test` });
+    // restore container's published port. Host is taken from
+    // POSTGRES_HOST (the docker host the restore container publishes
+    // its port on); no literal host default lives in shipped probe
+    // code (maintainer ruling 2026-09-11).
+    const dstStore = createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/rcf_test` });
     let dstCount = -1;
     let dstCk = 'unset';
     try {
@@ -270,7 +311,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-27105-1',
       verdict: srcCount === dstCount ? 'pass' : 'fail',
       detail: `Given a live Postgres containing a small fixture rowset - row-count source=${srcCount} restored=${dstCount}`,
-      evidence: { srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
+      evidence: { databaseName, srcCount, dstCount, restoreContainer: RESTORE_CONTAINER, restorePort: RESTORE_PORT },
     });
     results.push({
       anchorAcId: 'AC-27105-1',

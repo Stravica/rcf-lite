@@ -37,7 +37,27 @@ import { spawn } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyAll } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs';
-import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+import { createStore, connectionUrlFromEnv, MissingPostgresHostError } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+
+export const DECLARED_ENV = Object.freeze([
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'POSTGRES_DB',
+  'SIMULATE_MIGRATION_FAILURE',
+]);
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `Given a fresh Postgres database at schema_version 0 - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MIGRATE_CLI = resolve(HERE, '..', '..', '..', '..', 'packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs');
@@ -93,7 +113,20 @@ async function columnExists(pool, table, column) {
 }
 
 export default async function runProbe() {
-  const url = connectionUrlFromEnv();
+  let url;
+  try {
+    url = connectionUrlFromEnv();
+  } catch (err) {
+    if (err instanceof MissingPostgresHostError) {
+      return {
+        results: [skipRow(err.variable)],
+        accountBoundSkipped: true,
+        reason: `${err.variable} unset`,
+        envDeclared: [...DECLARED_ENV],
+      };
+    }
+    throw err;
+  }
   const results = [];
   // --- Phase 1: happy path ---
   await resetSchema(url);
@@ -109,7 +142,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-27102-1',
     verdict: listsEqual ? 'pass' : 'fail',
     detail: `Given a fresh Postgres database at schema_version 0 - applied=${JSON.stringify(applied)} expected=${JSON.stringify(expected)}`,
-    evidence: { applied, expected, phase: 'happy-path' },
+    evidence: { appliedFilesList: applied, applied, expected, phase: 'happy-path' },
   });
   const migratedEvent = events.find((e) => e.event === 'migrationsApplied');
   const eventFiredCorrectly = migratedEvent
@@ -136,7 +169,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-27102-1',
       verdict: versionRowsPass ? 'pass' : 'fail',
       detail: `Given a fresh Postgres database at schema_version 0 - schema_version rows=${schemaVersionRows.length} (expected 3, i.e. schema_version advanced to 3)`,
-      evidence: { schemaVersionRows, phase: 'happy-path' },
+      evidence: { appliedFilesList: schemaVersionRows.map((r) => r.filename), schemaVersionRows, phase: 'happy-path' },
     });
   } finally {
     await store.close();

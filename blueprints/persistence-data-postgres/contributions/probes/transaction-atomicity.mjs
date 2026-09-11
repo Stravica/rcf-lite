@@ -14,19 +14,54 @@
  * failure emits its own row (authoring-standard rule 5).
  */
 
-import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+import { createStore, connectionUrlFromEnv, MissingPostgresHostError } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
 
 const AC = 'Given the transaction helper wrapping a callback that';
 
+export const DECLARED_ENV = Object.freeze([
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'POSTGRES_DB',
+  'SIMULATE_CONSTRAINT_VIOLATION',
+]);
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
+  let url;
+  try {
+    url = connectionUrlFromEnv();
+  } catch (err) {
+    if (err instanceof MissingPostgresHostError) {
+      return {
+        results: [skipRow(err.variable)],
+        accountBoundSkipped: true,
+        reason: `${err.variable} unset`,
+        envDeclared: [...DECLARED_ENV],
+      };
+    }
+    throw err;
+  }
   const events = [];
   const store = createStore({
-    connectionUrl: connectionUrlFromEnv(),
+    connectionUrl: url,
     onEvent: (e) => events.push(e),
   });
   const results = [];
+  let databaseName = null;
   try {
-    await store.ready();
+    databaseName = await store.ready();
     const pool = store.getPool();
     await pool.query('CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT now())');
     await pool.query('TRUNCATE users');
@@ -47,7 +82,7 @@ export default async function runProbe() {
       detail: errorThrown
         ? `${AC} - withTransaction re-threw underlying error code=${caught.code}`
         : `${AC} - withTransaction did not throw on the constraint violation`,
-      evidence: { thrownErrorCode: caught && caught.code, thrownMessage: caught && caught.message },
+      evidence: { databaseName, thrownErrorCode: caught && caught.code, thrownMessage: caught && caught.message },
     });
     const rolledBackEvent = events.find((e) => e.event === 'transactionRolledBack');
     const indexIsOne = rolledBackEvent && rolledBackEvent.statementIndex === 1;
@@ -57,7 +92,7 @@ export default async function runProbe() {
       detail: rolledBackEvent
         ? `${AC} - transactionRolledBack fired with statementIndex=${rolledBackEvent.statementIndex} code=${rolledBackEvent.code}`
         : `${AC} - transactionRolledBack did not fire; events=${events.map((e) => e.event).join(',')}`,
-      evidence: { transactionRolledBackEvent: rolledBackEvent || null, allEvents: events, rolledBackTimestamp: rolledBackEvent ? new Date(rolledBackEvent.ts).toISOString() : null, rolledBackVerificationOk: !!rolledBackEvent && rolledBackEvent.statementIndex === 1 },
+      evidence: { databaseName, transactionRolledBackEvent: rolledBackEvent || null, allEvents: events, rolledBackTimestamp: rolledBackEvent ? new Date(rolledBackEvent.ts).toISOString() : null, rolledBackVerificationOk: !!rolledBackEvent && rolledBackEvent.statementIndex === 1 },
     });
     const count = await store.countUsers();
     const noRowsPersist = count === 0;
@@ -67,7 +102,7 @@ export default async function runProbe() {
       detail: noRowsPersist
         ? `${AC} - users table empty after rollback (no partial commit landed)`
         : `${AC} - users table carries ${count} row(s) after rollback (partial commit leaked)`,
-      evidence: { postRollbackUserCount: count, postRollbackVerificationOk: count === 0 },
+      evidence: { databaseName, postRollbackUserCount: count, postRollbackVerificationOk: count === 0 },
     });
   } finally {
     const teardown = [];
@@ -93,5 +128,5 @@ export default async function runProbe() {
       });
     }
   }
-  return results;
+  return { results };
 }

@@ -20,16 +20,50 @@
  * teardown row and fails the aggregate.
  */
 
-import { createStore, connectionUrlFromEnv } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+import { createStore, connectionUrlFromEnv, MissingPostgresHostError } from '../../../../packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs';
+
+export const DECLARED_ENV = Object.freeze([
+  'POSTGRES_HOST',
+  'POSTGRES_PORT',
+  'POSTGRES_USER',
+  'POSTGRES_PASSWORD',
+  'POSTGRES_DB',
+]);
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `Given two facade instances opened concurrently against the - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
 
 export default async function runProbe() {
-  const url = connectionUrlFromEnv();
+  let url;
+  try {
+    url = connectionUrlFromEnv();
+  } catch (err) {
+    if (err instanceof MissingPostgresHostError) {
+      return {
+        results: [skipRow(err.variable)],
+        accountBoundSkipped: true,
+        reason: `${err.variable} unset`,
+        envDeclared: [...DECLARED_ENV],
+      };
+    }
+    throw err;
+  }
   const storeA = createStore({ connectionUrl: url, poolConfig: { max: 5 } });
   const storeB = createStore({ connectionUrl: url, poolConfig: { max: 5 } });
   const results = [];
   const teardown = [];
+  let databaseName = null;
   try {
-    await Promise.all([storeA.ready(), storeB.ready()]);
+    const [dbA] = await Promise.all([storeA.ready(), storeB.ready()]);
+    databaseName = dbA;
     const poolA = storeA.getPool();
     const poolB = storeB.getPool();
     const samplesA = [];
@@ -66,6 +100,7 @@ export default async function runProbe() {
       verdict: (succeeded === 20 && failed === 0 && cappedA && cappedB) ? 'pass' : 'fail',
       detail: `Given two facade instances opened concurrently against the - 20 checked-out, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
       evidence: {
+        databaseName,
         checkedOut: 20,
         succeeded,
         failed,
@@ -95,5 +130,5 @@ export default async function runProbe() {
       evidence: { teardown },
     });
   }
-  return results;
+  return { results };
 }

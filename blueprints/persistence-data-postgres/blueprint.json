@@ -1,6 +1,6 @@
 {
   "slug": "persistence-data-postgres",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "category": "persistence",
   "capabilities": [
     "relationalStore"
@@ -255,5 +255,5 @@
       "default": "off"
     }
   ],
-  "updatedAt": "2026-09-11"
+  "updatedAt": "2026-09-11T20:35:00Z"
 }

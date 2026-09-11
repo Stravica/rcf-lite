@@ -17,11 +17,31 @@ import pg from 'pg';
 const { Pool } = pg;
 
 /**
- * Build the connection URL from environment defaults.
- * Password lands as-is; this is a development-only fixture.
+ * Named error kind emitted when POSTGRES_HOST is not set. Probes
+ * catch this and convert it to the exact-one-variable
+ * accountBoundSkipped row the anatomy asserts on; no literal host
+ * default lives in shipped fixture code (Dave ruling 2026-09-11).
+ */
+export class MissingPostgresHostError extends Error {
+  constructor() {
+    super('POSTGRES_HOST is not set; set POSTGRES_HOST to a reachable postgres endpoint before invoking connectionUrlFromEnv');
+    this.name = 'MissingPostgresHostError';
+    this.kind = 'missingPostgresHost';
+    this.variable = 'POSTGRES_HOST';
+  }
+}
+
+/**
+ * Build the connection URL from environment defaults. POSTGRES_HOST is
+ * a required declared variable with no literal default; when it is
+ * unset the helper throws MissingPostgresHostError so consumers can
+ * emit the exact-one-variable accountBoundSkipped row rather than a
+ * generic driver failure. Password lands as-is; this is a
+ * development-only fixture.
  */
 export function connectionUrlFromEnv() {
-  const host = process.env.POSTGRES_HOST || 'localhost';
+  const host = process.env.POSTGRES_HOST;
+  if (!host) throw new MissingPostgresHostError();
   const port = process.env.POSTGRES_PORT || '5432';
   const user = process.env.POSTGRES_USER || 'rcf';
   const password = process.env.POSTGRES_PASSWORD || 'rcf-dev-only';

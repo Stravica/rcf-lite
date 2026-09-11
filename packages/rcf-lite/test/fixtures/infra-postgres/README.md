@@ -75,11 +75,11 @@ Removes the container and the named volume so a fresh boot re-applies migrations
 
 ## Declared env vars
 
-Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). None of the persistence-data-postgres probes are account-bound; the engine is a locally-run `postgres:17-alpine` container (docker compose or a caller-supplied container name via the `POSTGRES_SOURCE_CONTAINER` / `POSTGRES_RESTORE_CONTAINER` env vars).
+Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row at review time (authoring standard section 7d). `POSTGRES_HOST` is a required declared variable with no literal default in fixture code (Dave ruling 2026-09-11): when it is unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and each probe records the exact one-variable `accountBoundSkipped` row rather than trying to reach a hard-coded endpoint. To run the probes against the local `postgres:17-alpine` container from `docker compose up -d postgres`, set `POSTGRES_HOST=localhost` (or the reachable host) explicitly before invoking the probe or the anatomy test.
 
 | Env var | Purpose | Consumed by |
 |---|---|---|
-| `POSTGRES_HOST` | Connection host. Required declared variable; no literal default. | `src/store.mjs` (via `connectionUrlFromEnv`) |
+| `POSTGRES_HOST` | Connection host. Required declared variable; no literal default. When unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and every consumer probe returns the exact one-variable `accountBoundSkipped` row. | `src/store.mjs` (via `connectionUrlFromEnv`) |
 | `POSTGRES_PORT` | Connection port (default `5432`; docker-compose accepts the same var to override the host-side bind). | `src/store.mjs`, `docker-compose.yml` |
 | `POSTGRES_USER` | Connection user (default `rcf`). | `src/store.mjs` |
 | `POSTGRES_PASSWORD` | Connection password (fixture-only default; a project overrides via env). | `src/store.mjs` |
@@ -90,4 +90,4 @@ Every environment variable this fixture or any probe it hosts reads is declared 
 | `SIMULATE_MIGRATION_FAILURE` | Induced-failure switch: drives the migration runner's second migration to invalid SQL so the negative-run assertion (rollback + failing filename in stderr) fires. | `src/migrate.mjs`, `migration-apply` probe |
 | `SIMULATE_CONSTRAINT_VIOLATION` | Induced-failure switch: forces the transaction-atomicity probe's second INSERT to violate the UNIQUE constraint so `transactionRolledBack` fires with `statementIndex: 1`. | `src/store.mjs`, `transaction-atomicity` probe |
 
-None of these variables gate an account-bound branch; every probe in this pack runs against a locally-hosted engine and produces positive evidence (row ids, transaction ids, event payloads, `pg_dump` byte counts, row-count and md5 checksum equality between source and restored databases, `.query` call-site tallies) rather than an `accountBoundSkipped` record.
+Only `POSTGRES_HOST` gates an `accountBoundSkipped` branch (Dave ruling 2026-09-11: no literal endpoint host default in fixture code). When set, every probe in this pack runs against a locally-hosted `postgres:17-alpine` engine and produces positive evidence (row ids, transaction ids, event payloads, `pg_dump` byte counts, row-count and md5 checksum equality between source and restored databases, `.query` call-site tallies) rather than an `accountBoundSkipped` record. When unset, each probe emits exactly one `accountBoundSkipped` row naming `POSTGRES_HOST` and returns without touching the driver.
