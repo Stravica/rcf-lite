@@ -1,9 +1,10 @@
-// Anatomy + apply + probe-pack test for the application-forms-wizard v1.2.5 shelf blueprint (spec section 5.3).
+// Anatomy + apply + probe-pack test for the application-forms-wizard v1.2.6 shelf blueprint (spec section 5.3).
 //
 // Covers TS-055.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -31,7 +32,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-055-blueprint-json-shape)', async () => {
  const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
  assert.equal(doc.slug, 'application-forms-wizard');
- assert.equal(doc.version, '1.2.5');
+ assert.equal(doc.version, '1.2.6');
  assert.equal(doc.category, 'application');
  assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
  assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
@@ -317,51 +318,8 @@ test('application-forms-wizard: every probe result in the pack carries one of th
  const { results } = await mod.default();
  assert.ok(Array.isArray(results) && results.length > 0, name + ' returned no results');
  for (const r of results) {
- const shaped = (r && typeof r.evidence === 'object' && r.evidence)
- || r.accountBoundSkipped === true
- || (r && typeof r.notObservableHere === 'object' && r.notObservableHere !== null);
- assert.ok(shaped, name + ' result ' + JSON.stringify(r).slice(0, 200) + ' missing evidence or accountBoundSkipped');
- if (r.accountBoundSkipped === true) {
- assert.ok(typeof r.reason === 'string' && r.reason.length > 0,
- name + ' account-bound skip missing named reason: ' + JSON.stringify(r).slice(0, 200));
- continue;
- }
- if (r && typeof r.notObservableHere === 'object' && r.notObservableHere !== null) {
- assert.ok(typeof r.notObservableHere.ac === 'string' && r.notObservableHere.ac.length > 0,
- name + ' notObservableHere row missing .ac id: ' + JSON.stringify(r).slice(0, 200));
- assert.ok(typeof r.notObservableHere.reason === 'string' && r.notObservableHere.reason.length > 0,
- name + ' notObservableHere row missing .reason: ' + JSON.stringify(r).slice(0, 200));
- assert.ok(_acIds.has(r.notObservableHere.ac),
- name + ' notObservableHere.ac ' + r.notObservableHere.ac + ' is not a shipped AC on this blueprint');
- continue;
- }
- if (r && r.conformanceOnly === true) {
- assert.ok(typeof r.limitation === 'string' && r.limitation.length > 0,
- name + ' conformanceOnly row missing limitation: ' + JSON.stringify(r).slice(0, 200));
- }
- if (r && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
- assert.ok(_acIds.has(r.anchorAcId),
- name + ' anchorAcId ' + r.anchorAcId + ' is not a shipped AC on this blueprint');
- }
- if (r && typeof r.anchorReqId === 'string' && r.anchorReqId.length > 0) {
- assert.ok(_reqIds.has(r.anchorReqId),
- name + ' anchorReqId ' + r.anchorReqId + ' is not a shipped REQ on this blueprint');
- }
- if (r.evidence) {
- const ev = r.evidence;
- assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
- name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
- assert.ok(Number.isFinite(ev.status) && ev.status > 0,
- name + ' evidence status zero never counts: ' + JSON.stringify(ev).slice(0, 200));
- const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
- assert.ok(hasRequestId,
- name + ' evidence missing non-empty request id: ' + JSON.stringify(ev).slice(0, 200));
- const derivedIsPopulated = (ev && typeof ev.derived === 'object' && ev.derived !== null && Object.keys(ev.derived).length > 0)
- || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null && Object.keys(ev.derivedOutput).length > 0);
- const hasBodyExcerpt = typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
- assert.ok(hasBodyExcerpt || derivedIsPopulated,
- name + ' evidence missing body excerpt or non-empty derived value: ' + JSON.stringify(ev).slice(0, 200));
+  assertResultShape(r, { acIds: _acIds, reqIds: _reqIds, name });
  }
  }
- }
+ runResultShapeNegativeCases({ familySlug: 'application-forms-wizard' });
 });

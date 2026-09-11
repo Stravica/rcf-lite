@@ -1,4 +1,4 @@
-// two-boundaries-registered probe for application-error-handling v1.0.10.
+// two-boundaries-registered probe for application-error-handling v1.0.11.
 //
 // Row 1 (AC-16102-2): the framework-level boundary catches a thrown
 // handler exception whose induced stack carries system-path and file-URI
@@ -19,10 +19,11 @@
 // wire bytes past the partial body. The probe drives that endpoint,
 // records the client's premature-close, and observes the exact-one
 // mid-stream companion emission at level=error whose message names
-// the streaming-in-progress condition with category='unknown'. The
-// row is conformanceOnly with a limitation naming that the
-// browser-network view of the aborted socket is the only clause of
-// AC-16102-4 not observed here.
+// the streaming-in-progress condition with category='unknown'. AC
+// AC-16102-4's shipped description names only the connection-close,
+// the exact companion emission, the level, message and category;
+// every clause is server-observable here so the row is a full
+// counting row with anchorAcId, not conformanceOnly.
 // Row 5 (REQ-004): the framework AND process boundaries both emit
 // through the injected logging companion factory. Observed on the
 // SAME spawned child: the child first hits /throw-handler
@@ -280,14 +281,14 @@ export default async function runProbe() {
  && midCategoryUnknown
  && midLevelError
  && midMessageNamesCondition;
- results.push(conformanceOnlyResult({
+ results.push({
  anchorAcId: 'application-error-handling-AC-16102-4',
  verdict: ac4ServerOk ? 'pass' : 'fail',
- detail: `Given a handler that throws AFTER the response body has already begun streaming - server-observable slice: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'} level=${midEmissions[0]?.level ?? 'MISSING'} messageNamesStreamingInProgress=${midMessageNamesCondition}; client saw prematureClose=${prematureClose} partialBodyPrefix=${partialBodyReceived}`,
+ detail: `Given a handler that throws AFTER the response body - server-observable slice: companion recorded ${midEmissions.length} mid-stream emission(s) with category=${midEmissions[0]?.category ?? 'MISSING'} level=${midEmissions[0]?.level ?? 'MISSING'} messageNamesStreamingInProgress=${midMessageNamesCondition}; client saw prematureClose=${prematureClose} partialBodyPrefix=${partialBodyReceived}`,
  evidence: {
  route: '/stream-then-throw',
  status: midStatus == null ? 0 : midStatus,
- xFixtureRequestId: midHeadersRequestId || (exactlyOneMidEmission ? midEmissions[0].correlationId : 'no-request-id'),
+ xFixtureRequestId: midHeadersRequestId || (exactlyOneMidEmission ? midEmissions[0].correlationId : ''),
  bodyExcerpt: (midBody || clientErrorMessage || '').slice(0, 240),
  input: { flushedHeadersFirst: true, wroteBytesBeforeThrow: partialBodyPrefix },
  derived: {
@@ -307,8 +308,7 @@ export default async function runProbe() {
  midHeadersRequestId,
  },
  },
- limitation: 'application-error-handling-AC-16102-4: server-side the probe observes the premature socket close, the exact-one companion emission at level=error with a message naming the streaming-in-progress condition, and category=unknown; the browser-network view of the aborted socket (what a browser network log records after the partial body was written) is not observable on a server-driven probe pack and is the only clause of AC-16102-4 not observed here',
- }));
+ });
 
  // Row 5: REQ-004 - the SAME companion saw the framework-boundary
  // emission from /throw-handler AND the process-boundary emission

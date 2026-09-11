@@ -1,4 +1,4 @@
-// category-vocabulary probe for application-error-handling v1.0.10.
+// category-vocabulary probe for application-error-handling v1.0.11.
 //
 // Verifies the ADR-1702 recommended default vocabulary (transient,
 // permanent, unknown) via REQ-003 for the pass rows and AC-16105-4

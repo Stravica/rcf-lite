@@ -1,5 +1,10 @@
 # application-forms-wizard CHANGELOG
 
+## 1.2.6 - 2026-09-11
+
+- task-list-surface now emits a notObservableHere row for AC-24101-1 alongside the existing conformanceOnly server row: the AC contract names driving the real browser to /task-list and reading data-step-state per step, the progressbar aria values and the enumerated step order from the rendered DOM. The AC is now represented on the shelf as (i) a conformanceOnly counting row observing the varied-manifest surface derived from /__task-manifest.allowedStates and (ii) a notObservableHere row carrying the AC id and the browser-observable-half reason.
+- Anatomy test pin bumped to 1.2.6.
+
 ## 1.2.5 - 2026-09-11
 
 - Adds a contributions/probes pack meeting rule 7d.

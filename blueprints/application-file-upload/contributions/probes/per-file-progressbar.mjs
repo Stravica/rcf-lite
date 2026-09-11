@@ -1,4 +1,4 @@
-// per-file-progressbar probe for application-file-upload v1.2.6.
+// per-file-progressbar probe for application-file-upload v1.2.7.
 //
 // Row 1 (AC-23102-1, browser-only): rendered live-region text and
 // per-file DOM values are notObservableHere.
@@ -14,6 +14,11 @@
 // limitation naming that only the server-side aggregate byte
 // accounting is asserted here; the AC's rendered aggregate value
 // on the polite live region is a browser-observable half.
+// Row 3 (AC-23102-2, browser-only half): the emitted announcement
+// text on the polite live region is a browser DOM observation and
+// is recorded as notObservableHere against the same AC so the
+// browser half is represented on the shelf alongside the server
+// counting evidence.
 //
 // anchorAcId: per-row.
 
@@ -97,6 +102,19 @@ export default async function runProbe() {
  },
  }),
  limitation: 'application-file-upload-AC-23102-2: the polite live region\'s rendered aggregate announcement text is not observable on a server-driven probe pack; the byte-weighted aggregate is asserted from the server\'s uploaded-bytes accounting only',
+ }));
+
+ // Row 3: notObservableHere for AC-23102-2's browser-observable
+ // half - the emitted aggregate announcement text on the polite
+ // live region. The AC's `when` and `then` explicitly concern the
+ // announcer's emitted value in the DOM, which a server-driven
+ // probe pack cannot observe; the row represents that half on the
+ // shelf so it is not carried by the server row's limitation alone.
+ results.push(notObservableHereResult({
+ ac: 'application-file-upload-AC-23102-2',
+ detail: 'Aggregate progress is the byte-weighted sum of per-file - the announcer\'s emitted aggregate text on the polite live region is a browser DOM observation',
+ reason: 'AC-23102-2 requires observing the aggregate progress text emitted through the polite live region; a server-side probe pack cannot observe DOM mutation or aria-live announcements',
+ evidence: { requires: 'browser DOM observation of the polite live region', ac: 'application-file-upload-AC-23102-2' },
  }));
 
  return { results };

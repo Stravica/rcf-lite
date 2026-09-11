@@ -1,5 +1,10 @@
 # application-file-upload CHANGELOG
 
+## 1.2.7 - 2026-09-11
+
+- per-file-progressbar now emits a notObservableHere row for AC-23102-2 alongside the existing conformanceOnly server row: the AC's when/then names the aggregate announcement text emitted through the polite live region, and that half is a browser DOM observation the server-side probe pack cannot make. The AC is now represented on the shelf as (i) a conformanceOnly counting row observing the byte-weighted aggregate from the server's uploaded-bytes accounting and (ii) a notObservableHere row carrying the AC id and the browser-observable-half reason.
+- Anatomy test pin bumped to 1.2.7.
+
 ## 1.2.6 - 2026-09-11
 
 - Corrects the stale chunked-transport-endpoints probe header: the AC-23104-1 row drives one declared 16 KiB file split into four sequential 4 KiB chunks against one sessionId, and the header now says so rather than "three real chunk POSTs with distinct byte payloads"; the code and evidence were already the four-equal-chunk shape.

@@ -1,4 +1,4 @@
-// chunked-transport-endpoints probe for application-file-upload v1.2.6.
+// chunked-transport-endpoints probe for application-file-upload v1.2.7.
 //
 // Row 1 (AC-23104-1): multipart transport - one declared file is
 // sent as four sequential equal-sized 4 KiB chunk POSTs against

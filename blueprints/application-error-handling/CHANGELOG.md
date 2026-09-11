@@ -1,5 +1,11 @@
 # application-error-handling CHANGELOG
 
+## 1.0.11 - 2026-09-11
+
+- AC-16102-4 (mid-stream close) is now a full counting row anchored on AC-16102-4 rather than conformanceOnly: the shipped AC description names only the connection-close, the exact companion emission, the level, message and category, and every clause is server-observable on this pack. The row records anchorAcId, verdict, a detail opening on the AC's first eight words, and evidence carrying route /stream-then-throw, status 200, the fixture-stamped x-fixture-request-id and a fully-populated derived object with the premature-close, exactly-one mid-stream emission, level, message-names-condition and category flags. The invented "browser-network view" limitation clause is dropped; AC-16102-4 no longer carries a browser-only sub-clause.
+- Detail texts continue to open with the first eight words of the AC or REQ text they observe.
+- Anatomy test pin bumped to 1.0.11.
+
 ## 1.0.10 - 2026-09-11
 
 - AC-16102-4 (mid-stream close) pass predicate now REQUIRES the premature socket close: the two-boundaries-registered probe verdict is pass iff midStatus===200, prematureClose===true, exactlyOneMidEmission, midCategoryUnknown, midLevelError, and midMessageNamesCondition. A normal completed 200 response that happens to carry the partial-body prefix fails this row. `partialBodyReceived` is still recorded on evidence.derived but does not participate in the verdict.

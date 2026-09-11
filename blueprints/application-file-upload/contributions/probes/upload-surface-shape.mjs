@@ -1,4 +1,4 @@
-// upload-surface-shape probe for application-file-upload v1.2.6.
+// upload-surface-shape probe for application-file-upload v1.2.7.
 //
 // AC-23101-1: the upload region carries [data-surface="file-upload"]
 // plus a labelled input, drop-zone and open-picker button. The

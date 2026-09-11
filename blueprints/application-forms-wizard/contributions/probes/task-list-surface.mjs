@@ -1,4 +1,4 @@
-// task-list-surface probe for application-forms-wizard v1.2.5.
+// task-list-surface probe for application-forms-wizard v1.2.6.
 //
 // AC-24101-1 (server-observable): the task-list surface exposes
 // data-surface="task-list" carrying a role="progressbar" and one
@@ -8,9 +8,16 @@
 // /__task-manifest both derive from the same varied input rather
 // than duplicating the fixture's module constant.
 //
+// Row 2 (AC-24101-1, browser-only half): the AC's contract names
+// driving the REAL BROWSER to /task-list and reading the state
+// string per step, the progressbar values and the enumerated step
+// order from the rendered DOM. A server-side probe pack cannot
+// drive a browser, so that half is recorded as notObservableHere
+// against the same AC alongside the server counting row.
+//
 // anchorAcId: application-forms-wizard-AC-24101-1.
 
-import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult, notObservableHereResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-forms-wizard-REQ-001';
 export const accountBound = false;
@@ -81,6 +88,19 @@ export default async function runProbe() {
  },
  }),
  limitation: 'application-forms-wizard-AC-24101-1: the closed enum owned by TAC-2501.interfaces.statesEnum is validated against /__task-manifest.allowedStates on this pack; a server-side probe pack cannot import the applying project\'s statesEnum. The rendered per-step [data-step-state] and progressbar values are asserted directly.',
+ }));
+
+ // Row 2: notObservableHere for AC-24101-1's browser-only half -
+ // the AC contract names driving the real browser to /task-list
+ // and reading per-step state, progressbar values and enumerated
+ // step order from the rendered DOM. A server-side probe pack
+ // cannot drive a browser, so the row represents that half on the
+ // shelf so it is not carried by the server row's limitation alone.
+ results.push(notObservableHereResult({
+ ac: 'application-forms-wizard-AC-24101-1',
+ detail: 'Given the wizard task-list route, the rendered surface - the pack drives the real browser to /task-list and reads state per step, progressbar values and step order from the rendered DOM',
+ reason: 'AC-24101-1 requires driving a real browser to /task-list and reading data-step-state, aria-valuenow/valuemax/valuetext and the enumerated step order from the rendered DOM; a server-side probe pack cannot drive a browser or observe DOM read-back',
+ evidence: { requires: 'real-browser observation of /task-list rendered DOM', ac: 'application-forms-wizard-AC-24101-1' },
  }));
  return { results };
  } finally {
