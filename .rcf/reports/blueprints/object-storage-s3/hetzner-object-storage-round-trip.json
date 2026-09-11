@@ -1,19 +1,43 @@
 {
   "slug": "object-storage-s3",
   "probeName": "hetzner-object-storage-round-trip",
-  "runAt": "2026-09-08T09:20:18.036Z",
+  "runAt": "2026-09-11T17:54:58.443Z",
   "engine": {
     "kind": "s3",
-    "image": "hetzner-object-storage-cloud",
-    "healthy": true
+    "vendor": "hetzner-object-storage",
+    "observed": false,
+    "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset"
   },
   "results": [
     {
       "anchorAcId": "AC-28110-1",
       "verdict": "pass",
-      "detail": "accountBound: skipped (no CI_HAS_HETZNER_OBJECT_STORAGE)",
-      "accountBoundSkipped": true
+      "detail": "Given the extended infra-s3-and-queue fixture at packages/rcf-lite/test/fixtures/infra-s3-and-queue/ carrying - accountBound: skipped (CI_HAS_HETZNER_OBJECT_STORAGE unset)",
+      "accountBoundSkipped": true,
+      "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
+      "evidence": {
+        "skip": true,
+        "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
+        "envDeclared": [
+          "CI_HAS_HETZNER_OBJECT_STORAGE",
+          "HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID",
+          "HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "HETZNER_OBJECT_STORAGE_BUCKET",
+          "HETZNER_OBJECT_STORAGE_LOCATION"
+        ]
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "accountBoundSkipped": true,
+    "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
+    "envDeclared": [
+      "CI_HAS_HETZNER_OBJECT_STORAGE",
+      "HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID",
+      "HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY",
+      "HETZNER_OBJECT_STORAGE_BUCKET",
+      "HETZNER_OBJECT_STORAGE_LOCATION"
+    ]
+  }
 }

@@ -127,7 +127,12 @@ export function probeKey(prefix) {
  * `{ ok: false, error }` under `healthLive`.
  */
 export async function observeMinioEngine() {
-  const endpointUrl = process.env.S3_ENDPOINT_URL || 'http://localhost:9000';
+  const endpointUrl = process.env.S3_ENDPOINT_URL;
+  if (!endpointUrl) {
+    // S3_ENDPOINT_URL is a required declared variable per the round-6
+    // endpoint-hosts ruling; caller records an exact one-variable skip when unset.
+    return { kind: 's3', vendor: 'minio', endpointHost: null, healthLive: { ok: false, error: 'S3_ENDPOINT_URL unset' } };
+  }
   const url = new URL('/minio/health/live', endpointUrl);
   const started = Date.now();
   try {

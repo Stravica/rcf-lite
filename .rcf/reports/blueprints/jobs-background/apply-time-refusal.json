@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "apply-time-refusal",
-  "runAt": "2026-09-06T20:54:32.160Z",
+  "runAt": "2026-09-11T19:09:32.777Z",
   "engine": {
     "kind": "cli",
     "tool": "rcf define blueprint add (bare scratch project)",
@@ -9,9 +9,18 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-jobs-requiresQueue",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-jobs-requiresQueue: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "exit=3; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet"
+      "detail": "conformanceOnly (AC-jobs-requiresQueue) - On a fresh init scratch project with NO - exit=3; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet",
+      "evidence": {
+        "exitCode": 3,
+        "stderrFirstLine": "[jobs-background-no-queue] jobs-background requires an applied blueprint declaring",
+        "tagPresent": true,
+        "providerPresent": true,
+        "overrideFlagPresent": true
+      }
     }
   ],
   "aggregateVerdict": "pass",

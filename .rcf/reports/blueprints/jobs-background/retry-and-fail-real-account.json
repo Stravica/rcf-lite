@@ -1,0 +1,256 @@
+{
+  "slug": "jobs-background",
+  "probeName": "retry-and-fail-real-account",
+  "runAt": "2026-09-11T20:09:17.927Z",
+  "engine": {
+    "kind": "queue",
+    "vendor": "cloudflare-queues",
+    "observed": "per-request on results"
+  },
+  "results": [
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records vendor queue and DLQ provisioning on a real Cloudflare account, which the AC does not state (its property is CLI refusal at init time, not vendor-side queue creation).",
+      "verdict": "pass",
+      "detail": "conformanceOnly (AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records vendor queue and DLQ provisioning on a real Cloudflare account, which the AC does not state (its property is CLI refusal at init time, not vendor-side queue creation).) - provisioned scratch queue qa-e-jobs-q-66dk28 (id=c63d1ff60c5645a099a878c3d0807cd6) with DLQ qa-e-jobs-dlq-66dk28 (id=9877f4ed522e4c13ab869723c1528e30), both with http_pull consumers, max_retries=3",
+      "evidence": {
+        "queueName": "qa-e-jobs-q-66dk28",
+        "dlqName": "qa-e-jobs-dlq-66dk28",
+        "primaryConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "9a136d48ec094d318663fb7c8e2197df",
+          "queue_name": "qa-e-jobs-q-66dk28",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 2000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "qa-e-jobs-dlq-66dk28",
+          "created_on": "2026-09-11T20:08:21.400605Z"
+        },
+        "dlqConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "7a87efa3f6ea45798232bc7b559ab48d",
+          "queue_name": "qa-e-jobs-dlq-66dk28",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 10000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "",
+          "created_on": "2026-09-11T20:08:17.237237Z"
+        }
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-jobs-retryOnHandlerFailure: With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture, the retry-and-fail probe schedules a job whose handler throws a retryable error; the applied in-memory queue redelivers the message per retryPolicy.maxAttempts. Three jobStarted events fire on the sink with the same jobId and attempts counter 1, 2, 3; after the third failure jobFailed fires with a terminal error code and no further re-delivery follows. Not observed on this row: the AC states applied in-memory queue redelivery and jobStarted-on-sink events; this row records the vendor Cloudflare Queues attempts counter across pulls [0,1,2,3], not the jobStarted sink events the AC states.",
+      "verdict": "pass",
+      "detail": "conformanceOnly (AC-jobs-retryOnHandlerFailure: With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture) - Cloudflare Queues incremented the vendor attempts counter across pulls: observed attempts values [0,1,2,3]",
+      "evidence": {
+        "attemptsObserved": [
+          {
+            "pulled": 1,
+            "attempts": 0,
+            "id": "6bf29249438cbd803a4723831a7434c7"
+          },
+          {
+            "pulled": 1,
+            "attempts": 1,
+            "id": "6bf29249438cbd803a4723831a7434c7"
+          },
+          {
+            "pulled": 1,
+            "attempts": 2,
+            "id": "6bf29249438cbd803a4723831a7434c7"
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 1,
+            "attempts": 3,
+            "id": "6bf29249438cbd803a4723831a7434c7"
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          }
+        ],
+        "uniqueAttempts": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "messageId": "6bf29249438cbd803a4723831a7434c7",
+        "queueName": "qa-e-jobs-q-66dk28"
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-30109-1: The retry-and-fail probe report, after the three failing attempts, records the DLQ-producer invocation on the in-memory driver via a jobDeadLettered event carrying the terminal job id and the original job body. Not observed on this row: the AC pins the in-memory driver DLQ-producer invocation; this row records real Cloudflare Queues DLQ landing (backlog + payload-id match on a real DLQ), which the AC does not state.",
+      "verdict": "pass",
+      "detail": "conformanceOnly (AC-30109-1: The retry-and-fail probe report, after the three failing attempts, records the DLQ-producer invocation on the in-memory driver via a jobDeadLettered event carrying the terminal job id and the original job body. Not observed on this row: the AC pins the in-memory driver DLQ-producer invocation; this row records real Cloudflare Queues DLQ landing (backlog + payload-id match on a real DLQ), which the AC does not state.) - after 20 primary pulls and 1 DLQ polls the message landed on the DLQ qa-e-jobs-dlq-66dk28 (backlog=1, payload-id-match=true for job-66dk28)",
+      "evidence": {
+        "dlqName": "qa-e-jobs-dlq-66dk28",
+        "dlqId": "9877f4ed522e4c13ab869723c1528e30",
+        "dlqBacklog": 1,
+        "dlqTransportMessageIds": [
+          "2ed263481596c5dfa2488d6e15e277e4"
+        ],
+        "dlqPayloadJobIds": [
+          "job-66dk28"
+        ],
+        "expectedPayloadJobId": "job-66dk28",
+        "primaryTransportMessageId": "6bf29249438cbd803a4723831a7434c7",
+        "payloadIdMatch": true,
+        "dlqPollAttempts": 1
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records scratch Cloudflare Queues DELETE + post-run absence via the account queue listing, which no jobs-background AC or REQ states; the AC used as a signpost is the nearest shipped AC on queue existence.",
+      "verdict": "pass",
+      "detail": "conformanceOnly (AC-jobs-requiresQueue: On a fresh init scratch project with NO messaging-queue provider applied, rcf-lite refuses to apply jobs-background with the stable message id jobs-background-no-queue. Not observed on this row: this row records scratch Cloudflare Queues DELETE + post-run absence via the account queue listing, which no jobs-background AC or REQ states; the AC used as a signpost is the nearest shipped AC on queue existence.) - scratch queues qa-e-jobs-q-66dk28 and qa-e-jobs-dlq-66dk28 deleted and confirmed absent from post-run account queue listing",
+      "evidence": {
+        "teardown": {
+          "deletePrimary": {
+            "queueId": "c63d1ff60c5645a099a878c3d0807cd6",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "deleteDlq": {
+            "queueId": "9877f4ed522e4c13ab869723c1528e30",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "primaryAbsent": {
+            "ok": true,
+            "listedCount": 1,
+            "httpStatus": 200,
+            "success": true
+          },
+          "dlqAbsent": {
+            "ok": true,
+            "listedCount": 1,
+            "httpStatus": 200,
+            "success": true
+          },
+          "dlqAcks": [
+            {
+              "lease_id": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0.._-Sgm64jszvmRRADm1-nDQ.4i7kjOCvBPhclCy4pkFFP4NJIxM2JQyCG5BzU2psTkjT-ZI25LBl9UL8eKCWu5rQiydUPrw6ZwFKR_VvbiElKYxVtjlvvwdPnnHZEvUbQD4.KRl5vqme-RkZ7b5wmGrGaDKALnVa-VE2QzYbfTUWC68",
+              "httpStatus": 200,
+              "success": true
+            }
+          ],
+          "listing": {
+            "httpStatus": 200,
+            "success": true,
+            "listingOk": true,
+            "listedCount": 1,
+            "pollsTaken": 1,
+            "errors": null
+          }
+        }
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "envDeclared": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "CF_ACCOUNT_ID",
+      "CF_API_TOKEN",
+      "CF_API_BASE"
+    ],
+    "queueName": "qa-e-jobs-q-66dk28",
+    "dlqName": "qa-e-jobs-dlq-66dk28",
+    "teardown": {
+      "deletePrimary": {
+        "queueId": "c63d1ff60c5645a099a878c3d0807cd6",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "deleteDlq": {
+        "queueId": "9877f4ed522e4c13ab869723c1528e30",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "primaryAbsent": {
+        "ok": true,
+        "listedCount": 1,
+        "httpStatus": 200,
+        "success": true
+      },
+      "dlqAbsent": {
+        "ok": true,
+        "listedCount": 1,
+        "httpStatus": 200,
+        "success": true
+      },
+      "dlqAcks": [
+        {
+          "lease_id": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0.._-Sgm64jszvmRRADm1-nDQ.4i7kjOCvBPhclCy4pkFFP4NJIxM2JQyCG5BzU2psTkjT-ZI25LBl9UL8eKCWu5rQiydUPrw6ZwFKR_VvbiElKYxVtjlvvwdPnnHZEvUbQD4.KRl5vqme-RkZ7b5wmGrGaDKALnVa-VE2QzYbfTUWC68",
+          "httpStatus": 200,
+          "success": true
+        }
+      ],
+      "listing": {
+        "httpStatus": 200,
+        "success": true,
+        "listingOk": true,
+        "listedCount": 1,
+        "pollsTaken": 1,
+        "errors": null
+      }
+    }
+  }
+}

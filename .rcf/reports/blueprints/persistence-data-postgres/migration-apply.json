@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "migration-apply",
-  "runAt": "2026-09-06T17:46:06.738Z",
+  "runAt": "2026-09-11T19:09:12.705Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -9,20 +9,129 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-27102-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27102-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"] expected=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+      "detail": "conformanceOnly (AC-27102-1) - Given a fresh Postgres database at schema_version 0 - applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"] expected=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]",
+      "evidence": {
+        "applied": [
+          "001_create_users.sql",
+          "002_add_email_unique.sql",
+          "003_add_created_at.sql"
+        ],
+        "expected": [
+          "001_create_users.sql",
+          "002_add_email_unique.sql",
+          "003_add_created_at.sql"
+        ],
+        "phase": "happy-path"
+      }
     },
     {
       "anchorAcId": "AC-27102-1",
       "verdict": "pass",
-      "detail": "migrationsApplied fired with applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]"
+      "detail": "Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=[\"001_create_users.sql\",\"002_add_email_unique.sql\",\"003_add_created_at.sql\"]",
+      "evidence": {
+        "migrationsAppliedEvent": {
+          "event": "migrationsApplied",
+          "ts": 1789153752619,
+          "applied": [
+            "001_create_users.sql",
+            "002_add_email_unique.sql",
+            "003_add_created_at.sql"
+          ]
+        },
+        "phase": "happy-path",
+        "appliedFilesList": [
+          "001_create_users.sql",
+          "002_add_email_unique.sql",
+          "003_add_created_at.sql"
+        ]
+      }
     },
     {
-      "anchorAcId": "AC-27102-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27102-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "schema_version rows=3 (expected 3, i.e. schema_version advanced to 3)"
+      "detail": "conformanceOnly (AC-27102-1) - Given a fresh Postgres database at schema_version 0 - schema_version rows=3 (expected 3, i.e. schema_version advanced to 3)",
+      "evidence": {
+        "schemaVersionRows": [
+          {
+            "filename": "001_create_users.sql",
+            "applied_at": "2026-09-11T19:09:12.613Z"
+          },
+          {
+            "filename": "002_add_email_unique.sql",
+            "applied_at": "2026-09-11T19:09:12.615Z"
+          },
+          {
+            "filename": "003_add_created_at.sql",
+            "applied_at": "2026-09-11T19:09:12.617Z"
+          }
+        ],
+        "phase": "happy-path"
+      }
+    },
+    {
+      "anchorAcId": "AC-27109-1",
+      "verdict": "pass",
+      "detail": "Given a migrations directory whose second file contains an invalid SQL statement (simulated in the fixture by the SIMULATE_MIGRATION_FAILURE switch), the runner exited non-zero (1) with '002_add_email_unique.sql' in stderr, 001 committed (users exists, schema_version carries 001), 002 rolled back (schema_version has no row for 002, no UNIQUE constraint on users.email), only the first file's row on schema_version.",
+      "evidence": {
+        "childExitCode": 1,
+        "childSignal": null,
+        "childStderrExcerpt": "migration failed at 002_add_email_unique.sql: syntax error at or near \"THIS\"\n",
+        "childStdoutExcerpt": "",
+        "stderrFailingFilename": "002_add_email_unique.sql",
+        "usersExists": true,
+        "emailColumnExists": false,
+        "uniqueConstraintsOnUsers": [],
+        "schemaVersionRows": [
+          {
+            "filename": "001_create_users.sql"
+          }
+        ]
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "happyPath": {
+      "applied": [
+        "001_create_users.sql",
+        "002_add_email_unique.sql",
+        "003_add_created_at.sql"
+      ],
+      "schemaVersionRows": [
+        {
+          "filename": "001_create_users.sql",
+          "applied_at": "2026-09-11T19:09:12.613Z"
+        },
+        {
+          "filename": "002_add_email_unique.sql",
+          "applied_at": "2026-09-11T19:09:12.615Z"
+        },
+        {
+          "filename": "003_add_created_at.sql",
+          "applied_at": "2026-09-11T19:09:12.617Z"
+        }
+      ]
+    },
+    "atomicity": {
+      "childExitCode": 1,
+      "childSignal": null,
+      "childStderrExcerpt": "migration failed at 002_add_email_unique.sql: syntax error at or near \"THIS\"\n",
+      "childStdoutExcerpt": "",
+      "stderrFailingFilename": "002_add_email_unique.sql",
+      "usersExists": true,
+      "emailColumnExists": false,
+      "uniqueConstraintsOnUsers": [],
+      "schemaVersionRows": [
+        {
+          "filename": "001_create_users.sql"
+        }
+      ]
+    }
+  }
 }

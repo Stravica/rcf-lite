@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "prepared-statement-scan",
-  "runAt": "2026-09-06T17:46:06.795Z",
+  "runAt": "2026-09-11T19:09:12.954Z",
   "engine": {
     "kind": "source-scan",
     "target": "infra-postgres/src",
@@ -9,15 +9,350 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-27103-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27103-1: An AST scan over every .ts/.js/.mjs file under the applied fixture facade directory finds every call to pg.query and asserts each first-argument node is a StringLiteral (Literal node with a string value), not a TemplateLiteral, not a BinaryExpression whose operator is + with a string operand. Parameters are supplied as an array whose values bind to $1, $2, ... $N placeholders in the string. Not observed here: this row emits a tokeniser-based per-site inventory (literal / template-static / wrapper-passthrough / violation kinds) as conformance-only evidence; the two wrapper-passthrough sites (migrate.mjs client.query(body) reads a vetted .sql migration body from disk; store.mjs withTransaction helper passes a callback-supplied literal) are not first-argument StringLiteral nodes, so an AST walk would need to whitelist them or add a parser to prove the AC text.",
       "verdict": "pass",
-      "detail": "16 .query call sites scanned across 3 facade file(s); every first argument is a static string literal or a template with no expressions"
+      "detail": "conformanceOnly (AC-27103-1: An AST scan over every .ts/.js/.mjs file under the applied fixture facade directory) - per-site inventory: 14 literal sites (4 $N placeholders), 2 wrapper-passthrough sites (transaction helper callback + migration runner reading vetted .sql files), across 16 total .query call sites in 3 facade file(s)",
+      "evidence": {
+        "scannedFiles": [
+          "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+          "packages/rcf-lite/test/fixtures/infra-postgres/src/recovery.mjs",
+          "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs"
+        ],
+        "totalCalls": 16,
+        "literalOrStaticCallSites": 14,
+        "wrapperPassthroughCallSites": 2,
+        "violationCount": 0,
+        "placeholderTotal": 4,
+        "perSite": [
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 25,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "CREATE TABLE IF NOT EXISTS schema_version (filename TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NUL...",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 28,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "SELECT filename FROM schema_version",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 47,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "BEGIN",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 48,
+            "firstArgKind": "wrapperPassthrough",
+            "identifierName": "body",
+            "literalPreview": null,
+            "placeholders": [],
+            "note": "migration runner reads vetted `.sql` files from disk"
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 49,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "INSERT INTO schema_version(filename) VALUES ($1)",
+            "placeholders": [
+              1
+            ],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 50,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "COMMIT",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+            "line": 54,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "ROLLBACK",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 28,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "SELECT current_database() AS db",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 50,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "INSERT INTO users(name, email) VALUES ($1, $2) RETURNING id",
+            "placeholders": [
+              1,
+              2
+            ],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 59,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "SELECT id, name, email FROM users WHERE id = $1",
+            "placeholders": [
+              1
+            ],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 65,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "SELECT id, name, email FROM users ORDER BY id",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 71,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "SELECT count(*)::int AS n FROM users",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 81,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "BEGIN",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 86,
+            "firstArgKind": "wrapperPassthrough",
+            "identifierName": "sql",
+            "literalPreview": null,
+            "placeholders": [],
+            "note": "transaction helper passes a callback-supplied literal (see AC-27104-1)"
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 94,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "COMMIT",
+            "placeholders": [],
+            "note": null
+          },
+          {
+            "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+            "line": 98,
+            "firstArgKind": "stringLiteral",
+            "identifierName": null,
+            "literalPreview": "ROLLBACK",
+            "placeholders": [],
+            "note": null
+          }
+        ]
+      }
     },
     {
-      "anchorAcId": "AC-27103-1",
+      "anchorAcId": null,
+      "notObservableHere": {
+        "ac": "AC-27103-1",
+        "reason": "AC-27103-1 requires a Node built-in AST walk of every pg.query call site asserting each first-argument node is a StringLiteral. The fixture declares no JS AST parser dependency (pg is the only dependency in the fixture package.json); a tokeniser-based scan (this probe row 1) is not the AST walk the AC requires, and adding a parser to the fixture surface is out of the scope of a patch bump. This is a parser-scope limitation, not an account-bound gap."
+      },
       "verdict": "pass",
-      "detail": "total .query call sites scanned: 16 (minimum 5 to consider the facade meaningfully covered by this scan)"
+      "detail": "An AST scan over every .ts/.js/.mjs file under - AC not observable in this probe pack (see notObservableHere.reason); the tokeniser row above records the closest positive per-site observation the fixture surface admits.",
+      "evidence": {
+        "astParserAvailable": false,
+        "fixtureDependencies": [
+          "pg"
+        ],
+        "reason": "no js ast parser in fixture scope; a Node built-in AST walk would require adding an AST parser dependency (out of scope for a patch bump)"
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "scannedFiles": 3,
+    "totalCalls": 16,
+    "perSite": [
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 25,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "CREATE TABLE IF NOT EXISTS schema_version (filename TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NUL...",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 28,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "SELECT filename FROM schema_version",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 47,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "BEGIN",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 48,
+        "firstArgKind": "wrapperPassthrough",
+        "identifierName": "body",
+        "literalPreview": null,
+        "placeholders": [],
+        "note": "migration runner reads vetted `.sql` files from disk"
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 49,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "INSERT INTO schema_version(filename) VALUES ($1)",
+        "placeholders": [
+          1
+        ],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 50,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "COMMIT",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs",
+        "line": 54,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "ROLLBACK",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 28,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "SELECT current_database() AS db",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 50,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "INSERT INTO users(name, email) VALUES ($1, $2) RETURNING id",
+        "placeholders": [
+          1,
+          2
+        ],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 59,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "SELECT id, name, email FROM users WHERE id = $1",
+        "placeholders": [
+          1
+        ],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 65,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "SELECT id, name, email FROM users ORDER BY id",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 71,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "SELECT count(*)::int AS n FROM users",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 81,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "BEGIN",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 86,
+        "firstArgKind": "wrapperPassthrough",
+        "identifierName": "sql",
+        "literalPreview": null,
+        "placeholders": [],
+        "note": "transaction helper passes a callback-supplied literal (see AC-27104-1)"
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 94,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "COMMIT",
+        "placeholders": [],
+        "note": null
+      },
+      {
+        "file": "packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs",
+        "line": 98,
+        "firstArgKind": "stringLiteral",
+        "identifierName": null,
+        "literalPreview": "ROLLBACK",
+        "placeholders": [],
+        "note": null
+      }
+    ]
+  }
 }

@@ -1,32 +1,136 @@
 {
   "slug": "object-storage-s3",
   "probeName": "event-secrecy",
-  "runAt": "2026-09-06T18:42:15.801Z",
+  "runAt": "2026-09-11T19:09:55.684Z",
   "engine": {
     "kind": "s3",
-    "image": "minio/minio",
-    "healthy": true
+    "vendor": "minio",
+    "endpointHost": "127.0.0.1:47230",
+    "healthLive": {
+      "ok": true,
+      "httpStatus": 200,
+      "responseTimeMs": 9,
+      "endpoint": "http://127.0.0.1:47230/minio/health/live"
+    }
   },
   "results": [
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "every event carries only whitelisted fields (event,ts,key,size,contentType,ttl,endpointHost,bucketName)"
+      "detail": "Given a lifecycle-event spy attached to the sink, - every event carries only whitelisted fields (event,ts,key,size,contentType,ttl,endpointHost,bucketName)",
+      "evidence": {
+        "whitelist": [
+          "event",
+          "ts",
+          "key",
+          "size",
+          "contentType",
+          "ttl",
+          "endpointHost",
+          "bucketName"
+        ],
+        "nonWhitelistedFields": [],
+        "eventCount": 4,
+        "vendorRequestIds": {
+          "put": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7C1E692"
+          },
+          "get": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7E33AF5"
+          },
+          "del": {
+            "httpStatus": 204,
+            "requestId": "18D459E5D7F9579A"
+          }
+        }
+      }
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "no forbidden PII field name appeared on any event"
+      "detail": "Given a lifecycle-event spy attached to the sink, - no forbidden PII field name appeared on any event",
+      "evidence": {
+        "forbiddenFieldNames": [
+          "userId",
+          "ssn",
+          "dob",
+          "email",
+          "body",
+          "bodyBytes",
+          "bodyChecksum"
+        ],
+        "foundForbidden": [],
+        "eventCount": 4,
+        "vendorRequestIds": {
+          "put": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7C1E692"
+          },
+          "get": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7E33AF5"
+          },
+          "del": {
+            "httpStatus": 204,
+            "requestId": "18D459E5D7F9579A"
+          }
+        }
+      }
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "no event value contained the PII fixture text PII-FIXTURE-DO-NOT-LOG"
+      "detail": "Given a lifecycle-event spy attached to the sink, - no event value contained the PII fixture text PII-FIXTURE-DO-NOT-LOG",
+      "evidence": {
+        "piiFixtureLiteral": "PII-FIXTURE-DO-NOT-LOG",
+        "leakSites": [],
+        "eventCount": 4,
+        "vendorRequestIds": {
+          "put": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7C1E692"
+          },
+          "get": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7E33AF5"
+          },
+          "del": {
+            "httpStatus": 204,
+            "requestId": "18D459E5D7F9579A"
+          }
+        }
+      }
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "objectPut carried the key users/1234/passport.jpg as an opaque string; no userId extraction"
+      "detail": "Given a lifecycle-event spy attached to the sink, - objectPut carried the key users/1234/passport.jpg as an opaque string; no userId extraction",
+      "evidence": {
+        "expectedKey": "users/1234/passport.jpg",
+        "objectPutEvent": {
+          "event": "objectPut",
+          "ts": 1789153795681,
+          "key": "users/1234/passport.jpg",
+          "size": 36,
+          "contentType": "image/jpeg"
+        },
+        "vendorRequestIds": {
+          "put": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7C1E692"
+          },
+          "get": {
+            "httpStatus": 200,
+            "requestId": "18D459E5D7E33AF5"
+          },
+          "del": {
+            "httpStatus": 204,
+            "requestId": "18D459E5D7F9579A"
+          }
+        }
+      }
     }
   ],
   "aggregateVerdict": "pass"

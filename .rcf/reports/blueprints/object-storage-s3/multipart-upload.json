@@ -1,28 +1,92 @@
 {
   "slug": "object-storage-s3",
   "probeName": "multipart-upload",
-  "runAt": "2026-09-06T18:42:15.706Z",
+  "runAt": "2026-09-11T19:09:55.606Z",
   "engine": {
     "kind": "s3",
-    "image": "minio/minio",
-    "healthy": true
+    "vendor": "minio",
+    "endpointHost": "127.0.0.1:47230",
+    "healthLive": {
+      "ok": true,
+      "httpStatus": 200,
+      "responseTimeMs": 11,
+      "endpoint": "http://127.0.0.1:47230/minio/health/live"
+    }
   },
   "results": [
     {
-      "anchorAcId": "AC-28104-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-28104-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "10 MiB multipart round-trip byte-equal; objectPut fired with size=10485760"
+      "detail": "conformanceOnly (AC-28104-1) - Given the elicited multipart threshold at 8 MiB - 10 MiB round-trip byte-equal; objectPut fired with size=10485760",
+      "evidence": {
+        "key": "probe/multipart/1789153795405-dw3cexqw",
+        "size": 10485760,
+        "gotSize": 10485760,
+        "byteEqual": true,
+        "objectPutEvent": {
+          "event": "objectPut",
+          "ts": 1789153795515,
+          "key": "probe/multipart/1789153795405-dw3cexqw",
+          "size": 10485760,
+          "contentType": "application/octet-stream"
+        }
+      }
     },
     {
-      "anchorAcId": "AC-28104-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-28104-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "no in-flight multipart uploads after complete"
+      "detail": "conformanceOnly (AC-28104-1) - Given the elicited multipart threshold at 8 MiB - no in-flight multipart uploads after complete",
+      "evidence": {
+        "key": "probe/multipart/1789153795405-dw3cexqw",
+        "inflightCount": 0,
+        "inflight": []
+      }
     },
     {
       "anchorAcId": "AC-28104-2",
       "verdict": "pass",
-      "detail": "abort-on-failure path exercised only when SIMULATE_PART_UPLOAD_FAIL=true; not-run on canonical fixture state"
+      "detail": "Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - propagated (Error), aborted upload id=Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLmI0NWRkODgyLTA0OWEtNDBjZC04YzUyLWVjNmI3MDI2ZjFmYngxNzg5MTUzNzk1NTUzNDIwNzU2, no in-flight uploads for probe/multipart-fail/1789153795553-ihmqclex, abort call itself succeeded",
+      "evidence": {
+        "failKey": "probe/multipart-fail/1789153795553-ihmqclex",
+        "observedError": {
+          "name": "Error",
+          "message": "SIMULATE_PART_UPLOAD_FAIL: part 2 refused",
+          "uploadId": "Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLmI0NWRkODgyLTA0OWEtNDBjZC04YzUyLWVjNmI3MDI2ZjFmYngxNzg5MTUzNzk1NTUzNDIwNzU2"
+        },
+        "observedUploadId": "Mzg3MjY2NTktYzZkMC00ZjBjLThkZWEtNDYwZmI1YmNiYTVkLmI0NWRkODgyLTA0OWEtNDBjZC04YzUyLWVjNmI3MDI2ZjFmYngxNzg5MTUzNzk1NTUzNDIwNzU2",
+        "abortError": null,
+        "inflightCountAfter": 0,
+        "inflightAfter": []
+      }
     }
   ],
-  "aggregateVerdict": "pass"
+  "aggregateVerdict": "pass",
+  "extra": {
+    "key": "probe/multipart/1789153795405-dw3cexqw",
+    "size": 10485760,
+    "events": [
+      {
+        "event": "facadeReady",
+        "ts": 1789153795419,
+        "endpointHost": "127.0.0.1:47230",
+        "bucketName": "rcf-test"
+      },
+      {
+        "event": "objectPut",
+        "ts": 1789153795515,
+        "key": "probe/multipart/1789153795405-dw3cexqw",
+        "size": 10485760,
+        "contentType": "application/octet-stream"
+      },
+      {
+        "event": "objectDeleted",
+        "ts": 1789153795553,
+        "key": "probe/multipart/1789153795405-dw3cexqw"
+      }
+    ]
+  }
 }

@@ -2,7 +2,7 @@
  * Pool posture smoke probe.
  *
  * Opens two facade instances against the same postgres:17-alpine
- * container each configured at pool size 5, dispatches twenty
+ * container each configured at pool size 5, checks out twenty
  * concurrent SELECT queries across the two facades, asserts all
  * twenty return with no timeout inside the shipped
  * connectionTimeoutMillis budget AND the OBSERVED maximum concurrent
@@ -64,9 +64,9 @@ export default async function runProbe() {
     results.push({
       anchorAcId: 'AC-27106-1',
       verdict: (succeeded === 20 && failed === 0 && cappedA && cappedB) ? 'pass' : 'fail',
-      detail: `Given two facade instances opened concurrently against the - 20 dispatched, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
+      detail: `Given two facade instances opened concurrently against the - 20 checked-out, ${succeeded} returned, ${failed} rejected, wall-clock ${elapsed}ms; observed peak in-use A=${observedPeakA} B=${observedPeakB} (configured max=${configuredMax}); samplesA=${samplesA.length} samplesB=${samplesB.length}`,
       evidence: {
-        dispatched: 20,
+        checkedOut: 20,
         succeeded,
         failed,
         elapsedMs: elapsed,

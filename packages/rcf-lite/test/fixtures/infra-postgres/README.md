@@ -79,7 +79,7 @@ Every environment variable this fixture or any probe it hosts reads is declared 
 
 | Env var | Purpose | Consumed by |
 |---|---|---|
-| `POSTGRES_HOST` | Connection host (default `localhost`). | `src/store.mjs` (via `connectionUrlFromEnv`) |
+| `POSTGRES_HOST` | Connection host. Required declared variable; no literal default. | `src/store.mjs` (via `connectionUrlFromEnv`) |
 | `POSTGRES_PORT` | Connection port (default `5432`; docker-compose accepts the same var to override the host-side bind). | `src/store.mjs`, `docker-compose.yml` |
 | `POSTGRES_USER` | Connection user (default `rcf`). | `src/store.mjs` |
 | `POSTGRES_PASSWORD` | Connection password (fixture-only default; a project overrides via env). | `src/store.mjs` |

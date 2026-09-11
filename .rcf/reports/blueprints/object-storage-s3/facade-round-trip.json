@@ -1,17 +1,48 @@
 {
   "slug": "object-storage-s3",
   "probeName": "facade-round-trip",
-  "runAt": "2026-09-06T18:42:15.191Z",
+  "runAt": "2026-09-11T19:09:55.255Z",
   "engine": {
     "kind": "s3",
-    "image": "minio/minio",
-    "healthy": true
+    "vendor": "minio",
+    "endpointHost": "127.0.0.1:47230",
+    "healthLive": {
+      "ok": true,
+      "httpStatus": 200,
+      "responseTimeMs": 10,
+      "endpoint": "http://127.0.0.1:47230/minio/health/live"
+    }
   },
   "results": [
     {
       "anchorAcId": "AC-28101-1",
       "verdict": "pass",
-      "detail": "facadeReady fired with endpointHost=localhost:9000 bucketName=rcf-test"
+      "detail": "On process boot, the facade opens an S3 - facadeReady fired with endpointHost=127.0.0.1:47230 bucketName=rcf-test; HeadBucket returned 200 (requestId=18D459E5BEA6B46D)",
+      "evidence": {
+        "facadeReadyEvent": {
+          "event": "facadeReady",
+          "ts": 1789153795253,
+          "endpointHost": "127.0.0.1:47230",
+          "bucketName": "rcf-test"
+        },
+        "endpointHost": "127.0.0.1:47230",
+        "bucketName": "rcf-test",
+        "vendorRequestId": "18D459E5BEA6B46D",
+        "vendorHttpStatus": 200,
+        "vendorMetadata": {
+          "httpStatusCode": 200,
+          "requestId": "18D459E5BEA6B46D",
+          "extendedRequestId": "dd9025bab4ad464b049177c95eb6ebf374d3b3fd1af9251148b658df7ac2e3e8"
+        },
+        "allEvents": [
+          {
+            "event": "facadeReady",
+            "ts": 1789153795253,
+            "endpointHost": "127.0.0.1:47230",
+            "bucketName": "rcf-test"
+          }
+        ]
+      }
     }
   ],
   "aggregateVerdict": "pass"

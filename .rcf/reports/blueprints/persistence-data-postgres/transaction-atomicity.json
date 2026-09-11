@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "transaction-atomicity",
-  "runAt": "2026-09-06T17:46:06.890Z",
+  "runAt": "2026-09-11T19:09:12.927Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -9,19 +9,56 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-27104-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27104-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "withTransaction re-threw underlying error code=23505"
+      "detail": "conformanceOnly (AC-27104-1) - Given the transaction helper wrapping a callback that - withTransaction re-threw underlying error code=23505",
+      "evidence": {
+        "thrownErrorCode": "23505",
+        "thrownMessage": "duplicate key value violates unique constraint \"users_email_key\""
+      }
     },
     {
-      "anchorAcId": "AC-27104-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27104-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "transactionRolledBack fired with statementIndex=1 code=23505"
+      "detail": "conformanceOnly (AC-27104-1) - Given the transaction helper wrapping a callback that - transactionRolledBack fired with statementIndex=1 code=23505",
+      "evidence": {
+        "transactionRolledBackEvent": {
+          "event": "transactionRolledBack",
+          "ts": 1789153752923,
+          "statementIndex": 1,
+          "code": "23505"
+        },
+        "allEvents": [
+          {
+            "event": "facadeReady",
+            "ts": 1789153752917,
+            "databaseName": "rcf_test"
+          },
+          {
+            "event": "transactionRolledBack",
+            "ts": 1789153752923,
+            "statementIndex": 1,
+            "code": "23505"
+          }
+        ],
+        "rolledBackTimestamp": "2026-09-11T19:09:12.923Z",
+        "rolledBackVerificationOk": true
+      }
     },
     {
-      "anchorAcId": "AC-27104-1",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-27104-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "users table empty after rollback (no partial commit landed)"
+      "detail": "conformanceOnly (AC-27104-1) - Given the transaction helper wrapping a callback that - users table empty after rollback (no partial commit landed)",
+      "evidence": {
+        "postRollbackUserCount": 0,
+        "postRollbackVerificationOk": true
+      }
     }
   ],
   "aggregateVerdict": "pass"

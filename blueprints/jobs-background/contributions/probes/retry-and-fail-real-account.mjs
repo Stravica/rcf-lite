@@ -55,7 +55,9 @@ export const DECLARED_ENV = Object.freeze([
   'CF_API_BASE',
 ]);
 
-const API_BASE = process.env.CF_API_BASE || 'https://api.cloudflare.com/client/v4';
+// CF_API_BASE is a required declared variable per the round-6 endpoint-hosts ruling;
+// no literal endpoint host in probe source. The runProbe() gate checks
+// it before use and returns an exact one-variable skip when unset.
 
 const AC_RETRY_FIRST8 = 'With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture,';
 const AC_REQUIRES_FIRST8 = 'On a fresh init scratch project with NO';
@@ -78,8 +80,8 @@ function skipRow(reason) {
   };
 }
 
-async function cf(method, path, token, body) {
-  const res = await fetch(`${API_BASE}${path}`, {
+async function cf(apiBase, method, path, token, body) {
+  const res = await fetch(`${apiBase}${path}`, {
     method,
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -102,7 +104,9 @@ export default async function runProbe() {
   if (gate !== 'true') return skipRow(`CI_HAS_CLOUDFLARE_ACCOUNT set to ${JSON.stringify(gate)} (not "true")`);
   if (!process.env.CF_ACCOUNT_ID) return skipRow('CF_ACCOUNT_ID unset');
   if (!process.env.CF_API_TOKEN) return skipRow('CF_API_TOKEN unset');
+  if (!process.env.CF_API_BASE) return skipRow('CF_API_BASE unset');
 
+  const API_BASE = process.env.CF_API_BASE;
   const accountId = process.env.CF_ACCOUNT_ID;
   const token = process.env.CF_API_TOKEN;
   const short = shortId();
@@ -115,19 +119,19 @@ export default async function runProbe() {
   try {
     // 1. mint DLQ first, then the main queue (main queue's consumer
     // config references the DLQ by name).
-    const dlqCreate = await cf('POST', `/accounts/${accountId}/queues`, token, { queue_name: dlqName });
+    const dlqCreate = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues`, token, { queue_name: dlqName });
     dlqId = dlqCreate.json && dlqCreate.json.result && dlqCreate.json.result.queue_id;
     if (!dlqId) throw new Error(`DLQ create failed: httpStatus=${dlqCreate.httpStatus} body=${dlqCreate.raw}`);
-    const dlqConsumer = await cf('POST', `/accounts/${accountId}/queues/${dlqId}/consumers`, token, {
+    const dlqConsumer = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${dlqId}/consumers`, token, {
       type: 'http_pull',
       settings: { batch_size: 10, visibility_timeout_ms: 10000, max_retries: 3, retry_delay: 0 },
     });
     if (!(dlqConsumer.json && dlqConsumer.json.success)) throw new Error(`DLQ consumer attach failed: ${dlqConsumer.raw}`);
 
-    const primaryCreate = await cf('POST', `/accounts/${accountId}/queues`, token, { queue_name: queueName });
+    const primaryCreate = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues`, token, { queue_name: queueName });
     qid = primaryCreate.json && primaryCreate.json.result && primaryCreate.json.result.queue_id;
     if (!qid) throw new Error(`primary create failed: httpStatus=${primaryCreate.httpStatus} body=${primaryCreate.raw}`);
-    const primaryConsumer = await cf('POST', `/accounts/${accountId}/queues/${qid}/consumers`, token, {
+    const primaryConsumer = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${qid}/consumers`, token, {
       type: 'http_pull',
       dead_letter_queue: dlqName,
       settings: { batch_size: 10, visibility_timeout_ms: 2000, max_retries: 3, retry_delay: 0 },
@@ -150,14 +154,14 @@ export default async function runProbe() {
     // 3. publish one message
     const publishJobId = `job-${short}`;
     const pubBody = { jobId: publishJobId, jobName: 'send-welcome-email', jobInput: { userId: 7, email: 'ok@example.com' } };
-    const pub = await cf('POST', `/accounts/${accountId}/queues/${qid}/messages`, token, { body: pubBody, content_type: 'json' });
+    const pub = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${qid}/messages`, token, { body: pubBody, content_type: 'json' });
     if (!(pub.json && pub.json.success)) throw new Error(`publish failed: ${pub.raw}`);
 
     // 4. pull + retry loop; observe attempts increasing to 3, then absent
     const attemptsObserved = [];
     let messageIdObserved = null;
     for (let i = 0; i < 20; i += 1) {
-      const pull = await cf('POST', `/accounts/${accountId}/queues/${qid}/messages/pull`, token, {
+      const pull = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${qid}/messages/pull`, token, {
         batch_size: 10,
         visibility_timeout_ms: 2000,
       });
@@ -173,7 +177,7 @@ export default async function runProbe() {
       messageIdObserved = m.id;
       attemptsObserved.push({ pulled: msgs.length, attempts: m.attempts, id: m.id });
       // Retry: tell CF to reschedule with retry_delay=0
-      const ack = await cf('POST', `/accounts/${accountId}/queues/${qid}/messages/ack`, token, {
+      const ack = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${qid}/messages/ack`, token, {
         retries: [{ lease_id: m.lease_id, delay_seconds: 0 }],
       });
       if (!(ack.json && ack.json.success)) throw new Error(`ack retry failed: ${ack.raw}`);
@@ -188,7 +192,7 @@ export default async function runProbe() {
     for (let dp = 0; dp < 10; dp += 1) {
       await sleep(2000);
       dlqPullAttempts += 1;
-      const dlqPull = await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/pull`, token, {
+      const dlqPull = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${dlqId}/messages/pull`, token, {
         batch_size: 10,
         visibility_timeout_ms: 30000,
       });
@@ -214,7 +218,7 @@ export default async function runProbe() {
     teardown.dlqAcks = [];
     for (const mm of dlqMsgs) {
       try {
-        const ack = await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
+        const ack = await cf(API_BASE, 'POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
           acks: [{ lease_id: mm.lease_id }],
         });
         teardown.dlqAcks.push({
@@ -268,7 +272,7 @@ export default async function runProbe() {
     // A teardown failure FAILS the verdict (authoring-standard rule 5).
     if (qid) {
       try {
-        const d = await cf('DELETE', `/accounts/${accountId}/queues/${qid}`, token);
+        const d = await cf(API_BASE, 'DELETE', `/accounts/${accountId}/queues/${qid}`, token);
         teardown.deletePrimary = { queueId: qid, ok: d.json && d.json.success === true, httpStatus: d.httpStatus };
       } catch (err) {
         teardown.deletePrimary = { queueId: qid, ok: false, error: err && err.message };
@@ -276,7 +280,7 @@ export default async function runProbe() {
     }
     if (dlqId) {
       try {
-        const d = await cf('DELETE', `/accounts/${accountId}/queues/${dlqId}`, token);
+        const d = await cf(API_BASE, 'DELETE', `/accounts/${accountId}/queues/${dlqId}`, token);
         teardown.deleteDlq = { queueId: dlqId, ok: d.json && d.json.success === true, httpStatus: d.httpStatus };
       } catch (err) {
         teardown.deleteDlq = { queueId: dlqId, ok: false, error: err && err.message };
@@ -296,7 +300,7 @@ export default async function runProbe() {
     try {
       for (let i = 0; i < 6; i += 1) {
         listingPolls += 1;
-        list = await cf('GET', `/accounts/${accountId}/queues`, token);
+        list = await cf(API_BASE, 'GET', `/accounts/${accountId}/queues`, token);
         const httpOk = list.httpStatus === 200;
         const successFlag = !!(list.json && list.json.success === true);
         if (!httpOk || !successFlag) break;

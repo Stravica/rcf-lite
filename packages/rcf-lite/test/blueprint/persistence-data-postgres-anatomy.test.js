@@ -212,20 +212,30 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     const doc = JSON.parse(await readFile(join(usDir, f), 'utf8'));
     for (const ac of doc.acceptanceCriteria || []) SHIPPED_AC_IDS.add(ac.id);
   }
-  function extractAcIds(text) {
-    // Extract every AC id substring, then keep only those matching the
-    // shipped set (so prose like "the AC-observing rows" cannot pass).
-    const raw = [...String(text).matchAll(/AC-[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*/g)].map((m) => m[0]);
-    return raw.filter((id) => SHIPPED_AC_IDS.has(id));
+  function extractAcIdsRaw(text) {
+    // Every AC id substring, unfiltered - membership against the
+    // shipped user-story set is checked per id at the call site so
+    // an invented id alongside a real one cannot pass.
+    return [...String(text).matchAll(/AC-(?:\d+-\d+|jobs-[a-z][a-zA-Z0-9]*)/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-  const idPatterns = [
-    /RequestId$/i, /RequestIds$/i, /HttpStatus$/i, /HttpStatusCode$/i,
-    /StatusCode$/i, /Status$/i, /^status$/i, /ExitCode$/i, /Signal$/i,
-    /Event$/i, /Events$/i, /^allEvents$/, /Metadata$/i,
-    /Count$/, /Ids$/, /Match$/i, /Id$/, /Truncated$/i, /Present$/i,
-    /Fired$/i, /^phase/i, /Code$/i,
-  ];
+  // Strict identifier predicate (round-6 closure): id witness MUST be
+  // one of the explicit engine-minted id fields. Statuses, counts,
+  // booleans, phases and generic codes are NOT identifiers.
+  const STRICT_ID_KEYS = new Set([
+    'requestId', 'requestIds',
+    'vendorRequestId', 'vendorRequestIds',
+    'resourceId',
+    'bucketName', 'scratchBucket',
+    'uploadId', 'observedUploadId',
+    'queueId', 'queueName',
+    'messageId', 'dlqTransportMessageIds', 'primaryTransportMessageId',
+    'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
+    'databaseName',
+    'migrationFile', 'migrationFileApplied', 'appliedFilesList', 'stderrFailingFilename',
+    'rowId', 'insertedId',
+    'checksum', 'srcChecksumMd5', 'dstChecksumMd5',
+  ]);
   const derivedPatterns = [
     /Size$/i, /Bytes$/i, /Md5$/i, /Sha256$/i, /Equal$/i,
     /^seen/i, /Exists$/i, /Rows$/i, /Row$/i, /^applied/i, /^expected/i, /^observed/i, /^returned/i,
@@ -241,12 +251,11 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
-    if (trivialAdminKeys.has(k)) return false;
+    if (!STRICT_ID_KEYS.has(k)) return false;
     if (v == null) return false;
-    if (!idPatterns.some((re) => re.test(k))) return false;
-    if (typeof v === 'number' && v === 0 && /Status$|StatusCode$/i.test(k)) return false;
     if (typeof v === 'string' && v.length === 0) return false;
     if (Array.isArray(v) && v.length === 0) return false;
+    if (typeof v === 'number' && !Number.isFinite(v)) return false;
     if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length === 0) return false;
     return true;
   }
@@ -274,16 +283,10 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     const rep = JSON.parse(raw);
     assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
       `run record ${name}.json must carry a non-empty results[] (authoring-standard rule 3)`);
-    // Pre-discipline shape gate: a report whose every row is a bare
-    // pre-2026-09-06 shape (no evidence, no conformanceOnly, no
-    // notObservableHere, no accountBoundSkipped) predates the per-row
-    // evidence rule. Strict validation is skipped ONLY for such reports;
-    // any fresh run (which always emits one of the four shapes per row)
-    // exercises every strict rule. This gate is NOT the old timestamp
-    // bypass and NOT a lexical source fallback (both removed).
-    const anyRowHasShape = rep.results.some((row) => row.evidence !== undefined || row.conformanceOnly === true || (row.notObservableHere && typeof row.notObservableHere === 'object'));
-    const allBareAccountSkipped = rep.results.every((row) => row.accountBoundSkipped === true && !row.reason && row.evidence === undefined);
-    if (!anyRowHasShape || allBareAccountSkipped) continue;
+    // Round-6 strictness: no whole-report bypass. Every row must
+    // satisfy exactly one of the four shapes; a report of only bare
+    // account-skips fails unless every skip names one declared env
+    // variable (the per-row skipDeclared branch enforces that).
     const declaredEnv = await loadDeclaredEnv(name);
     for (const row of rep.results) {
       assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
@@ -297,9 +300,13 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
           `conformanceOnly row in ${name}.json must set anchorAcId: null`);
         assert.ok(typeof row.limitation === 'string' && row.limitation.length > 0,
           `conformanceOnly row in ${name}.json must carry a non-empty limitation string`);
-        const cited = extractAcIds(row.limitation);
-        assert.ok(cited.length > 0,
-          `conformanceOnly row in ${name}.json limitation must name at least one AC id that exists in the shipped user-story set (got=${row.limitation.slice(0, 120)}...)`);
+        const rawIds = extractAcIdsRaw(row.limitation);
+        assert.ok(rawIds.length > 0,
+          `conformanceOnly row in ${name}.json limitation must name at least one AC id (got=${row.limitation.slice(0, 120)}...)`);
+        for (const id of rawIds) {
+          assert.ok(SHIPPED_AC_IDS.has(id),
+            `conformanceOnly row in ${name}.json limitation names AC id ${id} which is NOT in the shipped user-story set`);
+        }
       } else if (notObservable) {
         assert.ok(typeof row.notObservableHere.ac === 'string' && SHIPPED_AC_IDS.has(row.notObservableHere.ac),
           `notObservableHere row in ${name}.json must name a shipped AC id (got=${row.notObservableHere.ac})`);

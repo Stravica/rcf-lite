@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "apply-time-override",
-  "runAt": "2026-09-06T20:54:35.191Z",
+  "runAt": "2026-09-11T19:09:38.194Z",
   "engine": {
     "kind": "cli",
     "tool": "rcf define blueprint add --allow-no-queue-yet (bare scratch project)",
@@ -9,19 +9,57 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-jobs-overrideRecorded",
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-jobs-overrideRecorded: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
       "verdict": "pass",
-      "detail": "exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words"
+      "detail": "conformanceOnly (AC-jobs-overrideRecorded) - On a fresh init scratch project with NO - exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words",
+      "evidence": {
+        "checks": {
+          "slug": true,
+          "allowNoAuthYet": true,
+          "appliedCapabilitiesEmpty": true,
+          "notesQueueFamily": true,
+          "notesOverrideFlag": true,
+          "notesNamesCapability": true,
+          "notesNotAuthFamily": true,
+          "notesNotSecretsFamily": true
+        },
+        "sidecarDoc": {
+          "slug": "jobs-background",
+          "version": "1.1.6",
+          "appliedAt": "2026-09-11T19:09:38.079Z",
+          "appliedCapabilities": [],
+          "appliedElicitations": {
+            "jobs-directory": "src/jobs",
+            "scheduler-mode": "workerCron",
+            "max-attempts": "3",
+            "retry-backoff": "exponential",
+            "handler-timeout-seconds": "60",
+            "operator-surface": "cli"
+          },
+          "allowNoAuthYet": true,
+          "notes": "no queue yet: applied under --allow-no-queue-yet; surfaces gated on queue will refuse at runtime until a queue blueprint is applied."
+        },
+        "exitCode": 0
+      }
     }
   ],
   "aggregateVerdict": "pass",
   "extra": {
     "sidecar": {
       "slug": "jobs-background",
-      "version": "1.0.0",
-      "appliedAt": "2026-09-06T20:54:35.051Z",
+      "version": "1.1.6",
+      "appliedAt": "2026-09-11T19:09:38.079Z",
       "appliedCapabilities": [],
-      "appliedElicitations": {},
+      "appliedElicitations": {
+        "jobs-directory": "src/jobs",
+        "scheduler-mode": "workerCron",
+        "max-attempts": "3",
+        "retry-backoff": "exponential",
+        "handler-timeout-seconds": "60",
+        "operator-surface": "cli"
+      },
       "allowNoAuthYet": true,
       "notes": "no queue yet: applied under --allow-no-queue-yet; surfaces gated on queue will refuse at runtime until a queue blueprint is applied."
     }
