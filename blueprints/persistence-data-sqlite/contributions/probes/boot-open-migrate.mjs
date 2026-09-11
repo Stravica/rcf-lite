@@ -60,11 +60,14 @@ export default async function runProbe() {
       evidence: { pathFromConfig: path, pathOnEvent: opened[0]?.path, bodyExcerpt: `path=${opened[0]?.path}` },
     });
     const schemaAtOpen = store.schemaVersion();
+    // Seed put through the facade so the row carries a real integer
+    // rowId as its resource identifier (real returned engine row id).
+    const seed = store.put('probe-boot-open-migrate', String(Date.now()));
     results.push({
       anchorAcId: 'AC-5101-3',
-      verdict: schemaAtOpen === MAX_SCHEMA_VERSION ? 'pass' : 'fail',
-      detail: `${AC3} have run  -  observed schema version after open=${schemaAtOpen} equals build max known=${MAX_SCHEMA_VERSION}; appliedMigrations=${JSON.stringify(store.appliedMigrations)}.`,
-      evidence: { schemaVersion: schemaAtOpen, appliedMigrations: store.appliedMigrations, bodyExcerpt: `schema=${schemaAtOpen} applied=${JSON.stringify(store.appliedMigrations)}` },
+      verdict: schemaAtOpen === MAX_SCHEMA_VERSION && Number.isInteger(seed.rowId) && seed.rowId > 0 ? 'pass' : 'fail',
+      detail: `${AC3} have run  -  observed schema version after open=${schemaAtOpen} equals build max known=${MAX_SCHEMA_VERSION}; appliedMigrations=${JSON.stringify(store.appliedMigrations)}; a seed put through the facade returned real integer rowId=${seed.rowId}.`,
+      evidence: { rowId: seed.rowId, schemaVersion: schemaAtOpen, appliedMigrations: store.appliedMigrations, bodyExcerpt: `schema=${schemaAtOpen} applied=${JSON.stringify(store.appliedMigrations)} rowId=${seed.rowId}` },
     });
     bootReport = { appliedMigrations: [...store.appliedMigrations], schemaVersion: schemaAtOpen };
     store.close();

@@ -43,7 +43,22 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-export function createProbeServer() {
+export function createProbeServer(options = {}) {
+  // AC-7102-1 requires the readiness path (and per AC-7101-1 the
+  // liveness path) to come from project configuration. The fixture
+  // accepts an explicit { paths: { liveness, readiness } } and
+  // records the resolved values so probes can observe both the
+  // configured-path clause and the liveness/readiness distinctness
+  // clause. When both paths are provided, they MUST be distinct or
+  // the fixture refuses boot with a stable-coded error.
+  const cfgPaths = options.paths && typeof options.paths === 'object' ? options.paths : {};
+  const pathLive = typeof cfgPaths.liveness === 'string' && cfgPaths.liveness.length > 0 ? cfgPaths.liveness : '/live';
+  const pathReady = typeof cfgPaths.readiness === 'string' && cfgPaths.readiness.length > 0 ? cfgPaths.readiness : '/ready';
+  if (pathLive === pathReady) {
+    const err = new Error('probeInterface.paths.liveness and probeInterface.paths.readiness must be distinct');
+    err.code = 'PROBE_INTERFACE_PATHS_NOT_DISTINCT';
+    throw err;
+  }
   const tcpDeps = new Map(); // name -> { host, port }
   const teardowns = []; // functions that must run at close; errors are re-raised
   let unhealthyLiveness = false;
@@ -53,7 +68,7 @@ export function createProbeServer() {
   const server = createServer(async (req, res) => {
     const rid = req.headers[requestIdHeader] || randomUUID();
     res.setHeader(requestIdHeader, rid);
-    if (req.method === 'GET' && req.url === '/live') {
+    if (req.method === 'GET' && req.url === pathLive) {
       counters.liveRequests += 1;
       if (unhealthyLiveness) {
         // AC-7101-5: 503 with content-length 0 and empty body.
@@ -68,7 +83,7 @@ export function createProbeServer() {
       res.end(JSON.stringify({ status: 'pass', requestIdEchoed: rid, ts: new Date().toISOString() }));
       return;
     }
-    if (req.method === 'GET' && req.url === '/ready') {
+    if (req.method === 'GET' && req.url === pathReady) {
       counters.readyRequests += 1;
       const checks = {};
       const depEntries = [];
@@ -126,6 +141,7 @@ export function createProbeServer() {
 
   return {
     server,
+    resolvedPaths: { liveness: pathLive, readiness: pathReady },
     addTcpDependency(name, host, port) { tcpDeps.set(name, { host, port }); },
     removeTcpDependency(name) { tcpDeps.delete(name); },
     setLivenessUnhealthy(flag) { unhealthyLiveness = flag; },

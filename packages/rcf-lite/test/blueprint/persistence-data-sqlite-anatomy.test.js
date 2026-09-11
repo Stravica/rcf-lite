@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape } from './_probe-anatomy-helpers.mjs';
+import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape, collectShippedAcIds, skipReasonNamesExactlyOneDeclared } from './_probe-anatomy-helpers.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -19,10 +19,10 @@ const FIXTURE_DIR = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 
 
 const PROBES = ['boot-open-migrate', 'facade-round-trip', 'wal-checkpoint'];
 
-test('persistence-data-sqlite: blueprint.json version pinned at 1.1.3 (TC-crit-e-blueprint-json-version)', async () => {
+test('persistence-data-sqlite: blueprint.json version pinned at 1.1.4 (TC-crit-e-blueprint-json-version)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-sqlite');
-  assert.equal(doc.version, '1.1.3');
+  assert.equal(doc.version, '1.1.4');
 });
 
 test('persistence-data-sqlite: contributions/probes/ pack is present and every probe declares anchor + accountBound (TC-crit-e-probe-pack)', async () => {
@@ -59,14 +59,22 @@ test('persistence-data-sqlite: fixture README declares every env var in DECLARED
 });
 
 test('persistence-data-sqlite: every probe returns results whose rows each carry a 7d evidence shape or an honest skip (TC-crit-e-result-shape)', async () => {
+  const shippedAcIds = await collectShippedAcIds(BLUEPRINT_ROOT);
+  const browserOnlyAcIds = new Set();
+  const utils = await importProbe(join(PROBES_DIR, 'probe-utils.mjs'));
+  const declared = utils.DECLARED_ENV instanceof Set ? utils.DECLARED_ENV : new Set(Array.from(utils.DECLARED_ENV || []));
   for (const p of PROBES) {
     const mod = await importProbe(join(PROBES_DIR, p + '.mjs'));
     const outcome = await mod.default();
     const results = outcome && Array.isArray(outcome.results) ? outcome.results : null;
     assert.ok(results && results.length > 0, p + ': probe returned no results');
     for (const [i, r] of results.entries()) {
-      const check = resultHasEvidenceShape(r);
+      const check = resultHasEvidenceShape(r, { shippedAcIds, browserOnlyAcIds });
       assert.ok(check.ok, p + ' result[' + i + '] anchor=' + r.anchorAcId + ' verdict=' + r.verdict + ' fails 7d evidence shape: ' + check.reason);
+      if (r.accountBoundSkipped === true) {
+        const named = skipReasonNamesExactlyOneDeclared(r.reason, declared);
+        assert.ok(named.ok, p + ' result[' + i + '] accountBoundSkipped reason must name exactly one declared env var: ' + named.reason);
+      }
     }
   }
 });

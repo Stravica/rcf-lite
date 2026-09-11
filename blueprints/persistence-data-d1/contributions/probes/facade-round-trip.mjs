@@ -76,15 +76,54 @@ export default async function runProbe() {
       evidence: { rowIdCreatedThenDeleted: rowId, deleteChanges: del.changes, presentAfterDelete: Boolean(after), bodyExcerpt: `deleteItem changes=${del.changes} presentAfterDelete=${Boolean(after)}` },
     });
     binding.__closeForFixture();
+    // Fake sentinels stashed on the env passed alongside the missing
+    // DB binding. AC-13101-4 requires the refusal to leak neither the
+    // account id nor the API token; we drive a positive predicate by
+    // proving neither sentinel appears anywhere in the refusal error's
+    // message, kind, bindingName, stack or JSON serialisation, then
+    // report a callTrackingId as the row identifier.
+    const callTrackingId = 'track-' + Math.random().toString(36).slice(2, 10);
+    const accountIdSentinel = 'acct-sentinel-' + Math.random().toString(36).slice(2, 12);
+    const apiTokenSentinel = 'token-sentinel-' + Math.random().toString(36).slice(2, 12);
     let refusal = null;
-    try { await openFacade({ env: {}, eventSink: (e) => events.push(e) }); }
-    catch (e) { refusal = { message: e.message, kind: e.kind, bindingName: e.bindingName }; }
+    let refusalErr = null;
+    try {
+      await openFacade({
+        env: { CLOUDFLARE_ACCOUNT_ID: accountIdSentinel, CLOUDFLARE_API_TOKEN: apiTokenSentinel },
+        eventSink: (e) => events.push(e),
+      });
+    } catch (e) {
+      refusalErr = e;
+      refusal = { message: e.message, kind: e.kind, bindingName: e.bindingName };
+    }
+    const refusalString = [
+      refusalErr?.message ?? '',
+      refusalErr?.kind ?? '',
+      refusalErr?.bindingName ?? '',
+      refusalErr?.stack ?? '',
+      (() => { try { return JSON.stringify(refusalErr, Object.getOwnPropertyNames(refusalErr || {})); } catch { return ''; } })(),
+    ].join(' || ');
+    const accountIdInRefusal = accountIdSentinel.length > 0 && refusalString.includes(accountIdSentinel);
+    const apiTokenInRefusal = apiTokenSentinel.length > 0 && refusalString.includes(apiTokenSentinel);
+    const credentialLeakAbsent = accountIdInRefusal === false && apiTokenInRefusal === false;
     const readyAfterRefusal = events.filter((e) => e.event === 'facadeReady').length;
     results.push({
       anchorAcId: 'AC-13101-4',
-      verdict: refusal?.kind === 'd1BindingMissing' && refusal?.bindingName === 'DB' && readyAfterRefusal === 1 ? 'pass' : 'fail',
-      detail: `${AC4} Worker env  -  observed refusal kind='${refusal?.kind}' bindingName='${refusal?.bindingName}' after openFacade with env={}; facadeReady after refusal=${readyAfterRefusal} (unchanged; no extra event fired).`,
-      evidence: { ...refusal, refusalMessage: refusal?.message, kind: refusal?.kind, bindingName: refusal?.bindingName, missingKey: refusal?.bindingName, bodyExcerpt: `refusal kind=${refusal?.kind} bindingName=${refusal?.bindingName}` },
+      verdict: refusal?.kind === 'd1BindingMissing' && refusal?.bindingName === 'DB' && readyAfterRefusal === 1 && credentialLeakAbsent ? 'pass' : 'fail',
+      detail: `${AC4} Worker env  -  observed refusal kind='${refusal?.kind}' bindingName='${refusal?.bindingName}' after openFacade with env carrying sentinel account-id and api-token but no DB binding; accountIdInRefusal=${accountIdInRefusal}; apiTokenInRefusal=${apiTokenInRefusal}; credentialLeakAbsent=${credentialLeakAbsent}; facadeReady after refusal=${readyAfterRefusal} (unchanged; no extra event fired). callTrackingId=${callTrackingId}.`,
+      evidence: {
+        ...refusal,
+        callTrackingId,
+        refusalMessage: refusal?.message,
+        kind: refusal?.kind,
+        bindingName: refusal?.bindingName,
+        missingKey: refusal?.bindingName,
+        accountIdInRefusal,
+        apiTokenInRefusal,
+        credentialLeakAbsent,
+        readyAfterRefusal,
+        bodyExcerpt: `refusal kind=${refusal?.kind} bindingName=${refusal?.bindingName} credentialLeakAbsent=${credentialLeakAbsent}`,
+      },
     });
   } finally {
     await rm(dir, { recursive: true, force: true });

@@ -1,3 +1,9 @@
+# Changelog
+
+## 1.1.6 - 2026-09-11
+
+Mixed pass 5 (closure 5 disposition): unverified-sender-refusal AC-4102-1 verdict now requires the complete refusal outcome shape owned on TAC-401.interfaces.send — providerStatus a valid positive integer AND providerMessageId===null AND thrownMessage===null, alongside the RESEND_SENDER_UNVERIFIED class prefix.
+
 # email-smtp-resend CHANGELOG
 
 ## 1.1.5 - 2026-09-11

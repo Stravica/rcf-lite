@@ -56,11 +56,17 @@ export default async function runProbe() {
     const subjectInThrown = Boolean(thrownMessage && thrownMessage.includes(distinctiveSubject));
     const bodyInThrown = Boolean(thrownMessage && thrownMessage.includes(distinctiveBody));
     const cleanCall = !recipientInError && !subjectInError && !bodyInError && !recipientInLogs && !subjectInLogs && !bodyInLogs && !recipientInThrown && !subjectInThrown && !bodyInThrown;
+    // AC-4102-1 refusal outcome: closure 5 requires the row to
+    // assert BOTH a valid providerStatus AND providerMessageId===null
+    // alongside the RESEND_SENDER_UNVERIFIED class prefix; the shape
+    // is owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send.
+    const providerStatusValid = typeof outcome?.providerStatus === 'number' && Number.isInteger(outcome.providerStatus) && outcome.providerStatus > 0;
+    const providerMessageIdIsNull = outcome?.providerMessageId === null;
     results.push({
       anchorAcId: 'AC-4102-1',
-      verdict: outcome?.ok === false && startsWithClass ? 'pass' : 'fail',
-      detail: `${AC1} sender is unverified  -  observed adapter.send() outcome ok=${outcome?.ok} providerStatus=${outcome?.providerStatus} error='${errorString}' startsWithClass=${startsWithClass} thrown=${thrownMessage === null ? 'null' : `'${thrownMessage}'`}. Adapter classified the fixture's 550 5.7.1 refusal to RESEND_SENDER_UNVERIFIED per TAC-401.responsibilities[3].`,
-      evidence: { ok: outcome?.ok, providerStatus: outcome?.providerStatus, errorString, startsWithClass, thrownMessage, code: outcome?.providerStatus, messageId: outcome?.providerMessageId ?? null, lastLine: emittedLines[emittedLines.length - 1] ?? null },
+      verdict: outcome?.ok === false && startsWithClass && providerStatusValid && providerMessageIdIsNull && thrownMessage === null ? 'pass' : 'fail',
+      detail: `${AC1} sender is unverified  -  observed adapter.send() outcome ok=${outcome?.ok} providerStatus=${outcome?.providerStatus} providerStatusValid=${providerStatusValid} providerMessageId=${JSON.stringify(outcome?.providerMessageId ?? null)} providerMessageIdIsNull=${providerMessageIdIsNull} error='${errorString}' startsWithClass=${startsWithClass} thrown=${thrownMessage === null ? 'null' : `'${thrownMessage}'`}. Adapter classified the fixture's 550 5.7.1 refusal to RESEND_SENDER_UNVERIFIED per TAC-401.responsibilities[3] and the refusal outcome shape owned on TAC-401.interfaces.send (providerStatus valid positive integer AND providerMessageId===null).`,
+      evidence: { ok: outcome?.ok, providerStatus: outcome?.providerStatus, providerStatusValid, providerMessageIdIsNull, errorString, startsWithClass, thrownMessage, code: outcome?.providerStatus, messageId: outcome?.providerMessageId ?? null, lastLine: emittedLines[emittedLines.length - 1] ?? null },
     });
     results.push({
       anchorAcId: 'AC-4102-2',

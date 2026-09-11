@@ -1,3 +1,9 @@
+# Changelog
+
+## 1.3.4 - 2026-09-11
+
+Mixed pass 5 (closure 5 disposition): line-shape-and-fields probe now wraps every emission (per-level, BigInt, reserved-key-collision) in runWithCorrelation(randomUUID(), ...) so each emitted log line carries a real correlation id; the AC-15101-1/-3/-4 rows record the parsed line object plus a correlationIdEchoed identifier and a bodyExcerpt derived value.
+
 # observability-logging CHANGELOG
 
 ## 1.3.3 - 2026-09-11

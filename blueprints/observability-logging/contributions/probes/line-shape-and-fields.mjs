@@ -3,7 +3,8 @@
 // shared minimum fields, so a numeric or object value cannot pass a
 // presence-only check), AC-15101-3 (BigInt-safe folding) and
 // AC-15101-4 (reserved-key collision safety).
-import { createLogger, LEVEL_ORDER } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-logging/src/logger-factory.mjs';
+import { randomUUID } from 'node:crypto';
+import { createLogger, LEVEL_ORDER, runWithCorrelation } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-observability-logging/src/logger-factory.mjs';
 
 export const anchorAcId = 'AC-15101-1';
 export const accountBound = false;
@@ -15,7 +16,12 @@ export default async function runProbe() {
   const outBuf = []; const errBuf = [];
   const clock = () => '2026-09-11T12:00:00.000Z';
   const log = createLogger({ environment: 'qa', serviceName: 'probe-svc', serviceVersion: '0.0.1', minLevel: 'trace', outSink: (s) => outBuf.push(s), errSink: (s) => errBuf.push(s), clock });
-  for (const lvl of LEVEL_ORDER) log[lvl](`hello-${lvl}`);
+  const perLevelIds = [];
+  for (const lvl of LEVEL_ORDER) {
+    const cid = randomUUID();
+    perLevelIds.push({ level: lvl, correlationId: cid });
+    runWithCorrelation(cid, () => log[lvl](`hello-${lvl}`));
+  }
   const lines = outBuf.join('').split('\n').filter(Boolean);
   const required = ['message', 'level', 'timestamp', 'correlationId', 'environment', 'serviceName', 'serviceVersion'];
   const results = [];
@@ -45,10 +51,11 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-1',
     verdict: allOk ? 'pass' : 'fail',
     detail: `${AC1} call site  -  observed ${lines.length} lines on stdout; each JSON.parses and carries the seven minimum fields as non-empty strings (timestamp parses ISO-8601); expected=${LEVEL_ORDER.length}; typeFailures=${JSON.stringify(typeFailures)}.`,
-    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level), typeFailures },
+    evidence: { linesExcerpt: lines.slice(0, 3), levelsSeen: parsed.filter(Boolean).map((o) => o.level), typeFailures, observedEmissions: perLevelIds, correlationIdEchoed: perLevelIds[0]?.correlationId },
   });
   outBuf.length = 0; errBuf.length = 0;
-  log.info('bigint', { id: 9007199254740993n });
+  const bigCid = randomUUID();
+  runWithCorrelation(bigCid, () => log.info('bigint', { id: 9007199254740993n }));
   const bLines = outBuf.join('').split('\n').filter(Boolean);
   let bParsed = null;
   try { bParsed = JSON.parse(bLines[0]); } catch {}
@@ -56,10 +63,11 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-3',
     verdict: bParsed && bParsed.id === '9007199254740993' && errBuf.join('').length === 0 ? 'pass' : 'fail',
     detail: `${AC3} value  -  observed BigInt folded to '${bParsed?.id}' on the emitted line; stderr='${errBuf.join('').trim()}'.`,
-    evidence: { line: bLines[0] },
+    evidence: { line: bParsed, bodyExcerpt: bLines[0], correlationIdEchoed: bigCid },
   });
   outBuf.length = 0; errBuf.length = 0;
-  log.info('coll', { level: 'boom', timestamp: 'yesterday', custom: 'ok' });
+  const collCid = randomUUID();
+  runWithCorrelation(collCid, () => log.info('coll', { level: 'boom', timestamp: 'yesterday', custom: 'ok' }));
   const cLine = outBuf.join('').split('\n').filter(Boolean)[0];
   let cParsed = null;
   try { cParsed = JSON.parse(cLine); } catch {}
@@ -68,7 +76,7 @@ export default async function runProbe() {
     anchorAcId: 'AC-15101-4',
     verdict: cParsed?.level === 'info' && cParsed?.timestamp === '2026-09-11T12:00:00.000Z' && errCombined.includes("'level'") && errCombined.includes("'timestamp'") ? 'pass' : 'fail',
     detail: `${AC4} correlationId,  -  observed factory-authored level=${cParsed?.level} timestamp=${cParsed?.timestamp}; stderr excerpt='${errCombined.trim()}' names the reserved keys.`,
-    evidence: { line: cLine, stderr: errCombined },
+    evidence: { line: cParsed, bodyExcerpt: cLine, stderr: errCombined, correlationIdEchoed: collCid },
   });
   return { results, extra: { envDeclared: ['RCF_FIXTURE_LOGGER_CORRELATION_HEADER'], capturedStdoutBytes: outBuf.reduce((n, s) => n + s.length, 0) } };
 }

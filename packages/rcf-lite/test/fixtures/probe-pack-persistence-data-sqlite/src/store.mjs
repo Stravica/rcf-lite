@@ -38,6 +38,12 @@ export function openStore({ path, eventSink }) {
   const db = new DatabaseSync(path);
   const jmRows = db.prepare('PRAGMA journal_mode=WAL').all();
   const journalMode = String(jmRows[0]?.journal_mode || 'unknown');
+  // Set the synchronous commit floor at open time (durability posture
+  // owned on AC-5105-3: WAL requires synchronous>=NORMAL for a
+  // crash-safe floor). No consumer configures this.
+  db.prepare('PRAGMA synchronous=NORMAL').run();
+  const syncRows = db.prepare('PRAGMA synchronous').all();
+  const synchronousLevel = Number(syncRows[0]?.synchronous ?? -1);
   db.exec(`CREATE TABLE IF NOT EXISTS schema_migrations (
              version INTEGER PRIMARY KEY,
              applied_at TEXT NOT NULL
@@ -58,6 +64,7 @@ export function openStore({ path, eventSink }) {
     openedAt,
     appliedMigrations,
     journalMode,
+    synchronousLevel,
     schemaVersion() {
       const row = db.prepare('SELECT MAX(version) AS v FROM schema_migrations').get();
       return Number(row.v || 0);
@@ -65,6 +72,10 @@ export function openStore({ path, eventSink }) {
     journalModeNow() {
       const rows = db.prepare('PRAGMA journal_mode').all();
       return String(rows[0]?.journal_mode || 'unknown');
+    },
+    synchronousNow() {
+      const rows = db.prepare('PRAGMA synchronous').all();
+      return Number(rows[0]?.synchronous ?? -1);
     },
     put(key, value) {
       const at = new Date().toISOString();

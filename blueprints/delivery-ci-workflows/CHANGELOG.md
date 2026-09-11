@@ -1,3 +1,9 @@
+# Changelog
+
+## 2.3.4 - 2026-09-11
+
+Mixed pass 5 (closure 5 disposition): shared anatomy helper tightened; delivery-ci-workflows anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
+
 # Changelog: delivery-ci-workflows blueprint
 
 ## 2.3.3 - 2026-09-11

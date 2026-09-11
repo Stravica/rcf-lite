@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.4 - 2026-09-11
+
+Mixed pass 5 (closure 5 disposition): wal-checkpoint AC-5105-3 anchor now observes the complete durability posture (PRAGMA journal_mode=wal + PRAGMA synchronous>=NORMAL + consumer-source grep) with a real integer rowId from a seed put through the facade; boot-open-migrate AC-5101-3 also carries a real rowId. Fixture store.mjs sets PRAGMA synchronous=NORMAL at open time and exposes synchronousNow(). Shared anatomy helper tightened per closure 5 §6 (strict identifier set, existence check for shipped-AC limitation and notObservableHere.ac, exact-variable skip reason wire-up in all seven anatomy tests, notObservableHere is now refused for non-browser-only ACs, acceptedProfile removed from identifier lists, single JSON log-line string is derived only).
+
 ## 1.1.3 - 2026-09-11
 
 Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24; record real integer row ids, applied-migration lists, and wal_checkpoint(TRUNCATE) counters with the WAL sidecar shrink after truncate. No account gate.
