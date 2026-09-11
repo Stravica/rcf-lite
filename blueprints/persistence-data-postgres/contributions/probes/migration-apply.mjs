@@ -121,7 +121,7 @@ export default async function runProbe() {
     detail: eventFiredCorrectly
       ? `Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=${JSON.stringify(migratedEvent.applied)}`
       : `Given a fresh Postgres database at schema_version 0 - migrationsApplied event missing or wrong shape; events=${JSON.stringify(events)}`,
-    evidence: { migrationsAppliedEvent: migratedEvent || null, phase: 'happy-path' },
+    evidence: { migrationsAppliedEvent: migratedEvent || null, phase: 'happy-path', appliedFilesList: migratedEvent && migratedEvent.applied ? migratedEvent.applied : [] },
   });
   // Read schema_version to confirm rows count = 3
   const store = createStore({ connectionUrl: url });

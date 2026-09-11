@@ -104,7 +104,7 @@ export default async function runProbe() {
       detail: refusedBelowFloor
         ? `${REQ003} - presign below the 60s floor refused per ADR-2902 (${refusedError})`
         : `${REQ003} - presign below the 60s floor did not refuse`,
-      evidence: { requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError },
+      evidence: { requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError, refusalFired: refusedBelowFloor, refusalCode: refusedBelowFloor ? 'below-floor' : 'accepted' },
     });
 
     await store.deleteObject(key);

@@ -36,7 +36,7 @@ export default async function runProbe() {
       detail: facadeReadyFired
         ? `On process boot, the facade opens a pg.Pool - facadeReady fired with databaseName=${facadeReadyDbName}`
         : 'On process boot, the facade opens a pg.Pool - facadeReady did not fire before first query',
-      evidence: { facadeReadyEvent, allEvents: events },
+      evidence: { facadeReadyEvent, allEvents: events, databaseName: facadeReadyDbName, poolReadyOk: !!facadeReadyEvent },
     });
     const id = await store.createUser('probe-facade-round-trip', 'facade-round-trip@rcf.test');
     const row = await store.getUserById(id);

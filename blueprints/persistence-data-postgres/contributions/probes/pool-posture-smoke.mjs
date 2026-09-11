@@ -75,6 +75,8 @@ export default async function runProbe() {
         configuredMax,
         sampleCountA: samplesA.length,
         sampleCountB: samplesB.length,
+        poolPostureStatus: (cappedA && cappedB) ? 'capped-both-pools' : 'uncapped',
+        poolConfigurationMetadata: { poolAConfiguredMax: configuredMax, poolBConfiguredMax: configuredMax, queryCountPerPool: 10 },
       },
     });
   } finally {

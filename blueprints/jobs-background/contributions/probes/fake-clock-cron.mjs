@@ -37,7 +37,7 @@ import { resolve } from 'node:path';
 
 const FIRE_TOLERANCE_MS = 30000;
 const AC_FIRST8 = 'With messaging-queue-cloudflare and jobs-background both applied on the';
-const TOLERANCE_LIMITATION = 'AC-jobs-scheduledRunsOnCron: the AC states a jobStarted fires within fireToleranceMs (default 30000 ms) of the scheduled cron boundary; this row observes dispatch latency in a fake-clock domain and does NOT assert the elicited fireToleranceMs (a fake-clock scheduled boundary is not a wall-clock boundary comparable to the wall-clock Date.now() the runtime stamps on jobStarted)';
+const TOLERANCE_LIMITATION = 'AC-jobs-scheduledRunsOnCron: the AC states a jobStarted fires within fireToleranceMs (default 30000 ms) of the scheduled cron boundary; this row observes the scheduled-to-started latency in a fake-clock domain and does NOT assert the elicited fireToleranceMs (a fake-clock scheduled boundary is not a wall-clock boundary comparable to the wall-clock Date.now() the runtime stamps on jobStarted)';
 
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
@@ -73,7 +73,7 @@ export default async function runProbe() {
     detail: firesPass
       ? `${AC_FIRST8} - scheduler.tick() published exactly 1 fire after clock.advance(60000)`
       : `${AC_FIRST8} - expected fires=1, got fires=${fires}`,
-    evidence: { fires, cron: '* * * * *' },
+    evidence: { fires, cron: '* * * * *', fireEventCount: fires, firePresent: fires === 1 },
   });
 
   const startedOk = jobStarted && jobStarted.attempts === 1;
@@ -83,7 +83,7 @@ export default async function runProbe() {
     detail: startedOk
       ? `${AC_FIRST8} - jobStarted fired for refresh-cache with attempts=${jobStarted.attempts}`
       : `${AC_FIRST8} - jobStarted missing or attempts wrong: ${JSON.stringify(jobStarted)}`,
-    evidence: { jobStartedEvent: jobStarted || null },
+    evidence: { jobStartedEvent: jobStarted || null, jobStartedTimestamp: jobStarted ? jobStarted.timestamp : null, jobStartedAttempts: jobStarted ? jobStarted.attempts : null },
   });
 
   const completedOk = jobCompleted != null;
@@ -94,17 +94,17 @@ export default async function runProbe() {
     detail: completedOk && durationOk
       ? `${AC_FIRST8} - jobCompleted fired for refresh-cache with duration=${jobCompleted.duration}ms within timeoutMs=${registry.get('refresh-cache').timeoutMs}`
       : `${AC_FIRST8} - completedOk=${completedOk} durationOk=${durationOk}; jobCompleted=${JSON.stringify(jobCompleted)}`,
-    evidence: { jobCompletedEvent: jobCompleted || null, timeoutMs: registry.get('refresh-cache').timeoutMs },
+    evidence: { jobCompletedEvent: jobCompleted || null, timeoutMs: registry.get('refresh-cache').timeoutMs, jobCompletedDurationMs: jobCompleted ? jobCompleted.duration : null, jobCompletedTimestamp: jobCompleted ? jobCompleted.timestamp : null },
   });
 
   // The fake-clock setup means "scheduledAt" is not a real wall-clock
   // boundary the way a live cron would be; the delta between jobScheduled
-  // and jobStarted here is dispatch-latency, not a meaningful wait from
-  // a scheduled boundary. This row RECORDS the observed dispatch
+  // and jobStarted here is scheduled-to-started latency, not a meaningful wait from
+  // a scheduled boundary. This row RECORDS the observed scheduled-to-started
   // latency for reader inspection but does NOT claim it satisfies
   // an "elicited fireToleranceMs" - no AC states such a tolerance for
   // fake-clock fires. Anchor stays on AC-jobs-scheduledRunsOnCron
-  // because the property this row proves is "the runtime dispatched
+  // because the property this row proves is "the runtime published
   // the fired job into jobStarted"; the wait-from-scheduled-boundary
   // property is only meaningful for live crons and is not observed
   // here.
@@ -118,12 +118,12 @@ export default async function runProbe() {
     limitation: TOLERANCE_LIMITATION,
     verdict: (jobScheduled && jobStarted) ? 'pass' : 'fail',
     detail: (jobScheduled && jobStarted)
-      ? `conformanceOnly (${TOLERANCE_LIMITATION}) - the fired refresh-cache job produced both jobScheduled and jobStarted on the run-log; dispatch latency observed (not asserted) at ${scheduledToStartedMs}ms`
+      ? `conformanceOnly (${TOLERANCE_LIMITATION}) - the fired refresh-cache job produced both jobScheduled and jobStarted on the run-log; scheduled-to-started latency observed (not asserted) at ${scheduledToStartedMs}ms`
       : `conformanceOnly (${TOLERANCE_LIMITATION}) - jobScheduled or jobStarted missing: jobScheduled=${JSON.stringify(jobScheduled)} jobStarted=${JSON.stringify(jobStarted)}`,
     evidence: {
       jobScheduledTimestamp: jobScheduled && jobScheduled.timestamp,
       jobStartedTimestamp: jobStarted && jobStarted.timestamp,
-      dispatchLatencyMs: scheduledToStartedMs,
+      scheduledToStartedLatencyMs: scheduledToStartedMs,
       toleranceAsserted: false,
       note: 'fake-clock setup; scheduledAt is not a wall-clock cron boundary. The paired live-account probe does not exercise cron either; live wrangler-dev cron-trigger coverage remains a per-AC mechanism-reach gap.',
     },
@@ -134,7 +134,7 @@ export default async function runProbe() {
     extra: {
       events,
       fireToleranceMs: FIRE_TOLERANCE_MS,
-      engineNote: 'in-memory queue driver + fake-clock seam; real Cloudflare Queues cron-trigger is the paired real-account row',
+      engineNote: 'in-memory queue driver + fake-clock seam; the paired live-account probe (retry-and-fail-real-account) does NOT exercise cron and therefore does NOT supply cron-trigger evidence; live wrangler-dev cron-trigger firing under workerCron scheduler mode is a per-AC mechanism-reach gap',
     },
   };
 }

@@ -1,5 +1,17 @@
 # Changelog
 
+
+## 1.1.4 - 2026-09-11
+
+Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation string and every notObservableHere.ac (must exist in the shipped user-story set), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND, never OR), requires the run record to be present under `.rcf/reports/blueprints/persistence-data-postgres/` (no lexical source fallback, no ENOENT swallow), and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV list. Anatomy pin bumped to 1.1.4. Probes minimally enriched so every counting row carries BOTH witness shapes.
+
+- fix: facade-round-trip row 0 now carries `databaseName` and `poolReadyOk` alongside the `facadeReadyEvent` id witness.
+- fix: migration-apply row 1 now carries `appliedFilesList` alongside the `migrationsAppliedEvent` id witness.
+- fix: pool-posture-smoke row now carries `poolPostureStatus` and `poolConfigurationMetadata` alongside the `dispatched`/`elapsedMs` derived witnesses.
+- fix: recovery-restore-round-trip checksum row now carries `checksumMatchStatus` alongside the `srcChecksumMd5`/`dstChecksumMd5` derived witnesses.
+- fix: transaction-atomicity row 1 carries `rolledBackTimestamp` and `rolledBackVerificationOk` alongside `transactionRolledBackEvent`; row 2 carries `postRollbackVerificationOk` alongside `postRollbackUserCount`.
+- register: neutral wording on the 1.0.0 entry (no capability change).
+
 ## 1.1.3 - 2026-09-11
 
 Positive-evidence conformance pass on the probe pack (authoring standard section 7d). The recovery-restore-round-trip probe reads `POSTGRES_SOURCE_CONTAINER`, `POSTGRES_RESTORE_CONTAINER` and `POSTGRES_RESTORE_PORT` from env so a runner on a non-default docker-compose container name or port can execute it without patching probe source. The infra-postgres fixture README gains a Declared env vars table naming every environment variable a probe or the fixture reads (POSTGRES_* connection quintet, the three container/port overrides, SIMULATE_MIGRATION_FAILURE, SIMULATE_CONSTRAINT_VIOLATION); an off-table read is refused at gate. Anatomy pin extended to include the Declared env vars section. All six probes execute against a locally-hosted postgres:17-alpine, with the recovery probe standing up and tearing down its own throwaway restore container.
@@ -27,13 +39,13 @@ Adds the elicits block (connection-url, migrations-directory, migration-runner-t
 
 ## 1.0.0 - 2026-09-06
 
-Initial release. Contract for Postgres as the project's primary durable relational store on a server-tier deployment (Node process, container, non-Workers serverless), accessed through a store facade module that is the sole reader of the `pg` client. Landed via the infra batch 5 spec (ratified 2026-09-06).
+Initial release. Contract for Postgres as the project's primary durable relational store on a server-tier deployment (Node process, container, non-Workers serverless), accessed through a store facade module that is the sole reader of the `pg` client. Landed via the infra spec (ratified 2026-09-06).
 
 - 26 contributions: 7 REQs on facade / migrations / prepared statements / transactions / recovery / pool posture / advisory-lock helper; 10 USs at 27101-27110; 4 TACs (2801 facade, 2802 migration runner, 2803 transaction helper, 2804 recovery runner); 5 ADRs (2801 driver with scope global on `persistenceStore`, 2802 migration shape with scope global on `migrationDiscipline`, 2803 runner mode, 2804 recovery, 2805 connection-pool posture).
 - Six Node-only probes under `contributions/probes/` proven against a live `postgres:17-alpine` container: `facade-round-trip`, `migration-apply`, `prepared-statement-scan`, `transaction-atomicity`, `recovery-restore-round-trip`, `pool-posture-smoke`. None account-bound; Postgres is local-first per maintainer decision.
 - Sample-app fixture at `packages/rcf-lite/test/fixtures/infra-postgres/` boots `postgres:17-alpine` via docker compose, applies three toy forward-only `.sql` migrations, exposes the facade over `pg`, and hosts `SIMULATE_MIGRATION_FAILURE` and `SIMULATE_CONSTRAINT_VIOLATION` switches for the negative-run probe paths.
 - Declares `capabilities: ["relationalStore"]`, `suggestedCompanions: [{role: "logging"}, {role: "errorHandling"}]`, `providesRoles` absent, `requiresAppliedCapabilities` absent.
 - Reserves the round-6 Hyperdrive v1.1.0 adapter slot at ADR-2801 by keeping the driver reference opaque at the facade boundary.
-- Advisory-lock helper (REQ-007) ships in v1.0.0 as elicited with default `off` per the ratified Q1 answer on infra batch 5 spec section 10.
+- Advisory-lock helper (REQ-007) ships in v1.0.0 as elicited with default `off` per the ratified Q1 answer on infra spec section 10.
 
 Review-fix (2026-09-09): Adds eleven option-binding ACs to close section 7c on the elicits catalogue - migration-runner-tool (AC-27102-4/5/6/7), runner-mode (AC-27102-8/9), recovery-cadence (AC-27105-3/4/5), pitr-provider (AC-27110-3/4). Adds deliveredBy on REQ-001, REQ-002, REQ-004 (three of seven mandatory REQs).

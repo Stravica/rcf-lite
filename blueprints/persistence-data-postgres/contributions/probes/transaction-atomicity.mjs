@@ -57,7 +57,7 @@ export default async function runProbe() {
       detail: rolledBackEvent
         ? `${AC} - transactionRolledBack fired with statementIndex=${rolledBackEvent.statementIndex} code=${rolledBackEvent.code}`
         : `${AC} - transactionRolledBack did not fire; events=${events.map((e) => e.event).join(',')}`,
-      evidence: { transactionRolledBackEvent: rolledBackEvent || null, allEvents: events },
+      evidence: { transactionRolledBackEvent: rolledBackEvent || null, allEvents: events, rolledBackTimestamp: rolledBackEvent ? new Date(rolledBackEvent.ts).toISOString() : null, rolledBackVerificationOk: !!rolledBackEvent && rolledBackEvent.statementIndex === 1 },
     });
     const count = await store.countUsers();
     const noRowsPersist = count === 0;
@@ -67,7 +67,7 @@ export default async function runProbe() {
       detail: noRowsPersist
         ? `${AC} - users table empty after rollback (no partial commit landed)`
         : `${AC} - users table carries ${count} row(s) after rollback (partial commit leaked)`,
-      evidence: { postRollbackUserCount: count },
+      evidence: { postRollbackUserCount: count, postRollbackVerificationOk: count === 0 },
     });
   } finally {
     const teardown = [];

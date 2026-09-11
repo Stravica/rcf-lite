@@ -52,9 +52,10 @@ export const DECLARED_ENV = Object.freeze([
   'CI_HAS_CLOUDFLARE_ACCOUNT',
   'CF_ACCOUNT_ID',
   'CF_API_TOKEN',
+  'CF_API_BASE',
 ]);
 
-const API_BASE = 'https://api.cloudflare.com/client/v4';
+const API_BASE = process.env.CF_API_BASE || 'https://api.cloudflare.com/client/v4';
 
 const AC_RETRY_FIRST8 = 'With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture,';
 const AC_REQUIRES_FIRST8 = 'On a fresh init scratch project with NO';

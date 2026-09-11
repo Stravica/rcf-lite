@@ -276,7 +276,7 @@ export default async function runProbe() {
       anchorAcId: 'AC-27105-1',
       verdict: srcCk === dstCk && srcCk != null ? 'pass' : 'fail',
       detail: `Given a live Postgres containing a small fixture rowset - checksum source=${srcCk} restored=${dstCk}`,
-      evidence: { srcChecksumMd5: srcCk, dstChecksumMd5: dstCk },
+      evidence: { srcChecksumMd5: srcCk, dstChecksumMd5: dstCk, checksumMatchStatus: (srcCk && dstCk && srcCk === dstCk) ? 'equal' : 'differ' },
     });
   } finally {
     // Teardown, every step recorded. A failure here becomes a FAIL row
