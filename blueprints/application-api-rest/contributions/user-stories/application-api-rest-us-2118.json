@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-2118-3",
-      "description": "The deploy order between migrations and application rollout is stated in the project documentation, including which schema versions each application version tolerates. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "The deploy order between migrations and application rollout is stated in the project documentation, including which schema versions each application version tolerates. Applying agent sets: the location of the deploy documentation, the stated migration-versus-rollout order, and the tolerated schema-version window per application version.",
       "given": "the project's deploy documentation",
       "when": "the migration-versus-rollout order is looked up",
       "then": "the order and the tolerated schema-version window are stated",

@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.26.0"
+latest: "0.27.0"
 releases:
+  - version: "0.27.0"
+    date: "2026-09-11"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.27.0 is a shelf-wide hardening release. Every shipped blueprint has been re-verified against the 2026-09-08 authoring criteria, so every requirement is backed at the REQ layer, every user story carries a sufficient acceptance-criteria set with disposition and owner references, and chain-consistency lint reports zero on every slug."
+      - "Shipped prose is now customer-facing throughout, with internal workflow labels, operator names, work-item and dispatch identifiers, and long dashes removed. CI adds a hard register-scan gate and flips the chain-consistency lint gate to hard mode over the monorepo-root shelf."
+      - "One CLI reliability fix rides along: the rcf audit view SIGINT handler is now installed before the readiness line is written, closing a race with Node's default signal disposition."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.26.0"
     date: "2026-09-09"
     breaking: false

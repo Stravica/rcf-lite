@@ -39,6 +39,6 @@ Every rendered chart on the surface mounts through the render shell; every multi
 - `prefers-reduced-motion` is a real user preference. Do not gate it behind a feature flag or a build variable; the shell handles it via CSS media query on every chart on the surface.
 - A blueprint pack fires on any FBS whose surface matches the `appliesTo` predicate. A page with no chart declares no chart route and the pack records `applicable: false`; no need to disable the pack.
 
-## Ratified spec reference
+## Spec provenance
 
-`projects/blueprint-library/specs/visual-round-spec-2026-09-04.md` section 5.2 in the operator repo names the contract this blueprint realises. Every content decision in the shipped v1.0.0 comes from the spec verbatim; where the shell contract carries a documented deviation from the spec, the blueprint README names it under CALLS MADE.
+The shipped v1.0.0 realises the ratified visual specification for chart components verbatim; where the shell contract carries a documented deviation, the blueprint README names it under the engine-refusal or mechanism-reach sections.

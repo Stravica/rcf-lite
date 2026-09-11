@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-17101-3",
-      "description": "Given a sort activation on a column, the surface updates the column header's `aria-sort` attribute to `ascending` or `descending` matching the applied direction; subsequent activations flip the direction and the attribute together (ARIA APG table + grid patterns). Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given a sort activation on a column, the surface updates the column header's `aria-sort` attribute to `ascending` or `descending` matching the applied direction; subsequent activations flip the direction and the attribute together (ARIA APG table + grid patterns). Applying agent sets: the enumerated column-id set the sort control targets and the initial `aria-sort=none` per column at first render.",
       "given": "a rendered datatable with an initial `aria-sort` of `none` on every column",
       "when": "the operator activates the sort control on a column",
       "then": "the activated column's `aria-sort` reads `ascending` or `descending` matching the new direction and every other column stays at `none`",

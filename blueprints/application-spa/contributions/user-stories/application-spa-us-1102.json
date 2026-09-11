@@ -35,7 +35,7 @@
     },
     {
       "id": "AC-1102-3",
-      "description": "Side navigation, where the project declares secondary structure, collapses below 1024 into an accessible disclosure pattern rather than disappearing. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Side navigation, where the project declares secondary structure, collapses below 1024 into an accessible disclosure pattern rather than disappearing. Applying agent sets: whether the project ships secondary navigation, the toggle control that reveals it below the collapse breakpoint (default 1024), the accessible name and expanded/collapsed state text on the toggle.",
       "given": "a project with declared secondary navigation",
       "when": "the viewport is below 1024",
       "then": "secondary navigation is reachable via a toggle with an accessible name and state",

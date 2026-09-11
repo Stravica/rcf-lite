@@ -1,6 +1,6 @@
-# Charts blueprint (v1.0.0)
+# Charts blueprint (v1.0.4)
 
-Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04, section 5.2). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard (visual round) consumes it; no other blueprint in this round does.
+Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.2 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard consumes it; no other blueprint on the shelf does.
 
 ## Apply
 
@@ -66,8 +66,8 @@ Every runtime-observable AC that is not bound to a pack check appears here indiv
 - **AC-18105-1 palette contrast**. the pack does not measure contrast ratios today. Palette contrast is a build-scan surface (colour tokens are inspectable from the applied palette module). A v1.1 minor bump can add a Node build-scan pre-check that reads the applied palette and checks the ratios against WCAG 1.4.3 and 1.4.11.
 - **AC-18105-2 palette override fallback**. the fallback behaviour is exercised by the applying project's own tests, not this blueprint's pack. The applying project owns the assertion.
 - **AC-18106-1 canvas-only refusal**. the refusal is documented in the README's engine-refusal rule; project-side review enforces it. A v1.1 minor bump could add a pack pre-check that reads the applied engine and refuses on a canvas-only engine with no `<table>` companion.
-- **AC-18106-2 engine-name marker**. the applying project ships a `data-chart-engine` attribute or an equivalent DOM marker. The pack does not assert this today; a v1.1 minor bump could read the marker and add it to the pack record for downstream tooling.
+- **AC-18106-2 engine-name marker**. the applying project ships the `data-chart-engine` attribute fixed on TAC-1901-application-charts-render-shell.responsibilities[6]. The pack does not assert this today; a v1.1 minor bump could read the marker and add it to the pack record for downstream tooling.
 
 ## Vision-deficiency emulation is a runner-seam gap
 
-The runner has no `emulateVisionDeficiency` seam on the pack browser today (`goto`, `snapshot`, `evaluate`, `click`, `type`, `press`, `screenshot` is the current API). AC-18102-1 is therefore proven at the DOM level: every series carries a non-colour cue AND a direct label. A future runner minor that adds `emulateVisionDeficiency` to the seam lets this pack add a deuteranopia render pass; that follow-up is named under CONCERNS in the dispatch report as the smallest runner change that would close the class.
+The runner has no `emulateVisionDeficiency` seam on the pack browser today (`goto`, `snapshot`, `evaluate`, `click`, `type`, `press`, `screenshot` is the current API). AC-18102-1 is therefore proven at the DOM level: every series carries a non-colour cue AND a direct label. A future runner minor that adds `emulateVisionDeficiency` to the seam lets this pack add a deuteranopia render pass; that follow-up covers the smallest runner change that would close the class.

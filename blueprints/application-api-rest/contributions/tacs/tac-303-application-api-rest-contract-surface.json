@@ -2,14 +2,14 @@
   "tacId": "TAC-303-application-api-rest-contract-surface",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "status": "approved",
   "name": "Contract surface: OpenAPI generation, serving, and drift defence",
   "purpose": "Owns the generated OpenAPI 3.1 document as a build artefact: generation from source, serving at /openapi.json, /openapi.yaml, and /docs, and the three-axis drift validation that keeps implementation and contract provably identical.",
   "responsibilities": [
     "Generate the OpenAPI 3.1 document from route definitions and schema annotations at build time; no hand-written parallel spec exists (application-api-rest-REQ-004).",
     "Serve the generated document and the interactive documentation UI per the declared exposure policy (AC-2104-6).",
-    "Publish per-operation metadata: operationId, schemas, x-auth-class, rate-limit overrides, idempotency requirements.",
+    "Publish per-operation metadata on the generated document: operationId, request and response schemas, `x-auth-class` (REQ-005), rate-limit overrides, and `x-idempotency-key` (`required` or `forbidden`) per non-safe verb on the declared verb-plus-resource-class combinations (AC-2112-1).",
     "Run contract validation in the build: implemented-but-undeclared, declared-but-unimplemented, and type-level schema mismatch each fail the build (application-api-rest-REQ-004, AC-2105-4).",
     "Drive spec-derived conformance verification so every declared operation is exercised on the request, error, and auth axes (application-api-rest-REQ-015)."
   ],

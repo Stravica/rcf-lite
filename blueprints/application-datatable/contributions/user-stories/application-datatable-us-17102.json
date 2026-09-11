@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-17102-1",
-      "description": "Given a rendered datatable route with a text filter input, when the operator types a value, the client issues a request to the query adapter carrying `q=<value>`; the server (server-side default) or the in-memory adapter (elicited client-side alternative) reads `q` and returns rows matching the filter; the rendered rows equal the returned rows. The check types into the filter, awaits the fetch, reads the rendered names, and compares against a direct `/api/rows?q=<value>` fetch. Probed by pack check AC-17102-1. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Given a rendered datatable route with a text filter input, when the operator types a value, the client issues a request to the query adapter carrying `q=<value>`; the server (server-side default) or the in-memory adapter (elicited client-side alternative) reads `q` and returns rows matching the filter; the rendered rows equal the returned rows. The check types into the filter, awaits the fetch, reads the rendered names, and compares against a direct `/api/rows?q=<value>` fetch. Probed by pack check AC-17102-1. Applying agent sets: the query-adapter endpoint path (default `/api/rows` or the applied `application-api-rest` list endpoint), the filter-input debounce interval, and the expected row-name field the rendered rows are compared on.",
       "given": "a rendered datatable route with a filter input",
       "when": "the operator types a value into the filter",
       "then": "the query adapter receives a `q` value equal to the typed string and the rendered rows equal the returned rows",

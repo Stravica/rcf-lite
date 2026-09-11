@@ -1,6 +1,6 @@
-# Datatable blueprint (v1.0.0)
+# Datatable blueprint (v1.0.4)
 
-Vendor-neutral datatable contract for a rcf-lite application. Ships the ARIA APG table / grid pattern choice (per interactivity), the sort / filter / paginate discipline, the selection model with a bulk-action confirmation dialog, the four-state region contract (empty / loading / error / no-results), and a non-drag keyboard path for column visibility / reorder / resize. Ships a Playwright probe pack under `probe-packs/application-datatable.pack.mjs` whose six checks are the runtime gate the delivery-ci-workflows runner drives (visual round spec 2026-09-04). No new global topics; suggests the `logging` and `errorHandling` companions.
+Vendor-neutral datatable contract for a rcf-lite application. Ships the ARIA APG table / grid pattern choice (per interactivity), the sort / filter / paginate discipline, the selection model with a bulk-action confirmation dialog, the four-state region contract (empty / loading / error / no-results), and a non-drag keyboard path for column visibility / reorder / resize. Ships a Playwright probe pack under `probe-packs/application-datatable.pack.mjs` whose six checks are the runtime gate the delivery-ci-workflows runner drives (section 5 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions.
 
 ## Apply
 
@@ -39,5 +39,5 @@ Table or grid ARIA APG pattern per interactivity (ADR-1801); sortable columns ke
 ## Known mechanism-reach gaps
 
 - **Framework-agnostic focus containment.** The pack asserts focus return to the originating row on dialog close, but cannot prove a given framework's focus trap never leaks into the browser chrome; a project-side keyboard smoke supplement per applied framework closes the class.
-- **Chart-adjacent chart integration.** A datatable that renders a per-row sparkline (`application-charts` chart-style) is not covered by the datatable pack; the `application-charts` blueprint's own probe pack (visual round) reaches those surfaces.
+- **Chart-adjacent chart integration.** A datatable that renders a per-row sparkline (`application-charts` chart-style) is not covered by the datatable pack; the `application-charts` blueprint's own probe pack reaches those surfaces.
 - **Live-region debouncing on rapid filter typing.** Per-keystroke pagination announcements can flood assistive tech; the pack asserts the announcement fires, not the debounce. A v1.1 minor bump candidate adds a check for a bounded announcement rate.

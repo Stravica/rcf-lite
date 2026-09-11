@@ -25,7 +25,7 @@
     },
     {
       "id": "AC-2102-2",
-      "description": "Property names follow the project's declared casing (camelCase unless configured otherwise) on every request and response body, with zero mixed-casing endpoints. Applying agent sets: the project-specific bindings, routes, thresholds, budgets, and names named in the assertion.",
+      "description": "Property names follow the project's declared casing (camelCase unless configured otherwise) on every request and response body, with zero mixed-casing endpoints. Applying agent sets: the declared property-name casing (default camelCase) recorded on the OpenAPI generator configuration, and any per-endpoint casing overrides.",
       "given": "the schemas in the generated OpenAPI spec",
       "when": "every property name is checked against the declared casing rule",
       "then": "no property deviates from the declared casing",
