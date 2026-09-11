@@ -88,8 +88,7 @@ export async function loadShippedAcIds(blueprintRoot) {
     try { story = JSON.parse(await readFile(join(dir, name), 'utf8')); }
     catch { continue; }
     const usId = typeof story.usId === 'string' ? story.usId : '';
-    // Slug is the story-id text before `-US-<n>` (e.g.
-    // `security-auth-clerk-US-9112` -> `security-auth-clerk`).
+    // Slug is the story-id text before the final `-US-<n>` segment.
     const slugMatch = /^(.+)-US-\d+$/.exec(usId);
     const slug = slugMatch ? slugMatch[1] : null;
     const acs = Array.isArray(story.acceptanceCriteria) ? story.acceptanceCriteria : [];
