@@ -272,10 +272,11 @@ test('four amended auth blueprints declare the ratified capability sets and obse
 
 // Criterion-e (positive-evidence) probe pack pins. The pack lives at
 // blueprints/application-account-settings/contributions/probes/. Every probe file
-// listed here must exist, its run wrapper must exist, and (when the
-// probe has already been executed against the fixture) its run
-// record in .rcf/reports/ must carry an evidence object of one of
-// the four rule-7d shapes on every result row.
+// listed here must exist, its run wrapper must exist, and when the
+// anatomy suite invokes each probe module in-memory the returned
+// results[] rows must satisfy one of the four rule-7d shapes on every
+// row. The anatomy test never reads .rcf/reports/ and never writes a
+// report file; the probe invocation loop lives inside the test.
 
 test('application-account-settings contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
   const contribRoot = join(REPO_ROOT, 'blueprints', 'application-account-settings', 'contributions', 'probes');
@@ -307,39 +308,32 @@ async function loadContributedAnchorIds(blueprintRoot, slug) {
   return ids;
 }
 
-test('application-account-settings criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
-  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-account-settings');
+test('application-account-settings criterion-e probes invoked in-memory carry rule-7d evidence rows (TC-criterion-e-evidence-shape)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-account-settings', 'contributions', 'probes');
+  const probeNames = ['shell-tablist-per-capability', 'profile-form-autocomplete', 'sessions-surface-shape', 'sessions-adapter-uniform', 'theme-radiogroup'];
   const validAnchorIds = await loadContributedAnchorIds(BLUEPRINT_ROOT, 'application-account-settings');
-  let entries = [];
-  try {
-    const { readdir } = await import('node:fs/promises');
-    entries = await readdir(reportsDir);
-  } catch (_) {
-    // Reports must exist for this check to mean anything (the
-    // run-record inspection rule: the check runner reads the
-    // records; so do you). A missing reports directory is a fail:
-    // run 'pnpm test:blueprint-probes' or 'node blueprints/application-account-settings/contributions/probes/run-*.mjs'
-    // before the anatomy suite.
-    assert.fail('reports directory absent: ' + reportsDir + ' - run the probes first');
-  }
-  const jsonEntries = entries.filter((f) => f.endsWith('.json'));
-  assert.ok(jsonEntries.length > 0, 'no report files in ' + reportsDir);
-  for (const filename of jsonEntries) {
-    const raw = await readFile(join(reportsDir, filename), 'utf8');
-    const doc = JSON.parse(raw);
-    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
-    assert.notEqual(doc.aggregateVerdict, 'fail', filename + ' aggregateVerdict=fail');
-    for (const r of doc.results) {
-      // "unknown" is refused; ANY non-null anchor MUST exist in the
-      // blueprint's shipped user stories / requirements. Null anchor
-      // is only acceptable on conformance-only or exception-fallback
-      // rows.
-      assert.notEqual(r.anchorAcId, 'unknown', filename + ' carries anchorAcId="unknown"');
+  for (const name of probeNames) {
+    const mod = await import(pathToFileURL(join(probesDir, name + '.mjs')).href);
+    const runProbe = mod.default;
+    assert.equal(typeof runProbe, 'function', name + ': probe module must default-export a runProbe function');
+    let outcome;
+    try {
+      outcome = await runProbe();
+    } catch (err) {
+      const message = err && err.message ? err.message : String(err);
+      assert.fail(name + ': runProbe threw ' + message);
+    }
+    const results = outcome && Array.isArray(outcome.results) ? outcome.results : null;
+    assert.ok(results && results.length > 0, name + ' returned no results[]');
+    const failRow = results.find((r) => r && r.verdict === 'fail');
+    assert.equal(failRow, undefined, name + ' has a fail-verdict row');
+    for (const r of results) {
+      assert.notEqual(r.anchorAcId, 'unknown', name + ' carries anchorAcId="unknown"');
       if (typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
-        assert.ok(validAnchorIds.has(r.anchorAcId), filename + ' anchorAcId=' + r.anchorAcId + ' is not a shipped AC or REQ id');
+        assert.ok(validAnchorIds.has(r.anchorAcId), name + ' anchorAcId=' + r.anchorAcId + ' is not a shipped AC or REQ id');
       }
       if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
-        assert.ok(validAnchorIds.has(r.notObservableAcId), filename + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
+        assert.ok(validAnchorIds.has(r.notObservableAcId), name + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
       }
       const ev = r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
       const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
@@ -354,7 +348,7 @@ test('application-account-settings criterion-e run records carry rule-7d evidenc
       const isConformanceOnly = r.conformanceOnly === true
         && (r.anchorAcId === null || r.anchorAcId === undefined)
         && typeof r.limitation === 'string' && r.limitation.length > 0;
-      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
+      assert.ok(hasEvidenceObject || isHonestSkip || isNotObservableHere || isConformanceOnly, name + ' row ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object, no honest skip, no notObservableHere and no conformanceOnly');
     }
   }
 });

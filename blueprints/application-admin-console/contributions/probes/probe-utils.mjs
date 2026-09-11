@@ -122,7 +122,7 @@ export function aggregate(results) {
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   // notObservableHere rows document AC halves that cannot be observed by
-  // this probe (browser-only, per Addendum 3 rule 11). They do NOT
+  // this probe (a browser-only clause of the AC). They do NOT
   // contribute to the aggregate: the aggregate answers "did any
   // positive-evidence observation land here", not "is every AC clause
   // observable here". The amber-on-the-shelf verdict for each

@@ -260,7 +260,7 @@ test('extended admin-console pack fixture flips sign-in surface per applied capa
     // header as the request.auth stand-in), the sign-in surface renders
     // the Access-gated view with a principal-read element.
     const gated = await fetch(`${url}/admin/sign-in?caps=principalDirectory,roleModel,auditLog,zeroTrustGate`, {
-      headers: { authorization: 'Bearer probe-signin@example.test' },
+      headers: { authorization: 'Principal probe-signin@example.test' },
     });
     const gatedBody = await gated.text();
     assert.equal(gated.status, 200);
@@ -319,7 +319,7 @@ test('admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination
         // route serves the local-login surface with no auth required.
         async goto(target) {
           const headers = /zeroTrustGate/.test(target)
-            ? { authorization: 'Bearer probe-signin@example.test' }
+            ? { authorization: 'Principal probe-signin@example.test' }
             : undefined;
           this._body = await (await fetch(target, { headers })).text();
         },

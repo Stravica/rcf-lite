@@ -51,7 +51,7 @@ async function fetchDom(url, caps) {
   // so the fixture observes request.auth as populated (AC-21815-1).
   // Without zeroTrustGate no auth is required (AC-21816-1 fallback).
   const headers = /zeroTrustGate/.test(caps)
-    ? { authorization: 'Bearer probe-cf-access@example.test' }
+    ? { authorization: 'Principal probe-cf-access@example.test' }
     : undefined;
   const res = await fetch(target, { headers });
   return { status: res.status, body: await res.text(), target };
