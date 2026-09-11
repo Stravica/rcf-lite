@@ -170,15 +170,47 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_CONTAINER/);
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_PORT/);
   // Anatomy check on 7d evidence shape: every persistence-data-postgres
-  // probe attaches an evidence bag on its result rows (authoring
-  // standard section 7d, Addendum rule 3 of 2026-09-11).
+  // probe attaches an evidence bag on its result rows OR records an
+  // honest accountBoundSkipped skip (authoring standard section 7d,
+  // Addendum rule 3 of 2026-09-11, per-row rule of the 2026-09-11
+  // follow-up review). When a run record is present under
+  // `.rcf/reports/blueprints/<slug>/<probe>.json`, EVERY result row is
+  // validated in-place: verdict is one of {pass, warn, fail}, the row
+  // carries either an `evidence` object with at least one key OR
+  // `accountBoundSkipped: true` with a non-empty `reason`, and the
+  // aggregate is `pass`. When no run record is present the anatomy
+  // falls back to a per-source lexical check as a floor.
   for (const name of [
     'facade-round-trip', 'migration-apply', 'prepared-statement-scan',
     'transaction-atomicity', 'recovery-restore-round-trip', 'pool-posture-smoke',
   ]) {
     const src = await readFile(join(REPO_ROOT, 'blueprints', 'persistence-data-postgres', 'contributions', 'probes', `${name}.mjs`), 'utf8');
-    assert.ok(/evidence:\s*\{/.test(src),
-      `probe ${name}.mjs must attach an evidence bag on its result rows`);
+    assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
+      `probe ${name}.mjs must attach an evidence bag or an accountBoundSkipped honest skip on every result row`);
+    // If a report exists (probe was run locally), validate every row.
+    const reportPath = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'persistence-data-postgres', `${name}.json`);
+    try {
+      const raw = await readFile(reportPath, 'utf8');
+      const rep = JSON.parse(raw);
+      assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
+        `run record ${name}.json must carry a non-empty results[] (Addendum rule 3)`);
+      for (const row of rep.results) {
+        assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
+          `row anchored to ${row.anchorAcId || row.anchorReqId} in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
+        const anchor = row.anchorAcId || row.anchorReqId;
+        assert.ok(anchor && typeof anchor === 'string',
+          `every row in ${name}.json must anchor an AC or REQ (no bare "unknown"); saw ${JSON.stringify(row)}`);
+        assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (Addendum rule 1)`);
+        const evOk = row.evidence && typeof row.evidence === 'object' && Object.keys(row.evidence).length > 0;
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
+        assert.ok(evOk || skipOk,
+          `row anchored to ${anchor} in ${name}.json must carry either a non-empty evidence object OR an accountBoundSkipped true + reason (7d rule); saw ${JSON.stringify(row).slice(0, 200)}`);
+      }
+      assert.equal(rep.aggregateVerdict, 'pass',
+        `run record ${name}.json aggregateVerdict must be pass, saw ${rep.aggregateVerdict}`);
+    } catch (err) {
+      if (err.code !== 'ENOENT' && !err.message.includes('no such file')) throw err;
+    }
   }
   // Recovery probe must call the shipped exportDatabase runner (not
   // shell out to pg_dump directly) so the backupExported event is

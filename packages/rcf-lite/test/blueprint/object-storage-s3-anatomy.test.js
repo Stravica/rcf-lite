@@ -212,7 +212,10 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   // Anatomy check on 7d evidence shape: every object-storage-s3 probe
   // module attaches an evidence bag on its result rows or records an
   // accountBoundSkipped honest skip (authoring standard section 7d,
-  // Addendum rule 3 of 2026-09-11).
+  // Addendum rule 3 of 2026-09-11; per-row rule of the 2026-09-11
+  // follow-up review). When a run record is present under
+  // `.rcf/reports/blueprints/<slug>/<probe>.json`, EVERY result row is
+  // validated in-place.
   for (const name of [
     'facade-round-trip', 'put-get-round-trip', 'presigned-url',
     'multipart-upload', 'event-secrecy', 'r2-real-account-smoke',
@@ -221,6 +224,29 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     const src = await readFile(join(REPO_ROOT, 'blueprints', 'object-storage-s3', 'contributions', 'probes', `${name}.mjs`), 'utf8');
     assert.ok(/evidence:\s*\{|accountBoundSkipped:\s*true/.test(src),
       `probe ${name}.mjs must attach evidence per result or record an accountBoundSkipped honest skip`);
+    const reportPath = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'object-storage-s3', `${name}.json`);
+    try {
+      const raw = await readFile(reportPath, 'utf8');
+      const rep = JSON.parse(raw);
+      assert.ok(Array.isArray(rep.results) && rep.results.length > 0,
+        `run record ${name}.json must carry a non-empty results[] (Addendum rule 3)`);
+      for (const row of rep.results) {
+        assert.ok(['pass', 'warn', 'fail'].includes(row.verdict),
+          `row anchored to ${row.anchorAcId || row.anchorReqId} in ${name}.json must have verdict in {pass, warn, fail}, saw ${row.verdict}`);
+        const anchor = row.anchorAcId || row.anchorReqId;
+        assert.ok(anchor && typeof anchor === 'string',
+          `every row in ${name}.json must anchor an AC or REQ`);
+        assert.notEqual(anchor, 'unknown', `row in ${name}.json anchors "unknown" (Addendum rule 1)`);
+        const evOk = row.evidence && typeof row.evidence === 'object' && Object.keys(row.evidence).length > 0;
+        const skipOk = row.accountBoundSkipped === true && typeof row.reason === 'string' && row.reason.length > 0;
+        assert.ok(evOk || skipOk,
+          `row anchored to ${anchor} in ${name}.json must carry either a non-empty evidence object OR an accountBoundSkipped true + reason (7d rule)`);
+      }
+      assert.equal(rep.aggregateVerdict, 'pass',
+        `run record ${name}.json aggregateVerdict must be pass, saw ${rep.aggregateVerdict}`);
+    } catch (err) {
+      if (err.code !== 'ENOENT' && !err.message.includes('no such file')) throw err;
+    }
   }
 });
 
