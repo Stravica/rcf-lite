@@ -53,8 +53,10 @@ const DEPLOY_KEYS = ['deployId', 'deploymentUrl'];
 // Limitation must open with a shipped AC id. `AC-<num>-<num>` bare, or
 // prefixed by a slug segment. A `REQ-` prefix is rejected: REQ ids are
 // not shipped acceptance criteria and cannot stand in as a limitation
-// anchor.
-const LIM_ANCHOR_RE = /^(?:([a-z][a-z0-9-]*)-)?(AC-\d+-\d+)/;
+// anchor. The AC id must be followed by end of string or a non
+// word/hyphen delimiter so a suffix like `AC-9107-1bogus` or
+// `AC-9107-1-extra` cannot slip through.
+const LIM_ANCHOR_RE = /^(?:([a-z][a-z0-9-]*)-)?(AC-\d+-\d+)(?![\w-])/;
 
 function truthy(v) {
   if (v === undefined || v === null) return false;
@@ -129,11 +131,16 @@ export function classifyShape(row, opts = {}) {
     if (shippedAcIds) {
       const slugPrefix = m[1] || null;
       const bare = m[2];
-      const full = slugPrefix ? `${slugPrefix}-${bare}` : null;
-      const hitBare = shippedAcIds.has(bare);
-      const hitFull = full ? shippedAcIds.has(full) : false;
-      if (!hitBare && !hitFull) {
-        return { shape: 'conformanceOnly', ok: false, why: `conformanceOnly limitation opens with ${full || bare} which does not name a shipped acceptance criterion on this blueprint's user stories` };
+      // A prefixed input must match the full slug-qualified id in the
+      // shipped set. Matching only the bare AC would let a wrong slug
+      // paired with a real bare AC slip through.
+      if (slugPrefix) {
+        const full = `${slugPrefix}-${bare}`;
+        if (!shippedAcIds.has(full)) {
+          return { shape: 'conformanceOnly', ok: false, why: `conformanceOnly limitation opens with ${full} which does not name a shipped acceptance criterion on this blueprint's user stories` };
+        }
+      } else if (!shippedAcIds.has(bare)) {
+        return { shape: 'conformanceOnly', ok: false, why: `conformanceOnly limitation opens with ${bare} which does not name a shipped acceptance criterion on this blueprint's user stories` };
       }
     }
     return { shape: 'conformanceOnly', ok: true };

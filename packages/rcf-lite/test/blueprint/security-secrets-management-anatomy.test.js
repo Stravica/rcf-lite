@@ -7,7 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { assertShape, loadShippedAcIds } from './_security-e-anatomy-shape.mjs';
+import { assertShape, classifyShape, loadShippedAcIds } from './_security-e-anatomy-shape.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -24,6 +24,19 @@ const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 // acceptance criterion on this blueprint's user stories.
 const SHIPPED_ACS = await loadShippedAcIds(BLUEPRINT_ROOT);
 function assertEvidenceOrSkip(r, ctx = '') { assertShape(r, ctx, { shippedAcIds: SHIPPED_ACS }); }
+
+// Negative anatomy assertions. The shipped-AC gate must refuse a
+// limitation whose opening id is fabricated, wears the wrong slug on
+// a real bare AC, or trails garbage after the AC number.
+test('security-secrets-management anatomy: helper refuses fabricated AC ids in limitation', () => {
+  const opts = { shippedAcIds: SHIPPED_ACS };
+  const unknown = classifyShape({ conformanceOnly: true, anchorAcId: null, limitation: 'AC-99999-1: fabricated bare id' }, opts);
+  assert.equal(unknown.ok, false, 'unknown bare AC must be refused');
+  const wrongSlug = classifyShape({ conformanceOnly: true, anchorAcId: null, limitation: 'wrong-slug-AC-8102-1: real bare id under a fake slug' }, opts);
+  assert.equal(wrongSlug.ok, false, 'wrong-slug prefix on a real bare AC must be refused');
+  const suffixed = classifyShape({ conformanceOnly: true, anchorAcId: null, limitation: 'security-secrets-management-AC-8102-1bogus: trailing garbage after the AC id' }, opts);
+  assert.equal(suffixed.ok, false, 'trailing characters after the AC number must be refused');
+});
 
 
 test('security-secrets-management pack: expected probe files present', async () => {
