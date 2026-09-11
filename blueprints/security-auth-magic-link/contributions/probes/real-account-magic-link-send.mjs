@@ -1,40 +1,34 @@
-// Real-account magic-link send probe. Uses the Resend HTTP API
-// (https://api.resend.com/emails, docs
-// https://resend.com/docs/api-reference/emails/send-email verifiedOn
-// 2026-09-11) to send a magic-link email to Resend's documented
-// sandbox recipient `delivered@resend.dev` (per
-// https://resend.com/docs/dashboard/emails/send-test-emails
-// verifiedOn 2026-09-11) from the vendor's sandbox sender
-// `onboarding@resend.dev`. The sandbox recipient guarantees Resend
-// routes the message through its accepted-and-simulated path
-// without reaching a real mailbox.
+// Real-account magic-link send probe. Exercises AC-3110-1 (the
+// email-delivery-adapter contract) end-to-end against a real Resend
+// binding. The probe issues a real magic-link token via the fixture
+// manager, constructs the sign-in URL, and hands the message to the
+// fixture's `email-delivery-adapter` whose default binding is Resend.
+// The probe inspects the adapter's returned shape (`{ ok,
+// providerStatus, providerMessageId, error }`) -- the ONLY surface the
+// magic-link routes and managers talk to per AC-3110-1 -- and then
+// verifies the token locally so the end-to-end shape (issue + send-
+// through-adapter + verify) is exercised in a single run.
 //
-// Positive evidence recorded per rule 7d: the Resend-assigned email
-// id returned in the response body (`{ id: "..." }` per the API
-// reference), the HTTP status code, and the request id header
-// Resend returns on every response. The email id is the created-
-// resource id in rule 7d shape 3.
+// Positive evidence per rule 7d: the Resend-assigned `providerMessageId`
+// returned by the adapter (created-resource id), the adapter's
+// `providerStatus` HTTP code, and the `requestId` header the adapter
+// captures. All three are read off the adapter's return, not off a
+// direct vendor call -- the AC's surface is the adapter, not Resend.
 //
-// Also drives the fixture magic-link manager to issue the actual
-// token that lands in the email body, then verifies it locally so
-// the end-to-end shape (issue + send + verify) is exercised in one
-// probe run.
-//
-// capability: principalDirectory (magic-link send + verify is the
-//   round-trip verb).
-// Anchor (per closure): AC-3110-1 (email-delivery adapter's send
-//   returns { ok, providerStatus, providerMessageId, error }; the
-//   Resend response id is the providerMessageId shape the AC
-//   asserts). REQ-010 covers the pluggable email-adapter
-//   contract this smoke exercises.
+// capability: principalDirectory.
+// Anchor: AC-3110-1 (email-delivery-adapter's send returns
+// `{ ok, providerStatus, providerMessageId, error }`; the routes
+// and managers invoke ONLY the declared method with ONLY the
+// declared arguments and consume ONLY the declared fields).
+// engine: resend (live) or skip:CI_HAS_RESEND_ACCOUNT.
 // accountBound: true.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  DECLARED_ENV, accountBoundSkippedResult,
-  RESEND_SANDBOX_FROM_DEFAULT, RESEND_SANDBOX_TO_DEFAULT, RESEND_API_BASE_URL_DEFAULT,
+ DECLARED_ENV, accountBoundSkippedResult,
+ RESEND_SANDBOX_FROM_DEFAULT, RESEND_SANDBOX_TO_DEFAULT, RESEND_API_BASE_URL_DEFAULT,
 } from './probe-utils.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -44,101 +38,110 @@ export const anchorAcId = 'security-auth-magic-link-AC-3110-1';
 export const capability = 'principalDirectory';
 export const accountBound = true;
 
-function pickRequestId(headers) {
-  return headers.get('x-request-id') || headers.get('cf-ray') || null;
+function gateResult(varName, value) {
+ if (value === undefined || value === '') return { kind: 'unset', reason: varName };
+ if (value !== 'true') return { kind: 'set-not-true', reason: `${varName}_SET_NOT_TRUE`, observedValue: value };
+ return { kind: 'true' };
 }
 
 export default async function runProbe() {
-  const gateVal = process.env.CI_HAS_RESEND_ACCOUNT;
-  if (gateVal === undefined || gateVal === '') {
-    return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_RESEND_ACCOUNT')],
-      extra: { accountBoundSkipped: true, reason: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
-    };
-  }
-  if (gateVal !== 'true') {
-    return {
-      results: [{
-        anchorAcId, capability, verdict: 'fail',
-        detail: `AC-3110-1: CI_HAS_RESEND_ACCOUNT is set to "${gateVal}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
-        evidence: { gate: 'CI_HAS_RESEND_ACCOUNT', observedValue: gateVal, expected: 'true' },
-      }],
-      extra: { gateMisconfigured: true, gate: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
-    };
-  }
-  if (!process.env.RESEND_API_KEY) {
-    return {
-      results: [accountBoundSkippedResult(anchorAcId, capability, 'RESEND_API_KEY')],
-      extra: { accountBoundSkipped: true, reason: 'RESEND_API_KEY', envDeclared: [...DECLARED_ENV] },
-    };
-  }
+ const gate = gateResult('CI_HAS_RESEND_ACCOUNT', process.env.CI_HAS_RESEND_ACCOUNT);
+ if (gate.kind === 'unset') {
+ return {
+ results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_RESEND_ACCOUNT')],
+ extra: { accountBoundSkipped: true, reason: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
+ };
+ }
+ if (gate.kind === 'set-not-true') {
+ return {
+ results: [{
+ anchorAcId, capability, verdict: 'fail',
+ detail: `AC-3110-1: CI_HAS_RESEND_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+ evidence: { gate: 'CI_HAS_RESEND_ACCOUNT', observedValue: gate.observedValue, expected: 'true' },
+ }],
+ extra: { gateMisconfigured: true, gate: 'CI_HAS_RESEND_ACCOUNT', envDeclared: [...DECLARED_ENV] },
+ };
+ }
+ if (!process.env.RESEND_API_KEY) {
+ return {
+ results: [accountBoundSkippedResult(anchorAcId, capability, 'RESEND_API_KEY')],
+ extra: { accountBoundSkipped: true, reason: 'RESEND_API_KEY', envDeclared: [...DECLARED_ENV] },
+ };
+ }
 
-  const baseUrl = process.env.RESEND_API_BASE_URL || RESEND_API_BASE_URL_DEFAULT;
-  const from = process.env.RESEND_SANDBOX_FROM || RESEND_SANDBOX_FROM_DEFAULT;
-  const to = process.env.RESEND_SANDBOX_TO || RESEND_SANDBOX_TO_DEFAULT;
+ const baseUrl = process.env.RESEND_API_BASE_URL || RESEND_API_BASE_URL_DEFAULT;
+ const from = process.env.RESEND_SANDBOX_FROM || RESEND_SANDBOX_FROM_DEFAULT;
+ const to = process.env.RESEND_SANDBOX_TO || RESEND_SANDBOX_TO_DEFAULT;
 
-  const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, from, to, calls: [] };
-  const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
+ const evidence = { envDeclared: [...DECLARED_ENV], baseUrl, from, to };
+ const resultRow = { anchorAcId, capability, verdict: 'fail', detail: '', evidence: {} };
 
-  try {
-    // Local: issue a real magic-link token for the recipient.
-    const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);
-    const mgr = createMagicLinkManager({ ttlSeconds: 900 });
-    const issued = await mgr.issue({ emailAddress: to });
-    const magicLink = `https://app.example.com/auth/magic?token=${encodeURIComponent(issued.token)}`;
+ try {
+ const { createMagicLinkManager } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'magic-link-manager.mjs')).href);
+ const { createResendAdapter } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'email-delivery-adapter.mjs')).href);
 
-    // Send the email via Resend.
-    const res = await fetch(`${baseUrl}/emails`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: 'QA-e-magic-link-send probe',
-        text: `Sign in to your account by opening this magic link: ${magicLink}\n\nIf you did not request this, ignore this email.`,
-      }),
-    });
-    const requestId = pickRequestId(res.headers);
-    const text = await res.text();
-    let payload = null; try { payload = JSON.parse(text); } catch {}
-    evidence.calls.push({ verb: 'POST /emails', status: res.status, requestId, resourceId: payload && payload.id });
+ // 1. Local manager mints a real single-use token.
+ const mgr = createMagicLinkManager({ ttlSeconds: 900 });
+ const issued = await mgr.issue({ emailAddress: to });
+ const magicLink = `https://app.example.com/auth/magic?token=${encodeURIComponent(issued.token)}`;
 
-    // Verify the token locally to prove the end-to-end shape.
-    const verified = await mgr.verify({ token: issued.token, emailAddress: to });
+ // 2. Send through the adapter (Resend binding). The probe calls
+ // ONLY the adapter's declared method with ONLY the declared
+ // arguments -- no direct vendor call.
+ const adapter = createResendAdapter({ apiKey: process.env.RESEND_API_KEY, baseUrl, from });
+ const outcome = await adapter.send({
+ to,
+ subject: 'QA-e-magic-link-send probe',
+ textBody: `Sign in to your account by opening this magic link: ${magicLink}\n\nIf you did not request this, ignore this email.`,
+ });
 
-    const emailIdOk = res.ok && payload && typeof payload.id === 'string' && payload.id.length > 0;
-    const verifyOk = verified.ok;
+ // 3. Local verify -- proves the end-to-end shape (issue + send-through-adapter + verify).
+ const verified = await mgr.verify({ token: issued.token, emailAddress: to });
 
-    if (emailIdOk && verifyOk) {
-      resultRow.verdict = 'pass';
-      resultRow.detail =
-        `AC-3110-1 (email adapter returns providerMessageId shape): local issue produced token (${issued.token.length}c base64url); ` +
-        `Resend POST /emails from=${from} to=${to} status=${res.status} requestId=${requestId} providerMessageId=${payload.id}; ` +
-        `local verify consumed the token (single-use) and returned ok=true.`;
-      resultRow.evidence = {
-        providerMessageId: payload.id,
-        providerStatus: res.status,
-        requestId,
-        from, to,
-        localVerifyOk: true,
-        localTokenLen: issued.token.length,
-      };
-      evidence.providerMessageId = payload.id;
-      evidence.status = res.status;
-      evidence.requestId = requestId;
-      evidence.verifyOk = true;
-    } else {
-      resultRow.detail = `AC-3110-1 failure: sendOk=${res.ok} status=${res.status} requestId=${requestId} bodyExcerpt=${text.slice(0, 200)} verifyOk=${verifyOk}`;
-      resultRow.evidence = { providerStatus: res.status, requestId, sendOk: res.ok, localVerifyOk: verifyOk };
-    }
-  } catch (err) {
-    resultRow.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
-    resultRow.evidence = { threw: err && err.message ? err.message : String(err) };
-    evidence.threw = err && err.message ? err.message : String(err);
-  }
-  return { results: [resultRow], extra: evidence };
+ // AC-3110-1 shape observation: the outcome has exactly the
+ // declared field surface (`ok`, `providerStatus`,
+ // `providerMessageId`, `error`) and the ok path returns a
+ // provider-assigned message id.
+ const declaredKeys = ['ok', 'providerStatus', 'providerMessageId', 'error'];
+ const outcomeKeys = Object.keys(outcome).sort();
+ const extraKeys = outcomeKeys.filter((k) => !declaredKeys.includes(k));
+ // `requestId` is allowed as a diagnostic side-channel on the
+ // adapter's returned shape (documented in the adapter comment);
+ // any OTHER extra field would be a shape violation.
+ const shapeOk = extraKeys.every((k) => k === 'requestId');
+ const adapterOk = outcome && outcome.ok === true && typeof outcome.providerMessageId === 'string' && outcome.providerMessageId.length > 0 && typeof outcome.providerStatus === 'number';
+ const verifyOk = verified.ok;
+
+ if (adapterOk && shapeOk && verifyOk) {
+ resultRow.verdict = 'pass';
+ resultRow.detail =
+ `AC-3110-1 (adapter.send returns { ok, providerStatus, providerMessageId, error } shape end-to-end via the shipped adapter): ` +
+ `outcome.ok=true providerMessageId=${outcome.providerMessageId} providerStatus=${outcome.providerStatus} ` +
+ `(requestId=${outcome.requestId || 'n/a'}); local verify consumed the token single-use and returned ok=true.`;
+ resultRow.evidence = {
+ providerMessageId: outcome.providerMessageId,
+ providerStatus: outcome.providerStatus,
+ requestId: outcome.requestId || null,
+ adapterKind: adapter.kind,
+ outcomeKeys,
+ outcomeShapeOk: shapeOk,
+ from, to,
+ localVerifyOk: true,
+ localTokenLen: issued.token.length,
+ };
+ Object.assign(evidence, {
+ providerMessageId: outcome.providerMessageId,
+ providerStatus: outcome.providerStatus,
+ requestId: outcome.requestId || null,
+ });
+ } else {
+ resultRow.detail = `AC-3110-1 failure: outcome.ok=${outcome && outcome.ok} shapeOk=${shapeOk} extraKeys=${JSON.stringify(extraKeys)} providerMessageId=${outcome && outcome.providerMessageId} providerStatus=${outcome && outcome.providerStatus} error=${outcome && outcome.error} verifyOk=${verifyOk}`;
+ resultRow.evidence = { outcome, outcomeKeys, shapeOk, verifyOk };
+ }
+ } catch (err) {
+ resultRow.detail = `probe threw: ${err && err.message ? err.message : String(err)}`;
+ resultRow.evidence = { threw: err && err.message ? err.message : String(err) };
+ evidence.threw = err && err.message ? err.message : String(err);
+ }
+ return { results: [resultRow], extra: evidence };
 }

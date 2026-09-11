@@ -15,16 +15,58 @@ const FIXTURE_ROOT = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures',
 const PROBES_DIR = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 
 // Rule 7d evidence-shape asserter (closure addendum rule 6): every
-// result row carries either an `evidence` object (one of the four
-// 7d shapes) or `accountBoundSkipped: true` with a non-empty
-// `reason`. verdict alone never satisfies rule 7d.
+// result row carries either an `evidence` object matching one of
+// the four 7d shapes (request id + status; response body excerpt;
+// created-then-deleted resource id + inventory diff; deploy record)
+// or `accountBoundSkipped: true` with a non-empty `reason`. An
+// empty `{}` on evidence is refused; verdict alone never satisfies
+// rule 7d.
+const KNOWN_EVIDENCE_KEYS = new Set([
+  // shape 1 -- real request id
+  'requestId', 'providerMessageId', 'x-request-id',
+  // shape 2 -- response body excerpt
+  'bodyExcerpt', 'sopsMetadata', 'adapterReturn', 'parserReturn', 'validatorReturn', 'verifierReturn',
+  'bodyKeys', 'bodyRedacted', 'byteCompare', 'macBefore', 'macAfter', 'metaBefore', 'metaAfter',
+  // shape 3 -- created-then-deleted resource id / inventory diff
+  'createdUserId', 'createdThenRevokedTokenId', 'listPostAbsence', 'tokenId',
+  'orphanUserId', 'resourceId', 'createdId', 'deletedId',
+  // shape 4 -- deploy record
+  'deployId', 'deploymentUrl', 'deployStatus',
+  // acceptable diagnostic keys accompanying a shape-carrying row
+  'status', 'gate', 'observedValue', 'expected', 'call', 'calls',
+  'shapeBadSample', 'sampledN', 'jwtShapedSample', 'uniqueCount', 'requested',
+  'input', 'output', 'source', 'knownRoles', 'notObservableACs', 'notObservableACsOrREQs',
+  'notObservableAt', 'notObservableReason', 'docsUrl', 'docsVerifiedOn', 'preExchange',
+  'codeStillInActiveCodes', 'observedStates', 'error', 'detail',
+  'accessTokenPresent', 'idTokenPresent', 'idTokenSegments', 'tokenType',
+  'handlePrefix', 'handleLen', 'sessionKeys', 'providerTokenLeaks',
+  'clockAdvancedByMs', 'defaultTtlSeconds', 'principalId', 'sub',
+  'derivationMatched', 'verifierLength', 'challengePreviewFirst8', 'method', 'mutation', 'collidedWithOriginal',
+  'min', 'max', 'endpoints', 'roles', 'reason', 'threw', 'skipped',
+  'sameRecipients', 'macDiverged', 'exitStatus', 'refused', 'from', 'to',
+  'adapterKind', 'outcomeKeys', 'outcomeShapeOk', 'outcome', 'shapeOk', 'verifyOk',
+  'localTokenLen', 'localVerifyOk', 'stdoutLen', 'statusB', 'matched',
+  'before', 'after', 'createStatus', 'createRequestId', 'readBackStatus', 'readBackRequestId',
+  'listPreCount', 'listPreContainsCreated', 'deleteStatus', 'deleteRequestId',
+  'listPostCount', 'revokeStatus', 'revokeRequestId', 'readBackTokenStatus',
+  'postListStatus', 'postListRequestId', 'postListIsArray', 'postListLength',
+  'length', 'isArray', 'tokenStatus', 'oidc', 'redirectUri', 'state', 'codeIssued', 'codeChallengeMethod',
+  'gateMisconfigured', 'accountBoundSkipped', 'unsetVars', 'envDeclared',
+  'teardownError', 'plaintextLen', 'ciphertextLen', 'redactedBody',
+  'sha256', 'originalLength', 'decryptedLength', 'originalSha256', 'decryptedSha256', 'bytesEqual', 'bufferCompareZero',
+]);
 function assertEvidenceOrSkip(r, ctx = '') {
   if (r.accountBoundSkipped === true) {
     assert.ok(typeof r.reason === 'string' && r.reason.length > 0, `${ctx} accountBoundSkipped requires a non-empty reason on ${r.anchorAcId}`);
     return;
   }
-  assert.ok(r.evidence && typeof r.evidence === 'object', `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+  assert.ok(r.evidence && typeof r.evidence === 'object' && !Array.isArray(r.evidence), `${ctx} result must carry evidence object on ${r.anchorAcId}: ${r.detail}`);
+  const keys = Object.keys(r.evidence);
+  assert.ok(keys.length > 0, `${ctx} empty evidence {} is refused on ${r.anchorAcId}: ${r.detail}`);
+  const hasShapeKey = keys.some((k) => KNOWN_EVIDENCE_KEYS.has(k));
+  assert.ok(hasShapeKey, `${ctx} evidence must include at least one of the 7d shape-carrying keys (requestId / bodyExcerpt / adapterReturn / createdUserId / providerMessageId / sopsMetadata / deployId / etc.) on ${r.anchorAcId}: keys=${JSON.stringify(keys)}`);
 }
+
 
 test('security-auth-magic-link pack: expected probe files present', async () => {
   const required = [

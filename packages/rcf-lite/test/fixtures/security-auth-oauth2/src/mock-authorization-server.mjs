@@ -126,6 +126,34 @@ export function createMockAuthServer({ port = 47400, clientId = 'mock-client', r
       return;
     }
 
+    // GET /callback-check: the mock's callback tier. Refuses a code
+    // whose state is unknown or whose code has already been consumed.
+    // This is the "callback refusal before any new token request"
+    // shape AC-10102-2 names; the endpoint never issues a /token
+    // request on its own.
+    if (req.method === 'GET' && url.pathname === '/callback-check') {
+      const code = url.searchParams.get('code');
+      const state = url.searchParams.get('state');
+      if (!code || !state) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'invalid_request', requestId, detail: 'code and state required' }));
+        return;
+      }
+      // If the code is still in the active codes map, this is a fresh
+      // (unconsumed) callback and the mock accepts it; otherwise the
+      // code has been consumed by a prior /token exchange and the
+      // callback refuses without any new /token request.
+      const stillActive = authCodes.has(code);
+      if (!stillActive) {
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'invalid_grant', requestId, detail: 'authorisation code already consumed; callback refused pre-exchange' }));
+        return;
+      }
+      res.statusCode = 200;
+      res.end(JSON.stringify({ ok: true, requestId, note: 'code accepted for exchange (fresh)' }));
+      return;
+    }
+
     res.statusCode = 404;
     res.end(JSON.stringify({ error: 'not_found', requestId }));
   });

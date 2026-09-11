@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PROJECT_ROOT = resolve(HERE, '..', '..', '..', '..');
+export const SLUG = 'security-auth-oauth2';
 export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixtures/security-auth-oauth2');
 export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/security-auth-oauth2');
 
@@ -35,6 +36,61 @@ export const DECLARED_ENV = Object.freeze([
 
 export const MOCK_PORT_RANGE = { min: 47400, max: 47449 };
 
+// First-8-words-of-anchor helper. Each result row's `detail` starts
+// with the first eight words of the anchored AC's or REQ's
+// description text. Anchor lookup walks contributions/user-stories/
+// and contributions/requirements/ under the blueprint root and
+// caches the map on first call. Null / unknown / missing anchors
+// yield an empty prefix.
+import { readFileSync as _rf } from 'node:fs';
+import { readdirSync as _rd } from 'node:fs';
+let _anchorMap = null;
+function _loadAnchorMap() {
+  const map = new Map();
+  const dirs = [
+    { dir: resolve(PROJECT_ROOT, 'blueprints', SLUG, 'contributions', 'user-stories'), kind: 'ac' },
+    { dir: resolve(PROJECT_ROOT, 'blueprints', SLUG, 'contributions', 'requirements'), kind: 'req' },
+  ];
+  for (const { dir, kind } of dirs) {
+    let entries;
+    try { entries = _rd(dir); } catch { continue; }
+    for (const name of entries) {
+      if (!name.endsWith('.json')) continue;
+      let j;
+      try { j = JSON.parse(_rf(resolve(dir, name), 'utf8')); } catch { continue; }
+      if (kind === 'ac') {
+        const usId = j.usId;
+        for (const ac of (j.acceptanceCriteria || [])) {
+          // AC id in the shipped JSON is like "AC-9101-1"; the
+          // anchor form used by probes is "<slug>-AC-9101-1".
+          const key = `${SLUG}-${ac.id}`;
+          map.set(key, ac.description || '');
+        }
+      } else {
+        const key = j.reqId; // already "<slug>-REQ-###"
+        if (key) map.set(key, j.description || j.title || '');
+      }
+    }
+  }
+  return map;
+}
+export function first8Words(anchor) {
+  if (!anchor) return '';
+  if (!_anchorMap) _anchorMap = _loadAnchorMap();
+  const txt = _anchorMap.get(anchor) || '';
+  if (!txt) return '';
+  const words = txt.split(/\s+/).filter(Boolean).slice(0, 8).join(' ');
+  return words;
+}
+export function withAnchorPrefix(row) {
+  const prefix = first8Words(row.anchorAcId);
+  if (!prefix) return row;
+  const already = typeof row.detail === 'string' && row.detail.startsWith(prefix);
+  if (already) return row;
+  const oldDetail = row.detail || '';
+  return { ...row, detail: `${prefix} :: ${oldDetail}` };
+}
+
 export function aggregate(results) {
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
@@ -48,14 +104,17 @@ export function isSkipped(results) {
 
 export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
-  const raw = aggregate(results);
-  const aggregateVerdict = isSkipped(results) ? 'pass' : raw;
+  // Prefix every row's detail with the first eight words of its
+  // anchored AC or REQ description; unanchored rows are left alone.
+  const prefixedResults = (results || []).map(withAnchorPrefix);
+  const raw = aggregate(prefixedResults);
+  const aggregateVerdict = isSkipped(prefixedResults) ? 'pass' : raw;
   const report = {
     slug: 'security-auth-oauth2',
     probeName,
     runAt: new Date().toISOString(),
     engine,
-    results,
+    results: prefixedResults,
     aggregateVerdict,
     ...(extra ?? {}),
   };
@@ -71,7 +130,7 @@ export async function runShim(probeName, engine, mainFn) {
       const results = [{
         anchorAcId: 'unknown',
         verdict: 'fail',
-        detail: 'no checks ran (probe returned null/empty results); positive-evidence rule 7d requires each probe to observe a property',
+        detail: 'no checks ran',
       }];
       const { report, path } = await writeReport({ probeName, engine, results });
       process.stdout.write(JSON.stringify(report, null, 2) + '\n');

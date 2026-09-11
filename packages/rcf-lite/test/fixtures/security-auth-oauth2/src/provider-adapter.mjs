@@ -17,7 +17,7 @@ export function chooseDiscoveryUrl(issuer, { allowInsecure = false } = {}) {
 
 // Session bridge shape: maps token + userinfo into the app's session shape.
 // Rule: the reduced session shape MUST NOT expose provider tokens on
-// request.auth per US-10106 AC-10106-3. The bridge stores nothing that
+// request.auth per story-10106 AC-10106-3. The bridge stores nothing that
 // would leak the access token to route handlers; the handle the browser
 // receives is an opaque project session id, minted here as a random
 // string. The provider token is deliberately absent from the returned

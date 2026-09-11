@@ -9,12 +9,13 @@
 // from the ciphertext.
 //
 // capability: secretsProvider.
-// Anchor (per closure): REQ-002 (Secrets are read through one
-//   vendor-agnostic manager client interface). No AC states the
-//   byte-equality of the encrypt/decrypt cycle; anchoring the REQ
-//   per closure rule 1 (no AC → anchor REQ and say so). The
-//   SOPS + age engine is the shipped local implementation the REQ
-//   depends on.
+// Anchor honesty. No AC or REQ observes the SOPS-native
+//   byte-equality property this probe evidences. Per closure
+//   addendum rule 1 the honest posture here is to leave the
+//   probe unanchored (anchorAcId=null) and record the evidence
+//   as vendor-conformance for ADR-902's default vendor (sops+age).
+//   The slug reads AMBER on criterion e until a manager-client
+//   probe is added that observes REQ-002 at its own boundary.
 // accountBound: false (real sops+age engine on this machine).
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -24,7 +25,7 @@ import { Buffer } from 'node:buffer';
 import { createScratchAgeScope, DECLARED_ENV } from './probe-utils.mjs';
 import { runSops, readSopsMetadata } from '../../../../packages/rcf-lite/test/fixtures/security-secrets-management/src/sops-cli.mjs';
 
-export const anchorAcId = 'security-secrets-management-REQ-002';
+export const anchorAcId = null; // No AC or REQ observes the SOPS-native encrypt/decrypt/rotation/mismatched-key property; see probe file comment.
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
@@ -51,7 +52,7 @@ export default async function runProbe() {
     // Use raw random bytes plus a marker so a real byte compare is
     // meaningful (JSON round-tripping reformats and defeats byte
     // equality; --input-type binary preserves the exact stream).
-    const plaintextBytes = Buffer.concat([Buffer.from('qa-e-secrets:'), randomBytes(256)]);
+    const plaintextBytes = Buffer.concat([Buffer.from('pxe-secrets:'), randomBytes(256)]);
     await writeFile(plainPath, plaintextBytes);
 
     // Encrypt with sops --input-type binary --output-type binary
@@ -63,7 +64,7 @@ export default async function runProbe() {
     if (encRes.status !== 0) {
       results.push({
         anchorAcId, capability, verdict: 'fail',
-        detail: `REQ-002: sops encrypt failed status=${encRes.status} stderr=${encRes.stderr.slice(0, 200)}`,
+        detail: `SOPS-native encrypt failed (vendor-conformance evidence for ADR-902 sops+age; no AC/REQ anchor) status=${encRes.status} stderr=${encRes.stderr.slice(0, 200)}`,
         evidence: { encStatus: encRes.status, encStderr: encRes.stderr.slice(0, 200) },
       });
       return { results, extra: evidence };
@@ -75,8 +76,8 @@ export default async function runProbe() {
       anchorAcId,
       capability,
       verdict: cipherMeta.mac && cipherMeta.lastmodified && cipherMeta.recipients.includes(scope.recipient) ? 'pass' : 'fail',
-      detail: `REQ-002 (SOPS engine produces ciphertext with age recipient metadata; no AC covers byte-equality, anchoring REQ). mac=${cipherMeta.mac ? cipherMeta.mac.slice(0, 40) : null} lastmodified=${cipherMeta.lastmodified} recipients=${JSON.stringify(cipherMeta.recipients)}`,
-      evidence: { sopsMetadata: cipherMeta },
+      detail: `SOPS-native ciphertext-metadata observation (vendor-conformance evidence for ADR-902's default vendor sops+age; NO AC or REQ states the SOPS-native property this probe observes; slug reads AMBER on criterion e until a manager-client probe is added that observes REQ-002 at its own boundary). mac=${cipherMeta.mac ? cipherMeta.mac.slice(0, 40) : null} lastmodified=${cipherMeta.lastmodified} recipients=${JSON.stringify(cipherMeta.recipients)}`,
+      evidence: { sopsMetadata: cipherMeta, notObservableACsOrREQs: 'SOPS-native crypto layer; slug is AMBER on criterion-e until a manager-client probe is added that observes REQ-002 at its boundary.' },
     });
 
     // Decrypt with sops --output <file> so binary bytes survive the
@@ -90,7 +91,7 @@ export default async function runProbe() {
     if (decRes.status !== 0) {
       results.push({
         anchorAcId, capability, verdict: 'fail',
-        detail: `REQ-002: sops decrypt failed status=${decRes.status} stderr=${decRes.stderr.slice(0, 200)}`,
+        detail: `SOPS-native decrypt failed (vendor-conformance evidence for ADR-902 sops+age; no AC/REQ anchor) status=${decRes.status} stderr=${decRes.stderr.slice(0, 200)}`,
         evidence: { decStatus: decRes.status, decStderr: decRes.stderr.slice(0, 200) },
       });
       return { results, extra: evidence };
@@ -99,7 +100,7 @@ export default async function runProbe() {
     const originalBytes = plaintextBytes;
     const originalHash = createHash('sha256').update(originalBytes).digest('hex');
     const decryptedHash = createHash('sha256').update(decryptedBytes).digest('hex');
-    const bytesEqual = originalHash === decryptedHash && originalBytes.length === decryptedBytes.length;
+    const bytesEqual = originalBytes.length === decryptedBytes.length && Buffer.compare(originalBytes, decryptedBytes) === 0;
     evidence.byteCompare = {
       originalLength: originalBytes.length,
       decryptedLength: decryptedBytes.length,
@@ -111,8 +112,8 @@ export default async function runProbe() {
       anchorAcId,
       capability,
       verdict: bytesEqual ? 'pass' : 'fail',
-      detail: `REQ-002 (encrypt/decrypt round-trip is byte-equal): originalLength=${originalBytes.length} decryptedLength=${decryptedBytes.length} sha256(original)=${originalHash.slice(0, 16)} sha256(decrypted)=${decryptedHash.slice(0, 16)} bytesEqual=${bytesEqual}`,
-      evidence: evidence.byteCompare,
+      detail: `SOPS-native byte-equality on the encrypt/decrypt round-trip (Buffer.compare === 0 on the raw bytes; vendor-conformance evidence for ADR-902 sops+age; no AC or REQ anchors this property; row reads AMBER). originalLength=${originalBytes.length} decryptedLength=${decryptedBytes.length} sha256(original)=${originalHash.slice(0, 16)} sha256(decrypted)=${decryptedHash.slice(0, 16)} bufferCompareZero=${bytesEqual}`,
+      evidence: { ...evidence.byteCompare, notObservableACsOrREQs: 'SOPS-native crypto layer; slug is AMBER on criterion-e until a manager-client probe is added.' },
     });
   } finally {
     await scope.cleanup();

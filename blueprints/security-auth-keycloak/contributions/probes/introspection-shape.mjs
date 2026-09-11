@@ -28,14 +28,35 @@ export default async function runProbe() {
   const { buildIntrospectionForm, parseIntrospectionResponse } = await import(pathToFileURL(resolve(FIXTURE_SRC, 'introspection-client.mjs')).href);
   const results = [];
 
+  // Redact the built body before it lands in evidence: even the
+  // placeholder client-secret string is never serialised on the run
+  // record. Assert the form shape via the discovered keys, not by
+  // echoing the body.
+  function redactedBody(req) {
+    if (!req || !req.body) return req;
+    const params = new URLSearchParams(req.body);
+    const keys = [...params.keys()].sort();
+    const redacted = {};
+    for (const k of keys) {
+      redacted[k] = k === 'client_secret' ? '[REDACTED]' : params.get(k);
+    }
+    return { ok: req.ok, error: req.error, bodyKeys: keys, bodyRedacted: redacted };
+  }
+
   const req = buildIntrospectionForm({ token: 'tok-abc', clientId: 'client-x', clientSecret: 'PLACEHOLDER_SECRET' });
-  const hasFields = req.ok && req.body.includes('token=tok-abc') && req.body.includes('client_id=client-x') && req.body.includes('client_secret=PLACEHOLDER_SECRET');
+  const reqEv = redactedBody(req);
+  const hasFields = req.ok
+    && reqEv.bodyKeys.includes('token')
+    && reqEv.bodyKeys.includes('client_id')
+    && reqEv.bodyKeys.includes('client_secret')
+    && reqEv.bodyRedacted.token === 'tok-abc'
+    && reqEv.bodyRedacted.client_id === 'client-x';
   results.push({
     anchorAcId,
     capability,
     verdict: hasFields ? 'pass' : 'fail',
-    detail: `REQ-004 (no AC covers the introspection request-form contract; anchoring REQ). form built: ok=${req.ok} body-shape=[token,client_id,client_secret]=[present,present,present]`,
-    evidence: { adapterReturn: req },
+    detail: `REQ-004 (no AC covers the introspection request-form contract at the parser layer; anchoring REQ per closure rule 1; fixture-layer observation only). form built: ok=${req.ok} bodyKeys=${JSON.stringify(reqEv.bodyKeys)}; the placeholder client_secret value is redacted before it lands on the run record.`,
+    evidence: { adapterReturn: reqEv },
     vendorCitation: { url: 'https://datatracker.ietf.org/doc/html/rfc7662#section-2.1', verifiedOn: '2026-09-11' },
   });
 
@@ -44,8 +65,8 @@ export default async function runProbe() {
     anchorAcId: 'security-auth-keycloak-REQ-004',
     capability,
     verdict: !badReq.ok && /token required/.test(badReq.error) ? 'pass' : 'fail',
-    detail: `REQ-004 (no AC covers the empty-token refusal at form-builder level; anchoring REQ). empty-token refusal: ok=${badReq.ok} error=${JSON.stringify(badReq.error)}`,
-    evidence: { adapterReturn: badReq },
+    detail: `REQ-004 (no AC covers the empty-token refusal at form-builder level; anchoring REQ; fixture-layer observation only). empty-token refusal: ok=${badReq.ok} error=${JSON.stringify(badReq.error)}`,
+    evidence: { adapterReturn: { ok: badReq.ok, error: badReq.error } },
   });
 
   const active = parseIntrospectionResponse({ active: true, sub: 'user-1', scope: 'openid profile', username: 'alice' });
@@ -58,12 +79,18 @@ export default async function runProbe() {
   });
 
   const inactive = parseIntrospectionResponse({ active: false });
+  // AC-11105-2 requires the client-layer verdict (4xx with error code
+  // KEYCLOAK_INTROSPECTION_INACTIVE, no cookie, one audit event). The
+  // fixture here is a pure parser: it observes only that `active:false`
+  // parses successfully as `active === false`. Anchor REQ-004 (the
+  // introspection contract) and state the AC-level observation is not
+  // available at this layer.
   results.push({
-    anchorAcId: 'security-auth-keycloak-AC-11105-2',
+    anchorAcId: 'security-auth-keycloak-REQ-004',
     capability,
     verdict: inactive.ok && inactive.active === false ? 'pass' : 'fail',
-    detail: `AC-11105-2 (KEYCLOAK_INTROSPECTION_INACTIVE for active:false):  ok=${inactive.ok} active=${inactive.active}`,
-    evidence: { parserReturn: inactive },
+    detail: `REQ-004 (parser-layer observation only; AC-11105-2 requires the client-layer refusal shape with a 4xx + KEYCLOAK_INTROSPECTION_INACTIVE + no cookie + audit event, which the fixture parser does not expose). parseIntrospectionResponse({active:false}): ok=${inactive.ok} active=${inactive.active}.`,
+    evidence: { parserReturn: inactive, notObservableAt: 'parser-layer', notObservableACs: ['security-auth-keycloak-AC-11105-2'] },
   });
 
   const malformed = parseIntrospectionResponse({ status: 'unknown' });

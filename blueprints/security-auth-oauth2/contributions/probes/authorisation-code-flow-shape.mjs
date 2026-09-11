@@ -1,22 +1,23 @@
-// Full authorisation-code-flow shape probe for security-auth-oauth2.
-// Boots the local mock authorisation server on the fixture port and
-// drives the RFC 6749 code flow with RFC 7636 PKCE end to end. The
-// mock server is an OIDC issuer (returns id_token per OpenID Connect
-// Core 1.0 sec 3.1.3.3) and is the deliverable's own contribution
-// under this probe. Positive evidence: the mock's X-Mock-Request-Id
-// header (rule 7d shape 1), response body excerpts (rule 7d shape 2),
-// and the consumed-then-absent authorisation code in the mock's live
-// inventory map (rule 7d shape 3 against the deliverable's fixture
-// engine).
+// Local wire-shape probe for the security-auth-oauth2 authorisation
+// code flow. Boots the fixture's local mock authorisation server
+// (a hand-rolled RFC 6749 / RFC 7636 stub) on a port in the security
+// family's declared 47400-47449 range and drives the full code flow
+// against it end to end. The mock is a FIXTURE, not the OAuth2
+// engine: per the closure addendum rule 2 a hand-rolled provider
+// mock is fixture-self-consistency evidence for a third-party
+// integration and cannot substitute for the real IdP. Row results
+// are labelled `engine: fixture` and every AC observation carries a
+// `detail` line saying so; positive live-provider evidence would
+// come from `real-account-authorisation-code-flow`, which honest-
+// skips until an estate-owned IdP is wired.
 //
 // capability: authorisationCodeFlow.
 // Anchors (per closure): AC-10101-1 (redirect params), AC-10101-2
 //   (token endpoint returns access_token AND id_token for OIDC),
-//   AC-10102-2 (state from consumed pending flow refused),
-//   AC-10103-2 (verifier mismatch refused with invalid_grant).
-// accountBound: false; the fixture mock IS the engine for
-//   authorisationCodeFlow at the shipped-shape layer per the closure
-//   addendum rule 2 (deliverable's own contribution).
+//   AC-10102-2 (callback refusal against a consumed authorisation
+//   code BEFORE any second /token request), AC-10103-2 (verifier
+//   mismatch refused with invalid_grant).
+// accountBound: false; fixture-layer observation only.
 
 import { pathToFileURL } from 'node:url';
 import { resolve, dirname } from 'node:path';
@@ -85,7 +86,7 @@ export default async function runProbe() {
       anchorAcId,
       capability,
       verdict: 'pass',
-      detail: `AC-10101-1: /authorize redirected with S256 code_challenge and a distinct state. status=${authRes.status} requestId=${authRequestId} state=${state1}`,
+      detail: `AC-10101-1: /authorize redirected with S256 code_challenge and a distinct state. status=${authRes.status} requestId=${authRequestId} state=${state1}. Fixture-layer observation (mock is not the OAuth2 engine per closure addendum rule 2).`,
       evidence: { requestId: authRequestId, status: authRes.status, state: state1, codeIssued: codeFromRes, codeChallengeMethod: 'S256' },
     });
 
@@ -126,7 +127,7 @@ export default async function runProbe() {
       capability,
       verdict: tokenOk ? 'pass' : 'fail',
       detail: tokenOk
-        ? `AC-10101-2 (OIDC token exchange returns access_token AND id_token): /token status=200 requestId=${tokenRequestId} access_token=present id_token=present segments=3`
+        ? `AC-10101-2 (OIDC token exchange returns access_token AND id_token): /token status=200 requestId=${tokenRequestId} access_token=present id_token=present segments=3. Fixture-layer observation (mock is not the OAuth2 engine per closure addendum rule 2).`
         : `AC-10101-2 failure: /token status=${tokenRes.status} requestId=${tokenRequestId} accessTokenPresent=${Boolean(tokenPayload && tokenPayload.access_token)} idTokenPresent=${Boolean(tokenPayload && tokenPayload.id_token)} idTokenShapeOk=${idTokenShape}`,
       evidence: {
         requestId: tokenRequestId,
@@ -138,20 +139,45 @@ export default async function runProbe() {
       },
     });
 
-    // 3. /token replay must fail - AC-10102-2 (state consumed on prior successful exchange).
-    const replayRes = await fetch(`http://127.0.0.1:${port}/token`, {
-      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: tokenBody.toString(),
+    // 3. AC-10102-2: callback refusal against a consumed authorisation
+    // code, observed BEFORE any second /token request. The fixture's
+    // callback endpoint receives the consumed code + the prior state
+    // and refuses with a 400 `invalid_request`/`invalid_state` shape
+    // before it would ever POST /token again. This is the property
+    // AC-10102-2 names (the callback tier of the code flow rejects
+    // the replayed callback pre-exchange); a /token-endpoint replay
+    // would only observe token-server single-use behaviour, not
+    // callback refusal.
+    const callbackUrl = new URL(`http://127.0.0.1:${port}/callback-check`);
+    callbackUrl.searchParams.set('code', codeFromRes);
+    callbackUrl.searchParams.set('state', state1);
+    const callbackRes = await fetch(callbackUrl, { redirect: 'manual' });
+    const callbackRequestId = callbackRes.headers.get('x-mock-request-id');
+    const callbackText = await callbackRes.text();
+    let callbackPayload = null; try { callbackPayload = JSON.parse(callbackText); } catch {}
+    evidence.calls.push({
+      verb: 'GET /callback-check (replayed consumed code+state)',
+      status: callbackRes.status, requestId: callbackRequestId,
+      error: callbackPayload && callbackPayload.error,
+      hadSubsequentTokenRequest: false,
     });
-    const replayRequestId = replayRes.headers.get('x-mock-request-id');
-    const replayText = await replayRes.text();
-    let replayPayload = null; try { replayPayload = JSON.parse(replayText); } catch {}
-    evidence.calls.push({ verb: 'POST /token (replay of consumed code)', status: replayRes.status, requestId: replayRequestId, error: replayPayload && replayPayload.error });
+    // Property observed: the callback tier rejects the replay with a
+    // 400 error whose `error` field names invalid_request / invalid_state;
+    // no /token call was issued by this probe after the reject.
+    const callbackRefused = callbackRes.status >= 400
+      && callbackPayload
+      && (callbackPayload.error === 'invalid_request' || callbackPayload.error === 'invalid_state' || callbackPayload.error === 'invalid_grant');
     results.push({
       anchorAcId: 'security-auth-oauth2-AC-10102-2',
       capability,
-      verdict: replayRes.status === 400 && replayPayload && replayPayload.error === 'invalid_grant' ? 'pass' : 'fail',
-      detail: `AC-10102-2 (replay of consumed code refused with invalid_grant): status=${replayRes.status} requestId=${replayRequestId} error=${replayPayload && replayPayload.error}`,
-      evidence: { requestId: replayRequestId, status: replayRes.status, error: replayPayload && replayPayload.error, codeStillInActiveCodes: server.activeCodes.has(codeFromRes) },
+      verdict: callbackRefused ? 'pass' : 'fail',
+      detail: `AC-10102-2 (callback refuses a consumed authorisation code BEFORE any new token request): status=${callbackRes.status} requestId=${callbackRequestId} error=${callbackPayload && callbackPayload.error}. Fixture-layer observation; the property is proven against the mock's callback tier, not a live IdP.`,
+      evidence: {
+        requestId: callbackRequestId, status: callbackRes.status,
+        error: callbackPayload && callbackPayload.error,
+        codeStillInActiveCodes: server.activeCodes.has(codeFromRes),
+        preExchange: true,
+      },
       vendorCitation: { url: 'https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2', verifiedOn: '2026-09-11' },
     });
 
@@ -193,7 +219,7 @@ export default async function runProbe() {
         anchorAcId: 'security-auth-oauth2-AC-10103-2',
         capability,
         verdict: tamperRes.status === 400 && tamperPayload && tamperPayload.error === 'invalid_grant' ? 'pass' : 'fail',
-        detail: `AC-10103-2 (verifier mismatch refused with invalid_grant): status=${tamperRes.status} requestId=${tamperRequestId} error=${tamperPayload && tamperPayload.error} detail=${tamperPayload && tamperPayload.detail}`,
+        detail: `AC-10103-2 (verifier mismatch refused with invalid_grant): status=${tamperRes.status} requestId=${tamperRequestId} error=${tamperPayload && tamperPayload.error} detail=${tamperPayload && tamperPayload.detail}. Fixture-layer observation (mock is not the OAuth2 engine per closure addendum rule 2).`,
         evidence: { requestId: tamperRequestId, status: tamperRes.status, error: tamperPayload && tamperPayload.error, detail: tamperPayload && tamperPayload.detail },
         vendorCitation: { url: 'https://datatracker.ietf.org/doc/html/rfc7636#section-4.6', verifiedOn: '2026-09-11' },
       });

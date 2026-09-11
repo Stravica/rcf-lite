@@ -7,10 +7,10 @@
 // recipient.
 //
 // capability: secretsProvider.
-// anchorAcId: security-secrets-management-REQ-002.
-// Anchor (per closure): REQ-002 (Secrets are read through one
-// vendor-agnostic manager client interface). No AC covers SOPS
-// engine ops directly; anchoring the REQ per closure rule 1.
+// Anchor honesty. No AC or REQ observes the SOPS-native
+// --rotate --add-age property. Row reads AMBER on criterion e
+// (unanchored vendor-conformance evidence for ADR-902's default
+// vendor sops+age).
 // accountBound: false.
 
 import { writeFile, readFile } from 'node:fs/promises';
@@ -32,13 +32,13 @@ function sopsEnv(keyPath) {
     HOME: process.env.HOME || '',
   };
 }
-export const anchorAcId = 'security-secrets-management-REQ-002';
+export const anchorAcId = null; // No AC/REQ observes SOPS-native rotation.
 export const capability = 'secretsProvider';
 export const accountBound = false;
 
 export default async function runProbe() {
-  const scopeA = await createScratchAgeScope({ prefix: 'qa-e-secrets-a-' });
-  const scopeB = await createScratchAgeScope({ prefix: 'qa-e-secrets-b-' });
+  const scopeA = await createScratchAgeScope({ prefix: 'pxe-secrets-a-' });
+  const scopeB = await createScratchAgeScope({ prefix: 'pxe-secrets-b-' });
   const evidence = { envDeclared: [...DECLARED_ENV], recipientA: scopeA.recipient, recipientB: scopeB.recipient };
   const results = [];
   try {
@@ -52,7 +52,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (enc.status !== 0) {
-      results.push({ anchorAcId, capability, verdict: 'fail', detail: `initial encrypt failed status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
+      results.push({ anchorAcId, capability, verdict: 'fail', detail: `SOPS-native initial encrypt failed (no AC/REQ anchor) status=${enc.status} stderr=${enc.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const before = readSopsMetadata(await readFile(cipherPath, 'utf8'));
@@ -64,7 +64,7 @@ export default async function runProbe() {
       { env: sopsEnv(scopeA.keyPath) },
     );
     if (rot.status !== 0) {
-      results.push({ anchorAcId, capability, verdict: 'fail', detail: `sops rotate failed status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
+      results.push({ anchorAcId, capability, verdict: 'fail', detail: `SOPS-native --rotate failed (no AC/REQ anchor) status=${rot.status} stderr=${rot.stderr.slice(0, 200)}` });
       return { results, extra: evidence };
     }
     const after = readSopsMetadata(await readFile(cipherPath, 'utf8'));
@@ -76,26 +76,26 @@ export default async function runProbe() {
       anchorAcId,
       capability,
       verdict: bothRecipients ? 'pass' : 'fail',
-      detail: `recipients after rotation: ${JSON.stringify(after.recipients)}; bothPresent=${bothRecipients}`,
+      detail: `SOPS-native --rotate --add-age observation (vendor-conformance for ADR-902 sops+age; no AC/REQ anchor; row AMBER). recipients after rotation: ${JSON.stringify(after.recipients)}; bothPresent=${bothRecipients}`,
       evidence: { before: before.recipients, after: after.recipients },
     });
 
     // Assertion 2: mac changed (data key re-wrapped => the payload's MAC is regenerated).
     results.push({
-      anchorAcId: 'security-secrets-management-REQ-002',
+      anchorAcId: null,
       capability,
       verdict: after.mac !== before.mac ? 'pass' : 'fail',
-      detail: `mac before=${before.mac && before.mac.slice(0, 16)}... after=${after.mac && after.mac.slice(0, 16)}... diverged=${after.mac !== before.mac}`,
+      detail: `SOPS-native MAC divergence observation (vendor-conformance for ADR-902 sops+age; no AC/REQ anchor; row AMBER). mac before=${before.mac && before.mac.slice(0, 16)}... after=${after.mac && after.mac.slice(0, 16)}... diverged=${after.mac !== before.mac}`,
       evidence: { macDiverged: after.mac !== before.mac },
     });
 
     // Assertion 3: recipient B can decrypt with only its key.
     const decB = runSops(['--decrypt', cipherPath], { env: sopsEnv(scopeB.keyPath) });
     results.push({
-      anchorAcId: 'security-secrets-management-REQ-002',
+      anchorAcId: null,
       capability,
       verdict: decB.status === 0 && JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext)) ? 'pass' : 'fail',
-      detail: `recipient B decrypt status=${decB.status} matchesPlaintext=${JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext))}`,
+      detail: `SOPS-native new-recipient decrypt observation (vendor-conformance for ADR-902 sops+age; no AC/REQ anchor; row AMBER). recipient B decrypt status=${decB.status} matchesPlaintext=${JSON.stringify(JSON.parse(decB.stdout)) === JSON.stringify(JSON.parse(plaintext))}`,
       evidence: { statusB: decB.status, stdoutLen: decB.stdout.length },
     });
   } finally {

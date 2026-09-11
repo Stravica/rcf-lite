@@ -9,7 +9,7 @@
 // post-diff inventory pair, and the HTTP status codes.
 //
 // The teardown is fail-safe: a mid-run crash leaves the user
-// address deterministic (qa-e-clerk-<short>@example.test); the
+// address deterministic (pxe-clerk-<short>@example.test); the
 // finally block always issues DELETE. A teardown failure flips the
 // verdict to FAIL regardless of upstream success.
 //
@@ -71,11 +71,28 @@ async function clerkFetch({ baseUrl, path, method, body, token }) {
   return { status: res.status, ok: res.ok, requestId, payload };
 }
 
+function gateResult(varName, value) {
+  if (value === undefined || value === '') return { kind: 'unset', reason: varName };
+  if (value !== 'true') return { kind: 'set-not-true', reason: `${varName}_SET_NOT_TRUE`, observedValue: value };
+  return { kind: 'true' };
+}
+
 export default async function runProbe() {
-  if (process.env.CI_HAS_CLERK_ACCOUNT !== 'true') {
+  const gate = gateResult('CI_HAS_CLERK_ACCOUNT', process.env.CI_HAS_CLERK_ACCOUNT);
+  if (gate.kind === 'unset') {
     return {
       results: [accountBoundSkippedResult(anchorAcId, capability, 'CI_HAS_CLERK_ACCOUNT')],
       extra: { accountBoundSkipped: true, reason: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
+    };
+  }
+  if (gate.kind === 'set-not-true') {
+    return {
+      results: [{
+        anchorAcId, capability, verdict: 'fail',
+        detail: `REQ-008: CI_HAS_CLERK_ACCOUNT is set to "${gate.observedValue}" (not the string "true"). Gate refuses this shape; set the variable to the exact string "true" to run the live branch.`,
+        evidence: { gate: 'CI_HAS_CLERK_ACCOUNT', observedValue: gate.observedValue, expected: 'true' },
+      }],
+      extra: { gateMisconfigured: true, gate: 'CI_HAS_CLERK_ACCOUNT', envDeclared: [...DECLARED_ENV] },
     };
   }
   if (!process.env.CLERK_SECRET_KEY) {
