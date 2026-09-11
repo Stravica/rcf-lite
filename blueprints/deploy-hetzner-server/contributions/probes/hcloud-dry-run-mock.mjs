@@ -1,43 +1,39 @@
-// Probe: hcloud dry-run mock (v1.1.5).
+// Probe: hcloud dry-run mock.
 //
-// accountBound: false. Anchors each result row to the AC whose
-// observable property THIS MOCK actually observes:
-//   - AC-37101-1 (provisioner facade sole reader + provisionerReady):
-//     BOTH clauses observed: (a) a source-tree grep across the
-//     fixture confirms only the provisioner facade module reads
-//     HETZNER_ACCOUNT_API_KEY (any other reader in the fixture tree
-//     FAILS the row); (b) provisionerReady fires with a
-//     metadata-only {tool, apiHost} payload.
-//   - AC-37109-1 (event-secrecy across the lifecycle):
-//     no event body carries the token bytes, the ssh private-key
-//     marker, or the rendered user-data bytes; AND every event
-//     payload's keys are a subset of the named metadata fields
-//     REQ-006 permits (no unexpected keys reach the observability
-//     sink).
-// Rows that observe the MOCK-PATH shape of hetznerServerProvisioned,
-// hetznerSnapshotTaken and hetznerServerDestroyed carry
-// anchorAcId: null with conformanceOnly: true and a limitation
-// naming the shipped AC and the live probe that observes it (no
-// notObservableHere: those live-only ACs are process-observable on
-// the real-account probes; notObservableHere is reserved for
-// browser-only properties, empty on this blueprint). The live
-// inventory rows live on the real-account-* probes. The
-// rendered-file agreement check (mock consumes the same rendered
-// artefact as the real path) is left to `cloud-init-render-lint`
-// (AC-37104-1) and `real-account-cloud-init-hardened` (AC-37105-1).
+// accountBound: false. This is an offline mock-path fixture-shape
+// scanner. A counting row for this family is a LIVE row whose
+// identifier is a vendor-minted id (server id, snapshot id,
+// firewall id, image id, engine request id, or the 64-hex Docker
+// container id from `docker inspect`) with a derived observation
+// from the vendor or the running server. The mock produces neither,
+// so every row here is a `conformanceOnly` de-claim with
+// `anchorAcId: null` and a `limitation` string naming the shipped
+// AC clause the mock does not observe. Two rows carry the AC-37101-1
+// and AC-37109-1 clauses (sole-reader source scan and provisioner
+// ready shape; lifecycle event-secrecy scan and payload-key
+// allow-list) as derived context but do not credit those ACs; the
+// live observation is not carried on this blueprint under the
+// shipped ACs (both are AMBER on E until a live row lands). Rows
+// for AC-37103-1, AC-37108-1 and AC-37109-3 are the existing
+// mock-path fixture-shape de-claims; the live observations live on
+// the real-account probes.
+//
+// `notObservableHere` is not used on these rows: the ACs are
+// process/live-observable on the real-account probes, not
+// browser-only shelf-shape.
 //
 // The probe body reads NO process.env.SIMULATE_ switch. Fixture-side
 // mutations live in src/cloud-init-renderer.mjs, src/hcloud-mock.mjs
 // and src/provisioner-facade.mjs and alter INPUT only.
-//
-// Every result row carries an `evidence` object with an identity
-// key AND an observation key or a body excerpt.
 
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { relative, resolve, join } from 'node:path';
 import { FIXTURE_DIR, PROJECT_ROOT } from './probe-utils.mjs';
 
-export const anchorAcId = 'AC-37101-1';
+// This probe emits only `conformanceOnly` rows; no `anchorAcId` is
+// exported at module scope. Each row carries `anchorAcId: null` and
+// a `limitation` string naming the shipped AC the mock does not
+// observe on this blueprint.
 export const accountBound = false;
 
 const TOKEN = 'test-fixture-token-000000000000000000000000000000000000000000';
@@ -152,9 +148,21 @@ export default async function runProbe() {
       readers: soleReader.readers.map((r) => `${r.file}:${r.line}`),
       source: 'fixture source-tree grep .mjs/.js',
     };
+    // AC-37101-1: the mock cannot mint a vendor identifier. The
+    // sole-reader source-tree scan and the provisionerReady shape
+    // check are both carried on the row as derived context, but the
+    // row is a `conformanceOnly` de-claim of AC-37101-1; the
+    // verdict still gates on both clauses (zero readers, an
+    // unexpected reader outside src/provisioner-facade.mjs, a
+    // missing provisionerReady event, a wrong payload shape or
+    // unexpected keys FAIL the row).
+    const ac37101Limitation = 'AC-37101-1: sole-reader source scan and provisionerReady shape observed here as derived context, but the AC requires a vendor-minted identifier from a live provisioner run; this offline mock-path row is not credited. No live probe on this blueprint carries a positive AC-37101-1 observation, so AC-37101-1 is AMBER on E.';
     if (soleReader.readers.length === 0) {
       results.push({
-        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
         detail: `sole-reader source scan across the fixture .mjs/.js found ZERO non-comment references to HETZNER_ACCOUNT_API_KEY; the provisioner facade must be the sole reader and at least one reader must be observed positively.`,
         evidence: {
           ...soleReaderSummary,
@@ -164,7 +172,10 @@ export default async function runProbe() {
       });
     } else if (soleReader.unexpected.length > 0) {
       results.push({
-        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
         detail: `sole-reader source scan: HETZNER_ACCOUNT_API_KEY named outside src/provisioner-facade.mjs at ${soleReader.unexpected.map((r) => `${r.file}:${r.line}`).join(', ')}; the provisioner facade must be the SOLE reader.`,
         evidence: {
           ...soleReaderSummary,
@@ -175,7 +186,10 @@ export default async function runProbe() {
       });
     } else if (!provisionerReady) {
       results.push({
-        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
         detail: `sole-reader scan observed ${soleReader.readers.length} reader(s), all inside ${soleReader.expectedReaderRelPath}; but provisionerReady did NOT fire on the injected event sink after ready(); events observed: ${events.map((e) => e.event).join(', ') || '(none)'}.`,
         evidence: {
           ...soleReaderSummary,
@@ -186,20 +200,26 @@ export default async function runProbe() {
       });
     } else if (provisionerReady.tool !== 'hcloud' || provisionerReady.apiHost !== 'https://api.hetzner.cloud/v1') {
       results.push({
-        anchorAcId: 'AC-37101-1', verdict: 'fail',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
         detail: `sole-reader scan observed ${soleReader.readers.length} reader(s) inside ${soleReader.expectedReaderRelPath}; provisionerReady payload shape is wrong: ${JSON.stringify(provisionerReady)}; expected {tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1'}.`,
         evidence: {
           ...soleReaderSummary,
           eventName: 'provisionerReady',
           event: provisionerReady,
-          expected: { tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1' },
+          expectedShape: { tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1' },
         },
       });
     } else {
       const extraKeysOnEvent = Object.keys(provisionerReady).filter((k) => !['event', 'tool', 'apiHost'].includes(k));
       if (extraKeysOnEvent.length > 0) {
         results.push({
-          anchorAcId: 'AC-37101-1', verdict: 'fail',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: ac37101Limitation,
+          verdict: 'fail',
           detail: `sole-reader scan observed ${soleReader.readers.length} reader(s) inside ${soleReader.expectedReaderRelPath}; provisionerReady carries unexpected keys ${JSON.stringify(extraKeysOnEvent)} in addition to the metadata-only {event, tool, apiHost} set.`,
           evidence: {
             ...soleReaderSummary,
@@ -210,24 +230,17 @@ export default async function runProbe() {
         });
       } else {
         results.push({
-          anchorAcId: 'AC-37101-1', verdict: 'pass',
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: ac37101Limitation,
+          verdict: 'pass',
           detail: `sole-reader source scan observed exactly ${soleReader.readers.length} non-comment reader(s) of HETZNER_ACCOUNT_API_KEY across the fixture .mjs/.js, all inside ${soleReader.expectedReaderRelPath} (${soleReader.readers.map((r) => `${r.file}:${r.line}`).join(', ')}); provisionerReady fired with the metadata-only {tool, apiHost} payload.`,
           evidence: {
             ...soleReaderSummary,
             eventName: 'provisionerReady',
             payloadKeys: Object.keys(provisionerReady).sort(),
-            // Supplied/echo pair: the probe supplied `tool` and
-            // `apiHost` into the facade constructor; the facade
-            // emitted them back on the provisionerReady event
-            // metadata. Strict equality on both closes the identity
-            // half of the semantic anatomy check without inventing
-            // a request id on an offline event.
-            suppliedTool: 'hcloud',
-            echoedTool: provisionerReady.tool,
-            suppliedApiHost: 'https://api.hetzner.cloud/v1',
-            echoedApiHost: provisionerReady.apiHost,
-            tool: provisionerReady.tool,
-            apiHost: provisionerReady.apiHost,
+            observedTool: provisionerReady.tool,
+            observedApiHost: provisionerReady.apiHost,
           },
         });
       }
@@ -345,6 +358,15 @@ export default async function runProbe() {
         unexpectedKeys.push({ event: e.event, extraKeys: extra, allowedKeys: [...allowed].sort() });
       }
     }
+    // AC-37109-1: the mock lifecycle scan cannot mint a vendor
+    // identifier (mock ids are generated by the fixture-side
+    // hcloud-mock and are not vendor-echoed). The substring scan
+    // and the payload-key allow-list are carried on the row as
+    // derived context, but the row is a `conformanceOnly` de-claim;
+    // the verdict still gates on both clauses. No live probe on
+    // this blueprint carries a positive AC-37109-1 observation, so
+    // AC-37109-1 is AMBER on E.
+    const ac37109Limitation = 'AC-37109-1: event-secrecy substring scan and payload-key allow-list observed here as derived context on mock-emitted events, but the AC requires the live lifecycle sink from a vendor-driven run; this offline mock-path row is not credited.';
     if (leaks.length > 0 || unexpectedKeys.length > 0) {
       const bits = [];
       if (leaks.length > 0) bits.push(`substring leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')}`);
@@ -355,39 +377,38 @@ export default async function runProbe() {
         unexpectedKeys,
         eventCount: events.length,
       };
-      if (provisioned && provisioned.id) failEvidence.serverId = provisioned.id;
-      if (snapped && snapped.snapshotId) failEvidence.snapshotId = snapped.snapshotId;
       results.push({
-        anchorAcId: 'AC-37109-1', verdict: 'fail',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37109Limitation,
+        verdict: 'fail',
         detail: `event-secrecy fail: ${bits.join(' | ')}.`,
         evidence: failEvidence,
       });
     } else {
       const passEvidence = {
         eventName: 'lifecycle-scan',
-        // Engine-minted ids that tie this scan to a concrete
-        // lifecycle instance: the mock-facade emitted the provision
-        // and snapshot events with these ids, and both were included
-        // in the scanned event bodies.
-        serverId: (provisioned && provisioned.id) ? provisioned.id : undefined,
-        snapshotId: (snapped && snapped.snapshotId) ? snapped.snapshotId : undefined,
         eventCount: events.length,
         scannedMarkers: ['token value', 'ssh private key', 'user-data marker'],
         allowedKeysByEvent: Object.fromEntries(Object.entries(ALLOWED_EVENT_KEYS).map(([k, v]) => [k, [...v].sort()])),
         leaks: [],
         unexpectedKeys: [],
       };
-      // Drop undefined entries so the row does not carry falsy ids.
-      for (const k of Object.keys(passEvidence)) if (passEvidence[k] === undefined) delete passEvidence[k];
       results.push({
-        anchorAcId: 'AC-37109-1', verdict: 'pass',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37109Limitation,
+        verdict: 'pass',
         detail: `event-secrecy scan across ${events.length} event bodies found no leak of the token, ssh private key, or user-data content; every event payload's keys are a subset of the REQ-006 named metadata set.`,
         evidence: passEvidence,
       });
     }
   } catch (err) {
     results.push({
-      anchorAcId: 'AC-37101-1', verdict: 'fail',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: 'AC-37101-1: provisioner facade lifecycle threw during the offline mock-path scan; the AC requires a live provisioner run.',
+      verdict: 'fail',
       detail: `provisioner facade lifecycle threw: ${err.message}`,
       evidence: { eventName: 'lifecycle-error', error: err.message, errorStack: (err.stack || '').slice(0, 400) },
     });

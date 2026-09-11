@@ -41,30 +41,40 @@ async function runProbe(name, env = {}) {
 //   (a) an honest skip: accountBoundSkipped === true AND reason is
 //       exactly one of the declared gate variables in the fixture
 //       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty ENGINE-MINTED IDENTIFIER
-//       and a non-empty DERIVED OBSERVATION.
+//   (b) evidence carries BOTH a non-empty VENDOR-MINTED IDENTIFIER
+//       and a non-empty ROW-SPECIFIC DERIVED OBSERVATION.
 //
-// Engine-minted identifier: one of a small explicit set of fields
-// whose value is minted by the engine or vendor that produced the
-// row (a vendor-returned server / snapshot / firewall / image /
-// container id, an engine request id, or the 64-hex Docker
-// container id from `docker inspect`) with a non-empty value; OR a
-// supplied/echo pair, where the row carries `supplied<Name>` and a
-// matching `echoed<Name>` field, both non-empty and strictly equal.
+// Vendor-minted identifier: one of a small explicit set of fields
+// whose value was minted by the vendor API for this row (a
+// vendor-returned server id, snapshot id, firewall id, image id,
+// vendor request id, or the 64-hex Docker container id from
+// `docker inspect --format '{{.Id}}'`). Nothing else counts:
+// probe-computed hashes, event names, file paths, service or
+// manifest names, container names Compose or the probe chose, and
+// probe inputs are derived context, never identity. There is no
+// supplied/echo path for this family: a value the probe supplied
+// is not evidence that the engine echoed it back with vendor-minted
+// state.
 //
-// A hash the probe itself computes over an artefact it read is NOT
-// an identifier; event names, file paths, service names, manifest
-// names, container names Compose or the probe chose, and other
-// probe inputs count only as derived context, never as the
-// identifier or the observation. Rows on offline probes
-// (validators, source-tree scans) that have no engine-minted
-// identifier are honest `conformanceOnly` rows naming the shipped
-// AC clause they do not observe; identity and observation checks
-// apply to anchored rows only.
+// Mock and offline rows have no vendor-minted identifier by nature
+// and are always `conformanceOnly` de-claims with `anchorAcId: null`
+// and a `limitation` string naming the shipped AC clause they do
+// not observe; identity and observation checks apply to anchored
+// (counting) rows only.
 //
-// Derived observation: a body excerpt, status code, observed mode,
-// engine timestamp, non-zero count, or structured engine-returned
-// object.
+// Row-specific derived observation: for each counting probe on this
+// blueprint the field(s) that constitute its observation are named
+// below, and only those satisfy the observation half. Generic
+// fields (`observed`, `port`, `protocol`, `direction`) do not
+// count.
+//
+//   minimal-stack-up (AC-composeHost-upClean, secretShape,
+//     healthcheckLint-adjacent): healthy services observed as
+//     `observedNames` or `healthcheckKeys`, and the in-container
+//     secret mode observed as `observedSecretModes` or `mode`.
+//   reload-burst (AC-composeHost-zeroDowntimeReload): `total`,
+//     `twoXx`, `drops`, `overlapCount` and `clockDomain` all on
+//     the same server clock.
 //
 //   `notObservableHere` is reserved for browser-only ACs. The
 //   platform-docker-compose-host blueprint has no browser-only ACs,
@@ -74,35 +84,27 @@ async function runProbe(name, env = {}) {
 // A row that only carries `{probeName, reason}` never counts, and a
 // numeric identity value of zero is not an observation.
 const ENGINE_MINTED_ID_FIELDS = new Set([
-  // Vendor-returned or resource ids minted by the vendor / mock /
-  // engine that produced the row. `containerId` is the 64-hex
-  // Docker container id from `docker inspect`, never the service
-  // or container name Compose chose.
-  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
-  'containerId', 'requestId', 'vendorRequestId', 'resourceId',
+  // Vendor-minted or resource ids returned by the vendor API, plus
+  // the 64-hex `containerId` from `docker inspect --format
+  // '{{.Id}}'`. Generic `id` and `resourceId` are NOT accepted; a
+  // counting row must carry the resource-specific field.
+  'serverId', 'snapshotId', 'firewallId', 'imageId',
+  'containerId', 'vendorRequestId', 'requestId',
 ]);
 const DERIVED_OBSERVATION_FIELDS = new Set([
-  // Textual samples / excerpts
-  'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample', 'tail',
-  // Vendor-return field values (concrete observed values)
-  'primaryIpv4', 'location', 'serverType',
-  // Numeric derived values (non-zero required by isNonEmpty)
-  'statusCode', 'mode', 'wallClockTime', 'renderedByteLength', 'exitStatus',
-  'reloadDurationMs', 'overlapCount', 'twoXx', 'total', 'drops', 'expectedTotal',
-  'elicitedTimeoutSeconds', 'elicitedReloadWindowSeconds', 'elicitedReloadWindowMs',
-  'burstDurationMs', 'eventCount', 'fileCount',
-  // Structured derived observations (non-empty required by isNonEmpty)
-  'payloadKeys', 'observedKeys', 'presentBlocks', 'missingBlocks', 'sourceIps',
-  'ruleNames', 'observedDrivers', 'observedBinding', 'observedEvents', 'eventTrail',
-  'headers', 'healthcheckKeys', 'requiredFields', 'shippedEnum',
-  'allowedKeysByEvent', 'unexpectedKeys', 'leaks',
-  'discoveredConfigSources', 'consumingServices', 'declaredMode',
-  'declaredServices', 'observedNames',
-  'observedSecretModes', 'baselineChecks', 'sshReadiness', 'cloudInit', 'teardown',
-  'warm', 'burst', 'composeDown', 'onServer', 'onServerRoot', 'external',
-  'postTeardownServerIds', 'unhealthyServices', 'missingServices',
-  'observed', 'dockerVersion', 'driver', 'restart', 'ports', 'port',
-  'direction', 'protocol', 'clockDomain',
+  // minimal-stack-up: healthy services and the in-container secret
+  // mode observed on the 64-hex containerId
+  'observedNames', 'healthcheckKeys', 'observedSecretModes', 'mode',
+  // reload-burst: request totals and reload-overlap counts, on the
+  // server clock
+  'total', 'twoXx', 'drops', 'overlapCount', 'clockDomain',
+  'reloadDurationMs', 'burstDurationMs', 'expectedTotal',
+  // Support fields for the counting-row observations above
+  'statusCode', 'bodyExcerpt', 'tailExcerpt', 'wallClockTime',
+  // Skip-row / offline conformanceOnly rows still need at least
+  // one derived observation to satisfy the shape check when they
+  // are wrongly anchored; keep a small tail here for that.
+  'exitStatus', 'renderedByteLength', 'eventCount',
 ]);
 // The platform-docker-compose-host blueprint ships process/live-
 // observable ACs only; no browser-only rendering is in scope. This
@@ -168,37 +170,16 @@ async function assertRowsCarry7dShape(rows, label) {
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
     const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const suppliedEchoPair = findSuppliedEchoPair(ev);
     const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
-    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, engine request id, or a 64-hex Docker container id from docker inspect) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(engineIdKeysPresent.length > 0, `${label}: row evidence lacks a vendor-minted identifier (serverId, snapshotId, firewallId, imageId, containerId, vendorRequestId or requestId returned by the vendor API); no supplied/echo path exists for this family. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a row-specific derived observation (see the per-probe observation fields at the top of this file: observedNames/healthcheckKeys and observedSecretModes/mode for minimal-stack-up; total, twoXx, drops, overlapCount and clockDomain for reload-burst); generic fields like 'observed', 'port', 'protocol' do not count. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
-}
-
-// A supplied/echo pair is any `supplied<Name>` field paired with a
-// matching `echoed<Name>` field where both are non-empty and
-// strictly equal. Deep equality via JSON stringify covers arrays and
-// plain objects.
-function findSuppliedEchoPair(ev) {
-  for (const k of Object.keys(ev)) {
-    if (!k.startsWith('supplied') || k.length <= 'supplied'.length) continue;
-    const echoKey = 'echoed' + k.slice('supplied'.length);
-    if (!(echoKey in ev)) continue;
-    const a = ev[k];
-    const b = ev[echoKey];
-    if (!isNonEmpty(a) || !isNonEmpty(b)) continue;
-    const aRep = typeof a === 'object' ? JSON.stringify(a) : a;
-    const bRep = typeof b === 'object' ? JSON.stringify(b) : b;
-    if (aRep === bRep) return { key: k, echoKey };
-  }
-  return null;
 }
 
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.8');
+  assert.equal(bp.version, '1.1.9');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');

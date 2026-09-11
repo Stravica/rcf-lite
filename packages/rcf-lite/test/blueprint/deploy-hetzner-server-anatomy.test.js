@@ -41,31 +41,39 @@ async function runProbe(name, env = {}) {
 //   (a) an honest skip: accountBoundSkipped === true AND reason is
 //       exactly one of the declared gate variables in the fixture
 //       README env-var table for this blueprint, OR
-//   (b) evidence carries BOTH a non-empty ENGINE-MINTED IDENTIFIER
-//       and a non-empty DERIVED OBSERVATION.
+//   (b) evidence carries BOTH a non-empty VENDOR-MINTED IDENTIFIER
+//       and a non-empty ROW-SPECIFIC DERIVED OBSERVATION.
 //
-// Engine-minted identifier: one of a small explicit set of fields
-// whose value is minted by the engine or vendor that produced the
-// row (a vendor-returned server / snapshot / firewall / image /
-// container id, an engine request id, or the 64-hex Docker
-// container id from `docker inspect`) with a non-empty value; OR a
-// supplied/echo pair, where the row carries `supplied<Name>` and a
-// matching `echoed<Name>` field, both non-empty and strictly equal
-// (the probe supplied a value, the engine echoed it back).
+// Vendor-minted identifier: one of a small explicit set of fields
+// whose value was minted by the vendor API for this row (a
+// vendor-returned server id, snapshot id, firewall id, image id,
+// vendor request id, or a 64-hex Docker container id from
+// `docker inspect`). Nothing else counts: probe-computed hashes,
+// event names, file paths, service or manifest names, container
+// names the runner chose, and probe inputs are derived context,
+// never identity. There is no supplied/echo path for this family:
+// a value the probe supplied is not evidence that the engine
+// echoed it back with vendor-minted state, and the pair is
+// therefore not an identifier.
 //
-// A hash the probe itself computes over an artefact it read is NOT
-// an identifier; event names, file paths, service names, manifest
-// names, resource names the probe chose, and other probe inputs
-// count only as derived context, never as the identifier or the
-// observation. Rows on offline probes (validators, source-tree
-// scans) that have no engine-minted identifier are honest
-// `conformanceOnly` rows naming the shipped AC clause they do not
-// observe; identity and observation checks apply to anchored rows
-// only.
+// Mock and offline rows have no vendor-minted identifier by nature
+// and are always `conformanceOnly` de-claims with `anchorAcId: null`
+// and a `limitation` string naming the shipped AC clause they do
+// not observe; identity and observation checks apply to anchored
+// (counting) rows only.
 //
-// Derived observation: a body excerpt, status code, observed mode,
-// engine timestamp, non-zero count, or structured engine-returned
-// object.
+// Row-specific derived observation: for each counting probe on this
+// blueprint the field(s) that constitute its observation are named
+// below, and only those satisfy the observation half. Generic
+// fields (`observed`, `port`, `protocol`, `direction`) do not
+// count.
+//
+//   provision: `primaryIpv4` and `location` returned by the vendor
+//   cloud-init hardened: `exitStatus` on `cloud-init status --wait`
+//     plus the six baseline-check excerpts under `baselineChecks`
+//   snapshot on demand: `postCreateSnapshotIds` (id present after
+//     create) and `postTeardownSnapshotIds` (id absent after
+//     teardown), sampled via `hcloud image list`
 //
 //   `notObservableHere` is reserved for browser-only ACs. The
 //   deploy-hetzner-server blueprint has no browser-only ACs, so
@@ -75,32 +83,29 @@ async function runProbe(name, env = {}) {
 // A row that only carries `{probeName, reason}` never counts, and a
 // numeric identity value of zero is not an observation.
 const ENGINE_MINTED_ID_FIELDS = new Set([
-  // Vendor-returned or resource ids minted by the vendor / mock
-  // shim that produced the row.
-  'id', 'serverId', 'snapshotId', 'firewallId', 'imageId',
-  'containerId', 'requestId', 'vendorRequestId', 'resourceId',
+  // Vendor-minted or resource ids returned by the vendor API (or,
+  // for the compose blueprint, the 64-hex `containerId` from
+  // `docker inspect`). Generic `id` and `resourceId` are NOT
+  // accepted; a counting row must carry the resource-specific field.
+  'serverId', 'snapshotId', 'firewallId', 'imageId',
+  'containerId', 'vendorRequestId', 'requestId',
 ]);
 const DERIVED_OBSERVATION_FIELDS = new Set([
-  // Textual samples / excerpts
-  'bodyExcerpt', 'tailExcerpt', 'snippet', 'renderHashSample',
-  // Vendor-return field values (concrete observed values)
-  'primaryIpv4', 'location', 'serverType',
-  // Numeric derived values (non-zero required by isNonEmpty)
-  'statusCode', 'mode', 'wallClockTime', 'renderedByteLength', 'exitStatus',
-  'reloadDurationMs', 'overlapCount', 'twoXx', 'total', 'drops', 'expectedTotal',
-  'elicitedTimeoutSeconds', 'burstDurationMs', 'readerCount', 'eventCount', 'fileCount',
-  // Structured derived observations (non-empty required by isNonEmpty)
-  'payloadKeys', 'observedKeys', 'presentBlocks', 'missingBlocks', 'sourceIps',
-  'ruleNames', 'observedDrivers', 'observedBinding', 'observedEvents', 'eventTrail',
-  'readers', 'headers', 'healthcheckKeys', 'requiredFields', 'shippedEnum',
-  'snapshotCadence', 'allowedKeysByEvent', 'scannedMarkers', 'unexpectedKeys',
-  'unexpectedReaders', 'leaks',
-  'baselineServerIds', 'baselineSnapshotIds', 'postProvisionServerIds',
-  'postTeardownServerIds', 'postCreateSnapshotIds', 'postTeardownSnapshotIds',
-  'postCreateSnapshotCarriedId', 'postProvisionMatch', 'labelMatch',
-  'hetznerServerProvisionedEvent', 'hetznerSnapshotTakenEvent',
-  'sshReadiness', 'cloudInit', 'baselineChecks', 'teardown', 'observedSecretModes',
-  'observed', 'observedNames', 'declaredServices',
+  // provision (AC-37103-*): vendor-returned resource shape
+  'primaryIpv4', 'location',
+  // cloud-init hardened (AC-37105-*): cloud-init status exit and
+  // six baseline-check bodies
+  'exitStatus', 'baselineChecks', 'sshReadiness',
+  // snapshot on demand (AC-37108-*): id present-then-absent
+  'postCreateSnapshotIds', 'postTeardownSnapshotIds',
+  'postCreateSnapshotCarriedId', 'postProvisionServerIds',
+  'postTeardownServerIds',
+  // Support fields for the counting-row observations above
+  'wallClockTime', 'bodyExcerpt', 'tailExcerpt', 'statusCode',
+  // Skip-row / offline conformanceOnly rows still need at least
+  // one derived observation to satisfy the shape check when they
+  // are wrongly anchored; keep a small tail here for that.
+  'eventCount', 'renderedByteLength',
 ]);
 // Browser-only ACs are the only ones that may legitimately carry a
 // notObservableHere row. The deploy-hetzner-server blueprint ships
@@ -164,43 +169,26 @@ async function assertRowsCarry7dShape(rows, label) {
     }
     const ev = (r.evidence && typeof r.evidence === 'object') ? r.evidence : {};
     const engineIdKeysPresent = Object.keys(ev).filter((k) => ENGINE_MINTED_ID_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const suppliedEchoPair = findSuppliedEchoPair(ev);
     const observationKeysPresent = Object.keys(ev).filter((k) => DERIVED_OBSERVATION_FIELDS.has(k) && isNonEmpty(ev[k]));
-    const hasIdentity = engineIdKeysPresent.length > 0 || suppliedEchoPair !== null;
-    assert.ok(hasIdentity, `${label}: row evidence lacks an engine-minted identifier (vendor / resource id, engine request id, or a 64-hex Docker container id from docker inspect) AND lacks a supplied/echo pair with equality; keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
-    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a derived observation (excerpt, statusCode, mode, engine timestamp, non-zero count, or structured engine-returned object); keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(engineIdKeysPresent.length > 0, `${label}: row evidence lacks a vendor-minted identifier (serverId, snapshotId, firewallId, imageId, containerId, vendorRequestId or requestId returned by the vendor API); no supplied/echo path exists for this family. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
+    assert.ok(observationKeysPresent.length > 0, `${label}: row evidence lacks a row-specific derived observation (see the per-probe observation fields at the top of this file: primaryIpv4/location for provision, exitStatus/baselineChecks for cloud-init hardened, postCreateSnapshotIds/postTeardownSnapshotIds for snapshot on demand); generic fields like 'observed', 'port', 'protocol' do not count. Keys observed: ${Object.keys(ev).join(', ')} : ${JSON.stringify(r).slice(0, 400)}`);
   }
-}
-
-// A supplied/echo pair is any `supplied<Name>` field paired with a
-// matching `echoed<Name>` field where both are non-empty and
-// strictly equal. Deep equality via JSON stringify covers arrays and
-// plain objects.
-function findSuppliedEchoPair(ev) {
-  for (const k of Object.keys(ev)) {
-    if (!k.startsWith('supplied') || k.length <= 'supplied'.length) continue;
-    const echoKey = 'echoed' + k.slice('supplied'.length);
-    if (!(echoKey in ev)) continue;
-    const a = ev[k];
-    const b = ev[echoKey];
-    if (!isNonEmpty(a) || !isNonEmpty(b)) continue;
-    const aRep = typeof a === 'object' ? JSON.stringify(a) : a;
-    const bRep = typeof b === 'object' ? JSON.stringify(b) : b;
-    if (aRep === bRep) return { key: k, echoKey };
-  }
-  return null;
 }
 
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.8');
+  assert.equal(bp.version, '1.1.9');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
   await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
-  const readyResult = out.results.find((r) => r.anchorAcId === 'AC-37101-1' && r.detail.includes('provisionerReady fired'));
-  assert.ok(readyResult, `expected a provisionerReady pass result; got: ${JSON.stringify(out.results, null, 2)}`);
+  // AC-37101-1 is no longer credited by the offline mock (mock ids
+  // are not vendor-minted): the sole-reader and provisionerReady
+  // clauses land on a conformanceOnly de-claim whose limitation
+  // starts with AC-37101-1.
+  const readyResult = out.results.find((r) => r.conformanceOnly === true && r.anchorAcId === null && typeof r.limitation === 'string' && r.limitation.startsWith('AC-37101-1') && r.detail.includes('provisionerReady fired'));
+  assert.ok(readyResult, `expected an AC-37101-1 conformanceOnly de-claim with a provisionerReady pass detail; got: ${JSON.stringify(out.results, null, 2)}`);
   assert.equal(readyResult.verdict, 'pass');
   assert.ok(readyResult.evidence && readyResult.evidence.eventName === 'provisionerReady', 'evidence must carry eventName');
   // AC-37101-1 clause (a): the provisioner facade module is the SOLE
@@ -321,8 +309,12 @@ test('deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe de
 test('deploy-hetzner-server AC-11501-1 lifecycle events metadata only', async () => {
   const out = await runProbe('hcloud-dry-run-mock');
   await assertRowsCarry7dShape(out.results, 'hcloud-dry-run-mock');
-  const secrecy = out.results.find((r) => r.anchorAcId === 'AC-37109-1');
-  assert.ok(secrecy, `expected an event-secrecy scan result`);
+  // AC-37109-1 is no longer credited by the offline mock (mock ids
+  // are not vendor-minted): the event-secrecy scan lands on a
+  // conformanceOnly de-claim whose limitation starts with
+  // AC-37109-1.
+  const secrecy = out.results.find((r) => r.conformanceOnly === true && r.anchorAcId === null && typeof r.limitation === 'string' && r.limitation.startsWith('AC-37109-1'));
+  assert.ok(secrecy, `expected an AC-37109-1 conformanceOnly de-claim from the event-secrecy scan`);
   assert.equal(secrecy.verdict, 'pass', `event-secrecy scan should pass on canonical state; got: ${secrecy.detail}`);
   const eventNames = new Set(out.extra.events.map((e) => e.event));
   for (const n of ['provisionerReady', 'hetznerServerProvisioned', 'hetznerSnapshotTaken', 'hetznerServerDestroyed']) {
