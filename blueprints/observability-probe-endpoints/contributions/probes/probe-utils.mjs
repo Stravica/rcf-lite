@@ -44,6 +44,6 @@ export async function runShim(probeName, engine, mainFn) {
     process.exitCode = 1;
   }
 }
-function port(envName) { const v = process.env[envName]; if (v === undefined || v === '') return 0; const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 65535 ? n : 0; }
-export const primaryPort = () => port('RCF_FIXTURE_OBS_PROBE_PORT');
-export const separatePort = () => port('RCF_FIXTURE_OBS_PROBE_SEPARATE_PORT');
+function portFrom(v) { if (v === undefined || v === '') return 0; const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 65535 ? n : 0; }
+export const primaryPort = () => portFrom(process.env.RCF_FIXTURE_OBS_PROBE_PORT);
+export const separatePort = () => portFrom(process.env.RCF_FIXTURE_OBS_PROBE_SEPARATE_PORT);

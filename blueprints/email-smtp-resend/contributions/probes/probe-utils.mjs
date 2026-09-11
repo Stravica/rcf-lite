@@ -43,7 +43,8 @@ export async function runShim(probeName, engine, mainFn) {
     process.exitCode = 1;
   }
 }
+function portFrom(v) { if (v === undefined || v === '') return 0; const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 65535 ? n : 0; }
 export function envPort(name) {
-  const v = process.env[name]; if (v === undefined || v === '') return 0;
-  const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 65535 ? n : 0;
+  if (name === 'RCF_FIXTURE_SMTP_PORT') return portFrom(process.env.RCF_FIXTURE_SMTP_PORT);
+  return 0;
 }

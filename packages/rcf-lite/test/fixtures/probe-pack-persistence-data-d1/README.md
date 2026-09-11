@@ -25,9 +25,11 @@ Live branch (real Cloudflare D1):
   aggregate flips to pass per spec section 3.5.
 - `CF_ACCOUNT_ID` (second-tier): Cloudflare account id.
 - `CF_API_TOKEN` (second-tier): Cloudflare API token; the token's
-  D1 scope is what the probe exercises. A 403/10000 on the first
-  D1 call is recorded as an honest skip naming the missing scope,
-  not a retry loop, per the master brief for criterion e 2026-09-11.
+  D1 scope is what the probe exercises. When the gate is set and
+  credentials are set, a 401/403/auth-code response from the vendor
+  is recorded as a FAIL (not a skip): the operator has asserted an
+  account is present so an auth failure is a real failure, per the
+  master brief for criterion e 2026-09-11 addendum.
 
 The account-bound probe creates a scratch D1 database named
 `qa-e-d1-<short>`, runs one migration and one query against it,

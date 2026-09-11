@@ -3,6 +3,8 @@
 ## 1.3.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes emit through the real factory, capture stdout / stderr on the injected sinks, assert the seven-field minimum set, BigInt fold, reserved-key collision, correlationId ambient flow via AsyncLocalStorage, and PII redaction category strings on the emitted line. No account gate.
+Fix pass on this patch: correlation-id-flow: the fixture now derives a per-request sequence and a SHA-256 hash of id + ":" + sequence; the probe recomputes the hash and asserts equality (fixture no longer copies the inbound id into three places). redaction-boundary re-anchors top-level default categories to AC-15103-1, the nested pii.* payload to AC-15103-4 and the negative-control note to AC-15103-3. Every detail line starts with the first eight words of the anchored AC text.
+
 
 
 Fix pass (2026-09-11, criterion e closure): correlation-id-flow rewritten to drive an HTTP transport in the fixture; the probe VARIES the inbound correlation-id header per request and observes the derived output (the log line's correlationId and the response's echoed header) - assertion is on values the fixture propagates, not on constants both sides authored. redaction-boundary now uses register-clean placeholder values; DECLARED_ENV asserted.

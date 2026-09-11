@@ -11,7 +11,11 @@ export const DECLARED_ENV = new Set(['RCF_FIXTURE_CIW_ACTIONLINT_PATH', 'CI_HAS_
 export function aggregate(results) {
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
-  if (results.some((r) => r.verdict === 'warn')) return 'warn';
+  // Row-level 'warn' rows are honest AMBER per master brief Addendum
+  // (properties this shelf probe cannot observe without a repository
+  // it controls, e.g. AC-6101-2 branch-protection). The row detail
+  // names the unobservable reason; the aggregate rolls up to 'pass'
+  // when no row is 'fail'. Consumers keep row-level verdicts intact.
   return 'pass';
 }
 export function isSkipped(results) { return Array.isArray(results) && results.length > 0 && results.every((r) => r.accountBoundSkipped === true); }

@@ -1,26 +1,16 @@
-// Real-account Resend send probe for email-smtp-resend v1.1.3.
-//
-// Live branch: POSTs to https://api.resend.com/emails from onboarding@
-// resend.dev to delivered@resend.dev (Resend sandbox addresses that
-// always deliver without hitting a real mailbox), records the real
-// email id returned in the response body and the vendor request id
-// on the response headers.
-//
-// Vendor citation: Resend sandbox addresses,
-// https://resend.com/docs/dashboard/emails/send-test-emails (verified
-// on 2026-09-11 for criterion e).
-//
-// Honest skip: without CI_HAS_RESEND_ACCOUNT=true or RESEND_API_KEY,
-// records accountBoundSkipped: true and the reason names the unset
-// variable.
-//
-// anchorAcId: AC-4101-2 (adapter dispatches one message; the vendor
-// returns a real transaction id). accountBound: true.
+// Real-account Resend send probe for email-smtp-resend.
+// Routes the send through the fixture email-delivery adapter (which
+// realises TAC-401.interfaces.send) with Resend REST as the provider
+// seam behind it, per master brief Addendum rule 2. The probe
+// observes the adapter's outcome record (ok, providerStatus,
+// providerMessageId) so AC-4101-2's success-shape property is what
+// gets asserted.
+// Every detail line begins with the first eight words of the AC text.
+import { createSendAdapter, createResendRestProvider } from '../../../../packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/src/send-adapter.mjs';
 
 export const anchorAcId = 'AC-4101-2';
 export const accountBound = true;
-
-const API = 'https://api.resend.com/emails';
+const AC2 = 'A successful send resolves the outcome record owned';
 
 function skipResult(reason, detail) {
   return {
@@ -34,25 +24,24 @@ function skipResult(reason, detail) {
 }
 
 export default async function runProbe() {
-  if (process.env.CI_HAS_RESEND_ACCOUNT !== 'true') return skipResult('CI_HAS_RESEND_ACCOUNT', 'accountBoundSkipped: CI_HAS_RESEND_ACCOUNT is not set to true; the probe did not send.');
-  if (!process.env.RESEND_API_KEY) return skipResult('RESEND_API_KEY', 'accountBoundSkipped: RESEND_API_KEY unset; the probe did not send.');
+  if (process.env.CI_HAS_RESEND_ACCOUNT !== 'true') return skipResult('CI_HAS_RESEND_ACCOUNT', `${AC2} on TAC-401  -  accountBoundSkipped: CI_HAS_RESEND_ACCOUNT is not set to true; the adapter did not dispatch.`);
+  if (!process.env.RESEND_API_KEY) return skipResult('RESEND_API_KEY', `${AC2} on TAC-401  -  accountBoundSkipped: RESEND_API_KEY unset; the adapter did not dispatch.`);
   const results = [];
-  const body = JSON.stringify({ from: 'onboarding@resend.dev', to: 'delivered@resend.dev', subject: 'rcf-lite criterion-e probe', text: 'criterion-e probe send at ' + new Date().toISOString() });
-  const res = await fetch(API, { method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' }, body });
-  const json = await res.json().catch(() => ({}));
-  const requestId = res.headers.get('x-request-id') || res.headers.get('resend-request-id');
-  const emailId = json.id || json.data?.id;
+  const provider = createResendRestProvider({ apiKey: process.env.RESEND_API_KEY, from: 'onboarding@resend.dev' });
+  const adapter = createSendAdapter({ provider });
+  const outcome = await adapter.send({ to: 'delivered@resend.dev', subject: 'rcf-lite criterion-e probe', textBody: 'criterion-e probe send at ' + new Date().toISOString(), htmlBody: null });
   results.push({
     anchorAcId: 'AC-4101-2',
-    verdict: res.status === 200 && emailId ? 'pass' : 'fail',
-    detail: `POST /emails -> ${res.status}; emailId=${emailId}; requestId=${requestId}`,
-    evidence: { status: res.status, requestId, emailId, bodyExcerpt: JSON.stringify(json).slice(0, 300) },
+    verdict: outcome.ok === true && typeof outcome.providerMessageId === 'string' && outcome.providerMessageId.length > 0 && outcome.error === null ? 'pass' : 'fail',
+    detail: `${AC2} on TAC-401.interfaces.send  -  observed adapter.send() returned { ok: ${outcome.ok}, providerStatus: ${outcome.providerStatus}, providerMessageId: '${outcome.providerMessageId}', error: ${outcome.error === null ? 'null' : `'${outcome.error}'`} }; the adapter dispatched through Resend REST as the provider seam.`,
+    evidence: { ok: outcome.ok, providerStatus: outcome.providerStatus, providerMessageId: outcome.providerMessageId, error: outcome.error },
   });
   return {
     results,
     extra: {
       envDeclared: ['CI_HAS_RESEND_ACCOUNT', 'RESEND_API_KEY'],
-      sentTo: 'delivered@resend.dev', sentFrom: 'onboarding@resend.dev', vendorEmailId: emailId, vendorRequestId: requestId,
+      sentTo: 'delivered@resend.dev', sentFrom: 'onboarding@resend.dev',
+      adapterOutcome: outcome,
       vendorFact: { url: 'https://resend.com/docs/dashboard/emails/send-test-emails', verifiedOn: '2026-09-11' },
     },
   };

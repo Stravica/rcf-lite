@@ -3,6 +3,8 @@
 ## 1.1.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24, record real integer row ids, the applied-migration list from schema_migrations, and the wal_checkpoint(TRUNCATE) counters, and the WAL sidecar shrink after truncate. No account gate.
+Fix pass on this patch: facade-round-trip re-anchors CRUD rows to REQ-007 (facade boundary + narrow verbs) and events row to REQ-006 (event log with defined fields); wal-checkpoint re-anchors to REQ-005 (WAL crash safety, the durability posture no shipped AC states directly); probe-utils writes the normalised results into the persisted report; every detail line starts with the first eight words of the anchored AC or REQ text.
+
 
 
 Fix pass (2026-09-11, criterion e closure): wal-checkpoint pass predicate now requires a non-null pre-checkpoint WAL size AND a reduction to zero; aggregate([]) fails; DECLARED_ENV derived and asserted.

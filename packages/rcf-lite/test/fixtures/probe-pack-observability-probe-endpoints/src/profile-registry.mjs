@@ -61,17 +61,17 @@ export async function materialise({ profile, listenerPort, separateListenerPort 
     res.setHeader('content-type', 'application/json');
     if (req.url === p.paths.liveness) {
       res.statusCode = 200;
-      res.end(JSON.stringify({ profile: p.name, kind: 'liveness', status: 'live' }));
+      res.end(JSON.stringify({ profile: p.name, kind: 'liveness', status: 'pass' }));
       return;
     }
     if (req.url === p.paths.readiness) {
       res.statusCode = 200;
-      res.end(JSON.stringify({ profile: p.name, kind: 'readiness', status: 'ready' }));
+      res.end(JSON.stringify({ profile: p.name, kind: 'readiness', status: 'pass' }));
       return;
     }
     if (p.paths.startup && req.url === p.paths.startup) {
       res.statusCode = startupReady ? 200 : 503;
-      res.end(JSON.stringify({ profile: p.name, kind: 'startup', status: startupReady ? 'ready' : 'starting' }));
+      res.end(JSON.stringify({ profile: p.name, kind: 'startup', status: startupReady ? 'pass' : 'fail' }));
       return;
     }
     res.statusCode = 404; res.end(JSON.stringify({ error: 'not-found' }));

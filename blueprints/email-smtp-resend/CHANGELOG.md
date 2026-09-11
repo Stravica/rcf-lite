@@ -3,6 +3,8 @@
 ## 1.1.4 - 2026-09-11
 
 Adds a contributions/probes/ pack (smtp-round-trip, unverified-sender-refusal, real-account-resend-send) with a fixture-side node:net catch-all SMTP server + minimal SMTP dialler under packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/. Local probes assert full EHLO/MAIL/RCPT/DATA round-trip with a per-connection message id and the 5.7.1 unverified-sender rejection contract. The real-account probe is gated on CI_HAS_RESEND_ACCOUNT and sends to delivered@resend.dev from onboarding@resend.dev, recording the real email id returned by Resend. Vendor citation https://resend.com/docs/dashboard/emails/send-test-emails (verified 2026-09-11).
+Fix pass on this patch: real-account-resend-send now routes through the fixture email-delivery adapter (new fixture module realising TAC-401.interfaces.send) with Resend REST as the provider seam behind it, so the probe observes the adapter outcome record AC-4101-2 states rather than a raw REST body; smtp-round-trip re-anchors to REQ-002 (Resend SMTP transport); unverified-sender-refusal splits into AC-4102-1 (classification) and AC-4102-2 (no recipient/subject/body leak). Every detail line starts with the first eight words of the anchored AC or REQ text.
+
 
 
 Fix pass (2026-09-11, criterion e closure): unverified-sender-refusal now asserts the exact `550 5.7.1` contract prefix (not merely numeric 550); aggregate([]) fails; DECLARED_ENV asserted.

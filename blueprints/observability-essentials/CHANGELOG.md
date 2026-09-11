@@ -3,6 +3,8 @@
 ## 2.1.3 - 2026-09-11
 
 Adds a contributions/probes/ pack (liveness-probe, readiness-probe, metrics-endpoint) with a fixture-side node:http probe server on 127.0.0.1. Probes drive real HTTP round-trips against the fixture, record the x-request-id header the server echoes and the response body excerpts; readiness records the per-dependency status list; metrics asserts the Prometheus 0.0.4 content-type. No account gate.
+Fix pass on this patch: liveness fixture returns body.status=pass on healthy per AC-7101-1 and an empty body with content-length 0 on the unhealthy 503 per AC-7101-5; readiness fixture returns body.status=pass/fail per AC-7102-1 and a checks object keyed by declared dependency with { state, checkedAt } per AC-7103-1/2; fixture close() propagates registered teardown errors (no swallowed teardown); the previous metrics-endpoint probe is repurposed to observe the /status HTML endpoint anchored to AC-7104-1/2/3 (a new fixture endpoint renders declared components in declaration order); every detail line starts with the first eight words of the anchored AC text.
+
 
 
 Fix pass (2026-09-11, criterion e closure): readiness-probe now registers a real TCP dependency the probe controls, and observes the fixture actually dialling it up and (after the probe closes the port) reporting it down with a derived reason; metrics-endpoint asserts the request-counter delta equals the number of requests the probe sent; liveness echoes probe-varied x-request-id headers. All three probes now vary inputs and assert derived outputs, not constants.

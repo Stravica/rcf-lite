@@ -50,7 +50,7 @@ export async function writeReport({ probeName, engine, results, extra }) {
     probeName,
     runAt: new Date().toISOString(),
     engine,
-    results,
+    results: normalised,
     aggregateVerdict,
     ...(extra ?? {}),
   };

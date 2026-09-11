@@ -132,9 +132,24 @@ export const LEVEL_ORDER = LEVELS;
 // constant both sides authored.
 
 import { createServer } from 'node:http';
+import { createHash } from 'node:crypto';
+
+// The fixture DERIVES per-request outputs from the inbound correlation
+// id rather than copying it into three surfaces. Contract:
+//   - the log line carries `correlationId` = inbound id (per AC-15102-1),
+//     PLUS a fixture-computed `sequence` (per-server monotonic counter)
+//     AND `hash` = SHA-256(id + ":" + sequence) truncated to 16 hex chars.
+//   - the response HEADER carries the inbound id verbatim (contract).
+//   - the response BODY carries only the fixture-computed `sequence`
+//     and `hash` (NOT the id).
+// A probe supplies varying ids, reads sequence + hash from the body,
+// and recomputes SHA-256(id + ":" + sequence) to verify the fixture
+// actually derived hash from those inputs rather than echoing a shared
+// constant.
 
 export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
   const norm = headerName.toLowerCase();
+  let sequence = 0;
   const server = createServer((req, res) => {
     const inbound = req.headers[norm];
     const bodyChunks = [];
@@ -147,12 +162,15 @@ export function createLoggerHttp({ headerName = 'x-correlation-id', logger }) {
         res.end(JSON.stringify({ error: 'missing-correlation-header', headerName: norm }));
         return;
       }
+      sequence += 1;
+      const thisSequence = sequence;
+      const hash = createHash('sha256').update(`${inbound}:${thisSequence}`).digest('hex').slice(0, 16);
       runWithCorrelation(inbound, () => {
-        logger.info('inbound-request', { path: req.url, method: req.method, bodyBytes: requestBody.length });
+        logger.info('inbound-request', { path: req.url, method: req.method, bodyBytes: requestBody.length, sequence: thisSequence, hash });
         res.setHeader(headerName, inbound);
         res.setHeader('content-type', 'application/json');
         res.statusCode = 200;
-        res.end(JSON.stringify({ ok: true, echoed: inbound }));
+        res.end(JSON.stringify({ ok: true, sequence: thisSequence, hash }));
       });
     });
   });

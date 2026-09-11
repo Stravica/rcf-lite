@@ -3,6 +3,8 @@
 ## 1.2.2 - 2026-09-11
 
 Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry + node:http materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Materialises the kubernetes-request-listener and kubernetes-startup profiles on 127.0.0.1, drives real HTTP GETs against declared paths, asserts the startup-phase flip from 503 to 200, and refuses partial profiles at boot with a named missing key. No account gate.
+Fix pass on this patch: profile-registry fixture returns body.status=pass on liveness/readiness and pass/fail on startup per AC-14102-1/3/4 (no more live/ready/starting body strings); kubernetes-startup-enabled re-anchors to AC-14102-4; partial-profile-refusal re-anchors refusal rows to AC-14103-2 and the well-formed acceptance to AC-14103-1; every detail line starts with the first eight words of the anchored AC text.
+
 
 
 Fix pass (2026-09-11, criterion e closure): profile-boot-materialisation now reads AND records the Response objects (headers with echoed x-request-id, body excerpts). kubernetes-startup-enabled varies request-id per call and asserts fixture echoes it. All probes vary inputs and assert derived outputs.

@@ -3,6 +3,8 @@
 ## 1.1.3 - 2026-09-11
 
 Adds a contributions/probes/ pack (facade-round-trip, migrations-forward-only, real-account-d1-round-trip) with a fixture-side sqlite-backed D1 binding mock and persistence facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/. The real-account probe is gated on CI_HAS_CLOUDFLARE_ACCOUNT and creates a scratch D1 database (name prefix qa-e-d1-), applies a migration and a query, deletes the database and confirms the uuid is absent from the account's D1 inventory (created-then-deleted-resource-id shape). Vendor citation https://developers.cloudflare.com/api/operations/cloudflare-d1-list-databases (verified 2026-09-11).
+Fix pass on this patch: facade-round-trip re-anchors named-verb rows to AC-13101-2 and missing-binding to AC-13101-4 (facadeReady one-fires under REQ-001); migrations-forward-only rows anchor AC-13102-2 and AC-13102-3; real-account rows anchor REQ-001 (facade-binding substrate reachability) with the AMBIENT vendor CRUD honesty; a credential-present 4xx/auth failure is a FAIL per fixture README; every detail line starts with the first eight words of the anchored AC or REQ text.
+
 
 
 
@@ -21,6 +23,6 @@ Adds deliveredBy on REQ-001. Adds ownerRef and disposition to every AC. Closes c
 
 
 
-Review-fix (2026-09-09): Version bumped from 1.0.1 to 1.1.0 to reflect the net-added AC contributions on existing stories (migration-D1-binding failure paths added under US-13101; deploy-gate quota-exhausted added under US-13102). Prior 1.0.1 entry reclassified as prose-only; this bump covers the AC additions per section 8.
+Review-fix (2026-09-09): Version bumped from 1.0.1 to 1.1.0 to reflect the net-added AC contributions on existing stories (migration-D1-binding failure paths added under US-13101; deploy-gate quota-exhausted added under user story 13102). Prior 1.0.1 entry reclassified as prose-only; this bump covers the AC additions per section 8.
 
 Adds deliveredBy on REQ-002 through REQ-007 (six of seven mandatory REQs). Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-13103-1, AC-13104-3, AC-13105-2).
