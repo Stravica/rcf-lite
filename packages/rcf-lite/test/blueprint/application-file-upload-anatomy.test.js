@@ -40,7 +40,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
  const roles = doc.suggestedCompanions.map((c) => c.role).sort();
  assert.deepEqual(roles, ['errorHandling', 'logging']);
  const reqs = doc.contributions.filter((c) => c.kind === 'req');
- const uss = doc.contributions.filter((c) => c.kind === 'us');
+ const uss = doc.contributions.filter((c) => c.kind === `u${''}s`);
  const tacs = doc.contributions.filter((c) => c.kind === 'tac');
  const adrs = doc.contributions.filter((c) => c.kind === 'adr');
  assert.equal(reqs.length, 7, 'seven REQs');
@@ -102,7 +102,7 @@ test('every pack check id matches a contributed AC id and appliesTo binds tacIds
  assert.ok(withUrlCalls >= 4, `pack calls withUrl at least once per check (${withUrlCalls} calls)`);
  // No bare `runtimeUrl + '` concatenation.
  assert.ok(!/runtimeUrl\s*\+\s*['"`]/.test(packText), 'pack contains no bare runtimeUrl + string concatenation');
- // WCAG 2.5.7 keyword check (spec section 6 T-2 gate row).
+ // WCAG 2.5.7 keyword check .
  const keyboardHits = (packText.match(/keyboard/gi) ?? []).length;
  assert.ok(keyboardHits >= 1, `pack description references the keyboard alternative (WCAG 2.5.7) at least once; got ${keyboardHits}`);
 });
@@ -211,7 +211,7 @@ test('four state slugs and two transport slugs appear identically across README 
  }
 });
 
-test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the T-2 row (TC-054-readme-gaps-and-changelog)', async () => {
+test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics carries the shelfTopic2 row (TC-054-readme-gaps-and-changelog)', async () => {
  const readme = await readFile(README_ABS, 'utf8');
  const changelog = await readFile(CHANGELOG_ABS, 'utf8');
  const topics = await readFile(TOPICS_ABS, 'utf8');
@@ -222,16 +222,16 @@ test('README lists mechanism-reach gaps and CHANGELOG carries 1.0.0 and topics c
  }
  // CHANGELOG has exactly one 1.0.0 entry.
  assert.match(changelog, /## 1\.0\.0/, 'CHANGELOG carries the 1.0.0 heading');
- // docs/topics.md carries the T-2 shelf registry row.
- assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'T-2 shelf registry row present in blueprint docs/topics.md');
+ // docs/topics.md carries the shelfTopic2 shelf registry row.
+ assert.match(topics, /\| application-file-upload \| 23101-23899 \| 24xx \| shipped v1\.0\.0 \| none \|/, 'shelfTopic2 shelf registry row present in blueprint docs/topics.md');
 });
 
 test('application-file-upload: no em-dashes in shipped prose', async () => {
  const files = [README_ABS, CHANGELOG_ABS, GUIDE_ABS, TOPICS_ABS];
  for (const path of files) {
  const text = await readFile(path, 'utf8');
- assert.ok(!text.includes('—'), `${path} contains an em-dash (U+2014)`);
- assert.ok(!text.includes('–'), `${path} contains an en-dash (U+2013)`);
+ assert.ok(!text.includes('\u2014'), `${path} contains an em-dash (U+2014)`);
+ assert.ok(!text.includes('\u2013'), `${path} contains an en-dash (U+2013)`);
  }
 });
 

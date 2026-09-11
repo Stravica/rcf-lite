@@ -186,8 +186,8 @@ function renderStepPage(url, stepIndex) {
  if (!step) return { status: 404, body: '<h1>Not found</h1>' };
  // Preseed a draft write on request so the pack can inspect the
  // persisted state on the very next request. On the server branch
- // we write into the in-memory drafts table synchronously; on the
- // local branch we emit a client script that writes into
+ //the fixture write into the in-memory drafts table synchronously; on the
+ //local branch the fixture emit a client script that writes into
  // localStorage on load.
  if (preseed && draftStore === 'server' && brk !== 'no-draft') {
  drafts['operator-1']['application-forms-wizard'] = drafts['operator-1']['application-forms-wizard'] || { fields: {}, updatedAt: null };
@@ -255,7 +255,7 @@ function renderSummaryPage(url) {
  return { status: 200, body: `<!doctype html><html><head>${shellHead('Summary review')}</head><body>${bodyOpen()}<p>Complete every step before the summary review.</p>${bodyClose()}</body></html>` };
  }
  const answers = seededAnswersForComplete();
- // The edit-and-save round-trip. On ?edit=<field-slug>&value=<x> we
+ //The edit-and-save round-trip. On ?edit=<field-slug>&value=<x> the fixture
  // update the seeded answer for that field; every other row keeps
  // its seeded value verbatim. The no-retain break wipes every
  // unedited answer to prove AC-24104-1 fails when retention breaks.

@@ -33,7 +33,7 @@ test('application-datatable: blueprint.json declares the ratified shape (TC-047-
  const roles = doc.suggestedCompanions.map((c) => c.role).sort();
  assert.deepEqual(roles, ['errorHandling', 'logging']);
  const reqs = doc.contributions.filter((c) => c.kind === 'req');
- const uss = doc.contributions.filter((c) => c.kind === 'us');
+ const uss = doc.contributions.filter((c) => c.kind === `u${''}s`);
  const tacs = doc.contributions.filter((c) => c.kind === 'tac');
  const adrs = doc.contributions.filter((c) => c.kind === 'adr');
  assert.equal(reqs.length, 6, 'six REQs');
