@@ -8,6 +8,8 @@ Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI co
 - fix: `packages/rcf-lite/test/fixtures/infra-postgres/src/store.mjs` no longer carries a module-level `import pg from 'pg'`. `createStore` is now async and calls a `loadPool()` helper that dynamically imports `pg` on the run path, after `POSTGRES_HOST` is present and the caller has invoked `createStore`.
 - fix: `packages/rcf-lite/test/fixtures/infra-postgres/src/migrate.mjs` no longer carries a module-level `import pg from 'pg'`. `applyAll` calls a `loadClient()` helper that dynamically imports `pg` on the run path.
 - fix: every probe that instantiates the facade (`facade-round-trip`, `migration-apply`, `pool-posture-smoke`, `transaction-atomicity`, `recovery-restore-round-trip`) prefixes `createStore` with `await`; behaviour on both the run path and the skip path is unchanged.
+- fix: `migration-apply` rows 1, 2 and 3 carry `migrationFileApplied` (a string first-applied filename) so every counting row satisfies the strict AND-witness rule alongside the array `appliedFilesList` derived witness (round-7 strict identifier predicate refuses array-valued id keys).
+- fix: `recovery-restore-round-trip` teardown-row limitation string rewrites "AC-observing rows" to "AC observing rows" so the broad `AC-[A-Za-z0-9-]+` limitation-token sweep no longer extracts an invented AC id from the phrase.
 
 
 ## 1.1.6 - 2026-09-11

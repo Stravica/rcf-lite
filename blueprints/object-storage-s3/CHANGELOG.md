@@ -8,6 +8,7 @@ Lazy engine-client load discipline (maintainer ruling 2026-09-11). Under a CI co
 - fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` no longer carries module-level imports of `@aws-sdk/client-s3` or `@aws-sdk/s3-request-presigner`. The retired top-level `export const sdk = awsS3` is replaced by an exported async `loadSdk()` helper that returns the SDK namespace on demand; `createObjectStore` is async and loads the SDK plus signer inside its body, after `S3_ENDPOINT_URL` is present.
 - fix: every probe that instantiates the facade (`facade-round-trip`, `put-get-round-trip`, `presigned-url`, `multipart-upload`, `event-secrecy`, `r2-real-account-smoke`, `hetzner-object-storage-round-trip`) prefixes `createObjectStore` with `await`; behaviour on both the run path and the skip path is unchanged.
 - fix: the two probes that dip into raw SDK constructors on the run path (`facade-round-trip`, `event-secrecy`) now call `loadSdk()` on the same run-path branch that already dynamically imports the fixture facade; the SDK never resolves on the skip path.
+- fix: every counting row on `put-get-round-trip`, `multipart-upload`, `presigned-url` and `event-secrecy` carries `bucketName` as its string id witness so the row satisfies the strict AND-witness rule alongside its existing derived witnesses (round-7 strict identifier predicate refuses non-string id keys).
 
 
 ## 1.2.5 - 2026-09-11

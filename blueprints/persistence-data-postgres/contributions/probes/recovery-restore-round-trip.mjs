@@ -359,7 +359,7 @@ export default async function runProbe() {
   // it records the operational teardown of the scratch restore
   // container and artefact so a reader can see the run left no state
   // behind, without claiming the AC's rowset property.
-  const AC27105_TEARDOWN_LIMITATION = 'AC-27105-1: Given a live Postgres containing a small fixture rowset, when the shipped recovery runner exports a backup, then backupExported fires with an artefact path and completedAt timestamp and a subsequent restore against a throwaway container yields byte-equal rowset content. Not observed on this row: this row records only the operational teardown (docker rm of the throwaway restore container plus removal of the pg_dump artefact tree) that follows the AC-observing rows; the AC-observing evidence is on the earlier rows in this same probe.';
+  const AC27105_TEARDOWN_LIMITATION = 'AC-27105-1: Given a live Postgres containing a small fixture rowset, when the shipped recovery runner exports a backup, then backupExported fires with an artefact path and completedAt timestamp and a subsequent restore against a throwaway container yields byte-equal rowset content. Not observed on this row: this row records only the operational teardown (docker rm of the throwaway restore container plus removal of the pg_dump artefact tree) that follows the AC observing rows; the AC observing evidence is on the earlier rows in this same probe.';
   results.push({
     anchorAcId: null,
     conformanceOnly: true,

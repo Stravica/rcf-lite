@@ -79,6 +79,7 @@ export default async function runProbe() {
         ? `${AC28103_1} - fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=${ttl}; urlSha256=${urlSha256.slice(0, 12)}`
         : `${AC28103_1} - firstStatus=${firstStatus} bodyMatch=${firstEqual} issued=${Boolean(issued)}`,
       evidence: {
+        bucketName: bucket,
         key,
         ttl,
         firstStatus,
@@ -104,6 +105,7 @@ export default async function runProbe() {
         ? `${AC28103_1} - after TTL+2s the SAME presigned URL (urlSha256=${urlSha256.slice(0, 12)}) returned 403 (AccessDenied / expired-URL family)`
         : `${AC28103_1} - after TTL+2s the SAME presigned URL returned ${secondStatus}, expected 403`,
       evidence: {
+        bucketName: bucket,
         key,
         ttl,
         waitedMs: waitMs,
@@ -125,7 +127,7 @@ export default async function runProbe() {
       detail: refusedBelowFloor
         ? `${REQ003} - presign below the 60s floor refused per ADR-2902 (${refusedError})`
         : `${REQ003} - presign below the 60s floor did not refuse`,
-      evidence: { requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError, refusalFired: refusedBelowFloor, refusalCode: refusedBelowFloor ? 'below-floor' : 'accepted' },
+      evidence: { bucketName: bucket, requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError, refusalFired: refusedBelowFloor, refusalCode: refusedBelowFloor ? 'below-floor' : 'accepted' },
     });
 
     await store.deleteObject(key);

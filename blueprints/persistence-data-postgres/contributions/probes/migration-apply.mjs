@@ -142,7 +142,13 @@ export default async function runProbe() {
     anchorAcId: 'AC-27102-1',
     verdict: listsEqual ? 'pass' : 'fail',
     detail: `Given a fresh Postgres database at schema_version 0 - applied=${JSON.stringify(applied)} expected=${JSON.stringify(expected)}`,
-    evidence: { appliedFilesList: applied, applied, expected, phase: 'happy-path' },
+    evidence: {
+      appliedFilesList: applied,
+      applied,
+      expected,
+      migrationFileApplied: Array.isArray(applied) && applied.length > 0 ? applied[0] : 'none',
+      phase: 'happy-path',
+    },
   });
   const migratedEvent = events.find((e) => e.event === 'migrationsApplied');
   const eventFiredCorrectly = migratedEvent
@@ -154,7 +160,14 @@ export default async function runProbe() {
     detail: eventFiredCorrectly
       ? `Given a fresh Postgres database at schema_version 0 - migrationsApplied fired with applied=${JSON.stringify(migratedEvent.applied)}`
       : `Given a fresh Postgres database at schema_version 0 - migrationsApplied event missing or wrong shape; events=${JSON.stringify(events)}`,
-    evidence: { migrationsAppliedEvent: migratedEvent || null, phase: 'happy-path', appliedFilesList: migratedEvent && migratedEvent.applied ? migratedEvent.applied : [] },
+    evidence: {
+      migrationsAppliedEvent: migratedEvent || null,
+      phase: 'happy-path',
+      appliedFilesList: migratedEvent && migratedEvent.applied ? migratedEvent.applied : [],
+      migrationFileApplied: migratedEvent && Array.isArray(migratedEvent.applied) && migratedEvent.applied.length > 0
+        ? migratedEvent.applied[0]
+        : 'none',
+    },
   });
   // Read schema_version to confirm rows count = 3
   const store = await createStore({ connectionUrl: url });
@@ -169,7 +182,12 @@ export default async function runProbe() {
       anchorAcId: 'AC-27102-1',
       verdict: versionRowsPass ? 'pass' : 'fail',
       detail: `Given a fresh Postgres database at schema_version 0 - schema_version rows=${schemaVersionRows.length} (expected 3, i.e. schema_version advanced to 3)`,
-      evidence: { appliedFilesList: schemaVersionRows.map((r) => r.filename), schemaVersionRows, phase: 'happy-path' },
+      evidence: {
+        appliedFilesList: schemaVersionRows.map((r) => r.filename),
+        schemaVersionRows,
+        phase: 'happy-path',
+        migrationFileApplied: schemaVersionRows.length > 0 ? schemaVersionRows[0].filename : 'none',
+      },
     });
   } finally {
     await store.close();

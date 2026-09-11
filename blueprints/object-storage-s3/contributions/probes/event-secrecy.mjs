@@ -90,7 +90,7 @@ export default async function runProbe() {
       detail: nonWhitelistKeys.size === 0
         ? `${AC28105_1} - every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
         : `${AC28105_1} - unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
-      evidence: { whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length, vendorRequestIds: vendorReq },
+      evidence: { bucketName: bucket, whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // No forbidden field names
@@ -106,7 +106,7 @@ export default async function runProbe() {
       detail: foundForbidden.length === 0
         ? `${AC28105_1} - no forbidden PII field name appeared on any event`
         : `${AC28105_1} - forbidden fields present: ${foundForbidden.join(',')}`,
-      evidence: { forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length, vendorRequestIds: vendorReq },
+      evidence: { bucketName: bucket, forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // No event value contains the PII fixture text
@@ -122,7 +122,7 @@ export default async function runProbe() {
       detail: leaks.length === 0
         ? `${AC28105_1} - no event value contained the PII fixture text ${PII_TEXT}`
         : `${AC28105_1} - PII fixture text leaked in: ${leaks.join(',')}`,
-      evidence: { piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length, vendorRequestIds: vendorReq },
+      evidence: { bucketName: bucket, piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // The key itself is passed through unchanged; it is not decomposed
@@ -134,7 +134,7 @@ export default async function runProbe() {
       detail: keyPass
         ? `${AC28105_1} - objectPut carried the key ${key} as an opaque string; no userId extraction`
         : `${AC28105_1} - key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
-      evidence: { expectedKey: key, objectPutEvent: putEvent || null, vendorRequestIds: vendorReq },
+      evidence: { bucketName: bucket, expectedKey: key, objectPutEvent: putEvent || null, vendorRequestIds: vendorReq },
     });
   } finally {
     await store.close();

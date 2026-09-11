@@ -71,7 +71,7 @@ export default async function runProbe() {
       detail: roundTripPass && eventPass
         ? `${AC28102_1} - 1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
         : `${AC28102_1} - roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
-      evidence: { key, requestedContentType: contentType, gotContentType: got.contentType, gotSize: got.body.length, byteEqual: got.body.equals(body), objectPutEvent: putEvent || null },
+      evidence: { bucketName: bucket, key, requestedContentType: contentType, gotContentType: got.contentType, gotSize: got.body.length, byteEqual: got.body.equals(body), objectPutEvent: putEvent || null },
     });
 
     // list under prefix
@@ -84,7 +84,7 @@ export default async function runProbe() {
       detail: listPass
         ? `${AC28102_3} - list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}`
         : `${AC28102_3} - listed=${JSON.stringify(listed)}`,
-      evidence: { prefix, expectedKeys: listKeys, returnedKeys: listed.keys, isTruncated: listed.isTruncated },
+      evidence: { bucketName: bucket, prefix, expectedKeys: listKeys, returnedKeys: listed.keys, isTruncated: listed.isTruncated },
     });
 
     // delete and confirm 404
@@ -101,7 +101,7 @@ export default async function runProbe() {
       detail: deletedEvent && notFound
         ? `${AC28102_2} - objectDeleted fired and get after delete returned NoSuchKey`
         : `${AC28102_2} - deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
-      evidence: { key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
+      evidence: { bucketName: bucket, key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
     });
     // Teardown: delete the list keys and close the facade. Every
     // teardown step is recorded on the teardown[] accumulator and any

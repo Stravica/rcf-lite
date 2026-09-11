@@ -81,7 +81,7 @@ export default async function runProbe() {
       detail: sizePass && eventPass
         ? `Given the elicited multipart threshold at 8 MiB - 10 MiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
         : `Given the elicited multipart threshold at 8 MiB - sizePass=${sizePass} eventPass=${eventPass} got.size=${got.body.length} put=${JSON.stringify(putEvent)}`,
-      evidence: { key, size: SIZE, gotSize: got.body.length, byteEqual: sizePass, objectPutEvent: putEvent || null },
+      evidence: { bucketName: bucket, key, size: SIZE, gotSize: got.body.length, byteEqual: sizePass, objectPutEvent: putEvent || null },
     });
     const inflight = await store.listMultipartUploads(key);
     results.push({
@@ -90,7 +90,7 @@ export default async function runProbe() {
       detail: inflight.length === 0
         ? 'Given the elicited multipart threshold at 8 MiB - no in-flight multipart uploads after complete'
         : `Given the elicited multipart threshold at 8 MiB - unexpected in-flight uploads: ${JSON.stringify(inflight)}`,
-      evidence: { key, inflightCount: inflight.length, inflight },
+      evidence: { bucketName: bucket, key, inflightCount: inflight.length, inflight },
     });
     await store.deleteObject(key);
 
@@ -123,6 +123,7 @@ export default async function runProbe() {
         ? `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - propagated (${observedError.name || observedError.message}), aborted upload id=${observedUploadId}, no in-flight uploads for ${failKey}, abort call itself succeeded`
         : `Given a simulated part-upload failure mid-multipart (SIMULATE_PART_UPLOAD_FAIL fixture) - abort-on-failure conditions not all met: errorObserved=${observedError !== null} inflightCount=${failInflight.length} uploadIdPresent=${uploadIdPresent} abortSucceeded=${abortSucceeded}${observedAbortError ? ` abortError=${JSON.stringify(observedAbortError)}` : ''}`,
       evidence: {
+        bucketName: bucket,
         failKey,
         observedError,
         observedUploadId,
