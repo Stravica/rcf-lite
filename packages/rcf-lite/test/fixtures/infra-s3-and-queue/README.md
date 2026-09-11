@@ -258,5 +258,8 @@ The env vars named below are the ones the code actually reads (`src/producer.mjs
 | `RCF_BATCH_SIZE` | override | Consumer max batch size (default `10`). | same |
 | `RCF_BATCH_TIMEOUT_MS` | override | Consumer max batch wait window in milliseconds (default `5000`). | same |
 | `WRANGLER_DEV_PORT` | override | Local port for a real `wrangler dev` process (default `8787`). | same |
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the `retry-and-fail-real-account` live-account branch. Without it the probe emits `accountBoundSkipped: true` per spec section 3.5. | `retry-and-fail-real-account.mjs` |
+| `CF_ACCOUNT_ID` | first | Cloudflare account id the real-account probe provisions its scratch queue and DLQ under. Required alongside `CI_HAS_CLOUDFLARE_ACCOUNT` for a live run. | same |
+| `CF_API_TOKEN` | first | Cloudflare API token scoped to Queues:Edit for the account above. Required alongside `CI_HAS_CLOUDFLARE_ACCOUNT` for a live run. | same |
 | `SIMULATE_HANDLER_THROW` | switch | Induced-failure switch: the shared jobs-runtime throws a retryable error on every dispatch so the retry-and-fail probe exercises the attempts=[1,2,3] then terminal jobFailed trajectory. | `src/jobs-runtime.mjs`, `retry-and-fail` probe |
 | `SIMULATE_PII_IN_JOB_INPUT` | switch | Induced-failure switch used by `event-secrecy` to seed a job input carrying the PII fixture body; the probe asserts none of the PII literals appear on the serialised run-log event stream. | `src/jobs-runtime.mjs`, `event-secrecy` probe |
