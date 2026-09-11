@@ -1,4 +1,20 @@
+# Changelog
+
+## 2.1.6 - 2026-09-11
+
+metrics-endpoint (status-page) probe now supplies an x-request-id header on the GET /status call and asserts the fixture echoes it; AC-7104-2 and AC-7104-3 rows record the echoed request id as the identifier alongside the derived rendered-state and rendered-order lists. AC-7104-1 (configured-path clause) is de-claimed to conformanceOnly because the shipped probe-server hard-codes '/status' rather than accepting a paths.status option, so the configuration-provenance property is not observed here.
+
+## 2.1.5 - 2026-09-11
+
+readiness-probe AC-7102-1 anchor now observes the configuration-sourced path clause and the distinct-from-liveness clause. The probe boots the fixture with an explicit non-default readiness path (/readiness-cfg-v2) alongside a distinct liveness path (/live-cfg-v2), asserts the fixture serves the configured readiness path AND that the shipped default /ready returns 404 (default absent) AND that a GET at the configured liveness path returns the liveness body shape (no checks{}). The fixture probe-server accepts { paths: { liveness, readiness } } and refuses boot with PROBE_INTERFACE_PATHS_NOT_DISTINCT when the two are equal.
+
 # observability-essentials CHANGELOG
+
+## 2.1.4 - 2026-09-11
+
+Adds a contributions/probes/ pack (liveness-probe, readiness-probe, metrics-endpoint) with a fixture-side probe server under packages/rcf-lite/test/fixtures/probe-pack-observability-essentials/. Probes run against the fixture on Node 24 with a real TCP dependency the readiness probe controls. No account gate.
+
+Anchoring: liveness-probe anchors AC-7101-5 (three-request flow: HTTP 503 empty body on unhealthy; HTTP 503 repeat while predicate stays fail; HTTP 200 body.status='pass' after predicate restored). The healthy warm-up row de-claims with the limitation naming AC-7101-1 (path-from-configuration clause not observed). readiness-probe anchors AC-7102-1 (200 with body.status='pass' when every declared dependency passes; 503 with body.status='fail' when at least one fails, verified by closing a TCP dependency the probe controls). The checks-object shape and checkedAt rows de-claim with limitations naming AC-7103-1 (boot-time missing/malformed declaration refusal not observed) and AC-7103-2 (evaluation-budget bound is a probe-authored 5000 ms constant, not fixture-configured). metrics-endpoint asserts the /status page exact component set, states and rendered order per AC-7104-1. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 2.1.2 - 2026-09-10
 

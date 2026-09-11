@@ -1,6 +1,6 @@
 {
   "slug": "delivery-ci-workflows",
-  "version": "2.3.1",
+  "version": "2.3.5",
   "category": "delivery",
   "elicits": [
     {
@@ -385,5 +385,6 @@
       "kind": "adr",
       "path": "adrs/adr-710-delivery-ci-workflows-scheduled-audit.json"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-11"
 }

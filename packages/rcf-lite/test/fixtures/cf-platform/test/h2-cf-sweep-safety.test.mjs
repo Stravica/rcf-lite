@@ -164,11 +164,13 @@ test('sweep-safety: Queue+Worker+telemetryKV sweep filter uses startsWith on the
   assert.match(src, /n\.title\.startsWith\(TELEMETRY_KV_PREFIX\)/, 'telemetry KV sweep filter uses startsWith on frozen constant');
 });
 
-test('sweep-safety: no workers.dev subdomain surface anywhere in the client, shim, mock or tests (Dave ruling 376b4f30)', async () => {
+test('sweep-safety: no workers.dev invocation surface (script-level enable / URL literal) anywhere in the client, shim, mock or tests; the account-level read-only pre-flight surface is permitted', async () => {
   // The words "workers.dev" and "subdomain" legitimately appear in
-  // comments that document their absence and cite the ruling; those
-  // must not fail the check. Instead assert on the CALLABLE / URL /
-  // ROUTE patterns that would indicate an active surface.
+  // comments that document the invocation-side absence, and the
+  // account-level GET /workers/subdomain surface is now used by the
+  // messaging concurrency probe's read-only pre-flight (an
+  // observation, not an invocation). Assert on the callable /
+  // URL / route patterns that would indicate an INVOCATION surface.
   const { readFile, readdir } = await import('node:fs/promises');
   const { fileURLToPath } = await import('node:url');
   const { join, dirname } = await import('node:path');
@@ -197,10 +199,11 @@ test('sweep-safety: no workers.dev subdomain surface anywhere in the client, shi
     // Callable named workerEnableSubdomain or any variant.
     assert.equal(/workerEnableSubdomain\s*\(/.test(s), false, `workerEnableSubdomain call must be gone from ${f}`);
     assert.equal(/export\s+(async\s+)?function\s+workerEnableSubdomain\b/.test(s), false, `workerEnableSubdomain export must be gone from ${f}`);
-    // POST /workers/scripts/<name>/subdomain route.
+    // POST /workers/scripts/<name>/subdomain route (script-level enable).
     assert.equal(/\/workers\/scripts\/[^"'`\s]*\/subdomain/.test(s), false, `/workers/scripts/<name>/subdomain route must be gone from ${f}`);
-    // GET /workers/subdomain (account-level) route.
-    assert.equal(/\/workers\/subdomain\b/.test(s), false, `/workers/subdomain route must be gone from ${f}`);
+    // The account-level GET /workers/subdomain surface is permitted
+    // (read-only observation used by the messaging concurrency probe's
+    // pre-flight); no assertion on it here.
   }
 });
 
