@@ -1,5 +1,5 @@
 // Apply-time tests for the capability-declaration mechanism (visual
-// round T-5 spec sections 5.5, 5.5.1). Covers TS-051 test cases
+// round  spec sections 5.5, 5.5.1). Covers TS-051 test cases
 // TC-051-apply-discovery-refuse, TC-051-apply-allow-skip,
 // TC-051-elicit-answers and TC-051-sidecar-write.
 
@@ -21,16 +21,16 @@ const SPA_BP = join(REPO_ROOT, 'blueprints', 'application-spa');
 const MAGIC_LINK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-magic-link');
 const CLERK_BP = join(REPO_ROOT, 'blueprints', 'security-auth-clerk');
 const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
-// Infra round 5 T-2: object-storage-s3 declares requiresAppliedCapabilities
+// Infra batch 5 : object-storage-s3 declares requiresAppliedCapabilities
 // gating on secretsProvider (a capability that security-secrets-management
-// v1.0.1 declares). Extends the T-5 mechanism to the secretsProvider path
+// v1.0.1 declares). Extends the  mechanism to the secretsProvider path
 // with allowSkipFlag "allow-no-secrets-yet" and refusalMessageId
 // "object-storage-s3-no-secrets".
 const OBJECT_STORAGE_BP = join(REPO_ROOT, 'blueprints', 'object-storage-s3');
 const SECRETS_BP = join(REPO_ROOT, 'blueprints', 'security-secrets-management');
-// Infra round 5 T-4: jobs-background declares requiresAppliedCapabilities
+// Infra batch 5 : jobs-background declares requiresAppliedCapabilities
 // gating on queue (a capability that messaging-queue-cloudflare v1.0.0
-// declares). Extends the T-5 mechanism to the queue-capability path with
+// declares). Extends the  mechanism to the queue-capability path with
 // allowSkipFlag "allow-no-queue-yet" and refusalMessageId
 // "jobs-background-no-queue".
 const JOBS_BACKGROUND_BP = join(REPO_ROOT, 'blueprints', 'jobs-background');
@@ -56,7 +56,7 @@ test('apply refuses with requiresAppliedCapabilities rcfError on a bare project 
   // No auth blueprint applied. The console apply refuses, with the
   // spec 5.5.1 verbatim opening line and the "Applied blueprints on
   // this project:" block naming (none) plus the --allow-no-auth-yet
-  // hint. We do not apply application-spa here because it declares a
+  // hint. The probe do not apply application-spa here because it declares a
   // scope:global authModel ADR that conflicts with every shelf auth
   // blueprint under a separate resolution flow; that class is
   // orthogonal to the mechanism track's refusal.

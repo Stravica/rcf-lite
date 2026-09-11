@@ -1,5 +1,5 @@
 /**
- * Jobs-background scheduler (T-4 slice).
+ * Jobs-background scheduler ( slice).
  *
  * Realises TAC-3102. Ships the inProcess mode (a Node clock-driven
  * scheduler); workerCron and external modes are documented shipping-
@@ -9,7 +9,7 @@
  * inProcess scheduler passes the system clock ({ now: Date.now, advance
  * is a no-op }) and uses setInterval instead of manual advance.
  *
- * The scheduler publishes messages to the applied queue via the T-3
+ * The scheduler publishes messages to the applied queue via the 
  * producer facade. Each fire produces a message body
  * { jobName, jobInput, jobId, scheduledAt } that the jobs runtime
  * consumes.

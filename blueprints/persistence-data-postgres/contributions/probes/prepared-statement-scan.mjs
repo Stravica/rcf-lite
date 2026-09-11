@@ -7,7 +7,7 @@
  * first argument. The AC (AC-27103-1) requires an AST-level assertion
  * that every first-argument node is a Literal (string) with `$N`
  * bindings. The rcf-lite core has no shipped JS parser dependency and
- * the fixture's `package.json` declares only `pg`; we therefore do NOT
+ * the fixture's `package.json` declares only `pg`; the probe therefore do NOT
  * add a parser dependency (fixture-dep out-of-bounds per the fix
  * dispatch). Instead this probe records POSITIVE evidence per call:
  *

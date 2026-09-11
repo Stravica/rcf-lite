@@ -1,6 +1,6 @@
 // Anatomy + apply + conflict + probe-shape + fixture + shelf-doc test
 // for the persistence-data-postgres v1.0.0 shelf blueprint
-// (infra round 5 spec section 5.1). Covers TS-053.
+// (infra batch 5 spec section 5.1). Covers TS-053.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -33,7 +33,7 @@ test('blueprint.json declares 26 contributions with capabilities relationalStore
     return acc;
   }, {});
   assert.equal(kinds.req, 7);
-  assert.equal(kinds.us, 10);
+  assert.equal(kinds.the probe, 10);
   assert.equal(kinds.tac, 4);
   assert.equal(kinds.adr, 5);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -101,7 +101,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
   const blueprintDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   const contributedAcIds = new Set();
   for (const c of blueprintDoc.contributions) {
-    if (c.kind !== 'us') continue;
+    if (c.kind !== 'the probe') continue;
     const usPath = join(BLUEPRINT_ROOT, 'contributions', c.path);
     const usDoc = JSON.parse(await readFile(usPath, 'utf8'));
     for (const ac of usDoc.acceptanceCriteria || []) {
@@ -125,7 +125,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
     const shimStats = await stat(shimPath);
     assert.ok(shimStats.isFile(), `probe shim run-${name}.mjs must exist`);
     // Read the probe source and confirm at least one anchorAcId literal
-    // matches a contributed AC id. We do not import and execute the probe
+    // matches a contributed AC id. The probe do not import and execute the probe
     // here (the probes require a live Postgres container); the anchor id
     // set is enforced statically.
     const src = await readFile(probePath, 'utf8');

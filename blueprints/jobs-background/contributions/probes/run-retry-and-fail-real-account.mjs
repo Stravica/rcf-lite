@@ -1,5 +1,5 @@
 /**
- * Shim: run retry-and-fail-real-account against the Stravica QA
+ * Shim: run retry-and-fail-real-account against the the real-account credentials
  * Cloudflare account. Records real HTTP status + per-pull observations
  * as engine descriptor.
  */

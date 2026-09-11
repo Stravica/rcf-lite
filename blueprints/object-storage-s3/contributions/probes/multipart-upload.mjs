@@ -1,7 +1,7 @@
 /**
  * Multipart upload probe.
  *
- * Two positive-evidence branches per US-28104:
+ * Two positive-evidence branches per user-story-28104:
  *
  *   1. Canonical multipart round-trip: puts a 10 MiB payload above the
  *      ADR-2903 threshold, asserts multipart upload completes, get

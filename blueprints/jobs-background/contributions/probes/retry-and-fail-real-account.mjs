@@ -2,15 +2,15 @@
  * Retry-and-fail real-account probe (route-a live-engine coverage).
  *
  * Proves AC-jobs-retryOnHandlerFailure against REAL Cloudflare Queues
- * on the Stravica QA account, exercising the retry-to-terminal
+ * on the the real-account credentials account, exercising the retry-to-terminal
  * trajectory end-to-end through the vendor's own pull-consumer +
  * dead-letter-queue mechanism (per
  * https://developers.cloudflare.com/queues/configuration/pull-consumers/
  * and https://developers.cloudflare.com/queues/configuration/dead-letter-queues/).
  *
  * Flow:
- *   1. Mint a scratch queue `qa-e-jobs-<short>` and DLQ
- *      `qa-e-jobs-dlq-<short>` under the QA account via the CF REST
+ *   1. Mint a scratch queue `probe-scratch-q-<short>` and DLQ
+ *      `probe-scratch-dlq-<short>` under the QA account via the CF REST
  *      Queues API.
  *   2. Attach an `http_pull` consumer to the main queue with
  *      max_retries=3, dead_letter_queue=<dlq name>, visibility timeout
@@ -82,8 +82,8 @@ export default async function runProbe() {
   const accountId = process.env.CF_ACCOUNT_ID;
   const token = process.env.CF_API_TOKEN;
   const short = shortId();
-  const queueName = `qa-e-jobs-${short}`;
-  const dlqName = `qa-e-jobs-dlq-${short}`;
+  const queueName = `probe-scratch-q-${short}`;
+  const dlqName = `probe-scratch-dlq-${short}`;
   const results = [];
   const teardown = { deletePrimary: null, deleteDlq: null, primaryAbsent: null, dlqAbsent: null };
   let qid = null;

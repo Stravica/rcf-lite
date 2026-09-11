@@ -16,7 +16,7 @@
  *        - each successful migration used its own PostgreSQL
  *          transaction id (pg_current_xact_id() sampled through a
  *          post-apply query joined against pg_stat_activity is not
- *          available for completed transactions; instead we assert
+ *          available for completed transactions; instead the probe asserts
  *          disjoint transaction contexts by observing distinct
  *          statement_timestamp() values per BEGIN/COMMIT window,
  *          captured by the runner via a small extended-run hook).

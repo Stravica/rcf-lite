@@ -1,5 +1,5 @@
 /**
- * jobs-background v1.0.0 anatomy tests (TS-076; re-minted post-#164 T-0 collision on original TS-073).
+ * jobs-background v1.0.0 anatomy tests (TS-076; re-minted post-#164  collision on original TS-073).
  *
  * Covers AC-4301-1 (blueprint.json shape), AC-4301-5 (probe module
  * anchor-id cross-check), AC-4301-6 (sample-app fixture: jobs/ toy
@@ -41,7 +41,7 @@ test('blueprint.json declares 22 contributions with capabilities backgroundJobs,
   assert.equal(bp.suggestedCompanions.length, 2);
   assert.equal(bp.contributions.length, 22);
   const kinds = bp.contributions.reduce((acc, c) => { acc[c.kind] = (acc[c.kind] || 0) + 1; return acc; }, {});
-  assert.deepEqual(kinds, { req: 6, us: 9, tac: 3, adr: 4 });
+  assert.deepEqual(kinds, { req: 6, the probe: 9, tac: 3, adr: 4 });
   // Every ADR entry carries a non-null standardsTraceClause (round-3
   // gate rule + PR #155 fix train).
   for (const c of bp.contributions.filter((x) => x.kind === 'adr')) {
@@ -82,7 +82,7 @@ test('every probe module exports the section 3.2 verdict envelope with an anchor
     assert.ok(allText.includes(acId), `expected AC id ${acId} to appear in a shipped US file`);
   }
   // Import shim modules to check the engine hint is present and that the
-  // default-export probe function is callable. We do NOT actually run
+  // default-export probe function is callable. The probe do NOT actually run
   // them here (they hit scratch dirs / spawn processes / the CLI). The
   // anatomy test proves the shape and the runtime probe reports at
   // .rcf/reports/blueprints/jobs-background/*.json prove the run

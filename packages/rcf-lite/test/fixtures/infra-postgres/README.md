@@ -84,9 +84,9 @@ Every environment variable this fixture or any probe it hosts reads is declared 
 | `POSTGRES_USER` | Connection user (default `rcf`). | `src/store.mjs` |
 | `POSTGRES_PASSWORD` | Connection password (fixture-only default; a project overrides via env). | `src/store.mjs` |
 | `POSTGRES_DB` | Connection database (default `rcf_test`). | `src/store.mjs` |
-| `POSTGRES_SOURCE_CONTAINER` | Docker container name of the source postgres for the recovery-restore-round-trip probe's `pg_dump` exec (default `infra-postgres-postgres-1`; a CI runner or hardening dispatch overrides to the actual container name in use). | `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` |
+| `POSTGRES_SOURCE_CONTAINER` | Docker container name of the source postgres for the recovery-restore-round-trip probe's `pg_dump` exec (default `infra-postgres-postgres-1`; a CI runner or positive-evidence run overrides to the actual container name in use). | `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` |
 | `POSTGRES_RESTORE_CONTAINER` | Docker container name the recovery-restore-round-trip probe uses for its throwaway restore container (default `infra-postgres-restore`). | same probe |
-| `POSTGRES_RESTORE_PORT` | Host port the recovery-restore-round-trip probe binds the throwaway restore container to (default `55432`; a hardening dispatch picks a port from its family's range to avoid parallel-run collisions). | same probe |
+| `POSTGRES_RESTORE_PORT` | Host port the recovery-restore-round-trip probe binds the throwaway restore container to (default `55432`; a positive-evidence run picks a port from its family's range to avoid parallel-run collisions). | same probe |
 | `SIMULATE_MIGRATION_FAILURE` | Induced-failure switch: drives the migration runner's second migration to invalid SQL so the negative-run assertion (rollback + failing filename in stderr) fires. | `src/migrate.mjs`, `migration-apply` probe |
 | `SIMULATE_CONSTRAINT_VIOLATION` | Induced-failure switch: forces the transaction-atomicity probe's second INSERT to violate the UNIQUE constraint so `transactionRolledBack` fires with `statementIndex: 1`. | `src/store.mjs`, `transaction-atomicity` probe |
 

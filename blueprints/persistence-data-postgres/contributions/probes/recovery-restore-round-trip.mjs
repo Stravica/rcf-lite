@@ -39,7 +39,7 @@ const ARTEFACT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/persistence-
 const ARTEFACT = resolve(ARTEFACT_DIR, 'backup.sql');
 const ARTEFACT_REL = relative(PROJECT_ROOT, ARTEFACT);
 // Source container defaults to the fixture's docker-compose service
-// name; a CI runner (or a hardening dispatch) may override via
+// name; a CI runner (or a positive-evidence run) may override via
 // POSTGRES_SOURCE_CONTAINER. Restore container name and port are
 // similarly overridable so parallel runs and non-default docker
 // networks can pick free ports; both env vars are declared on the
@@ -158,7 +158,7 @@ export default async function runProbe() {
     // Drive the shipped exportDatabase runner (TAC-2804) with a
     // runPgDump override that shells out to docker exec inside the
     // source container. The shipped runner still writes the artefact
-    // and emits backupExported; we prove both.
+    // and emits backupExported; the probe proves both.
     await mkdir(ARTEFACT_DIR, { recursive: true });
     const runnerEvents = [];
     const exported = await exportDatabase({
@@ -228,7 +228,7 @@ export default async function runProbe() {
       try {
         await store.getPool().query('TRUNCATE users RESTART IDENTITY');
       } catch (err) {
-        // If the source is unreachable we still want the store closed;
+        // If the source is unreachable the probe still needs the store closed;
         // rethrow so the accumulator records the failure.
         throw err;
       }
@@ -247,7 +247,7 @@ export default async function runProbe() {
           throw new Error(`container ${RESTORE_CONTAINER} still exists after docker rm -f -v`);
         } catch (err) {
           // docker inspect on absent container exits non-zero, which is
-          // what we want; if it succeeded, the rethrow above ran.
+          // what the probe wants; if it succeeded, the rethrow above ran.
           if (err && err.stderr && /No such object|Error: No such/.test(err.stderr)) return { exitCode: 0 };
           if (err && err.message && err.message.includes('still exists')) throw err;
           return { exitCode: 0 };

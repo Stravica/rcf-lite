@@ -4,7 +4,7 @@
  * Against a real Cloudflare R2 account (credentials read via the
  * fixture's secrets shim), the probe:
  *
- *   1. mints a scratch bucket `qa-e-s3-<short>` via S3 CreateBucket,
+ *   1. mints a scratch bucket `probe-scratch-<short>` via S3 CreateBucket,
  *   2. positively records the bucket present in an S3 ListBuckets
  *      inventory diff (post-create),
  *   3. opens the shipped facade against that scratch bucket, puts a
@@ -24,7 +24,7 @@
  * - CI_HAS_CLOUDFLARE_ACCOUNT (first-tier gate)
  * - R2_ACCOUNT_ID (second-tier: constructs the endpoint URL)
  * - R2_BUCKET (second-tier: the base bucket namespace scope; the probe
- *   mints its own qa-e-s3-<short> under it)
+ *   mints its own probe-scratch-<short> under it)
  * - S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY (second-tier: R2 S3-API creds)
  *
  * Anchors AC-28108-1.
@@ -93,7 +93,7 @@ export default async function runProbe() {
   const r2 = await secretsShim.getSecret('r2Endpoint');
   if (!r2 || !r2.endpoint) return skipResult('R2 endpoint could not be resolved from the secrets shim');
   const credentials = await credentialsFromShim(secretsShim);
-  const scratchBucket = `qa-e-s3-${shortId()}`;
+  const scratchBucket = `probe-scratch-${shortId()}`;
   const evidence = {
     endpointHostRedacted: new URL(r2.endpoint).host.replace(/^[0-9a-f]+/, '[account-id]'),
     scratchBucket,
@@ -131,7 +131,7 @@ export default async function runProbe() {
         detail: `ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL, never an empty listing`,
         evidence: { scratchBucket, error: err && err.message },
       });
-      // Best-effort teardown of the bucket we just made before returning.
+      // Best-effort teardown of the bucket newly created above before returning.
       throw err;
     }
     const seenAfterCreate = bucketsAfterCreate.includes(scratchBucket);
@@ -156,7 +156,7 @@ export default async function runProbe() {
       onEvent: (e) => events.push(e),
     });
     await store.ready();
-    const key = probeKey('qa-e-s3/r2-smoke');
+    const key = probeKey('probe-scratch/r2-smoke');
     const body = Buffer.alloc(1024, 0x52);
     const put = await store.putObject(key, 'application/octet-stream', body);
     const got = await store.getObject(key);
