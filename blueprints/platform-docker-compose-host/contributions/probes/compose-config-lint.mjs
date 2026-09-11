@@ -165,21 +165,21 @@ function scanLogging(doc) {
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'fail',
       detail: `services declare more than one log driver (${[...distinct].join(', ')}); the elicited log-driver=${elicitedDriver} requires every service to match`,
-      evidence: { elicitedDriver, observedDrivers, distinct: [...distinct] },
+      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers, distinct: [...distinct] },
     });
   } else if (distinct.size === 1 && !distinct.has(elicitedDriver)) {
     results.push({
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'fail',
       detail: `services declare log driver ${[...distinct][0]} but the elicited log-driver is ${elicitedDriver}`,
-      evidence: { elicitedDriver, observedDrivers },
+      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   } else if (distinct.size === 1) {
     results.push({
       anchorAcId: 'AC-composeHost-logDriverClassification',
       verdict: 'pass',
       detail: `every service uses the elicited log driver ${[...distinct][0]}`,
-      evidence: { elicitedDriver, observedDrivers },
+      evidence: { file: 'compose.yaml', elicitedDriver, observedDrivers },
     });
   }
   return results;
