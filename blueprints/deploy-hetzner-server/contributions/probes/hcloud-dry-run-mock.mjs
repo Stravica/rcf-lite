@@ -3,7 +3,7 @@
 // accountBound: false. Anchors each result row to the AC whose
 // observable property THIS MOCK actually observes:
 //   - AC-37101-1 (provisioner facade sole reader + provisionerReady):
-//     BOTH clauses observed — (a) a source-tree grep across the
+//     BOTH clauses observed: (a) a source-tree grep across the
 //     fixture confirms only the provisioner facade module reads
 //     HETZNER_ACCOUNT_API_KEY (any other reader in the fixture tree
 //     FAILS the row); (b) provisionerReady fires with a

@@ -298,9 +298,9 @@ export async function observeSecretModes(server, opts = {}) {
 
 async function readComposeYaml() {
   // Minimal loader reusing the fixture's shipped compose.yaml. We do
-  // not want a second YAML dep for this small check, so we re-import
+  // not want a second YAML dep for this small check, so the probe re-imports
   // the probe-side parser via a tiny shim: the probe layer supplies a
-  // richer parser, but for the mode + consumer check we only need
+  // richer parser, but for the mode + consumer check the probe only needs
   // services + secrets, both of which are simple mapping blocks.
   const text = await readFile(join(FIXTURE_DIR, 'compose.yaml'), 'utf8');
   const doc = { services: {}, secrets: {} };
@@ -448,7 +448,7 @@ export async function reloadBurst(server, path, opts = {}) {
   const reloadExit = typeof parsed.reloadExit === 'number' ? parsed.reloadExit : -1;
   const reloadStderrExcerpt = typeof parsed.reloadStderr === 'string' ? parsed.reloadStderr.slice(0, 300) : '';
 
-  // All timestamps live on the server clock — the runner does no
+  // All timestamps live on the server clock: the runner does no
   // rebase. Overlap and containment are computed from those stamps
   // directly.
   const overlaps = outcomes.filter((o) => o.startedAt <= reloadEndedAt && o.endedAt >= reloadStartedAt);
