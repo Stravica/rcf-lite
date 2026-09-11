@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "facade-round-trip",
-  "runAt": "2026-09-11T19:09:06.276Z",
+  "runAt": "2026-09-06T17:46:06.561Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -11,36 +11,12 @@
     {
       "anchorAcId": "AC-27101-1",
       "verdict": "pass",
-      "detail": "On process boot, the facade opens a pg.Pool - facadeReady fired with databaseName=rcf_test",
-      "evidence": {
-        "facadeReadyEvent": {
-          "event": "facadeReady",
-          "ts": 1789153746265,
-          "databaseName": "rcf_test"
-        },
-        "allEvents": [
-          {
-            "event": "facadeReady",
-            "ts": 1789153746265,
-            "databaseName": "rcf_test"
-          }
-        ],
-        "databaseName": "rcf_test",
-        "poolReadyOk": true
-      }
+      "detail": "facadeReady fired with databaseName=rcf_test"
     },
     {
       "anchorAcId": "AC-27101-1",
       "verdict": "pass",
-      "detail": "On process boot, the facade opens a pg.Pool - round-trip put id=1 and got name=probe-facade-round-trip",
-      "evidence": {
-        "insertedId": 1,
-        "retrievedRow": {
-          "id": 1,
-          "name": "probe-facade-round-trip",
-          "email": "facade-round-trip@rcf.test"
-        }
-      }
+      "detail": "round-trip put id=1 and got name=probe-facade-round-trip"
     }
   ],
   "aggregateVerdict": "pass"

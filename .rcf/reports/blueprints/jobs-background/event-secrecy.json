@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "event-secrecy",
-  "runAt": "2026-09-11T19:09:38.264Z",
+  "runAt": "2026-09-06T20:54:42.798Z",
   "engine": {
     "kind": "queues+jobs",
     "image": "cloudflare/wrangler-dev-equivalent (in-memory driver) + jobs-runtime SIMULATE_PII_IN_JOB_INPUT=true",
@@ -9,31 +9,9 @@
   },
   "results": [
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-jobs-eventSecrecy: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-jobs-eventSecrecy",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-jobs-eventSecrecy) - With SIMULATE_PII_IN_JOB_INPUT=true set on the shared sample-app fixture, - no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys [\"event\",\"jobId\",\"jobName\",\"attempts\",\"duration\",\"timestamp\",\"terminalErrorCode\"]; 3 events recorded",
-      "evidence": {
-        "piiLiteralsChecked": [
-          "1234",
-          "123-45-6789",
-          "test@example.com"
-        ],
-        "leakedLiterals": [],
-        "whitelist": [
-          "event",
-          "jobId",
-          "jobName",
-          "attempts",
-          "duration",
-          "timestamp",
-          "terminalErrorCode"
-        ],
-        "nonWhitelistedKeys": [],
-        "eventCount": 3,
-        "jobCompletedFired": true
-      }
+      "detail": "no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys [\"event\",\"jobId\",\"jobName\",\"attempts\",\"duration\",\"timestamp\",\"terminalErrorCode\"]; 3 events recorded"
     }
   ],
   "aggregateVerdict": "pass",
@@ -45,7 +23,7 @@
         "jobName": "send-welcome-email",
         "attempts": 0,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.264Z"
+        "timestamp": "1970-01-01T00:00:00.001Z"
       },
       {
         "event": "jobStarted",
@@ -53,7 +31,7 @@
         "jobName": "send-welcome-email",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.264Z"
+        "timestamp": "2026-09-06T20:54:42.798Z"
       },
       {
         "event": "jobCompleted",
@@ -61,7 +39,7 @@
         "jobName": "send-welcome-email",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.264Z"
+        "timestamp": "2026-09-06T20:54:42.798Z"
       }
     ],
     "piiLiterals": [

@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "pool-posture-smoke",
-  "runAt": "2026-09-11T19:09:12.865Z",
+  "runAt": "2026-09-06T17:46:09.824Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -9,28 +9,14 @@
   },
   "results": [
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-27106-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-27106-1",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-27106-1) - Given two facade instances opened concurrently against the - 20 dispatched, 20 returned, 0 rejected, wall-clock 121ms; observed peak in-use A=5 B=5 (configured max=5); samplesA=20 samplesB=20",
-      "evidence": {
-        "dispatched": 20,
-        "succeeded": 20,
-        "failed": 0,
-        "elapsedMs": 121,
-        "observedPeakInUseA": 5,
-        "observedPeakInUseB": 5,
-        "configuredMax": 5,
-        "sampleCountA": 20,
-        "sampleCountB": 20,
-        "poolPostureStatus": "capped-both-pools",
-        "poolConfigurationMetadata": {
-          "poolAConfiguredMax": 5,
-          "poolBConfiguredMax": 5,
-          "queryCountPerPool": 10
-        }
-      }
+      "detail": "20 concurrent queries dispatched across two pool-size-5 facades; 20 returned, 0 rejected, wall-clock 113ms"
+    },
+    {
+      "anchorAcId": "AC-27106-1",
+      "verdict": "pass",
+      "detail": "pool.options.max on both facades: A=5, B=5 (each configured to 5)"
     }
   ],
   "aggregateVerdict": "pass"

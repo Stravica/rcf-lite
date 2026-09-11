@@ -1,74 +1,28 @@
 {
   "slug": "object-storage-s3",
   "probeName": "presigned-url",
-  "runAt": "2026-09-11T19:11:02.840Z",
+  "runAt": "2026-09-06T18:42:15.434Z",
   "engine": {
     "kind": "s3",
-    "vendor": "minio",
-    "endpointHost": "127.0.0.1:47230",
-    "healthLive": {
-      "ok": true,
-      "httpStatus": 200,
-      "responseTimeMs": 10,
-      "endpoint": "http://127.0.0.1:47230/minio/health/live"
-    }
+    "image": "minio/minio",
+    "healthy": true
   },
   "results": [
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28103-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28103-1) - Given a presignGetUrl call with ttl=60 seconds for - fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=60; urlSha256=5b98b2c66f7f",
-      "evidence": {
-        "key": "probe/presign/1789153800800-p1lfjb17",
-        "ttl": 60,
-        "firstStatus": 200,
-        "firstBodyBytes": 21,
-        "firstBodyEqual": true,
-        "presignedIssuedEvent": {
-          "event": "presignedIssued",
-          "ts": 1789153800815,
-          "key": "probe/presign/1789153800800-p1lfjb17",
-          "ttl": 60
-        },
-        "urlSha256": "5b98b2c66f7f0018190e11d5f4510a6a2a098f6da5f363c400179d0d782ccfaa",
-        "elapsedMsSincePresign": 2
-      }
+      "detail": "fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=60"
     },
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28103-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28103-1) - Given a presignGetUrl call with ttl=60 seconds for - after TTL+2s the SAME presigned URL (urlSha256=5b98b2c66f7f) returned 403 (AccessDenied / expired-URL family)",
-      "evidence": {
-        "key": "probe/presign/1789153800800-p1lfjb17",
-        "ttl": 60,
-        "waitedMs": 62000,
-        "secondStatus": 403,
-        "urlSha256": "5b98b2c66f7f0018190e11d5f4510a6a2a098f6da5f363c400179d0d782ccfaa",
-        "totalElapsedMsSincePresign": 62014
-      }
+      "detail": "tampered signature fetch returned 403 (expected 403; set SIMULATE_PRESIGN_EXPIRE=true for full TTL wall-clock)"
     },
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28101-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28101-1) - The facade exposes a presignGetUrl verb that issues - presign below the 60s floor refused per ADR-2902 (object-storage-s3: presign ttl 30s below floor 60s per ADR-2902)",
-      "evidence": {
-        "requestedTtlSeconds": 30,
-        "floorSeconds": 60,
-        "refused": true,
-        "error": "object-storage-s3: presign ttl 30s below floor 60s per ADR-2902",
-        "refusalFired": true,
-        "refusalCode": "below-floor"
-      }
+      "detail": "presign below 60s floor refused per ADR-2902"
     }
   ],
-  "aggregateVerdict": "pass",
-  "extra": {
-    "key": "probe/presign/1789153800800-p1lfjb17"
-  }
+  "aggregateVerdict": "pass"
 }

@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "retry-and-fail",
-  "runAt": "2026-09-11T19:09:38.242Z",
+  "runAt": "2026-09-06T20:54:42.761Z",
   "engine": {
     "kind": "queues+jobs",
     "image": "cloudflare/wrangler-dev-equivalent (in-memory driver) + jobs-runtime SIMULATE_HANDLER_THROW=true",
@@ -11,28 +11,7 @@
     {
       "anchorAcId": "AC-jobs-retryOnHandlerFailure",
       "verdict": "pass",
-      "detail": "With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture, - three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=SIMULATE_HANDLER_THROW",
-      "evidence": {
-        "attemptsSequence": [
-          1,
-          2,
-          3
-        ],
-        "jobIds": [
-          "job-000001"
-        ],
-        "jobStartedCount": 3,
-        "terminalJobFailed": {
-          "event": "jobFailed",
-          "jobId": "job-000001",
-          "jobName": "send-welcome-email",
-          "attempts": 3,
-          "duration": 0,
-          "timestamp": "2026-09-11T19:09:38.242Z",
-          "terminalErrorCode": "SIMULATE_HANDLER_THROW"
-        },
-        "dlqInvoked": false
-      }
+      "detail": "three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=SIMULATE_HANDLER_THROW"
     }
   ],
   "aggregateVerdict": "pass",
@@ -44,7 +23,7 @@
         "jobName": "send-welcome-email",
         "attempts": 0,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.241Z"
+        "timestamp": "1970-01-01T00:00:00.001Z"
       },
       {
         "event": "jobStarted",
@@ -52,7 +31,7 @@
         "jobName": "send-welcome-email",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.241Z"
+        "timestamp": "2026-09-06T20:54:42.761Z"
       },
       {
         "event": "jobStarted",
@@ -60,7 +39,7 @@
         "jobName": "send-welcome-email",
         "attempts": 2,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.241Z"
+        "timestamp": "2026-09-06T20:54:42.761Z"
       },
       {
         "event": "jobStarted",
@@ -68,7 +47,7 @@
         "jobName": "send-welcome-email",
         "attempts": 3,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.241Z"
+        "timestamp": "2026-09-06T20:54:42.761Z"
       },
       {
         "event": "jobFailed",
@@ -76,7 +55,7 @@
         "jobName": "send-welcome-email",
         "attempts": 3,
         "duration": 0,
-        "timestamp": "2026-09-11T19:09:38.242Z",
+        "timestamp": "2026-09-06T20:54:42.761Z",
         "terminalErrorCode": "SIMULATE_HANDLER_THROW"
       }
     ],

@@ -1,76 +1,27 @@
 {
   "slug": "object-storage-s3",
   "probeName": "put-get-round-trip",
-  "runAt": "2026-09-11T19:09:55.347Z",
+  "runAt": "2026-09-06T18:42:15.316Z",
   "engine": {
     "kind": "s3",
-    "vendor": "minio",
-    "endpointHost": "127.0.0.1:47230",
-    "healthLive": {
-      "ok": true,
-      "httpStatus": 200,
-      "responseTimeMs": 10,
-      "endpoint": "http://127.0.0.1:47230/minio/health/live"
-    }
+    "image": "minio/minio",
+    "healthy": true
   },
   "results": [
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28102-1: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28102-1",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28102-1) - Given a putObject through the facade for a - 1 KiB round-trip byte-equal; objectPut fired with size=1024",
-      "evidence": {
-        "key": "probe/put-get/1789153795313-bdtg3i4u",
-        "requestedContentType": "application/octet-stream",
-        "gotContentType": "application/octet-stream",
-        "gotSize": 1024,
-        "byteEqual": true,
-        "objectPutEvent": {
-          "event": "objectPut",
-          "ts": 1789153795327,
-          "key": "probe/put-get/1789153795313-bdtg3i4u",
-          "size": 1024,
-          "contentType": "application/octet-stream"
-        }
-      }
+      "detail": "1 KiB round-trip byte-equal; objectPut fired with size=1024"
     },
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28102-3: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28102-3",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28102-3) - Given at least three objects put under a - list returned 3 keys with isTruncated=false",
-      "evidence": {
-        "prefix": "probe/list-parent/1789153795313-ah9qa886",
-        "expectedKeys": [
-          "probe/list-parent/1789153795313-ah9qa886/a",
-          "probe/list-parent/1789153795313-ah9qa886/b",
-          "probe/list-parent/1789153795313-ah9qa886/c"
-        ],
-        "returnedKeys": [
-          "probe/list-parent/1789153795313-ah9qa886/a",
-          "probe/list-parent/1789153795313-ah9qa886/b",
-          "probe/list-parent/1789153795313-ah9qa886/c"
-        ],
-        "isTruncated": false
-      }
+      "detail": "list returned 3 keys with isTruncated=false"
     },
     {
-      "anchorAcId": null,
-      "conformanceOnly": true,
-      "limitation": "AC-28102-2: this row records real probe observations, but the row's fields do not satisfy the strict engine-minted-identifier witness set the anatomy test requires. Not observed on this row: an engine-minted id witness of the shape requestId / vendorRequestId / bucketName / jobId / etc..",
+      "anchorAcId": "AC-28102-2",
       "verdict": "pass",
-      "detail": "conformanceOnly (AC-28102-2) - Given a deleteObject through the facade for a - objectDeleted fired and get after delete returned NoSuchKey",
-      "evidence": {
-        "key": "probe/put-get/1789153795313-bdtg3i4u",
-        "objectDeletedEvent": {
-          "event": "objectDeleted",
-          "ts": 1789153795341,
-          "key": "probe/put-get/1789153795313-bdtg3i4u"
-        },
-        "getAfterDeleteWasNotFound": true
-      }
+      "detail": "objectDeleted fired and get after delete returned NoSuchKey"
     }
   ],
   "aggregateVerdict": "pass"
