@@ -80,8 +80,8 @@ const PROBE_DECLARED_ENV = Object.freeze([
 // up front lets the probe record a declared skip whose reason names
 // the missing ACCOUNT prerequisite rather than any env var, and
 // whose detail carries the API status and code as evidence. Endpoint:
-// GET /accounts/{id}/workers/subdomain (verifiedOn 2026-09-10 per
-// https://developers.cloudflare.com/api/resources/workers/subresources/subdomain/methods/get/).
+// GET /accounts/{id}/workers/subdomain (verifiedOn 2026-09-11 per
+// https://developers.cloudflare.com/api/operations/worker-subdomain-get-subdomain).
 //
 // Return classification:
 //   - `provisioned`      : HTTP 200 with `success: true` and a
