@@ -1,12 +1,10 @@
-// health-probes-distinct probe for application-api-rest v2.1.8.
+// health-probes-distinct probe for application-api-rest v2.1.9.
 //
-// Verifies AC-2108-1 (liveness varies with dependency availability),
-// AC-2108-2 (readiness requires every declared check to pass) and
-// AC-2108-4 (startup drives both mid-initialisation and completed
-// states). Each row exercises a distinct fixture state so the
-// derivation is real, not fixture-constant.
+// AC-2108-1: liveness returns 200 with no dependency checks whatsoever.
+// AC-2108-2: readiness returns 200 only when every declared check passes.
+// AC-2108-4: startup returns 200 only after initialisation completes.
 //
-// anchorAcId: per-row (AC-2108-1, AC-2108-2, AC-2108-4).
+// anchorAcId: per-row.
 
 import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 
@@ -19,34 +17,44 @@ export default async function runProbe() {
   try {
     const results = [];
 
-    // AC-2108-1: liveness varies with dependency availability.
-    // Drive ?deps=up and ?deps=down and derive that the status code
-    // and status label change with the varied input.
+    // AC-2108-1: liveness is 200 regardless of dependency availability.
+    // The derivation is that varying ?deps= does NOT change the returned
+    // status, and the response records dependencyChecksPerformed=0.
     const liveUp = await fetch(`${fixture.baseUrl}/livez?deps=up`);
     const liveUpBody = await liveUp.text();
+    const liveUpJson = JSON.parse(liveUpBody);
     const liveDown = await fetch(`${fixture.baseUrl}/livez?deps=down`);
     const liveDownBody = await liveDown.text();
-    const derivedLiveness = { upStatus: liveUp.status, downStatus: liveDown.status };
-    const livenessDerived = liveUp.status === 200 && liveDown.status === 503;
+    const liveDownJson = JSON.parse(liveDownBody);
+    const liveUnknown = await fetch(`${fixture.baseUrl}/livez?deps=unknown`);
+    const liveUnknownBody = await liveUnknown.text();
+    const liveUnknownJson = JSON.parse(liveUnknownBody);
+    const allTwoHundred = liveUp.status === 200 && liveDown.status === 200 && liveUnknown.status === 200;
+    const noDepsChecked = liveUpJson.dependencyChecksPerformed === 0
+      && liveDownJson.dependencyChecksPerformed === 0
+      && liveUnknownJson.dependencyChecksPerformed === 0;
+    const livenessOk = allTwoHundred && noDepsChecked;
     results.push({
       anchorAcId: 'application-api-rest-AC-2108-1',
-      anchorReqId: 'application-api-rest-REQ-006',
-      verdict: livenessDerived ? 'pass' : 'fail',
-      detail: `Probe endpoints: liveness, readiness, and startup with specified - /livez varied by ?deps= yields ${liveUp.status} (up) and ${liveDown.status} (down); derivation matches AC-2108-1: ${livenessDerived}`,
+      verdict: livenessOk ? 'pass' : 'fail',
+      detail: `GET on the resolved liveness path returns 200 - /livez returned ${liveUp.status}/${liveDown.status}/${liveUnknown.status} across ?deps=up|down|unknown; dependencyChecksPerformed reported ${liveUpJson.dependencyChecksPerformed}/${liveDownJson.dependencyChecksPerformed}/${liveUnknownJson.dependencyChecksPerformed}`,
       evidence: evidenceFromResponse({
-        route: '/livez?deps=up',
-        response: liveUp,
-        bodyText: liveUpBody,
+        route: '/livez?deps=down',
+        response: liveDown,
+        bodyText: liveDownBody,
         extraFields: {
-          input: { depsSequence: ['up', 'down'] },
-          derived: derivedLiveness,
-          altBodyExcerpt: liveDownBody.slice(0, 240),
+          input: { depsSequence: ['up', 'down', 'unknown'] },
+          derived: {
+            statuses: [liveUp.status, liveDown.status, liveUnknown.status],
+            dependencyChecksPerformed: [liveUpJson.dependencyChecksPerformed, liveDownJson.dependencyChecksPerformed, liveUnknownJson.dependencyChecksPerformed],
+            unaffectedByDependencyOutage: livenessOk,
+          },
+          altBodyExcerpt: liveUpBody.slice(0, 240),
         },
       }),
     });
 
-    // AC-2108-2: readiness enumerates every declared dependency
-    // check and reports notReady when any check is down.
+    // AC-2108-2: readiness returns 200 only when every declared check passes.
     const readyUp = await fetch(`${fixture.baseUrl}/readyz?deps=up`);
     const readyUpBody = await readyUp.text();
     const readyUpJson = JSON.parse(readyUpBody);
@@ -58,9 +66,8 @@ export default async function runProbe() {
     const readinessDerived = readyUp.status === 200 && readinessAllChecked && readinessDownDetected;
     results.push({
       anchorAcId: 'application-api-rest-AC-2108-2',
-      anchorReqId: 'application-api-rest-REQ-006',
       verdict: readinessDerived ? 'pass' : 'fail',
-      detail: `Probe endpoints: liveness, readiness, and startup with specified - /readyz enumerates ${readyUpJson.checks?.length ?? 0} declared checks; all pass in up-state, at least one down in down-state; readiness derivation matches AC-2108-2: ${readinessDerived}`,
+      detail: `GET on the resolved readiness path returns 200 - /readyz enumerates ${readyUpJson.checks?.length ?? 0} declared checks; all pass in up-state (${readyUp.status}), at least one down in down-state (${readyDown.status})`,
       evidence: evidenceFromResponse({
         route: '/readyz?deps=up',
         response: readyUp,
@@ -78,9 +85,7 @@ export default async function runProbe() {
       }),
     });
 
-    // AC-2108-4: startup drives both mid-initialisation and
-    // completed states. mid-init returns 503 with pending!=[];
-    // complete returns 200 with pending==[].
+    // AC-2108-4: startup returns 200 only after initialisation completes.
     const startupInit = await fetch(`${fixture.baseUrl}/startupz?state=init`);
     const startupInitBody = await startupInit.text();
     const startupInitJson = JSON.parse(startupInitBody);
@@ -93,9 +98,8 @@ export default async function runProbe() {
       && Array.isArray(startupCompleteJson.pending) && startupCompleteJson.pending.length === 0;
     results.push({
       anchorAcId: 'application-api-rest-AC-2108-4',
-      anchorReqId: 'application-api-rest-REQ-006',
       verdict: startupDerived ? 'pass' : 'fail',
-      detail: `Probe endpoints: liveness, readiness, and startup with specified - /startupz drives ${startupInitJson.pending?.length ?? 0} pending steps in init-state and ${startupCompleteJson.pending?.length ?? 0} in complete-state; both branches derived per AC-2108-4: ${startupDerived}`,
+      detail: `GET on the resolved startup path returns 200 - /startupz drives ${startupInitJson.pending?.length ?? 0} pending steps in init-state (${startupInit.status}) and ${startupCompleteJson.pending?.length ?? 0} in complete-state (${startupComplete.status})`,
       evidence: evidenceFromResponse({
         route: '/startupz?state=init',
         response: startupInit,

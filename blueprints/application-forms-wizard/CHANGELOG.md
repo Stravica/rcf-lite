@@ -1,5 +1,14 @@
 # application-forms-wizard CHANGELOG
 
+## 1.2.4 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - Task-list surface probe drives a VARIED manifest via /task-list?manifest=slug1|slug2|... (fixture accepts the query and startServer({ manifestOverride })) and asserts both the rendered rows and /__task-manifest follow the varied input across two distinct runs. The pass-3 self-agreement against the module STEP_MANIFEST constant is removed.
+  - step-page-shape row is single conformanceOnly on AC-24102-1 with limitation naming the browser-only blur/change/submit events; the /validate rebuild observation stays as the server-observable slice.
+  - Forms fixture: duplicate unreachable second GET /drafts branch removed.
+  - notObservableHere rows drop anchorAcId / anchorReqId.
+  - Anatomy test hardened; version pin bumped to 1.2.4.
+
 ## 1.2.3 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

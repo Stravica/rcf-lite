@@ -1,4 +1,4 @@
-// route-inventory-published probe for application-spa v1.5.9.
+// route-inventory-published probe for application-spa v1.5.10.
 //
 // Verifies AC-1101-1: the shell publishes a declared route inventory
 // AND no navigable surface exists outside it. Two independent

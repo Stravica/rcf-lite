@@ -1,14 +1,13 @@
-// search-adapter-round-trip probe for application-datatable v1.0.6.
+// search-adapter-round-trip probe for application-datatable v1.0.8.
 //
-// Verifies AC-17102-1: a text-filter q value narrows the returned
-// set AND the returned rows all match the filter. The probe
-// compares row content (name.includes(q)) - not merely total <=
-// totalUnfiltered - to avoid the constant-echo bypass called out
-// in closure section 8.
+// AC-17102-1: the query adapter reads `q` and returns rows matching
+// the filter. The API round-trip is server-observable and the row is
+// a conformanceOnly with a limitation naming the browser half; no
+// duplicate notObservableHere row (closure 3 section 2).
 //
 // anchorAcId: application-datatable-AC-17102-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-datatable-REQ-003';
 export const accountBound = false;
@@ -36,13 +35,11 @@ export default async function runProbe() {
     const allMatch = filteredNames.length > 0 && filteredNames.every((n) => n.includes(q.toLowerCase()));
     const droppedNamesInclude = noQNames.some((n) => !filteredNames.includes(n));
     const pass = noQ.status === 200 && withQ.status === 200 && echoed && narrowed && allMatch && droppedNamesInclude;
-    results.push({
+    results.push(conformanceOnlyResult({
       anchorAcId: 'application-datatable-AC-17102-1',
       anchorReqId: 'application-datatable-REQ-003',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `Given a rendered datatable route with a text - search q="${q}" narrowed ${totalUnfiltered} to ${totalFiltered}; every returned row.name contains "${q}"`
-        : `Given a rendered datatable route with a text - search fault: echoed=${echoed} totalUnfiltered=${totalUnfiltered} totalFiltered=${totalFiltered} narrowed=${narrowed} allMatch=${allMatch} droppedContainsRows=${droppedNamesInclude}`,
+      detail: `Given a rendered datatable route with a text - search q="${q}" narrowed ${totalUnfiltered} to ${totalFiltered}; every returned row.name contains "${q}" (server-observable half)`,
       evidence: evidenceFromResponse({
         route: `/api/rows?q=${q}&pageSize=100`,
         response: withQ,
@@ -52,18 +49,8 @@ export default async function runProbe() {
           derived: { totalUnfiltered, totalFiltered, narrowed, allMatch, filteredNames, unfilteredCount: noQNames.length },
         },
       }),
-    });
-    const { notObservableHereResult } = await import('./probe-utils.mjs');
-    results.push(notObservableHereResult({
-      anchorAcId: 'application-datatable-AC-17102-1',
-      anchorReqId: 'application-datatable-REQ-003',
-      ac: 'application-datatable-AC-17102-1',
-      detail: 'AC-17102-1 also requires typing into the filter and comparing rendered rows; browser-only',
-      reason: 'AC-17102-1 requires typing into the browser filter input and comparing rendered rows; server-side probe pack cannot observe DOM changes',
-      evidence: { requires: 'browser input + DOM comparison' },
+      limitation: 'application-datatable-AC-17102-1: typing into the browser filter input and comparing rendered rows is browser-only',
     }));
-
-
     return { results };
   } finally {
     await fixture.close();

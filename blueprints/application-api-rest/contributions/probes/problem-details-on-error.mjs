@@ -1,4 +1,4 @@
-// problem-details-on-error probe for application-api-rest v2.1.7.
+// problem-details-on-error probe for application-api-rest v2.1.9.
 //
 // Verifies AC-2111-1 (RFC 7807 shape and content-type on any error
 // path) and AC-2111-3 (envelope status equals HTTP status line).
@@ -33,7 +33,7 @@ export default async function runProbe() {
       anchorReqId: 'application-api-rest-REQ-009',
       verdict: shapeOk ? 'pass' : 'fail',
       detail: shapeOk
-        ? 'GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
+        ? 'Every 4xx and 5xx response body is - GET /v1/widgets/does-not-exist returned application/problem+json with all five RFC 7807 fields'
         : `Every 4xx and 5xx response body is an - problem-details shape fault: status=${res.status} contentType=${cType} missing=${JSON.stringify(missing)}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets/does-not-exist',

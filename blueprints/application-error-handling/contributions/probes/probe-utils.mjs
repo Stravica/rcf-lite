@@ -147,11 +147,11 @@ export async function runShim(probeName, engine, mainFn) {
 // such a property is recorded as notObservableHere carrying an
 // object with the AC id and a reason; the tally script reads
 // notObservableHere.ac to accept the row.
-export function notObservableHereResult({ anchorAcId, anchorReqId, ac, detail, reason, evidence } = {}) {
+export function notObservableHereResult({ ac, anchorAcId, detail, reason, evidence } = {}) {
+  // Per Addendum 3 rule 11 a notObservableHere row anchors nothing
+  // else: no anchorAcId, no anchorReqId - only notObservableHere.ac.
   const acId = ac || anchorAcId;
   return {
-    ...(anchorAcId ? { anchorAcId } : {}),
-    ...(anchorReqId ? { anchorReqId } : {}),
     verdict: 'pass',
     notObservableHere: {
       ac: acId,

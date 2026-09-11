@@ -1,4 +1,4 @@
-// Anatomy + probe-pack test for the application-api-rest v2.1.8
+// Anatomy + probe-pack test for the application-api-rest v2.1.9
 // shelf blueprint. Pins the criterion-e contributions/probes pack
 // shape (four probes, matching run-*.mjs wrappers, probe-utils
 // helper).
@@ -31,7 +31,7 @@ test('application-api-rest: blueprint.json declares the shipped shape', async ()
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-api-rest');
   assert.equal(doc.category, 'application');
-  assert.equal(doc.version, '2.1.8');
+  assert.equal(doc.version, '2.1.9');
 });
 
 test('application-api-rest: contributions/probes carries probe-utils and every named probe with its run-*.mjs wrapper', async () => {
@@ -68,6 +68,23 @@ test('application-api-rest: sample-app fixture carries a Declared env vars secti
 });
 
 test('application-api-rest: every probe result carries one of the four 7d evidence shapes (TC-crit-e-evidence-shape)', async () => {
+  const usDir = join(BLUEPRINT_ROOT, 'contributions', 'user-stories');
+  const acIds = new Set();
+  for (const f of (await readdir(usDir)).filter((n) => n.endsWith('.json'))) {
+    const d = JSON.parse(await readFile(join(usDir, f), 'utf8'));
+    for (const ac of (d.acceptanceCriteria || [])) {
+      if (ac && typeof ac.id === 'string') {
+        // ac.id looks like "AC-1101-1"; the shipped ac id includes the slug prefix
+        acIds.add('application-api-rest-' + ac.id);
+      }
+    }
+  }
+  const reqDir = join(BLUEPRINT_ROOT, 'contributions', 'requirements');
+  const reqIds = new Set();
+  for (const f of (await readdir(reqDir)).filter((n) => n.endsWith('.json'))) {
+    const d = JSON.parse(await readFile(join(reqDir, f), 'utf8'));
+    if (d.reqId) reqIds.add(d.reqId);
+  }
   for (const name of PROBE_NAMES) {
     const mod = await import(pathToFileURL(join(PROBES_DIR, `${name}.mjs`)).href);
     const { results } = await mod.default();
@@ -87,22 +104,27 @@ test('application-api-rest: every probe result carries one of the four 7d eviden
           name + ' notObservableHere row missing .ac id: ' + JSON.stringify(r).slice(0, 200));
         assert.ok(typeof r.notObservableHere.reason === 'string' && r.notObservableHere.reason.length > 0,
           name + ' notObservableHere row missing .reason: ' + JSON.stringify(r).slice(0, 200));
+        // Addendum 3 rule 11: the notObservableHere.ac must be a shipped AC id.
+        assert.ok(acIds.has(r.notObservableHere.ac),
+          name + ' notObservableHere.ac ' + r.notObservableHere.ac + ' is not a shipped AC on this blueprint');
         continue;
       }
       if (r && r.conformanceOnly === true) {
         assert.ok(typeof r.limitation === 'string' && r.limitation.length > 0,
           name + ' conformanceOnly row missing limitation: ' + JSON.stringify(r).slice(0, 200));
-        // conformanceOnly rows still carry real evidence; fall through to the strict checks below.
       }
-      
+      // anchorAcId (when present) resolves to a shipped AC.
+      if (r && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
+        assert.ok(acIds.has(r.anchorAcId),
+          name + ' anchorAcId ' + r.anchorAcId + ' is not a shipped AC on this blueprint');
+      }
+      // anchorReqId (when present) resolves to a shipped REQ.
+      if (r && typeof r.anchorReqId === 'string' && r.anchorReqId.length > 0) {
+        assert.ok(reqIds.has(r.anchorReqId),
+          name + ' anchorReqId ' + r.anchorReqId + ' is not a shipped REQ on this blueprint');
+      }
       if (r.evidence) {
         const ev = r.evidence;
-        // Rule 7d addendum 3 (2026-09-11) rule 14: STRICT.
-        // A row passes only with a non-empty request id AND a
-        // non-empty body excerpt or a derived value; a bare
-        // "reason" never counts and status zero never counts.
-        // notObservableHere and accountBoundSkipped rows have
-        // already been handled above.
         assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
           name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
         assert.ok(Number.isFinite(ev.status) && ev.status > 0,
@@ -110,11 +132,12 @@ test('application-api-rest: every probe result carries one of the four 7d eviden
         const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
         assert.ok(hasRequestId,
           name + ' evidence missing non-empty request id: ' + JSON.stringify(ev).slice(0, 200));
-        const hasBodyOrDerived = (typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0)
-          || (ev && typeof ev.derived === 'object' && ev.derived !== null)
-          || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
-        assert.ok(hasBodyOrDerived,
-          name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));
+        // "derived" must be a non-empty object; {} never counts as a derived value.
+        const derivedIsPopulated = (ev && typeof ev.derived === 'object' && ev.derived !== null && Object.keys(ev.derived).length > 0)
+          || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null && Object.keys(ev.derivedOutput).length > 0);
+        const hasBodyExcerpt = typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+        assert.ok(hasBodyExcerpt || derivedIsPopulated,
+          name + ' evidence missing body excerpt or non-empty derived value: ' + JSON.stringify(ev).slice(0, 200));
       }
     }
   }

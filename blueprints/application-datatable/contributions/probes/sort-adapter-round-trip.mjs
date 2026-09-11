@@ -1,27 +1,21 @@
-// sort-adapter-round-trip probe for application-datatable v1.0.6.
+// sort-adapter-round-trip probe for application-datatable v1.0.8.
 //
-// Verifies AC-17101-1: activating a column's sort control makes the
-// server-side sort response order the derived output; the probe
-// asserts the row order actually changed vs the unsorted response
-// AND that the returned order matches a comparator run over the
-// rows themselves. `changed` and `comparator` are both required
-// for pass (Addendum rule 2 - a derived assertion, not a constant
-// echo).
+// AC-17101-1 has two halves: the API sort response ordering
+// (server-observable) and the browser DOM re-render after clicking
+// the header (browser-only). This probe records ONE conformanceOnly
+// row carrying the API observation with a limitation naming the
+// browser half - no separate notObservableHere row (closure 3
+// section 2: same-AC positive + amber duplicates were the defect).
 //
 // anchorAcId: application-datatable-AC-17101-1.
 
-import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-datatable-REQ-002';
 export const accountBound = false;
 
-function idsOf(payload) {
-  return (payload.rows || []).map((r) => r.id);
-}
-
-function valuesOf(payload, key) {
-  return (payload.rows || []).map((r) => r[key]);
-}
+function idsOf(payload) { return (payload.rows || []).map((r) => r.id); }
+function valuesOf(payload, key) { return (payload.rows || []).map((r) => r[key]); }
 
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-datatable/server.js');
@@ -32,11 +26,6 @@ export default async function runProbe() {
     const unsortedBody = await unsorted.text();
     const unsortedIds = idsOf(JSON.parse(unsortedBody));
 
-    // Sort by score - the fixture's scores are shuffled (30, 10,
-    // 20, 40, 50, 15, 35, 25) so an ascending sort visibly
-    // reorders vs the insertion-order unsorted response. Sorting
-    // by name would leave the order unchanged (fixture inserts
-    // alphabetically) and would not observe the property.
     const sortField = 'score';
     const sortedRes = await fetch(`${fixture.baseUrl}/api/rows?sort=${sortField}&pageSize=100`);
     const sortedBody = await sortedRes.text();
@@ -48,13 +37,11 @@ export default async function runProbe() {
     const echoed = sortedParsed.sort === sortField;
     const changed = JSON.stringify(unsortedIds) !== JSON.stringify(sortedIds);
     const pass = unsorted.status === 200 && sortedRes.status === 200 && echoed && changed && comparatorMatches;
-    results.push({
+    results.push(conformanceOnlyResult({
       anchorAcId: 'application-datatable-AC-17101-1',
       anchorReqId: 'application-datatable-REQ-002',
       verdict: pass ? 'pass' : 'fail',
-      detail: pass
-        ? `Given a rendered datatable route with a sortable - sort=${sortField}: order changed vs unsorted AND matches a JS-side ascending comparator over the returned ${sortField} values`
-        : `Given a rendered datatable route with a sortable - sort fault: echoed=${echoed} changed=${changed} comparatorMatches=${comparatorMatches} unsorted=${unsorted.status} sorted=${sortedRes.status}`,
+      detail: `Given a rendered datatable route with a sortable - sort=${sortField}: order changed vs unsorted AND matches a JS-side ascending comparator over the returned ${sortField} values (server-observable half)`,
       evidence: evidenceFromResponse({
         route: `/api/rows?sort=${sortField}&pageSize=100`,
         response: sortedRes,
@@ -64,22 +51,8 @@ export default async function runProbe() {
           derived: { unsortedIds, sortedIds, sortedValues, changed, echoedSort: echoed, comparatorMatches },
         },
       }),
-    });
-    // Row: browser interaction and DOM comparison are browser-only.
-    // The adapter round-trip above proves the sorting behaviour on
-    // the API; asserting that a user click on the column header
-    // reorders the rendered DOM needs a browser runner.
-    const { notObservableHereResult } = await import('./probe-utils.mjs');
-    results.push(notObservableHereResult({
-      anchorAcId: 'application-datatable-AC-17101-1',
-      anchorReqId: 'application-datatable-REQ-002',
-      ac: 'application-datatable-AC-17101-1',
-      detail: 'AC-17101-1 also requires clicking the column-header sort control and comparing rendered DOM row order; that is browser-only',
-      reason: 'AC-17101-1 requires activating the sort control in the browser and comparing rendered DOM row order; server-side probe pack cannot observe DOM order',
-      evidence: { requires: 'browser click + DOM order observation' },
+      limitation: 'application-datatable-AC-17101-1: clicking the column-header sort control and comparing rendered DOM row order is browser-only',
     }));
-
-
     return { results };
   } finally {
     await fixture.close();

@@ -1,5 +1,15 @@
 # application-file-upload CHANGELOG
 
+## 1.2.4 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - AC-23102-2 uses the AC's exact sizes (1 MiB, 2 MiB, 5 MiB) per rule 7; the earlier 100/200/300-byte values did not match the AC.
+  - AC-23104-3 adds the post-409 state check AND the resume PATCH: the probe re-reads the stored offset after the 409 (asserts it did NOT advance), then issues a resume PATCH from the last acknowledged offset and asserts the stored bytes advance.
+  - assertive-completion-slot and upload-surface-shape drop their duplicate notObservableHere rows; each is now a single conformanceOnly row for its AC carrying real evidence with a limitation naming the browser-only half.
+  - Detail openings now start with the AC text they anchor.
+  - notObservableHere rows drop anchorAcId / anchorReqId.
+  - Anatomy test hardened; version pin bumped to 1.2.4.
+
 ## 1.2.3 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

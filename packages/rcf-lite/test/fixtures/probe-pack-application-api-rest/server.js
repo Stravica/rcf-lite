@@ -49,24 +49,23 @@ function sendProblem(res, status, problem, requestId) {
   res.end(JSON.stringify(problem));
 }
 
-// Opaque cursor: base64url over a JSON marker { i: <index>, tag: 'v1' }.
-// A probe cannot recover the numeric offset from the token without
-// duplicating the fixture's decode logic, so REQ-007 opacity holds.
+// Opaque cursor: a server-side UUID mapped to an internal offset.
+// The token carries no positional semantics the client can decode
+// (nothing to base64url-decode, nothing to JSON-parse), so REQ-007
+// opacity holds strictly. The mapping lives in-process so /v1/widgets
+// resumes from the intended offset.
+const CURSOR_MAP = new Map();
 function encodeCursor(index) {
-  const raw = JSON.stringify({ i: index, tag: 'v1' });
-  return Buffer.from(raw, 'utf8').toString('base64url');
+  const token = randomUUID();
+  CURSOR_MAP.set(token, index);
+  return token;
 }
 function decodeCursor(cursor) {
-  try {
-    const raw = Buffer.from(cursor, 'base64url').toString('utf8');
-    const marker = JSON.parse(raw);
-    if (marker && typeof marker.i === 'number' && marker.tag === 'v1' && marker.i >= 0) {
-      return { ok: true, index: marker.i };
-    }
-    return { ok: false };
-  } catch {
-    return { ok: false };
-  }
+  if (typeof cursor !== 'string' || cursor.length === 0) return { ok: false };
+  if (!CURSOR_MAP.has(cursor)) return { ok: false };
+  const index = CURSOR_MAP.get(cursor);
+  if (!Number.isFinite(index) || index < 0) return { ok: false };
+  return { ok: true, index };
 }
 
 function handler(req, res) {
@@ -79,14 +78,14 @@ function handler(req, res) {
   const commonHeaders = { 'x-request-id': requestId, 'x-fixture-request-id': requestId };
 
   if (url.pathname === '/livez') {
-    // Liveness varies on ?deps=up|down|unknown so a probe can drive
-    // multiple dependency-availability states and assert derived
-    // status codes (AC-2108-1).
+    // AC-2108-1: liveness returns 200 with no dependency checks
+    // whatsoever, unaffected by any downstream outage. The ?deps=
+    // query is accepted only so a probe can prove the output does
+    // NOT vary with it; the fixture reads it and echoes it back but
+    // the returned status is always 200.
     const deps = url.searchParams.get('deps') || 'up';
-    const status = deps === 'down' ? 503 : 200;
-    const alive = deps === 'down' ? 'notAlive' : 'alive';
-    logRequest(requestId, '/livez', status);
-    sendJson(res, status, { status: alive, probe: 'livez', requestId, deps }, commonHeaders);
+    logRequest(requestId, '/livez', 200);
+    sendJson(res, 200, { status: 'alive', probe: 'livez', requestId, deps, dependencyChecksPerformed: 0 }, commonHeaders);
     return;
   }
   if (url.pathname === '/readyz') {

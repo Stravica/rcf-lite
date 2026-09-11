@@ -1,4 +1,4 @@
-// primary-kpi-top-left probe for application-dashboard v1.0.7.
+// primary-kpi-top-left probe for application-dashboard v1.0.8.
 //
 // AC-19102-1 requires computed layout at 1440/1024/360 viewports;
 // that observation is browser-only and recorded as notObservableHere
@@ -8,7 +8,7 @@
 //
 // anchorAcId: application-dashboard-AC-19102-1.
 
-import { startFixture, evidenceFromResponse, notObservableHereResult, conformanceOnlyResult } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-dashboard-REQ-002';
 export const accountBound = false;
@@ -49,16 +49,6 @@ export default async function runProbe() {
         },
       }),
       limitation: 'application-dashboard-AC-19102-1: computed CSS layout at 1440/1024/360 viewports is browser-only',
-    }));
-
-    // Second row: honest notObservableHere for the browser-only half.
-    results.push(notObservableHereResult({
-      anchorAcId: 'application-dashboard-AC-19102-1',
-      anchorReqId: 'application-dashboard-REQ-002',
-      ac: 'application-dashboard-AC-19102-1',
-      detail: 'Given a rendered dashboard surface at each of - computed layout at 1440/1024/360 viewports is browser-only; notObservableHere per Addendum 3 rule 11',
-      reason: 'AC-19102-1 requires computed CSS at 1440/1024/360 viewports; server-side probe pack cannot observe computed layout',
-      evidence: { adr2001Enum: KPI_ENUM, viewports: [1440, 1024, 360] },
     }));
 
     return { results };

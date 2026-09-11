@@ -1,4 +1,4 @@
-// category-vocabulary probe for application-error-handling v1.0.5.
+// category-vocabulary probe for application-error-handling v1.0.7.
 //
 // Verifies the ADR-1702 recommended default vocabulary (transient,
 // permanent, unknown) via REQ-003 for the pass rows and AC-16105-4
@@ -59,7 +59,7 @@ export default async function runProbe() {
       anchorReqId: 'application-error-handling-REQ-003',
       verdict: refusalOk ? 'pass' : 'fail',
       detail: refusalOk
-        ? 'unelicited category refused at record construction (400 with refused/accepted body)'
+        ? `Given a project that elicited additional categories via - unelicited category refused at record construction: 400 with refused=${badParsed.refused} accepted=${JSON.stringify(badParsed.accepted)}`
         : `Given a project that elicited additional categories via - refusal fault: status=${bad.status} error=${badParsed.error} refused=${badParsed.refused} accepted=${JSON.stringify(badParsed.accepted)}`,
       evidence: evidenceFromResponse({
         route: '/construct/notARealCategory',

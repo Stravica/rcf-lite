@@ -1,6 +1,6 @@
 {
   "slug": "application-dashboard",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -152,5 +152,5 @@
       "standardsTraceClause": "GOV.UK Design System (download patterns); WCAG 1.3.1 (info and relationships)"
     }
   ],
-  "updatedAt": "2026-09-11T14:22:52Z"
+  "updatedAt": "2026-09-11T16:04:17Z"
 }

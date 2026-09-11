@@ -1,6 +1,6 @@
 {
   "slug": "application-api-rest",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "category": "application",
   "contributions": [
     {
@@ -270,5 +270,5 @@
       "reason": "The error translator writes the wire envelope from the internal record; an error-handling companion supplies the record factory and the boundary that constructs it, and the shelf application-error-handling blueprint is the fallback when no library provider is registered."
     }
   ],
-  "updatedAt": "2026-09-11T14:22:52Z"
+  "updatedAt": "2026-09-11T16:04:17Z"
 }

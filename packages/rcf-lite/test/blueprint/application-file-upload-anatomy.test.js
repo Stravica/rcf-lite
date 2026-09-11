@@ -1,5 +1,4 @@
-// Anatomy + apply + probe-pack test for the application-file-upload
-// v1.0.0 shelf blueprint (visual round 4 T-2, spec section 5.2).
+// Anatomy + apply + probe-pack test for the application-file-upload v1.2.4 shelf blueprint (visual round 4 T-2, spec section 5.2).
 //
 // Covers TS-054.
 
@@ -32,7 +31,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 20 contributions with no capabilities and no requiresAppliedCapabilities (TC-054-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-file-upload');
-  assert.equal(doc.version, '1.2.3');
+  assert.equal(doc.version, '1.2.4');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.deepEqual(doc.capabilities, ['virusScan'], 'capabilities declares virusScan (F-3 close, 1.2.0)');
@@ -244,7 +243,7 @@ test('application-file-upload: no em-dashes in shipped prose', async () => {
 // x-fixture-request-id header, status and a body excerpt as the
 // positive evidence rule 7d requires.
 // ---------------------------------------------------------------
-import { readdir as _readdirCritE } from 'node:fs/promises';
+import { readdir as _readdirCritE, readFile as _rf } from 'node:fs/promises';
 import { pathToFileURL as _toUrlCritE } from 'node:url';
 import { join as _joinCritE } from 'node:path';
 
@@ -290,6 +289,23 @@ test('application-file-upload: sample-app fixture README declares env vars for t
 });
 
 test('every criterion-e probe result carries one of the four 7d evidence shapes (TC-crit-e-evidence-shape)', async () => {
+  const _usDir = _joinCritE(_CRIT_E_BP_ROOT, 'contributions', 'user-stories');
+  const _acIds = new Set();
+  for (const f of (await _readdirCritE(_usDir)).filter((n) => n.endsWith('.json'))) {
+    const d = JSON.parse(await _rf(_joinCritE(_usDir, f), 'utf8'));
+    for (const ac of (d.acceptanceCriteria || [])) {
+      if (ac && typeof ac.id === 'string') {
+        // Compose blueprint-prefixed AC id from the shipped slug.
+        _acIds.add('application-file-upload-' + ac.id);
+      }
+    }
+  }
+  const _reqDir = _joinCritE(_CRIT_E_BP_ROOT, 'contributions', 'requirements');
+  const _reqIds = new Set();
+  for (const f of (await _readdirCritE(_reqDir)).filter((n) => n.endsWith('.json'))) {
+    const d = JSON.parse(await _rf(_joinCritE(_reqDir, f), 'utf8'));
+    if (d.reqId) _reqIds.add(d.reqId);
+  }
   for (const name of _CRIT_E_PROBE_NAMES) {
     const mod = await import(_toUrlCritE(_joinCritE(_CRIT_E_PROBES_DIR, name + '.mjs')).href);
     const { results } = await mod.default();
@@ -309,22 +325,24 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
           name + ' notObservableHere row missing .ac id: ' + JSON.stringify(r).slice(0, 200));
         assert.ok(typeof r.notObservableHere.reason === 'string' && r.notObservableHere.reason.length > 0,
           name + ' notObservableHere row missing .reason: ' + JSON.stringify(r).slice(0, 200));
+        assert.ok(_acIds.has(r.notObservableHere.ac),
+          name + ' notObservableHere.ac ' + r.notObservableHere.ac + ' is not a shipped AC on this blueprint');
         continue;
       }
       if (r && r.conformanceOnly === true) {
         assert.ok(typeof r.limitation === 'string' && r.limitation.length > 0,
           name + ' conformanceOnly row missing limitation: ' + JSON.stringify(r).slice(0, 200));
-        // conformanceOnly rows still carry real evidence; fall through to the strict checks below.
       }
-      
+      if (r && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
+        assert.ok(_acIds.has(r.anchorAcId),
+          name + ' anchorAcId ' + r.anchorAcId + ' is not a shipped AC on this blueprint');
+      }
+      if (r && typeof r.anchorReqId === 'string' && r.anchorReqId.length > 0) {
+        assert.ok(_reqIds.has(r.anchorReqId),
+          name + ' anchorReqId ' + r.anchorReqId + ' is not a shipped REQ on this blueprint');
+      }
       if (r.evidence) {
         const ev = r.evidence;
-        // Rule 7d addendum 3 (2026-09-11) rule 14: STRICT.
-        // A row passes only with a non-empty request id AND a
-        // non-empty body excerpt or a derived value; a bare
-        // "reason" never counts and status zero never counts.
-        // notObservableHere and accountBoundSkipped rows have
-        // already been handled above.
         assert.ok(typeof ev.route === 'string' && ev.route.length > 0,
           name + ' evidence missing non-empty route: ' + JSON.stringify(ev).slice(0, 200));
         assert.ok(Number.isFinite(ev.status) && ev.status > 0,
@@ -332,11 +350,11 @@ test('every criterion-e probe result carries one of the four 7d evidence shapes 
         const hasRequestId = typeof ev.xFixtureRequestId === 'string' && ev.xFixtureRequestId.length > 0;
         assert.ok(hasRequestId,
           name + ' evidence missing non-empty request id: ' + JSON.stringify(ev).slice(0, 200));
-        const hasBodyOrDerived = (typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0)
-          || (ev && typeof ev.derived === 'object' && ev.derived !== null)
-          || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null);
-        assert.ok(hasBodyOrDerived,
-          name + ' evidence missing body excerpt or derived value: ' + JSON.stringify(ev).slice(0, 200));
+        const derivedIsPopulated = (ev && typeof ev.derived === 'object' && ev.derived !== null && Object.keys(ev.derived).length > 0)
+          || (ev && typeof ev.derivedOutput === 'object' && ev.derivedOutput !== null && Object.keys(ev.derivedOutput).length > 0);
+        const hasBodyExcerpt = typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+        assert.ok(hasBodyExcerpt || derivedIsPopulated,
+          name + ' evidence missing body excerpt or non-empty derived value: ' + JSON.stringify(ev).slice(0, 200));
       }
     }
   }

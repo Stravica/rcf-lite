@@ -30,11 +30,11 @@ export const ROUTE_INVENTORY = [
   { path: '/reports', name: 'reports', state: 'empty', dataBearing: true },
 ];
 
-// Independent source of truth: the actually mounted paths. If a new
-// content route is added here without also being added to
-// ROUTE_INVENTORY, the route-inventory-published probe detects the
-// undeclared surface (AC-1101-1).
-export const MOUNTED_PATHS = ['/', '/dashboard', '/settings', '/reports'];
+// Dispatch table: the same map the request handler resolves against.
+// Both /__mounted and the router walk this table, so the "mounted"
+// value the probe reads is derived from the fixture's actual dispatch
+// (closure 3 sections 1, 4, 5, 6 - no second hand-maintained literal).
+export const DISPATCH_TABLE = new Map(ROUTE_INVENTORY.map((r) => [r.path, r]));
 
 function shellHead(title) {
   return `<meta charset="utf-8"><title>${title}</title>` +
@@ -67,7 +67,7 @@ function shellBody(route, requestedState) {
 }
 
 function renderRoute(routePath, requestedState) {
-  const route = ROUTE_INVENTORY.find((r) => r.path === routePath);
+  const route = DISPATCH_TABLE.get(routePath);
   if (!route) return null;
   return `<!doctype html><html lang="en"><head>${shellHead('spa fixture')}</head>${shellBody(route, requestedState)}</html>`;
 }
@@ -89,8 +89,10 @@ function handler(req, res) {
     return;
   }
   if (url.pathname === '/__mounted') {
+    // Derived from the same DISPATCH_TABLE the request handler uses.
+    const paths = [...DISPATCH_TABLE.keys()];
     res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ paths: MOUNTED_PATHS }));
+    res.end(JSON.stringify({ paths }));
     return;
   }
   if (url.pathname === '/healthz') {

@@ -48,6 +48,25 @@ export const STEP_MANIFEST = [
 ];
 export const BREAK_SWITCHES = ['task-list-vocab', 'no-summary', 'no-retain', 'no-draft'];
 
+// Closure 3 item 7: the probe must drive a varied manifest so the
+// rendered task-list rows and /__task-manifest are BOTH derived from
+// the same varied input rather than the module constant STEP_MANIFEST.
+// A per-request `?manifest=slug1|slug2|slug3` query selects a distinct
+// ordered manifest, and startServer({ manifestOverride: [...] }) sets
+// a process-wide override. The default remains STEP_MANIFEST.
+let MODULE_MANIFEST_OVERRIDE = null;
+export function setManifestOverride(next) { MODULE_MANIFEST_OVERRIDE = Array.isArray(next) && next.length > 0 ? next.slice() : null; }
+function parseQueryManifest(url) {
+  const raw = url.searchParams.get('manifest');
+  if (!raw) return null;
+  const parts = raw.split('|').map((seg) => seg.trim()).filter(Boolean);
+  if (parts.length === 0) return null;
+  return parts.map((slug) => ({ slug, title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()), prerequisites: [] }));
+}
+function resolveManifest(url) {
+  return parseQueryManifest(url) || MODULE_MANIFEST_OVERRIDE || STEP_MANIFEST;
+}
+
 const DEFAULT_BREAK = process.env.FORMS_WIZARD_BREAK || null;
 
 // In-memory server-side draft table. Keyed by operator id (single
@@ -126,29 +145,30 @@ function renderTaskListPage(url) {
   const brk = resolveBreak(url);
   const nav = url.searchParams.get('nav') === 'free' ? 'free' : 'linear';
   const seed = url.searchParams.get('seed');
+  const manifest = resolveManifest(url);
   let answers = {};
   if (seed === 'partial') {
     answers = { 'contact-details': { fullName: 'Alex Example', email: 'alex@example.test' } };
   } else if (seed === 'complete') {
     answers = seededAnswersForComplete();
   }
-  const rowStates = STEP_MANIFEST.map((step) => ({ step, state: computeStepState(step, answers) }));
-  // Break: swap one state string away from the closed vocabulary.
+  // computeStepState reads by slug so any manifest ordering works.
+  const rowStates = manifest.map((step) => ({ step, state: computeStepState(step, answers) }));
   if (brk === 'task-list-vocab' && rowStates.length > 0) {
     rowStates[0].state = 'kicked-off';
   }
   const completedCount = rowStates.filter((r) => r.state === 'Completed').length;
-  const rowsHtml = rowStates.map(({ step, state }) => {
+  const rowsHtml = rowStates.map(({ step, state }, i) => {
     const isDisabledLinear = nav === 'linear' && state === 'Cannot start yet';
     const rowInner = isDisabledLinear
       ? `<span data-role="step-title">${escapeHtml(step.title)}</span>`
-      : `<a href="/step/${STEP_MANIFEST.indexOf(step) + 1}?nav=${nav}" data-role="step-title">${escapeHtml(step.title)}</a>`;
+      : `<a href="/step/${i + 1}?nav=${nav}" data-role="step-title">${escapeHtml(step.title)}</a>`;
     return `<li data-step-slug="${escapeHtml(step.slug)}" data-step-state="${escapeHtml(state)}">${rowInner}<span data-step-state-label>${escapeHtml(state)}</span></li>`;
   }).join('\n');
   return `<!doctype html><html lang="en"><head>${shellHead('Wizard task-list')}</head><body>${bodyOpen()}
 <h1>Task list</h1>
 <section data-surface="task-list">
-  <div role="progressbar" aria-valuenow="${completedCount}" aria-valuemax="${STEP_MANIFEST.length}" aria-valuetext="${escapeHtml(String(completedCount))} of ${STEP_MANIFEST.length} steps completed">${completedCount} of ${STEP_MANIFEST.length} steps completed</div>
+  <div role="progressbar" aria-valuenow="${completedCount}" aria-valuemax="${manifest.length}" aria-valuetext="${escapeHtml(String(completedCount))} of ${manifest.length} steps completed">${completedCount} of ${manifest.length} steps completed</div>
   <ol>${rowsHtml}</ol>
 </section>
 <div data-live-region="polite" aria-live="polite"></div>
@@ -415,27 +435,21 @@ function handle(req, res) {
     return;
   }
   if (path === '/__task-manifest' && req.method === 'GET') {
-    // Independent source of truth for the task list, so the
-    // task-list-surface probe reads the manifest here rather than
-    // duplicating it in the probe.
-    sendJson(res, 200, { steps: STEP_MANIFEST.map((s) => ({ slug: s.slug, title: s.title })), allowedStates: ['Not started', 'In progress', 'Cannot start yet', 'Completed'] });
-    return;
-  }
-  if (path === '/drafts' && req.method === 'GET') {
-    // Query allows scoping to a specific operator+wizard.
-    const operatorId = url.searchParams.get('operatorId') || 'operator-1';
-    const wizardSlug = url.searchParams.get('wizardSlug') || 'application-forms-wizard';
-    const state = drafts[operatorId] && drafts[operatorId][wizardSlug];
-    sendJson(res, 200, state
-      ? { operatorId, wizardSlug, fields: state.fields, updatedAt: state.updatedAt }
-      : { operatorId, wizardSlug, fields: {}, updatedAt: null }
-    );
+    // Derived from resolveManifest(url) - same source the task-list
+    // shell rendered its rows from. When the probe varies the input
+    // (either `?manifest=slug1|slug2|...` or setManifestOverride()
+    // before it drives /task-list), BOTH the shell and this endpoint
+    // reflect the varied input, so their agreement is a derived
+    // observation, not fixture self-agreement on the module constant.
+    const manifest = resolveManifest(url);
+    sendJson(res, 200, { steps: manifest.map((s) => ({ slug: s.slug, title: s.title })), allowedStates: ['Not started', 'In progress', 'Cannot start yet', 'Completed'] });
     return;
   }
   return sendHtml(res, 404, `<!doctype html><html><head>${shellHead('Not found')}</head><body>${bodyOpen()}<h1>Not found</h1>${bodyClose()}</body></html>`);
 }
 
-export function startServer({ port = 0 } = {}) {
+export function startServer({ port = 0, manifestOverride } = {}) {
+  if (manifestOverride !== undefined) setManifestOverride(manifestOverride);
   return new Promise((resolve, reject) => {
     if (port === 4200) {
       reject(new Error('port 4200 is reserved for the operator workspace; pick another port'));

@@ -1,6 +1,6 @@
 {
   "slug": "application-spa",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "category": "application",
   "contributions": [
     {
@@ -416,5 +416,5 @@
       "reason": "The browser-facing error boundary constructs the internal record from a client-side exception and hands it to the applied transport writer; an error-handling companion supplies the boundary and the record factory the SPA composes on."
     }
   ],
-  "updatedAt": "2026-09-11T14:22:52Z"
+  "updatedAt": "2026-09-11T16:04:17Z"
 }

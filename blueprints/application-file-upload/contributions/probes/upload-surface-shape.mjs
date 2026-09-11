@@ -1,14 +1,15 @@
-// upload-surface-shape probe for application-file-upload v1.2.3.
+// upload-surface-shape probe for application-file-upload v1.2.4.
 //
-// Server-observable half of AC-23101-1: the upload region carries
-// [data-surface="file-upload"] plus a labelled input, drop-zone and
-// open-picker button. Browser-observable parts (Enter-press on the
-// button and focus movement) are notObservableHere per Addendum 3
-// rule 11 - no static-markup substitute.
+// AC-23101-1: the upload region carries [data-surface="file-upload"]
+// plus a labelled input, drop-zone and open-picker button. The
+// browser-observable half (Enter-press and focus movement) is
+// covered by the conformanceOnly limitation on the single row - no
+// duplicate notObservableHere row (closure 3 section 2:
+// "same-AC positive rows alongside notObservable rows").
 //
 // anchorAcId: application-file-upload-AC-23101-1.
 
-import { startFixture, evidenceFromResponse, notObservableHereResult, conformanceOnlyResult } from './probe-utils.mjs';
+import { startFixture, evidenceFromResponse, conformanceOnlyResult } from './probe-utils.mjs';
 
 export const anchorReqId = 'application-file-upload-REQ-001';
 export const accountBound = false;
@@ -30,7 +31,7 @@ export default async function runProbe() {
       anchorAcId: 'application-file-upload-AC-23101-1',
       anchorReqId: 'application-file-upload-REQ-001',
       verdict: pass ? 'pass' : 'fail',
-      detail: `The upload region carries [data-surface="file-upload"] and inside it: - server-observable half of AC-23101-1: labelled input, drop-zone (aria-label="${dropZoneMatch?.[1] ?? 'null'}") and open-picker button (aria-label="${pickerMatch?.[1] ?? 'null'}")`,
+      detail: `The upload region carries [data-surface="file-upload"] and - server-observable half: labelled input, drop-zone (aria-label="${dropZoneMatch?.[1] ?? 'null'}") and open-picker button (aria-label="${pickerMatch?.[1] ?? 'null'}")`,
       evidence: evidenceFromResponse({
         route: '/upload',
         response: res,
@@ -47,14 +48,6 @@ export default async function runProbe() {
       limitation: 'application-file-upload-AC-23101-1: Enter-press on the button and focus return are browser-only',
     }));
 
-    results.push(notObservableHereResult({
-      anchorAcId: 'application-file-upload-AC-23101-1',
-      anchorReqId: 'application-file-upload-REQ-001',
-      ac: 'application-file-upload-AC-23101-1',
-      detail: 'The upload region carries [data-surface="file-upload"] and inside it: - Enter-press and focus observation are browser-only per Addendum 3 rule 11',
-      reason: 'AC-23101-1 requires pressing Enter on the open-picker control and observing focus movement; server-side probe pack cannot cause a browser Enter or observe focus',
-      evidence: { requires: 'browser keydown + focus observation' },
-    }));
     return { results };
   } finally {
     await fixture.close();

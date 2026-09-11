@@ -1,5 +1,15 @@
 # application-api-rest CHANGELOG
 
+## 2.1.9 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - Liveness (AC-2108-1): fixture reverted to always return 200 regardless of ?deps=; probe now derives that varying dependency-availability does NOT change the returned status (dependencyChecksPerformed=0). The pass-3 change that returned 503 on down dependencies was the opposite of the AC and is undone.
+  - Cursor opacity: fixture cursor tokens are now server-side UUIDs mapped in-process (no base64url JSON, no positional info exposed to the client); the probe asserts both parseableAsInt=false AND base64UrlJsonReadable=false and now anchors AC-2109-3.
+  - Cursor anchoring: malformed-cursor row anchors AC-2109-3, max-limit row anchors AC-2109-5 (were both AC-2109-1 by mistake in pass 3).
+  - Detail openings: every result row's detail now opens with the first eight words of the AC's text it anchors.
+  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11 ("anchors nothing else").
+  - Anatomy test hardened: notObservableHere.ac must resolve to a shipped AC id; anchorAcId and anchorReqId must resolve too; derived value {} never counts as non-empty; version pin bumped to 2.1.9.
+
 ## 2.1.8 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

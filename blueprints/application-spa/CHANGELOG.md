@@ -1,5 +1,12 @@
 # application-spa CHANGELOG
 
+## 1.5.10 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - /__mounted is derived from the same DISPATCH_TABLE the request handler resolves against; MOUNTED_PATHS as a second hand-maintained literal is removed. The mounted set the probe reads and the routes the router actually serves cannot drift.
+  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11.
+  - Anatomy test hardened (AC/REQ resolution, {} never counts as derived value); version pin bumped to 1.5.10.
+
 ## 1.5.9 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

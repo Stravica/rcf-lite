@@ -135,23 +135,16 @@ function makeHandler({ companion, emitted, crashOnRequest }) {
       return;
     }
     if (url.pathname === '/crash-real' && crashOnRequest) {
-      // Real exit path: emit then exit(1) via nextTick. Only enabled
-      // when the fixture starts with crashOnRequest: true (the child
-      // process the probe spawns).
-      const causeRecord = constructRecord({
-        category: 'unknown',
-        source: 'process-boundary-cause',
-        correlationId: randomUUID(),
-      });
-      const record = constructRecord({
-        category: 'unknown',
-        source: 'process-boundary',
-        cause: causeRecord,
-      });
-      companion.emit(record);
-      emitted.push({ ...record, boundary: 'process', requestId });
-      sendJson(res, 200, { record, willExit: 1 }, { 'x-fixture-request-id': requestId, 'x-request-id': requestId });
-      process.nextTick(() => process.exit(1));
+      // AC-16101-1: induce a REAL uncaughtException on the runtime
+      // (Addendum 3 rule 12; closure 3 sections 1 and 6). The
+      // process-boundary uncaughtException handler registered in
+      // startServer({ crashOnRequest: true }) constructs the record
+      // with category "unknown", emits ONE JSON line at level=error
+      // with the stack on cause, and exits with code 1. The handler
+      // returns a response first so the probe reads a wire body;
+      // the throw fires after the response is committed.
+      sendJson(res, 200, { willExit: 1, note: 'about to throw an uncaught exception' }, { 'x-fixture-request-id': requestId, 'x-request-id': requestId });
+      setImmediate(() => { throw new Error('handler-path uncaught: sample AC-16101-1'); });
       return;
     }
     const constructMatch = url.pathname.match(/^\/construct\/([a-zA-Z]+)$/);
@@ -197,7 +190,42 @@ export function startServer({ port, companion, crashOnRequest } = {}) {
   const desiredPort = typeof port === 'number' ? port : Number(process.env.PORT ?? 3000);
   const c = companion || makeDefaultCompanion();
   const emitted = [];
-  const handler = makeHandler({ companion: c, emitted, crashOnRequest: crashOnRequest || process.env.CRASH_ON_REQUEST === '1' });
+  const wantCrash = !!(crashOnRequest || process.env.CRASH_ON_REQUEST === '1');
+  const handler = makeHandler({ companion: c, emitted, crashOnRequest: wantCrash });
+  if (wantCrash) {
+    // AC-16101-1 process-level boundary: on uncaughtException,
+    // construct the record with category "unknown", emit ONE JSON
+    // line at level=error to stderr with the thrown stack on cause,
+    // then process.exit(1). The probe reads this line from the
+    // spawned child's stderr and the OS exit code from process
+    // 'exit'. Idempotent: register at most once per process.
+    if (!process.__cePAF_ehBoundInstalled) {
+      process.__cePAF_ehBoundInstalled = true;
+      process.on('uncaughtException', (err) => {
+        try {
+          const causeRecord = {
+            code: 'ERR_SAMPLE_UNKNOWN',
+            category: 'unknown',
+            message: err && err.message ? String(err.message) : String(err),
+            correlationId: randomUUID(),
+            cause: null,
+            context: { source: 'process-boundary-uncaught-cause', stack: err && err.stack ? String(err.stack) : null },
+          };
+          const record = {
+            code: 'ERR_SAMPLE_UNKNOWN',
+            category: 'unknown',
+            message: 'uncaughtException reached the process boundary',
+            correlationId: randomUUID(),
+            cause: causeRecord,
+            context: { source: 'process-boundary', fixture: 'application-error-handling' },
+          };
+          const line = { level: 'error', boundary: 'process', record, at: new Date().toISOString() };
+          process.stderr.write(JSON.stringify(line) + '\n');
+        } catch { /* swallowing here would defeat the boundary; teardown continues */ }
+        process.exit(1);
+      });
+    }
+  }
   return new Promise((resolve, reject) => {
     const server = http.createServer(handler);
     server.once('error', reject);

@@ -1,10 +1,7 @@
-// cursor-pagination-round-trip probe for application-api-rest v2.1.8.
+// cursor-pagination-round-trip probe for application-api-rest v2.1.9.
 //
-// Verifies AC-2109-1 (envelope with items, next, prev) on page one,
-// AC-2109-2 (following next repeatedly visits every item exactly
-// once with a null next on the last page) via a real traversal,
-// and REQ-007 opacity plus max-limit and malformed-cursor problem
-// responses.
+// AC-2109-1 envelope, AC-2109-2 traversal, AC-2109-3 opacity and
+// malformed cursor, AC-2109-5 declared max limit enforcement.
 //
 // anchorAcId: per-row.
 
@@ -13,13 +10,15 @@ import { startFixture, evidenceFromResponse } from './probe-utils.mjs';
 export const anchorReqId = 'application-api-rest-REQ-007';
 export const accountBound = false;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 export default async function runProbe() {
   const { startServer } = await import('../../../../packages/rcf-lite/test/fixtures/probe-pack-application-api-rest/server.js');
   const fixture = await startFixture({ startServer, port: 0 });
   try {
     const results = [];
 
-    // Row 1 (AC-2109-1): first page envelope.
+    // Row 1 (AC-2109-1): first-page envelope carries items, next, prev.
     const firstRes = await fetch(`${fixture.baseUrl}/v1/widgets?limit=5`);
     const firstBody = await firstRes.text();
     const first = JSON.parse(firstBody);
@@ -29,9 +28,8 @@ export default async function runProbe() {
       && first.prev === null;
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-1',
-      anchorReqId: 'application-api-rest-REQ-007',
       verdict: firstRes.status === 200 && envelopeOk ? 'pass' : 'fail',
-      detail: `Every collection endpoint accepts ?cursor= and ?limit= and - GET /v1/widgets?limit=5 returned items[${first.items?.length ?? 0}] with next="${first.next}" prev=${first.prev} (REQ-007 envelope)`,
+      detail: `Every collection endpoint accepts ?cursor= and ?limit= - GET /v1/widgets?limit=5 returned items[${first.items?.length ?? 0}] next=${typeof first.next}(${(first.next || '').slice(0, 12)}...) prev=${first.prev}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=5',
         response: firstRes,
@@ -43,7 +41,7 @@ export default async function runProbe() {
       }),
     });
 
-    // Row 2 (AC-2109-2): traversal.
+    // Row 2 (AC-2109-2): traversal visits every item exactly once and next is null on the last page.
     const visited = new Set();
     let dupes = 0;
     for (const it of first.items) { if (visited.has(it.id)) dupes += 1; visited.add(it.id); }
@@ -60,9 +58,8 @@ export default async function runProbe() {
     const traversalOk = last.next === null && dupes === 0 && visited.size === 12;
     results.push({
       anchorAcId: 'application-api-rest-AC-2109-2',
-      anchorReqId: 'application-api-rest-REQ-007',
       verdict: traversalOk ? 'pass' : 'fail',
-      detail: `next is null on the last page and - traversal via next visited ${visited.size} unique items, final next=${last.next}, dupes=${dupes} after ${pages + 1} pages`,
+      detail: `next is null on the last page and - traversal via next visited ${visited.size} unique items over ${pages + 1} pages, dupes=${dupes}, final next=${last.next}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets (traversal tail)',
         response: lastRes,
@@ -74,30 +71,37 @@ export default async function runProbe() {
       }),
     });
 
-    // Row 3 (REQ-007 opacity): the emitted cursor is not a decodable
-    // numeric offset. Assert the cursor string is not itself parseable
-    // as a decimal integer and that its base64url decode does not
-    // read as the parseable page number.
+    // Row 3 (AC-2109-3 opacity): the emitted token is not a decodable
+    // positional marker. It is an opaque UUID; base64url decode is not
+    // parseable as JSON and any positional info the client tries to
+    // recover fails.
     const cursorStr = first.next;
     const numericFallback = Number.parseInt(cursorStr, 10);
-    const opaque = !Number.isFinite(numericFallback) || String(numericFallback) !== cursorStr;
+    const parseableAsInt = Number.isFinite(numericFallback) && String(numericFallback) === cursorStr;
+    let base64JsonReadable = false;
+    try {
+      const decoded = Buffer.from(cursorStr, 'base64url').toString('utf8');
+      const parsed = JSON.parse(decoded);
+      if (parsed && typeof parsed === 'object') base64JsonReadable = true;
+    } catch { base64JsonReadable = false; }
+    const looksLikeUuid = UUID_RE.test(cursorStr);
+    const opaque = !parseableAsInt && !base64JsonReadable;
     results.push({
-      anchorAcId: 'application-api-rest-AC-2109-1',
-      anchorReqId: 'application-api-rest-REQ-007',
+      anchorAcId: 'application-api-rest-AC-2109-3',
       verdict: opaque ? 'pass' : 'fail',
-      detail: `next is null on the last page and - cursor "${cursorStr}" is not a decodable numeric offset (REQ-007 opacity)`,
+      detail: `Cursors are opaque: they carry no client-decodable - cursor "${cursorStr}" parseableAsInt=${parseableAsInt} base64UrlJsonReadable=${base64JsonReadable} looksLikeUuid=${looksLikeUuid}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=5',
         response: firstRes,
         bodyText: firstBody,
         extraFields: {
           input: { cursor: cursorStr },
-          derived: { numericParse: Number.isFinite(numericFallback) ? numericFallback : null, opaque },
+          derived: { parseableAsInt, base64UrlJsonReadable: base64JsonReadable, looksLikeUuid, opaque },
         },
       }),
     });
 
-    // Row 4 (REQ-007 malformed cursor -> problem+json).
+    // Row 4 (AC-2109-3 malformed cursor -> problem+json).
     const malformedRes = await fetch(`${fixture.baseUrl}/v1/widgets?limit=5&cursor=not-a-cursor`);
     const malformedBody = await malformedRes.text();
     let malformedJson = null;
@@ -106,10 +110,9 @@ export default async function runProbe() {
       && (malformedRes.headers.get('content-type') || '').includes('application/problem+json')
       && malformedJson && malformedJson.type && malformedJson.type.includes('cursor-invalid');
     results.push({
-      anchorAcId: 'application-api-rest-AC-2109-1',
-      anchorReqId: 'application-api-rest-REQ-007',
+      anchorAcId: 'application-api-rest-AC-2109-3',
       verdict: malformedOk ? 'pass' : 'fail',
-      detail: `next is null on the last page and - malformed cursor "not-a-cursor" returns ${malformedRes.status} problem+json type=${malformedJson?.type ?? 'null'}`,
+      detail: `Cursors are opaque: they carry no client-decodable - malformed cursor "not-a-cursor" returned ${malformedRes.status} problem+json type=${malformedJson?.type ?? 'null'}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?cursor=not-a-cursor',
         response: malformedRes,
@@ -121,7 +124,7 @@ export default async function runProbe() {
       }),
     });
 
-    // Row 5 (REQ-007 max-limit -> problem+json).
+    // Row 5 (AC-2109-5 max-limit -> problem+json).
     const overLimitRes = await fetch(`${fixture.baseUrl}/v1/widgets?limit=999`);
     const overLimitBody = await overLimitRes.text();
     let overLimitJson = null;
@@ -130,10 +133,9 @@ export default async function runProbe() {
       && (overLimitRes.headers.get('content-type') || '').includes('application/problem+json')
       && overLimitJson && overLimitJson.type && overLimitJson.type.includes('limit-exceeded');
     results.push({
-      anchorAcId: 'application-api-rest-AC-2109-1',
-      anchorReqId: 'application-api-rest-REQ-007',
+      anchorAcId: 'application-api-rest-AC-2109-5',
       verdict: overLimitOk ? 'pass' : 'fail',
-      detail: `next is null on the last page and - ?limit=999 returns ${overLimitRes.status} problem+json type=${overLimitJson?.type ?? 'null'}`,
+      detail: `The declared maximum limit is enforced: a - ?limit=999 returned ${overLimitRes.status} problem+json type=${overLimitJson?.type ?? 'null'}`,
       evidence: evidenceFromResponse({
         route: '/v1/widgets?limit=999',
         response: overLimitRes,

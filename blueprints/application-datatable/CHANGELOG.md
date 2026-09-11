@@ -1,5 +1,14 @@
 # application-datatable CHANGELOG
 
+## 1.0.8 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - AC-17107-1 is a plain anchor row (server-observable): <table role="grid"> with scope="col" headers is directly observable in returned HTML. The pass-3 notObservableHere for AC-17107-1 is dropped. AC-17107-5 (arrow-key focus) stays browser-only.
+  - Sort and search rows are single conformanceOnly rows (server-observable API round-trip) with a limitation naming the browser-only DOM-comparison half. The duplicate notObservableHere rows that stacked on the same AC are dropped.
+  - Detail openings now start with the AC text they anchor.
+  - notObservableHere rows drop anchorAcId / anchorReqId.
+  - Anatomy test hardened; version pin bumped to 1.0.8.
+
 ## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

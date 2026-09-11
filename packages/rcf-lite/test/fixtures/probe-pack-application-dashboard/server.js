@@ -93,6 +93,20 @@ function renderTile({ tileId, title, kind, role, state, brk, kpiName }) {
   return `<article class="tile"${roleAttr}${kindAttr}${kpiNameAttr} data-tile-id="${tileId}" data-tile-state="${tileState}" data-as-of="${asOf}" style="${columnStart}"><div${wrapperRole}${ariaLive} data-tile-state="${tileState}" aria-label="${title}, ${cueLabel}"><h3 class="tileTitle">${title}</h3><span data-state-cue="${tileState}">${cueBody}</span></div></article>`;
 }
 
+// Closure 3 item 9: dashboard shell and export must be derived, not
+// static. startServer({ regions: [...], exportFormats: [...] }) selects
+// which regions render and which format entries appear in the export
+// listbox. The probe drives distinct sets across runs so the rendered
+// output changes with the input.
+const DEFAULT_REGIONS = ['tile-row', 'chart-region', 'filter-chrome', 'timeframe-picker', 'export-handle'];
+const DEFAULT_EXPORT_FORMATS = ['csv', 'pdf', 'png-chart'];
+let MODULE_REGIONS_OVERRIDE = null;
+let MODULE_EXPORT_FORMATS_OVERRIDE = null;
+export function setRegionsOverride(next) { MODULE_REGIONS_OVERRIDE = Array.isArray(next) && next.length > 0 ? next.slice() : null; }
+export function setExportFormatsOverride(next) { MODULE_EXPORT_FORMATS_OVERRIDE = Array.isArray(next) && next.length > 0 ? next.slice() : null; }
+function resolveRegions() { return MODULE_REGIONS_OVERRIDE || DEFAULT_REGIONS; }
+function resolveExportFormats() { return MODULE_EXPORT_FORMATS_OVERRIDE || DEFAULT_EXPORT_FORMATS; }
+
 function renderTileRow({ brk, pinned }) {
   const primaryFirst = brk !== 'kpi-position';
   const primaryTile = renderTile({
@@ -135,7 +149,12 @@ function renderTimeframePicker(currentPreset) {
 }
 
 function renderExportHandle() {
-  return `<section role="region" aria-label="Export handle" data-region="export-handle" class="exportHandle"><button type="button" class="exportButton" aria-haspopup="listbox">Export</button><ul role="listbox" class="exportFormatList" hidden><li role="option" data-export-format="csv">CSV</li><li role="option" data-export-format="pdf">PDF</li><li role="option" data-export-format="png-chart">PNG of chart</li></ul></section>`;
+  const formats = resolveExportFormats();
+  const items = formats.map((f) => {
+    const label = f === 'png-chart' ? 'PNG of chart' : f.toUpperCase();
+    return `<li role="option" data-export-format="${f}">${label}</li>`;
+  }).join('');
+  return `<section role="region" aria-label="Export handle" data-region="export-handle" class="exportHandle"><button type="button" class="exportButton" aria-haspopup="listbox">Export</button><ul role="listbox" class="exportFormatList" hidden>${items}</ul></section>`;
 }
 
 function renderShellHtml({ brk, pinnedTile, pinnedState, asOfOverride }) {
@@ -179,11 +198,17 @@ function renderShellHtml({ brk, pinnedTile, pinnedState, asOfOverride }) {
 <body>
 <main class="shellRoot" ${shellAttrs}>
   <h1 class="shellHeading">application-dashboard fixture</h1>
-  ${renderFilterChrome()}
-  ${renderTimeframePicker(initialPreset)}
-  ${renderExportHandle()}
-  ${renderTileRow({ brk, pinned })}
-  ${renderChartRegion()}
+  ${(function renderRegionsInOrder(){
+    const regions = resolveRegions();
+    return regions.map((r) => {
+      if (r === 'tile-row') return renderTileRow({ brk, pinned });
+      if (r === 'chart-region') return renderChartRegion();
+      if (r === 'filter-chrome') return renderFilterChrome();
+      if (r === 'timeframe-picker') return renderTimeframePicker(initialPreset);
+      if (r === 'export-handle') return renderExportHandle();
+      return `<section role="region" aria-label="${r}" data-region="${r}" class="unknownRegion"></section>`;
+    }).join('\n  ');
+  })()}
 </main>
 <script>
   (function () {
@@ -333,8 +358,10 @@ function handler(req, res) {
   respondNotFound(res);
 }
 
-export function startServer({ port } = {}) {
+export function startServer({ port, regions, exportFormats } = {}) {
   const desiredPort = typeof port === 'number' ? port : Number(process.env.PORT ?? 3000);
+  if (regions !== undefined) setRegionsOverride(regions);
+  if (exportFormats !== undefined) setExportFormatsOverride(exportFormats);
   return new Promise((resolve, reject) => {
     const server = http.createServer(handler);
     server.once('error', reject);

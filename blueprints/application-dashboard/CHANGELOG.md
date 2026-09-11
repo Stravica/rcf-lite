@@ -1,5 +1,14 @@
 # application-dashboard CHANGELOG
 
+## 1.0.8 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - Shell regions are now derived: startServer({ regions: [...] }) selects the region set; the probe drives two distinct sets (full vs reduced) and asserts the rendered DOM follows the input.
+  - Export formats are now derived: startServer({ exportFormats: [...] }) selects the format list; the probe drives two distinct sets (shipped vs elicited) and asserts the listbox follows the input.
+  - primary-kpi row drops the duplicate notObservableHere block; the single conformanceOnly row anchors AC-19102-1 with a limitation naming the browser-only viewport half.
+  - notObservableHere rows drop anchorAcId / anchorReqId per Addendum 3 rule 11.
+  - Anatomy test hardened (AC/REQ resolution, {} never counts as derived); version pin bumped to 1.0.8.
+
 ## 1.0.7 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:

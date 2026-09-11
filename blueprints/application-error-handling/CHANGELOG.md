@@ -1,5 +1,15 @@
 # application-error-handling CHANGELOG
 
+## 1.0.7 (criterion-e third-closure fix, 2026-09-11)
+
+- Third-closure fix on the criterion-e pack:
+  - /crash-real now induces a REAL uncaughtException on the handler path (setImmediate throw). startServer({ crashOnRequest: true }) registers a process uncaughtException handler that constructs the record with category="unknown", emits ONE JSON line at level=error to stderr with the thrown stack on cause, and process.exit(1). The pass-3 direct process.exit path is removed.
+  - Probe: two-boundaries-registered spawns the child, hits /crash-real, and asserts (a) OS exit code 1, (b) exactly ONE JSON line at level=error in stderr, (c) record.category="unknown", (d) stack-on-cause carries a real "at ..:line:col" trace.
+  - REQ-004 row drives BOTH /throw-handler (framework) AND /crash-process (process emit-only, no exit) and asserts /companion-invocations records both boundary sources.
+  - CHANGELOG now names what the probe actually does (GET /crash-real, real uncaught), not the earlier POST /crash-process claim.
+  - notObservableHere rows drop anchorAcId / anchorReqId per rule 11.
+  - Anatomy test hardened (AC/REQ resolution, {} never counts, notObservableHere.ac resolves); version pin bumped to 1.0.7.
+
 ## 1.0.6 (criterion-e closure follow-up, 2026-09-11)
 
 - Second closure follow-up on the criterion-e pack:
