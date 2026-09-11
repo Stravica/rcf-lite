@@ -1,5 +1,11 @@
 # application-error-handling CHANGELOG
 
+## 1.0.10 - 2026-09-11
+
+- AC-16102-4 (mid-stream close) pass predicate now REQUIRES the premature socket close: the two-boundaries-registered probe verdict is pass iff midStatus===200, prematureClose===true, exactlyOneMidEmission, midCategoryUnknown, midLevelError, and midMessageNamesCondition. A normal completed 200 response that happens to carry the partial-body prefix fails this row. `partialBodyReceived` is still recorded on evidence.derived but does not participate in the verdict.
+- The probe now reads the response body incrementally via the ReadableStream reader so the partial-body prefix delivered before the socket abort is retained in evidence.derived.partialBodyReceived (and in evidence.bodyExcerpt) even when the read then throws; earlier revisions used res.text() which discarded already-delivered chunks on the abort.
+- Anatomy test pin bumped to 1.0.10.
+
 ## 1.0.9 - 2026-09-11
 
 - /stream-then-throw now flushes headers, writes the partial body and, once the write drains, tears the socket down via req.socket.destroy(); res.end() is deliberately not called, so a well-behaved client observes a premature-close error after receiving the 200 headers and the partial-body prefix.

@@ -1,4 +1,4 @@
-// two-boundaries-registered probe for application-error-handling v1.0.9.
+// two-boundaries-registered probe for application-error-handling v1.0.10.
 //
 // Row 1 (AC-16102-2): the framework-level boundary catches a thrown
 // handler exception whose induced stack carries system-path substrings and a file-URI substring
@@ -216,11 +216,37 @@ export default async function runProbe() {
  const midRes = await fetch(`${fixture.baseUrl}/stream-then-throw`);
  midStatus = midRes.status;
  midHeadersRequestId = midRes.headers.get('x-fixture-request-id');
+ // Read body chunks incrementally so a partial body received
+ // before the premature close is retained in midBody even when
+ // the read then throws. Using res.text() would discard whatever
+ // was already delivered on the reader when the socket aborts.
+ const decoder = new TextDecoder('utf-8');
+ const reader = midRes.body ? midRes.body.getReader() : null;
+ if (reader) {
+ // eslint-disable-next-line no-constant-condition
+ while (true) {
+ let step;
+ try {
+ step = await reader.read();
+ } catch (readErr) {
+ clientErrorMessage = String(readErr && readErr.message ? readErr.message : readErr);
+ prematureClose = true;
+ break;
+ }
+ if (step && step.done) break;
+ if (step && step.value) {
+ midBody += decoder.decode(step.value, { stream: true });
+ }
+ }
+ midBody += decoder.decode();
+ } else {
+ // Fallback for runtimes that do not expose a body stream.
  try {
  midBody = await midRes.text();
  } catch (bodyErr) {
  clientErrorMessage = String(bodyErr && bodyErr.message ? bodyErr.message : bodyErr);
  prematureClose = true;
+ }
  }
  } catch (fetchErr) {
  clientErrorMessage = String(fetchErr && fetchErr.message ? fetchErr.message : fetchErr);
@@ -238,11 +264,22 @@ export default async function runProbe() {
  const partialBodyPrefix = 'partial-body-before-throw';
  const partialBodyReceived = midBody.startsWith(partialBodyPrefix);
  const socketClosedEarly = prematureClose || (partialBodyReceived && midBody === partialBodyPrefix && clientErrorMessage);
- const ac4ServerOk = exactlyOneMidEmission
+ // AC-16102-4 requires the connection be closed without rewriting
+ // the wire response. Recording partialBodyReceived is not a
+ // substitute for the close: a normal completed 200 response that
+ // happens to carry the prefix must fail this row. The predicate
+ // therefore requires status 200 (headers were flushed before the
+ // throw), prematureClose===true (the socket was aborted after the
+ // partial write), and the exact-one companion emission at
+ // level=error with the streaming-in-progress condition and
+ // category unknown; partialBodyReceived is recorded but does not
+ // participate in the verdict.
+ const ac4ServerOk = midStatus === 200
+ && prematureClose === true
+ && exactlyOneMidEmission
  && midCategoryUnknown
  && midLevelError
- && midMessageNamesCondition
- && (prematureClose || partialBodyReceived);
+ && midMessageNamesCondition;
  results.push(conformanceOnlyResult({
  anchorAcId: 'application-error-handling-AC-16102-4',
  verdict: ac4ServerOk ? 'pass' : 'fail',
