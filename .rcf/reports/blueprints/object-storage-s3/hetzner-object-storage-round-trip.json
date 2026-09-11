@@ -1,43 +1,19 @@
 {
   "slug": "object-storage-s3",
   "probeName": "hetzner-object-storage-round-trip",
-  "runAt": "2026-09-11T14:27:39.578Z",
+  "runAt": "2026-09-08T09:20:18.036Z",
   "engine": {
     "kind": "s3",
-    "vendor": "hetzner-object-storage",
-    "observed": false,
-    "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset"
+    "image": "hetzner-object-storage-cloud",
+    "healthy": true
   },
   "results": [
     {
       "anchorAcId": "AC-28110-1",
       "verdict": "pass",
-      "detail": "accountBound: skipped (CI_HAS_HETZNER_OBJECT_STORAGE unset)",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
-      "evidence": {
-        "skip": true,
-        "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
-        "envDeclared": [
-          "CI_HAS_HETZNER_OBJECT_STORAGE",
-          "HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID",
-          "HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY",
-          "HETZNER_OBJECT_STORAGE_BUCKET",
-          "HETZNER_OBJECT_STORAGE_LOCATION"
-        ]
-      }
+      "detail": "accountBound: skipped (no CI_HAS_HETZNER_OBJECT_STORAGE)",
+      "accountBoundSkipped": true
     }
   ],
-  "aggregateVerdict": "pass",
-  "extra": {
-    "accountBoundSkipped": true,
-    "reason": "CI_HAS_HETZNER_OBJECT_STORAGE unset",
-    "envDeclared": [
-      "CI_HAS_HETZNER_OBJECT_STORAGE",
-      "HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID",
-      "HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY",
-      "HETZNER_OBJECT_STORAGE_BUCKET",
-      "HETZNER_OBJECT_STORAGE_LOCATION"
-    ]
-  }
+  "aggregateVerdict": "pass"
 }

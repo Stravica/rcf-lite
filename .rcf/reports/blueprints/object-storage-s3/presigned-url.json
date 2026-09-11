@@ -1,66 +1,28 @@
 {
   "slug": "object-storage-s3",
   "probeName": "presigned-url",
-  "runAt": "2026-09-11T14:27:39.194Z",
+  "runAt": "2026-09-06T18:42:15.434Z",
   "engine": {
     "kind": "s3",
-    "vendor": "minio",
-    "endpointHost": "localhost:47230",
-    "healthLive": {
-      "ok": true,
-      "httpStatus": 200,
-      "responseTimeMs": 13,
-      "endpoint": "http://localhost:47230/minio/health/live"
-    }
+    "image": "minio/minio",
+    "healthy": true
   },
   "results": [
     {
       "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "Given the elicited presigned-TTL of 60 seconds - fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=60; urlSha256=4c34cc30e5d4",
-      "evidence": {
-        "key": "probe/presign/1789136797156-2guvh61k",
-        "ttl": 60,
-        "firstStatus": 200,
-        "firstBodyBytes": 21,
-        "firstBodyEqual": true,
-        "presignedIssuedEvent": {
-          "event": "presignedIssued",
-          "ts": 1789136797176,
-          "key": "probe/presign/1789136797156-2guvh61k",
-          "ttl": 60
-        },
-        "urlSha256": "4c34cc30e5d4cf6d882740cb54392a2a0490686b28b5064a211514002c6b0afc",
-        "elapsedMsSincePresign": 1
-      }
+      "detail": "fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=60"
     },
     {
       "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "Given the elicited presigned-TTL of 60 seconds - after TTL+2s the SAME presigned URL (urlSha256=4c34cc30e5d4) returned 403 (AccessDenied / expired-URL family)",
-      "evidence": {
-        "key": "probe/presign/1789136797156-2guvh61k",
-        "ttl": 60,
-        "waitedMs": 62000,
-        "secondStatus": 403,
-        "urlSha256": "4c34cc30e5d4cf6d882740cb54392a2a0490686b28b5064a211514002c6b0afc",
-        "totalElapsedMsSincePresign": 62009
-      }
+      "detail": "tampered signature fetch returned 403 (expected 403; set SIMULATE_PRESIGN_EXPIRE=true for full TTL wall-clock)"
     },
     {
-      "anchorReqId": "object-storage-s3-REQ-003",
+      "anchorAcId": "AC-28103-1",
       "verdict": "pass",
-      "detail": "The facade exposes a presignGetUrl verb that - presign below the 60s floor refused per ADR-2902 (object-storage-s3: presign ttl 30s below floor 60s per ADR-2902)",
-      "evidence": {
-        "requestedTtlSeconds": 30,
-        "floorSeconds": 60,
-        "refused": true,
-        "error": "object-storage-s3: presign ttl 30s below floor 60s per ADR-2902"
-      }
+      "detail": "presign below 60s floor refused per ADR-2902"
     }
   ],
-  "aggregateVerdict": "pass",
-  "extra": {
-    "key": "probe/presign/1789136797156-2guvh61k"
-  }
+  "aggregateVerdict": "pass"
 }

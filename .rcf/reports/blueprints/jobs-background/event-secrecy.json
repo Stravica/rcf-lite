@@ -1,7 +1,7 @@
 {
   "slug": "jobs-background",
   "probeName": "event-secrecy",
-  "runAt": "2026-09-11T14:29:39.382Z",
+  "runAt": "2026-09-06T20:54:42.798Z",
   "engine": {
     "kind": "queues+jobs",
     "image": "cloudflare/wrangler-dev-equivalent (in-memory driver) + jobs-runtime SIMULATE_PII_IN_JOB_INPUT=true",
@@ -11,27 +11,7 @@
     {
       "anchorAcId": "AC-jobs-eventSecrecy",
       "verdict": "pass",
-      "detail": "no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys [\"event\",\"jobId\",\"jobName\",\"attempts\",\"duration\",\"timestamp\",\"terminalErrorCode\"]; 3 events recorded",
-      "evidence": {
-        "piiLiteralsChecked": [
-          "1234",
-          "123-45-6789",
-          "test@example.com"
-        ],
-        "leakedLiterals": [],
-        "whitelist": [
-          "event",
-          "jobId",
-          "jobName",
-          "attempts",
-          "duration",
-          "timestamp",
-          "terminalErrorCode"
-        ],
-        "nonWhitelistedKeys": [],
-        "eventCount": 3,
-        "jobCompletedFired": true
-      }
+      "detail": "no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys [\"event\",\"jobId\",\"jobName\",\"attempts\",\"duration\",\"timestamp\",\"terminalErrorCode\"]; 3 events recorded"
     }
   ],
   "aggregateVerdict": "pass",
@@ -43,7 +23,7 @@
         "jobName": "send-welcome-email",
         "attempts": 0,
         "duration": 0,
-        "timestamp": "2026-09-11T14:29:39.381Z"
+        "timestamp": "1970-01-01T00:00:00.001Z"
       },
       {
         "event": "jobStarted",
@@ -51,7 +31,7 @@
         "jobName": "send-welcome-email",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-11T14:29:39.382Z"
+        "timestamp": "2026-09-06T20:54:42.798Z"
       },
       {
         "event": "jobCompleted",
@@ -59,7 +39,7 @@
         "jobName": "send-welcome-email",
         "attempts": 1,
         "duration": 0,
-        "timestamp": "2026-09-11T14:29:39.382Z"
+        "timestamp": "2026-09-06T20:54:42.798Z"
       }
     ],
     "piiLiterals": [

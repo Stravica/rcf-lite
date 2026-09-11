@@ -1,70 +1,27 @@
 {
   "slug": "object-storage-s3",
   "probeName": "put-get-round-trip",
-  "runAt": "2026-09-11T14:26:37.093Z",
+  "runAt": "2026-09-06T18:42:15.316Z",
   "engine": {
     "kind": "s3",
-    "vendor": "minio",
-    "endpointHost": "localhost:47230",
-    "healthLive": {
-      "ok": true,
-      "httpStatus": 200,
-      "responseTimeMs": 13,
-      "endpoint": "http://localhost:47230/minio/health/live"
-    }
+    "image": "minio/minio",
+    "healthy": true
   },
   "results": [
     {
       "anchorAcId": "AC-28102-1",
       "verdict": "pass",
-      "detail": "1 KiB round-trip byte-equal; objectPut fired with size=1024",
-      "evidence": {
-        "key": "probe/put-get/1789136797056-8x0p8o6e",
-        "requestedContentType": "application/octet-stream",
-        "gotContentType": "application/octet-stream",
-        "gotSize": 1024,
-        "byteEqual": true,
-        "objectPutEvent": {
-          "event": "objectPut",
-          "ts": 1789136797073,
-          "key": "probe/put-get/1789136797056-8x0p8o6e",
-          "size": 1024,
-          "contentType": "application/octet-stream"
-        }
-      }
+      "detail": "1 KiB round-trip byte-equal; objectPut fired with size=1024"
     },
     {
       "anchorAcId": "AC-28102-3",
       "verdict": "pass",
-      "detail": "list returned 3 keys with isTruncated=false",
-      "evidence": {
-        "prefix": "probe/list-parent/1789136797056-tcai5va6",
-        "expectedKeys": [
-          "probe/list-parent/1789136797056-tcai5va6/a",
-          "probe/list-parent/1789136797056-tcai5va6/b",
-          "probe/list-parent/1789136797056-tcai5va6/c"
-        ],
-        "returnedKeys": [
-          "probe/list-parent/1789136797056-tcai5va6/a",
-          "probe/list-parent/1789136797056-tcai5va6/b",
-          "probe/list-parent/1789136797056-tcai5va6/c"
-        ],
-        "isTruncated": false
-      }
+      "detail": "list returned 3 keys with isTruncated=false"
     },
     {
       "anchorAcId": "AC-28102-2",
       "verdict": "pass",
-      "detail": "objectDeleted fired and get after delete returned NoSuchKey",
-      "evidence": {
-        "key": "probe/put-get/1789136797056-8x0p8o6e",
-        "objectDeletedEvent": {
-          "event": "objectDeleted",
-          "ts": 1789136797088,
-          "key": "probe/put-get/1789136797056-8x0p8o6e"
-        },
-        "getAfterDeleteWasNotFound": true
-      }
+      "detail": "objectDeleted fired and get after delete returned NoSuchKey"
     }
   ],
   "aggregateVerdict": "pass"

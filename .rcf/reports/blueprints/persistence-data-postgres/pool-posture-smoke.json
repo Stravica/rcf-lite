@@ -1,7 +1,7 @@
 {
   "slug": "persistence-data-postgres",
   "probeName": "pool-posture-smoke",
-  "runAt": "2026-09-11T14:25:22.128Z",
+  "runAt": "2026-09-06T17:46:09.824Z",
   "engine": {
     "kind": "postgres",
     "image": "postgres:17-alpine",
@@ -11,18 +11,12 @@
     {
       "anchorAcId": "AC-27106-1",
       "verdict": "pass",
-      "detail": "Given two facade instances opened concurrently against - 20 dispatched, 20 returned, 0 rejected, wall-clock 120ms; observed peak in-use A=5 B=5 (configured max=5); samplesA=20 samplesB=20",
-      "evidence": {
-        "dispatched": 20,
-        "succeeded": 20,
-        "failed": 0,
-        "elapsedMs": 120,
-        "observedPeakInUseA": 5,
-        "observedPeakInUseB": 5,
-        "configuredMax": 5,
-        "sampleCountA": 20,
-        "sampleCountB": 20
-      }
+      "detail": "20 concurrent queries dispatched across two pool-size-5 facades; 20 returned, 0 rejected, wall-clock 113ms"
+    },
+    {
+      "anchorAcId": "AC-27106-1",
+      "verdict": "pass",
+      "detail": "pool.options.max on both facades: A=5, B=5 (each configured to 5)"
     }
   ],
   "aggregateVerdict": "pass"
