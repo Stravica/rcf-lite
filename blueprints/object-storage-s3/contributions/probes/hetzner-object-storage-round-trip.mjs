@@ -168,7 +168,16 @@ export default async function runProbe() {
     } catch (err) {
       teardown.deleteObject = { key, ok: false, error: err && err.message };
     }
-    try { await store.close(); } catch { /* facade close best-effort */ }
+    let facadeCloseError = null;
+    try { await store.close(); } catch (err) { facadeCloseError = err && err.message; }
+    if (facadeCloseError) {
+      results.push({
+        anchorReqId: 'object-storage-s3-REQ-001',
+        verdict: 'fail',
+        detail: `One facade module is the sole reader of - facade close FAILED on Hetzner teardown: ${facadeCloseError}`,
+        evidence: { teardownStep: 'facade close', error: facadeCloseError },
+      });
+    }
     results.push({
       anchorAcId: 'AC-28110-1',
       verdict: teardown.deleteObject && teardown.deleteObject.ok ? 'pass' : 'fail',

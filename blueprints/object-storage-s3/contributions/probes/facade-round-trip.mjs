@@ -11,6 +11,8 @@
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 
+const AC28101_1 = 'On process boot, the facade opens against';
+
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
   const credentials = await credentialsFromShim(secretsShim);
@@ -28,14 +30,38 @@ export default async function runProbe() {
     await store.ready();
     const ready = events.find((e) => e.event === 'facadeReady');
     const endpointHost = new URL(endpoint).host;
-    const pass = ready && ready.endpointHost === endpointHost && ready.bucketName === bucket;
+    // Drive a HeadBucket call directly through the fixture's SDK
+    // client so the row carries a real vendor request id and HTTP
+    // status excerpt (Codex re-closure: facade-ready + event-secrecy
+    // rows need per-row vendor evidence).
+    let vendorMetadata = null;
+    try {
+      const { HeadBucketCommand } = await import('@aws-sdk/client-s3');
+      const head = await store.getClient().send(new HeadBucketCommand({ Bucket: bucket }));
+      vendorMetadata = head && head.$metadata ? {
+        httpStatusCode: head.$metadata.httpStatusCode,
+        requestId: head.$metadata.requestId,
+        extendedRequestId: head.$metadata.extendedRequestId,
+      } : null;
+    } catch (err) {
+      vendorMetadata = { error: err && err.message, httpStatusCode: err && err.$metadata && err.$metadata.httpStatusCode };
+    }
+    const pass = ready && ready.endpointHost === endpointHost && ready.bucketName === bucket && vendorMetadata && vendorMetadata.httpStatusCode === 200;
     results.push({
       anchorAcId: 'AC-28101-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}`
-        : `facadeReady did not fire cleanly; events=${JSON.stringify(events)}`,
-      evidence: { facadeReadyEvent: ready || null, endpointHost, bucketName: bucket, allEvents: events },
+        ? `${AC28101_1} - facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}; HeadBucket returned ${vendorMetadata.httpStatusCode} (requestId=${vendorMetadata.requestId})`
+        : `${AC28101_1} - facadeReady did not fire cleanly; ready=${JSON.stringify(ready)} vendorMetadata=${JSON.stringify(vendorMetadata)}`,
+      evidence: {
+        facadeReadyEvent: ready || null,
+        endpointHost,
+        bucketName: bucket,
+        vendorRequestId: vendorMetadata && vendorMetadata.requestId,
+        vendorHttpStatus: vendorMetadata && vendorMetadata.httpStatusCode,
+        vendorMetadata,
+        allEvents: events,
+      },
     });
   } finally {
     await store.close();

@@ -15,8 +15,11 @@
 import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 import { probeKey } from './probe-utils.mjs';
+import { createHash } from 'node:crypto';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const AC28103_1 = 'Given the elicited presigned-TTL of 60 seconds';
+const REQ003 = 'The facade exposes a presignGetUrl verb that';
 
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
@@ -41,6 +44,7 @@ export default async function runProbe() {
     // fetch the SAME URL after TTL+2s.
     const ttl = 60;
     const url = await store.presignGetUrl(key, ttl);
+    const urlSha256 = createHash('sha256').update(url).digest('hex');
     const issuedAt = Date.now();
     const first = await fetch(url);
     const firstBody = Buffer.from(await first.arrayBuffer());
@@ -51,8 +55,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28103-1',
       verdict: firstStatus === 200 && firstEqual && issued ? 'pass' : 'fail',
       detail: firstStatus === 200 && firstEqual && issued
-        ? `fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=${ttl}`
-        : `firstStatus=${firstStatus} bodyMatch=${firstEqual} issued=${Boolean(issued)}`,
+        ? `${AC28103_1} - fetch within TTL returned 200 with matching body; presignedIssued fired with ttl=${ttl}; urlSha256=${urlSha256.slice(0, 12)}`
+        : `${AC28103_1} - firstStatus=${firstStatus} bodyMatch=${firstEqual} issued=${Boolean(issued)}`,
       evidence: {
         key,
         ttl,
@@ -60,6 +64,7 @@ export default async function runProbe() {
         firstBodyBytes: firstBody.length,
         firstBodyEqual: firstEqual,
         presignedIssuedEvent: issued || null,
+        urlSha256,
         elapsedMsSincePresign: Date.now() - issuedAt,
       },
     });
@@ -75,25 +80,30 @@ export default async function runProbe() {
       anchorAcId: 'AC-28103-1',
       verdict: secondStatus === 403 ? 'pass' : 'fail',
       detail: secondStatus === 403
-        ? `after TTL+2s the SAME presigned URL returned 403 (AccessDenied / expired-URL family per S3 vendor doc)`
-        : `after TTL+2s the SAME presigned URL returned ${secondStatus}, expected 403`,
+        ? `${AC28103_1} - after TTL+2s the SAME presigned URL (urlSha256=${urlSha256.slice(0, 12)}) returned 403 (AccessDenied / expired-URL family)`
+        : `${AC28103_1} - after TTL+2s the SAME presigned URL returned ${secondStatus}, expected 403`,
       evidence: {
         key,
         ttl,
         waitedMs: waitMs,
         secondStatus,
+        urlSha256,
         totalElapsedMsSincePresign: Date.now() - issuedAt,
       },
     });
 
-    // ADR-2902 floor refusal (separate concern)
+    // ADR-2902 floor refusal is not stated by any AC (AC-28103-1
+    // states TTL 60 success/expiry). Anchor to REQ-003 which names
+    // the floor of 1 minute.
     let refusedBelowFloor = false;
     let refusedError = null;
     try { await store.presignGetUrl(key, 30); } catch (err) { refusedBelowFloor = true; refusedError = err && err.message; }
     results.push({
-      anchorAcId: 'AC-28103-1',
+      anchorReqId: 'object-storage-s3-REQ-003',
       verdict: refusedBelowFloor ? 'pass' : 'fail',
-      detail: refusedBelowFloor ? `presign below 60s floor refused per ADR-2902 (${refusedError})` : 'presign below floor did not refuse',
+      detail: refusedBelowFloor
+        ? `${REQ003} - presign below the 60s floor refused per ADR-2902 (${refusedError})`
+        : `${REQ003} - presign below the 60s floor did not refuse`,
       evidence: { requestedTtlSeconds: 30, floorSeconds: 60, refused: refusedBelowFloor, error: refusedError },
     });
 

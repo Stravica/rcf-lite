@@ -29,6 +29,8 @@ export default async function runProbe() {
   const key = probeKey('probe/put-get');
   const body = Buffer.alloc(1024, 0x41); // 1 KiB of A
   const contentType = 'application/octet-stream';
+  const prefix = probeKey('probe/list-parent');
+  const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
   try {
     await store.ready();
     await store.putObject(key, contentType, body);
@@ -48,8 +50,6 @@ export default async function runProbe() {
     });
 
     // list under prefix
-    const prefix = probeKey('probe/list-parent');
-    const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
     for (const k of listKeys) await store.putObject(k, 'text/plain', Buffer.from(k));
     const listed = await store.listObjects(prefix);
     const listPass = listKeys.every((k) => listed.keys.includes(k)) && typeof listed.isTruncated === 'boolean';
@@ -76,12 +76,26 @@ export default async function runProbe() {
         : `deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
       evidence: { key, objectDeletedEvent: deletedEvent || null, getAfterDeleteWasNotFound: notFound },
     });
-    // clean up the list keys
-    for (const k of listKeys) {
-      try { await store.deleteObject(k); } catch { /* ignore */ }
-    }
+    // Teardown: delete the list keys and close the facade. Every
+    // teardown step is recorded on the teardown[] accumulator and any
+    // failure emits its own row (Addendum rule 5).
   } finally {
-    await store.close();
+    const teardown = [];
+    for (const k of listKeys) {
+      try { await store.deleteObject(k); teardown.push({ step: `deleteObject ${k}`, ok: true }); }
+      catch (err) { teardown.push({ step: `deleteObject ${k}`, ok: false, error: err && err.message }); }
+    }
+    try { await store.close(); teardown.push({ step: 'facade close', ok: true }); }
+    catch (err) { teardown.push({ step: 'facade close', ok: false, error: err && err.message }); }
+    const failed = teardown.filter((t) => !t.ok);
+    if (failed.length > 0) {
+      results.push({
+        anchorReqId: 'object-storage-s3-REQ-002',
+        verdict: 'fail',
+        detail: `The facade exposes named domain verbs (putObject, - teardown FAILED: ${failed.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+        evidence: { teardown },
+      });
+    }
   }
   return results;
 }

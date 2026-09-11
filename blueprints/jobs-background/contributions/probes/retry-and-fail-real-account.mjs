@@ -43,9 +43,9 @@ const API_BASE = 'https://api.cloudflare.com/client/v4';
 function skipRow(reason) {
   return {
     results: [{
-      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
+      anchorReqId: 'jobs-background-REQ-004',
       verdict: 'pass',
-      detail: `accountBound: skipped (${reason})`,
+      detail: `A handler that throws a retryable error causes - accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
       evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
@@ -111,9 +111,9 @@ export default async function runProbe() {
     if (!(primaryConsumer.json && primaryConsumer.json.success)) throw new Error(`primary consumer attach failed: ${primaryConsumer.raw}`);
 
     results.push({
-      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
+      anchorReqId: 'jobs-background-REQ-004',
       verdict: 'pass',
-      detail: `provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
+      detail: `A handler that throws a retryable error causes - provisioned scratch queue ${queueName} (id=${qid}) with DLQ ${dlqName} (id=${dlqId}), both with http_pull consumers, max_retries=3`,
       evidence: {
         queueName, dlqName,
         primaryConsumerResponseMetadata: primaryConsumer.json && primaryConsumer.json.result,
@@ -170,7 +170,8 @@ export default async function runProbe() {
       dlqBacklog = (dlqPull.json && dlqPull.json.result && dlqPull.json.result.message_backlog_count) || dlqMsgs.length;
       if (dlqMsgs.length > 0 || dlqBacklog >= 1) break;
     }
-    const seenInDlq = dlqMsgs.some((mm) => mm.id === messageIdObserved) || dlqBacklog >= 1;
+    const idMatch = dlqMsgs.some((mm) => mm.id === messageIdObserved);
+    const seenInDlq = idMatch; // strict: id-match required, not just backlog >= 1
     // Ack the DLQ message so it doesn't loiter (deletion also happens in teardown).
     for (const mm of dlqMsgs) {
       await cf('POST', `/accounts/${accountId}/queues/${dlqId}/messages/ack`, token, {
@@ -181,24 +182,25 @@ export default async function runProbe() {
     // Assertion 1: observed attempts sequence includes non-zero values
     // (real engine incremented the counter).
     const uniqueAttempts = [...new Set(attemptsObserved.filter((a) => a.attempts != null).map((a) => a.attempts))].sort((a, b) => a - b);
-    const sawRetries = uniqueAttempts.length >= 2 && uniqueAttempts[uniqueAttempts.length - 1] >= 1;
+    // AC/REQ says maxAttempts terminal deliveries; with max_retries=3 the counter should reach at least 3 across distinct pulls
+    const sawRetries = uniqueAttempts.length >= 3 && uniqueAttempts[uniqueAttempts.length - 1] >= 3;
     results.push({
-      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
+      anchorReqId: 'jobs-background-REQ-004',
       verdict: sawRetries ? 'pass' : 'fail',
       detail: sawRetries
-        ? `Cloudflare Queues incremented the attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
-        : `did not observe the attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
+        ? `A handler that throws a retryable error causes - Cloudflare Queues incremented the attempts counter across pulls: observed attempts values ${JSON.stringify(uniqueAttempts)}`
+        : `A handler that throws a retryable error causes - did not observe the attempts counter increment across pulls; attemptsObserved=${JSON.stringify(attemptsObserved)}`,
       evidence: { attemptsObserved, uniqueAttempts, messageId: messageIdObserved, queueName },
     });
 
     // Assertion 2: message ended up on DLQ (positive dead-letter
     // landing in a real Cloudflare Queue).
     results.push({
-      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
+      anchorReqId: 'jobs-background-REQ-004',
       verdict: seenInDlq ? 'pass' : 'fail',
       detail: seenInDlq
-        ? `after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, id-match=${dlqMsgs.some((mm) => mm.id === messageIdObserved)})`
-        : `message did not reach the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} primary pulls=${attemptsObserved.length}`,
+        ? `A handler that throws a retryable error causes - after ${attemptsObserved.length} primary pulls and ${dlqPullAttempts} DLQ polls the message landed on the DLQ ${dlqName} (backlog=${dlqBacklog}, id-match=${dlqMsgs.some((mm) => mm.id === messageIdObserved)})`
+        : `A handler that throws a retryable error causes - message did not reach the DLQ ${dlqName} within ${dlqPullAttempts} polls; dlqBacklog=${dlqBacklog} primary pulls=${attemptsObserved.length}`,
       evidence: { dlqName, dlqId, dlqBacklog, dlqMessageIds: dlqMsgs.map((mm) => mm.id), expectedMessageId: messageIdObserved, dlqPollAttempts: dlqPullAttempts },
     });
   } finally {
@@ -235,11 +237,11 @@ export default async function runProbe() {
       && teardown.primaryAbsent && teardown.primaryAbsent.ok
       && teardown.dlqAbsent && teardown.dlqAbsent.ok;
     results.push({
-      anchorAcId: 'AC-jobs-retryOnHandlerFailure',
+      anchorReqId: 'jobs-background-REQ-004',
       verdict: teardownOk ? 'pass' : 'fail',
       detail: teardownOk
-        ? `scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
-        : `queue teardown FAILED: ${JSON.stringify(teardown)}`,
+        ? `A handler that throws a retryable error causes - scratch queues ${queueName} and ${dlqName} deleted and confirmed absent from post-run account queue listing`
+        : `A handler that throws a retryable error causes - queue teardown FAILED: ${JSON.stringify(teardown)}`,
       evidence: { teardown },
     });
   }

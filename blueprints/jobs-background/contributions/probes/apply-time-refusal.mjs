@@ -78,6 +78,13 @@ export default async function runProbe() {
   } finally {
     // rm -rf the scratch dir (deletion discipline: literal absolute
     // scratch path created this call).
-    try { await rm(scratch, { recursive: true, force: true }); } catch { /* ignore */ }
+    try { await rm(scratch, { recursive: true, force: true }); } catch (err) {
+      results.push({
+        anchorReqId: 'jobs-background-REQ-001',
+        verdict: 'fail',
+        detail: 'Requires an applied queue capability; refuses apply - scratch dir teardown failed: ' + (err && err.message),
+        evidence: { teardownStep: 'rm scratch', error: err && err.message },
+      });
+    }
   }
 }

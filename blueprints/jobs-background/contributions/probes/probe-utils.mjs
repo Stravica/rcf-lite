@@ -72,9 +72,10 @@ export async function runShim(probeName, engine, mainFn) {
     process.exit(report.aggregateVerdict === 'pass' ? 0 : 1);
   } catch (err) {
     const results = [{
-      anchorAcId: 'unknown',
+      anchorReqId: 'jobs-background-REQ-001',
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: { probeThrew: true, errorMessage: err && err.message ? err.message : String(err), errorName: err && err.name },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -87,7 +88,7 @@ export async function runShim(probeName, engine, mainFn) {
 function normaliseMain(value) {
   if (value == null) {
     // A probe that returned null / undefined proved nothing (Addendum rule 3).
-    return { results: [{ anchorAcId: 'unknown', verdict: 'fail', detail: 'no checks ran (probe returned null / undefined)' }], extra: {} };
+    return { results: [{ anchorReqId: 'jobs-background-REQ-001', verdict: 'fail', detail: 'no checks ran (probe returned null / undefined)', evidence: { probeReturnedNullOrUndefined: true } }], extra: {} };
   }
   if (Array.isArray(value)) return { results: value, extra: {} };
   if (value && Array.isArray(value.results)) {

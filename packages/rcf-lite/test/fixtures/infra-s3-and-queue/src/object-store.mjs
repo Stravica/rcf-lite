@@ -135,11 +135,17 @@ export function createObjectStore({
       }));
       return body.length;
     } catch (err) {
+      // Attach the uploadId to the propagated error so a probe can
+      // positively record which upload was aborted; do NOT swallow an
+      // abort failure - attach it to the error too.
+      err.uploadId = uploadId;
       try {
         await client.send(new AbortMultipartUploadCommand({
           Bucket: bucket, Key: key, UploadId: uploadId,
         }));
-      } catch { /* best effort */ }
+      } catch (abortErr) {
+        err.abortError = { message: abortErr && abortErr.message, name: abortErr && abortErr.name };
+      }
       throw err;
     }
   }

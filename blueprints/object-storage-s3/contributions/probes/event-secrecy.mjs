@@ -19,6 +19,8 @@ const WHITELIST = new Set(['event', 'ts', 'key', 'size', 'contentType', 'ttl', '
 const FORBIDDEN_FIELDS = ['userId', 'ssn', 'dob', 'email', 'body', 'bodyBytes', 'bodyChecksum'];
 const PII_TEXT = 'PII-FIXTURE-DO-NOT-LOG';
 
+const AC28105_1 = 'Every event on the shipped lifecycle sink';
+
 export default async function runProbe() {
   const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
   const credentials = await credentialsFromShim(secretsShim);
@@ -34,8 +36,21 @@ export default async function runProbe() {
   const results = [];
   const key = 'users/1234/passport.jpg';
   const body = Buffer.from(`prefix-${PII_TEXT}-suffix`);
+  const vendorReq = { put: null, get: null, del: null };
   try {
     await store.ready();
+    // Drive one PutObject via SDK directly for per-row vendor
+    // evidence, then delete it, then run the shipped-facade path.
+    const s3 = await import('@aws-sdk/client-s3');
+    const client = store.getClient();
+    const rawPut = await client.send(new s3.PutObjectCommand({ Bucket: bucket, Key: `${key}.evidence`, Body: body, ContentType: 'image/jpeg' }));
+    vendorReq.put = { httpStatus: rawPut.$metadata && rawPut.$metadata.httpStatusCode, requestId: rawPut.$metadata && rawPut.$metadata.requestId };
+    const rawGet = await client.send(new s3.GetObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    vendorReq.get = { httpStatus: rawGet.$metadata && rawGet.$metadata.httpStatusCode, requestId: rawGet.$metadata && rawGet.$metadata.requestId };
+    try { await rawGet.Body.transformToByteArray(); } catch { /* drain */ }
+    const rawDel = await client.send(new s3.DeleteObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    vendorReq.del = { httpStatus: rawDel.$metadata && rawDel.$metadata.httpStatusCode, requestId: rawDel.$metadata && rawDel.$metadata.requestId };
+
     await store.putObject(key, 'image/jpeg', body);
     await store.getObject(key);
     await store.presignGetUrl(key, 60);
@@ -54,7 +69,7 @@ export default async function runProbe() {
       detail: nonWhitelistKeys.size === 0
         ? `every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
         : `unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
-      evidence: { whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length },
+      evidence: { whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys], eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // No forbidden field names
@@ -70,7 +85,7 @@ export default async function runProbe() {
       detail: foundForbidden.length === 0
         ? 'no forbidden PII field name appeared on any event'
         : `forbidden fields present: ${foundForbidden.join(',')}`,
-      evidence: { forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length },
+      evidence: { forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // No event value contains the PII fixture text
@@ -86,7 +101,7 @@ export default async function runProbe() {
       detail: leaks.length === 0
         ? `no event value contained the PII fixture text ${PII_TEXT}`
         : `PII fixture text leaked in: ${leaks.join(',')}`,
-      evidence: { piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length },
+      evidence: { piiFixtureLiteral: PII_TEXT, leakSites: leaks, eventCount: events.length, vendorRequestIds: vendorReq },
     });
 
     // The key itself is passed through unchanged; it is not decomposed
@@ -98,7 +113,7 @@ export default async function runProbe() {
       detail: keyPass
         ? `objectPut carried the key ${key} as an opaque string; no userId extraction`
         : `key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
-      evidence: { expectedKey: key, objectPutEvent: putEvent || null },
+      evidence: { expectedKey: key, objectPutEvent: putEvent || null, vendorRequestIds: vendorReq },
     });
   } finally {
     await store.close();

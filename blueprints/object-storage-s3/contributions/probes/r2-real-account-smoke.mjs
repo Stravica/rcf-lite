@@ -4,7 +4,7 @@
  * Against a real Cloudflare R2 account (credentials read via the
  * fixture's secrets shim), the probe:
  *
- *   1. mints a scratch bucket `probe-scratch-<short>` via S3 CreateBucket,
+ *   1. mints a scratch bucket via S3 CreateBucket,
  *   2. positively records the bucket present in an S3 ListBuckets
  *      inventory diff (post-create),
  *   3. opens the shipped facade against that scratch bucket, puts a
@@ -13,26 +13,27 @@
  *      absent (real inventory diff; a failed list is a FAIL, never an
  *      empty inventory),
  *   4. deletes the scratch bucket via S3 DeleteBucket and confirms it
- *      is absent from a post-run ListBuckets inventory diff.
+ *      is absent from a post-run ListBuckets inventory diff, recording
+ *      the HTTP status of the DeleteBucket call and the ListBuckets
+ *      call on the row itself.
  *
  * Each result row carries its own evidence object; skip records
- * follow the one-unset-variable-per-row rule (Addendum rule 4).
+ * follow the one-unset-variable-per-row rule.
+ *
+ * Row anchoring:
+ *  - The account-bound skip anchors AC-28108-1 (the skip acceptance).
+ *  - The object round trip + inventory diff anchor AC-28108-2 (the
+ *    live-account round trip).
+ *  - Bucket lifecycle (create + list + delete + absent-after) anchors
+ *    REQ-002 (put/get/delete/list contract on typed keys); no AC
+ *    states bucket-lifecycle behaviour explicitly.
+ *  - Endpoint-resolution failure after the preflight gates all pass
+ *    is a FAIL anchored to REQ-001 (facade opens on boot), never a
+ *    compound account skip.
  *
  * accountBound: true.
- *
- * Declared env vars (also declared on the fixture manifest):
- * - CI_HAS_CLOUDFLARE_ACCOUNT (first-tier gate)
- * - R2_ACCOUNT_ID (second-tier: constructs the endpoint URL)
- * - R2_BUCKET (second-tier: the base bucket namespace scope; the probe
- *   mints its own probe-scratch-<short> under it)
- * - S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY (second-tier: R2 S3-API creds)
- *
- * Anchors AC-28108-1.
  */
 
-// @aws-sdk/client-s3 is a fixture-scoped dependency; dynamic-import it
-// from a module that lives inside the fixture (object-store.mjs) so the
-// resolution goes through the fixture's own node_modules.
 import { probeKey } from './probe-utils.mjs';
 
 export const accountBound = true;
@@ -44,20 +45,17 @@ export const DECLARED_ENV = Object.freeze([
   'S3_SECRET_ACCESS_KEY',
 ]);
 
-/**
- * Build a single skip row naming exactly one unset variable per
- * Addendum rule 4. `gateSetButNotTrue` distinguishes an incorrectly
- * set gate from a fully unset one.
- */
-function skipResult(reason, opts = {}) {
-  const detail = opts.gateSetButNotTrue
-    ? `accountBound: skipped (${reason})`
-    : `accountBound: skipped (${reason})`;
+const AC28108_1_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim';
+const AC28108_2_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint';
+const REQ002_FIRST8 = 'The facade exposes named domain verbs (putObject,';
+const REQ001_FIRST8 = 'One facade module is the sole reader of';
+
+function skipResult(reason) {
   return {
     results: [{
       anchorAcId: 'AC-28108-1',
       verdict: 'pass',
-      detail,
+      detail: `${AC28108_1_FIRST8} - accountBound: skipped (${reason})`,
       accountBoundSkipped: true,
       reason,
       evidence: { skip: true, reason, envDeclared: [...DECLARED_ENV] },
@@ -73,32 +71,34 @@ function shortId() {
 export default async function runProbe() {
   const gate = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   if (gate == null || gate === '') return skipResult('CI_HAS_CLOUDFLARE_ACCOUNT unset');
-  if (gate !== 'true') return skipResult(`CI_HAS_CLOUDFLARE_ACCOUNT set to ${JSON.stringify(gate)} (not "true")`, { gateSetButNotTrue: true });
+  if (gate !== 'true') return skipResult(`CI_HAS_CLOUDFLARE_ACCOUNT set to ${JSON.stringify(gate)} (not "true")`);
   if (!process.env.R2_ACCOUNT_ID) return skipResult('R2_ACCOUNT_ID unset');
   if (!process.env.R2_BUCKET) return skipResult('R2_BUCKET unset');
   if (!process.env.S3_ACCESS_KEY_ID) return skipResult('S3_ACCESS_KEY_ID unset');
   if (!process.env.S3_SECRET_ACCESS_KEY) return skipResult('S3_SECRET_ACCESS_KEY unset');
 
-  // Dynamic imports through fixture-hosted modules so the S3 SDK
-  // resolves through the fixture's own node_modules.
   const { createObjectStore, credentialsFromShim } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs');
   const { secretsShim } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs');
   const { createBucketOps } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/bucket-ops.mjs');
 
-  // The R2 endpoint URL comes from the secrets shim; the account id
-  // itself is only used indirectly through the endpoint host. Prefer
-  // the shim value (an operator-supplied endpoint) over building the
-  // host from the account id, so a QA runner can point at a specific
-  // R2 jurisdiction if needed.
   const r2 = await secretsShim.getSecret('r2Endpoint');
-  if (!r2 || !r2.endpoint) return skipResult('R2 endpoint could not be resolved from the secrets shim');
+  if (!r2 || !r2.endpoint) {
+    // All preflight gates passed; endpoint resolution failure is a
+    // real facade-open failure, not an account-bound skip.
+    return {
+      results: [{
+        anchorReqId: 'object-storage-s3-REQ-001',
+        verdict: 'fail',
+        detail: `${REQ001_FIRST8} - endpoint could not be resolved from the secrets shim after all preflight gates passed; this is a facade-open failure, not an account skip`,
+        evidence: { endpointResolved: false, envDeclared: [...DECLARED_ENV] },
+      }],
+      extra: { envDeclared: [...DECLARED_ENV] },
+    };
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const scratchBucket = `probe-scratch-${shortId()}`;
-  const evidence = {
-    endpointHostRedacted: new URL(r2.endpoint).host.replace(/^[0-9a-f]+/, '[account-id]'),
-    scratchBucket,
-    envDeclared: [...DECLARED_ENV],
-  };
+  const endpointHostRedacted = new URL(r2.endpoint).host.replace(/^[0-9a-f]+/, '[account-id]');
+  const evidence = { endpointHostRedacted, scratchBucket, envDeclared: [...DECLARED_ENV] };
   const results = [];
   const teardown = { deleteObject: null, deleteBucket: null, bucketAbsentAfter: null };
   const bucketOps = createBucketOps({
@@ -111,41 +111,51 @@ export default async function runProbe() {
   let bucketCreated = false;
   let store = null;
   try {
-    // 1) Create the scratch bucket
+    // 1) Create scratch bucket (anchor REQ-002: put verb).
     const create = await bucketOps.createBucket(scratchBucket);
     bucketCreated = true;
-    evidence.createBucketHttpStatus = create && create.$metadata && create.$metadata.httpStatusCode;
-    evidence.createBucketRequestId = create && create.$metadata && create.$metadata.requestId;
+    const createHttpStatus = create && create.$metadata && create.$metadata.httpStatusCode;
+    const createRequestId = create && create.$metadata && create.$metadata.requestId;
 
-    // 2) Inventory diff: post-create bucket must appear on ListBuckets.
-    // A failed list here is a FAIL, not an empty list.
+    // 2) Inventory diff (REQ-002 list verb): post-create bucket must
+    // appear on ListBuckets. Failed list is a FAIL.
     let bucketsAfterCreate;
+    let listAfterCreateHttpStatus;
+    let listAfterCreateRequestId;
     try {
       const list = await bucketOps.listBuckets();
       bucketsAfterCreate = list.buckets;
-      evidence.listBucketsRequestIdAfterCreate = list.raw && list.raw.$metadata && list.raw.$metadata.requestId;
+      listAfterCreateHttpStatus = list.raw && list.raw.$metadata && list.raw.$metadata.httpStatusCode;
+      listAfterCreateRequestId = list.raw && list.raw.$metadata && list.raw.$metadata.requestId;
     } catch (err) {
       results.push({
-        anchorAcId: 'AC-28108-1',
+        anchorReqId: 'object-storage-s3-REQ-002',
         verdict: 'fail',
-        detail: `ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL, never an empty listing`,
-        evidence: { scratchBucket, error: err && err.message },
+        detail: `${REQ002_FIRST8} - ListBuckets after CreateBucket threw: ${err && err.message}; failed inventory is a FAIL`,
+        evidence: { scratchBucket, error: err && err.message, endpointHostRedacted },
       });
-      // Best-effort teardown of the bucket newly created above before returning.
       throw err;
     }
     const seenAfterCreate = bucketsAfterCreate.includes(scratchBucket);
     results.push({
-      anchorAcId: 'AC-28108-1',
+      anchorReqId: 'object-storage-s3-REQ-002',
       verdict: seenAfterCreate ? 'pass' : 'fail',
       detail: seenAfterCreate
-        ? `scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff)`
-        : `scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
-      evidence: { scratchBucket, seenAfterCreate, bucketCount: bucketsAfterCreate.length, createBucketHttpStatus: evidence.createBucketHttpStatus },
+        ? `${REQ002_FIRST8} - scratch bucket ${scratchBucket} present in ListBuckets after CreateBucket (positive inventory diff)`
+        : `${REQ002_FIRST8} - scratch bucket ${scratchBucket} NOT in ListBuckets after CreateBucket; buckets=${JSON.stringify(bucketsAfterCreate)}`,
+      evidence: {
+        scratchBucket,
+        seenAfterCreate,
+        bucketCount: bucketsAfterCreate.length,
+        createBucketHttpStatus: createHttpStatus,
+        createBucketRequestId: createRequestId,
+        listBucketsHttpStatus: listAfterCreateHttpStatus,
+        listBucketsRequestId: listAfterCreateRequestId,
+        endpointHostRedacted,
+      },
     });
 
-    // 3) Open the shipped facade against the scratch bucket and drive a
-    // 1 KiB round-trip + real inventory diff on the object.
+    // 3) Open facade against scratch bucket and round-trip (AC-28108-2).
     const events = [];
     store = createObjectStore({
       endpointUrl: r2.endpoint,
@@ -162,24 +172,31 @@ export default async function runProbe() {
     const got = await store.getObject(key);
     const roundTripEqual = got.body.length === body.length && got.body.equals(body);
     results.push({
-      anchorAcId: 'AC-28108-1',
+      anchorAcId: 'AC-28108-2',
       verdict: roundTripEqual ? 'pass' : 'fail',
       detail: roundTripEqual
-        ? `R2 round-trip byte-equal against the scratch bucket ${scratchBucket} through the shipped facade; putObject returned size=${put.size}, getObject body length=${got.body.length}`
-        : `R2 round-trip failed byte equality; got ${got.body.length} expected ${body.length}`,
-      evidence: { scratchBucket, key, putReturnedSize: put.size, getSize: got.body.length, byteEqual: roundTripEqual, objectPutEvent: events.find((e) => e.event === 'objectPut') || null },
+        ? `${AC28108_2_FIRST8} - R2 round-trip byte-equal against ${scratchBucket} through the shipped facade; putObject returned size=${put.size}, getObject body length=${got.body.length}`
+        : `${AC28108_2_FIRST8} - R2 round-trip failed byte equality; got ${got.body.length} expected ${body.length}`,
+      evidence: {
+        scratchBucket,
+        key,
+        putReturnedSize: put.size,
+        getSize: got.body.length,
+        byteEqual: roundTripEqual,
+        objectPutEvent: events.find((e) => e.event === 'objectPut') || null,
+        endpointHostRedacted,
+      },
     });
 
-    // Real per-object inventory diff: a failed list is a FAIL, not an
-    // empty list.
+    // Real per-object inventory diff (AC-28108-2 covers the delete on
+    // exit). A failed list is a FAIL.
     let listBefore;
-    try {
-      listBefore = await store.listObjects(key);
-    } catch (err) {
+    try { listBefore = await store.listObjects(key); }
+    catch (err) {
       results.push({
-        anchorAcId: 'AC-28108-1',
+        anchorAcId: 'AC-28108-2',
         verdict: 'fail',
-        detail: `listObjects before delete threw: ${err && err.message}; failed list is a FAIL, never treated as an empty inventory`,
+        detail: `${AC28108_2_FIRST8} - listObjects before delete threw: ${err && err.message}`,
         evidence: { scratchBucket, key, error: err && err.message },
       });
       throw err;
@@ -188,13 +205,12 @@ export default async function runProbe() {
     await store.deleteObject(key);
     teardown.deleteObject = { key, ok: true };
     let listAfter;
-    try {
-      listAfter = await store.listObjects(key);
-    } catch (err) {
+    try { listAfter = await store.listObjects(key); }
+    catch (err) {
       results.push({
-        anchorAcId: 'AC-28108-1',
+        anchorAcId: 'AC-28108-2',
         verdict: 'fail',
-        detail: `listObjects after delete threw: ${err && err.message}; failed list is a FAIL, never an empty inventory`,
+        detail: `${AC28108_2_FIRST8} - listObjects after delete threw: ${err && err.message}`,
         evidence: { scratchBucket, key, error: err && err.message },
       });
       throw err;
@@ -202,24 +218,31 @@ export default async function runProbe() {
     const seenAfter = listAfter.keys.includes(key);
     const inventoryPass = seenBefore && !seenAfter;
     results.push({
-      anchorAcId: 'AC-28108-1',
+      anchorAcId: 'AC-28108-2',
       verdict: inventoryPass ? 'pass' : 'fail',
       detail: inventoryPass
-        ? `object inventory diff proves create+delete: key present before delete, absent after (listObjects returned ${listBefore.keys.length} then ${listAfter.keys.length} keys)`
-        : `inventory diff mismatch: seenBefore=${seenBefore} seenAfter=${seenAfter}`,
-      evidence: { scratchBucket, key, seenBefore, seenAfter, keysBeforeCount: listBefore.keys.length, keysAfterCount: listAfter.keys.length },
+        ? `${AC28108_2_FIRST8} - object inventory diff proves create+delete: key present before delete, absent after (listObjects returned ${listBefore.keys.length} then ${listAfter.keys.length} keys)`
+        : `${AC28108_2_FIRST8} - inventory diff mismatch: seenBefore=${seenBefore} seenAfter=${seenAfter}`,
+      evidence: {
+        scratchBucket,
+        key,
+        seenBefore,
+        seenAfter,
+        keysBeforeCount: listBefore.keys.length,
+        keysAfterCount: listAfter.keys.length,
+        endpointHostRedacted,
+      },
     });
   } finally {
-    // 4) Bucket teardown: delete the scratch bucket and confirm it is
-    // absent from a post-run ListBuckets inventory. A teardown failure
-    // FAILS the verdict (Addendum rule 5).
     if (store) {
-      try { await store.close(); } catch { /* facade close best-effort */ }
+      try { await store.close(); }
+      catch (err) { teardown.facadeClose = { ok: false, error: err && err.message }; }
     }
     if (bucketCreated) {
       let deleteBucketErr = null;
+      let del = null;
       try {
-        const del = await bucketOps.deleteBucket(scratchBucket);
+        del = await bucketOps.deleteBucket(scratchBucket);
         teardown.deleteBucket = {
           bucket: scratchBucket,
           ok: true,
@@ -231,21 +254,34 @@ export default async function runProbe() {
         teardown.deleteBucket = { bucket: scratchBucket, ok: false, error: err && err.message };
       }
       // Post-run bucket inventory
+      let postList = null;
       try {
-        const list = await bucketOps.listBuckets();
-        const stillThere = list.buckets.includes(scratchBucket);
-        teardown.bucketAbsentAfter = { ok: !stillThere, bucketCount: list.buckets.length, requestId: list.raw && list.raw.$metadata && list.raw.$metadata.requestId };
+        postList = await bucketOps.listBuckets();
+        const stillThere = postList.buckets.includes(scratchBucket);
+        teardown.bucketAbsentAfter = {
+          ok: !stillThere,
+          bucketCount: postList.buckets.length,
+          httpStatus: postList.raw && postList.raw.$metadata && postList.raw.$metadata.httpStatusCode,
+          requestId: postList.raw && postList.raw.$metadata && postList.raw.$metadata.requestId,
+        };
       } catch (err) {
         teardown.bucketAbsentAfter = { ok: false, error: err && err.message };
       }
       const teardownOk = teardown.deleteBucket && teardown.deleteBucket.ok && teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.ok;
       results.push({
-        anchorAcId: 'AC-28108-1',
+        anchorReqId: 'object-storage-s3-REQ-002',
         verdict: teardownOk ? 'pass' : 'fail',
         detail: teardownOk
-          ? `scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets`
-          : `bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
-        evidence: { teardown },
+          ? `${REQ002_FIRST8} - scratch bucket ${scratchBucket} deleted and confirmed absent from post-run ListBuckets (deleteBucket http=${teardown.deleteBucket.httpStatus}, listBuckets http=${teardown.bucketAbsentAfter.httpStatus})`
+          : `${REQ002_FIRST8} - bucket teardown FAILED: deleteBucket=${JSON.stringify(teardown.deleteBucket)}; bucketAbsentAfter=${JSON.stringify(teardown.bucketAbsentAfter)}${deleteBucketErr ? ` deleteBucketError=${deleteBucketErr.message}` : ''}`,
+        evidence: {
+          teardown,
+          scratchBucket,
+          deleteBucketHttpStatus: teardown.deleteBucket && teardown.deleteBucket.httpStatus,
+          deleteBucketRequestId: teardown.deleteBucket && teardown.deleteBucket.requestId,
+          postRunListHttpStatus: teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.httpStatus,
+          postRunListRequestId: teardown.bucketAbsentAfter && teardown.bucketAbsentAfter.requestId,
+        },
       });
     }
     bucketOps.close();

@@ -56,8 +56,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28104-1',
       verdict: sizePass && eventPass ? 'pass' : 'fail',
       detail: sizePass && eventPass
-        ? `10 MiB multipart round-trip byte-equal; objectPut fired with size=${putEvent.size}`
-        : `sizePass=${sizePass} eventPass=${eventPass} got.size=${got.body.length} put=${JSON.stringify(putEvent)}`,
+        ? `Given the elicited multipart threshold at 8 MiB - 10 MiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
+        : `Given the elicited multipart threshold at 8 MiB - sizePass=${sizePass} eventPass=${eventPass} got.size=${got.body.length} put=${JSON.stringify(putEvent)}`,
       evidence: { key, size: SIZE, gotSize: got.body.length, byteEqual: sizePass, objectPutEvent: putEvent || null },
     });
     const inflight = await store.listMultipartUploads(key);
@@ -65,8 +65,8 @@ export default async function runProbe() {
       anchorAcId: 'AC-28104-1',
       verdict: inflight.length === 0 ? 'pass' : 'fail',
       detail: inflight.length === 0
-        ? 'no in-flight multipart uploads after complete'
-        : `unexpected in-flight uploads: ${JSON.stringify(inflight)}`,
+        ? 'Given the elicited multipart threshold at 8 MiB - no in-flight multipart uploads after complete'
+        : `Given the elicited multipart threshold at 8 MiB - unexpected in-flight uploads: ${JSON.stringify(inflight)}`,
       evidence: { key, inflightCount: inflight.length, inflight },
     });
     await store.deleteObject(key);
@@ -78,24 +78,35 @@ export default async function runProbe() {
     const failKey = probeKey('probe/multipart-fail');
     let observedError = null;
     let observedUploadId = null;
+    let observedAbortError = null;
     try {
       await store.putObject(failKey, 'application/octet-stream', body);
     } catch (err) {
       observedError = { name: err && err.name, message: err && err.message, uploadId: err && err.uploadId };
       observedUploadId = err && err.uploadId;
+      observedAbortError = err && err.abortError ? err.abortError : null;
     } finally {
       if (before === undefined) delete process.env.SIMULATE_PART_UPLOAD_FAIL;
       else process.env.SIMULATE_PART_UPLOAD_FAIL = before;
     }
     const failInflight = await store.listMultipartUploads(failKey);
-    const abortPass = observedError !== null && failInflight.length === 0;
+    const uploadIdPresent = typeof observedUploadId === 'string' && observedUploadId.length > 0;
+    const abortSucceeded = observedAbortError === null;
+    const abortPass = observedError !== null && failInflight.length === 0 && uploadIdPresent && abortSucceeded;
     results.push({
       anchorAcId: 'AC-28104-2',
       verdict: abortPass ? 'pass' : 'fail',
       detail: abortPass
-        ? `induced part-upload failure propagated (${observedError.name || observedError.message}) and AbortMultipartUpload left no in-flight uploads for ${failKey}`
-        : `abort-on-failure did not observe both conditions: errorObserved=${observedError !== null} inflightCount=${failInflight.length}`,
-      evidence: { failKey, observedError, abortedUploadId: observedUploadId, inflightCountAfter: failInflight.length, inflightAfter: failInflight },
+        ? `Given a simulated part-upload failure mid-multipart - propagated (${observedError.name || observedError.message}), aborted upload id=${observedUploadId}, no in-flight uploads for ${failKey}, abort call itself succeeded`
+        : `Given a simulated part-upload failure mid-multipart - abort-on-failure conditions not all met: errorObserved=${observedError !== null} inflightCount=${failInflight.length} uploadIdPresent=${uploadIdPresent} abortSucceeded=${abortSucceeded}${observedAbortError ? ` abortError=${JSON.stringify(observedAbortError)}` : ''}`,
+      evidence: {
+        failKey,
+        observedError,
+        observedUploadId,
+        abortError: observedAbortError,
+        inflightCountAfter: failInflight.length,
+        inflightAfter: failInflight,
+      },
     });
   } finally {
     await store.close();
