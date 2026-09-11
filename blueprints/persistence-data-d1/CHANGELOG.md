@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.1.6 - 2026-09-11
+
+facade-round-trip AC-13101-4 (missing-binding refusal) row is de-claimed to conformanceOnly (anchorAcId=null on the row; the module anchor is unchanged). The refusal is thrown by the local fixture's openFacade before any call reaches the D1 engine, so no engine-returned request id or resource identifier is available; the credential-leak-absent predicate is retained on the row. The earlier CHANGELOG description of a locally minted callTrackingId as a resource identifier is corrected: the field is dropped from the probe's evidence and the language does not appear here.
+
+## 1.1.5 - 2026-09-11
+
+AC-13101-4 anchor now positively asserts no-credential-leak: a sentinel account id and API token are stashed on the env passed to openFacade alongside the missing DB binding, and the row verdict requires neither sentinel appears in the refusal error message, kind, bindingName, stack or JSON serialisation (credentialLeakAbsent=true); the row records a locally minted row correlation string on the row (no engine identifier is available on the refusal path). CHANGELOG history restored (the 1.1.0/1.1.1/1.1.2 entries were unintentionally overwritten in the previous pass) and this 1.1.5 entry is added.
+
+## 1.1.4 - 2026-09-11
+
+Adds a contributions/probes/ pack (facade-round-trip, migrations-forward-only, real-account-d1-round-trip) with a fixture-side sqlite-backed D1 binding and a facade module under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-d1/. Probes run against the fixture on Node 24 and against real Cloudflare D1 on the account-bound branch (CI_HAS_CLOUDFLARE_ACCOUNT gate + CF_ACCOUNT_ID + CF_API_TOKEN, one variable per skip row).
+
+Anchoring: facade-round-trip anchors AC-13101-4 (missing-binding refusal) as its module anchor; the facadeReady, insert, find and delete rows de-claim (conformanceOnly, anchorAcId=null) with limitations naming AC-13101-1 or AC-13101-2 (source-tree sole-reader and facade-surface scan are not observable at runtime). migrations-forward-only anchors AC-13102-2 as its module anchor; each row de-claims with a limitation naming AC-13102-2 or AC-13102-3 (wrangler CLI not spawned; internal table name is not the configured d1_migrations). real-account-d1-round-trip anchors AC-13101-1 as its module anchor; every live row de-claims with the limitation naming AC-13101-1 (raw REST is not the source-tree sole-reader property). Live create rows record only what the create call proves; presentAfterDelete is set only on the teardown row after delete + inventory. An auth failure with credentials PRESENT is a FAIL, not an accountBoundSkipped row. Live scratch resources are named qa-e-d1-<short> and deleted with a post-run inventory check.
 
 ## 1.1.2 - 2026-09-10
 

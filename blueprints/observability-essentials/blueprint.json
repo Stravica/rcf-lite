@@ -1,6 +1,6 @@
 {
   "slug": "observability-essentials",
-  "version": "2.1.2",
+  "version": "2.1.6",
   "category": "observability",
   "elicits": [
     {
@@ -181,5 +181,6 @@
       "kind": "adr",
       "path": "adrs/adr-805-observability-essentials-notification-outcome-model.json"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-11"
 }
