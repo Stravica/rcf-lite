@@ -34,6 +34,29 @@
 //   ?break=no-persist              Drop the theme persistence write.
 
 import http from 'node:http';
+import { randomUUID as __rid } from 'node:crypto';
+
+// Every response carries an x-fixture-request-id header (positive
+// evidence per section 7d): the criterion-e probes echo this id back
+// into the run record so a later reader can prove the response was
+// answered by this fixture on this run, not fabricated by a local
+// mock.
+function withRequestId__(handler){
+  return async function wrapped__(req,res){
+    const rid=req.headers['x-fixture-request-id']||__rid();
+    const orig=res.writeHead.bind(res);
+    res.writeHead=function patched__(){
+      const args=Array.from(arguments);
+      const last=args[args.length-1];
+      if(last&&typeof last==='object'&&!Array.isArray(last)){last['x-fixture-request-id']=rid;}
+      else if(Array.isArray(last)){last.push('x-fixture-request-id',rid);}
+      else{args.push({'x-fixture-request-id':rid});}
+      return orig.apply(res,args);
+    };
+    return handler(req,res);
+  };
+}
+
 
 const PORT = Number(process.env.PORT ?? 3000);
 if (PORT === 4200) {
@@ -242,7 +265,7 @@ document.querySelectorAll('input[name="theme"]').forEach((el) => {
 ${persistScript}`;
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(withRequestId__((req, res) => {
   const url = new URL(req.url, `http://127.0.0.1:${PORT}`);
   const ctx = parseQuery(url);
   const path = url.pathname;
@@ -259,7 +282,7 @@ const server = http.createServer((req, res) => {
   if (path === '/account/notifications') return send(200, page('Notifications', renderShell('notifications', notificationsSurface(ctx), ctx)));
   if (path === '/account/theme') return send(200, page('Theme', renderShell('theme', themeSurface(ctx), ctx)));
   return send(404, page('Not found', '<h1>Not found</h1>'));
-});
+}));
 
 server.listen(PORT, '127.0.0.1', () => {
   process.stdout.write(`LISTENING ${PORT}\n`);

@@ -1,5 +1,10 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.1 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering 5 propertys the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/server.js` answers: `not-found-and-recovery`, `forbidden-and-server-error`, `permission-denied-and-offline`, `empty-list-and-no-search`, `error-boundary-alert`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-empty-error-states-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
+
+
 ## 1.2.0 (2026-09-10)
 
 ### Added

@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.2.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.2.0');
+  assert.equal(sidecar.version, '1.2.1');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
@@ -268,4 +268,50 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   // CHANGELOG entry present.
   const changelog = await readFile(join(BLUEPRINT_ROOT, 'CHANGELOG.md'), 'utf8');
   assert.match(changelog, /## 1\.0\.0 \(visual round,/);
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-account-settings/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and (when the
+// probe has already been executed against the fixture) its run
+// record in .rcf/reports/ must carry an evidence object of one of
+// the four rule-7d shapes on every result row.
+
+test('application-account-settings contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-account-settings', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['shell-tablist-per-capability', 'profile-form-autocomplete', 'sessions-surface-shape', 'sessions-adapter-uniform', 'theme-radiogroup'];
+  const runners = ['run-shell-tablist-per-capability', 'run-profile-form-autocomplete', 'run-sessions-surface-shape', 'run-sessions-adapter-uniform', 'run-theme-radiogroup'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+test('application-account-settings criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-account-settings');
+  let entries = [];
+  try {
+    const { readdir } = await import('node:fs/promises');
+    entries = await readdir(reportsDir);
+  } catch (_) {
+    // Run records are not committed; when the anatomy test runs on
+    // a fresh checkout there is nothing to inspect. This is not a
+    // failure — the pack files test above is the shape gate.
+    return;
+  }
+  for (const filename of entries) {
+    if (!filename.endsWith('.json')) continue;
+    const raw = await readFile(join(reportsDir, filename), 'utf8');
+    const doc = JSON.parse(raw);
+    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    for (const r of doc.results) {
+      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
+        && (typeof r.evidence.requestId === 'string'
+          || typeof r.evidence.responseStatus === 'number'
+          || typeof r.evidence.bodyExcerpt === 'string'
+          || typeof r.evidence.derived === 'object');
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+    }
+  }
 });

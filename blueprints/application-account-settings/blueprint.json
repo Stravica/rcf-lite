@@ -1,6 +1,6 @@
 {
   "slug": "application-account-settings",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "category": "application",
   "requiresAppliedCapabilities": {
     "capabilities": [

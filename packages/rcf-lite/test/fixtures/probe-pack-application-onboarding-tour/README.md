@@ -2,6 +2,24 @@
 
 Dependency-free sample app the `application-onboarding-tour` probe pack drives on the shelf gate. One Node HTTP server, one inline client script that mounts the tour tooltip and the checklist. Framework-free by design.
 
+## Env-var manifest (criterion-e probes read these)
+
+Every environment variable the fixture or a `contributions/probes/` probe reads is declared here. A probe that short-circuits on an undeclared variable would prove nothing (rule 7d).
+
+| Var | Purpose |
+|---|---|
+| `PORT` | default 3000; probe picks 47610-47619; 4200 is refused |
+| `TOUR_APPS` | comma list mirroring appliedBlueprints[] |
+| `TOUR_STORE` | `spa-local-storage`|`spa-session-storage`|`server-side-per-principal`; default `spa-local-storage` |
+| `TOUR_ANCHOR` | `dashboard-top`|`settings-page`|`custom-anchor`; default derived from TOUR_APPS |
+
+Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
+
+## Criterion-e probe pack
+
+`blueprints/application-onboarding-tour/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (addendum rule 2).
+
+
 ## Boot
 
 ```

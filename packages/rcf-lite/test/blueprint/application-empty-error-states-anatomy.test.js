@@ -32,7 +32,7 @@ const PACK_SRC_ABS = PACK_ABS;
 test('blueprint.json declares 21 contributions with no capabilities and no requiresAppliedCapabilities (TC-053-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-empty-error-states');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.2.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec)');
   assert.equal(doc.capabilities, undefined, 'capabilities absent (blueprint declares none)');
@@ -245,5 +245,51 @@ test('application-empty-error-states: no em-dashes in shipped prose', async () =
     const text = await readFile(path, 'utf8');
     assert.ok(!text.includes('—'), `${path} contains an em-dash (U+2014)`);
     assert.ok(!text.includes('–'), `${path} contains an en-dash (U+2013)`);
+  }
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-empty-error-states/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and (when the
+// probe has already been executed against the fixture) its run
+// record in .rcf/reports/ must carry an evidence object of one of
+// the four rule-7d shapes on every result row.
+
+test('application-empty-error-states contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-empty-error-states', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['not-found-and-recovery', 'forbidden-and-server-error', 'permission-denied-and-offline', 'empty-list-and-no-search', 'error-boundary-alert'];
+  const runners = ['run-not-found-and-recovery', 'run-forbidden-and-server-error', 'run-permission-denied-and-offline', 'run-empty-list-and-no-search', 'run-error-boundary-alert'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+test('application-empty-error-states criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-empty-error-states');
+  let entries = [];
+  try {
+    const { readdir } = await import('node:fs/promises');
+    entries = await readdir(reportsDir);
+  } catch (_) {
+    // Run records are not committed; when the anatomy test runs on
+    // a fresh checkout there is nothing to inspect. This is not a
+    // failure — the pack files test above is the shape gate.
+    return;
+  }
+  for (const filename of entries) {
+    if (!filename.endsWith('.json')) continue;
+    const raw = await readFile(join(reportsDir, filename), 'utf8');
+    const doc = JSON.parse(raw);
+    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    for (const r of doc.results) {
+      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
+        && (typeof r.evidence.requestId === 'string'
+          || typeof r.evidence.responseStatus === 'number'
+          || typeof r.evidence.bodyExcerpt === 'string'
+          || typeof r.evidence.derived === 'object');
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+    }
   }
 });

@@ -17,7 +17,30 @@
 // PORT env (default 3000) picks the bind port.
 
 import http from 'node:http';
+import { randomUUID as __rid } from 'node:crypto';
 import { URL } from 'node:url';
+
+// Every response carries an x-fixture-request-id header (positive
+// evidence per section 7d): the criterion-e probes echo this id back
+// into the run record so a later reader can prove the response was
+// answered by this fixture on this run, not fabricated by a local
+// mock.
+function withRequestId__(handler){
+  return async function wrapped__(req,res){
+    const rid=req.headers['x-fixture-request-id']||__rid();
+    const orig=res.writeHead.bind(res);
+    res.writeHead=function patched__(){
+      const args=Array.from(arguments);
+      const last=args[args.length-1];
+      if(last&&typeof last==='object'&&!Array.isArray(last)){last['x-fixture-request-id']=rid;}
+      else if(Array.isArray(last)){last.push('x-fixture-request-id',rid);}
+      else{args.push({'x-fixture-request-id':rid});}
+      return orig.apply(res,args);
+    };
+    return handler(req,res);
+  };
+}
+
 
 const DEFAULT_CAPS = process.env.ADMIN_CONSOLE_CAPS ?? 'principalDirectory,roleModel,auditLog';
 const DEFAULT_BREAK = process.env.ADMIN_CONSOLE_BREAK ?? null;
@@ -305,7 +328,7 @@ function clientScript() {
 </script>`;
 }
 
-const server = http.createServer(async (req, res) => {
+const server = http.createServer(withRequestId__(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const caps = capsFor(reqUrl);
   const asAdmin = reqUrl.searchParams.get('asAdmin') !== 'false';
@@ -351,7 +374,7 @@ const server = http.createServer(async (req, res) => {
     default:
       return htmlResponse(res, renderNotFound(caps));
   }
-});
+}));
 
 const port = Number(process.env.PORT ?? 3000);
 server.listen(port, () => {

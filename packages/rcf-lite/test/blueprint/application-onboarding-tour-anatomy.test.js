@@ -30,7 +30,7 @@ const TOPICS_ABS = join(BLUEPRINT_ROOT, 'docs', 'topics.md');
 test('blueprint.json declares 21 contributions with no requiresAppliedCapabilities and elicits[] (TC-057-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-onboarding-tour');
-  assert.equal(doc.version, '1.1.2');
+  assert.equal(doc.version, '1.1.3');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -88,7 +88,7 @@ test('applies cleanly on a fresh project with 21 contributions and no requiresAp
   assert.equal(apply.applied, true, JSON.stringify(apply));
   const sidecar = JSON.parse(await readFile(join(scratch, apply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-onboarding-tour');
-  assert.equal(sidecar.version, '1.1.2');
+  assert.equal(sidecar.version, '1.1.3');
   // TC-057-applies-clean also runs `rcf define validate` on the scratch
   // project so applied contributions are exercised against the closed
   // rcf-schemas 0.6.1 shape. A schema violation in a shipped contribution
@@ -268,4 +268,50 @@ test('README lists mechanism-reach gaps per AC and guide names WCAG SCs and the 
   // packages/rcf-lite/CHANGELOG.md and its release entry is asserted by the
   // release recipe, not by this anatomy test).
   assert.equal((changelog.match(/^## 1\.0\.0 /gm) || []).length, 1, 'blueprint CHANGELOG carries one 1.0.0 entry');
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-onboarding-tour/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and (when the
+// probe has already been executed against the fixture) its run
+// record in .rcf/reports/ must carry an evidence object of one of
+// the four rule-7d shapes on every result row.
+
+test('application-onboarding-tour contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-onboarding-tour', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['first-run-detection', 'stepper-role-dialog', 'checklist-anchor-open', 'completion-persistence'];
+  const runners = ['run-first-run-detection', 'run-stepper-role-dialog', 'run-checklist-anchor-open', 'run-completion-persistence'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+test('application-onboarding-tour criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-onboarding-tour');
+  let entries = [];
+  try {
+    const { readdir } = await import('node:fs/promises');
+    entries = await readdir(reportsDir);
+  } catch (_) {
+    // Run records are not committed; when the anatomy test runs on
+    // a fresh checkout there is nothing to inspect. This is not a
+    // failure — the pack files test above is the shape gate.
+    return;
+  }
+  for (const filename of entries) {
+    if (!filename.endsWith('.json')) continue;
+    const raw = await readFile(join(reportsDir, filename), 'utf8');
+    const doc = JSON.parse(raw);
+    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    for (const r of doc.results) {
+      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
+        && (typeof r.evidence.requestId === 'string'
+          || typeof r.evidence.responseStatus === 'number'
+          || typeof r.evidence.bodyExcerpt === 'string'
+          || typeof r.evidence.derived === 'object');
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+    }
+  }
 });

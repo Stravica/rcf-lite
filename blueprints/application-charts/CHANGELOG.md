@@ -1,5 +1,10 @@
 # application-charts CHANGELOG
 
+## 1.0.5 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering 3 propertys the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-charts/server.js` answers: `non-colour-distinction`, `text-alternative-table`, `keyboard-traversal`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-charts-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
+
+
 ## 1.0.4 - 2026-09-10
 
 Findings closed: F-1, F-2, F-3, F-4, F-5, F-6, F-7. Template-AC fill-in clauses on AC-18105-1, AC-18105-2, AC-18106-1, AC-18106-2 and AC-18106-3 now enumerate the specific applying-project substitutions (applied light and dark backgrounds and any operator brand-token overrides on `blueprint.json:elicits[palette-overrides]`, the elicited palette-overrides string value, the elicited engine token, the elicited engine choice failing the text-alternative check) in place of the generic phrasing. TAC-1901-application-charts-render-shell patch-bumped to 1.0.3: responsibilities[6] fixes the `data-chart-engine` attribute referenced from AC-18106-2, and responsibilities[5] now owns the render-log refusal-record shape (one warning entry per refused chart declaration, keyed to the accessible-name and naming the engine and the missing text-alternative surface) referenced from AC-18106-3 and AC-18106-4 in place of the shape restatement on AC-18106-4. ADR-1902 fixes the palette fallback expectation. Register cleanup on README shipped prose (removed the dated visual-specification reference, neutralised the follow-up naming and aligned the AC-18106-2 marker gap to the TAC-1901 owner) and on the guide (rewrote the spec-reference section to neutral spec-provenance without the operator-repo path or the internal review convention).

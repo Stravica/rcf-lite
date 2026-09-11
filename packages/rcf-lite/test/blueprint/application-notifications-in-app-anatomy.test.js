@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.2.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -203,4 +203,50 @@ test('application-notifications-in-app: family-prefix reservation documented in 
   assert.match(ownTopics, /application-notifications-email \(reserved\)/, 'reserved -email row present');
   assert.match(ownTopics, /application-notifications-push \(reserved\)/, 'reserved -push row present');
   assert.match(ownTopics, /application-notifications-webhook \(reserved\)/, 'reserved -webhook row present');
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-notifications-in-app/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and (when the
+// probe has already been executed against the fixture) its run
+// record in .rcf/reports/ must carry an evidence object of one of
+// the four rule-7d shapes on every result row.
+
+test('application-notifications-in-app contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-notifications-in-app', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['live-region-preseeding', 'toast-contract', 'centre-acknowledge-round-trip'];
+  const runners = ['run-live-region-preseeding', 'run-toast-contract', 'run-centre-acknowledge-round-trip'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+test('application-notifications-in-app criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-notifications-in-app');
+  let entries = [];
+  try {
+    const { readdir } = await import('node:fs/promises');
+    entries = await readdir(reportsDir);
+  } catch (_) {
+    // Run records are not committed; when the anatomy test runs on
+    // a fresh checkout there is nothing to inspect. This is not a
+    // failure — the pack files test above is the shape gate.
+    return;
+  }
+  for (const filename of entries) {
+    if (!filename.endsWith('.json')) continue;
+    const raw = await readFile(join(reportsDir, filename), 'utf8');
+    const doc = JSON.parse(raw);
+    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    for (const r of doc.results) {
+      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
+        && (typeof r.evidence.requestId === 'string'
+          || typeof r.evidence.responseStatus === 'number'
+          || typeof r.evidence.bodyExcerpt === 'string'
+          || typeof r.evidence.derived === 'object');
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+    }
+  }
 });

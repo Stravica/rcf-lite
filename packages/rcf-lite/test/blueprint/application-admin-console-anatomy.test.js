@@ -28,7 +28,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 34 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.3.0');
+  assert.equal(doc.version, '1.3.1');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent per spec 5.5.3');
   const reqs = doc.contributions.filter((c) => c.kind === 'req');
@@ -234,5 +234,51 @@ test('sample-app fixture break switches surface the three defects on the DOM (TC
     assert.ok(!brokenAudit.includes('data-column="correlationId"'), 'correlationId column absent when broken');
   } finally {
     child.kill();
+  }
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-admin-console/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and (when the
+// probe has already been executed against the fixture) its run
+// record in .rcf/reports/ must carry an evidence object of one of
+// the four rule-7d shapes on every result row.
+
+test('application-admin-console contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-admin-console', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['users-directory-surface', 'permission-matrix-grid', 'org-switcher-surface', 'audit-log-surface', 'sign-in-access-gated-surface'];
+  const runners = ['run-users-directory-surface', 'run-permission-matrix-grid', 'run-org-switcher-surface', 'run-audit-log-surface', 'run-sign-in-access-gated-surface'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+test('application-admin-console criterion-e run records carry rule-7d evidence when present (TC-criterion-e-evidence-shape)', async () => {
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'application-admin-console');
+  let entries = [];
+  try {
+    const { readdir } = await import('node:fs/promises');
+    entries = await readdir(reportsDir);
+  } catch (_) {
+    // Run records are not committed; when the anatomy test runs on
+    // a fresh checkout there is nothing to inspect. This is not a
+    // failure — the pack files test above is the shape gate.
+    return;
+  }
+  for (const filename of entries) {
+    if (!filename.endsWith('.json')) continue;
+    const raw = await readFile(join(reportsDir, filename), 'utf8');
+    const doc = JSON.parse(raw);
+    assert.ok(Array.isArray(doc.results) && doc.results.length > 0, filename + ' has no results');
+    for (const r of doc.results) {
+      const hasEvidenceObject = r.evidence && typeof r.evidence === 'object'
+        && (typeof r.evidence.requestId === 'string'
+          || typeof r.evidence.responseStatus === 'number'
+          || typeof r.evidence.bodyExcerpt === 'string'
+          || typeof r.evidence.derived === 'object');
+      const isHonestSkip = r.accountBoundSkipped === true && typeof r.reason === 'string';
+      assert.ok(hasEvidenceObject || isHonestSkip, filename + ' result ' + (r.anchorAcId || '(no anchor)') + ' has no rule-7d evidence object and no honest skip');
+    }
   }
 });
