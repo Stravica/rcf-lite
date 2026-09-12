@@ -44,7 +44,7 @@ Owner reference for the KV event-record whitelist.
 
 ## 1.0.2 (2026-09-08)
 
-Fixture-side follow-up: the real-account KV probe now self-provisions its own throwaway namespace, closing the second-tier undeclared-env skip observed at the real-account gate. No shipped-code capability change.
+The real-account KV probe self-provisions its own throwaway namespace, so a pre-declared namespace id is no longer required at the real-account gate. No shipped-code capability change.
 
 ### Changed
 
@@ -70,7 +70,7 @@ Probe-integrity patch (`h2-cf-platform-probe-integrity`) across the four Cloudfl
 - Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
 - Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
 - Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
-- The `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries name the loader `elicits[]` `when` block behaviour: only `requiresCapability` arrays are currently supported, so an `elicitedNonEmpty` predicate is not available and the elicit fires unconditionally. Adding the predicate is a loader-capability follow-up.
+- The `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries name the loader `elicits[]` `when` block behaviour: only `requiresCapability` arrays are currently supported, so an `elicitedNonEmpty` predicate is not available and the elicit fires unconditionally. Supporting the predicate requires a loader-side capability extension.
 
 ### Fixed
 
