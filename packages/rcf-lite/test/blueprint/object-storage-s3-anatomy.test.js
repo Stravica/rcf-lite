@@ -184,8 +184,8 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   // object-store.mjs (TAC-2901 facade) is the sole reader of
   // @aws-sdk/client-s3. Match either the retired static `from
   // '@aws-sdk/client-s3'` or the lazy `await import('@aws-sdk/client-s3')`
-  // inside createObjectStore per the maintainer's 2026-09-11
-  // lazy-load rule.
+  // inside createObjectStore; the lazy form is the shipped shape
+  // and the static form is retained here as a compatibility match.
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'object-store.mjs'), 'utf8');
   assert.match(storeSrc,
     /(?:from ['"]@aws-sdk\/client-s3['"]|import\(['"]@aws-sdk\/client-s3['"]\))/,
