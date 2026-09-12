@@ -1,7 +1,7 @@
-// H-2 cross-cutting probe-integrity anatomy test for the H-2 hardening train
-// (`h2-cf-platform-probe-integrity`). Covers TS-184: SIMULATE_ purity across
-// the four Cloudflare-platform blueprints (AC-15401-1), envelope hygiene under
-// .rcf/reports (AC-15401-2), and probe-comment honesty (AC-15401-3).
+// Anatomy test for the `h2-cf-platform-probe-integrity` suite. Covers
+// TS-184: SIMULATE_ purity across the four Cloudflare-platform blueprints
+// (AC-15401-1), envelope hygiene under .rcf/reports (AC-15401-2), and
+// probe-comment honesty (AC-15401-3).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -33,12 +33,10 @@ async function probeFiles(bpSlug) {
 // SIMULATE_ purity: no probe body on the four Cloudflare-platform blueprints
 // reads a mutation switch via `process.env.SIMULATE_*`. Mutation switches live
 // on the fixture side (fixture shim / child consumer env) only. The literal
-// SIMULATE_ token appears in two round-5 T-3 messaging-queue-cloudflare probes
-// (retry-and-dlq.mjs, event-secrecy.mjs) exclusively as env-name pass-through
-// strings passed into a fixture-side child consumer (documented in the H-2 PR
-// body section 6.2 as a judgement call under brief section 8; the underlying
-// mutation-purity rule requires that no probe body READ a mutation switch, and
-// that rule is met). This test asserts the read-and-branch pattern explicitly.
+// SIMULATE_ token may appear in a probe body only as an env-name pass-through
+// string handed to a fixture-side child consumer; the mutation-purity rule
+// requires that no probe body READ a mutation switch. This test asserts the
+// read-and-branch pattern explicitly.
 test('H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platform probe trees', async () => {
   const hits = [];
   for (const bp of BLUEPRINTS) {
@@ -49,21 +47,20 @@ test('H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platfor
       while ((m = re.exec(body)) !== null) hits.push(`${f}:${m[0]}`);
     }
   }
-  assert.equal(hits.length, 0, `expected zero process.env.SIMULATE_* reads in probe bodies on the four H-2 blueprints (mutation switches belong on the fixture side per brief section 5); observed: ${hits.slice(0, 6).join(' | ')}`);
+  assert.equal(hits.length, 0, `expected zero process.env.SIMULATE_* reads in probe bodies on the four Cloudflare-platform blueprints (mutation switches belong on the fixture side); observed: ${hits.slice(0, 6).join(' | ')}`);
 });
 
 // TS-184 / TC-184-envelope-hygiene-four-blueprints (AC-15401-2):
 // Every committed envelope under .rcf/reports/blueprints/{four}/ carries
-// aggregateVerdict pass. The previously committed fail envelope at
-// .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is replaced
-// with a shipped-code pass envelope. This is the Group A gate promoted to a
-// durable test.
+// aggregateVerdict pass. The envelope at
+// .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is a
+// shipped-code pass envelope.
 test('H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/reports on the four blueprints', async () => {
   // Read the COMMITTED envelope from git HEAD rather than the working tree.
   // The kv event-secrecy anatomy child spawn overwrites its local envelope
-  // with a mutation-run FAIL record during test-suite runs (Group A caveat);
-  // this test asserts the durable committed state on the branch, which is the
-  // gate the aggregator evaluates.
+  // with a mutation-run FAIL record during test-suite runs; this test asserts
+  // the durable committed state on the branch, which is the gate the
+  // aggregator evaluates.
   let inspected = 0;
   const offenders = [];
   for (const bp of BLUEPRINTS) {
@@ -99,7 +96,7 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
       while ((m = re.exec(body)) !== null) fakeHits.push(`${f}:${m[0]}`);
     }
   }
-  assert.equal(fakeHits.length, 0, `expected zero "fake" tokens in probe bodies on the four H-2 blueprints (probe bodies name in-process, in-memory, or synthetic test doubles and never use the "fake" token); observed: ${fakeHits.slice(0, 6).join(' | ')}`);
+  assert.equal(fakeHits.length, 0, `expected zero "fake" tokens in probe bodies on the four Cloudflare-platform blueprints (probe bodies name in-process, in-memory, or synthetic test doubles and never use the "fake" token); observed: ${fakeHits.slice(0, 6).join(' | ')}`);
   // KV CHANGELOG and README describe the unsupported elicitedNonEmpty
   // predicate and the required loader-side capability extension.
   const kvChangelog = await readFile(join(REPO_ROOT, 'blueprints', 'platform-cloudflare-kv', 'CHANGELOG.md'), 'utf8');
