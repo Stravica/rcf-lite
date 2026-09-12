@@ -1,0 +1,119 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "manifest-schema-validate",
+  "runAt": "2026-09-12T00:25:32.056Z",
+  "engine": {
+    "kind": "schema-validate",
+    "image": "hetzner-throwaway-server fixture manifest directory (draft-07 subset in-process)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37102-1: manifest schema shape is validated offline against the shipped hetzner-server.schema.json; the live observation (a real-account apply that consumes the same manifest) is carried by real-account-throwaway-server-provision.",
+      "verdict": "pass",
+      "detail": "offline manifest scan: manifest ci-throwaway.json carries the nine required fields per hetzner-server.schema.json.",
+      "evidence": {
+        "manifestSha256": "43f78f59c87470df2a066b9f7fbbb46a76b32d11a0a1e2128f8c6647ca4b46c1",
+        "manifestName": "ci-throwaway.json",
+        "requiredFields": [
+          "name",
+          "serverType",
+          "location",
+          "image",
+          "sshKeyIds",
+          "firewallId",
+          "cloudInitPath",
+          "labels",
+          "firewallRules",
+          "snapshotCadence"
+        ],
+        "observedKeys": [
+          "cloudInitPath",
+          "firewallId",
+          "firewallRules",
+          "hetznerManagedBackups",
+          "image",
+          "labels",
+          "location",
+          "name",
+          "networkId",
+          "serverType",
+          "snapshotCadence",
+          "sshKeyIds"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37106-1: firewall rule shape is validated offline against the shipped schema and the TAC-3804 binding; the live-account observation (a `hcloud firewall describe` on the applied firewall) would live on a real-account firewall probe.",
+      "verdict": "pass",
+      "detail": "offline firewall shape scan: manifest ci-throwaway.json firewall rule shape valid: ssh (tcp/in/22, restricted to 203.0.113.0/24, no 0.0.0.0/0), http (tcp/in/80, open), https (tcp/in/443, open); no duplicates.",
+      "evidence": {
+        "manifestSha256": "43f78f59c87470df2a066b9f7fbbb46a76b32d11a0a1e2128f8c6647ca4b46c1",
+        "manifestName": "ci-throwaway.json",
+        "ruleNames": [
+          "ssh",
+          "http",
+          "https"
+        ],
+        "observedBinding": {
+          "ssh": {
+            "name": "ssh",
+            "protocol": "tcp",
+            "direction": "in",
+            "port": 22,
+            "sourceIps": [
+              "203.0.113.0/24"
+            ]
+          },
+          "http": {
+            "name": "http",
+            "protocol": "tcp",
+            "direction": "in",
+            "port": 80,
+            "sourceIps": [
+              "0.0.0.0/0",
+              "::/0"
+            ]
+          },
+          "https": {
+            "name": "https",
+            "protocol": "tcp",
+            "direction": "in",
+            "port": 443,
+            "sourceIps": [
+              "0.0.0.0/0",
+              "::/0"
+            ]
+          }
+        },
+        "duplicates": []
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37107-1: snapshotCadence enum is validated offline against the shipped schema enum; the live observation (a real-account server label matching the manifest cadence) lives on real-account-snapshot-on-demand.",
+      "verdict": "pass",
+      "detail": "offline snapshotCadence scan: manifest ci-throwaway.json snapshotCadence \"weekly\" is in the shipped enum {weekly, daily, off}.",
+      "evidence": {
+        "manifestSha256": "43f78f59c87470df2a066b9f7fbbb46a76b32d11a0a1e2128f8c6647ca4b46c1",
+        "manifestName": "ci-throwaway.json",
+        "snapshotCadence": "weekly",
+        "shippedEnum": [
+          "weekly",
+          "daily",
+          "off"
+        ]
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "manifestCount": 1,
+  "manifestNames": [
+    "ci-throwaway.json"
+  ]
+}

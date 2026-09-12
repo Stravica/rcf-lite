@@ -1,0 +1,195 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "hcloud-dry-run-mock",
+  "runAt": "2026-09-12T00:25:32.035Z",
+  "engine": {
+    "kind": "facade-round-trip",
+    "image": "hetzner-throwaway-server fixture provisioner facade against a mocked hcloud shim",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37101-1: sole-reader source scan and provisionerReady shape observed here as derived context, but the AC requires a vendor-minted identifier from a live provisioner run; this offline mock-path row is not credited. No live probe on this blueprint carries a positive AC-37101-1 observation, so AC-37101-1 is AMBER on E.",
+      "verdict": "pass",
+      "detail": "sole-reader source scan observed exactly 1 non-comment reader(s) of HETZNER_ACCOUNT_API_KEY across the fixture .mjs/.js, all inside src/provisioner-facade.mjs (src/provisioner-facade.mjs:32); provisionerReady fired with the metadata-only {tool, apiHost} payload.",
+      "evidence": {
+        "expectedReader": "src/provisioner-facade.mjs",
+        "readerCount": 1,
+        "readers": [
+          "src/provisioner-facade.mjs:32"
+        ],
+        "source": "fixture source-tree grep .mjs/.js",
+        "eventName": "provisionerReady",
+        "payloadKeys": [
+          "apiHost",
+          "event",
+          "tool"
+        ],
+        "observedTool": "hcloud",
+        "observedApiHost": "https://api.hetzner.cloud/v1"
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37103-1: live inventory diff not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-throwaway-server-provision.",
+      "verdict": "pass",
+      "detail": "mock-path fixture-shape check: facade emitted hetznerServerProvisioned with the expected key shape (id, primaryIpv4, location, serverType).",
+      "evidence": {
+        "eventName": "hetznerServerProvisioned",
+        "id": 3513734,
+        "primaryIpv4": "198.51.100.83",
+        "location": "fsn1",
+        "serverType": "cx23",
+        "payloadKeys": [
+          "event",
+          "id",
+          "labels",
+          "location",
+          "primaryIpv4",
+          "serverType"
+        ],
+        "source": "mock-facade",
+        "expectedKeys": [
+          "id",
+          "primaryIpv4",
+          "location",
+          "serverType"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37108-1: live snapshot inventory not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-snapshot-on-demand.",
+      "verdict": "pass",
+      "detail": "mock-path fixture-shape check: facade emitted hetznerSnapshotTaken with the expected key shape (snapshotId, wallClockTime).",
+      "evidence": {
+        "eventName": "hetznerSnapshotTaken",
+        "snapshotId": 199844,
+        "wallClockTime": "2026-09-12T00:25:32.035Z",
+        "payloadKeys": [
+          "event",
+          "serverId",
+          "snapshotId",
+          "wallClockTime"
+        ],
+        "source": "mock-facade",
+        "expectedKeys": [
+          "snapshotId",
+          "wallClockTime"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37109-3: repeat-run once-per-lifecycle observation not counted here - mock-path fixture-shape check only.",
+      "verdict": "pass",
+      "detail": "mock-path fixture-shape check: facade emitted hetznerServerDestroyed with the destroyed id and a wall-clock timestamp in the payload.",
+      "evidence": {
+        "eventName": "hetznerServerDestroyed",
+        "id": 3513734,
+        "wallClockTime": "2026-09-12T00:25:32.035Z",
+        "payloadKeys": [
+          "event",
+          "id",
+          "wallClockTime"
+        ],
+        "source": "mock-facade",
+        "expectedKeys": [
+          "id",
+          "wallClockTime"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37109-1: event-secrecy substring scan and payload-key allow-list observed here as derived context on mock-emitted events, but the AC requires the live lifecycle sink from a vendor-driven run; this offline mock-path row is not credited.",
+      "verdict": "pass",
+      "detail": "event-secrecy scan across 4 event bodies found no leak of the token, ssh private key, or user-data content; every event payload's keys are a subset of the REQ-006 named metadata set.",
+      "evidence": {
+        "eventName": "lifecycle-scan",
+        "eventCount": 4,
+        "scannedMarkers": [
+          "token value",
+          "ssh private key",
+          "user-data marker"
+        ],
+        "allowedKeysByEvent": {
+          "provisionerReady": [
+            "apiHost",
+            "event",
+            "tool"
+          ],
+          "hetznerServerProvisioned": [
+            "event",
+            "id",
+            "labels",
+            "location",
+            "primaryIpv4",
+            "serverType"
+          ],
+          "hetznerSnapshotTaken": [
+            "event",
+            "serverId",
+            "snapshotId",
+            "wallClockTime"
+          ],
+          "hetznerServerDestroyed": [
+            "event",
+            "id",
+            "wallClockTime"
+          ]
+        },
+        "leaks": [],
+        "unexpectedKeys": []
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "eventCount": 4,
+  "events": [
+    {
+      "event": "provisionerReady",
+      "keys": [
+        "apiHost",
+        "event",
+        "tool"
+      ]
+    },
+    {
+      "event": "hetznerServerProvisioned",
+      "keys": [
+        "event",
+        "id",
+        "labels",
+        "location",
+        "primaryIpv4",
+        "serverType"
+      ]
+    },
+    {
+      "event": "hetznerSnapshotTaken",
+      "keys": [
+        "event",
+        "serverId",
+        "snapshotId",
+        "wallClockTime"
+      ]
+    },
+    {
+      "event": "hetznerServerDestroyed",
+      "keys": [
+        "event",
+        "id",
+        "wallClockTime"
+      ]
+    }
+  ],
+  "renderedPath": "packages/rcf-lite/test/fixtures/hetzner-throwaway-server/hetzner/servers/rendered/rcf-lite-ci-throwaway.cloud-init.yaml",
+  "renderedByteLength": 4585
+}

@@ -1,0 +1,45 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "cloud-init-render-lint",
+  "runAt": "2026-09-12T00:25:32.007Z",
+  "engine": {
+    "kind": "template-render",
+    "image": "hetzner-throwaway-server fixture (in-process template render)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-37104-1: rendered cloud-init template is validated offline for baseline-block presence; the live on-server observation (six baseline checks after cloud-init settles) is carried by real-account-cloud-init-hardened.",
+      "verdict": "pass",
+      "detail": "offline cloud-init render lint: all 6 baseline blocks present in the rendered YAML: sshKeyOnly, rootDisabled, ufwDefaultDeny, dockerUserChain, fail2banSshJail, unattendedUpgrades.",
+      "evidence": {
+        "renderedSha256": "bae08e277888742493734944df8ca1c5d5b8885936ff1c5d0ecfb9333cb17e98",
+        "manifestName": "rcf-lite-ci-throwaway",
+        "renderedByteLength": 4586,
+        "presentBlocks": [
+          "sshKeyOnly",
+          "rootDisabled",
+          "ufwDefaultDeny",
+          "dockerUserChain",
+          "fail2banSshJail",
+          "unattendedUpgrades"
+        ],
+        "renderHashSample": "#cloud-config\n# deploy-hetzner-server v1.0.0 cloud-init user-data template.\n# Six-block hardening baseline per ADR-3804 "
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "manifestName": "rcf-lite-ci-throwaway",
+  "renderedByteLength": 4586,
+  "presentBlocks": [
+    "sshKeyOnly",
+    "rootDisabled",
+    "ufwDefaultDeny",
+    "dockerUserChain",
+    "fail2banSshJail",
+    "unattendedUpgrades"
+  ],
+  "missingBlocks": []
+}

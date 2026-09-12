@@ -1,0 +1,25 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "real-account-cloud-init-hardened",
+  "runAt": "2026-09-12T00:25:32.076Z",
+  "engine": {
+    "kind": "real-account-ssh",
+    "image": "Hetzner Cloud throwaway cx23 with cloud-init user-data (ssh baseline checks)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37105-1",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "reason": "CI_HAS_HETZNER_ACCOUNT",
+      "gateState": "unset",
+      "detail": "real-account-cloud-init-hardened.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) waits for. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account cloud-init hardened check skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the six ssh baseline checks against a throwaway cx23."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "skipped": true,
+  "missingEnv": [
+    "CI_HAS_HETZNER_ACCOUNT"
+  ]
+}

@@ -287,6 +287,28 @@ function validateCountingRowAgainstMap(row, probeName) {
       throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] are present and valid in evidence tree`);
     }
   }
+  // Cloud-init both-zero cross-field (v1.1.13): when a row's rule
+  // lists `exitStatus` and `cloudInit` as anyOf alternatives AND
+  // both fields are actually present in the evidence tree, BOTH
+  // must be exactly 0. A row that declares e.g. `{exitStatus: 0,
+  // cloudInit: {code: 137}}` FAILS - the anyOf letters through on
+  // exitStatus alone, but the contradictory cloudInit.code exposes
+  // an unclean run. Only fires on the cloud-init rule shape.
+  {
+    const anyOfHasExit = (rule.requiredAnyOf || []).some((g) => Array.isArray(g) && g.includes('exitStatus') && g.includes('cloudInit'));
+    if (anyOfHasExit) {
+      const exitStatusVal = deepFind(ev, 'exitStatus');
+      const cloudInitVal = deepFind(ev, 'cloudInit');
+      const bothPresent = exitStatusVal !== undefined && cloudInitVal !== undefined;
+      if (bothPresent) {
+        const exitOk = FIELD_VALIDATORS.exitStatus(exitStatusVal);
+        const cloudOk = FIELD_VALIDATORS.cloudInit(cloudInitVal);
+        if (!(exitOk && cloudOk)) {
+          throw new Error(`${probeName} / ${rule.anchorAcId}: cloud-init both-zero cross-field: when exitStatus and cloudInit are BOTH present, both must be exactly 0; got exitStatus=${JSON.stringify(exitStatusVal)}, cloudInit=${JSON.stringify(cloudInitVal)}`);
+        }
+      }
+    }
+  }
   // Snapshot on demand cross-field (v1.1.12): the vendor-minted
   // `snapshotId` MUST be present in `postCreateSnapshotIds` (proving
   // the snapshot was created live) AND MUST be absent from
@@ -352,7 +374,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.12');
+  assert.equal(bp.version, '1.1.13');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -737,6 +759,30 @@ test('deploy anatomy field validators: cloudInit.code must equal 0 (v1.1.12); Na
   const good = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], cloudInit: { code: 0 } } };
   assert.equal(validateCountingRowAgainstMap(good, 'real-account-cloud-init-hardened'), true);
 });
+// Cloud-init both-zero cross-field (v1.1.13). When a row carries
+// both `exitStatus` and `cloudInit` in its evidence, both must be
+// exactly 0. The anyOf alone lets `{exitStatus: 0, cloudInit:
+// {code: 137}}` (or the mirror) through on exitStatus alone; the
+// cross-field rule closes that.
+test('deploy anatomy cross-field: cloud-init both-zero - when exitStatus AND cloudInit are BOTH present, both must be 0 (v1.1.13)', async () => {
+  // exitStatus 0, cloudInit.code non-zero -> FAIL
+  const bad1 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 0, cloudInit: { code: 137 } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad1, 'real-account-cloud-init-hardened'), /cloud-init both-zero cross-field/);
+  // exitStatus non-zero, cloudInit.code 0 -> FAIL
+  const bad2 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 1, cloudInit: { code: 0 } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-cloud-init-hardened'), /cloud-init both-zero cross-field/);
+  // exitStatus non-zero, cloudInit non-zero -> FAIL (would already have failed the anyOf, but the cross-field also names it)
+  const bad3 = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 2, cloudInit: { code: 137 } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad3, 'real-account-cloud-init-hardened'), /(none of the observation alternatives|cloud-init both-zero cross-field)/);
+  // BOTH 0 accepted
+  const good = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 0, cloudInit: { code: 0 } } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-cloud-init-hardened'), true);
+  // Only one present + valid still accepted (anyOf semantics preserved)
+  const goodExitOnly = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 0 } };
+  assert.equal(validateCountingRowAgainstMap(goodExitOnly, 'real-account-cloud-init-hardened'), true);
+  const goodCloudOnly = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], cloudInit: { code: 0 } } };
+  assert.equal(validateCountingRowAgainstMap(goodCloudOnly, 'real-account-cloud-init-hardened'), true);
+});
 test('deploy anatomy field validators: baselineChecks with a boolean `false` verdict FAILS (v1.1.12)', async () => {
   const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: false }] } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'), /baselineChecks missing or malformed/);
@@ -846,17 +892,24 @@ function walkRecordRow({ row, probeName, name, shipped, record }) {
   }
   return { walked: true, inventoryHit, counted: true };
 }
-test('deploy-hetzner-server v1.1.12 record walk: every row of every present local record is validated (no stubs skipped), or report no records only when the directory has no record files', async () => {
-  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'deploy-hetzner-server');
+test('deploy-hetzner-server v1.1.13 record walk: every row of every present local record is validated (no stubs skipped, no empty result sets), or report no records only when the directory has no record files', async () => {
+  // v1.1.13: an optional records-directory override for the HQ walk
+  // pathway; CI never sets it. When `RCF_LITE_RECORDS_DIR` is set
+  // the walker reads `<dir>/deploy-hetzner-server/*.json` instead
+  // of `.rcf/reports/blueprints/deploy-hetzner-server/`.
+  const overrideRoot = process.env.RCF_LITE_RECORDS_DIR;
+  const reportsDir = overrideRoot
+    ? join(overrideRoot, 'deploy-hetzner-server')
+    : join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'deploy-hetzner-server');
   let entries = [];
   try {
     entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
   } catch (e) {
-    console.log('deploy-hetzner-server v1.1.12 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    console.log(`deploy-hetzner-server v1.1.13 record walk: no local records under ${reportsDir} (CI path).`);
     return;
   }
   if (entries.length === 0) {
-    console.log('deploy-hetzner-server v1.1.12 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    console.log(`deploy-hetzner-server v1.1.13 record walk: no local records under ${reportsDir} (CI path).`);
     return;
   }
   const shipped = await loadShippedAcs();
@@ -866,7 +919,19 @@ test('deploy-hetzner-server v1.1.12 record walk: every row of every present loca
   for (const fileName of entries) {
     const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
     const probeName = rec.probeName || fileName.replace(/\.json$/, '');
-    const rows = Array.isArray(rec.results) ? rec.results : [];
+    // v1.1.13: a present record whose `results` is absent, not an
+    // array, or empty FAILS. A record file that carries a
+    // probeName but no rows attests to nothing and cannot be
+    // silently walked as if it were valid.
+    assert.ok(
+      Array.isArray(rec.results),
+      `${fileName}: results must be an array; got ${typeof rec.results}`,
+    );
+    assert.ok(
+      rec.results.length > 0,
+      `${fileName}: results must be a non-empty array; a record with zero rows attests to nothing and FAILS the walker (v1.1.13).`,
+    );
+    const rows = rec.results;
     for (const row of rows) {
       // v1.1.12: no more stub-skip. Every row of every present local
       // record MUST carry a row-shape marker (evidence for a counting
@@ -890,7 +955,28 @@ test('deploy-hetzner-server v1.1.12 record walk: every row of every present loca
       if (r.inventoryHit) inventoryHits++;
     }
   }
-  console.log(`deploy-hetzner-server v1.1.12 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
+  console.log(`deploy-hetzner-server v1.1.13 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
+});
+
+// v1.1.13: empty / non-array / missing results all FAIL the record
+// walk. Synthetic in-memory records; the real `.rcf/reports/`
+// directory is not touched.
+test('deploy-hetzner-server v1.1.13 record walk: a record whose results is empty, non-array or missing is REJECTED', async () => {
+  for (const bad of [
+    { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', results: [] },
+    { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', results: null },
+    { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision' },
+    { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', results: 'not-an-array' },
+  ]) {
+    let threw = false;
+    try {
+      assert.ok(Array.isArray(bad.results), 'results must be an array');
+      assert.ok(bad.results.length > 0, 'results must be a non-empty array');
+    } catch (e) {
+      threw = true;
+    }
+    assert.equal(threw, true, `expected empty/non-array/missing results to FAIL; got: ${JSON.stringify(bad)}`);
+  }
 });
 
 // Malformed-row negative case (v1.1.12): a synthetic record whose

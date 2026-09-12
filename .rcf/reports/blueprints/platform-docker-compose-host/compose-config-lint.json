@@ -1,0 +1,115 @@
+{
+  "slug": "platform-docker-compose-host",
+  "probeName": "compose-config-lint",
+  "runAt": "2026-09-12T00:25:26.364Z",
+  "engine": {
+    "kind": "compose-config-lint",
+    "image": "platform-docker-compose-host fixture",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-healthcheckLint: healthcheck presence is validated offline against the shipped compose.yaml; the live observation (a healthy compose service reporting healthy in `docker compose ps`) is carried by real-account-minimal-stack-up.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: HTTP-terminating service 'web' carries a healthcheck: block",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "serviceName": "web",
+        "healthcheckKeys": [
+          "interval",
+          "retries",
+          "start_period",
+          "test",
+          "timeout"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-healthcheckLint: healthcheck presence is validated offline against the shipped compose.yaml; the live observation (a healthy compose service reporting healthy in `docker compose ps`) is carried by real-account-minimal-stack-up.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: HTTP-terminating service 'caddy' carries a healthcheck: block",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "serviceName": "caddy",
+        "healthcheckKeys": [
+          "interval",
+          "retries",
+          "start_period",
+          "test",
+          "timeout"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-restartClassification: restart-policy classification is validated offline against the shipped compose.yaml; the live observation (a compose stack applying and honouring the policy) is carried by real-account-minimal-stack-up.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: service 'web' declares restart: unless-stopped",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "serviceName": "web",
+        "restart": "unless-stopped"
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-restartClassification: restart-policy classification is validated offline against the shipped compose.yaml; the live observation (a compose stack applying and honouring the policy) is carried by real-account-minimal-stack-up.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: service 'caddy' declares restart: unless-stopped",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "serviceName": "caddy",
+        "restart": "unless-stopped"
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-logDriverClassification: log-driver classification is validated offline against the shipped compose.yaml against the elicited LOG_DRIVER; the live observation (a compose stack routing logs through the applied driver) lives on the account-bound branch.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: every service uses the elicited log driver journald",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "composeFile": "compose.yaml",
+        "elicitedDriver": "journald",
+        "observedDrivers": [
+          "journald",
+          "journald"
+        ]
+      }
+    },
+    {
+      "anchorAcId": null,
+      "conformanceOnly": true,
+      "limitation": "AC-composeHost-healthcheckLint: healthcheck presence is validated offline against the shipped compose.yaml; the live observation (a healthy compose service reporting healthy in `docker compose ps`) is carried by real-account-minimal-stack-up.",
+      "verdict": "pass",
+      "detail": "offline compose-config-lint: docker compose config exit 0 (docker 29.6.2)",
+      "evidence": {
+        "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+        "composeFile": "compose.yaml",
+        "dockerVersion": "29.6.2",
+        "engineNote": "Docker Engine (compose sub-command); vendor documentation https://docs.docker.com/compose/compose-file/, verifiedOn 2026-09-11",
+        "exitStatus": 0
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "composeSha256": "e0335728d562ccac630f6c04a3f920fb126c2d6344946a633763cd96649b3f47",
+  "serviceNames": [
+    "web",
+    "caddy"
+  ],
+  "mutations": {
+    "missingHealthcheck": false,
+    "unclassifiedRestart": false,
+    "unclassifiedLogDriver": false
+  },
+  "dockerVersion": "29.6.2",
+  "dockerComposeConfigExit": 0
+}

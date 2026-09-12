@@ -112,7 +112,18 @@ const PROBE_REQUIREMENTS = {
       {
         anchorAcId: 'AC-composeHost-zeroDowntimeReload',
         identifier: { field: 'serverId', shape: 'vendorId' },
-        requiredAll: ['total', 'twoXx', 'drops', 'overlapCount'],
+        // v1.1.13: the burst evidence carries both intervals as
+        // millisecond epochs from the server clock. The counters
+        // stay required; the four interval endpoints (burst window
+        // and reload window) join them, and the cross-field rule
+        // below enforces that both intervals are finite, each end
+        // is strictly after its start, and the reload interval
+        // sits wholly inside the burst interval.
+        requiredAll: [
+          'total', 'twoXx', 'drops', 'overlapCount',
+          'burstStartedAt', 'burstEndedAt',
+          'reloadStartedAt', 'reloadEndedAt',
+        ],
         requiredAnyOf: [],
         requiredExact: [{ field: 'clockDomain', equals: 'server' }],
       },
@@ -182,10 +193,16 @@ function checkIdShape(shape, value) {
 // PROBE_REQUIREMENTS must have an entry here.
 function isNonNegInt(v) { return typeof v === 'number' && Number.isInteger(v) && v >= 0; }
 // The shipped AC requires secrets on disk at mode 400 (owner read-
-// only). Any other octal mode - even a valid 3-digit octal like 600
-// or 644 - FAILS anatomy (v1.1.12); the previous `/^0?[0-7]{3}$/`
-// was too permissive.
-function isOctalMode(v) { return v === '400' || v === '0400'; }
+// only). The recorded stat value on the live record is the literal
+// string "400" (docker exec stat -c %a prints no leading zero;
+// real-account-minimal-stack-up.json:97 in the hand-off carries
+// `"mode": "400"`). Any other value - a 4-digit variant like
+// "0400", every other 3-digit octal (600, 644, 755, ...), an
+// empty string, whitespace, or a non-octal token - FAILS anatomy
+// (v1.1.13). The previous v1.1.12 accepted "0400" as an
+// alternative spelling; that alternative is now rejected because
+// the shipped observation is stat's own three-digit output.
+function isOctalMode(v) { return v === '400'; }
 function isNonEmptyStringArray(v) { return Array.isArray(v) && v.length > 0 && v.every((s) => typeof s === 'string' && s.length > 0); }
 function isObservedSecretModesShape(v) {
   const arr = Array.isArray(v)
@@ -193,6 +210,13 @@ function isObservedSecretModesShape(v) {
     : (v && typeof v === 'object' && Array.isArray(v.observations) ? v.observations : null);
   if (!Array.isArray(arr) || arr.length === 0) return false;
   return arr.every((o) => o && typeof o === 'object' && isOctalMode(o.mode));
+}
+// A millisecond-epoch timestamp: a positive finite integer. NaN,
+// Infinity, -Infinity, zero, negatives and non-integer floats all
+// FAIL. The live record's burst evidence carries the four burst /
+// reload window endpoints as server-clock milliseconds.
+function isFiniteMsTimestamp(v) {
+  return typeof v === 'number' && Number.isInteger(v) && Number.isFinite(v) && v > 0;
 }
 const FIELD_VALIDATORS = {
   observedSecretModes: isObservedSecretModesShape,
@@ -203,6 +227,10 @@ const FIELD_VALIDATORS = {
   twoXx: isNonNegInt,
   drops: isNonNegInt,
   overlapCount: isNonNegInt,
+  burstStartedAt: isFiniteMsTimestamp,
+  burstEndedAt: isFiniteMsTimestamp,
+  reloadStartedAt: isFiniteMsTimestamp,
+  reloadEndedAt: isFiniteMsTimestamp,
 };
 function deepFind(node, fieldName, visited) {
   const seen = visited || new Set();
@@ -293,6 +321,34 @@ function validateCountingRowAgainstMap(row, probeName) {
       throw new Error(`${probeName} / ${rule.anchorAcId}: burst counters inconsistent: overlapCount (${overlapCount}) must be > 0 (requests overlapping the reload window)`);
     }
   }
+  // Reload / burst window containment cross-field (v1.1.13): the
+  // burst window MUST have burstEndedAt > burstStartedAt, the reload
+  // window MUST have reloadEndedAt > reloadStartedAt, and the
+  // reload window MUST sit wholly inside the burst window
+  // (burstStartedAt <= reloadStartedAt AND reloadEndedAt <=
+  // burstEndedAt). Only fires when the row rule requires all four
+  // endpoints; per-field validators above already reject NaN,
+  // Infinity, zero and negative endpoints.
+  if (
+    (rule.requiredAll || []).includes('burstStartedAt')
+    && (rule.requiredAll || []).includes('burstEndedAt')
+    && (rule.requiredAll || []).includes('reloadStartedAt')
+    && (rule.requiredAll || []).includes('reloadEndedAt')
+  ) {
+    const burstStart = deepFind(ev, 'burstStartedAt');
+    const burstEnd = deepFind(ev, 'burstEndedAt');
+    const reloadStart = deepFind(ev, 'reloadStartedAt');
+    const reloadEnd = deepFind(ev, 'reloadEndedAt');
+    if (!(burstEnd > burstStart)) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: burst window inconsistent: burstEndedAt (${burstEnd}) must be strictly greater than burstStartedAt (${burstStart})`);
+    }
+    if (!(reloadEnd > reloadStart)) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: reload window inconsistent: reloadEndedAt (${reloadEnd}) must be strictly greater than reloadStartedAt (${reloadStart})`);
+    }
+    if (!(reloadStart >= burstStart && reloadEnd <= burstEnd)) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: reload window not wholly inside burst window: reload [${reloadStart}, ${reloadEnd}] must lie inside burst [${burstStart}, ${burstEnd}]`);
+    }
+  }
   return true;
 }
 async function assertRowsCarry7dShape(rows, probeName, label) {
@@ -340,7 +396,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.12');
+  assert.equal(bp.version, '1.1.13');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -533,7 +589,14 @@ test('compose anatomy per-probe map: valid secretShape row accepted', async () =
 test('compose anatomy per-probe map: valid reload-burst row accepted (fields nested under evidence.burst)', async () => {
   const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
     serverId: 424246,
-    burst: { total: 4242, twoXx: 4242, drops: 0, overlapCount: 42, reloadDurationMs: 424, clockDomain: 'server' },
+    // Synthetic burst/reload timestamps: burst [1000, 11000] ms,
+    // reload [2000, 3000] ms; reload sits wholly inside burst.
+    // These are NOT live epochs (a live server-clock epoch is in
+    // the 1.78e12 range).
+    burst: {
+      total: 4242, twoXx: 4242, drops: 0, overlapCount: 42, reloadDurationMs: 424, clockDomain: 'server',
+      burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000,
+    },
   } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
 });
@@ -560,7 +623,10 @@ test('compose anatomy per-probe map: non-hex64 containerId FAILS shape check', a
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-minimal-stack-up'), /identifier containerId .* missing or malformed/);
 });
 test('compose anatomy per-probe map: reload-burst clockDomain must equal "server"', async () => {
-  const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 1, clockDomain: 'runner' } } };
+  const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+    total: 10, twoXx: 10, drops: 0, overlapCount: 1, clockDomain: 'runner',
+    burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000,
+  } } };
   assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), /clockDomain must equal .server./);
 });
 test('compose anatomy per-probe map: UNMAPPED probe producing a counting row FAILS', async () => {
@@ -571,7 +637,10 @@ test('compose anatomy per-probe map: nested reload-burst tuple under evidence.bu
   const row = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: {
     serverId: 424246,
     warm: { statusCode: 200 },
-    burst: { total: 4242, twoXx: 4242, drops: 0, overlapCount: 42, reloadDurationMs: 424, clockDomain: 'server' },
+    burst: {
+      total: 4242, twoXx: 4242, drops: 0, overlapCount: 42, reloadDurationMs: 424, clockDomain: 'server',
+      burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000,
+    },
   } };
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-reload-burst'), true);
 });
@@ -604,15 +673,17 @@ test('compose anatomy field validators: observedNames / healthcheckKeys anyOf FA
   const row = { anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', evidence: { containerId: HEX64, observedSecretModes: { observations: [{ containerId: HEX64, mode: '400' }] }, observedNames: [], healthcheckKeys: '' } };
   assert.throws(() => validateCountingRowAgainstMap(row, 'real-account-minimal-stack-up'), /none of the observation alternatives \[observedNames, healthcheckKeys\]/);
 });
-test('compose anatomy field validators: mode must equal exactly "400" or "0400" (v1.1.12); other valid octals FAIL', async () => {
-  // Exactly 400 / 0400 pass:
-  for (const v of ['400', '0400']) {
-    const good = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: v } };
-    assert.equal(validateCountingRowAgainstMap(good, 'real-account-minimal-stack-up'), true);
-  }
-  // Every other octal mode - even legitimate 3-digit octals - FAILS
-  // (v1.1.12): the shipped AC requires owner read-only 400.
-  for (const v of ['', 'abc', '9', '400 ', '4000', '600', '640', '644', '755', '000', '040', '444']) {
+test('compose anatomy field validators: mode must equal exactly "400" (v1.1.13); "0400" and every other octal FAIL', async () => {
+  // Exactly the stat-c-%a output "400" passes:
+  const good = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: '400' } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-minimal-stack-up'), true);
+  // "0400" was accepted at v1.1.12 as an alternative spelling; it
+  // FAILS at v1.1.13 (the live record's mode is exactly the string
+  // "400", the stat -c %a value). Every other octal mode - even
+  // legitimate 3-digit octals - also FAILS: the shipped AC requires
+  // owner read-only 400 and the observation is stat's three-digit
+  // output.
+  for (const v of ['0400', '', 'abc', '9', '400 ', ' 400', '4000', '600', '640', '644', '755', '000', '040', '444']) {
     const bad = { anchorAcId: 'AC-composeHost-secretShape', verdict: 'pass', evidence: { containerId: HEX64, mode: v } };
     assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-minimal-stack-up'), /mode missing or malformed/, `expected FAIL on mode=${JSON.stringify(v)}`);
   }
@@ -632,20 +703,104 @@ test('compose anatomy field validators: burst counters reject NaN, Infinity, -In
   }
 });
 test('compose anatomy field validators: burst cross-field requires total>0, drops===0, twoXx===total AND overlapCount>0 (v1.1.12)', async () => {
+  const TS = { burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000 };
   // twoXx > total (per-field passes; cross-field guard fires):
-  const bad1 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 11, drops: 0, overlapCount: 1, clockDomain: 'server' } } };
+  const bad1 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 11, drops: 0, overlapCount: 1, clockDomain: 'server', ...TS } } };
   assert.throws(() => validateCountingRowAgainstMap(bad1, 'real-account-reload-burst'), /counters inconsistent/);
   // drops !== 0:
-  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 8, drops: 2, overlapCount: 1, clockDomain: 'server' } } };
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 8, drops: 2, overlapCount: 1, clockDomain: 'server', ...TS } } };
   assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /counters inconsistent/);
   // total === 0 (would silently pass under the old rule):
-  const bad3 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 0, twoXx: 0, drops: 0, overlapCount: 1, clockDomain: 'server' } } };
+  const bad3 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 0, twoXx: 0, drops: 0, overlapCount: 1, clockDomain: 'server', ...TS } } };
   assert.throws(() => validateCountingRowAgainstMap(bad3, 'real-account-reload-burst'), /counters inconsistent/);
   // overlapCount === 0 (would silently pass under the old rule; the AC asserts requests overlapped the reload):
-  const bad4 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 0, clockDomain: 'server' } } };
+  const bad4 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 0, clockDomain: 'server', ...TS } } };
   assert.throws(() => validateCountingRowAgainstMap(bad4, 'real-account-reload-burst'), /counters inconsistent/);
   // consistent counters accepted (drops = 0, twoXx = total, overlapCount > 0):
-  const good = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server' } } };
+  const good = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server', ...TS } } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-reload-burst'), true);
+});
+
+// Burst / reload window containment negative cases (v1.1.13). Each
+// timestamp must be a positive finite integer; each interval end
+// must be strictly after its start; the reload interval must sit
+// wholly inside the burst interval. Synthetic values throughout;
+// live server-clock epochs (1.78e12 range) are never used here.
+test('compose anatomy field validators: burst / reload timestamps must be positive finite integers (v1.1.13)', async () => {
+  const counters = { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server' };
+  const goodBurst = { ...counters, burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000 };
+  // sanity: the good burst is accepted.
+  assert.equal(
+    validateCountingRowAgainstMap({ anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: goodBurst } }, 'real-account-reload-burst'),
+    true,
+  );
+  for (const field of ['burstStartedAt', 'burstEndedAt', 'reloadStartedAt', 'reloadEndedAt']) {
+    for (const v of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1, 0, 1.5, '1000']) {
+      const burst = { ...goodBurst };
+      burst[field] = v;
+      const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst } };
+      assert.throws(
+        () => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'),
+        new RegExp(`${field} missing or malformed`),
+        `expected FAIL on ${field}=${String(v)}`,
+      );
+    }
+    // fully missing:
+    const burstMissing = { ...goodBurst };
+    delete burstMissing[field];
+    const badMissing = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: burstMissing } };
+    assert.throws(
+      () => validateCountingRowAgainstMap(badMissing, 'real-account-reload-burst'),
+      new RegExp(`${field} missing or malformed`),
+      `expected FAIL on ${field}=<missing>`,
+    );
+  }
+});
+test('compose anatomy field validators: burst window inconsistent when burstEndedAt is not strictly after burstStartedAt (v1.1.13)', async () => {
+  const counters = { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server' };
+  for (const [start, end] of [[1000, 1000], [1000, 999]]) {
+    const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+      ...counters,
+      burstStartedAt: start, burstEndedAt: end, reloadStartedAt: 2000, reloadEndedAt: 3000,
+    } } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), /burst window inconsistent/);
+  }
+});
+test('compose anatomy field validators: reload window inconsistent when reloadEndedAt is not strictly after reloadStartedAt (v1.1.13)', async () => {
+  const counters = { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server' };
+  for (const [start, end] of [[2000, 2000], [3000, 2999]]) {
+    const bad = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+      ...counters,
+      burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: start, reloadEndedAt: end,
+    } } };
+    assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-reload-burst'), /reload window inconsistent/);
+  }
+});
+test('compose anatomy field validators: reload window MUST sit wholly inside burst window (v1.1.13)', async () => {
+  const counters = { total: 10, twoXx: 10, drops: 0, overlapCount: 3, clockDomain: 'server' };
+  // reload starts before burst:
+  const bad1 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+    ...counters,
+    burstStartedAt: 5000, burstEndedAt: 11000, reloadStartedAt: 2000, reloadEndedAt: 3000,
+  } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad1, 'real-account-reload-burst'), /not wholly inside burst window/);
+  // reload ends after burst:
+  const bad2 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+    ...counters,
+    burstStartedAt: 1000, burstEndedAt: 3000, reloadStartedAt: 2000, reloadEndedAt: 4000,
+  } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-reload-burst'), /not wholly inside burst window/);
+  // reload straddles burst end:
+  const bad3 = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+    ...counters,
+    burstStartedAt: 1000, burstEndedAt: 5000, reloadStartedAt: 4000, reloadEndedAt: 6000,
+  } } };
+  assert.throws(() => validateCountingRowAgainstMap(bad3, 'real-account-reload-burst'), /not wholly inside burst window/);
+  // reload boundary equal to burst boundaries is accepted (wholly-inside is inclusive):
+  const good = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', evidence: { serverId: 424246, burst: {
+    ...counters,
+    burstStartedAt: 1000, burstEndedAt: 11000, reloadStartedAt: 1000, reloadEndedAt: 11000,
+  } } };
   assert.equal(validateCountingRowAgainstMap(good, 'real-account-reload-burst'), true);
 });
 
@@ -715,32 +870,42 @@ function walkComposeRecordRow({ row, probeName, name, shipped, record }) {
     inventoryHit = trailHit || invHit || teardownHit || teardownRefHit;
     assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail / postRunInventory / postTeardownServerIds / teardown.`);
   } else if (idField === 'containerId') {
+    // v1.1.13: only ENGINE evidence keyed by the id counts. The
+    // record's observedSecretModes.observations tree is populated
+    // by `docker inspect --format {{.Id}}` and `docker exec stat`,
+    // so a matching observation with `containerId === idStr` is
+    // the id block itself. A `containerName` present in compose
+    // services or `observedNames` is NOT identifier evidence -
+    // compose chose that name, no engine minted it - and a row
+    // whose only correlation is a name match FAILS the walker.
     const osm = deepFind(searchSpace, 'observedSecretModes');
     const arr = Array.isArray(osm) ? osm : (osm && Array.isArray(osm.observations) ? osm.observations : []);
     const osmHit = arr.some((o) => o && String(o.containerId) === idStr);
-    const services = deepFind(searchSpace, 'services');
-    const composeNames = Array.isArray(services) ? services.map((s) => (s && typeof s === 'object' && typeof s.name === 'string') ? s.name : null).filter(Boolean) : [];
-    const observedNames = deepFind(searchSpace, 'observedNames') || [];
-    const containerName = deepFind(ev, 'containerName');
-    const nameHit = typeof containerName === 'string' && (composeNames.includes(containerName) || (Array.isArray(observedNames) && observedNames.includes(containerName)));
-    inventoryHit = osmHit || nameHit;
-    assert.ok(inventoryHit, `${name}: containerId ${idStr} is not present in this record's observedSecretModes tree, and its containerName is absent from the compose ps listing.`);
+    inventoryHit = osmHit;
+    assert.ok(inventoryHit, `${name}: containerId ${idStr} is not present in this record's observedSecretModes.observations tree (docker inspect / docker exec stat evidence keyed by the id); a matching containerName in compose services or observedNames is NOT identifier evidence.`);
   } else {
     inventoryHit = true;
   }
   return { walked: true, inventoryHit, counted: true };
 }
-test('platform-docker-compose-host v1.1.12 record walk: every row of every present local record is validated (no stubs skipped), or report no records only when the directory has no record files', async () => {
-  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'platform-docker-compose-host');
+test('platform-docker-compose-host v1.1.13 record walk: every row of every present local record is validated (no stubs skipped, no empty result sets), or report no records only when the directory has no record files', async () => {
+  // v1.1.13: an optional records-directory override for the HQ walk
+  // pathway; CI never sets it. When `RCF_LITE_RECORDS_DIR` is set
+  // the walker reads `<dir>/platform-docker-compose-host/*.json`
+  // instead of `.rcf/reports/blueprints/platform-docker-compose-host/`.
+  const overrideRoot = process.env.RCF_LITE_RECORDS_DIR;
+  const reportsDir = overrideRoot
+    ? join(overrideRoot, 'platform-docker-compose-host')
+    : join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'platform-docker-compose-host');
   let entries = [];
   try {
     entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
   } catch (e) {
-    console.log('platform-docker-compose-host v1.1.12 record walk: no local records under .rcf/reports/blueprints/platform-docker-compose-host (CI path).');
+    console.log(`platform-docker-compose-host v1.1.13 record walk: no local records under ${reportsDir} (CI path).`);
     return;
   }
   if (entries.length === 0) {
-    console.log('platform-docker-compose-host v1.1.12 record walk: no local records under .rcf/reports/blueprints/platform-docker-compose-host (CI path).');
+    console.log(`platform-docker-compose-host v1.1.13 record walk: no local records under ${reportsDir} (CI path).`);
     return;
   }
   const shipped = await loadShippedAcs();
@@ -750,7 +915,19 @@ test('platform-docker-compose-host v1.1.12 record walk: every row of every prese
   for (const fileName of entries) {
     const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
     const probeName = rec.probeName || fileName.replace(/\.json$/, '');
-    const rows = Array.isArray(rec.results) ? rec.results : [];
+    // v1.1.13: a present record whose `results` is absent, not an
+    // array, or empty FAILS. A record file that carries a
+    // probeName but no rows attests to nothing and cannot be
+    // silently walked as if it were valid.
+    assert.ok(
+      Array.isArray(rec.results),
+      `${fileName}: results must be an array; got ${typeof rec.results}`,
+    );
+    assert.ok(
+      rec.results.length > 0,
+      `${fileName}: results must be a non-empty array; a record with zero rows attests to nothing and FAILS the walker (v1.1.13).`,
+    );
+    const rows = rec.results;
     for (const row of rows) {
       // v1.1.12: no more stub-skip. Every row of every present local
       // record MUST carry a row-shape marker (evidence, `limitation`,
@@ -772,7 +949,63 @@ test('platform-docker-compose-host v1.1.12 record walk: every row of every prese
       if (r.inventoryHit) inventoryHits++;
     }
   }
-  console.log(`platform-docker-compose-host v1.1.12 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
+  console.log(`platform-docker-compose-host v1.1.13 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
+});
+
+// v1.1.13: empty / non-array / missing results all FAIL the record
+// walk. Synthetic in-memory records; the real `.rcf/reports/`
+// directory is not touched.
+test('platform-docker-compose-host v1.1.13 record walk: a record whose results is empty, non-array or missing is REJECTED', async () => {
+  for (const bad of [
+    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: [] },
+    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: null },
+    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst' },
+    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: 'not-an-array' },
+  ]) {
+    let threw = false;
+    try {
+      assert.ok(Array.isArray(bad.results), 'results must be an array');
+      assert.ok(bad.results.length > 0, 'results must be a non-empty array');
+    } catch (e) {
+      threw = true;
+    }
+    assert.equal(threw, true, `expected empty/non-array/missing results to FAIL; got: ${JSON.stringify(bad)}`);
+  }
+});
+
+// v1.1.13: walker containerId negative case. A record whose only
+// correlation for the row's 64-hex containerId is a containerName
+// present in compose services / observedNames FAILS - name is not
+// identifier evidence. Proved in-memory; the real records
+// directory is not touched.
+test('platform-docker-compose-host v1.1.13 record walk: 64-hex containerId with only a containerName match FAILS', async () => {
+  const shipped = await loadShippedAcs();
+  const row = {
+    anchorAcId: 'AC-composeHost-secretShape',
+    verdict: 'pass',
+    evidence: {
+      // valid 64-hex synthetic id, matching containerName in the
+      // record's compose services listing and observedNames, but
+      // NO observedSecretModes.observations entry keyed by the id:
+      containerId: HEX64,
+      containerName: 'rcf-lite-throwaway-web',
+      mode: '400',
+    },
+  };
+  const record = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-minimal-stack-up',
+    services: [{ name: 'rcf-lite-throwaway-web', healthy: true }],
+    observedNames: ['rcf-lite-throwaway-web'],
+    // observedSecretModes carries a DIFFERENT id, so no engine-
+    // evidence match for HEX64:
+    observedSecretModes: { observations: [{ service: 'web', containerId: 'aa'.repeat(32), mode: '400' }] },
+    results: [row],
+  };
+  assert.throws(
+    () => walkComposeRecordRow({ row, probeName: 'real-account-minimal-stack-up', name: 'name-only.json', shipped, record }),
+    /not present in this record's observedSecretModes.observations tree/,
+  );
 });
 
 // Malformed-row negative case (v1.1.12): a synthetic record whose

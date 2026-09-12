@@ -1,0 +1,25 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "real-account-snapshot-on-demand",
+  "runAt": "2026-09-12T00:25:32.096Z",
+  "engine": {
+    "kind": "real-account-snapshot",
+    "image": "Hetzner Cloud throwaway cx23 with snapshot verb via hcloud image create-image",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37108-1",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "reason": "CI_HAS_HETZNER_ACCOUNT",
+      "gateState": "unset",
+      "detail": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account snapshot on-demand skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the hcloud server create-image path."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "skipped": true,
+  "missingEnv": [
+    "CI_HAS_HETZNER_ACCOUNT"
+  ]
+}

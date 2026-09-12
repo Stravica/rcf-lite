@@ -1,0 +1,25 @@
+{
+  "slug": "deploy-hetzner-server",
+  "probeName": "real-account-throwaway-server-provision",
+  "runAt": "2026-09-12T00:25:32.116Z",
+  "engine": {
+    "kind": "real-account-throwaway-server",
+    "image": "Hetzner Cloud API via hcloud CLI (provision + list + destroy)",
+    "healthy": true
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-37103-1",
+      "verdict": "skipped",
+      "accountBoundSkipped": true,
+      "reason": "CI_HAS_HETZNER_ACCOUNT",
+      "gateState": "unset",
+      "detail": "The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT). accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account throwaway-server provision skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise."
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "skipped": true,
+  "missingEnv": [
+    "CI_HAS_HETZNER_ACCOUNT"
+  ]
+}
