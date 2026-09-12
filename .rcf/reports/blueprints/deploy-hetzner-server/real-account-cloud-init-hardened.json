@@ -1,8 +1,8 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "real-account-cloud-init-hardened",
-  "version": "1.1.16",
-  "runAt": "2026-09-12T01:47:37.623Z",
+  "version": "1.1.17",
+  "runAt": "2026-09-12T02:10:10.388Z",
   "engine": {
     "kind": "real-account-ssh",
     "image": "Hetzner Cloud throwaway cx23 with cloud-init user-data (ssh baseline checks)",

@@ -1,8 +1,8 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "hcloud-dry-run-mock",
-  "version": "1.1.16",
-  "runAt": "2026-09-12T01:47:37.584Z",
+  "version": "1.1.17",
+  "runAt": "2026-09-12T02:10:10.348Z",
   "engine": {
     "kind": "facade-round-trip",
     "image": "hetzner-throwaway-server fixture provisioner facade against a mocked hcloud shim",
@@ -40,8 +40,8 @@
       "detail": "mock-path fixture-shape check: facade emitted hetznerServerProvisioned with the expected key shape (id, primaryIpv4, location, serverType).",
       "evidence": {
         "eventName": "hetznerServerProvisioned",
-        "id": 6304630,
-        "primaryIpv4": "198.51.100.227",
+        "id": 10454517,
+        "primaryIpv4": "198.51.100.113",
         "location": "fsn1",
         "serverType": "cx23",
         "payloadKeys": [
@@ -69,8 +69,8 @@
       "detail": "mock-path fixture-shape check: facade emitted hetznerSnapshotTaken with the expected key shape (snapshotId, wallClockTime).",
       "evidence": {
         "eventName": "hetznerSnapshotTaken",
-        "snapshotId": 14950047,
-        "wallClockTime": "2026-09-12T01:47:37.584Z",
+        "snapshotId": 9979293,
+        "wallClockTime": "2026-09-12T02:10:10.348Z",
         "payloadKeys": [
           "event",
           "serverId",
@@ -92,8 +92,8 @@
       "detail": "mock-path fixture-shape check: facade emitted hetznerServerDestroyed with the destroyed id and a wall-clock timestamp in the payload.",
       "evidence": {
         "eventName": "hetznerServerDestroyed",
-        "id": 6304630,
-        "wallClockTime": "2026-09-12T01:47:37.584Z",
+        "id": 10454517,
+        "wallClockTime": "2026-09-12T02:10:10.348Z",
         "payloadKeys": [
           "event",
           "id",
