@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.5');
+  assert.equal(doc.version, '1.2.6');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -256,7 +256,7 @@ test('application-notifications-in-app criterion-e probes aggregate to fail unde
   // is booted with that break as PROBE_BREAK. Only observable-side
   // breaks are covered; client-JS-only breaks are documented as
   // browser-verify territory in the fixture README.
-  const brokenExpectations = [{"brk":"preseed","probes":["live-region-preseeding"]}];
+  const brokenExpectations = [{"brk":"preseed","probes":["live-region-preseeding"]},{"brk":"ack","probes":["centre-acknowledge-round-trip"]}];
   for (const { brk, probes: probeNames } of brokenExpectations) {
     for (const name of probeNames) {
       const prior = process.env.PROBE_BREAK;
@@ -316,8 +316,8 @@ function assertRule7dRowShape(r, name) {
   const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
   const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
   const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  const hasDerivedNonEmpty = hasDerived && Object.keys(ev.derived).length > 0;
+  const hasEvidenceObject = ev && hasRequestId && (hasBodyExcerpt || hasDerivedNonEmpty);
   if (r.conformanceOnly === true) {
     const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
     assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
@@ -350,4 +350,27 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   };
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-notifications-in-app-AC-20103-1 violates the rule-7d null-anchor \+ limitation shape/);
+});
+
+
+test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
+  const badRow = {
+    anchorAcId: 'application-notifications-in-app-AC-20103-1',
+    verdict: 'pass',
+    detail: 'positive row with only an empty derived',
+    evidence: { requestId: 'r', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-empty-derived'),
+    /positive-evidence row anchorAcId=application\-notifications\-in\-app\-AC\-20103\-1 has no rule-7d evidence object/);
+});
+
+test('rule-7d row-shape check refuses a positive row with only a request id (TC-criterion-e-evidence-shape-negative-id-only)', async () => {
+  const badRow = {
+    anchorAcId: 'application-notifications-in-app-AC-20103-1',
+    verdict: 'pass',
+    detail: 'positive row with only a request id',
+    evidence: { requestId: 'r' },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-id-only'),
+    /positive-evidence row anchorAcId=application\-notifications\-in\-app\-AC\-20103\-1 has no rule-7d evidence object/);
 });

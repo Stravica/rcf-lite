@@ -28,7 +28,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 34 contributions with requiresAppliedCapabilities and elicits[] (TC-052-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-admin-console');
-  assert.equal(doc.version, '1.3.5');
+  assert.equal(doc.version, '1.3.6');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent per spec 5.5.3');
   const reqs = doc.contributions.filter((c) => c.kind === 'req');
@@ -297,7 +297,7 @@ test('application-admin-console criterion-e probes aggregate to fail under each 
   // is booted with that break as PROBE_BREAK. Only observable-side
   // breaks are covered; client-JS-only breaks are documented as
   // browser-verify territory in the fixture README.
-  const brokenExpectations = [{"brk":"matrix-grid","probes":["permission-matrix-grid"]}];
+  const brokenExpectations = [{"brk":"matrix-grid","probes":["permission-matrix-grid"]},{"brk":"local-login-form","probes":["sign-in-access-gated-surface"]}];
   for (const { brk, probes: probeNames } of brokenExpectations) {
     for (const name of probeNames) {
       const prior = process.env.PROBE_BREAK;
@@ -357,8 +357,8 @@ function assertRule7dRowShape(r, name) {
   const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
   const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
   const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  const hasDerivedNonEmpty = hasDerived && Object.keys(ev.derived).length > 0;
+  const hasEvidenceObject = ev && hasRequestId && (hasBodyExcerpt || hasDerivedNonEmpty);
   if (r.conformanceOnly === true) {
     const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
     assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
@@ -391,4 +391,27 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   };
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-admin-console-AC-21102-1 violates the rule-7d null-anchor \+ limitation shape/);
+});
+
+
+test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
+  const badRow = {
+    anchorAcId: 'application-admin-console-AC-21102-1',
+    verdict: 'pass',
+    detail: 'positive row with only an empty derived',
+    evidence: { requestId: 'r', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-empty-derived'),
+    /positive-evidence row anchorAcId=application\-admin\-console\-AC\-21102\-1 has no rule-7d evidence object/);
+});
+
+test('rule-7d row-shape check refuses a positive row with only a request id (TC-criterion-e-evidence-shape-negative-id-only)', async () => {
+  const badRow = {
+    anchorAcId: 'application-admin-console-AC-21102-1',
+    verdict: 'pass',
+    detail: 'positive row with only a request id',
+    evidence: { requestId: 'r' },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-id-only'),
+    /positive-evidence row anchorAcId=application\-admin\-console\-AC\-21102\-1 has no rule-7d evidence object/);
 });

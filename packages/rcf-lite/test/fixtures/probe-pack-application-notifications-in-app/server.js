@@ -554,6 +554,18 @@ function handler(req, res) {
     if (url.pathname === '/api/notifications/acknowledge') {
       readJsonBody(req).then((body) => {
         const notificationId = body && typeof body.notificationId === 'string' ? body.notificationId : null;
+        // Break switch: under ?break=ack (or PROBE_BREAK=ack) the
+        // server-side acknowledge round-trip refuses with a defined
+        // error shape too. Without this, a probe that drives the API
+        // directly would not observe the break (the current shipped
+        // documentation for ?break=ack only breaks the client click
+        // handler). The refusal returns 502 with error naming the AC
+        // consequence so the probe's round-trip observation goes fail.
+        if (brk === 'ack') {
+          recordRequest({ kind: 'acknowledge-server-refused', notificationId, category: null, priority: null });
+          respondJson(res, { ok: false, error: 'ACKNOWLEDGE_ROUND_TRIP_REFUSED', notificationId }, 502);
+          return;
+        }
         if (notificationId) {
           const row = deliveryLog.find((r) => r.notificationId === notificationId);
           if (row) row.acknowledgedAt = new Date().toISOString();

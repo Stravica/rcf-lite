@@ -27,7 +27,7 @@ const PACK_ABS = join(BLUEPRINT_ROOT, 'probe-packs', 'application-charts.pack.mj
 test('application-charts: blueprint.json declares the ratified shape (TC-048-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-charts');
-  assert.equal(doc.version, '1.0.9');
+  assert.equal(doc.version, '1.0.10');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined);
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -251,8 +251,11 @@ test('application-charts criterion-e probes invoked in-memory carry rule-7d evid
 //   - notObservableHere: non-empty anchorAcId + non-empty reason;
 //   - accountBoundSkipped: non-empty reason;
 //   - a positive-evidence row with a non-empty anchorAcId AND a
-//     rule-7d evidence object (requestId | bodyExcerpt | derived |
-//     errorExcerpt). No other shape is accepted; a row that carries
+//     rule-7d evidence object made up of a non-empty engine-returned
+//     requestId AND (a non-empty bodyExcerpt OR a non-empty derived
+//     object). A positive row with only a request id, only an
+//     excerpt, only an empty {derived:{}} or only an errorExcerpt is
+//     rejected as under-shaped. Any row that carries
 //     conformanceOnly=true with a non-null anchor is rejected even if
 //     it happens to also carry an evidence field.
 function assertRule7dRowShape(r, name) {
@@ -260,8 +263,8 @@ function assertRule7dRowShape(r, name) {
   const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
   const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
   const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  const hasDerivedNonEmpty = hasDerived && Object.keys(ev.derived).length > 0;
+  const hasEvidenceObject = ev && hasRequestId && (hasBodyExcerpt || hasDerivedNonEmpty);
   if (r.conformanceOnly === true) {
     const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
     assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
@@ -294,4 +297,26 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   };
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-charts-AC-18103-1 violates the rule-7d null-anchor \+ limitation shape/);
+});
+
+test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
+  const badRow = {
+    anchorAcId: 'application-charts-AC-18103-1',
+    verdict: 'pass',
+    detail: 'positive row with only an empty derived',
+    evidence: { requestId: 'r', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-empty-derived'),
+    /positive-evidence row anchorAcId=application-charts-AC-18103-1 has no rule-7d evidence object/);
+});
+
+test('rule-7d row-shape check refuses a positive row with only a request id (TC-criterion-e-evidence-shape-negative-id-only)', async () => {
+  const badRow = {
+    anchorAcId: 'application-charts-AC-18103-1',
+    verdict: 'pass',
+    detail: 'positive row with only a request id',
+    evidence: { requestId: 'r' },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-id-only'),
+    /positive-evidence row anchorAcId=application-charts-AC-18103-1 has no rule-7d evidence object/);
 });

@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.2.5');
+  assert.equal(doc.version, '1.2.6');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.2.5');
+  assert.equal(sidecar.version, '1.2.6');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
@@ -321,7 +321,7 @@ test('application-account-settings criterion-e probes aggregate to fail under ea
   // is booted with that break as PROBE_BREAK. Only observable-side
   // breaks are covered; client-JS-only breaks are documented as
   // browser-verify territory in the fixture README.
-  const brokenExpectations = [{"brk":"no-autocomplete","probes":["profile-form-autocomplete"]},{"brk":"leak-tab","probes":["shell-tablist-per-capability"]}];
+  const brokenExpectations = [{"brk":"no-autocomplete","probes":["profile-form-autocomplete"]},{"brk":"leak-tab","probes":["shell-tablist-per-capability"]},{"brk":"no-persist","probes":["theme-radiogroup"]}];
   for (const { brk, probes: probeNames } of brokenExpectations) {
     for (const name of probeNames) {
       const prior = process.env.PROBE_BREAK;
@@ -381,8 +381,8 @@ function assertRule7dRowShape(r, name) {
   const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
   const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
   const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
-  const hasErrorExcerpt = ev && typeof ev.errorExcerpt === 'string' && ev.errorExcerpt.length > 0;
-  const hasEvidenceObject = ev && (hasRequestId || hasBodyExcerpt || hasDerived || hasErrorExcerpt);
+  const hasDerivedNonEmpty = hasDerived && Object.keys(ev.derived).length > 0;
+  const hasEvidenceObject = ev && hasRequestId && (hasBodyExcerpt || hasDerivedNonEmpty);
   if (r.conformanceOnly === true) {
     const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
     assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
@@ -415,4 +415,27 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   };
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-account-settings-AC-25101-1 violates the rule-7d null-anchor \+ limitation shape/);
+});
+
+
+test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
+  const badRow = {
+    anchorAcId: 'application-account-settings-AC-25101-1',
+    verdict: 'pass',
+    detail: 'positive row with only an empty derived',
+    evidence: { requestId: 'r', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-empty-derived'),
+    /positive-evidence row anchorAcId=application\-account\-settings\-AC\-25101\-1 has no rule-7d evidence object/);
+});
+
+test('rule-7d row-shape check refuses a positive row with only a request id (TC-criterion-e-evidence-shape-negative-id-only)', async () => {
+  const badRow = {
+    anchorAcId: 'application-account-settings-AC-25101-1',
+    verdict: 'pass',
+    detail: 'positive row with only a request id',
+    evidence: { requestId: 'r' },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-id-only'),
+    /positive-evidence row anchorAcId=application\-account\-settings\-AC\-25101\-1 has no rule-7d evidence object/);
 });

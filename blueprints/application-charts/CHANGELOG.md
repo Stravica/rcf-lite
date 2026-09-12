@@ -1,5 +1,9 @@
 # application-charts CHANGELOG
 
+## 1.0.10 - 2026-09-12
+
+- Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. No probe or fixture behaviour changes on this blueprint (charts probes already carry both request-id and non-empty derived on every positive row).
+
 ## 1.0.9 - 2026-09-12
 
 - Rule-7d shape fix on the three de-claimed conformance rows across text-alternative-table (AC-18103-1), non-colour-distinction (AC-18102-1) and keyboard-traversal (AC-18104-3): each row now carries `anchorAcId: null` and names the anchored AC in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to a per-request `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws.

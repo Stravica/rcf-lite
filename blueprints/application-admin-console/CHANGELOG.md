@@ -1,5 +1,9 @@
 # application-admin-console CHANGELOG
 
+## 1.3.6 - 2026-09-12
+
+- Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. Anatomy negative-variant map extended with `{brk:"local-login-form", probes:["sign-in-access-gated-surface"]}` so the shipped `?break=local-login-form` fixture switch drives the positive AC-21816-1 local-login row to fail (the break drops the `[data-role="local-login-form"]` region on the sign-in surface). No probe or fixture behaviour change on the admin-console family beyond the anatomy shape helper and the negative-variant coverage.
+
 ## 1.3.5 - 2026-09-12
 
 - Rule-7d shape fix on every de-claimed conformance row across users-directory (four AC-21102-1 / AC-21102-2 rows), permission-matrix (AC-21103-1), org-switcher (AC-21104-1), audit-log (AC-21105-1) and sign-in-access-gated (AC-21815-2): each row now carries `anchorAcId: null` and names the anchored AC in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Positive-observation rows on AC-21815-1, AC-21816-1 and the org-switcher AC-21104-2 no-tenancy branch stay anchored. Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to `ADMIN_CONSOLE_BREAK` / `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws.

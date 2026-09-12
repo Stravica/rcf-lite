@@ -1,6 +1,6 @@
 {
   "slug": "application-empty-error-states",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -150,6 +150,6 @@
       "default": "write-buffer"
     }
   ],
-  "updatedAt": "2026-09-11T23:48:35Z",
+  "updatedAt": "2026-09-12T00:45:12Z",
   "updatedIso": "2026-09-11T22:30:00Z"
 }

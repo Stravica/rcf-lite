@@ -27,7 +27,15 @@
 //   ?break=focus-escape            Do NOT trap Tab inside the tooltip.
 //   ?break=no-collapse             Render the checklist without a <details>
 //                                  wrapper, breaking the collapse contract.
-//   ?break=no-persist              Skip the completion write.
+//   ?break=no-persist              Skip the completion write. Under the
+//                                  server-side-per-principal store this
+//                                  also disables the server-side POST
+//                                  /api/tour/completion write, and the
+//                                  restart-tour form POST becomes a
+//                                  no-op, so the probe (which drives
+//                                  the server-side store directly) sees
+//                                  the write refuse and the restart
+//                                  activation refuse too.
 
 import http from 'node:http';
 import { randomUUID as __rid } from 'node:crypto';
@@ -132,10 +140,30 @@ function tourClientScript({ store, breakSwitch, firstRun, complete }) {
   var COMPLETE = ${co};
   var COMPLETION_KEY = 'onboarding-tour:completion';
 
+  var PRINCIPAL_ID = (function () {
+    var main = document.querySelector('[data-tour-principal-id]');
+    if (main) return main.getAttribute('data-tour-principal-id');
+    return null;
+  })();
+  // For server-side-per-principal, the server has already rendered
+  // data-tour-first-run into the /tour <main> element from the server
+  // store, so the client honours the server's decision (rather than
+  // reading window.localStorage which is not the applied store).
+  function serverRenderedFirstRun() {
+    var main = document.querySelector('[data-tour-first-run]');
+    if (!main) return null;
+    return main.getAttribute('data-tour-first-run') === 'false';
+  }
   function readCompletion() {
     try {
       if (STORE === 'spa-local-storage') return window.localStorage.getItem(COMPLETION_KEY);
       if (STORE === 'spa-session-storage') return window.sessionStorage.getItem(COMPLETION_KEY);
+      if (STORE === 'server-side-per-principal') {
+        // Honour the server-rendered first-run flag as the applied
+        // completion signal; the actual store lookup happened at
+        // server render (see firstRunAttrs in server.js).
+        return serverRenderedFirstRun() === true ? '1' : null;
+      }
     } catch (e) { return null; }
     return null;
   }
@@ -145,6 +173,20 @@ function tourClientScript({ store, breakSwitch, firstRun, complete }) {
     try {
       if (STORE === 'spa-local-storage') window.localStorage.setItem(COMPLETION_KEY, payload);
       else if (STORE === 'spa-session-storage') window.sessionStorage.setItem(COMPLETION_KEY, payload);
+      else if (STORE === 'server-side-per-principal') {
+        // Fire-and-forget POST to the server-side completion store.
+        // The server is the applied store for this shape; the client
+        // no longer keeps a parallel copy in window.storage.
+        if (typeof fetch === 'function') {
+          var url = '/api/tour/completion?store=server-side-per-principal'
+            + (PRINCIPAL_ID ? '&principal-id=' + encodeURIComponent(PRINCIPAL_ID) : '');
+          fetch(url, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: payload,
+          }).catch(function () { /* fire-and-forget; server DELETE remains authoritative */ });
+        }
+      }
     } catch (e) { /* noop */ }
     // Marker element makes the write observable in the DOM even for server-side
     // backends where the pack cannot read window.storage directly.
@@ -162,6 +204,17 @@ function tourClientScript({ store, breakSwitch, firstRun, complete }) {
       window.localStorage.removeItem(COMPLETION_KEY);
       window.sessionStorage.removeItem(COMPLETION_KEY);
     } catch (e) { /* noop */ }
+    // For the server-side store the browser has no copy; the applied
+    // store is cleared by the restart-tour form POST below (progressive
+    // enhancement: the surrounding form action="/actions/restart-tour"
+    // is the source of truth even when JS is off, so this fire-and-
+    // forget fetch is a fallback for JS-only clients that intercept
+    // the click).
+    if (STORE === 'server-side-per-principal' && typeof fetch === 'function') {
+      var url = '/actions/restart-tour?store=server-side-per-principal'
+        + (PRINCIPAL_ID ? '&principal-id=' + encodeURIComponent(PRINCIPAL_ID) : '');
+      fetch(url, { method: 'POST' }).catch(function () { /* server DELETE is authoritative */ });
+    }
     var mk = document.querySelector('[data-role="onboarding-tour-completion-marker"]');
     if (mk) mk.parentNode.removeChild(mk);
   }
@@ -341,10 +394,31 @@ function dashboardPage(ctx) {
 }
 
 function settingsPage(ctx) {
+  // Progressive-enhancement: for the server-side-per-principal store
+  // the restart-tour control lives inside a <form method="post"
+  // action="/actions/restart-tour"> so activating it clears the
+  // applied server-side store even when JS is off. The client script
+  // additionally intercepts the click to fire the same POST via fetch
+  // (for SPA parity), but the form action is the source of truth. For
+  // browser-only stores (spa-local-storage / spa-session-storage) the
+  // restart is JS-only (the DOM button carries the same data-action
+  // hook and the client script clears window.storage).
+  var restartControl;
+  if (ctx.store === 'server-side-per-principal') {
+    var actionQuery = 'store=server-side-per-principal&principal-id=' + esc(ctx.principalId);
+    restartControl = '' +
+      '<form method="post" action="/actions/restart-tour?' + actionQuery + '" data-role="restart-tour-form">' +
+      '  <input type="hidden" name="principal-id" value="' + esc(ctx.principalId) + '">' +
+      '  <input type="hidden" name="store" value="server-side-per-principal">' +
+      '  <button type="submit" data-action="restart-tour">Restart tour</button>' +
+      '</form>';
+  } else {
+    restartControl = '<button type="button" data-action="restart-tour">Restart tour</button>';
+  }
   var body = '' +
     '<main>' +
     '  <h1>Settings</h1>' +
-    '  <button type="button" data-action="restart-tour">Restart tour</button>' +
+    '  ' + restartControl +
     '  ' + checklistHtml({ anchor: ctx.anchor === 'dashboard-top' ? 'settings-page' : ctx.anchor, apps: ctx.apps, breakSwitch: ctx.breakSwitch }) +
     '  <p><button type="button" id="anchor-1">Anchor 1</button> <button type="button" id="anchor-2">Anchor 2</button> <button type="button" id="anchor-3">Anchor 3</button></p>' +
     '</main>';
@@ -400,6 +474,19 @@ const server = http.createServer(withRequestId__(function (req, res) {
         var parsed;
         try { parsed = body.length ? JSON.parse(body) : {}; } catch (e) { parsed = null; }
         if (!parsed || typeof parsed !== 'object') return sendJson(res, 400, { error: 'invalid body' });
+        // Break switch: when the server is booted with
+        // PROBE_BREAK=no-persist (or the caller passes ?break=no-persist),
+        // the server refuses the write so the probe's persistence
+        // observation goes fail. The refusal returns a defined error
+        // shape rather than silently swallowing the write, per the
+        // exception-evidence rule.
+        if (ctx.breakSwitch === 'no-persist') {
+          return sendJson(res, 507, {
+            error: 'COMPLETION_WRITE_FAILED',
+            reason: 'server-side completion write refused by no-persist break switch',
+            principalId: principalId,
+          });
+        }
         var record = {
           completedAt: typeof parsed.completedAt === 'string' ? parsed.completedAt : new Date().toISOString(),
           blueprintSetVersion: typeof parsed.blueprintSetVersion === 'string' ? parsed.blueprintSetVersion : '1.0.0',
@@ -421,6 +508,37 @@ const server = http.createServer(withRequestId__(function (req, res) {
       return sendJson(res, 200, { ok: true, principalId: principalId });
     }
     return sendJson(res, 405, { error: 'method not allowed' });
+  }
+
+  // AC-26104-1 progressive-enhancement restart-tour action. The
+  // settings surface renders the restart control inside a
+  // <form method="post" action="/actions/restart-tour"> for the
+  // server-side-per-principal store, so activating the control
+  // (JS-off or JS-on) POSTs here. The handler clears the server-side
+  // completion record for the principal and returns 200 with a
+  // machine-readable body so the probe can derive the effect. The
+  // no-persist break switch refuses the clear too (matching the
+  // write refusal) so the probe's activation observation goes fail.
+  if (url.pathname === '/actions/restart-tour' && req.method === 'POST') {
+    var actionPrincipalId = readPrincipalId(req, url);
+    if (ctx.store !== 'server-side-per-principal') {
+      return sendJson(res, 409, { error: 'restart-tour action requires server-side-per-principal store', store: ctx.store, principalId: actionPrincipalId });
+    }
+    if (ctx.breakSwitch === 'no-persist') {
+      return sendJson(res, 507, {
+        error: 'COMPLETION_CLEAR_FAILED',
+        reason: 'server-side completion clear refused by no-persist break switch',
+        principalId: actionPrincipalId,
+      });
+    }
+    var hadRecord = serverCompletionStore.has(actionPrincipalId);
+    serverCompletionStore.delete(actionPrincipalId);
+    return sendJson(res, 200, {
+      ok: true,
+      principalId: actionPrincipalId,
+      cleared: hadRecord,
+      restartControl: 'restart-tour',
+    });
   }
 
   res.setHeader('content-type', 'text/html; charset=utf-8');

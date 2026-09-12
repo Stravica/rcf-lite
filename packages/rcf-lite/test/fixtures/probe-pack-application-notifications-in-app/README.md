@@ -59,7 +59,7 @@ Every HTML route accepts `?break=<mode>` and `?timeoutMs=<n>` (an override for t
 | `?break=preseed` | The two live-region wrappers are NOT rendered at page load; the client script injects them lazily on the first toast fire. | `AC-20101-1` live-region preseeding | block |
 | `?break=role` | An error toast renders inside the polite wrapper with `role="status"` (and an info toast renders inside the assertive wrapper with `role="alert"`), inverting the ADR-2101 mapping. | `AC-20102-1` toast contract role mapping | block |
 | `?break=timeout` | Toasts dismiss after two seconds instead of six; the shell root's `data-toast-timeout-floor-seconds` reads `2` so the assertion sees the WCAG 2.2.1 floor is not met. | `AC-20102-1` toast contract timeout floor | block |
-| `?break=ack` | The acknowledge click handler is a no-op: no POST, no DOM update. | `AC-20103-1` centre acknowledge round-trip | block |
+| `?break=ack` | The acknowledge click handler is a no-op (no POST, no DOM update) AND the server-side POST `/api/notifications/acknowledge` refuses with HTTP 502 `{ ok:false, error:"ACKNOWLEDGE_ROUND_TRIP_REFUSED" }` (so a probe that drives the API directly sees the round-trip fail, matching the client-side no-op). | `AC-20103-1` centre acknowledge round-trip | block |
 
 ## Shape asserted
 

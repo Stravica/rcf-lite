@@ -55,7 +55,7 @@ Prints `LISTENING <port>` once bound.
 | `?break=leak-tab` | Render the security tab even when neither `credentialSelfService` nor `hostedIdentityUi` is applied (suppression check fails). |
 | `?break=no-autocomplete` | Drop `autocomplete` tokens on the profile form (profile check fails). |
 | `?break=no-dialog` | Render session terminate without the ARIA dialog-modal (sessions check fails). |
-| `?break=no-persist` | Drop the theme persistence write (theme check fails). |
+| `?break=no-persist` | Drop the client-side theme persistence write AND (under the server-scoped store) refuse the server-side POST `/api/theme` with HTTP 507 `THEME_WRITE_REFUSED` and DELETE `/api/theme` with HTTP 507 `THEME_CLEAR_REFUSED`, so the theme-radiogroup probe's server-scoped-persistence observation fails on AC-25108-1. |
 
 ## Routes
 

@@ -41,16 +41,24 @@ export default async function runProbe() {
         detail: `Given a first-run principal on the SPA, the tour-open assertion is browser-only for route ${route}; fixture reachability confirmed (status=${res.status}, requestId=${res.requestId || 'absent'}, reachable=${reachable}).`,
       });
     }
-    // Second half of AC-26101-1 (returning principal with a stored completion
-    // record does NOT see the tour re-open) is also browser-only: the
-    // decision runs inside the client script against window.localStorage.
+    // Returning-principal suppression (a stored completion record must
+    // suppress the auto-open on the SPA) is AC-26104-1's clause, not
+    // AC-26101-1's. The server-side half of that AC (the completion
+    // store and the /tour data-tour-first-run="false" flag it drives on
+    // the next principal load) is observed positively by the
+    // completion-persistence probe. The client-side auto-open
+    // suppression itself (the JS-driven decision on the SPA) is
+    // browser-only; recorded here as notObservableHere against
+    // AC-26104-1 (the AC the suppression belongs to) so the operator
+    // sees the browser-only gap.
+    const suppressionAcId = 'application-onboarding-tour-AC-26104-1';
     results.push({
-      anchorAcId,
-      notObservableAcId: anchorAcId,
+      anchorAcId: suppressionAcId,
+      notObservableAcId: suppressionAcId,
       verdict: 'warn',
       notObservableHere: true,
-      reason: 'AC-26101-1 also implies a returning-principal branch (a stored completion record must suppress the auto-open on the SPA); that branch is browser-only because the suppression decision is made by the client script against window.localStorage. Deferred to the browser check.',
-      detail: 'Given a first-run principal on the SPA, the suppression branch (completion record stored -> no auto-open) is browser-only; recorded here as an explicit non-observation so the operator sees the gap.',
+      reason: 'AC-26104-1 requires that activating the restart-tour control clears the completion state and re-opens the tour on the next principal load; the server-observable half (server-side completion store + data-tour-first-run flag on /tour + the /actions/restart-tour form action) is covered positively by completion-persistence. The client-JS-driven auto-open suppression on the SPA (readCompletion -> !alreadyDone -> openStep(0)) is browser-only and cannot be observed from a fixture HTTP response. Deferred to the browser check.',
+      detail: 'Given a completed tour, the completion state persists per principal in the applied store; the client-side auto-open suppression branch (a stored completion record stops the client script re-opening the tour on the SPA) is browser-only. The server-side half of AC-26104-1 is positively observed by completion-persistence; this row records the client-only gap explicitly.',
     });
   } finally {
     await fixture.kill();

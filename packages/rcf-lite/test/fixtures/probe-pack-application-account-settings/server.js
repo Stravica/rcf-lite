@@ -382,10 +382,21 @@ const server = http.createServer(withRequestId__((req, res) => {
     if (!['light', 'dark', 'system'].includes(chosen)) {
       return send(400, JSON.stringify({ error: 'invalid theme', theme: chosen }), 'application/json; charset=utf-8');
     }
+    // Break switch: under ?break=no-persist (or PROBE_BREAK=no-persist)
+    // the server-side theme write refuses with a defined error shape
+    // so a probe that drives the API directly sees the persistence
+    // observation fail, matching the intent of the documented
+    // ?break=no-persist ("drop the theme persistence write").
+    if (ctx.breakSwitch === 'no-persist') {
+      return send(507, JSON.stringify({ ok: false, error: 'THEME_WRITE_REFUSED', reason: 'server-side theme write refused by no-persist break switch', principalId, theme: chosen }), 'application/json; charset=utf-8');
+    }
     serverScopedThemeStore.set(principalId, chosen);
     return send(200, JSON.stringify({ ok: true, principalId, theme: chosen }), 'application/json; charset=utf-8');
   }
   if (req.method === 'DELETE' && path === '/api/theme') {
+    if (ctx.breakSwitch === 'no-persist') {
+      return send(507, JSON.stringify({ ok: false, error: 'THEME_CLEAR_REFUSED', reason: 'server-side theme clear refused by no-persist break switch', principalId }), 'application/json; charset=utf-8');
+    }
     serverScopedThemeStore.delete(principalId);
     return send(200, JSON.stringify({ ok: true, principalId }), 'application/json; charset=utf-8');
   }

@@ -54,7 +54,7 @@ Prints `LISTENING <port>` once bound.
 | `?break=no-role` | Drop `role="dialog"` on the tooltip (tooltip-as-dialog check fails on AC-26102-1). |
 | `?break=focus-escape` | Do NOT trap Tab inside the tooltip so Tab escapes to the underlying surface (step-container focus check fails on AC-26101-1). |
 | `?break=no-collapse` | Render the checklist without the `<details>` wrapper (checklist-slot check fails on AC-26103-1). |
-| `?break=no-persist` | Skip the completion-state write (persistence check fails on AC-26104-1). |
+| `?break=no-persist` | Skip the client completion-state write AND (under the server-side-per-principal store) refuse the server-side POST `/api/tour/completion` with HTTP 507 `COMPLETION_WRITE_FAILED` and the restart-tour form POST `/actions/restart-tour` with HTTP 507 `COMPLETION_CLEAR_FAILED`, so the completion-persistence probe's persistence + restart-activation observation fails on AC-26104-1. |
 
 ## Routes
 
