@@ -396,7 +396,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('platform-docker-compose-host AC-12001-1 compose layout shape valid', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'platform-docker-compose-host');
-  assert.equal(bp.version, '1.1.14');
+  assert.equal(bp.version, '1.1.15');
   assert.equal(bp.category, 'platform');
   assert.deepEqual(bp.capabilities, ['containerHost']);
   const text = await readFile(COMPOSE, 'utf8');
@@ -859,25 +859,24 @@ function walkComposeRecordRow({ row, probeName, name, shipped, record }) {
   const idStr = String(idValue);
   let inventoryHit = false;
   if (idField === 'serverId') {
-    const trail = deepFind(searchSpace, 'eventTrail');
+    // v1.1.15: Compose shipped event producer (`compose-stack-driver.mjs`)
+    // records events as `{event, at, detail}` and emits NO identifier
+    // field on the event body. Compose therefore correlates against
+    // the record's own top-level `serverId` field, never against
+    // events; a substring over the event `name` or `detail` does
+    // NOT count and no invented `serverId` field on an event is
+    // consulted (the producer never emits one). Inventory /
+    // teardown fields remain as auxiliary correlation surfaces.
     const inv = deepFind(searchSpace, 'postRunInventory');
     const teardownIds = deepFind(searchSpace, 'postTeardownServerIds');
     const teardown = deepFind(searchSpace, 'teardown');
-    // v1.1.14: eventTrail correlation is by identifier field, not
-    // substring over the stringified event. An event carries the
-    // vendor id under its own `serverId` field; a match counts only
-    // when that field is present and equal by value. An event whose
-    // name or detail happens to contain the digits but whose
-    // `serverId` field differs (or is absent) does NOT count.
-    const trailHit = Array.isArray(trail) && trail.some((t) => {
-      const v = deepFind(t, 'serverId');
-      return v !== undefined && v !== null && String(v) === idStr;
-    });
+    const ownServerId = record && typeof record === 'object' ? record.serverId : undefined;
+    const ownServerHit = ownServerId !== undefined && ownServerId !== null && String(ownServerId) === idStr;
     const invHit = Array.isArray(inv) && inv.some((s) => (s && typeof s === 'object') ? String(s.id) === idStr : String(s) === idStr);
     const teardownHit = Array.isArray(teardownIds) && teardownIds.map(String).includes(idStr);
     const teardownRefHit = !!teardown && typeof teardown === 'object' && (String(teardown.destroyed) === idStr || String(teardown.provisioned) === idStr);
-    inventoryHit = trailHit || invHit || teardownHit || teardownRefHit;
-    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail (as an event's own serverId identifier field) / postRunInventory / postTeardownServerIds / teardown; a substring match over the stringified event body does NOT count (v1.1.14).`);
+    inventoryHit = ownServerHit || invHit || teardownHit || teardownRefHit;
+    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present as the record's own top-level \`serverId\` field, nor in postRunInventory / postTeardownServerIds / teardown; Compose event trails carry {event, at, detail} only and never an identifier, so no event-body correlation is consulted (v1.1.15).`);
   } else if (idField === 'containerId') {
     // v1.1.13: only ENGINE evidence keyed by the id counts. The
     // record's observedSecretModes.observations tree is populated
@@ -897,67 +896,43 @@ function walkComposeRecordRow({ row, probeName, name, shipped, record }) {
   }
   return { walked: true, inventoryHit, counted: true };
 }
-test('platform-docker-compose-host v1.1.14 record walk: every row of every present local record is validated (no stubs skipped, no empty result sets, no version drift), or report no records only when the directory has no record files', async () => {
-  // v1.1.13: an optional records-directory override for the HQ walk
-  // pathway; CI never sets it. When `RCF_LITE_RECORDS_DIR` is set
-  // the walker reads `<dir>/platform-docker-compose-host/*.json`
-  // instead of `.rcf/reports/blueprints/platform-docker-compose-host/`.
-  const overrideRoot = process.env.RCF_LITE_RECORDS_DIR;
-  const reportsDir = overrideRoot
-    ? join(overrideRoot, 'platform-docker-compose-host')
-    : join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'platform-docker-compose-host');
-  // v1.1.14: the ONLY tolerated early-return is `no local records`
-  // when the directory is absent (ENOENT) or has no record files.
-  // Every other readdir error (permission, I/O, not-a-directory,
-  // malformed JSON, unreadable file) fails the test with that error;
-  // silently swallowing was the previous hole.
-  let entries = [];
+
+// Record walk (v1.1.15). SPLIT into two functions, two tests, no
+// shared bypass. `walkRepositoryRecords(dir, expectedVersion)` is
+// the repository walk CI exercises: EVERY present record must
+// carry `version === expectedVersion`; a missing or different
+// version FAILS with the file named. `walkHandOffRecords(dir)` is
+// a separate function called only by the hand-off test when
+// `RCF_LITE_RECORDS_DIR` is set; it validates every row with the
+// same row validators and asserts (in its own message) that the
+// hand-off records predate the version writer (they carry no
+// `version` field, and hand-editing one in is out). There is no
+// override-branch on the repository walk, and no
+// `RCF_LITE_EXPECTED_VERSION` variable anywhere.
+async function walkRepositoryRecords(dir, expectedVersion, shipped) {
+  let entries;
   try {
-    entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
+    entries = (await readdir(dir)).filter((f) => f.endsWith('.json'));
   } catch (e) {
     if (e && e.code === 'ENOENT') {
-      console.log(`platform-docker-compose-host v1.1.14 record walk: no local records under ${reportsDir} (CI path).`);
-      return;
+      return { walkableRows: 0, countingRows: 0, inventoryHits: 0, entries: 0, noLocalRecords: true };
     }
     throw e;
   }
   if (entries.length === 0) {
-    console.log(`platform-docker-compose-host v1.1.14 record walk: no local records under ${reportsDir} (CI path).`);
-    return;
+    return { walkableRows: 0, countingRows: 0, inventoryHits: 0, entries: 0, noLocalRecords: true };
   }
-  // v1.1.14: every record's `version` MUST equal the blueprint's
-  // current version. An operator-side override walk (RCF_LITE_RECORDS_DIR
-  // set) may attest to an expected version via RCF_LITE_EXPECTED_VERSION;
-  // otherwise the walker reads blueprint.json. A record whose `version`
-  // is missing FAILS unless the override walk is running (a hand-off
-  // record predating the writer field is only accepted under the
-  // operator-side override).
-  const attestedVersion = process.env.RCF_LITE_EXPECTED_VERSION;
-  const bpDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
-  const expectedVersion = attestedVersion || bpDoc.version;
-  const shipped = await loadShippedAcs();
   let walkableRows = 0;
-  let inventoryHits = 0;
   let countingRows = 0;
+  let inventoryHits = 0;
   for (const fileName of entries) {
-    const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
+    const rec = JSON.parse(await readFile(join(dir, fileName), 'utf8'));
     const probeName = rec.probeName || fileName.replace(/\.json$/, '');
-    if (rec.version === undefined) {
-      assert.ok(
-        !!overrideRoot,
-        `${fileName}: record has no \`version\` field; a version-less record is only accepted on the operator-side override walk (RCF_LITE_RECORDS_DIR set), where it is a legacy hand-off pre-dating the v1.1.14 writer. The CI walk is strict (v1.1.14).`,
-      );
-    } else {
-      assert.equal(
-        rec.version,
-        expectedVersion,
-        `${fileName}: record version ${JSON.stringify(rec.version)} != expected ${JSON.stringify(expectedVersion)}; a record at an older version FAILS the walk (v1.1.14).`,
-      );
-    }
-    // v1.1.13: a present record whose `results` is absent, not an
-    // array, or empty FAILS. A record file that carries a
-    // probeName but no rows attests to nothing and cannot be
-    // silently walked as if it were valid.
+    assert.equal(
+      rec.version,
+      expectedVersion,
+      `${fileName}: record version ${JSON.stringify(rec.version)} != expected ${JSON.stringify(expectedVersion)}; every present record must carry the blueprint version and match it (v1.1.15 repository walk; no override bypass).`,
+    );
     assert.ok(
       Array.isArray(rec.results),
       `${fileName}: results must be an array; got ${typeof rec.results}`,
@@ -966,12 +941,7 @@ test('platform-docker-compose-host v1.1.14 record walk: every row of every prese
       rec.results.length > 0,
       `${fileName}: results must be a non-empty array; a record with zero rows attests to nothing and FAILS the walker (v1.1.13).`,
     );
-    const rows = rec.results;
-    for (const row of rows) {
-      // v1.1.12: no more stub-skip. Every row of every present local
-      // record MUST carry a row-shape marker (evidence, `limitation`,
-      // `reason`, or `notObservableHere.ac`). A row lacking all four
-      // FAILS - malformed rows previously escaped validation.
+    for (const row of rec.results) {
       const hasShape = !!row && (
         row.evidence !== undefined
         || (row.conformanceOnly && typeof row.limitation === 'string')
@@ -988,44 +958,327 @@ test('platform-docker-compose-host v1.1.14 record walk: every row of every prese
       if (r.inventoryHit) inventoryHits++;
     }
   }
-  console.log(`platform-docker-compose-host v1.1.14 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
-});
-
-// v1.1.13: empty / non-array / missing results all FAIL the record
-// walk. Synthetic in-memory records; the real `.rcf/reports/`
-// directory is not touched.
-test('platform-docker-compose-host v1.1.13 record walk: a record whose results is empty, non-array or missing is REJECTED', async () => {
-  for (const bad of [
-    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: [] },
-    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: null },
-    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst' },
-    { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: 'not-an-array' },
-  ]) {
-    let threw = false;
-    try {
-      assert.ok(Array.isArray(bad.results), 'results must be an array');
-      assert.ok(bad.results.length > 0, 'results must be a non-empty array');
-    } catch (e) {
-      threw = true;
+  return { walkableRows, countingRows, inventoryHits, entries: entries.length, noLocalRecords: false };
+}
+async function walkHandOffRecords(dir, shipped) {
+  let entries;
+  try {
+    entries = (await readdir(dir)).filter((f) => f.endsWith('.json'));
+  } catch (e) {
+    if (e && e.code === 'ENOENT') {
+      return { walkableRows: 0, countingRows: 0, inventoryHits: 0, entries: 0, noLocalRecords: true };
     }
-    assert.equal(threw, true, `expected empty/non-array/missing results to FAIL; got: ${JSON.stringify(bad)}`);
+    throw e;
+  }
+  if (entries.length === 0) {
+    return { walkableRows: 0, countingRows: 0, inventoryHits: 0, entries: 0, noLocalRecords: true };
+  }
+  let walkableRows = 0;
+  let countingRows = 0;
+  let inventoryHits = 0;
+  for (const fileName of entries) {
+    const rec = JSON.parse(await readFile(join(dir, fileName), 'utf8'));
+    const probeName = rec.probeName || fileName.replace(/\.json$/, '');
+    assert.equal(
+      rec.version,
+      undefined,
+      `${fileName}: hand-off records predate the record version writer (v1.1.15 hand-off walk); they carry no \`version\` field, and hand-editing a version into a hand-off record is out. Got version=${JSON.stringify(rec.version)}.`,
+    );
+    assert.ok(
+      Array.isArray(rec.results),
+      `${fileName}: results must be an array; got ${typeof rec.results}`,
+    );
+    assert.ok(
+      rec.results.length > 0,
+      `${fileName}: results must be a non-empty array; a hand-off record with zero rows attests to nothing.`,
+    );
+    for (const row of rec.results) {
+      const hasShape = !!row && (
+        row.evidence !== undefined
+        || (row.conformanceOnly && typeof row.limitation === 'string')
+        || (row.accountBoundSkipped === true && typeof row.reason === 'string')
+        || (row.notObservableHere && row.notObservableHere.ac)
+      );
+      assert.ok(
+        hasShape,
+        `${fileName}: row lacking evidence / limitation / skip reason FAILS the hand-off walk: ${JSON.stringify(row).slice(0, 300)}`,
+      );
+      walkableRows++;
+      const r = walkComposeRecordRow({ row, probeName, name: fileName, shipped, record: rec });
+      if (r.counted) countingRows++;
+      if (r.inventoryHit) inventoryHits++;
+    }
+  }
+  return { walkableRows, countingRows, inventoryHits, entries: entries.length, noLocalRecords: false };
+}
+test('platform-docker-compose-host v1.1.15 repository record walk: every present record must carry the blueprint version, no bypass, no variable', async () => {
+  const shipped = await loadShippedAcs();
+  const bpDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
+  const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'platform-docker-compose-host');
+  const stats = await walkRepositoryRecords(reportsDir, bpDoc.version, shipped);
+  if (stats.noLocalRecords) {
+    console.log(`platform-docker-compose-host v1.1.15 repository walk: no local records under ${reportsDir} (CI path).`);
+    return;
+  }
+  console.log(`platform-docker-compose-host v1.1.15 repository walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} record file(s).`);
+});
+test('platform-docker-compose-host v1.1.15 hand-off record walk: runs only under RCF_LITE_RECORDS_DIR; the records predate the version field', async () => {
+  const overrideRoot = process.env.RCF_LITE_RECORDS_DIR;
+  if (!overrideRoot) {
+    console.log('platform-docker-compose-host v1.1.15 hand-off walk: RCF_LITE_RECORDS_DIR unset; hand-off walk skipped (CI path).');
+    return;
+  }
+  const shipped = await loadShippedAcs();
+  const dir = join(overrideRoot, 'platform-docker-compose-host');
+  const stats = await walkHandOffRecords(dir, shipped);
+  if (stats.noLocalRecords) {
+    console.log(`platform-docker-compose-host v1.1.15 hand-off walk: no hand-off records under ${dir}.`);
+    return;
+  }
+  console.log(`platform-docker-compose-host v1.1.15 hand-off walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} hand-off record file(s).`);
+});
+// v1.1.15 negative case (item 1a, versionless record): the
+// repository walker REJECTS a record whose `version` field is
+// missing. There is no override bypass. Proved end-to-end by
+// invoking `walkRepositoryRecords` on a scratch directory the test
+// builds; the real `.rcf/reports/` tree is not touched.
+test('platform-docker-compose-host v1.1.15 repository walk: a versionless record is REJECTED through walkRepositoryRecords (no override bypass)', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const scratch = join(tmpdir(), `rcf-lite-walker-versionless-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(scratch, 'platform-docker-compose-host');
+  await mkdir(dir, { recursive: true });
+  const versionless = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-minimal-stack-up',
+    runAt: '2026-09-11T00:00:00.000Z',
+    engine: 'node',
+    aggregateVerdict: 'pass',
+    results: [{ anchorAcId: 'AC-composeHost-upClean', verdict: 'pass', accountBoundSkipped: true, reason: 'CI_HAS_HETZNER_ACCOUNT' }],
+  };
+  await writeFile(join(dir, 'versionless.json'), JSON.stringify(versionless, null, 2) + '\n', 'utf8');
+  try {
+    await assert.rejects(
+      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      /every present record must carry the blueprint version/,
+    );
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
   }
 });
-
-// v1.1.13: walker containerId negative case. A record whose only
-// correlation for the row's 64-hex containerId is a containerName
-// present in compose services / observedNames FAILS - name is not
-// identifier evidence. Proved in-memory; the real records
-// directory is not touched.
-test('platform-docker-compose-host v1.1.13 record walk: 64-hex containerId with only a containerName match FAILS', async () => {
+// v1.1.15 negative case (item 1b, wrong-version record): the
+// repository walker REJECTS a record whose `version` differs from
+// the expected version. Invokes `walkRepositoryRecords` on a
+// scratch directory the test builds.
+test('platform-docker-compose-host v1.1.15 repository walk: a wrong-version record is REJECTED through walkRepositoryRecords', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const scratch = join(tmpdir(), `rcf-lite-walker-version-drift-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(scratch, 'platform-docker-compose-host');
+  await mkdir(dir, { recursive: true });
+  const stale = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-reload-burst',
+    version: '1.1.12',
+    runAt: '2026-09-11T00:00:00.000Z',
+    engine: 'node',
+    aggregateVerdict: 'pass',
+    results: [{ anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', accountBoundSkipped: true, reason: 'CI_HAS_HETZNER_ACCOUNT' }],
+  };
+  await writeFile(join(dir, 'stale.json'), JSON.stringify(stale, null, 2) + '\n', 'utf8');
+  try {
+    await assert.rejects(
+      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      /every present record must carry the blueprint version and match it/,
+    );
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+// v1.1.15 negative case (item 2a, non-directory path): the
+// repository walker propagates a non-ENOENT readdir error rather
+// than returning the friendly `no local records` early-return.
+// Invokes `walkRepositoryRecords` on a file target.
+test('platform-docker-compose-host v1.1.15 repository walk: a non-directory reports path FAILS through walkRepositoryRecords', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const scratch = join(tmpdir(), `rcf-lite-walker-notdir-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  await mkdir(scratch, { recursive: true });
+  const target = join(scratch, 'platform-docker-compose-host');
+  await writeFile(target, 'not-a-directory', 'utf8');
+  try {
+    await assert.rejects(
+      () => walkRepositoryRecords(target, '1.1.15', shipped),
+      (err) => !!err && err.code !== 'ENOENT',
+    );
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+// v1.1.15 negative case (item 2b, malformed JSON): the walker
+// propagates the parse error rather than returning early.
+test('platform-docker-compose-host v1.1.15 repository walk: a malformed JSON record FAILS through walkRepositoryRecords', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const scratch = join(tmpdir(), `rcf-lite-walker-badjson-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(scratch, 'platform-docker-compose-host');
+  await mkdir(dir, { recursive: true });
+  await writeFile(join(dir, 'malformed.json'), '{ not json at all', 'utf8');
+  try {
+    await assert.rejects(
+      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      (err) => err instanceof SyntaxError || /JSON/.test(String(err && err.message)),
+    );
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+// v1.1.15 negative case (item 2c, empty / non-array / missing
+// results): `walkRepositoryRecords` REJECTS a present record whose
+// `results` is absent, not an array, or an empty array.
+test('platform-docker-compose-host v1.1.15 repository walk: empty / non-array / missing results FAIL through walkRepositoryRecords', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const cases = [
+    { name: 'empty.json', body: { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', version: '1.1.15', results: [] } },
+    { name: 'null.json', body: { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', version: '1.1.15', results: null } },
+    { name: 'missing.json', body: { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', version: '1.1.15' } },
+    { name: 'notarray.json', body: { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', version: '1.1.15', results: 'not-an-array' } },
+  ];
+  for (const { name, body } of cases) {
+    const scratch = join(tmpdir(), `rcf-lite-walker-emptyresults-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+    const dir = join(scratch, 'platform-docker-compose-host');
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, name), JSON.stringify(body, null, 2) + '\n', 'utf8');
+    try {
+      await assert.rejects(
+        () => walkRepositoryRecords(dir, '1.1.15', shipped),
+        /results must be (an array|a non-empty array)/,
+      );
+    } finally {
+      await rm(scratch, { recursive: true, force: true });
+    }
+  }
+});
+// v1.1.15 negative case (item 2d, malformed row): `walkRepositoryRecords`
+// REJECTS a row lacking evidence / limitation / skip reason /
+// notObservableHere.ac.
+test('platform-docker-compose-host v1.1.15 repository walk: a malformed row (no evidence / limitation / reason) is REJECTED through walkRepositoryRecords', async () => {
+  const { mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const shipped = await loadShippedAcs();
+  const scratch = join(tmpdir(), `rcf-lite-walker-stubrow-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  const dir = join(scratch, 'platform-docker-compose-host');
+  await mkdir(dir, { recursive: true });
+  const rec = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-reload-burst',
+    version: '1.1.15',
+    results: [{ anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', detail: 'no observations, no evidence, no skip reason' }],
+  };
+  await writeFile(join(dir, 'stubrow.json'), JSON.stringify(rec, null, 2) + '\n', 'utf8');
+  try {
+    await assert.rejects(
+      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      /row lacking evidence \/ limitation \/ skip reason/,
+    );
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+// v1.1.15 negative case (item 3, event / identifier correlation).
+// Compose events carry {event, at, detail} only, so no event-body
+// correlation is consulted. `walkComposeRecordRow` refuses a row
+// whose `evidence.serverId` does NOT match the record's own top-
+// level `serverId` field even when an event's `detail` carries the
+// digits, and even when a bogus `serverId` is invented on the event
+// body; a substring over the event body does NOT count.
+test('platform-docker-compose-host v1.1.15 correlation via walkComposeRecordRow: mismatched record.serverId FAILS; matching record.serverId CORRELATES; invented event serverId is ignored', async () => {
+  const shipped = await loadShippedAcs();
+  const idNum = 424245;
+  const buildBurstRow = () => ({
+    anchorAcId: 'AC-composeHost-zeroDowntimeReload',
+    verdict: 'pass',
+    evidence: {
+      serverId: idNum,
+      primaryIpv4: '198.51.100.10',
+      total: 4242,
+      twoXx: 4242,
+      drops: 0,
+      overlapCount: 42,
+      reloadDurationMs: 424,
+      clockDomain: 'server',
+      burstStartedAt: 1000,
+      burstEndedAt: 11000,
+      reloadStartedAt: 2000,
+      reloadEndedAt: 3000,
+    },
+  });
+  // Negative: record.serverId is a DIFFERENT vendor id; event body
+  // carries the digits in `detail` and even sports an invented
+  // `serverId` on the event (which the shipped producer never
+  // emits). The walker refuses.
+  const misalignedRecord = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-reload-burst',
+    version: '1.1.15',
+    serverId: 4242424,
+    results: [buildBurstRow()],
+    eventTrail: [
+      { event: 'stackShipped', at: '2026-09-11T00:00:00.000Z', detail: `server ${idNum} came up clean`, serverId: idNum },
+    ],
+  };
+  assert.throws(
+    () => walkComposeRecordRow({ row: buildBurstRow(), probeName: 'real-account-reload-burst', name: 'misaligned.json', shipped, record: misalignedRecord }),
+    /is not present as the record's own top-level `serverId` field/,
+  );
+  // Positive control: the record's own top-level `serverId` equals
+  // the row's `evidence.serverId`.
+  const honestRecord = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-reload-burst',
+    version: '1.1.15',
+    serverId: idNum,
+    results: [buildBurstRow()],
+    eventTrail: [
+      { event: 'stackShipped', at: '2026-09-11T00:00:00.000Z', detail: 'stack shipped' },
+    ],
+  };
+  const ok = walkComposeRecordRow({ row: buildBurstRow(), probeName: 'real-account-reload-burst', name: 'honest.json', shipped, record: honestRecord });
+  assert.equal(ok.inventoryHit, true);
+  // Missing-field control: no top-level `serverId` on the record;
+  // no inventory / teardown either. The walker refuses no matter
+  // what event bodies carry.
+  const bareRecord = {
+    slug: 'platform-docker-compose-host',
+    probeName: 'real-account-reload-burst',
+    version: '1.1.15',
+    results: [buildBurstRow()],
+    eventTrail: [
+      { event: 'sshReady', at: '2026-09-11T00:00:00.000Z', detail: `has the digits ${idNum}` },
+    ],
+  };
+  assert.throws(
+    () => walkComposeRecordRow({ row: buildBurstRow(), probeName: 'real-account-reload-burst', name: 'bare.json', shipped, record: bareRecord }),
+    /is not present as the record's own top-level `serverId` field/,
+  );
+});
+// v1.1.15 negative case (item 3b, containerId): a 64-hex
+// containerId row whose only correlation is a matching
+// `containerName` in compose services or `observedNames` FAILS
+// through `walkComposeRecordRow`. Only ENGINE evidence keyed by
+// the id (`observedSecretModes.observations`) counts.
+test('platform-docker-compose-host v1.1.15 correlation via walkComposeRecordRow: containerId with only a containerName match FAILS', async () => {
   const shipped = await loadShippedAcs();
   const row = {
     anchorAcId: 'AC-composeHost-secretShape',
     verdict: 'pass',
     evidence: {
-      // valid 64-hex synthetic id, matching containerName in the
-      // record's compose services listing and observedNames, but
-      // NO observedSecretModes.observations entry keyed by the id:
       containerId: HEX64,
       containerName: 'rcf-lite-throwaway-web',
       mode: '400',
@@ -1034,10 +1287,9 @@ test('platform-docker-compose-host v1.1.13 record walk: 64-hex containerId with 
   const record = {
     slug: 'platform-docker-compose-host',
     probeName: 'real-account-minimal-stack-up',
+    version: '1.1.15',
     services: [{ name: 'rcf-lite-throwaway-web', healthy: true }],
     observedNames: ['rcf-lite-throwaway-web'],
-    // observedSecretModes carries a DIFFERENT id, so no engine-
-    // evidence match for HEX64:
     observedSecretModes: { observations: [{ service: 'web', containerId: 'aa'.repeat(32), mode: '400' }] },
     results: [row],
   };
@@ -1045,146 +1297,4 @@ test('platform-docker-compose-host v1.1.13 record walk: 64-hex containerId with 
     () => walkComposeRecordRow({ row, probeName: 'real-account-minimal-stack-up', name: 'name-only.json', shipped, record }),
     /not present in this record's observedSecretModes.observations tree/,
   );
-});
-
-// Malformed-row negative case (v1.1.12): a synthetic record whose
-// results include a row lacking evidence, limitation and reason
-// MUST be rejected by the walker. Proved without touching the real
-// records directory.
-test('platform-docker-compose-host v1.1.12 record walk: a malformed row (no evidence / limitation / reason) is REJECTED', async () => {
-  const stubRow = { anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', detail: 'no observations, no evidence, no skip reason' };
-  const rec = { slug: 'platform-docker-compose-host', probeName: 'real-account-reload-burst', results: [stubRow] };
-  const rows = rec.results;
-  let threw = false;
-  try {
-    for (const row of rows) {
-      const hasShape = !!row && (
-        row.evidence !== undefined
-        || (row.conformanceOnly && typeof row.limitation === 'string')
-        || (row.accountBoundSkipped === true && typeof row.reason === 'string')
-        || (row.notObservableHere && row.notObservableHere.ac)
-      );
-      assert.ok(hasShape, 'stub row must FAIL the walker');
-    }
-  } catch (e) {
-    threw = true;
-    assert.match(String(e && e.message), /stub row must FAIL/);
-  }
-  assert.equal(threw, true, 'expected the walker shape-check to reject a malformed row synthesised for this negative-proof test');
-});
-
-// v1.1.14 negative case (item 1, record version): a record whose
-// `version` differs from the expected version FAILS the walker.
-// Proved end-to-end against a scratch directory addressed via the
-// operator-side override, so the real `.rcf/reports/` tree is not
-// touched.
-test('platform-docker-compose-host v1.1.14 record walk: a record whose version differs from the expected version is REJECTED', async () => {
-  const { mkdir, writeFile, rm } = await import('node:fs/promises');
-  const { tmpdir } = await import('node:os');
-  const scratch = join(tmpdir(), `rcf-lite-walker-version-drift-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
-  const dir = join(scratch, 'platform-docker-compose-host');
-  await mkdir(dir, { recursive: true });
-  const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
-  const stale = {
-    slug: 'platform-docker-compose-host',
-    probeName: 'real-account-reload-burst',
-    version: '1.1.12',
-    runAt: '2026-09-11T00:00:00.000Z',
-    engine: 'node',
-    aggregateVerdict: 'pass',
-    results: [{ anchorAcId: 'AC-composeHost-zeroDowntimeReload', verdict: 'pass', accountBoundSkipped: true, reason: 'CI_HAS_HETZNER_ACCOUNT unset' }],
-  };
-  await writeFile(join(dir, 'stale.json'), JSON.stringify(stale, null, 2) + '\n', 'utf8');
-  const savedDir = process.env.RCF_LITE_RECORDS_DIR;
-  const savedExpected = process.env.RCF_LITE_EXPECTED_VERSION;
-  process.env.RCF_LITE_RECORDS_DIR = scratch;
-  delete process.env.RCF_LITE_EXPECTED_VERSION;
-  try {
-    let threw = false;
-    try {
-      const entries = (await readdir(dir)).filter((f) => f.endsWith('.json'));
-      for (const fileName of entries) {
-        const rec = JSON.parse(await readFile(join(dir, fileName), 'utf8'));
-        assert.equal(rec.version, bp.version,
-          `${fileName}: record version ${JSON.stringify(rec.version)} != expected ${JSON.stringify(bp.version)}; a record at an older version FAILS the walk (v1.1.14).`);
-      }
-    } catch (e) {
-      threw = true;
-      assert.match(String(e && e.message), /record at an older version FAILS/);
-    }
-    assert.equal(threw, true, 'expected version-drift record to be REJECTED');
-  } finally {
-    if (savedDir === undefined) delete process.env.RCF_LITE_RECORDS_DIR; else process.env.RCF_LITE_RECORDS_DIR = savedDir;
-    if (savedExpected !== undefined) process.env.RCF_LITE_EXPECTED_VERSION = savedExpected;
-    await rm(scratch, { recursive: true, force: true });
-  }
-});
-
-// v1.1.14 negative case (item 2, walker error path): a non-directory
-// target and an unparsable JSON record must each fail with the
-// underlying error rather than the friendly `no local records`
-// early-return - that early-return is reserved for ENOENT and an
-// empty directory listing.
-test('platform-docker-compose-host v1.1.14 record walk: a non-directory reports path FAILS the walker', async () => {
-  const { mkdir, writeFile, rm } = await import('node:fs/promises');
-  const { tmpdir } = await import('node:os');
-  const scratch = join(tmpdir(), `rcf-lite-walker-notdir-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
-  await mkdir(scratch, { recursive: true });
-  const target = join(scratch, 'platform-docker-compose-host');
-  await writeFile(target, 'not-a-directory', 'utf8');
-  try {
-    let caught;
-    try {
-      await readdir(target);
-    } catch (e) {
-      caught = e;
-    }
-    assert.ok(caught, 'expected readdir on a file target to throw');
-    assert.notEqual(caught && caught.code, 'ENOENT', 'the negative case must not be ENOENT - a non-directory target is a real error and must surface');
-  } finally {
-    await rm(scratch, { recursive: true, force: true });
-  }
-});
-
-test('platform-docker-compose-host v1.1.14 record walk: a malformed JSON record FAILS the walker with the parse error', async () => {
-  const { mkdir, writeFile, rm } = await import('node:fs/promises');
-  const { tmpdir } = await import('node:os');
-  const scratch = join(tmpdir(), `rcf-lite-walker-badjson-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
-  const dir = join(scratch, 'platform-docker-compose-host');
-  await mkdir(dir, { recursive: true });
-  await writeFile(join(dir, 'malformed.json'), '{ not json at all', 'utf8');
-  try {
-    const entries = (await readdir(dir)).filter((f) => f.endsWith('.json'));
-    let threw = false;
-    try {
-      for (const fileName of entries) {
-        JSON.parse(await readFile(join(dir, fileName), 'utf8'));
-      }
-    } catch (e) {
-      threw = true;
-      assert.ok(e instanceof SyntaxError || /JSON/.test(String(e && e.message)), 'expected a JSON parse error');
-    }
-    assert.equal(threw, true, 'expected malformed JSON to FAIL the walker');
-  } finally {
-    await rm(scratch, { recursive: true, force: true });
-  }
-});
-
-// v1.1.14 negative case (item 3, event correlation): an event whose
-// name or detail contains the digits of the vendor id but whose own
-// `serverId` identifier field differs (or is absent) does NOT
-// correlate. The walker refuses substring matches over the
-// stringified event body.
-test('platform-docker-compose-host v1.1.14 record walk: an event whose name/detail contains the digits but whose serverId field differs FAILS the correlation', async () => {
-  const idStr = '424245';
-  const correlate = (event) => {
-    const v = deepFind(event, 'serverId');
-    return v !== undefined && v !== null && String(v) === idStr;
-  };
-  const misleadingEvent = { name: `composeStackReady-${idStr}`, detail: `stack for server ${idStr} came up clean`, serverId: 4242424 };
-  assert.equal(correlate(misleadingEvent), false, 'the field-equality rule must REJECT a substring-only match');
-  const honestEvent = { name: 'composeStackReady', detail: 'stack came up clean', serverId: 424245 };
-  assert.equal(correlate(honestEvent), true, 'honest control: an event with matching serverId must correlate');
-  const bareEvent = { name: 'someOtherEvent', detail: `has the digits ${idStr}` };
-  assert.equal(correlate(bareEvent), false, 'an event without a serverId field must not correlate by substring');
 });

@@ -1,8 +1,8 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "manifest-schema-validate",
-  "version": "1.1.14",
-  "runAt": "2026-09-12T00:52:45.666Z",
+  "version": "1.1.15",
+  "runAt": "2026-09-12T01:24:42.149Z",
   "engine": {
     "kind": "schema-validate",
     "image": "hetzner-throwaway-server fixture manifest directory (draft-07 subset in-process)",

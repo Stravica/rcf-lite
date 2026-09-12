@@ -1,8 +1,8 @@
 {
   "slug": "platform-docker-compose-host",
   "probeName": "caddyfile-validate",
-  "version": "1.1.14",
-  "runAt": "2026-09-12T00:52:46.013Z",
+  "version": "1.1.15",
+  "runAt": "2026-09-12T01:24:42.492Z",
   "engine": {
     "kind": "caddyfile-validate",
     "image": "platform-docker-compose-host fixture",
@@ -26,12 +26,12 @@
       "conformanceOnly": true,
       "limitation": "AC-composeHost-reverseProxyArtefactValid: the reverse-proxy artefact is validated offline by `caddy validate` against the shipped Caddyfile; the live observation (the artefact serving traffic on the applied stack) is carried by real-account-reload-burst.",
       "verdict": "pass",
-      "detail": "offline caddyfile-validate: caddy validate exit 0 (caddy:2 container (docker run --rm)); tail: pped background certificate maintenance\",\"cache\":\"0x26959b69e680\"}\n{\"level\":\"info\",\"ts\":1789174365.9207668,\"logger\":\"http\",\"msg\":\"servers shutting down with eternal grace period\"}\nValid configuration\n",
+      "detail": "offline caddyfile-validate: caddy validate exit 0 (caddy:2 container (docker run --rm)); tail: ce\",\"cache\":\"0x14001bc42e00\"}\n{\"level\":\"info\",\"ts\":1789176282.3828914,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x14001bc42e00\"}\nValid configuration\n",
       "evidence": {
         "caddyfileSha256": "3147f2cac31053442f2347d794168eb9f291508296206d1d476c865d524524c7",
         "engineLabel": "caddy:2 container (docker run --rm)",
         "exitStatus": 0,
-        "tailExcerpt": "920729,\"logger\":\"tls.cache.maintenance\",\"msg\":\"started background certificate maintenance\",\"cache\":\"0x26959b69e680\"}\n{\"level\":\"info\",\"ts\":1789174365.9207478,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x26959b69e680\"}\n{\"level\":\"info\",\"ts\":1789174365.9207668,\"logger\":\"http\",\"msg\":\"servers shutting down with eternal grace period\"}\nValid configuration\n",
+        "tailExcerpt": "827035,\"logger\":\"http\",\"msg\":\"servers shutting down with eternal grace period\"}\n{\"level\":\"info\",\"ts\":1789176282.3827748,\"logger\":\"tls.cache.maintenance\",\"msg\":\"started background certificate maintenance\",\"cache\":\"0x14001bc42e00\"}\n{\"level\":\"info\",\"ts\":1789176282.3828914,\"logger\":\"tls.cache.maintenance\",\"msg\":\"stopped background certificate maintenance\",\"cache\":\"0x14001bc42e00\"}\nValid configuration\n",
         "vendorDocs": {
           "caddyValidate": "https://caddyserver.com/docs/command-line#caddy-validate",
           "dockerRunRm": "https://docs.docker.com/reference/cli/docker/container/run/",
