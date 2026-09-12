@@ -57,10 +57,10 @@ test('H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platfor
 // shipped-code pass envelope.
 test('H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/reports on the four blueprints', async () => {
   // Read the COMMITTED envelope from git HEAD rather than the working tree.
-  // The kv event-secrecy anatomy child spawn overwrites its local envelope
-  // with a mutation-run FAIL record during test-suite runs; this test asserts
-  // the durable committed state on the branch, which is the gate the
-  // aggregator evaluates.
+  // The kv event-secrecy anatomy invokes the probe in process and validates
+  // its results in memory; it does not write the report during test-suite
+  // runs. This test asserts the committed record on the branch, which is
+  // the input the shelf aggregate reads.
   let inspected = 0;
   const offenders = [];
   for (const bp of BLUEPRINTS) {
