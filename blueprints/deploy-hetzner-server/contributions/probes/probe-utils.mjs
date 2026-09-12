@@ -37,6 +37,24 @@ export const SCHEMA_PATH = resolve(HERE, '..', 'schemas', 'hetzner-server.schema
 export const REPORT_DIR = process.env.RCF_REPORT_DIR_OVERRIDE
   ? resolve(process.env.RCF_REPORT_DIR_OVERRIDE, 'blueprints/deploy-hetzner-server')
   : resolve(PROJECT_ROOT, '.rcf/reports/blueprints/deploy-hetzner-server');
+export const BLUEPRINT_JSON_PATH = resolve(HERE, '..', '..', 'blueprint.json');
+
+// The report's `version` field is read from the blueprint's own
+// blueprint.json at write time; every regenerated record therefore
+// carries the version the shipped code was at when the record was
+// written. The strict walker compares each record's `version` to
+// blueprint.json's `version` and FAILS on any mismatch (a record
+// at an older version fails the walk). The read is deliberately
+// per-call so a version bump between two writes in one process is
+// picked up honestly.
+async function readBlueprintVersion() {
+  const raw = await readFile(BLUEPRINT_JSON_PATH, 'utf8');
+  const doc = JSON.parse(raw);
+  if (typeof doc.version !== 'string' || doc.version.length === 0) {
+    throw new Error(`blueprint.json at ${BLUEPRINT_JSON_PATH} carries no string version`);
+  }
+  return doc.version;
+}
 
 // Aggregation rule (the shape rule): an empty results array is never
 // pass; it is a fail with detail `no checks ran`. Callers hand the
@@ -81,9 +99,11 @@ export async function writeReport({ probeName, engine, results, extra }) {
   }
   const rawVerdict = aggregate(rows);
   const aggregateVerdict = isSkipped(rows) ? 'pass' : rawVerdict;
+  const version = await readBlueprintVersion();
   const report = {
     slug: 'deploy-hetzner-server',
     probeName,
+    version,
     runAt: new Date().toISOString(),
     engine,
     results: rows,

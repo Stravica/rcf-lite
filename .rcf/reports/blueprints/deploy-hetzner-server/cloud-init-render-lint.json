@@ -1,7 +1,8 @@
 {
   "slug": "deploy-hetzner-server",
   "probeName": "cloud-init-render-lint",
-  "runAt": "2026-09-12T00:25:32.007Z",
+  "version": "1.1.14",
+  "runAt": "2026-09-12T00:52:45.600Z",
   "engine": {
     "kind": "template-render",
     "image": "hetzner-throwaway-server fixture (in-process template render)",
