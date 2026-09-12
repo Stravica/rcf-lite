@@ -2,6 +2,13 @@
 
 All notable changes to `platform-cloudflare-kv` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
 
+## 1.1.4 - 2026-09-12
+
+Event-secrecy anatomy runs the mutation-switch case in-process so the shipped report record stays untouched.
+
+- Anatomy: `test/blueprint/platform-cloudflare-kv-anatomy.test.js` toggles `SIMULATE_PII_LEAK` inside the test process and invokes the `event-secrecy` probe module a second time, then validates the returned result set against fail and forbiddenKeys in memory. The prior child-process spawn of `contributions/probes/run-event-secrecy.mjs` is removed; the probe body and the fixture-side shim are unchanged.
+- Reports: the tracked `event-secrecy` record under `.rcf/reports/blueprints/platform-cloudflare-kv/` is now byte-identical after a full `pnpm test` run and is regenerated only through a deliberate shim invocation.
+
 ## 1.1.3 - 2026-09-10
 
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d), plus a register and citation patch.

@@ -10,7 +10,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir, mkdir, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -142,9 +141,12 @@ test('lifecycle events carry only the metadata-only whitelist (TC-085-metadata-o
 
 test('event-secrecy probe passes on PII fixture and fails under fixture-side SIMULATE_PII_LEAK (TC-086-event-secrecy)', async () => {
   // Shipped code path via the module. Post H-2, SIMULATE_PII_LEAK
-  // is read by the fixture-side h2-cf-kv-event-secrecy-shim and
-  // captured at sink construction, so we invoke the probe module
-  // directly for the happy path.
+  // is read by the fixture-side h2-cf-kv-event-secrecy-shim at
+  // sink construction on every call, so the anatomy toggles the
+  // switch in-process across two invocations of the probe module
+  // and validates the returned result set in memory. No shim spawn
+  // means no writeReport side effect against the tracked report
+  // record under .rcf/reports/blueprints/platform-cloudflare-kv/.
   const runProbe = (await import(pathToFileURL(join(PROBES_DIR, 'event-secrecy.mjs')).href)).default;
   const { results } = await runProbe();
   const es = results.find((r) => r.anchorAcId === 'AC-31108-1');
@@ -156,19 +158,27 @@ test('event-secrecy probe passes on PII fixture and fails under fixture-side SIM
   assert.ok(wl, 'event-secrecy probe must include an AC-31107-1 result (whitelist-only lifecycle events)');
   assert.equal(wl.verdict, 'pass', `AC-31107-1 shipped-path verdict: ${wl.detail}`);
 
-  // Mutation-run: run the shim as a child process with the switch
-  // on; the fixture-side shim reads SIMULATE_PII_LEAK and returns
-  // a polluted sink; the probe body still holds zero SIMULATE_
-  // reads.
-  const shim = join(PROBES_DIR, 'run-event-secrecy.mjs');
-  const child = spawnSync(process.execPath, [shim], {
-    cwd: FIXTURE_ROOT,
-    env: { ...process.env, SIMULATE_PII_LEAK: 'true' },
-    encoding: 'utf8',
-  });
-  assert.notEqual(child.status, 0, `SIMULATE_PII_LEAK=true expected non-zero exit; observed status=${child.status}`);
-  assert.match(child.stdout, /"aggregateVerdict":\s*"fail"/, 'mutation-run must report aggregateVerdict fail');
-  assert.match(child.stdout, /forbiddenKeys/i, 'mutation-run must name forbiddenKeys in the detail');
+  // Mutation-run: flip the fixture-side switch in-process, invoke
+  // the probe a second time, and validate that the returned
+  // results include failing verdicts naming forbiddenKeys. The
+  // probe body still holds zero SIMULATE_ reads; the shim reads
+  // process.env.SIMULATE_PII_LEAK at every createEventSecrecySink
+  // call.
+  const savedSwitch = process.env.SIMULATE_PII_LEAK;
+  process.env.SIMULATE_PII_LEAK = 'true';
+  let mutation;
+  try {
+    mutation = await runProbe();
+  } finally {
+    if (savedSwitch === undefined) delete process.env.SIMULATE_PII_LEAK;
+    else process.env.SIMULATE_PII_LEAK = savedSwitch;
+  }
+  const failing = mutation.results.filter((r) => r.verdict === 'fail');
+  assert.ok(failing.length > 0, `SIMULATE_PII_LEAK=true expected fail results; observed: ${JSON.stringify(mutation.results)}`);
+  assert.ok(
+    failing.some((r) => /forbiddenKeys/i.test(r.detail)),
+    `mutation-run must name forbiddenKeys in a failing detail; observed: ${failing.map((r) => r.detail).join(' | ')}`,
+  );
 });
 
 // TS-087 (US-31103 real-account carrier): real-account eventual-consistency smoke.
@@ -256,7 +266,7 @@ test('H-2 kv AC-15001-2 every shipped kv AC appears in the union of probe result
 test('blueprint.json declares 24 contributions with v1.1.3, capability keyValueStore and standardsTraceClause on every ADR contribution', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'platform-cloudflare-kv');
-  assert.equal(doc.version, '1.1.3');
+  assert.equal(doc.version, '1.1.4');
   assert.equal(doc.category, 'platform');
   assert.deepEqual(doc.capabilities, ['keyValueStore']);
   assert.equal(doc.contributions.length, 24);
