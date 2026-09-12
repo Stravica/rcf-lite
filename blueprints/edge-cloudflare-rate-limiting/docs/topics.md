@@ -59,7 +59,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | edge-cloudflare-turnstile | 35101-35899 | 36xx | shipped v1.0.0 | `humanVerificationGate` |
 | edge-cloudflare-rate-limiting | 36101-36899 | 37xx | shipped v1.0.0 | `edgeThrottleContract` |
 
-US 36101-36108 sit at the LOW end of the 36101-36899 band on purpose (watchpost run-4 lesson). ADR/TAC suffixes for this blueprint use the 3701-3799 block, continuing the shelf pattern.
+US 36101-36108 sit at the LOW end of the 36101-36899 band on purpose. ADR/TAC suffixes for this blueprint use the 3701-3799 block, continuing the shelf pattern.
 
 ## Shared expectations for future composing blueprints
 

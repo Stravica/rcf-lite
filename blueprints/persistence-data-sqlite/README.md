@@ -27,9 +27,9 @@ The doc set is contributions (copied into the project tree by `rcf define bluepr
 
 ## What it contributes, and what it deliberately does not
 
-Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (shipped policy 5) and no code.
 
-No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT (the store facade contract, the migration runner contract, the migration catalog shape, the backup runner contract, the event log discipline); the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing.
+No FBS contributions, as a matter of principle (policy): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT (the store facade contract, the migration runner contract, the migration catalog shape, the backup runner contract, the event log discipline); the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing.
 
 Deliberately not contributed: the domain schema (the tables the project's own entities live in are project-authored, not blueprint-authored; the blueprint governs the store facade and the migration discipline, not the domain shape); ORMs, query builders, and any framework-shaped abstraction above the named CRUD verbs (the facade is a project-authored surface; how it internally implements its verbs is not blueprint-owned); a Postgres engine TAC (deferred; see ADR-601's alternatives and the guide 'when it does not fit'); logical schema-aware dumps (out of scope; see ADR-605's alternatives); connection pooling (an implementation detail of the facade when a project selects an engine that benefits from it, not a blueprint contribution).
 

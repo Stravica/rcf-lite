@@ -70,7 +70,7 @@ Each probe module lives under `contributions/probes/` and exports the spec secti
 
 ## Running the probes
 
-The probes drive against the shared sample-app fixture at `packages/rcf-lite/test/fixtures/infra-s3-and-queue/` (extended with `jobs/`, `src/jobs-runtime.mjs`, `src/scheduler.mjs`, `src/job-run-log.mjs`). No Docker, no `wrangler dev` process required; the in-memory queue-driver seam is the shipped local seam per SDR-3-a.
+The probes drive against the shared sample-app fixture at `packages/rcf-lite/test/fixtures/infra-s3-and-queue/` (extended with `jobs/`, `src/jobs-runtime.mjs`, `src/scheduler.mjs`, `src/job-run-log.mjs`). No Docker, no `wrangler dev` process required; the in-memory queue-driver seam is the shipped local seam per the wrangler-dev-equivalent seam decision.
 
 Two-line boot for the two headline probes:
 
@@ -94,7 +94,7 @@ The remaining three shims (`run-apply-time-override.mjs`, `run-retry-and-fail.mj
 
 - AC-jobs-requiresQueue: PROVEN via `apply-time-refusal.mjs` against a bare scratch project on the shipped head (exit code and message id assertions run in-process). No live-only gap.
 - AC-jobs-overrideRecorded: PROVEN via `apply-time-override.mjs` on the shipped head (sidecar note grep asserts `no queue yet`, `--allow-no-queue-yet`, and family word `queue`). No live-only gap.
-- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on the shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the operator estate gate reviewer's follow-up run per SDR-3-a; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
+- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on the shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the gate reviewer's follow-up run per the wrangler-dev-equivalent seam decision; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
 - AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on the shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver's re-delivery loop matches Cloudflare Queues' retry semantics per the messaging-queue-cloudflare opaque-adapter clause; a live-account run against Cloudflare Queues is the messaging-queue-cloudflare real-account concurrency smoke's territory, not this blueprint's.
 - AC-jobs-eventSecrecy: PROVEN via `event-secrecy.mjs` on the shipped head (grep on the serialised run-log stream returns zero matches for every PII fixture literal). No live-only gap; the whitelist enforcement lives in code, not in a runtime environment.
 - `workerCron` refuses on an applied queue with no cron surface: DOCUMENTED at ADR-3102 in this blueprint's contribution set; not exercised at v1.0.0 because the shipped provider (`messaging-queue-cloudflare` v1.0.0) does not itself claim a cron surface (the cron surface is Workers-side per Cloudflare Cron Triggers, not Queues-side). A follow-up train fires the refusal live once a `queue`-capability provider with a cron surface ships.

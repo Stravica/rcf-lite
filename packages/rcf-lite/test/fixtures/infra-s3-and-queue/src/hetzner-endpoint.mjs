@@ -10,7 +10,7 @@
  * and feeds the composed https URL to createObjectStore through the
  * elicited endpointUrl parameter.
  *
- * Mutation-purity discipline (per HQ hard gate row 2026-09-08): every
+ * Mutation-purity discipline: every
  * SIMULATE_ switch that alters INPUT lives here on the fixture side.
  * Probe modules under blueprints/object-storage-s3/contributions/probes/
  * NEVER read a SIMULATE_ variable; a probe-side grep for SIMULATE_ must

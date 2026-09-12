@@ -40,7 +40,7 @@ const FIXTURE_SHIM_PATH = join(FIXTURE_ROOT, 'run-hetzner-object-storage-round-t
 test('adapter object-storage-s3 v1.1.0 hetzner AC-14001-1 endpoint round-trip and skipped shape (TC-170-hetzner-endpoint-round-trip-and-skipped-shape)', async (t) => {
   await t.test('probe module source: declares accountBound; anchors AC-28110-1; reads no process.env.SIMULATE_ variable', async () => {
     const src = await readFile(PROBE_PATH, 'utf8');
-    // Mutation-purity discipline (per HQ hard gate row 2026-09-08): the
+    // Mutation-purity discipline: the
     // probe module MUST NOT read a SIMULATE_ environment variable; every
     // switch lives on the fixture side.
     const readerMatches = src.match(/process\.env\.SIMULATE_/g) || [];

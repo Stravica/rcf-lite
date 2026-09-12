@@ -2,7 +2,7 @@
 //
 // Local proof for the KV self-provisioning fixture. Boots the mock CF
 // REST API in-process, points the shim at it via CF_API_BASE_URL, and
-// exercises every path the HQ real-account run will hit:
+// exercises every path the real-account run will hit:
 //
 //   1) mint scratch namespace -> verify BEFORE=0 AFTER=1 with the
 //      documented throwaway prefix.
@@ -11,7 +11,7 @@
 //   3) mid-run crash (mint then abort before destroy) -> sweepOrphans
 //      cleans the residue and BEFORE and AFTER on the sweep match.
 //   4) sweep-safety: seed the account with the ten LIVE script names
-//      Dave enumerated plus a live-looking KV namespace name; assert
+//      the shipped inventory plus a live-looking KV namespace name; assert
 //      sweepOrphans selects ZERO of them (Dave hard constraint 4 for
 //      the KV resource type - same property applied to namespaces).
 //

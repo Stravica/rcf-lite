@@ -49,7 +49,7 @@
 // Default (unset or production): the real cloudflared / hcloud / fetch
 // path. The default fails locally without account access; that is by
 // design. Synthetic modes are for local driver-path verification only;
-// HQ's real-account gate step uses the default production path.
+// the real-account gate step uses the default production path.
 
 import { spawn } from 'node:child_process';
 import { createHmac } from 'node:crypto';

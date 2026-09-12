@@ -89,7 +89,7 @@ test('apply object-storage-s3 refuses on a bare fixture without security-secrets
   // rcf/blueprints/object-storage-s3.applied.json.
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.ok(doc.requiresAppliedCapabilities,
-    'per infra round 5 spec 5.2 (Baz decision 6) and coordinator fold-in ruling, object-storage-s3 declares requiresAppliedCapabilities via the T-5 mechanism');
+    'object-storage-s3 declares requiresAppliedCapabilities via the requiresAppliedCapabilities mechanism');
   assert.deepEqual(doc.requiresAppliedCapabilities.capabilities, ['secretsProvider']);
   assert.equal(doc.requiresAppliedCapabilities.allowSkipFlag, 'allow-no-secrets-yet');
   assert.equal(doc.requiresAppliedCapabilities.refusalMessageId, 'object-storage-s3-no-secrets');

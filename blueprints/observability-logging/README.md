@@ -3,7 +3,7 @@
 Structured single-line JSON emission for a rcf-lite project. General enterprise practice, no vendor lock-in. Ships the shelf-canonical `logging` global topic on `ADR-1601-observability-logging-line-shape` (transferred from `application-api-rest-ADR-304`, retained there as superseded history). Provides the `logging` role for the companion-suggestion mechanism. From 1.1.0, declares `capabilities: [auditLog]` on `blueprint.json` so the application-admin-console probe pack activates the audit-log surface check `AC-21105-1` when this blueprint is applied on the project (one grammar; consumer blueprints read declared capabilities, never a role-to-capability inference).
 
 
-> Latest: **v1.3.0** (hardening pass, 2026-09-09). `capabilities: [auditLog]`; elicits: correlation-header-name, minimum-log-level, redaction-categories-additions, boot-identity-fields. See [CHANGELOG.md](CHANGELOG.md).
+> Latest: **v1.3.0**. `capabilities: [auditLog]`; elicits: correlation-header-name, minimum-log-level, redaction-categories-additions, boot-identity-fields. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Apply
 
@@ -27,7 +27,7 @@ The doc set is contributions (copied into the project tree by `rcf define bluepr
 
 ## What it contributes, and what it deliberately does not
 
-Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (shipped policy 5) and no code.
 
 Deliberately not contributed: a specific log-shipping transport (Elastic Common Schema over Logstash, Loki push endpoints, Datadog agent, Splunk HEC); a rotation policy for on-disk log files (the shipped emission target is stdout, and the surrounding platform owns the pipe); a metrics-export surface (out of scope, sits with the metrics-store companion when the shelf ships one); a distributed-tracing surface (spans, propagation, sampling; out of scope for v1). The choice of ECS library (Elastic's, `pino-elastic-common-schema`, a project-authored shim) stays project-side; the blueprint names the ECS-neutral field set the AC binds to.
 

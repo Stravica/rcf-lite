@@ -92,7 +92,7 @@ Two new pieces ship with the extension:
   `zeroTrustGate` is applied and asserts the mutually exclusive
   surface presence.
 
-### Two-line boot for the T-4 gate reviewer
+### Two-line boot for the gate reviewer
 
 ```
 PORT=4322 ADMIN_CONSOLE_CAPS=principalDirectory,roleModel,auditLog,zeroTrustGate node server.js

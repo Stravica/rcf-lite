@@ -60,7 +60,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 33101-33112 sit at the LOW end of the 33101-33899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a platform-cloudflare-durable-objects REQ id into the number 33113 would collide against a shipped US-33113; band headroom (33113-33899) leaves that space.
+US 33101-33112 sit at the LOW end of the 33101-33899 band on purpose. A project-side story mechanically derived from a platform-cloudflare-durable-objects REQ id into the number 33113 would collide against a shipped US-33113; band headroom (33113-33899) leaves that space.
 
 ADR/TAC suffixes for this blueprint use the 3401-3499 block, continuing the shelf pattern.
 

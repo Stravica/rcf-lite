@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-19101-2",
-      "description": "Given the shell's chart region, the rendered chart mounts through the application-charts render shell (TAC-1901): the chart region contains at least one `section.chartRegion[role=\"region\"]` element carrying the shape the application-charts pack asserts on (an `svg.chartSvg` and a paired `<table>` element in the same landmark). A chart region that renders a chart outside the render shell fails project-side review.",
+      "description": "Given the shell's chart region, the rendered chart mounts through the application-charts render shell (TAC-1901): the chart region contains at least one `section.chartRegion[role=\"region\"]` element carrying the shape the application-charts pack asserts on (an `svg.chartSvg` and a paired `<table>` element in the same landmark). A chart region that renders a chart outside the render shell fails project-side check.",
       "given": "the rendered chart region",
       "when": "the mount seam is inspected",
       "then": "the chart mounts through the application-charts render shell",
@@ -31,7 +31,7 @@
     },
     {
       "id": "AC-19101-3",
-      "description": "Given a rendered dashboard surface, when a required region is omitted from the DOM (no export handle, no filter chrome, no timeframe picker), the surface either supersedes REQ-001 with a project-authored REQ documenting the omission (the pack looks up the sidecar `rcf/blueprints/application-dashboard.applied.json` for a `supersedes` entry) or renders the region as an empty labelled `role=\"region\"` element the pack can inspect; a silent omission fails project-side review.",
+      "description": "Given a rendered dashboard surface, when a required region is omitted from the DOM (no export handle, no filter chrome, no timeframe picker), the surface either supersedes REQ-001 with a project-authored REQ documenting the omission (the pack looks up the sidecar `rcf/blueprints/application-dashboard.applied.json` for a `supersedes` entry) or renders the region as an empty labelled `role=\"region\"` element the pack can inspect; a silent omission fails project-side check.",
       "given": "a rendered dashboard surface with a missing region and no documented supersedes entry",
       "when": "the pack inspects the shell",
       "then": "the surface fails the region-count check; the applying project must either supersede REQ-001 with a documented reason or render the region as an empty labelled role=region element",

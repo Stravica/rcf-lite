@@ -1,5 +1,5 @@
 // End-to-end tests for src/blueprint/remove-resolution.js
-// (spec amendment A2, w-2026-09-03-dave-021).
+// (spec amendment A2).
 //
 // Covers the three behaviours the spec ratified:
 //   - REMOVE: dropping the named resolutions[] entry writes the

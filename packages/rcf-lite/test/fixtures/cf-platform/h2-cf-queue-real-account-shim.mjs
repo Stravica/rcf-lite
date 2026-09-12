@@ -15,7 +15,7 @@
 //     (KV binding for the per-invocation telemetry records the driver
 //     reads back via the KV REST list + get endpoints).
 //
-// NO workers.dev subdomain enablement (Dave ruling 376b4f30): the
+// NO workers.dev subdomain enablement (convention): the
 // consumer is invoked BY THE QUEUE, not over HTTP; the driver
 // publishes via the CF Queues REST publish endpoint. The subdomain
 // endpoint is also a state change on the operator account that is
@@ -28,7 +28,7 @@
 // sweepOrphans code path filters over the account by the frozen
 // throwaway prefix constants and deletes each match by exact
 // identity; the sweep is structurally unable to select a
-// non-prefixed name (Dave hard constraints 1..4 8be06ee5).
+// non-prefixed name (hard constraint).
 
 import { mkdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
@@ -138,7 +138,7 @@ export async function mintScratchQueueAndWorker({ runId } = {}) {
       name: workerName,
       scriptSource: CONSUMER_WORKER_SOURCE,
       bindings: [
-        // Shipped-convention producer binding name (Dave 376b4f30):
+        // Shipped-convention producer binding name (convention):
         // RCF_TEST_QUEUE matches the wrangler.toml on
         // packages/rcf-lite/test/fixtures/infra-s3-and-queue/. Not read
         // by the consumer body; declared for shape consistency with
@@ -190,7 +190,7 @@ export async function destroyScratchQueueAndWorker(record) {
   if (!target.queue || !target.queue.id || !target.worker || !target.worker.name || !target.telemetryKv || !target.telemetryKv.id) {
     throw new Error('destroyScratchQueueAndWorker: record missing queue.id, worker.name, or telemetryKv.id');
   }
-  // Two independent guards per resource (Dave hard constraint 3):
+  // Two independent guards per resource (hard constraint):
   // record-side prefix assert plus live-listing observation.
   assertQueuePrefix(target.queue.name, 'destroyScratchQueueAndWorker(queue prefix)');
   assertWorkerPrefix(target.worker.name, 'destroyScratchQueueAndWorker(worker prefix)');

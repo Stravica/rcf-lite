@@ -1,6 +1,6 @@
 # Dashboard design guidance
 
-A packaged asset shipped with the `application-dashboard` blueprint. Read at apply, referenced at project-side review, and cited from every REQ, ADR and pack check that anchors on a design rule. The applying agent honours the eight sections below. Where a section names an AC id, the rule is a runtime-observable AC on this blueprint (the ship gate refuses on failure). Where a section stays operator guidance, the applying agent honours it and the shipping surface is reviewed by hand.
+A packaged asset shipped with the `application-dashboard` blueprint. Read at apply, referenced at project-side check, and cited from every REQ, ADR and pack check that anchors on a design rule. The applying agent honours the eight sections below. Where a section names an AC id, the rule is a runtime-observable AC on this blueprint (the ship gate refuses on failure). Where a section stays operator guidance, the applying agent honours it and the shipping surface is confirmed against the guidance at project-side check.
 
 Sources are cited by URL at each section. Five bodies of work anchor this guidance:
 
@@ -14,7 +14,7 @@ Sources are cited by URL at each section. Five bodies of work anchor this guidan
 
 The primary KPI is the reader's anchor. Place it top-left on every ratified breakpoint (1440, 1024, 360). NN/g's F-shaped-pattern reading research reports that the top-left region of a text-heavy layout is where a reader's eye lands first; that is the spot the anchor tile has to occupy. On a 360 phone layout the tile row reflows to one column and the primary KPI stays first in DOM order and top of the stack.
 
-The primary KPI kind is one of five values (ADR-2001): `revenue`, `active-users`, `error-rate`, `throughput`, `custom`. A `custom` value carries a short operator name in `data-kpi-name`. A dashboard with no primary KPI fails project-side review.
+The primary KPI kind is one of five values (ADR-2001): `revenue`, `active-users`, `error-rate`, `throughput`, `custom`. A `custom` value carries a short operator name in `data-kpi-name`. A dashboard with no primary KPI fails project-side check.
 
 Sources:
 - NN/g F-shaped pattern of reading: https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/

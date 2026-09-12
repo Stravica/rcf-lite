@@ -6,7 +6,7 @@ A directed producer-to-consumer worklist queue on Cloudflare Queues: publish, co
 
 Four lifecycle events fire on the injected event sink with a rigid metadata-only whitelist (`event`, `ts`, `messageId`, `queueName`, `attempts`); consumer logging cannot leak object body bytes, header values, consumer-context fields or PII from the message body. The whitelist is enforced in code by the sink adapter (`event-sink.mjs`), not just documented.
 
-The reserved sibling `messaging-queue-postgres` (maintainer decision, deferred v1.0.0 pending demand) mints on demand and conflicts by design on `deliverySemantics` with this blueprint; the operator picks one queue backend per project via a project-level ADR.
+The reserved sibling `messaging-queue-postgres` (sibling reservation, deferred v1.0.0 pending demand) mints on demand and conflicts by design on `deliverySemantics` with this blueprint; the operator picks one queue backend per project via a project-level ADR.
 
 ## Apply this blueprint
 
@@ -46,7 +46,7 @@ await producer.publishBatch([
 
 The `x-trace-id` header and the publish and publishBatch verbs are owned at `TAC-3001.interfaces[2].description`; the values above are illustrative.
 
-The facade is the sole holder of the queue binding reference per REQ-001. A call site that reaches into `env.<binding>.send()` directly is refused at author-side review.
+The facade is the sole holder of the queue binding reference per REQ-001. A call site that reaches into `env.<binding>.send()` directly is refused at the author-side check.
 
 ## Consumer registration shape
 

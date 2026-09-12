@@ -32,4 +32,4 @@ The project supplies one field:
 
 ## Why it exists
 
-The rcf-lite tier this blueprint targets includes solo-operator projects (watchpost, personal dashboards, single-tenant admin surfaces). The single-address registry is the smallest useful implementation and demonstrates the boolean-only shape of the contract; projects that scale past one operator write their own allow-list-file or database-lookup implementation, keeping the same interface.
+The rcf-lite tier this blueprint targets includes solo-operator projects (personal dashboards, single-tenant admin surfaces, small internal tools). The single-address registry is the smallest useful implementation and demonstrates the boolean-only shape of the contract; projects that scale past one operator write their own allow-list-file or database-lookup implementation, keeping the same interface.

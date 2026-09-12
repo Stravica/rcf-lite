@@ -13,7 +13,7 @@
 
 ## 1.5.6 - 2026-09-10
 
-Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the earlier generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing, so applying projects have precise values to fill in. AC-1131-3 wording and README shipped prose are neutralised: the AC-1131-3 partial-acceptance defect is described without any internal identifier, and the numbered ratified-decision and dated ratified-policy references have been dropped from the README.
+Template-AC fill-in clauses on AC-1101-1, AC-1102-3, AC-1106-2, AC-1114-1 and AC-1131-3 now enumerate the specific applying-project substitutions (route inventory location, secondary-navigation toggle and breakpoint, semantic-token file and added keys, journey inventory and per-step states, UI-bearing routes and strict-CSP header set) in place of the earlier generic "project-specific bindings, routes, thresholds, budgets, and names" phrasing, so applying projects have precise values to fill in.
 
 
 ## 1.5.5 - 2026-09-10
@@ -28,12 +28,12 @@ Dimension-b acceptance-criteria-sufficiency cleanup on US-1134 and US-1135: each
 
 - Register: neutral wording in shipped prose (no capability change).
 
-## 1.5.2 (application-core completion pass, 2026-09-09)
+## 1.5.2 (2026-09-09)
 
 - Donor hand-sweep on all 197 ACs: flipped 19 additional ACs from fixed to template where the assertion carries a project-set literal (per-project section inventories, viewport table widths, journey-inventory checkpoints and events, per-route empty-state text, cache-invalidation entry sets, canonical URL shapes cache keys derive from, offline telemetry buffer bound N, per-route payload budgets, external-dependency inventory, deferral-record path and metadata, core-flow definitions, plus the AC-1111-5 tablist activation mode flip and the AC-1116-2 journey preservation set flip). Each flipped AC carries an Applying agent sets: <specific values> clause. Final split: 173 fixed / 24 template.
 - Register-and-citation sweep 2026-09-10: vendorCitation added to AC-1126-4 (WCAG 2.5.8 target-size-minimum) and AC-1126-7 (WCAG 2.2 recommendation); the completion sweep flipped AC-1111-5 and AC-1116-2 to template with Applying agent sets clauses; internal work-item ids stripped from README v1.2.0 and v1.3.0 changelog paragraphs, from TAC-209 responsibility and tradeoffs, from TAC-210 and TAC-211 purpose, and from AC-1131-3 (the class defect is named without the internal id); spa guide counts corrected to 76 documents / 35 user stories / 197 acceptance criteria.
 
-## 1.5.1 (application-core hardening, 2026-09-09)
+## 1.5.1 (2026-09-09)
 
 - Hardening cleanup: chain-consistency lint clean; added deliveredBy to every REQ pointing at a TAC responsibility or interface, added ownerRef and disposition to every AC per section 7b, closed case drifts on `content-security-policy` in REQ-018, AC-1125-1 and AC-1131-1 to match the owner spelling on TAC-209.
 - Added AC-1123-6 (telemetry buffer overflow with drop-oldest and drop-count observability on reconnect) on TAC-206.responsibilities[3], and AC-1107-6 (theme persistence failure: visible session-only theme, aria-live unsaved announcement, no persisted preference) on TAC-202.responsibilities[2], so applying projects have explicit acceptance criteria for both failure paths.

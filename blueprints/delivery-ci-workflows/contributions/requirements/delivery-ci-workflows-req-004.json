@@ -10,7 +10,7 @@
   "category": "functional",
   "domain": "continuous-integration",
   "priority": "must",
-  "rationale": "Shallow-any coverage will declare a REQ covered when any AC on any US has any resolving TC, which is exactly the shape the watchpost run4 icon and token gap slipped through. Per-AC strict coverage is what makes the mechanism refuse to declare a shipped floor met while any AC still floats without a resolving TC.",
+  "rationale": "Shallow-any coverage will declare a REQ covered when any AC on any US has any resolving TC, which is exactly the shape by which an icon or token AC can float without a resolving TC while the REQ still reads as covered. Per-AC strict coverage is what makes the mechanism refuse to declare a shipped floor met while any AC still floats without a resolving TC.",
   "tags": [
     "blueprint:delivery-ci-workflows",
     "category:04-strict-coverage-gate"

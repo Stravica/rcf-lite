@@ -1,6 +1,6 @@
 # Dashboard blueprint (v1.0.4)
 
-Vendor-neutral analytics-dashboard contract for a rcf-lite application. Ships the shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome refetch fan-out, and the export handle with format delegation to charts. Consumes the application-charts render shell (TAC-1901) for every rendered chart; references application-datatable in the packaged design guidance's "when a table beats a chart" section. Ships a packaged design-guidance asset under `assets/guidance/dashboard-design.md` and a Playwright probe pack under `probe-packs/application-dashboard.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.3 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Third blueprint on the shelf that ships a Playwright probe pack under the runner extension.
+Vendor-neutral analytics-dashboard contract for a rcf-lite application. Ships the shell composition, the primary-KPI visual hierarchy, the per-tile four-state contract, the timeframe and filter chrome refetch fan-out, and the export handle with format delegation to charts. Consumes the application-charts render shell (TAC-1901) for every rendered chart; references application-datatable in the packaged design guidance's "when a table beats a chart" section. Ships a packaged design-guidance asset under `assets/guidance/dashboard-design.md` and a Playwright probe pack under `probe-packs/application-dashboard.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.3 of the visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Ships a Playwright probe pack under the runner extension.
 
 ## Apply
 
@@ -29,7 +29,7 @@ Deliberately not contributed: a choice of chart engine (the charts blueprint's A
 
 ## The packaged design guidance
 
-`assets/guidance/dashboard-design.md` is a shipped asset the applying agent reads at apply and the probe pack references at ship. Eight sections cover the ratified surface rules:
+`assets/guidance/dashboard-design.md` is a shipped asset the applying agent reads at apply and the probe pack references at ship. Eight sections cover the shipped surface rules:
 
 1. Primary KPI placement (hardens into AC-19102-1)
 2. Tile density and count limits (stays operator guidance)
@@ -87,15 +87,15 @@ Every dashboard surface renders the five shell regions (tile row, chart region, 
 Every runtime-observable AC that is not bound to a pack check appears here individually per the gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
 
 - **AC-19101-1 five-region shell composition**. The pack drives the primary-KPI region (AC-19102-1) and the timeframe region (AC-19104-1), which implies the shell renders at least those two, but the pack does not enumerate all five regions and their labels. A v1.1 minor bump could add a region-enumeration pre-check that walks `[data-region]` on the shell root.
-- **AC-19101-2 chart region mounts through the charts shell**. The application-charts pack fires on the dashboard's chart route through its own `appliesTo` predicate; the dashboard's pack does not itself assert the chart-shell contract on the region. Project-side review is the current mechanism.
+- **AC-19101-2 chart region mounts through the charts shell**. The application-charts pack fires on the dashboard's chart route through its own `appliesTo` predicate; the dashboard's pack does not itself assert the chart-shell contract on the region. Project-side check is the current mechanism.
 - **AC-19102-2 no-primary-KPI supersession fallback**. The pack asserts the primary KPI exists (AC-19102-1); the documentation-and-review contract on a surface with no primary KPI is not observable at runtime.
 - **AC-19103-2 state-transition announcement**. The pack does not simulate the transition today (the runner has no synthetic-event seam beyond click / type / press). A v1.2 runner minor with an event-emit seam would close the class.
-- **AC-19104-2 auto-refresh default and elicited interval**. The pack asserts `data-auto-refresh="off"` on the shell root at initial render (implied by the fixture); a runtime observation of the elicited-interval refresh cadence is not exercised. Project-side review carries the residual.
+- **AC-19104-2 auto-refresh default and elicited interval**. The pack asserts `data-auto-refresh="off"` on the shell root at initial render (implied by the fixture); a runtime observation of the elicited-interval refresh cadence is not exercised. Project-side check carries the residual.
 - **AC-19105-1 filter chrome accessible controls**. The pack does not enumerate filter controls today. A v1.1 minor bump could add a filter-control enumeration check.
 - **AC-19105-2 filter fan-out**. The pack asserts the timeframe fan-out (AC-19104-1); the filter-change fan-out is a mechanism-reach gap. A v1.1 minor bump could add a paired filter-change check driving the filter chip and reading the same request log.
 - **AC-19106-1 export handle accessible format list**. The pack does not open the export list today. A v1.1 minor bump could add a check that activates the export button, reads the exposed listbox and asserts the format entries.
-- **AC-19106-2 PNG-of-chart delegation**. The pack browser has no download-capture seam today, so the PNG delegation is proven at project-side review. A v1.2 runner minor with a download-capture seam would close the class.
-- **AC-19107-2 dashboard shape reflects guidance rules**. The pack asserts the specific attributes the fixture emits (primary-KPI kind, as-of stamp, auto-refresh default); a general check that a shipped surface honours the guidance's hardened rules is project-side review.
+- **AC-19106-2 PNG-of-chart delegation**. The pack browser has no download-capture seam today, so the PNG delegation is proven at project-side check. A future runner minor would add a seam that intercepts the download stream and asserts the returned bytes are a PNG whose payload matches the rendered chart.
+- **AC-19107-2 dashboard shape reflects guidance rules**. The pack asserts the specific attributes the fixture emits (primary-KPI kind, as-of stamp, auto-refresh default); a general check that a shipped surface honours the guidance's hardened rules is project-side check.
 
 ## The pack-browser resize seam extension
 

@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19105-1",
-      "description": "Given a rendered dashboard surface with filter chrome, every filter control (chip, dropdown, search input) is a labelled interactive element (a `<button>`, a `<select>` or an `<input>`) with an accessible name; the controls are keyboard-reachable in reading order before the tile row; the operator's active filter selection is reflected on the shell as a `data-active-filters` attribute the pack can read. A filter chrome that ships hover-only controls (a hover-reveal menu on a mouseover element) fails project-side review.",
+      "description": "Given a rendered dashboard surface with filter chrome, every filter control (chip, dropdown, search input) is a labelled interactive element (a `<button>`, a `<select>` or an `<input>`) with an accessible name; the controls are keyboard-reachable in reading order before the tile row; the operator's active filter selection is reflected on the shell as a `data-active-filters` attribute the pack can read. A filter chrome that ships hover-only controls (a hover-reveal menu on a mouseover element) fails project-side check.",
       "given": "a rendered dashboard with filter chrome",
       "when": "the accessibility tree is read",
       "then": "every filter control is a labelled interactive element keyboard-reachable in reading order",

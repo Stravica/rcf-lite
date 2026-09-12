@@ -20,7 +20,7 @@ Projects on the v1 `ci-pipeline` slug follow the migration path in the CHANGELOG
 | Doc set | `contributions/` | 23 REQs, 23 USs, 6 TACs, 10 ADRs, all schema-valid and namespaced (`delivery-ci-workflows-REQ-NNN` prefix family; `ADR-70N-delivery-ci-workflows-<tail>` suffix family) |
 | GitHub Actions assets | `assets/ci-provider-examples/github-actions/` | One illustrative workflow file per workflow the matrix materialises (`pull-request-checks.yml`, `default-branch-checks.yml`, `release.yml`, `scheduled-audit.yml`) |
 | Alternate-provider notes | `assets/ci-provider-examples/notes.md` | The four-point mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied per workflow for GitLab CI, CircleCI, Buildkite, and Jenkins |
-| Report-shape samples | `assets/report-samples/per-gate.json`, `assets/report-samples/pipeline.json` | Worked examples of a per-gate report (with the v2 `checkKind` field) and an aggregate report at the ratified schemas |
+| Report-shape samples | `assets/report-samples/per-gate.json`, `assets/report-samples/pipeline.json` | Worked examples of a per-gate report (with the v2 `checkKind` field) and an aggregate report at the shipped schemas |
 | Guide | `guide/delivery-ci-workflows.md` | Operator-facing: workflow-shape declaration, elicited-check catalogue, the four release modes, the deploy handoff contract, the scheduled-audit cadence |
 | Coordination vocabulary | `docs/topics.md` | The three global-topic strings this blueprint contributes and the shared id band registry |
 
@@ -28,9 +28,9 @@ The doc set is contributions (copied into the project tree by `rcf define bluepr
 
 ## What it contributes, and what it deliberately does not
 
-Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision preserved from v1) and no code.
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (shipped policy preserved from v1) and no code.
 
-No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint. The blueprint contributes the WHAT (the workflow-materialiser contract, the gate-runner contract, the release-workflow contract, the scheduled-audit contract, the check-catalogue AC contracts, the report shapes); the implementing agent derives the HOW-tasks in the host project against those contracts.
+No FBS contributions, as a matter of principle (policy): FBSs are the work of the implementing agent, not the blueprint. The blueprint contributes the WHAT (the workflow-materialiser contract, the gate-runner contract, the release-workflow contract, the scheduled-audit contract, the check-catalogue AC contracts, the report shapes); the implementing agent derives the HOW-tasks in the host project against those contracts.
 
 Deliberately not contributed: a matrix of provider-specific configuration files (v2.0.0 ships GHA only; alternate providers wire the same entry points per the guide's four-point mapping applied per workflow); provider-specific pipeline plugins or actions; the linter, formatter, typechecker, unit-test runner, or security scanner (the elicited checks name the kind; the project picks the tool); a code-formatting style guide or a security-scan severity threshold (project decisions); a release-mechanism (no `standard-version` invocation, no `release-please` config, no `changesets` schema; the workflow reacts to a tag or dispatch, does not create it); a merge-queue integration; a coverage-trend dashboard.
 

@@ -7,7 +7,7 @@
 // writes one telemetry record per invocation into the worker's bound
 // RCF_TEST_TELEMETRY_KV namespace so the probe's KV-list poll picks
 // it up. NO workers.dev subdomain endpoints, NO /w/... HTTP surface
-// (Dave ruling 376b4f30). The local run exercises OUR lifecycle
+// (convention). The local run exercises the fixture lifecycle
 // logic against a mock of Cloudflare's contract; the real-account
 // gate is the only surface that proves the wire format.
 

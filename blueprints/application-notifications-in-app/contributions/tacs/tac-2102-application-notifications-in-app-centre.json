@@ -48,7 +48,7 @@
     {
       "name": "Applied logging companion",
       "kind": "external",
-      "description": "The delivery-attempt log's persistence layer is the applied `logging` companion's; this TAC delegates the write path. A project applying this blueprint without a `logging` companion (neither applied nor registered library nor core shelf) sees the delivery-log endpoint returning an empty rows array, which fails project-side review."
+      "description": "The delivery-attempt log's persistence layer is the applied `logging` companion's; this TAC delegates the write path. A project applying this blueprint without a `logging` companion (neither applied nor registered library nor core shelf) sees the delivery-log endpoint returning an empty rows array, which fails project-side check."
     }
   ],
   "tradeoffs": "The centre reading through the delivery log (rather than a separate inbox store) keeps the shell single-sourced on the applied `logging` companion but couples the surface latency to the log query; a project with a very high notification volume may want to project a materialised inbox view alongside the log. This TAC accepts the coupling because it collapses two writers of the same row into one; a project that needs the materialised view supersedes with a project-authored REQ.",

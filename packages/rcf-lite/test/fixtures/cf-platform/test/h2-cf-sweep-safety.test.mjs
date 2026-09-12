@@ -1,6 +1,6 @@
 // h2-cf-sweep-safety.test.mjs
 //
-// Dedicated sweep-safety test (Dave hard constraint 4, 8be06ee5): feed
+// Dedicated sweep-safety test (hard constraint): feed
 // the crash-recovery prefix sweep a set of plausibly-live production
 // Worker / KV / Queue names (some production - stravica-ai, curlies-
 // corner, streaky, whoosh, wsdyou admin - plus a sneaky mid-string-
@@ -207,7 +207,7 @@ test('sweep-safety: no workers.dev invocation surface (script-level enable / URL
   }
 });
 
-test('sweep-safety: multi-page listings still catch every prefixed residue (pagination cover, Dave ruling 4e9ff62d item 5)', async () => {
+test('sweep-safety: multi-page listings still catch every prefixed residue (pagination cover, convention item)', async () => {
   await withMock(async (mock) => {
     const kvShim = await import('../h2-cf-kv-real-account-shim.mjs');
     const qShim = await import('../h2-cf-queue-real-account-shim.mjs');

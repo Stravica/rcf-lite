@@ -15,8 +15,6 @@
 
 ## 1.3.3
 
-- Closure fix pass (F-4): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
-
 ## 1.3.2
 
 - Adds `AC-10111-2` to `US-10111` binding a fixed refusal path on the owning mechanism (`TAC-1102-security-auth-oauth2-provider-adapter` `responsibilities.validate`); the boot-time validator refuses a provider-config record missing any REQ-002-mandated field with a stable-coded error class and no server process is left listening. Rewrites `AC-10114-1.description` to reference the local `TAC-1103-security-auth-oauth2-session-bridge` `responsibilities.sessionInventory` (the interface shape remains owned by `TAC-1003-security-auth-clerk-session-verifier` `interfaces.sessionInventory` and is referenced by that owner id) and moves the sibling ACs' `ownerRef` to the same local owner. Rewrites `REQ-011.description` to reference `TAC-1103-security-auth-oauth2-session-bridge` `interfaces.enrichPrincipal` rather than restate the `enrichPrincipal(principal)` signature verbatim.
@@ -25,10 +23,10 @@
 
 - Register: neutral wording in shipped prose (no capability change).
 
-## 1.3.0 (hardening pass, spec 2026-09-09 section 5.4.2)
+## 1.3.0 (2026-09-09)
 
-- Adds `REQ-011`/`US-10112` (roleModel: provider-record `roleSources[]`, malformed-claim refusal, enrichPrincipal hook), `REQ-012`/`US-10113` (credentialSelfService: provider-record `accountUrl`, boot-time validation, `getCredentialSelfServiceUrl` helper), `REQ-013`/`US-10114` (sessionInventory: list, revoke-one, revoke-all-except-current, unauthenticated refusal, unknown-session refusal). Extends `TAC-1102` with the `accountUrl` validation responsibility and `TAC-1103` with the roles-population and sessionInventory responsibilities. Adds `deliveredBy` on every `must` requirement and `disposition` on every existing acceptance criterion; adds `ownerRef` on ACs that observe the shared `sessionInventory` interface at owner id `TAC-1003-security-auth-clerk-session-verifier`. Names the `principalDirectory` and `hostedIdentityUi` capabilities on the requirements that carry their runtime clauses. Fixes the pass-1 `OAuth2-only` casing drift on `REQ-008` against `TAC-1102`'s canonical `oauth2-only`. hardening pass (criteria a, b, c on the 2026-09-09 programme).
-- Review fix pass (PR #188 findings): adds `authorisationCodeFlow` to `capabilities[]` and names the token verbatim in `REQ-001` with story references (`US-10101` plus refusal siblings), so a machine-readable composition token backs the flow that keycloak now gates on; rewrites `US-10114` `AC-1` to reference the `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow` shape rather than restating its fields.
+- Adds `REQ-011`/`US-10112` (roleModel: provider-record `roleSources[]`, malformed-claim refusal, enrichPrincipal hook), `REQ-012`/`US-10113` (credentialSelfService: provider-record `accountUrl`, boot-time validation, `getCredentialSelfServiceUrl` helper), `REQ-013`/`US-10114` (sessionInventory: list, revoke-one, revoke-all-except-current, unauthenticated refusal, unknown-session refusal). Extends `TAC-1102` with the `accountUrl` validation responsibility and `TAC-1103` with the roles-population and sessionInventory responsibilities. Adds `deliveredBy` on every `must` requirement and `disposition` on every existing acceptance criterion; adds `ownerRef` on ACs that observe the shared `sessionInventory` interface at owner id `TAC-1003-security-auth-clerk-session-verifier`. Names the `principalDirectory` and `hostedIdentityUi` capabilities on the requirements that carry their runtime clauses. REQ-008 uses the canonical `oauth2-only` casing that matches `TAC-1102`.
+- Adds `authorisationCodeFlow` to `capabilities[]` and names the token verbatim in `REQ-001` with story references (`US-10101` plus refusal siblings), so a machine-readable composition token backs the flow that keycloak now gates on; rewrites `US-10114` `AC-1` to reference the `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow` shape rather than restating its fields.
 
 ## 1.2.0 (visual round, spec 2026-09-06 section 5.4.2, operator Q2 default)
 

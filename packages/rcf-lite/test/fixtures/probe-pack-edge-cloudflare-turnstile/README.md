@@ -78,7 +78,7 @@ Then hit:
 
 ## Proofs
 
-The `proof/` directory ships the MCP-route pack proofs the T-5 gate reviewer reads:
+The `proof/` directory ships the MCP-route pack proofs the gate reviewer reads:
 
 - `pack-mcp-route.<ts>.json` positive: all four pack checks green with a real Playwright chromium driver.
 - `pack-mcp-route.negative-guard-removed.<ts>.json` negative: `magicLinkGuard` FAILS when the token guard is removed from the mint route.

@@ -1,7 +1,7 @@
 // h2-cf-queue-real-account-shim.test.mjs
 //
 // Lifecycle-logic proof for the Queue + Consumer-Worker + telemetry-KV
-// self-provisioning fixture (Dave ruling 376b4f30: local proof
+// self-provisioning fixture (convention: local proof
 // exercises OUR lifecycle logic against a mock of the CF contract;
 // the real-account gate is the only surface that proves the wire
 // format). Boots the mock CF REST API in-process, points the shim at
@@ -12,7 +12,7 @@
 //      + RCF_TEST_TELEMETRY_KV bindings + consumer attach) -> verify
 //      BEFORE=(0 queues, 0 workers, 0 KV) AFTER=(1 each) with the
 //      documented throwaway prefixes. Worker declares the shipped
-//      convention binding name RCF_TEST_QUEUE (Dave ruling 376b4f30).
+//      convention binding name RCF_TEST_QUEUE (convention).
 //      No workers.dev subdomain call anywhere.
 //   2) destroy path -> zero queues, zero workers, zero KV namespaces.
 //   3) mid-run crash (mint then abort before destroy) -> sweepOrphans

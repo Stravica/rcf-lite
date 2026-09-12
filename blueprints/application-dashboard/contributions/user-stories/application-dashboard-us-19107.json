@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19107-1",
-      "description": "The blueprint ships an operator-and-agent-readable design-guidance file at `assets/guidance/dashboard-design.md` covering the eight sections named in spec 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns). Each section names whether the rule hardens into an AC on this blueprint (the section names the AC id) or stays operator guidance the applying agent honours at project-side review. The file cites at least five https:// sources from the five named source families (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs). The applying agent confirms the file is present on the applied blueprint source path recorded on `manifest.blueprints[].source` and takes no substitution at project apply time.",
+      "description": "The blueprint ships an operator-and-agent-readable design-guidance file at `assets/guidance/dashboard-design.md` covering the eight sections named in spec 5.3.1 (primary KPI placement; tile density and count limits; timeframe and filter chrome; loading, empty and error states; colour and contrast; when a table beats a chart, delegating to application-datatable; refresh cadence and staleness; anti-patterns). Each section names whether the rule hardens into an AC on this blueprint (the section names the AC id) or stays operator guidance the applying agent honours at project-side check. The file cites at least five https:// sources from the five named source families (NN/g dashboard design, Few, Tufte, GOV.UK Design System patterns, WCAG 2.2 Understanding docs). The applying agent confirms the file is present on the applied blueprint source path recorded on `manifest.blueprints[].source` and takes no substitution at project apply time.",
       "given": "the shipped blueprint",
       "when": "the applying agent reads assets/guidance/dashboard-design.md",
       "then": "the eight sections and the five https citations are present and each section names AC or guidance",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-19107-2",
-      "description": "The dashboard shell's runtime shape reflects the rules the guidance hardens into ACs: the primary-kpi kind is one of the ADR-2001 enum values (asserted through `data-kpi-kind` on the primary tile; guidance section 1 hardens into AC-19102-1); the shell renders an `as of <ISO-8601>` stamp (guidance section 7 hardens into AC-19104-1); auto-refresh is off unless the elicited interval is set (guidance section 7 hardens into AC-19104-2). A shipped surface that violates any of these rules fails the corresponding pack check or project-side review. Applying agent sets: the primary-kpi kind value from the ADR-2001 enum (`revenue`, `active-users`, `error-rate`, `throughput`, or `custom` with a `data-kpi-name`), the auto-refresh interval or the off default, and the tile-inventory slot mapping the shell renders.",
+      "description": "The dashboard shell's runtime shape reflects the rules the guidance hardens into ACs: the primary-kpi kind is one of the ADR-2001 enum values (asserted through `data-kpi-kind` on the primary tile; guidance section 1 hardens into AC-19102-1); the shell renders an `as of <ISO-8601>` stamp (guidance section 7 hardens into AC-19104-1); auto-refresh is off unless the elicited interval is set (guidance section 7 hardens into AC-19104-2). A shipped surface that violates any of these rules fails the corresponding pack check or project-side check. Applying agent sets: the primary-kpi kind value from the ADR-2001 enum (`revenue`, `active-users`, `error-rate`, `throughput`, or `custom` with a `data-kpi-name`), the auto-refresh interval or the off default, and the tile-inventory slot mapping the shell renders.",
       "given": "a rendered dashboard shell",
       "when": "the shell is inspected against the guidance's hardened rules",
       "then": "the shape honours the primary-kpi kind, the as-of stamp and the auto-refresh default",
@@ -63,10 +63,10 @@
     },
     {
       "id": "AC-19107-5",
-      "description": "Given an applying project that ships a surface deviating from a ratified rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side review. Applying agent sets: the CALLS MADE entry text (the ratified guidance section quoted verbatim and the project's reason for deviating), the project's superseding REQ id, and the specific deviation named (for example the primary-kpi placement or the tile-density limit).",
+      "description": "Given an applying project that ships a surface deviating from a shipped rule (a primary KPI placed top-right for cultural reasons, a tile density above the guidance cap), the deviation is documented on the project's own README under CALLS MADE with the guidance section quoted verbatim and the project's reason; a deviation without a documented CALLS MADE entry fails project-side check. Applying agent sets: the CALLS MADE entry text (the shipped guidance section quoted verbatim and the project's reason for deviating), the project's superseding REQ id, and the specific deviation named (for example the primary-kpi placement or the tile-density limit).",
       "given": "an applying project surface deviating from a ratified guidance rule",
-      "when": "the review inspects the project's CALLS MADE section",
-      "then": "the deviation is documented with the guidance section quoted verbatim and the project's reason; an undocumented deviation fails review",
+      "when": "the check inspects the project's CALLS MADE section",
+      "then": "the deviation is documented with the guidance section quoted verbatim and the project's reason; an undocumented deviation fails the check",
       "testable": true,
       "scope": "unclassified",
       "disposition": "template"

@@ -8,7 +8,7 @@
   "purpose": "Owns the shell's timeframe picker and filter chrome, and the refetch fan-out contract: a preset change or a filter change issues one refetch per tile and one per rendered chart, every fetch carrying the same boundary and the same preset name, and once the batch has returned the shell updates one `data-as-of` attribute the tiles inherit. The fan-out contract is the substitutable interface the pack asserts on (AC-19104-1).",
   "responsibilities": [
     "Render the timeframe picker as an accessible list of presets (labelled `<button>` elements or a `<select>`) with a keyboard-reachable default from ADR-2002 (`last-7-days` unless elicited) (AC-19104-1).",
-    "Render filter chrome as labelled interactive elements (chips, dropdowns, text inputs) keyboard-reachable in reading order before the tile row; a hover-only control is refused at project-side review (AC-19105-1).",
+    "Render filter chrome as labelled interactive elements (chips, dropdowns, text inputs) keyboard-reachable in reading order before the tile row; a hover-only control is refused at project-side check (AC-19105-1).",
     "On a preset change or a filter change, issue one refetch per tile and one per rendered chart; every fetch carries the same `from` and `to` boundary, the same `preset` name and the same active-filters set (AC-19104-1, AC-19105-2).",
     "Update one `data-as-of` attribute on the shell root once every fetch has returned (or the timeout has elapsed) and propagate the same value to every tile's `data-as-of` attribute (AC-19104-1).",
     "Expose a request log on `window.__dashboardFetches` (an append-only array of `{ from, to, preset, filters, tileId, chartId, at }` records) so the pack can read every fetch after each preset change (AC-19104-1)."

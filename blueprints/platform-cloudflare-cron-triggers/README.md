@@ -27,9 +27,8 @@ logging companion can render without ever writing a body byte.
   `deltaMs`). Two-layer secrecy assertion in the event-secrecy
   probe.
 - A decision-tree cross-reference in the guide to `jobs-background`
-  (round 5) and to the follow-up Workflows adapter (round 6 jobs-
-  background 1.1.0 minor bump per spec section 5.7) for cases that
-  need durable, retried, workflow-shaped scheduled work.
+  and to the Workflows adapter for cases that need durable, retried,
+  workflow-shaped scheduled work.
 
 ## The four REQs
 

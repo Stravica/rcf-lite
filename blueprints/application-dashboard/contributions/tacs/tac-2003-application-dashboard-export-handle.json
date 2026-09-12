@@ -28,8 +28,8 @@
       "description": "PNG-of-chart export generation delegates to the charts shell; the dashboard export handle carries no PNG generator of its own."
     }
   ],
-  "tradeoffs": "The three shipped formats (CSV, PDF, PNG-of-chart) cover the common dashboard export cases; ADR-2003's elicited override handles SVG, XLSX and any operator-specific format. The delegation to the charts shell means a project that ships a bespoke chart engine outside the render shell needs a PNG output path of its own; the export handle names the residual under project-side review.",
-  "notes": "Known mechanism-reach gap: the pack browser has no download-capture seam today, so AC-19106-2 (PNG delegation) is proven at project-side review, not through the shipped pack. The README names it individually.",
+  "tradeoffs": "The three shipped formats (CSV, PDF, PNG-of-chart) cover the common dashboard export cases; ADR-2003's elicited override handles SVG, XLSX and any operator-specific format. The delegation to the charts shell means a project that ships a bespoke chart engine outside the render shell needs a PNG output path of its own; the export handle names the residual under project-side check.",
+  "notes": "Known mechanism-reach gap: the pack browser has no download-capture seam today, so AC-19106-2 (PNG delegation) is proven at project-side check, not through the shipped pack. The README names it individually.",
   "createdAt": "2026-09-04T22:10:00Z",
   "updatedAt": "2026-09-04T22:10:00Z"
 }

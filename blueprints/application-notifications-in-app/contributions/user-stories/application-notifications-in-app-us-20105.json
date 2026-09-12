@@ -25,7 +25,7 @@
     },
     {
       "id": "AC-20105-2",
-      "description": "Given the delivery-log write factory (TAC-2102 `writeDeliveryRow`), a call from the toast factory and a call from the centre factory both write through the applied `logging` companion's record factory (the row shape lives on this blueprint; the persistence layer lives on the companion). A row written outside the companion's factory bypasses the companion's retention and audit path and is refused at project-side review.",
+      "description": "Given the delivery-log write factory (TAC-2102 `writeDeliveryRow`), a call from the toast factory and a call from the centre factory both write through the applied `logging` companion's record factory (the row shape lives on this blueprint; the persistence layer lives on the companion). A row written outside the companion's factory bypasses the companion's retention and audit path and is refused at project-side check.",
       "given": "the delivery-log write factory",
       "when": "a toast or centre event surfaces a notification",
       "then": "a row lands through the applied logging companion",

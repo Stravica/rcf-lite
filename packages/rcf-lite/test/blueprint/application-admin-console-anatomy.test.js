@@ -116,7 +116,7 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   const wide = await applyBlueprint({ projectRoot: scratch2, tree: c2, source: BLUEPRINT_ROOT });
   assert.equal(wide.applied, true, JSON.stringify(wide));
   const sorted = [...wide.appliedCapabilities].sort();
-  // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
+  // observability-logging 1.3.0 removes
   // sessionInventory (owner is security-auth-clerk TAC-1003
   // interfaces.sessionInventory). The union still carries sessionInventory
   // in this triple because clerk 1.3.0 declares it; the union math is

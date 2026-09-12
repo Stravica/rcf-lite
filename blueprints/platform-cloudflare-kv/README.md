@@ -127,10 +127,8 @@ API for local proof; the mock and its test lives under
   rather than gating on an `elicitedNonEmpty` predicate for
   `kv-binding-name`; the loader's `validateElicits` accepts only
   `requiresCapability` on the `when` block today. The guide teaches
-  the pattern; a loader-capability uplift extending
-  `validateElicits` to accept an `elicitedNonEmpty` predicate is
-  captured as follow-up work item
-  a follow-up capability change (0.26.x) is out of scope for this 0.25.x patch.
+  the pattern; supporting the predicate requires the loader to
+  accept an `elicitedNonEmpty` clause on the `when` block.
 
 ## Companion suggestions
 

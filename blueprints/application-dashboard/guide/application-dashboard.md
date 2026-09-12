@@ -37,7 +37,7 @@ Every dashboard surface renders the five labelled regions. The primary KPI tile 
 
 ## Common gotchas
 
-- The primary KPI is a fixed enum (five values plus `custom` with a name). A free-form `data-kpi-kind` is refused at project-side review.
+- The primary KPI is a fixed enum (five values plus `custom` with a name). A free-form `data-kpi-kind` is refused at project-side check.
 - The as-of stamp lives on the shell root and every tile carries the same value. A tile whose stamp drifts is a defect.
 - Auto-refresh is off unless the operator opted in with an interval. A dashboard that refreshes every 30 seconds without an opt-in is a common accessibility and cost defect.
 - The export handle carries no PNG generator of its own. PNG-of-chart delegates to the application-charts render shell; a project that ships a chart engine outside the render shell either supersedes the delegation or loses the PNG affordance.

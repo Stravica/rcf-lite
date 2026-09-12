@@ -30,7 +30,7 @@ podman run -d --name infra-postgres-fixture \
 
 If port 5432 is already bound on the host, override via `POSTGRES_PORT=15432 docker compose up -d postgres`.
 
-Port 4200 is Dave's workspace port; never bind it. This fixture uses 5432 by default.
+Port 4200 is the repository default reserved for the local workspace server; never bind it. This fixture uses 5432 by default.
 
 ## Apply migrations
 

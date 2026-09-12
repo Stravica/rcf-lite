@@ -56,7 +56,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 29101-29108 sit at the LOW end of the 29101-29899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a messaging-queue-cloudflare REQ id into the number 29110 would collide against a shipped US-29110; band headroom (29109-29899) leaves that space.
+US 29101-29108 sit at the LOW end of the 29101-29899 band on purpose. A project-side story mechanically derived from a messaging-queue-cloudflare REQ id into the number 29110 would collide against a shipped US-29110; band headroom (29109-29899) leaves that space.
 
 ADR/TAC suffixes for this blueprint use the 3001-3099 block, continuing the shelf pattern.
 
@@ -68,4 +68,4 @@ ADR/TAC suffixes for this blueprint use the 3001-3099 block, continuing the shel
 
 ## Deliberate-conflict statement
 
-This blueprint's ADR-3002 on `deliverySemantics` is a first shipped answer to a topic that will conflict, by design, with future exactly-once or at-most-once siblings, and with the reserved `messaging-queue-postgres` sibling (maintainer decision). Applying `messaging-queue-cloudflare` alongside a hypothetical `messaging-queue-postgres` raises one `globalAdrTopic` conflict the operator resolves via one of the four documented resolutions per topic (adopt one, keep the existing one, author a project-level supersede ADR, or `--resolve <topic>=project:<ADR-id>` on the add).
+This blueprint's ADR-3002 on `deliverySemantics` is a first shipped answer to a topic that will conflict, by design, with future exactly-once or at-most-once siblings, and with the reserved `messaging-queue-postgres` sibling (sibling reservation). Applying `messaging-queue-cloudflare` alongside a hypothetical `messaging-queue-postgres` raises one `globalAdrTopic` conflict the operator resolves via one of the four documented resolutions per topic (adopt one, keep the existing one, author a project-level supersede ADR, or `--resolve <topic>=project:<ADR-id>` on the add).

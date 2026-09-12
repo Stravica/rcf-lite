@@ -124,8 +124,7 @@ Graceful degrade: when Access is not applied (the `zeroTrustGate` capability is 
 `origin/main` or the applying project simply does not want the gate),
 the blueprint still ships in public-hostname mode. The probe assertion
 runs on both fixture variants so the shape flip is proven on every
-reviewer boot.
-
+operator boot.
 ## No-public-ports rule
 
 The deploy-hetzner-server firewall on a `cloudHost` allows 22 unconditionally and 80/443

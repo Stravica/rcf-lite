@@ -29,7 +29,7 @@ Rules for new topics (inherited from the application-spa, application-api-rest, 
 
 ## Id number bands (registry bootstrap)
 
-AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is ratified policy (2026-08-19); this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands (v1.1 candidate).
+AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is policy; this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands (v1.1 candidate).
 
 This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
 
@@ -74,8 +74,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 7101-7110 sit at the LOW end of the 7101-7899 band on purpose. A project-side story that mechanically derives from an observability-essentials REQs id into the number `7110` would collide against observability-essentials-US-7110 in this package; the band leaves headroom at the HIGH end (US 7181-7899) so a project's own stories anchored to observability-essentials REQs can allocate without conflict. The watchpost run4 lesson applies here too.
-
+US 7101-7110 sit at the LOW end of the 7101-7899 band on purpose. A project-side story that mechanically derives from an observability-essentials REQs id into the number `7110` would collide against observability-essentials-US-7110 in this package; the band leaves headroom at the HIGH end (US 7181-7899) so a project's own stories anchored to observability-essentials REQs can allocate without conflict.
 Row-status caveat: the delivery-ci-workflows seat shipped first (PR #95 merged at 595cab9c on main). This branch was rebased onto that main; the delivery-ci-workflows row reflects the shipped state, and the observability row flips to `shipped v1.0.0` at this branch's merge (the maintainer coordinates that final flip in the merge commit or an immediate follow-up).
 
 ## Shared expectations for future composing blueprints

@@ -6,7 +6,7 @@
  *
  * The shim carries the blueprint slug in its name to disambiguate
  * from any other blueprint that later drives the shared
- * infra-s3-and-queue fixture (per HQ shared-fixture-shim naming
+ * infra-s3-and-queue fixture (per shared-fixture-shim naming
  * convention 2026-09-08).
  */
 

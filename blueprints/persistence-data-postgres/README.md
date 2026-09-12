@@ -63,7 +63,7 @@ Each probe is a Node module under `contributions/probes/` exporting the round-5 
 | `recovery-restore-round-trip` | AC-27105-1 | `pg_dump` artefact primes a fresh Postgres; row-count and checksum equality |
 | `pool-posture-smoke` | AC-27106-1 | Two facades at pool size 5 handle twenty concurrent queries with no timeout |
 
-None of the six probes carries `accountBound: true`; Postgres is local-first per infra round 5 spec maintainer decision.
+None of the six probes carries `accountBound: true`; Postgres is `accountBound: false` and local-first (sibling reservation).
 
 ## How to run the probes locally
 
@@ -88,7 +88,7 @@ Each shim exits 0 on aggregate pass and 1 otherwise; every report file carries `
 
 ## Known mechanism-reach gaps
 
-- **Prepared-statement discipline (REQ-003)** is enforced by a build-time AST scan; a project author who bypasses the facade for a project-side raw `pg.query` call site outside the facade directory is not caught by this probe. Mitigation: the facade sole-reader AC on REQ-001 pins the discipline at author-side review; the prepared-statement-scan probe walks only the facade directory by design.
+- **Prepared-statement discipline (REQ-003)** is enforced by a build-time AST scan; a project author who bypasses the facade for a project-side raw `pg.query` call site outside the facade directory is not caught by this probe. Mitigation: the facade sole-reader AC on REQ-001 pins the discipline at the author-side check; the prepared-statement-scan probe walks only the facade directory by design.
 - **Advisory-lock semantics (REQ-007)** is elicited off by default per the ratified Q1 answer. When enabled, session-level locks survive rolled-back transactions per https://www.postgresql.org/docs/current/explicit-locking.html; use `transaction` for the common case and pick `session` only when cross-transaction locking is the intent.
 - **Pool posture per deploy target (REQ-006)** ships defaults matching pg's own; the `pool-posture-smoke` probe drives twenty concurrent queries at pool size 5 and does not impose a sizing formula. Operators sizing for their workload override via the elicited pool-config fields.
 

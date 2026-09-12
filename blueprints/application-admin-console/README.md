@@ -26,7 +26,7 @@ Refuses with exit 3 and the spec 5.5.1 verbatim message on a project with no app
 | Applied capability | Surface | Rendered by |
 |---|---|---|
 | `principalDirectory` | Users directory (`/admin/users`) | Any applied auth blueprint (magic-link, clerk, oauth2, keycloak). |
-| `roleModel` | Permission matrix (`/admin/roles`) | Clerk, OAuth2, Keycloak. Magic-link does NOT declare it, so a bare-magic-link project gets NO roles surface (per the ratified spec section 5.5 worked example). |
+| `roleModel` | Permission matrix (`/admin/roles`) | Clerk, OAuth2, Keycloak. Magic-link does NOT declare it, so a bare-magic-link project gets NO roles surface (per the shipped spec section 5.5 worked example). |
 | `tenancy` | Org switcher (`/admin/orgs`), org-scoped invites | Reserved for a future `application-tenancy-orgs` blueprint (spec section 11). No shelf provider today. |
 | `auditLog` | Audit-log surface (`/admin/audit`) | Via the applied `observability-logging` companion (implicit), or a future dedicated audit-log blueprint. |
 | (none) | Access-denied + request-access | Always renders for a non-admin principal reaching `/admin/*`. |

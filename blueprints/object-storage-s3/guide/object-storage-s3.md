@@ -55,7 +55,7 @@ await store.deleteObject('uploads/report.pdf');
 const { keys, isTruncated } = await store.listObjects('uploads/');
 ```
 
-The facade is the sole importer of `@aws-sdk/client-s3` in your source tree per REQ-001. A project-side call site that reaches into the SDK directly is refused at author-side review.
+The facade is the sole importer of `@aws-sdk/client-s3` in your source tree per REQ-001. A project-side call site that reaches into the SDK directly is refused at the author-side check.
 
 ## Adapter choice per deploy target
 

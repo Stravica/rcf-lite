@@ -21,10 +21,10 @@
     },
     {
       "id": "AC-19102-2",
-      "description": "Given a rendered dashboard surface with no primary KPI tile, the surface either supersedes REQ-002 with a project-authored REQ documenting the omission or fails project-side review. This case is a documentation-and-review contract; the pack asserts the primary KPI tile exists (AC-19102-1) but does not itself enforce the fallback path.",
+      "description": "Given a rendered dashboard surface with no primary KPI tile, the surface either supersedes REQ-002 with a project-authored REQ documenting the omission or fails project-side check. This case is a documentation contract; the pack asserts the primary KPI tile exists (AC-19102-1) but does not itself enforce the fallback path.",
       "given": "a rendered dashboard with no primary KPI tile",
       "when": "the surface is reviewed",
-      "then": "the surface supersedes REQ-002 with a project-authored REQ or fails review",
+      "then": "the surface supersedes REQ-002 with a project-authored REQ or fails the check",
       "testable": true,
       "scope": "library",
       "disposition": "fixed"
