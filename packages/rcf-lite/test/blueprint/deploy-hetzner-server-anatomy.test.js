@@ -37,7 +37,7 @@ async function runProbe(name, env = {}) {
   }
 }
 
-// Per-probe requirement map (v1.1.11). Every counting row (a row
+// Per-probe requirement map (v1.1.12). Every counting row (a row
 // that is not `accountBoundSkipped`, not `notObservableHere`, and
 // not `conformanceOnly`) must belong to a probe declared in
 // `PROBE_REQUIREMENTS`, match one of its declared rows by
@@ -179,7 +179,7 @@ function checkIdShape(shape, value) {
   if (shape === 'hex64') return isHex64(value);
   return false;
 }
-// Per-field value validators (v1.1.11). isPresent-only acceptance is
+// Per-field value validators (v1.1.12). isPresent-only acceptance is
 // gone: an empty string, an empty collection, `false`, `NaN` or a
 // malformed value FAILS. Every required observation field named in
 // PROBE_REQUIREMENTS must have an entry here.
@@ -196,14 +196,24 @@ function isBaselineChecksArray(v) {
     if (!c || typeof c !== 'object' || Array.isArray(c)) return false;
     if (typeof c.id !== 'string' || c.id.length === 0) return false;
     const status = c.verdict !== undefined ? c.verdict : c.status;
-    if (typeof status === 'string' ? status.length === 0 : typeof status !== 'boolean') return false;
+    // A baseline check counts only when its verdict/status means
+    // pass. Strict acceptance (v1.1.12): boolean `true`, or the
+    // strings "pass" / "ok"; boolean `false`, `"fail"`, empty
+    // string and every other shape FAIL.
+    if (status === true) continue;
+    if (typeof status === 'string' && (status === 'pass' || status === 'ok')) continue;
+    return false;
   }
   return true;
 }
 function isNonNegInt(v) { return typeof v === 'number' && Number.isInteger(v) && v >= 0; }
+function isZeroInt(v) { return typeof v === 'number' && Number.isInteger(v) && v === 0; }
 function isCloudInitObj(v) {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
-  return typeof v.code === 'number' && Number.isFinite(v.code);
+  // Cloud-init hardened counts only on a clean exit (v1.1.12): the
+  // record's `cloudInit.code` MUST be exactly 0. NaN, Infinity,
+  // negatives and any non-zero code FAIL.
+  return typeof v.code === 'number' && Number.isInteger(v.code) && v.code === 0;
 }
 function isNonEmptyVendorIdArray(v) { return Array.isArray(v) && v.length > 0 && v.every(isVendorId); }
 function isVendorIdArrayMaybeEmpty(v) { return Array.isArray(v) && v.every(isVendorId); }
@@ -211,7 +221,9 @@ const FIELD_VALIDATORS = {
   primaryIpv4: isIpv4,
   location: isVendorLocation,
   baselineChecks: isBaselineChecksArray,
-  exitStatus: isNonNegInt,
+  // exitStatus is the process exit code of the cloud-init run and
+  // MUST be exactly 0 for a counting row (v1.1.12).
+  exitStatus: isZeroInt,
   cloudInit: isCloudInitObj,
   postCreateSnapshotIds: isNonEmptyVendorIdArray,
   postTeardownSnapshotIds: isVendorIdArrayMaybeEmpty,
@@ -275,6 +287,24 @@ function validateCountingRowAgainstMap(row, probeName) {
       throw new Error(`${probeName} / ${rule.anchorAcId}: none of the observation alternatives [${group.join(', ')}] are present and valid in evidence tree`);
     }
   }
+  // Snapshot on demand cross-field (v1.1.12): the vendor-minted
+  // `snapshotId` MUST be present in `postCreateSnapshotIds` (proving
+  // the snapshot was created live) AND MUST be absent from
+  // `postTeardownSnapshotIds` (proving it was destroyed). Only fires
+  // when the row rule requires both inventory fields.
+  if ((rule.requiredAll || []).includes('postCreateSnapshotIds') && (rule.requiredAll || []).includes('postTeardownSnapshotIds')) {
+    const snap = String(deepFind(ev, 'snapshotId'));
+    const create = deepFind(ev, 'postCreateSnapshotIds');
+    const teardown = deepFind(ev, 'postTeardownSnapshotIds');
+    const inCreate = Array.isArray(create) && create.map(String).includes(snap);
+    const inTeardown = Array.isArray(teardown) && teardown.map(String).includes(snap);
+    if (!inCreate) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: snapshot inventory inconsistent: snapshotId ${snap} must appear in postCreateSnapshotIds; got ${JSON.stringify(create)}`);
+    }
+    if (inTeardown) {
+      throw new Error(`${probeName} / ${rule.anchorAcId}: snapshot inventory inconsistent: snapshotId ${snap} must NOT appear in postTeardownSnapshotIds; got ${JSON.stringify(teardown)}`);
+    }
+  }
   return true;
 }
 async function assertRowsCarry7dShape(rows, probeName, label) {
@@ -310,7 +340,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
       // counting rows only.
       continue;
     }
-    // Counting row: enforce per-probe requirement map (v1.1.11).
+    // Counting row: enforce per-probe requirement map (v1.1.12).
     try {
       validateCountingRowAgainstMap(r, probeName);
     } catch (e) {
@@ -322,7 +352,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.11');
+  assert.equal(bp.version, '1.1.12');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -561,7 +591,7 @@ test('deploy-hetzner-server probe-utils empty results FAIL with detail exactly "
   assert.equal(row.verdict, 'fail');
 });
 
-// Per-probe requirement map: negative proof for v1.1.11.
+// Per-probe requirement map: negative proof for v1.1.12.
 // A synthetic counting row from a MAPPED probe is accepted only when
 // its identifier has the right shape AND every required observation
 // is present in the evidence tree (deep-search); missing fields, a
@@ -617,7 +647,7 @@ test('deploy anatomy per-probe map: nested observation under evidence.<group> is
   assert.equal(validateCountingRowAgainstMap(row, 'real-account-cloud-init-hardened'), true);
 });
 
-// Per-field value validators: negative cases (v1.1.11). isPresent-
+// Per-field value validators: negative cases (v1.1.12). isPresent-
 // only acceptance is gone; each required field runs its own
 // per-field validator and empty / malformed values FAIL. Synthetic
 // values below sit in the documentation ranges (198.51.100.0/24) or
@@ -674,7 +704,72 @@ test('deploy anatomy field validators: postTeardownSnapshotIds must be vendor-id
   }
 });
 
-// Unmapped-probe skip rule (v1.1.11). Offline / mock probes on this
+// Per-field validator strictness (v1.1.12): every numeric field
+// registered in FIELD_VALIDATORS rejects `NaN`, `Infinity`,
+// `-Infinity` and negative values, and the process exit code / cloud-
+// init code fields require exactly 0. Snapshot inventory cross-field
+// (v1.1.12) is proved below: the snapshotId must appear in
+// postCreateSnapshotIds and MUST NOT appear in postTeardownSnapshotIds.
+test('deploy anatomy field validators: exitStatus must equal 0 (v1.1.12); NaN, Infinity, -Infinity, negative, and non-zero integer all FAIL', async () => {
+  // exitStatus alternative present, cloudInit absent so the anyOf
+  // resolves on exitStatus alone.
+  for (const v of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1, 1, 2, 137]) {
+    const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: v } };
+    assert.throws(
+      () => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'),
+      /none of the observation alternatives \[exitStatus, cloudInit\]/,
+      `expected FAIL on exitStatus=${String(v)}`,
+    );
+  }
+  // exitStatus === 0 accepted:
+  const good = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], exitStatus: 0 } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-cloud-init-hardened'), true);
+});
+test('deploy anatomy field validators: cloudInit.code must equal 0 (v1.1.12); NaN, Infinity, -Infinity, negative, and non-zero integer all FAIL', async () => {
+  for (const v of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1, 1, 137]) {
+    const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], cloudInit: { code: v } } };
+    assert.throws(
+      () => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'),
+      /none of the observation alternatives \[exitStatus, cloudInit\]/,
+      `expected FAIL on cloudInit.code=${String(v)}`,
+    );
+  }
+  const good = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, baselineChecks: [{ id: 'ok', verdict: 'pass' }], cloudInit: { code: 0 } } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-cloud-init-hardened'), true);
+});
+test('deploy anatomy field validators: baselineChecks with a boolean `false` verdict FAILS (v1.1.12)', async () => {
+  const bad = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: false }] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad, 'real-account-cloud-init-hardened'), /baselineChecks missing or malformed/);
+  const badFail = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: 'fail' }] } };
+  assert.throws(() => validateCountingRowAgainstMap(badFail, 'real-account-cloud-init-hardened'), /baselineChecks missing or malformed/);
+  // boolean true accepted:
+  const okTrue = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: true }] } };
+  assert.equal(validateCountingRowAgainstMap(okTrue, 'real-account-cloud-init-hardened'), true);
+  // "pass" / "ok" strings accepted:
+  const okPass = { anchorAcId: 'AC-37105-1', verdict: 'pass', evidence: { serverId: 424243, cloudInit: { code: 0 }, baselineChecks: [{ id: 'sshKeyOnly', verdict: 'pass' }] } };
+  assert.equal(validateCountingRowAgainstMap(okPass, 'real-account-cloud-init-hardened'), true);
+});
+test('deploy anatomy cross-field: snapshotId MUST appear in postCreateSnapshotIds and MUST NOT appear in postTeardownSnapshotIds (v1.1.12)', async () => {
+  // snapshotId missing from create:
+  const bad1 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [9999999], postTeardownSnapshotIds: [] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad1, 'real-account-snapshot-on-demand'), /must appear in postCreateSnapshotIds/);
+  // snapshotId still present in teardown:
+  const bad2 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [4242424] } };
+  assert.throws(() => validateCountingRowAgainstMap(bad2, 'real-account-snapshot-on-demand'), /must NOT appear in postTeardownSnapshotIds/);
+  // both fine (created then destroyed):
+  const good = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [] } };
+  assert.equal(validateCountingRowAgainstMap(good, 'real-account-snapshot-on-demand'), true);
+});
+test('deploy anatomy field validators: vendor-id array entries reject NaN, Infinity, -Infinity and negative integers (v1.1.12)', async () => {
+  for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1]) {
+    const badRow = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [bad], postTeardownSnapshotIds: [] } };
+    assert.throws(() => validateCountingRowAgainstMap(badRow, 'real-account-snapshot-on-demand'), /postCreateSnapshotIds missing or malformed/, `expected FAIL on postCreateSnapshotIds=[${String(bad)}]`);
+    const badRow2 = { anchorAcId: 'AC-37108-1', verdict: 'pass', evidence: { snapshotId: 4242424, postCreateSnapshotIds: [4242424], postTeardownSnapshotIds: [bad] } };
+    assert.throws(() => validateCountingRowAgainstMap(badRow2, 'real-account-snapshot-on-demand'), /postTeardownSnapshotIds missing or malformed/, `expected FAIL on postTeardownSnapshotIds=[${String(bad)}]`);
+  }
+});
+
+// Unmapped-probe skip rule (v1.1.12). Offline / mock probes on this
 // blueprint (hcloud-dry-run-mock, manifest-schema-validate,
 // cloud-init-render-lint) have no declared gate variable to skip on:
 // their entire row set is either conformanceOnly / notObservableHere.
@@ -692,7 +787,7 @@ test('deploy anatomy: mapped live probe emitting the exact one-variable skip is 
   await assertRowsCarry7dShape(rows, 'real-account-throwaway-server-provision', 'mapped-skip-positive');
 });
 
-// Record walk (v1.1.11). When a local run has produced records under
+// Record walk (v1.1.12). When a local run has produced records under
 // `.rcf/reports/blueprints/deploy-hetzner-server/`, validate every
 // counting row against the per-probe map and check that the mapped
 // identifier appears in the record's own inventory or event trail
@@ -751,28 +846,63 @@ function walkRecordRow({ row, probeName, name, shipped, record }) {
   }
   return { walked: true, inventoryHit, counted: true };
 }
-test('deploy-hetzner-server v1.1.11 record walk: local records validate against the per-probe map with inventory correlation, or report no records', async () => {
+test('deploy-hetzner-server v1.1.12 record walk: every row of every present local record is validated (no stubs skipped), or report no records only when the directory has no record files', async () => {
   const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'deploy-hetzner-server');
   let entries = [];
   try {
     entries = (await readdir(reportsDir)).filter((f) => f.endsWith('.json'));
   } catch (e) {
-    console.log('deploy-hetzner-server v1.1.11 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    console.log('deploy-hetzner-server v1.1.12 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
     return;
   }
   if (entries.length === 0) {
-    console.log('deploy-hetzner-server v1.1.11 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
+    console.log('deploy-hetzner-server v1.1.12 record walk: no local records under .rcf/reports/blueprints/deploy-hetzner-server (CI path).');
     return;
   }
   const shipped = await loadShippedAcs();
   let walkableRows = 0;
   let inventoryHits = 0;
   let countingRows = 0;
-  let stubs = 0;
   for (const fileName of entries) {
     const rec = JSON.parse(await readFile(join(reportsDir, fileName), 'utf8'));
     const probeName = rec.probeName || fileName.replace(/\.json$/, '');
     const rows = Array.isArray(rec.results) ? rec.results : [];
+    for (const row of rows) {
+      // v1.1.12: no more stub-skip. Every row of every present local
+      // record MUST carry a row-shape marker (evidence for a counting
+      // row, `limitation` for a conformanceOnly de-claim, `reason`
+      // for an accountBoundSkipped row, or `notObservableHere.ac`).
+      // A row lacking all four FAILS - malformed rows previously
+      // escaped validation.
+      const hasShape = !!row && (
+        row.evidence !== undefined
+        || (row.conformanceOnly && typeof row.limitation === 'string')
+        || (row.accountBoundSkipped === true && typeof row.reason === 'string')
+        || (row.notObservableHere && row.notObservableHere.ac)
+      );
+      assert.ok(
+        hasShape,
+        `${fileName}: row lacking evidence / limitation / skip reason FAILS the record walk (v1.1.12; no more stub-skip): ${JSON.stringify(row).slice(0, 300)}`,
+      );
+      walkableRows++;
+      const r = walkRecordRow({ row, probeName, name: fileName, shipped, record: rec });
+      if (r.counted) countingRows++;
+      if (r.inventoryHit) inventoryHits++;
+    }
+  }
+  console.log(`deploy-hetzner-server v1.1.12 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s) across ${entries.length} record file(s).`);
+});
+
+// Malformed-row negative case (v1.1.12): a synthetic record whose
+// results include a row lacking evidence, limitation and reason
+// MUST be rejected by the walker. Proved without touching the real
+// records directory.
+test('deploy-hetzner-server v1.1.12 record walk: a malformed row (no evidence / limitation / reason) is REJECTED', async () => {
+  const stubRow = { anchorAcId: 'AC-37103-1', verdict: 'pass', detail: 'no observations, no evidence, no skip reason' };
+  const rec = { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', results: [stubRow] };
+  const rows = rec.results;
+  let threw = false;
+  try {
     for (const row of rows) {
       const hasShape = !!row && (
         row.evidence !== undefined
@@ -780,16 +910,11 @@ test('deploy-hetzner-server v1.1.11 record walk: local records validate against 
         || (row.accountBoundSkipped === true && typeof row.reason === 'string')
         || (row.notObservableHere && row.notObservableHere.ac)
       );
-      if (!hasShape) { stubs++; continue; }
-      walkableRows++;
-      const r = walkRecordRow({ row, probeName, name: fileName, shipped, record: rec });
-      if (r.counted) countingRows++;
-      if (r.inventoryHit) inventoryHits++;
+      assert.ok(hasShape, 'stub row must FAIL the walker');
     }
+  } catch (e) {
+    threw = true;
+    assert.match(String(e && e.message), /stub row must FAIL/);
   }
-  if (walkableRows === 0) {
-    console.log(`deploy-hetzner-server v1.1.11 record walk: no walkable rows in ${entries.length} record file(s) (${stubs} stub row(s)); no local records path.`);
-    return;
-  }
-  console.log(`deploy-hetzner-server v1.1.11 record walk: ${walkableRows} walkable row(s), ${countingRows} counting row(s), ${inventoryHits} inventory correlation(s), ${stubs} stub row(s) skipped across ${entries.length} record file(s).`);
+  assert.equal(threw, true, 'expected the walker shape-check to reject a malformed row synthesised for this negative-proof test');
 });
