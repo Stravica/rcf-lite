@@ -13,7 +13,7 @@
       "id": "AC-26105-1",
       "testable": true,
       "scope": "runtime",
-      "description": "Given a principal whose completion-state store contains no completion record for the applied blueprint set version, the tour auto-opens on the highest-value surface; given a principal whose completion-state store contains a completion record for the applied blueprint set version, the tour does NOT auto-open and only the checklist and the restart-tour control render. The check is documented as a mechanism-reach gap in the README (not directly probed at runtime; enforced by the fixture branch under manual boot for the gate operator).",
+      "description": "Given a principal whose completion-state store contains no completion record for the applied blueprint set version, the tour auto-opens on the highest-value surface; given a principal whose completion-state store contains a completion record for the applied blueprint set version, the tour does NOT auto-open and only the checklist and the restart-tour control render. The check is documented as a mechanism-reach gap in the README (not directly probed at runtime; enforced by the fixture branch under manual boot for the gate reviewer).",
       "disposition": "fixed"
     },
     {

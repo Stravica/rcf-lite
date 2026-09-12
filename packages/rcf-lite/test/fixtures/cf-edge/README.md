@@ -53,13 +53,13 @@ pnpm start
 ```
 
 `wrangler dev` picks its own port and prints the local URL. The
-fixture never binds `4200` (the operator's workspace server owns that
-port).
+fixture never binds `4200`; that port is the repository default
+reserved for the local workspace server, so keep it free.
 
 ## Fixture-JWT signer boot line
 
 The probes start the fixture-JWT signer in-process; a manual boot
-for the gate operator looks like:
+for the gate reviewer looks like:
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge
@@ -97,7 +97,7 @@ the process running while a `wrangler dev` process points at it.
 the fixture route table is intentionally minimal (`/` returns the
 principal reflected as JSON, `/health` is exempt from the validator).
 
-## Two-line gate-operator boot for the local probes
+## Two-line gate-reviewer boot for the local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge
@@ -169,7 +169,7 @@ additions are additive.
 Every switch restores the fixture tree before the probe exits;
 mutation checks in the anatomy test verify the negative path.
 
-### Two-line gate-operator boot for the criterion-e local probes
+### Two-line gate-reviewer boot for the local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge

@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 ## 2.3.0 (2026-09-09)
 
 - Adds `elicits[]` with seven apply-time answers: `branch-model` (enum feature/trunk, default feature; ADR-706), `check-set` (string JSON of booleans; REQs 016-020), `release-mode` (enum none/tagOnly/tagPlusArtefact/deployHandoff, default none; ADR-707), `scheduled-audit` (enum off/on, default off; ADR-710), `provider-hint` (enum githubActions, default githubActions; ADR-708), `report-dir` (string, default .rcf/reports; ADR-704), `deploy-handoff-target` (string, blank when not deployHandoff; REQ-022).
-- Adds `deliveredBy` to all 23 REQs pointing at TAC-701/702/703/704/705/706 responsibility-carrying interfaces..
+- Adds `deliveredBy` to all 23 REQs pointing at TAC-701/702/703/704/705/706 responsibility-carrying interfaces.
 - Adds the missing coverage on AC-6109-2: adds ownerRef pointing at TAC-701-delivery-ci-workflows-gate-runner.interfaces[2].name (the entry-point CLI it restates).
 - The interrupted report writes could leave stale success gap is fixed: adds AC-6105-3 and AC-6108-3 asserting an interrupted per-gate and aggregate rewrite never leaves a stale-success from a previous run; the pipeline refuses pass on absent aggregate per REQ-008.
 - The release entity creation and artefact publication had only success cases gap is fixed: adds AC-6121-4 (RELEASE_CREATE_FAILED naming step + provider status; no downstream publication or promote) and AC-6122-4 (RELEASE_PUBLISH_FAILED naming artefact + provider response; no promote step).

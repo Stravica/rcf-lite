@@ -26,7 +26,7 @@ Refuses with exit 3 and the spec 5.5.1 verbatim message on a project with no app
 | Applied capability | Surface | Rendered by |
 |---|---|---|
 | `principalDirectory` | Users directory (`/admin/users`) | Any applied auth blueprint (magic-link, clerk, oauth2, keycloak). |
-| `roleModel` | Permission matrix (`/admin/roles`) | Clerk, OAuth2, Keycloak. Magic-link does NOT declare it, so a bare-magic-link project gets NO roles surface (per the shipped spec section 5 worked example). |
+| `roleModel` | Permission matrix (`/admin/roles`) | Clerk, OAuth2, Keycloak. Magic-link does NOT declare it, so a bare-magic-link project gets NO roles surface (per the shipped spec section 5.5 worked example). |
 | `tenancy` | Org switcher (`/admin/orgs`), org-scoped invites | Reserved for a future `application-tenancy-orgs` blueprint (spec section 11). No shelf provider today. |
 | `auditLog` | Audit-log surface (`/admin/audit`) | Via the applied `observability-logging` companion (implicit), or a future dedicated audit-log blueprint. |
 | (none) | Access-denied + request-access | Always renders for a non-admin principal reaching `/admin/*`. |
@@ -87,7 +87,7 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 - **AC-21106-1 (access-denied region accessibility structure beyond the request-access control).** The pack's AC-21102-1 check probes the request-access control on the denied branch; the wider WCAG structure (heading, explanation, polite live region wiring) is present on the fixture but not additionally asserted. A v1.1.0 minor bump can add an axe-core sweep on the denied region.
 - **AC-21107-1 (sidecar file served under a stable path).** The pack reads the sidecar from `projectRoot`; the CLIENT-side read (over the network at load time) is a runtime-observable surface the pack does not additionally probe. A v1.1.0 minor bump can add a probe that reads `/admin/caps.json` on the fixture and diffs against the applied sidecar.
 - **AC-21108-1 (providesRoles absent on the blueprint).** A chain-scope AC probed by the anatomy tests, not by the browser pack.
-- **AC-21109-1 and AC-21109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate operator runs the CLI directly.
+- **AC-21109-1 and AC-21109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate reviewer runs the CLI directly.
 
 ## Companions
 

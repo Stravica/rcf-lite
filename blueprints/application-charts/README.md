@@ -28,7 +28,7 @@ Deliberately not contributed: a choice of chart engine (Recharts, ECharts, Chart
 
 ## The engine refusal rule
 
-`ADR-1901` elicits the chart engine at apply, and refuses a canvas-only engine that offers no text-alternative surface. The refusal is documented here on the blueprint's README so applying projects and gate operators see the rule in one place:
+`ADR-1901` elicits the chart engine at apply, and refuses a canvas-only engine that offers no text-alternative surface. The refusal is documented here on the blueprint's README so applying projects and gate reviewers see the rule in one place:
 
 - Recharts, ECharts, Chart.js and D3 primitives all satisfy the shell contract when paired with the shell's text-alternative table slot. Chart.js's canvas surface is paired with the shell's `<table>` slot; the shell renders both, so screen readers reach the values.
 - A chart engine that renders exclusively to a `<canvas>` and does NOT offer either a shell-rendered `<table>` or an equivalent DOM path is refused at project-side check. The applying project either replaces the engine or supersedes this blueprint with a project-authored engine contract naming the residuals.

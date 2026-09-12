@@ -5,7 +5,7 @@
   "version": "1.0.3",
   "status": "approved",
   "title": "A chart engine that refuses text-alternative access is refused on the applying project",
-  "asA": "gate operator gating an applying project's chart engine choice",
+  "asA": "shelf reviewer gating an applying project's chart engine choice",
   "iWant": "the blueprint to refuse a chart engine choice that renders canvas-only surfaces with no text-alternative path",
   "soThat": "the text-alternative REQ-003 and the keyboard-traversal REQ-004 stay reachable through the render shell's contract regardless of the chosen engine (ADR-1901)",
   "acceptanceCriteria": [

@@ -81,9 +81,9 @@ pnpm start
 ```
 
 `wrangler dev` picks its own port and prints the local URL; the
-fixture never binds 4200 (the operator's workspace server owns that port).
+fixture never binds 4200 - that port is the repository default reserved for the local workspace server, so keep it free.
 
-## Two-line gate-operator boot for the account-inventory probe
+## Two-line gate-reviewer boot for the account-inventory probe
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -93,7 +93,7 @@ node ./run-assets-manifest-scan.mjs
 Expected: exit 0 with `aggregateVerdict: pass` and a detail record
 naming `directory: "./dist"` and `run_worker_first: true`.
 
-## Two-line gate-operator boot for the four in-process local probes
+## Two-line gate-reviewer boot for the four in-process local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -103,7 +103,7 @@ node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-e
 node ../../../../../blueprints/platform-cloudflare-kv/contributions/probes/run-list-with-prefix.mjs
 ```
 
-## Two-line gate-operator boot for the durable-object local probes
+## Two-line gate-reviewer boot for the durable-object local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -222,7 +222,7 @@ cloudflare-cron-triggers-anatomy.test.js` binds `TS-090` through
 `TS-096` to the T-2 fixture files, the scheduled handler, the
 dispatcher and the five probe modules.
 
-## Two-line gate-operator boot for the seven messaging-queue in-process probes
+## Two-line gate-reviewer boot for the seven messaging-queue in-process probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform
@@ -311,7 +311,7 @@ modules; each probe cleans up its state on exit.
 
 - The T-3 anatomy test at `packages/rcf-lite/test/blueprint/platform-cloudflare-durable-objects-anatomy.test.js` binds `TS-100` through `TS-109` to the T-3 fixture files, the DO facade, the SingleCellObject class, the HubObject class, the in-memory DO storage driver and the seven probe modules.
 
-## Two-line gate-operator boot for the wrangler-seam probe
+## Two-line gate-reviewer boot for the wrangler-seam probe
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform

@@ -58,7 +58,7 @@ Every default below is a Cloudflare public test key documented at `https://devel
 - `GET /api/events` event sink dump as JSON, for the `event-secrecy` probe.
 - `POST /api/events/clear` clears the event sink.
 
-## Manual boot for the gate operator
+## Manual boot for the gate reviewer
 
 Two lines cover the sitekey and secret branches the T-5 gate rows walk:
 
@@ -78,7 +78,7 @@ Then hit:
 
 ## Proofs
 
-The `proof/` directory ships the MCP-route pack proofs the criterion-e gate operator reads:
+The `proof/` directory ships the MCP-route pack proofs the gate reviewer reads:
 
 - `pack-mcp-route.<ts>.json` positive: all four pack checks green with a real Playwright chromium driver.
 - `pack-mcp-route.negative-guard-removed.<ts>.json` negative: `magicLinkGuard` FAILS when the token guard is removed from the mint route.

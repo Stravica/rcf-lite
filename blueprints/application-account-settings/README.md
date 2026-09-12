@@ -96,7 +96,7 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 - **AC-25104-1 (hosted-embed sandbox token beyond allow-scripts).** The pack's AC-25105-1 confirms `allow-scripts` in the sandbox; the wider token set is documented on ADR-2602 but not additionally asserted.
 - **AC-25105-2 (session-terminate focus-trap behaviour).** The pack's AC-25106-1 asserts the dialog is present and correctly wired; the focus-trap and focus-return behaviour is asserted at fixture-read time and by the project-side smoke tests, not by the pack's browser evaluate at v1.
 - **AC-25107-1 (notification-preferences surface capability discovery).** The pack does NOT probe the notifications surface at v1.0.0; the shell tabs check (AC-25101-1) confirms the tab renders only when `application-notifications-in-app` is applied via the fixture's `?apps=` switch. A future v1.1.0 minor bump can add a dedicated notifications surface check.
-- **AC-25109-1 and AC-25109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate operator runs the CLI directly.
+- **AC-25109-1 and AC-25109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate reviewer runs the CLI directly.
 - **AC-25110-1 (Q3 apply-time refusal for a missing security capability).** Probed by the mechanism unit tests via the extended `runElicitationPhase` refusal path (added in this PR), not by the browser pack.
 
 ## Known schema follow-ups

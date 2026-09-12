@@ -15,7 +15,7 @@
 
 ## 1.2.4
 
-- rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label; drops the vendor-implementation naming from the guide narrative and describes the reference container-plus-realm shape generically.
+- No functional change; README wording tightened and the guide's reference container-plus-realm shape described generically.
 
 ## 1.2.3
 

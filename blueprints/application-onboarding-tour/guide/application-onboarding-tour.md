@@ -56,4 +56,4 @@ rcf define blueprint add <path-to>/blueprints/application-onboarding-tour
 rcf verify browser <fbs-id> --url <runtime-url> --probe-pack application-onboarding-tour --json
 ```
 
-Runs the four checks against the shipped fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-onboarding-tour/`. See the fixture README for the four break-switch runs the gate operator walks manually.
+Runs the four checks against the shipped fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-onboarding-tour/`. See the fixture README for the four break-switch runs the gate reviewer walks manually.

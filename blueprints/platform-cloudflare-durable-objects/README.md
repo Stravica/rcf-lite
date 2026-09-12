@@ -117,7 +117,7 @@ under the fixture root.
 | `real-account-storage-smoke.mjs` | `AC-33112-1` | true | Facade round-trip against a real Cloudflare DO namespace when `CI_HAS_CLOUDFLARE_ACCOUNT=true`; otherwise records `accountBoundSkipped` and passes per spec section 3.5. |
 | `wrangler-seam.mjs` | `AC-33113-1` | false | Spawns `wrangler dev --local` on the fixture and drives two concurrent `POST /cell/<id>/increment` requests through the DO facade against `env.CELL`, asserting per-instance serialisation (counters `[1, 2]`, witnesses `[0, 1]`); opens one WebSocket upgrade against `/hub/<id>/connect` through the facade against `env.HUB`, asserting one broadcast frame arrives on connect. Also carries an additional `AC-33108-1` result that greps `wrangler.toml` for both binding pairs and the migrations tag/new_sqlite_classes. Warn semantics per section 3.1 pass-with-skip if wrangler is not installed or fails to bind. |
 
-## Two-line gate-operator boot
+## Two-line gate-reviewer boot
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-platform

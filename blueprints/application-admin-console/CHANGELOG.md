@@ -50,8 +50,8 @@
 
 ### Added
 
-- REQ-007 (invite-transport option coverage) and US-21110: every invite-transport option (email, in-app-only, custom) now carries a runtime clause and a story binding accepted, failed and recorded outcomes with a per-invite audit record..
-- REQ-008 (tenancy-shape option coverage) and US-21111: the elicited tenancy-shape (per-user, per-org, both) now determines directory membership, org switcher entries, invite scope and cross-shape refusal (TENANCY_SHAPE_REFUSAL)..
+- REQ-007 (invite-transport option coverage) and US-21110: every invite-transport option (email, in-app-only, custom) now carries a runtime clause and a story binding accepted, failed and recorded outcomes with a per-invite audit record.
+- REQ-008 (tenancy-shape option coverage) and US-21111: the elicited tenancy-shape (per-user, per-org, both) now determines directory membership, org switcher entries, invite scope and cross-shape refusal (TENANCY_SHAPE_REFUSAL).
 - Failure-path acceptance criteria on US-21106 (request-access POST failure) and US-21107 (empty union entry for a library-qualified source unavailable locally); failure-path AC on US-21815 for a gated request with no request.auth.
 - Vendor citations on the WCAG 2.4.6 / 3.3.4 / 4.1.3 fixed acceptance criteria and on the ARIA APG grid pattern criteria (verified 2026-09-10).
 
@@ -60,7 +60,8 @@
 - Every REQ now carries a deliveredBy link into TAC-2201, TAC-2203, TAC-2204 or TAC-2214.
 - Every AC on every user story now carries an explicit disposition (fixed or template); template ACs state the values the applying agent sets.
 - TAC-2201 responsibilities now include deliverInvite (per invite-transport branch), tenancyShapeGate (per tenancy shape), delegateUsersSurface, delegateOrgsSurface, renderAccessDenied and renderShell so the deliveredBy fields resolve.
-- REQ-005 extended with an audit-retention-days runtime clause naming the string elicit and its refusal branch; US-21105 gained a template AC (AC-21105-3) carrying `Applying agent sets: audit-retention-days.`; README and ADR-2201 register scrubbed (no operator names)..
+- REQ-005 extended with an audit-retention-days runtime clause naming the string elicit and its refusal branch; US-21105 gained a template AC (AC-21105-3) carrying `Applying agent sets: audit-retention-days.`.
+
 ## 1.1.0 (2026-09-07)
 
 ### Added
@@ -79,6 +80,6 @@
 - Introduces the capability-declaration mechanism: `capabilities[]` on identity blueprints (v1.1.0 minor bumps on magic-link, clerk, oauth2, keycloak land in the same PR per spec Q2 default), `requiresAppliedCapabilities` and `elicits[]` on consumer blueprints, apply-time discovery via source read-back on `manifest.blueprints[]`, exit-3 refusal with the spec 5.5.1 verbatim message on bare-SPA applies, and a `--allow-no-auth-yet` operator override.
 - Persists per-project apply-time state in a sidecar `rcf/blueprints/application-admin-console.applied.json` (the applied-blueprint-record schema in rcf-schemas 0.6.0 is closed under additionalProperties:false; the source-manifest read-back precedent from the core-companions train applies here). The sidecar carries `appliedCapabilities`, `appliedElicitations`, `allowNoAuthYet?` and `notes?`.
 - Ships `probe-packs/application-admin-console.pack.mjs`: four capability-gated browser-verify checks anchored to AC-21102-1 (users), AC-21103-1 (permission matrix), AC-21104-1 (org switcher), AC-21105-1 (audit-log surface). Each check reads the applied capability sidecar and records `applicable: false` where its required capability is absent (residual cure). Fifth shipped consumer of the earlier release probe-pack runner extension.
-- Ships a dependency-free sample-app fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/` with `CAPS` env or `?caps=` query switch selecting which surfaces exist, break switches for the negative runs (matrix-grid, denied, audit-fields), and the mandatory README for the gate operator.
+- Ships a dependency-free sample-app fixture at `packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/` with `CAPS` env or `?caps=` query switch selecting which surfaces exist, break switches for the negative runs (matrix-grid, denied, audit-fields), and the mandatory README for the gate reviewer.
 - Consumes `application-datatable` for the users and audit surfaces; declares `suggestedCompanions` logging and errorHandling.
 - Does NOT declare `providesRoles` per spec 5.5.3 (the console is a consumer of `principalDirectory`, never a provider).

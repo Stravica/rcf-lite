@@ -66,7 +66,7 @@ Prints `LISTENING <port>` once bound.
 - `/account/notifications` notification preferences (fires when `application-notifications-in-app` is in apps).
 - `/account/theme` theme surface (fires when `application-spa` is in apps).
 
-## Manual boot for the gate operator
+## Manual boot for the gate reviewer
 
 Five lines, one per fixture caps combination the section 6 T-4 gate rows walk:
 

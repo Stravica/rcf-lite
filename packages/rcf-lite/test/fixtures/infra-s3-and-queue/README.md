@@ -29,7 +29,7 @@ podman run -d --name infra-minio-fixture \
 If port 9000 or 9001 is already bound on the host, override via
 `MINIO_PORT=19000 MINIO_CONSOLE_PORT=19001 docker compose up -d minio`.
 
-Port 4200 is the operator's workspace port; never bind it. This fixture uses 9000 (S3 API) and 9001 (console) by default.
+Port 4200 is the repository default reserved for the local workspace server; never bind it. This fixture uses 9000 (S3 API) and 9001 (console) by default.
 
 ## MinIO console
 

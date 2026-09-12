@@ -61,7 +61,7 @@ The `?caps=` query parameter on any route overrides `ADMIN_CONSOLE_CAPS` for tha
 - `POST /api/request-access` records a request-access submission on `/__requests`.
 - `GET /__requests` returns the request log (client-side fetches mirror to `window.__adminFetches`).
 
-## Manual boot for the gate operator
+## Manual boot for the gate reviewer
 
 ```
 PORT=4321 ADMIN_CONSOLE_CAPS=principalDirectory,roleModel,auditLog node server.js
@@ -92,7 +92,7 @@ Two new pieces ship with the extension:
   `zeroTrustGate` is applied and asserts the mutually exclusive
   surface presence.
 
-### Two-line boot for the criterion-e admin-console gate operator
+### Two-line boot for the gate reviewer
 
 ```
 PORT=4322 ADMIN_CONSOLE_CAPS=principalDirectory,roleModel,auditLog,zeroTrustGate node server.js

@@ -63,7 +63,7 @@ Prints `LISTENING <port>` once bound.
 - `/probe/widgets` stub parent surface the not-found recovery link points at.
 - `POST /api/request-access` accepts the request-access submission the forbidden and permission-denied surfaces fire.
 
-## Manual boot for the gate operator
+## Manual boot for the gate reviewer
 
 ```
 PORT=4321 node server.js

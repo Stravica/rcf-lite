@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "title": "Round-trip against MinIO in the shared sample-app fixture; five local probes pass end-to-end",
-  "asA": "gate operator running the ship gate for object-storage-s3 in CI",
+  "asA": "gate reviewer running the ship gate for object-storage-s3 in CI",
   "iWant": "the five local Node-only probes to pass against a real MinIO container brought up from the shared infra-s3-and-queue fixture",
   "soThat": "every runtime-observable AC has a live-engine verdict on file at ship time",
   "acceptanceCriteria": [

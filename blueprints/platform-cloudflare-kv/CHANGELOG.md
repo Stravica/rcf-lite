@@ -42,7 +42,6 @@ Owner reference for the KV event-record whitelist.
 ### Fixed
 
 - `AC-31109-1` disposition flipped from `fixed` to `template`: the applying project sets the cache-aside TTL, so an AC that binds the local-expiry window to `elicitedTtlMs` is an elicit-branch AC per section 7b.
-- Register sweep: README, ADR and probe comments have internal operator names, host names, work-item ids, internal train labels and "operator ruling" references neutralised to concept ("throwaway prefix", "probe-integrity pass", "operator ruling"); code literals bound to real Cloudflare API state ("h2-cf-probe-integrity-scratch-kv-" and similar) are unchanged. CHANGELOG entries keep internal provenance.
 
 ## 1.0.2 (2026-09-08)
 
@@ -68,10 +67,11 @@ The local proof harness under `packages/rcf-lite/test/fixtures/cf-platform/test/
 Probe-integrity patch (`h2-cf-platform-probe-integrity`) across the four Cloudflare-platform blueprints. No capability change.
 ### Changed
 
-- Re-anchored all five KV probes and the README from the defunct `AC-5xxx` id space to the shipped `AC-31xxx` band (nine shipped ACs: `AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`, `AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`, `AC-31108-1`). Every one of the nine now has a runtime observable through a re-anchored probe. Anatomy-test assertions in `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js` moved with the re-anchor. - Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
+- Re-anchored all five KV probes and the README from the defunct `AC-5xxx` id space to the shipped `AC-31xxx` band (nine shipped ACs: `AC-31101-1`, `AC-31102-1`, `AC-31103-1`, `AC-31103-2`, `AC-31104-1`, `AC-31105-1`, `AC-31106-1`, `AC-31107-1`, `AC-31108-1`). Every one of the nine now has a runtime observable through a re-anchored probe. Anatomy-test assertions in `packages/rcf-lite/test/blueprint/platform-cloudflare-kv-anatomy.test.js` moved with the re-anchor.
+- Moved the `SIMULATE_CACHE_MISS` mutation switch out of `cache-aside-hit-then-miss.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-cache-aside-shim.mjs`; the probe body holds zero `SIMULATE_` token references (`AC-15401-1` mutation-purity rule).
 - Moved the `SIMULATE_PII_LEAK` mutation switch out of `event-secrecy.mjs` into fixture shim `packages/rcf-lite/test/fixtures/cf-platform/h2-cf-kv-event-secrecy-shim.mjs`; the probe body holds zero `SIMULATE_` token references.
 - Reworded the "fake clock" comment on `cache-aside-hit-then-miss.mjs` header to name the local test double honestly ("elicited deterministic clock the fixture advances").
-- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as a loader-capability follow-up (0.26.x capability change, out of the the 0.25.x patch scope). The entry describes the current shipped shape and points forward to the follow-up.
+- Reworded the `Known limitations` (CHANGELOG) and `Known mechanism-reach gaps` (README) entries on the loader `elicits[]` `when` block predicate to name the loader-capability uplift as a loader-capability follow-up (0.26.x capability change, out of the 0.25.x patch scope). The entry describes the current shipped shape and points forward to the follow-up.
 
 ### Fixed
 
@@ -97,4 +97,4 @@ Probe-integrity patch (`h2-cf-platform-probe-integrity`) across the four Cloudfl
 
 - The `real-account-eventual-consistency-smoke` probe records `accountBoundSkipped: true` and aggregates to `pass` when `CI_HAS_CLOUDFLARE_ACCOUNT` is unset (spec section 3.5 pass-with-skip). Full mechanism reach requires a CI environment with the paired `CF_ACCOUNT_ID`, `CF_KV_NAMESPACE_ID` and `CF_API_TOKEN` env vars.
 - The four local probes drive an in-memory KV driver whose shape matches the Workers KV binding at the facade boundary. Vendor surface changes beyond that boundary (a new list cursor format, a header-only limit) are not caught by the local probes; the real-account smoke is the mechanism-reach closure for that gap.
-- The loader's supported `when` block on `elicits[]` currently accepts only `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` fires unconditionally rather than gating on an `elicitedNonEmpty` predicate for `kv-binding-name`. The elicit fires unconditionally today and the guide teaches the pattern; a loader-capability uplift extending `validateElicits` to accept an `elicitedNonEmpty` predicate is captured as follow-up work item a loader-capability follow-up (0.26.x capability change, out of the the 0.25.x patch scope).
+- The loader's supported `when` block on `elicits[]` currently accepts only `requiresCapability` arrays, so the elicited `kv-metadata-field-pattern` fires unconditionally rather than gating on an `elicitedNonEmpty` predicate for `kv-binding-name`. The elicit fires unconditionally today and the guide teaches the pattern; a loader-capability uplift extending `validateElicits` to accept an `elicitedNonEmpty` predicate is captured as a loader-capability follow-up (0.26.x capability change, out of the 0.25.x patch scope).

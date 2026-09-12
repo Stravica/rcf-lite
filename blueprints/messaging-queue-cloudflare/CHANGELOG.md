@@ -10,14 +10,15 @@
 
 ## 1.1.2 - 2026-09-10
 
-Register cleanup on shipped prose: neutral wording in the README six-probes paragraph, which now describes the probe module envelope directly. Guide `publishBatch` sample updated: the `x-trace-id` example values are now `trace-order-1001` and `trace-order-1002`, and a one-line pointer follows the sample to the owner at `TAC-3001.interfaces[2].description`. Anatomy pin updated to 1.1.2. Chain-consistency lint zero on pass 1 and pass 2. The `x-trace-id` sample values are now order-scoped rather than ambiguous register labels.
+- README six-probes paragraph now describes the probe module envelope directly. Guide `publishBatch` sample updated: the `x-trace-id` example values are `trace-order-1001` and `trace-order-1002`, and a one-line pointer follows the sample to the owner at `TAC-3001.interfaces[2].description`. Anatomy pin updated to 1.1.2.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).
 
 ## 1.1.0 - 2026-09-09
 
-Adds the elicits block (queue-binding-name, queue-name, max-attempts, dead-letter-queue, batch-size, batch-timeout-seconds) that the REQs and guide were already describing in prose. Adds deliveredBy on REQ-002 and REQ-006. Chain-contradiction gaps fixed: F-2 (retry count off by one: REQ-004 and AC-29104-1 now name maxDeliveries and map to the vendor max_retries as maxDeliveries - 1; new AC-29104-2 asserts the maxDeliveries=1 boundary case), F-3 (REQ-006 and AC-29106-1 standardise on ts as the wall-clock milliseconds-since-epoch field name, aligning with TAC-3001, TAC-3003 and the guide), F-6 (REQ-002 replaces the "idempotent" label with an explicit at-least-once semantics naming ADR-3002 as the shipped delivery contract). Adds disposition to every AC.
+Adds the elicits block (queue-binding-name, queue-name, max-attempts, dead-letter-queue, batch-size, batch-timeout-seconds) that the REQs and guide were already describing in prose. Adds deliveredBy on REQ-002 and REQ-006. Chain-contradiction gaps fixed: retry count off by one - REQ-004 and AC-29104-1 now name maxDeliveries and map to the vendor max_retries as maxDeliveries - 1, with new AC-29104-2 asserting the maxDeliveries=1 boundary case; REQ-006 and AC-29106-1 standardise on ts as the wall-clock milliseconds-since-epoch field name, aligning with TAC-3001, TAC-3003 and the guide; REQ-002 replaces the "idempotent" label with an explicit at-least-once semantics naming ADR-3002 as the shipped delivery contract. Adds disposition to every AC.
 
 # messaging-queue-cloudflare changelog
 

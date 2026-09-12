@@ -15,7 +15,7 @@
 
 ## 1.3.3
 
-- rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.
+- No functional change; README wording tightened.
 
 ## 1.3.2
 
@@ -27,7 +27,8 @@
 
 ## 1.3.0 (2026-09-09)
 
-- Adds `REQ-011`/`US-10112` (roleModel: provider-record `roleSources[]`, malformed-claim refusal, enrichPrincipal hook), `REQ-012`/`US-10113` (credentialSelfService: provider-record `accountUrl`, boot-time validation, `getCredentialSelfServiceUrl` helper), `REQ-013`/`US-10114` (sessionInventory: list, revoke-one, revoke-all-except-current, unauthenticated refusal, unknown-session refusal). Extends `TAC-1102` with the `accountUrl` validation responsibility and `TAC-1103` with the roles-population and sessionInventory responsibilities. Adds `deliveredBy` on every `must` requirement and `disposition` on every existing acceptance criterion; adds `ownerRef` on ACs that observe the shared `sessionInventory` interface at owner id `TAC-1003-security-auth-clerk-session-verifier`. Names the `principalDirectory` and `hostedIdentityUi` capabilities on the requirements that carry their runtime clauses. Fixes the pass-1 `OAuth2-only` casing drift on `REQ-008` against `TAC-1102`'s canonical `oauth2-only`. - adds `authorisationCodeFlow` to `capabilities[]` and names the token verbatim in `REQ-001` with story references (`US-10101` plus refusal siblings), so a machine-readable composition token backs the flow that keycloak now gates on; rewrites `US-10114` `AC-1` to reference the `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow` shape rather than restating its fields.
+- Adds `REQ-011`/`US-10112` (roleModel: provider-record `roleSources[]`, malformed-claim refusal, enrichPrincipal hook), `REQ-012`/`US-10113` (credentialSelfService: provider-record `accountUrl`, boot-time validation, `getCredentialSelfServiceUrl` helper), `REQ-013`/`US-10114` (sessionInventory: list, revoke-one, revoke-all-except-current, unauthenticated refusal, unknown-session refusal). Extends `TAC-1102` with the `accountUrl` validation responsibility and `TAC-1103` with the roles-population and sessionInventory responsibilities. Adds `deliveredBy` on every `must` requirement and `disposition` on every existing acceptance criterion; adds `ownerRef` on ACs that observe the shared `sessionInventory` interface at owner id `TAC-1003-security-auth-clerk-session-verifier`. Names the `principalDirectory` and `hostedIdentityUi` capabilities on the requirements that carry their runtime clauses. Fixes the pass-1 `OAuth2-only` casing drift on `REQ-008` against `TAC-1102`'s canonical `oauth2-only`.
+- Adds `authorisationCodeFlow` to `capabilities[]` and names the token verbatim in `REQ-001` with story references (`US-10101` plus refusal siblings), so a machine-readable composition token backs the flow that keycloak now gates on; rewrites `US-10114` `AC-1` to reference the `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` `SessionRow` shape rather than restating its fields.
 
 ## 1.2.0 (visual round, spec 2026-09-06 section 5.4.2, operator Q2 default)
 

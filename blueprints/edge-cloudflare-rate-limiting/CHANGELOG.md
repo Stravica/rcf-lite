@@ -5,9 +5,7 @@
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); vendor citation on the guide-section AC; register tidy in shipped prose (no capability change).
 
 - Probes and fixture: the account-bound skip return on `contributions/probes/real-account-burst-and-429.mjs` now carries a `reason` field naming the exact env var(s) that were unset; added a "Declared env vars" section to the shared fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`), per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
-- AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation, verified on 2026-09-10.
-- README trailing clause with the internal spec reference removed.
-- guide leading provenance sentence removed.
+- AC-36102-1 on US-36102 now carries a vendorCitation pointing at the Cloudflare WAF rate-limiting rules documentation.
 
 ## 1.1.2 - 2026-09-10
 
@@ -24,7 +22,7 @@ Capability token named in the requirements layer; single-mechanism story legalit
 
 ## 1.1.0 - 2026-09-09
 
-Adds criterion-a REQ-layer backing, criterion-b AC-set sufficiency, and criterion-c chain-consistency lint-zero across passes.
+Adds REQ-layer backing for elicited options, extends the AC set to cover every documented failure path, and holds chain-consistency lint at zero.
 - Added failure-path ACs to US-36103 (origin-not-executed AC-36103-2 closes F-1: 429 refuses before origin), US-36104 (AC-36104-2 fake-clock cadence assertion closes F-2; AC-36104-3..7 close F-5 drift-runner failure paths for missing zone id, API auth, throttled, malformed and timeout).
 - Split the drift-audit record shape from the runtime request-event record shape: drift records carry `{ruleId, outcome, timestamp, diff}` (no `clientIpHash`, no client on the API path); request-event records carry `{ruleId, clientIpHash, outcome, timestamp}` with a hashed prefix. REQ-004, TAC-3703 responsibilities, AC-36104-1 and AC-36107-1 all now use these exact shapes (closes specimen F-3).
 - Clarified TAC-3701 and REQ-001 that the manifest schema has seven required fields plus one optional `description` field (aligns TAC with the shipped schema; closes specimen F-4).

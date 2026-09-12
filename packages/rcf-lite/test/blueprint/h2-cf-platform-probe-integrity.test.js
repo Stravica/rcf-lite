@@ -110,7 +110,6 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
   assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry "cannot yet gate" wording after D2 reword');
   assert.doesNotMatch(kvReadme, /cannot yet gate/i, 'KV README must not carry "cannot yet gate" wording after D2 reword');
   assert.match(kvChangelog, /a loader-capability follow-up/, 'KV CHANGELOG names the loader-capability follow-up in neutral terms');
-  // The README carries no internal work-item ids; the CHANGELOG can retain them.
-  // The README still names the follow-up as a capability change out of scope for this patch.
+  // The README names the follow-up as a capability change out of scope for this patch.
   assert.match(kvReadme, /follow-up capability change/, 'KV README names the follow-up capability change');
 });

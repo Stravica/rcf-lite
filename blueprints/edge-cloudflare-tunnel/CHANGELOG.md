@@ -6,8 +6,7 @@ Positive-evidence rule alignment on the probe pack skip path (authoring standard
 
 - Probes and fixture: extended the shared `accountBoundSkippedResult` helper in `contributions/probes/probe-utils.mjs` to carry a `reason` field naming the exact env var(s) that were unset on the skip return; added a "Declared env vars" section for the tunnel probes to the shared fixture README (`packages/rcf-lite/test/fixtures/hetzner-throwaway-server/README.md`), per authoring standard section 7d.
 - Probe report detail hygiene: `accountBoundSkippedResult` now names only the actually-unset variables in its `detail` string (a partial skip with one first-tier gate set and the other unset reads honestly, instead of claiming the whole input list is unset). The `reason` field was already exact; this aligns the human-readable detail with it.
-- README now leads with a category-neutral opening line and drops the account-token remark trailing clause.
-- guide drops the leading provenance line and rewrites two trailing clauses without internal spec references.
+- README now leads with a category-neutral opening line.
 
 ## 1.1.2 - 2026-09-10
 
@@ -22,7 +21,7 @@ Capability token named in the requirements layer.
 
 ## 1.1.0 - 2026-09-09
 
-Adds criterion-a REQ-layer backing, criterion-b AC-set sufficiency, and criterion-c chain-consistency lint-zero across passes on the edge family.
+Adds REQ-layer backing for zone resolution and hostname expansion, extends the AC set to cover every documented failure path, and holds chain-consistency lint at zero.
 - Added REQ-006 (zone resolution via the vault seam; AUD-mandatory-when-gated) and REQ-007 (public-hostname template expansion at apply with malformed and duplicate refusals). Neither elicit or capability token was removed; both are now backed by a `must`-priority requirement.
 - Added TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply naming the apply-time responsibilities for zone resolution, hostname expansion and AUD-mandatory refusals.
 - Added user stories US-39109 (four apply-time ACs across the zone-resolution and AUD-mandatory-when-gated paths) and US-39110 (three apply-time ACs across the hostname-template expansion, malformed and duplicate paths).

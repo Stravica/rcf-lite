@@ -16,7 +16,7 @@
 //     https://developers.cloudflare.com/api/operations/worker-script-
 //     upload-worker-module.
 //   (The Workers subdomain surface is deliberately absent - see NOTE
-//   below the workerList export. convention. )
+//   below the workerList export.)
 //
 // Every method reads the account id and token from process.env at call
 // time so a test can boot the process without them (envAssert throws
