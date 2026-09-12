@@ -1,0 +1,61 @@
+// application-empty-error-states probe: 404 not-found state
+// (AC-22101-1). AC-22101-1 requires a role="region" with an
+// accessible name for the missing resource kind, a keyboard-reachable
+// recovery link to the parent surface, plus a search input as an
+// alternate recovery.
+//
+// The probe:
+//   - GETs /probe/not-found and derives status=404, the region role
+//     wrapper, the parent-surface recovery link and the search input.
+//   - Follows the parent-surface link and asserts the linked route
+//     responds (200): the derived observable of "recovery link works"
+//     is a two-request round-trip, not a magic string match.
+
+import { fixtureFetch, startFixture, excerpt } from './probe-utils.mjs';
+
+export const anchorAcId = 'application-empty-error-states-AC-22101-1';
+export const accountBound = false;
+
+export default async function runProbe() {
+  const fixture = await startFixture();
+  const results = [];
+  try {
+    const nf = await fixtureFetch(fixture.url, '/probe/not-found');
+    const regionPresent = /data-surface="not-found"[^>]*role="region"/.test(nf.body);
+    const parentLinkMatch = nf.body.match(/href="([^"]+)"[^>]*data-recovery="parent-surface"/);
+    const parentHref = parentLinkMatch ? parentLinkMatch[1] : null;
+    const searchInput = /data-recovery="search"[^>]*>[^]*<input[^>]*type="search"/.test(nf.body);
+    const statusOk = nf.status === 404;
+    const regionCheckPass = statusOk && !!nf.requestId && regionPresent && !!parentHref && searchInput;
+
+    // Follow the recovery link (varied input: a second request derived
+    // from the first response) and assert the target route responds.
+    let followStatus = null;
+    let followRid = null;
+    if (parentHref) {
+      const follow = await fixtureFetch(fixture.url, parentHref);
+      followStatus = follow.status;
+      followRid = follow.requestId;
+    }
+    const roundTripPass = regionCheckPass && followStatus === 200 && !!followRid;
+
+    results.push({
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: 'application-empty-error-states-AC-22101-1: browser document-title state reflecting the missing resource kind and assistive-tech accessible-name resolution (the AC clauses beyond the DOM shape) are browser + AT driven and not observed by this Node HTTP probe; the 404 region + parent-link follow-through walk is a partial observation of AC-22101-1',
+      verdict: roundTripPass ? 'warn' : 'fail',
+      detail: roundTripPass
+        ? `Given a 404 response on a route the SPA declares: observed role="region" named for the missing resource, [data-recovery="parent-surface"] link (${parentHref}) and [data-recovery="search"] input on the rendered surface; follow-through GET ${parentHref} returned 200; x-fixture-request-id (not-found)=${nf.requestId}, (parent)=${followRid}`
+        : `Given a 404 response on a route the SPA declares (evidence gap): status=${nf.status} rid=${nf.requestId} region=${regionPresent} parentHref=${parentHref} searchInput=${searchInput} followStatus=${followStatus}`,
+      evidence: {
+        requestId: nf.requestId,
+        responseStatus: nf.status,
+        bodyExcerpt: excerpt((nf.body.match(/data-surface="not-found"[^]{0,200}/) || [''])[0]),
+        derived: { statusOk, regionPresent, parentHref, followStatus, followRequestId: followRid, searchInput },
+      },
+    });
+  } finally {
+    await fixture.kill();
+  }
+  return { results };
+}

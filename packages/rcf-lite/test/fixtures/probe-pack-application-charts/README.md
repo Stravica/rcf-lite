@@ -2,6 +2,22 @@
 
 Dependency-free Node HTTP server exercising every surface the `application-charts` probe pack asserts on. Used at the shelf gate to drive the pack against a golden and against three broken variants.
 
+## Env-var manifest (criterion-e probes read these)
+
+Every environment variable the fixture or a `contributions/probes/` probe reads is declared here. A probe that short-circuits on an undeclared variable would prove nothing (rule 7d).
+
+| Var | Purpose |
+|---|---|
+| `PORT` | default 3000; probe picks 47650-47659 |
+| `PROBE_BREAK` | optional default `?break=` switch across every request; per-request `?break=` still wins when both are set. Values: `table`, `pattern`, `keyboard` |
+
+Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
+
+## Criterion-e probe pack
+
+`blueprints/application-charts/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (the application-code engine rule).
+
+
 ## Boot
 
 Two-line manual boot for the gate reviewer:

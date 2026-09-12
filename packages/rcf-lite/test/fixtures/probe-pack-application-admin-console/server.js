@@ -17,7 +17,30 @@
 // PORT env (default 3000) picks the bind port.
 
 import http from 'node:http';
+import { randomUUID as __rid } from 'node:crypto';
 import { URL } from 'node:url';
+
+// Every response carries an x-fixture-request-id header (positive
+// evidence per section 7d): the criterion-e probes echo this id back
+// into the run record so a later reader can prove the response was
+// answered by this fixture on this run, not fabricated by a local
+// mock.
+function withRequestId__(handler){
+  return async function wrapped__(req,res){
+    const rid=__rid();
+    const orig=res.writeHead.bind(res);
+    res.writeHead=function patched__(){
+      const args=Array.from(arguments);
+      const last=args[args.length-1];
+      if(last&&typeof last==='object'&&!Array.isArray(last)){last['x-fixture-request-id']=rid;}
+      else if(Array.isArray(last)){last.push('x-fixture-request-id',rid);}
+      else{args.push({'x-fixture-request-id':rid});}
+      return orig.apply(res,args);
+    };
+    return handler(req,res);
+  };
+}
+
 
 const DEFAULT_CAPS = process.env.ADMIN_CONSOLE_CAPS ?? 'principalDirectory,roleModel,auditLog';
 const DEFAULT_BREAK = process.env.ADMIN_CONSOLE_BREAK ?? null;
@@ -50,6 +73,23 @@ const AUDIT_ENTRIES = [
   { id: 'a2', actor: 'alan@example.com', target: 'edsger@example.com', before: 'active', after: 'deactivated', timestamp: '2026-09-04T09:11:00Z', correlationId: 'corr-5b2d0' },
   { id: 'a3', actor: 'ada@example.com', target: 'settings.retention', before: '90', after: '180', timestamp: '2026-09-03T16:45:00Z', correlationId: 'corr-1e77c' },
 ];
+
+let __auditNextSeq = AUDIT_ENTRIES.length + 1;
+function recordAudit(entry) {
+  const id = 'a' + __auditNextSeq;
+  __auditNextSeq += 1;
+  const filled = {
+    id,
+    actor: entry.actor ?? 'system@example.com',
+    target: entry.target ?? '(unknown)',
+    before: entry.before ?? '',
+    after: entry.after ?? '',
+    timestamp: entry.timestamp ?? new Date().toISOString(),
+    correlationId: entry.correlationId ?? ('corr-' + __rid().slice(0, 8)),
+  };
+  AUDIT_ENTRIES.push(filled);
+  return filled;
+}
 
 // In-memory request log so the pack (and the gate reviewer) can
 // inspect what the client did. Same posture as the datatable fixture.
@@ -265,11 +305,44 @@ function renderSignIn(caps, principalEmail, breakSwitch) {
 </main>${clientScript()}</body></html>`;
 }
 
+// AC-21815-2: when zeroTrustGate is applied but request.auth is not
+// populated (no Authorization header from the upstream edge validator),
+// return 403 and render an access-denied region with no principal-read
+// element.
+function renderSignInAccessDenied(caps) {
+  return `<!doctype html><html lang="en"><head>${renderShellHead('Sign in')}</head><body>${renderNav(caps)}<main>
+<div data-surface="access-denied" role="region" aria-labelledby="signInDeniedHeading">
+  <h1 id="signInDeniedHeading">Access denied</h1>
+  <p>The upstream Cloudflare Access validator did not populate request.auth. No principal is available and no protected data is served.</p>
+</div>
+</main>${clientScript()}</body></html>`;
+}
+
+// Parse a principal email out of an Authorization header. Two shapes
+// accepted for the fixture: "Bearer <email>" and "Principal <email>".
+// Absence returns null so the caller can enforce the AC-21815-2 refusal.
+function principalFromAuthHeader(req) {
+  const header = req.headers['authorization'];
+  if (typeof header !== 'string' || header.length === 0) return null;
+  const match = header.match(/^\s*(?:Bearer|Principal)\s+(\S+)\s*$/i);
+  if (!match) return null;
+  return match[1];
+}
+
 function renderNotFound(caps) {
   return `<!doctype html><html lang="en"><head>${renderShellHead('Not found')}</head><body>${renderNav(caps)}<main>
 <h1>Route not found</h1>
 <p>Admin console fixture: the surface you asked for is not registered or not applied.</p>
 </main>${clientScript()}</body></html>`;
+}
+
+// AC-21104-2: when tenancy is not applied, /admin/orgs is unreachable
+// on direct URL, so the fixture answers with HTTP 404 (not 200 + a
+// not-found body). The response body is still a rendered page for a
+// human, but the AC-mandated status code is observable to the probe.
+function htmlResponseWithStatus(res, status, body) {
+  res.writeHead(status, { 'content-type': 'text/html; charset=utf-8', 'content-length': Buffer.byteLength(body) });
+  res.end(body);
 }
 
 function clientScript() {
@@ -305,11 +378,11 @@ function clientScript() {
 </script>`;
 }
 
-const server = http.createServer(async (req, res) => {
+const server = http.createServer(withRequestId__(async (req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host}`);
   const caps = capsFor(reqUrl);
   const asAdmin = reqUrl.searchParams.get('asAdmin') !== 'false';
-  const breakSwitch = reqUrl.searchParams.get('break') ?? DEFAULT_BREAK;
+  const breakSwitch = reqUrl.searchParams.get('break') ?? process.env.PROBE_BREAK ?? DEFAULT_BREAK;
 
   if (req.method === 'GET' && reqUrl.pathname === '/__requests') {
     return jsonResponse(res, 200, { rows: requestLog });
@@ -321,6 +394,25 @@ const server = http.createServer(async (req, res) => {
       let parsed = null;
       try { parsed = JSON.parse(body); } catch { parsed = null; }
       requestLog.push({ path: reqUrl.pathname, body: parsed, at: new Date().toISOString() });
+      // AC-21105-1: a role change writes an audit-log entry that
+      // surfaces on the audit view. POST /api/members/:id/role
+      // records the change so the same-run GET /admin/audit can
+      // observe the new row.
+      const roleMatch = reqUrl.pathname.match(/^\/api\/members\/([^/]+)\/role$/);
+      if (roleMatch && caps.has('auditLog') && parsed && typeof parsed === 'object') {
+        const memberId = decodeURIComponent(roleMatch[1]);
+        const user = USERS.find((u) => u.id === memberId);
+        const before = user ? user.role : (typeof parsed.before === 'string' ? parsed.before : '(unknown)');
+        const after = typeof parsed.role === 'string' ? parsed.role : (typeof parsed.after === 'string' ? parsed.after : '(unset)');
+        if (user) user.role = after;
+        const entry = recordAudit({
+          actor: typeof parsed.actor === 'string' ? parsed.actor : 'probe@example.test',
+          target: user ? user.email : memberId,
+          before,
+          after,
+        });
+        return jsonResponse(res, 200, { ok: true, auditId: entry.id, before: entry.before, after: entry.after, correlationId: entry.correlationId });
+      }
       return jsonResponse(res, 200, { ok: true });
     });
     return;
@@ -333,25 +425,40 @@ const server = http.createServer(async (req, res) => {
     case '/admin':
       return htmlResponse(res, renderShellHome(caps));
     case '/admin/users':
-      if (!caps.has('principalDirectory')) return htmlResponse(res, renderNotFound(caps));
+      if (!caps.has('principalDirectory')) return htmlResponseWithStatus(res, 404, renderNotFound(caps));
       return htmlResponse(res, renderUsersPage(caps, asAdmin, breakSwitch));
     case '/admin/roles':
-      if (!caps.has('roleModel')) return htmlResponse(res, renderNotFound(caps));
+      if (!caps.has('roleModel')) return htmlResponseWithStatus(res, 404, renderNotFound(caps));
       return htmlResponse(res, renderRolesPage(caps, breakSwitch));
     case '/admin/orgs':
-      if (!caps.has('tenancy')) return htmlResponse(res, renderNotFound(caps));
+      if (!caps.has('tenancy')) return htmlResponseWithStatus(res, 404, renderNotFound(caps));
       return htmlResponse(res, renderOrgsPage(caps));
     case '/admin/audit':
-      if (!caps.has('auditLog')) return htmlResponse(res, renderNotFound(caps));
+      if (!caps.has('auditLog')) return htmlResponseWithStatus(res, 404, renderNotFound(caps));
       return htmlResponse(res, renderAuditPage(caps, breakSwitch));
     case '/admin/sign-in': {
-      const principalEmail = reqUrl.searchParams.get('principalEmail') ?? process.env.ADMIN_CONSOLE_PRINCIPAL_EMAIL ?? 'principal@example.com';
-      return htmlResponse(res, renderSignIn(caps, principalEmail, breakSwitch));
+      if (caps.has('zeroTrustGate')) {
+        // AC-21815-1 (present): request.auth is read from the
+        // Authorization header (Bearer or Principal <email>) so the
+        // probe can observe that a per-request principal flows into
+        // principal-read. AC-21815-2 (absent): when zeroTrustGate is
+        // applied and no Authorization header is present, the fixture
+        // refuses with HTTP 403 and renders the access-denied surface
+        // (no principal-read, no protected data). Consumers that need
+        // the access-gated surface must supply an Authorization header.
+        const headerPrincipal = principalFromAuthHeader(req);
+        if (headerPrincipal === null) {
+          return htmlResponseWithStatus(res, 403, renderSignInAccessDenied(caps));
+        }
+        return htmlResponse(res, renderSignIn(caps, headerPrincipal, breakSwitch));
+      }
+      // Fallback branch (AC-21816-1): local login surface.
+      return htmlResponse(res, renderSignIn(caps, '', breakSwitch));
     }
     default:
-      return htmlResponse(res, renderNotFound(caps));
+      return htmlResponseWithStatus(res, 404, renderNotFound(caps));
   }
-});
+}));
 
 const port = Number(process.env.PORT ?? 3000);
 server.listen(port, () => {

@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.0');
+  assert.equal(doc.version, '1.2.8');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -185,6 +185,31 @@ test('application-notifications-in-app sample-app fixture: break switches surfac
     const brkAckHtml = await (await fetch(`http://127.0.0.1:${port}/notifications-centre?break=ack`)).text();
     assert.ok(brkAckHtml.includes('"ack"'), '?break=ack embedded in client script');
     assert.ok(/data-break="ack"/.test(brkAckHtml), 'shell root marker records the break');
+
+    // Query-scoped ?break=ack propagates into the served form action so
+    // a JS-off native submission from a broken centre reaches the
+    // refused form-route branch (not the JSON API branch). The served
+    // form action for each per-item acknowledge form carries the active
+    // break in its query, and a POST to that action returns 502 with
+    // the ACKNOWLEDGE_FORM_REFUSED error shape.
+    const brokenFormActionMatch = brkAckHtml.match(/action="(\/actions\/acknowledge-notification\?notification-id=[^"]*&break=ack)"/);
+    assert.ok(brokenFormActionMatch, '?break=ack rides into the served form action so JS-off submissions reach the refused form-route branch');
+    const brokenFormPost = await fetch(`http://127.0.0.1:${port}${brokenFormActionMatch[1]}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: '',
+    });
+    assert.equal(brokenFormPost.status, 502, 'POST to the broken-centre form action returns 502 (form-route refusal)');
+    const brokenFormBody = await brokenFormPost.json();
+    assert.equal(brokenFormBody.ok, false, 'broken-centre form action responds ok:false');
+    assert.equal(brokenFormBody.error, 'ACKNOWLEDGE_FORM_REFUSED', 'broken-centre form action returns the form-refusal error code');
+
+    // Golden (no query break) still renders a bare form action so a
+    // JS-off submission on an unbroken centre reaches the flip branch.
+    const goldenCentreHtml = await (await fetch(`http://127.0.0.1:${port}/notifications-centre`)).text();
+    const goldenFormActionMatch = goldenCentreHtml.match(/action="(\/actions\/acknowledge-notification\?notification-id=[^"]*)"/);
+    assert.ok(goldenFormActionMatch, 'golden centre renders the form action');
+    assert.ok(!/&break=/.test(goldenFormActionMatch[1]), 'golden centre form action has no break query');
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -203,4 +228,174 @@ test('application-notifications-in-app: family-prefix reservation documented in 
   assert.match(ownTopics, /application-notifications-email \(reserved\)/, 'reserved -email row present');
   assert.match(ownTopics, /application-notifications-push \(reserved\)/, 'reserved -push row present');
   assert.match(ownTopics, /application-notifications-webhook \(reserved\)/, 'reserved -webhook row present');
+});
+
+// Criterion-e (positive-evidence) probe pack pins. The pack lives at
+// blueprints/application-notifications-in-app/contributions/probes/. Every probe file
+// listed here must exist, its run wrapper must exist, and when the
+// anatomy suite invokes each probe module in-memory the returned
+// results[] rows must satisfy one of the four rule-7d shapes on every
+// row. The anatomy test never reads .rcf/reports/ and never writes a
+// report file; the probe invocation loop lives inside the test.
+
+test('application-notifications-in-app contributions/probes/ pack files exist (TC-criterion-e-pack-shape)', async () => {
+  const contribRoot = join(REPO_ROOT, 'blueprints', 'application-notifications-in-app', 'contributions', 'probes');
+  const utilsPath = join(contribRoot, 'probe-utils.mjs');
+  await readFile(utilsPath, 'utf8'); // throws if missing
+  const probes = ['live-region-preseeding', 'toast-contract', 'centre-acknowledge-round-trip'];
+  const runners = ['run-live-region-preseeding', 'run-toast-contract', 'run-centre-acknowledge-round-trip'];
+  for (const name of probes) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+  for (const name of runners) await readFile(join(contribRoot, name + '.mjs'), 'utf8');
+});
+
+async function loadContributedAnchorIds(blueprintRoot, slug) {
+  const { readdir, readFile: rf } = await import('node:fs/promises');
+  const ids = new Set();
+  async function collect(subdir) {
+    const dir = join(blueprintRoot, 'contributions', subdir);
+    let files = [];
+    try { files = (await readdir(dir)).filter((f) => f.endsWith('.json')); } catch (_) { return; }
+    for (const f of files) {
+      const doc = JSON.parse(await rf(join(dir, f), 'utf8'));
+      if (Array.isArray(doc.acceptanceCriteria)) {
+        for (const ac of doc.acceptanceCriteria) if (typeof ac.id === 'string' && ac.id.length > 0) ids.add(slug + '-' + ac.id);
+      }
+      if (typeof doc.reqId === 'string' && doc.reqId.length > 0) ids.add(doc.reqId);
+    }
+  }
+  await collect('user-stories');
+  await collect('requirements');
+  return ids;
+}
+
+function aggregateOf(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r && r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r && r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+test('application-notifications-in-app criterion-e probes aggregate to fail under each shipped fixture break (TC-criterion-e-negative-variants)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-notifications-in-app', 'contributions', 'probes');
+  // Break switch -> probes that must aggregate fail when the fixture
+  // is booted with that break as PROBE_BREAK. Only observable-side
+  // breaks are covered; client-JS-only breaks are documented as
+  // browser-verify territory in the fixture README.
+  const brokenExpectations = [{"brk":"preseed","probes":["live-region-preseeding"]},{"brk":"ack","probes":["centre-acknowledge-round-trip"]}];
+  for (const { brk, probes: probeNames } of brokenExpectations) {
+    for (const name of probeNames) {
+      const prior = process.env.PROBE_BREAK;
+      process.env.PROBE_BREAK = brk;
+      try {
+        const modUrl = pathToFileURL(join(probesDir, name + '.mjs')).href + '?nv=' + brk;
+        const mod = await import(modUrl);
+        const outcome = await mod.default();
+        const results = (outcome && outcome.results) || [];
+        const agg = aggregateOf(results);
+        assert.equal(agg, 'fail', name + ' under PROBE_BREAK=' + brk + ' aggregated ' + agg + ' expected fail; verdicts=' + JSON.stringify(results.map((r) => r.verdict)));
+      } finally {
+        if (prior === undefined) delete process.env.PROBE_BREAK;
+        else process.env.PROBE_BREAK = prior;
+      }
+    }
+  }
+});
+
+test('application-notifications-in-app criterion-e probes invoked in-memory carry rule-7d evidence rows (TC-criterion-e-evidence-shape)', async () => {
+  const probesDir = join(REPO_ROOT, 'blueprints', 'application-notifications-in-app', 'contributions', 'probes');
+  const probeNames = ['live-region-preseeding', 'toast-contract', 'centre-acknowledge-round-trip'];
+  const validAnchorIds = await loadContributedAnchorIds(BLUEPRINT_ROOT, 'application-notifications-in-app');
+  for (const name of probeNames) {
+    const mod = await import(pathToFileURL(join(probesDir, name + '.mjs')).href);
+    const runProbe = mod.default;
+    assert.equal(typeof runProbe, 'function', name + ': probe module must default-export a runProbe function');
+    let outcome;
+    try {
+      outcome = await runProbe();
+    } catch (err) {
+      const message = err && err.message ? err.message : String(err);
+      assert.fail(name + ': runProbe threw ' + message);
+    }
+    const results = outcome && Array.isArray(outcome.results) ? outcome.results : null;
+    assert.ok(results && results.length > 0, name + ' returned no results[]');
+    const failRow = results.find((r) => r && r.verdict === 'fail');
+    assert.equal(failRow, undefined, name + ' has a fail-verdict row');
+    for (const r of results) {
+      assert.notEqual(r.anchorAcId, 'unknown', name + ' carries anchorAcId="unknown"');
+      if (typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.anchorAcId), name + ' anchorAcId=' + r.anchorAcId + ' is not a shipped AC or REQ id');
+      }
+      if (typeof r.notObservableAcId === 'string' && r.notObservableAcId.length > 0) {
+        assert.ok(validAnchorIds.has(r.notObservableAcId), name + ' notObservableAcId=' + r.notObservableAcId + ' is not a shipped AC or REQ id');
+      }
+      assertRule7dRowShape(r, name);
+    }
+  }
+});
+
+// Rule-7d row-shape helper (see application-charts-anatomy.test.js
+// for the full rationale). Kept per-file so each anatomy suite carries
+// its own negative-case test with no shared-helper coupling.
+function assertRule7dRowShape(r, name) {
+  const ev = r && r.evidence && typeof r.evidence === 'object' ? r.evidence : null;
+  const hasRequestId = ev && typeof ev.requestId === 'string' && ev.requestId.length > 0;
+  const hasBodyExcerpt = ev && typeof ev.bodyExcerpt === 'string' && ev.bodyExcerpt.length > 0;
+  const hasDerived = ev && ev.derived && typeof ev.derived === 'object';
+  const hasDerivedNonEmpty = hasDerived && Object.keys(ev.derived).length > 0;
+  const hasEvidenceObject = ev && hasRequestId && (hasBodyExcerpt || hasDerivedNonEmpty);
+  if (r.conformanceOnly === true) {
+    const nullAnchor = r.anchorAcId === null || r.anchorAcId === undefined;
+    assert.ok(nullAnchor && typeof r.limitation === 'string' && r.limitation.length > 0,
+      name + ' conformanceOnly row anchorAcId=' + r.anchorAcId + ' violates the rule-7d null-anchor + limitation shape');
+    return;
+  }
+  if (r.notObservableHere === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0
+      && typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+      name + ' notObservableHere row violates the rule-7d anchor + reason shape');
+    return;
+  }
+  if (r.accountBoundSkipped === true) {
+    assert.ok(typeof r.reason === 'string' && r.reason.length > 0,
+      name + ' accountBoundSkipped row is missing a reason field (rule 7d)');
+    return;
+  }
+  assert.ok(typeof r.anchorAcId === 'string' && r.anchorAcId.length > 0,
+    name + ' positive-evidence row has no anchorAcId (rule 7d)');
+  assert.ok(hasEvidenceObject, name + ' positive-evidence row anchorAcId=' + r.anchorAcId + ' has no rule-7d evidence object');
+}
+
+test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criterion-e-evidence-shape-negative)', async () => {
+  const badRow = {
+    anchorAcId: 'application-notifications-in-app-AC-20103-1',
+    conformanceOnly: true,
+    limitation: 'a partial observation',
+    verdict: 'warn',
+    evidence: { requestId: 'r', bodyExcerpt: 'x', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
+    /conformanceOnly row anchorAcId=application-notifications-in-app-AC-20103-1 violates the rule-7d null-anchor \+ limitation shape/);
+});
+
+
+test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
+  const badRow = {
+    anchorAcId: 'application-notifications-in-app-AC-20103-1',
+    verdict: 'pass',
+    detail: 'positive row with only an empty derived',
+    evidence: { requestId: 'r', derived: {} },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-empty-derived'),
+    /positive-evidence row anchorAcId=application\-notifications\-in\-app\-AC\-20103\-1 has no rule-7d evidence object/);
+});
+
+test('rule-7d row-shape check refuses a positive row with only a request id (TC-criterion-e-evidence-shape-negative-id-only)', async () => {
+  const badRow = {
+    anchorAcId: 'application-notifications-in-app-AC-20103-1',
+    verdict: 'pass',
+    detail: 'positive row with only a request id',
+    evidence: { requestId: 'r' },
+  };
+  assert.throws(() => assertRule7dRowShape(badRow, 'negative-case-id-only'),
+    /positive-evidence row anchorAcId=application\-notifications\-in\-app\-AC\-20103\-1 has no rule-7d evidence object/);
 });

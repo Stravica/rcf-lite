@@ -2,6 +2,23 @@
 
 Dependency-free sample app the `application-empty-error-states` probe pack drives on the shelf gate. Node HTTP server plus one HTML shell per named state, no framework. Serves the eight named empty and error states honestly on the default branch and exposes break switches so the pack's negative runs can be driven from a single boot.
 
+## Env-var manifest (criterion-e probes read these)
+
+Every environment variable the fixture or a `contributions/probes/` probe reads is declared here. A probe that short-circuits on an undeclared variable would prove nothing (rule 7d).
+
+| Var | Purpose |
+|---|---|
+| `PORT` | default 3000; probe picks 47630-47639; 4200 is refused |
+| `EMPTY_ERROR_STATES_BREAK` | optional default `?break=` switch across every request |
+| `PROBE_BREAK` | optional default `?break=` switch (a lower-priority alternate to `EMPTY_ERROR_STATES_BREAK`); per-request `?break=` still wins when set. Values: `stack-trace`, `leak-id`, `no-recovery`, `no-live-region` |
+
+Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
+
+## Criterion-e probe pack
+
+`blueprints/application-empty-error-states/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (the application-code engine rule).
+
+
 ## Boot
 
 ```

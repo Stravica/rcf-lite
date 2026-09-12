@@ -1,5 +1,31 @@
 # application-admin-console CHANGELOG
 
+## 1.3.6 - 2026-09-12
+
+- Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. Anatomy negative-variant map extended with `{brk:"local-login-form", probes:["sign-in-access-gated-surface"]}` so the shipped `?break=local-login-form` fixture switch drives the positive AC-21816-1 local-login row to fail (the break drops the `[data-role="local-login-form"]` region on the sign-in surface). No probe or fixture behaviour change on the admin-console family beyond the anatomy shape helper and the negative-variant coverage.
+
+## 1.3.5 - 2026-09-12
+
+- Rule-7d shape fix on every de-claimed conformance row across users-directory (four AC-21102-1 / AC-21102-2 rows), permission-matrix (AC-21103-1), org-switcher (AC-21104-1), audit-log (AC-21105-1) and sign-in-access-gated (AC-21815-2): each row now carries `anchorAcId: null` and names the anchored AC in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Positive-observation rows on AC-21815-1, AC-21816-1 and the org-switcher AC-21104-2 no-tenancy branch stay anchored. Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to `ADMIN_CONSOLE_BREAK` / `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws.
+
+## 1.3.4 - 2026-09-11
+
+- Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. Overclaiming rows across users-directory (AC-21102-1, AC-21102-2), permission-matrix (AC-21103-1), org-switcher (AC-21104-1), audit-log (AC-21105-1) and sign-in-access-gated (AC-21815-2) are de-claimed to `conformanceOnly:true` with `verdict:'warn'` and a `limitation` field naming the anchored AC and the varied-input or browser-only clause that lives outside the Node HTTP probe. Positive-observation rows kept on AC-21815-1 (Access-gated Authorization-bearing surface), AC-21816-1 (local-login fallback) and the org-switcher no-tenancy 404 branch. Anatomy test extended with a negative-variant assertion that the shipped fixture break switches drive the affected probe aggregates to fail.
+
+## 1.3.3 - 2026-09-11
+
+- sign-in-access-gated-surface fixture now returns HTTP 403 with the `[data-surface="access-denied"]` region (and no `[data-role="principal-read"]` element) when `zeroTrustGate` is applied AND no Authorization header is present, wiring the previously-dead `renderSignInAccessDenied` branch to observe AC-21815-2's refusal contract server-side. The probe's AC-21815-2 row is now a positive-evidence row (HTTP 403 + access-denied surface + absence of principal-read) rather than a `notObservableHere` de-claim. Consumers that expected the previous 200-with-default-principal shape (`edge-cloudflare-access` TC-117, TC-118, TC-119 and its admin-console-gate-surface probe) send an Authorization header on the gated caps path; the local-login branch (no `zeroTrustGate`) is unchanged. Anatomy test extended to enumerate the shipped AC/REQ id set and refuse any row whose anchor is not in it, and to accept the conformance-only row shape.
+
+## 1.3.2 - 2026-09-11
+
+- users-directory-surface split into per-AC rows: AC-21102-1 anchors the directory listing observation; AC-21102-2 anchors the invite and deactivate controls (previously conflated on one row). org-switcher-surface fixture now returns HTTP 404 on the no-tenancy path so the probe can observe the AC-21104-2 refusal status (previously the fixture returned 200 with not-found HTML, contradicting the AC). audit-log-surface probe now drives a real write-then-read cycle: POST /api/members/:id/role writes an audit entry and GET /admin/audit reads it back, observing AC-21105-1 rather than a hard-coded table. sign-in-access-gated-surface probe now varies an Authorization principal and observes the derived email on the principal-read element; the local-fallback row is anchored under AC-21816-1. permission-matrix-grid vacuous `.every()` over an empty label array replaced with a check that asserts at least one label exists and every cell carries one per AC-21103-1. Positive-anchor-on-absence broken-variant rows removed. Rule 10 applied to every row detail. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
+## 1.3.1 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering 5 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-admin-console/server.js` answers: `users-directory-surface`, `permission-matrix-grid`, `org-switcher-surface`, `audit-log-surface`, `sign-in-access-gated-surface`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-admin-console-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
+
+
 ## 1.3.0 (2026-09-10)
 
 ### Added

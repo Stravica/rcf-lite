@@ -32,9 +32,14 @@
 //   ?break=timeout   toasts dismiss at two seconds instead of six so
 //                    the WCAG 2.2.1 floor is not met and the toast
 //                    check refuses ship
-//   ?break=ack       the acknowledge control never POSTs (the click
-//                    handler is a no-op) so the acknowledge round-trip
-//                    check refuses ship
+//   ?break=ack       the acknowledge control's activation refuses to
+//                    commit: the JS-on click handler is a no-op AND the
+//                    progressive-enhancement form action
+//                    `/actions/acknowledge-notification` refuses with 502
+//                    (mirroring the API `?break=ack` refusal) so a probe
+//                    that submits the served form observes activation
+//                    causality failing too; the acknowledge round-trip
+//                    check refuses ship on both JS-on and JS-off paths
 //
 // The toast timeout floor defaults to six seconds (per ADR-2102); the
 // shell root carries `data-toast-timeout-floor-seconds` naming the
@@ -50,7 +55,31 @@
 // on ephemeral ports without a subprocess.
 
 import http from 'node:http';
+import { randomUUID as __rid } from 'node:crypto';
+
 import { URL } from 'node:url';
+
+// Every response carries an x-fixture-request-id header (positive
+// evidence per section 7d): the criterion-e probes echo this id back
+// into the run record so a later reader can prove the response was
+// answered by this fixture on this run, not fabricated by a local
+// mock.
+function withRequestId__(handler){
+  return async function wrapped__(req,res){
+    const rid=__rid();
+    const orig=res.writeHead.bind(res);
+    res.writeHead=function patched__(){
+      const args=Array.from(arguments);
+      const last=args[args.length-1];
+      if(last&&typeof last==='object'&&!Array.isArray(last)){last['x-fixture-request-id']=rid;}
+      else if(Array.isArray(last)){last.push('x-fixture-request-id',rid);}
+      else{args.push({'x-fixture-request-id':rid});}
+      return orig.apply(res,args);
+    };
+    return handler(req,res);
+  };
+}
+
 
 const DEFAULT_TIMEOUT_FLOOR_MS = 6000;
 const BREAK_TIMEOUT_MS = 2000;
@@ -237,12 +266,33 @@ ${clientScript({ brk, timeoutMs: DEFAULT_TIMEOUT_FLOOR_MS })}
 function renderCentreItem(row, brk) {
   const acknowledgedAttr = row.acknowledgedAt ? 'true' : 'false';
   const ackDisabled = row.acknowledgedAt ? ' aria-disabled="true"' : '';
+  // Progressive-enhancement: the per-item acknowledge control is a
+  // submit-button inside a <form method="post"
+  // action="/actions/acknowledge-notification"> carrying the
+  // notification-id in a hidden input. Activating the control POSTs the
+  // form even when JS is off (the form action is the source of truth
+  // for AC-20103-1's "activation POSTs" clause). The JS-on client
+  // script intercepts the click (see clientScript()) and calls
+  // preventDefault so only one POST fires per activation.
+  //
+  // The active query-scoped break switch (when the centre page was
+  // served with ?break=<value>) rides into the form action so that a
+  // JS-off submission originating from a broken page reaches the same
+  // broken handler branch. Without carrying the switch, /notifications
+  // -centre?break=ack would render a form action containing only
+  // notification-id and a native submission would escape the ack break;
+  // this keeps ?break=ack refusal parity between the form and the API.
+  const breakQuery = brk ? `&break=${encodeURIComponent(brk)}` : '';
+  const ackFormAction = `/actions/acknowledge-notification?notification-id=${row.notificationId}${breakQuery}`;
   return (
     `<article class="centreItem" data-notification-id="${row.notificationId}" data-category="${row.category}" data-priority="${row.priority}" data-delivered-at="${row.deliveredAt}" data-acknowledged="${acknowledgedAttr}">` +
       `<h3 class="centreItemTitle">${row.body}</h3>` +
       `<p class="centreItemMeta">${row.category} / ${row.priority} / ${row.deliveredAt}</p>` +
       `<div class="centreItemControls">` +
-        `<button type="button" data-action="acknowledge" data-notification-id="${row.notificationId}"${ackDisabled}>Acknowledge</button>` +
+        `<form method="post" action="${ackFormAction}" data-role="acknowledge-form" data-notification-id="${row.notificationId}">` +
+          `<input type="hidden" name="notification-id" value="${row.notificationId}">` +
+          `<button type="submit" data-action="acknowledge" data-notification-id="${row.notificationId}"${ackDisabled}>Acknowledge</button>` +
+        `</form>` +
         `<button type="button" data-action="mark-read" data-notification-id="${row.notificationId}">Mark read</button>` +
       `</div>` +
     `</article>`
@@ -396,7 +446,14 @@ function clientScript({ brk, timeoutMs }) {
   });
 
   Array.from(document.querySelectorAll('[data-action="acknowledge"]')).forEach(function (btn) {
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (ev) {
+      // Progressive-enhancement contract: the button is a submit-button
+      // inside a <form method="post" action="/actions/acknowledge-notification">
+      // so JS-off activation POSTs the form natively. With JS on, the
+      // client script intercepts and drives the JSON API instead (kept
+      // for parity with the pre-form client behaviour); preventDefault
+      // avoids a double POST (native form submit AND fetch).
+      if (btn.form) ev.preventDefault();
       var notificationId = btn.getAttribute('data-notification-id');
       if (brk === 'ack') {
         // The click handler is a no-op: no POST, no DOM update.
@@ -472,9 +529,36 @@ async function readJsonBody(req) {
   });
 }
 
+// Progressive-enhancement acknowledge action reads notification-id
+// from a form-encoded body first (native form submission) and falls
+// back to the URL query string (matches the form action's query
+// component so a probe that posts an empty body still resolves the
+// id). Returns null when neither is present or parseable.
+async function readFormOrQueryNotificationId(req, url) {
+  return new Promise((resolve) => {
+    const chunks = [];
+    req.on('data', (chunk) => chunks.push(chunk));
+    req.on('end', () => {
+      let fromBody = null;
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        if (raw.length > 0) {
+          const params = new URLSearchParams(raw);
+          const v = params.get('notification-id') || params.get('notificationId');
+          if (typeof v === 'string' && v.length > 0) fromBody = v;
+        }
+      } catch (err) { fromBody = null; }
+      if (fromBody) return resolve(fromBody);
+      const fromQuery = url.searchParams.get('notification-id') || url.searchParams.get('notificationId');
+      resolve(typeof fromQuery === 'string' && fromQuery.length > 0 ? fromQuery : null);
+    });
+    req.on('error', () => resolve(null));
+  });
+}
+
 function handler(req, res) {
   const url = new URL(req.url, 'http://127.0.0.1');
-  const brk = normaliseBreak(url.searchParams.get('break'));
+  const brk = normaliseBreak(url.searchParams.get('break')) ?? normaliseBreak(process.env.PROBE_BREAK);
   if (req.method === 'GET') {
     if (url.pathname === '/' || url.pathname === '/index.html') {
       const timeoutMs = readTimeoutMs(url, brk);
@@ -530,12 +614,56 @@ function handler(req, res) {
     if (url.pathname === '/api/notifications/acknowledge') {
       readJsonBody(req).then((body) => {
         const notificationId = body && typeof body.notificationId === 'string' ? body.notificationId : null;
+        // Break switch: under ?break=ack (or PROBE_BREAK=ack) the
+        // server-side acknowledge round-trip refuses with a defined
+        // error shape too. Without this, a probe that drives the API
+        // directly would not observe the break (the current shipped
+        // documentation for ?break=ack only breaks the client click
+        // handler). The refusal returns 502 with error naming the AC
+        // consequence so the probe's round-trip observation goes fail.
+        if (brk === 'ack') {
+          recordRequest({ kind: 'acknowledge-server-refused', notificationId, category: null, priority: null });
+          respondJson(res, { ok: false, error: 'ACKNOWLEDGE_ROUND_TRIP_REFUSED', notificationId }, 502);
+          return;
+        }
         if (notificationId) {
           const row = deliveryLog.find((r) => r.notificationId === notificationId);
           if (row) row.acknowledgedAt = new Date().toISOString();
         }
         recordRequest({ kind: 'acknowledge-server', notificationId, category: null, priority: null });
         respondJson(res, { ok: true, notificationId });
+      });
+      return;
+    }
+    if (url.pathname === '/actions/acknowledge-notification') {
+      // AC-20103-1 progressive-enhancement acknowledge action. The
+      // /notifications-centre surface wraps each acknowledge button in
+      // <form method="post" action="/actions/acknowledge-notification">.
+      // With JS off the native form submission POSTs here; with JS on
+      // the client script intercepts the click, calls preventDefault on
+      // the form, and drives the JSON API at /api/notifications
+      // /acknowledge instead (kept for parity with the pre-form client
+      // behaviour). The handler flips the delivery-log row's
+      // acknowledgedAt and returns a machine-readable JSON body
+      // carrying { ok:true, notificationId, acknowledgedAt } so a probe
+      // that submits the served form can derive the applied effect.
+      // Under ?break=ack (or PROBE_BREAK=ack) the form action refuses
+      // too (mirroring the API refusal), so a probe observing
+      // activation causality goes fail on both paths.
+      readFormOrQueryNotificationId(req, url).then((notificationId) => {
+        if (brk === 'ack') {
+          recordRequest({ kind: 'acknowledge-form-refused', notificationId, category: null, priority: null });
+          respondJson(res, { ok: false, error: 'ACKNOWLEDGE_FORM_REFUSED', notificationId }, 502);
+          return;
+        }
+        let acknowledgedAt = null;
+        if (notificationId) {
+          const row = deliveryLog.find((r) => r.notificationId === notificationId);
+          if (row) { row.acknowledgedAt = new Date().toISOString(); acknowledgedAt = row.acknowledgedAt; }
+        }
+        recordRequest({ kind: 'acknowledge-server', notificationId, category: null, priority: null });
+        recordRequest({ kind: 'acknowledge-form', notificationId, category: null, priority: null });
+        respondJson(res, { ok: true, notificationId, acknowledgedAt });
       });
       return;
     }
@@ -556,7 +684,7 @@ function handler(req, res) {
 export function startServer({ port } = {}) {
   const desiredPort = typeof port === 'number' ? port : Number(process.env.PORT ?? 3000);
   return new Promise((resolve, reject) => {
-    const server = http.createServer(handler);
+    const server = http.createServer(withRequestId__(handler));
     server.once('error', reject);
     server.listen(desiredPort, '127.0.0.1', () => {
       const address = server.address();

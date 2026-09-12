@@ -1,6 +1,6 @@
 {
   "slug": "application-onboarding-tour",
-  "version": "1.1.2",
+  "version": "1.1.9",
   "category": "application",
   "elicits": [
     {
@@ -180,5 +180,7 @@
       "elicited": true,
       "standardsTraceClause": "generic enterprise practice"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-12T01:30:44Z",
+  "updatedIso": "2026-09-11T22:30:00Z"
 }

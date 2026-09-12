@@ -1,5 +1,35 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.7 - 2026-09-12
+
+- Register cleanup on branch-added prose: fixture server comment above the offline-buffer store now names the single-organisation fixture principal explicitly; empty-list-and-no-search notObservableHere limitation now says "subsequent navigation" for the browser-only clause beyond the DOM shape and the query echo, so the register-token grep on the added lines is clean. No probe or fixture behaviour change; blueprint contributions unchanged.
+
+## 1.2.6 - 2026-09-12
+
+- Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. No probe or fixture behaviour change on the empty-error-states family (positive AC-22102-1 and AC-22103-1 rows on forbidden-and-server-error already carry both request-id and non-empty derived; the existing `leak-id` and `stack-trace` breaks stay in the shipped negative-variant map).
+
+## 1.2.5 - 2026-09-12
+
+- Rule-7d shape fix on the de-claimed conformance rows across not-found (AC-22101-1), permission-denied + offline (AC-22104-1, AC-22105-1), empty-list + no-search (AC-22106-1, AC-22107-1) and error-boundary (AC-22108-1): each row now carries `anchorAcId: null` and names the anchored AC in the `limitation` field per the shipped shape (a `conformanceOnly:true` row must not simultaneously claim an anchor). Confidentiality upgrade on forbidden-and-server-error (AC-22102-1 and AC-22103-1): the probe now MINTS varied sensitive input per run (a token, a resource id, an email, a bare NAME=value env pair, a backtrace-frame line, a source path) and INJECTS them into the request that triggers the 403 / 500 via query and headers, then asserts none of the injected tokens appears in the rendered surface; the sensitive-value matcher for AC-22103-1 now catches bare NAME=value forms (in addition to `process.env.NAME`), and the probe verifies the matcher positively catches a bare NAME= on a canary string. Both rows are re-anchored to positive-evidence (`verdict: 'pass'`) against the shipped ACs. Fixture README env-var manifest now declares `PROBE_BREAK` (the fixture reads it as an alternate to `EMPTY_ERROR_STATES_BREAK` / `?break=`) and the probe-utils `DECLARED_ENV` list mirrors the addition. Anatomy shape check tightened to reject an anchored `conformanceOnly` row (a positive evidence field no longer bypasses the null-anchor + limitation contract); a new negative-case test constructs an anchored `conformanceOnly` row and asserts the shape helper throws.
+
+## 1.2.4 - 2026-09-11
+
+- Shared `aggregate()` no longer promotes warn rows to pass: any row with verdict warn (including honest de-claim rows) lifts the aggregate to warn; a probe whose rows are all warn aggregates to warn, not pass. Shared teardown propagates a SIGKILL failure through the returned kill() promise instead of swallowing it. Overclaiming rows across not-found (AC-22101-1), forbidden + server-error (AC-22102-1, AC-22103-1), permission-denied (AC-22104-1), offline buffer (AC-22105-1), empty-list + no-search (AC-22106-1, AC-22107-1) and error-boundary (AC-22108-1) are de-claimed to `conformanceOnly:true` with `verdict:'warn'` and a `limitation` field naming the anchored AC and the varied-input or browser-only clause that lives outside the Node HTTP probe. The server-observable halves (403/500 status, region roles, recovery controls, buffer lifecycle) still drive the row-observation and flip verdict to fail under the shipped fixture break switches. Anatomy test extended with a negative-variant assertion that the shipped break switches drive the affected probe aggregates to fail.
+
+## 1.2.3 - 2026-09-11
+
+- Buffer lifecycle for AC-22105-1 is now observed server-side. Fixture ships three new endpoints keyed by `x-principal-id` header (or `?principal-id=` query): `POST /probe/offline/state` flips online/offline, `POST /probe/offline/buffer` enqueues with an idempotency-per-token contract (duplicate token returns `deduped:true` and count stays), `POST /probe/offline/reconnect` drains the buffer and returns the flushed count; `GET` variants return current state. The `/probe/offline` HTML surface now renders `data-buffer-state`, `data-buffer-count`, `data-flushed-count` and a banner reflecting the current transport state. permission-denied-and-offline probe drives a fresh principalId through the full lifecycle (flip offline, enqueue distinct tokens, verify count grew, POST duplicate token and verify dedupe, reconnect and verify drain+delivered) instead of de-claiming as `notObservableHere`. Anatomy test extended to enumerate the shipped AC/REQ id set from `contributions/user-stories/*.json` and refuse any row whose anchor is not in it, and to accept the conformance-only row shape.
+
+## 1.2.2 - 2026-09-11
+
+- forbidden-and-server-error probes now compare positive state-copy tokens rendered in the response HTML against the AC-22102-1 (forbidden) and AC-22103-1 (server-error) contracts, replacing the fixture-specific data-leak marker key that did not observe the state copy. permission-denied-and-offline offline row de-claimed to notObservableHere for AC-22105-1 (buffer lifecycle intercepted-write, buffered, reconnect, flushed sequence is client-driven and only observable in a browser). error-boundary-alert reanchored to AC-22108-1 active crash state; the standby-absence row that lacked a positive anchor is removed. Positive-anchor-on-absence broken-variant rows removed. Rule 10 applied to every row detail. Anatomy test extended to accept notObservableHere row shape. Register cleanup.
+
+
+## 1.2.1 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering 5 properties the fixture engine at `packages/rcf-lite/test/fixtures/probe-pack-application-empty-error-states/server.js` answers: `not-found-and-recovery`, `forbidden-and-server-error`, `permission-denied-and-offline`, `empty-list-and-no-search`, `error-boundary-alert`. Every response now carries an `x-fixture-request-id` header; probes record the id, the HTTP status and a body excerpt as positive evidence per rule 7d. Fixture README declares every env var the pack reads. Anatomy test at `packages/rcf-lite/test/blueprint/application-empty-error-states-anatomy.test.js` pins the new pack files and asserts each result carries one of the four 7d evidence shapes.
+
+
 ## 1.2.0 (2026-09-10)
 
 ### Added

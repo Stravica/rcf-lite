@@ -46,7 +46,15 @@ async function bootServer() {
 
 async function fetchDom(url, caps) {
   const target = `${url}/admin/sign-in?caps=${encodeURIComponent(caps)}`;
-  const res = await fetch(target);
+  // The admin-console fixture refuses unauthenticated gated requests
+  // with HTTP 403 (AC-21815-2), so the probe supplies a fixture
+  // Authorization header when the capability set includes
+  // zeroTrustGate so the gated surface can be observed.
+  const capsList = caps.split(',').map((s) => s.trim());
+  const headers = capsList.includes('zeroTrustGate')
+    ? { Authorization: 'Principal probe-signin@example.test' }
+    : undefined;
+  const res = await fetch(target, headers ? { headers } : undefined);
   return { status: res.status, body: await res.text(), target };
 }
 

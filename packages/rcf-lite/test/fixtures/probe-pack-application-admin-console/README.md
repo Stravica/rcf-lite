@@ -2,6 +2,25 @@
 
 Dependency-free sample app the `application-admin-console` probe pack drives on the shelf gate. Node HTTP server plus one shell HTML plus one inline client script that binds every surface the pack asserts on. Framework-free by design.
 
+## Env-var manifest (criterion-e probes read these)
+
+Every environment variable the fixture or a `contributions/probes/` probe reads is declared here. A probe that short-circuits on an undeclared variable would prove nothing (rule 7d).
+
+| Var | Purpose |
+|---|---|
+| `PORT` | default 3000; probe picks 47600-47609 |
+| `ADMIN_CONSOLE_CAPS` | comma list; default `principalDirectory,roleModel,auditLog` |
+| `ADMIN_CONSOLE_BREAK` | optional default `?break=` switch |
+| `ADMIN_CONSOLE_PRINCIPAL_EMAIL` | default `principal@example.com`, feeds the Access-gated sign-in [data-role=principal-read] |
+| `PROBE_BREAK` | optional default `?break=` switch (a lower-priority alternate to `ADMIN_CONSOLE_BREAK`); per-request `?break=` still wins when set. Values: `matrix-grid`, `denied`, `audit-fields`, `principal-read`, `local-login-form` |
+
+Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
+
+## Criterion-e probe pack
+
+`blueprints/application-admin-console/contributions/probes/` boots this fixture on a scratch port in its declared family range and drives varied inputs (different query strings and env overlays) to derive DOM observables. Each probe result carries an `evidence` object with the fixture's request id, the HTTP status and a response-body excerpt. No account credentials are involved: this blueprint's deliverable is application code and the fixture built from its own contributions IS the engine (the application-code engine rule).
+
+
 ## Boot
 
 ```
@@ -29,6 +48,8 @@ The `?caps=` query parameter on any route overrides `ADMIN_CONSOLE_CAPS` for tha
 | `?break=matrix-grid` | Drops `role="grid"` and inner role attributes on the permission matrix (pack check `AC-21103-1` refuses). |
 | `?break=denied` | Drops the `[data-action="request-access"]` control on the access-denied region (pack check `AC-21102-1` refuses on its denied branch). |
 | `?break=audit-fields` | Drops the `correlationId` column on every audit row (pack check `AC-21105-1` refuses). |
+| `?break=principal-read` | On the `zeroTrustGate` branch of `/admin/sign-in`, drops the `[data-role=principal-read]` element (Access-gated sign-in surface check refuses). |
+| `?break=local-login-form` | On the fallback branch of `/admin/sign-in` (no `zeroTrustGate`), drops the `[data-role=local-login-form]` form (positive AC-21816-1 local-login row refuses). |
 
 ## Routes
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.4 - 2026-09-12
+
+- The application-admin-console fixture now refuses unauthenticated requests on gated sign-in paths (AC-21815-2), so the admin-console-gate-surface probe supplies a fixture Authorization header when the applied capability set includes zeroTrustGate; the fallback (non-gated) request is unchanged.
+
 ## 1.1.3 - 2026-09-10
 
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); register tidy in shipped prose (no capability change).

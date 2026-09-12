@@ -29,7 +29,31 @@
 // ephemeral ports without a subprocess.
 
 import http from 'node:http';
+import { randomUUID as __rid } from 'node:crypto';
+
 import { URL } from 'node:url';
+
+// Every response carries an x-fixture-request-id header (positive
+// evidence per section 7d): the criterion-e probes echo this id back
+// into the run record so a later reader can prove the response was
+// answered by this fixture on this run, not fabricated by a local
+// mock.
+function withRequestId__(handler){
+  return async function wrapped__(req,res){
+    const rid=__rid();
+    const orig=res.writeHead.bind(res);
+    res.writeHead=function patched__(){
+      const args=Array.from(arguments);
+      const last=args[args.length-1];
+      if(last&&typeof last==='object'&&!Array.isArray(last)){last['x-fixture-request-id']=rid;}
+      else if(Array.isArray(last)){last.push('x-fixture-request-id',rid);}
+      else{args.push({'x-fixture-request-id':rid});}
+      return orig.apply(res,args);
+    };
+    return handler(req,res);
+  };
+}
+
 
 // Two-series data sets. Colour cue + pattern cue + direct label cue
 // per series; the pack asserts every series carries a data-pattern
@@ -81,10 +105,10 @@ function renderBarChart(dataset, { break: brk }) {
   const seriesCount = dataset.series.length;
   const groupWidth = stepX;
   const barWidth = Math.max(6, Math.floor((groupWidth - 8) / seriesCount));
-  const groups = dataset.xAxis.map((xLabel, xi) => {
-    const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
-    const bars = dataset.series.map((series, si) => {
+  const seriesGroups = dataset.series.map((series, si) => {
+    const bars = dataset.xAxis.map((xLabel, xi) => {
       const value = series.values[xi];
+      const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
       const barHeight = value * scaleY;
       const x = groupX + si * barWidth;
       const y = CHART_HEIGHT - CHART_PAD_BOTTOM - barHeight;
@@ -93,9 +117,14 @@ function renderBarChart(dataset, { break: brk }) {
       const dpFocusAttr = brk === 'keyboard' ? '' : ` tabindex="0" aria-label="${series.name}, ${xLabel}, ${value} ${dataset.unit}"`;
       return `<rect class="chartDataPoint" data-series="${series.name}" data-x="${xLabel}" data-y="${value}"${patternAttr}${dpFocusAttr} x="${x}" y="${y}" width="${barWidth - 2}" height="${barHeight}" stroke="${series.colour}" stroke-width="1"${patternRef} />`;
     }).join('');
-    const labelY = CHART_HEIGHT - CHART_PAD_BOTTOM + 14;
-    return `<g class="chartGroup">${bars}<text class="chartAxisLabel" x="${groupX + groupWidth / 2 - 4}" y="${labelY}" text-anchor="middle" font-size="10" fill="#333">${xLabel}</text></g>`;
+    return `<g class="chartSeriesGroup" data-series="${series.name}"${brk === 'pattern' ? '' : ` data-pattern="${series.pattern}"`}>${bars}</g>`;
   }).join('');
+  const axisLabels = dataset.xAxis.map((xLabel, xi) => {
+    const groupX = CHART_PAD_LEFT + xi * groupWidth + 4;
+    const labelY = CHART_HEIGHT - CHART_PAD_BOTTOM + 14;
+    return `<text class="chartAxisLabel" x="${groupX + groupWidth / 2 - 4}" y="${labelY}" text-anchor="middle" font-size="10" fill="#333">${xLabel}</text>`;
+  }).join('');
+  const groups = `${seriesGroups}${axisLabels}`;
   const seriesLabels = dataset.series.map((series, si) => {
     const lastValue = series.values[series.values.length - 1];
     const lastX = CHART_PAD_LEFT + (dataset.xAxis.length - 1) * stepX + si * barWidth + barWidth + 6;
@@ -231,7 +260,8 @@ function handler(req, res) {
     return;
   }
   if (url.pathname === '/' || url.pathname === '/index.html') {
-    const brk = normaliseBreak(url.searchParams.get('break'));
+    const envBrk = normaliseBreak(process.env.PROBE_BREAK);
+    const brk = normaliseBreak(url.searchParams.get('break')) ?? envBrk;
     respondHtml(res, renderShellHtml({ break: brk }));
     return;
   }
@@ -246,7 +276,7 @@ function handler(req, res) {
 export function startServer({ port } = {}) {
   const desiredPort = typeof port === 'number' ? port : Number(process.env.PORT ?? 3000);
   return new Promise((resolve, reject) => {
-    const server = http.createServer(handler);
+    const server = http.createServer(withRequestId__(handler));
     server.once('error', reject);
     server.listen(desiredPort, '127.0.0.1', () => {
       const address = server.address();
