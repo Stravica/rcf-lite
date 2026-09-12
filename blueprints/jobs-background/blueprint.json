@@ -1,6 +1,6 @@
 {
   "slug": "jobs-background",
-  "version": "1.1.4",
+  "version": "1.1.10",
   "category": "jobs",
   "capabilities": [
     "backgroundJobs"
@@ -198,5 +198,6 @@
       ],
       "default": "cli"
     }
-  ]
+  ],
+  "updatedAt": "2026-09-12"
 }

@@ -1,6 +1,6 @@
 # infra-s3-and-queue fixture
 
-Shared sample-app fixture for the `object-storage-s3` (T-2) and `messaging-queue-cloudflare` (T-3) blueprints (infra round 5 spec section 3.6). T-2 side: boots MinIO in a container, exposes a facade over `@aws-sdk/client-s3` against MinIO on `http://localhost:9000`, and hosts induced-failure switches the six shipped probes drive against. T-3 side (added 2026-09-06): ships a `wrangler.toml` declaring the Cloudflare Worker queue binding (`RCF_TEST_QUEUE`), DLQ binding (`RCF_TEST_DLQ`), consumer max_retries and batch settings; plus an in-memory queue-driver under `src/queue-driver.mjs` that realises the same Queues binding shape (`send`, `sendBatch` on the producer, batch envelope with per-message `ack` / `retry` on the consumer) so the T-3 producer facade (`src/producer.mjs`) and consumer registration (`src/consumer.mjs`) run against the wrangler-dev-equivalent seam without a live wrangler process (SDR-3-a on US-29107).
+Shared sample-app fixture for the `object-storage-s3` and `messaging-queue-cloudflare` blueprints. The object-storage slice boots MinIO in a container, exposes a facade over `@aws-sdk/client-s3` against MinIO on the endpoint declared in the fixture's environment (see the Declared env vars table), and hosts induced-failure switches the six shipped object-storage probes drive against. The messaging-queue slice ships a `wrangler.toml` declaring the Cloudflare Worker queue binding (`RCF_TEST_QUEUE`), DLQ binding (`RCF_TEST_DLQ`), consumer max_retries and batch settings; plus an in-memory queue-driver under `src/queue-driver.mjs` that realises the same Queues binding shape (`send`, `sendBatch` on the producer, batch envelope with per-message `ack` / `retry` on the consumer) so the messaging-queue producer facade (`src/producer.mjs`) and consumer registration (`src/consumer.mjs`) run against the wrangler-dev-equivalent seam without a live wrangler process (the in-memory realisation of the Cloudflare Queues binding shape is the shipped local seam per user-story-29107).
 
 ## Boot MinIO
 
@@ -51,7 +51,7 @@ docker compose up -d minio && sleep 4 && npm install --silent && node src/create
 
 Idempotent: exits 0 whether the bucket exists or was created.
 
-## Two-line gate-reviewer boot
+## Two-line gate-operator boot
 
 ```sh
 docker compose up -d minio && sleep 4 && npm install --silent && node src/create-bucket.mjs
@@ -109,27 +109,27 @@ docker compose down -v
 
 Removes the container and the anonymous volume; no orphan state on the host.
 
-## T-3 side: messaging-queue-cloudflare fixture
+## messaging-queue-cloudflare slice
 
-The T-3 slice adds four files under `src/` and one `wrangler.toml` at the fixture root. No new runtime dependencies land in the fixture's `package.json` (the queue driver is dependency-free Node code); the T-2 MinIO branch and this T-3 queue branch coexist under one compose project (no second project name spinning a parallel stack).
+The messaging-queue slice adds four files under `src/` and one `wrangler.toml` at the fixture root. No new runtime dependencies land in the fixture's `package.json` (the queue driver is dependency-free Node code); the object-storage MinIO branch and this messaging-queue branch coexist under one compose project (no second project name spinning a parallel stack).
 
 - `wrangler.toml`: declares a Cloudflare Worker with a queue producer binding named `RCF_TEST_QUEUE` on queue `rcf-test-queue`, a consumer block with `dead_letter_queue = "rcf-test-dlq"`, `max_retries = 3` (per ADR-3003 and the fetched Cloudflare Queues dead-letter documentation at https://developers.cloudflare.com/queues/configuration/dead-letter-queues/), `max_batch_size = 10`, `max_batch_timeout = 5` (per ADR-3004 and the fetched Cloudflare Queues platform limits at https://developers.cloudflare.com/queues/platform/limits/), and a producer binding on the DLQ named `RCF_TEST_DLQ`. Main entry is `src/worker.mjs`.
-- `src/worker.mjs`: minimal Cloudflare Worker main. Exports `fetch` (POST /publish endpoint for quick smoke publishes from `curl -X POST http://127.0.0.1:8787/publish -d '{...}'`) and `queue` (Worker queue-handler Cloudflare Queues invokes on delivery). Forwards to the shipped producer and consumer facades under `src/producer.mjs` and `src/consumer.mjs`.
+- `src/worker.mjs`: minimal Cloudflare Worker main. Exports `fetch` (POST /publish endpoint for quick smoke publishes; the local port is read from the fixture's `WRANGLER_DEV_PORT` env var - see the Declared env vars table) and `queue` (Worker queue-handler Cloudflare Queues invokes on delivery). Forwards to the shipped producer and consumer facades under `src/producer.mjs` and `src/consumer.mjs`.
 - `src/queue-driver.mjs`: in-memory queue-driver realising the Cloudflare Queues binding shape. Producer methods (`send`, `sendBatch`) mint stable message-ids and append to the queue; consumer `pull(maxBatchSize)` returns a batch envelope whose per-message `ack` / `retry` drive the retry-to-DLQ trajectory bounded by `max_retries`.
 - `src/producer.mjs`: producer facade realising TAC-3001. Sole reader of the queue binding; exposes typed `publish(body, {headers})` and `publishBatch(messages)`. Emits `producerReady` on the first successful ready-check and `messagePublished` per publish.
 - `src/consumer.mjs`: consumer registration realising TAC-3002. Exports `createConsumer({handler, onEvent, dlqProducer, env})` returning the queue-handler function shape a real Worker registers under the `[triggers]` queue binding.
 - `src/dlq-inspector.mjs`: DLQ inspector helper for the retry-and-dlq probe (production analogue: `wrangler queues consumer add --dead-letter-queue` per the fetched Cloudflare Queues dead-letter documentation).
-- `src/event-sink.mjs`: lifecycle-event sink adapter realising TAC-3003; enforces the metadata-only field whitelist (`event`, `ts`, `messageId`, `queueName`, `attempts`) in code (aligned with T-2's `{event, ts, ...}` common envelope prefix so a future v1.1 minor can promote one shared shape to schema enforcement).
+- `src/event-sink.mjs`: lifecycle-event sink adapter realising TAC-3003; enforces the metadata-only field whitelist (`event`, `ts`, `messageId`, `queueName`, `attempts`) in code (aligned with the messaging-queue `{event, ts, ...}` common envelope prefix so a future v1.1 minor can promote one shared shape to schema enforcement).
 
 ### Wrangler dev port
 
-The T-3 side, when a real `wrangler dev` process is available, binds `WRANGLER_DEV_PORT` (default `8787`, distinct from MinIO's `9000`/`9001` so the two branches of this fixture never race for a port). Overrides:
+The messaging-queue slice, when a real `wrangler dev` process is available, binds `WRANGLER_DEV_PORT` (default `8787`, distinct from MinIO's `9000`/`9001` so the two branches of this fixture never race for a port). Overrides:
 
 ```sh
 WRANGLER_DEV_PORT=18787 npx wrangler dev
 ```
 
-### T-3 queue elicited parameters realised
+### messaging-queue elicited parameters realised
 
 - `RCF_QUEUE_NAME` (default `rcf-test-queue`).
 - `RCF_DLQ_NAME` (default `rcf-test-dlq`).
@@ -137,18 +137,18 @@ WRANGLER_DEV_PORT=18787 npx wrangler dev
 - `RCF_BATCH_SIZE` (default `10`, ceiling `100`).
 - `RCF_BATCH_TIMEOUT_MS` (default `5000` ms, ceiling `60000` ms).
 
-### T-3 induced-failure switches
+### messaging-queue induced-failure switches
 
-Three switches simulate the negative-run paths the T-3 probes exercise. Each is wired end-to-end in the fixture code and was proven at build time:
+Three switches simulate the negative-run paths the messaging-queue probes exercise. Each is wired end-to-end in the fixture code and was proven at build time:
 
 - `SIMULATE_CONSUMER_RETRY=true`: the consumer classifies every delivery as `retry` regardless of the handler outcome; the `retry-and-dlq` probe drives this path and asserts the DLQ landing at `max_retries + 1` with the same stable message-id.
 - `SIMULATE_DLQ_OVERFLOW=true`: the consumer forces DLQ landing on the FIRST delivery (overrides `SIMULATE_CONSUMER_RETRY`); observed baseline behaviour when set is one `messageDeadLettered` from the direct DLQ send plus the DLQ inspector reads one entry on the DLQ.
 - `SIMULATE_PII_IN_BODY=true`: the consumer is invoked with a PII fixture body (`userId: 1234, ssn: "123-45-6789"`) supplied by the `event-secrecy` probe; the whitelist enforcement in `src/event-sink.mjs` is what stops the PII from leaking into any lifecycle-event record.
-- `SIMULATE_LEAK_BODY_TO_SINK=true`: the consumer path deliberately hands the sink adapter a body-bearing payload (body, headers, userId, ssn, consumerContext) on `messageAcked` so the whitelist boundary at `src/event-sink.mjs` is exercised end-to-end. Added per PR #159 gate finding 2 to give the `event-secrecy` probe teeth: a reviewer disabling the whitelist and rerunning the probe with this switch on observes the probe FAIL on the leaked fields; the shipped code with the whitelist in place passes cleanly.
+- `SIMULATE_LEAK_BODY_TO_SINK=true`: the consumer path deliberately hands the sink adapter a body-bearing payload (body, headers, userId, ssn, consumerContext) on `messageAcked` so the whitelist boundary at `src/event-sink.mjs` is exercised end-to-end. This switch gives the `event-secrecy` probe teeth: a reader disabling the whitelist and rerunning the probe with this switch on observes the probe FAIL on the leaked fields; the shipped code with the whitelist in place passes cleanly.
 
-### Two-line gate-reviewer boot for T-3 probes
+### Two-line gate-operator boot for messaging-queue probes
 
-The T-3 probes do not require Docker; the queue-driver runs in-process on Node 24. Boot line:
+The messaging-queue probes do not require Docker; the queue-driver runs in-process on Node 24. Boot line:
 
 ```sh
 node ../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-producer-facade-ready.mjs
@@ -170,35 +170,35 @@ The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs
 - Cloudflare Queues does not support Wrangler's remote mode (`wrangler dev --remote`) per the same page. A real-account run happens through a deployed Worker.
 - Cloudflare Queues per-message size cap is 128 KB per https://developers.cloudflare.com/queues/platform/limits/. A project sending larger payloads either chunks or moves the body out-of-band to `object-storage-s3` (the guide names both patterns).
 
-## T-4 side: jobs-background fixture
+## jobs-background slice
 
-The T-4 slice extends the fixture with a `jobs/` directory carrying two toy job-definition modules, `src/jobs-runtime.mjs` realising the runtime that reads applied capabilities from the sidecar and dispatches messages from the applied queue, `src/scheduler.mjs` realising the `inProcess` scheduler with a fake-clock seam, and `src/job-run-log.mjs` realising the T-4-owned event sink (whitelist `event, jobId, jobName, attempts, duration, timestamp` plus optional `terminalErrorCode`; the T-3 event sink at `src/event-sink.mjs` is untouched, its whitelist `event, ts, messageId, queueName, attempts` stays frozen at v1.0.0 per the round-5 spec). No new runtime dependencies land in the fixture's `package.json`; the jobs runtime is dependency-free Node code and composes on top of the T-3 in-memory queue seam.
+The jobs-background slice extends the fixture with a `jobs/` directory carrying two toy job-definition modules, `src/jobs-runtime.mjs` realising the runtime that reads applied capabilities from the sidecar and hands off messages from the applied queue, `src/scheduler.mjs` realising the `inProcess` scheduler with a fake-clock seam, and `src/job-run-log.mjs` realising the jobs-owned event sink (whitelist `event, jobId, jobName, attempts, duration, timestamp` plus optional `terminalErrorCode`; the messaging-queue event sink at `src/event-sink.mjs` is untouched, its whitelist `event, ts, messageId, queueName, attempts` stays frozen at v1.0.0 per the infra spec). No new runtime dependencies land in the fixture's `package.json`; the jobs runtime is dependency-free Node code and composes on top of the messaging-queue in-memory queue seam.
 
 - `jobs/send-welcome-email.mjs`: toy one-shot delayed job. `name`, `handler`, `inputSchema` (opaque), `retryPolicy: { maxAttempts: 3, backoff: 'exponential' }`, `timeoutMs: 60000` (ADR-3104 default).
 - `jobs/refresh-cache.mjs`: toy POSIX cron job. Adds `cron: '* * * * *'`, `retryPolicy: { maxAttempts: 5, backoff: 'constant' }`, `timeoutMs: 10000`.
 - `src/jobs-runtime.mjs`: reads the `jobs/` directory at boot, registers job handlers by name, drives the driver's delivery loop, and fires the four lifecycle events (`jobScheduled`, `jobStarted`, `jobCompleted`, `jobFailed`) on the injected run-log sink.
 - `src/scheduler.mjs`: `inProcess` mode. Injects a `clock` seam (real system clock in production, the fake clock in probes) so `fake-clock-cron.mjs` drives POSIX cron fires deterministically without wall-clock waits. Registered schedules can be POSIX cron strings or one-shot delayed shapes.
-- `src/job-run-log.mjs`: T-4 event-sink whitelist enforced in code; refuses `jobFailed` records missing a `terminalErrorCode`.
+- `src/job-run-log.mjs`: jobs event-sink whitelist enforced in code; refuses `jobFailed` records missing a `terminalErrorCode`.
 
-### T-4 elicited parameters realised
+### jobs-background elicited parameters realised
 
 - `jobsDir` (default `./jobs/`; the runtime reads modules from this directory at boot).
 - `defaultRetryPolicy` (`{ maxAttempts: 3, backoff: 'exponential' }` per REQ-002; each job may override).
 - `defaultTimeoutMs` (`60000` per ADR-3104).
 - `schedulerMode` (`inProcess`, `workerCron`, or `external` per ADR-3102; the fixture ships `inProcess` and reserves `workerCron` and `external` for real deployments).
 - `operatorSurface` (`cli`, `httpEndpoint`, or `none` per REQ-006; the fixture ships `none`).
-- `fireToleranceMs` (`30000` per US-30108; the tolerance window a cron fire is expected to hit).
+- `fireToleranceMs` (`30000` per user-story-30108; the tolerance window a cron fire is expected to hit).
 
-### T-4 induced-failure switches
+### jobs-background induced-failure switches
 
-Two switches simulate the retry and PII-leak paths the T-4 probes exercise. Each is wired end-to-end in `src/jobs-runtime.mjs` and drives the paired probe:
+Two switches simulate the retry and PII-leak paths the jobs-background probes exercise. Each is wired end-to-end in `src/jobs-runtime.mjs` and drives the paired probe:
 
 - `SIMULATE_HANDLER_THROW=true`: the runtime throws a retryable error on every dispatch regardless of the handler's own outcome; the `retry-and-fail` probe drives this path and asserts three `jobStarted` events with the same `jobId` and attempts `1, 2, 3` followed by a terminal `jobFailed` event with a `terminalErrorCode` matching `SIMULATE_HANDLER_THROW`.
 - `SIMULATE_PII_IN_JOB_INPUT=true`: the runtime dispatches with a PII fixture input `{ userId: 1234, ssn: "123-45-6789", email: "test@example.com" }`; the `event-secrecy` probe asserts the run-log whitelist blocks every PII input field from appearing in any event record.
 
-### Two-line gate-reviewer boot for T-4 probes
+### Two-line gate-operator boot for jobs-background probes
 
-The T-4 probes do not require Docker or a real `wrangler dev` process; the jobs-runtime plus in-memory queue-driver run in-process on Node 24. Boot line:
+The jobs-background probes do not require Docker or a real `wrangler dev` process; the jobs-runtime plus in-memory queue-driver run in-process on Node 24. Boot line:
 
 ```sh
 node ../../../../../blueprints/jobs-background/contributions/probes/run-apply-time-refusal.mjs
@@ -211,8 +211,56 @@ The remaining three probe shims (`run-apply-time-override.mjs`, `run-retry-and-f
 
 - AC-jobs-requiresQueue: PROVEN via the shipped `apply-time-refusal.mjs` probe against a bare scratch project on this shipped head (exit 3 and stable message-id assertions run in-process). No live-only gap.
 - AC-jobs-overrideRecorded: PROVEN via the shipped `apply-time-override.mjs` probe on this shipped head (sidecar note grep asserts `no queue yet` and `--allow-no-queue-yet` and family word `queue`). No live-only gap.
-- AC-jobs-scheduledRunsOnCron: PROVEN via `fake-clock-cron.mjs` on this shipped head against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is the gate-reviewer's follow-up run per SDR-3-a; the shipped local seam proves the scheduler and runtime dispatch chain without a Cloudflare Queues account.
-- AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on this shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver re-delivery loop matches the Cloudflare Queues retry semantics per T-3's opaque-adapter clause; a live-account run against Cloudflare Queues is the T-3 real-account concurrency smoke's territory, not T-4's.
+- AC-jobs-scheduledRunsOnCron: OBSERVED (with a named limitation) via `fake-clock-cron.mjs` on this shipped head. Three rows anchor the AC and observe a fire published after `clock.advance(60000)`, jobStarted with attempts=1, and jobCompleted within `timeoutMs=10000` against the in-memory queue-driver seam plus the injected fake-clock scheduler seam. A fourth row is conformance-only: it records the scheduled-to-started latency but does not assert a wall-clock cron-boundary tolerance (the scheduler stamps `scheduledAt` as `new Date().toISOString()` in the runtime's time domain, so the delta is a same-clock intra-runtime measurement). LIVE `wrangler dev` cron-trigger firing under `workerCron` scheduler mode is a follow-up live run; the shipped local seam proves the scheduler and runtime publish chain without a Cloudflare Queues account.
+- AC-jobs-retryOnHandlerFailure: PROVEN via `retry-and-fail.mjs` on this shipped head (three `jobStarted` records at attempts 1, 2, 3 followed by terminal `jobFailed`). The in-memory queue-driver re-delivery loop matches the Cloudflare Queues retry semantics per the messaging-queue opaque-adapter clause; a live-account run against Cloudflare Queues is the messaging-queue real-account concurrency smoke's territory, not jobs-background's.
 - AC-jobs-eventSecrecy: PROVEN via `event-secrecy.mjs` on this shipped head (grep on the serialised run-log stream returns zero matches for every PII fixture literal). No live-only gap; the whitelist enforcement lives in code, not in a runtime environment.
 
 The reserved v1.1.0 `workflows` scheduler mode is documented in the guide but not shipped at v1.0.0; the `fake-clock-cron.mjs` probe adds a `workflows-scheduler` variant when the v1.1.0 minor lands per section 5.7 of the spec.
+
+## Declared env vars (object-storage-s3 pack)
+
+Every environment variable this fixture or any object-storage-s3 probe it hosts reads is declared here. A first-tier `CI_HAS_*` variable gates the account-bound branch of a real-account probe; a second-tier variable, when unset with the gate set, causes the probe to record `accountBoundSkipped: true` and a `reason` field naming the missing variable per authoring standard section 7d. A probe that reads any variable not on this table fails the positive-evidence gate row when the anatomy scans it (authoring standard section 7d).
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `S3_ENDPOINT_URL` | override | S3 endpoint URL (default: fixture-local MinIO on port 9000; overridden per CI runner or positive-evidence run). | every non-R2/non-Hetzner probe via `endpointFromEnv` on `src/object-store.mjs` |
+| `S3_BUCKET` | override | Bucket name (default: fixture-local scratch). | same probes |
+| `S3_REGION` | override | AWS region (default `auto`). | same probes |
+| `S3_FORCE_PATH_STYLE` | override | Force path-style addressing (default `true`; MinIO requires, R2 accepts). | same probes |
+| `S3_ACCESS_KEY_ID` | second (R2) | S3-API access key id (defaults to a fixture-only value when unset). | `src/secrets.mjs`; the R2 real-account probe reads it as a second-tier gate |
+| `S3_SECRET_ACCESS_KEY` | second (R2) | S3-API secret access key (fixture-only default when unset). | same |
+| `MINIO_PORT` / `MINIO_CONSOLE_PORT` | override | `docker-compose.yml` host-port overrides for the MinIO API and console. | `docker-compose.yml` |
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the R2 real-account branch. | `r2-real-account-smoke.mjs` |
+| `R2_ACCOUNT_ID` | second (R2) | Cloudflare account id used to resolve the R2 S3-API endpoint. | `src/secrets.mjs` `getSecret('r2Endpoint')`; `r2-real-account-smoke.mjs` |
+| `R2_BUCKET` | second (R2) | Scratch R2 bucket the real-account probe writes into. A positive-evidence run mints a scratch bucket (name pattern lives in the probe code and evidence run-notes) and deletes it in teardown. | same |
+| `CI_HAS_HETZNER_OBJECT_STORAGE` | first | Gate for the Hetzner Object Storage real-account branch. | `hetzner-object-storage-round-trip.mjs` |
+| `HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID` | second (Hetzner) | Hetzner S3-API access key id. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
+| `HETZNER_OBJECT_STORAGE_SECRET_ACCESS_KEY` | second (Hetzner) | Hetzner S3-API secret access key. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
+| `HETZNER_OBJECT_STORAGE_BUCKET` | second (Hetzner) | Hetzner Object Storage bucket name. Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
+| `HETZNER_OBJECT_STORAGE_LOCATION` | second (Hetzner) | Hetzner location code (`fsn1`, `hel1`, or `nbg1`). Unset means the probe records `accountBoundSkipped: true` with `reason` naming this variable. | same |
+| `SIMULATE_403_ON_GET` | switch | Induced-failure switch forcing `getObject` to throw `AccessDenied` with `$metadata.httpStatusCode: 403`. | `src/object-store.mjs` |
+| `SIMULATE_PART_UPLOAD_FAIL` | switch | Induced-failure switch failing the second part of a multipart put so the abort-on-failure surface is exercised. | `src/object-store.mjs`, `multipart-upload` probe |
+| `SIMULATE_PRESIGN_MALFORMED` | switch | Induced-failure switch that corrupts the `X-Amz-Signature` on a presigned URL so a downstream fetch returns 403 without waiting on TTL wall-clock. | `src/object-store.mjs`, `presigned-url` probe |
+| `SIMULATE_HETZNER_ENDPOINT_MISSHAPEN` | switch | Fixture-side induced-failure switch on `src/hetzner-endpoint.mjs`. | `src/hetzner-endpoint.mjs` |
+| `SIMULATE_HETZNER_EVENT_LEAK` | switch | Fixture-side induced-failure switch on `src/hetzner-endpoint.mjs`. | `src/hetzner-endpoint.mjs` |
+
+## Declared env vars (jobs-background pack)
+
+The five local jobs-background probes drive the in-memory queue-driver seam and the fake-clock scheduler seam rather than a real Cloudflare Queues account; the live-only wrangler-dev cron-trigger path remains an accepted per-AC mechanism-reach gap. The additional `retry-and-fail-real-account.mjs` probe for live-engine coverage exports `accountBound: true` and gates on `CI_HAS_CLOUDFLARE_ACCOUNT`, `CF_ACCOUNT_ID`, `CF_API_TOKEN`; without those variables it records `accountBoundSkipped: true` with a `reason` naming the missing variable.
+
+The env vars named below are the ones the code actually reads (`src/producer.mjs`'s `queueConfigFromEnv`); a probe that reads any variable off the table below is refused at the reader gate.
+
+| Env var | Tier | Purpose | Consumed by |
+|---|---|---|---|
+| `RCF_QUEUE_NAME` | override | Queue binding name (default `rcf-test-queue`). | `src/producer.mjs` `queueConfigFromEnv` |
+| `RCF_DLQ_NAME` | override | DLQ binding name (default `rcf-test-dlq`). | same |
+| `RCF_MAX_RETRIES` | override | Consumer `max_retries` ceiling (default `3`). | same |
+| `RCF_BATCH_SIZE` | override | Consumer max batch size (default `10`). | same |
+| `RCF_BATCH_TIMEOUT_MS` | override | Consumer max batch wait window in milliseconds (default `5000`). | same |
+| `WRANGLER_DEV_PORT` | override | Local port for a real `wrangler dev` process (default `8787`). | same |
+| `CI_HAS_CLOUDFLARE_ACCOUNT` | first | Gate for the `retry-and-fail-real-account` live-account branch. Without it the probe emits `accountBoundSkipped: true` per spec section 3.5. | `retry-and-fail-real-account.mjs` |
+| `CF_ACCOUNT_ID` | first | Cloudflare account id the real-account probe provisions its scratch queue and DLQ under. Required alongside `CI_HAS_CLOUDFLARE_ACCOUNT` for a live run. | same |
+| `CF_API_TOKEN` | first | Cloudflare API token scoped to Queues:Edit for the account above. Required alongside `CI_HAS_CLOUDFLARE_ACCOUNT` for a live run. | same |
+| `CF_API_BASE` | override | Cloudflare REST API base URL the real-account probe posts to. Required declared variable; when unset the probe records an exact one-variable skip. | `retry-and-fail-real-account.mjs` |
+| `SIMULATE_HANDLER_THROW` | switch | Induced-failure switch: the shared jobs-runtime throws a retryable error on every job invocation so the retry-and-fail probe exercises the attempts=[1,2,3] then terminal jobFailed trajectory. | `src/jobs-runtime.mjs`, `retry-and-fail` probe |
+| `SIMULATE_PII_IN_JOB_INPUT` | switch | Induced-failure switch used by `event-secrecy` to seed a job input carrying the PII fixture body; the probe asserts none of the PII literals appear on the serialised run-log event stream. | `src/jobs-runtime.mjs`, `event-secrecy` probe |

@@ -1,4 +1,24 @@
+# Changelog
+
+## 2.3.5 - 2026-09-11
+
+probe-utils.writeReport no longer promotes an all-accountBoundSkipped row set to PASS via a separate override; aggregate() already returns PASS for a pure-skip set on its own and returns WARN when any WARN row is present, so an all-skipped array carrying a WARN row is no longer silently promoted. Anatomy suite tracks the strengthened shared helper.
+
+## 2.3.4 - 2026-09-11
+
+shared anatomy helper tightened; delivery-ci-workflows anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
+
 # Changelog: delivery-ci-workflows blueprint
+
+## 2.3.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (workflow-template-shape, node-gate-entrypoint, real-account-github-actions-run-record) with a fixture-side workflow-lint helper under packages/rcf-lite/test/fixtures/probe-pack-delivery-ci-workflows/. Probes run against the shipped workflow templates on Node 24 and against real GitHub Actions on the account-bound branch (CI_HAS_GITHUB_ACTIONS gate + RCF_FIXTURE_CIW_REPO, one variable per skip row).
+
+Anchoring: every row is de-claimed (conformanceOnly, anchorAcId=null) with a limitation naming a shipped AC id:
+- workflow-template-shape: template shape row -> AC-6101-1 (materialiser wiring not observed); actionlint row -> AC-6101-3 (materialiser refusal not observed; honest accountBoundSkipped naming RCF_FIXTURE_CIW_ACTIONLINT_PATH when the binary is not runnable); branch-protection row -> AC-6101-2 (repository merge-policy not observable at shelf without a probe-controlled repository).
+- node-gate-entrypoint: single-line invocation row -> AC-6102-2 (absence of gate-specific logic elsewhere in the job not observed); entry-point unique row -> AC-6102-1 (runtime aggregate report and project tree unavailable).
+- real-account-github-actions-run-record: every row -> AC-6101-1 (a gh run list record is not evidence of the configured trigger set nor of the aggregate pipeline report's `trigger` field); accountBoundSkipped rows name exactly one declared variable; a gh auth failure with the gate set is a FAIL.
+probe-utils aggregate follows the standard fail>warn>pass rule with no warn-to-pass promotion; every warn-shaped row was converted to a conformanceOnly or accountBoundSkipped row so aggregate=pass carries only pass rows. probe-utils fallback anchor is null.
 
 ## 2.3.1 (register-sweep patch, 2026-09-10)
 

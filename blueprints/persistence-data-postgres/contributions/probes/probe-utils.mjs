@@ -25,6 +25,9 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/persist
  * - pass otherwise
  */
 export function aggregate(results) {
+  // Empty or null result sets are a FAIL: a probe that emitted no rows
+  // proved nothing (authoring-standard rule 3, criterion e conformance).
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
@@ -33,9 +36,10 @@ export function aggregate(results) {
 /**
  * Write the per-blueprint probe report at
  * .rcf/reports/blueprints/persistence-data-postgres/<probeName>.json
- * per spec section 3.4.
+ * per spec section 3.4. An optional extra bag is spread on the envelope
+ * so probes can attach teardown records, per-check evidence bags, etc.
  */
-export async function writeReport({ probeName, engine, results }) {
+export async function writeReport({ probeName, engine, results, extra }) {
   await mkdir(REPORT_DIR, { recursive: true });
   const report = {
     slug: 'persistence-data-postgres',
@@ -44,28 +48,42 @@ export async function writeReport({ probeName, engine, results }) {
     engine,
     results,
     aggregateVerdict: aggregate(results),
+    ...(extra ?? {}),
   };
   const path = resolve(REPORT_DIR, `${probeName}.json`);
   await writeFile(path, JSON.stringify(report, null, 2), 'utf8');
   return { report, path };
 }
 
+function normaliseMain(value) {
+  if (value == null) {
+    return { results: [{ anchorReqId: 'persistence-data-postgres-REQ-001', verdict: 'fail', detail: 'no checks ran (probe returned null / undefined)', evidence: { probeReturnedNullOrUndefined: true } }], extra: {} };
+  }
+  if (Array.isArray(value)) return { results: value, extra: {} };
+  if (value && Array.isArray(value.results)) {
+    const { results, ...extra } = value;
+    return { results, extra };
+  }
+  throw new Error('probe main must return an array or an object with a results[] field');
+}
+
 /**
  * Drive an async main() and exit 0 on aggregate pass, 1 otherwise.
- * Prints the report JSON to stdout for the gate-reviewer to read.
+ * Prints the report JSON to stdout for the gate-operator to read.
  */
 export async function runShim(probeName, engine, mainFn) {
   try {
-    const results = await mainFn();
-    const { report, path } = await writeReport({ probeName, engine, results });
+    const { results, extra } = normaliseMain(await mainFn());
+    const { report, path } = await writeReport({ probeName, engine, results, extra });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
     process.stdout.write(`report written to ${path}\n`);
     process.exit(report.aggregateVerdict === 'pass' ? 0 : 1);
   } catch (err) {
     const results = [{
-      anchorAcId: 'unknown',
+      anchorReqId: 'persistence-data-postgres-REQ-001',
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: { probeThrew: true, errorMessage: err && err.message ? err.message : String(err), errorName: err && err.name },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');

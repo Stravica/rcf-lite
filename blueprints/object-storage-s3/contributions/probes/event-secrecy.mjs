@@ -12,18 +12,41 @@
  * Anchors AC-28105-1.
  */
 
-import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
+
+export const DECLARED_ENV = Object.freeze(['S3_ENDPOINT_URL']);
 
 const WHITELIST = new Set(['event', 'ts', 'key', 'size', 'contentType', 'ttl', 'endpointHost', 'bucketName']);
 const FORBIDDEN_FIELDS = ['userId', 'ssn', 'dob', 'email', 'body', 'bodyBytes', 'bodyChecksum'];
 const PII_TEXT = 'PII-FIXTURE-DO-NOT-LOG';
 
+const AC28105_1 = 'Given a lifecycle-event spy attached to the sink,';
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC28105_1} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
-  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  let endpoint, bucket, region, forcePathStyle;
+  try {
+    ({ endpoint, bucket, region, forcePathStyle } = endpointFromEnv());
+  } catch (err) {
+    if (err instanceof MissingS3EndpointError) {
+      return { results: [skipRow(err.variable)], extra: { accountBoundSkipped: true, reason: `${err.variable} unset`, envDeclared: [...DECLARED_ENV] } };
+    }
+    throw err;
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: credentials,
@@ -34,8 +57,21 @@ export default async function runProbe() {
   const results = [];
   const key = 'users/1234/passport.jpg';
   const body = Buffer.from(`prefix-${PII_TEXT}-suffix`);
+  const vendorReq = { put: null, get: null, del: null };
   try {
     await store.ready();
+    // Drive one PutObject via SDK directly for per-row vendor
+    // evidence, then delete it, then run the shipped-facade path.
+    const { loadSdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs'); const sdk = await loadSdk();
+    const client = store.getClient();
+    const rawPut = await client.send(new sdk.PutObjectCommand({ Bucket: bucket, Key: `${key}.evidence`, Body: body, ContentType: 'image/jpeg' }));
+    vendorReq.put = { httpStatus: rawPut.$metadata && rawPut.$metadata.httpStatusCode, requestId: rawPut.$metadata && rawPut.$metadata.requestId };
+    const rawGet = await client.send(new sdk.GetObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    vendorReq.get = { httpStatus: rawGet.$metadata && rawGet.$metadata.httpStatusCode, requestId: rawGet.$metadata && rawGet.$metadata.requestId };
+    try { await rawGet.Body.transformToByteArray(); } catch { /* drain */ }
+    const rawDel = await client.send(new sdk.DeleteObjectCommand({ Bucket: bucket, Key: `${key}.evidence` }));
+    vendorReq.del = { httpStatus: rawDel.$metadata && rawDel.$metadata.httpStatusCode, requestId: rawDel.$metadata && rawDel.$metadata.requestId };
+
     await store.putObject(key, 'image/jpeg', body);
     await store.getObject(key);
     await store.presignGetUrl(key, 60);
@@ -52,8 +88,14 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: nonWhitelistKeys.size === 0 ? 'pass' : 'fail',
       detail: nonWhitelistKeys.size === 0
-        ? `every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
-        : `unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
+        ? `${AC28105_1} - every event carries only whitelisted fields (${[...WHITELIST].join(',')})`
+        : `${AC28105_1} - unexpected event fields: ${[...nonWhitelistKeys].join(',')}`,
+      evidence: {
+        vendorRequestId: (vendorReq.put && vendorReq.put.requestId) || null,
+        bucketName: bucket,
+        whitelist: [...WHITELIST], nonWhitelistedFields: [...nonWhitelistKeys],
+        eventCount: events.length, vendorRequestIdMetadata: vendorReq,
+      },
     });
 
     // No forbidden field names
@@ -67,8 +109,14 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: foundForbidden.length === 0 ? 'pass' : 'fail',
       detail: foundForbidden.length === 0
-        ? 'no forbidden PII field name appeared on any event'
-        : `forbidden fields present: ${foundForbidden.join(',')}`,
+        ? `${AC28105_1} - no forbidden PII field name appeared on any event`
+        : `${AC28105_1} - forbidden fields present: ${foundForbidden.join(',')}`,
+      evidence: {
+        vendorRequestId: (vendorReq.get && vendorReq.get.requestId) || null,
+        bucketName: bucket,
+        forbiddenFieldNames: FORBIDDEN_FIELDS, foundForbidden,
+        eventCount: events.length, vendorRequestIdMetadata: vendorReq,
+      },
     });
 
     // No event value contains the PII fixture text
@@ -82,8 +130,14 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: leaks.length === 0 ? 'pass' : 'fail',
       detail: leaks.length === 0
-        ? `no event value contained the PII fixture text ${PII_TEXT}`
-        : `PII fixture text leaked in: ${leaks.join(',')}`,
+        ? `${AC28105_1} - no event value contained the PII fixture text ${PII_TEXT}`
+        : `${AC28105_1} - PII fixture text leaked in: ${leaks.join(',')}`,
+      evidence: {
+        vendorRequestId: (vendorReq.del && vendorReq.del.requestId) || null,
+        bucketName: bucket,
+        piiFixtureLiteral: PII_TEXT, leakSites: leaks,
+        eventCount: events.length, vendorRequestIdMetadata: vendorReq,
+      },
     });
 
     // The key itself is passed through unchanged; it is not decomposed
@@ -93,11 +147,18 @@ export default async function runProbe() {
       anchorAcId: 'AC-28105-1',
       verdict: keyPass ? 'pass' : 'fail',
       detail: keyPass
-        ? `objectPut carried the key ${key} as an opaque string; no userId extraction`
-        : `key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
+        ? `${AC28105_1} - objectPut carried the key ${key} as an opaque string; no userId extraction`
+        : `${AC28105_1} - key was decomposed or absent on objectPut: ${JSON.stringify(putEvent)}`,
+      evidence: {
+        vendorRequestId: (vendorReq.put && vendorReq.put.requestId) || null,
+        bucketName: bucket,
+        expectedKey: key,
+        objectPutEvent: putEvent || null,
+        vendorRequestIdMetadata: vendorReq,
+      },
     });
   } finally {
     await store.close();
   }
-  return results;
+  return { results, extra: { envDeclared: [...DECLARED_ENV] } };
 }

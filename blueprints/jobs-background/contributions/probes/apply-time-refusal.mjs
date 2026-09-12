@@ -24,6 +24,8 @@ import { fileURLToPath } from 'node:url';
 
 import { PROJECT_ROOT } from './probe-utils.mjs';
 
+const AC_FIRST8 = 'On a fresh init scratch project with NO';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BLUEPRINT_DIR = resolve(HERE, '..', '..');
 const RCF_BIN = resolve(PROJECT_ROOT, 'packages/rcf-lite/bin/rcf.js');
@@ -46,9 +48,12 @@ export default async function runProbe() {
     const init = await runNode([RCF_BIN, 'init'], { cwd: scratch });
     if (init.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-requiresQueue',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${REFUSAL_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `conformanceOnly (${REFUSAL_PRECOND_LIM}) - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
     // 2. Attempt to apply jobs-background on the bare project.
@@ -63,12 +68,20 @@ export default async function runProbe() {
     const overrideMatch = apply.stderr.includes('--allow-no-queue-yet');
     const codeMatch = apply.code === 3;
     const pass = codeMatch && tagMatch && providerMatch && overrideMatch;
+    // The compose-time refusal is observed by CLI exit code and
+    // stderr grep; no engine-minted id is produced on this row (the
+    // apply pipeline refuses before minting any job/message id).
+    // Row is conformanceOnly against AC-jobs-requiresQueue with the
+    // no-engine-id clause named on the limitation.
     results.push({
-      anchorAcId: 'AC-jobs-requiresQueue',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-jobs-requiresQueue: on a bare project the apply verb refuses with exit 3 and stderr carrying [jobs-background-no-queue]; observed here through CLI exit code and stderr grep. Not observed on this row: an engine-minted id (the refusal happens before any job or message id is minted).`,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`
-        : `expected exit=3 AND first-line tag [jobs-background-no-queue] AND messaging-queue-cloudflare AND --allow-no-queue-yet; got exit=${apply.code}; firstLine='${firstLine}'; tagMatch=${tagMatch}; providerMatch=${providerMatch}; overrideMatch=${overrideMatch}`,
+        ? `${AC_FIRST8} - exit=${apply.code}; stderr first line carries [jobs-background-no-queue] tag; stderr names messaging-queue-cloudflare; stderr names --allow-no-queue-yet`
+        : `${AC_FIRST8} - expected exit=3 AND first-line tag [jobs-background-no-queue] AND messaging-queue-cloudflare AND --allow-no-queue-yet; got exit=${apply.code}; firstLine='${firstLine}'; tagMatch=${tagMatch}; providerMatch=${providerMatch}; overrideMatch=${overrideMatch}`,
+      evidence: { exitCode: apply.code, stderrFirstLine: firstLine, tagPresent: tagMatch, providerPresent: providerMatch, overrideFlagPresent: overrideMatch },
     });
     // Do NOT include the scratch dir path in the committed report; it is
     // a per-run tmp path and would leak the machine's tmp naming into the
@@ -77,6 +90,15 @@ export default async function runProbe() {
   } finally {
     // rm -rf the scratch dir (deletion discipline: literal absolute
     // scratch path created this call).
-    try { await rm(scratch, { recursive: true, force: true }); } catch { /* ignore */ }
+    try { await rm(scratch, { recursive: true, force: true }); } catch (err) {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${TEARDOWN_PRECOND_LIM_R}`,
+        verdict: 'fail',
+        detail: 'conformanceOnly (' + TEARDOWN_PRECOND_LIM_R + ') - scratch dir teardown failed: ' + (err && err.message),
+        evidence: { teardownStep: 'rm scratch', error: err && err.message },
+      });
+    }
   }
 }

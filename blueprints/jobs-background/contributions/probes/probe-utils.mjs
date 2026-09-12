@@ -30,6 +30,9 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/jobs-ba
  * - pass otherwise
  */
 export function aggregate(results) {
+  // Empty or null result sets are a FAIL: a probe that emitted no rows
+  // proved nothing (authoring-standard rule 3, criterion e conformance).
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
   return 'pass';
@@ -58,7 +61,7 @@ export async function writeReport({ probeName, engine, results, extra = {} }) {
 
 /**
  * Drive an async main() and exit 0 on aggregate pass, 1 otherwise.
- * Prints the report JSON to stdout for the gate-reviewer to read.
+ * Prints the report JSON to stdout for the gate-operator to read.
  */
 export async function runShim(probeName, engine, mainFn) {
   try {
@@ -69,9 +72,10 @@ export async function runShim(probeName, engine, mainFn) {
     process.exit(report.aggregateVerdict === 'pass' ? 0 : 1);
   } catch (err) {
     const results = [{
-      anchorAcId: 'unknown',
+      anchorReqId: 'jobs-background-REQ-001',
       verdict: 'fail',
       detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: { probeThrew: true, errorMessage: err && err.message ? err.message : String(err), errorName: err && err.name },
     }];
     const { report, path } = await writeReport({ probeName, engine, results });
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -82,6 +86,10 @@ export async function runShim(probeName, engine, mainFn) {
 }
 
 function normaliseMain(value) {
+  if (value == null) {
+    // A probe that returned null / undefined proved nothing (authoring-standard rule 3).
+    return { results: [{ anchorReqId: 'jobs-background-REQ-001', verdict: 'fail', detail: 'no checks ran (probe returned null / undefined)', evidence: { probeReturnedNullOrUndefined: true } }], extra: {} };
+  }
   if (Array.isArray(value)) return { results: value, extra: {} };
   if (value && Array.isArray(value.results)) {
     const { results, ...extra } = value;

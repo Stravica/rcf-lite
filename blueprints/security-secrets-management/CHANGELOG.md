@@ -1,5 +1,18 @@
 # security-secrets-management changelog
 
+## 1.1.5 - 2026-09-11
+
+- Criterion-e probe pack refinement: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (all ten SOPS-native rows move from `REQ-002` to `AC-8102-1`, the manager-module surface these probes do not observe). Detail strings on de-claimed rows describe only what was observed at the SOPS crypto layer and no longer name REQ-002. The anatomy helper enforces conformance-only rows to satisfy `anchorAcId === null`, requires limitations to open with an `AC-<n>-<n>` id that resolves to a shipped acceptance criterion on the blueprint's user stories (REQ-prefixed anchors are refused and fabricated ids are rejected), and does not count pre-delete presence as an absence observation on the inventory-diff shape.
+
+## 1.1.4 - 2026-09-11
+
+- Every SOPS-native result row is now marked `conformanceOnly: true` with a limitation naming the shipped AC that these SOPS-native operations do not observe (the manager-client boundary). Anchors stay `null` as before. Anatomy helper enforces field COMBINATIONS per shape; bare diagnostic evidence like `{macDiverged}`, `{sameRecipients}` or `{status,matched}` passes only under the `conformanceOnly` + limitation shape. This pack is criterion-e conformance evidence pending the manager-client probe follow-up.
+
+## 1.1.3 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the secretsProvider capability across four probes running against real `sops(1)` + `age(1)` engines with throwaway keypairs the probes self-provision and self-clean under `RCF_SECRETS_SCRATCH_DIR`: `encrypt-decrypt-round-trip` (scratch scope encrypt then decrypt; sops metadata captured as evidence excerpts), `add-recipient-rotation` (`--rotate --add-age` extends recipient list, regenerates mac, and lets the new recipient decrypt), `key-rotation` (`--rotate` re-keys the payload without changing recipients), and `mismatched-key-refusal` (foreign-key decrypt returns non-zero with no plaintext). The estate vault at `.vault/scopes/` is never touched. Fixture at `packages/rcf-lite/test/fixtures/security-secrets-management/` declares every env var the pack reads; anatomy test pins pack shape, fixture manifest and per-probe aggregate pass on the real engine.
+- Iteration on the probe pack: byte-equality is a real byte-buffer compare on `--input-type binary --output-type binary` streams; the SHA-256 witnesses stay in `evidence.byteCompare` alongside the byte-length + `Buffer.compare === 0` assertion. `aggregate([])` and null-result normalisation now report `detail: 'no checks ran'` exactly. Slug reads AMBER on criterion e until a manager-client probe is added that observes `AC-8102-1` at the module boundary.
+
 ## 1.1.2
 
 - Rewrites `REQ-002.description` to reference `TAC-901-security-secrets-management-manager-client` `responsibilities.get` and the sibling responsibilities on the same TAC rather than restate the `get(name)` signature verbatim; the literal remains owned by the delivering TAC.

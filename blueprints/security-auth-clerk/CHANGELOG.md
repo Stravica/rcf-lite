@@ -1,5 +1,18 @@
 # security-auth-clerk CHANGELOG
 
+## 1.5.4 - 2026-09-11
+
+- Criterion-e probe pack refinement: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (`AC-9110-1` on the principal-directory smoke, `AC-9112-3` and `AC-9112-4` on the sign-in-token mint and revoke rows, dedicated `AC-9112-1` and `AC-9112-5` notObservableHere rows on the session-inventory probe). Detail strings on de-claimed rows describe only what was observed at the surface the probe drove (Clerk Backend API for the two live probes; the fixture URL validator or role adapter for the local ones) and no longer claim REQ-008 or any AC as observed end to end. The anatomy helper enforces conformance-only rows to satisfy `anchorAcId === null`, requires limitations to open with an `AC-<n>-<n>` id that resolves to a shipped acceptance criterion on the blueprint's user stories (REQ-prefixed anchors are refused and fabricated ids are rejected), and does not count pre-delete presence as an absence observation on the inventory-diff shape.
+
+## 1.5.3 - 2026-09-11
+
+- Every AC/REQ anchor on the criterion-e probe pack is de-claimed to `conformanceOnly` with a limitation naming the shipped AC that is observable only in the integration harness follow-up. Live evidence on the two `real-account-*` probes (Clerk Backend API principal-directory smoke, sign-in-token mint+revoke lifecycle) is preserved on the rows; the anchor drops to null and the limitation says why. `hosted-identity-ui-config` and `role-model-adapter` rows keep their fixture-adapter observations under the same shape.
+
+## 1.5.2 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the four declared capabilities: `role-model-adapter` (roleModel; local), `hosted-identity-ui-config` (hostedIdentityUi; local, https-only refusal), `real-account-principal-directory-round-trip` (principalDirectory; live against Clerk Backend API, creates a scratch principal, reads back, list-diff, deletes), and `real-account-session-inventory` (sessionInventory; live against the Clerk sign-in-token surface). Fixture at `packages/rcf-lite/test/fixtures/security-auth-clerk/` declares every env var the pack reads (`CI_HAS_CLERK_ACCOUNT`, `CLERK_SECRET_KEY`, `CLERK_PUBLISHABLE_KEY`, `CLERK_API_BASE_URL`, `GITHUB_RUN_ID`); anatomy test at `packages/rcf-lite/test/blueprint/security-auth-clerk-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.
+- Iteration on the probe pack landed the Clerk-gate distinction between unset and set-but-not-`true` for both live probes; `aggregate([])` and null-result normalisation now report `detail: 'no checks ran'` exactly. The slug reads AMBER on criterion e until the integration-harness follow-up lifts the AC-level rows.
+
 ## 1.5.1
 
 - Adds `vendorCitation` on `AC-9108-1` (`{ url, verifiedOn }` pointing at the Clerk sign-up-and-sign-in-options guide) and on `AC-9109-2` (pointing at the Clerk system-limits page): closes F-4 and F-5. Both ACs rest on Clerk-documented facts; the citations record the exact page and the ISO-8601 verification date so a reviewer can retrace the fact without following prose leads.

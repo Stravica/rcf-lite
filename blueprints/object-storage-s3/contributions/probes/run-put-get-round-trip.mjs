@@ -1,7 +1,10 @@
 /**
- * Shim: run put-get-round-trip against the sample-app fixture.
+ * Shim: run put-get-round-trip against the sample-app fixture. The engine
+ * descriptor carries a REAL health observation (MinIO /minio/health/live
+ * fetch outcome), not a fabricated healthy flag.
  */
 import runProbe from './put-get-round-trip.mjs';
-import { runShim } from './probe-utils.mjs';
-const engine = { kind: 's3', image: 'minio/minio', healthy: true };
+import { runShim, observeMinioEngine } from './probe-utils.mjs';
+
+const engine = await observeMinioEngine();
 runShim('put-get-round-trip', engine, runProbe);

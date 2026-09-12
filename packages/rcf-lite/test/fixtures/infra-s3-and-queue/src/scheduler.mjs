@@ -1,5 +1,5 @@
 /**
- * Jobs-background scheduler (T-4 slice).
+ * Jobs-background scheduler (jobs-background fixture slice).
  *
  * Realises TAC-3102. Ships the inProcess mode (a Node clock-driven
  * scheduler); workerCron and external modes are documented shipping-
@@ -9,8 +9,8 @@
  * inProcess scheduler passes the system clock ({ now: Date.now, advance
  * is a no-op }) and uses setInterval instead of manual advance.
  *
- * The scheduler publishes messages to the applied queue via the T-3
- * producer facade. Each fire produces a message body
+ * The scheduler publishes messages to the applied queue via the
+ * messaging-queue producer facade. Each fire produces a message body
  * { jobName, jobInput, jobId, scheduledAt } that the jobs runtime
  * consumes.
  */
@@ -104,9 +104,14 @@ export function createScheduler({ mode = 'inProcess', clock, publisher, runLog }
         }
       }
       return fires;
-      async function publishOne(schedule, ms) {
+      async function publishOne(schedule, _ms) {
+        // Record scheduledAt from the SAME time domain as the runtime's
+        // jobStarted timestamp (Date.now()) so the scheduled-to-started
+        // delta is a meaningful tolerance in one clock. The fake clock
+        // still drives WHEN a cron fires; only the recorded ISO
+        // timestamp shifts to the runtime's domain.
         const jobId = mintJobId();
-        const scheduledAt = new Date(ms).toISOString();
+        const scheduledAt = new Date().toISOString();
         const body = { jobName: schedule.jobName, jobInput: schedule.input, jobId, scheduledAt };
         await publisher.publish(body);
         if (typeof runLog === 'function') {

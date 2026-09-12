@@ -1,5 +1,18 @@
 # security-auth-oauth2 CHANGELOG
 
+## 1.3.6 - 2026-09-11
+
+- Criterion-e probe pack refinement: every conformance-only result row now records `anchorAcId: null` alongside a `limitation` that opens with a shipped AC id from the blueprint's user stories (the PKCE length-band row moves from `REQ-002` to `AC-10101-1`). The retained live-branch anchor on `real-account-authorisation-code-flow` (`AC-10110-2`) is unchanged and honest-skips on `CI_HAS_OAUTH2_PROVIDER`; when skipped the row records `engine: oauth2-provider`, not `engine: skip:...`. Detail strings on de-claimed rows describe only what was observed at the fixture-mock surface and no longer claim REQ-002 or an AC as observed end to end. The `real-account-authorisation-code-flow` source header now states plainly that its credential-present branch returns a `NOT IMPLEMENTED` failure record (no live commercial IdP is wired in this estate) rather than describing a real-provider round trip. The anatomy helper enforces conformance-only rows to satisfy `anchorAcId === null`, requires limitations to open with an `AC-<n>-<n>` id that resolves to a shipped acceptance criterion on the blueprint's user stories (REQ-prefixed anchors are refused and fabricated ids are rejected), and does not count pre-delete presence as an absence observation on the inventory-diff shape.
+
+## 1.3.5 - 2026-09-11
+
+- Every conformance-only anchor on the criterion-e probe pack is de-claimed to `conformanceOnly` with a limitation naming the shipped AC that is observable only in the integration harness follow-up; the retained live-branch anchor on `real-account-authorisation-code-flow` (`AC-10110-2`) is preserved and honest-skips on `CI_HAS_OAUTH2_PROVIDER`. The mock authorisation server keeps real consumed-code state; `/callback-check` reads that record and callers now observe `preExchange` from the mock's request-order records instead of asserting it as a constant. Fixture README and mock header comment describe the mock as a fixture, not a local engine, and `X-Mock-Request-Id` as a diagnostic side channel rather than a rule 7d shape.
+
+## 1.3.4 - 2026-09-11
+
+- Added a criterion-e probe pack (`contributions/probes/`) covering the six declared capabilities via five probes: `pkce-challenge-shape` and `authorisation-code-flow-shape` (authorisationCodeFlow via a local mock RFC 6749 + RFC 7636 server on ports 47400-47449), `provider-adapter-shape` (principalDirectory + credentialSelfService), `session-bridge-shape` (sessionInventory + hostedIdentityUi), and `real-account-authorisation-code-flow` (LIVE; honest-skips on `CI_HAS_OAUTH2_PROVIDER` since this estate has no live commercial IdP). Fixture at `packages/rcf-lite/test/fixtures/security-auth-oauth2/` declares every env var the pack reads; anatomy test at `packages/rcf-lite/test/blueprint/security-auth-oauth2-anatomy.test.js` pins pack shape, fixture manifest completeness and the account-bound skip contract.
+- Iteration on the probe pack labelled every local-mock row `engine: fixture`, adjusted `authorisation-code-flow-shape` so the callback-refusal row observes a consumed authorisation code before any second `/token` request, and settled `aggregate([])` / null-result normalisation to `detail: 'no checks ran'` exactly. `real-account-authorisation-code-flow` honest-skips on `CI_HAS_OAUTH2_PROVIDER`; when skipped the record's `engine.kind` remains `oauth2-provider`. Slug reads AMBER on criterion e.
+
 ## 1.3.3
 
 - Closure fix pass (F-4): rewrites the `README.md` shelf-latest line in neutral customer-facing voice with no spec-provenance label.

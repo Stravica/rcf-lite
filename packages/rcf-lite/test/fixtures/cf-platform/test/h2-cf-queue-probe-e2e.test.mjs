@@ -61,7 +61,7 @@ test('Queue probe e2e: real-account run mints, publishes 500 via Queues REST, dr
     assert.equal(r.workerUrl, undefined, 'no worker URL on the result (no subdomain)');
     assert.deepEqual(r.envDeclared, [
       'CI_HAS_CLOUDFLARE_ACCOUNT', 'CF_ACCOUNT_ID', 'CF_API_TOKEN',
-      'CF_API_BASE_URL', 'CF_QUEUE_MESSAGE_COUNT',
+      'CF_API_BASE_URL', 'CF_QUEUE_MESSAGE_COUNT', 'GITHUB_RUN_ID',
     ]);
     // AFTER: teardown removed all three
     assert.equal(mock.state.queues.size, 0, 'AFTER: zero queues (teardown clean)');
@@ -69,6 +69,39 @@ test('Queue probe e2e: real-account run mints, publishes 500 via Queues REST, dr
     assert.equal(mock.state.kvNamespaces.size, 0, 'AFTER: zero KV namespaces (teardown clean)');
     process.stdout.write(`\nQUEUE_PROBE_PASS_DETAIL: ${r.detail}\n`);
   });
+});
+
+test('Queue probe e2e: pre-flight affirmative absence (unprovisioned mock) records the declared skip and issues zero writes', async () => {
+  const mock = createMockCfApi({ workersSubdomainProvisioned: false });
+  const { base } = await mock.start();
+  const prev = {
+    CF_API_BASE_URL: process.env.CF_API_BASE_URL,
+    CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+    CF_API_TOKEN: process.env.CF_API_TOKEN,
+    CI_HAS_CLOUDFLARE_ACCOUNT: process.env.CI_HAS_CLOUDFLARE_ACCOUNT,
+  };
+  process.env.CF_API_BASE_URL = base;
+  process.env.CF_ACCOUNT_ID = 'acct-mock';
+  process.env.CF_API_TOKEN = 'tok-mock';
+  process.env.CI_HAS_CLOUDFLARE_ACCOUNT = 'true';
+  try {
+    const probe = (await import('../../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/real-account-concurrency-smoke.mjs')).default;
+    const results = await probe();
+    assert.equal(results[0].verdict, 'pass');
+    assert.equal(results[0].accountBoundSkipped, true);
+    assert.equal(results[0].reason, 'cloudflare-account-workers-dev-subdomain-not-provisioned');
+    assert.match(results[0].detail, /status=404/);
+    assert.match(results[0].detail, /errorCode=10007/);
+    // No mint / write path should have fired against the mock.
+    assert.equal(mock.state.queues.size, 0, 'affirmative-absence path issues zero queue writes');
+    assert.equal(mock.state.workers.size, 0, 'affirmative-absence path issues zero worker uploads');
+    assert.equal(mock.state.kvNamespaces.size, 0, 'affirmative-absence path issues zero KV writes');
+  } finally {
+    await mock.stop();
+    for (const [k, v] of Object.entries(prev)) {
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+  }
 });
 
 test('Queue probe: unset CI_HAS_CLOUDFLARE_ACCOUNT keeps pass-with-skip and declares env', async () => {
@@ -81,7 +114,7 @@ test('Queue probe: unset CI_HAS_CLOUDFLARE_ACCOUNT keeps pass-with-skip and decl
     assert.equal(results[0].accountBoundSkipped, true);
     assert.deepEqual(results[0].envDeclared, [
       'CI_HAS_CLOUDFLARE_ACCOUNT', 'CF_ACCOUNT_ID', 'CF_API_TOKEN',
-      'CF_API_BASE_URL', 'CF_QUEUE_MESSAGE_COUNT',
+      'CF_API_BASE_URL', 'CF_QUEUE_MESSAGE_COUNT', 'GITHUB_RUN_ID',
     ]);
   } finally {
     if (prev === undefined) delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT; else process.env.CI_HAS_CLOUDFLARE_ACCOUNT = prev;

@@ -103,9 +103,9 @@ test('probe-path alignment pre-condition: blueprint versions', async () => {
   // Hardening pass B4 (2026-09-09): essentials 2.0.0 -> 2.1.0 (elicits, F-1/F-2/F-3/F-4 closures);
   // probe-endpoints 1.1.0 -> 1.2.0 (elicits, F-1/F-2/F-3/F-4 closures, guide boundary rewrite).
   // The compose invariants this test asserts are unchanged; only the version markers move.
-  const EXPECTED_ESSENTIALS = '2.1.2';
-  const EXPECTED_PROBE_ENDPOINTS = '1.2.1';
-  const EXPECTED_API_REST = '2.1.5';
+  const EXPECTED_ESSENTIALS = '2.1.6';
+  const EXPECTED_PROBE_ENDPOINTS = '1.2.5';
+  const EXPECTED_API_REST = '2.1.10';
   assert.equal(es.version, EXPECTED_ESSENTIALS, `essentials must be at v${EXPECTED_ESSENTIALS}`);
   assert.equal(pe.version, EXPECTED_PROBE_ENDPOINTS, `probe-endpoints must be at v${EXPECTED_PROBE_ENDPOINTS}`);
   // api-rest bumped to 2.1.0 in the core-companions train (additive

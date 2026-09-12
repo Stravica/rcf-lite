@@ -64,13 +64,118 @@ const DOCUMENTED_PUSH_CAP = 250;
 export const anchorAcId = 'AC-29108-2';
 export const accountBound = true;
 
-function skipResult(detail) {
+// Every env var the probe reads. Superset of the shim's DECLARED_ENV
+// (shim tracks its own reads; this probe additionally reads
+// GITHUB_RUN_ID for the mint runId derivation).
+const PROBE_DECLARED_ENV = Object.freeze([
+  ...DECLARED_ENV,
+  'GITHUB_RUN_ID',
+]);
+
+// Pre-flight observation: does the target Cloudflare account have a
+// workers.dev subdomain provisioned? The queue consumer-attach step
+// (see mintScratchQueueAndWorker) requires one, and on accounts
+// without it the attach rejects with HTTP 403 code 10063 leaving a
+// partial mint that the shim rolls back. Observing the account state
+// up front lets the probe record a declared skip whose reason names
+// the missing ACCOUNT prerequisite rather than any env var, and
+// whose detail carries the API status and code as evidence. Endpoint:
+// GET /accounts/{id}/workers/subdomain (verifiedOn 2026-09-11 per
+// https://developers.cloudflare.com/api/operations/worker-subdomain-get-subdomain).
+//
+// Return classification:
+//   - `provisioned`      : HTTP 200 with `success: true` and a
+//                          non-empty `result.subdomain`. The probe
+//                          runs mint / drive / teardown.
+//   - `affirmativelyAbsent`
+//                        : the AFFIRMATIVE absence shape the vendor
+//                          returns for an unprovisioned account,
+//                          EITHER HTTP 404 with error code 10007 OR
+//                          HTTP 200 with `success: true` and a plain
+//                          `result` object whose own `subdomain` key
+//                          is present and is exactly null or the
+//                          empty string ''. The probe records an
+//                          accountBoundSkipped declared skip.
+//   - `unclassified`     : any other shape - non-2xx/non-404, a 200
+//                          success body missing `result` or with
+//                          `result` an array / primitive / null, a
+//                          missing `subdomain` key, a `subdomain` of
+//                          the wrong JSON type (number, boolean,
+//                          object, array, whitespace-only string),
+//                          malformed JSON, unexpected status/code
+//                          combination. The probe fails the verdict
+//                          with the observed status and body code
+//                          in detail; a skip on a non-absence /
+//                          schema-malformed shape is a 7d violation.
+async function preflightWorkersDevSubdomain() {
+  const accountId = process.env.CF_ACCOUNT_ID;
+  const token = process.env.CF_API_TOKEN;
+  const base = (process.env.CF_API_BASE_URL && process.env.CF_API_BASE_URL.trim())
+    ? process.env.CF_API_BASE_URL.replace(/\/$/, '')
+    : 'https://api.cloudflare.com/client/v4';
+  const url = `${base}/accounts/${accountId}/workers/subdomain`;
+  const resp = await fetch(url, { method: 'GET', headers: { authorization: `Bearer ${token}` } });
+  const text = await resp.text();
+  let json = null;
+  let parseError = null;
+  try { json = JSON.parse(text); } catch (err) { parseError = err && err.message ? err.message : 'JSON parse failed'; }
+  const errorCode = json && Array.isArray(json.errors) && json.errors[0] && json.errors[0].code;
+  // Documented success response shape (per Cloudflare API docs for
+  // GET /accounts/{account_id}/workers/subdomain, verifiedOn
+  // 2026-09-11 via https://developers.cloudflare.com/api/operations/
+  // worker-subdomain-get-subdomain): result is an object with a
+  // `subdomain` field of type string (example: "my-subdomain"). The
+  // vendor does not document the unprovisioned shape explicitly, so
+  // this classifier applies the strictest defensible interpretation:
+  //   - provisioned         : result is a plain object, has own
+  //                           `subdomain` key, value is a NON-EMPTY
+  //                           string.
+  //   - affirmativelyAbsent : result is a plain object, has own
+  //                           `subdomain` key, value is EXACTLY null
+  //                           OR the empty string ''.
+  //   - unclassified        : every other structural shape - result
+  //                           missing / null / array / primitive,
+  //                           subdomain key absent, subdomain of any
+  //                           other type (number, boolean, object,
+  //                           array, whitespace-only string, etc).
+  // Schema-malformed success bodies (e.g. `{"success":true}` with no
+  // result, or result an array, or subdomain of the wrong type) are
+  // NOT treated as absence - they fail as unclassified so a reviewer
+  // sees the exact vendor signal rather than a silent skip.
+  const isPlainResultObject = json !== null
+    && typeof json === 'object'
+    && Object.prototype.hasOwnProperty.call(json, 'result')
+    && json.result !== null
+    && typeof json.result === 'object'
+    && !Array.isArray(json.result);
+  const hasSubdomainKey = isPlainResultObject
+    && Object.prototype.hasOwnProperty.call(json.result, 'subdomain');
+  const subdomainRaw = hasSubdomainKey ? json.result.subdomain : undefined;
+  const subdomainIsProvisionedString = typeof subdomainRaw === 'string' && subdomainRaw.length > 0 && subdomainRaw === subdomainRaw.trim() && subdomainRaw.trim().length > 0;
+  const subdomainIsAbsenceSentinel = subdomainRaw === null || subdomainRaw === '';
+  const subdomain = subdomainIsProvisionedString ? subdomainRaw : null;
+  let classification = 'unclassified';
+  if (parseError === null && json) {
+    if (resp.status === 200 && json.success === true && hasSubdomainKey && subdomainIsProvisionedString) {
+      classification = 'provisioned';
+    } else if (resp.status === 404 && json.success === false && errorCode === 10007) {
+      classification = 'affirmativelyAbsent';
+    } else if (resp.status === 200 && json.success === true && hasSubdomainKey && subdomainIsAbsenceSentinel) {
+      classification = 'affirmativelyAbsent';
+    }
+  }
+  const bodyExcerpt = text.length > 400 ? text.slice(0, 400) + '...(truncated)' : text;
+  return { status: resp.status, errorCode, subdomain, classification, parseError, bodyExcerpt };
+}
+
+function skipResult({ reason, detail }) {
   return [{
     anchorAcId: 'AC-29108-2',
     verdict: 'pass',
     detail,
     accountBoundSkipped: true,
-    envDeclared: Array.from(DECLARED_ENV),
+    reason,
+    envDeclared: PROBE_DECLARED_ENV,
     throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
   }];
 }
@@ -109,14 +214,53 @@ async function readTelemetryRecords({ namespaceId }) {
 export default async function runProbe() {
   const hasAccount = process.env.CI_HAS_CLOUDFLARE_ACCOUNT === '1' || process.env.CI_HAS_CLOUDFLARE_ACCOUNT === 'true';
   if (!hasAccount) {
-    return skipResult(`accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true plus CF_ACCOUNT_ID and CF_API_TOKEN. The fixture mints its own throwaway Queue + consumer Worker + telemetry KV namespace under the CI scratch prefixes; publishes via the CF Queues REST publish endpoint (no workers.dev subdomain enabled); reads telemetry via the KV REST list + get endpoints. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/. Message count: ${DEFAULT_MESSAGE_COUNT}.`);
+    return skipResult({
+      reason: 'CI_HAS_CLOUDFLARE_ACCOUNT',
+      detail: `accountBoundSkipped: CI_HAS_CLOUDFLARE_ACCOUNT unset; a real-account run requires CI_HAS_CLOUDFLARE_ACCOUNT=true. When set, the fixture shim self-provisions a throwaway Queue, consumer Worker and telemetry KV namespace under the frozen scratch prefixes, publishes via the Cloudflare Queues REST publish endpoint (verifiedOn 2026-09-10 per https://developers.cloudflare.com/api/operations/queue-publish-messages), reads telemetry via the KV REST list and get endpoints, and tears every resource down before exit. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
   }
-  if (!process.env.CF_ACCOUNT_ID || !process.env.CF_API_TOKEN) {
+  const missingCreds = [];
+  if (!process.env.CF_ACCOUNT_ID) missingCreds.push('CF_ACCOUNT_ID');
+  if (!process.env.CF_API_TOKEN) missingCreds.push('CF_API_TOKEN');
+  if (missingCreds.length > 0) {
+    const noun = missingCreds.length > 1 ? 'those credentials are' : 'that credential is';
+    return skipResult({
+      reason: missingCreds.join(','),
+      detail: `accountBoundSkipped: ${missingCreds.join(' and ')} unset; a real-account run requires ${noun} present. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
+  }
+  // Pre-flight account-state observation: the queue consumer-attach
+  // API requires the target Cloudflare account to have a workers.dev
+  // subdomain provisioned (rejects with HTTP 403 code 10063 without
+  // one, per https://developers.cloudflare.com/api/resources/queues/
+  // subresources/consumers/ verifiedOn 2026-09-10). This probe
+  // observes the subdomain state directly via
+  // GET /accounts/{id}/workers/subdomain and records a declared skip
+  // when the account has none - the reason names the missing ACCOUNT
+  // prerequisite (not an env var) and the detail carries the API
+  // status and error code as positive evidence of the observation.
+  // A fully capable account carries a subdomain and the probe
+  // proceeds unconditionally to mint / drive / teardown.
+  const preflight = await preflightWorkersDevSubdomain();
+  if (preflight.classification === 'affirmativelyAbsent') {
+    return skipResult({
+      reason: 'cloudflare-account-workers-dev-subdomain-not-provisioned',
+      detail: `accountBoundSkipped: pre-flight GET /accounts/{id}/workers/subdomain returned status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} - the target Cloudflare account affirms it has no workers.dev subdomain provisioned. The queue consumer-attach step (see https://developers.cloudflare.com/api/resources/queues/subresources/consumers/, verifiedOn 2026-09-10) rejects with HTTP 403 code 10063 in that state, so the probe cannot complete a live run against this account. The account prerequisite (a provisioned workers.dev subdomain) is out of the probe's authorship scope. Cap under test: ${DOCUMENTED_PUSH_CAP} concurrent invocations per push-consumer per https://developers.cloudflare.com/queues/platform/limits/ (verifiedOn 2026-09-10). Message count: ${DEFAULT_MESSAGE_COUNT}.`,
+    });
+  }
+  if (preflight.classification !== 'provisioned') {
+    // Any non-absence, non-success response from the pre-flight is a
+    // real failure that must not be swallowed as a skip (authoring
+    // standard section 7d: a bare pass on a shape the probe did not
+    // observe would be positive-evidence-missing). Detail carries the
+    // observed status, Cloudflare error code and body excerpt so the
+    // reviewer can act on the exact vendor signal.
     return [{
       anchorAcId: 'AC-29108-2',
       verdict: 'fail',
-      detail: `CI_HAS_CLOUDFLARE_ACCOUNT=true but one of CF_ACCOUNT_ID / CF_API_TOKEN is missing: accountIdPresent=${!!process.env.CF_ACCOUNT_ID} tokenPresent=${!!process.env.CF_API_TOKEN}.`,
-      envDeclared: Array.from(DECLARED_ENV),
+      detail: `pre-flight GET /accounts/{id}/workers/subdomain returned an unclassified shape: status=${preflight.status} errorCode=${preflight.errorCode ?? 'null'} subdomain=${preflight.subdomain ?? 'null'} parseError=${preflight.parseError ?? 'null'} bodyExcerpt=${preflight.bodyExcerpt}. The probe refuses to declare an accountBound skip on a shape that is neither the vendor's affirmative absence (HTTP 404 code 10007, or HTTP 200 with an empty subdomain) nor a provisioned subdomain (HTTP 200 with a non-empty result.subdomain).`,
+      envDeclared: PROBE_DECLARED_ENV,
+      preflight: { status: preflight.status, errorCode: preflight.errorCode, subdomain: preflight.subdomain, parseError: preflight.parseError },
     }];
   }
 
@@ -131,10 +275,11 @@ export default async function runProbe() {
       anchorAcId: 'AC-29108-2',
       verdict: 'fail',
       detail: `mintScratchQueueAndWorker failed: ${err.message}`,
-      envDeclared: Array.from(DECLARED_ENV),
+      envDeclared: PROBE_DECLARED_ENV,
     }];
   }
 
+  let results = null;
   try {
     const started = Date.now();
     const batches = [];
@@ -154,12 +299,13 @@ export default async function runProbe() {
     ));
     const publishFail = publishResults.find((r) => !r.ok);
     if (publishFail) {
-      return [{
+      results = [{
         anchorAcId: 'AC-29108-2',
         verdict: 'fail',
         detail: `queuePublishBatch failed: status=${publishFail.status} error=${publishFail.error}`,
-        envDeclared: Array.from(DECLARED_ENV),
+        envDeclared: PROBE_DECLARED_ENV,
       }];
+      return results;
     }
     const publishedCount = publishResults.reduce((acc, r) => acc + (r.count ?? 0), 0);
 
@@ -181,7 +327,7 @@ export default async function runProbe() {
     const observedConcurrency = maxConcurrent > 1;
     const allOk = drained && withinCap && observedConcurrency;
 
-    return [{
+    results = [{
       anchorAcId: 'AC-29108-2',
       verdict: allOk ? 'pass' : 'fail',
       detail: allOk
@@ -196,14 +342,36 @@ export default async function runProbe() {
       batches: batchesConsumed,
       maxConcurrent,
       elapsedMs: elapsed,
-      envDeclared: Array.from(DECLARED_ENV),
+      envDeclared: PROBE_DECLARED_ENV,
       throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
     }];
+    return results;
   } finally {
     try {
       await destroyScratchQueueAndWorker(mint);
     } catch (err) {
-      process.stderr.write(`h2-cf-queue probe: teardown failed for queue=${mint && mint.queue && mint.queue.id} worker=${mint && mint.worker && mint.worker.name} telemetryKv=${mint && mint.telemetryKv && mint.telemetryKv.id}: ${err.message}; sweepOrphans will collect on next run.\n`);
+      const orphaned = {
+        queueId: mint && mint.queue && mint.queue.id,
+        queueName: mint && mint.queue && mint.queue.name,
+        workerName: mint && mint.worker && mint.worker.name,
+        telemetryKvId: mint && mint.telemetryKv && mint.telemetryKv.id,
+      };
+      const orphanRecord = {
+        anchorAcId: 'AC-29108-2',
+        verdict: 'fail',
+        detail: `TEARDOWN FAILED: destroyScratchQueueAndWorker threw ${err && err.message ? err.message : String(err)}; potentially orphaned resources on the account: queue.id=${orphaned.queueId} queue.name=${orphaned.queueName} consumerWorker.name=${orphaned.workerName} telemetryKv.id=${orphaned.telemetryKvId}. sweepOrphans on the shim will collect on the next real-account run; a live account audit is still recommended.`,
+        teardownFailed: true,
+        orphaned,
+        envDeclared: PROBE_DECLARED_ENV,
+        throwawayPrefixes: { queue: QUEUE_PREFIX, worker: WORKER_PREFIX, telemetryKv: TELEMETRY_KV_PREFIX },
+      };
+      if (Array.isArray(results)) {
+        results.push(orphanRecord);
+      } else {
+        // Body threw before assigning results (would have propagated already);
+        // this branch keeps the safety net symmetric.
+        results = [orphanRecord];
+      }
     }
   }
 }
