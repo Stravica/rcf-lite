@@ -34392,47 +34392,47 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-140-provisioner-boot-and-sole-reader">
   <p><strong>TC-140-provisioner-boot-and-sole-reader</strong> - covers <a href="#AC-11001-1">AC-11001-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11001-1 via anatomy test: provisioner facade boot emits provisionerReady with metadata-only payload and only the facade reads the token</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11001-1 provisioner boot and sole reader</code></p>
 </div>
 <div class="tc" id="TC-140-manifest-schema-shape-valid">
   <p><strong>TC-140-manifest-schema-shape-valid</strong> - covers <a href="#AC-11101-1">AC-11101-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11101-1 via anatomy test: hetzner-server.schema.json validates the fixture manifests</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11101-1 manifest schema shape valid</code></p>
 </div>
 <div class="tc" id="TC-140-manifest-applies-mocked-provision">
   <p><strong>TC-140-manifest-applies-mocked-provision</strong> - covers <a href="#AC-11102-1">AC-11102-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11102-1 via anatomy test: mocked hcloud shell path returns id, primaryIpv4, location, serverType and hetznerServerProvisioned fires</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11102-1 manifest applies to mocked provision</code></p>
 </div>
 <div class="tc" id="TC-140-cloud-init-render-baseline-present">
   <p><strong>TC-140-cloud-init-render-baseline-present</strong> - covers <a href="#AC-11201-1">AC-11201-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11201-1 via anatomy test: rendered cloud-init YAML carries the six baseline blocks</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11201-1 cloud-init render baseline present</code></p>
 </div>
 <div class="tc" id="TC-140-cloud-init-hardened-account-bound-probe">
   <p><strong>TC-140-cloud-init-hardened-account-bound-probe</strong> - covers <a href="#AC-11202-1">AC-11202-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11202-1 via anatomy test: probe module manifest declares accountBound true and the fixture readme documents the ssh baseline checks</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared</code></p>
 </div>
 <div class="tc" id="TC-140-firewall-shape-valid-and-refuses-open-ssh">
   <p><strong>TC-140-firewall-shape-valid-and-refuses-open-ssh</strong> - covers <a href="#AC-11301-1">AC-11301-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11301-1 via anatomy test: schema accepts a rule set with 22 restricted plus 80/443 open and refuses an open-ssh mutation</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh</code></p>
 </div>
 <div class="tc" id="TC-140-snapshot-cadence-enum">
   <p><strong>TC-140-snapshot-cadence-enum</strong> - covers <a href="#AC-11401-1">AC-11401-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11401-1 via anatomy test: snapshotCadence enum is weekly, daily, off</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11401-1 snapshot cadence enum</code></p>
 </div>
 <div class="tc" id="TC-140-snapshot-on-demand-account-bound-probe">
   <p><strong>TC-140-snapshot-on-demand-account-bound-probe</strong> - covers <a href="#AC-11402-1">AC-11402-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11402-1 via anatomy test: snapshot on-demand probe declares accountBound true and readme names the hcloud image list check</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared</code></p>
 </div>
 <div class="tc" id="TC-140-lifecycle-events-metadata-only">
   <p><strong>TC-140-lifecycle-events-metadata-only</strong> - covers <a href="#AC-11501-1">AC-11501-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-11501-1 via anatomy test: hcloud dry-run mock drives four lifecycle events, payloads carry only metadata fields, event-secrecy mutation FAILS</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11501-1 lifecycle events metadata only</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-07T23:57:26.071Z&quot;,
@@ -34459,63 +34459,63 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-11001-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11001-1 via anatomy test: provisioner facade boot emits provisionerReady with metadata-only payload and only the facade reads the token&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11001-1 provisioner boot and sole reader (TC-140)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11001-1 provisioner boot and sole reader&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-manifest-schema-shape-valid&quot;,
       &quot;acId&quot;: &quot;AC-11101-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11101-1 via anatomy test: hetzner-server.schema.json validates the fixture manifests&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11101-1 manifest schema shape valid (TC-140-manifest-schema-shape-valid)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11101-1 manifest schema shape valid&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-manifest-applies-mocked-provision&quot;,
       &quot;acId&quot;: &quot;AC-11102-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11102-1 via anatomy test: mocked hcloud shell path returns id, primaryIpv4, location, serverType and hetznerServerProvisioned fires&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11102-1 manifest applies to mocked provision (TC-140-manifest-applies-mocked-provision)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11102-1 manifest applies to mocked provision&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-cloud-init-render-baseline-present&quot;,
       &quot;acId&quot;: &quot;AC-11201-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11201-1 via anatomy test: rendered cloud-init YAML carries the six baseline blocks&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11201-1 cloud-init render baseline present (TC-140-cloud-init-render-baseline-present)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11201-1 cloud-init render baseline present&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-cloud-init-hardened-account-bound-probe&quot;,
       &quot;acId&quot;: &quot;AC-11202-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11202-1 via anatomy test: probe module manifest declares accountBound true and the fixture readme documents the ssh baseline checks&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared (TC-140-cloud-init-hardened-account-bound-probe)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11202-1 cloud-init hardened account-bound probe declared&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-firewall-shape-valid-and-refuses-open-ssh&quot;,
       &quot;acId&quot;: &quot;AC-11301-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11301-1 via anatomy test: schema accepts a rule set with 22 restricted plus 80/443 open and refuses an open-ssh mutation&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh (TC-140-firewall-shape-valid-and-refuses-open-ssh)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11301-1 firewall shape valid and refuses open ssh&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-snapshot-cadence-enum&quot;,
       &quot;acId&quot;: &quot;AC-11401-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11401-1 via anatomy test: snapshotCadence enum is weekly, daily, off&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11401-1 snapshot cadence enum (TC-140-snapshot-cadence-enum)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11401-1 snapshot cadence enum&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-snapshot-on-demand-account-bound-probe&quot;,
       &quot;acId&quot;: &quot;AC-11402-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11402-1 via anatomy test: snapshot on-demand probe declares accountBound true and readme names the hcloud image list check&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared (TC-140-snapshot-on-demand-account-bound-probe)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11402-1 snapshot on demand account-bound probe declared&quot;
     },
     {
       &quot;id&quot;: &quot;TC-140-lifecycle-events-metadata-only&quot;,
       &quot;acId&quot;: &quot;AC-11501-1&quot;,
       &quot;description&quot;: &quot;Cover AC-11501-1 via anatomy test: hcloud dry-run mock drives four lifecycle events, payloads carry only metadata fields, event-secrecy mutation FAILS&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::T-1 deploy-hetzner-server AC-11501-1 lifecycle events metadata only (TC-140-lifecycle-events-metadata-only)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/deploy-hetzner-server-anatomy.test.js::deploy-hetzner-server AC-11501-1 lifecycle events metadata only&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -34536,47 +34536,47 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-150-compose-layout-shape-valid">
   <p><strong>TC-150-compose-layout-shape-valid</strong> - covers <a href="#AC-12001-1">AC-12001-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12001-1 via anatomy test: fixture compose.yaml declares service-per-container, named networks and volumes, and a .env for non-secret config</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12001-1 compose layout shape valid</code></p>
 </div>
 <div class="tc" id="TC-150-secrets-file-mount-shape">
   <p><strong>TC-150-secrets-file-mount-shape</strong> - covers <a href="#AC-12101-1">AC-12101-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12101-1 via anatomy test: compose.yaml declares secrets under top-level secrets with a file source and mounts them into the web service; the mounted file is 0o400</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12101-1 secrets file mount shape</code></p>
 </div>
 <div class="tc" id="TC-150-secrets-scan-fails-on-plaintext">
   <p><strong>TC-150-secrets-scan-fails-on-plaintext</strong> - covers <a href="#AC-12102-1">AC-12102-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12102-1 via anatomy test: secrets-as-files-scan probe passes on the canonical fixture and fails under SIMULATE_PLAINTEXT_SECRET naming the literal</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext</code></p>
 </div>
 <div class="tc" id="TC-150-compose-config-lint-refuses-missing-healthcheck">
   <p><strong>TC-150-compose-config-lint-refuses-missing-healthcheck</strong> - covers <a href="#AC-12201-1">AC-12201-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12201-1 via anatomy test: compose-config-lint probe passes on canonical fixture and fails under SIMULATE_MISSING_HEALTHCHECK naming the service</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck</code></p>
 </div>
 <div class="tc" id="TC-150-real-account-minimal-stack-up-declared-and-skipped-shape">
   <p><strong>TC-150-real-account-minimal-stack-up-declared-and-skipped-shape</strong> - covers <a href="#AC-12202-1">AC-12202-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12202-1 via anatomy test: real-account-minimal-stack-up probe declares accountBound true and records accountBoundSkipped when the env var is unset</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape</code></p>
 </div>
 <div class="tc" id="TC-150-restart-discipline-lint-refuses-unclassified">
   <p><strong>TC-150-restart-discipline-lint-refuses-unclassified</strong> - covers <a href="#AC-12301-1">AC-12301-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12301-1 via anatomy test: compose-config-lint enforces restart policy classification and fails under SIMULATE_UNCLASSIFIED_RESTART naming the service</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified</code></p>
 </div>
 <div class="tc" id="TC-150-caddyfile-validate-refuses-invalid-directive">
   <p><strong>TC-150-caddyfile-validate-refuses-invalid-directive</strong> - covers <a href="#AC-12401-1">AC-12401-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12401-1 via anatomy test: caddyfile-validate probe passes on canonical Caddyfile and fails under SIMULATE_INVALID_CADDYFILE naming the line</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive</code></p>
 </div>
 <div class="tc" id="TC-150-real-account-reload-burst-declared-and-skipped-shape">
   <p><strong>TC-150-real-account-reload-burst-declared-and-skipped-shape</strong> - covers <a href="#AC-12402-1">AC-12402-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12402-1 via anatomy test: real-account-reload-burst probe declares accountBound true and records accountBoundSkipped when the env var is unset</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape</code></p>
 </div>
 <div class="tc" id="TC-150-log-driver-classification">
   <p><strong>TC-150-log-driver-classification</strong> - covers <a href="#AC-12501-1">AC-12501-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-12501-1 via anatomy test: compose-config-lint asserts every service declares a logging driver and fails under SIMULATE_UNCLASSIFIED_LOG_DRIVER naming the service</p>
-  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)</code></p>
+  <p><em>Test pointer:</em> <code>test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12501-1 log driver classification</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-08T01:44:51.205Z&quot;,
@@ -34603,63 +34603,63 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;acId&quot;: &quot;AC-12001-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12001-1 via anatomy test: fixture compose.yaml declares service-per-container, named networks and volumes, and a .env for non-secret config&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12001-1 compose layout shape valid&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-secrets-file-mount-shape&quot;,
       &quot;acId&quot;: &quot;AC-12101-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12101-1 via anatomy test: compose.yaml declares secrets under top-level secrets with a file source and mounts them into the web service; the mounted file is 0o400&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12101-1 secrets file mount shape&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-secrets-scan-fails-on-plaintext&quot;,
       &quot;acId&quot;: &quot;AC-12102-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12102-1 via anatomy test: secrets-as-files-scan probe passes on the canonical fixture and fails under SIMULATE_PLAINTEXT_SECRET naming the literal&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-compose-config-lint-refuses-missing-healthcheck&quot;,
       &quot;acId&quot;: &quot;AC-12201-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12201-1 via anatomy test: compose-config-lint probe passes on canonical fixture and fails under SIMULATE_MISSING_HEALTHCHECK naming the service&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-real-account-minimal-stack-up-declared-and-skipped-shape&quot;,
       &quot;acId&quot;: &quot;AC-12202-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12202-1 via anatomy test: real-account-minimal-stack-up probe declares accountBound true and records accountBoundSkipped when the env var is unset&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-restart-discipline-lint-refuses-unclassified&quot;,
       &quot;acId&quot;: &quot;AC-12301-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12301-1 via anatomy test: compose-config-lint enforces restart policy classification and fails under SIMULATE_UNCLASSIFIED_RESTART naming the service&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-caddyfile-validate-refuses-invalid-directive&quot;,
       &quot;acId&quot;: &quot;AC-12401-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12401-1 via anatomy test: caddyfile-validate probe passes on canonical Caddyfile and fails under SIMULATE_INVALID_CADDYFILE naming the line&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-real-account-reload-burst-declared-and-skipped-shape&quot;,
       &quot;acId&quot;: &quot;AC-12402-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12402-1 via anatomy test: real-account-reload-burst probe declares accountBound true and records accountBoundSkipped when the env var is unset&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape&quot;
     },
     {
       &quot;id&quot;: &quot;TC-150-log-driver-classification&quot;,
       &quot;acId&quot;: &quot;AC-12501-1&quot;,
       &quot;description&quot;: &quot;Cover AC-12501-1 via anatomy test: compose-config-lint asserts every service declares a logging driver and fails under SIMULATE_UNCLASSIFIED_LOG_DRIVER naming the service&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)&quot;
+      &quot;testPointer&quot;: &quot;test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12501-1 log driver classification&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

@@ -1,50 +1,91 @@
-// Probe: hcloud dry-run mock (v1.0.1 mutation-purified per the round-7 hardening pass).
+// Probe: hcloud dry-run mock.
 //
-// anchorAcId: AC-37101-1 (provisioner facade sole reader + provisionerReady
-// on boot; also covers AC-37109-1 event-secrecy across the lifecycle;
-// also covers AC-14501-1 mock-consumes-rendered-file assertions per
-// the round-7 hardening block REQ-145).
-// accountBound: false.
+// accountBound: false. This is an offline mock-path fixture-shape
+// scanner. A counting row for this family is a LIVE row whose
+// identifier is a vendor-minted id (server id, snapshot id,
+// firewall id, image id, engine request id, or the 64-hex Docker
+// container id from `docker inspect`) with a derived observation
+// from the vendor or the running server. The mock produces neither,
+// so every row here is a `conformanceOnly` de-claim with
+// `anchorAcId: null` and a `limitation` string naming the shipped
+// AC clause the mock does not observe. Two rows carry the AC-37101-1
+// and AC-37109-1 clauses (sole-reader source scan and provisioner
+// ready shape; lifecycle event-secrecy scan and payload-key
+// allow-list) as derived context but do not credit those ACs; the
+// live observation is not carried on this blueprint under the
+// shipped ACs (both are AMBER on E until a live row lands). Rows
+// for AC-37103-1, AC-37108-1 and AC-37109-3 are the existing
+// mock-path fixture-shape de-claims; the live observations live on
+// the real-account probes.
 //
-// Drives the provisioner facade with the fixture's ci-throwaway manifest
-// against the mocked hcloud shim (src/hcloud-mock.mjs) and consumes the
-// SAME rendered cloud-init user-data file the real path consumes (the
-// fixture renderer writes it under hetzner/servers/rendered/ before the
-// facade is exercised, and this probe reads it back and asserts an
-// ssh-ed25519/ssh-rsa public-key line under the deploy user plus a
-// NOPASSWD directive naming that user). The rendered-file assertion is
-// what stops a mocked probe from passing while the real path fails on
-// the same artefact (REQ-145 / AC-14501-1).
+// `notObservableHere` is not used on these rows: the ACs are
+// process/live-observable on the real-account probes, not
+// browser-only shelf-shape.
 //
 // The probe body reads NO process.env.SIMULATE_ switch. Fixture-side
 // mutations live in src/cloud-init-renderer.mjs, src/hcloud-mock.mjs
 // and src/provisioner-facade.mjs and alter INPUT only.
-//
-// Assertions:
-//   - the facade opens on ready() and fires provisionerReady with a
-//     metadata-only payload {tool, apiHost}.
-//   - createServer parses the mocked JSON stdout and emits
-//     hetznerServerProvisioned with id, primaryIpv4, location=fsn1,
-//     serverType=cx23.
-//   - takeSnapshot fires hetznerSnapshotTaken with snapshot id and time.
-//   - destroyServer fires hetznerServerDestroyed with the id.
-//   - no event body across the run carries the token, an ssh private-key
-//     marker, or the rendered user-data bytes (event-secrecy check).
-//   - the rendered cloud-init file exists under the fixture's rendered
-//     directory and carries at least one ssh-ed25519 or ssh-rsa
-//     authorized-keys line under the deploy user plus a NOPASSWD
-//     directive naming that user (REQ-145 / AC-14501-1).
 
-import { readFile, access } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { readFile, readdir, stat } from 'node:fs/promises';
+import { relative, resolve, join } from 'node:path';
 import { FIXTURE_DIR, PROJECT_ROOT } from './probe-utils.mjs';
 
-export const anchorAcId = 'AC-37101-1';
+// This probe emits only `conformanceOnly` rows; no `anchorAcId` is
+// exported at module scope. Each row carries `anchorAcId: null` and
+// a `limitation` string naming the shipped AC the mock does not
+// observe on this blueprint.
 export const accountBound = false;
 
 const TOKEN = 'test-fixture-token-000000000000000000000000000000000000000000';
 const USER_DATA_MARKER = 'unattended-upgrades on for security updates';
 const PRIVATE_KEY_MARKER = 'BEGIN OPENSSH PRIVATE KEY';
+
+// REQ-006 permits exactly these event names in the fixture lifecycle.
+// Payload key allow-list per event: any key not in the set is a
+// leak the substring scan would miss (unexpected metadata reaching
+// the observability sink).
+const ALLOWED_EVENT_KEYS = {
+  provisionerReady: new Set(['event', 'tool', 'apiHost']),
+  hetznerServerProvisioned: new Set(['event', 'id', 'primaryIpv4', 'location', 'serverType', 'labels']),
+  hetznerSnapshotTaken: new Set(['event', 'serverId', 'snapshotId', 'wallClockTime']),
+  hetznerServerDestroyed: new Set(['event', 'id', 'wallClockTime']),
+};
+
+// Recursively list every .mjs and .js file under a root directory,
+// skipping node_modules and dot-dirs.
+async function walkSource(root) {
+  const out = [];
+  const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
+  for (const e of entries) {
+    if (e.name === 'node_modules' || e.name.startsWith('.')) continue;
+    const full = join(root, e.name);
+    if (e.isDirectory()) out.push(...await walkSource(full));
+    else if (e.isFile() && /\.(mjs|js)$/.test(e.name)) out.push(full);
+  }
+  return out;
+}
+
+async function findSoleTokenReader(fixtureRoot, expectedReaderRelPath) {
+  const files = await walkSource(fixtureRoot);
+  const readers = [];
+  for (const f of files) {
+    let text;
+    try { text = await readFile(f, 'utf8'); } catch (_) { continue; }
+    // A "reader" is any line that names the variable and is not a
+    // comment or a documentation-only mention. Match any non-comment
+    // occurrence of HETZNER_ACCOUNT_API_KEY.
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line.includes('HETZNER_ACCOUNT_API_KEY')) continue;
+      const stripped = line.trim();
+      if (stripped.startsWith('//') || stripped.startsWith('*')) continue;
+      readers.push({ file: relative(fixtureRoot, f), line: i + 1, snippet: line.trim().slice(0, 200) });
+    }
+  }
+  const unexpected = readers.filter((r) => r.file !== expectedReaderRelPath);
+  return { readers, unexpected, expectedReaderRelPath };
+}
 
 export default async function runProbe() {
   const facadePath = resolve(FIXTURE_DIR, 'src/provisioner-facade.mjs');
@@ -54,42 +95,29 @@ export default async function runProbe() {
   const { renderCloudInitToFile } = await import(rendererPath);
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   const results = [];
+  let events = [];
 
-  // Render the cloud-init to disk with a fixture-side stubbed public
-  // key (the mock path never calls hcloud ssh-key describe); the real
-  // path resolves the material via hcloud and writes to the same
-  // location. Both consume the same file shape.
+  // AC-37101-1 sole-reader source-tree scan is run first so its
+  // outcome can be folded into the single AC-37101-1 row below (both
+  // clauses combined). The provisioner facade module is expected to
+  // be the ONLY file in the fixture source tree that names
+  // HETZNER_ACCOUNT_API_KEY on a non-comment line, and there must be
+  // at least one such reader (zero readers fails the sole-reader
+  // observation, per the AC's "grep across the fixture source"
+  // clause).
+  const soleReader = await findSoleTokenReader(FIXTURE_DIR, 'src/provisioner-facade.mjs');
+
+  // Render the cloud-init to disk (both mock and real paths consume
+  // the same file; the assertion that the file carries the deploy
+  // ssh-key and NOPASSWD lines is the sole responsibility of
+  // cloud-init-render-lint (AC-37104-1) and the real cloud-init
+  // baseline probe (AC-37105-1)).
   const publicKeys = ['ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFakePubKeyForMockedRunHardeningH1 rcf-lite-ci-mock'];
   const { renderedPath, rendered } = await renderCloudInitToFile(manifest, { publicKeys });
 
-  //  REQ-145 / AC-14501-1: assert the rendered file carries an
-  // ssh-ed25519 or ssh-rsa line for the deploy user AND a NOPASSWD
-  // directive naming that user. This assertion is what breaks the
-  // "mock passes while real path fails on the same artefact" class.
-  const renderedFromDisk = await readFile(renderedPath, 'utf8');
-  const sshKeyLine = /(ssh-ed25519|ssh-rsa)\s+/i.test(renderedFromDisk);
-  const nopasswdLine = /deploy\s+ALL\s*=\s*\(ALL\)\s+NOPASSWD/i.test(renderedFromDisk);
-  if (!sshKeyLine) {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'fail',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries no ssh-ed25519 or ssh-rsa authorized-keys line for the deploy user; the real path would provision a server with an unusable authorized_keys entry.`,
-    });
-  } else if (!nopasswdLine) {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'fail',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries no NOPASSWD directive for the deploy user; the six sudoed baseline checks would block on a tty prompt.`,
-    });
-  } else {
-    results.push({
-      anchorAcId: 'AC-14501-1',
-      verdict: 'pass',
-      detail: `rendered cloud-init at ${relative(PROJECT_ROOT, renderedPath)} carries an ssh public-key line for the deploy user (byteLength ${rendered.length}) and a NOPASSWD sudoers directive for that user; the mock and the real path consume the same artefact.`,
-    });
-  }
-
-  const { events, eventSink } = createEventLog();
+  const eventLog = createEventLog();
+  events = eventLog.events;
+  const eventSink = eventLog.eventSink;
   const facade = createProvisionerFacade({
     token: TOKEN,
     tool: 'hcloud',
@@ -99,56 +127,290 @@ export default async function runProbe() {
   try {
     await facade.ready();
     const server = await facade.createServer(manifest);
-    const snapshot = await facade.takeSnapshot({ id: server.id, name: manifest.name }, `${manifest.name}-${new Date().toISOString()}`);
+    const snapshot = await facade.takeSnapshot(
+      { id: server.id, name: manifest.name },
+      `${manifest.name}-${new Date().toISOString()}`,
+    );
     await facade.destroyServer(server);
     const provisionerReady = events.find((e) => e.event === 'provisionerReady');
     const provisioned = events.find((e) => e.event === 'hetznerServerProvisioned');
     const snapped = events.find((e) => e.event === 'hetznerSnapshotTaken');
     const destroyed = events.find((e) => e.event === 'hetznerServerDestroyed');
-    if (!provisionerReady) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: 'provisionerReady event did not fire on ready().' });
+
+    // AC-37101-1: single row combining BOTH clauses (source-tree
+    // sole-reader scan AND metadata-only provisionerReady payload).
+    // The row PASSES only if BOTH are observed positively; zero
+    // readers or an unexpected reader or a missing/malformed
+    // provisionerReady event FAILS the row.
+    const soleReaderSummary = {
+      expectedReader: soleReader.expectedReaderRelPath,
+      readerCount: soleReader.readers.length,
+      readers: soleReader.readers.map((r) => `${r.file}:${r.line}`),
+      source: 'fixture source-tree grep .mjs/.js',
+    };
+    // AC-37101-1: the mock cannot mint a vendor identifier. The
+    // sole-reader source-tree scan and the provisionerReady shape
+    // check are both carried on the row as derived context, but the
+    // row is a `conformanceOnly` de-claim of AC-37101-1; the
+    // verdict still gates on both clauses (zero readers, an
+    // unexpected reader outside src/provisioner-facade.mjs, a
+    // missing provisionerReady event, a wrong payload shape or
+    // unexpected keys FAIL the row).
+    const ac37101Limitation = 'AC-37101-1: sole-reader source scan and provisionerReady shape observed here as derived context, but the AC requires a vendor-minted identifier from a live provisioner run; this offline mock-path row is not credited. No live probe on this blueprint carries a positive AC-37101-1 observation, so AC-37101-1 is AMBER on E.';
+    if (soleReader.readers.length === 0) {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
+        detail: `sole-reader source scan across the fixture .mjs/.js found ZERO non-comment references to HETZNER_ACCOUNT_API_KEY; the provisioner facade must be the sole reader and at least one reader must be observed positively.`,
+        evidence: {
+          ...soleReaderSummary,
+          eventName: provisionerReady ? 'provisionerReady' : 'lifecycle-scan',
+          event: provisionerReady || null,
+        },
+      });
+    } else if (soleReader.unexpected.length > 0) {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
+        detail: `sole-reader source scan: HETZNER_ACCOUNT_API_KEY named outside src/provisioner-facade.mjs at ${soleReader.unexpected.map((r) => `${r.file}:${r.line}`).join(', ')}; the provisioner facade must be the SOLE reader.`,
+        evidence: {
+          ...soleReaderSummary,
+          unexpectedReaders: soleReader.unexpected,
+          eventName: 'provisionerReady',
+          event: provisionerReady || null,
+        },
+      });
+    } else if (!provisionerReady) {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
+        detail: `sole-reader scan observed ${soleReader.readers.length} reader(s), all inside ${soleReader.expectedReaderRelPath}; but provisionerReady did NOT fire on the injected event sink after ready(); events observed: ${events.map((e) => e.event).join(', ') || '(none)'}.`,
+        evidence: {
+          ...soleReaderSummary,
+          eventName: 'provisionerReady',
+          eventFound: false,
+          observedEvents: events.map((e) => e.event),
+        },
+      });
     } else if (provisionerReady.tool !== 'hcloud' || provisionerReady.apiHost !== 'https://api.hetzner.cloud/v1') {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `provisionerReady payload shape wrong: ${JSON.stringify(provisionerReady)}` });
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37101Limitation,
+        verdict: 'fail',
+        detail: `sole-reader scan observed ${soleReader.readers.length} reader(s) inside ${soleReader.expectedReaderRelPath}; provisionerReady payload shape is wrong: ${JSON.stringify(provisionerReady)}; expected {tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1'}.`,
+        evidence: {
+          ...soleReaderSummary,
+          eventName: 'provisionerReady',
+          event: provisionerReady,
+          expectedShape: { tool: 'hcloud', apiHost: 'https://api.hetzner.cloud/v1' },
+        },
+      });
     } else {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'pass', detail: 'provisionerReady fired with metadata-only {tool, apiHost} payload.' });
+      const extraKeysOnEvent = Object.keys(provisionerReady).filter((k) => !['event', 'tool', 'apiHost'].includes(k));
+      if (extraKeysOnEvent.length > 0) {
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: ac37101Limitation,
+          verdict: 'fail',
+          detail: `sole-reader scan observed ${soleReader.readers.length} reader(s) inside ${soleReader.expectedReaderRelPath}; provisionerReady carries unexpected keys ${JSON.stringify(extraKeysOnEvent)} in addition to the metadata-only {event, tool, apiHost} set.`,
+          evidence: {
+            ...soleReaderSummary,
+            eventName: 'provisionerReady',
+            event: provisionerReady,
+            unexpectedKeys: extraKeysOnEvent,
+          },
+        });
+      } else {
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: ac37101Limitation,
+          verdict: 'pass',
+          detail: `sole-reader source scan observed exactly ${soleReader.readers.length} non-comment reader(s) of HETZNER_ACCOUNT_API_KEY across the fixture .mjs/.js, all inside ${soleReader.expectedReaderRelPath} (${soleReader.readers.map((r) => `${r.file}:${r.line}`).join(', ')}); provisionerReady fired with the metadata-only {tool, apiHost} payload.`,
+          evidence: {
+            ...soleReaderSummary,
+            eventName: 'provisionerReady',
+            payloadKeys: Object.keys(provisionerReady).sort(),
+            observedTool: provisionerReady.tool,
+            observedApiHost: provisionerReady.apiHost,
+          },
+        });
+      }
     }
+
+    // AC-37103-1 is a LIVE-only AC (its acceptance text requires the
+    // real-account apply plus a live `hcloud server list`). This
+    // mock-path row is a conformanceOnly fixture-shape observation
+    // (not a shelf-only property, so notObservableHere does NOT
+    // apply - that field is reserved for browser-only ACs); the row
+    // carries a shipped-AC limitation naming the live probe that
+    // observes the AC. The full-AC observation lives on
+    // real-account-throwaway-server-provision.
     if (!provisioned || !provisioned.id || !provisioned.primaryIpv4 || provisioned.location !== 'fsn1' || provisioned.serverType !== 'cx23') {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerServerProvisioned event missing or malformed: ${JSON.stringify(provisioned)}` });
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37103-1: live inventory diff not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-throwaway-server-provision.',
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerServerProvisioned event body is missing or malformed: ${JSON.stringify(provisioned)}`,
+        evidence: { eventName: 'hetznerServerProvisioned', event: provisioned || null, expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'] },
+      });
     } else {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'pass', detail: `hetznerServerProvisioned fired with id=${provisioned.id} primaryIpv4=${provisioned.primaryIpv4} location=fsn1 serverType=cx23.` });
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37103-1: live inventory diff not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-throwaway-server-provision.',
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerServerProvisioned with the expected key shape (id, primaryIpv4, location, serverType).`,
+        evidence: {
+          eventName: 'hetznerServerProvisioned',
+          id: provisioned.id,
+          primaryIpv4: provisioned.primaryIpv4,
+          location: provisioned.location,
+          serverType: provisioned.serverType,
+          payloadKeys: Object.keys(provisioned).sort(),
+          source: 'mock-facade',
+          expectedKeys: ['id', 'primaryIpv4', 'location', 'serverType'],
+        },
+      });
     }
+
     if (!snapped || !snapped.snapshotId || !snapped.wallClockTime) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerSnapshotTaken event missing or malformed: ${JSON.stringify(snapped)}` });
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37108-1: live snapshot inventory not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-snapshot-on-demand.',
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerSnapshotTaken event body is missing or malformed: ${JSON.stringify(snapped)}`,
+        evidence: { eventName: 'hetznerSnapshotTaken', event: snapped || null, expectedKeys: ['snapshotId', 'wallClockTime'] },
+      });
+    } else {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37108-1: live snapshot inventory not observed here - mock-path fixture-shape check only; the AC observation is carried by real-account-snapshot-on-demand.',
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerSnapshotTaken with the expected key shape (snapshotId, wallClockTime).`,
+        evidence: {
+          eventName: 'hetznerSnapshotTaken',
+          snapshotId: snapped.snapshotId,
+          wallClockTime: snapped.wallClockTime,
+          payloadKeys: Object.keys(snapped).sort(),
+          source: 'mock-facade',
+          expectedKeys: ['snapshotId', 'wallClockTime'],
+        },
+      });
     }
+
     if (!destroyed || !destroyed.id) {
-      results.push({ anchorAcId: 'AC-37101-1', verdict: 'fail', detail: `hetznerServerDestroyed event missing or malformed: ${JSON.stringify(destroyed)}` });
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37109-3: repeat-run once-per-lifecycle observation not counted here - mock-path fixture-shape check only.',
+        verdict: 'fail',
+        detail: `mock-path fixture-shape check: hetznerServerDestroyed event body is missing or malformed: ${JSON.stringify(destroyed)}`,
+        evidence: { eventName: 'hetznerServerDestroyed', event: destroyed || null, expectedKeys: ['id'] },
+      });
+    } else {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: 'AC-37109-3: repeat-run once-per-lifecycle observation not counted here - mock-path fixture-shape check only.',
+        verdict: 'pass',
+        detail: `mock-path fixture-shape check: facade emitted hetznerServerDestroyed with the destroyed id and a wall-clock timestamp in the payload.`,
+        evidence: {
+          eventName: 'hetznerServerDestroyed',
+          id: destroyed.id,
+          wallClockTime: destroyed.wallClockTime,
+          payloadKeys: Object.keys(destroyed).sort(),
+          source: 'mock-facade',
+          expectedKeys: ['id', 'wallClockTime'],
+        },
+      });
     }
-    // Event-secrecy scan across every event body.
+
+    // AC-37109-1: event-secrecy scan across every event body PLUS
+    // payload-key allow-list: every event's keys must be a subset of
+    // the metadata fields REQ-006 permits. Unexpected keys FAIL the
+    // row (a leaked field the substring scan would miss).
     const leaks = [];
+    const unexpectedKeys = [];
     for (const e of events) {
       const body = JSON.stringify(e);
       if (body.includes(TOKEN)) leaks.push({ event: e.event, marker: 'HETZNER_ACCOUNT_API_KEY value' });
       if (body.includes(PRIVATE_KEY_MARKER)) leaks.push({ event: e.event, marker: 'ssh private key' });
       if (body.includes(USER_DATA_MARKER)) leaks.push({ event: e.event, marker: 'rendered user-data bytes' });
+      const allowed = ALLOWED_EVENT_KEYS[e.event];
+      if (!allowed) {
+        unexpectedKeys.push({ event: e.event, reason: 'unknown event name (not in the REQ-006 named lifecycle set)' });
+        continue;
+      }
+      const extra = Object.keys(e).filter((k) => !allowed.has(k));
+      if (extra.length > 0) {
+        unexpectedKeys.push({ event: e.event, extraKeys: extra, allowedKeys: [...allowed].sort() });
+      }
     }
-    if (leaks.length > 0) {
+    // AC-37109-1: the mock lifecycle scan cannot mint a vendor
+    // identifier (mock ids are generated by the fixture-side
+    // hcloud-mock and are not vendor-echoed). The substring scan
+    // and the payload-key allow-list are carried on the row as
+    // derived context, but the row is a `conformanceOnly` de-claim;
+    // the verdict still gates on both clauses. No live probe on
+    // this blueprint carries a positive AC-37109-1 observation, so
+    // AC-37109-1 is AMBER on E.
+    const ac37109Limitation = 'AC-37109-1: event-secrecy substring scan and payload-key allow-list observed here as derived context on mock-emitted events, but the AC requires the live lifecycle sink from a vendor-driven run; this offline mock-path row is not credited.';
+    if (leaks.length > 0 || unexpectedKeys.length > 0) {
+      const bits = [];
+      if (leaks.length > 0) bits.push(`substring leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')}`);
+      if (unexpectedKeys.length > 0) bits.push(`payload-key allow-list violated: ${unexpectedKeys.map((u) => u.extraKeys ? `${u.event}: extraKeys=${u.extraKeys.join(',')}` : `${u.event}: ${u.reason}`).join('; ')}`);
+      const failEvidence = {
+        eventName: 'lifecycle-scan',
+        leaks,
+        unexpectedKeys,
+        eventCount: events.length,
+      };
       results.push({
-        anchorAcId: 'AC-37109-1',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37109Limitation,
         verdict: 'fail',
-        detail: `event-secrecy leak: ${leaks.map((l) => `${l.event} carries ${l.marker}`).join('; ')} (defensive-fake finding; check for a SIMULATE_EVENT_SECRECY_LEAK mutation in the fixture-side facade shim).`,
+        detail: `event-secrecy fail: ${bits.join(' | ')}.`,
+        evidence: failEvidence,
       });
     } else {
+      const passEvidence = {
+        eventName: 'lifecycle-scan',
+        eventCount: events.length,
+        scannedMarkers: ['token value', 'ssh private key', 'user-data marker'],
+        allowedKeysByEvent: Object.fromEntries(Object.entries(ALLOWED_EVENT_KEYS).map(([k, v]) => [k, [...v].sort()])),
+        leaks: [],
+        unexpectedKeys: [],
+      };
       results.push({
-        anchorAcId: 'AC-37109-1',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: ac37109Limitation,
         verdict: 'pass',
-        detail: `event-secrecy scan across ${events.length} event bodies found no leak of the token, ssh private key, or user-data content.`,
+        detail: `event-secrecy scan across ${events.length} event bodies found no leak of the token, ssh private key, or user-data content; every event payload's keys are a subset of the REQ-006 named metadata set.`,
+        evidence: passEvidence,
       });
     }
   } catch (err) {
     results.push({
-      anchorAcId: 'AC-37101-1',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: 'AC-37101-1: provisioner facade lifecycle threw during the offline mock-path scan; the AC requires a live provisioner run.',
       verdict: 'fail',
-      detail: `provisioner facade lifecycle threw: ${err.message} (probable cause: mocked hcloud stdout is not JSON; check for a SIMULATE_JSON_PARSE_STRIP mutation in the fixture-side mock shim).`,
+      detail: `provisioner facade lifecycle threw: ${err.message}`,
+      evidence: { eventName: 'lifecycle-error', error: err.message, errorStack: (err.stack || '').slice(0, 400) },
     });
   }
   return {
@@ -158,7 +420,6 @@ export default async function runProbe() {
       events: events.map((e) => ({ event: e.event, keys: Object.keys(e).sort() })),
       renderedPath: relative(PROJECT_ROOT, renderedPath),
       renderedByteLength: rendered.length,
-      renderedAssertions: { sshKeyLine, nopasswdLine },
     },
   };
 }

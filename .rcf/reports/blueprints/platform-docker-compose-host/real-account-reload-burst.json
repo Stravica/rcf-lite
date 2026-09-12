@@ -1,7 +1,8 @@
 {
   "slug": "platform-docker-compose-host",
   "probeName": "real-account-reload-burst",
-  "runAt": "2026-09-08T02:59:59.519Z",
+  "version": "1.1.17",
+  "runAt": "2026-09-12T02:10:14.765Z",
   "engine": {
     "kind": "real-account-reload-burst",
     "image": "platform-docker-compose-host fixture",
@@ -12,9 +13,14 @@
       "anchorAcId": "AC-composeHost-zeroDowntimeReload",
       "verdict": "skipped",
       "accountBoundSkipped": true,
-      "detail": "accountBound: CI_HAS_HETZNER_ACCOUNT unset; no throwaway server provisioned; reload-burst not exercised"
+      "reason": "CI_HAS_HETZNER_ACCOUNT",
+      "gateState": "unset",
+      "detail": "The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account reload-burst skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the caddy reload window against a throwaway cx23 stack."
     }
   ],
   "aggregateVerdict": "pass",
-  "skipped": true
+  "skipped": true,
+  "missingEnv": [
+    "CI_HAS_HETZNER_ACCOUNT"
+  ]
 }
