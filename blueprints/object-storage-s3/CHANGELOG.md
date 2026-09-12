@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.8 - 2026-09-12
+
+Round-9 closure follow-through: Hetzner event-secrecy row anchor corrected, R2 inventory-diff row de-claimed to conformance-only, event-secrecy fixture stops leaking engine-returned ids on the lifecycle event stream, STRICT_ID_KEYS tightened to engine-returned scalars only. Anatomy pin bumped to 1.2.8.
+
+- fix: `blueprints/object-storage-s3/contributions/probes/hetzner-object-storage-round-trip.mjs` lifecycle-event whitelist row is now `conformanceOnly` naming AC-28105-1 (metadata-only lifecycle events, whose contract this row actually observes). It previously anchored AC-28110-1, which states endpoint composition / put-get-delete / teardown / skip / malformed-endpoint behaviour and does NOT state event secrecy.
+- fix: `blueprints/object-storage-s3/contributions/probes/r2-real-account-smoke.mjs` per-object inventory-diff row is now `conformanceOnly` naming AC-28108-2. The AC's object round-trip clause is anchored on the byte-equal put/get row (which carries the engine-returned `ETag`); R2 does not surface a per-object `$metadata.requestId` on `listObjects` / `deleteObject`, so the inventory-diff row has no engine-returned scalar id and cannot be an anchor.
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` `objectPut` and `objectDeleted` lifecycle events no longer carry `requestId` or `eTag` fields (AC-28105-1's metadata-only whitelist); the engine-returned ids live on the RETURN value of each verb, which the probes read directly.
+- fix: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` STRICT_ID_KEYS removed the plural / probe-selected keys (`requestIds`, `vendorRequestIds`, `metadataRequestId`, `httpRequestId`, `observedUploadId`, `dlqTransportMessageIds`, `primaryTransportMessageId`, `jobIds`, `dlqPayloadJobIds`, `expectedPayloadJobId`) so only engine-returned scalar identifiers qualify as id-witnesses.
+- prose: anatomy header comment corrected to describe the round-8 in-memory validation (probes invoked directly, no `.rcf/reports` record read on this seam).
+
 
 ## 1.2.7 - 2026-09-11
 

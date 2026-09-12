@@ -208,7 +208,9 @@ export async function createObjectStore({
           ? await putMultipart({ key, contentType, body, partSize: partSizeBytes })
           : await putSinglePart({ key, contentType, body });
         const { size, requestId, eTag, uploadId } = engineReturn;
-        onEvent({ event: 'objectPut', ts: Date.now(), key, size, contentType, requestId, eTag });
+        // Event stream is metadata-only per AC-28105-1: engine-returned
+        // ids (requestId, eTag) live on the RETURN value, not the event.
+        onEvent({ event: 'objectPut', ts: Date.now(), key, size, contentType });
         return { size, requestId, eTag, uploadId: uploadId || null };
       });
     },
@@ -238,7 +240,9 @@ export async function createObjectStore({
       return withReady(async () => {
         const res = await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
         const requestId = res && res.$metadata ? res.$metadata.requestId || null : null;
-        onEvent({ event: 'objectDeleted', ts: Date.now(), key, requestId });
+        // Event stream is metadata-only per AC-28105-1: engine-returned
+        // requestId lives on the RETURN value, not the event record.
+        onEvent({ event: 'objectDeleted', ts: Date.now(), key });
         return { requestId };
       });
     },

@@ -143,7 +143,7 @@ async function bringUpRestore() {
     'run', '-d',
     '--name', RESTORE_CONTAINER,
     '-e', 'POSTGRES_USER=rcf',
-    '-e', 'POSTGRES_PASSWORD=rcf-dev-only',
+    '-e', `POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD || ''}`,
     '-e', 'POSTGRES_DB=rcf_test',
     '-p', `${RESTORE_PORT}:5432`,
     '--health-cmd', 'pg_isready -U rcf -d rcf_test',
@@ -300,7 +300,9 @@ export default async function runProbe() {
     // POSTGRES_HOST (the docker host the restore container publishes
     // its port on); no literal host default lives in shipped probe
     // code (maintainer ruling 2026-09-11).
-    const dstStore = await createStore({ connectionUrl: `postgres://rcf:${encodeURIComponent('rcf-dev-only')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/rcf_test` });
+    // Password read from the declared POSTGRES_PASSWORD variable
+    // only; no literal password value in shipped probe source.
+    const dstStore = await createStore({ connectionUrl: `postgres://${process.env.POSTGRES_USER || 'rcf'}:${encodeURIComponent(process.env.POSTGRES_PASSWORD || '')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/${process.env.POSTGRES_DB || 'rcf_test'}` });
     let dstCount = -1;
     let dstCk = 'unset';
     let backendPidDst = null;

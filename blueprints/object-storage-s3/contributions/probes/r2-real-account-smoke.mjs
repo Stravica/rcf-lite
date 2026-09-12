@@ -54,6 +54,7 @@ export const DECLARED_ENV = Object.freeze([
 const AC28108_1_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT is unset, when the r2-real-account-smoke.mjs shim';
 const AC28108_2_FIRST8 = 'Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint';
 const REQ001_FIRST8 = 'The application accesses object storage through a single';
+const AC28108_2_INVENTORY_LIMITATION = 'AC-28108-2: Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint URL, bucket name, and credential pair (all from security-secrets-management), when the r2-real-account-smoke.mjs shim runs, then the facade opens against the R2 bucket, puts a 1 KiB payload, gets it back byte-equal, deletes the temporary object on exit, and the report carries aggregateVerdict pass with accountBoundSkipped absent or false. Not observed on this row: the object round-trip clause is observed on the byte-equal put/get row that anchors AC-28108-2 with the engine-returned ETag; this row records the per-object inventory diff (listObjects before delete, delete, listObjects after delete) which R2 does not surface a per-object engine-returned identifier for (S3 SDK $metadata.requestId returns null on Cloudflare R2 for object-level verbs).';
 const AC28108_2_BUCKET_LIMITATION = 'AC-28108-2: Given CI_HAS_CLOUDFLARE_ACCOUNT set alongside a real R2 endpoint URL, bucket name, and credential pair (all from security-secrets-management), when the r2-real-account-smoke.mjs shim runs, then the facade opens against the R2 bucket, puts a 1 KiB payload, gets it back byte-equal, deletes the temporary object on exit, and the report carries aggregateVerdict pass with accountBoundSkipped absent or false. Not observed on this row: the AC states an object-level round trip on an already-provisioned bucket; this row records bucket-level lifecycle (CreateBucket / DeleteBucket / ListBuckets), which the AC does not state.';
 
 function skipResult(reason) {
@@ -229,14 +230,22 @@ export default async function runProbe() {
     }
     const seenAfter = listAfter.keys.includes(key);
     const inventoryPass = seenBefore && !seenAfter;
+    // R2 does not surface a per-object $metadata.requestId on the
+    // object-level list/delete verbs, so the inventory-diff row has
+    // no engine-returned scalar id. The AC-28108-2 object round-trip
+    // clause is anchored on the byte-equal put/get row above (which
+    // carries the engine-returned ETag). This row is conformanceOnly
+    // and records the per-object inventory diff as positive evidence
+    // toward AC-28108-2 without falsely counting as an anchor.
     results.push({
-      anchorAcId: 'AC-28108-2',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: AC28108_2_INVENTORY_LIMITATION,
       verdict: inventoryPass ? 'pass' : 'fail',
       detail: inventoryPass
-        ? `${AC28108_2_FIRST8} - object inventory diff proves create+delete: key present before delete, absent after (listObjects returned ${listBefore.keys.length} then ${listAfter.keys.length} keys)`
-        : `${AC28108_2_FIRST8} - inventory diff mismatch: seenBefore=${seenBefore} seenAfter=${seenAfter}`,
+        ? `conformanceOnly (${AC28108_2_INVENTORY_LIMITATION}) - object inventory diff proves create+delete: key present before delete, absent after (listObjects returned ${listBefore.keys.length} then ${listAfter.keys.length} keys)`
+        : `conformanceOnly (${AC28108_2_INVENTORY_LIMITATION}) - inventory diff mismatch: seenBefore=${seenBefore} seenAfter=${seenAfter}`,
       evidence: {
-        vendorRequestId: (delRes && delRes.requestId) || (listBefore && listBefore.requestId) || (listAfter && listAfter.requestId) || null,
         scratchBucket,
         key,
         seenBefore,

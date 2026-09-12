@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.8');
+  assert.equal(doc.version, '1.1.9');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);
@@ -181,12 +181,12 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(recoverySrc, /process\.env\.POSTGRES_SOURCE_CONTAINER/);
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_CONTAINER/);
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_PORT/);
-  // Anatomy check on 7d evidence shape (STRICT rewrite): the
-  // run record MUST be present under
-  // `.rcf/reports/blueprints/<slug>/<probe>.json` (a missing record
-  // fails the test loudly - no lexical source fallback, no ENOENT
-  // swallow), and EVERY result row is validated in-place against one
-  // of four shapes:
+  // Anatomy check on 7d evidence shape (STRICT rewrite): each probe
+  // is invoked directly and its returned result set is validated
+  // in-memory (round-8 ruling: the anatomy owns the invocation, the
+  // probe owns its skip; the pre-round-8 `.rcf/reports/blueprints`
+  // record path is no longer read on this seam). EVERY result row is
+  // validated in-place against one of four shapes:
   //   (a) a real observation carrying an `evidence` object with BOTH
   //       an id-shape witness (request id, http/status code, exit code,
   //       event record, metadata bag, ids collection) AND a
@@ -237,16 +237,14 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   // identifiers.
   const STRICT_ID_KEYS = new Set([
     // http request / metadata ids the engine returned
-    'requestId', 'requestIds',
-    'vendorRequestId', 'vendorRequestIds',
-    'metadataRequestId', 'httpRequestId',
+    'requestId',
+    'vendorRequestId',
     // S3 / R2 object identifiers returned by the engine
-    'eTag', 'versionId', 'uploadId', 'observedUploadId',
+    'eTag', 'versionId', 'uploadId',
     // Cloudflare Queues identifiers returned by the API
     'queueId', 'messageId',
-    'dlqTransportMessageIds', 'primaryTransportMessageId',
     // jobs scheduler identifiers
-    'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
+    'jobId',
     // Postgres identifiers the server returned
     'rowId', 'insertedId', 'backendPid', 'transactionId',
     'migrationVersion',

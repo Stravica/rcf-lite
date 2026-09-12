@@ -72,5 +72,25 @@ export default async function runProbe() {
       dlqInvoked,
     },
   });
+  // AC-30109-1: after the three failing jobStarted events and the
+  // terminal jobFailed event, the underlying in-memory queue driver
+  // invoked the DLQ producer path. Observed as `dlqInvoked:true`
+  // (state.dlq carries the failing message id after the drain).
+  const dlqEntry = pair.state.dlq[0] || null;
+  const dlqPass = dlqInvoked === true && failedOk;
+  results.push({
+    anchorAcId: 'AC-30109-1',
+    verdict: dlqPass ? 'pass' : 'fail',
+    detail: dlqPass
+      ? `AC-30109-1 observed - dlqInvoked:true; terminal jobFailed event carries terminalErrorCode=${jobFailed.terminalErrorCode}; in-memory driver routed the failing message id to state.dlq after maxAttempts exhausted`
+      : `AC-30109-1 not observed - dlqInvoked=${dlqInvoked} jobFailed=${JSON.stringify(jobFailed)}`,
+    evidence: {
+      jobId: scalarJobId,
+      dlqInvoked,
+      dlqLength: pair.state.dlq.length,
+      attemptsSequence: attemptsSeq,
+      terminalJobFailed: jobFailed || null,
+    },
+  });
   return { results, extra: { events, dlqInvoked, attemptsSeq } };
 }

@@ -160,16 +160,24 @@ export default async function runProbe() {
         locationCode: location, byteCount: got.body.length,
       },
     });
+    // Event-secrecy limitation: AC-28110-1 states endpoint composition,
+    // put/get/delete round-trip, teardown, skip, and malformed-endpoint
+    // behavior; it does NOT state event-record secrecy. The shipped AC
+    // for event-secrecy is AC-28105-1 (metadata-only lifecycle events),
+    // which the object-storage-s3 event-secrecy probe already anchors
+    // against the local MinIO engine. This Hetzner-run event assertion
+    // is recorded as conformanceOnly so it stops falsely counting
+    // toward AC-28110-1.
     const evAssertion = assertMetadataOnlyEventRecords(events);
     results.push({
-      anchorAcId: 'AC-28110-1',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-28105-1: Given a lifecycle-event spy attached to the sink, when put, get, delete, and presign verbs run against a PII fixture, then every event record on the sink carries only fields from the whitelist {event, key, size, contentType, ttl, ts, endpointHost, bucketName}. Not observed as an anchor on this row: AC-28105-1 is observed against the local MinIO engine in event-secrecy.mjs; the Hetzner probe re-checks the same whitelist against the vendor engine and records the result as conformanceOnly evidence toward AC-28105-1.`,
       verdict: evAssertion.pass ? 'pass' : 'fail',
       detail: evAssertion.pass
-        ? `${AC28110_1} - every lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
-        : `${AC28110_1} - event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
+        ? `conformanceOnly (AC-28105-1) - every Hetzner lifecycle event carries only whitelisted fields (${[...HETZNER_EVENT_WHITELIST].join(',')})`
+        : `conformanceOnly (AC-28105-1) - Hetzner event-secrecy leak: forbidden fields present ${evAssertion.leaked.join(',')}`,
       evidence: {
-        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
-        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
         whitelistedFields: [...HETZNER_EVENT_WHITELIST], leakedFields: evAssertion.leaked || [],
         eventCount: events.length,
       },

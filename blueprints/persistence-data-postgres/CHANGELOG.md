@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.9 - 2026-09-12
+
+Round-9 closure follow-through: password literal removed from shipped probe source, anatomy comment aligned with in-memory validation, STRICT_ID_KEYS tightened to engine-returned scalars only. Anatomy pin bumped to 1.1.9.
+
+- fix: `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` connection URL to the restore container now reads the password from the declared POSTGRES_PASSWORD variable only; the branch-added `rcf-dev-only` literal was removed. The docker-run `-e POSTGRES_PASSWORD` invocation likewise reads from the declared variable.
+- fix: `packages/rcf-lite/test/blueprint/persistence-data-postgres-anatomy.test.js` STRICT_ID_KEYS removed the plural / probe-selected keys (`requestIds`, `vendorRequestIds`, `metadataRequestId`, `httpRequestId`, `observedUploadId`, `dlqTransportMessageIds`, `primaryTransportMessageId`, `jobIds`, `dlqPayloadJobIds`, `expectedPayloadJobId`) so only engine-returned scalar identifiers qualify as id-witnesses.
+- prose: anatomy header comment corrected to describe the round-8 in-memory validation (probes invoked directly, no `.rcf/reports` record read on this seam).
+
 
 ## 1.1.8 - 2026-09-11
 

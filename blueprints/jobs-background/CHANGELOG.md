@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.9 - 2026-09-12
+
+Round-9 closure follow-through: AC-30109-1 now observed locally (dlqInvoked:true), STRICT_ID_KEYS tightened to engine-returned scalars only, anatomy comment aligned with in-memory validation. Anatomy pin bumped to 1.1.9.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/jobs-runtime.mjs` terminal-failure branch now routes the message to the driver's DLQ producer path (msg.retry() on an already-terminal attempt increments attempts past maxRetries so the driver pushes the entry to state.dlq). The pre-round-9 behaviour ack'd terminally failing messages, which silently discarded the failing job.
+- fix: `blueprints/jobs-background/contributions/probes/retry-and-fail.mjs` adds a second row anchored to AC-30109-1 that asserts `dlqInvoked:true` after the three failing jobStarted events and the terminal jobFailed event. The row carries the scheduler-minted `jobId` as its scalar id witness alongside `attemptsSequence` as derived.
+- fix: `packages/rcf-lite/test/blueprint/jobs-background-anatomy.test.js` STRICT_ID_KEYS removed the plural / probe-selected keys (`requestIds`, `vendorRequestIds`, `metadataRequestId`, `httpRequestId`, `observedUploadId`, `dlqTransportMessageIds`, `primaryTransportMessageId`, `jobIds`, `dlqPayloadJobIds`, `expectedPayloadJobId`) so only engine-returned scalar identifiers qualify as id-witnesses.
+- prose: anatomy header comment corrected to describe the round-8 in-memory validation (probes invoked directly, no `.rcf/reports` record read on this seam).
+
 
 ## 1.1.8 - 2026-09-11
 

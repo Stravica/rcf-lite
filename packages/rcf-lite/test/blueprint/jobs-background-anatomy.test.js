@@ -30,7 +30,7 @@ async function pathExists(p) {
 test('blueprint.json declares 22 contributions with capabilities backgroundJobs, requiresAppliedCapabilities on queue with allowSkipFlag allow-no-queue-yet and refusalMessageId jobs-background-no-queue, and standardsTraceClause on every ADR entry (TC-076-blueprint-json-shape)', async () => {
   const bp = await readJson(join(BP_DIR, 'blueprint.json'));
   assert.equal(bp.slug, 'jobs-background');
-  assert.equal(bp.version, '1.1.8');
+  assert.equal(bp.version, '1.1.9');
   assert.equal(bp.category, 'jobs');
   assert.deepEqual(bp.capabilities, ['backgroundJobs']);
   assert.deepEqual(bp.requiresAppliedCapabilities, {
@@ -121,11 +121,12 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   for (const v of ['SIMULATE_HANDLER_THROW', 'SIMULATE_PII_IN_JOB_INPUT']) {
     assert.match(readme, new RegExp(`\`${v}\``), `jobs-background Declared env vars must name ${v}`);
   }
-  // Anatomy check on 7d evidence shape (STRICT rewrite): the
-  // run record MUST be present under
-  // `.rcf/reports/blueprints/<slug>/<probe>.json` (a missing record
-  // fails the test loudly - no lexical source fallback, no ENOENT
-  // swallow). EVERY row is validated against one of four shapes:
+  // Anatomy check on 7d evidence shape (STRICT rewrite): each probe
+  // is invoked directly and its returned result set is validated
+  // in-memory (round-8 ruling: the anatomy owns the invocation, the
+  // probe owns its skip; the pre-round-8 `.rcf/reports/blueprints`
+  // record path is no longer read on this seam). EVERY row is
+  // validated against one of four shapes:
   //   (a) real observation carrying `evidence` with BOTH an id-shape
   //       witness AND a derived-value witness (strict AND);
   //   (b) `conformanceOnly: true` with `anchorAcId: null` and a
@@ -167,16 +168,14 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   // identifiers.
   const STRICT_ID_KEYS = new Set([
     // http request / metadata ids the engine returned
-    'requestId', 'requestIds',
-    'vendorRequestId', 'vendorRequestIds',
-    'metadataRequestId', 'httpRequestId',
+    'requestId',
+    'vendorRequestId',
     // S3 / R2 object identifiers returned by the engine
-    'eTag', 'versionId', 'uploadId', 'observedUploadId',
+    'eTag', 'versionId', 'uploadId',
     // Cloudflare Queues identifiers returned by the API
     'queueId', 'messageId',
-    'dlqTransportMessageIds', 'primaryTransportMessageId',
     // jobs scheduler identifiers
-    'jobId', 'jobIds', 'dlqPayloadJobIds', 'expectedPayloadJobId',
+    'jobId',
     // Postgres identifiers the server returned
     'rowId', 'insertedId', 'backendPid', 'transactionId',
     'migrationVersion',
