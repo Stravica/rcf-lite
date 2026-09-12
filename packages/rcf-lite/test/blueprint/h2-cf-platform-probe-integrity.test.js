@@ -99,14 +99,14 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
       while ((m = re.exec(body)) !== null) fakeHits.push(`${f}:${m[0]}`);
     }
   }
-  assert.equal(fakeHits.length, 0, `expected zero "fake" tokens in probe bodies on the four H-2 blueprints (rewored to name in-process / in-memory / synthetic test doubles honestly per H-2 Groups A/B); observed: ${fakeHits.slice(0, 6).join(' | ')}`);
+  assert.equal(fakeHits.length, 0, `expected zero "fake" tokens in probe bodies on the four H-2 blueprints (probe bodies name in-process, in-memory, or synthetic test doubles and never use the "fake" token); observed: ${fakeHits.slice(0, 6).join(' | ')}`);
   // KV CHANGELOG and README describe the unsupported elicitedNonEmpty
   // predicate and the required loader-side capability extension.
   const kvChangelog = await readFile(join(REPO_ROOT, 'blueprints', 'platform-cloudflare-kv', 'CHANGELOG.md'), 'utf8');
   const kvReadme = await readFile(join(REPO_ROOT, 'blueprints', 'platform-cloudflare-kv', 'README.md'), 'utf8');
-  assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry "cannot yet gate" wording after D2 reword');
-  assert.doesNotMatch(kvReadme, /cannot yet gate/i, 'KV README must not carry "cannot yet gate" wording after D2 reword');
+  assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry the retired "cannot yet gate" wording');
+  assert.doesNotMatch(kvReadme, /cannot yet gate/i, 'KV README must not carry the retired "cannot yet gate" wording');
   assert.match(kvChangelog, /loader-side capability extension/, 'KV CHANGELOG documents the loader-side capability extension required for the elicitedNonEmpty predicate');
-  // The README names the capability change.
-  assert.match(kvReadme, /follow-up capability change/, 'KV README names the follow-up capability change');
+  // The README documents the loader capability the predicate requires.
+  assert.match(kvReadme, /an `elicitedNonEmpty` clause/, 'KV README documents the loader capability required for the elicitedNonEmpty predicate');
 });
