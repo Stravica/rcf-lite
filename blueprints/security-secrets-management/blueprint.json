@@ -1,6 +1,6 @@
 {
   "slug": "security-secrets-management",
-  "version": "1.1.2",
+  "version": "1.1.5",
   "category": "security",
   "capabilities": [
     "secretsProvider"
@@ -177,5 +177,6 @@
         "none"
       ]
     }
-  ]
+  ],
+  "updatedAt": "2026-09-11T15:37:12.000Z"
 }

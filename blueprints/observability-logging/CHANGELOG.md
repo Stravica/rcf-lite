@@ -1,4 +1,29 @@
+# Changelog
+
+## 1.3.7 - 2026-09-11
+
+Identifier-pairing rule tightened to equality. `line-shape-and-fields` now records each AC-15101-1/-3/-4 row's supplied correlation id under `suppliedInput` (with the parsed log-line object under `line`) so the row can be verified as `line.correlationId === suppliedInput`; the AC-15101-1 row also carries the observedEmissions list its detail already names. `correlation-id-flow` AC-15102-1 header-absent row records the fixture-minted UUID as an engine-minted `requestId` (with `absentSuppliedInput: true` for readability) instead of a `<no-header>` sentinel that could not equal the echoed value.
+
+## 1.3.6 - 2026-09-11
+
+redaction-boundary probe now emits one payload per recommended-default category (credential, token, bearer, pii.email, pii.name, pii.address) inside its own runWithCorrelation(randomUUID(), ...) so each row records a per-emission correlation id paired to the emitted line's correlationId; every one of the six mandatory categories AC-15103-1 names is now anchored to AC-15103-1 with derived redacted value AND payload-unmutated observation. The AC-15103-4-shaped row is emitted in its own correlation context and records the supplied/emitted correlationId pair alongside userId preservation and pii.email redaction. Anatomy helper strict-evidence contract tightened: bare `suppliedInput`, `headerName`, `workflowName`, `line.correlationId`, `observed[].supplied` and `observedRoundTrips[].supplied` no longer satisfy the identifier half on their own; each must be paired with the engine's echo of that value (echoedHeader, derivedResponseHeader, a returned resource id, or a log-line correlationId equal to the value the probe supplied).
+
+
+## 1.3.5 - 2026-09-11
+
+redaction-boundary probe now wraps each emission in runWithCorrelation(randomUUID(), ...) so every AC-15103-1 row and the AC-15103-4-shaped row carry a real per-emission correlation id as the identifier alongside the derived redacted value; the run-notes claim about redaction-boundary correlation ids is now true to the recorded rows. correlation-id-flow AC-15102-3 row (bare emission with correlationId=null by design) is de-claimed to conformanceOnly, since a bare emission carries no engine-returned identifier.
+
+## 1.3.4 - 2026-09-11
+
+line-shape-and-fields probe now wraps every emission (per-level, BigInt, reserved-key-collision) in runWithCorrelation(randomUUID(), ...) so each emitted log line carries a real correlation id; the AC-15101-1/-3/-4 rows record the parsed line object plus a correlationIdEchoed identifier and a bodyExcerpt derived value.
+
 # observability-logging CHANGELOG
+
+## 1.3.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (line-shape-and-fields, correlation-id-flow, redaction-boundary) with a fixture-side logger factory and HTTP transport under packages/rcf-lite/test/fixtures/probe-pack-observability-logging/. Probes run against the fixture on Node 24. No account gate.
+
+Anchoring: line-shape-and-fields anchors AC-15101-1/3/4 (seven-field minimum with per-field non-empty-string type checks and ISO-8601 timestamp; BigInt folded to a decimal string; reserved-key collision safety). correlation-id-flow anchors AC-15102-1 with BOTH the header-present clause (three varied inbound ids echoed on the response header, response body and emitted log line with a fixture-computed sequence and hash the probe recomputes locally) AND the header-absent clause (fixture mints a v4 UUID, response body carries mintedFromAbsent=true and the correlationId, the emitted line matches); also anchors AC-15102-3 (bare emission with no ambient context carries correlationId=null). The monotonic-sequence row de-claims with the limitation naming AC-15102-1. redaction-boundary anchors AC-15103-1 (top-level recommended-default category folded with `[REDACTED:<category>]` AND the caller's original payload object unmutated after log.info returns) and AC-15103-4 (the { user: { id, pii: { email } } } shape with user.id preserved and user.pii.email redacted, plus caller unmutated). The nested top-level pii row and the bare `note` row de-claim with limitations naming AC-15103-4 and AC-15103-3 respectively. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 1.3.1 (register-sweep patch, 2026-09-10)
 

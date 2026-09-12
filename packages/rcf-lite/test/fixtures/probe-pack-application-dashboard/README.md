@@ -4,7 +4,7 @@ Dependency-free Node HTTP server exercising every surface the `application-dashb
 
 ## Boot
 
-Two-line manual boot for the gate reviewer:
+Two-line manual boot:
 
 ```
 cd packages/rcf-lite/test/fixtures/probe-pack-application-dashboard
@@ -17,7 +17,7 @@ Once bound, the server prints one line to stdout:
 LISTENING 3000
 ```
 
-`PORT` is an env var (default `3000`). Any free port is fine; the pack drives whatever URL the reviewer passes to `rcf verify browser --url`.
+`PORT` is an env var (default `3000`). Any free port is fine; the pack drives whatever URL is passed to `rcf verify browser --url`.
 
 Stop the server with Ctrl+C or `kill <pid>` (SIGTERM is honoured).
 
@@ -67,4 +67,13 @@ The root route accepts three query parameters, `?break=<mode>`, `?tile=<id>&stat
 - Probe pack: `blueprints/application-dashboard/probe-packs/application-dashboard.pack.mjs`
 - Blueprint README: `blueprints/application-dashboard/README.md`
 - Packaged design guidance: `blueprints/application-dashboard/assets/guidance/dashboard-design.md`
-- Ratified spec: `projects/blueprint-library/specs/visual-round-spec-2026-09-04.md` section 5.3 (in the operator repo).
+- Ratified spec: application-core spec section 5.3 (in the operator repo).
+
+## Declared env vars
+
+| Name         | Read by      | Purpose                                                       |
+|--------------|--------------|---------------------------------------------------------------|
+| `PORT`       | `server.js`  | Bind port for manual runs (default `3000`).                   |
+| `PROBE_PORT` | `probe-utils.mjs` in `blueprints/application-dashboard/contributions/probes/` | Bind port used by the probe pack (default `47304`, reserved range 47300-47399). |
+
+No account-bound branch: the engine is a local fixture, so no `CI_HAS_*` gate applies.

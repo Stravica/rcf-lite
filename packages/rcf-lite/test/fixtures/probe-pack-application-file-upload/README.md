@@ -43,7 +43,7 @@ Prints `LISTENING <port>` once bound.
 - `POST /upload/chunk` synthetic acknowledgement endpoint for the multipart branch.
 - `PATCH /upload/tus` synthetic acknowledgement endpoint for the tus branch (echoes `Upload-Offset`).
 
-## Manual boot for the gate reviewer
+## Manual boot
 
 ```
 PORT=4321 node server.js
@@ -51,3 +51,12 @@ curl -s http://127.0.0.1:4321/upload | head -20
 ```
 
 Two-line boot: start the server, hit `/upload` to confirm the surface renders.
+
+## Declared env vars
+
+| Name         | Read by      | Purpose                                                       |
+|--------------|--------------|---------------------------------------------------------------|
+| `PORT`       | `server.js`  | Bind port for manual runs (default `3000`).                   |
+| `PROBE_PORT` | `probe-utils.mjs` in `blueprints/application-file-upload/contributions/probes/` | Bind port used by the probe pack (default `47307`, reserved range 47300-47399). |
+
+No account-bound branch: the engine is a local fixture, so no `CI_HAS_*` gate applies.

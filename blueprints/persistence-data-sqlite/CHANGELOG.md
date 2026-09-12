@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.1.5 - 2026-09-11
+
+Strengthens the shared probe anatomy helper the seven core-shelf blueprints all lean on: rows whose only signal is a parsed log object with a message, a linesExcerpt array, a parsed component list, a rendered-state or -order list, a perFile / entries / commitEntries list, or a locally invented callTrackingId are refused as identifier evidence; retained anchor ids are checked against the applicable blueprint's shipped AC set; the WARN row shortcut that accepted a bare unobservableReason is removed and every WARN must now satisfy exact-skip, notObservableHere (browser-only) or identifier-plus-derived. No SQLite probe change was needed; SQLite remains GREEN.
+
+## 1.1.4 - 2026-09-11
+
+wal-checkpoint AC-5105-3 anchor now observes the complete durability posture (PRAGMA journal_mode=wal + PRAGMA synchronous>=NORMAL + consumer-source grep) with a real integer rowId from a seed put through the facade; boot-open-migrate AC-5101-3 also carries a real rowId. Fixture store.mjs sets PRAGMA synchronous=NORMAL at open time and exposes synchronousNow(). Shared anatomy helper tightened per the strict-evidence contract (strict identifier set, existence check for shipped-AC limitation and notObservableHere.ac, exact-variable skip reason wire-up in all seven anatomy tests, notObservableHere is now refused for non-browser-only ACs, acceptedProfile removed from identifier lists, single JSON log-line string is derived only).
+
+## 1.1.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (boot-open-migrate, facade-round-trip, wal-checkpoint) with a fixture-side node:sqlite store facade under packages/rcf-lite/test/fixtures/probe-pack-persistence-data-sqlite/. Probes run against the real node:sqlite engine on Node 24; record real integer row ids, applied-migration lists, and wal_checkpoint(TRUNCATE) counters with the WAL sidecar shrink after truncate. No account gate.
+
+Anchoring: boot-open-migrate anchors AC-5101-3 (open returns only after migrations run); the AC-5101-1 export-order row and the AC-5101-2 path-from-config row are de-claimed (conformanceOnly, anchorAcId=null) with limitations naming their respective ACs; the reopen row de-claims from AC-5101-3. wal-checkpoint anchors AC-5105-3 (durability posture set at open); the size-transition row and the walCheckpoint event row de-claim from AC-5105-1 and AC-5106-1 respectively. facade-round-trip anchors AC-5107-2 as its module anchor with the runtime CRUD rows de-claiming from AC-5107-2 (facade surface not exhaustively scanned) and the event row de-claiming from AC-5106-1. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null (harnessError marks the row) rather than any placeholder id.
+
 ## 1.1.1 (register-sweep patch, 2026-09-10)
 
 - Register: neutral wording in shipped prose (no capability change).

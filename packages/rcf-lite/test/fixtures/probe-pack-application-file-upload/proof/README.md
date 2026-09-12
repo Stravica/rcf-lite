@@ -1,6 +1,6 @@
 # MCP-route smoke: application-file-upload probe pack
 
-Captured on 2026-09-06 against the shipped fixture with the pinned Playwright MCP as the browser driver, per authoring standard section 8c and the round 3 T-0 shipped runner. Every JSON file here is the raw output of the `rcf verify browser` command that produced the verdict; the top of each file includes any driver stderr lines and the JSON body follows. Filenames follow the round-4 spec section 6 convention `pack-mcp-route.<label>.<ts>.json`; the timestamp is the `createdAt` value the runner stamped into each file (colons replaced with dashes for filesystem safety).
+Captured on 2026-09-06 against the shipped fixture with the pinned Playwright MCP as the browser driver. Every JSON file here is the raw output of the `rcf verify browser` command that produced the verdict; the top of each file includes any driver stderr lines and the JSON body follows. Filenames follow the convention `pack-mcp-route.<label>.<ts>.json`; the timestamp is the `createdAt` value the runner stamped into each file (colons replaced with dashes for filesystem safety).
 
 ## Files
 

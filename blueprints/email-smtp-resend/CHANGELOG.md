@@ -1,4 +1,20 @@
+# Changelog
+
+## 1.1.7 - 2026-09-11
+
+unverified-sender-refusal AC-4102-1 and AC-4102-2 rows are de-claimed to conformanceOnly. The refusal is driven by the local catch-all SMTP fixture (fixture-as-engine) and carries no Resend-returned message id, so the identifier half of the strict-evidence contract is not satisfied here. The live real-account-resend-send row (AC-4101-2) is unchanged.
+
+## 1.1.6 - 2026-09-11
+
+unverified-sender-refusal AC-4102-1 verdict now requires the complete refusal outcome shape owned on TAC-401.interfaces.send: providerStatus a valid positive integer AND providerMessageId===null AND thrownMessage===null, alongside the RESEND_SENDER_UNVERIFIED class prefix.
+
 # email-smtp-resend CHANGELOG
+
+## 1.1.5 - 2026-09-11
+
+Adds a contributions/probes/ pack (smtp-round-trip, unverified-sender-refusal, real-account-resend-send) with a fixture-side send adapter (realises TAC-401.interfaces.send), a catch-all SMTP provider seam and a Resend REST provider seam under packages/rcf-lite/test/fixtures/probe-pack-email-smtp-resend/. Probes run against the fixture on Node 24 and against real Resend on the account-bound branch (CI_HAS_RESEND_ACCOUNT gate + RESEND_API_KEY, one variable per skip row).
+
+Anchoring: unverified-sender-refusal anchors AC-4102-1 (adapter classifies the fixture's 550 5.7.1 refusal to a RESEND_SENDER_UNVERIFIED-prefixed error string) and AC-4102-2 (recipient, subject, body do not appear on the returned error string, on any emitted log line, or on any thrown exception; server accepted zero messages on the unverified path). real-account-resend-send anchors AC-4101-2; the row verdict requires ok=true, error=null, a non-empty providerMessageId AND providerStatus to be an integer in the accepted 200-299 range. smtp-round-trip de-claims (conformanceOnly, anchorAcId=null) with the limitation naming AC-4101-3: the row observes a local catch-all SMTP dispatch via a helper, not a call through the adapter and not the Resend endpoint. probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 1.1.3 - 2026-09-10
 

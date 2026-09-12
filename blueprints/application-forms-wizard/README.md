@@ -54,7 +54,7 @@ ADR-2502 commits to two transports without recommendedDefault. The server-side d
 
 ## The no-in-progress empty case
 
-The in-progress-list surface delegates the zero-drafts case to the `application-empty-error-states` empty-list state (`[data-surface="empty-list"]` with a `[data-recovery="create"]` control). The wizard blueprint does not ship its own empty component; a project applying both blueprints reads the same surface from either lane.
+The in-progress-list surface delegates the zero-drafts case to the `application-empty-error-states` empty-list state (`[data-surface="empty-list"]` with a `[data-recovery="create"]` control). The wizard blueprint does not ship its own empty component; a project applying both blueprints reads the same surface from either blueprint.
 
 ## Elicited parameters
 
@@ -66,7 +66,7 @@ The in-progress-list surface delegates the zero-drafts case to the `application-
 
 ## The one runtime gate
 
-`probe-packs/application-forms-wizard.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2501-application-forms-wizard-task-list` or whose nav model routes name an operator-configured wizard path. Each check drives the real Playwright browser the runner provisions, reads the DOM and the accessibility tree, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper per the round 3 fix train; no bare string concatenation.
+`probe-packs/application-forms-wizard.pack.mjs` ships four checks the `rcf verify browser` runner invokes on any FBS whose surface binds `TAC-2501-application-forms-wizard-task-list` or whose nav model routes name an operator-configured wizard path. Each check drives the real Playwright browser the runner provisions, reads the DOM and the accessibility tree, and returns a verdict. URLs are composed by the `withUrl(runtimeUrl, path)` helper; no bare string concatenation.
 
 ## Quality bar
 
