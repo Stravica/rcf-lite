@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-18101-1",
-      "description": "Given a rendered chart on the surface, the chart's declared form matches one of {bar, line, area, pie, donut, single-value, sparkline, heatmap}; a form outside this set is refused at project-side review or documented on the blueprint's README as a project-authored deviation.",
+      "description": "Given a rendered chart on the surface, the chart's declared form matches one of {bar, line, area, pie, donut, single-value, sparkline, heatmap}; a form outside this set is refused at project-side check or documented on the blueprint's README as a project-authored deviation.",
       "given": "a rendered chart on the shipped surface",
       "when": "the surface is reviewed against the shelf",
       "then": "the chart's declared form is one of the six committed forms or a documented project deviation",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-18101-2",
-      "description": "Given a rendered chart, the chart mounts through the render-shell contract (TAC-1901): the shell exposes the accessible-defaults palette hook (ADR-1902) and the text-alternative slot; a chart that skips the shell contract (renders through a raw chart-library mount) is refused at project-side review.",
+      "description": "Given a rendered chart, the chart mounts through the render-shell contract (TAC-1901): the shell exposes the accessible-defaults palette hook (ADR-1902) and the text-alternative slot; a chart that skips the shell contract (renders through a raw chart-library mount) is refused at project-side check.",
       "given": "a rendered chart",
       "when": "the mount seam is inspected",
       "then": "the chart is mounted through TAC-1901's render shell",
@@ -45,10 +45,10 @@
     },
     {
       "id": "AC-18101-4",
-      "description": "Given a specialised form the applying project needs (a candlestick, a Sankey), the project's README carries a CALLS MADE entry naming the deviation and the project supersedes REQ-001 with a project-authored REQ that names the deviating form; a specialised form without a documented CALLS MADE + superseding REQ fails project-side review. Applying agent sets: the specialised chart form the project needs (a candlestick, a Sankey), the CALLS MADE entry text (the deviation from the six-form set quoted verbatim and the project's reason), and the project-authored superseding REQ id that names the deviating form.",
+      "description": "Given a specialised form the applying project needs (a candlestick, a Sankey), the project's README carries a CALLS MADE entry naming the deviation and the project supersedes REQ-001 with a project-authored REQ that names the deviating form; a specialised form without a documented CALLS MADE + superseding REQ fails project-side check. Applying agent sets: the specialised chart form the project needs (a candlestick, a Sankey), the CALLS MADE entry text (the deviation from the six-form set quoted verbatim and the project's reason), and the project-authored superseding REQ id that names the deviating form.",
       "given": "an applying project shipping a form outside the six committed",
-      "when": "review inspects the project's CALLS MADE and REQ set",
-      "then": "the deviation is documented with a project-authored superseding REQ; an undocumented deviation fails review",
+      "when": "the check inspects the project's CALLS MADE and REQ set",
+      "then": "the deviation is documented with a project-authored superseding REQ; an undocumented deviation fails the check",
       "testable": true,
       "scope": "unclassified",
       "disposition": "template"

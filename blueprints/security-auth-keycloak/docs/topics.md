@@ -70,8 +70,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 11101-11113 sit at the LOW end of the 11101-11899 band on purpose. A project-side story that mechanically derives from a security-auth-keycloak REQ id into the number `11113` would collide against security-auth-keycloak-US-11113 in this package; the band leaves headroom at the HIGH end (US 11181-11899) so a project's own stories anchored to security-auth-keycloak REQs can allocate without conflict. The watchpost run4 lesson applies here too.
-
+US 11101-11113 sit at the LOW end of the 11101-11899 band on purpose. A project-side story that mechanically derives from a security-auth-keycloak REQ id into the number `11113` would collide against security-auth-keycloak-US-11113 in this package; the band leaves headroom at the HIGH end (US 11181-11899) so a project's own stories anchored to security-auth-keycloak REQs can allocate without conflict.
 The ADR/TAC suffix block 1201-1299 is the third block in the four-digit suffix space; `security-auth-clerk` opened the door at 1001-1099 and `security-auth-oauth2` took 1101-1199. Every shipped blueprint continues to load, validate, and audit against this shape without a schema change: rcf-schemas 0.5.0 `adrId` and `tacId` patterns are `^ADR-\d{3,}(-[a-z0-9]+...)?$` (three-digit minimum, unbounded above); four-digit and higher suffixes validate verbatim. The registry table above records the growth for a downstream author reaching for the next block.
 
 ## Provider-aware install-design shape (plain language, no named second issuer)

@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-20101-2",
-      "description": "Given the shell's live-region factory (TAC-2101 `renderLiveRegions`), a call at first render emits exactly two wrapper elements matching the AC-20101-1 shape and never re-creates them on subsequent renders (the wrappers are stable identity across the app lifetime). A factory that recreates the wrappers on a route change fails this AC at project-side review.",
+      "description": "Given the shell's live-region factory (TAC-2101 `renderLiveRegions`), a call at first render emits exactly two wrapper elements matching the AC-20101-1 shape and never re-creates them on subsequent renders (the wrappers are stable identity across the app lifetime). A factory that recreates the wrappers on a route change fails this AC at project-side check.",
       "given": "the shell's live-region factory",
       "when": "the factory is invoked at first render and again on a route change",
       "then": "the same two wrapper elements are returned; identity is stable",

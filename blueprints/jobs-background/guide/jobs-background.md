@@ -144,4 +144,4 @@ What does NOT change:
 
 - `observability-logging` (companion): supplies the run-log upstream so the four lifecycle events flow through the applied logger's channel policy.
 - `application-error-handling` (companion): supplies the error record factory a `jobFailed` constructs on the terminal path.
-- `messaging-queue-cloudflare`: the shipped `queue` capability provider today. The `messaging-queue-postgres` sibling (reserved slug per maintainer decision in the documentation) mints on demand and composes here without any change to `jobs-background`.
+- `messaging-queue-cloudflare`: the shipped `queue` capability provider today. The `messaging-queue-postgres` sibling (reserved slug per policy in the documentation) mints on demand and composes here without any change to `jobs-background`.

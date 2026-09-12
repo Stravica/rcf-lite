@@ -6,7 +6,7 @@
   "status": "approved",
   "title": "External-service-dependency provisioning adherence probe refuses ship on placeholder credentials or unratified deferrals",
   "asA": "operator responsible for the deployed application's dependence on external services",
-  "iWant": "a runtime check that fails the build when the application ships with a declared external-service dependency whose credentials are placeholder-shaped, or whose provisioning has been silently deferred without an operator-ratified deferral record",
+  "iWant": "a runtime check that fails the build when the application ships with a declared external-service dependency whose credentials are placeholder-shaped, or whose provisioning has been silently deferred without an operator-approved deferral record",
   "soThat": "an app is never signed off as deployed while an external service the runtime depends on is inert on a placeholder key or has been quietly parked as a documented quirk",
   "acceptanceCriteria": [
     {
@@ -53,7 +53,7 @@
     },
     {
       "id": "AC-1132-4",
-      "description": "A dependency at status 'deferred' requires an operator-ratified deferral record persisted at a stable project-owned path. The record names the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. A README note, a status.md 'quirk' or 'known-issue' line, a code comment, a commit message, or a work-item link on its own does NOT satisfy the deferral requirement. Absence of a ratified record for a 'deferred' dependency refuses ship. Applying agent sets: the deferral-record path, the acknowledging operator identifier, the acknowledgement timestamp and the intended re-verification deadline.",
+      "description": "A dependency at status 'deferred' requires an operator-approved deferral record persisted at a stable project-owned path. The record names the dependency id, the reason for deferral, the acknowledging operator identifier, the ISO-8601 acknowledgement timestamp, and the intended resolution route. A README note, a status.md 'quirk' or 'known-issue' line, a code comment, a commit message, or a work-item link on its own does NOT satisfy the deferral requirement. Absence of a ratified record for a 'deferred' dependency refuses ship. Applying agent sets: the deferral-record path, the acknowledging operator identifier, the acknowledgement timestamp and the intended re-verification deadline.",
       "given": "a dependency declared with status 'deferred' on the external-service-dependency manifest",
       "when": "the probe checks for the deferral record at the manifest-named path",
       "then": "the record exists at the stable path, carries the required fields, and is not stale beyond the ratified window; the run refuses ship on any missing, malformed, or expired record",

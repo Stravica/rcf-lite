@@ -9,8 +9,8 @@
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); register tidy in shipped prose (no capability change).
 
 - Probes and fixture: the account-bound skip return on `contributions/probes/real-account-gated-url.mjs` now carries a `reason` field naming the exact env var(s) that were unset; the same fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`) gains a "Declared env vars" section covering the access-side env-var surface, per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
-- Closes F-8: README compose bullet and consumer note stripped of internal pattern label.
-- Closes F-9: REQ-006 description stripped of internal mechanism label.
+- README compose bullet and consumer note stripped of internal pattern label.
+- REQ-006 description stripped of internal mechanism label.
 
 ## 1.1.2 - 2026-09-10
 
@@ -25,8 +25,7 @@ Single-mechanism story legality notes; owner reference for the audit-record shap
 
 ## 1.1.0 - 2026-09-09
 
-hardening pass edge (criterion a REQ-layer backing; criterion b AC-set sufficiency; criterion c chain consistency lint-zero on pass 1 and pass 2).
-
+Adds criterion-a REQ-layer backing, criterion-b AC-set sufficiency, and criterion-c chain-consistency lint-zero across passes.
 - Added REQ-007 and US-34110: the shipped guide names, per policy-shape option, the required dashboard-owned inputs (email domain, group name, identity provider, application-vs-path scope) and every shipped elicit alongside its runtime effect (closes F-1).
 - Added failure-path ACs to US-34102 (AC-34102-2..5 close F-2: wrong audience, malformed JWT, unknown kid after refresh, JWKS-unavailable fail-closed); US-34104 (AC-34104-2..3 close F-3: neither and both application identifiers refuse apply); US-34107 (AC-34107-2..5 close F-4: break-glass disabled, wrong id, wrong secret via constant-time compare, and partial-pair fall-through).
 - Every REQ now carries `deliveredBy`; every AC carries `disposition`; ACs referencing owner-owned literals carry `ownerRef`.
@@ -35,7 +34,7 @@ hardening pass edge (criterion a REQ-layer backing; criterion b AC-set sufficien
 
 
 All notable changes to `edge-cloudflare-access` are recorded here. The shape follows Keep a Changelog and Semantic Versioning per the blueprint authoring standard.
-- Review fix pass (2026-09-09): split US-34103 into canonical-pass and SIMULATE_NON_VALIDATOR_HEADER-fail ACs, each with a concrete oracle (probe verdict + named field) and an `ownerRef` into TAC-3501. Re-marked ACs per section 7b: mechanism-invariant refusal reasons (`aud-mismatch`, `jwt-malformed`, `kid-unknown`, `jwks-unavailable`, `bypass-id-mismatch`, `bypass-secret-mismatch`, `jwt-missing`), audit-record shapes, guide-section presence assertions and the JWT validator happy path stay `fixed`; US-34104 AC-34104-1 (elicit shape recording), US-34107 AC-34107-1/-3/-4/-5 (bypass id/secret pair) and US-34109 AC-34109-1 (CF_ACCESS_HOST) re-marked `template` naming the values the applying agent sets (access-application-host or access-selfhosted-app-id, access-audience, access-jwks-url, access-policy-shape enum, access-bypass-service-auth-id + paired secret, CF_ACCESS_HOST). Vendor citations added on US-34101 (Cf-Access-Jwt-Assertion header), US-34105 (Zero Trust dashboard docs), US-34107 AC-34107-1 (service-tokens docs) and US-34109 (Access policies docs). Genuinely single-mechanism stories (US-34101, US-34105, US-34106, US-34108, US-34109, US-34110) carry the section-7a note inside the story `description` field, not in a schema-illegal new field.
+- split US-34103 into canonical-pass and SIMULATE_NON_VALIDATOR_HEADER-fail ACs, each with a concrete oracle (probe verdict + named field) and an `ownerRef` into TAC-3501. Re-marked ACs per section 7b: mechanism-invariant refusal reasons (`aud-mismatch`, `jwt-malformed`, `kid-unknown`, `jwks-unavailable`, `bypass-id-mismatch`, `bypass-secret-mismatch`, `jwt-missing`), audit-record shapes, guide-section presence assertions and the JWT validator happy path stay `fixed`; US-34104 AC-34104-1 (elicit shape recording), US-34107 AC-34107-1/-3/-4/-5 (bypass id/secret pair) and US-34109 AC-34109-1 (CF_ACCESS_HOST) re-marked `template` naming the values the applying agent sets (access-application-host or access-selfhosted-app-id, access-audience, access-jwks-url, access-policy-shape enum, access-bypass-service-auth-id + paired secret, CF_ACCESS_HOST). Vendor citations added on US-34101 (Cf-Access-Jwt-Assertion header), US-34105 (Zero Trust dashboard docs), US-34107 AC-34107-1 (service-tokens docs) and US-34109 (Access policies docs). Genuinely single-mechanism stories (US-34101, US-34105, US-34106, US-34108, US-34109, US-34110) carry the section-7a note inside the story `description` field, not in a schema-illegal new field.
 
 
 ## 1.0.0 (2026-09-07)

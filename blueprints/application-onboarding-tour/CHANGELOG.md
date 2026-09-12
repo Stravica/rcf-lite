@@ -41,13 +41,13 @@
 
 - Register: neutral wording in shipped prose (no capability change).
 
-## 1.1.0 (2026-09-10, hardening pass)
+## 1.1.0 (2026-09-10)
 
 ### Added
 
-- REQ-005 (dismissal-policy option coverage) and US-26108: dismiss-permanently, dismiss-until-next-major and dismiss-until-next-minor each carry a runtime clause tied to the completion store record shape. This is the section 7c worked example landed as written. Closes review finding [application-onboarding-tour] F-1.
-- REQ-006 (checklist-anchor option coverage) and US-26109: dashboard-top, settings-page and custom-anchor each mount at a resolved slot with a defined default open state; custom-anchor falls back to the settings route on an unresolved/invisible/clipped selector with data-error=CHECKLIST_ANCHOR_UNRESOLVED. Closes review finding [application-onboarding-tour] F-2.
-- Failure-path acceptance criteria on US-26101 (unresolved and clipped anchors, out-of-range step count), US-26102 (dialog-modal role/aria and focus trap with WCAG citation), US-26103 (settings-route fallback), US-26104 (missing-provider refusal, failed write and failed read on the completion store), US-26105 (unparseable completion record), US-26106 (failed clear on restart), US-26107 (polite live-region close announcement). Closes findings F-3 and F-4.
+- REQ-005 (dismissal-policy option coverage) and US-26108: dismiss-permanently, dismiss-until-next-major and dismiss-until-next-minor each carry a runtime clause tied to the completion store record shape. This is the section 7c worked example landed as written..
+- REQ-006 (checklist-anchor option coverage) and US-26109: dashboard-top, settings-page and custom-anchor each mount at a resolved slot with a defined default open state; custom-anchor falls back to the settings route on an unresolved/invisible/clipped selector with data-error=CHECKLIST_ANCHOR_UNRESOLVED..
+- Failure-path acceptance criteria on US-26101 (unresolved and clipped anchors, out-of-range step count), US-26102 (dialog-modal role/aria and focus trap with WCAG citation), US-26103 (settings-route fallback), US-26104 (missing-provider refusal, failed write and failed read on the completion store), US-26105 (unparseable completion record), US-26106 (failed clear on restart), US-26107 (polite live-region close announcement)..
 - Vendor citations on the ARIA APG dialog-modal, focus-trap and WCAG live-region acceptance criteria (verified 2026-09-10).
 
 ### Changed
@@ -55,8 +55,7 @@
 - Every REQ now carries a deliveredBy link into TAC-2701 (step-runner), TAC-2702 (checklist-slot) or TAC-2703 (completion-store).
 - Every AC on every user story now carries an explicit disposition (fixed or template).
 - TAC-2702 responsibilities extended with resolveAnchor so REQ-006 delivery resolves.
-- Review fix pass (2026-09-10): REQ-001 extended with runtime clauses naming the three string elicits `tour-step-manifest`, `anchor-selectors` and `per-step-content-voice` and their refusal branches; US-26101 gained three template ACs (AC-26101-5, AC-26101-6, AC-26101-7) each carrying an `Applying agent sets: <elicit-id>.` clause; README, guide and CHANGELOG register scrubbed (no work-item ids). Closes review-fix-pass findings F-3, O-4.
-
+- REQ-001 extended with runtime clauses naming the three string elicits `tour-step-manifest`, `anchor-selectors` and `per-step-content-voice` and their refusal branches; US-26101 gained three template ACs (AC-26101-5, AC-26101-6, AC-26101-7) each carrying an `Applying agent sets: <elicit-id>.` clause; README, guide and CHANGELOG register scrubbed (no work-item ids)..
 ## 1.0.0 (visual round, spec 2026-09-06 section 5.5)
 
 - First shipped version. Introduces the tour step runner (ARIA APG dialog-modal per step, focus lifecycle, `role="dialog"`, `aria-labelledby`, `aria-describedby`, keyboard trap inside the tooltip with Escape as the exit, focus-not-obscured at 1440 and 360 breakpoints via `browser.resize`), the checklist slot (dashboard-top open collapse on `application-dashboard` applied; settings-page closed collapse when not; `<details>` browser-native for keyboard-native keyboard behaviour and screen-reader-native semantics), and the completion-state store contract (three backend shapes selected at apply time from the elicited answer or the Q4 fallback `spa-local-storage` when no persistence blueprint is applied).

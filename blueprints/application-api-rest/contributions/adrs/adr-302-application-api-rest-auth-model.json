@@ -12,7 +12,7 @@
     {
       "name": "Per-endpoint auth annotations without classes",
       "summary": "Each endpoint declares its own middleware stack of auth requirements.",
-      "reasonNotChosen": "Infinite postures means no enumerable audit story; every endpoint is a bespoke security review, and rate limiting and audit logging cannot attach to anything stable."
+      "reasonNotChosen": "Infinite postures means no enumerable audit story; every endpoint is a bespoke security assessment, and rate limiting and audit logging cannot attach to anything stable."
     },
     {
       "name": "Gateway-terminated auth only",

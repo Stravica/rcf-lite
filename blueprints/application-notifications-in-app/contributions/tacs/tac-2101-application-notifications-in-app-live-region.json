@@ -28,7 +28,7 @@
     {
       "name": "priorityToRoleContract",
       "kind": "shape",
-      "description": "The ADR-2101 mapping: `info` maps to `{ wrapper: 'polite', role: 'status' }`; `error` maps to `{ wrapper: 'assertive', role: 'alert' }`. A priority outside the ADR-2101 enum is refused at project-side review."
+      "description": "The ADR-2101 mapping: `info` maps to `{ wrapper: 'polite', role: 'status' }`; `error` maps to `{ wrapper: 'assertive', role: 'alert' }`. A priority outside the ADR-2101 enum is refused at project-side check."
     }
   ],
   "dependencies": [
@@ -39,8 +39,8 @@
       "description": "Every toast the live-region factory emits records a delivery-log row through TAC-2102's `writeDeliveryRow`; ownership of the row shape lives here through the delegating call, ownership of the persistence layer lives on TAC-2102 and the applied `logging` companion."
     }
   ],
-  "tradeoffs": "The two-wrapper contract is opinionated: some designs use one wrapper per notification kind (informational, error, warning, success) with four ARIA politeness levels. This TAC insists on two wrappers because the WCAG 4.1.3 status-message clause and the ARIA APG alert pattern jointly draw the line at polite vs assertive; adding wrapper granularity that assistive technologies do not distinguish trades runtime discipline for false precision. The six-second timeout floor is deliberately not a ceiling: an elicited override raises the floor but never lowers it, so a design that shows a toast for two seconds fails at author-side review.",
-  "notes": "Known mechanism-reach gap: the pack asserts the disjoint-content rule (AC-20108-1) at the moment it inspects the wrappers, not continuously across the toast lifetime. A pathological implementation that briefly writes into both wrappers between two microtasks would not be caught by the pack; project-side review carries the residual. A v1.1 minor bump could add a MutationObserver-based check.",
+  "tradeoffs": "The two-wrapper contract is opinionated: some designs use one wrapper per notification kind (informational, error, warning, success) with four ARIA politeness levels. This TAC insists on two wrappers because the WCAG 4.1.3 status-message clause and the ARIA APG alert pattern jointly draw the line at polite vs assertive; adding wrapper granularity that assistive technologies do not distinguish trades runtime discipline for false precision. The six-second timeout floor is deliberately not a ceiling: an elicited override raises the floor but never lowers it, so a design that shows a toast for two seconds fails at the author-side check.",
+  "notes": "Known mechanism-reach gap: the pack asserts the disjoint-content rule (AC-20108-1) at the moment it inspects the wrappers, not continuously across the toast lifetime. A pathological implementation that briefly writes into both wrappers between two microtasks would not be caught by the pack; project-side check carries the residual. A v1.1 minor bump could add a MutationObserver-based check.",
   "createdAt": "2026-09-04T23:59:00Z",
   "updatedAt": "2026-09-04T23:59:00Z"
 }

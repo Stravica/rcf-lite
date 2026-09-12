@@ -148,7 +148,7 @@ test('section 6a table gains a queue row with reserved messaging-queue-postgres 
   assert.match(authoring, /messaging-queue-cloudflare/,
     'section 6a queue row must name messaging-queue-cloudflare as the shelf provider');
   assert.match(authoring, /messaging-queue-postgres/,
-    'section 6a queue row must name the reserved messaging-queue-postgres sibling per Baz decision 7');
+    'section 6a queue row must name the reserved messaging-queue-postgres sibling');
   const blueprintsDir = join(REPO_ROOT, 'blueprints');
   const dirs = (await readdir(blueprintsDir, { withFileTypes: true }))
     .filter((d) => d.isDirectory())
@@ -181,7 +181,7 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   assert.equal(mod.accountBound, true, 'real-account-concurrency-smoke must declare accountBound true');
   assert.equal(mod.anchorAcId, 'AC-29108-2', 'anchorAcId must be AC-29108-2');
   // Static shape assertions on the shipped driver body (v1.0.2 self-
-  // provisioning shape; w-2026-09-08-dave-017).
+  // provisioning shape).
   const body = await readFile(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs'), 'utf8');
   assert.match(body, /h2-cf-queue-real-account-shim\.mjs/, 'driver imports the self-provisioning fixture shim');
   assert.match(body, /mintScratchQueueAndWorker/, 'driver mints its own scratch queue + consumer worker + telemetry KV');
@@ -189,7 +189,7 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   assert.match(body, /queuePublishBatch/, 'driver publishes via the Cloudflare Queues REST publish endpoint');
   assert.match(body, /kvListKeys/, 'driver reads consumer telemetry via the KV REST list endpoint');
   assert.match(body, /DOCUMENTED_PUSH_CAP\s*=\s*250|push[- ]invocation cap|push cap/i, 'driver references the documented Cloudflare push-invocation cap');
-  // Dave ruling 376b4f30: no HTTP surface to the consumer Worker; no
+  // convention: no HTTP surface to the consumer Worker; no
   // workers.dev URL construction in the driver.
   assert.equal(/[`'"][^`'"\n]*\.workers\.dev[^`'"\n]*[`'"]/.test(body), false, 'driver holds no .workers.dev URL literal');
   // Env-absent branch: pass with accountBoundSkipped shape.

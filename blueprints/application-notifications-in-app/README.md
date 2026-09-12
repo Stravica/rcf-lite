@@ -34,7 +34,7 @@ The `application-notifications-` prefix is reserved for the sibling in-app-adjac
 - `application-notifications-push`: Web Push and platform APN/FCM notifications. Owns the subscription lifecycle and the platform-token store.
 - `application-notifications-webhook`: outbound HTTP notifications to operator-configured endpoints. Owns the delivery-retry semantics and the endpoint registry.
 
-The reservation is doc-only in v1.0.0 (per spec Q3 default): the family prefix is named in this README and in every shipped blueprint's `docs/topics.md` shelf band registry as a reserved-slot row. No sibling channel ships in this round. Any future PR that proposes a name outside the family (`application-alerts-email`, `application-messages-push`) reads against this reservation and stops at author-side review.
+The reservation is doc-only in v1.0.0 (per spec Q3 default): the family prefix is named in this README and in every shipped blueprint's `docs/topics.md` shelf band registry as a reserved-slot row. No sibling channel ships in this round. Any future PR that proposes a name outside the family (`application-alerts-email`, `application-messages-push`) reads against this reservation and stops at author-side check.
 
 Digest opt-in on the preferences UI is elicited on the sibling channel, not here: the preferences UI carries a disabled section per sibling channel that is not yet applied, labelled `data-preference-status="sibling not applied"`. When the sibling ships and the applying project applies it, that sibling's own blueprint reads the operator's preference state and drives the digest transport.
 
@@ -47,8 +47,8 @@ Every route the applying project ships renders with both live-region wrappers pr
 Every runtime-observable AC that is not bound to a pack check appears here individually per the gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
 
 - **AC-20101-2 live-region factory identity stable across route changes**. The pack asserts the wrappers are preseeded on every declared route (AC-20101-1); it does not assert the two wrappers are the same DOM nodes across route changes (a factory that recreates the wrappers on route change passes AC-20101-1 but fails AC-20101-2). A v1.1 minor bump could persist a `data-live-region-id` on each wrapper and assert identity across a `browser.click` on a nav link.
-- **AC-20102-2 toast factory library-scope shape**. The pack drives the runtime toast surface (AC-20102-1); the library-scope AC on the factory's own signature is a project-side review concern.
-- **AC-20103-2 centre factory reads through the delivery-log endpoint**. The pack drives the item enumeration and the acknowledge round-trip (AC-20103-1); the library-scope AC on the factory's own delivery-log read is a project-side review concern.
+- **AC-20102-2 toast factory library-scope shape**. The pack drives the runtime toast surface (AC-20102-1); the library-scope AC on the factory's own signature is a project-side check concern.
+- **AC-20103-2 centre factory reads through the delivery-log endpoint**. The pack drives the item enumeration and the acknowledge round-trip (AC-20103-1); the library-scope AC on the factory's own delivery-log read is a project-side check concern.
 - **AC-20104-1 preferences category silence**. The preferences surface renders per-category toggles but the pack does not itself activate a silence toggle and assert the round-trip today. A v1.1 minor bump could add a preferences-round-trip check paralleling AC-20103-1.
 - **AC-20104-2 sibling-channel digest section disabled when no sibling applied**. The fixture renders the disabled sections and the pack could inspect them, but the AC's real bite is when a sibling channel ships and the disabled state must lift; this class stays a v1.1 minor bump candidate for when the first sibling ships.
 - **AC-20105-1 delivery-log endpoint shape**. The pack does not enumerate every row on the log (the delivery-log's persistence is delegated to the applied `logging` companion). A v1.1 minor bump could add a log-shape probe that reads `/api/delivery-log`, asserts the row shape and confirms append-only order.
@@ -74,7 +74,7 @@ WCAG 4.1.3 Status Messages on the live-region contract (REQ-001, ADR-2101). ARIA
 
 ## Consumers and dependencies
 
-- Consumes the applied `logging` companion (or the shelf provider `observability-logging`) for the delivery-attempt log write path (REQ-005, TAC-2102) and every acknowledge round-trip record. A project without a `logging` companion applied sees the delivery-log endpoint returning an empty rows array, which fails project-side review.
+- Consumes the applied `logging` companion (or the shelf provider `observability-logging`) for the delivery-attempt log write path (REQ-005, TAC-2102) and every acknowledge round-trip record. A project without a `logging` companion applied sees the delivery-log endpoint returning an empty rows array, which fails project-side check.
 - Consumes the applied `errorHandling` companion (or the shelf provider `application-error-handling`) for the assertive-slot alert's internal error record when an acknowledge round-trip fails at the server.
 - Reserves the `application-notifications-` family prefix for sibling channel blueprints (see above).
 - Reuses the pack-browser `resize(width, height)` seam only for future minor bumps; v1.0.0 does not exercise breakpoint reflow in the pack.

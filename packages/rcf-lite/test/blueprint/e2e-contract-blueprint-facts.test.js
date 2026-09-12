@@ -79,7 +79,7 @@ test('AC-1102-2: application-spa ships US-1134 and US-1135 as browser-facing (sc
 
 test('AC-1102-3: delivery-ci-workflows v2.2.0 US-6124 binds an AC naming the four e2e-job points', async () => {
   const meta = await readJson(join(ciSource, 'blueprint.json'));
-  // Hardening pass B4 (2026-09-09): delivery-ci-workflows 2.2.0 -> 2.3.0
+  // delivery-ci-workflows 2.2.0 -> 2.3.0
   // (elicits block, deliveredBy on every REQ, F-1/F-2/F-3 closures).
   // US-6124 and AC-6124-1 are unchanged; the version marker advances only.
   // Test name kept verbatim so the rcf-lite dogfood TC-031-ci-us-6124

@@ -16,7 +16,7 @@
 //     https://developers.cloudflare.com/api/operations/worker-script-
 //     upload-worker-module.
 //   (The Workers subdomain surface is deliberately absent - see NOTE
-//   below the workerList export. Dave ruling 376b4f30.)
+//   below the workerList export. convention. )
 //
 // Every method reads the account id and token from process.env at call
 // time so a test can boot the process without them (envAssert throws
@@ -27,7 +27,7 @@
 //
 // Every response body is parsed as JSON when the content-type says so,
 // text otherwise. Non-2xx bodies are captured verbatim in the thrown
-// Error so a probe FAIL tail names the exact API failure Dave reads
+// Error so a probe FAIL tail names the exact API failure the operator reads
 // line by line.
 
 const DEFAULT_API_BASE = 'https://api.cloudflare.com/client/v4';
@@ -101,7 +101,7 @@ export async function kvDeleteNamespace({ id, title }) {
     const { json } = await callJson('DELETE', `/accounts/${accountId}/storage/kv/namespaces/${id}`);
     return { id, title: title || null, deleted: true, api: json };
   } catch (err) {
-    // Idempotency (Dave ruling 4e9ff62d item 3+4): a 404 on delete
+    // Idempotency (convention): a 404 on delete
     // means the namespace is already gone; treat as success so a
     // botched-retry teardown does not strand siblings on the second
     // pass.
@@ -179,13 +179,13 @@ export async function queueDelete({ id, name }) {
     const { json } = await callJson('DELETE', `/accounts/${accountId}/queues/${id}`);
     return { id, name: name || null, deleted: true, api: json };
   } catch (err) {
-    // Idempotency (Dave ruling 4e9ff62d item 3+4).
+    // Idempotency (convention).
     if (err && err.status === 404) return { id, name: name || null, deleted: true, alreadyGone: true };
     throw err;
   }
 }
 
-// Paginated queue list (Dave ruling 4e9ff62d item 5). Cloudflare
+// Paginated queue list (convention). Cloudflare
 // Queues list endpoint returns result_info with page + per_page +
 // total_count fields (documented at
 // https://developers.cloudflare.com/api/operations/queue-list-queues).
@@ -271,7 +271,7 @@ export async function workerDelete({ name }) {
     const { json } = await callJson('DELETE', `/accounts/${accountId}/workers/scripts/${encodeURIComponent(name)}`);
     return { name, deleted: true, api: json };
   } catch (err) {
-    // Idempotency (Dave ruling 4e9ff62d item 3+4): a 404 means the
+    // Idempotency (convention): a 404 means the
     // script is already gone; treat as success so a botched-retry
     // teardown proceeds to the queue delete rather than stranding it.
     if (err && err.status === 404) return { name, deleted: true, alreadyGone: true };
@@ -279,7 +279,7 @@ export async function workerDelete({ name }) {
   }
 }
 
-// Paginated worker script list (Dave ruling 4e9ff62d item 5).
+// Paginated worker script list (convention).
 // Workers script listing is cursor-based: the response's
 // result_info.cursor points at the next page when more remain, and
 // is absent or empty on the final page.
@@ -302,7 +302,7 @@ export async function workerList() {
 
 // NOTE: the CF Workers subdomain endpoints (documented as script-level
 // subdomain and account-level subdomain per the Cloudflare API) are
-// deliberately absent (Dave ruling 376b4f30). The throwaway consumer
+// deliberately absent (convention). The throwaway consumer
 // Worker is invoked BY THE QUEUE, not over HTTP, so no public dev
 // URL is needed; the subdomain endpoint is also a state change on
 // the operator account that is refused on review. The driver
@@ -356,7 +356,7 @@ export async function queueConsumerDelete({ queueId, consumerId }) {
     const { json } = await callJson('DELETE', `/accounts/${accountId}/queues/${queueId}/consumers/${consumerId}`);
     return { queueId, consumerId, detached: true, api: json };
   } catch (err) {
-    // Idempotency (Dave ruling 4e9ff62d items 3+4): a 404 on detach
+    // Idempotency (convention): a 404 on detach
     // means the consumer binding is already gone; treat as success
     // so a botched-retry teardown proceeds to the Worker delete
     // rather than stranding siblings.

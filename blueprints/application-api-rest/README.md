@@ -1,6 +1,6 @@
 # application-api-rest blueprint (v2.0.0)
 
-The second content blueprint on the rcf-build-lite blueprint mechanism (design brief v2, ratified; Phase 3 of the blueprint programme). Scope: a REST service, single deployable, versioned wire contract, no UI in scope. Composes with the application-spa blueprint by design, including two deliberate scope:global conflicts.
+The second content blueprint on the rcf-build-lite blueprint mechanism (design brief v2; phase 3 of the blueprint programme). Scope: a REST service, single deployable, versioned wire contract, no UI in scope. Composes with the application-spa blueprint by design, including two deliberate scope:global conflicts.
 
 ## Apply
 
@@ -27,9 +27,9 @@ The doc set is contributions (copied into the project tree by `rcf define bluepr
 
 ## What it contributes, and what it deliberately does not
 
-Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (ratified decision 5) and no code.
+Contributed kinds: REQ, US (with inline ACs), TAC, ADR. Adherence is expressed as ACs; the blueprint ships no test files (shipped policy 5) and no code.
 
-No FBS contributions, as a matter of principle (ratified policy 2026-08-19): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing.
+No FBS contributions, as a matter of principle (policy): FBSs are the work of the implementing agent, not the blueprint; project constraints have to be applied at the time of creation. The blueprint contributes the WHAT; the implementing agent derives the HOW-tasks (FBS) in the host project, where the ACs contributed here get picked up by the project's own build sequencing.
 
 ## The four global decisions
 

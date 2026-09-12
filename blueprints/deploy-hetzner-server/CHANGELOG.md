@@ -120,7 +120,7 @@ Defect list fixed:
 
 Also: the three mocked probe modules (cloud-init-render-lint, manifest-schema-validate, hcloud-dry-run-mock) no longer read any process.env.SIMULATE_ switch inside the probe body per the mutation-purity gate row. The switches live entirely inside fixture-side files (src/cloud-init-renderer.mjs, src/hcloud-mock.mjs, src/provisioner-facade.mjs and the fixture-side run-manifest-schema-validate.mjs shim) and alter INPUT only. The hcloud-dry-run-mock probe now consumes the SAME rendered cloud-init file the real path consumes (renderer writes it, both the mock and real path read it) and asserts an ssh public-key line under the deploy user plus a NOPASSWD directive naming that user (REQ-145 / AC-14501-1). Report envelopes under .rcf/reports/blueprints/deploy-hetzner-server/ regenerated from the real run.
 
-Live-account gate carries a maintainer resource-hygiene rule: the throwaway server is destroyed at teardown and the account inventory is confirmed clean before the record is written, so a real run leaves the Hetzner account in the state it started in with zero orphaned servers, snapshots or firewalls.
+Live-account gate carries a resource-hygiene rule: the throwaway server is destroyed at teardown and the account inventory is confirmed clean before the record is written, so a real run leaves the Hetzner account in the state it started in with zero orphaned servers, snapshots or firewalls.
 
 Defect (8) container-host and edge-tunnel stub drivers are OUT of scope for the shipped real-account gate; a later blueprint release covers them.
 
@@ -156,7 +156,7 @@ Mints the shared `hetzner-throwaway-server` fixture under
 they do not ship a second copy).
 
 Trace: hetzner-shipped-spec-2026-09-07.md section 5.1;
-maintainer ruling 2026-09-07 09:50Z (decisions 18 through 24 approved as
+Approved decisions
 recommended, "shipped - agreee to all").
 
 Follow-on ratification (2026-09-09): Adds three option-binding ACs to close section 7c on the elicits catalogue - provisioning-tool raw-api (AC-37101-5), server-type SKU enum (AC-37103-4 naming every shipped SKU), location enum (AC-37103-5 naming every shipped datacentre). Adds deliveredBy on REQ-003, REQ-005, REQ-006. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-37101-2, AC-37105-1, AC-37108-1, AC-37108-2, AC-37108-3).

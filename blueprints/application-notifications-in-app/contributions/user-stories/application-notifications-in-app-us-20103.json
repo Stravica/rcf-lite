@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-20103-2",
-      "description": "Given the centre factory (TAC-2102 `renderCentre`), the factory reads the delivery-attempt log from REQ-005's endpoint and emits one wrapper per row within the retention window; a factory that emits rows older than the retention window, or that skips rows within the window, fails at project-side review.",
+      "description": "Given the centre factory (TAC-2102 `renderCentre`), the factory reads the delivery-attempt log from REQ-005's endpoint and emits one wrapper per row within the retention window; a factory that emits rows older than the retention window, or that skips rows within the window, fails at project-side check.",
       "given": "the centre factory",
       "when": "the delivery log is read",
       "then": "one wrapper is emitted per row within the retention window",

@@ -29,7 +29,7 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
   assert.equal(doc.version, '1.3.7');
   assert.equal(doc.category, 'observability');
   assert.deepEqual(doc.providesRoles, ['logging']);
-  // Hardening pass B4 (2026-09-09): sessionInventory removed per section 7c
+  // sessionInventory removed per section 7c
   // (no requirement, story or TAC responsibility ever backed it on this
   // blueprint; owner is security-auth-clerk TAC-1003 interfaces.sessionInventory).
   // auditLog stays: application-admin-console AC-21105-1 reads it through

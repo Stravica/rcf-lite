@@ -19,7 +19,7 @@ Rules for new topics (inherited from the application-spa, application-api-rest, 
 
 ## Id number bands (registry bootstrap)
 
-AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.5.0 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is ratified policy (2026-08-19); this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands (v1.1 candidate).
+AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.5.0 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is policy; this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands (v1.1 candidate).
 
 This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
 
@@ -64,7 +64,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 14101-14108 sit at the LOW end of the 14101-14899 band on purpose. A project-side story that mechanically derives from an observability-probe-endpoints REQ id into the number `14108` would collide against observability-probe-endpoints-US-14108 in this package; the band leaves headroom at the HIGH end (US 14181-14899) so a project's own stories anchored to observability-probe-endpoints REQs can allocate without conflict. The watchpost run4 lesson applies here too. Band spacing between the previous shelf-lane row (persistence-data-d1, 13101-13899, 14xx) and this one (14101-14899, 15xx) reflects the four-digit widening pattern opened by security-auth-clerk at 10xx and continued through the round-2 shelf lane.
+US 14101-14108 sit at the LOW end of the 14101-14899 band on purpose. A project-side story that mechanically derives from an observability-probe-endpoints REQ id into the number `14108` would collide against observability-probe-endpoints-US-14108 in this package; the band leaves headroom at the HIGH end (US 14181-14899) so a project's own stories anchored to observability-probe-endpoints REQs can allocate without conflict. Band spacing between the previous shelf-lane row (persistence-data-d1, 13101-13899, 14xx) and this one (14101-14899, 15xx) reflects the four-digit widening pattern opened by security-auth-clerk at 10xx and continued through the second shelf-lane block.
 
 ## Shared expectations for future composing blueprints
 

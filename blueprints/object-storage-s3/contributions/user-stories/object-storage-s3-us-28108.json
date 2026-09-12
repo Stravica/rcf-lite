@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "status": "approved",
   "title": "R2 real-account smoke as an accountBound probe that skips cleanly without CI_HAS_CLOUDFLARE_ACCOUNT",
-  "asA": "gate reviewer running the ship gate without a Cloudflare-account CI secret",
+  "asA": "gate operator running the ship gate without a Cloudflare-account CI secret",
   "iWant": "r2-real-account-smoke to record accountBoundSkipped:true with verdict pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset, and to run a real round-trip against R2 when it is set",
   "soThat": "the gate stays green on contributors without a Cloudflare account and still proves the R2 adapter on a bound runner",
   "acceptanceCriteria": [

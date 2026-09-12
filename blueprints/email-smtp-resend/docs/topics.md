@@ -10,7 +10,7 @@ The neutrality rule (round-2 amendment) applies: `email-smtp-resend` ships alone
 
 ## Id number bands (registry bootstrap)
 
-AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is ratified policy (2026-08-19); this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands.
+AC ids (and therefore US numeric ids, which anchor them) are NOT namespaced by the 0.4.4 schema grammar; the band allocation IS the AC-collision enforcement mechanism. Composing blueprints take a fresh band rather than proposing namespaced AC ids. Band allocation is policy; this table is the shared registry-bootstrap replicated across every shipped and forthcoming blueprint's `docs/topics.md` until a mechanism-side central registry lands.
 
 This table is maintained shelf-wide across every blueprint's `docs/topics.md`. Rows are recorded at ship, never predicted.
 
@@ -55,8 +55,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 4101-4106 sit at the LOW end of the 4101-4899 band on purpose. A project-side story that mechanically derives from an email-smtp-resend REQ id into the number `4106` (leading `4` + sequence `106`) would collide against email-smtp-resend-US-4106 in this package; the band leaves headroom at the HIGH end (US 4181-4899) so a project's own stories anchored to email-smtp-resend REQs can allocate without conflict. The watchpost run4 lesson applies here too.
-
+US 4101-4106 sit at the LOW end of the 4101-4899 band on purpose. A project-side story that mechanically derives from an email-smtp-resend REQ id into the number `4106` (leading `4` + sequence `106`) would collide against email-smtp-resend-US-4106 in this package; the band leaves headroom at the HIGH end (US 4181-4899) so a project's own stories anchored to email-smtp-resend REQs can allocate without conflict.
 ## Shared expectations for future composing blueprints
 
 - The mail-adapter contract itself is owned by the magic-link blueprint's `TAC-504-security-auth-magic-link-email-delivery-adapter`, not by this blueprint. A sibling `email-smtp-<othervendor>` blueprint that plugs into the same slot inherits the four-class error taxonomy (`RESEND_*` codes generalise to a `<VENDOR>_*` prefix on the sibling; the class semantics stay the same), the retry-and-backoff posture (ADR-402 is a supersede target), and the webhook signature-and-replay discipline (the header names, the algorithm identifier, and the tolerance window remain configuration references; the vendor's specifics live on the sibling's own `docs/topics.md`).

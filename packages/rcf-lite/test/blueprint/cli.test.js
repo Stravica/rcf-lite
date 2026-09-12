@@ -338,7 +338,7 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
 });
 
 // ---------------------------------------------------------------------------
-// HQ round-2 review findings (w-2026-08-19-008 rev-2):
+// Round-2 review findings:
 //   P1-1: supersede accepts camelCase topics (shipped SPA + REST are
 //         camelCase — authModel, errorEnvelope); option 3 as printed
 //         is executable end-to-end against the shipped blueprints.
@@ -357,7 +357,7 @@ import { resolve as _resolveP } from 'node:path';
 // the repo root's blueprints/ tree (../../../blueprints/application-spa,
 // ../../../blueprints/application-api-rest relative to
 // packages/rcf-lite/test/blueprint/). Use them verbatim; this is the
-// probe HQ round-2 will re-run.
+// second round-2 probe re-run.
 const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-spa');
 const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-api-rest');
 
@@ -382,7 +382,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // Reshaped header prints the raw camelCase topic in parens.
   assert.match(conflict.stderr, /conflict on topic \(authModel\)/);
   assert.match(conflict.stderr, /conflict on topic \(errorEnvelope\)/);
-  // Round-3 (Baz ruling): option 3 carries `--incoming <source>` where
+  // Round-3 ruling: option 3 carries `--incoming <source>` where
   // <source> is the same source the operator just typed on the refused
   // add — so the printed command is copy-paste-runnable.
   const shippedRestRe = shippedRest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -391,7 +391,7 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
 
   // 3. Run option 3 EXACTLY as printed — no prep, no --resolve, no
   //    hand-edits — for BOTH conflicting topics. This was the money
-  //    probe HQ round-3 targeted.
+  //    round-3 probe target.
   const supAuth = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel', '--incoming', shippedRest]);
   assert.equal(supAuth.code, 0, `supersede authModel: ${supAuth.stderr}\n${supAuth.stdout}`);
   assert.match(supAuth.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);
@@ -597,7 +597,7 @@ test('rcf define blueprint add <bare-shelf-slug> records the RESOLVED ABSOLUTE P
 });
 
 // ---------------------------------------------------------------------------
-// remove-resolution verb (spec amendment A2, w-2026-09-03-dave-021).
+// remove-resolution verb (spec amendment A2).
 // Drops one manifest.resolutions[] entry by resolvedByAdrId. The verb
 // prints one result line; refuses exit 2 on a malformed or unknown id;
 // idempotent on a re-run when the ruling ADR still exists on the tree.

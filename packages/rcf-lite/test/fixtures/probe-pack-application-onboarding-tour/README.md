@@ -63,7 +63,7 @@ Prints `LISTENING <port>` once bound.
 - `/dashboard` dashboard surface (mounts the checklist at dashboard-top when `TOUR_APPS` contains `application-dashboard`).
 - `/settings`, `/account`, `/account/settings` settings surface (renders the restart-tour control and the checklist at settings-page anchor).
 
-## Manual boot for the gate reviewer
+## Manual boot for the gate operator
 
 Two lines, one per fixture apps combination the section 6 T-5 gate rows walk (checklist branch), plus one per completion-store branch:
 

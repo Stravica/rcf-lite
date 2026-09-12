@@ -62,7 +62,7 @@ A project that declares `principalDirectory` (so apply is not refused at the bar
 2. Renders the shell WITHOUT a security tab (AC-25101-1, probed by the pack).
 3. Refuses the security surface at load time through TAC-2603 hosted-ui-bridge if a project-side FBS renders `/account/security` regardless (project-side enforcement per AC-25110-1 known mechanism-reach gap, spec section 5.4.1).
 
-No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per the ratified spec Q3 decision, the shell never lies about a surface that has no home.
+No `auth managed elsewhere` placeholder ships from the shipped shell surface. Per the shipped spec Q3 clause, the shell never lies about a surface that has no home.
 
 ## Custom-auth projects (auth outside the shelf)
 
@@ -96,7 +96,7 @@ Runtime-observable ACs the pack does NOT bind directly (checklist section 6.g), 
 - **AC-25104-1 (hosted-embed sandbox token beyond allow-scripts).** The pack's AC-25105-1 confirms `allow-scripts` in the sandbox; the wider token set is documented on ADR-2602 but not additionally asserted.
 - **AC-25105-2 (session-terminate focus-trap behaviour).** The pack's AC-25106-1 asserts the dialog is present and correctly wired; the focus-trap and focus-return behaviour is asserted at fixture-read time and by the project-side smoke tests, not by the pack's browser evaluate at v1.
 - **AC-25107-1 (notification-preferences surface capability discovery).** The pack does NOT probe the notifications surface at v1.0.0; the shell tabs check (AC-25101-1) confirms the tab renders only when `application-notifications-in-app` is applied via the fixture's `?apps=` switch. A future v1.1.0 minor bump can add a dedicated notifications surface check.
-- **AC-25109-1 and AC-25109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate reviewer runs the CLI directly.
+- **AC-25109-1 and AC-25109-2 (apply-time refusal and override).** Probed by the mechanism unit tests, not by the browser pack. The gate operator runs the CLI directly.
 - **AC-25110-1 (Q3 apply-time refusal for a missing security capability).** Probed by the mechanism unit tests via the extended `runElicitationPhase` refusal path (added in this PR), not by the browser pack.
 
 ## Known schema follow-ups

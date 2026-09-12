@@ -30,7 +30,7 @@ Secrets are declared by name only, in the deploy blueprint's discipline: no `[se
 
 Bootstrap-and-steady-state guidance for setting the values lives on the deploy blueprint's `bootstrap-vs-steady-state.md` asset; the shape is the same for both Clerk secrets.
 
-## The auth-gate bypass finding
+## The auth-gate bypass
 
 The default `[assets]` binding on a Cloudflare Worker serves any file in the assets directory at its path before the Worker's `fetch` handler runs. If an auth-gated route (`/notes` for a UI page, `/api/notes` for an API surface) collides with a static file at the same path, the static file is served without ever hitting the middleware. This is a silent auth bypass at ship time; a project ships assuming the middleware protects `/notes` and only finds out on the first live probe that `/notes` returned the HTML shell to an unauthenticated request.
 

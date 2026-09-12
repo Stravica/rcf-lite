@@ -1,6 +1,6 @@
 # Charts blueprint (v1.0.4)
 
-Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.2 of the ratified visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard consumes it; no other blueprint on the shelf does.
+Vendor-neutral chart-component contract for a rcf-lite application. Ships the accessibility, palette, text-alternative and keyboard-traversal discipline every chart on the shipped surface must meet. Ships a Playwright probe pack under `probe-packs/application-charts.pack.mjs` whose three checks are the runtime gate the delivery-ci-workflows runner drives (section 5.2 of the visual specification). No new global topics; suggests the `logging` and `errorHandling` companions. Leaf blueprint: application-dashboard consumes it; no other blueprint on the shelf does.
 
 ## Apply
 
@@ -28,10 +28,10 @@ Deliberately not contributed: a choice of chart engine (Recharts, ECharts, Chart
 
 ## The engine refusal rule
 
-`ADR-1901` elicits the chart engine at apply, and refuses a canvas-only engine that offers no text-alternative surface. The refusal is documented here on the blueprint's README so applying projects and gate reviewers see the rule in one place:
+`ADR-1901` elicits the chart engine at apply, and refuses a canvas-only engine that offers no text-alternative surface. The refusal is documented here on the blueprint's README so applying projects and gate operators see the rule in one place:
 
 - Recharts, ECharts, Chart.js and D3 primitives all satisfy the shell contract when paired with the shell's text-alternative table slot. Chart.js's canvas surface is paired with the shell's `<table>` slot; the shell renders both, so screen readers reach the values.
-- A chart engine that renders exclusively to a `<canvas>` and does NOT offer either a shell-rendered `<table>` or an equivalent DOM path is refused at project-side review. The applying project either replaces the engine or supersedes this blueprint with a project-authored engine contract naming the residuals.
+- A chart engine that renders exclusively to a `<canvas>` and does NOT offer either a shell-rendered `<table>` or an equivalent DOM path is refused at project-side check. The applying project either replaces the engine or supersedes this blueprint with a project-authored engine contract naming the residuals.
 
 ## The one runtime gate
 
@@ -58,14 +58,14 @@ Every chart on the shipped surface mounts through the render shell (TAC-1901). E
 
 Every runtime-observable AC that is not bound to a pack check appears here individually per the gate discipline (`blueprint-authoring-checklist.md` section 6.g): categories are not enough. The pack has three checks; every other runtime-observable AC on this blueprint is a mechanism-reach gap named below.
 
-- **AC-18101-1 form-set membership**. the pack does not inspect a chart's declared form against the six-form set. A project-side review is the current mechanism. A v1.1 minor bump could add a fourth pack check reading the `data-chart-form` attribute the shell emits and asserting membership.
-- **AC-18101-2 shell-mount routing**. the pack does not inspect the mount seam; a chart bypass to the raw chart-library mount is caught at project-side review. A build-scan pre-check in a v1.1 minor bump can grep the applying project's source for engine-specific mount calls.
+- **AC-18101-1 form-set membership**. the pack does not inspect a chart's declared form against the six-form set. A project-side check is the current mechanism. A v1.1 minor bump could add a fourth pack check reading the `data-chart-form` attribute the shell emits and asserting membership.
+- **AC-18101-2 shell-mount routing**. the pack does not inspect the mount seam; a chart bypass to the raw chart-library mount is caught at project-side check. A build-scan pre-check in a v1.1 minor bump can grep the applying project's source for engine-specific mount calls.
 - **AC-18102-2 single-series exemption**. the pack does not skip single-series charts explicitly today; the runner reports `applicable: false` for the check on a surface with only single-series charts based on the DOM inspection. A v1.1 minor bump can formalise the skip on the pack seam.
 - **AC-18103-2 show-table control label and reading order**. the pack asserts the control is present but does not assert the control's accessible-name text or its position in tab order before the chart's data points. A v1.1 minor bump can add a pack check that tabs into the region and reads the tab order.
-- **AC-18104-2 non-interactive-chart exemption**. the pack does not skip non-interactive charts explicitly today; the check fails on a surface whose data points miss `tabindex="0"`, whether or not the chart is interactive. Project-side review names non-interactive charts and the reviewer skips the check by hand.
+- **AC-18104-2 non-interactive-chart exemption**. the pack does not skip non-interactive charts explicitly today; the check fails on a surface whose data points miss `tabindex="0"`, whether or not the chart is interactive. Project-side check names non-interactive charts and the operator skips the check by hand.
 - **AC-18105-1 palette contrast**. the pack does not measure contrast ratios today. Palette contrast is a build-scan surface (colour tokens are inspectable from the applied palette module). A v1.1 minor bump can add a Node build-scan pre-check that reads the applied palette and checks the ratios against WCAG 1.4.3 and 1.4.11.
 - **AC-18105-2 palette override fallback**. the fallback behaviour is exercised by the applying project's own tests, not this blueprint's pack. The applying project owns the assertion.
-- **AC-18106-1 canvas-only refusal**. the refusal is documented in the README's engine-refusal rule; project-side review enforces it. A v1.1 minor bump could add a pack pre-check that reads the applied engine and refuses on a canvas-only engine with no `<table>` companion.
+- **AC-18106-1 canvas-only refusal**. the refusal is documented in the README's engine-refusal rule; project-side check enforces it. A v1.1 minor bump could add a pack pre-check that reads the applied engine and refuses on a canvas-only engine with no `<table>` companion.
 - **AC-18106-2 engine-name marker**. the applying project ships the `data-chart-engine` attribute fixed on TAC-1901-application-charts-render-shell.responsibilities[6]. The pack does not assert this today; a v1.1 minor bump could read the marker and add it to the pack record for downstream tooling.
 
 ## Vision-deficiency emulation is a runner-seam gap

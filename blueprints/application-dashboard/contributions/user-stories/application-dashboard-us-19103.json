@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-19103-2",
-      "description": "Given a tile transitioning between states (loading to populated, populated to error) at runtime, the tile's `aria-live=\"polite\"` region announces the new state's accessible name to the assistive tech; the announcement text reads `<tile title>, <new state>` and the visual cue changes in the same paint. This AC is a runtime-observable behaviour on state transition; the pack does not simulate the transition today (the runner has no synthetic-event seam beyond click/type/press), so the AC is proven at project-side review and the README names the transition-observation gap under known mechanism-reach gaps.",
+      "description": "Given a tile transitioning between states (loading to populated, populated to error) at runtime, the tile's `aria-live=\"polite\"` region announces the new state's accessible name to the assistive tech; the announcement text reads `<tile title>, <new state>` and the visual cue changes in the same paint. This AC is a runtime-observable behaviour on state transition; the pack does not simulate the transition today (the runner has no synthetic-event seam beyond click/type/press), so the AC is proven at project-side check and the README names the transition-observation gap under known mechanism-reach gaps.",
       "given": "a tile transitioning between states",
       "when": "the transition renders",
       "then": "the aria-live polite region announces the new state's accessible name and the visual cue changes",

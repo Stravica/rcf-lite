@@ -249,7 +249,7 @@ test('four amended auth blueprints declare the ratified capability sets and obse
   assert.equal(ml.version, '1.2.7');
   assert.deepEqual(ml.capabilities, ['principalDirectory']);
   const log = JSON.parse(await readFile(join(LOGGING_BP, 'blueprint.json'), 'utf8'));
-  // Hardening pass B4 (2026-09-09): observability-logging 1.3.0 removes
+  // observability-logging 1.3.0 removes
   // sessionInventory per section 7c criterion a (no requirement, story or
   // TAC responsibility ever backed it on this blueprint). Ownership stays
   // with security-auth-clerk TAC-1003 interfaces.sessionInventory. The

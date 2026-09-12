@@ -20,7 +20,7 @@ Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID).
 
 ## Boot
 
-Two-line manual boot for the gate reviewer:
+Two-line manual boot for the gate operator:
 
 ```
 cd packages/rcf-lite/test/fixtures/probe-pack-application-charts

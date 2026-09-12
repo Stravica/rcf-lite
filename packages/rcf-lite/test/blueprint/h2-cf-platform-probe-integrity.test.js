@@ -57,13 +57,13 @@ test('H-2 hygiene AC-15401-1 SIMULATE_ purity across the four Cloudflare-platfor
 // aggregateVerdict pass. The previously committed fail envelope at
 // .rcf/reports/blueprints/platform-cloudflare-kv/event-secrecy.json is replaced
 // with a shipped-code pass envelope. This is the Group A gate promoted to a
-// durable test per HQ return of 2026-09-08.
+// durable test.
 test('H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/reports on the four blueprints', async () => {
   // Read the COMMITTED envelope from git HEAD rather than the working tree.
   // The kv event-secrecy anatomy child spawn overwrites its local envelope
   // with a mutation-run FAIL record during test-suite runs (Group A caveat);
   // this test asserts the durable committed state on the branch, which is the
-  // gate HQ evaluates.
+  // gate the aggregator evaluates.
   let inspected = 0;
   const offenders = [];
   for (const bp of BLUEPRINTS) {
@@ -110,8 +110,7 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
   assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry "cannot yet gate" wording after D2 reword');
   assert.doesNotMatch(kvReadme, /cannot yet gate/i, 'KV README must not carry "cannot yet gate" wording after D2 reword');
   assert.match(kvChangelog, /a loader-capability follow-up/, 'KV CHANGELOG names the loader-capability follow-up in neutral terms');
-  // F-3 register sweep (2026-09-09 review fix pass) removes internal work-item ids from
-  // customer-facing README content; the CHANGELOG keeps the internal provenance instead.
+  // The README carries no internal work-item ids; the CHANGELOG can retain them.
   // The README still names the follow-up as a capability change out of scope for this patch.
   assert.match(kvReadme, /follow-up capability change/, 'KV README names the follow-up capability change');
 });

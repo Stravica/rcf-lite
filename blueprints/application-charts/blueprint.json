@@ -15,7 +15,7 @@
   "elicits": [
     {
       "id": "chart-engine",
-      "prompt": "Chart engine the applying project ships. One of recharts, echarts, chart-js, d3-primitives or hand-authored-svg. A canvas-only engine that offers no text-alternative surface is refused at project-side review (ADR-1901).",
+      "prompt": "Chart engine the applying project ships. One of recharts, echarts, chart-js, d3-primitives or hand-authored-svg. A canvas-only engine that offers no text-alternative surface is refused at project-side check (ADR-1901).",
       "kind": "enum",
       "options": [
         "recharts",

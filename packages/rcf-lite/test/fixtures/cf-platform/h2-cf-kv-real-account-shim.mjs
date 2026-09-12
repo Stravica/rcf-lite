@@ -8,7 +8,7 @@
 // (sweepOrphans) lists namespaces by prefix and deletes each by
 // exact name; the happy-path teardown never calls the sweep, and
 // the sweep is structurally unable to select a non-prefixed name
-// (Dave hard constraint 8be06ee5).
+// (hard constraint).
 //
 // Throwaway prefix (reused so the gate's orphan grep keeps working
 // unchanged): "h2-cf-probe-integrity-scratch-kv-". Key prefix used
@@ -100,7 +100,7 @@ export async function destroyScratchNamespace(record) {
       return { destroyed: null, reason: 'scratch-missing' };
     }
   }
-  // Two independent guards (Dave hard constraint 3): target.id must
+  // Two independent guards (hard constraint): target.id must
   // exist AND the title carries the throwaway prefix. Either failure
   // aborts the delete loudly rather than firing against the wrong
   // resource.
@@ -133,7 +133,7 @@ export async function destroyScratchNamespace(record) {
 // Pure selection function extracted from sweepOrphans so a safety
 // test can feed a live account listing and assert the filter selects
 // zero live-named resources without any delete path being exercised
-// (Dave hard constraint 4; live-inventory variant of the sweep-safety
+// (hard constraint; live-inventory variant of the sweep-safety
 // test). No IO, no mutation.
 export function selectSweepCandidates(listing) {
   if (!Array.isArray(listing)) return [];

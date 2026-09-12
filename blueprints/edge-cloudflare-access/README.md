@@ -111,7 +111,7 @@ under the fixture root.
   `real-account-gated-url` probe (skipped in CI without both env
   vars per section 3.5).
 
-## Two-line gate-reviewer boot
+## Two-line gate-operator boot
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge

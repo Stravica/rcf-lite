@@ -41,4 +41,4 @@ Every rendered chart on the surface mounts through the render shell; every multi
 
 ## Spec provenance
 
-The shipped v1.0.0 realises the ratified visual specification for chart components verbatim; where the shell contract carries a documented deviation, the blueprint README names it under the engine-refusal or mechanism-reach sections.
+The shipped v1.0.0 realises the visual specification for chart components verbatim; where the shell contract carries a documented deviation, the blueprint README names it under the engine-refusal or mechanism-reach sections.

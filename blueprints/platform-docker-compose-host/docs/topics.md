@@ -59,7 +59,7 @@ This table is maintained shelf-wide across every blueprint's `docs/topics.md`. R
 | platform-docker-compose-host | 38101-38899 | 39xx | shipped v1.0.0 | `containerHostContract` |
 | edge-cloudflare-tunnel | 39101-39899 | 40xx | shipped v1.0.0 | `edgeIngressBridge` |
 
-US 38101-38109 sit at the LOW end of the 38101-38899 band on purpose (watchpost run-4 lesson). A project-side story mechanically derived from a platform-docker-compose-host REQ id into the number 38109 would collide against the shipped US-38109; band headroom (38110-38899) leaves that space.
+US 38101-38109 sit at the LOW end of the 38101-38899 band on purpose. A project-side story mechanically derived from a platform-docker-compose-host REQ id into the number 38109 would collide against the shipped US-38109; band headroom (38110-38899) leaves that space.
 
 Platform-docker-compose-host suffixes for this blueprint use the 3901-3904 block, continuing the widening pattern (deploy-hetzner-server 3801-3804 for the host sibling).
 

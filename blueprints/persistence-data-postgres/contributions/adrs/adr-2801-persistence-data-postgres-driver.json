@@ -22,7 +22,7 @@
     {
       "name": "Hyperdrive as the shipped v1.0.0 driver",
       "summary": "Ship Hyperdrive-wrapped pg as the v1.0.0 default.",
-      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service and the round-5 spec ruling 5 (maintainer decision) places Postgres as the local-first blueprint. Making Hyperdrive the default would force every project to bind to a Cloudflare account before applying the blueprint. Round 6 lands Hyperdrive as a v1.1.0 minor adapter behind an elicit, keeping local-first at v1.0.0."
+      "reasonNotChosen": "Hyperdrive is a Cloudflare-account-bound service and the round-5 spec sibling reservation places Postgres as the local-first blueprint. Making Hyperdrive the default would force every project to bind to a Cloudflare account before applying the blueprint. A follow-up v1.1.0 minor lands Hyperdrive as an adapter behind an elicit, keeping local-first at v1.0.0."
     }
   ],
   "createdAt": "2026-09-06T15:47:00.000Z",

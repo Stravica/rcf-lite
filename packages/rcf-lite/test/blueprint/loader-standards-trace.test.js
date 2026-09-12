@@ -4,8 +4,7 @@
 // Covers TS-044: loader accepts standardsTrace[] and per-ADR
 // recommendedDefault / elicited / standardsTraceClause, refuses missing
 // standardsTraceClause on any ADR contribution when standardsTrace is
-// declared, and does NOT cross-check MUST-to-kind mapping (amendment A2
-// Baz 2026-09-04T12:20:31Z).
+// declared, and does NOT cross-check MUST-to-kind mapping (amendment A2).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

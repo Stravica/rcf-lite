@@ -53,13 +53,13 @@ pnpm start
 ```
 
 `wrangler dev` picks its own port and prints the local URL. The
-fixture never binds `4200` (Dave's workspace server owns that
+fixture never binds `4200` (the operator's workspace server owns that
 port).
 
 ## Fixture-JWT signer boot line
 
 The probes start the fixture-JWT signer in-process; a manual boot
-for the gate reviewer looks like:
+for the gate operator looks like:
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge
@@ -97,7 +97,7 @@ the process running while a `wrangler dev` process points at it.
 the fixture route table is intentionally minimal (`/` returns the
 principal reflected as JSON, `/health` is exempt from the validator).
 
-## Two-line gate-reviewer boot for the local probes
+## Two-line gate-operator boot for the local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge
@@ -160,7 +160,7 @@ additions are additive.
 | --- | --- | --- |
 | `CF_ZONE_ID` | Cloudflare zone id the drift-audit runner fetches rules for. Never inlined in a manifest file. | unset |
 | `CF_API_TOKEN` | Cloudflare API token the drift-audit runner sends as a bearer credential (real-account only). Never inlined in a manifest file. | unset |
-| `CF_RATE_LIMIT_URL` | Scheduled HQ-owned URL the `real-account-burst-and-429` probe fires against under `CI_HAS_CLOUDFLARE_ACCOUNT=true`. | unset |
+| `CF_RATE_LIMIT_URL` | Scheduled real-account URL the `real-account-burst-and-429` probe fires against under `CI_HAS_CLOUDFLARE_ACCOUNT=true`. | unset |
 | `CI_HAS_CLOUDFLARE_ACCOUNT` | Gate for the `real-account-burst-and-429` probe per spec section 3.5 and ruling 6. Without it the probe records `accountBoundSkipped: true` and aggregates to `pass`. | unset |
 | `SIMULATE_MANIFEST_MISSING` | Move one manifest file to a scratch location so `manifest-presence` surfaces the missing basename in the detail. | unset |
 | `SIMULATE_SCHEMA_INVALID` | Write a manifest file with a missing `threshold` field so `manifest-schema-validate` surfaces the invalid file. | unset |
@@ -169,7 +169,7 @@ additions are additive.
 Every switch restores the fixture tree before the probe exits;
 mutation checks in the anatomy test verify the negative path.
 
-### Two-line gate-reviewer boot for the T-6 local probes
+### Two-line gate-operator boot for the criterion-e local probes
 
 ```
 cd packages/rcf-lite/test/fixtures/cf-edge

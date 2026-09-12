@@ -177,7 +177,7 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4, worke
         const keyEncoded = nsMatch[2] || null;
         if (!nsId) {
           if (req.method === 'GET') {
-            // Paginated (Dave ruling 4e9ff62d item 5): mirror CF's
+            // Paginated (convention): mirror CF's
             // page + per_page shape so the client's pagination loop
             // is exercised by tests.
             const all = [...state.kvNamespaces.values()];
@@ -334,7 +334,7 @@ export function createMockCfApi({ maxConcurrency = 8, consumerDelayMs = 4, worke
       if (wMatch) {
         const scriptName = wMatch[1] || null;
         if (!scriptName && req.method === 'GET') {
-          // Cursor-based pagination (Dave ruling 4e9ff62d item 5).
+          // Cursor-based pagination (convention).
           // Each page returns up to WORKER_PAGE_SIZE items and a
           // cursor to the next page; empty cursor means final page.
           const WORKER_PAGE_SIZE = 100;

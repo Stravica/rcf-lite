@@ -33,7 +33,7 @@ No `requiresAppliedCapabilities`: the blueprint has no hard dependency, and the 
 
 ## Q4 fallback: completion-state store shape
 
-Q4 of the ratified spec (section 10) settles the completion-state fallback. When no persistence blueprint is applied AND the operator does not answer `completion-state-store` explicitly, the store defaults to `spa-local-storage`: a per-browser record so a returning principal on the same browser is not re-onboarded, and a different browser is re-onboarded. Rationale: a per-session tour that re-plays on every new session is worse than a one-time tour that persists across sessions on that browser; per the elicit surface, the operator can override to `spa-session-storage` (per-session refresh) or `server-side-per-principal` (cross-device; requires an applied persistence blueprint).
+Q4 of the shipped spec (section 10) settles the completion-state fallback. When no persistence blueprint is applied AND the operator does not answer `completion-state-store` explicitly, the store defaults to `spa-local-storage`: a per-browser record so a returning principal on the same browser is not re-onboarded, and a different browser is re-onboarded. Rationale: a per-session tour that re-plays on every new session is worse than a one-time tour that persists across sessions on that browser; per the elicit surface, the operator can override to `spa-session-storage` (per-session refresh) or `server-side-per-principal` (cross-device; requires an applied persistence blueprint).
 
 ## Standards trace
 

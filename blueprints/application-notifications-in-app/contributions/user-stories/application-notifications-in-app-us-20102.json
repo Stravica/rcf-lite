@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-20102-2",
-      "description": "Given the toast factory (TAC-2101 `renderToast({ priority, body })`), the factory picks the polite wrapper for `info` priority and the assertive wrapper for `error` priority; a factory that writes into both wrappers on one call, or picks the wrong wrapper for a priority, fails at project-side review.",
+      "description": "Given the toast factory (TAC-2101 `renderToast({ priority, body })`), the factory picks the polite wrapper for `info` priority and the assertive wrapper for `error` priority; a factory that writes into both wrappers on one call, or picks the wrong wrapper for a priority, fails at project-side check.",
       "given": "the toast factory",
       "when": "the factory is invoked at a given priority",
       "then": "the correct wrapper receives the toast",
