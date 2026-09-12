@@ -7,7 +7,7 @@ The blueprint claims no new global topics at v1.0.0. The datatable shell is a ge
 ## Deliberately unclaimed topics
 
 - `dataGridEngine` (the chosen data-table library). Reserved for the applying project as an elicited choice, not a global topic; a second datatable-shaped blueprint that composes with a specific engine would either supersede this blueprint or share the shell TAC.
-- `columnRegistry` (a shared column vocabulary across surfaces). No blueprint claims it today; a future admin-console blueprint (visual round) may elicit column reuse without minting a global topic.
+- `columnRegistry` (a shared column vocabulary across surfaces). No blueprint claims it today; a future admin-console blueprint may elicit column reuse without minting a global topic.
 
 ## Shelf id band and suffix block
 

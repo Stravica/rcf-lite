@@ -29,7 +29,7 @@ Deliberately not contributed: a choice of chart engine (the charts blueprint's A
 
 ## The packaged design guidance
 
-`assets/guidance/dashboard-design.md` is a shipped asset the applying agent reads at apply and the gate reviewer references at ship. Eight sections cover the ratified surface rules:
+`assets/guidance/dashboard-design.md` is a shipped asset the applying agent reads at apply and the probe pack references at ship. Eight sections cover the ratified surface rules:
 
 1. Primary KPI placement (hardens into AC-19102-1)
 2. Tile density and count limits (stays operator guidance)

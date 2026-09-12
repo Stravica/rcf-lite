@@ -1,0 +1,177 @@
+// Shared helpers for application-datatable probes.
+//
+// The engine under probe is the sample-app fixture at
+// packages/rcf-lite/test/fixtures/probe-pack-application-datatable/server.js. The
+// fixture stamps an x-fixture-request-id header on every response as
+// part of its own request pipeline (no probe-side monkey-patch), so
+// the identifier the probe records is the identifier the engine
+// itself issued. Probes call the fixture over real HTTP via node's
+// fetch, vary inputs, assert derived outputs, and record the
+// request-id, status, body excerpt, the varied input and the derived
+// output as evidence on every result row.
+// No account-bound branch: the engine is a local fixture, not a
+// third-party account, so no CI_HAS_* gate is invented. Every env
+// var this pack reads is declared on the fixture README.
+
+import { mkdir, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+export const PROJECT_ROOT = resolve(HERE, '..', '..', '..', '..');
+export const FIXTURE_DIR = resolve(PROJECT_ROOT, 'packages/rcf-lite/test/fixtures/probe-pack-application-datatable');
+export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/application-datatable');
+
+export const DEFAULT_PORT = 0;
+
+export function aggregate(results) {
+  if (!Array.isArray(results) || results.length === 0) return 'fail';
+  if (results.some((r) => r.verdict === 'fail')) return 'fail';
+  if (results.some((r) => r.verdict === 'warn')) return 'warn';
+  return 'pass';
+}
+
+// Empty results never pass: a synthesised row is emitted with an actionable detail and its
+// own evidence object recording the empty condition so the row is
+// not a naked verdict scalar.
+export function normaliseResults(results) {
+  if (!Array.isArray(results) || results.length === 0) {
+    return [{
+      anchorReqId: 'unknown',
+      verdict: 'fail',
+      detail: 'no checks ran',
+      evidence: {
+        reason: 'empty-results',
+        route: 'n/a',
+        status: 0,
+        xFixtureRequestId: null,
+        bodyExcerpt: '',
+      },
+    }];
+  }
+  return results;
+}
+
+export async function writeReport({ probeName, engine, results, extra }) {
+  await mkdir(REPORT_DIR, { recursive: true });
+  const report = {
+    slug: 'application-datatable',
+    probeName,
+    runAt: new Date().toISOString(),
+    engine,
+    results,
+    aggregateVerdict: aggregate(results),
+    ...(extra ?? {}),
+  };
+  const path = resolve(REPORT_DIR, `${probeName}.json`);
+  await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
+  return { report, path };
+}
+
+// Starts the fixture on an ephemeral port (or PROBE_PORT when set)
+// and returns { server, port, baseUrl, close }. The close helper
+// rejects when the underlying close callback carries an error;
+// swallowing a teardown error would hide a boundary failure.
+export async function startFixture({ startServer, port } = {}) {
+  const resolvedPort = typeof port === 'number'
+    ? port
+    : Number(process.env.PROBE_PORT ?? DEFAULT_PORT);
+  const started = await startServer({ port: resolvedPort });
+  return {
+    server: started.server,
+    port: started.port,
+    baseUrl: `http://127.0.0.1:${started.port}`,
+    close: () => new Promise((res, rej) => started.server.close((err) => {
+      if (err) rej(err);
+      else res();
+    })),
+  };
+}
+
+// Reads a distinctive slice of a response body: the first N chars
+// so the report carries a body excerpt alongside the header id.
+export function bodyExcerpt(text, max = 240) {
+  if (text == null) return '';
+  const s = typeof text === 'string' ? text : String(text);
+  return s.length > max ? s.slice(0, max) + '...' : s;
+}
+
+// Records the positive-evidence shape on a probe result. Every row
+// carries route, status, the request id the fixture stamped, and a
+// body excerpt; the caller may extend the object with the varied
+// input and the derived output for that row.
+export function evidenceFromResponse({ route, response, bodyText, extraFields }) {
+  return {
+    route,
+    status: response.status,
+    xFixtureRequestId: response.headers.get('x-fixture-request-id') || null,
+    bodyExcerpt: bodyExcerpt(bodyText),
+    ...(extraFields ?? {}),
+  };
+}
+
+export async function runShim(probeName, engine, mainFn) {
+  try {
+    const outcome = (await mainFn()) ?? { results: [] };
+    const { results, extra } = outcome;
+    const { report, path } = await writeReport({ probeName, engine, results: normaliseResults(results), extra });
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    process.stdout.write(`report written to ${path}\n`);
+    if (report.aggregateVerdict !== 'pass') process.exitCode = 1;
+  } catch (err) {
+    const results = [{
+      anchorReqId: 'unknown',
+      verdict: 'fail',
+      detail: `probe threw: ${err && err.message ? err.message : String(err)}`,
+      evidence: {
+        reason: 'probe-threw',
+        route: 'n/a',
+        status: 0,
+        xFixtureRequestId: null,
+        bodyExcerpt: err && err.stack ? String(err.stack).slice(0, 240) : '',
+      },
+    }];
+    const { report, path } = await writeReport({ probeName, engine, results });
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    process.stderr.write(`probe error: ${err && err.stack ? err.stack : String(err)}\n`);
+    process.stderr.write(`report written to ${path}\n`);
+    process.exitCode = 1;
+  }
+}
+
+// Browser-observable properties are AMBER on the shelf by ruling.
+// A row that names such a property is recorded as notObservableHere
+// carrying an object with the AC id and a reason; the tally script
+// reads notObservableHere.ac to accept the row.
+export function notObservableHereResult({ ac, anchorAcId, detail, reason, evidence } = {}) {
+  // A notObservableHere row anchors nothing else: no anchorAcId,
+  // no anchorReqId - only notObservableHere.ac.
+  const acId = ac || anchorAcId;
+  return {
+    verdict: 'pass',
+    notObservableHere: {
+      ac: acId,
+      reason: reason || 'not observable on server-side probe pack; needs a browser-driven runner',
+    },
+    detail: detail || 'not observable on server-side probe pack',
+    evidence: {
+      reason: reason || 'not observable here; needs a browser-driven probe runner',
+      ...(evidence || {}),
+    },
+  };
+}
+
+// A row that keeps a real observation but records that the
+// observation only covers part of an AC uses conformanceOnly +
+// limitation carrying the AC id and the property not observed.
+export function conformanceOnlyResult({ anchorAcId, anchorReqId, verdict, detail, evidence, limitation }) {
+  return {
+    ...(anchorAcId ? { anchorAcId } : {}),
+    ...(anchorReqId ? { anchorReqId } : {}),
+    verdict: verdict || 'pass',
+    conformanceOnly: true,
+    limitation: limitation || 'browser-observable property not asserted from the server-side probe',
+    detail,
+    evidence,
+  };
+}
