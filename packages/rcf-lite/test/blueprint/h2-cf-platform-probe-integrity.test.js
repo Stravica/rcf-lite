@@ -86,12 +86,9 @@ test('H-2 hygiene AC-15401-2 no fail or warn envelope committed under .rcf/repor
 });
 
 // TS-184 / TC-184-marker-hygiene-four-blueprints (AC-15401-3):
-// Probe comments name test doubles honestly. The stage-1 marker:fake rows on
-// the four blueprints have all been reworded (Groups A/B) to name in-process
-// implementations honestly; the "fake" token no longer survives in any probe
-// body on the four blueprints. Follow-up "not yet" wording in the KV
-// CHANGELOG/README was reworded at D2 with an explicit follow-up work-item
-// pointer.
+// Probe comments name in-process test doubles honestly; the block asserts
+// the "fake" token does not appear in any probe body on the four
+// blueprints.
 test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the four blueprints', async () => {
   const fakeHits = [];
   for (const bp of BLUEPRINTS) {
@@ -103,8 +100,8 @@ test('H-2 hygiene AC-15401-3 probe comments name test doubles honestly on the fo
     }
   }
   assert.equal(fakeHits.length, 0, `expected zero "fake" tokens in probe bodies on the four H-2 blueprints (rewored to name in-process / in-memory / synthetic test doubles honestly per H-2 Groups A/B); observed: ${fakeHits.slice(0, 6).join(' | ')}`);
-  // KV "not yet" reword: CHANGELOG and README should carry the follow-up
-  // work-item pointer instead of the "cannot yet gate" wording.
+  // KV CHANGELOG and README describe the unsupported elicitedNonEmpty
+  // predicate and the required loader-side capability extension.
   const kvChangelog = await readFile(join(REPO_ROOT, 'blueprints', 'platform-cloudflare-kv', 'CHANGELOG.md'), 'utf8');
   const kvReadme = await readFile(join(REPO_ROOT, 'blueprints', 'platform-cloudflare-kv', 'README.md'), 'utf8');
   assert.doesNotMatch(kvChangelog, /cannot yet gate/i, 'KV CHANGELOG must not carry "cannot yet gate" wording after D2 reword');
