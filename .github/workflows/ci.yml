@@ -19,6 +19,27 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Real age + sops engines for the security-secrets-management
+      # probes. `age` comes from the Ubuntu 24.04 archive; `sops` is
+      # pinned to a getsops release binary whose sha256 is verified
+      # against the release checksums.txt. Version and digest were
+      # cross-checked at
+      # https://github.com/getsops/sops/releases/tag/v3.13.3
+      # on 2026-09-11; bumping the pin requires re-verifying both.
+      - name: install age and sops for security-secrets-management probes
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y age
+          SOPS_VERSION=3.13.3
+          SOPS_SHA256=e5bec3346a873ae91d871550f3e698c1aad962aff462a080e40f25fde17fef6b
+          SOPS_URL="https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+          curl -fsSL -o /tmp/sops "$SOPS_URL"
+          echo "${SOPS_SHA256}  /tmp/sops" | sha256sum -c -
+          sudo install -m 0755 /tmp/sops /usr/local/bin/sops
+          age --version
+          age-keygen --version
+          sops --version --disable-version-check
       # RCF referees over the repo's own tree: schema/reference integrity,
       # then per-AC strict coverage (every AC bound to a TC whose
       # testPointer resolves to a real test). A stub TC or a new

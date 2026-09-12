@@ -8,14 +8,37 @@
  * Anchors AC-28101-1.
  */
 
-import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 
+export const DECLARED_ENV = Object.freeze(['S3_ENDPOINT_URL']);
+
+const AC28101_1 = 'On process boot, the facade opens an S3';
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC28101_1} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
-  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  let endpoint, bucket, region, forcePathStyle;
+  try {
+    ({ endpoint, bucket, region, forcePathStyle } = endpointFromEnv());
+  } catch (err) {
+    if (err instanceof MissingS3EndpointError) {
+      return { results: [skipRow(err.variable)], extra: { accountBoundSkipped: true, reason: `${err.variable} unset`, envDeclared: [...DECLARED_ENV] } };
+    }
+    throw err;
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: credentials,
@@ -28,16 +51,41 @@ export default async function runProbe() {
     await store.ready();
     const ready = events.find((e) => e.event === 'facadeReady');
     const endpointHost = new URL(endpoint).host;
-    const pass = ready && ready.endpointHost === endpointHost && ready.bucketName === bucket;
+    // Drive a HeadBucket call directly through the fixture's SDK
+    // client so the row carries a real vendor request id and HTTP
+    // status excerpt so the facade-ready and event-secrecy rows
+    // each carry per-row vendor evidence.
+    let vendorMetadata = null;
+    try {
+      const { loadSdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs'); const sdk = await loadSdk();
+      const head = await store.getClient().send(new sdk.HeadBucketCommand({ Bucket: bucket }));
+      vendorMetadata = head && head.$metadata ? {
+        httpStatusCode: head.$metadata.httpStatusCode,
+        requestId: head.$metadata.requestId,
+        extendedRequestId: head.$metadata.extendedRequestId,
+      } : null;
+    } catch (err) {
+      vendorMetadata = { error: err && err.message, httpStatusCode: err && err.$metadata && err.$metadata.httpStatusCode };
+    }
+    const pass = ready && ready.endpointHost === endpointHost && ready.bucketName === bucket && vendorMetadata && vendorMetadata.httpStatusCode === 200;
     results.push({
       anchorAcId: 'AC-28101-1',
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}`
-        : `facadeReady did not fire cleanly; events=${JSON.stringify(events)}`,
+        ? `${AC28101_1} - facadeReady fired with endpointHost=${ready.endpointHost} bucketName=${ready.bucketName}; HeadBucket returned ${vendorMetadata.httpStatusCode} (requestId=${vendorMetadata.requestId})`
+        : `${AC28101_1} - facadeReady did not fire cleanly; ready=${JSON.stringify(ready)} vendorMetadata=${JSON.stringify(vendorMetadata)}`,
+      evidence: {
+        facadeReadyEvent: ready || null,
+        endpointHost,
+        bucketName: bucket,
+        vendorRequestId: vendorMetadata && vendorMetadata.requestId,
+        vendorHttpStatus: vendorMetadata && vendorMetadata.httpStatusCode,
+        vendorMetadata,
+        allEvents: events,
+      },
     });
   } finally {
     await store.close();
   }
-  return results;
+  return { results, extra: { envDeclared: [...DECLARED_ENV] } };
 }

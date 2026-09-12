@@ -56,6 +56,6 @@ Every check carries a `description` field per spec section 9. `appliesTo` binds 
 
 ## Consumers and dependencies
 
-- Consumes `application-charts` (visual round): the chart region on every dashboard surface mounts through the application-charts render shell (TAC-1901). The dashboard pack does not duplicate the chart-accessibility ACs; the charts pack fires on the dashboard's chart route through its own applicability predicate.
-- References `application-datatable` (visual round) in the packaged design guidance's section 6 ("when a table beats a chart"). A dashboard whose data really wants a records table applies the datatable blueprint instead of overloading the tile row.
+- Consumes `application-charts`: the chart region on every dashboard surface mounts through the application-charts render shell (TAC-1901). The dashboard pack does not duplicate the chart-accessibility ACs; the charts pack fires on the dashboard's chart route through its own applicability predicate.
+- References `application-datatable` in the packaged design guidance's section 6 ("when a table beats a chart"). A dashboard whose data really wants a records table applies the datatable blueprint instead of overloading the tile row.
 - Extends the pack-browser seam with a `resize(width, height)` method; every blueprint after this one that ships a breakpoint-scoped visual AC reuses the seam.

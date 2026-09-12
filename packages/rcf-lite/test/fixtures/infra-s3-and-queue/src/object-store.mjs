@@ -14,20 +14,24 @@
  * AbortMultipartUpload on any thrown part-upload error.
  */
 
-import {
-  S3Client,
-  HeadBucketCommand,
-  PutObjectCommand,
-  GetObjectCommand,
-  DeleteObjectCommand,
-  ListObjectsV2Command,
-  CreateMultipartUploadCommand,
-  UploadPartCommand,
-  CompleteMultipartUploadCommand,
-  AbortMultipartUploadCommand,
-  ListMultipartUploadsCommand,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+// The @aws-sdk client and its presigner are loaded LAZILY inside
+// `createObjectStore` and via the exported `loadSdk()` helper so this
+// module can be imported (by probes, tools that walk the probe module
+// for its accountBound flag, or the anatomy test surface) under a CI
+// condition where the fixture's `node_modules` has not been installed
+// and S3_ENDPOINT_URL is unset. Every code path that resolves
+// @aws-sdk runs only after S3_ENDPOINT_URL is present and
+// `createObjectStore` is invoked, or a probe explicitly calls
+// `loadSdk()` on the run path.
+export async function loadSdk() {
+  return await import('@aws-sdk/client-s3');
+}
+
+async function loadSdkAndSigner() {
+  const awsS3 = await import('@aws-sdk/client-s3');
+  const { getSignedUrl } = await import('@aws-sdk/s3-request-presigner');
+  return { awsS3, getSignedUrl };
+}
 
 const DEFAULT_MULTIPART_THRESHOLD = 8 * 1024 * 1024; // 8 MiB per ADR-2903
 const DEFAULT_PART_SIZE = 8 * 1024 * 1024;
@@ -35,12 +39,32 @@ const DEFAULT_PRESIGN_TTL = 15 * 60; // 15 minutes per ADR-2902
 const PRESIGN_TTL_FLOOR = 60; // 1 minute per ADR-2902
 
 /**
- * Read the endpoint URL and bucket from environment defaults. MinIO on
- * localhost:9000 by default; overridden via env for CI runners and R2.
+ * Named error kind emitted when S3_ENDPOINT_URL is not set. Probes
+ * catch this and convert it to the exact-one-variable
+ * accountBoundSkipped row the anatomy asserts on; no literal endpoint
+ * host default lives in shipped fixture code.
+ */
+export class MissingS3EndpointError extends Error {
+  constructor() {
+    super('S3_ENDPOINT_URL is not set; set S3_ENDPOINT_URL to a reachable S3-compatible endpoint before invoking endpointFromEnv');
+    this.name = 'MissingS3EndpointError';
+    this.kind = 'missingS3Endpoint';
+    this.variable = 'S3_ENDPOINT_URL';
+  }
+}
+
+/**
+ * Read the endpoint URL and bucket from environment defaults. S3_ENDPOINT_URL
+ * is a required declared variable with no literal default; when it is
+ * unset the helper throws MissingS3EndpointError so consumers can emit
+ * the exact-one-variable accountBoundSkipped row rather than a generic
+ * driver failure.
  */
 export function endpointFromEnv() {
+  const endpoint = process.env.S3_ENDPOINT_URL;
+  if (!endpoint) throw new MissingS3EndpointError();
   return {
-    endpoint: process.env.S3_ENDPOINT_URL || 'http://localhost:9000',
+    endpoint,
     bucket: process.env.S3_BUCKET || 'rcf-test',
     region: process.env.S3_REGION || 'auto',
     forcePathStyle: (process.env.S3_FORCE_PATH_STYLE || 'true') === 'true',
@@ -66,7 +90,7 @@ export async function credentialsFromShim(secretsShim) {
  * defaults to 8 MiB per ADR-2903; defaultPresignTtl to 15 minutes per
  * ADR-2902; presignTtlFloor to 60 seconds per the same ADR.
  */
-export function createObjectStore({
+export async function createObjectStore({
   endpointUrl,
   bucket,
   credentialsRef,
@@ -81,6 +105,20 @@ export function createObjectStore({
   if (!credentialsRef) {
     throw new Error('object-storage-s3: credentialsRef is required; wire via security-secrets-management');
   }
+  const { awsS3, getSignedUrl } = await loadSdkAndSigner();
+  const {
+    S3Client,
+    HeadBucketCommand,
+    PutObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand,
+    ListObjectsV2Command,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    CompleteMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+    ListMultipartUploadsCommand,
+  } = awsS3;
   const client = new S3Client({
     endpoint: endpointUrl,
     region,
@@ -103,10 +141,14 @@ export function createObjectStore({
   async function withReady(fn) { await readyPromise; return fn(); }
 
   async function putSinglePart({ key, contentType, body }) {
-    await client.send(new PutObjectCommand({
+    const res = await client.send(new PutObjectCommand({
       Bucket: bucket, Key: key, ContentType: contentType, Body: body,
     }));
-    return body.length;
+    return {
+      size: body.length,
+      requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
+      eTag: res && typeof res.ETag === 'string' ? res.ETag : null,
+    };
   }
 
   async function putMultipart({ key, contentType, body, partSize }) {
@@ -129,17 +171,28 @@ export function createObjectStore({
         parts.push({ ETag: upload.ETag, PartNumber: partNumber });
         partNumber += 1;
       }
-      await client.send(new CompleteMultipartUploadCommand({
+      const complete = await client.send(new CompleteMultipartUploadCommand({
         Bucket: bucket, Key: key, UploadId: uploadId,
         MultipartUpload: { Parts: parts },
       }));
-      return body.length;
+      return {
+        size: body.length,
+        uploadId,
+        requestId: complete && complete.$metadata ? complete.$metadata.requestId || null : null,
+        eTag: complete && typeof complete.ETag === 'string' ? complete.ETag : null,
+      };
     } catch (err) {
+      // Attach the uploadId to the propagated error so a probe can
+      // positively record which upload was aborted; do NOT swallow an
+      // abort failure - attach it to the error too.
+      err.uploadId = uploadId;
       try {
         await client.send(new AbortMultipartUploadCommand({
           Bucket: bucket, Key: key, UploadId: uploadId,
         }));
-      } catch { /* best effort */ }
+      } catch (abortErr) {
+        err.abortError = { message: abortErr && abortErr.message, name: abortErr && abortErr.name };
+      }
       throw err;
     }
   }
@@ -151,11 +204,14 @@ export function createObjectStore({
 
     async putObject(key, contentType, body) {
       return withReady(async () => {
-        const size = body.length >= multipartThresholdBytes
+        const engineReturn = body.length >= multipartThresholdBytes
           ? await putMultipart({ key, contentType, body, partSize: partSizeBytes })
           : await putSinglePart({ key, contentType, body });
+        const { size, requestId, eTag, uploadId } = engineReturn;
+        // Event stream is metadata-only per AC-28105-1: engine-returned
+        // ids (requestId, eTag) live on the RETURN value, not the event.
         onEvent({ event: 'objectPut', ts: Date.now(), key, size, contentType });
-        return { size };
+        return { size, requestId, eTag, uploadId: uploadId || null };
       });
     },
 
@@ -171,14 +227,23 @@ export function createObjectStore({
         const chunks = [];
         for await (const chunk of res.Body) chunks.push(chunk);
         const body = Buffer.concat(chunks);
-        return { body, contentType: res.ContentType };
+        return {
+          body,
+          contentType: res.ContentType,
+          requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
+          eTag: res && typeof res.ETag === 'string' ? res.ETag : null,
+        };
       });
     },
 
     async deleteObject(key) {
       return withReady(async () => {
-        await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        const res = await client.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        const requestId = res && res.$metadata ? res.$metadata.requestId || null : null;
+        // Event stream is metadata-only per AC-28105-1: engine-returned
+        // requestId lives on the RETURN value, not the event record.
         onEvent({ event: 'objectDeleted', ts: Date.now(), key });
+        return { requestId };
       });
     },
 
@@ -191,6 +256,7 @@ export function createObjectStore({
           keys: (res.Contents || []).map((o) => o.Key),
           isTruncated: Boolean(res.IsTruncated),
           nextContinuationToken: res.NextContinuationToken || null,
+          requestId: res && res.$metadata ? res.$metadata.requestId || null : null,
         };
       });
     },
@@ -216,7 +282,11 @@ export function createObjectStore({
         const res = await client.send(new ListMultipartUploadsCommand({
           Bucket: bucket, Prefix: prefix,
         }));
-        return (res.Uploads || []).map((u) => ({ key: u.Key, uploadId: u.UploadId }));
+        const uploads = (res.Uploads || []).map((u) => ({ key: u.Key, uploadId: u.UploadId }));
+        const requestId = res && res.$metadata ? res.$metadata.requestId || null : null;
+        // Non-enumerable requestId keeps prior array-shape callers working
+        Object.defineProperty(uploads, 'requestId', { value: requestId, enumerable: false });
+        return uploads;
       });
     },
 

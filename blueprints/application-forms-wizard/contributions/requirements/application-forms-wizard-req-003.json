@@ -10,7 +10,7 @@
   "category": "functional",
   "domain": "application",
   "priority": "must",
-  "rationale": "Per visual round 4 spec section 5.3, REQ 3.",
+  "rationale": "Per the application-core specification section 5.3, REQ 3.",
   "tags": [
     "blueprint:application-forms-wizard",
     "category:03-error-summary"

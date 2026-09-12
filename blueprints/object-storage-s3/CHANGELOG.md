@@ -1,5 +1,76 @@
 # Changelog
 
+## 1.2.9 - 2026-09-12
+
+R2 and Hetzner account-bound skips now emit the exact anatomy-accepted shape (`<VAR> (not "true")` with no `set to "..."` preamble); a new synthetic negative-case test in the object-storage-s3 anatomy proves the accepted shapes parse to a bare declared env-var name and rejects the earlier malformed emissions. Anatomy pin bumped to 1.2.9.
+
+- fix: `blueprints/object-storage-s3/contributions/probes/r2-real-account-smoke.mjs` non-"true" skip emits `CI_HAS_CLOUDFLARE_ACCOUNT (not "true")` (no value preamble, no `set to`).
+- fix: `blueprints/object-storage-s3/contributions/probes/hetzner-object-storage-round-trip.mjs` non-"true" skip emits `CI_HAS_HETZNER_OBJECT_STORAGE (not "true")` (same rule).
+- test: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` adds `TC-071-skip-shape-negative` covering `CI_HAS_CLOUDFLARE_ACCOUNT`, `CI_HAS_HETZNER_OBJECT_STORAGE` and `S3_ENDPOINT_URL` in both accepted shapes and the malformed shapes the anatomy MUST reject (including the earlier R2 and Hetzner emissions that carried a `set to "..."` preamble).
+
+## 1.2.8 - 2026-09-12
+
+The Hetzner event-secrecy row anchor is corrected, the R2 inventory-diff row is de-claimed to `conformanceOnly`, the event-secrecy fixture stops leaking engine-returned ids on the lifecycle event stream, and `STRICT_ID_KEYS` is tightened to engine-returned scalars only. Anatomy pin bumped to 1.2.8.
+
+- fix: `blueprints/object-storage-s3/contributions/probes/hetzner-object-storage-round-trip.mjs` lifecycle-event whitelist row is now `conformanceOnly` naming AC-28105-1 (metadata-only lifecycle events, whose contract this row actually observes). It previously anchored AC-28110-1, which states endpoint composition / put-get-delete / teardown / skip / malformed-endpoint behaviour and does NOT state event secrecy.
+- fix: `blueprints/object-storage-s3/contributions/probes/r2-real-account-smoke.mjs` per-object inventory-diff row is now `conformanceOnly` naming AC-28108-2. The AC's object round-trip clause is anchored on the byte-equal put/get row (which carries the engine-returned `ETag`); R2 does not surface a per-object `$metadata.requestId` on `listObjects` / `deleteObject`, so the inventory-diff row has no engine-returned scalar id and cannot be an anchor.
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` `objectPut` and `objectDeleted` lifecycle events no longer carry `requestId` or `eTag` fields (AC-28105-1's metadata-only whitelist); the engine-returned ids live on the RETURN value of each verb, which the probes read directly.
+- fix: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` STRICT_ID_KEYS removed the plural / probe-selected keys (`requestIds`, `vendorRequestIds`, `metadataRequestId`, `httpRequestId`, `observedUploadId`, `dlqTransportMessageIds`, `primaryTransportMessageId`, `jobIds`, `dlqPayloadJobIds`, `expectedPayloadJobId`) so only engine-returned scalar identifiers qualify as id-witnesses.
+- prose: anatomy header comment corrected to describe the in-memory validation the anatomy performs (probes invoked directly; no `.rcf/reports` record read on this seam).
+
+
+## 1.2.7 - 2026-09-11
+
+Engine-returned identifiers only. The object-storage-s3 facade fixture now surfaces `$metadata.requestId` and `ETag` from every operation (`putObject`, `getObject`, `deleteObject`, `listObjects`, `listMultipartUploads`, `completeMultipartUpload`) as return-value scalars. Every counting probe row records `vendorRequestId` (and where the operation returns it, `eTag` or `uploadId`) as its engine-returned identifier witness, alongside its derived witnesses. STRICT_ID_KEYS on the anatomy shrank to engine-returned scalars only; the anatomy now also enforces that idWitness and derivedWitness sit under DIFFERENT keys. Anatomy pin bumped to 1.2.7.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` returns `{ size, requestId, eTag, uploadId }` from `putObject`, `{ body, contentType, requestId, eTag }` from `getObject`, `{ requestId }` from `deleteObject`, `{ keys, isTruncated, nextContinuationToken, requestId }` from `listObjects`, an array with a non-enumerable `requestId` from `listMultipartUploads`. Multipart `completeMultipartUpload` also propagates `uploadId` + `requestId` on the aggregate return.
+- fix: `put-get-round-trip`, `multipart-upload`, `presigned-url`, `event-secrecy`, `r2-real-account-smoke`, `hetzner-object-storage-round-trip` each stamp the engine-returned `vendorRequestId` (and `eTag` / `uploadId` where relevant) as their strict id witness on every counting row.
+- fix: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` STRICT_ID_KEYS retains engine-returned scalars only (`requestId`, `vendorRequestId`, `eTag`, `versionId`, `uploadId`, `queueId`, `messageId`, `jobId`, `rowId`, `insertedId`, `backendPid`, `transactionId`, `migrationVersion` and their labelled siblings). `bucketName`, `scratchBucket`, `queueName`, `databaseName` and the checksum keys were removed. Same-file strict-AND now asserts idWitness and derivedWitness sit under DIFFERENT keys.
+- prose: run-notes now says `S3_ENDPOINT_URL` is a required declared variable with no fixture default; the earlier "fixture default overridden" line was corrected.
+
+
+
+## 1.2.6 - 2026-09-11
+
+Lazy engine-client load discipline. Under a CI condition where the fixture's `node_modules` has not been installed and `S3_ENDPOINT_URL` is unset, the probe module surface must load without touching `@aws-sdk/client-s3`: an anatomy or tooling walk imports the probe, the probe calls `endpointFromEnv`, catches `MissingS3EndpointError`, and returns the exact one-variable `accountBoundSkipped` row. The prior module-level `import * as awsS3 from '@aws-sdk/client-s3'` and `import { getSignedUrl } from '@aws-sdk/s3-request-presigner'` in `object-store.mjs` resolved the SDK on module load and failed the anatomy TC-071-fixture-and-switches test with `ERR_MODULE_NOT_FOUND` in CI. The SDK is now loaded LAZILY inside `createObjectStore` and via the exported `loadSdk()` helper; `createObjectStore` is async and every probe `await`s it. Anatomy pin bumped to 1.2.6.
+
+- fix: `packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs` no longer carries module-level imports of `@aws-sdk/client-s3` or `@aws-sdk/s3-request-presigner`. The retired top-level `export const sdk = awsS3` is replaced by an exported async `loadSdk()` helper that returns the SDK namespace on demand; `createObjectStore` is async and loads the SDK plus signer inside its body, after `S3_ENDPOINT_URL` is present.
+- fix: every probe that instantiates the facade (`facade-round-trip`, `put-get-round-trip`, `presigned-url`, `multipart-upload`, `event-secrecy`, `r2-real-account-smoke`, `hetzner-object-storage-round-trip`) prefixes `createObjectStore` with `await`; behaviour on both the run path and the skip path is unchanged.
+- fix: the two probes that dip into raw SDK constructors on the run path (`facade-round-trip`, `event-secrecy`) now call `loadSdk()` on the same run-path branch that already dynamically imports the fixture facade; the SDK never resolves on the skip path.
+- fix: every counting row on `put-get-round-trip`, `multipart-upload`, `presigned-url` and `event-secrecy` carries `bucketName` as its string id witness so the row satisfies the strict AND-witness rule alongside its existing derived witnesses (the strict identifier predicate refuses non-string id keys).
+
+
+## 1.2.5 - 2026-09-11
+
+The probe owns its skip, the anatomy invokes every probe unconditionally, and no endpoint-host literal remains in shipped fixture code. The infra-s3-and-queue fixture helper `endpointFromEnv` no longer carries an endpoint-host default: when `S3_ENDPOINT_URL` is unset the helper throws a typed `MissingS3EndpointError` and each S3 local probe (facade-round-trip, put-get-round-trip, presigned-url, multipart-upload, event-secrecy) declares `DECLARED_ENV=['S3_ENDPOINT_URL']`, catches the error, and returns the exact one-variable `accountBoundSkipped` row rather than reaching a hard-coded endpoint. The anatomy no longer fabricates a skip row when the gate is unset; it invokes every probe and validates whatever comes back. The identifier predicate is now string-only (booleans, numbers, arrays and objects never qualify) and the limitation-token check sweeps every `AC-[A-Za-z0-9-]+` token. Anatomy pin bumped to 1.2.5.
+
+- fix: `endpointFromEnv` throws `MissingS3EndpointError` when `S3_ENDPOINT_URL` is unset; the retired endpoint-host default is gone from shipped fixture code.
+- fix: every S3 local probe (facade, put-get, presigned, multipart, event-secrecy) catches `MissingS3EndpointError` and returns the exact one-variable `accountBoundSkipped` row per authoring-standard section 7d.
+- fix: anatomy identifier predicate is string-only and non-empty; booleans, numbers, arrays and objects never satisfy an engine-minted id key.
+- fix: anatomy limitation-token regex broadened to `AC-[A-Za-z0-9-]+` so every AC token is checked for membership in the shipped user-story AC set.
+
+
+## 1.2.4 - 2026-09-11
+
+Strict-anatomy rewrite of the 7d witness rules. The anatomy test now REQUIRES an AC-id-membership check on every limitation and every notObservableHere.ac (must exist in the shipped user-story set), REQUIRES both an id-shape witness AND a derived-value witness on every non-declaimed row (strict AND), invokes every probe directly and validates each returned row in-memory, and requires accountBoundSkipped rows to name exactly one env var declared on the probe DECLARED_ENV. Anatomy pin bumped to 1.2.4. Probe enrichment scope: presigned-url row 2 now carries `refusalFired` and `refusalCode` alongside the `refused`/`requestedTtlSeconds`/`floorSeconds` derived witnesses. Section-header comment on the anatomy test rewritten to drop internal work-item terminology.
+
+- fix: run-notes correction so the DeleteBucket HTTP status matches the record (204).
+
+## 1.2.3 - 2026-09-11
+
+Positive-evidence conformance work on the probe pack (authoring standard section 7d), plus live-engine runs on Cloudflare R2 for the real-account probe. The r2-real-account-smoke and hetzner-object-storage-round-trip skip records carry a `reason` field naming the exact unset env var alongside `accountBoundSkipped: true`; both probes export a `DECLARED_ENV` list and gate every second-tier variable so an undeclared short-circuit is impossible. r2-real-account-smoke additionally records the S3 endpoint host prefix (redacted), a scratch bucket lifecycle (create with HTTP status, ListBuckets present-after-create with HTTP status, DeleteBucket with HTTP status, ListBuckets absent-after-delete with HTTP status), and an object round trip inside the scratch bucket (key, byteCount, byteEqual); vendor request ids on the R2 lifecycle rows are recorded when the S3 SDK surfaces them and omitted otherwise. Facade-round-trip and event-secrecy rows embed the vendor request id (SDK $metadata.requestId) and response excerpt from the underlying MinIO or R2 call directly on each result row. probe-utils' `runShim` accepts the `{results, extra}` envelope so account-bound probes surface `accountBoundSkipped`, `envDeclared` and `evidence` bags on the aggregate report; aggregate flips to pass when every result is an account-bound skip. The infra-s3-and-queue fixture README gains a Declared env vars table for the object-storage-s3 pack (endpoint quintet, R2 tier, Hetzner tier, induced-failure switches). Local MinIO runs cover the five in-process probes; the Cloudflare R2 branch mints a throwaway bucket and destroys it inside the run; the Hetzner branch honestly skips with `reason: CI_HAS_HETZNER_OBJECT_STORAGE unset`.
+
+- fix: r2-real-account-smoke mints and DELETES a scratch bucket via S3 CreateBucket/DeleteBucket, records each call's HTTP status, records the bucket present on ListBuckets after create and absent on ListBuckets after delete, and treats a failed inventory as a FAIL (never converted to an empty list). Bucket-lifecycle rows are conformance-only (anchorAcId: null) and their limitation names AC-28108-2 explicitly, since AC-28108-2 states an object-level round trip on an already-provisioned bucket, not bucket-level lifecycle; the object-round-trip and inventory-diff rows anchor AC-28108-2. Endpoint-resolution failure after a preflight is a FAIL, not a compound account skip.
+- fix: multipart-upload forces the induced-failure branch inside the probe (sets `SIMULATE_PART_UPLOAD_FAIL` for the second put, restoring the prior value on exit) so the abort-branch acceptance criterion always carries observed evidence, not "path not run". The propagated error carries `uploadId` and, when the abort itself fails, `abortError` (the uploader no longer swallows abort failures). The row records `observedUploadId` and `abortError` as evidence and matches `observedUploadId` against the create-multipart-upload response's id.
+- fix: presigned-url fetches the same URL after `ttl+2` seconds and asserts HTTP 403 per the presigned TTL acceptance criterion; the tampered-signature shortcut path is removed from the canonical row. The below-floor refusal row is anchored to the presigned TTL requirement (no AC states a below-floor refusal shape). The raw record carries a `urlSha256` of the fetched URL so URL identity across the two fetches is self-contained.
+- fix: hetzner-object-storage-round-trip's honest-skip rows name exactly one unset variable per row (one row for the gate, one for each second-tier variable when set-but-not-true); teardown of the scratch object AND the facade close are each recorded on a result row (a teardown FAIL fails the verdict).
+- fix: `run-*.mjs` shims replace the fabricated engine wrapper with a real MinIO `/minio/health/live` observation (httpStatus + responseTimeMs) for local runs; the R2 shim carries a real ListBuckets observation on the account.
+- fix: facade-round-trip and event-secrecy rows embed the vendor request id (SDK's `$metadata.requestId`) and a response excerpt from the underlying MinIO or R2 call on the row itself, not only in the report envelope.
+- fix: every result row on every probe carries its own `evidence` object; the shared `aggregate([])` helper returns `fail` with `no checks ran` instead of a default success verdict on an empty results array.
+- fix: the R2 evidence records a placeholder for the endpoint host prefix rather than the raw account-id fragment.
+- fixture: `src/bucket-ops.mjs` added (thin wrapper over `@aws-sdk/client-s3`'s bucket-lifecycle commands, dependency-resolved through the fixture's own `node_modules`) so the R2 probe drives scratch-bucket lifecycle without adding an SDK dep to rcf-lite. `src/object-store.mjs`'s multipart uploader attaches `uploadId` and, on abort failure, `abortError` to the propagated error instead of swallowing the abort.
+
+
 ## 1.2.2 (register patch, 2026-09-10)
 
 - Register: remove residual internal editorial and provenance phrases from README and guide (closes F-1, F-2 register findings).

@@ -19,6 +19,7 @@ import { resolve } from 'node:path';
 
 const PII_LITERALS = ['1234', '123-45-6789', 'test@example.com'];
 const EVENT_WHITELIST = new Set(['event', 'jobId', 'jobName', 'attempts', 'duration', 'timestamp', 'terminalErrorCode']);
+const AC_FIRST8 = 'With SIMULATE_PII_IN_JOB_INPUT=true set on the shared sample-app fixture,';
 
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
@@ -58,12 +59,25 @@ export default async function runProbe() {
   }
   const results = [];
   const pass = leaks.length === 0 && wrongKeys.size === 0 && events.some((e) => e.event === 'jobCompleted');
+  const engineJobId = (() => {
+    for (const e of events) if (typeof e.jobId === 'string' && e.jobId) return e.jobId;
+    return null;
+  })();
   results.push({
     anchorAcId: 'AC-jobs-eventSecrecy',
     verdict: pass ? 'pass' : 'fail',
     detail: pass
-      ? `no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
-      : `leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
+      ? `${AC_FIRST8} - no PII literal appears in the serialised run-log stream; every event carries only whitelisted keys ${JSON.stringify([...EVENT_WHITELIST])}; ${events.length} events recorded`
+      : `${AC_FIRST8} - leaks=${JSON.stringify(leaks)}; wrongKeys=${JSON.stringify([...wrongKeys])}; events=${JSON.stringify(events)}`,
+    evidence: {
+      jobId: engineJobId,
+      piiLiteralsChecked: PII_LITERALS,
+      leakedLiterals: leaks,
+      whitelist: [...EVENT_WHITELIST],
+      nonWhitelistedKeys: [...wrongKeys],
+      eventCount: events.length,
+      jobCompletedFired: events.some((e) => e.event === 'jobCompleted'),
+    },
   });
   return { results, extra: { events, piiLiterals: PII_LITERALS } };
 }

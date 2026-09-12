@@ -14,10 +14,15 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import pg from 'pg';
 import { connectionUrlFromEnv } from './store.mjs';
 
-const { Client } = pg;
+// The `pg` driver is loaded LAZILY inside `applyAll` so this module
+// can be imported without triggering the resolver when the fixture's
+// `node_modules` has not been installed.
+async function loadClient() {
+  const pgMod = await import('pg');
+  return pgMod.default.Client;
+}
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_MIGRATIONS_DIR = resolve(HERE, '..', 'migrations');
@@ -28,6 +33,7 @@ export async function applyAll({
   migrationsDir = DEFAULT_MIGRATIONS_DIR,
   onEvent = () => {},
 } = {}) {
+  const Client = await loadClient();
   const client = new Client({ connectionString: connectionUrl });
   await client.connect();
   const applied = [];

@@ -18,7 +18,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 21 contributions with capabilities queue, suggestedCompanions logging and errorHandling, and standardsTraceClause on every ADR entry (TC-072-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'messaging-queue-cloudflare');
-  assert.equal(doc.version, '1.1.2');
+  assert.equal(doc.version, '1.1.3');
   assert.equal(doc.category, 'messaging');
   assert.deepEqual(doc.capabilities, ['queue']);
   assert.equal(doc.contributions.length, 21);
@@ -206,9 +206,11 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
   } finally {
     if (savedAcct !== undefined) process.env.CI_HAS_CLOUDFLARE_ACCOUNT = savedAcct;
   }
-  // Account-set-no-tokens branch: fail with missing token env named; a
-  // pass is never reachable from CI_HAS_CLOUDFLARE_ACCOUNT alone
-  // (dispatch requirement 5, no third outcome).
+  // Account-set-no-tokens branch: pass-with-declared-skip per authoring
+  // standard section 7d. A bare verdict: fail without positive evidence
+  // is a 7d violation, so the credential-missing branch records
+  // accountBoundSkipped: true with a discrete `reason` field naming the
+  // exact unset env var(s), and the detail prose agrees with the reason.
   const savedAcctId = process.env.CF_ACCOUNT_ID;
   const savedToken = process.env.CF_API_TOKEN;
   delete process.env.CF_ACCOUNT_ID;
@@ -219,11 +221,190 @@ test('H-2 queue AC-15201-1 real-account-concurrency-smoke publishes 500 messages
     const rs = Array.isArray(out) ? out : (out && out.results) || [];
     const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
     assert.ok(r, 'account-set branch must still include an AC-29108-2 result');
-    assert.equal(r.verdict, 'fail', `account-set-no-tokens verdict must be fail; detail=${r.detail}`);
-    assert.match(r.detail, /CF_ACCOUNT_ID|CF_API_TOKEN/, 'fail detail names the missing token env');
+    assert.equal(r.verdict, 'pass', `account-set-no-tokens verdict must be pass with accountBoundSkipped per section 7d; detail=${r.detail}`);
+    assert.equal(r.accountBoundSkipped, true, 'account-set-no-tokens branch records accountBoundSkipped: true');
+    const reasonStr = r.reason || '';
+    assert.match(reasonStr, /CF_ACCOUNT_ID/, 'reason names CF_ACCOUNT_ID');
+    assert.match(reasonStr, /CF_API_TOKEN/, 'reason names CF_API_TOKEN');
+    assert.match(r.detail, /CF_ACCOUNT_ID/, 'skip detail names CF_ACCOUNT_ID');
+    assert.match(r.detail, /CF_API_TOKEN/, 'skip detail names CF_API_TOKEN');
+    assert.equal(/CI_HAS_CLOUDFLARE_ACCOUNT/.test(r.detail), false, 'skip detail on the account-set-no-tokens branch does not name CI_HAS_CLOUDFLARE_ACCOUNT (that variable is set on this branch)');
   } finally {
     if (savedAcctId !== undefined) process.env.CF_ACCOUNT_ID = savedAcctId;
     if (savedToken !== undefined) process.env.CF_API_TOKEN = savedToken;
     delete process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
+  }
+});
+
+// Pre-flight branches on the messaging queue concurrency smoke: only
+// the vendor's AFFIRMATIVE absence shape (HTTP 404 code 10007, or
+// HTTP 200 with an empty subdomain) is a declared skip; anything
+// else (401, 403, 429, 5xx, malformed body, unexpected status/code
+// combination) is a hard fail with the observed status and body code
+// in detail per authoring standard section 7d.
+async function withMockSubdomain(handler, fn) {
+  const { createServer } = await import('node:http');
+  const server = createServer(handler);
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const { port } = server.address();
+  const base = `http://127.0.0.1:${port}`;
+  const prev = {
+    CF_API_BASE_URL: process.env.CF_API_BASE_URL,
+    CF_ACCOUNT_ID: process.env.CF_ACCOUNT_ID,
+    CF_API_TOKEN: process.env.CF_API_TOKEN,
+    CI_HAS_CLOUDFLARE_ACCOUNT: process.env.CI_HAS_CLOUDFLARE_ACCOUNT,
+  };
+  process.env.CF_API_BASE_URL = base;
+  process.env.CF_ACCOUNT_ID = 'acct-anatomy';
+  process.env.CF_API_TOKEN = 'tok-anatomy';
+  process.env.CI_HAS_CLOUDFLARE_ACCOUNT = 'true';
+  try { await fn(); }
+  finally {
+    for (const [k, v] of Object.entries(prev)) {
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+    await new Promise((r) => server.close(r));
+  }
+}
+
+test('H-2 queue AC-29108-2 pre-flight affirmative-absence (HTTP 404 code 10007) is a declared skip; unclassified shapes fail with observed status and body code', async () => {
+  const modUrl = pathToFileURL(join(PROBES_DIR, 'real-account-concurrency-smoke.mjs')).href;
+  const mod = await import(modUrl);
+
+  // Affirmative absence: HTTP 404, success:false, errors:[{code:10007}].
+  await withMockSubdomain((req, res) => {
+    if (req.url.endsWith('/workers/subdomain')) {
+      res.writeHead(404, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ success: false, errors: [{ code: 10007, message: 'You do not have a workers.dev subdomain.' }], result: null }));
+      return;
+    }
+    res.writeHead(500, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ success: false, errors: [{ message: 'anatomy mock: no route' }] }));
+  }, async () => {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.ok(r, 'affirmative-absence branch must include an AC-29108-2 result');
+    assert.equal(r.verdict, 'pass', `affirmative-absence branch must record a declared skip; detail=${r.detail}`);
+    assert.equal(r.accountBoundSkipped, true, 'affirmative-absence records accountBoundSkipped: true');
+    assert.equal(r.reason, 'cloudflare-account-workers-dev-subdomain-not-provisioned', 'reason names the account prerequisite');
+    assert.match(r.detail, /status=404/, 'detail names observed status');
+    assert.match(r.detail, /errorCode=10007/, 'detail names observed error code');
+  });
+
+  // Affirmative absence: HTTP 200, success:true, result.subdomain empty.
+  await withMockSubdomain((req, res) => {
+    if (req.url.endsWith('/workers/subdomain')) {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ success: true, errors: [], result: { subdomain: '' } }));
+      return;
+    }
+    res.writeHead(500, {});
+    res.end();
+  }, async () => {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.equal(r.verdict, 'pass', `HTTP-200-empty-subdomain must record a declared skip; detail=${r.detail}`);
+    assert.equal(r.accountBoundSkipped, true, 'HTTP-200-empty-subdomain records accountBoundSkipped: true');
+    assert.equal(r.reason, 'cloudflare-account-workers-dev-subdomain-not-provisioned', 'reason names the account prerequisite');
+    assert.match(r.detail, /status=200/, 'detail names observed status');
+  });
+
+  // Non-absence failure: HTTP 401 auth error. Must fail with the
+  // observed status and body code in detail; the 7d rule refuses a
+  // skip on a shape the probe did not actually observe as absence.
+  await withMockSubdomain((req, res) => {
+    if (req.url.endsWith('/workers/subdomain')) {
+      res.writeHead(401, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ success: false, errors: [{ code: 10000, message: 'Authentication error' }], result: null }));
+      return;
+    }
+    res.writeHead(500, {});
+    res.end();
+  }, async () => {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.ok(r, '401 branch must include an AC-29108-2 result');
+    assert.equal(r.verdict, 'fail', `401 must fail; detail=${r.detail}`);
+    assert.equal(r.accountBoundSkipped, undefined, '401 fail does not carry accountBoundSkipped');
+    assert.match(r.detail, /status=401/, 'detail names observed 401 status');
+    assert.match(r.detail, /errorCode=10000/, 'detail names observed Cloudflare error code');
+  });
+
+  // Non-absence failure: HTTP 500 vendor error, unclassified shape.
+  await withMockSubdomain((req, res) => {
+    if (req.url.endsWith('/workers/subdomain')) {
+      res.writeHead(500, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ success: false, errors: [{ code: 9999, message: 'internal error' }], result: null }));
+      return;
+    }
+    res.writeHead(500, {});
+    res.end();
+  }, async () => {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.equal(r.verdict, 'fail', `500 must fail; detail=${r.detail}`);
+    assert.match(r.detail, /status=500/, 'detail names observed 500 status');
+  });
+
+  // Non-absence failure: malformed JSON body on an otherwise OK 200 -
+  // the probe cannot parse the response and refuses to declare a skip.
+  await withMockSubdomain((req, res) => {
+    if (req.url.endsWith('/workers/subdomain')) {
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end('this is not JSON');
+      return;
+    }
+    res.writeHead(500, {});
+    res.end();
+  }, async () => {
+    const out = await mod.default();
+    const rs = Array.isArray(out) ? out : (out && out.results) || [];
+    const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+    assert.equal(r.verdict, 'fail', `malformed body must fail; detail=${r.detail}`);
+    assert.match(r.detail, /parseError=/, 'detail names the JSON parse error');
+  });
+
+  // Non-absence failure: STRUCTURALLY malformed success bodies. Parsed
+  // JSON, HTTP 200, success:true - but the body does not conform to
+  // the vendor's documented result shape (result missing, result an
+  // array, subdomain key absent, subdomain of the wrong type, or a
+  // whitespace-only string). Each of these MUST fail as unclassified;
+  // a silent skip on a schema-malformed body would violate the 7d
+  // positive-evidence rule and swallow a real vendor / auth /
+  // proxy-rewrite regression as an accountBound skip.
+  const malformedStructures = [
+    { label: 'result missing',            body: { success: true, errors: [] } },
+    { label: 'result is null',            body: { success: true, errors: [], result: null } },
+    { label: 'result is an array',        body: { success: true, errors: [], result: [] } },
+    { label: 'result is a string',        body: { success: true, errors: [], result: 'my-subdomain' } },
+    { label: 'subdomain key absent',      body: { success: true, errors: [], result: {} } },
+    { label: 'subdomain is a number',     body: { success: true, errors: [], result: { subdomain: 42 } } },
+    { label: 'subdomain is a boolean',    body: { success: true, errors: [], result: { subdomain: false } } },
+    { label: 'subdomain is an object',    body: { success: true, errors: [], result: { subdomain: {} } } },
+    { label: 'subdomain is an array',     body: { success: true, errors: [], result: { subdomain: [] } } },
+    { label: 'subdomain is whitespace',   body: { success: true, errors: [], result: { subdomain: '   ' } } },
+  ];
+  for (const { label, body } of malformedStructures) {
+    await withMockSubdomain((req, res) => {
+      if (req.url.endsWith('/workers/subdomain')) {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(body));
+        return;
+      }
+      res.writeHead(500, {});
+      res.end();
+    }, async () => {
+      const out = await mod.default();
+      const rs = Array.isArray(out) ? out : (out && out.results) || [];
+      const r = rs.find((x) => x.anchorAcId === 'AC-29108-2');
+      assert.ok(r, `${label}: must include an AC-29108-2 result`);
+      assert.equal(r.verdict, 'fail', `${label}: structurally malformed 200 must fail; detail=${r.detail}`);
+      assert.equal(r.accountBoundSkipped, undefined, `${label}: schema-malformed fail does not carry accountBoundSkipped`);
+      assert.match(r.detail, /status=200/, `${label}: detail names observed 200 status`);
+    });
   }
 });

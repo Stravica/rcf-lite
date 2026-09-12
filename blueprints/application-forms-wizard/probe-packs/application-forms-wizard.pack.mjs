@@ -15,7 +15,7 @@
 //
 // Every check drives the real Playwright browser the runner
 // injects. URLs are composed by the withUrl(runtimeUrl, path)
-// helper per the round 3 fix train; no bare string
+// helper that joins runtime URL and path safely; no bare string
 // concatenation.
 //
 // Sample-app fixture:

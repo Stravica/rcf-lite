@@ -1,4 +1,20 @@
+# Changelog
+
+## 1.2.5 - 2026-09-11
+
+Anatomy suite tracks the strengthened shared helper (WARN-only shortcut removed, log objects and content lists no longer identifiers, retained anchor existence check). No probe changes required.
+
+## 1.2.4 - 2026-09-11
+
+shared anatomy helper tightened; probe-endpoints anatomy test passes shippedAcIds and browserOnlyAcIds into the helper and additionally checks every accountBoundSkipped row names exactly one declared env variable.
+
 # observability-probe-endpoints CHANGELOG
+
+## 1.2.3 - 2026-09-11
+
+Adds a contributions/probes/ pack (profile-boot-materialisation, kubernetes-startup-enabled, partial-profile-refusal) with a fixture-side profile registry and HTTP materialiser under packages/rcf-lite/test/fixtures/probe-pack-observability-probe-endpoints/. Probes run against the fixture on Node 24. No account gate.
+
+Anchoring: kubernetes-startup-enabled anchors AC-14102-4 with BOTH the enabled clause (three-path resolution; pre-ready GET /startup answers HTTP 503 body.status='fail'; post-markStartupReady GET answers HTTP 200 body.status='pass') AND the disabled clause (no enable flag: resolver returns two paths, GET /startup returns 404 with no /startup handler registered). profile-boot-materialisation observes bound-path behaviour for /live and /ready under the shipped kubernetes profile; the row de-claims (conformanceOnly, anchorAcId=null) with the limitation naming AC-14101-1 (port topology and handler-absence not observed). partial-profile-refusal observes an in-process refuseIfPartial refusal (stripped transport; startupEnabled without paths.startup) with the row de-claiming AC-14103-2 (process-level non-zero exit not observed at shelf); the shape presence check for the six shipped profiles de-claims AC-14103-1 (enum-membership per field not observed); the loadBalancer profile shape row de-claims AC-14103-3 (profile is not materialised and probed for handler absence). probe-utils normalisation and thrown-error rows carry an evidence object; the fallback anchorAcId is null.
 
 ## 1.2.1 (register-sweep patch, 2026-09-10)
 

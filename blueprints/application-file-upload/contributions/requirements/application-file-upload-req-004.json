@@ -10,7 +10,7 @@
   "category": "functional",
   "domain": "application",
   "priority": "must",
-  "rationale": "Per visual round 4 spec section 5.2, REQ 4.",
+  "rationale": "Per the application-core specification section 5.2, REQ 4.",
   "tags": [
     "blueprint:application-file-upload",
     "category:04-transport-contract"

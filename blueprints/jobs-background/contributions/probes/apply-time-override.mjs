@@ -19,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 
 import { PROJECT_ROOT } from './probe-utils.mjs';
 
+const AC_FIRST8 = 'On a fresh init scratch project with NO';
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BLUEPRINT_DIR = resolve(HERE, '..', '..');
 const RCF_BIN = resolve(PROJECT_ROOT, 'packages/rcf-lite/bin/rcf.js');
@@ -40,9 +42,12 @@ export default async function runProbe() {
     const init = await runNode([RCF_BIN, 'init'], { cwd: scratch });
     if (init.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - rcf init failed exit=${init.code} stderr=${init.stderr}`,
+        evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
     const apply = await runNode(
@@ -51,18 +56,24 @@ export default async function runProbe() {
     );
     if (apply.code !== 0) {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - apply --allow-no-queue-yet expected exit 0; got exit=${apply.code} stderr=${apply.stderr}`,
+        evidence: { applyExitCode: apply.code, applyStderrSample: apply.stderr.slice(0, 400) },
       }];
     }
     // Sidecar path.
     const sidecarPath = join(scratch, 'rcf', 'blueprints', 'jobs-background.applied.json');
     try { await stat(sidecarPath); } catch {
       return [{
-        anchorAcId: 'AC-jobs-overrideRecorded',
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
         verdict: 'fail',
-        detail: `sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - sidecar ${sidecarPath} missing after --allow-no-queue-yet apply`,
+        evidence: { sidecarPathAbsent: true },
       }];
     }
     const doc = JSON.parse(await readFile(sidecarPath, 'utf8'));
@@ -79,17 +90,34 @@ export default async function runProbe() {
       notesNotSecretsFamily: !notes.includes('no secrets-management yet'),
     };
     const pass = Object.values(checks).every(Boolean);
+    // The apply-time-override property is observed by CLI exit code
+    // and sidecar-notes grep; no engine-minted id is produced on this
+    // row (a sidecar-notes assertion, not a runtime job/message id).
+    // Row is conformanceOnly against AC-jobs-overrideRecorded with
+    // the no-engine-id clause named on the limitation.
     results.push({
-      anchorAcId: 'AC-jobs-overrideRecorded',
+      anchorAcId: null,
+      conformanceOnly: true,
+      limitation: `AC-jobs-overrideRecorded: with the override flag the apply verb exits 0 and the sidecar carries 'no queue yet' and '--allow-no-queue-yet' on notes; observed here through CLI exit code and sidecar grep. Not observed on this row: an engine-minted id (the sidecar-notes assertion is compose-time, not runtime).`,
       verdict: pass ? 'pass' : 'fail',
       detail: pass
-        ? `exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`
-        : `checks=${JSON.stringify(checks)}; notes='${notes}'`,
+        ? `${AC_FIRST8} - exit=0; sidecar recorded slug=jobs-background allowNoAuthYet=true appliedCapabilities=[]; notes carry 'no queue yet' + '--allow-no-queue-yet' + 'queue' and none of the auth/secrets family words`
+        : `${AC_FIRST8} - checks=${JSON.stringify(checks)}; notes='${notes}'`,
+      evidence: { checks, sidecarDoc: doc, exitCode: apply.code },
     });
     // Do NOT include the sidecarPath (a per-run tmp path) in the report;
     // the sidecar contents (doc) is the load-bearing evidence.
     return { results, extra: { sidecar: doc } };
   } finally {
-    try { await rm(scratch, { recursive: true, force: true }); } catch { /* ignore */ }
+    try { await rm(scratch, { recursive: true, force: true }); } catch (err) {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${TEARDOWN_PRECOND_LIM}`,
+        verdict: 'fail',
+        detail: 'conformanceOnly (' + TEARDOWN_PRECOND_LIM + ') - scratch dir teardown failed: ' + (err && err.message),
+        evidence: { teardownStep: 'rm scratch', error: err && err.message },
+      });
+    }
   }
 }

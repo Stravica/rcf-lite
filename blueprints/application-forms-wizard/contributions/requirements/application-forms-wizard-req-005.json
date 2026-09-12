@@ -10,7 +10,7 @@
   "category": "functional",
   "domain": "application",
   "priority": "must",
-  "rationale": "Per visual round 4 spec section 5.3, REQ 5.",
+  "rationale": "Per the application-core specification section 5.3, REQ 5.",
   "tags": [
     "blueprint:application-forms-wizard",
     "category:05-save-and-return"

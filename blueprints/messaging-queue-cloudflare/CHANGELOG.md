@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.3 (positive-evidence patch, 2026-09-10)
+
+- `real-account-concurrency-smoke.mjs`: skip results now carry a discrete `reason` field naming the exact unset environment variable or missing account prerequisite. The credential-missing branch (`CF_ACCOUNT_ID` or `CF_API_TOKEN` unset with `CI_HAS_CLOUDFLARE_ACCOUNT=true`) records `accountBoundSkipped: true` naming only the missing variables (never the gate variable that is set on that branch) rather than a bare fail, closing the authoring standard section 7d shape.
+- Adds a live pre-flight observation of the target Cloudflare account's workers.dev subdomain state via `GET /accounts/{id}/workers/subdomain` (verifiedOn 2026-09-10 per https://developers.cloudflare.com/api/resources/workers/subresources/subdomain/methods/get/). A `404` response or an empty `result.subdomain` marks the account as unprovisioned and the probe records `accountBoundSkipped: true` with a reason naming the missing account prerequisite and a detail carrying the observed status and Cloudflare error code as positive evidence. A provisioned subdomain causes the probe to run the mint / drive / teardown sequence unconditionally.
+- Teardown discipline hardened: if `destroyScratchQueueAndWorker` throws, the probe now records an additional `verdict: fail` result naming the potentially orphaned queue id, consumer worker name and telemetry KV id (`teardownFailed: true`, `orphaned: {...}`), so the aggregate verdict fails when live-account state may be dirty rather than passing on a stderr-only note.
+- `GITHUB_RUN_ID` is declared on the probe's `envDeclared` output and on the fixture's "Declared env vars" table (already read by the shim's run-id derivation, previously undeclared).
+- No capability change.
+
 ## 1.1.2 - 2026-09-10
 
 Register cleanup on shipped prose: neutral wording in the README six-probes paragraph, which now describes the probe module envelope directly. Guide `publishBatch` sample updated: the `x-trace-id` example values are now `trace-order-1001` and `trace-order-1002`, and a one-line pointer follows the sample to the owner at `TAC-3001.interfaces[2].description`. Anatomy pin updated to 1.1.2. Chain-consistency lint zero on pass 1 and pass 2. Closes criterion-f finding 1 for messaging-queue-cloudflare; finding 2 was verified as not a defect (the flagged tokens were `x-trace-id` header values in the sample rather than register labels, and the sample now uses order-scoped example values that remove the ambiguity).
