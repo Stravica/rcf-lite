@@ -1,28 +1,46 @@
-// Probe: manifest schema validate.
+// Probe: manifest schema validate (v1.1.8).
 //
-// anchorAcId: AC-37102-1 (also covers AC-37106-1 firewall shape and
-// AC-37107-1 snapshot cadence enum via the same schema). accountBound: false.
+// This is an offline schema validator: it reads the shipped fixture
+// manifests and checks them against `hetzner-server.schema.json`.
+// It has no engine-minted identifier - the sha256 of a manifest is
+// computed by this probe with Node's `createHash` and therefore
+// does not satisfy the semantic anatomy identifier rule; the
+// manifest name and JSON path are the probe's own choices.
+// Every result row is a `conformanceOnly` de-claim naming the
+// shipped AC clause the offline check does not observe:
 //
-// Validates every hetzner/servers/*.json under the shared throwaway-server
-// fixture against blueprints/deploy-hetzner-server/contributions/schemas/
-// hetzner-server.schema.json. A lightweight in-process draft-07 subset
-// validator ships with the probe so the shelf gains no runtime dependency
-// on ajv or similar. See validate() at the bottom.
+//   - AC-37102-1  general nine-required-fields schema shape,
+//   - AC-37106-1  firewall rule shape (ssh restricted, 80/443 open,
+//                 no other inbound),
+//   - AC-37107-1  snapshotCadence enum {weekly, daily, off}.
 //
-// Purity: the probe reads only the manifest dir and the shipped schema;
-// no process.env.SIMULATE_ switch is read here. The fixture-side shim
-// packages/rcf-lite/test/fixtures/hetzner-throwaway-server/
-// run-manifest-schema-validate.mjs is the sole reader of
-// SIMULATE_MANIFEST_INVALID and it mutates INPUT (a temp manifest dir
-// pointed at via RCF_FIXTURE_MANIFEST_DIR) only; the probe then FAILS
-// naming the offending field per hetzner-round-7-spec-2026-09-07.md
-// section 3.4 lesson 4.  (2026-09-08).
+// A single manifest emits ONE row per property, each carrying its
+// own `evidence` object. The hash of the manifest bytes and the
+// validator output stay on the row as derived context.
+//
+// Purity: no process.env.SIMULATE_ switch is read. Fixture-side
+// mutations live in the fixture-side run-manifest-schema-validate.mjs
+// shim; the probe reads only the schema and manifest tree.
 
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { readManifestFiles, SCHEMA_PATH } from './probe-utils.mjs';
 
-export const anchorAcId = 'AC-37102-1';
+function sha256(text) {
+  return createHash('sha256').update(text, 'utf8').digest('hex');
+}
+
+export const anchorAcId = null;
 export const accountBound = false;
+
+const NINE_REQUIRED = [
+  'name', 'serverType', 'location', 'image', 'sshKeyIds',
+  'firewallId', 'cloudInitPath', 'labels', 'firewallRules', 'snapshotCadence',
+];
+
+const LIMIT_37102 = 'AC-37102-1: manifest schema shape is validated offline against the shipped hetzner-server.schema.json; the live observation (a real-account apply that consumes the same manifest) is carried by real-account-throwaway-server-provision.';
+const LIMIT_37106 = 'AC-37106-1: firewall rule shape is validated offline against the shipped schema and the TAC-3804 binding; the live-account observation (a `hcloud firewall describe` on the applied firewall) would live on a real-account firewall probe.';
+const LIMIT_37107 = 'AC-37107-1: snapshotCadence enum is validated offline against the shipped schema enum; the live observation (a real-account server label matching the manifest cadence) lives on real-account-snapshot-on-demand.';
 
 export default async function runProbe() {
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
@@ -30,40 +48,174 @@ export default async function runProbe() {
   if (!present) {
     return {
       results: [{
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_37102,
         verdict: 'fail',
-        detail: 'fixture hetzner/servers/ holds zero JSON files; ship at least ci-throwaway.json.',
+        detail: 'offline manifest scan: fixture hetzner/servers/ holds zero JSON files; ship at least ci-throwaway.json.',
+        evidence: { manifestCount: 0 },
       }],
     };
   }
   const results = [];
   for (const f of files) {
+    const manifestSha256 = sha256(f.text);
     let doc;
     try {
       doc = JSON.parse(f.text);
     } catch (err) {
       results.push({
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_37102,
         verdict: 'fail',
-        detail: `manifest ${f.name} does not parse: ${err.message}`,
+        detail: `offline manifest scan: manifest ${f.name} does not parse: ${err.message}`,
+        evidence: { manifestSha256, manifestName: f.name, parseError: err.message },
       });
       continue;
     }
     const errors = validate(schema, doc, `#/${f.name}`);
-    if (errors.length > 0) {
-      for (const e of errors) {
-        const anchor = anchorForError(e);
+    // General schema errors that are neither firewall- nor snapshot-
+    // scoped anchor to AC-37102-1 (as their limitation).
+    const generalErrors = errors.filter((e) => (
+      e.field !== 'firewallRules' && !(e.path || '').includes('firewallRules')
+      && e.field !== 'snapshotCadence' && !(e.path || '').includes('snapshotCadence')
+    ));
+    if (generalErrors.length > 0) {
+      for (const e of generalErrors) {
         results.push({
-          anchorAcId: anchor,
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_37102,
           verdict: 'fail',
-          detail: `manifest ${f.name} schema violation at ${e.path}: ${e.message}`,
+          detail: `offline manifest scan: manifest ${f.name} schema violation at ${e.path}: ${e.message}`,
+          evidence: { manifestSha256, manifestName: f.name, jsonPath: e.path, message: e.message, field: e.field || null },
         });
       }
     } else {
+      const observedKeys = Object.keys(doc).sort();
       results.push({
-        anchorAcId,
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_37102,
         verdict: 'pass',
-        detail: `manifest ${f.name} validates against hetzner-server.schema.json (nine required fields, firewall rule shape, snapshotCadence enum all satisfied).`,
+        detail: `offline manifest scan: manifest ${f.name} carries the nine required fields per hetzner-server.schema.json.`,
+        evidence: {
+          manifestSha256,
+          manifestName: f.name,
+          requiredFields: NINE_REQUIRED,
+          observedKeys,
+        },
+      });
+    }
+    const firewallErrors = errors.filter((e) => e.field === 'firewallRules' || (e.path || '').includes('firewallRules'));
+    if (firewallErrors.length > 0) {
+      for (const e of firewallErrors) {
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_37106,
+          verdict: 'fail',
+          detail: `offline firewall shape scan: manifest ${f.name} firewall rule shape violation at ${e.path}: ${e.message}`,
+          evidence: { manifestSha256, manifestName: f.name, jsonPath: e.path, message: e.message },
+        });
+      }
+    } else if (Array.isArray(doc.firewallRules)) {
+      const rules = doc.firewallRules;
+      const REQUIRED_BINDING = {
+        ssh:   { protocol: 'tcp', direction: 'in', port: 22,  sourceMustOpen: false },
+        http:  { protocol: 'tcp', direction: 'in', port: 80,  sourceMustOpen: true },
+        https: { protocol: 'tcp', direction: 'in', port: 443, sourceMustOpen: true },
+      };
+      const nameCounts = {};
+      for (const r of rules) if (r && typeof r.name === 'string') nameCounts[r.name] = (nameCounts[r.name] || 0) + 1;
+      const duplicates = Object.entries(nameCounts).filter(([, n]) => n > 1).map(([n]) => n);
+      const bindingErrors = [];
+      const bindingEvidence = {};
+      for (const [name, want] of Object.entries(REQUIRED_BINDING)) {
+        const rule = rules.find((r) => r && r.name === name);
+        if (!rule) {
+          bindingErrors.push(`missing required rule '${name}'`);
+          continue;
+        }
+        const observed = {
+          name, protocol: rule.protocol, direction: rule.direction,
+          port: rule.port, sourceIps: Array.isArray(rule.sourceIps) ? rule.sourceIps : [],
+        };
+        bindingEvidence[name] = observed;
+        if (rule.protocol !== want.protocol) bindingErrors.push(`'${name}' protocol '${rule.protocol}' != required '${want.protocol}'`);
+        if (rule.direction !== want.direction) bindingErrors.push(`'${name}' direction '${rule.direction}' != required '${want.direction}'`);
+        if (rule.port !== want.port) bindingErrors.push(`'${name}' port ${rule.port} != required ${want.port}`);
+        if (!Array.isArray(rule.sourceIps) || rule.sourceIps.length === 0) {
+          bindingErrors.push(`'${name}' sourceIps empty or not array`);
+        } else if (want.sourceMustOpen) {
+          const hasOpen = rule.sourceIps.includes('0.0.0.0/0');
+          if (!hasOpen) bindingErrors.push(`'${name}' must include '0.0.0.0/0' per open-service contract`);
+        } else if (name === 'ssh') {
+          const openLeak = rule.sourceIps.filter((s) => s === '0.0.0.0/0' || s === '::/0');
+          if (openLeak.length > 0) bindingErrors.push(`'ssh' sourceIps must not include ${openLeak.join(', ')}; use operator-nominated set per TAC-3804`);
+        }
+      }
+      if (duplicates.length > 0) bindingErrors.push(`duplicate rule names: ${duplicates.join(', ')}`);
+      if (bindingErrors.length > 0) {
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_37106,
+          verdict: 'fail',
+          detail: `offline firewall shape scan: manifest ${f.name} firewall rule shape violation: ${bindingErrors.join('; ')}.`,
+          evidence: {
+            manifestSha256,
+            manifestName: f.name,
+            ruleNames: rules.map((r) => r && r.name).filter(Boolean),
+            observedBinding: bindingEvidence,
+            duplicates,
+            errors: bindingErrors,
+          },
+        });
+      } else {
+        const ssh = rules.find((r) => r && r.name === 'ssh');
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_37106,
+          verdict: 'pass',
+          detail: `offline firewall shape scan: manifest ${f.name} firewall rule shape valid: ssh (tcp/in/22, restricted to ${(ssh && ssh.sourceIps || []).join(', ')}, no 0.0.0.0/0), http (tcp/in/80, open), https (tcp/in/443, open); no duplicates.`,
+          evidence: {
+            manifestSha256,
+            manifestName: f.name,
+            ruleNames: rules.map((r) => r && r.name).filter(Boolean),
+            observedBinding: bindingEvidence,
+            duplicates: [],
+          },
+        });
+      }
+    }
+    const snapshotErrors = errors.filter((e) => e.field === 'snapshotCadence' || (e.path || '').includes('snapshotCadence'));
+    if (snapshotErrors.length > 0) {
+      for (const e of snapshotErrors) {
+        results.push({
+          anchorAcId: null,
+          conformanceOnly: true,
+          limitation: LIMIT_37107,
+          verdict: 'fail',
+          detail: `offline snapshotCadence scan: manifest ${f.name} snapshotCadence violation at ${e.path}: ${e.message}`,
+          evidence: { manifestSha256, manifestName: f.name, jsonPath: e.path, message: e.message },
+        });
+      }
+    } else if (typeof doc.snapshotCadence === 'string') {
+      results.push({
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: LIMIT_37107,
+        verdict: 'pass',
+        detail: `offline snapshotCadence scan: manifest ${f.name} snapshotCadence "${doc.snapshotCadence}" is in the shipped enum {weekly, daily, off}.`,
+        evidence: {
+          manifestSha256,
+          manifestName: f.name,
+          snapshotCadence: doc.snapshotCadence,
+          shippedEnum: ['weekly', 'daily', 'off'],
+        },
       });
     }
   }
@@ -76,20 +228,8 @@ export default async function runProbe() {
   };
 }
 
-function anchorForError(err) {
-  if (err.field === 'firewallRules' || (err.path || '').includes('firewallRules')) {
-    return 'AC-37106-1';
-  }
-  if (err.field === 'snapshotCadence' || (err.path || '').includes('snapshotCadence')) {
-    return 'AC-37107-1';
-  }
-  return 'AC-37102-1';
-}
-
-// Draft-07 subset validator: required, type, enum, minLength, minItems,
-// additionalProperties, items, properties, required-on-array-items.
-// Extra rule: on firewallRules the ssh rule sourceIps must NOT include
-// 0.0.0.0/0 (per TAC-3804); handled after schema validation.
+// Draft-07 subset validator (unchanged from v1.1.3 apart from the
+// caller splitting per-property).
 export function validate(schema, doc, pathPrefix = '#') {
   const errors = [];
   walk(schema, doc, pathPrefix, errors);
@@ -110,6 +250,35 @@ export function validate(schema, doc, pathPrefix = '#') {
           field: 'firewallRules',
           message: `firewallRules is missing the required ${n} rule per TAC-3804.`,
         });
+      }
+    }
+    // Reject duplicate rule names (defect: firewall
+    // validation must prohibit duplicates).
+    const counts = {};
+    for (const r of doc.firewallRules) if (r && typeof r.name === 'string') counts[r.name] = (counts[r.name] || 0) + 1;
+    for (const [name, n] of Object.entries(counts)) {
+      if (n > 1) {
+        errors.push({
+          path: `${pathPrefix}/firewallRules`,
+          field: 'firewallRules',
+          message: `firewallRules contains a duplicate rule named '${name}' (${n} occurrences); each of {ssh, http, https} must appear exactly once.`,
+        });
+      }
+    }
+    // Bind each required rule name to protocol/direction/port
+    // (defect).
+    const bindings = { ssh: { protocol: 'tcp', direction: 'in', port: 22 }, http: { protocol: 'tcp', direction: 'in', port: 80 }, https: { protocol: 'tcp', direction: 'in', port: 443 } };
+    for (const [name, want] of Object.entries(bindings)) {
+      const rule = doc.firewallRules.find((r) => r && r.name === name);
+      if (!rule) continue;
+      for (const k of ['protocol', 'direction', 'port']) {
+        if (rule[k] !== want[k]) {
+          errors.push({
+            path: `${pathPrefix}/firewallRules/${name}/${k}`,
+            field: 'firewallRules',
+            message: `firewallRules '${name}' ${k} '${rule[k]}' does not match required '${want[k]}' per TAC-3804.`,
+          });
+        }
       }
     }
   }

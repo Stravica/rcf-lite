@@ -22,8 +22,19 @@ import { invokeHcloudMock } from './hcloud-mock.mjs';
 
 const SUPPORTED_TOOLS = ['hcloud', 'raw-api'];
 
+// The default token source is the operator variable HETZNER_ACCOUNT_API_KEY,
+// so this module is the sole reader of that variable name across the
+// fixture .mjs/.js source. Callers may still inject a different token
+// explicitly (the mock probe injects a synthetic literal); explicit
+// injection wins over the default env read.
 export function createProvisionerFacade(options) {
-  const { token, tool = 'hcloud', apiHost = 'https://api.hetzner.cloud/v1', eventSink, invoke } = options;
+  const {
+    token = process.env.HETZNER_ACCOUNT_API_KEY,
+    tool = 'hcloud',
+    apiHost = 'https://api.hetzner.cloud/v1',
+    eventSink,
+    invoke,
+  } = options;
   if (typeof token !== 'string' || token.length === 0) {
     throw new Error('provisioner-facade: token is required');
   }

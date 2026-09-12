@@ -1,14 +1,14 @@
 // destroy.mjs (v1.0.1)
-//
+
 // Real-account teardown for the shared throwaway-server fixture. Reads
 // the last-throwaway.json id (or the record passed in) and shells to
 // `hcloud server delete <id>` (no --output json; the delete verbs reject
-// the flag, H-1 defect (4)) plus `hcloud image list --type=snapshot
+// the flag, defect (4)) plus `hcloud image list --type=snapshot
 // --output json` to find every snapshot labelled with the server name,
 // then `hcloud image delete <id>` for each match. Idempotent: a missing
 // scratch file logs a throwawayServerLeaked warning and returns; the
 // nightly sweep-orphans job collects the leak.
-//
+
 // The tolerant JSON parser accepts arrays, objects and empty stdout so
 // the delete verbs' informational text output ('Server 165... deleted')
 // does not crash the caller.
@@ -36,17 +36,41 @@ export async function destroyThrowawayServer(record) {
     return null;
   }
   await hcloud(['server', 'delete', String(target.id)]);
-  const snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']).catch(() => []);
+  // Propagate a snapshot-list failure rather than swallowing it as an
+  // empty list ( Item on partly-fixed teardown swallowing:
+  // an empty-list fallback risked skipping required deletions while
+  // reporting success). A throw from the list call is surfaced
+  // so the caller's finally block can fail the verdict.
+  let snapshots;
+  try {
+    snapshots = await hcloud(['image', 'list', '--type=snapshot', '--output', 'json']);
+  } catch (err) {
+    const listErr = new Error(`snapshot list before deletion failed: ${err.message}; cannot confirm the server's snapshots were reaped.`);
+    listErr.snapshotListError = err.message;
+    listErr.destroyedServerId = target.id;
+    throw listErr;
+  }
   const list = Array.isArray(snapshots) ? snapshots : (snapshots && Array.isArray(snapshots.images) ? snapshots.images : []);
+  const snapshotErrors = [];
   for (const img of list) {
     const labels = img.labels || {};
     if (labels.serverName === target.name) {
-      await hcloud(['image', 'delete', String(img.id)]).catch((err) => {
-        process.stderr.write(`snapshot delete ${img.id} failed: ${err.message}\n`);
-      });
+      try {
+        await hcloud(['image', 'delete', String(img.id)]);
+      } catch (err) {
+        snapshotErrors.push({ id: img.id, message: err.message });
+      }
     }
   }
-  try { await unlink(SCRATCH_PATH); } catch (_) { /* fine */ }
+  try { await unlink(SCRATCH_PATH); } catch (_) { /* scratch file may already be gone */ }
+  if (snapshotErrors.length > 0) {
+    // Propagate teardown failures so the caller's finally block can
+    // fail the verdict (the shape rule: no swallowed teardown errors).
+    const err = new Error(`snapshot deletes failed: ${snapshotErrors.map((e) => `${e.id}: ${e.message}`).join('; ')}`);
+    err.snapshotErrors = snapshotErrors;
+    err.destroyedServerId = target.id;
+    throw err;
+  }
   return { destroyed: target.id };
 }
 

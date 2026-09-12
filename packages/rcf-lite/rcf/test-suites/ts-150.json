@@ -23,63 +23,63 @@
       "acId": "AC-12001-1",
       "description": "Cover AC-12001-1 via anatomy test: fixture compose.yaml declares service-per-container, named networks and volumes, and a .env for non-secret config",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12001-1 compose layout shape valid (TC-150-compose-layout-shape-valid)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12001-1 compose layout shape valid"
     },
     {
       "id": "TC-150-secrets-file-mount-shape",
       "acId": "AC-12101-1",
       "description": "Cover AC-12101-1 via anatomy test: compose.yaml declares secrets under top-level secrets with a file source and mounts them into the web service; the mounted file is 0o400",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12101-1 secrets file mount shape (TC-150-secrets-file-mount-shape)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12101-1 secrets file mount shape"
     },
     {
       "id": "TC-150-secrets-scan-fails-on-plaintext",
       "acId": "AC-12102-1",
       "description": "Cover AC-12102-1 via anatomy test: secrets-as-files-scan probe passes on the canonical fixture and fails under SIMULATE_PLAINTEXT_SECRET naming the literal",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext (TC-150-secrets-scan-fails-on-plaintext)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12102-1 secrets-as-files scan fails on plaintext"
     },
     {
       "id": "TC-150-compose-config-lint-refuses-missing-healthcheck",
       "acId": "AC-12201-1",
       "description": "Cover AC-12201-1 via anatomy test: compose-config-lint probe passes on canonical fixture and fails under SIMULATE_MISSING_HEALTHCHECK naming the service",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck (TC-150-compose-config-lint-refuses-missing-healthcheck)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12201-1 compose-config-lint refuses missing healthcheck"
     },
     {
       "id": "TC-150-real-account-minimal-stack-up-declared-and-skipped-shape",
       "acId": "AC-12202-1",
       "description": "Cover AC-12202-1 via anatomy test: real-account-minimal-stack-up probe declares accountBound true and records accountBoundSkipped when the env var is unset",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape (TC-150-real-account-minimal-stack-up-declared-and-skipped-shape)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12202-1 real-account-minimal-stack-up declared and skipped shape"
     },
     {
       "id": "TC-150-restart-discipline-lint-refuses-unclassified",
       "acId": "AC-12301-1",
       "description": "Cover AC-12301-1 via anatomy test: compose-config-lint enforces restart policy classification and fails under SIMULATE_UNCLASSIFIED_RESTART naming the service",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified (TC-150-restart-discipline-lint-refuses-unclassified)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12301-1 restart discipline lint refuses unclassified"
     },
     {
       "id": "TC-150-caddyfile-validate-refuses-invalid-directive",
       "acId": "AC-12401-1",
       "description": "Cover AC-12401-1 via anatomy test: caddyfile-validate probe passes on canonical Caddyfile and fails under SIMULATE_INVALID_CADDYFILE naming the line",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive (TC-150-caddyfile-validate-refuses-invalid-directive)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12401-1 caddyfile-validate refuses invalid directive"
     },
     {
       "id": "TC-150-real-account-reload-burst-declared-and-skipped-shape",
       "acId": "AC-12402-1",
       "description": "Cover AC-12402-1 via anatomy test: real-account-reload-burst probe declares accountBound true and records accountBoundSkipped when the env var is unset",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape (TC-150-real-account-reload-burst-declared-and-skipped-shape)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12402-1 real-account-reload-burst declared and skipped shape"
     },
     {
       "id": "TC-150-log-driver-classification",
       "acId": "AC-12501-1",
       "description": "Cover AC-12501-1 via anatomy test: compose-config-lint asserts every service declares a logging driver and fails under SIMULATE_UNCLASSIFIED_LOG_DRIVER naming the service",
       "status": "pending",
-      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::T-2 platform-docker-compose-host AC-12501-1 log driver classification (TC-150-log-driver-classification)"
+      "testPointer": "test/blueprint/platform-docker-compose-host-anatomy.test.js::platform-docker-compose-host AC-12501-1 log driver classification"
     }
   ],
   "status": "draft"
