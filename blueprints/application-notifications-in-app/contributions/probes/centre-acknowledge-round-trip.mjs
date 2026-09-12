@@ -115,10 +115,10 @@ export default async function runProbe() {
 
     // Refetch the served centre page: the SAME article should now render
     // data-acknowledged="true" (proof that activation of the served
-    // control produces the acknowledged state on the next principal
-    // load - the AC's "the item's data-acknowledged reads true after
-    // the response" clause, observed via the server-rendered next-load
-    // rather than the browser-only same-page DOM mutation).
+    // control produces the acknowledged state on the next served load
+    // of the centre - the AC's "the item's data-acknowledged reads true
+    // after the response" clause, observed via the server-rendered
+    // next-load rather than the browser-only same-page DOM mutation).
     const centreAfter = await fixtureFetch(fixture.url, '/notifications-centre');
     const centreAfterDom = centreAfter.body.replace(/<script\b[\s\S]*?<\/script>/gi, '');
     const acknowledgedArticleMatch = notificationId
@@ -148,7 +148,7 @@ export default async function runProbe() {
       anchorAcId,
       verdict: positivePass ? 'pass' : 'fail',
       detail: positivePass
-        ? `${FIRST_EIGHT} backlog, /notifications-centre enumerated ${uniqueIds.length} [data-notification-id] wrappers with matching per-item acknowledge and mark-read controls and exactly one mark-all-read control; the acknowledge control for notificationId=${notificationId} was wrapped in a <form method="post" action="${ackFormAction}"> with the notification-id in a hidden input; submitting that served form action (content-type application/x-www-form-urlencoded, body notification-id=${notificationId}) returned 200 { ok:true, notificationId, acknowledgedAt:${ackBody?.acknowledgedAt} }; the delivery-log acknowledgedAt for that id flipped from null to ${afterRow?.acknowledgedAt}; the /__requests log recorded exactly one acknowledge-server entry AND one acknowledge-form entry for that id; refetching /notifications-centre rendered data-acknowledged="true" on the same article (proof that activation of the served control causes the acknowledged state on the next principal load); x-fixture-request-id on the form POST=${ack.requestId}`
+        ? `${FIRST_EIGHT} backlog, /notifications-centre enumerated ${uniqueIds.length} [data-notification-id] wrappers with matching per-item acknowledge and mark-read controls and exactly one mark-all-read control; the acknowledge control for notificationId=${notificationId} was wrapped in a <form method="post" action="${ackFormAction}"> with the notification-id in a hidden input; submitting that served form action (content-type application/x-www-form-urlencoded, body notification-id=${notificationId}) returned 200 { ok:true, notificationId, acknowledgedAt:${ackBody?.acknowledgedAt} }; the delivery-log acknowledgedAt for that id flipped from null to ${afterRow?.acknowledgedAt}; the /__requests log recorded exactly one acknowledge-server entry AND one acknowledge-form entry for that id; refetching /notifications-centre rendered data-acknowledged="true" on the same article (proof that activation of the served control causes the acknowledged state on the next served load of the centre); x-fixture-request-id on the form POST=${ack.requestId}`
         : `${FIRST_EIGHT} backlog, evidence gap: surfaceOk=${surfaceOk} (uniqueIds=${uniqueIds.length} perItemAck=${perItemAckControls.length} markRead=${markReadControls.length} markAllRead=${markAllReadCount} ackFormPresent=${ackFormPresent}) notificationId=${notificationId} ackFormAction=${ackFormAction} ackStatus=${ack.status} ackBody=${JSON.stringify(ackBody)} beforeAck=${beforeRow ? beforeRow.acknowledgedAt : 'missing'} afterAck=${afterRow ? afterRow.acknowledgedAt : 'missing'} ackServerLogs=${ackServerLogs.length} ackFormLogs=${ackFormLogs.length} nextLoadAcknowledgedAttr=${nextLoadAcknowledgedAttr}`,
       evidence: {
         requestId: ack.requestId,

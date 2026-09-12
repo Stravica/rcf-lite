@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.7');
+  assert.equal(doc.version, '1.2.8');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);
@@ -185,6 +185,31 @@ test('application-notifications-in-app sample-app fixture: break switches surfac
     const brkAckHtml = await (await fetch(`http://127.0.0.1:${port}/notifications-centre?break=ack`)).text();
     assert.ok(brkAckHtml.includes('"ack"'), '?break=ack embedded in client script');
     assert.ok(/data-break="ack"/.test(brkAckHtml), 'shell root marker records the break');
+
+    // Query-scoped ?break=ack propagates into the served form action so
+    // a JS-off native submission from a broken centre reaches the
+    // refused form-route branch (not the JSON API branch). The served
+    // form action for each per-item acknowledge form carries the active
+    // break in its query, and a POST to that action returns 502 with
+    // the ACKNOWLEDGE_FORM_REFUSED error shape.
+    const brokenFormActionMatch = brkAckHtml.match(/action="(\/actions\/acknowledge-notification\?notification-id=[^"]*&break=ack)"/);
+    assert.ok(brokenFormActionMatch, '?break=ack rides into the served form action so JS-off submissions reach the refused form-route branch');
+    const brokenFormPost = await fetch(`http://127.0.0.1:${port}${brokenFormActionMatch[1]}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: '',
+    });
+    assert.equal(brokenFormPost.status, 502, 'POST to the broken-centre form action returns 502 (form-route refusal)');
+    const brokenFormBody = await brokenFormPost.json();
+    assert.equal(brokenFormBody.ok, false, 'broken-centre form action responds ok:false');
+    assert.equal(brokenFormBody.error, 'ACKNOWLEDGE_FORM_REFUSED', 'broken-centre form action returns the form-refusal error code');
+
+    // Golden (no query break) still renders a bare form action so a
+    // JS-off submission on an unbroken centre reaches the flip branch.
+    const goldenCentreHtml = await (await fetch(`http://127.0.0.1:${port}/notifications-centre`)).text();
+    const goldenFormActionMatch = goldenCentreHtml.match(/action="(\/actions\/acknowledge-notification\?notification-id=[^"]*)"/);
+    assert.ok(goldenFormActionMatch, 'golden centre renders the form action');
+    assert.ok(!/&break=/.test(goldenFormActionMatch[1]), 'golden centre form action has no break query');
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

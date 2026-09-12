@@ -274,7 +274,16 @@ function renderCentreItem(row, brk) {
   // for AC-20103-1's "activation POSTs" clause). The JS-on client
   // script intercepts the click (see clientScript()) and calls
   // preventDefault so only one POST fires per activation.
-  const ackFormAction = `/actions/acknowledge-notification?notification-id=${row.notificationId}`;
+  //
+  // The active query-scoped break switch (when the centre page was
+  // served with ?break=<value>) rides into the form action so that a
+  // JS-off submission originating from a broken page reaches the same
+  // broken handler branch. Without carrying the switch, /notifications
+  // -centre?break=ack would render a form action containing only
+  // notification-id and a native submission would escape the ack break;
+  // this keeps ?break=ack refusal parity between the form and the API.
+  const breakQuery = brk ? `&break=${encodeURIComponent(brk)}` : '';
+  const ackFormAction = `/actions/acknowledge-notification?notification-id=${row.notificationId}${breakQuery}`;
   return (
     `<article class="centreItem" data-notification-id="${row.notificationId}" data-category="${row.category}" data-priority="${row.priority}" data-delivered-at="${row.deliveredAt}" data-acknowledged="${acknowledgedAttr}">` +
       `<h3 class="centreItemTitle">${row.body}</h3>` +
@@ -629,14 +638,18 @@ function handler(req, res) {
     if (url.pathname === '/actions/acknowledge-notification') {
       // AC-20103-1 progressive-enhancement acknowledge action. The
       // /notifications-centre surface wraps each acknowledge button in
-      // <form method="post" action="/actions/acknowledge-notification">
-      // so activating the control (JS-off or JS-on) POSTs here. The
-      // handler flips the delivery-log row's acknowledgedAt and returns
-      // a machine-readable JSON body carrying { ok:true, notificationId,
-      // acknowledgedAt } so a probe that submits the served form can
-      // derive the applied effect. Under ?break=ack (or PROBE_BREAK=ack)
-      // the form action refuses too (mirroring the API refusal), so a
-      // probe observing activation causality goes fail on both paths.
+      // <form method="post" action="/actions/acknowledge-notification">.
+      // With JS off the native form submission POSTs here; with JS on
+      // the client script intercepts the click, calls preventDefault on
+      // the form, and drives the JSON API at /api/notifications
+      // /acknowledge instead (kept for parity with the pre-form client
+      // behaviour). The handler flips the delivery-log row's
+      // acknowledgedAt and returns a machine-readable JSON body
+      // carrying { ok:true, notificationId, acknowledgedAt } so a probe
+      // that submits the served form can derive the applied effect.
+      // Under ?break=ack (or PROBE_BREAK=ack) the form action refuses
+      // too (mirroring the API refusal), so a probe observing
+      // activation causality goes fail on both paths.
       readFormOrQueryNotificationId(req, url).then((notificationId) => {
         if (brk === 'ack') {
           recordRequest({ kind: 'acknowledge-form-refused', notificationId, category: null, priority: null });
