@@ -305,7 +305,19 @@ function tourClientScript({ store, breakSwitch, firstRun, complete }) {
   });
 
   var restartBtn = document.querySelector('button[data-action="restart-tour"]');
-  if (restartBtn) restartBtn.addEventListener('click', function () { clearCompletion(); });
+  if (restartBtn) restartBtn.addEventListener('click', function (ev) {
+    // Progressive-enhancement contract: for the server-side-per-principal
+    // store the restart control is a submit-button inside a
+    // <form method="post" action="/actions/restart-tour"> so a plain
+    // activation already POSTs the form when JS is off. When JS is on
+    // the click listener intercepts (preventDefault) so only ONE POST
+    // fires per activation: the fetch-based clearCompletion() below
+    // (which also handles the browser-only local/session stores). Without
+    // preventDefault the native form submission and the fetch would both
+    // fire, double-writing the clear.
+    if (restartBtn.form) ev.preventDefault();
+    clearCompletion();
+  });
 
   if (typeof location !== 'undefined' && (location.pathname === '/tour' || location.pathname === '/onboarding' || location.pathname === '/welcome')) {
     var alreadyDone = readCompletion();
@@ -434,7 +446,7 @@ function homePage(ctx) {
 // completion-state store is 'server-side-per-principal', the fixture
 // holds the completion record on the server keyed by principal id
 // (X-Principal-Id header or ?principal-id= query, defaulting to a
-// single-tenant fixture principal so probes can vary it). Endpoints:
+// single-organisation fixture principal so probes can vary it). Endpoints:
 //   POST   /api/tour/completion  -> write completion for principal
 //   GET    /api/tour/completion  -> read (or 404 when absent)
 //   DELETE /api/tour/completion  -> clear (models the restart-tour

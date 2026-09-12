@@ -28,7 +28,7 @@ const README_ABS = join(BLUEPRINT_ROOT, 'README.md');
 test('application-notifications-in-app: blueprint.json declares the ratified shape (TC-050-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-notifications-in-app');
-  assert.equal(doc.version, '1.2.6');
+  assert.equal(doc.version, '1.2.7');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent (leaf blueprint per spec; loader refuses empty array when set)');
   assert.equal(doc.suggestedCompanions.length, 2);

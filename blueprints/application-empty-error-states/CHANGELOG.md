@@ -1,5 +1,9 @@
 # application-empty-error-states CHANGELOG
 
+## 1.2.7 - 2026-09-12
+
+- Register cleanup on branch-added prose: fixture server comment above the offline-buffer store now names the single-organisation fixture principal explicitly; empty-list-and-no-search notObservableHere limitation now says "subsequent navigation" for the browser-only clause beyond the DOM shape and the query echo, so the register-token grep on the added lines is clean. No probe or fixture behaviour change; blueprint contributions unchanged.
+
 ## 1.2.6 - 2026-09-12
 
 - Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. No probe or fixture behaviour change on the empty-error-states family (positive AC-22102-1 and AC-22103-1 rows on forbidden-and-server-error already carry both request-id and non-empty derived; the existing `leak-id` and `stack-trace` breaks stay in the shipped negative-variant map).

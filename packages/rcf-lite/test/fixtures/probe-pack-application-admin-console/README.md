@@ -12,7 +12,7 @@ Every environment variable the fixture or a `contributions/probes/` probe reads 
 | `ADMIN_CONSOLE_CAPS` | comma list; default `principalDirectory,roleModel,auditLog` |
 | `ADMIN_CONSOLE_BREAK` | optional default `?break=` switch |
 | `ADMIN_CONSOLE_PRINCIPAL_EMAIL` | default `principal@example.com`, feeds the Access-gated sign-in [data-role=principal-read] |
-| `PROBE_BREAK` | optional default `?break=` switch (a lower-priority alternate to `ADMIN_CONSOLE_BREAK`); per-request `?break=` still wins when set. Values: `matrix-grid`, `denied`, `audit-fields` |
+| `PROBE_BREAK` | optional default `?break=` switch (a lower-priority alternate to `ADMIN_CONSOLE_BREAK`); per-request `?break=` still wins when set. Values: `matrix-grid`, `denied`, `audit-fields`, `principal-read`, `local-login-form` |
 
 Every response emits an `x-fixture-request-id` HTTP header (a per-request UUID). The criterion-e probes echo this id back into their `.rcf/reports/` run records as positive evidence per rule 7d (a real request identifier answered by the fixture engine).
 
@@ -48,6 +48,8 @@ The `?caps=` query parameter on any route overrides `ADMIN_CONSOLE_CAPS` for tha
 | `?break=matrix-grid` | Drops `role="grid"` and inner role attributes on the permission matrix (pack check `AC-21103-1` refuses). |
 | `?break=denied` | Drops the `[data-action="request-access"]` control on the access-denied region (pack check `AC-21102-1` refuses on its denied branch). |
 | `?break=audit-fields` | Drops the `correlationId` column on every audit row (pack check `AC-21105-1` refuses). |
+| `?break=principal-read` | On the `zeroTrustGate` branch of `/admin/sign-in`, drops the `[data-role=principal-read]` element (Access-gated sign-in surface check refuses). |
+| `?break=local-login-form` | On the fallback branch of `/admin/sign-in` (no `zeroTrustGate`), drops the `[data-role=local-login-form]` form (positive AC-21816-1 local-login row refuses). |
 
 ## Routes
 

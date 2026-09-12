@@ -311,7 +311,7 @@ function notificationsSurface({ apps }) {
 // writes it; subsequent GET /account/theme reflects that written
 // value on the html element data-theme attribute (initial load,
 // no browser JS involved) and pre-selects the matching radio.
-// Principal defaults to a single-tenant fixture default when no
+// Principal defaults to a single-organisation fixture default when no
 // X-Principal-Id header is sent (probes can vary it explicitly).
 const serverScopedThemeStore = new Map();
 

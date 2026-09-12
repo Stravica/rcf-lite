@@ -60,8 +60,8 @@ const SEED_OFFLINE_BUFFER = [
 // flush on reconnect, delivery-log records the drained items. The
 // probe drives this via HTTP so the buffer lifecycle IS observable
 // from a server-side vantage (banner state + enqueue count + flushed
-// count). Keyed by principal-id (defaults to a single-tenant fixture
-// principal). Each principal's state is (state, buffer[], delivered[]).
+// count). Keyed by principal-id (defaults to a single-organisation
+// fixture principal). Each principal's state is (state, buffer[], delivered[]).
 const offlineBufferState = new Map();
 
 function readOfflineState(principalId) {

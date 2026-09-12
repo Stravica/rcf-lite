@@ -47,7 +47,7 @@ export default async function runProbe() {
     results.push({
       anchorAcId: null,
       conformanceOnly: true,
-      limitation: 'application-empty-error-states-AC-22107-1: clear-filters control activation and follow-up navigation (the AC clauses beyond the DOM shape and the query echo) are browser-driven and not observed by this Node HTTP probe; the no-search-results region + visual + clear-filters + varied-query echo walk is a partial observation of AC-22107-1',
+      limitation: 'application-empty-error-states-AC-22107-1: clear-filters control activation and subsequent navigation (the AC clauses beyond the DOM shape and the query echo) are browser-driven and not observed by this Node HTTP probe; the no-search-results region + visual + clear-filters + varied-query echo walk is a partial observation of AC-22107-1',
       verdict: nsPass ? 'warn' : 'fail',
       detail: nsPass
         ? `Given a search or filter yielding zero rows, observed role="region", data-visual="no-search-results" wrapper, [data-recovery="clear-filters"] control and a data-query span echoing the varied query verbatim ("${derivedQ}"); x-fixture-request-id=${noSearch.requestId}`

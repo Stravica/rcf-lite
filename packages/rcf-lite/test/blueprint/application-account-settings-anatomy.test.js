@@ -30,7 +30,7 @@ const LOGGING_BP = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('blueprint.json declares 28 contributions with requiresAppliedCapabilities and elicits[] (TC-056-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'application-account-settings');
-  assert.equal(doc.version, '1.2.6');
+  assert.equal(doc.version, '1.2.7');
   assert.equal(doc.category, 'application');
   assert.equal(doc.providesRoles, undefined, 'providesRoles absent');
   assert.equal(doc.capabilities, undefined, 'capabilities absent');
@@ -83,7 +83,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
   assert.deepEqual(acctApply.appliedCapabilities, ['principalDirectory']);
   const sidecar = JSON.parse(await readFile(join(scratch, acctApply.sidecarPath), 'utf8'));
   assert.equal(sidecar.slug, 'application-account-settings');
-  assert.equal(sidecar.version, '1.2.6');
+  assert.equal(sidecar.version, '1.2.7');
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {

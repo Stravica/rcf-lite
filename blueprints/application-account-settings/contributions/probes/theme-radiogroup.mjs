@@ -116,8 +116,8 @@ export default async function runProbe() {
       notObservableAcId: anchorAcId,
       notObservableHere: true,
       verdict: 'warn',
-      reason: 'AC-25108-1 requires observing a principal selecting a theme radio, the html element data-theme attribute flipping to the chosen value in response to that user input event, and (for the spa-local-storage store) the client-side localStorage write. Event dispatch, DOM mutation on user input, and localStorage writes are browser-driven and cannot be observed from a Node HTTP probe; the browser-verify pack owns this observation.',
-      detail: `${FIRST_EIGHT_SPA} /account/theme's interaction half - user selection dispatching a change event, the client script flipping html data-theme on that event, and the spa-local-storage write - is browser-driven and observed by the browser-verify pack, not by this Node probe; anchored as notObservableHere for AC-25108-1 so the row does not falsely claim positive evidence`,
+      reason: 'AC-25108-1 requires observing a principal selecting a theme radio, the html element data-theme attribute flipping to the chosen value in response to that user input event, and (for the spa-local-storage store) the client-side localStorage write. Change-event firing, DOM mutation on user input, and localStorage writes are browser-driven and cannot be observed from a Node HTTP probe; the browser-verify pack owns this observation.',
+      detail: `${FIRST_EIGHT_SPA} /account/theme's interaction half - user selection firing a change event, the client script flipping html data-theme on that event, and the spa-local-storage write - is browser-driven and observed by the browser-verify pack, not by this Node probe; anchored as notObservableHere for AC-25108-1 so the row does not falsely claim positive evidence`,
     });
   } finally {
     await withSpa.kill();

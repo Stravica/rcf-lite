@@ -1,5 +1,9 @@
 # application-account-settings CHANGELOG
 
+## 1.2.7 - 2026-09-12
+
+- Register cleanup on branch-added prose: fixture server comment above the server-scoped theme store now names the single-organisation fixture default explicitly; theme-radiogroup notObservableHere reason and detail now say "change-event firing" and "firing a change event" for the browser-only DOM-event half of AC-25108-1, so the register-token grep on the added lines is clean. No probe or fixture behaviour change; blueprint contributions unchanged.
+
 ## 1.2.6 - 2026-09-12
 
 - Positive-evidence row shape tightened in the anatomy helper: a positive row now requires a non-empty engine-returned `requestId` AND (a non-empty `bodyExcerpt` OR a non-empty `derived` object); a `{derived:{}}` alone or a `requestId` alone no longer counts, with two new negative-case tests covering the empty-derived and id-only patterns. Fixture `?break=no-persist` extended to also refuse the server-side POST `/api/theme` with HTTP 507 `THEME_WRITE_REFUSED` and DELETE `/api/theme` with HTTP 507 `THEME_CLEAR_REFUSED`, so the anatomy negative-variant map now drives the theme-radiogroup positive server-scoped-persistence row (AC-25108-1) to fail under `PROBE_BREAK=no-persist` (added to `brokenExpectations`).
@@ -18,7 +22,7 @@
 
 ## 1.2.2 - 2026-09-11
 
-- sessions-adapter-uniform earlier introduced a `?provider=<clerk|keycloak|oauth2>` query switch and a `<meta data-observed-provider="X">` marker inside `[data-surface="sessions"]`; that pass compared normalised subtrees to a reference for byte equality but the fixture served the same hard-coded rows regardless of provider, so the check was self-consistent rather than adapter-derived (superseded by 1.2.3 above). theme-radiogroup earlier de-claimed the AC-25108-1 interaction half to `notObservableHere`; profile-form-autocomplete's positive-anchor-on-absence broken row was removed; rule 10 applied to every row detail across all five probes; anatomy test extended to accept notObservableHere row shape; register cleanup.
+- sessions-adapter-uniform earlier introduced a `?provider=<clerk|keycloak|oauth2>` query switch and a `<meta data-observed-provider="X">` marker inside `[data-surface="sessions"]`; the earlier probe compared normalised subtrees to a reference for byte equality but the fixture served the same hard-coded rows regardless of provider, so the check was self-consistent rather than adapter-derived (superseded by 1.2.3 above). theme-radiogroup earlier de-claimed the AC-25108-1 interaction half to `notObservableHere`; profile-form-autocomplete's positive-anchor-on-absence broken row was removed; rule 10 applied to every row detail across all five probes; anatomy test extended to accept notObservableHere row shape; register cleanup.
 
 
 ## 1.2.1 - 2026-09-11

@@ -1,6 +1,6 @@
 {
   "slug": "application-notifications-in-app",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "category": "application",
   "suggestedCompanions": [
     {
@@ -155,6 +155,6 @@
       "default": "20"
     }
   ],
-  "updatedAt": "2026-09-12T00:45:12Z",
+  "updatedAt": "2026-09-12T01:30:44Z",
   "updatedIso": "2026-09-11T22:30:00Z"
 }
