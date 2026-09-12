@@ -5,7 +5,7 @@
 Pass-13 review follow-through: retired development-only password literal removed from the CHANGELOG prose (no credential value in shipped source), the `docker run` invocation for the restore container switched to the pass-through `-e POSTGRES_PASSWORD` form so the value is taken from the spawned process environment and never enters argv, and the anatomy header comment now names the STRICT_ID_KEYS scalar-string witness rule the predicate actually enforces instead of the pre-round-8 witness list. Anatomy pin bumped to 1.1.10.
 
 - fix: `blueprints/persistence-data-postgres/CHANGELOG.md` 1.1.9 entry rewritten to describe the retired development-only password without naming its value; grep of the added-line diff finds zero credential-shaped literals.
-- fix: `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` docker-run arguments no longer include `POSTGRES_PASSWORD=<value>`; the pass-through form `-e POSTGRES_PASSWORD` reads the value from the spawned process environment.
+- fix: `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` docker-run argument for the restore container now uses the pass-through `-e POSTGRES_PASSWORD` form (variable name only); the value is taken from the spawned process environment and never appears in argv.
 - prose: `packages/rcf-lite/test/blueprint/persistence-data-postgres-anatomy.test.js` (a) block comment now names STRICT_ID_KEYS scalar-string witnesses as the only accepted id shape and requires idWitness and derivedWitness under DIFFERENT keys, consistent with the round-8 predicate.
 
 ## 1.1.9 - 2026-09-12
