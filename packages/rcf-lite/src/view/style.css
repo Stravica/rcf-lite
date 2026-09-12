@@ -99,7 +99,7 @@ header h1 {
   gap: 0.75rem;
 }
 
-/* Stravica monogram alongside the project name - shared identity with
+/* Stravica kit mark alongside the project name, shared identity with
  * the marketing site (stravica.ai). SVG is inlined as a data URL so no
  * separate asset has to ship. */
 header h1::before {
@@ -108,7 +108,7 @@ header h1::before {
   width: 2rem;
   height: 2rem;
   flex-shrink: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23c14a3a'/%3E%3Ctext x='256' y='370' font-family='Georgia,serif' font-size='360' font-weight='600' text-anchor='middle' fill='%23f7f5f0'%3ES%3C/text%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 136 180' width='136' height='180' role='img'%3E%3Ctitle%3EStravica ribbon symbol%3C/title%3E%3Cdesc%3E%3C/desc%3E%3Cdefs%3E%3ClinearGradient id='ma' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23174CFF'/%3E%3Cstop offset='1' stop-color='%23263BFF'/%3E%3C/linearGradient%3E%3ClinearGradient id='mb' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%231674FF'/%3E%3Cstop offset='1' stop-color='%232854FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(0 0) scale(1.0)'%3E%3Cpath fill='url(%23ma)' d='M86 4 L10 48 Q4 51 4 58 L4 81 Q4 87 10 84 L80 45 Q86 42 86 35 Z'/%3E%3Cpath fill='url(%23ma)' d='M88 108 L129 125 L47 172 Q41 176 41 170 L41 142 Q41 136 47 133 Z'/%3E%3Cpath fill='url(%23mb)' d='M41 84 L74 65 Q78 63 83 66 L124 88 Q130 91 130 98 L130 121 Q130 126 124 123 Z'/%3E%3C/g%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
