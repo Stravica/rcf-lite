@@ -374,7 +374,7 @@ async function assertRowsCarry7dShape(rows, probeName, label) {
 test('deploy-hetzner-server AC-11001-1 provisioner boot and sole reader', async () => {
   const bp = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(bp.slug, 'deploy-hetzner-server');
-  assert.equal(bp.version, '1.1.15');
+  assert.equal(bp.version, '1.1.16');
   assert.equal(bp.category, 'deploy');
   assert.deepEqual(bp.capabilities, ['cloudHost']);
   const out = await runProbe('hcloud-dry-run-mock');
@@ -876,7 +876,7 @@ function walkRecordRow({ row, probeName, name, shipped, record }) {
     const teardownIds = deepFind(searchSpace, 'postTeardownServerIds');
     const teardown = deepFind(searchSpace, 'teardown');
     const idStr = String(idValue);
-    // v1.1.15: eventTrail correlation uses the field the shipped
+    // v1.1.16: eventTrail correlation uses the field the shipped
     // producer actually emits. `hetznerServerProvisioned` events
     // (see `provision.mjs` and `provisioner-facade.mjs`) carry the
     // vendor id in the event body's own top-level `id` field. A
@@ -895,7 +895,7 @@ function walkRecordRow({ row, probeName, name, shipped, record }) {
     const teardownHit = Array.isArray(teardownIds) && teardownIds.map(String).includes(idStr);
     const teardownRefHit = !!teardown && typeof teardown === 'object' && (String(teardown.destroyed) === idStr || String(teardown.provisioned) === idStr);
     inventoryHit = trailHit || invHit || teardownHit || teardownRefHit;
-    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail (as a hetznerServerProvisioned / hetznerServerDestroyed event's own top-level \`id\` field, the field the shipped producer emits) / postRunInventory / postTeardownServerIds / teardown; a substring match over the stringified event body does NOT count and an invented \`serverId\` field on an event is not consulted (v1.1.15).`);
+    assert.ok(inventoryHit, `${name}: serverId ${idStr} is not present in this record's eventTrail (as a hetznerServerProvisioned / hetznerServerDestroyed event's own top-level \`id\` field, the field the shipped producer emits) / postRunInventory / postTeardownServerIds / teardown; a substring match over the stringified event body does NOT count and an invented \`serverId\` field on an event is not consulted (v1.1.16).`);
   } else if (idField === 'snapshotId') {
     const create = deepFind(searchSpace, 'postCreateSnapshotIds');
     inventoryHit = Array.isArray(create) && create.map(String).includes(String(idValue));
@@ -907,7 +907,7 @@ function walkRecordRow({ row, probeName, name, shipped, record }) {
   return { walked: true, inventoryHit, counted: true };
 }
 
-// Record walk (v1.1.15). SPLIT into two functions, two tests, no
+// Record walk (v1.1.16). SPLIT into two functions, two tests, no
 // shared bypass. `walkRepositoryRecords(dir, expectedVersion)` is
 // the repository walk CI exercises: EVERY present record must
 // carry `version === expectedVersion`; a missing or different
@@ -941,7 +941,7 @@ async function walkRepositoryRecords(dir, expectedVersion, shipped) {
     assert.equal(
       rec.version,
       expectedVersion,
-      `${fileName}: record version ${JSON.stringify(rec.version)} != expected ${JSON.stringify(expectedVersion)}; every present record must carry the blueprint version and match it (v1.1.15 repository walk; no override bypass).`,
+      `${fileName}: record version ${JSON.stringify(rec.version)} != expected ${JSON.stringify(expectedVersion)}; every present record must carry the blueprint version and match it (v1.1.16 repository walk; no override bypass).`,
     );
     assert.ok(
       Array.isArray(rec.results),
@@ -992,7 +992,7 @@ async function walkHandOffRecords(dir, shipped) {
     assert.equal(
       rec.version,
       undefined,
-      `${fileName}: hand-off records predate the record version writer (v1.1.15 hand-off walk); they carry no \`version\` field, and hand-editing a version into a hand-off record is out. Got version=${JSON.stringify(rec.version)}.`,
+      `${fileName}: hand-off records predate the record version writer (v1.1.16 hand-off walk); they carry no \`version\` field, and hand-editing a version into a hand-off record is out. Got version=${JSON.stringify(rec.version)}.`,
     );
     assert.ok(
       Array.isArray(rec.results),
@@ -1021,38 +1021,38 @@ async function walkHandOffRecords(dir, shipped) {
   }
   return { walkableRows, countingRows, inventoryHits, entries: entries.length, noLocalRecords: false };
 }
-test('deploy-hetzner-server v1.1.15 repository record walk: every present record must carry the blueprint version, no bypass, no variable', async () => {
+test('deploy-hetzner-server v1.1.16 repository record walk: every present record must carry the blueprint version, no bypass, no variable', async () => {
   const shipped = await loadShippedAcs();
   const bpDoc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   const reportsDir = join(REPO_ROOT, '.rcf', 'reports', 'blueprints', 'deploy-hetzner-server');
   const stats = await walkRepositoryRecords(reportsDir, bpDoc.version, shipped);
   if (stats.noLocalRecords) {
-    console.log(`deploy-hetzner-server v1.1.15 repository walk: no local records under ${reportsDir} (CI path).`);
+    console.log(`deploy-hetzner-server v1.1.16 repository walk: no local records under ${reportsDir} (CI path).`);
     return;
   }
-  console.log(`deploy-hetzner-server v1.1.15 repository walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} record file(s).`);
+  console.log(`deploy-hetzner-server v1.1.16 repository walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} record file(s).`);
 });
-test('deploy-hetzner-server v1.1.15 hand-off record walk: runs only under RCF_LITE_RECORDS_DIR; the records predate the version field', async () => {
+test('deploy-hetzner-server v1.1.16 hand-off record walk: runs only under RCF_LITE_RECORDS_DIR; the records predate the version field', async () => {
   const overrideRoot = process.env.RCF_LITE_RECORDS_DIR;
   if (!overrideRoot) {
-    console.log('deploy-hetzner-server v1.1.15 hand-off walk: RCF_LITE_RECORDS_DIR unset; hand-off walk skipped (CI path).');
+    console.log('deploy-hetzner-server v1.1.16 hand-off walk: RCF_LITE_RECORDS_DIR unset; hand-off walk skipped (CI path).');
     return;
   }
   const shipped = await loadShippedAcs();
   const dir = join(overrideRoot, 'deploy-hetzner-server');
   const stats = await walkHandOffRecords(dir, shipped);
   if (stats.noLocalRecords) {
-    console.log(`deploy-hetzner-server v1.1.15 hand-off walk: no hand-off records under ${dir}.`);
+    console.log(`deploy-hetzner-server v1.1.16 hand-off walk: no hand-off records under ${dir}.`);
     return;
   }
-  console.log(`deploy-hetzner-server v1.1.15 hand-off walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} hand-off record file(s).`);
+  console.log(`deploy-hetzner-server v1.1.16 hand-off walk: ${stats.walkableRows} walkable row(s), ${stats.countingRows} counting row(s), ${stats.inventoryHits} inventory correlation(s) across ${stats.entries} hand-off record file(s).`);
 });
-// v1.1.15 negative case (item 1a, versionless record): the
+// v1.1.16 negative case (item 1a, versionless record): the
 // repository walker REJECTS a record whose `version` field is
 // missing. There is no override bypass. Proved end-to-end by
 // invoking `walkRepositoryRecords` on a scratch directory the test
 // builds; the real `.rcf/reports/` tree is not touched.
-test('deploy-hetzner-server v1.1.15 repository walk: a versionless record is REJECTED through walkRepositoryRecords (no override bypass)', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: a versionless record is REJECTED through walkRepositoryRecords (no override bypass)', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
@@ -1070,18 +1070,18 @@ test('deploy-hetzner-server v1.1.15 repository walk: a versionless record is REJ
   await writeFile(join(dir, 'versionless.json'), JSON.stringify(versionless, null, 2) + '\n', 'utf8');
   try {
     await assert.rejects(
-      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      () => walkRepositoryRecords(dir, '1.1.16', shipped),
       /every present record must carry the blueprint version/,
     );
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
 });
-// v1.1.15 negative case (item 1b, wrong-version record): the
+// v1.1.16 negative case (item 1b, wrong-version record): the
 // repository walker REJECTS a record whose `version` differs from
 // the expected version. Invokes `walkRepositoryRecords` on a
 // scratch directory the test builds.
-test('deploy-hetzner-server v1.1.15 repository walk: a wrong-version record is REJECTED through walkRepositoryRecords', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: a wrong-version record is REJECTED through walkRepositoryRecords', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
@@ -1100,18 +1100,18 @@ test('deploy-hetzner-server v1.1.15 repository walk: a wrong-version record is R
   await writeFile(join(dir, 'stale.json'), JSON.stringify(stale, null, 2) + '\n', 'utf8');
   try {
     await assert.rejects(
-      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      () => walkRepositoryRecords(dir, '1.1.16', shipped),
       /every present record must carry the blueprint version and match it/,
     );
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
 });
-// v1.1.15 negative case (item 2a, non-directory path): the
+// v1.1.16 negative case (item 2a, non-directory path): the
 // repository walker propagates a non-ENOENT readdir error rather
 // than returning the friendly `no local records` early-return.
 // Invokes `walkRepositoryRecords` on a file target.
-test('deploy-hetzner-server v1.1.15 repository walk: a non-directory reports path FAILS through walkRepositoryRecords', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: a non-directory reports path FAILS through walkRepositoryRecords', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
@@ -1121,18 +1121,18 @@ test('deploy-hetzner-server v1.1.15 repository walk: a non-directory reports pat
   await writeFile(target, 'not-a-directory', 'utf8');
   try {
     await assert.rejects(
-      () => walkRepositoryRecords(target, '1.1.15', shipped),
+      () => walkRepositoryRecords(target, '1.1.16', shipped),
       (err) => !!err && err.code !== 'ENOENT',
     );
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
 });
-// v1.1.15 negative case (item 2b, malformed JSON): the walker
+// v1.1.16 negative case (item 2b, malformed JSON): the walker
 // propagates the parse error rather than returning early. Invokes
 // `walkRepositoryRecords` on a scratch directory holding a
 // malformed record.
-test('deploy-hetzner-server v1.1.15 repository walk: a malformed JSON record FAILS through walkRepositoryRecords', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: a malformed JSON record FAILS through walkRepositoryRecords', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
@@ -1142,25 +1142,25 @@ test('deploy-hetzner-server v1.1.15 repository walk: a malformed JSON record FAI
   await writeFile(join(dir, 'malformed.json'), '{ not json at all', 'utf8');
   try {
     await assert.rejects(
-      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      () => walkRepositoryRecords(dir, '1.1.16', shipped),
       (err) => err instanceof SyntaxError || /JSON/.test(String(err && err.message)),
     );
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
 });
-// v1.1.15 negative case (item 2c, empty / non-array / missing
+// v1.1.16 negative case (item 2c, empty / non-array / missing
 // results): `walkRepositoryRecords` REJECTS a present record whose
 // `results` is absent, not an array, or an empty array.
-test('deploy-hetzner-server v1.1.15 repository walk: empty / non-array / missing results FAIL through walkRepositoryRecords', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: empty / non-array / missing results FAIL through walkRepositoryRecords', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
   const cases = [
-    { name: 'empty.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.15', results: [] } },
-    { name: 'null.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.15', results: null } },
-    { name: 'missing.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.15' } },
-    { name: 'notarray.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.15', results: 'not-an-array' } },
+    { name: 'empty.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.16', results: [] } },
+    { name: 'null.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.16', results: null } },
+    { name: 'missing.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.16' } },
+    { name: 'notarray.json', body: { slug: 'deploy-hetzner-server', probeName: 'real-account-throwaway-server-provision', version: '1.1.16', results: 'not-an-array' } },
   ];
   for (const { name, body } of cases) {
     const scratch = join(tmpdir(), `rcf-lite-walker-emptyresults-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
@@ -1169,7 +1169,7 @@ test('deploy-hetzner-server v1.1.15 repository walk: empty / non-array / missing
     await writeFile(join(dir, name), JSON.stringify(body, null, 2) + '\n', 'utf8');
     try {
       await assert.rejects(
-        () => walkRepositoryRecords(dir, '1.1.15', shipped),
+        () => walkRepositoryRecords(dir, '1.1.16', shipped),
         /results must be (an array|a non-empty array)/,
       );
     } finally {
@@ -1177,10 +1177,10 @@ test('deploy-hetzner-server v1.1.15 repository walk: empty / non-array / missing
     }
   }
 });
-// v1.1.15 negative case (item 2d, malformed row): `walkRepositoryRecords`
+// v1.1.16 negative case (item 2d, malformed row): `walkRepositoryRecords`
 // REJECTS a row lacking evidence / limitation / skip reason /
 // notObservableHere.ac.
-test('deploy-hetzner-server v1.1.15 repository walk: a malformed row (no evidence / limitation / reason) is REJECTED through walkRepositoryRecords', async () => {
+test('deploy-hetzner-server v1.1.16 repository walk: a malformed row (no evidence / limitation / reason) is REJECTED through walkRepositoryRecords', async () => {
   const { mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
   const shipped = await loadShippedAcs();
@@ -1190,26 +1190,26 @@ test('deploy-hetzner-server v1.1.15 repository walk: a malformed row (no evidenc
   const rec = {
     slug: 'deploy-hetzner-server',
     probeName: 'real-account-throwaway-server-provision',
-    version: '1.1.15',
+    version: '1.1.16',
     results: [{ anchorAcId: 'AC-37103-1', verdict: 'pass', detail: 'no observations, no evidence, no skip reason' }],
   };
   await writeFile(join(dir, 'stubrow.json'), JSON.stringify(rec, null, 2) + '\n', 'utf8');
   try {
     await assert.rejects(
-      () => walkRepositoryRecords(dir, '1.1.15', shipped),
+      () => walkRepositoryRecords(dir, '1.1.16', shipped),
       /row lacking evidence \/ limitation \/ skip reason/,
     );
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
 });
-// v1.1.15 negative case (item 3, event correlation): an event
+// v1.1.16 negative case (item 3, event correlation): an event
 // whose `name` or `detail` carries the digits of the vendor id but
 // whose top-level `id` field differs (or is absent) does NOT
 // correlate. Proved by invoking `walkRecordRow` on a synthetic
 // record whose eventTrail carries a misleading event; the same
 // helper the repository walk uses in production.
-test('deploy-hetzner-server v1.1.15 event correlation via walkRecordRow: a misleading event with different top-level id FAILS; an event whose id equals the row id CORRELATES', async () => {
+test('deploy-hetzner-server v1.1.16 event correlation via walkRecordRow: a misleading event with different top-level id FAILS; an event whose id equals the row id CORRELATES', async () => {
   const shipped = await loadShippedAcs();
   const idNum = 424242;
   const row = {
@@ -1217,23 +1217,26 @@ test('deploy-hetzner-server v1.1.15 event correlation via walkRecordRow: a misle
     verdict: 'pass',
     evidence: { serverId: idNum, primaryIpv4: '198.51.100.10', location: 'fsn1' },
   };
-  // Negative: the event's `name` and `detail` carry the digits, but
-  // the event's own top-level `id` field is a different vendor id.
-  // The walker refuses substring correlation and refuses a nested
-  // `serverId` (the shipped producer never emits that field on an
-  // event body).
+  // Negative: an exact instance of the shipped `hetznerServerProvisioned`
+  // event (see `fixtures/hetzner-throwaway-server/provision.mjs`
+  // :77-85), same field set, but with a different top-level `id`
+  // and the digits of the row's `serverId` embedded inside the
+  // `name` field the producer really emits. No invented `detail`
+  // field, nothing omitted. The walker refuses.
   const misleadingRecord = {
     slug: 'deploy-hetzner-server',
     probeName: 'real-account-throwaway-server-provision',
-    version: '1.1.15',
+    version: '1.1.16',
     results: [row],
     eventTrail: [
       {
         event: 'hetznerServerProvisioned',
         id: 4242424,
         name: `throwaway-${idNum}`,
-        detail: `server ${idNum} came up clean`,
         primaryIpv4: '198.51.100.10',
+        location: 'fsn1',
+        serverType: 'cx11',
+        ts: 1_726_100_000_000,
       },
     ],
   };
@@ -1241,12 +1244,14 @@ test('deploy-hetzner-server v1.1.15 event correlation via walkRecordRow: a misle
     () => walkRecordRow({ row, probeName: 'real-account-throwaway-server-provision', name: 'misleading.json', shipped, record: misleadingRecord }),
     /is not present in this record's eventTrail/,
   );
-  // Positive control: same digits, but the event's top-level `id`
-  // is the vendor id the row's evidence records.
+  // Positive control: an exact instance of the shipped
+  // `hetznerServerProvisioned` event with every field the producer
+  // emits (no invented detail, nothing omitted); the event's own
+  // top-level `id` field equals the row's `evidence.serverId`.
   const honestRecord = {
     slug: 'deploy-hetzner-server',
     probeName: 'real-account-throwaway-server-provision',
-    version: '1.1.15',
+    version: '1.1.16',
     results: [row],
     eventTrail: [
       {
@@ -1254,20 +1259,26 @@ test('deploy-hetzner-server v1.1.15 event correlation via walkRecordRow: a misle
         id: idNum,
         name: 'throwaway',
         primaryIpv4: '198.51.100.10',
+        location: 'fsn1',
+        serverType: 'cx11',
+        ts: 1_726_100_000_000,
       },
     ],
   };
   const ok = walkRecordRow({ row, probeName: 'real-account-throwaway-server-provision', name: 'honest.json', shipped, record: honestRecord });
   assert.equal(ok.inventoryHit, true);
-  // Missing-field control: an event without an `id` field must not
-  // correlate no matter what its name or detail carry.
+  // Missing-provisioned-event control: a real shipped Compose
+  // event (`sshReady`, from `fixtures/hetzner-throwaway-server/src/compose-stack-driver.mjs`)
+  // whose `{event, at, detail}` shape carries the digits inside
+  // the shipped `detail` string but no `hetznerServerProvisioned`
+  // entry at all. The walker refuses.
   const bareRecord = {
     slug: 'deploy-hetzner-server',
     probeName: 'real-account-throwaway-server-provision',
-    version: '1.1.15',
+    version: '1.1.16',
     results: [row],
     eventTrail: [
-      { event: 'sshReady', at: '2026-09-11T00:00:00.000Z', detail: `has the digits ${idNum}` },
+      { event: 'sshReady', at: '2026-09-11T00:00:00.000Z', detail: `attempts=1 waitedMs=${idNum} ready=true` },
     ],
   };
   assert.throws(

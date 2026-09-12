@@ -1,3 +1,9 @@
+## 1.1.16 - 2026-09-12
+
+- Event-correlation fixtures are exact instances of the shipped `hetznerServerProvisioned` event (v1.1.16). The positive and negative controls in `deploy-hetzner-server-anatomy.test.js` are built from the field set the shipped producer emits (`fixtures/hetzner-throwaway-server/provision.mjs` :77-85 and `src/provisioner-facade.mjs` :93-100): every field the producer emits, no invented `detail`, nothing omitted. The negative shares the same shape as the positive with a different top-level `id`, and carries the digits of the row's `evidence.serverId` inside the shipped `name` string field the producer really emits. Every control calls `walkRecordRow` end to end.
+- `blueprint.json` bumps to 1.1.16 with the anatomy pin in lockstep; `updatedAt` refreshed. Family records regenerated through the shipped run path with no account variables set so each carries `version: "1.1.16"` and the repository walk validates all six.
+- Colour on E is unchanged: AMBER on **AC-37101-1**, **AC-37102-1**, **AC-37104-1**, **AC-37106-1**, **AC-37107-1**, **AC-37109-1** and **AC-37109-3**; GREEN on every other shipped AC that a real-account probe observes with an identifier of the required shape present in the record's own engine evidence.
+
 ## 1.1.15 - 2026-09-12
 
 - Split record walker: `walkRepositoryRecords(dir, expectedVersion)` and `walkHandOffRecords(dir)` (v1.1.15). Two functions, two tests, no shared bypass. The repository walk (what CI runs) has NO conditional branch tied to any override: every present record under `.rcf/reports/blueprints/deploy-hetzner-server/` MUST carry `version === blueprint.version` and a missing or different version FAILS with the file named. The hand-off walk runs only when `RCF_LITE_RECORDS_DIR` is set, applies every row validator to the operator-side records, and asserts in its own message that those records predate the version writer (they carry no `version` field, and hand-editing a version into a hand-off record is out). There is no `RCF_LITE_EXPECTED_VERSION` variable anywhere.
@@ -147,4 +153,4 @@ Trace: hetzner-shipped-spec-2026-09-07.md section 5.1;
 maintainer ruling 2026-09-07 09:50Z (decisions 18 through 24 approved as
 recommended, "shipped - agreee to all").
 
-Review-fix (2026-09-09): Adds three option-binding ACs to close section 7c on the elicits catalogue - provisioning-tool raw-api (AC-37101-5), server-type SKU enum (AC-37103-4 naming every shipped SKU), location enum (AC-37103-5 naming every shipped datacentre). Adds deliveredBy on REQ-003, REQ-005, REQ-006. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-37101-2, AC-37105-1, AC-37108-1, AC-37108-2, AC-37108-3).
+Follow-on ratification (2026-09-09): Adds three option-binding ACs to close section 7c on the elicits catalogue - provisioning-tool raw-api (AC-37101-5), server-type SKU enum (AC-37103-4 naming every shipped SKU), location enum (AC-37103-5 naming every shipped datacentre). Adds deliveredBy on REQ-003, REQ-005, REQ-006. Sweeps vendorCitation onto fixed ACs resting on vendor facts (AC-37101-2, AC-37105-1, AC-37108-1, AC-37108-2, AC-37108-3).
