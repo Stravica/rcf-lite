@@ -11,8 +11,8 @@
  *   - a jobCompleted event fires,
  *   - jobCompleted.duration <= registry.get('refresh-cache').timeoutMs,
  *   - a scheduled-to-started DELTA computed in one clock domain
- *     (both timestamps come from Date.now() after the scheduler fix
- *     of 2026-09-11): the probe asserts the delta is within the
+ *     (both timestamps come from Date.now() in the shipped scheduler):
+ *     the probe asserts the delta is within the
  *     tolerance the row claims. When no tolerance can be defended,
  *     the row records the observed delta and reports it as the
  *     observed value; it never claims a tolerance it does not check.

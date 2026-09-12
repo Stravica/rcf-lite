@@ -19,8 +19,7 @@
  * The abort branch is REQUIRED , the probe sets SIMULATE_PART_UPLOAD
  * _FAIL locally on process.env for the second put (restoring the
  * previous value afterwards) so AC-28104-2 always carries observed
- * behaviour, never "path not run" (conformance remark 2026-09-11 on
- * AC-28104-2).
+ * behaviour on AC-28104-2, never "path not run".
  */
 
 import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';

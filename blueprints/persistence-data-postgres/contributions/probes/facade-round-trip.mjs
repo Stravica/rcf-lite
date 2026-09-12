@@ -15,8 +15,8 @@
  * AC-27101-1 as the nearest shipped AC (no shipped AC states the
  * end-to-end CRUD round-trip through the facade).
  *
- * POSTGRES_HOST is a required declared variable (fixture rule
- * 2026-09-11): when it is unset the probe returns the exact
+ * POSTGRES_HOST is a required declared variable: when it is unset
+ * the probe returns the exact
  * one-variable accountBoundSkipped row rather than throwing.
  *
  * Cleans up: TRUNCATE users on exit; closes the pool.

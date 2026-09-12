@@ -26,7 +26,7 @@ export const REPORT_DIR = resolve(PROJECT_ROOT, '.rcf/reports/blueprints/object-
  */
 export function aggregate(results) {
   // Empty or null result sets are a FAIL: a probe that emitted no rows
-  // proved nothing (authoring-standard rule 3, criterion e conformance 2026-09-11).
+  // proved nothing (authoring-standard rule 3, criterion e conformance).
   if (!Array.isArray(results) || results.length === 0) return 'fail';
   if (results.some((r) => r.verdict === 'fail')) return 'fail';
   if (results.some((r) => r.verdict === 'warn')) return 'warn';
