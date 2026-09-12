@@ -143,7 +143,7 @@ async function bringUpRestore() {
     'run', '-d',
     '--name', RESTORE_CONTAINER,
     '-e', 'POSTGRES_USER=rcf',
-    '-e', `POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD || ''}`,
+    '-e', 'POSTGRES_PASSWORD',
     '-e', 'POSTGRES_DB=rcf_test',
     '-p', `${RESTORE_PORT}:5432`,
     '--health-cmd', 'pg_isready -U rcf -d rcf_test',

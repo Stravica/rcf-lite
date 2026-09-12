@@ -78,7 +78,7 @@ function shortId() {
 export default async function runProbe() {
   const gate = process.env.CI_HAS_CLOUDFLARE_ACCOUNT;
   if (gate == null || gate === '') return skipResult('CI_HAS_CLOUDFLARE_ACCOUNT unset');
-  if (gate !== 'true') return skipResult(`CI_HAS_CLOUDFLARE_ACCOUNT set to ${JSON.stringify(gate)} (not "true")`);
+  if (gate !== 'true') return skipResult('CI_HAS_CLOUDFLARE_ACCOUNT (not "true")');
   if (!process.env.R2_ACCOUNT_ID) return skipResult('R2_ACCOUNT_ID unset');
   if (!process.env.R2_BUCKET) return skipResult('R2_BUCKET unset');
   if (!process.env.S3_ACCESS_KEY_ID) return skipResult('S3_ACCESS_KEY_ID unset');

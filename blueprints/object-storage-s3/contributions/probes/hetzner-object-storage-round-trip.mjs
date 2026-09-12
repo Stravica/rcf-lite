@@ -69,7 +69,7 @@ export default async function runProbe() {
     return skipResult('CI_HAS_HETZNER_OBJECT_STORAGE unset');
   }
   if (gate !== 'true') {
-    return skipResult(`CI_HAS_HETZNER_OBJECT_STORAGE set to ${JSON.stringify(gate)} (not "true")`);
+    return skipResult('CI_HAS_HETZNER_OBJECT_STORAGE (not "true")');
   }
   for (const varName of [
     'HETZNER_OBJECT_STORAGE_ACCESS_KEY_ID',

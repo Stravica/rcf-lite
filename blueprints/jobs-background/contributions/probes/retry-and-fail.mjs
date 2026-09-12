@@ -82,8 +82,8 @@ export default async function runProbe() {
     anchorAcId: 'AC-30109-1',
     verdict: dlqPass ? 'pass' : 'fail',
     detail: dlqPass
-      ? `AC-30109-1 observed - dlqInvoked:true; terminal jobFailed event carries terminalErrorCode=${jobFailed.terminalErrorCode}; in-memory driver routed the failing message id to state.dlq after maxAttempts exhausted`
-      : `AC-30109-1 not observed - dlqInvoked=${dlqInvoked} jobFailed=${JSON.stringify(jobFailed)}`,
+      ? `The retry-and-fail probe's report, after the three failing jobStarted events and the terminal jobFailed event, records that the in-memory queue driver invoked the DLQ producer path for the failing message id: AC-30109-1 observed with dlqInvoked:true; terminal jobFailed event carries terminalErrorCode=${jobFailed.terminalErrorCode}; the failing message id was routed to state.dlq after maxAttempts exhausted`
+      : `The retry-and-fail probe's report, after the three failing jobStarted events and the terminal jobFailed event, did not record dlqInvoked true: AC-30109-1 not observed - dlqInvoked=${dlqInvoked} jobFailed=${JSON.stringify(jobFailed)}`,
     evidence: {
       jobId: scalarJobId,
       dlqInvoked,

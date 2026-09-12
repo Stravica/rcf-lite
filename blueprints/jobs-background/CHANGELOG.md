@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.10 - 2026-09-12
+
+Pass-13 review follow-through: the AC-30109-1 counting-row `detail` now opens with the first eight words of the AC text before naming the observation ("The retry-and-fail probe's report, after the three failing"), matching the master brief's anchor-opening rule; the record was regenerated verbatim against the shipped in-memory fixture. Anatomy pin bumped to 1.1.10.
+
+- fix: `blueprints/jobs-background/contributions/probes/retry-and-fail.mjs` AC-30109-1 row `detail` (both pass and fail branches) opens with the first eight words of the AC's description, then names the observation.
+
 ## 1.1.9 - 2026-09-12
 
 Round-9 closure follow-through: AC-30109-1 now observed locally (dlqInvoked:true), STRICT_ID_KEYS tightened to engine-returned scalars only, anatomy comment aligned with in-memory validation. Anatomy pin bumped to 1.1.9.

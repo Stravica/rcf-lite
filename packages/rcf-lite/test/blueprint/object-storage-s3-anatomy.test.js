@@ -24,7 +24,7 @@ test('blueprint.json declares 25 contributions at v1.1.0 with capabilities objec
   // v1.0.0 shipped 21 contributions (6 REQ, 8 US, 3 TAC, 4 ADR);
   // v1.1.0 adds 4 delta contributions (1 REQ, 1 US, 1 TAC, 1 ADR)
   // for the Hetzner Object Storage adapter (total 25).
-  assert.equal(doc.version, '1.2.8');
+  assert.equal(doc.version, '1.2.9');
   assert.equal(doc.category, 'object-storage');
   assert.deepEqual(doc.capabilities, ['objectStorage']);
   assert.equal(doc.contributions.length, 25);
@@ -407,5 +407,54 @@ test('section 6a table gains an objectStorage row and every shipped blueprint do
       if (err.code === 'ENOENT') continue;
       throw err;
     }
+  }
+});
+
+// TC-071-skip-shape-negative: synthetic assertion that the R2 and Hetzner
+// non-"true" skip reasons emitted by the two account-bound probes
+// (`r2-real-account-smoke.mjs`, `hetzner-object-storage-round-trip.mjs`)
+// parse to a bare declared env-var name under the anatomy's exact
+// accepted regex; the malformed pre-pass-13 shape `<VAR> set to "..." (not "true")`
+// is rejected. This keeps the S3 anatomy's negative-case coverage
+// aligned with the jobs anatomy's own skip-shape negative block.
+test('anatomy accountBoundSkipped reason parses R2 and Hetzner non-"true" shapes to the same env var (TC-071-skip-shape-negative)', () => {
+  const strip = /^([A-Z][A-Z0-9_]+)(?: unset| \(not "true"\))$/;
+  const declared = new Set([
+    'S3_ENDPOINT_URL',
+    'CI_HAS_CLOUDFLARE_ACCOUNT', 'R2_ACCOUNT_ID', 'R2_BUCKET',
+    'CI_HAS_HETZNER_OBJECT_STORAGE',
+  ]);
+  const cases = [
+    { reason: 'CI_HAS_CLOUDFLARE_ACCOUNT unset', expected: 'CI_HAS_CLOUDFLARE_ACCOUNT' },
+    { reason: 'CI_HAS_CLOUDFLARE_ACCOUNT (not "true")', expected: 'CI_HAS_CLOUDFLARE_ACCOUNT' },
+    { reason: 'CI_HAS_HETZNER_OBJECT_STORAGE unset', expected: 'CI_HAS_HETZNER_OBJECT_STORAGE' },
+    { reason: 'CI_HAS_HETZNER_OBJECT_STORAGE (not "true")', expected: 'CI_HAS_HETZNER_OBJECT_STORAGE' },
+    { reason: 'S3_ENDPOINT_URL unset', expected: 'S3_ENDPOINT_URL' },
+  ];
+  for (const c of cases) {
+    const m = c.reason.match(strip);
+    assert.ok(m, 'reason ' + JSON.stringify(c.reason) + ' must parse as <VAR> unset or <VAR> (not "true")');
+    assert.equal(m[1], c.expected, 'stripped var name must be ' + c.expected);
+    assert.ok(declared.has(m[1]), 'stripped var name must be a declared env var');
+    assert.match(c.reason, / unset$| \(not "true"\)$/, 'anatomy suffix regex must match');
+    const stripped = c.reason.replace(/ unset$| \(not "true"\)$/, '').trim();
+    assert.equal(stripped, c.expected, 'anatomy suffix strip must yield the bare var name');
+  }
+  // Negative cases: shapes the anatomy MUST reject. The first two are
+  // the exact malformed pre-pass-13 R2 and Hetzner emissions.
+  const rejects = [
+    'CI_HAS_CLOUDFLARE_ACCOUNT set to "1" (not "true")',
+    'CI_HAS_HETZNER_OBJECT_STORAGE set to "yes" (not "true")',
+    'CI_HAS_CLOUDFLARE_ACCOUNT was empty',
+    'CI_HAS_CLOUDFLARE_ACCOUNT and R2_BUCKET unset',
+    'invalid',
+  ];
+  for (const bad of rejects) {
+    let stripped = null;
+    if (/ unset$| \(not "true"\)$/.test(bad)) {
+      stripped = bad.replace(/ unset$| \(not "true"\)$/, '').trim();
+    }
+    const parsesToBareVar = stripped != null && /^[A-Z][A-Z0-9_]+$/.test(stripped);
+    assert.equal(parsesToBareVar, false, 'anatomy MUST reject ' + JSON.stringify(bad));
   }
 });

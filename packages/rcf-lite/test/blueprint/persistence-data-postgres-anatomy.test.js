@@ -24,7 +24,7 @@ const AUTHORING_DOC = join(REPO_ROOT, 'packages', 'rcf-lite', 'docs', 'blueprint
 test('blueprint.json declares 26 contributions with capabilities relationalStore and suggestedCompanions logging and errorHandling (TC-070-blueprint-json-shape)', async () => {
   const doc = JSON.parse(await readFile(join(BLUEPRINT_ROOT, 'blueprint.json'), 'utf8'));
   assert.equal(doc.slug, 'persistence-data-postgres');
-  assert.equal(doc.version, '1.1.9');
+  assert.equal(doc.version, '1.1.10');
   assert.equal(doc.category, 'persistence');
   assert.deepEqual(doc.capabilities, ['relationalStore']);
   assert.equal(doc.contributions.length, 26);
@@ -188,11 +188,13 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   // record path is no longer read on this seam). EVERY result row is
   // validated in-place against one of four shapes:
   //   (a) a real observation carrying an `evidence` object with BOTH
-  //       an id-shape witness (request id, http/status code, exit code,
-  //       event record, metadata bag, ids collection) AND a
-  //       derived-value witness (byte count, body sample, checksum,
-  //       inventory-diff key, per-site record, timing metric,
-  //       teardown record) - witness check is idWitness AND derivedWitness,
+  //       an id-shape witness (a NON-EMPTY STRING under one of the
+  //       STRICT_ID_KEYS - the engine-returned scalar identifier key
+  //       names permitted by round-8: booleans, numbers, arrays and
+  //       objects never qualify) AND a derived-value witness (byte
+  //       count, body sample, checksum, inventory-diff key, per-site
+  //       record, timing metric, teardown record) under a DIFFERENT
+  //       key - witness check is idWitness AND derivedWitness,
   //       never OR;
   //   (b) `conformanceOnly: true` with `anchorAcId: null` and a
   //       `limitation` string that names at least one shipped AC id;

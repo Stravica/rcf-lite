@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.9 - 2026-09-12
+
+Pass-13 review follow-through: R2 and Hetzner account-bound skips now emit the exact anatomy-accepted shape (`<VAR> (not "true")` with no `set to "..."` preamble); a new synthetic negative-case test in the object-storage-s3 anatomy proves the accepted shapes parse to a bare declared env-var name and rejects the malformed pre-pass-13 emissions. Anatomy pin bumped to 1.2.9.
+
+- fix: `blueprints/object-storage-s3/contributions/probes/r2-real-account-smoke.mjs` non-"true" skip emits `CI_HAS_CLOUDFLARE_ACCOUNT (not "true")` (no value preamble, no `set to`).
+- fix: `blueprints/object-storage-s3/contributions/probes/hetzner-object-storage-round-trip.mjs` non-"true" skip emits `CI_HAS_HETZNER_OBJECT_STORAGE (not "true")` (same rule).
+- test: `packages/rcf-lite/test/blueprint/object-storage-s3-anatomy.test.js` adds TC-071-skip-shape-negative covering CI_HAS_CLOUDFLARE_ACCOUNT, CI_HAS_HETZNER_OBJECT_STORAGE and S3_ENDPOINT_URL in both accepted shapes and the malformed shapes the anatomy MUST reject (including the exact pre-pass-13 R2 and Hetzner emissions).
+
 ## 1.2.8 - 2026-09-12
 
 Round-9 closure follow-through: Hetzner event-secrecy row anchor corrected, R2 inventory-diff row de-claimed to conformance-only, event-secrecy fixture stops leaking engine-returned ids on the lifecycle event stream, STRICT_ID_KEYS tightened to engine-returned scalars only. Anatomy pin bumped to 1.2.8.
