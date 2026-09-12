@@ -1221,9 +1221,9 @@ test('platform-docker-compose-host v1.1.17 repository walk: a malformed row (no 
 // correlation is consulted. `walkComposeRecordRow` refuses a row
 // whose `evidence.serverId` does NOT match the record's own top-
 // level `serverId` field even when an event's `detail` carries the
-// digits, and even when a bogus `serverId` is invented on the event
-// body; a substring over the event body does NOT count.
-test('platform-docker-compose-host v1.1.17 correlation via walkComposeRecordRow: mismatched record.serverId FAILS; matching record.serverId CORRELATES; invented event serverId is ignored', async () => {
+// digits, and refuses again when the record has no top-level
+// `serverId` at all. Events are left untouched.
+test('platform-docker-compose-host v1.1.17 correlation via walkComposeRecordRow: mismatched record.serverId FAILS; matching record.serverId CORRELATES; missing record.serverId FAILS', async () => {
   const shipped = await loadShippedAcs();
   const idNum = 424245;
   const buildBurstRow = () => ({
