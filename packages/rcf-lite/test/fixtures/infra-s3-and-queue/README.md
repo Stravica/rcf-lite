@@ -172,7 +172,7 @@ The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs
 
 ## jobs-background slice
 
-The jobs-background slice extends the fixture with a `jobs/` directory carrying two toy job-definition modules, `src/jobs-runtime.mjs` realising the runtime that reads applied capabilities from the sidecar and hands off messages from the applied queue, `src/scheduler.mjs` realising the `inProcess` scheduler with a fake-clock seam, and `src/job-run-log.mjs` realising the jobs-owned event sink (whitelist `event, jobId, jobName, attempts, duration, timestamp` plus optional `terminalErrorCode`; the messaging-queue event sink at `src/event-sink.mjs` is untouched, its whitelist `event, ts, messageId, queueName, attempts` stays frozen at v1.0.0 per the round-5 spec). No new runtime dependencies land in the fixture's `package.json`; the jobs runtime is dependency-free Node code and composes on top of the messaging-queue in-memory queue seam.
+The jobs-background slice extends the fixture with a `jobs/` directory carrying two toy job-definition modules, `src/jobs-runtime.mjs` realising the runtime that reads applied capabilities from the sidecar and hands off messages from the applied queue, `src/scheduler.mjs` realising the `inProcess` scheduler with a fake-clock seam, and `src/job-run-log.mjs` realising the jobs-owned event sink (whitelist `event, jobId, jobName, attempts, duration, timestamp` plus optional `terminalErrorCode`; the messaging-queue event sink at `src/event-sink.mjs` is untouched, its whitelist `event, ts, messageId, queueName, attempts` stays frozen at v1.0.0 per the infra spec). No new runtime dependencies land in the fixture's `package.json`; the jobs runtime is dependency-free Node code and composes on top of the messaging-queue in-memory queue seam.
 
 - `jobs/send-welcome-email.mjs`: toy one-shot delayed job. `name`, `handler`, `inputSchema` (opaque), `retryPolicy: { maxAttempts: 3, backoff: 'exponential' }`, `timeoutMs: 60000` (ADR-3104 default).
 - `jobs/refresh-cache.mjs`: toy POSIX cron job. Adds `cron: '* * * * *'`, `retryPolicy: { maxAttempts: 5, backoff: 'constant' }`, `timeoutMs: 10000`.
@@ -219,7 +219,7 @@ The reserved v1.1.0 `workflows` scheduler mode is documented in the guide but no
 
 ## Declared env vars (object-storage-s3 pack)
 
-Every environment variable this fixture or any object-storage-s3 probe it hosts reads is declared here. A first-tier `CI_HAS_*` variable gates the account-bound branch of a real-account probe; a second-tier variable, when unset with the gate set, causes the probe to record `accountBoundSkipped: true` and a `reason` field naming the missing variable per authoring standard section 7d. A probe that reads any variable not on this table fails the positive-evidence gate row at review time.
+Every environment variable this fixture or any object-storage-s3 probe it hosts reads is declared here. A first-tier `CI_HAS_*` variable gates the account-bound branch of a real-account probe; a second-tier variable, when unset with the gate set, causes the probe to record `accountBoundSkipped: true` and a `reason` field naming the missing variable per authoring standard section 7d. A probe that reads any variable not on this table fails the positive-evidence gate row when the anatomy scans it (authoring standard section 7d).
 
 | Env var | Tier | Purpose | Consumed by |
 |---|---|---|---|
