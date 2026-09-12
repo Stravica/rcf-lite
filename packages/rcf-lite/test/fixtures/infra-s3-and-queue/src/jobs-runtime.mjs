@@ -118,7 +118,13 @@ export function createJobsRuntime({ jobRegistry, runLog, env = process.env }) {
             timestamp: new Date().toISOString(),
             terminalErrorCode: (err && err.message) ? err.message : 'unknownTerminal',
           });
-          msg.ack();
+          // AC-30109-1: on terminal failure the runtime routes the
+          // message to the driver's DLQ producer path. msg.retry() on
+          // an already-terminal attempt increments attempts past
+          // maxRetries so the driver pushes the entry to state.dlq
+          // (dlqInvoked:true) rather than silently acking a lost
+          // failing job.
+          msg.retry();
         } else {
           msg.retry();
         }

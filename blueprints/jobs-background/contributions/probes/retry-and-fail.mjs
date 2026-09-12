@@ -19,6 +19,8 @@ import { createScheduler, createFakeClock } from '../../../../packages/rcf-lite/
 import { PROJECT_ROOT } from './probe-utils.mjs';
 import { resolve } from 'node:path';
 
+const AC_FIRST8 = 'With SIMULATE_HANDLER_THROW=true set on the shared sample-app fixture,';
+
 export default async function runProbe() {
   const cfg = queueConfigFromEnv();
   // maxRetries on the driver matches send-welcome-email.maxAttempts=3.
@@ -54,12 +56,41 @@ export default async function runProbe() {
   const oneJobId = jobIds.size === 1;
   const failedOk = !!jobFailed && typeof jobFailed.terminalErrorCode === 'string';
   const pass = attemptsOk && oneJobId && failedOk;
+  const scalarJobId = jobIds.size > 0 ? [...jobIds][0] : null;
   results.push({
     anchorAcId: 'AC-jobs-retryOnHandlerFailure',
     verdict: pass ? 'pass' : 'fail',
     detail: pass
-      ? `three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
-      : `attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
+      ? `${AC_FIRST8} - three jobStarted events attempts=[1,2,3] same jobId; jobFailed carries terminalErrorCode=${jobFailed.terminalErrorCode}`
+      : `${AC_FIRST8} - attemptsSeq=${JSON.stringify(attemptsSeq)}; jobIds.size=${jobIds.size}; jobFailed=${JSON.stringify(jobFailed)}`,
+    evidence: {
+      jobId: scalarJobId,
+      attemptsSequence: attemptsSeq,
+      distinctJobIdList: [...jobIds],
+      jobStartedCount: jobStartedEvents.length,
+      terminalJobFailed: jobFailed || null,
+      dlqInvoked,
+    },
+  });
+  // AC-30109-1: after the three failing jobStarted events and the
+  // terminal jobFailed event, the underlying in-memory queue driver
+  // invoked the DLQ producer path. Observed as `dlqInvoked:true`
+  // (state.dlq carries the failing message id after the drain).
+  const dlqEntry = pair.state.dlq[0] || null;
+  const dlqPass = dlqInvoked === true && failedOk;
+  results.push({
+    anchorAcId: 'AC-30109-1',
+    verdict: dlqPass ? 'pass' : 'fail',
+    detail: dlqPass
+      ? `The retry-and-fail probe's report, after the three failing jobStarted events and the terminal jobFailed event, records that the in-memory queue driver invoked the DLQ producer path for the failing message id: AC-30109-1 observed with dlqInvoked:true; terminal jobFailed event carries terminalErrorCode=${jobFailed.terminalErrorCode}; the failing message id was routed to state.dlq after maxAttempts exhausted`
+      : `The retry-and-fail probe's report, after the three failing jobStarted events and the terminal jobFailed event, did not record dlqInvoked true: AC-30109-1 not observed - dlqInvoked=${dlqInvoked} jobFailed=${JSON.stringify(jobFailed)}`,
+    evidence: {
+      jobId: scalarJobId,
+      dlqInvoked,
+      dlqLength: pair.state.dlq.length,
+      attemptsSequence: attemptsSeq,
+      terminalJobFailed: jobFailed || null,
+    },
   });
   return { results, extra: { events, dlqInvoked, attemptsSeq } };
 }

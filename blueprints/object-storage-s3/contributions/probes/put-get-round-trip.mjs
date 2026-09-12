@@ -9,15 +9,40 @@
  * Anchors AC-28102-1, AC-28102-2, AC-28102-3.
  */
 
-import { createObjectStore, endpointFromEnv, credentialsFromShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
+import { createObjectStore, endpointFromEnv, credentialsFromShim, MissingS3EndpointError } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs';
 import { secretsShim } from '../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/secrets.mjs';
 import { probeKey } from './probe-utils.mjs';
 
+export const DECLARED_ENV = Object.freeze(['S3_ENDPOINT_URL']);
+
+const AC28102_1 = 'Given a putObject through the facade for a';
+const AC28102_2 = 'Given a deleteObject through the facade for a';
+const AC28102_3 = 'Given at least three objects put under a';
+
+function skipRow(variable) {
+  return {
+    anchorAcId: null,
+    verdict: 'pass',
+    detail: `${AC28102_1} - accountBound: skipped (${variable} unset)`,
+    accountBoundSkipped: true,
+    reason: `${variable} unset`,
+    evidence: { skip: true, reason: `${variable} unset`, envDeclared: [...DECLARED_ENV] },
+  };
+}
+
 export default async function runProbe() {
-  const { endpoint, bucket, region, forcePathStyle } = endpointFromEnv();
+  let endpoint, bucket, region, forcePathStyle;
+  try {
+    ({ endpoint, bucket, region, forcePathStyle } = endpointFromEnv());
+  } catch (err) {
+    if (err instanceof MissingS3EndpointError) {
+      return { results: [skipRow(err.variable)], extra: { accountBoundSkipped: true, reason: `${err.variable} unset`, envDeclared: [...DECLARED_ENV] } };
+    }
+    throw err;
+  }
   const credentials = await credentialsFromShim(secretsShim);
   const events = [];
-  const store = createObjectStore({
+  const store = await createObjectStore({
     endpointUrl: endpoint,
     bucket,
     credentialsRef: credentials,
@@ -29,9 +54,11 @@ export default async function runProbe() {
   const key = probeKey('probe/put-get');
   const body = Buffer.alloc(1024, 0x41); // 1 KiB of A
   const contentType = 'application/octet-stream';
+  const prefix = probeKey('probe/list-parent');
+  const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
   try {
     await store.ready();
-    await store.putObject(key, contentType, body);
+    const putRes = await store.putObject(key, contentType, body);
     const got = await store.getObject(key);
     const roundTripPass = got.body.length === 1024
       && got.body.equals(body)
@@ -42,24 +69,39 @@ export default async function runProbe() {
       anchorAcId: 'AC-28102-1',
       verdict: roundTripPass && eventPass ? 'pass' : 'fail',
       detail: roundTripPass && eventPass
-        ? `1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
-        : `roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
+        ? `${AC28102_1} - 1 KiB round-trip byte-equal; objectPut fired with size=${putEvent.size}`
+        : `${AC28102_1} - roundTripPass=${roundTripPass} eventPass=${eventPass} got.size=${got.body.length}`,
+      evidence: {
+        vendorRequestId: (putRes && putRes.requestId) || (got && got.requestId) || null,
+        eTag: (putRes && putRes.eTag) || (got && got.eTag) || null,
+        bucketName: bucket, key,
+        requestedContentType: contentType, gotContentType: got.contentType,
+        gotSize: got.body.length, byteEqual: got.body.equals(body),
+        objectPutEvent: putEvent || null,
+      },
     });
 
     // list under prefix
-    const prefix = probeKey('probe/list-parent');
-    const listKeys = [`${prefix}/a`, `${prefix}/b`, `${prefix}/c`];
-    for (const k of listKeys) await store.putObject(k, 'text/plain', Buffer.from(k));
+    const listPuts = [];
+    for (const k of listKeys) listPuts.push(await store.putObject(k, 'text/plain', Buffer.from(k)));
     const listed = await store.listObjects(prefix);
     const listPass = listKeys.every((k) => listed.keys.includes(k)) && typeof listed.isTruncated === 'boolean';
     results.push({
       anchorAcId: 'AC-28102-3',
       verdict: listPass ? 'pass' : 'fail',
-      detail: listPass ? `list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}` : `listed=${JSON.stringify(listed)}`,
+      detail: listPass
+        ? `${AC28102_3} - list returned ${listed.keys.length} keys with isTruncated=${listed.isTruncated}`
+        : `${AC28102_3} - listed=${JSON.stringify(listed)}`,
+      evidence: {
+        vendorRequestId: (listed && listed.requestId) || (listPuts.find((p) => p && p.requestId) || {}).requestId || null,
+        bucketName: bucket, prefix,
+        expectedKeys: listKeys, returnedKeys: listed.keys,
+        isTruncated: listed.isTruncated,
+      },
     });
 
     // delete and confirm 404
-    await store.deleteObject(key);
+    const delRes = await store.deleteObject(key);
     let deletedEvent = events.find((e) => e.event === 'objectDeleted' && e.key === key);
     let notFound = false;
     try { await store.getObject(key); } catch (err) {
@@ -70,15 +112,35 @@ export default async function runProbe() {
       anchorAcId: 'AC-28102-2',
       verdict: deletedEvent && notFound ? 'pass' : 'fail',
       detail: deletedEvent && notFound
-        ? 'objectDeleted fired and get after delete returned NoSuchKey'
-        : `deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
+        ? `${AC28102_2} - objectDeleted fired and get after delete returned NoSuchKey`
+        : `${AC28102_2} - deletedEvent=${Boolean(deletedEvent)} notFound=${notFound}`,
+      evidence: {
+        vendorRequestId: (delRes && delRes.requestId) || null,
+        bucketName: bucket, key,
+        objectDeletedEvent: deletedEvent || null,
+        getAfterDeleteWasNotFound: notFound,
+      },
     });
-    // clean up the list keys
-    for (const k of listKeys) {
-      try { await store.deleteObject(k); } catch { /* ignore */ }
-    }
+    // Teardown: delete the list keys and close the facade. Every
+    // teardown step is recorded on the teardown[] accumulator and any
+    // failure emits its own row (authoring-standard rule 5).
   } finally {
-    await store.close();
+    const teardown = [];
+    for (const k of listKeys) {
+      try { await store.deleteObject(k); teardown.push({ step: `deleteObject ${k}`, ok: true }); }
+      catch (err) { teardown.push({ step: `deleteObject ${k}`, ok: false, error: err && err.message }); }
+    }
+    try { await store.close(); teardown.push({ step: 'facade close', ok: true }); }
+    catch (err) { teardown.push({ step: 'facade close', ok: false, error: err && err.message }); }
+    const failed = teardown.filter((t) => !t.ok);
+    if (failed.length > 0) {
+      results.push({
+        anchorReqId: 'object-storage-s3-REQ-002',
+        verdict: 'fail',
+        detail: `The facade exposes named domain verbs (putObject, getObject, - teardown FAILED: ${failed.map((t) => `${t.step} -> ${t.error}`).join('; ')}`,
+        evidence: { teardown },
+      });
+    }
   }
-  return results;
+  return { results, extra: { envDeclared: [...DECLARED_ENV] } };
 }

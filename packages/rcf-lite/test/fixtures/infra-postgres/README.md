@@ -72,3 +72,22 @@ docker compose down -v
 ```
 
 Removes the container and the named volume so a fresh boot re-applies migrations from schema_version 0.
+
+## Declared env vars
+
+Every environment variable this fixture or any probe it hosts reads is declared here. A probe that reads any variable not on this table fails the positive-evidence gate row when the anatomy scans it (authoring standard section 7d). `POSTGRES_HOST` is a required declared variable with no literal default in fixture code: when it is unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and each probe records the exact one-variable `accountBoundSkipped` row rather than trying to reach a hard-coded endpoint. To run the probes against the local `postgres:17-alpine` container from `docker compose up -d postgres`, set `POSTGRES_HOST` explicitly (to the reachable host or docker-compose host name) before invoking the probe or the anatomy test.
+
+| Env var | Purpose | Consumed by |
+|---|---|---|
+| `POSTGRES_HOST` | Connection host. Required declared variable; no literal default. When unset `connectionUrlFromEnv` throws `MissingPostgresHostError` and every consumer probe returns the exact one-variable `accountBoundSkipped` row. | `src/store.mjs` (via `connectionUrlFromEnv`) |
+| `POSTGRES_PORT` | Connection port (default `5432`; docker-compose accepts the same var to override the host-side bind). | `src/store.mjs`, `docker-compose.yml` |
+| `POSTGRES_USER` | Connection user (default `rcf`). | `src/store.mjs` |
+| `POSTGRES_PASSWORD` | Connection password (fixture-only default; a project overrides via env). | `src/store.mjs` |
+| `POSTGRES_DB` | Connection database (default `rcf_test`). | `src/store.mjs` |
+| `POSTGRES_SOURCE_CONTAINER` | Docker container name of the source postgres for the recovery-restore-round-trip probe's `pg_dump` exec (default `infra-postgres-postgres-1`; a CI runner or positive-evidence run overrides to the actual container name in use). | `blueprints/persistence-data-postgres/contributions/probes/recovery-restore-round-trip.mjs` |
+| `POSTGRES_RESTORE_CONTAINER` | Docker container name the recovery-restore-round-trip probe uses for its throwaway restore container (default `infra-postgres-restore`). | same probe |
+| `POSTGRES_RESTORE_PORT` | Host port the recovery-restore-round-trip probe binds the throwaway restore container to (default `55432`; a positive-evidence run picks a port from its family's range to avoid parallel-run collisions). | same probe |
+| `SIMULATE_MIGRATION_FAILURE` | Induced-failure switch: drives the migration runner's second migration to invalid SQL so the negative-run assertion (rollback + failing filename in stderr) fires. | `src/migrate.mjs`, `migration-apply` probe |
+| `SIMULATE_CONSTRAINT_VIOLATION` | Induced-failure switch: forces the transaction-atomicity probe's second INSERT to violate the UNIQUE constraint so `transactionRolledBack` fires with `statementIndex: 1`. | `src/store.mjs`, `transaction-atomicity` probe |
+
+Only `POSTGRES_HOST` gates an `accountBoundSkipped` branch (the fixture rule: no literal endpoint host default in fixture code). When set, every probe in this pack runs against a locally-hosted `postgres:17-alpine` engine and produces positive evidence (row ids, transaction ids, event payloads, `pg_dump` byte counts, row-count and md5 checksum equality between source and restored databases, `.query` call-site tallies) rather than an `accountBoundSkipped` record. When unset, each probe emits exactly one `accountBoundSkipped` row naming `POSTGRES_HOST` and returns without touching the driver.
