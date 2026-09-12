@@ -79,4 +79,4 @@ Suffix-family ids (ADR, TAC) are string-distinct once slug-suffixed. SPA numbers
 
 ## v1.0.0 US-1101 collision note (preserved)
 
-A collision surfaced in an early real-world run: a project-side `US-1101` derived mechanically from `REQ-011` (leading `11` + sequence `01`) collided with the application-spa blueprint's `application-spa-us-1101` at the AC-id-scoping bucket. The seat allocated the project story as `US-1181` and moved on. Lesson: keep contributions on the LOW end of the band and leave headroom at the HIGH end for project-side stories that mechanically derive to your numbers. v1.1 preserves this lesson: US-1129 and US-1130 remain at the low end.
+A project-side `US-1101` derived mechanically from `REQ-011` (leading `11` + sequence `01`) collides with the application-spa blueprint's `application-spa-us-1101` at the AC-id-scoping bucket; the project story is allocated as `US-1181` instead. Rule: keep contributions on the LOW end of the band and leave headroom at the HIGH end for project-side stories that mechanically derive to your numbers. v1.1 preserves this rule: US-1129 and US-1130 remain at the low end.

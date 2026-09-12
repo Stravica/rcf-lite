@@ -15,8 +15,6 @@
 
 ## 1.2.4
 
-- No functional change; README wording tightened and the guide's reference container-plus-realm shape described generically.
-
 ## 1.2.3
 
 - Rewrites `REQ-010.description` to reference `TAC-504-security-auth-magic-link-email-delivery-adapter` `responsibilities.send` rather than restate the `{ ok, providerStatus, providerMessageId, error }` return shape verbatim; the literal remains owned by the delivering TAC.

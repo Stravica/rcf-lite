@@ -1,5 +1,5 @@
 // Auth-blueprint minor-bump tests for the capability-declaration
-// mechanism (visual-round spec section 5.5.2).
+// mechanism (spec section 5.5.2).
 // Covers TS-051 test cases TC-051-auth-minors and TC-051-docs-section-6a.
 
 import { test } from 'node:test';

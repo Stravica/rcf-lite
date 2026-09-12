@@ -16,14 +16,14 @@ Anchoring: facade-round-trip anchors AC-13101-4 (missing-binding refusal) as its
 
 ## 1.1.2 - 2026-09-10
 
-Ownership-sweep follow-up for REQ-004: removed the `prepare().bind()` and `db.exec(<consumer string>)` literals from `ADR-1404.context` (the argument now names the prepared-statement discipline owned on `TAC-1401-persistence-data-d1-facade.responsibilities[2]`); added the one-line owner pointer to the facade-shape asset and the batch-usage asset naming the TAC responsibility indices they demonstrate. ADR-1404 bumped to 1.0.1. Chain-consistency lint zero on pass 1 and pass 2.
+Removed the `prepare().bind()` and `db.exec(<consumer string>)` literals from `ADR-1404.context` (the argument now names the prepared-statement discipline owned on `TAC-1401-persistence-data-d1-facade.responsibilities[2]`); added the one-line owner pointer to the facade-shape asset and the batch-usage asset naming the TAC responsibility indices they demonstrate. ADR-1404 bumped to 1.0.1.
 
 ## 1.1.1 - 2026-09-10
 
 Dimension-d single-definition-ownership cleanup on REQ-004: REQ description now references the prepared-statement discipline owned on TAC-1401 (facade responsibilities) rather than restating the vendor prepare/bind/exec literals. `deliveredBy` re-pointed at `TAC-1401-persistence-data-d1-facade.responsibilities.prepare` so the pass-2 delivery-carried check resolves against surface text present on the TAC. Chain-consistency lint zero on pass 1 and pass 2.
 
 ## 1.1.0 - 2026-09-09
-Adds deliveredBy on REQ-001. Adds ownerRef and disposition to every AC. Chain-contradiction gaps fixed: F-3 by settling the allowed query surface on ADR-1404 (db.exec refused on the facade's public verbs and on consumer code; permitted only inside the migration runner, out of consumer reach). No new contributions.
+Adds deliveredBy on REQ-001. Adds ownerRef and disposition to every AC. ADR-1404 settles the allowed query surface: `db.exec` is refused on the facade's public verbs and on consumer code, and permitted only inside the migration runner, out of consumer reach. No new contributions.
 
 
 

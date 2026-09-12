@@ -9,8 +9,6 @@
 Positive-evidence rule alignment on the probe pack skip path (authoring standard section 7d); register tidy in shipped prose (no capability change).
 
 - Probes and fixture: the account-bound skip return on `contributions/probes/real-account-gated-url.mjs` now carries a `reason` field naming the exact env var(s) that were unset; the same fixture README (`packages/rcf-lite/test/fixtures/cf-edge/README.md`) gains a "Declared env vars" section covering the access-side env-var surface, per authoring standard section 7d. Skip-path probe reports regenerated so the shipped shape carries the new field.
-- README compose bullet and consumer note stripped of internal pattern label.
-- REQ-006 description stripped of internal mechanism label.
 
 ## 1.1.2 - 2026-09-10
 
@@ -25,7 +23,7 @@ Single-mechanism story legality notes; owner reference for the audit-record shap
 
 ## 1.1.0 - 2026-09-09
 
-Adds criterion-a REQ-layer backing, criterion-b AC-set sufficiency, and criterion-c chain-consistency lint-zero across passes.
+Adds REQ-007 with its US-34110 binding, and adds failure-path ACs to US-34102, US-34104 and US-34107.
 - Added REQ-007 and US-34110: the shipped guide names, per policy-shape option, the required dashboard-owned inputs (email domain, group name, identity provider, application-vs-path scope) and every shipped elicit alongside its runtime effect (closes F-1).
 - Added failure-path ACs to US-34102 (AC-34102-2..5 close F-2: wrong audience, malformed JWT, unknown kid after refresh, JWKS-unavailable fail-closed); US-34104 (AC-34104-2..3 close F-3: neither and both application identifiers refuse apply); US-34107 (AC-34107-2..5 close F-4: break-glass disabled, wrong id, wrong secret via constant-time compare, and partial-pair fall-through).
 - Every REQ now carries `deliveredBy`; every AC carries `disposition`; ACs referencing owner-owned literals carry `ownerRef`.

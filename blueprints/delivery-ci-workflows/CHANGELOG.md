@@ -42,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 
 ## [2.0.0] - 2026-08-31
 
-Rename from `ci-pipeline` and redesign into a workflow SET the operator declares via a `workflowShape` block; introduces the elicited-check tier (linter, formatter, typecheck, unitTest, securityScan) alongside the preserved v1 RCF-gate mandatory tier; introduces the release workflow scaled across four modes; introduces the optional scheduled-audit workflow; mints one new global topic (`releaseArtefacts`). Shipped shape (Q1: one-blueprint-the-set; Q6-B: releaseMode-optional; other section-12 questions per recommended defaults).
+Rename from `ci-pipeline` and redesign into a workflow SET the operator declares via a `workflowShape` block; introduces the elicited-check tier (linter, formatter, typecheck, unitTest, securityScan) alongside the preserved v1 RCF-gate mandatory tier; introduces the release workflow scaled across four modes; introduces the optional scheduled-audit workflow; mints one new global topic (`releaseArtefacts`). Shipped shape: the blueprint owns the whole set (one-blueprint-the-set), `releaseMode` is optional, and other choices default per the shipped recommendations.
 
 ### Changed (BREAKING)
 

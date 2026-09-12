@@ -12,7 +12,7 @@
     {
       "name": "Run shallow-any as the required mode with strict as a warning gate",
       "summary": "The pipeline runs `rcf audit coverage` in shallow-any mode as required and `rcf audit coverage --strict` as a soft advisory gate whose outcome does not block merge.",
-      "reasonNotChosen": "A warning gate people learn to ignore is a gate that does not exist. The strict-mode failures observed in real-world runs are exactly the ones a warning-only gate would have surfaced and been dismissed. Strict as required is the shape that makes the mechanism useful in review."
+      "reasonNotChosen": "A warning-only gate permits the same failures and is ineffective."
     },
     {
       "name": "Run strict only after a grace period per REQ / US",

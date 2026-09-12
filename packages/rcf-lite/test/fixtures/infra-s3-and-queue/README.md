@@ -162,7 +162,7 @@ The remaining three probe shims (`run-retry-and-dlq.mjs`, `run-event-secrecy.mjs
 `node ../../../../../blueprints/messaging-queue-cloudflare/contributions/probes/run-real-account-concurrency-smoke.mjs`:
 
 - Without `CI_HAS_CLOUDFLARE_ACCOUNT`: exits 0 with `accountBoundSkipped: true` per spec section 3.5.
-- With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside credentials for the shared real-account queue `rcf-lite-ci-queue-smoke` (Q2 default per spec section 10) wired via `security-secrets-management`, a live-account run is queued as a follow-up (v1.0.0 ships the skipped-record shape; the live-account run rides `deploy-cloudflare-workers`' surface, not a Node probe module).
+- With `CI_HAS_CLOUDFLARE_ACCOUNT` set alongside credentials for the shared real-account queue `rcf-lite-ci-queue-smoke` wired via `security-secrets-management`, a live-account run is queued as a follow-up (v1.0.0 ships the skipped-record shape; the live-account run rides `deploy-cloudflare-workers`' surface, not a Node probe module).
 
 ### Known limitations (not mechanism-reach gaps)
 

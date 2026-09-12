@@ -1,6 +1,6 @@
 # Dashboard design guidance
 
-A packaged asset shipped with the `application-dashboard` blueprint. Read at apply, referenced at project-side check, and cited from every REQ, ADR and pack check that anchors on a design rule. The applying agent honours the eight sections below. Where a section names an AC id, the rule is a runtime-observable AC on this blueprint (the ship gate refuses on failure). Where a section stays operator guidance, the applying agent honours it and the shipping surface is reviewed by hand.
+A packaged asset shipped with the `application-dashboard` blueprint. Read at apply, referenced at project-side check, and cited from every REQ, ADR and pack check that anchors on a design rule. The applying agent honours the eight sections below. Where a section names an AC id, the rule is a runtime-observable AC on this blueprint (the ship gate refuses on failure). Where a section stays operator guidance, the applying agent honours it and the shipping surface is confirmed against the guidance at project-side check.
 
 Sources are cited by URL at each section. Five bodies of work anchor this guidance:
 

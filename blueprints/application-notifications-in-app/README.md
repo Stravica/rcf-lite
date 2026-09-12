@@ -34,7 +34,7 @@ The `application-notifications-` prefix is reserved for the sibling in-app-adjac
 - `application-notifications-push`: Web Push and platform APN/FCM notifications. Owns the subscription lifecycle and the platform-token store.
 - `application-notifications-webhook`: outbound HTTP notifications to operator-configured endpoints. Owns the delivery-retry semantics and the endpoint registry.
 
-The reservation is doc-only in v1.0.0 (per spec Q3 default): the family prefix is named in this README and in every shipped blueprint's `docs/topics.md` shelf band registry as a reserved-slot row. No sibling channel ships in this round. Any future PR that proposes a name outside the family (`application-alerts-email`, `application-messages-push`) reads against this reservation and stops at author-side check.
+The reservation is doc-only in v1.0.0: the family prefix is named in this README and in every shipped blueprint's `docs/topics.md` shelf band registry as a reserved-slot row. No sibling channel currently ships. Any proposal for a name outside the family (`application-alerts-email`, `application-messages-push`) reads against this reservation and is refused at author-side check.
 
 Digest opt-in on the preferences UI is elicited on the sibling channel, not here: the preferences UI carries a disabled section per sibling channel that is not yet applied, labelled `data-preference-status="sibling not applied"`. When the sibling ships and the applying project applies it, that sibling's own blueprint reads the operator's preference state and drives the digest transport.
 

@@ -19,7 +19,7 @@ Anchoring: boot-open-migrate anchors AC-5101-3 (open returns only after migratio
 - Register: neutral wording in shipped prose (no capability change).
 
 ## 1.1.0 - 2026-09-09
-Adds deliveredBy on REQ-001. Adds ownerRef on AC-5106-1 and AC-5110-2 (onEvent). Chain-contradiction gaps fixed: F-1: US-5109 AC-5109-3 now recovers a defective committed migration via a new numbered forward-only file (never editing the committed file in place), aligning with TAC-603 and the migration catalog's forward-only rule. Adds disposition to every AC.
+Adds deliveredBy on REQ-001. Adds ownerRef on AC-5106-1 and AC-5110-2 (onEvent). US-5109 AC-5109-3 recovers a defective committed migration via a new numbered forward-only file (never editing the committed file in place), aligning with TAC-603 and the migration catalog's forward-only rule. Adds disposition to every AC.
 
 
 

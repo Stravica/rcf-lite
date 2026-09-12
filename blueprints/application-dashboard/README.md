@@ -94,7 +94,7 @@ Every runtime-observable AC that is not bound to a pack check appears here indiv
 - **AC-19105-1 filter chrome accessible controls**. The pack does not enumerate filter controls today. A v1.1 minor bump could add a filter-control enumeration check.
 - **AC-19105-2 filter fan-out**. The pack asserts the timeframe fan-out (AC-19104-1); the filter-change fan-out is a mechanism-reach gap. A v1.1 minor bump could add a paired filter-change check driving the filter chip and reading the same request log.
 - **AC-19106-1 export handle accessible format list**. The pack does not open the export list today. A v1.1 minor bump could add a check that activates the export button, reads the exposed listbox and asserts the format entries.
-- **AC-19106-2 PNG-of-chart delegation**. The pack browser has no download-capture seam today, so the PNG delegation is proven at project-side check. A v1.2 runner minor with a download-capture seam would close the class.
+- **AC-19106-2 PNG-of-chart delegation**. The pack browser has no download-capture seam today, so the PNG delegation is proven at project-side check. A future runner minor would add a seam that intercepts the download stream and asserts the returned bytes are a PNG whose payload matches the rendered chart.
 - **AC-19107-2 dashboard shape reflects guidance rules**. The pack asserts the specific attributes the fixture emits (primary-KPI kind, as-of stamp, auto-refresh default); a general check that a shipped surface honours the guidance's hardened rules is project-side check.
 
 ## The pack-browser resize seam extension

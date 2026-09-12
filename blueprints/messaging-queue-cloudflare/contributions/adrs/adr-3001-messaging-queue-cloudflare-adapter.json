@@ -17,7 +17,7 @@
     {
       "name": "Kafka or NATS as the shipped v1.0.0 default",
       "summary": "Ship a self-hosted Kafka or NATS backend as the primary v1.0.0 queue.",
-      "reasonNotChosen": "A self-hosted Kafka or NATS backend adds a persistent operational surface every applying project has to run; the round-5 spec section 5.3 targets a directed producer-to-consumer worklist as a shipped shape whose applying project need not host a broker. The reserved messaging-queue-postgres sibling (sibling reservation) covers the self-hosted-transport family separately when demand mints it."
+      "reasonNotChosen": "A self-hosted Kafka or NATS backend adds a persistent operational surface every applying project has to run; a directed producer-to-consumer worklist is a shipped shape whose applying project need not host a broker. The reserved messaging-queue-postgres sibling (sibling reservation) covers the self-hosted-transport family separately when demand mints it."
     },
     {
       "name": "Ship a hand-rolled fetch client against the Queues REST API",

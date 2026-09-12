@@ -338,16 +338,16 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
 });
 
 // ---------------------------------------------------------------------------
-// Round-2 review findings:
-//   P1-1: supersede accepts camelCase topics (shipped SPA + REST are
-//         camelCase — authModel, errorEnvelope); option 3 as printed
-//         is executable end-to-end against the shipped blueprints.
-//   P1-2: --reason on `add` is wired end-to-end.
-//   P3-a: --resolve validation error carries no double 'blueprint add:'
-//         prefix.
-//   P3-b: duplicate --resolve for the same topic dedupes with a warn.
-//   Nit:  conflict enrichment is symmetric (incoming side gets title
-//         + decision read from the blueprint's ADR file on disk).
+// Behaviours exercised by the tests that follow:
+//   - supersede accepts camelCase topics (shipped SPA + REST are
+//     camelCase - authModel, errorEnvelope); option 3 as printed is
+//     executable end-to-end against the shipped blueprints.
+//   - --reason on `add` is wired end-to-end.
+//   - --resolve validation error carries no double 'blueprint add:'
+//     prefix.
+//   - duplicate --resolve for the same topic dedupes with a warn.
+//   - conflict enrichment is symmetric (incoming side gets title +
+//     decision read from the blueprint's ADR file on disk).
 // ---------------------------------------------------------------------------
 
 import { readFile as _readFile } from 'node:fs/promises';
@@ -356,8 +356,7 @@ import { resolve as _resolveP } from 'node:path';
 // The shipped application-spa + application-api-rest blueprints live in
 // the repo root's blueprints/ tree (../../../blueprints/application-spa,
 // ../../../blueprints/application-api-rest relative to
-// packages/rcf-lite/test/blueprint/). Use them verbatim; this is the
-// second round-2 probe re-run.
+// packages/rcf-lite/test/blueprint/). The tests use them verbatim.
 const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-spa');
 const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-api-rest');
 
@@ -382,16 +381,15 @@ test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state 
   // Reshaped header prints the raw camelCase topic in parens.
   assert.match(conflict.stderr, /conflict on topic \(authModel\)/);
   assert.match(conflict.stderr, /conflict on topic \(errorEnvelope\)/);
-  // Round-3 ruling: option 3 carries `--incoming <source>` where
-  // <source> is the same source the operator just typed on the refused
-  // add — so the printed command is copy-paste-runnable.
+  // Option 3 carries `--incoming <source>` where <source> is the same
+  // source the operator just typed on the refused add - so the printed
+  // command is copy-paste-runnable.
   const shippedRestRe = shippedRest.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   assert.match(conflict.stderr, new RegExp(`rcf define blueprint supersede authModel --incoming ${shippedRestRe}`));
   assert.match(conflict.stderr, new RegExp(`rcf define blueprint supersede errorEnvelope --incoming ${shippedRestRe}`));
 
-  // 3. Run option 3 EXACTLY as printed — no prep, no --resolve, no
-  //    hand-edits — for BOTH conflicting topics. This was the money
-  //    round-3 probe target.
+  // 3. Run option 3 EXACTLY as printed - no prep, no --resolve, no
+  //    hand-edits - for BOTH conflicting topics.
   const supAuth = await runBin(root, ['define', 'blueprint', 'supersede', 'authModel', '--incoming', shippedRest]);
   assert.equal(supAuth.code, 0, `supersede authModel: ${supAuth.stderr}\n${supAuth.stdout}`);
   assert.match(supAuth.stdout, /via ADR-\d{3}-auth-model at rcf\/adrs\/adr-\d{3}-auth-model\.json/);

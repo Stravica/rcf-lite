@@ -1,6 +1,6 @@
 # application-api-rest blueprint (v2.0.0)
 
-The second content blueprint on the rcf-build-lite blueprint mechanism (design brief v2; phase 3 of the blueprint programme). Scope: a REST service, single deployable, versioned wire contract, no UI in scope. Composes with the application-spa blueprint by design, including two deliberate scope:global conflicts.
+A content blueprint on the rcf-build-lite blueprint mechanism. Scope: a REST service, single deployable, versioned wire contract, no UI in scope. Composes with the application-spa blueprint by design, including two deliberate scope:global conflicts.
 
 ## Apply
 
