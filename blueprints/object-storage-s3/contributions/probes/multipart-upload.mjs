@@ -12,8 +12,9 @@
  *   2. Abort-on-failure branch: forces SIMULATE_PART_UPLOAD_FAIL on
  *      the facade for a second put, asserts the promise rejects, and
  *      asserts a follow-up ListMultipartUploads on the failure key
- *      returns zero in-flight uploads (AbortMultipartUpload landed).
- *      Records the observed error and the aborted upload id (if any).
+ *      returns zero in-flight uploads after the abort branch issues
+ *      AbortMultipartUpload on the failure key. Records the observed
+ *      error and the aborted upload id (if any).
  *      Anchors AC-28104-2.
  *
  * The abort branch is REQUIRED , the probe sets SIMULATE_PART_UPLOAD
