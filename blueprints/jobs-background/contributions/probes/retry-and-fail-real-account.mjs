@@ -55,7 +55,7 @@ export const DECLARED_ENV = Object.freeze([
   'CF_API_BASE',
 ]);
 
-// CF_API_BASE is a required declared variable per the round-6 endpoint-hosts ruling;
+// CF_API_BASE is a required declared variable per the endpoint-hosts rule;
 // no literal endpoint host in probe source. The runProbe() gate checks
 // it before use and returns an exact one-variable skip when unset.
 

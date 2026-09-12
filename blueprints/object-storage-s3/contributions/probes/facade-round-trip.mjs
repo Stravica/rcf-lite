@@ -53,8 +53,8 @@ export default async function runProbe() {
     const endpointHost = new URL(endpoint).host;
     // Drive a HeadBucket call directly through the fixture's SDK
     // client so the row carries a real vendor request id and HTTP
-    // status excerpt (follow-up review: facade-ready + event-secrecy
-    // rows need per-row vendor evidence).
+    // status excerpt so the facade-ready and event-secrecy rows
+    // each carry per-row vendor evidence.
     let vendorMetadata = null;
     try {
       const { loadSdk } = await import('../../../../packages/rcf-lite/test/fixtures/infra-s3-and-queue/src/object-store.mjs'); const sdk = await loadSdk();

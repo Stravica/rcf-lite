@@ -112,7 +112,7 @@ async function waitHealthy(container, maxSeconds = 30) {
  * it. Absent = docker exits non-zero WITH `No such object` on stderr.
  * Any other error (daemon unreachable, permission denied) fails the
  * assertion; the caller can then FAIL the row rather than treat it as
- * "no problem here" (follow-up review recovery finding).
+ * "no problem here".
  */
 async function assertContainerAbsent(container) {
   try {
@@ -299,7 +299,7 @@ export default async function runProbe() {
     // restore container's published port. Host is taken from
     // POSTGRES_HOST (the docker host the restore container publishes
     // its port on); no literal host default lives in shipped probe
-    // code (maintainer ruling 2026-09-11).
+    // code.
     // Password read from the declared POSTGRES_PASSWORD variable
     // only; no literal password value in shipped probe source.
     const dstStore = await createStore({ connectionUrl: `postgres://${process.env.POSTGRES_USER || 'rcf'}:${encodeURIComponent(process.env.POSTGRES_PASSWORD || '')}@${process.env.POSTGRES_HOST}:${RESTORE_PORT}/${process.env.POSTGRES_DB || 'rcf_test'}` });

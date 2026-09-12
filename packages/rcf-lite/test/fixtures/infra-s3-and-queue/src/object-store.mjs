@@ -22,7 +22,7 @@
 // and S3_ENDPOINT_URL is unset. Every code path that resolves
 // @aws-sdk runs only after S3_ENDPOINT_URL is present and
 // `createObjectStore` is invoked, or a probe explicitly calls
-// `loadSdk()` on the run path (Dave ruling 2026-09-11).
+// `loadSdk()` on the run path.
 export async function loadSdk() {
   return await import('@aws-sdk/client-s3');
 }
@@ -42,7 +42,7 @@ const PRESIGN_TTL_FLOOR = 60; // 1 minute per ADR-2902
  * Named error kind emitted when S3_ENDPOINT_URL is not set. Probes
  * catch this and convert it to the exact-one-variable
  * accountBoundSkipped row the anatomy asserts on; no literal endpoint
- * host default lives in shipped fixture code (Dave ruling 2026-09-11).
+ * host default lives in shipped fixture code.
  */
 export class MissingS3EndpointError extends Error {
   constructor() {

@@ -183,14 +183,14 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   assert.match(recoverySrc, /process\.env\.POSTGRES_RESTORE_PORT/);
   // Anatomy check on 7d evidence shape (STRICT rewrite): each probe
   // is invoked directly and its returned result set is validated
-  // in-memory (round-8 ruling: the anatomy owns the invocation, the
-  // probe owns its skip; the pre-round-8 `.rcf/reports/blueprints`
-  // record path is no longer read on this seam). EVERY result row is
+  // in-memory (the anatomy owns the invocation and the probe owns
+  // its skip; the `.rcf/reports/blueprints` record path is not read
+  // on this seam). EVERY result row is
   // validated in-place against one of four shapes:
   //   (a) a real observation carrying an `evidence` object with BOTH
   //       an id-shape witness (a NON-EMPTY STRING under one of the
   //       STRICT_ID_KEYS - the engine-returned scalar identifier key
-  //       names permitted by round-8: booleans, numbers, arrays and
+  //       names permitted by the strict-identifier rule: booleans, numbers, arrays and
   //       objects never qualify) AND a derived-value witness (byte
   //       count, body sample, checksum, inventory-diff key, per-site
   //       record, timing metric, teardown record) under a DIFFERENT
@@ -220,14 +220,14 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     // is extracted and then rejected at the call site against the
     // shipped set. A narrower AC-\d+-\d+ / AC-jobs-* pattern silently
     // dropped invented tokens and let a real id plus an invented one
-    // pass, which the closure flagged.
+    // pass alongside a real id.
     return [...String(text).matchAll(/AC-[A-Za-z0-9-]+/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-  // Strict identifier predicate (round-6 closure): id witness MUST be
+  // Strict identifier predicate: id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
-  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // Strict-identifier rule: a counting row's identifier is a value the ENGINE
   // RETURNED for that operation. Postgres row ids / serials, the
   // migration version the migrations table reports, pg_backend_pid()
   // and transaction ids the server returned. S3 / R2 return the
@@ -266,7 +266,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
-    // Round-7 ruling: a counting row's identifier is a NON-EMPTY
+    // Rule: a counting row's identifier is a NON-EMPTY
     // STRING under an engine-minted id key. Booleans, numbers and
     // objects (arrays included) never qualify.
     if (!STRICT_ID_KEYS.has(k)) return false;
@@ -293,7 +293,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
     'facade-round-trip', 'migration-apply', 'prepared-statement-scan',
     'transaction-atomicity', 'recovery-restore-round-trip', 'pool-posture-smoke',
   ];
-  // Round-7 ruling: the probe owns its skip. The anatomy ALWAYS
+  // The probe owns its skip. The anatomy ALWAYS
   // invokes every probe and validates whatever comes back. A CI
   // environment with POSTGRES_HOST unset lands every probe on its
   // exact-one-variable accountBoundSkipped row; locally with the
@@ -356,7 +356,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
         // The derived witness must not be the same key as the id
-        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // witness - the strict-identifier rule requires DISTINCT fields, and a
         // key such as `observedUploadId` legitimately matches both
         // STRICT_ID_KEYS and the /^observed/ derived pattern.
         const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
@@ -364,7 +364,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness (strict AND); got keys=' + Object.keys(ev).join(',') + ', id=' + (idWitness ? idWitness[0] : 'NONE') + ', derived=' + (derivedWitness ? derivedWitness[0] : 'NONE'));
 
         assert.notEqual(idWitness[0], derivedWitness[0],
-          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields; got both under key ' + idWitness[0]);      }
     }
   }
     assert.match(recoverySrc, /exportDatabase/);
@@ -372,7 +372,7 @@ test('sample-app fixture ships docker-compose.yml, migrations, store.mjs, recove
   // Store.mjs (TAC-2801 facade) is the sole reader of pg on the request
   // path per REQ-001; asserting it imports pg (either as a static
   // `from 'pg'` or via the lazy `await import('pg')` inside
-  // createStore per the maintainer's 2026-09-11 lazy-load ruling).
+  // createStore per the lazy-load rule).
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'store.mjs'), 'utf8');
   assert.match(storeSrc, /(?:from ['"]pg['"]|import\(['"]pg['"]\))/);
   // The migration runner (TAC-2802 / migrate.mjs) and the recovery

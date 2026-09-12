@@ -185,7 +185,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   // @aws-sdk/client-s3. Match either the retired static `from
   // '@aws-sdk/client-s3'` or the lazy `await import('@aws-sdk/client-s3')`
   // inside createObjectStore per the maintainer's 2026-09-11
-  // lazy-load ruling.
+  // lazy-load rule.
   const storeSrc = await readFile(join(FIXTURE_ROOT, 'src', 'object-store.mjs'), 'utf8');
   assert.match(storeSrc,
     /(?:from ['"]@aws-sdk\/client-s3['"]|import\(['"]@aws-sdk\/client-s3['"]\))/,
@@ -215,9 +215,9 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
   assert.match(hetznerSrc, /reason/);
   // Anatomy check on 7d evidence shape (STRICT rewrite): each probe
   // is invoked directly and its returned result set is validated
-  // in-memory (round-8 ruling: the anatomy owns the invocation, the
-  // probe owns its skip; the pre-round-8 `.rcf/reports/blueprints`
-  // record path is no longer read on this seam). EVERY row is
+  // in-memory (the anatomy owns the invocation and the probe owns
+  // its skip; the `.rcf/reports/blueprints` record path is not read
+  // on this seam). EVERY row is
   // validated against one of four shapes:
   //   (a) a real observation carrying `evidence` with BOTH an id-shape
   //       witness AND a derived-value witness (strict AND, never OR);
@@ -240,14 +240,14 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     // is extracted and then rejected at the call site against the
     // shipped set. A narrower AC-\d+-\d+ / AC-jobs-* pattern silently
     // dropped invented tokens and let a real id plus an invented one
-    // pass, which the closure flagged.
+    // pass alongside a real id.
     return [...String(text).matchAll(/AC-[A-Za-z0-9-]+/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-  // Strict identifier predicate (round-6 closure): id witness MUST be
+  // Strict identifier predicate: id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
-  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // Strict-identifier rule: a counting row's identifier is a value the ENGINE
   // RETURNED for that operation. Postgres row ids / serials, the
   // migration version the migrations table reports, pg_backend_pid()
   // and transaction ids the server returned. S3 / R2 return the
@@ -286,7 +286,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
-    // Round-7 ruling: a counting row's identifier is a NON-EMPTY
+    // Rule: a counting row's identifier is a NON-EMPTY
     // STRING under an engine-minted id key. Booleans, numbers and
     // objects (arrays included) never qualify.
     if (!STRICT_ID_KEYS.has(k)) return false;
@@ -310,7 +310,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
     return new Set([...m[1].matchAll(/'([A-Z][A-Z0-9_]+)'/g)].map((x) => x[1]));
   }
   const probeNamesLocal = ["facade-round-trip","put-get-round-trip","presigned-url","multipart-upload","event-secrecy","r2-real-account-smoke","hetzner-object-storage-round-trip"];
-  // Round-7 ruling: the probe owns its skip. The anatomy ALWAYS
+  // The probe owns its skip. The anatomy ALWAYS
   // invokes every probe and validates whatever comes back. A CI
   // environment with S3_ENDPOINT_URL unset lands the five local
   // probes on the exact-one-variable accountBoundSkipped row emitted
@@ -373,7 +373,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
         // The derived witness must not be the same key as the id
-        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // witness - the strict-identifier rule requires DISTINCT fields, and a
         // key such as `observedUploadId` legitimately matches both
         // STRICT_ID_KEYS and the /^observed/ derived pattern.
         const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
@@ -381,7 +381,7 @@ test('sample-app fixture ships docker-compose.yml, package.json, src/object-stor
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness');
 
         assert.notEqual(idWitness[0], derivedWitness[0],
-          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields; got both under key ' + idWitness[0]);      }
     }
   }
 });
@@ -414,7 +414,7 @@ test('section 6a table gains an objectStorage row and every shipped blueprint do
 // non-"true" skip reasons emitted by the two account-bound probes
 // (`r2-real-account-smoke.mjs`, `hetzner-object-storage-round-trip.mjs`)
 // parse to a bare declared env-var name under the anatomy's exact
-// accepted regex; the malformed pre-pass-13 shape `<VAR> set to "..." (not "true")`
+// accepted regex; the malformed shape `<VAR> set to "..." (not "true")`
 // is rejected. This keeps the S3 anatomy's negative-case coverage
 // aligned with the jobs anatomy's own skip-shape negative block.
 test('anatomy accountBoundSkipped reason parses R2 and Hetzner non-"true" shapes to the same env var (TC-071-skip-shape-negative)', () => {
@@ -441,7 +441,7 @@ test('anatomy accountBoundSkipped reason parses R2 and Hetzner non-"true" shapes
     assert.equal(stripped, c.expected, 'anatomy suffix strip must yield the bare var name');
   }
   // Negative cases: shapes the anatomy MUST reject. The first two are
-  // the exact malformed pre-pass-13 R2 and Hetzner emissions.
+  // the exact malformed R2 and Hetzner emissions the fixture used to produce.
   const rejects = [
     'CI_HAS_CLOUDFLARE_ACCOUNT set to "1" (not "true")',
     'CI_HAS_HETZNER_OBJECT_STORAGE set to "yes" (not "true")',

@@ -123,9 +123,9 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
   }
   // Anatomy check on 7d evidence shape (STRICT rewrite): each probe
   // is invoked directly and its returned result set is validated
-  // in-memory (round-8 ruling: the anatomy owns the invocation, the
-  // probe owns its skip; the pre-round-8 `.rcf/reports/blueprints`
-  // record path is no longer read on this seam). EVERY row is
+  // in-memory (the anatomy owns the invocation and the probe owns
+  // its skip; the `.rcf/reports/blueprints` record path is not read
+  // on this seam). EVERY row is
   // validated against one of four shapes:
   //   (a) real observation carrying `evidence` with BOTH an id-shape
   //       witness AND a derived-value witness (strict AND);
@@ -149,14 +149,14 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
     // is extracted and then rejected at the call site against the
     // shipped set. A narrower AC-\d+-\d+ / AC-jobs-* pattern silently
     // dropped invented tokens and let a real id plus an invented one
-    // pass, which the closure flagged.
+    // pass alongside a real id.
     return [...String(text).matchAll(/AC-[A-Za-z0-9-]+/g)].map((m) => m[0]);
   }
   const trivialAdminKeys = new Set(['reason', 'note', 'error', 'verdict', 'skip']);
-  // Strict identifier predicate (round-6 closure): id witness MUST be
+  // Strict identifier predicate: id witness MUST be
   // one of the explicit engine-minted id fields. Statuses, counts,
   // booleans, phases and generic codes are NOT identifiers.
-  // Round-8 ruling: a counting row's identifier is a value the ENGINE
+  // Strict-identifier rule: a counting row's identifier is a value the ENGINE
   // RETURNED for that operation. Postgres row ids / serials, the
   // migration version the migrations table reports, pg_backend_pid()
   // and transaction ids the server returned. S3 / R2 return the
@@ -195,7 +195,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
     /^leakSites$/i, /^leaked/i, /Doc$/i, /Name$/i,
   ];
   function isIdWitness(k, v) {
-    // Round-7 ruling: a counting row's identifier is a NON-EMPTY
+    // Rule: a counting row's identifier is a NON-EMPTY
     // STRING under an engine-minted id key. Booleans, numbers and
     // objects (arrays included) never qualify.
     if (!STRICT_ID_KEYS.has(k)) return false;
@@ -219,7 +219,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
     return new Set([...m[1].matchAll(/'([A-Z][A-Z0-9_]+)'/g)].map((x) => x[1]));
   }
   const probeNamesLocal = ["apply-time-refusal","apply-time-override","fake-clock-cron","retry-and-fail","retry-and-fail-real-account","event-secrecy"];
-  // Round-7 ruling: the probe owns its skip. The anatomy ALWAYS
+  // The probe owns its skip. The anatomy ALWAYS
   // invokes every probe and validates whatever comes back. Local
   // probes (apply-time-refusal, apply-time-override, fake-clock-cron,
   // retry-and-fail, event-secrecy) drive the in-memory queue driver
@@ -282,7 +282,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
         assert.ok(evOk, 'non-skip row in ' + name + ' (anchor ' + anchor + ') must carry a non-empty evidence object');
         const idWitness = Object.entries(ev).find(([k, v]) => isIdWitness(k, v));
         // The derived witness must not be the same key as the id
-        // witness - the round-8 ruling requires DISTINCT fields, and a
+        // witness - the strict-identifier rule requires DISTINCT fields, and a
         // key such as `observedUploadId` legitimately matches both
         // STRICT_ID_KEYS and the /^observed/ derived pattern.
         const derivedWitness = Object.entries(ev).find(([k, v]) => (!idWitness || k !== idWitness[0]) && isDerivedWitness(k, v));
@@ -290,7 +290,7 @@ test('sample-app fixture ships jobs/ toy job-definitions plus src/jobs-runtime.m
           'non-declaimed row in ' + name + ' (anchor ' + anchor + ') evidence must carry BOTH an id-shape witness AND a derived-value witness');
 
         assert.notEqual(idWitness[0], derivedWitness[0],
-          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields (round-8 ruling); got both under key ' + idWitness[0]);      }
+          'non-declaimed row in ' + name + ' (anchor ' + anchor + ') idWitness and derivedWitness must be DIFFERENT fields; got both under key ' + idWitness[0]);      }
     }
   }
     // Jobs anatomy also validates that the DECLARED_ENV list on the new
@@ -340,8 +340,8 @@ test('section 6a table gains a backgroundJobs row naming jobs-background and res
   assert.ok(hits >= 1, `expected at least one shipped blueprint docs/topics.md to carry the jobs-background registry row; found ${hits}`);
 });
 
-// Negative unit case for the accountBoundSkipped reason parse (round-8
-// closure). A probe that finds its gate variable set to a non-"true"
+// Negative unit case for the accountBoundSkipped reason parse. A
+// probe that finds its gate variable set to a non-"true"
 // value emits `<VAR> (not "true")` in the same shape as the unset
 // variant emits `<VAR> unset`. This test constructs synthetic rows and
 // re-runs the exact anatomy strip and env-var validation logic so a

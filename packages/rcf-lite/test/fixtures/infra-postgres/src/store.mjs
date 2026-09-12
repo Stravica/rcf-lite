@@ -18,7 +18,7 @@
 // where the fixture's `node_modules` has not been installed and the
 // declared variables are unset. Every code path that resolves `pg`
 // runs only after POSTGRES_HOST is present and `createStore` is
-// invoked (Dave ruling 2026-09-11).
+// invoked.
 async function loadPool() {
   const pgMod = await import('pg');
   return pgMod.default.Pool;
@@ -28,7 +28,7 @@ async function loadPool() {
  * Named error kind emitted when POSTGRES_HOST is not set. Probes
  * catch this and convert it to the exact-one-variable
  * accountBoundSkipped row the anatomy asserts on; no literal host
- * default lives in shipped fixture code (Dave ruling 2026-09-11).
+ * default lives in shipped fixture code.
  */
 export class MissingPostgresHostError extends Error {
   constructor() {

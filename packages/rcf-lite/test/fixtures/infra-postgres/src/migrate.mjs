@@ -18,7 +18,7 @@ import { connectionUrlFromEnv } from './store.mjs';
 
 // The `pg` driver is loaded LAZILY inside `applyAll` so this module
 // can be imported without triggering the resolver when the fixture's
-// `node_modules` has not been installed (Dave ruling 2026-09-11).
+// `node_modules` has not been installed.
 async function loadClient() {
   const pgMod = await import('pg');
   return pgMod.default.Client;
