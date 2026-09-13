@@ -2,7 +2,7 @@
   "slug": "deploy-hetzner-server",
   "probeName": "real-account-snapshot-on-demand",
   "version": "1.1.17",
-  "runAt": "2026-09-12T02:10:10.408Z",
+  "runAt": "2026-09-13T15:14:18.026Z",
   "engine": {
     "kind": "real-account-snapshot",
     "image": "Hetzner Cloud throwaway cx23 with snapshot verb via hcloud image create-image",
@@ -11,16 +11,117 @@
   "results": [
     {
       "anchorAcId": "AC-37108-1",
-      "verdict": "skipped",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_HETZNER_ACCOUNT",
-      "gateState": "unset",
-      "detail": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account snapshot on-demand skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the hcloud server create-image path."
+      "verdict": "pass",
+      "detail": "real-account-snapshot-on-demand.mjs (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT) fires the. snapshot 431515275 created against server 165686069 (rcf-lite-ci-throwaway-1789312307265); hcloud image list --type=snapshot carries the id; hetznerSnapshotTaken event shape {serverName, snapshotId, ts} confirmed.",
+      "evidence": {
+        "baselineSnapshotIds": [],
+        "serverId": 165686069,
+        "serverName": "rcf-lite-ci-throwaway-1789312307265",
+        "snapshotId": 431515275,
+        "wallClockTime": "2026-09-13T15:12:06.271Z",
+        "labelMatch": {
+          "id": 431515275,
+          "serverNameLabel": "rcf-lite-ci-throwaway-1789312307265"
+        },
+        "observedEvents": [
+          {
+            "event": "hetznerServerProvisioned",
+            "keys": [
+              "event",
+              "id",
+              "location",
+              "name",
+              "primaryIpv4",
+              "serverType",
+              "ts"
+            ]
+          },
+          {
+            "event": "hetznerSnapshotTaken",
+            "keys": [
+              "event",
+              "serverId",
+              "serverName",
+              "snapshotId",
+              "ts",
+              "wallClockTime"
+            ]
+          }
+        ],
+        "hetznerSnapshotTakenEvent": {
+          "event": "hetznerSnapshotTaken",
+          "serverName": "rcf-lite-ci-throwaway-1789312307265",
+          "serverId": 165686069,
+          "snapshotId": 431515275,
+          "ts": 1789312326271,
+          "wallClockTime": "2026-09-13T15:12:06.271Z"
+        },
+        "postCreateSnapshotIds": [
+          431515275
+        ],
+        "postCreateSnapshotCarriedId": true,
+        "teardown": {
+          "destroyed": 165686069
+        },
+        "postTeardownSnapshotIds": [],
+        "postTeardownServerIds": [
+          154058949
+        ]
+      }
     }
   ],
   "aggregateVerdict": "pass",
-  "skipped": true,
-  "missingEnv": [
-    "CI_HAS_HETZNER_ACCOUNT"
+  "baselineSnapshotIds": [],
+  "serverId": 165686069,
+  "serverName": "rcf-lite-ci-throwaway-1789312307265",
+  "snapshotId": 431515275,
+  "wallClockTime": "2026-09-13T15:12:06.271Z",
+  "labelMatch": {
+    "id": 431515275,
+    "serverNameLabel": "rcf-lite-ci-throwaway-1789312307265"
+  },
+  "observedEvents": [
+    {
+      "event": "hetznerServerProvisioned",
+      "keys": [
+        "event",
+        "id",
+        "location",
+        "name",
+        "primaryIpv4",
+        "serverType",
+        "ts"
+      ]
+    },
+    {
+      "event": "hetznerSnapshotTaken",
+      "keys": [
+        "event",
+        "serverId",
+        "serverName",
+        "snapshotId",
+        "ts",
+        "wallClockTime"
+      ]
+    }
+  ],
+  "hetznerSnapshotTakenEvent": {
+    "event": "hetznerSnapshotTaken",
+    "serverName": "rcf-lite-ci-throwaway-1789312307265",
+    "serverId": 165686069,
+    "snapshotId": 431515275,
+    "ts": 1789312326271,
+    "wallClockTime": "2026-09-13T15:12:06.271Z"
+  },
+  "postCreateSnapshotIds": [
+    431515275
+  ],
+  "postCreateSnapshotCarriedId": true,
+  "teardown": {
+    "destroyed": 165686069
+  },
+  "postTeardownSnapshotIds": [],
+  "postTeardownServerIds": [
+    154058949
   ]
 }
