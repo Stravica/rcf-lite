@@ -2,7 +2,7 @@
   "slug": "deploy-hetzner-server",
   "probeName": "real-account-throwaway-server-provision",
   "version": "1.1.17",
-  "runAt": "2026-09-12T02:10:10.427Z",
+  "runAt": "2026-09-13T15:09:07.512Z",
   "engine": {
     "kind": "real-account-throwaway-server",
     "image": "Hetzner Cloud API via hcloud CLI (provision + list + destroy)",
@@ -11,16 +11,103 @@
   "results": [
     {
       "anchorAcId": "AC-37103-1",
-      "verdict": "skipped",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_HETZNER_ACCOUNT",
-      "gateState": "unset",
-      "detail": "The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT). accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account throwaway-server provision skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise."
+      "verdict": "pass",
+      "detail": "The real-account-throwaway-server-provision probe (accountBound: true, skipped without CI_HAS_HETZNER_ACCOUNT). throwaway server 165685918 provisioned in fsn1; hetznerServerProvisioned event OBSERVED on the injected sink (id 165685918, primaryIpv4 167.233.16.197, serverType cx23); post-provision hcloud server list carries the id.",
+      "evidence": {
+        "baselineServerIds": [
+          154058949
+        ],
+        "serverId": 165685918,
+        "serverName": "rcf-lite-ci-throwaway-1789312114142",
+        "primaryIpv4": "167.233.16.197",
+        "location": "fsn1",
+        "serverType": "cx23",
+        "observedEvents": [
+          {
+            "event": "hetznerServerProvisioned",
+            "keys": [
+              "event",
+              "id",
+              "location",
+              "name",
+              "primaryIpv4",
+              "serverType",
+              "ts"
+            ]
+          }
+        ],
+        "hetznerServerProvisionedEvent": {
+          "event": "hetznerServerProvisioned",
+          "id": 165685918,
+          "name": "rcf-lite-ci-throwaway-1789312114142",
+          "primaryIpv4": "167.233.16.197",
+          "location": "fsn1",
+          "serverType": "cx23",
+          "ts": 1789312130793
+        },
+        "postProvisionServerIds": [
+          154058949,
+          165685918
+        ],
+        "postProvisionMatch": {
+          "id": 165685918,
+          "name": "rcf-lite-ci-throwaway-1789312114142",
+          "status": "running"
+        },
+        "teardown": {
+          "destroyed": 165685918
+        },
+        "postTeardownServerIds": [
+          154058949
+        ]
+      }
     }
   ],
   "aggregateVerdict": "pass",
-  "skipped": true,
-  "missingEnv": [
-    "CI_HAS_HETZNER_ACCOUNT"
+  "baselineServerIds": [
+    154058949
+  ],
+  "serverId": 165685918,
+  "serverName": "rcf-lite-ci-throwaway-1789312114142",
+  "primaryIpv4": "167.233.16.197",
+  "location": "fsn1",
+  "serverType": "cx23",
+  "observedEvents": [
+    {
+      "event": "hetznerServerProvisioned",
+      "keys": [
+        "event",
+        "id",
+        "location",
+        "name",
+        "primaryIpv4",
+        "serverType",
+        "ts"
+      ]
+    }
+  ],
+  "hetznerServerProvisionedEvent": {
+    "event": "hetznerServerProvisioned",
+    "id": 165685918,
+    "name": "rcf-lite-ci-throwaway-1789312114142",
+    "primaryIpv4": "167.233.16.197",
+    "location": "fsn1",
+    "serverType": "cx23",
+    "ts": 1789312130793
+  },
+  "postProvisionServerIds": [
+    154058949,
+    165685918
+  ],
+  "postProvisionMatch": {
+    "id": 165685918,
+    "name": "rcf-lite-ci-throwaway-1789312114142",
+    "status": "running"
+  },
+  "teardown": {
+    "destroyed": 165685918
+  },
+  "postTeardownServerIds": [
+    154058949
   ]
 }
