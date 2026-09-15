@@ -28,12 +28,12 @@ import {
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 
-// Inline SVG favicon: the Stravica monogram (terracotta rounded-square with
-// cream serif S), pinched from stravica.ai/assets/brand/logo-monogram.svg
-// so the review surface shares brand identity with the marketing site.
-// Delivered as a data URL so no separate file has to ship.
+// Inline SVG favicon: the Stravica kit mark (deep-navy tile with the
+// ribbon symbol in Stravica blue), taken from the estate brand kit at
+// public/brand/assets/icons/favicon.svg so the review surface shares
+// identity with stravica.ai. Delivered as a data URL so no separate file has to ship.
 const FAVICON_HREF =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='64' fill='%23c14a3a'/%3E%3Ctext x='256' y='370' font-family='Georgia,serif' font-size='360' font-weight='600' text-anchor='middle' fill='%23f7f5f0'%3ES%3C/text%3E%3C/svg%3E";
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' width='64' height='64' role='img'%3E%3Ctitle%3EStravica favicon%3C/title%3E%3Cdesc%3E%3C/desc%3E%3Crect x='0' y='0' width='64' height='64' rx='14' fill='%23080F19'/%3E%3Cg fill='%237295FF'%3E%3Cpath d='M38 9L17 21V32L38 20Z'/%3E%3Cpath d='M30 27L46 36V46L30 37L23 33Z'/%3E%3Cpath d='M46 46L25 58V47L37 40Z'/%3E%3C/g%3E%3C/svg%3E";
 
 const LIVE_WRAPPER_OPEN = '<div id="rcf-live-content">';
 const LIVE_WRAPPER_CLOSE = '</div>';
