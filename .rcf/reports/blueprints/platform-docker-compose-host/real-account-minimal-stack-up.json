@@ -2,7 +2,7 @@
   "slug": "platform-docker-compose-host",
   "probeName": "real-account-minimal-stack-up",
   "version": "1.1.17",
-  "runAt": "2026-09-12T02:10:14.737Z",
+  "runAt": "2026-09-13T15:17:25.459Z",
   "engine": {
     "kind": "real-account-minimal-stack-up",
     "image": "platform-docker-compose-host fixture",
@@ -11,16 +11,249 @@
   "results": [
     {
       "anchorAcId": "AC-composeHost-upClean",
-      "verdict": "skipped",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_HETZNER_ACCOUNT",
-      "gateState": "unset",
-      "detail": "The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps the. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account minimal-stack-up skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the compose stack against a throwaway cx23."
+      "verdict": "pass",
+      "detail": "The real-account-minimal-stack-up probe, when CI_HAS_HETZNER_ACCOUNT is set, scps the. stack up on server 165686325 (167.233.16.197); 2 services declared; caddy answered http://127.0.0.1:80/live (via ssh on 167.233.16.197) with 200 body=\"ok\" elapsed=0.00444s; root http://127.0.0.1:80/ (via ssh on 167.233.16.197) returned 200.",
+      "evidence": {
+        "serverId": 165686325,
+        "primaryIpv4": "167.233.16.197",
+        "services": [
+          {
+            "name": "rcf-lite-throwaway-caddy",
+            "state": "running",
+            "health": "healthy",
+            "exitCode": 0
+          },
+          {
+            "name": "rcf-lite-throwaway-web",
+            "state": "running",
+            "health": "healthy",
+            "exitCode": 0
+          }
+        ],
+        "declaredServices": [
+          {
+            "name": "web",
+            "hasHealthcheck": true
+          },
+          {
+            "name": "caddy",
+            "hasHealthcheck": true
+          }
+        ],
+        "observedNames": [
+          "rcf-lite-throwaway-caddy",
+          "rcf-lite-throwaway-web"
+        ],
+        "eventTrail": [
+          {
+            "event": "sshReady",
+            "at": "2026-09-13T15:15:08.063Z",
+            "detail": "attempts=5 waitedMs=24030 ready=true"
+          },
+          {
+            "event": "cloudInitSettled",
+            "at": "2026-09-13T15:15:50.614Z",
+            "detail": "exit=0 waitedMs=42547"
+          },
+          {
+            "event": "dockerInstalled",
+            "at": "2026-09-13T15:16:25.923Z",
+            "detail": "exit=0 waitedMs=35309 version=Docker version 29.8.0, build 88096ef Docker Compose version "
+          },
+          {
+            "event": "stackShipped",
+            "at": "2026-09-13T15:16:29.910Z",
+            "detail": "rsyncExit=0 files=5"
+          },
+          {
+            "event": "composeUp",
+            "at": "2026-09-13T15:16:47.505Z",
+            "detail": "exit=0 durationMs=17595 elicitedTimeoutSeconds=30"
+          },
+          {
+            "event": "composePs",
+            "at": "2026-09-13T15:16:48.845Z",
+            "detail": "services=2 declared=2 missing=0 unhealthy=0"
+          }
+        ],
+        "elicitedTimeoutSeconds": 30,
+        "onServer": {
+          "target": "http://127.0.0.1:80/live (via ssh on 167.233.16.197)",
+          "statusCode": 200,
+          "bodyExcerpt": "ok",
+          "elapsedSeconds": 0.00444,
+          "requestId": null
+        },
+        "onServerRoot": {
+          "target": "http://127.0.0.1:80/ (via ssh on 167.233.16.197)",
+          "statusCode": 200,
+          "bodyExcerpt": "{\"appName\":\"rcf-lite-throwaway-web\",\"tokenPresence\":\"present\"}"
+        },
+        "external": {
+          "url": "http://167.233.16.197/live",
+          "statusCode": 0,
+          "error": "This operation was aborted",
+          "note": "off-host fetch expected to fail under the deploy-hetzner-server DOCKER-USER hardening"
+        },
+        "observedSecretModes": {
+          "observations": [
+            {
+              "service": "web",
+              "secretName": "web-token",
+              "mountPath": "/run/secrets/web-token",
+              "containerId": "9e041b9c48dd825f1e70f4c6cd8b189b47ed1007c60b4f1989c2882c2e9d754a",
+              "containerName": "rcf-lite-throwaway-web",
+              "mode": "400"
+            }
+          ],
+          "errors": [],
+          "declaredSecretNames": [
+            "web-token"
+          ],
+          "consumingServicesBySecret": {
+            "web-token": [
+              "web"
+            ]
+          }
+        },
+        "composeDown": {
+          "code": 0,
+          "stderrExcerpt": " Container rcf-lite-throwaway-caddy Stopping \n Container rcf-lite-throwaway-caddy Stopped \n Container rcf-lite-throwaway-caddy Removing \n Container rcf-lite-throwaway-caddy Removed \n Container rcf-lite-throwaway-web Stopping \n Container rcf-lite-throwaway-web Stopped \n Container rcf-lite-throwaway-w"
+        },
+        "teardown": {
+          "destroyed": 165686325
+        },
+        "postTeardownServerIds": [
+          154058949
+        ]
+      }
+    },
+    {
+      "anchorAcId": "AC-composeHost-secretShape",
+      "verdict": "pass",
+      "detail": "The applied compose.yaml declares at least one secret under. service 'web' secret 'web-token' mounted at /run/secrets/web-token with observed mode 400 inside container rcf-lite-throwaway-web (id 9e041b9c48dd825f1e70f4c6cd8b189b47ed1007c60b4f1989c2882c2e9d754a, docker exec stat -c %a)",
+      "evidence": {
+        "service": "web",
+        "secretName": "web-token",
+        "mode": "400",
+        "mountPath": "/run/secrets/web-token",
+        "containerId": "9e041b9c48dd825f1e70f4c6cd8b189b47ed1007c60b4f1989c2882c2e9d754a",
+        "containerName": "rcf-lite-throwaway-web",
+        "source": "docker exec stat -c %a; container id via docker inspect --format {{.Id}}"
+      }
     }
   ],
   "aggregateVerdict": "pass",
-  "skipped": true,
-  "missingEnv": [
-    "CI_HAS_HETZNER_ACCOUNT"
+  "serverId": 165686325,
+  "primaryIpv4": "167.233.16.197",
+  "services": [
+    {
+      "name": "rcf-lite-throwaway-caddy",
+      "state": "running",
+      "health": "healthy",
+      "exitCode": 0
+    },
+    {
+      "name": "rcf-lite-throwaway-web",
+      "state": "running",
+      "health": "healthy",
+      "exitCode": 0
+    }
+  ],
+  "declaredServices": [
+    {
+      "name": "web",
+      "hasHealthcheck": true
+    },
+    {
+      "name": "caddy",
+      "hasHealthcheck": true
+    }
+  ],
+  "observedNames": [
+    "rcf-lite-throwaway-caddy",
+    "rcf-lite-throwaway-web"
+  ],
+  "eventTrail": [
+    {
+      "event": "sshReady",
+      "at": "2026-09-13T15:15:08.063Z",
+      "detail": "attempts=5 waitedMs=24030 ready=true"
+    },
+    {
+      "event": "cloudInitSettled",
+      "at": "2026-09-13T15:15:50.614Z",
+      "detail": "exit=0 waitedMs=42547"
+    },
+    {
+      "event": "dockerInstalled",
+      "at": "2026-09-13T15:16:25.923Z",
+      "detail": "exit=0 waitedMs=35309 version=Docker version 29.8.0, build 88096ef Docker Compose version "
+    },
+    {
+      "event": "stackShipped",
+      "at": "2026-09-13T15:16:29.910Z",
+      "detail": "rsyncExit=0 files=5"
+    },
+    {
+      "event": "composeUp",
+      "at": "2026-09-13T15:16:47.505Z",
+      "detail": "exit=0 durationMs=17595 elicitedTimeoutSeconds=30"
+    },
+    {
+      "event": "composePs",
+      "at": "2026-09-13T15:16:48.845Z",
+      "detail": "services=2 declared=2 missing=0 unhealthy=0"
+    }
+  ],
+  "elicitedTimeoutSeconds": 30,
+  "onServer": {
+    "target": "http://127.0.0.1:80/live (via ssh on 167.233.16.197)",
+    "statusCode": 200,
+    "bodyExcerpt": "ok",
+    "elapsedSeconds": 0.00444,
+    "requestId": null
+  },
+  "onServerRoot": {
+    "target": "http://127.0.0.1:80/ (via ssh on 167.233.16.197)",
+    "statusCode": 200,
+    "bodyExcerpt": "{\"appName\":\"rcf-lite-throwaway-web\",\"tokenPresence\":\"present\"}"
+  },
+  "external": {
+    "url": "http://167.233.16.197/live",
+    "statusCode": 0,
+    "error": "This operation was aborted",
+    "note": "off-host fetch expected to fail under the deploy-hetzner-server DOCKER-USER hardening"
+  },
+  "observedSecretModes": {
+    "observations": [
+      {
+        "service": "web",
+        "secretName": "web-token",
+        "mountPath": "/run/secrets/web-token",
+        "containerId": "9e041b9c48dd825f1e70f4c6cd8b189b47ed1007c60b4f1989c2882c2e9d754a",
+        "containerName": "rcf-lite-throwaway-web",
+        "mode": "400"
+      }
+    ],
+    "errors": [],
+    "declaredSecretNames": [
+      "web-token"
+    ],
+    "consumingServicesBySecret": {
+      "web-token": [
+        "web"
+      ]
+    }
+  },
+  "composeDown": {
+    "code": 0,
+    "stderrExcerpt": " Container rcf-lite-throwaway-caddy Stopping \n Container rcf-lite-throwaway-caddy Stopped \n Container rcf-lite-throwaway-caddy Removing \n Container rcf-lite-throwaway-caddy Removed \n Container rcf-lite-throwaway-web Stopping \n Container rcf-lite-throwaway-web Stopped \n Container rcf-lite-throwaway-w"
+  },
+  "teardown": {
+    "destroyed": 165686325
+  },
+  "postTeardownServerIds": [
+    154058949
   ]
 }

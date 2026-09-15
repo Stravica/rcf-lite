@@ -2,7 +2,7 @@
   "slug": "platform-docker-compose-host",
   "probeName": "real-account-reload-burst",
   "version": "1.1.17",
-  "runAt": "2026-09-12T02:10:14.765Z",
+  "runAt": "2026-09-13T15:20:00.150Z",
   "engine": {
     "kind": "real-account-reload-burst",
     "image": "platform-docker-compose-host fixture",
@@ -11,16 +11,165 @@
   "results": [
     {
       "anchorAcId": "AC-composeHost-zeroDowntimeReload",
-      "verdict": "skipped",
-      "accountBoundSkipped": true,
-      "reason": "CI_HAS_HETZNER_ACCOUNT",
-      "gateState": "unset",
-      "detail": "The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici. accountBoundSkipped: gate variable CI_HAS_HETZNER_ACCOUNT unset; real-account reload-burst skipped; run with CI_HAS_HETZNER_ACCOUNT=true to exercise the caddy reload window against a throwaway cx23 stack."
+      "verdict": "pass",
+      "detail": "The real-account-reload-burst probe, when CI_HAS_HETZNER_ACCOUNT is set, runs undici. zero-downtime-reload OBSERVED on server 165686830: 11348/11348 on-server undici 2xx, 0 dropped connections; burst-request window [1789312760133,1789312770637] contains reload window [1789312760750,1789312761095]; 173/11348 request windows overlap the 345ms reload (under the elicited 10s window); warm baseline statusCode=200.",
+      "evidence": {
+        "elicitedReloadWindowSeconds": 10,
+        "serverId": 165686830,
+        "primaryIpv4": "167.233.16.197",
+        "eventTrail": [
+          {
+            "event": "sshReady",
+            "at": "2026-09-13T15:18:11.097Z",
+            "detail": "attempts=6 waitedMs=23252 ready=true"
+          },
+          {
+            "event": "cloudInitSettled",
+            "at": "2026-09-13T15:18:31.560Z",
+            "detail": "exit=0 waitedMs=20462"
+          },
+          {
+            "event": "dockerInstalled",
+            "at": "2026-09-13T15:18:51.241Z",
+            "detail": "exit=0 waitedMs=19681 version=Docker version 29.8.0, build 88096ef Docker Compose version "
+          },
+          {
+            "event": "stackShipped",
+            "at": "2026-09-13T15:18:54.453Z",
+            "detail": "rsyncExit=0 files=5"
+          },
+          {
+            "event": "composeUp",
+            "at": "2026-09-13T15:19:08.072Z",
+            "detail": "exit=0 durationMs=13619 elicitedTimeoutSeconds=30"
+          },
+          {
+            "event": "composePs",
+            "at": "2026-09-13T15:19:09.088Z",
+            "detail": "services=2 declared=2 missing=0 unhealthy=0"
+          }
+        ],
+        "warm": {
+          "target": "http://127.0.0.1:80/ (via ssh on 167.233.16.197)",
+          "statusCode": 200,
+          "bodyExcerpt": "{\"appName\":\"rcf-lite-throwaway-web\",\"tokenPresence\":\"present\"}",
+          "elapsedSeconds": 0.005555
+        },
+        "burst": {
+          "expectedTotal": 40,
+          "total": 11348,
+          "twoXx": 11348,
+          "drops": 0,
+          "reloadDurationMs": 345,
+          "reloadExit": 0,
+          "reloadStartedAt": 1789312760750,
+          "reloadEndedAt": 1789312761095,
+          "burstStartedAt": 1789312760132,
+          "burstEndedAt": 1789312770637,
+          "firstRequestStartedAt": 1789312760133,
+          "lastRequestEndedAt": 1789312770637,
+          "burstDurationMs": 10000,
+          "burstWindowContainsReloadWindow": true,
+          "overlapCount": 173,
+          "firstOverlapStart": 1789312760743,
+          "lastOverlapEnd": 1789312761102,
+          "mode": "undici-on-server",
+          "clockDomain": "server",
+          "onServerNodeVersion": "v18.19.1",
+          "reloadStderrExcerpt": "{\"level\":\"info\",\"ts\":1789312761.0411265,\"msg\":\"using config from file\",\"file\":\"/etc/caddy/Caddyfile\"}\n{\"level\":\"info\",\"ts\":1789312761.0450547,\"msg\":\"adapted config to JSON\",\"adapter\":\"caddyfile\"}\n",
+          "burstStderrExcerpt": "",
+          "burstParseError": null,
+          "elicitedReloadWindowMs": 10000
+        },
+        "composeDown": {
+          "code": 0,
+          "stderrExcerpt": " Container rcf-lite-throwaway-caddy Stopping \n Container rcf-lite-throwaway-caddy Stopped \n Container rcf-lite-throwaway-caddy Removing \n Container rcf-lite-throwaway-caddy Removed \n Container rcf-lite-throwaway-web Stopping \n Container rcf-lite-throwaway-web Stopped \n Container rcf-lite-throwaway-w"
+        },
+        "teardown": {
+          "destroyed": 165686830
+        },
+        "postTeardownServerIds": [
+          154058949
+        ]
+      }
     }
   ],
   "aggregateVerdict": "pass",
-  "skipped": true,
-  "missingEnv": [
-    "CI_HAS_HETZNER_ACCOUNT"
+  "elicitedReloadWindowSeconds": 10,
+  "serverId": 165686830,
+  "primaryIpv4": "167.233.16.197",
+  "eventTrail": [
+    {
+      "event": "sshReady",
+      "at": "2026-09-13T15:18:11.097Z",
+      "detail": "attempts=6 waitedMs=23252 ready=true"
+    },
+    {
+      "event": "cloudInitSettled",
+      "at": "2026-09-13T15:18:31.560Z",
+      "detail": "exit=0 waitedMs=20462"
+    },
+    {
+      "event": "dockerInstalled",
+      "at": "2026-09-13T15:18:51.241Z",
+      "detail": "exit=0 waitedMs=19681 version=Docker version 29.8.0, build 88096ef Docker Compose version "
+    },
+    {
+      "event": "stackShipped",
+      "at": "2026-09-13T15:18:54.453Z",
+      "detail": "rsyncExit=0 files=5"
+    },
+    {
+      "event": "composeUp",
+      "at": "2026-09-13T15:19:08.072Z",
+      "detail": "exit=0 durationMs=13619 elicitedTimeoutSeconds=30"
+    },
+    {
+      "event": "composePs",
+      "at": "2026-09-13T15:19:09.088Z",
+      "detail": "services=2 declared=2 missing=0 unhealthy=0"
+    }
+  ],
+  "warm": {
+    "target": "http://127.0.0.1:80/ (via ssh on 167.233.16.197)",
+    "statusCode": 200,
+    "bodyExcerpt": "{\"appName\":\"rcf-lite-throwaway-web\",\"tokenPresence\":\"present\"}",
+    "elapsedSeconds": 0.005555
+  },
+  "burst": {
+    "expectedTotal": 40,
+    "total": 11348,
+    "twoXx": 11348,
+    "drops": 0,
+    "reloadDurationMs": 345,
+    "reloadExit": 0,
+    "reloadStartedAt": 1789312760750,
+    "reloadEndedAt": 1789312761095,
+    "burstStartedAt": 1789312760132,
+    "burstEndedAt": 1789312770637,
+    "firstRequestStartedAt": 1789312760133,
+    "lastRequestEndedAt": 1789312770637,
+    "burstDurationMs": 10000,
+    "burstWindowContainsReloadWindow": true,
+    "overlapCount": 173,
+    "firstOverlapStart": 1789312760743,
+    "lastOverlapEnd": 1789312761102,
+    "mode": "undici-on-server",
+    "clockDomain": "server",
+    "onServerNodeVersion": "v18.19.1",
+    "reloadStderrExcerpt": "{\"level\":\"info\",\"ts\":1789312761.0411265,\"msg\":\"using config from file\",\"file\":\"/etc/caddy/Caddyfile\"}\n{\"level\":\"info\",\"ts\":1789312761.0450547,\"msg\":\"adapted config to JSON\",\"adapter\":\"caddyfile\"}\n",
+    "burstStderrExcerpt": "",
+    "burstParseError": null,
+    "elicitedReloadWindowMs": 10000
+  },
+  "composeDown": {
+    "code": 0,
+    "stderrExcerpt": " Container rcf-lite-throwaway-caddy Stopping \n Container rcf-lite-throwaway-caddy Stopped \n Container rcf-lite-throwaway-caddy Removing \n Container rcf-lite-throwaway-caddy Removed \n Container rcf-lite-throwaway-web Stopping \n Container rcf-lite-throwaway-web Stopped \n Container rcf-lite-throwaway-w"
+  },
+  "teardown": {
+    "destroyed": 165686830
+  },
+  "postTeardownServerIds": [
+    154058949
   ]
 }
