@@ -1,7 +1,7 @@
 {
   "slug": "edge-cloudflare-tunnel",
   "probeName": "real-account-tunnel-hostname-routes",
-  "runAt": "2026-09-08T14:31:15.058Z",
+  "runAt": "2026-09-15T15:23:06.451Z",
   "engine": {
     "kind": "real-account-tunnel-hostname-routes",
     "image": "account-bound",
@@ -9,16 +9,16 @@
   },
   "results": [
     {
-      "anchorAcId": "AC-tunnel-hostnameRoutes",
-      "verdict": "skipped",
-      "accountBoundSkipped": true,
-      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT unset; public-hostname sub-case: undici fetch against the scratch subdomain not exercised. Set CI_HAS_CLOUDFLARE_ACCOUNT=true AND CI_HAS_HETZNER_ACCOUNT=true to run this path."
-    },
-    {
       "anchorAcId": "AC-tunnel-accessGated",
       "verdict": "skipped",
       "accountBoundSkipped": true,
-      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCOUNT or CI_HAS_HETZNER_ACCOUNT or CI_HAS_CLOUDFLARE_ACCESS unset; access-gated sub-case: two-identity JWT check against the scratch subdomain not exercised. Requires all three env vars; a pass here is unreachable from CI_HAS_CLOUDFLARE_ACCOUNT presence alone (amendment 4 verbatim)."
+      "reason": "CI_HAS_CLOUDFLARE_ACCESS",
+      "detail": "accountBound: CI_HAS_CLOUDFLARE_ACCESS unset; access-gated sub-case: two-identity JWT check against the scratch subdomain not exercised. Requires all three env vars; a pass here is unreachable from CI_HAS_CLOUDFLARE_ACCOUNT presence alone (amendment 4 verbatim)."
+    },
+    {
+      "anchorAcId": "AC-tunnel-hostnameRoutes",
+      "verdict": "pass",
+      "detail": "public-hostname sub-case: fetch(https://qa-probe-tun.stravica-qa.uk/) returned 200 (shim mode production), body length 43. Ingress rule routes the public hostname to the internal service URL."
     }
   ],
   "aggregateVerdict": "pass",
@@ -34,8 +34,14 @@
     ]
   },
   "envPresent": {
-    "CI_HAS_CLOUDFLARE_ACCOUNT": false,
-    "CI_HAS_HETZNER_ACCOUNT": false,
+    "CI_HAS_CLOUDFLARE_ACCOUNT": true,
+    "CI_HAS_HETZNER_ACCOUNT": true,
     "CI_HAS_CLOUDFLARE_ACCESS": false
+  },
+  "publicHostnameUrl": "https://qa-probe-tun.stravica-qa.uk/",
+  "publicHostnameResponse": {
+    "status": 200,
+    "shimMode": "production",
+    "bodyLength": 43
   }
 }
