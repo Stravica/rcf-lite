@@ -40,6 +40,16 @@ Let's get started.
 
 If you'd rather drive it by hand, [docs/getting-started.md](docs/getting-started.md) covers the same ground at human pace. Prerequisites, install checks and agent-harness wiring live in [docs/install.md](docs/install.md).
 
+## Agent support
+
+Claude Code is the supported path today. Codex CLI works end to end for a small app, with three sharp edges to know about before you start:
+
+- The `.mcp.json` that `rcf init` writes uses the Claude Code convention, which Codex does not read. To make the RCF MCP entry reachable from Codex, copy it by hand into `~/.codex/config.toml` under `[mcp_servers]`.
+- The chain discipline in `AGENTS.md` holds when nothing pushes on the session. Under user pressure for pace, Codex has been observed to drop the chain and ship code without the intervening `rcf define` calls; keep an eye on `rcf define validate` between turns.
+- `rcf init` does not `git init` the directory, so every `codex exec` and `codex exec resume` needs `--skip-git-repo-check` until you initialise git yourself.
+
+Fuller Codex support is on the roadmap; for now the recommended path is Claude Code.
+
 ## Migrating from the pre-0.7.1 packages
 
 If your project pinned one of the pre-consolidation packages, replace it with `rcf-lite`:
