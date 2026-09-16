@@ -362,7 +362,12 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // feedback-destinations warn) and TS-190 (US-15802, AC-15802-1..2
   // across two TCs binding CORE_REPO pin to package.json:bugs.url
   // and --kind core routing) (129 -> 131).
-  assert.equal(tree.testSuites.length, 131);
+  // Feedback submission slice 4 build (FBS-183) added TS-191
+  // (US-15701 slice-4 arm, AC-15701-2/-3 across five TCs), TS-192
+  // (US-15901, AC-15901-1/-2 across three TCs), TS-193 (US-15902,
+  // AC-15902-1/-2/-3/-4 across six TCs) and TS-194 (US-16001,
+  // AC-16001-1..4 across seven TCs) (131 -> 135).
+  assert.equal(tree.testSuites.length, 135);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
