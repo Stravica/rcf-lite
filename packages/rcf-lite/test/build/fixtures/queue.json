@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 69,
-    "notStarted": 41,
+    "items": 75,
+    "notStarted": 47,
     "inProgress": 0,
     "complete": 13,
     "verified": 15,
-    "actionable": 31,
-    "blocked": 10
+    "actionable": 32,
+    "blocked": 15
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -57,7 +57,8 @@
         "FBS-171",
         "FBS-172",
         "FBS-173",
-        "FBS-174"
+        "FBS-174",
+        "FBS-180"
       ]
     },
     {
@@ -68,7 +69,8 @@
         "FBS-019",
         "FBS-025",
         "FBS-042",
-        "FBS-064"
+        "FBS-064",
+        "FBS-181"
       ]
     },
     {
@@ -79,7 +81,8 @@
         "FBS-005",
         "FBS-008",
         "FBS-026",
-        "FBS-043"
+        "FBS-043",
+        "FBS-182"
       ]
     },
     {
@@ -90,7 +93,8 @@
         "FBS-010",
         "FBS-027",
         "FBS-060",
-        "FBS-044"
+        "FBS-044",
+        "FBS-183"
       ]
     },
     {
@@ -100,14 +104,16 @@
         "FBS-011",
         "FBS-012",
         "FBS-028",
-        "FBS-045"
+        "FBS-045",
+        "FBS-184"
       ]
     },
     {
       "tier": 5,
       "fbsIds": [
         "FBS-029",
-        "FBS-046"
+        "FBS-046",
+        "FBS-185"
       ]
     },
     {
@@ -917,6 +923,86 @@
       "dependsOnFbsIds": [],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-180",
+      "buildOrder": 180,
+      "tier": 0,
+      "title": "Slice 1: capture and store",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-181",
+      "buildOrder": 181,
+      "tier": 1,
+      "title": "Slice 2: redaction, fingerprint, preview",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-180"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-180"
+      ]
+    },
+    {
+      "fbsId": "FBS-182",
+      "buildOrder": 182,
+      "tier": 2,
+      "title": "Slice 3: destination resolution",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-181"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-181"
+      ]
+    },
+    {
+      "fbsId": "FBS-183",
+      "buildOrder": 183,
+      "tier": 3,
+      "title": "Slice 4: submit, dedupe, fallback",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-182"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-182"
+      ]
+    },
+    {
+      "fbsId": "FBS-184",
+      "buildOrder": 184,
+      "tier": 4,
+      "title": "Slice 5: the ask",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-183"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-183"
+      ]
+    },
+    {
+      "fbsId": "FBS-185",
+      "buildOrder": 185,
+      "tier": 5,
+      "title": "Slice 6: instruction and release",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-184"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-184"
+      ]
     }
   ]
 }

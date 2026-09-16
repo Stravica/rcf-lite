@@ -1,11 +1,11 @@
 {
-  "ok": true,
+  "ok": false,
   "strict": false,
   "totals": {
-    "requirements": 92,
-    "covered": 92,
+    "requirements": 100,
+    "covered": 93,
     "coveredUnresolved": 0,
-    "uncovered": 0
+    "uncovered": 7
   },
   "requirements": [
     {
@@ -3600,6 +3600,338 @@
           "testCases": [
             "TC-184-marker-hygiene-four-blueprints"
           ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-155",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15501-1",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-writes-one-jsonl-line-and-stamps-env"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-2",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-refuses-without-gitignore"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-3",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-blueprint-unresolved-exits-3"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-4",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-rejects-bad-class"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-5",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-blueprint-stamps"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15502-1",
+          "covered": true,
+          "testCases": [
+            "TC-186-list-default-hides-non-pending",
+            "TC-186-list-json-and-no-mutation"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15502-2",
+          "covered": true,
+          "testCases": [
+            "TC-186-status-json-shape",
+            "TC-186-status-optout-env-ask",
+            "TC-186-status-optout-env-disable",
+            "TC-186-status-text-summary"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15503-1",
+          "covered": true,
+          "testCases": [
+            "TC-187-defer-appends-state-lines"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15503-2",
+          "covered": true,
+          "testCases": [
+            "TC-187-discard-all-marks-every-pending",
+            "TC-187-discard-by-id-hides-from-default",
+            "TC-187-discard-refuses-unknown-id"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-156",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-15601-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-157",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-15701-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15701-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15701-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-158",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-15801-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15801-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15801-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15802-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15802-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-159",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-15901-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15901-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-160",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-16001-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-161",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-16101-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16101-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16101-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16102-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16102-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16103-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16103-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-2",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-3",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-162",
+      "covered": false,
+      "coverageClass": "uncovered",
+      "acs": [
+        {
+          "id": "AC-16201-1",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16201-2",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": []
         }
       ]

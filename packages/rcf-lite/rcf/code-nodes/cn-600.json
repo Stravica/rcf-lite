@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-600",
+  "path": "src/cli/feedback.js",
+  "implementsAcIds": [
+    "AC-15501-1",
+    "AC-15501-2",
+    "AC-15501-3",
+    "AC-15501-4",
+    "AC-15501-5",
+    "AC-15502-1",
+    "AC-15502-2",
+    "AC-15503-1",
+    "AC-15503-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T14:58:28Z",
+  "updatedAt": "2026-09-16T14:58:28Z"
+}

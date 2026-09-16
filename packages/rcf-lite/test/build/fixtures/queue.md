@@ -73,16 +73,22 @@ Generation strategy: dependencyFirst
 | 67 | 0 | FBS-172 | H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended | notStarted | actionable |  |
 | 68 | 0 | FBS-173 | H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded | notStarted | actionable |  |
 | 69 | 0 | FBS-174 | H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty | notStarted | actionable |  |
+| 180 | 0 | FBS-180 | Slice 1: capture and store | notStarted | actionable |  |
+| 181 | 1 | FBS-181 | Slice 2: redaction, fingerprint, preview | notStarted | blocked | FBS-180 |
+| 182 | 2 | FBS-182 | Slice 3: destination resolution | notStarted | blocked | FBS-181 |
+| 183 | 3 | FBS-183 | Slice 4: submit, dedupe, fallback | notStarted | blocked | FBS-182 |
+| 184 | 4 | FBS-184 | Slice 5: the ask | notStarted | blocked | FBS-183 |
+| 185 | 5 | FBS-185 | Slice 6: instruction and release | notStarted | blocked | FBS-184 |
 
-Totals: items 69 | notStarted 41 | inProgress 0 | complete 13 | verified 15 | actionable 31 | blocked 10
+Totals: items 75 | notStarted 47 | inProgress 0 | complete 13 | verified 15 | actionable 32 | blocked 15
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174
-- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
-- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
-- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044
-- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045
-- tier 5: FBS-029, FBS-046
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-180
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182
+- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183
+- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184
+- tier 5: FBS-029, FBS-046, FBS-185
 - tier 6: FBS-030, FBS-047
 - tier 7: FBS-031
 - tier 8: FBS-032

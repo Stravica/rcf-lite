@@ -143,7 +143,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // coverage, queue real concurrency driver, tunnel real drivers,
   // cross-cutting probe hygiene) per Dave reserved-block ruling
   // 2026-09-08T10:35:10Z relay 582c2bca (87 -> 92).
-  assert.equal(tree.requirements.length, 92);
+  // Feedback submission chain (w-2026-09-14-dave-026, d-2026-09-16-004
+  // + d-2026-09-16-008) added REQ-155..162 for the feedback core verb
+  // (capture, redact, dedupe, destination, submit-under-identity,
+  // fallback bundle, one-ask-per-session, RULE 17) (92 -> 100).
+  assert.equal(tree.requirements.length, 100);
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
   // section 9 name as the redundant-resolution remedy. Core companions
@@ -200,7 +204,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // US-15301, US-15401 derived from REQ-150..154 for the Cloudflare-
   // platform probe-integrity repair per Dave reserved-block ruling
   // 2026-09-08T10:35:10Z relay 582c2bca (144 -> 149).
-  assert.equal(tree.userStories.length, 149);
+  // Feedback submission chain added US-15501..15503, 15601, 15701,
+  // 15801..15802, 15901..15902, 16001, 16101..16104, 16201 (14 in the
+  // chain PR, plus US-16104 added by gate-review fix F-3 for the hook
+  // installer/doctor ACs) (149 -> 164).
+  assert.equal(tree.userStories.length, 164);
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
   // shape per HQ reserved-block ruling 2026-09-07 (19 -> 23).
@@ -210,7 +218,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Round-7 T-3 added TAC-4001..4003 for the edge-cloudflare-tunnel
   // connector shape, manifest schema and Access AUD binding per HQ
   // reserved-block ruling 2026-09-07 (27 -> 30).
-  assert.equal(tree.tacs.length, 30);
+  // Feedback submission chain added TAC-4101..4108 (feedback-cli,
+  // feedback-store, feedback-redact, feedback-fingerprint,
+  // feedback-render, feedback-destination, feedback-gh, feedback-hook)
+  // (30 -> 38).
+  assert.equal(tree.tacs.length, 38);
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
   // camelCase topics).
@@ -223,7 +235,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Round-7 T-3 added ADR-4001..4003 (edge ingress bridge contract
   // scope global on new topic edgeIngressBridge, connector runtime,
   // hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33).
-  assert.equal(tree.adrs.length, 33);
+  // Feedback submission chain added ADR-4101..4108 (store gitignored,
+  // fingerprint-and-labels, redaction-rule-based, destination-on-library,
+  // gh-ambient-auth, bundled-entries-terminal, stop-is-ask-event,
+  // hooks-in-committed-config) (33 -> 41).
+  assert.equal(tree.adrs.length, 41);
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
   // companions train added FBS-028..034 for the seven new USs on
@@ -274,7 +290,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // slot 64) covering the five REQs of the Cloudflare-platform
   // probe-integrity repair per Dave reserved-block ruling
   // 2026-09-08T10:35:10Z relay 582c2bca (64 -> 69).
-  assert.equal(tree.fbsItems.length, 69);
+  // Feedback submission chain added FBS-180..185 (slice 1 capture and
+  // store, slice 2 redaction/fingerprint/preview, slice 3 destination
+  // resolution, slice 4 submit/dedupe/fallback, slice 5 the ask,
+  // slice 6 instruction and release) (69 -> 75).
+  assert.equal(tree.fbsItems.length, 75);
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
@@ -327,7 +347,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // US-15401 for the Cloudflare-platform probe-integrity repair per
   // Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca
   // (120 -> 125).
-  assert.equal(tree.testSuites.length, 125);
+  // Feedback submission slice 1 build (FBS-180) added TS-185
+  // (US-15501, AC-15501-1..5), TS-186 (US-15502, AC-15502-1..2) and
+  // TS-187 (US-15503, AC-15503-1..2) with TC pointers into
+  // test/cli/feedback-*.test.js (125 -> 128).
+  assert.equal(tree.testSuites.length, 128);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -420,14 +444,15 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154, REQ-155..REQ-162)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07.
   // Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08.
   // H-1 hardening train added REQ-145 for the deploy-hetzner-server 1.0.1 real-path fidelity patch.
   // Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca.
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154']);
+  // Feedback submission chain (w-2026-09-14-dave-026) added REQ-155..162 for the feedback core verb, redaction, dedupe, destination, submission under reporter identity, fallback bundle, one-ask-per-session and RULE 17.
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154', 'REQ-155', 'REQ-156', 'REQ-157', 'REQ-158', 'REQ-159', 'REQ-160', 'REQ-161', 'REQ-162']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

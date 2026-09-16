@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 92  covered: 92  covered-unresolved: 0  uncovered: 0
+Requirements: 100  covered: 93  covered-unresolved: 0  uncovered: 7
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -368,3 +368,45 @@ REQ-153      yes      AC-15301-1  yes         TC-183-tunnel-connector-healthy-re
 REQ-154      yes      AC-15401-1  yes         TC-184-simulate-purity-four-blueprints
                       AC-15401-2  yes         TC-184-envelope-hygiene-four-blueprints
                       AC-15401-3  yes         TC-184-marker-hygiene-four-blueprints
+REQ-155      yes      AC-15501-1  yes         TC-185-add-writes-one-jsonl-line-and-stamps-env
+                      AC-15501-2  yes         TC-185-add-refuses-without-gitignore
+                      AC-15501-3  yes         TC-185-add-blueprint-unresolved-exits-3
+                      AC-15501-4  yes         TC-185-add-rejects-bad-class
+                      AC-15501-5  yes         TC-185-add-blueprint-stamps
+                      AC-15502-1  yes         TC-186-list-default-hides-non-pending, TC-186-list-json-a...
+                      AC-15502-2  yes         TC-186-status-json-shape, TC-186-status-optout-env-ask, T...
+                      AC-15503-1  yes         TC-187-defer-appends-state-lines
+                      AC-15503-2  yes         TC-187-discard-all-marks-every-pending, TC-187-discard-by...
+REQ-156      no       AC-15601-1  no          -
+                      AC-15601-2  no          -
+                      AC-15601-3  no          -
+REQ-157      no       AC-15701-1  no          -
+                      AC-15701-2  no          -
+                      AC-15701-3  no          -
+REQ-158      no       AC-15801-1  no          -
+                      AC-15801-2  no          -
+                      AC-15801-3  no          -
+                      AC-15802-1  no          -
+                      AC-15802-2  no          -
+REQ-159      no       AC-15901-1  no          -
+                      AC-15901-2  no          -
+                      AC-15902-1  no          -
+                      AC-15902-2  no          -
+                      AC-15902-3  no          -
+                      AC-15902-4  no          -
+REQ-160      no       AC-16001-1  no          -
+                      AC-16001-2  no          -
+                      AC-16001-3  no          -
+                      AC-16001-4  no          -
+REQ-161      no       AC-16101-1  no          -
+                      AC-16101-2  no          -
+                      AC-16101-3  no          -
+                      AC-16102-1  no          -
+                      AC-16102-2  no          -
+                      AC-16103-1  no          -
+                      AC-16103-2  no          -
+                      AC-16104-1  no          -
+                      AC-16104-2  no          -
+                      AC-16104-3  no          -
+REQ-162      no       AC-16201-1  no          -
+                      AC-16201-2  no          -
