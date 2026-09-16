@@ -73,7 +73,7 @@ async function addCore(cwd, title, body, extra = []) {
     ...extra,
   ]);
   assert.equal(res.code, 0, `add failed: ${res.stderr}`);
-  const m = res.stdout.match(/recorded (fb-\d{8}-[0-9a-f]{4})/);
+  const m = res.stdout.match(/recorded (fb-\d{8}-[0-9a-f]{12})/);
   return m[1];
 }
 

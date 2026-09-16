@@ -47,7 +47,7 @@ async function addOne(tmp, title) {
     '--title', title, '--body', 'body', '--evidence', 'ev',
   ]);
   assert.equal(r.code, 0, r.stderr);
-  return r.stdout.match(/fb-\d{8}-[0-9a-f]{4}/)?.[0] ?? null;
+  return r.stdout.match(/fb-\d{8}-[0-9a-f]{12}/)?.[0] ?? null;
 }
 
 // -- AC-15503-1 -----------------------------------------------------------
@@ -124,7 +124,43 @@ test('AC-15503-2: discard with an unknown id exits 2 and writes nothing', async 
   const before = (await readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8')).length;
   const { code, stderr } = await runBin(tmp, ['feedback', 'discard', 'fb-does-not-exist']);
   assert.equal(code, 2);
-  assert.match(stderr, /unknown pending entry id/);
+  assert.match(stderr, /unknown entry id/);
   const after = (await readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8')).length;
   assert.equal(after, before, 'no state line written when discard refuses');
+});
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+test('F-slice-1-11: discard <id> targets deferred entries too (design 3.1 L137 allows any id)', async () => {
+  const tmp = await scaffold();
+  const id = await addOne(tmp, 'later');
+  const defer = await runBin(tmp, ['feedback', 'defer']);
+  assert.equal(defer.code, 0);
+  // Entry is now deferredUntilSession, not pending. The prior build
+  // filtered targets by pending only, so this call would refuse; the
+  // fix accepts any non-terminal id.
+  const disc = await runBin(tmp, ['feedback', 'discard', id]);
+  assert.equal(disc.code, 0, `discard on deferred id must succeed; stderr=${disc.stderr}`);
+  const all = JSON.parse((await runBin(tmp, ['feedback', 'list', '--all', '--json'])).stdout);
+  assert.equal(all.find((e) => e.id === id).status, 'discarded');
+});
+
+test('F-slice-1-09: 30-day pruning drops discarded entries older than the window from list --all counts', async () => {
+  const tmp = await scaffold();
+  // Directly seed a discarded entry with a stale recordedAt (older
+  // than the 30-day window). The next add fires the prune sweep and
+  // appends a `pruned` state line; fold-by-id then hides the row.
+  const { appendEntry: seedAppend } = await import('../../src/feedback/store.js');
+  await seedAppend(tmp, {
+    id: 'fb-19700101-000000000000',
+    recordedAt: '1970-01-01T00:00:00Z',
+    kind: 'core', target: { ref: 'define validate' },
+    anchor: null, symptomClass: 'other', severity: 'minor',
+    title: 'ancient', body: 'ancient', evidence: [], environment: {},
+    askNow: false, status: 'discarded',
+  });
+  await addOne(tmp, 'kicks-the-prune');
+  const all = JSON.parse((await runBin(tmp, ['feedback', 'list', '--all', '--json'])).stdout);
+  const ancient = all.find((e) => e.id === 'fb-19700101-000000000000');
+  assert.equal(ancient?.status, 'pruned', 'ancient discarded entry must be pruned after the sweep');
 });

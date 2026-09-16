@@ -103,7 +103,7 @@ test('newEntryId is deterministic under injected clock and rng', () => {
   const clock = new Date(Date.UTC(2026, 8, 16, 10, 0, 0));
   const rng = () => 0.5;
   const id = newEntryId(clock, rng);
-  assert.match(id, /^fb-20260916-[0-9a-f]{4}$/);
+  assert.match(id, /^fb-20260916-[0-9a-f]{12}$/);
   assert.equal(newEntryId(clock, rng), id, 'same clock+rng -> same id');
 });
 
@@ -121,4 +121,52 @@ test('ask ledger round-trips through read and write', async () => {
   assert.equal(back.queueStateAt, '2026-09-16T10:05:00Z');
   const written = await readFile(statePath(root), 'utf8');
   assert.match(written, /"asked"/);
+});
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+import { mintUniqueEntryId } from '../../src/feedback/store.js';
+
+test('F-slice-1-01: gitignore guard honours ! negation (a later negation cancels a positive line)', async () => {
+  const root = await fixture();
+  // A gitignore with a positive line followed by an explicit
+  // negation must not pass the guard - git would allow the tracked
+  // path back and raw entries would leak on push.
+  await writeFile(join(root, '.gitignore'), '.rcf/feedback/\n!.rcf/feedback/\n', 'utf8');
+  const check = await ensureGitignore(root);
+  assert.equal(check.ok, false, 'guard must refuse when a later negation cancels the positive line');
+});
+
+test('F-slice-1-01: gitignore guard passes when the negation is BEFORE the positive line (positive wins)', async () => {
+  const root = await fixture();
+  await writeFile(join(root, '.gitignore'), '!.rcf/feedback/\n.rcf/feedback/\n', 'utf8');
+  const check = await ensureGitignore(root);
+  assert.equal(check.ok, true, 'guard passes when the last-word line is the positive ignore');
+});
+
+test('F-slice-1-03: newEntryId tail is 12 hex characters (ruling R2, was 4-hex)', () => {
+  const clock = new Date(Date.UTC(2026, 8, 16, 10, 0, 0));
+  const rng = () => 0.5;
+  const id = newEntryId(clock, rng);
+  const tail = id.split('-').pop();
+  assert.equal(tail.length, 12, 'F-slice-1-03: id tail must be 12 hex chars');
+});
+
+test('F-slice-1-03: mintUniqueEntryId regenerates on collision so two entries never share an id', async () => {
+  const root = await fixture();
+  // Seed an existing entry whose id matches what our rng will
+  // generate on the first draw; the mint must probe and retry.
+  const clock = new Date(Date.UTC(2026, 8, 16, 10, 0, 0));
+  const seq = [0.5, 0.5, 0.5, 0.75, 0.75, 0.75]; // first draw collides, second draw wins
+  let i = 0;
+  const rng = () => seq[i++ % seq.length];
+  const collide = newEntryId(clock, () => 0.5);
+  await appendEntry(root, {
+    id: collide, recordedAt: '2026-09-16T10:00:00Z', kind: 'core', status: 'pending',
+    target: { ref: 'x' }, symptomClass: 'other', severity: 'minor', title: 't', body: 'b',
+    evidence: [], environment: {}, askNow: false,
+  });
+  const fresh = await mintUniqueEntryId(root, clock, rng);
+  assert.notEqual(fresh, collide, 'mint must not re-emit the colliding id');
+  assert.match(fresh, /^fb-20260916-[0-9a-f]{12}$/);
 });

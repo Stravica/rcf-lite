@@ -72,7 +72,7 @@ test('AC-15501-1: rcf feedback add writes one JSONL line and stamps env', async 
     '--evidence', 'rcf define validate',
   ]);
   assert.equal(code, 0);
-  assert.match(stdout, /^recorded fb-\d{8}-[0-9a-f]{4} \(1 pending\)\. Nothing sent\.\n$/);
+  assert.match(stdout, /^recorded fb-\d{8}-[0-9a-f]{12} \(1 pending\)\. Nothing sent\.\n$/);
   const jsonl = await readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8');
   const lines = jsonl.split('\n').filter(Boolean);
   assert.equal(lines.length, 1, 'expected exactly one JSONL line');
@@ -265,4 +265,77 @@ test('AC-15501-5: blueprint entries stamp version, libraryPrefix, libraryRef and
   const core = byTitle.get('core');
   assert.equal(core.target.blueprintVersion, undefined);
   assert.equal(core.target.libraryPrefix, undefined);
+});
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+async function runBinWithEnv(cwd, args, extraEnv) {
+  try {
+    const { stdout, stderr } = await exec(process.execPath, [bin, ...args], {
+      cwd, encoding: 'utf8', env: { ...process.env, CI: '1', RCF_FEEDBACK_SESSION_ID: 'test-session', ...extraEnv },
+    });
+    return { code: 0, stdout, stderr };
+  } catch (err) {
+    return { code: err.code ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
+  }
+}
+
+test('F-slice-1-02: RCF_FEEDBACK_DISABLE=1 makes add a no-op that prints feedback disabled by env, no entry persisted', async () => {
+  const tmp = await scaffoldReady();
+  const res = await runBinWithEnv(tmp, [
+    'feedback', 'add',
+    '--kind', 'core', '--target', 'define validate',
+    '--anchor', 'REQ-155', '--class', 'docs-mismatch', '--severity', 'minor',
+    '--title', 't', '--body', 'b', '--evidence', 'x',
+  ], { RCF_FEEDBACK_DISABLE: '1' });
+  assert.equal(res.code, 0, res.stderr);
+  assert.match(res.stdout, /feedback disabled by env/);
+  // No entries file should have been created.
+  const { readFile } = await import('node:fs/promises');
+  await assert.rejects(readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8'));
+});
+
+test('F-slice-1-05: harness inference returns unknown (not other) when neither Claude Code nor Codex env is set; CLAUDECODE=true does not qualify (only =1)', async () => {
+  const tmp = await scaffoldReady();
+  const runWithHarnessEnv = async (env) => {
+    const strippedEnv = { ...process.env, ...env };
+    for (const k of Object.keys(strippedEnv)) {
+      if (k.startsWith('CODEX_')) delete strippedEnv[k];
+      if (k === 'CLAUDECODE' && env.CLAUDECODE == null) delete strippedEnv[k];
+    }
+    strippedEnv.CI = '1';
+    strippedEnv.RCF_FEEDBACK_SESSION_ID = 'test-session';
+    const { stdout, stderr } = await exec(process.execPath, [bin,
+      'feedback', 'add',
+      '--kind', 'core', '--target', 'define validate',
+      '--anchor', 'REQ-155', '--class', 'docs-mismatch', '--severity', 'minor',
+      '--title', `t-${Date.now()}-${Math.random()}`,
+      '--body', 'b', '--evidence', 'x',
+    ], { cwd: tmp, encoding: 'utf8', env: strippedEnv }).catch((err) => ({ stdout: err.stdout ?? '', stderr: err.stderr ?? '' }));
+    void stderr;
+    void stdout;
+  };
+  await runWithHarnessEnv({});
+  await runWithHarnessEnv({ CLAUDECODE: 'true' });
+  await runWithHarnessEnv({ CLAUDECODE: '1' });
+  const entries = (await readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8'))
+    .split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  const [unset, trueString, one] = entries;
+  assert.equal(unset.environment.harness, 'unknown', 'unset env must infer unknown');
+  assert.equal(trueString.environment.harness, 'unknown', "CLAUDECODE='true' must NOT count (design 3.6 pins =1)");
+  assert.equal(one.environment.harness, 'claude-code', "CLAUDECODE='1' must infer claude-code");
+});
+
+test('F-slice-1-12: persisted entry includes the fingerprint that preview and submit would compute (design 4.1 shape)', async () => {
+  const tmp = await scaffoldReady();
+  await runBin(tmp, [
+    'feedback', 'add',
+    '--kind', 'core', '--target', 'define validate',
+    '--anchor', 'REQ-155', '--class', 'docs-mismatch', '--severity', 'minor',
+    '--title', 'x', '--body', 'y', '--evidence', 'z',
+  ]);
+  const entries = (await readFile(join(tmp, '.rcf/feedback/entries.jsonl'), 'utf8'))
+    .split('\n').filter(Boolean).map((l) => JSON.parse(l));
+  assert.equal(entries.length, 1);
+  assert.ok(/^[0-9a-f]{12}$/.test(entries[0].fingerprint ?? ''), `expected 12-hex fingerprint, got ${entries[0].fingerprint}`);
 });

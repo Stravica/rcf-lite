@@ -29,10 +29,10 @@
     },
     {
       "id": "AC-15501-3",
-      "description": "When --kind blueprint is passed and the target cannot be resolved to a known blueprint in rcf/manifest.json:blueprints[], the entry is still recorded with destination: unresolved. Exit code is 3 (destination cannot be resolved, per design 3.1); stdout carries the recorded line and stderr carries a one-line \"destination unresolved: <target>\" note the agent can relay.",
-      "given": "a fixture project whose manifest carries no matching blueprint",
-      "when": "the agent runs rcf feedback add --kind blueprint --target unknown-slug ...",
-      "then": "the entry is written with destination.repo absent and destination.reason set to unresolved; exit code is 3 (destination cannot be resolved); stderr carries the one-line note",
+      "description": "Ruling R1 (Dave 2026-09-16): --kind blueprint exits 3 ONLY when the target is absent from rcf/manifest.json:blueprints[] (unknown target). A KNOWN blueprint whose registered library carries no resolvable feedback destination (no issuesRepo and no derivable github sourceRef) is exit 0 with the entry stamped destination: unresolved; slice 4 writes the bundle at submit time (design section 7 case 5 wins). In both cases the entry is recorded; stdout carries the recorded line. On the exit-3 branch stderr carries \"destination unresolved: <target>\"; on the exit-0 unresolved branch stderr carries a one-line note naming the library.",
+      "given": "a fixture project whose manifest carries no matching blueprint (exit 3), and a second project whose manifest holds a blueprint from a library with no issuesRepo (exit 0)",
+      "when": "the agent runs rcf feedback add --kind blueprint --target <ref> ... against each",
+      "then": "the unknown-target invocation writes the entry with destination.reason=unresolved, exit code 3, stderr names the target; the known-target-no-destination invocation writes the entry with destination.reason=unresolved, exit code 0, stderr names the library",
       "testable": true,
       "scope": "runtime"
     },

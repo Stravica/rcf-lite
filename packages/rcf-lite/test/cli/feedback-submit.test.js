@@ -95,7 +95,7 @@ async function addOne(tmp, title, opts = {}) {
   ];
   const r = await runBin(tmp, args);
   assert.equal(r.code, 0, `add(${title}) failed: ${r.stderr}`);
-  const m = r.stdout.match(/recorded (fb-\d{8}-[0-9a-f]{4})/);
+  const m = r.stdout.match(/recorded (fb-\d{8}-[0-9a-f]{12})/);
   return m[1];
 }
 
@@ -335,7 +335,7 @@ test('AC-16001-1a: gh missing on PATH routes to bundle', async () => {
   assert.match(r.stdout, new RegExp(`${id} -> bundle .+\\.md \\| https://github\\.com/Stravica/rcf-lite/issues/new`));
   const outbox = await readdir(join(tmp, '.rcf/feedback/outbox'));
   assert.equal(outbox.length, 1);
-  assert.match(outbox[0], /-stravica-rcf-lite(?:-fb-\d{8}-[0-9a-f]{4})?\.md$/);
+  assert.match(outbox[0], /-stravica-rcf-lite(?:-fb-\d{8}-[0-9a-f]{12})?\.md$/);
   const bundle = await readFile(join(tmp, '.rcf/feedback/outbox', outbox[0]), 'utf8');
   assert.match(bundle, /Reason not filed: gh not on PATH/);
   const entries = await readEntries(tmp);
@@ -501,7 +501,7 @@ test('AC-16001-4: unresolved destination writes an unresolved-slug bundle with p
   assert.deepEqual(log.filter((l) => l.name !== 'ghOnPath' && l.name !== 'ghAuthStatus').map((l) => l.name), []);
   // Bundle file lands under outbox with unresolved-slug filename.
   const outbox = await readdir(join(tmp, '.rcf/feedback/outbox'));
-  assert.ok(outbox.some((f) => /-unresolved(?:-fb-\d{8}-[0-9a-f]{4})?\.md$/.test(f)), `expected an unresolved-slug bundle, got ${outbox.join(', ')}`);
+  assert.ok(outbox.some((f) => /-unresolved(?:-fb-\d{8}-[0-9a-f]{12})?\.md$/.test(f)), `expected an unresolved-slug bundle, got ${outbox.join(', ')}`);
   // Publisher contact appears on the same line as the outbox path.
   assert.match(r.stdout, /orphan-owners@example\.com/);
   // Entry status is bundled.

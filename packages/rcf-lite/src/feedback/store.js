@@ -237,20 +237,37 @@ export async function ensureGitignore(projectRoot) {
     }
     throw err;
   }
-  const lines = text.split('\n').map((s) => s.trim());
-  // Any of these literal lines is enough to keep the whole feedback
-  // subtree ignored under standard git semantics.
-  const covers = ['.rcf/feedback/', '.rcf/feedback', '.rcf/', '.rcf'];
-  const has = new Set(lines);
-  for (const p of covers) if (has.has(p)) return { ok: true };
+  // F-slice-1-01: walk the lines in order and track the ignore state
+  // of `.rcf/feedback/`; a later `!` negation must cancel an earlier
+  // positive line the same way git does. A Set-membership check would
+  // pass a negated file straight through, leaking raw entries on push.
+  const covers = new Set(['.rcf/feedback/', '.rcf/feedback', '.rcf/', '.rcf']);
+  let ignored = false;
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.trim();
+    if (line === '' || line.startsWith('#')) continue;
+    if (line.startsWith('!')) {
+      const negated = line.slice(1);
+      if (covers.has(negated) || negated === '.rcf/feedback/*' || negated === '.rcf/feedback/**') {
+        ignored = false;
+      }
+      continue;
+    }
+    if (covers.has(line)) ignored = true;
+  }
+  if (ignored) return { ok: true };
   return { ok: false, reason: 'missing .gitignore entry .rcf/feedback/' };
 }
 
 /**
- * Generate a fresh entry id: `fb-<yyyymmdd>-<4-hex>`. The 4-hex tail is
- * random for uniqueness within a day and short enough to name in stdout
- * without wrapping. The date is UTC so ids are stable across machines
- * in different timezones.
+ * Generate a fresh entry id: `fb-<yyyymmdd>-<12-hex>`. Ruling R2
+ * (Dave 2026-09-16): 12-hex tail with a uniqueness probe on append
+ * so a busy day's 100+ findings do not collide (a 16-bit tail had a
+ * ~7.6% collision at 100 finds/day, which converted a distinct
+ * finding into a state transition on the old one via the fold-by-id
+ * reader). Callers should use `mintUniqueEntryId` when they can
+ * afford one read of the entries log; `newEntryId` remains the raw
+ * generator for tests that inject an rng.
  *
  * @param {Date} [now]
  * @param {() => number} [rng] - 0..1; injectable for tests
@@ -260,8 +277,36 @@ export function newEntryId(now = new Date(), rng = Math.random) {
   const yyyy = now.getUTCFullYear().toString().padStart(4, '0');
   const mm = (now.getUTCMonth() + 1).toString().padStart(2, '0');
   const dd = now.getUTCDate().toString().padStart(2, '0');
-  const tail = Math.floor(rng() * 0x10000).toString(16).padStart(4, '0');
-  return `fb-${yyyy}${mm}${dd}-${tail}`;
+  // 48 bits split into three 16-bit words so we never rely on 32-bit
+  // integer coercion and every call has full 48-bit entropy.
+  const words = [];
+  for (let i = 0; i < 3; i += 1) {
+    words.push(Math.floor(rng() * 0x10000).toString(16).padStart(4, '0'));
+  }
+  return `fb-${yyyy}${mm}${dd}-${words.join('')}`;
+}
+
+/**
+ * Mint an entry id and re-generate on collision. F-slice-1-03 /
+ * ruling R2: append is preceded by a uniqueness probe over the read
+ * entries so no two rows share an id. The retry budget is 32; if
+ * every generated id still collides (astronomically unlikely with
+ * 48 bits of entropy) the last generated id is returned so the caller
+ * can decide how to escalate.
+ *
+ * @param {string} projectRoot
+ * @param {Date} [now]
+ * @param {() => number} [rng]
+ * @returns {Promise<string>}
+ */
+export async function mintUniqueEntryId(projectRoot, now = new Date(), rng = Math.random) {
+  const existing = new Set((await readEntries(projectRoot)).map((e) => e.id));
+  let id = newEntryId(now, rng);
+  for (let i = 0; i < 32; i += 1) {
+    if (!existing.has(id)) return id;
+    id = newEntryId(now, rng);
+  }
+  return id;
 }
 
 /**

@@ -37,6 +37,7 @@ import {
   appendEntry,
   appendState,
   ensureGitignore,
+  mintUniqueEntryId,
   newEntryId,
   readEntries,
   storeExists,
@@ -204,7 +205,16 @@ const ADD_OPTIONS = /** @type {const} */ ({
 });
 
 async function handleAdd(argv, ctx) {
-  const { stdout, stderr, cwd } = ctx;
+  const { stdout, stderr, cwd, env } = ctx;
+  // F-slice-1-02: RCF_FEEDBACK_DISABLE=1 makes `add` a no-op that
+  // prints the design-8 line and exits 0 without touching the tree.
+  // Locked-down environments where even a local log is unwanted rely
+  // on this; the previous build honoured only the opt-out semantics
+  // in `status`, so `add` would still persist raw entries.
+  if (env.RCF_FEEDBACK_DISABLE === '1') {
+    stdout.write('feedback disabled by env\n');
+    return 0;
+  }
   let parsed;
   try {
     parsed = parseArgs({ args: argv, options: ADD_OPTIONS, allowPositionals: false, strict: true });
@@ -323,22 +333,35 @@ async function handleAdd(argv, ctx) {
     platform: osPlatform(),
   };
 
-  // Blueprint-specific stamps (AC-15501-5).
+  // Blueprint-specific stamps (AC-15501-5, F-slice-1-07: also merge
+  // registry-sourced libraryRef and pin.tarballSha256 which live on
+  // rcf/blueprint-libraries.json, not on the manifest record).
   let blueprintStamp = {};
   if (kind === 'blueprint' && record) {
+    const registryEntry = record.libraryPrefix && resolverInputs.registry
+      ? (Array.isArray(resolverInputs.registry.libraries)
+        ? resolverInputs.registry.libraries.find((l) => l?.libraryPrefix === record.libraryPrefix)
+        : null)
+      : null;
+    const libraryRef = record.libraryRef ?? registryEntry?.libraryRef ?? null;
+    const resolvedSha = record.pin?.resolvedSha ?? registryEntry?.resolvedSha ?? null;
+    const tarballSha256 = record.pin?.tarballSha256 ?? registryEntry?.provenance?.tarballSha256 ?? null;
     blueprintStamp = {
       blueprintVersion: record.version ?? null,
       libraryPrefix: record.libraryPrefix ?? null,
-      libraryRef: record.libraryRef ?? null,
-      ...(record.pin?.resolvedSha ? { resolvedSha: record.pin.resolvedSha } : {}),
-      ...(record.pin?.tarballSha256 ? { tarballSha256: record.pin.tarballSha256 } : {}),
+      libraryRef,
+      ...(resolvedSha ? { resolvedSha } : {}),
+      ...(tarballSha256 ? { tarballSha256 } : {}),
     };
   }
 
   const recordedAt = ctx.now().toISOString().replace(/\.\d{3}Z$/, 'Z');
-  const id = newEntryId(ctx.now(), ctx.rng);
+  // F-slice-1-03 / ruling R2: 12-hex id with a uniqueness probe on
+  // the append. Falls back to the raw generator if the projectRoot
+  // has no entries yet (mintUniqueEntryId reads and dedupes safely).
+  const id = await mintUniqueEntryId(projectRoot, ctx.now(), ctx.rng);
 
-  const entry = {
+  const entryPreFingerprint = {
     id,
     recordedAt,
     sessionId: ctx.sessionId,
@@ -358,6 +381,15 @@ async function handleAdd(argv, ctx) {
     evidence: evidence.map((v) => classifyEvidence(v)),
     environment,
     askNow: Boolean(flags['ask-now']),
+  };
+  // F-slice-1-12: persist the fingerprint so `list --json`, `status`
+  // and any triage-side tooling can key off it without re-computing.
+  // The persisted value MUST equal what preview and submit compute
+  // from the same entry.
+  const fp = fingerprint(entryPreFingerprint);
+  const entry = {
+    ...entryPreFingerprint,
+    fingerprint: fp,
     status: 'pending',
     destination: destinationUnresolved
       // Preserve the slice-1 shape ({ reason: 'unresolved' }) that
@@ -377,6 +409,13 @@ async function handleAdd(argv, ctx) {
   };
 
   await appendEntry(projectRoot, entry);
+
+  // F-slice-1-09: prune discarded entries older than 30 days so the
+  // log does not grow unbounded (design 3.1 L137). The prune is a
+  // set of state transitions, not a rewrite of the JSONL; a discarded
+  // entry older than the window gains a new `pruned` state line so
+  // the reader's fold-by-id drops it from `list --all` counts too.
+  await pruneOldDiscarded(projectRoot, ctx.now());
 
   // Count of pending entries after this write (fold-by-id read).
   const all = await readEntries(projectRoot);
@@ -668,6 +707,11 @@ async function handleDiscard(argv, ctx) {
     return 2;
   }
   const all = await readEntries(projectRoot);
+  // F-slice-1-11: design 3.1 L137 allows discard against any id, not
+  // only pending. A user changing their mind about a deferred or a
+  // bundled entry must be able to say so. Only already-discarded /
+  // pruned entries are refused (idempotency).
+  const active = all.filter((e) => e.status !== 'discarded' && e.status !== 'pruned');
   const pending = all.filter((e) => e.status === 'pending');
   let targets;
   if (flags.all) {
@@ -675,6 +719,9 @@ async function handleDiscard(argv, ctx) {
       stderr.write('[error] usage --all cannot be combined with entry ids\n');
       return 2;
     }
+    // `--all` (kept scope: pending only) matches slice-1 semantics
+    // so a hook-triggered mass discard does not accidentally nuke
+    // submitted issue links.
     targets = pending;
   } else {
     if (parsed.positionals.length === 0) {
@@ -682,7 +729,7 @@ async function handleDiscard(argv, ctx) {
       return 2;
     }
     const wanted = new Set(parsed.positionals);
-    const byId = new Map(pending.map((e) => [e.id, e]));
+    const byId = new Map(active.map((e) => [e.id, e]));
     targets = [];
     const missing = [];
     for (const id of wanted) {
@@ -691,12 +738,12 @@ async function handleDiscard(argv, ctx) {
       targets.push(e);
     }
     if (missing.length > 0) {
-      stderr.write(`[error] usage unknown pending entry id(s): ${missing.join(', ')}\n`);
+      stderr.write(`[error] usage unknown entry id(s): ${missing.join(', ')}\n`);
       return 2;
     }
   }
   if (targets.length === 0) {
-    stdout.write('no pending feedback entries to discard.\n');
+    stdout.write('no feedback entries to discard.\n');
     return 0;
   }
   const at = ctx.now().toISOString().replace(/\.\d{3}Z$/, 'Z');
@@ -1573,11 +1620,48 @@ function handleNotYet(name, sliceLabel, ctx) {
 // -- helpers ---------------------------------------------------------------
 
 function inferHarness(env) {
-  if (env.CLAUDECODE === '1' || env.CLAUDECODE === 'true') return 'claude-code';
+  // F-slice-1-05: design 3.6 pins CLAUDECODE=1 and returns `unknown`
+  // when neither harness leaves a signature. `other` is a legitimate
+  // OPERATOR-declared value on --harness; the auto-fallback must not
+  // conflate "unidentified" with a declared choice.
+  if (env.CLAUDECODE === '1') return 'claude-code';
   for (const k of Object.keys(env)) {
     if (k.startsWith('CODEX_')) return 'codex';
   }
-  return 'other';
+  return 'unknown';
+}
+
+/**
+ * F-slice-1-09: sweep discarded entries older than the design 3.1
+ * 30-day window. A `pruned` state line is appended for each expiring
+ * entry so the reader's fold-by-id drops it from list/count surfaces
+ * on the next read; the historical JSONL rows stay untouched (append-
+ * only invariant). Best-effort: failures never break the caller.
+ *
+ * @param {string} projectRoot
+ * @param {() => Date} nowFn
+ * @param {number} [windowDays]
+ */
+async function pruneOldDiscarded(projectRoot, nowFn, windowDays = 30) {
+  try {
+    const all = await readEntries(projectRoot);
+    const cutoff = Date.now() - windowDays * 24 * 60 * 60 * 1000;
+    const now = typeof nowFn === 'function' ? nowFn() : new Date();
+    for (const e of all) {
+      if (e.status !== 'discarded') continue;
+      const t = Date.parse(e.recordedAt ?? '');
+      if (!Number.isFinite(t) || t > cutoff) continue;
+      await appendState(projectRoot, {
+        id: e.id,
+        at: now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
+        status: 'pruned',
+      });
+    }
+  } catch (err) {
+    if (process.env.RCF_FEEDBACK_TRACE_PRUNE === '1') {
+      process.stderr.write(`[prune] failed: ${err.message}\n`);
+    }
+  }
 }
 
 async function readOwnVersion() {

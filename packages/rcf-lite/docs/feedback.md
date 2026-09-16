@@ -23,14 +23,47 @@ instructions block (slice 6).
   from the manifest and the blueprint-libraries registry so a maintainer
   can tell which pin the reporter was on.
 
-## What is never collected
+## What leaves the machine
 
-- Absolute paths, hostnames, private IPs, emails, operator identity,
-  secret-looking strings. Redaction lives in slice 2; the agent is
-  instructed (RULE 17) not to put any of these into the body.
-- Attachments, screenshots and arbitrary binary files.
-- Anything sent over the network. Slice 1 is local-only. Slice 4 adds a
-  consent-gated submit path through the reporter's own `gh` CLI.
+- Nothing until the operator says yes. `add` is local-only; `preview`
+  is read-only; `submit --yes` is the only sub-verb that reaches
+  the network.
+- What DOES leave (after `submit --yes`): the redacted title and body
+  the operator saw in `preview`, plus the environment stamp,
+  filed as a GitHub issue under the reporter's ambient `gh` login.
+
+## What is stored locally
+
+The raw capture in `.rcf/feedback/entries.jsonl` is UNREDACTED so an
+operator (or a later triage tool) can see exactly what the agent
+recorded before the redaction rules run. That is why the store is
+gitignored and refuses to write on a project whose `.gitignore` does
+not cover `.rcf/feedback/`. Concretely, a raw entry MAY carry
+absolute paths, hostnames, private IPs, emails, operator identity,
+or secret-looking strings the redactor would strip on submit. Nothing
+in the raw log is committed and nothing in it is sent.
+
+## What redaction strips before an issue is filed
+
+Rendered issue bodies (`preview` and `submit`) run every string
+through the design 5 rules and record the substitutions in a ledger
+the operator sees at preview time:
+
+- Absolute paths (POSIX and Windows, including paths with spaces),
+  the project root (both the as-typed and the realpath spelling),
+  and the project's git remote URLs.
+- Emails, non-allowlisted hostnames and URLs, private and link-local
+  IPs (v4 and v6, `fc00::/7`, `fe80::/10`), operator identity from
+  the identity seed.
+- Secret-shaped strings: GitHub tokens, AWS keys, `sk-`/`sk_live_`,
+  Slack `xox[abp]-`, JWTs, PEM blocks (BEGIN..END), `Bearer <token>`,
+  `Authorization:` header values, well-known `key: value` pairs
+  (`password`, `token`, `api_key`, ...), high-entropy blobs.
+- Rendered body cap: 8 KB after redaction; the fingerprint tail is
+  kept so dedupe survives the truncation.
+
+Attachments, screenshots and arbitrary binary files are never
+attached to an issue.
 
 ## Store layout
 
@@ -118,7 +151,9 @@ time without inventing verb behaviour ahead of the ACs.
 ## Environment variables
 
 - `RCF_FEEDBACK_ASK=0` silences the Stop-hook ask (slice 5).
-- `RCF_FEEDBACK_DISABLE=1` makes `add` a no-op (slice 5).
+- `RCF_FEEDBACK_DISABLE=1` makes `add` a no-op that prints
+  `feedback disabled by env` and exits 0, without touching the tree.
+  For locked-down environments where even a local log is unwanted.
 - `RCF_FEEDBACK_SESSION_ID` overrides the session id stamped on new
   entries (defaults to `unknown` when the harness does not export one).
 
