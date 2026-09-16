@@ -169,3 +169,89 @@ test('allowedHosts merges the bundled set with the extension list', () => {
   assert.ok(merged.includes('github.com'));
   assert.ok(merged.includes('wsd.example'));
 });
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+test("F-slice-2-01: quoted and short kv-secret values are redacted (design 5 rule 5)", () => {
+  const cases = [
+    ['"password": "abc"', 'JSON with short quoted value'],
+    ["password: 'x'", 'YAML with short single-quoted value'],
+    ['token=abc', 'bare short unquoted value'],
+    ['api_key = "1"', 'assignment with single-char quoted'],
+    ['"client_secret":"ok"', 'no-space JSON short value'],
+  ];
+  for (const [input, label] of cases) {
+    const { text } = redact(input, {});
+    assert.match(text, /<redacted:secret>/, `expected redaction for ${label} (${input})`);
+  }
+});
+
+test('F-slice-2-02: Authorization header value redaction removes the whole credential, not just the scheme', () => {
+  const cred = 'YWRtaW46c3VwZXJzZWNyZXQxMjM';
+  const { text } = redact(`Authorization: Basic ${cred}`, {});
+  assert.doesNotMatch(text, new RegExp(cred), 'credential must be gone');
+  assert.match(text, /<redacted:secret>/);
+});
+
+test('F-slice-2-03: PEM redaction covers the whole BEGIN..END block, not only the BEGIN delimiter', () => {
+  const pem = [
+    '-----BEGIN RSA PRIVATE KEY-----',
+    'MIIEowIBAAKCAQEAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
+    '-----END RSA PRIVATE KEY-----',
+  ].join('\n');
+  const { text } = redact(`prelude\n${pem}\npostlude`, {});
+  assert.doesNotMatch(text, /MIIEow/);
+  assert.doesNotMatch(text, /END RSA PRIVATE KEY/);
+  assert.match(text, /<redacted:secret>/);
+});
+
+test('F-slice-2-04: residual pass catches authorization, kv-secret and entropy families after normalisation', () => {
+  const kvHits = findResidualSecrets('password: "abcd"');
+  assert.ok(kvHits.length >= 1, 'kv-secret must appear in residual patterns');
+  const authHits = findResidualSecrets('Authorization: Basic zzzYYYxxxWWWvvvUUUtttSSSrrr');
+  assert.ok(authHits.length >= 1, 'authorization must appear in residual patterns');
+});
+
+test('F-slice-2-05: IPv6 unique-local, link-local and generic addresses redact; ::1 loopback survives', () => {
+  const { text } = redact('fc00::1 and fe80::1234 and 2001:db8::1 and ::1 loopback', {});
+  assert.doesNotMatch(text, /fc00::1\b/);
+  assert.doesNotMatch(text, /fe80::1234/);
+  assert.doesNotMatch(text, /2001:db8/);
+  assert.match(text, /::1 loopback/, 'IPv6 loopback survives');
+});
+
+test('F-slice-2-06: absolute paths with spaces AND the realpath project-root spelling both strip cleanly', () => {
+  const { text: bareSpace } = redact('crashed at /Users/john doe/work/app.js line 12', {});
+  assert.match(bareSpace, /<path>\/app\.js/, 'space-in-segment path folds to basename');
+  assert.doesNotMatch(bareSpace, /doe/, 'username fragment must not bleed through');
+  assert.doesNotMatch(bareSpace, /work\/app\.js/);
+
+  const { text: rooted } = redact('opened /private/tmp/proj/src/x.js and /tmp/proj/src/x.js', {
+    projectRoot: ['/tmp/proj', '/private/tmp/proj'],
+  });
+  assert.match(rooted, /<project>\/src\/x\.js/);
+  assert.doesNotMatch(rooted, /\/private\/tmp\/proj/);
+});
+
+test('F-slice-2-07: git remote passed as an array of remotes (as `git remote -v` yields) all fold to <project-remote>', () => {
+  const { text } = redact(
+    'clone git@github.com:org/repo.git or use https://github.com/org/repo.git',
+    { gitRemote: ['git@github.com:org/repo.git', 'https://github.com/org/repo.git'] },
+  );
+  assert.doesNotMatch(text, /org\/repo\.git/);
+  const remoteCount = (text.match(/<project-remote>/g) ?? []).length;
+  assert.ok(remoteCount >= 2, 'each remote spelling is redacted');
+});
+
+test('F-slice-2-09: ledger keeps every distinct secret sample so the operator sees exactly what was stripped', () => {
+  const filler = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  const t1 = ['ghp_', filler].join('');
+  const t2 = ['sk_', 'live_', filler.slice(0, 20)].join('');
+  const { ledger } = redact(`${t1} and ${t2}`, {});
+  const rows = ledger.filter((r) => r.rule === 'secret-token');
+  // Each distinct sample stays as its own row - not folded into one
+  // concatenated line - so a maintainer reading preview sees the list.
+  assert.ok(rows.length >= 2, `expected at least 2 secret-token rows, got ${rows.length}`);
+});
+

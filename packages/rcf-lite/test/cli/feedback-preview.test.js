@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { BODY_CAP_BYTES } from '../../src/feedback/redact.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -105,7 +106,13 @@ test('AC-15601-1: rcf feedback preview --json emits rendered title, body, destin
   assert.equal(p.destination.visibility, 'public');
   assert.ok(p.titleRendered.startsWith('[rcf-lite] '));
   assert.match(p.bodyRendered, /rcf-feedback-fingerprint:/);
-  assert.ok(Buffer.byteLength(p.bodyRendered, 'utf8') <= 16 * 1024, 'rendered body reasonable size');
+  // F-slice-2-10: the rendered body must respect the design 5 rule
+  // 7 cap (BODY_CAP_BYTES). The earlier 16 KB assertion silently
+  // accepted a violation and is the precedent the reviewer named.
+  assert.ok(
+    Buffer.byteLength(p.bodyRendered, 'utf8') <= BODY_CAP_BYTES,
+    `AC-15601-1 (design 5 rule 7): rendered body must stay under ${BODY_CAP_BYTES} bytes`,
+  );
 
   const ruleNames = new Set(p.ledger.map((r) => r.rule));
   for (const required of ['absolute-path', 'email', 'hostname', 'private-ip', 'secret-token', 'operator-identity', 'size-shape']) {

@@ -77,3 +77,19 @@ test('normaliseAnchor upper-cases and returns "-" for empty inputs', () => {
   assert.equal(normaliseAnchor(''), '-');
   assert.equal(normaliseAnchor('  '), '-');
 });
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+test('F-slice-2-11: fallback fingerprint strips ASCII hyphens AND normalises non-ASCII dashes to spaces so em-dash variants hash the same', () => {
+  const base = {
+    kind: 'core',
+    target: { ref: 'define validate' },
+    anchor: null,
+    symptomClass: 'wrong-output',
+  };
+  const ascii = fingerprint({ ...base, title: 'probe-fails on the walker' });
+  const emdash = fingerprint({ ...base, title: 'probe—fails on the walker' });
+  const nodash = fingerprint({ ...base, title: 'probe fails on the walker' });
+  assert.equal(ascii, emdash, 'ASCII hyphen and em-dash variants must fold to the same fingerprint');
+  assert.equal(ascii, nodash, 'and to the space-separated variant');
+});

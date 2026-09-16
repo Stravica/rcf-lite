@@ -33,10 +33,14 @@ export const BODY_CAP_BYTES = 8 * 1024;
 
 /**
  * @typedef {object} RedactionContext
- * @property {string} [projectRoot]     absolute path (redacted to `<project>`)
+ * @property {string | string[]} [projectRoot]     absolute path (redacted to `<project>`);
+ *   an array carries every spelling that names the same root (the as-typed
+ *   spelling AND its realpath, e.g. `/tmp/foo` and `/private/tmp/foo` on macOS)
+ *   so a path expressed either way is stripped (design 5 rule 1, F-slice-2-06).
  * @property {string} [projectName]     manifest projectName (redacted to `<project>`)
  * @property {string} [operatorName]    identity ## Name line, or null
- * @property {string} [gitRemote]       git remote url (redacted to `<project-remote>`)
+ * @property {string | string[]} [gitRemote]      git remote url or URLs (redacted to `<project-remote>`);
+ *   an array carries every remote a `git remote -v` walk names (F-slice-2-07).
  * @property {string[]} [allowHosts]    extension list merged with the bundled allowlist
  */
 
@@ -78,23 +82,28 @@ export function redact(input, context = {}) {
 
   // Rule 1: project root -> <project>. Applied first so absolute paths
   // under it keep their relative tail rather than getting basename-only
-  // treatment from rule 2.
-  const projectRoot = context.projectRoot;
-  if (projectRoot) {
-    const norm = projectRoot.replace(/[/\\]+$/, '');
+  // treatment from rule 2. Accepts either a single string or an array
+  // of spellings (typed AND realpath) so a path expressed either way
+  // is stripped (F-slice-2-06).
+  const projectRootSpellings = normaliseRootSpellings(context.projectRoot);
+  for (const spelling of projectRootSpellings) {
+    const norm = spelling.replace(/[/\\]+$/, '');
     text = replaceAndLog(text, escapedLiteral(norm), '<project>', 'project-root', ledger);
   }
 
   // Rule 2: other absolute paths -> <path>/<basename>. POSIX and
   // Windows shapes. Path segments allow letters, digits, dots,
   // hyphens, underscores, tildes, pluses, colons, at-signs and
-  // spaces so realistic paths survive to their basename.
-  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/[A-Za-z0-9._+@~-]+)+/g;
+  // spaces. A segment carrying a space (e.g. `/Users/john doe/work`)
+  // is only accepted when it is followed by another path separator,
+  // so a sentence with a lone `/tmp/x and other stuff` does not
+  // swallow the trailing words (F-slice-2-06).
+  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\/)|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, posixAbsRe, (match) => {
     const bn = match.split('/').filter(Boolean).pop() ?? 'file';
     return `<path>/${bn}`;
   }, 'absolute-path', ledger);
-  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:[A-Za-z0-9._+@~-]+\\)+[A-Za-z0-9._+@~-]+/g;
+  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9._+@~-]+)(?:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, winAbsRe, (match) => {
     const bn = match.split('\\').pop() ?? 'file';
     return `<path>\\${bn}`;
@@ -104,9 +113,13 @@ export function redact(input, context = {}) {
   // shape-based rules 3-6 so a git remote of the form
   // `git@github.com:owner/repo.git` is not first consumed by the email
   // rule. The operator-name literal likewise takes precedence over
-  // any accidental shape overlaps.
-  if (context.gitRemote) {
-    text = replaceAndLog(text, escapedLiteral(context.gitRemote), '<project-remote>', 'operator-identity', ledger);
+  // any accidental shape overlaps. Accepts either a single remote or
+  // an array (F-slice-2-07: `git remote -v` yields multiple).
+  const gitRemotes = Array.isArray(context.gitRemote)
+    ? context.gitRemote
+    : (typeof context.gitRemote === 'string' && context.gitRemote.length > 0 ? [context.gitRemote] : []);
+  for (const gr of gitRemotes) {
+    text = replaceAndLog(text, escapedLiteral(gr), '<project-remote>', 'operator-identity', ledger);
   }
   if (context.operatorName) {
     const opName = context.operatorName.trim();
@@ -164,6 +177,23 @@ export function redact(input, context = {}) {
   // Any other public IPv4 outside loopback also collapses.
   const publicIpRe = /\b(?!127\.)(?!0\.)(?:\d{1,3}\.){3}\d{1,3}\b/g;
   text = replaceRegex(text, publicIpRe, () => '<ip>', 'private-ip', ledger);
+
+  // F-slice-2-05: IPv6 is also part of rule 4 (design 5 explicitly
+  // names fc00::/7). Match unique-local (fc00::/7), link-local
+  // (fe80::/10) and generic IPv6 shapes (including :: compression),
+  // but keep loopback `::1`. Runs after IPv4 so a `::ffff:10.0.0.1`
+  // mapped-address form still folds sensibly.
+  const ipv6LoopbackRe = /(?<![0-9A-Fa-f:])::1(?![0-9A-Fa-f:])/g;
+  const ipv6Re = /(?<![0-9A-Fa-f:])(?:(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,7}:|(?:[0-9A-Fa-f]{1,4}:){1,6}:[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,5}(?::[0-9A-Fa-f]{1,4}){1,2}|(?:[0-9A-Fa-f]{1,4}:){1,4}(?::[0-9A-Fa-f]{1,4}){1,3}|(?:[0-9A-Fa-f]{1,4}:){1,3}(?::[0-9A-Fa-f]{1,4}){1,4}|(?:[0-9A-Fa-f]{1,4}:){1,2}(?::[0-9A-Fa-f]{1,4}){1,5}|[0-9A-Fa-f]{1,4}:(?::[0-9A-Fa-f]{1,4}){1,6}|:(?::[0-9A-Fa-f]{1,4}){1,7})(?![0-9A-Fa-f:])/g;
+  // Protect loopback markers before the general pattern runs.
+  const LOOPBACK_TOKEN = 'IPV6LO';
+  const savedLoopback = [];
+  text = text.replace(ipv6LoopbackRe, (m) => {
+    savedLoopback.push(m);
+    return `${LOOPBACK_TOKEN}${savedLoopback.length - 1}${LOOPBACK_TOKEN}`;
+  });
+  text = replaceRegex(text, ipv6Re, () => '<ip>', 'private-ip', ledger);
+  text = text.replace(new RegExp(`${LOOPBACK_TOKEN}(\\d+)${LOOPBACK_TOKEN}`, 'g'), (_m, i) => savedLoopback[Number(i)]);
 
   // Rule 6: secret-looking strings -> <redacted:secret>. This block is
   // the last line of defence and rule 8's residual check re-runs it.
@@ -223,25 +253,36 @@ export function redact(input, context = {}) {
  * @returns {ResidualHit[]}
  */
 export function findResidualSecrets(text) {
-  const residualPatterns = [
+  // F-slice-2-04: the residual pass runs the SAME pattern family the
+  // first pass used, plus the word-boundary-loosened token variants
+  // so a secret buried inside a longer identifier still trips the
+  // refusal. Every rule-5 family is represented: what leaves the
+  // machine cannot include a shape the first pass would have caught
+  // even after later normalisation.
+  const primaries = secretPatterns();
+  const looseTokens = [
     { name: 'github-token',  re: /(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g },
     { name: 'github-pat',    re: /github_pat_[A-Za-z0-9_]{20,}/g },
     { name: 'aws-access',    re: /AKIA[0-9A-Z]{16}/g },
     { name: 'stripe',        re: /sk_(?:live|test)_[A-Za-z0-9]{20,}/g },
-    { name: 'openai',        re: /sk-[A-Za-z0-9]{40,}/g },
+    { name: 'openai',        re: /sk-[A-Za-z0-9]{20,}/g },
     { name: 'slack',         re: /xox[abp]-[A-Za-z0-9-]{10,}/g },
     { name: 'jwt',           re: /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g },
-    { name: 'pem',           re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |ENCRYPTED |)?PRIVATE KEY-----/g },
-    { name: 'bearer',        re: /Bearer\s+[A-Za-z0-9._~+/-]{20,}/g },
+    { name: 'bearer',        re: /Bearer\s+[A-Za-z0-9._~+/=-]{4,}/g },
   ];
+  const residualPatterns = [...primaries, ...looseTokens];
   const lines = text.split('\n');
   /** @type {ResidualHit[]} */
   const hits = [];
+  const seen = new Set();
   for (let i = 0; i < lines.length; i += 1) {
     for (const { name, re } of residualPatterns) {
       re.lastIndex = 0;
       const m = re.exec(lines[i]);
       if (m) {
+        const key = `${name}|${i + 1}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
         hits.push({ line: i + 1, snippet: m[0].slice(0, 80), pattern: name });
       }
     }
@@ -265,6 +306,30 @@ export function allowedHosts(extend = []) {
 }
 
 // -- internal helpers -----------------------------------------------------
+
+/**
+ * Fold a `projectRoot` context value (string, array of strings, or
+ * nullish) into a deduped array of spellings, longest first, so
+ * `/private/tmp/foo` is stripped before `/tmp/foo` would leave the
+ * trailing tail untouched.
+ *
+ * @param {string | string[] | null | undefined} value
+ * @returns {string[]}
+ */
+function normaliseRootSpellings(value) {
+  if (!value) return [];
+  const raw = Array.isArray(value) ? value : [value];
+  const seen = new Set();
+  const out = [];
+  for (const s of raw) {
+    if (typeof s !== 'string' || s.length === 0) continue;
+    if (seen.has(s)) continue;
+    seen.add(s);
+    out.push(s);
+  }
+  out.sort((a, b) => b.length - a.length);
+  return out;
+}
 
 function replaceAndLog(text, pattern, replacement, rule, ledger) {
   const re = pattern instanceof RegExp ? pattern : new RegExp(pattern, 'g');
@@ -340,6 +405,13 @@ function truncateToBytes(text, maxBytes) {
 // Secret patterns are the closed vocabulary rule 5 (secret-token in the
 // ledger) applies. Kept as a module-scope helper so `findResidualSecrets`
 // runs the same set the redactor used.
+//
+// F-slice-2-01: `kv-secret` must catch short and quoted values too;
+// any well-known key name paired with any non-empty value is a secret.
+// F-slice-2-02: `authorization` matches to end of line so the header
+// value AND the credential fold together.
+// F-slice-2-03: `pem` matches the whole BEGIN..END block, not just
+// the BEGIN delimiter, so the key payload leaves with it.
 function secretPatterns() {
   return [
     { name: 'github-token',  re: /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g },
@@ -349,10 +421,13 @@ function secretPatterns() {
     { name: 'openai',        re: /\bsk-[A-Za-z0-9]{20,}\b/g },
     { name: 'slack',         re: /\bxox[abp]-[A-Za-z0-9-]{10,}\b/g },
     { name: 'jwt',           re: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g },
-    { name: 'pem',           re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |ENCRYPTED |)?PRIVATE KEY-----/g },
-    { name: 'bearer',        re: /\bBearer\s+[A-Za-z0-9._~+/-]{20,}\b/g },
-    { name: 'authorization', re: /^\s*authorization:\s*\S+/gim },
-    { name: 'kv-secret',     re: /\b(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)\b\s*[:=]\s*['"]?([A-Za-z0-9._\-/+=]{8,})['"]?/gi },
+    { name: 'pem',           re: /-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z0-9 ]+ )?PRIVATE KEY-----/g },
+    { name: 'bearer',        re: /\bBearer\s+[A-Za-z0-9._~+/=-]{4,}/g },
+    { name: 'authorization', re: /^[ \t]*authorization[ \t]*:[^\n]+/gim },
+    // Well-known key names paired with ANY non-empty value are
+    // secrets by convention. The value class stays permissive so
+    // short and quoted values (e.g. "password": "abc") fold too.
+    { name: 'kv-secret',     re: /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["' ]*[:=][ \t]*(?:"[^"\n]+"|'[^'\n]+'|[^\s,;)}\]]+)/gi },
     // High-entropy blob. Anchored to non-word boundaries so it does not
     // fold with the specific patterns above; excludes 7/12/40-char
     // hex-only sha values (git object shape).
@@ -365,17 +440,22 @@ function redactSecrets(input, ledger) {
   for (const { re } of secretPatterns()) {
     text = replaceRegex(text, re, () => '<redacted:secret>', 'secret-token', ledger);
   }
-  // Fold consecutive `secret-token` rows into a single line so the
-  // operator disclosure stays compact; the count is the sum of hits.
+  // F-slice-2-09: keep every distinct before/after pair so the
+  // operator disclosure ledger shows exactly what was stripped.
+  // Consecutive secret-token rows are folded ONLY when they share
+  // the same before text (a plain deduplication); the count is the
+  // sum of hits. Distinct samples stay as their own rows so a
+  // maintainer reading `preview` can see the full list, not one
+  // concatenated line.
   const folded = [];
   for (const row of ledger) {
-    const prev = folded[folded.length - 1];
-    if (row.rule === 'secret-token' && prev && prev.rule === 'secret-token') {
-      prev.count += row.count;
-      prev.before = `${prev.before}; ${row.before}`;
-    } else {
+    if (row.rule !== 'secret-token') {
       folded.push(row);
+      continue;
     }
+    const twin = folded.find((r) => r.rule === 'secret-token' && r.before === row.before);
+    if (twin) twin.count += row.count;
+    else folded.push({ ...row });
   }
   ledger.length = 0;
   for (const r of folded) ledger.push(r);

@@ -144,3 +144,49 @@ test('LABEL_CATALOGUE is the six-label bootstrap and is stable', () => {
     'area:core',
   ]);
 });
+
+// -- review fix round (2026-09-16 slice 1-3 review) ---------------------
+
+import { BODY_CAP_BYTES } from '../../src/feedback/redact.js';
+
+test('F-slice-2-10: rendered body is capped at BODY_CAP_BYTES (design 5 rule 7)', () => {
+  // Fill the free-form body right up to the cap; the evidence,
+  // environment table, fingerprint twin and consent tail will push
+  // the rendered body over unless capRenderedBody trims the head.
+  const big = 'x'.repeat(BODY_CAP_BYTES);
+  const entry = {
+    kind: 'blueprint',
+    target: { ref: 'wsd:x', effectiveSlug: 'wsd-x', libraryPrefix: 'wsd' },
+    anchor: 'AC-1-1',
+    symptomClass: 'docs-mismatch',
+    severity: 'minor',
+    environment: { harness: 'codex', rcfLiteVersion: '0.28.0', nodeVersion: '24.14.0', platform: 'darwin' },
+  };
+  const redacted = { title: 't', body: big, evidence: [{ kind: 'command', value: 'x' }], ledger: [] };
+  const meta = { fingerprint: 'abcdef012345', destination: { repo: null, visibility: 'unresolved' } };
+  const rendered = renderIssue(entry, redacted, meta);
+  assert.ok(
+    Buffer.byteLength(rendered.body, 'utf8') <= BODY_CAP_BYTES,
+    `rendered body must be under BODY_CAP_BYTES (${BODY_CAP_BYTES}) after cap`,
+  );
+  // The fingerprint tail must survive so dedupe still works.
+  assert.match(rendered.body, /rcf-feedback-fingerprint: abcdef012345/);
+});
+
+test('F-slice-2-12: bundle rendering preserves 3+ consecutive newlines inside embedded bodies', () => {
+  const bodyWithGap = 'first line\n\n\nsecond line after three newlines';
+  const entry = {
+    kind: 'core',
+    target: { ref: 'define validate' },
+    anchor: 'AC-1',
+    symptomClass: 'wrong-output',
+    severity: 'minor',
+    environment: { harness: 'other', rcfLiteVersion: '0.28.0', nodeVersion: '24.14.0', platform: 'darwin' },
+  };
+  const rendered = renderBundle(
+    { repo: 'Stravica/rcf-lite', visibility: 'public' },
+    [{ entry, redacted: { title: 't', body: bodyWithGap, evidence: [], ledger: [] }, fingerprint: 'f1' }],
+    { generatedAt: '2026-09-16T00:00:00Z', rcfLiteVersion: '0.28.0' },
+  );
+  assert.match(rendered, /first line\n\n\nsecond line/, 'bundle body preserves the 3+ newline run intact');
+});

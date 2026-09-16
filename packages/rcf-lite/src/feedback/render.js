@@ -16,6 +16,7 @@
 //   - section 6 fingerprint twin (visible line + HTML comment)
 
 import { FEEDBACK_LABELS, labelsForEntry } from './labels.js';
+import { BODY_CAP_BYTES } from './redact.js';
 
 /**
  * @typedef {object} RenderedIssue
@@ -49,9 +50,54 @@ import { FEEDBACK_LABELS, labelsForEntry } from './labels.js';
  */
 export function renderIssue(entry, redacted, meta) {
   const title = renderTitle(entry, redacted.title);
-  const body = renderBody(entry, redacted, meta);
+  const body = capRenderedBody(renderBody(entry, redacted, meta));
   const labels = defaultLabels(entry);
   return { title, body, labels };
+}
+
+/**
+ * Enforce the design 5 rule 7 / gate F-4 cap on the RENDERED body,
+ * not just the free-form body. Evidence rows, the environment table,
+ * the fingerprint twin and the consent tail all count against the
+ * 8 KB budget; when the sum overflows, truncate the free-form region
+ * at the top of the body and re-append the trailing template so the
+ * fingerprint line, the HTML comment and the consent tail stay
+ * intact - triage keys off those and dedupe would break otherwise.
+ * F-slice-2-10.
+ *
+ * @param {string} body
+ * @returns {string}
+ */
+export function capRenderedBody(body) {
+  if (Buffer.byteLength(body, 'utf8') <= BODY_CAP_BYTES) return body;
+  const fenceIndex = body.indexOf('\n---\n');
+  if (fenceIndex < 0) {
+    // Should never happen (renderBody always writes the fence) but
+    // fall back to a raw byte truncation with a marker so the cap
+    // still holds.
+    return `${truncateToBytes(body, BODY_CAP_BYTES - 32)}\n[truncated by rcf feedback]\n`;
+  }
+  const head = body.slice(0, fenceIndex);
+  const tail = body.slice(fenceIndex);
+  const tailBytes = Buffer.byteLength(tail, 'utf8');
+  const marker = '\n\n[truncated by rcf feedback]\n';
+  const markerBytes = Buffer.byteLength(marker, 'utf8');
+  const headBudget = BODY_CAP_BYTES - tailBytes - markerBytes;
+  if (headBudget <= 0) {
+    // Tail alone exceeds the cap; keep the tail (fingerprint is
+    // load-bearing for dedupe) and drop the entire free-form head.
+    return `[truncated by rcf feedback]${tail}`;
+  }
+  const truncatedHead = truncateToBytes(head, headBudget);
+  return `${truncatedHead}${marker}${tail}`;
+}
+
+function truncateToBytes(text, maxBytes) {
+  const buf = Buffer.from(text, 'utf8');
+  if (buf.length <= maxBytes) return text;
+  let cut = maxBytes;
+  while (cut > 0 && (buf[cut] & 0xc0) === 0x80) cut -= 1;
+  return buf.slice(0, cut).toString('utf8');
 }
 
 /**
@@ -92,30 +138,33 @@ export function renderComment(entry, redacted, meta) {
  * @returns {string}
  */
 export function renderBundle(destination, rows, meta) {
-  const lines = [];
-  lines.push('# rcf-lite feedback bundle');
-  lines.push('');
-  const repoUrl = destination.repo
-    ? `https://github.com/${destination.repo}/issues/new`
-    : '(unresolved)';
-  lines.push(`Destination: ${repoUrl}`);
-  if (destination.reasonNotFiled) lines.push(`Reason not filed: ${destination.reasonNotFiled}`);
-  if (destination.libraryContact) lines.push(`Library contact: ${destination.libraryContact}`);
-  lines.push(`Entries: ${rows.length}`);
-  lines.push(`Generated: ${meta.generatedAt} by rcf-lite ${meta.rcfLiteVersion}`);
-  lines.push('');
-  lines.push('Paste each section below as a new issue, title first. The fingerprint');
-  lines.push('line must be kept verbatim so duplicates fold correctly.');
-  lines.push('');
-  for (const row of rows) {
+  // F-slice-2-12: assemble the header and the section separators
+  // WITHOUT a global newline-collapse pass. A body with three or
+  // more intentional consecutive newlines would otherwise diverge
+  // from the same content posted as a GitHub issue - and design 4.2
+  // pins the bundle to the exact rendered issue body.
+  const header = [
+    '# rcf-lite feedback bundle',
+    '',
+    `Destination: ${destination.repo
+      ? `https://github.com/${destination.repo}/issues/new`
+      : '(unresolved)'}`,
+  ];
+  if (destination.reasonNotFiled) header.push(`Reason not filed: ${destination.reasonNotFiled}`);
+  if (destination.libraryContact) header.push(`Library contact: ${destination.libraryContact}`);
+  header.push(`Entries: ${rows.length}`);
+  header.push(`Generated: ${meta.generatedAt} by rcf-lite ${meta.rcfLiteVersion}`);
+  header.push('');
+  header.push('Paste each section below as a new issue, title first. The fingerprint');
+  header.push('line must be kept verbatim so duplicates fold correctly.');
+  const headerBlock = header.join('\n');
+  const sections = rows.map((row) => {
     const title = renderTitle(row.entry, row.redacted.title);
-    const body = renderBody(row.entry, row.redacted, { fingerprint: row.fingerprint, destination });
-    lines.push(`## ${title}`);
-    lines.push('');
-    lines.push(body);
-    lines.push('');
-  }
-  return `${lines.join('\n').replace(/\n{3,}/g, '\n\n')}\n`;
+    const body = capRenderedBody(renderBody(row.entry, row.redacted, { fingerprint: row.fingerprint, destination }));
+    return `## ${title}\n\n${body}`;
+  });
+  const parts = sections.length > 0 ? [headerBlock, ...sections] : [headerBlock];
+  return `${parts.join('\n\n')}\n`;
 }
 
 /**

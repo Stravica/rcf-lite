@@ -21,12 +21,16 @@
 // scope and is invoked from harness hooks (design §3.1). See
 // `bin/rcf.js:CORE`.
 
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { platform as osPlatform } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import process from 'node:process';
+
+const execFileP = promisify(execFile);
 
 import { findProjectRoot } from '../view/index.js';
 import {
@@ -840,12 +844,24 @@ async function buildRedactionContext(projectRoot) {
   } catch { /* absent is fine */ }
 
   let projectName;
-  let gitRemote;
+  const remotes = new Set();
   try {
     const manifest = JSON.parse(await readFile(resolve(projectRoot, 'rcf', 'manifest.json'), 'utf8'));
     if (typeof manifest.projectName === 'string') projectName = manifest.projectName;
-    if (typeof manifest.gitRemote === 'string') gitRemote = manifest.gitRemote;
+    if (typeof manifest.gitRemote === 'string') remotes.add(manifest.gitRemote);
   } catch { /* absent is fine */ }
+
+  // F-slice-2-07: also walk `git remote -v` so ordinary projects
+  // without a manifest.gitRemote still have their HTTPS remote
+  // redacted. Best-effort; a missing git or a non-repo directory
+  // just leaves the set unchanged.
+  try {
+    const { stdout } = await execFileP('git', ['-C', projectRoot, 'remote', '-v'], { encoding: 'utf8' });
+    for (const line of stdout.split('\n')) {
+      const parts = line.split(/\s+/);
+      if (parts.length >= 2 && parts[1]) remotes.add(parts[1]);
+    }
+  } catch { /* no git or no remotes is fine */ }
 
   let allowHostsExt = [];
   try {
@@ -859,11 +875,20 @@ async function buildRedactionContext(projectRoot) {
   // extension array.
   void allowedHosts;
 
+  // F-slice-2-06: pass BOTH the typed spelling and the realpath
+  // spelling of the project root so a path expressed either way
+  // (e.g. /tmp/foo vs /private/tmp/foo on macOS) is stripped.
+  const rootSpellings = [projectRoot];
+  try {
+    const real = await realpath(projectRoot);
+    if (real && real !== projectRoot) rootSpellings.push(real);
+  } catch { /* absent is fine */ }
+
   return {
-    projectRoot,
+    projectRoot: rootSpellings,
     projectName,
     operatorName,
-    gitRemote,
+    gitRemote: [...remotes].filter((r) => typeof r === 'string' && r.length > 0),
     allowHosts: allowHostsExt,
   };
 }
@@ -921,6 +946,20 @@ async function buildPreview(entry, context, resolverInputs) {
     evidence: evidenceRedacted.map((e) => ({ kind: e.kind, value: e.value })),
     ledger: combinedLedger,
   }, { fingerprint: fp, destination });
+  // F-slice-2-08: preview must run the residual pass over the
+  // RENDERED body (which inlines evidence values) so an evidence
+  // pointer carrying a residual secret is called out at preview
+  // time, not silently landed in the issue. Also merge evidence
+  // residuals from the per-field pass so the operator sees where
+  // each hit came from.
+  const evidenceResidual = evidenceRedacted.flatMap((e) => findResidualSecrets(String(e.value ?? '')));
+  const renderedResidual = findResidualSecrets(rendered.body);
+  const residual = dedupeResidual([
+    ...titleRes.residual,
+    ...bodyRes.residual,
+    ...evidenceResidual,
+    ...renderedResidual,
+  ]);
   return {
     id: entry.id,
     fingerprint: fp,
@@ -930,8 +969,27 @@ async function buildPreview(entry, context, resolverInputs) {
     bodyRendered: rendered.body,
     labels: rendered.labels,
     ledger: combinedLedger,
-    residual: [...titleRes.residual, ...bodyRes.residual],
+    residual,
   };
+}
+
+/**
+ * Dedupe residual-hit rows on (pattern, line, snippet) so a hit found
+ * both in an evidence pass and again in the rendered body does not
+ * double-count in the preview surface.
+ *
+ * @param {Array<{line: number, snippet: string, pattern: string}>} hits
+ */
+function dedupeResidual(hits) {
+  const seen = new Set();
+  const out = [];
+  for (const h of hits) {
+    const key = `${h.pattern}|${h.line}|${h.snippet}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(h);
+  }
+  return out;
 }
 
 /**

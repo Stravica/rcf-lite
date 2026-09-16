@@ -118,11 +118,14 @@ export function normaliseAnchor(anchor) {
  * @returns {string}
  */
 export function normaliseTitle(title) {
-  const lowered = String(title ?? '').toLowerCase();
-  // Strip anything that is not a-z 0-9 or whitespace; hyphens keep
-  // hyphenated identifiers together, which helps for titles like
-  // "requestid getter mismatch".
-  const cleaned = lowered.replace(/[^a-z0-9\s-]/g, ' ').replace(/\s+/g, ' ').trim();
+  // F-slice-2-11: normalise every non-ASCII dash variant (em, en,
+  // figure, horizontal bar, hyphen, non-breaking hyphen, minus) to
+  // an ASCII hyphen first, then strip ALL punctuation including
+  // ASCII hyphens. "probe-fails" and its em-dash sibling
+  // "probe—fails" then hash the same.
+  const dashNormalised = String(title ?? '').replace(/[‐-―−-]/g, ' ');
+  const lowered = dashNormalised.toLowerCase();
+  const cleaned = lowered.replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   if (cleaned === '') return '';
   const tokens = cleaned.split(' ').filter((t) => t.length > 0 && !STOP_WORDS.has(t));
   return tokens.slice(0, 8).join(' ');
