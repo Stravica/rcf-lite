@@ -60,6 +60,18 @@ const LIBRARY_VERSION_KNOWN = 1;
  */
 
 /**
+ * @typedef {object} LibraryIssuesField
+ * @property {string} repo          OWNER/REPO on github.com; HOST/OWNER/REPO permitted for GHES
+ * @property {'public' | 'private'} visibility  advisory; the tool re-checks live on submit
+ *
+ * The library owner names where feedback reports on this library are
+ * filed (design 3.3, ADR-4104). Absence is valid; the consuming
+ * project's `rcf doctor feedback-destinations` warns until the field
+ * lands. Snapshotted onto the registry entry as `issuesRepo` and
+ * `issuesVisibility` on `library add`.
+ */
+
+/**
  * @typedef {object} LoadedLibrary
  * @property {number} libraryVersion
  * @property {string} libraryPrefix
@@ -69,6 +81,7 @@ const LIBRARY_VERSION_KNOWN = 1;
  * @property {LibraryBands} bands
  * @property {LibraryBlueprintEntry[]} blueprints
  * @property {string} [notes]
+ * @property {LibraryIssuesField} [issues]
  * @property {string} root              absolute path to the library root
  */
 
@@ -128,6 +141,7 @@ export async function loadLibrary(libraryRoot, opts = {}) {
     bands: normaliseBands(doc.bands),
     blueprints: doc.blueprints.map((b) => ({ slug: b.slug, path: b.path })),
     ...(typeof doc.notes === 'string' ? { notes: doc.notes } : {}),
+    ...(doc.issues ? { issues: normaliseIssues(doc.issues) } : {}),
     root,
   };
 
@@ -203,7 +217,41 @@ function validateManifestShape(doc, metaPath) {
   if (doc.notes !== undefined && typeof doc.notes !== 'string') {
     return rcfError({ kind: 'validation', message: 'library.json: notes must be a string when present', filePath: metaPath });
   }
+  if (doc.issues !== undefined) {
+    const err = validateIssuesField(doc.issues, metaPath);
+    if (err) return err;
+  }
   return null;
+}
+
+/**
+ * Validate the optional `issues` object (design 3.3, AC-15801-1). Refuses
+ * a present-but-shapeless value so a typo does not silently disable
+ * feedback routing. `repo` accepts `OWNER/REPO` on github.com and a
+ * host-qualified `HOST/OWNER/REPO` for GHES; `visibility` is one of
+ * `public` or `private`.
+ */
+function validateIssuesField(issues, metaPath) {
+  if (typeof issues !== 'object' || issues === null || Array.isArray(issues)) {
+    return rcfError({ kind: 'validation', message: 'library.json: issues must be an object with { repo, visibility } when present', filePath: metaPath });
+  }
+  if (typeof issues.repo !== 'string' || issues.repo.length === 0) {
+    return rcfError({ kind: 'validation', message: 'library.json: issues.repo is required (OWNER/REPO or HOST/OWNER/REPO)', filePath: metaPath });
+  }
+  if (!/^([A-Za-z0-9.-]+\/)?[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(issues.repo)) {
+    return rcfError({ kind: 'validation', message: `library.json: issues.repo '${issues.repo}' must be OWNER/REPO on github.com or HOST/OWNER/REPO for GHES`, filePath: metaPath });
+  }
+  if (issues.visibility !== undefined && issues.visibility !== 'public' && issues.visibility !== 'private') {
+    return rcfError({ kind: 'validation', message: `library.json: issues.visibility '${issues.visibility}' must be 'public' or 'private' when present`, filePath: metaPath });
+  }
+  return null;
+}
+
+function normaliseIssues(issues) {
+  return {
+    repo: issues.repo,
+    visibility: issues.visibility === 'private' ? 'private' : 'public',
+  };
 }
 
 function validateBands(bands, metaPath) {

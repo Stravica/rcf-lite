@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-607",
+  "path": "src/blueprint/library-loader.js",
+  "implementsAcIds": [
+    "AC-15801-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z"
+}

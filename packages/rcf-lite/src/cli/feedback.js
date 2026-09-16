@@ -40,6 +40,8 @@ import {
 import { redact, allowedHosts } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
 import { renderIssue } from '../feedback/render.js';
+import { resolve as resolveDestination, listUnresolvedLibraries } from '../feedback/destination.js';
+import { readLibraryRegistry } from '../blueprint/library-registry.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -278,25 +280,27 @@ async function handleAdd(argv, ctx) {
     }
   }
 
-  // Destination resolution (slice 3 lands the resolver; slice 1 keeps
-  // a minimal shape for --kind blueprint: check the manifest for the
-  // target so we can honour the design §3.1 exit-3 "destination cannot
-  // be resolved" contract. --kind core routes to the constant.
-  let destination;
-  let destinationUnresolved = false;
-  if (kind === 'core') {
-    destination = { repo: await coreRepo(), kind: 'core' };
-  } else {
-    const record = await lookupBlueprintRecord(projectRoot, target);
-    if (!record) {
-      destination = { reason: 'unresolved' };
-      destinationUnresolved = true;
-    } else {
-      // Slice 3 fills repo + visibility; slice 1 records what we know
-      // (the manifest record) so the entry is not lossy.
-      destination = { blueprintRecord: record };
-    }
-  }
+  // Destination resolution (design 3.3, slice 3 landed the resolver).
+  // Runs at add-time so the entry carries its declared destination
+  // through preview and submit; preview re-resolves defensively so a
+  // library that later declared an issues field lifts a previously
+  // stamped `unresolved` entry to a real destination.
+  const resolverInputs = await loadResolverInputs(projectRoot);
+  const record = kind === 'blueprint'
+    ? await lookupBlueprintRecord(projectRoot, target)
+    : null;
+  // Build a resolver-shaped entry for the pre-write resolve call: the
+  // real feedback entry does not exist yet, but the resolver only reads
+  // { kind, target.ref } and the manifest for lookup.
+  const preResolveEntry = { kind, target: { ref: target } };
+  const resolvedDestination = await resolveDestination(preResolveEntry, resolverInputs);
+  // Design 3.1 exit-3 branch: the blueprint TARGET could not be found
+  // on the manifest at all (unknown-target). A library whose registry
+  // entry lacks an issuesRepo (or whose sourceRef is not a github URL)
+  // stamps the entry as unresolved but stays exit 0 (design 7 case 5:
+  // slice 4 writes the bundle at submit time).
+  const destinationUnresolved = resolvedDestination.visibility === 'unresolved';
+  const targetUnknown = destinationUnresolved && resolvedDestination.reason === 'unknown-target';
 
   // Environment stamp (design §3.6, F-2 extended).
   const environment = {
@@ -308,14 +312,13 @@ async function handleAdd(argv, ctx) {
 
   // Blueprint-specific stamps (AC-15501-5).
   let blueprintStamp = {};
-  if (kind === 'blueprint' && destination.blueprintRecord) {
-    const r = destination.blueprintRecord;
+  if (kind === 'blueprint' && record) {
     blueprintStamp = {
-      blueprintVersion: r.version ?? null,
-      libraryPrefix: r.libraryPrefix ?? null,
-      libraryRef: r.libraryRef ?? null,
-      ...(r.pin?.resolvedSha ? { resolvedSha: r.pin.resolvedSha } : {}),
-      ...(r.pin?.tarballSha256 ? { tarballSha256: r.pin.tarballSha256 } : {}),
+      blueprintVersion: record.version ?? null,
+      libraryPrefix: record.libraryPrefix ?? null,
+      libraryRef: record.libraryRef ?? null,
+      ...(record.pin?.resolvedSha ? { resolvedSha: record.pin.resolvedSha } : {}),
+      ...(record.pin?.tarballSha256 ? { tarballSha256: record.pin.tarballSha256 } : {}),
     };
   }
 
@@ -330,7 +333,7 @@ async function handleAdd(argv, ctx) {
     target: {
       ref: target,
       ...(kind === 'blueprint' ? {
-        effectiveSlug: destination.blueprintRecord?.slug ?? target,
+        effectiveSlug: record?.slug ?? target,
         ...blueprintStamp,
       } : {}),
     },
@@ -344,12 +347,20 @@ async function handleAdd(argv, ctx) {
     askNow: Boolean(flags['ask-now']),
     status: 'pending',
     destination: destinationUnresolved
-      ? { reason: 'unresolved' }
-      : (kind === 'core'
-        ? { repo: destination.repo, kind: 'core' }
-        // Slice 1 keeps the pending shape for blueprints; slice 3
-        // adds { repo, visibility, derived } once the resolver lands.
-        : { pending: true }),
+      // Preserve the slice-1 shape ({ reason: 'unresolved' }) that
+      // existing tests and the preview-time re-resolve rely on; the
+      // resolver's granular reason (unknown-target vs no-issues-field
+      // vs no-github-source vs no-libraryprefix-record) is recomputed
+      // at preview and submit time.
+      ? { reason: 'unresolved', resolverReason: resolvedDestination.reason ?? 'unresolved' }
+      : {
+        repo: resolvedDestination.repo,
+        visibility: resolvedDestination.visibility,
+        kind: resolvedDestination.kind,
+        derived: resolvedDestination.derived,
+        ...(resolvedDestination.source ? { source: resolvedDestination.source } : {}),
+        ...(resolvedDestination.publisherContact ? { publisherContact: resolvedDestination.publisherContact } : {}),
+      },
   };
 
   await appendEntry(projectRoot, entry);
@@ -360,9 +371,19 @@ async function handleAdd(argv, ctx) {
 
   stdout.write(`recorded ${id} (${pending} pending). Nothing sent.\n`);
 
-  if (destinationUnresolved) {
+  if (targetUnknown) {
+    // Design 3.1 exit-3: --kind blueprint but the target does not
+    // appear on rcf/manifest.json:blueprints[]. The entry is still
+    // recorded so the operator can rewrite the target and re-preview.
     stderr.write(`destination unresolved: ${target}\n`);
     return 3;
+  }
+  if (destinationUnresolved) {
+    // Design 7 case 5: the target resolved to a library whose registry
+    // entry has no issuesRepo and no derivable github source. Entry is
+    // stamped unresolved and stays pending; slice 4 writes the bundle
+    // at submit time and prints the publisher contact.
+    stderr.write(`destination unresolved for library '${record?.libraryPrefix ?? '<unknown>'}': ${resolvedDestination.reason ?? 'unresolved'}. The entry is kept; \`rcf feedback submit\` will write a bundle instead of filing an issue.\n`);
   }
   return 0;
 }
@@ -458,9 +479,18 @@ async function handleStatus(argv, ctx) {
   const all = exists ? await readEntries(projectRoot) : [];
   const counts = countByStatus(all);
   // The env-based silence is the only opt-out shape slice 1 knows
-  // about; slice 5 adds the file-driven ask flag and the destinations
-  // table.
+  // about; slice 5 adds the file-driven ask flag.
   const optOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
+  // Destination coverage across the library registry (design 3.1;
+  // slice 3 landed the resolver). A parseable-but-empty registry means
+  // no libraries are declared, so nothing to warn about. A broken
+  // registry is treated as "no libraries" here; the doctor
+  // feedback-destinations check surfaces the parse failure instead.
+  const registryRead = await readLibraryRegistry(projectRoot);
+  const registry = (registryRead && typeof registryRead === 'object' && 'kind' in registryRead)
+    ? { libraries: [] }
+    : registryRead;
+  const unresolvedLibraries = listUnresolvedLibraries(registry);
   const summary = {
     counts,
     optOut,
@@ -470,8 +500,10 @@ async function handleStatus(argv, ctx) {
     storePath: '.rcf/feedback/entries.jsonl',
     // Slice 4 populates gh availability; slice 1 reports it as unknown.
     gh: { present: null, authed: null, note: 'gh probe lands in slice 4 (submit, dedupe, fallback)' },
-    // Slice 3 populates destinations; slice 1 reports it as pending.
-    destinations: { note: 'destination table lands in slice 3 (destination resolution)' },
+    destinations: {
+      registeredLibraries: Array.isArray(registry?.libraries) ? registry.libraries.length : 0,
+      unresolvedLibraries,
+    },
   };
 
   if (flags.json) {
@@ -481,6 +513,11 @@ async function handleStatus(argv, ctx) {
   stdout.write(`feedback: ${counts.pending} pending, ${counts.submitted} submitted, ${counts.bundled} bundled, ${counts.deferredUntilSession} deferred, ${counts.discarded} discarded\n`);
   stdout.write(`opt-out: ${optOut ? `yes (${summary.optOutSource})` : 'no'}\n`);
   stdout.write('gh: not probed (slice 4 wires the check).\n');
+  if (summary.destinations.unresolvedLibraries.length > 0) {
+    stdout.write(`destinations: ${summary.destinations.unresolvedLibraries.length} of ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y has' : 'ies have'} no resolvable destination; run \`rcf doctor --check feedback-destinations\` for the list.\n`);
+  } else if (summary.destinations.registeredLibraries > 0) {
+    stdout.write(`destinations: all ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y resolves' : 'ies resolve'} to a feedback destination.\n`);
+  }
   return 0;
 }
 
@@ -654,8 +691,11 @@ async function handlePreview(argv, ctx) {
   }
 
   const context = await buildRedactionContext(projectRoot);
+  const resolverInputs = await loadResolverInputs(projectRoot);
 
-  const previews = entries.map((e) => buildPreview(e, context));
+  const previews = await Promise.all(
+    entries.map((e) => buildPreview(e, context, resolverInputs)),
+  );
 
   if (flags.json) {
     stdout.write(`${JSON.stringify(previews, null, 2)}\n`);
@@ -748,14 +788,43 @@ async function buildRedactionContext(projectRoot) {
 }
 
 /**
+ * Load the resolver's read-only inputs (manifest, registry) once per
+ * preview call so a batch of entries all consult the same on-disk
+ * state. Best-effort: a missing manifest or registry file falls back
+ * to empty shapes, which the resolver treats as "unresolved" for
+ * blueprint entries and "core" for core entries.
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<{ manifest: object | null, registry: object | null }>}
+ */
+async function loadResolverInputs(projectRoot) {
+  let manifest = null;
+  try {
+    const raw = await readFile(resolve(projectRoot, 'rcf', 'manifest.json'), 'utf8');
+    manifest = JSON.parse(raw);
+  } catch { /* absent is fine */ }
+  const registry = await readLibraryRegistry(projectRoot);
+  // readLibraryRegistry returns an rcfError object on parse failure;
+  // preview should not blow up on a broken registry. Treat that shape
+  // as "no registry", so blueprint entries fall through to unresolved
+  // rather than crashing.
+  const usableRegistry = (registry && typeof registry === 'object' && 'kind' in registry)
+    ? { libraries: [] }
+    : registry;
+  return { manifest, registry: usableRegistry };
+}
+
+/**
  * Build one preview record for `--json` output and for the text
- * renderer. Pure over the entry + context.
+ * renderer. Uses the destination resolver (slice 3) so the destination
+ * shape now matches the design 3.3 walk.
  *
  * @param {object} entry
  * @param {import('../feedback/redact.js').RedactionContext} context
- * @returns {object}
+ * @param {{ manifest: object | null, registry: object | null }} resolverInputs
+ * @returns {Promise<object>}
  */
-function buildPreview(entry, context) {
+async function buildPreview(entry, context, resolverInputs) {
   const titleRes = redact(entry.title ?? '', context);
   const bodyRes = redact(entry.body ?? '', context);
   const evidenceRedacted = (entry.evidence ?? []).map((ev) => {
@@ -764,7 +833,7 @@ function buildPreview(entry, context) {
   });
   const combinedLedger = mergeLedger([titleRes.ledger, bodyRes.ledger, ...evidenceRedacted.map((e) => e.ledger)]);
   const fp = fingerprint(entry);
-  const destination = destinationForPreview(entry);
+  const destination = await resolveDestination(entry, resolverInputs);
   const rendered = renderIssue(entry, {
     title: titleRes.text,
     body: bodyRes.text,
@@ -808,30 +877,6 @@ function mergeLedger(ledgers) {
   return order.map((r) => byRule.get(r));
 }
 
-/**
- * Slice 2 has no destination resolver (slice 3 lands it). We report
- * what the entry stamped: a `{ repo, kind: 'core' }` for core entries,
- * unresolved for blueprints whose lookup failed at add time, and
- * pending for blueprints whose destination the resolver will fill in.
- *
- * @param {object} entry
- * @returns {{ repo: string | null, visibility: 'public' | 'private' | 'unresolved' | 'pending' }}
- */
-function destinationForPreview(entry) {
-  const d = entry?.destination ?? {};
-  if (d.kind === 'core' && typeof d.repo === 'string') {
-    return { repo: d.repo, visibility: 'public' };
-  }
-  if (d.reason === 'unresolved') {
-    return { repo: null, visibility: 'unresolved' };
-  }
-  if (typeof d.repo === 'string') {
-    const v = d.visibility === 'private' ? 'private' : d.visibility === 'public' ? 'public' : 'pending';
-    return { repo: d.repo, visibility: v };
-  }
-  return { repo: null, visibility: 'pending' };
-}
-
 // -- later-slice stubs -----------------------------------------------------
 
 function handleNotYet(name, sliceLabel, ctx) {
@@ -857,19 +902,6 @@ async function readOwnVersion() {
   } catch {
     return '0.0.0';
   }
-}
-
-async function coreRepo() {
-  try {
-    const pkg = JSON.parse(await readFile(resolve(PACKAGE_ROOT, 'package.json'), 'utf8'));
-    const bugs = typeof pkg.bugs === 'string' ? pkg.bugs : pkg.bugs?.url;
-    if (typeof bugs === 'string') {
-      const m = bugs.match(/github\.com\/([^/]+\/[^/#?]+?)(\.git)?\/issues\/?/i)
-        ?? bugs.match(/github\.com\/([^/]+\/[^/#?]+?)(\.git)?$/i);
-      if (m) return m[1];
-    }
-  } catch { /* fall through */ }
-  return 'Stravica/rcf-lite';
 }
 
 /**

@@ -356,7 +356,13 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // test/feedback/redact.test.js, test/feedback/fingerprint.test.js,
   // test/feedback/render.test.js and test/cli/feedback-preview.test.js
   // (128 -> 129).
-  assert.equal(tree.testSuites.length, 129);
+  // Feedback submission slice 3 build (FBS-182) added TS-189
+  // (US-15801, AC-15801-1..3 across three TCs binding library-add
+  // snapshot, four-fixture resolver walk and doctor
+  // feedback-destinations warn) and TS-190 (US-15802, AC-15802-1..2
+  // across two TCs binding CORE_REPO pin to package.json:bugs.url
+  // and --kind core routing) (129 -> 131).
+  assert.equal(tree.testSuites.length, 131);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

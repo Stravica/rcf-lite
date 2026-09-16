@@ -3,9 +3,9 @@
   "strict": false,
   "totals": {
     "requirements": 100,
-    "covered": 95,
+    "covered": 96,
     "coveredUnresolved": 0,
-    "uncovered": 5
+    "uncovered": 4
   },
   "requirements": [
     {
@@ -3753,37 +3753,47 @@
     },
     {
       "id": "REQ-158",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15801-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-189-library-add-snapshots-issues-and-prints-review-line"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15801-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-189-resolver-four-fixture-walk"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15801-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-189-doctor-feedback-destinations-warn-only"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15802-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-190-core-repo-pinned-to-bugs-url"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15802-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-190-core-kind-ignores-library-manifest-content"
+          ],
           "unresolvedTestCases": []
         }
       ]

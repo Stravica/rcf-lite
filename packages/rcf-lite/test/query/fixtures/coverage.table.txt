@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 100  covered: 95  covered-unresolved: 0  uncovered: 5
+Requirements: 100  covered: 96  covered-unresolved: 0  uncovered: 4
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -383,11 +383,11 @@ REQ-156      yes      AC-15601-1  yes         TC-188-preview-renders-full-vocabu
 REQ-157      yes      AC-15701-1  yes         TC-188-fingerprint-canonical-input, TC-188-preview-finger...
                       AC-15701-2  no          -
                       AC-15701-3  no          -
-REQ-158      no       AC-15801-1  no          -
-                      AC-15801-2  no          -
-                      AC-15801-3  no          -
-                      AC-15802-1  no          -
-                      AC-15802-2  no          -
+REQ-158      yes      AC-15801-1  yes         TC-189-library-add-snapshots-issues-and-prints-review-line
+                      AC-15801-2  yes         TC-189-resolver-four-fixture-walk
+                      AC-15801-3  yes         TC-189-doctor-feedback-destinations-warn-only
+                      AC-15802-1  yes         TC-190-core-repo-pinned-to-bugs-url
+                      AC-15802-2  yes         TC-190-core-kind-ignores-library-manifest-content
 REQ-159      no       AC-15901-1  no          -
                       AC-15901-2  no          -
                       AC-15902-1  no          -

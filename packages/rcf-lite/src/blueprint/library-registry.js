@@ -47,6 +47,8 @@ const CORE_BAND_RESERVATIONS_PATH = join(here, '..', '..', 'data', 'core-band-re
  * @property {'operator'} reviewedBy
  * @property {{ tier: 'local' | 'git' | 'tarball', shaVerifiedAt?: string, tarballSha256?: string }} provenance
  * @property {string} cachePath
+ * @property {string} [issuesRepo]         OWNER/REPO from the library's issues field (design 3.3, ADR-4104)
+ * @property {'public' | 'private'} [issuesVisibility]  library-declared visibility, advisory
  */
 
 /**
@@ -335,6 +337,17 @@ function validateRegistryShape(doc, path) {
     }
     if (entry.sourceKind === 'local' && entry.resolvedSha !== undefined) {
       return rcfError({ kind: 'validation', message: `library registry: libraries[${i}] sourceKind=local must not carry a resolvedSha`, filePath: path });
+    }
+    if (entry.issuesRepo !== undefined) {
+      if (typeof entry.issuesRepo !== 'string' || entry.issuesRepo.length === 0) {
+        return rcfError({ kind: 'validation', message: `library registry: libraries[${i}].issuesRepo must be a non-empty string when present`, filePath: path });
+      }
+      if (!/^([A-Za-z0-9.-]+\/)?[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/.test(entry.issuesRepo)) {
+        return rcfError({ kind: 'validation', message: `library registry: libraries[${i}].issuesRepo '${entry.issuesRepo}' must be OWNER/REPO on github.com or HOST/OWNER/REPO for GHES`, filePath: path });
+      }
+    }
+    if (entry.issuesVisibility !== undefined && entry.issuesVisibility !== 'public' && entry.issuesVisibility !== 'private') {
+      return rcfError({ kind: 'validation', message: `library registry: libraries[${i}].issuesVisibility '${entry.issuesVisibility}' must be 'public' or 'private' when present`, filePath: path });
     }
   }
   return null;

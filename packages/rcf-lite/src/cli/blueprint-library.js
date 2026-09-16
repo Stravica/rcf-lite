@@ -266,6 +266,12 @@ async function handleAdd({ args, parsed, projectRoot, now, stdout, stderr, stdin
     reviewedBy: 'operator',
     provenance,
     cachePath: sourceKind === 'local' ? libraryRoot : cachePathRel,
+    // Feedback destination snapshot (design 3.3, AC-15801-1). Snapshotted
+    // so the resolver never re-reads the library's own library.json on
+    // every preview / submit; `library refresh` re-snapshots when the
+    // library owner changes the field.
+    ...(library.issues?.repo ? { issuesRepo: library.issues.repo } : {}),
+    ...(library.issues?.visibility ? { issuesVisibility: library.issues.visibility } : {}),
   };
 
   const nextRegistry = {
@@ -750,6 +756,14 @@ function printReview({ stdout, ref, library, libraryPrefix, coreReservations, so
   stdout.write(`\n  Provenance   : ${sourceKind}${sourceKind === 'local' ? ' (dev use)' : ''}\n`);
   stdout.write(`  Band check   : cross-checked ${coreReservations.ac.length} core AC row(s), ${coreReservations.suffixBlocks.length} core suffix block(s); no overlap.\n`);
   stdout.write(`  Prefix check : '${libraryPrefix}' does not collide with any core slug.\n`);
+  // Feedback destination line (design 3.3, AC-15801-1). Prints only
+  // when the library declares an `issues` field; a library without one
+  // is surfaced by `rcf doctor feedback-destinations` on the consuming
+  // project rather than by a review-card warning here.
+  if (library.issues?.repo) {
+    const vis = library.issues.visibility === 'private' ? 'private' : 'public';
+    stdout.write(`  Feedback destination: ${library.issues.repo} (${vis})\n`);
+  }
   stdout.write(`\n`);
 }
 

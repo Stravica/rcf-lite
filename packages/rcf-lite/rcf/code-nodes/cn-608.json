@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-608",
+  "path": "src/cli/blueprint-library.js",
+  "implementsAcIds": [
+    "AC-15801-1"
+  ],
+  "dependencies": [
+    "CN-607"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z"
+}

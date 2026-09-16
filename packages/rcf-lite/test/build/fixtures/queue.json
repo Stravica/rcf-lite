@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 75,
-    "notStarted": 46,
+    "notStarted": 45,
     "inProgress": 0,
-    "complete": 14,
+    "complete": 15,
     "verified": 15,
     "actionable": 33,
-    "blocked": 13
+    "blocked": 12
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -953,11 +953,11 @@
       "buildOrder": 182,
       "tier": 2,
       "title": "Slice 3: destination resolution",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-181"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -969,10 +969,8 @@
       "dependsOnFbsIds": [
         "FBS-182"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-182"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-184",

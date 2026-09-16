@@ -47,6 +47,8 @@ import {
 } from '../setup/managed-gitignore.js';
 import { identityProfilePath } from '../setup/identity-seed.js';
 import { knowledgePaths } from '../setup/knowledge-seed.js';
+import { readLibraryRegistry } from '../blueprint/library-registry.js';
+import { listUnresolvedLibraries } from '../feedback/destination.js';
 import {
   checkBrowserPresent,
   checkPlaywrightMcpReachable,
@@ -77,6 +79,7 @@ const KNOWN_CHECKS = /** @type {const} */ ([
   'playwright-mcp-reachable',
   'playwright-mcp-redundant',
   'probe-path-owner',
+  'feedback-destinations',
 ]);
 
 /** The four Playwright-related checks doctor runs conditionally for
@@ -103,7 +106,8 @@ Options:
                             Values: agent-instructions, gitignore,
                                     knowledge, identity, playwright-present,
                                     browser-present, playwright-mcp-reachable,
-                                    playwright-mcp-redundant, probe-path-owner.
+                                    playwright-mcp-redundant, probe-path-owner,
+                                    feedback-destinations.
   --json                    Emit machine-readable envelope: { ok, drift, writes, notices }.
   --quiet                   Only summary line + first 3 drift items.
   --force                   Accept a legacy-markers --fix on hand-edited
@@ -253,6 +257,13 @@ export async function main(argv, deps = {}) {
       // Runs on every project (not gated on browser-facing). Spec:
       // projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.
       result = await runProbePathOwnerCheck(ctx);
+    } else if (check === 'feedback-destinations') {
+      // Feedback destination coverage across the library registry
+      // (design 3.3, AC-15801-3). Warn-only: --fix does not touch
+      // destinations. The fix is for the library owner (add the
+      // `issues` field to library.json) or the consuming operator
+      // (contact the library owner).
+      result = await runFeedbackDestinationsCheck(ctx);
     } else continue;
     for (const d of result.drift) drift.push({ check, ...d });
     for (const w of result.writes) writes.push(w);
@@ -262,8 +273,12 @@ export async function main(argv, deps = {}) {
   // fixable drift item exits 0 even though drift WAS reported at scan
   // time. Exit 3 only when at least one drift item remains unrepaired
   // (either --fix was not passed, or the item was refused by --fix).
-  const refusedCount = drift.filter((d) => d.refusedByFix).length;
-  const unrepairedCount = ctx.fix ? refusedCount : drift.length;
+  // Rows flagged `warnOnly: true` are surfaced in output but never
+  // ratchet the exit code up (design 3.3 feedback-destinations); they
+  // still appear in --json for tooling.
+  const gatingDrift = drift.filter((d) => d.warnOnly !== true);
+  const refusedCount = gatingDrift.filter((d) => d.refusedByFix).length;
+  const unrepairedCount = ctx.fix ? refusedCount : gatingDrift.length;
   const ok = unrepairedCount === 0;
   const exitCode = ok ? 0 : 3;
 
@@ -284,8 +299,19 @@ export async function main(argv, deps = {}) {
 /** Render a human-readable summary. */
 function writeHumanSummary({ stdout, ok, drift, writes, fixed, quiet }) {
   const repaired = writes.length;
-  if (ok && repaired === 0) {
+  const warnOnlyRows = drift.filter((d) => d.warnOnly === true);
+  const gatingRows = drift.filter((d) => d.warnOnly !== true);
+  if (ok && repaired === 0 && warnOnlyRows.length === 0) {
     stdout.write('rcf doctor: clean.\n');
+    return;
+  }
+  if (ok && repaired === 0 && warnOnlyRows.length > 0) {
+    stdout.write(`rcf doctor: clean (${warnOnlyRows.length} warning${warnOnlyRows.length === 1 ? '' : 's'}).\n`);
+    const limit = quiet ? 3 : warnOnlyRows.length;
+    for (const d of warnOnlyRows.slice(0, limit)) {
+      stdout.write(`  [${d.check}] ${d.item} ${d.file} [warn]\n`);
+      if (!quiet) stdout.write(`      ${d.message}\n`);
+    }
     return;
   }
   if (ok && repaired > 0) {
@@ -295,13 +321,14 @@ function writeHumanSummary({ stdout, ok, drift, writes, fixed, quiet }) {
     for (const w of writes) stdout.write(`  fixed: ${w.file} (${w.action}).\n`);
     return;
   }
-  const refused = drift.filter((d) => d.refusedByFix);
-  stdout.write(`rcf doctor: ${drift.length} drift item${drift.length === 1 ? '' : 's'}`);
+  const refused = gatingRows.filter((d) => d.refusedByFix);
+  stdout.write(`rcf doctor: ${gatingRows.length} drift item${gatingRows.length === 1 ? '' : 's'}`);
+  if (warnOnlyRows.length > 0) stdout.write(`, ${warnOnlyRows.length} warning${warnOnlyRows.length === 1 ? '' : 's'}`);
   if (fixed) stdout.write(` (${repaired} repaired, ${refused.length} refused)`);
   stdout.write('.\n');
   const limit = quiet ? 3 : drift.length;
   for (const d of drift.slice(0, limit)) {
-    const tag = d.refusedByFix ? ' [refused]' : '';
+    const tag = d.warnOnly ? ' [warn]' : d.refusedByFix ? ' [refused]' : '';
     stdout.write(`  [${d.check}] ${d.item} ${d.file}${tag}\n`);
     if (!quiet) stdout.write(`      ${d.message}\n`);
   }
@@ -775,6 +802,57 @@ async function runProbePathOwnerCheck(ctx) {
         });
       }
     }
+  }
+  return { drift, writes: [] };
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Check: feedback-destinations                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * List every registered library whose feedback destination the resolver
+ * cannot produce (no `issues.repo` on the library manifest and no
+ * derivable github source on the registered `sourceRef`). Warn-only:
+ * --fix does not touch destinations; the fix is on the library owner
+ * to publish an updated library with `issues` or on the consuming
+ * operator to contact them.
+ *
+ * A project that has never added a library returns no drift (the empty
+ * registry is not itself a defect). An unparseable registry surfaces as
+ * one refused drift row so a broken projection is not silently ignored.
+ *
+ * @param {object} ctx
+ * @returns {Promise<{ drift: Array<{item: string, file: string, message: string, refusedByFix: boolean}>, writes: Array<{file: string, action: string}> }>}
+ */
+async function runFeedbackDestinationsCheck(ctx) {
+  const drift = [];
+  const registry = await readLibraryRegistry(ctx.projectRoot);
+  if (registry && typeof registry === 'object' && 'kind' in registry) {
+    // rcfError: the registry file is present but unparseable. Report
+    // as one refused row so doctor never claims clean on a broken file.
+    drift.push({
+      item: 'registry-unreadable',
+      file: 'rcf/blueprint-libraries.json',
+      message: `library registry could not be read: ${registry.message}. Repair the file by hand or re-run 'rcf define blueprint library add' to rebuild the entry.`,
+      refusedByFix: true,
+    });
+    return { drift, writes: [] };
+  }
+  const unresolved = listUnresolvedLibraries(registry);
+  for (const row of unresolved) {
+    const contactSuffix = row.publisherContact ? ` Contact: ${row.publisherContact}.` : '';
+    const reasonSummary = row.reason === 'no-issues-field'
+      ? 'the library declares no issues field on library.json'
+      : 'the registered sourceRef is not a github.com URL the resolver can derive from';
+    drift.push({
+      item: 'unresolved-library',
+      file: 'rcf/blueprint-libraries.json',
+      message: `library '${row.libraryPrefix}' has no resolvable feedback destination: ${reasonSummary}. Feedback entries on its blueprints route to a bundle at .rcf/feedback/outbox/ instead of a github issue.${contactSuffix} Fix in the library's own library.json (add an issues object per design 3.3); doctor --fix cannot repair this.`,
+      refusedByFix: true,
+      warnOnly: true,
+    });
   }
   return { drift, writes: [] };
 }

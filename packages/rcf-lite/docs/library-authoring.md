@@ -43,6 +43,10 @@ Core (the org-neutral shelf shipped with `rcf-lite`) is not a library in this se
     { "slug": "auth-oauth2", "path": "blueprints/auth-oauth2" },
     { "slug": "std-error-envelope", "path": "blueprints/std-error-envelope" }
   ],
+  "issues": {
+    "repo": "wsd-team-dev/rcf-lite-blueprints",
+    "visibility": "private"
+  },
   "notes": "Blueprints that compose the WSD standards' MUST clauses into acceptance criteria."
 }
 ```
@@ -59,6 +63,8 @@ Core (the org-neutral shelf shipped with `rcf-lite`) is not a library in this se
 | `bands.ac.start` / `.end` | yes | The contiguous AC id band this library reserves for its REQ / US / TS contributions. Integers in the range 1..99999, `start <= end`. Recommend high bands (for example, `9101..9899` or `50000..59999`) to leave low-numbered ranges for the core shelf's expansion. |
 | `bands.suffixBlocks[]` | no | Optional per-family (ADR, TAC) numeric blocks for suffix-family id namespacing. Same range and ordering rules as `bands.ac`. |
 | `blueprints[]` | yes | Enumerates every shipping blueprint. Loader validates that each declared `path` exists and contains a valid `blueprint.json` whose `slug` matches the entry's `slug`. |
+| `issues.repo` | no | Feedback destination for reports on this library's blueprints. `OWNER/REPO` on github.com (a host-qualified `HOST/OWNER/REPO` is accepted for GHES). Snapshotted onto the consuming project's `rcf/blueprint-libraries.json` registry entry on `library add` and re-read on `library refresh`. Absent means the consuming project's `rcf doctor --check feedback-destinations` warns until the field lands; feedback entries fall through to `.rcf/feedback/outbox/` bundles for the maintainer to paste by hand. |
+| `issues.visibility` | no | `public` or `private`. Advisory only: shown to the operator in the `rcf feedback preview` line ("public repo" vs "private to the WSD org") so they know what they are consenting to before submit; the actual visibility is re-checked live on the destination repo at submit time. |
 | `notes` | no | Free-form library-level operator note. |
 
 ### Prefix rules (spec section 5.1)

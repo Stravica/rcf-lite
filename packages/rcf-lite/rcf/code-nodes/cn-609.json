@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-609",
+  "path": "src/cli/doctor.js",
+  "implementsAcIds": [
+    "AC-15801-3"
+  ],
+  "dependencies": [
+    "CN-605",
+    "CN-606"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z"
+}

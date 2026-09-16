@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z",
+  "purpose": "Cover AC-15802-1 (rcf feedback preview on a shelf blueprint entry prints Stravica/rcf-lite as the destination and the CORE_REPO constant is pinned to packages/rcf-lite/package.json:bugs.url) and AC-15802-2 (a --kind core entry routes to Stravica/rcf-lite regardless of any library manifest content, including a library that names 'define validate' as a target).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15802-1",
+    "AC-15802-2"
+  ],
+  "id": "TS-190",
+  "usId": "US-15802",
+  "title": "Slice 3 (FBS-182): shelf blueprints and --kind core entries route to Stravica/rcf-lite via the package.json:bugs.url constant",
+  "testCases": [
+    {
+      "id": "TC-190-core-repo-pinned-to-bugs-url",
+      "acId": "AC-15802-1",
+      "description": "Cover AC-15802-1 via the unit test: CORE_REPO equals parseBugsRepo(package.json), which today is Stravica/rcf-lite; the parser accepts the bare URL, the URL with the /issues suffix and the object form { bugs: { url } } so a rename ripples through the single package.json field.",
+      "status": "pending",
+      "testPointer": "test/feedback/destination.test.js::AC-15802-1: CORE_REPO is pinned to packages/rcf-lite/package.json:bugs.url"
+    },
+    {
+      "id": "TC-190-core-kind-ignores-library-manifest-content",
+      "acId": "AC-15802-2",
+      "description": "Cover AC-15802-2 via the CLI test: a project with a registered library that declares a good issuesRepo, followed by a rcf feedback add --kind core --target 'define validate' entry; rcf feedback preview --json reports destination.repo Stravica/rcf-lite (kind: core, visibility: public) for that entry, ignoring the library declaration entirely.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-destinations.test.js::AC-15802-1: rcf feedback preview prints Stravica/rcf-lite (public) as the destination for a --kind core entry, and no library manifest content overrides it"
+    }
+  ],
+  "status": "draft"
+}
