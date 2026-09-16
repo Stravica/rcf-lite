@@ -1679,6 +1679,12 @@ flowchart LR
   REQ-156 --> AC-15601-3
   TC-188-preview-store-byte-invariant["TC-188-preview-store-byte-invariant"]
   AC-15601-3 -.-> TC-188-preview-store-byte-invariant
+  AC-15601-4["AC-15601-4"]
+  REQ-156 --> AC-15601-4
+  TC-188-safeguard-submit-refuses-residual["TC-188-safeguard-submit-refuses-residual"]
+  AC-15601-4 -.-> TC-188-safeguard-submit-refuses-residual
+  TC-188-safeguard-whole-text-residual["TC-188-safeguard-whole-text-residual"]
+  AC-15601-4 -.-> TC-188-safeguard-whole-text-residual
   REQ-157["REQ-157"]
   AC-15701-1["AC-15701-1"]
   REQ-157 --> AC-15701-1
@@ -2742,6 +2748,9 @@ flowchart LR
   class TC-188-preview-residual-secret-refusal tc;
   class AC-15601-3 ac;
   class TC-188-preview-store-byte-invariant tc;
+  class AC-15601-4 ac;
+  class TC-188-safeguard-submit-refuses-residual tc;
+  class TC-188-safeguard-whole-text-residual tc;
   class REQ-157 req;
   class AC-15701-1 ac;
   class TC-188-fingerprint-canonical-input tc;

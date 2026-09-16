@@ -19164,6 +19164,12 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-15601-3 -.-&gt;|delivered by| FBS-181
   AC-15601-3 -.-&gt;|implemented by| CN-600
   AC-15601-3 -.-&gt;|implemented by| CN-602
+  AC-15601-4[&quot;AC-15601-4&quot;]
+  US-15601 --&gt; AC-15601-4
+  AC-15601-4 -.-&gt;|delivered by| FBS-181
+  AC-15601-4 -.-&gt;|implemented by| CN-600
+  AC-15601-4 -.-&gt;|implemented by| CN-602
+  AC-15601-4 -.-&gt;|implemented by| CN-604
   click REQ-156 &quot;#REQ-156&quot;;
   click US-15601 &quot;#US-15601&quot;;
   click AC-15601-1 &quot;#AC-15601-1&quot;;
@@ -19173,6 +19179,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click CN-604 &quot;#CN-604&quot;;
   click AC-15601-2 &quot;#AC-15601-2&quot;;
   click AC-15601-3 &quot;#AC-15601-3&quot;;
+  click AC-15601-4 &quot;#AC-15601-4&quot;;
   class REQ-156 req;
   class US-15601 us;
   class AC-15601-1 ac;
@@ -19182,6 +19189,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class CN-604 cn;
   class AC-15601-2 ac;
   class AC-15601-3 ac;
+  class AC-15601-4 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -19232,6 +19240,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-15601-3" class="ac-item"><strong>AC-15601-3</strong> - The stored entries.jsonl body is never mutated by preview. A byte-for-byte comparison of entries.jsonl before and after preview is identical; the redaction lives only in the rendered output.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with entries whose bodies contain redactable content</p><p><em>When</em> the operator runs rcf feedback preview repeatedly</p><p><em>Then</em> a sha-256 of entries.jsonl before and after each preview run matches</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
+<li id="AC-15601-4" class="ac-item"><strong>AC-15601-4</strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.
+<div class="ac-gwt"><p><em>Given</em> a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)</p><p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p><p><em>Then</em> preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -19271,10 +19282,19 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;then&quot;: &quot;a sha-256 of entries.jsonl before and after each preview run matches&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-15601-4&quot;,
+      &quot;description&quot;: &quot;After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.&quot;,
+      &quot;given&quot;: &quot;a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)&quot;,
+      &quot;when&quot;: &quot;the operator runs rcf feedback preview then rcf feedback submit --yes&quot;,
+      &quot;then&quot;: &quot;preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T14:14:36Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-16T20:28:13Z&quot;
 }
 </pre></details>
 </article>
@@ -29391,7 +29411,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   <p><strong>Summary:</strong> Deliver REQ-156 (Nothing leaves unredacted) and REQ-157 (One finding, one issue): rule-based redaction with disclosure ledger, deterministic 12-hex fingerprint, and the preview sub-verb the operator sees before consenting.</p>
   <p><strong>Approach:</strong> Write src/feedback/redact.js, src/feedback/redact-allowlist.json, src/feedback/fingerprint.js and src/feedback/render.js. Add preview to src/cli/feedback.js. Golden-file tests for the render templates; fixture corpus for redact.</p>
-  <div class="ac-pills"><a class="ac-pill" href="#AC-15601-1">AC-15601-1</a><a class="ac-pill" href="#AC-15601-2">AC-15601-2</a><a class="ac-pill" href="#AC-15601-3">AC-15601-3</a><a class="ac-pill" href="#AC-15701-1">AC-15701-1</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-15601-1">AC-15601-1</a><a class="ac-pill" href="#AC-15601-2">AC-15601-2</a><a class="ac-pill" href="#AC-15601-3">AC-15601-3</a><a class="ac-pill" href="#AC-15601-4">AC-15601-4</a><a class="ac-pill" href="#AC-15701-1">AC-15701-1</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-15601-1">AC-15601-1</a></strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls.</p>
   <p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line</p>
@@ -29409,6 +29429,12 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><em>Given</em> a fixture project with entries whose bodies contain redactable content</p>
   <p><em>When</em> the operator runs rcf feedback preview repeatedly</p>
   <p><em>Then</em> a sha-256 of entries.jsonl before and after each preview run matches</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-15601-4">AC-15601-4</a></strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.</p>
+  <p><em>Given</em> a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)</p>
+  <p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p>
+  <p><em>Then</em> preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-15701-1">AC-15701-1</a></strong> - fingerprint(entry) returns the first 12 hex chars of sha-256 over &quot;&lt;kind&gt;|&lt;targetKey&gt;|&lt;anchor&gt;|&lt;symptomClass&gt;&quot; where targetKey is the effective slug for blueprints (no version) or the verb path for core, anchor is upper-cased or &quot;-&quot; when absent, and symptomClass is one of the closed enum. Same fingerprint across two entries whose blueprint versions differ; different fingerprint when the anchor or class differs.</p>
@@ -29439,6 +29465,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-15601-1&quot;,
     &quot;AC-15601-2&quot;,
     &quot;AC-15601-3&quot;,
+    &quot;AC-15601-4&quot;,
     &quot;AC-15701-1&quot;
   ],
   &quot;dependsOnFbsIds&quot;: [
@@ -38672,9 +38699,9 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <h3>TS-188 - Slice 2 (FBS-181): rcf feedback preview renders redacted issue text, surfaces residual-secret markers, leaves the store byte-invariant, and attaches a stable fingerprint</h3>
   
   <p><strong>Verifies user story:</strong> <a href="#US-15601">US-15601</a></p>
-  <p><strong>Purpose:</strong> Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).</p>
+  <p><strong>Purpose:</strong> Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).</p>
   <p><strong>Test level:</strong> integration</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15601-1">AC-15601-1</a>, <a href="#AC-15601-2">AC-15601-2</a>, <a href="#AC-15601-3">AC-15601-3</a>, <a href="#AC-15701-1">AC-15701-1</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15601-1">AC-15601-1</a>, <a href="#AC-15601-2">AC-15601-2</a>, <a href="#AC-15601-3">AC-15601-3</a>, <a href="#AC-15601-4">AC-15601-4</a>, <a href="#AC-15701-1">AC-15701-1</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-188-preview-renders-full-vocabulary-ledger">
   <p><strong>TC-188-preview-renders-full-vocabulary-ledger</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
@@ -38715,16 +38742,27 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-188-render-fingerprint-twin-and-labels</strong> - covers <a href="#AC-15701-1">AC-15701-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-15701-1 (render surface) via the unit test: renderIssue writes the fingerprint twice (visible line and HTML comment) and requests the six-label bootstrap subset for the entry&#39;s severity and kind.</p>
   <p><em>Test pointer:</em> <code>test/feedback/render.test.js::renderIssue body carries the fingerprint twice and the Environment table</code></p>
+</div>
+<div class="tc" id="TC-188-safeguard-whole-text-residual">
+  <p><strong>TC-188-safeguard-whole-text-residual</strong> - covers <a href="#AC-15601-4">AC-15601-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-4 (safeguard, per-entry) via the unit test: findResidualSecrets detects a multiline PEM shape in a rendered-body-shaped string, which a per-line scan could not see. Binds the whole-text/multiline shape of the residual pass introduced in fix round 2 (R-P0-2 root fix + defence).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: whole-text residual scan detects a multiline PEM in the rendered surface</code></p>
+</div>
+<div class="tc" id="TC-188-safeguard-submit-refuses-residual">
+  <p><strong>TC-188-safeguard-submit-refuses-residual</strong> - covers <a href="#AC-15601-4">AC-15601-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T15:27:35Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T15:27:35Z&quot;,
-  &quot;purpose&quot;: &quot;Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-16T20:28:13Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
     &quot;AC-15601-1&quot;,
     &quot;AC-15601-2&quot;,
     &quot;AC-15601-3&quot;,
+    &quot;AC-15601-4&quot;,
     &quot;AC-15701-1&quot;
   ],
   &quot;id&quot;: &quot;TS-188&quot;,
@@ -38786,6 +38824,20 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-15701-1 (render surface) via the unit test: renderIssue writes the fingerprint twice (visible line and HTML comment) and requests the six-label bootstrap subset for the entry&#39;s severity and kind.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/feedback/render.test.js::renderIssue body carries the fingerprint twice and the Environment table&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-safeguard-whole-text-residual&quot;,
+      &quot;acId&quot;: &quot;AC-15601-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-4 (safeguard, per-entry) via the unit test: findResidualSecrets detects a multiline PEM shape in a rendered-body-shaped string, which a per-line scan could not see. Binds the whole-text/multiline shape of the residual pass introduced in fix round 2 (R-P0-2 root fix + defence).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: whole-text residual scan detects a multiline PEM in the rendered surface&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-safeguard-submit-refuses-residual&quot;,
+      &quot;acId&quot;: &quot;AC-15601-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

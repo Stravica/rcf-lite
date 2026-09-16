@@ -3718,6 +3718,15 @@
             "TC-188-preview-store-byte-invariant"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-4",
+          "covered": true,
+          "testCases": [
+            "TC-188-safeguard-submit-refuses-residual",
+            "TC-188-safeguard-whole-text-residual"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
