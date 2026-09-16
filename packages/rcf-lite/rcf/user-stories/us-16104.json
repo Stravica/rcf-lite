@@ -1,0 +1,42 @@
+{
+  "usId": "US-16104",
+  "prdId": "PRD-001",
+  "reqId": "REQ-161",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf init installs the feedback hooks and rcf doctor keeps them honest",
+  "asA": "operator running rcf init on a project",
+  "iWant": "the feedback Stop / SessionEnd / SessionStart hook entries merged into .claude/settings.json and .codex/hooks.json (with --no-feedback-hooks to skip), and rcf doctor to report missing-hook (fixable with --fix) and foreign-hook (refused) so the harness config stays honest across clones",
+  "soThat": "every clone gets the same ask behaviour without a per-developer setup step, and drift is surfaced instead of quietly diverging",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16104-1",
+      "description": "rcf init merges three feedback hook entries into .claude/settings.json (Stop -> \"npx rcf-lite feedback hook stop --harness claude-code\" timeout 10; SessionEnd -> \"... hook session-end ...\" timeout 5; SessionStart matcher \"startup|resume\" -> \"... hook session-start ...\") and three matching entries into .codex/hooks.json (in the Codex schema for the same events). Merge discipline mirrors writeMcpConfig: parse, refuse on invalid JSON with the same message shape as .mcp.json, never clobber other hooks, add ours only if an entry whose command contains \"rcf feedback hook\" is absent. The \"npx rcf-lite\" prefix is replaced by binPath when init was called with --bin-path, mirroring the .mcp.json entry pattern.",
+      "given": "a fresh fixture project with no .claude/settings.json and no .codex/hooks.json",
+      "when": "rcf init is run without --no-feedback-hooks",
+      "then": "both files contain the three feedback hook entries in the right shape; a second rcf init on the same tree is byte-idempotent; a pre-existing settings.json with an unrelated hook is preserved and the feedback entries are added alongside it",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16104-2",
+      "description": "rcf init --no-feedback-hooks writes neither .claude/settings.json nor .codex/hooks.json feedback entries and prints the instruction-only fallback line once (RULE 17 still applies). --no-feedback-hooks composes with --no-playwright-mcp and other init skips without interaction.",
+      "given": "a fresh fixture project",
+      "when": "rcf init --no-feedback-hooks is run",
+      "then": "no feedback hook entry is present in either config file; init exits 0; the one-line instruction fallback appears in stdout",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16104-3",
+      "description": "rcf doctor --check feedback-hooks reports missing-hook (fixable) per hook per file when an expected entry is absent, and foreign-hook (refused, hand-repair message) when an entry whose command contains \"rcf feedback hook\" is present with different flags than the current install shape. rcf doctor --fix adds the missing entries and touches nothing else. A clean tree reports no findings and doctor stays exit 0.",
+      "given": "three fixture projects: one missing all feedback hook entries; one with a foreign entry (same command, wrong flags); one clean",
+      "when": "rcf doctor --check feedback-hooks --fix is run against each",
+      "then": "the missing-entries project ends with the entries present (added only); the foreign-entry project keeps the foreign entry, reports the foreign-hook message and exits non-zero; the clean project makes no writes and exits 0",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-16T14:07:38.000Z",
+  "updatedAt": "2026-09-16T14:14:36Z"
+}

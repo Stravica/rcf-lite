@@ -15,7 +15,8 @@
     "AC-15502-1",
     "AC-15502-2",
     "AC-15503-1",
-    "AC-15503-2"
+    "AC-15503-2",
+    "AC-15501-5"
   ],
   "dependsOnFbsIds": [],
   "contextRequirements": {
@@ -38,7 +39,7 @@
   "domain": "feedback",
   "estimatedSize": "medium",
   "estimatedHours": 12,
-  "notes": "Foundation slice; nothing depends on anything not in the tree before this lands.",
+  "notes": "Foundation slice; nothing depends on anything not in the tree before this lands. Design section 9 decision: body cap 8 KB, no attachments, no screenshots (rejected: attaching rcf define validate --json output and artefact files, marginal value for a larger redaction surface in v1).",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

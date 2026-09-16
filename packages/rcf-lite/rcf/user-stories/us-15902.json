@@ -35,8 +35,17 @@
       "then": "blueprint titles start with \"[<slug>] \"; core titles start with \"[rcf-lite] \"; each body carries the fingerprint on its own line and inside an HTML comment (fingerprint appears twice on purpose)",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-15902-4",
+      "description": "The six-label catalogue (rcf-feedback, severity:blocker, severity:major, severity:minor, area:blueprint, area:core) is exported as a single frozen constant from src/feedback/labels.js (FEEDBACK_LABELS or equivalent). Both scripts/bootstrap-feedback-labels.mjs and the submit-time label pre-check import that constant and refuse to hard-code any of the six names locally. A grep test asserts no string literal for a catalogue label name appears outside src/feedback/labels.js, its own tests, and the bootstrap script that imports it.",
+      "given": "a fresh clone of the repo",
+      "when": "the grep test enumerates string literals for each of the six label names across src/, scripts/, bin/",
+      "then": "every hit is either inside src/feedback/labels.js, a test file that imports the constant, or the bootstrap script; there is no bare string literal for any of the six names elsewhere",
+      "testable": true,
+      "scope": "library"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

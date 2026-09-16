@@ -35,8 +35,17 @@
       "then": "Stop asks only about the pending entry, list shows only the pending entry, list --all shows the bundled entries with status bundled; submit fb-<id-of-bundle> retries just that one",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-16001-4",
+      "description": "When submit encounters an entry whose destination cannot be resolved (library without an issues field and no derivable git source, so destination.resolve() returned unresolved), the entry is written to the bundle at .rcf/feedback/outbox/<ISO-timestamp>-unresolved.md, the publisher contact from the registry entry (if present) is printed on the same line as the outbox path, no gh call is made for that entry, and exit code stays 0. The entry state folds to bundled with outboxPath.",
+      "given": "a fixture project with one applied library whose registry entry carries neither issuesRepo nor a derivable github git source but does carry publisher.contact, and one pending blueprint entry against that library",
+      "when": "submit --yes is run",
+      "then": "the outbox file exists with the unresolved-slug filename, stdout carries the publisher.contact on the same line as the outbox path, no gh invocation was made, entry state is bundled, exit code is 0",
+      "testable": true,
+      "scope": "library"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

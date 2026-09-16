@@ -17,7 +17,9 @@
     "AC-15902-3",
     "AC-16001-1",
     "AC-16001-2",
-    "AC-16001-3"
+    "AC-16001-3",
+    "AC-15902-4",
+    "AC-16001-4"
   ],
   "dependsOnFbsIds": [
     "FBS-182"
@@ -44,5 +46,5 @@
   "estimatedHours": 16,
   "notes": "Largest slice; carries the operator-visible submit flow and every fallback branch.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

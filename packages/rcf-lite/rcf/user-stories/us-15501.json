@@ -29,10 +29,10 @@
     },
     {
       "id": "AC-15501-3",
-      "description": "When --kind blueprint is passed and the target cannot be resolved to a known blueprint in rcf/manifest.json:blueprints[], the entry is still recorded with destination: unresolved. Exit code is 3 (usage-plus-outcome), stdout carries the recorded line and stderr carries a one-line \"destination unresolved: <target>\" note that the agent can relay.",
+      "description": "When --kind blueprint is passed and the target cannot be resolved to a known blueprint in rcf/manifest.json:blueprints[], the entry is still recorded with destination: unresolved. Exit code is 3 (destination cannot be resolved, per design 3.1); stdout carries the recorded line and stderr carries a one-line \"destination unresolved: <target>\" note the agent can relay.",
       "given": "a fixture project whose manifest carries no matching blueprint",
       "when": "the agent runs rcf feedback add --kind blueprint --target unknown-slug ...",
-      "then": "the entry is written with destination.repo absent and destination.reason set to unresolved; exit code is 3; stderr carries the one-line note",
+      "then": "the entry is written with destination.repo absent and destination.reason set to unresolved; exit code is 3 (destination cannot be resolved); stderr carries the one-line note",
       "testable": true,
       "scope": "runtime"
     },
@@ -44,8 +44,17 @@
       "then": "each invalid invocation exits 2, stderr names the specific violation and the enum or size limit; no entry is written",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-15501-5",
+      "description": "When --kind blueprint is passed and the target resolves to a known blueprint in rcf/manifest.json:blueprints[], the recorded entry additionally stamps blueprintVersion, libraryPrefix, libraryRef and resolvedSha (or tarballSha256 when the pin is a tarball) on target, sourced from the manifest record and the matching rcf/blueprint-libraries.json registry entry. Core entries (kind core) carry none of these fields. A shelf blueprint (no libraryPrefix on the manifest record) carries blueprintVersion and resolvedSha but leaves libraryPrefix and libraryRef unset.",
+      "given": "a fixture project with three applied blueprints: one shelf, one library (git pin) and one library (tarball pin), plus one core entry",
+      "when": "the agent runs rcf feedback add --kind blueprint for each blueprint target and --kind core for the core entry",
+      "then": "each blueprint entry carries the expected blueprint-specific stamps sourced from manifest + registry (shelf omits libraryPrefix and libraryRef; git-pin carries resolvedSha; tarball-pin carries tarballSha256); the core entry carries none of the four fields",
+      "testable": true,
+      "scope": "library"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

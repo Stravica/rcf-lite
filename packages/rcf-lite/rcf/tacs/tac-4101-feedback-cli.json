@@ -71,7 +71,7 @@
     }
   ],
   "tradeoffs": "A single core verb keeps the surface easy to reference in RULE 17 and in docs; the cost is a moderately sized sub-dispatcher, matched by preflight and other multi-verb families already in the tree.",
-  "notes": "The verb is core, not grouped, because it spans discover-to-audit and is invoked from harness hooks; OLD_FLAT_MAP is untouched (no legacy form existed).",
+  "notes": "The verb is core, not grouped, because it spans discover-to-audit and is invoked from harness hooks; OLD_FLAT_MAP is untouched (no legacy form existed). Design section 9 decision: no MCP tool for feedback in v1 (rejected: an rcf_feedback_add MCP tool, adds a second code path to test before the first has users; add when an MCP-only harness appears).",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-16201-1",
-      "description": "guidance/managed/agent-instructions-block.md gains RULE 17 with the wording specified in design section 3.4. pnpm run build:managed regenerates the block hash and harness-template.md so rcf doctor doctor-agent-instructions and gen-managed-artefacts stay byte-consistent. The wording is static (no version numbers, no dates) and names all four verbs (preview, submit --yes, defer, opt-out).",
+      "description": "guidance/managed/agent-instructions-block.md gains RULE 17 with the wording specified in design section 3.4. pnpm run build:managed regenerates the block hash and harness-template.md so rcf doctor doctor-agent-instructions and gen-managed-artefacts stay byte-consistent. The wording is static (no version numbers, no dates) and names all four verbs (preview, submit --yes, defer, opt-out). A byte-exact template test loads the shipped block and asserts the RULE 17 slice is byte-for-byte identical to the design-section-3.4 fixture stored in test/fixtures/managed/rule-17.md, so a wording drift on ship is caught.",
       "given": "a fixture repository state with RULE 17 not yet added",
       "when": "the change is applied, pnpm run build:managed is run, and rcf doctor is run",
-      "then": "RULE 17 appears in the block file exactly as specified; the hash file changes on this release; doctor doctor-agent-instructions reports clean; a rule-text anatomy test asserts the four verb names and the redaction posture sentence are all present",
+      "then": "RULE 17 appears in the block file exactly as specified; the hash file changes on this release; doctor doctor-agent-instructions reports clean; a byte-exact template test asserts the RULE 17 slice of the block matches test/fixtures/managed/rule-17.md byte-for-byte",
       "testable": true,
       "scope": "library"
     },
@@ -29,5 +29,5 @@
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

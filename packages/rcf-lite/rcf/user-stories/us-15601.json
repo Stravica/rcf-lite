@@ -12,9 +12,9 @@
     {
       "id": "AC-15601-1",
       "description": "rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\"- before  + after\") with the rule name. --json emits the same as a machine-readable object per entry. No network calls.",
-      "given": "a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, and a token-shaped string",
+      "given": "a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line",
       "when": "the operator runs rcf feedback preview --json",
-      "then": "the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] with entries whose rule names are project-root, absolute-path, email, hostname and secret-token; the rendered body contains none of the original secret substrings",
+      "then": "the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity and size-shape; the rendered body contains none of the original secret substrings, none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB",
       "testable": true,
       "scope": "runtime"
     },
@@ -38,5 +38,5 @@
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }

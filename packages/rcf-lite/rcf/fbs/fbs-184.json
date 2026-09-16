@@ -14,7 +14,10 @@
     "AC-16102-1",
     "AC-16102-2",
     "AC-16103-1",
-    "AC-16103-2"
+    "AC-16103-2",
+    "AC-16104-1",
+    "AC-16104-2",
+    "AC-16104-3"
   ],
   "dependsOnFbsIds": [
     "FBS-183"
@@ -39,7 +42,7 @@
   "domain": "feedback",
   "estimatedSize": "large",
   "estimatedHours": 16,
-  "notes": "Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17.",
+  "notes": "Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17. Design section 9 decision: no global (~/.config) setting in v1 (rejected: a ~/.rcf/feedback.json file, because the behaviour a teammate sees on a shared project should come from the project, not from someone's home directory; a per-machine preference is the RCF_FEEDBACK_ASK env var).",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-16T14:14:36Z"
 }
