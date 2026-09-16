@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-16T22:28:54Z",
+  "updatedAt": "2026-09-16T22:28:54Z",
+  "adrId": "ADR-16101-referee-coverage-strict-by-default",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Flip `rcf audit coverage` default to strict, keep `--strict` as a no-op alias, add `--mode shallow-any` as the explicit opt-out",
+  "context": "The referee-guarantees docs page (`how-it-works/what-the-referee-guarantees`) states without qualification that a requirement counts as covered only when every acceptance criterion beneath it has a resolving Test Case, and that a stub or stale pointer fails the coverage gate exactly as a missing test does when the displayed command (`rcf audit coverage`) is run. The 0.27.0 default is shallow-any: `rcf audit coverage` prints gaps and exits 0. Strict is opt-in via `--strict`. The docs promise is therefore false against the shipped default, which was the concession made when strict landed (avoid silently failing existing CI on a version bump). The compatibility window has run: the strict flag is baked into every shipped blueprint's CI-gate posture (delivery-ci-workflows ADR-702), into the repo's own CI, into the getting-started walkthrough, and into the referee-guarantees page itself.",
+  "decision": "Flip the shipped default to strict. `--mode shallow-any` becomes the explicit opt-out (prints gaps, exits 0) so author-time exploration on a not-yet-shippable chain still has a documented home. The legacy `--strict` flag stays as a no-op alias for the new default so every existing CI invocation, blueprint README, and dogfood script keeps working byte-forward. `--mode shallow-any --strict` (or `--strict --mode shallow-any`) is a usage refusal (exit 2) so a scripted invocation cannot silently disagree with itself. The migration lands in the CHANGELOG's [Unreleased] section for the release notes.",
+  "consequences": "The referee-guarantees page's coverage sentences hold by construction from this release. Downstream projects on 0.27.0 that ran the plain `rcf audit coverage` and treated its exit code as passing will see that command exit 4 on the same tree; the fix is either to close the coverage gap or to run `rcf audit coverage --mode shallow-any` when the intent is a printed gap report rather than a gate. Existing `rcf audit coverage --strict` invocations (the shipped blueprints' CI gates, the repo's own CI, downstream projects' pipelines) keep working. The CHANGELOG entry names the migration so a version bumper is not surprised.",
+  "alternativesConsidered": [
+    {
+      "name": "Rename the current default: `--mode` required, no default",
+      "summary": "Require callers to name their mode explicitly; refuse the bare command until a mode is passed.",
+      "reasonNotChosen": "Breaks every existing invocation, blueprint, and CI dogfood; the referee-guarantees page itself would need a mode-name for the command it displays. Strict-by-default with a shallow-any opt-out satisfies the docs promise with no rewrite of the shipped invocations."
+    },
+    {
+      "name": "Deprecate --strict; emit a warn line under the new default",
+      "summary": "Print a deprecation warning when --strict is passed so callers move to the new default explicitly.",
+      "reasonNotChosen": "Every shipped blueprint's CI-gate posture is `rcf audit coverage --strict`; a deprecation line at every CI run is noise that hides the report, not a helpful nudge. --strict is a no-op alias, not a warning surface."
+    }
+  ]
+}

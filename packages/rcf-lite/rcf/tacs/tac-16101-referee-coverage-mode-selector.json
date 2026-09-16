@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-16T22:28:54Z",
+  "updatedAt": "2026-09-16T22:28:54Z",
+  "tacId": "TAC-16101-referee-coverage-mode-selector",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "coverage --mode selector",
+  "purpose": "Add an explicit `--mode <strict|shallow-any>` option to `rcf audit coverage` in `packages/rcf-lite/src/cli/coverage.js`, resolve the strictness in one place before invoking `computeCoverage`, and keep the legacy `--strict` flag as a no-op alias for the new default. The plain command runs strict-by-default; `--mode shallow-any` is the explicit opt-out; `--mode shallow-any --strict` is a usage refusal (exit 2).",
+  "responsibilities": [
+    "Extend OPTION_SPEC with `mode: { type: 'string' }` and keep `strict: { type: 'boolean' }` for backward compatibility (AC-16101-1, AC-16101-2).",
+    "Validate `--mode` against the enum {strict, shallow-any}; reject unknowns with exit 2 (AC-16101-3).",
+    "Refuse `--mode shallow-any --strict` with exit 2 and a usage message that names both flags (AC-16101-3).",
+    "Resolve strictness once: `strict = flags.mode === 'shallow-any' ? false : true`. Pass the resolved value into `computeCoverage` and the strict-gate exit-4 branch, and into the strict-only verification-integrity matrix (AC-16101-1, AC-16101-2).",
+    "Update the HELP block, the module-level comment, and the human-readable error messages so the flag family and its default are self-documenting."
+  ],
+  "internalStructure": "One-shot resolution in main(). No changes to `computeCoverage` or the query layer. The legacy `--strict` flag routes through the same resolver as absence-of-flag, so existing CI invocations (including the repo's own dogfood step) are byte-forward-compatible.",
+  "interfaces": [],
+  "notes": "The repo's own CI dogfood step in `.github/workflows/ci.yml` is updated to the shipped default (plain `rcf audit coverage`) so the referee-guarantees page and the CI match. Existing blueprints and downstream projects that still spell `--strict` keep working."
+}
