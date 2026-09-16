@@ -91,6 +91,18 @@ export function redact(input, context = {}) {
     text = replaceAndLog(text, escapedLiteral(norm), '<project>', 'project-root', ledger);
   }
 
+  // Rule 1.5: KV-secret early guard runs BEFORE the absolute-path
+  // pass. A body like `/tmp/cache password=Abc12345` was previously
+  // consumed by the terminal-directory extension of the path regex
+  // (the space plus `password` folded into the path match), so the
+  // `password` key label vanished into `<path>` and the kv-secret
+  // pass then saw a bare `=Abc12345` with no key label to bind. The
+  // guard redacts every `keyname=value` pair first, so the path
+  // sweep only sees `/tmp/cache <redacted:secret>` and cannot swallow
+  // the key. Round 3: R-P0-3 P0 regression from round 2.
+  const kvSecretGuardRe = /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n])+"|'(?:\\.|[^'\\\n])+'|[^\s,;)}\]]+)/gi;
+  text = replaceEachDistinct(text, kvSecretGuardRe, '<redacted:secret>', 'secret-token', ledger);
+
   // Rule 2: other absolute paths -> <path>/<basename>. POSIX and
   // Windows shapes. Path segments allow letters, digits, dots,
   // hyphens, underscores, tildes, pluses, colons, at-signs and
@@ -98,17 +110,18 @@ export function redact(input, context = {}) {
   // `/Users/john doe/work` or `/Users/john  doe/work` with a double
   // space) is accepted when it is followed by another separator, so
   // any width of whitespace between tokens folds. A terminal
-  // (no-separator) segment accepts at most ONE space continuation
-  // so a sentence like `in /Users/john doe end here` folds the path
-  // (`/Users/john doe`) without swallowing the rest of the sentence
-  // (F-slice-2-06).
+  // (no-separator) segment accepts a space continuation of any width
+  // (`[ \t]+`) so `/Users/john  doe` (double space) also folds; a
+  // sentence like `in /Users/john doe end here` still folds only
+  // `/Users/john doe` because the continuation is a single word,
+  // not the rest of the sentence (F-slice-2-06).
   // Terminal-segment shape: a first word with a `.` looks like a
   // filename (no space continuation - space starts a sentence again,
   // as in `/foo.js line 42`); a first word without a `.` looks like
-  // a directory (allow ONE space continuation - `john doe` is one
-  // dir on macOS). This split avoids swallowing the trailing sentence
-  // when the path ends in a filename.
-  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\/)|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
+  // a directory (allow one continuation - `john doe` is one dir on
+  // macOS). This split avoids swallowing the trailing sentence when
+  // the path ends in a filename.
+  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\/)|[A-Za-z0-9_+@~-]+(?:[ \t]+[A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, posixAbsRe, (match) => {
     const bn = match.split('/').filter(Boolean).pop() ?? 'file';
     // A basename with a space is almost always a username directory
@@ -117,7 +130,7 @@ export function redact(input, context = {}) {
     if (/\s/.test(bn)) return '<path>';
     return `<path>/${bn}`;
   }, 'absolute-path', ledger);
-  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+)(?:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
+  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t]+[A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+)(?:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t]+[A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, winAbsRe, (match) => {
     const bn = match.split('\\').pop() ?? 'file';
     if (/\s/.test(bn)) return '<path>';
@@ -305,31 +318,100 @@ export function findResidualSecrets(text) {
   /** @type {ResidualHit[]} */
   const hits = [];
   const seen = new Set();
-  for (const { name, re } of residualPatterns) {
-    re.lastIndex = 0;
-    let m;
-    while ((m = re.exec(text)) !== null) {
-      // Line number = 1 + count of newlines before m.index.
-      let line = 1;
-      for (let i = 0; i < m.index; i += 1) {
-        if (text.charCodeAt(i) === 10) line += 1;
+  // Round 3: also scan a diacritic-stripped shadow copy so a key
+  // label carrying a Latin-1 supplement letter (`pássword=Abc12345`,
+  // `sécret=X`, homoglyph variants) still trips the residual pass and
+  // submit refuses fail-closed. The shadow scan preserves byte
+  // offsets by mapping combining marks and diacritics to their base
+  // ASCII counterparts one codepoint at a time; every non-ASCII
+  // codepoint that is not a diacritic marker collapses to a single
+  // `_` placeholder so line and column offsets survive intact.
+  const shadow = stripDiacritics(text);
+  const scans = [
+    { source: text, label: '' },
+    ...(shadow !== text ? [{ source: shadow, label: 'unicode-key' }] : []),
+  ];
+  for (const { source, label } of scans) {
+    for (const { name, re } of residualPatterns) {
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(source)) !== null) {
+        // Line number = 1 + count of newlines before m.index. Uses
+        // `text` (not `source`) because the shadow preserves newline
+        // positions, so the raw text's line count is authoritative
+        // for what the operator sees on stdout.
+        let line = 1;
+        for (let i = 0; i < m.index; i += 1) {
+          if (text.charCodeAt(i) === 10) line += 1;
+        }
+        // Snippet is drawn from the RAW text so the operator sees the
+        // actual bytes at the offending line, not the placeholder.
+        const rawSnippet = text.slice(m.index, m.index + m[0].length);
+        const snippet = rawSnippet.replace(/\s+/g, ' ').slice(0, 80);
+        const pattern = label ? `${label}:${name}` : name;
+        const key = `${pattern}|${line}|${snippet}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          hits.push({ line, snippet, pattern });
+        }
+        // Guard against zero-width matches (defensive; no such pattern
+        // in the set today, but a future pattern with an optional
+        // group could hang the loop otherwise).
+        if (re.lastIndex === m.index) re.lastIndex += 1;
       }
-      // Collapse whitespace in the snippet so a multiline PEM block
-      // renders on one console line for the operator refusal message.
-      const snippet = m[0].replace(/\s+/g, ' ').slice(0, 80);
-      const key = `${name}|${line}|${snippet}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        hits.push({ line, snippet, pattern: name });
-      }
-      // Guard against zero-width matches (defensive; no such pattern
-      // in the set today, but a future pattern with an optional group
-      // could hang the loop otherwise).
-      if (re.lastIndex === m.index) re.lastIndex += 1;
     }
   }
   hits.sort((a, b) => a.line - b.line || a.pattern.localeCompare(b.pattern));
   return hits;
+}
+
+/**
+ * Return a copy of `input` where every non-ASCII codepoint that carries
+ * a base ASCII letter (via NFKD decomposition) is folded to that letter,
+ * every remaining non-ASCII codepoint collapses to `_`, and every ASCII
+ * character passes through untouched. The output has the same length in
+ * codepoints as the input, so `String.prototype.replace` match indices
+ * carry over one-for-one for line-number arithmetic in the residual pass.
+ * Fail-closed: on any exception, return the input unchanged so the raw
+ * scan is still authoritative.
+ *
+ * @param {string} input
+ * @returns {string}
+ */
+function stripDiacritics(input) {
+  try {
+    let out = '';
+    for (let i = 0; i < input.length; i += 1) {
+      const c = input.charCodeAt(i);
+      if (c < 128) { out += input[i]; continue; }
+      // Preserve UTF-16 code-unit alignment. A high surrogate plus a
+      // low surrogate is one non-BMP codepoint; emit two `_` so the
+      // shadow has the same `.length` and regex offsets carry over
+      // unchanged for line-number arithmetic.
+      if (c >= 0xD800 && c <= 0xDBFF) {
+        out += '__';
+        i += 1;
+        continue;
+      }
+      // BMP non-ASCII: NFKD fold to the first ASCII letter or digit
+      // in the decomposition (e.g. `á` -> `a` + combining acute).
+      // If nothing ASCII remains, collapse to `_` so the placeholder
+      // holds the offset without introducing pattern shapes of its own.
+      const decomposed = input[i].normalize('NFKD');
+      let picked = null;
+      for (const dch of decomposed) {
+        const cc = dch.charCodeAt(0);
+        if ((cc >= 48 && cc <= 57) || (cc >= 65 && cc <= 90) || (cc >= 97 && cc <= 122)) {
+          picked = dch;
+          break;
+        }
+      }
+      out += picked ?? '_';
+    }
+    return out;
+  } catch {
+    return input;
+  }
 }
 
 /**
@@ -413,6 +495,32 @@ function replaceRegex(text, re, replacer, rule, ledger) {
   return out;
 }
 
+/**
+ * Variant of `replaceRegex` that logs ONE ledger row per distinct
+ * before-sample the pattern matched, not one row per pattern call.
+ * Two `password=A` and `password=B` hits in a single field both land
+ * as their own rows so the operator disclosure ledger names every
+ * secret that was stripped (F-slice-2-09 within-field case).
+ *
+ * @param {string} text
+ * @param {RegExp} re                     a /g flag is required
+ * @param {string} replacement            the after text (constant)
+ * @param {string} rule                   ledger row rule name
+ * @param {LedgerRow[]} ledger
+ * @returns {string}
+ */
+function replaceEachDistinct(text, re, replacement, rule, ledger) {
+  const counts = new Map();
+  const out = text.replace(re, (match) => {
+    counts.set(match, (counts.get(match) ?? 0) + 1);
+    return replacement;
+  });
+  for (const [before, count] of counts) {
+    ledger.push({ rule, before, after: replacement, count });
+  }
+  return out;
+}
+
 function escapeRe(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -491,15 +599,16 @@ function secretPatterns() {
 function redactSecrets(input, ledger) {
   let text = input;
   for (const { re } of secretPatterns()) {
-    text = replaceRegex(text, re, () => '<redacted:secret>', 'secret-token', ledger);
+    text = replaceEachDistinct(text, re, '<redacted:secret>', 'secret-token', ledger);
   }
   // F-slice-2-09: keep every distinct before/after pair so the
   // operator disclosure ledger shows exactly what was stripped.
-  // Consecutive secret-token rows are folded ONLY when they share
-  // the same before text (a plain deduplication); the count is the
-  // sum of hits. Distinct samples stay as their own rows so a
-  // maintainer reading `preview` can see the full list, not one
-  // concatenated line.
+  // `replaceEachDistinct` already writes one row per distinct
+  // before-sample WITHIN a single pattern, so two different
+  // `password=A` / `password=B` hits in the same field are two rows.
+  // The fold below dedupes across DIFFERENT patterns that produced
+  // the same before text (e.g. a token caught by both a specific
+  // pattern and the loose entropy-blob) and sums their counts.
   const folded = [];
   for (const row of ledger) {
     if (row.rule !== 'secret-token') {

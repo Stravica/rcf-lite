@@ -517,21 +517,31 @@ async function handleList(argv, ctx) {
 
   const all = await readEntries(projectRoot);
   const shown = flags.all ? all : all.filter((e) => e.status === 'pending');
+  // Round 3 (F-slice-1-09 regression): a pruned entry's body and
+  // title stayed visible through `list --all --json` because the
+  // fold-by-id spread merged the pruned state row over the original
+  // entry without clearing the free-form content. The prune sweep's
+  // point is to age content out; scrub it here so `list` on either
+  // surface never re-exposes a pruned body.
+  const sanitised = shown.map((e) => (e.status === 'pruned'
+    ? { ...e, title: null, body: null, evidence: [] }
+    : e));
 
   if (flags.json) {
-    stdout.write(`${JSON.stringify(shown, null, 2)}\n`);
+    stdout.write(`${JSON.stringify(sanitised, null, 2)}\n`);
     return 0;
   }
-  if (shown.length === 0) {
+  if (sanitised.length === 0) {
     stdout.write(flags.all
       ? 'no feedback entries.\n'
       : 'no pending feedback entries.\n');
     return 0;
   }
-  const rows = shown.slice().sort((a, b) => (a.recordedAt ?? '').localeCompare(b.recordedAt ?? ''));
+  const rows = sanitised.slice().sort((a, b) => (a.recordedAt ?? '').localeCompare(b.recordedAt ?? ''));
   for (const e of rows) {
     const statusCol = flags.all ? `[${e.status}] ` : '';
-    stdout.write(`${statusCol}${e.id}  ${e.target?.ref ?? '?'}  ${e.symptomClass}  ${e.severity}  ${e.title}\n`);
+    const titleText = e.status === 'pruned' ? '(pruned; body scrubbed)' : e.title;
+    stdout.write(`${statusCol}${e.id}  ${e.target?.ref ?? '?'}  ${e.symptomClass}  ${e.severity}  ${titleText}\n`);
   }
   return 0;
 }
@@ -1421,11 +1431,33 @@ async function handleSubmit(argv, ctx) {
   // Write bundle files (whole-destination and per-entry).
   const generatedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
   for (const [key, bundle] of bundleRowsByKey) {
-    const outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {
-      generatedAt,
-      rcfLiteVersion,
-      reasonNotFiled: bundle.reason,
-    });
+    let outboxPath;
+    try {
+      outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {
+        generatedAt,
+        rcfLiteVersion,
+        reasonNotFiled: bundle.reason,
+      });
+    } catch (err) {
+      // Round 3 (AC-15601-4 regression): writeBundle throws
+      // FEEDBACK_BUNDLE_RESIDUAL when the safeguard's whole-bundle
+      // residual scan bites. The uncaught throw propagated all the
+      // way to the dispatcher and turned the exit code into 1; the
+      // documented shape is exit 3 (at least one entry pending),
+      // matching the per-entry residual path. Catch it here, keep
+      // every bundle row PENDING with residual:true, and let
+      // `summary.pending > 0 ? 3 : 0` return the 3.
+      if (/** @type {any} */ (err)?.code === 'FEEDBACK_BUNDLE_RESIDUAL') {
+        stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> pending (bundle-level residual secret; run \`rcf feedback preview\` and rewrite before submit)\n`);
+        stderr.write(`[safeguard] ${err.message}\n`);
+        for (const row of bundle.rows) {
+          await markResidual(projectRoot, row.entry.id, at(now), sessionId);
+          summary.pending += 1;
+        }
+        continue;
+      }
+      throw err;
+    }
     const issuesUrl = bundle.destination.repo
       ? `https://github.com/${bundle.destination.repo}/issues/new`
       : '(no repo; paste to the library owner)';
@@ -1958,17 +1990,23 @@ async function runSessionEndHook(projectRoot, { now }) {
   const filename = `${stampSafe}-session-end.md`;
   const path = resolve(dir, filename);
   const body = renderSessionEndBundle(pending, now());
-  // Idempotency: if any prior session-end file in the outbox has this
-  // exact body (fingerprint contents identical), do nothing. This
-  // guards a re-run within the same second AND a re-run at a later
-  // second when the pending set has not changed.
+  // Idempotency: two consecutive runs with the same pending set MUST
+  // produce a single file. The only field that legitimately differs
+  // between the two bodies is the `Generated:` timestamp; a naive
+  // byte-compare therefore flaked whenever the two calls straddled a
+  // second boundary (AC-16103-1 intermittent failure). Compare on a
+  // canonical form that stamps the timestamp with a fixed placeholder,
+  // so the byte-idempotency check honours the design intent (same
+  // pending set = same bundle) regardless of wall-clock drift.
+  const canon = (s) => s.replace(/^Generated: [^\n]*$/m, 'Generated: <stamp>');
+  const bodyCanon = canon(body);
   try {
     const entries = await readdir(dir);
     for (const f of entries) {
       if (!f.endsWith('-session-end.md')) continue;
       try {
         const existing = await readFile(resolve(dir, f), 'utf8');
-        if (existing === body) return 0;
+        if (canon(existing) === bodyCanon) return 0;
       } catch { /* ignore */ }
     }
   } catch { /* ignore */ }

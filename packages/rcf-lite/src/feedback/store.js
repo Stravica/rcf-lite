@@ -321,13 +321,34 @@ export async function ensureGitignore(projectRoot) {
   // for a file whose parent chain is not itself excluded through a
   // pattern the negation cannot re-include (which we cannot judge
   // without git; the check-ignore path above does).
+  //
+  // Round 3 (fallback-negation regression): a `!` line whose pattern
+  // is NOT in the coversFeedback vocabulary might still re-include
+  // entries.jsonl under real git (e.g. `.rcf/feedback/*` paired with
+  // `!*.jsonl`). The fallback cannot judge safely, so remember the
+  // unrecognised negation and refuse ok:true when one appears
+  // alongside a positive ignore. The known-vocabulary case still
+  // toggles as before, preserving the last-word-wins semantics that
+  // the round-2 tests pinned.
   let ignored = false;
+  let unknownNegation = null;
   for (const rawLine of text.split('\n')) {
     const line = rawLine.trim();
     if (line === '' || line.startsWith('#')) continue;
     const isNeg = line.startsWith('!');
     const pattern = (isNeg ? line.slice(1) : line).replace(/\/+$/, '').replace(/^\.\//, '');
-    if (coversFeedback(pattern)) ignored = !isNeg;
+    const covers = coversFeedback(pattern);
+    if (covers) {
+      ignored = !isNeg;
+    } else if (isNeg) {
+      unknownNegation = line;
+    }
+  }
+  if (ignored && unknownNegation) {
+    return {
+      ok: false,
+      reason: `.gitignore contains a negation the fallback cannot evaluate ('${unknownNegation}') and git is not available for check-ignore; install git (or 'git init' the project) so the check can decide safely`,
+    };
   }
   if (ignored) return { ok: true };
   return { ok: false, reason: 'no .gitignore rule covers .rcf/feedback/' };

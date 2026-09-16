@@ -70,40 +70,35 @@ export function renderIssue(entry, redacted, meta) {
  */
 export function capRenderedBody(body) {
   if (Buffer.byteLength(body, 'utf8') <= BODY_CAP_BYTES) return body;
-  const fenceIndex = body.indexOf('\n---\n');
-  let out;
-  if (fenceIndex < 0) {
-    // Should never happen (renderBody always writes the fence) but
-    // fall back to a raw byte truncation with a marker so the cap
-    // still holds.
-    out = `${truncateToBytes(body, BODY_CAP_BYTES - 32)}\n[truncated by rcf feedback]\n`;
-  } else {
-    const head = body.slice(0, fenceIndex);
-    const tail = body.slice(fenceIndex);
-    const tailBytes = Buffer.byteLength(tail, 'utf8');
-    const marker = '\n\n[truncated by rcf feedback]\n';
-    const markerBytes = Buffer.byteLength(marker, 'utf8');
-    const headBudget = BODY_CAP_BYTES - tailBytes - markerBytes;
-    if (headBudget <= 0) {
-      // Tail alone exceeds the cap; keep the tail (fingerprint is
-      // load-bearing for dedupe) and drop the entire free-form head.
-      out = `[truncated by rcf feedback]${tail}`;
-    } else {
-      const truncatedHead = truncateToBytes(head, headBudget);
-      out = `${truncatedHead}${marker}${tail}`;
-    }
+  // Round 3 (F-slice-2-10 regression): the fingerprint twin plus
+  // consent tail at the very end of the body is load-bearing for
+  // triage dedupe. Split it out and treat it as inviolable; the
+  // head-side prunable region is everything before the fingerprint
+  // marker. The earlier logic anchored on the `\n---\n` evidence
+  // fence and then applied an unconditional END-side truncate as a
+  // safety net, which sliced BOTH fingerprint markers off an
+  // 8192-byte-evidence body and broke dedupe.
+  const fpIndex = body.indexOf('<!-- rcf-feedback-fingerprint:');
+  if (fpIndex < 0) {
+    // No fingerprint block; fall back to a raw byte truncation with
+    // a marker so the cap still holds. Should never happen: renderBody
+    // and renderComment both stamp a fingerprint line.
+    return `${truncateToBytes(body, BODY_CAP_BYTES - 32)}\n[truncated by rcf feedback]\n`;
   }
-  // F-slice-2-10 (fix round 2): oversized evidence can push the whole
-  // assembled body past BODY_CAP_BYTES even after the head-side
-  // truncation above (the tail-alone case is the obvious one, but
-  // heavy evidence rows also inflate the fence-and-tail). Enforce the
-  // cap unconditionally at the end so the return is never over-budget.
-  if (Buffer.byteLength(out, 'utf8') > BODY_CAP_BYTES) {
-    const marker = '\n[truncated by rcf feedback]\n';
-    const markerBytes = Buffer.byteLength(marker, 'utf8');
-    out = `${truncateToBytes(out, BODY_CAP_BYTES - markerBytes)}${marker}`;
+  const head = body.slice(0, fpIndex);
+  const tail = body.slice(fpIndex);
+  const tailBytes = Buffer.byteLength(tail, 'utf8');
+  const marker = '\n[truncated by rcf feedback]\n';
+  const markerBytes = Buffer.byteLength(marker, 'utf8');
+  const headBudget = BODY_CAP_BYTES - tailBytes - markerBytes;
+  if (headBudget <= 0) {
+    // Fingerprint tail alone exceeds the cap. Dedupe integrity beats
+    // the cap: keep both fingerprint markers verbatim and drop the
+    // free-form head entirely so triage can still fold duplicates.
+    return `[truncated by rcf feedback]\n${tail}`;
   }
-  return out;
+  const truncatedHead = truncateToBytes(head, headBudget);
+  return `${truncatedHead}${marker}${tail}`;
 }
 
 function truncateToBytes(text, maxBytes) {
