@@ -170,3 +170,51 @@ test('F-slice-1-03: mintUniqueEntryId regenerates on collision so two entries ne
   assert.notEqual(fresh, collide, 'mint must not re-emit the colliding id');
   assert.match(fresh, /^fb-20260916-[0-9a-f]{12}$/);
 });
+
+// -- Fix round 2 (2026-09-16) ---------------------------------------------
+
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileP = promisify(execFile);
+
+async function tryGitInit(root) {
+  try {
+    await execFileP('git', ['init', '-q'], { cwd: root });
+    // Make git happy so check-ignore does not complain about missing config.
+    await execFileP('git', ['config', 'user.email', 'test@example.com'], { cwd: root });
+    await execFileP('git', ['config', 'user.name', 'test'], { cwd: root });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+test('F-slice-1-01 (fix round 2): wildcard cover .rcf/* is accepted by the git-check-ignore probe', async () => {
+  // Reviewer's runtime probe: `.rcf/feedback/` + `!.rcf/feedback/*`
+  // (git cannot re-include a file whose parent is ignored, so the
+  // store is safe) used to be refused by the covers-set walker. With
+  // git check-ignore, the guard judges the file as git does. Also
+  // `.rcf/*` alone must be accepted because git ignores every file
+  // under `.rcf/`.
+  const root = await fixture();
+  const gitOk = await tryGitInit(root);
+  await writeFile(join(root, '.gitignore'), '.rcf/*\n', 'utf8');
+  const check = await ensureGitignore(root);
+  assert.equal(check.ok, true, gitOk
+    ? 'git check-ignore should accept .rcf/* as covering .rcf/feedback/entries.jsonl'
+    : 'fallback text scan should accept .rcf/*');
+});
+
+test('F-slice-1-01 (fix round 2): a wildcard-negation that git would still ignore is accepted', async () => {
+  // Cover set: `.rcf/feedback/` + `!.rcf/feedback/*`. Git says the
+  // parent directory is ignored, so the negation never re-includes
+  // files under it. The old covers-set walker set ignored=false and
+  // exit 2; the new guard leans on git check-ignore.
+  const root = await fixture();
+  const gitOk = await tryGitInit(root);
+  if (!gitOk) return; // fallback path cannot faithfully judge this
+  await writeFile(join(root, '.gitignore'), '.rcf/feedback/\n!.rcf/feedback/*\n', 'utf8');
+  const check = await ensureGitignore(root);
+  assert.equal(check.ok, true, 'git check-ignore recognises the parent-ignored-so-negation-inert case');
+});

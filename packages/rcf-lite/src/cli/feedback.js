@@ -40,6 +40,7 @@ import {
   mintUniqueEntryId,
   newEntryId,
   readAskLedger,
+  readDiscardTimestamps,
   readEntries,
   readFeedbackSettings,
   storeExists,
@@ -148,8 +149,13 @@ Exit codes:
   0  success
   2  usage error (bad flags, unknown enum, oversize body, no ignore
      coverage without --force)
-  3  outcome with residual pending (destination cannot be resolved on
-     --kind blueprint; recorded destination unresolved)
+  3  add: --kind blueprint AND the target is absent from
+     rcf/manifest.json:blueprints[] (unknown target). A known target
+     whose registered library has no resolvable feedback destination
+     is exit 0 with the entry stamped destination:unresolved; submit
+     writes a bundle at that entry's slot.
+     submit / preview: at least one entry stayed pending because of a
+     residual-secret refusal after redaction.
 `;
 
 /**
@@ -373,9 +379,21 @@ async function handleAdd(argv, ctx) {
 
   const recordedAt = ctx.now().toISOString().replace(/\.\d{3}Z$/, 'Z');
   // F-slice-1-03 / ruling R2: 12-hex id with a uniqueness probe on
-  // the append. Falls back to the raw generator if the projectRoot
-  // has no entries yet (mintUniqueEntryId reads and dedupes safely).
-  const id = await mintUniqueEntryId(projectRoot, ctx.now(), ctx.rng);
+  // the append. mintUniqueEntryId THROWS FEEDBACK_ID_EXHAUSTED if
+  // every attempt collides (fail-closed, fix round 2): a colliding
+  // id would violate R2's "no two rows share an id" shape, so we
+  // refuse the write and surface the fault instead of appending a
+  // duplicate row the reader would fold into a state transition.
+  let id;
+  try {
+    id = await mintUniqueEntryId(projectRoot, ctx.now(), ctx.rng);
+  } catch (err) {
+    if (err && err.code === 'FEEDBACK_ID_EXHAUSTED') {
+      stderr.write(`[error] usage ${err.message}\n`);
+      return 2;
+    }
+    throw err;
+  }
 
   const entryPreFingerprint = {
     id,
@@ -570,6 +588,33 @@ async function handleStatus(argv, ctx) {
   // bundle. A failed probe never fails status; the summary just
   // records what the probe saw.
   const ghSummary = await probeGhSummary(env);
+  // Per-blueprint destination table (design 3.1 L140): for every
+  // applied blueprint on the manifest, show the destination the
+  // resolver would return today. Read-only, no network. Collected
+  // BEFORE the JSON early-return so --json carries the same table
+  // the text path prints (F-slice-1-10 fix round 2).
+  const resolverInputsStatus = await loadResolverInputs(projectRoot);
+  const appliedBlueprints = Array.isArray(resolverInputsStatus.manifest?.blueprints)
+    ? resolverInputsStatus.manifest.blueprints
+    : [];
+  const destinationTable = [];
+  for (const r of appliedBlueprints) {
+    const ref = r.libraryPrefix
+      ? `${r.libraryPrefix}:${r.slug}`
+      : (r.slug ?? r.name ?? '(unnamed)');
+    const dest = await resolveDestination(
+      { kind: 'blueprint', target: { ref } },
+      resolverInputsStatus,
+    );
+    destinationTable.push({
+      ref,
+      repo: dest.repo ?? null,
+      visibility: dest.visibility ?? 'unresolved',
+      derived: !!dest.derived,
+      reason: dest.reason ?? null,
+    });
+  }
+
   const summary = {
     counts,
     optOut,
@@ -586,6 +631,7 @@ async function handleStatus(argv, ctx) {
     destinations: {
       registeredLibraries: Array.isArray(registry?.libraries) ? registry.libraries.length : 0,
       unresolvedLibraries,
+      table: destinationTable,
     },
   };
 
@@ -593,7 +639,7 @@ async function handleStatus(argv, ctx) {
     stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
     return 0;
   }
-  stdout.write(`feedback: ${counts.pending} pending, ${counts.submitted} submitted, ${counts.bundled} bundled, ${counts.deferredUntilSession} deferred, ${counts.discarded} discarded\n`);
+  stdout.write(`feedback: ${counts.pending} pending, ${counts.submitted} submitted, ${counts.bundled} bundled, ${counts.deferredUntilSession} deferred, ${counts.discarded} discarded, ${counts.pruned} pruned\n`);
   stdout.write(`opt-out: ${optOut ? `yes (${summary.optOutSource})` : 'no'}\n`);
   stdout.write(`gh: ${ghSummary.present ? (ghSummary.authed ? 'installed, authed on github.com' : 'installed, not logged in (submit will bundle)') : 'not installed (submit will bundle)'}\n`);
   if (summary.destinations.unresolvedLibraries.length > 0) {
@@ -607,27 +653,13 @@ async function handleStatus(argv, ctx) {
   } else if (summary.destinations.registeredLibraries > 0) {
     stdout.write(`destinations: all ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y resolves' : 'ies resolve'} to a feedback destination.\n`);
   }
-  // Per-blueprint destination table (design 3.1 L140): for every
-  // applied blueprint on the manifest, show the destination the
-  // resolver would return today. Read-only, no network.
-  const resolverInputsStatus = await loadResolverInputs(projectRoot);
-  const appliedBlueprints = Array.isArray(resolverInputsStatus.manifest?.blueprints)
-    ? resolverInputsStatus.manifest.blueprints
-    : [];
-  if (appliedBlueprints.length > 0) {
-    stdout.write(`applied blueprints (${appliedBlueprints.length}):\n`);
-    for (const r of appliedBlueprints) {
-      const ref = r.libraryPrefix
-        ? `${r.libraryPrefix}:${r.slug}`
-        : (r.slug ?? r.name ?? '(unnamed)');
-      const dest = await resolveDestination(
-        { kind: 'blueprint', target: { ref } },
-        resolverInputsStatus,
-      );
-      const cell = dest.repo
-        ? `${dest.repo} (${dest.visibility}${dest.derived ? ', derived' : ''})`
-        : `(unresolved${dest.reason ? `: ${dest.reason}` : ''})`;
-      stdout.write(`  - ${ref} -> ${cell}\n`);
+  if (destinationTable.length > 0) {
+    stdout.write(`applied blueprints (${destinationTable.length}):\n`);
+    for (const row of destinationTable) {
+      const cell = row.repo
+        ? `${row.repo} (${row.visibility}${row.derived ? ', derived' : ''})`
+        : `(unresolved${row.reason ? `: ${row.reason}` : ''})`;
+      stdout.write(`  - ${row.ref} -> ${cell}\n`);
     }
   }
   return 0;
@@ -661,8 +693,11 @@ async function probeGhSummary(env) {
 }
 
 function countByStatus(entries) {
+  // F-slice-1-09 fix: `pruned` is a real state now that retention
+  // sweeps stamp it, so status counts it too. Without this the count
+  // line silently under-reported the store.
   const c = {
-    pending: 0, submitted: 0, bundled: 0, deferredUntilSession: 0, discarded: 0,
+    pending: 0, submitted: 0, bundled: 0, deferredUntilSession: 0, discarded: 0, pruned: 0,
   };
   for (const e of entries) {
     if (Object.prototype.hasOwnProperty.call(c, e.status)) c[e.status] += 1;
@@ -1067,27 +1102,33 @@ function dedupeResidual(hits) {
 }
 
 /**
- * Fold ledgers from several redact() calls into one, summing counts by
- * rule name and keeping the first sample for the operator disclosure.
+ * Fold ledgers from several redact() calls into one. Rows are grouped
+ * by (rule, before) so distinct samples of the same rule survive the
+ * merge into the preview surface (F-slice-2-09): the redactor already
+ * keeps one row per distinct before-sample; if this fold then collapsed
+ * everything under a rule name to a single row, the operator would see
+ * only one out of many stripped values. Counts sum within a (rule,
+ * before) group. Ordering is first-seen so the preview reads in the
+ * order rules fired.
  *
  * @param {Array<Array<{ rule: string, before: string, after: string, count: number }>>} ledgers
  * @returns {Array<{ rule: string, before: string, after: string, count: number }>}
  */
 function mergeLedger(ledgers) {
-  const byRule = new Map();
+  const byKey = new Map();
   const order = [];
   for (const ledger of ledgers) {
     for (const row of ledger) {
-      if (!byRule.has(row.rule)) {
-        order.push(row.rule);
-        byRule.set(row.rule, { rule: row.rule, before: row.before, after: row.after, count: row.count });
+      const key = `${row.rule}|${row.before}`;
+      if (!byKey.has(key)) {
+        order.push(key);
+        byKey.set(key, { rule: row.rule, before: row.before, after: row.after, count: row.count });
       } else {
-        const prev = byRule.get(row.rule);
-        prev.count += row.count;
+        byKey.get(key).count += row.count;
       }
     }
   }
-  return order.map((r) => byRule.get(r));
+  return order.map((k) => byKey.get(k));
 }
 
 // -- submit (slice 4, FBS-183) --------------------------------------------
@@ -1610,6 +1651,24 @@ async function writeBundle(projectRoot, destination, rows, meta) {
     generatedAt: meta.generatedAt,
     rcfLiteVersion: meta.rcfLiteVersion,
   });
+  // Design safeguard (fix round 2, AC-15601-4): a final whole-text
+  // residual-secret pass over the fully assembled and normalised
+  // bundle text. Each row's rendered body already passed the
+  // per-entry check in buildEntryPayload, but the bundle is the
+  // last surface before bytes hit disk; if renderBundle's header
+  // or section framing somehow ever reintroduces a residual shape,
+  // the write is refused with a fail-closed error rather than a
+  // silent leak.
+  const bundleResiduals = findResidualSecrets(text);
+  if (bundleResiduals.length > 0) {
+    const first = bundleResiduals[0];
+    const err = new Error(
+      `[safeguard] refusing to write bundle ${filename}: residual secret pattern ${first.pattern} at line ${first.line} (${bundleResiduals.length} hit${bundleResiduals.length === 1 ? '' : 's'}). `
+      + 'This is a defence-in-depth refusal - the per-entry residual check already runs against each rendered body; a bundle-level hit means the bundle assembly re-introduced a shape and MUST be investigated before submit is re-run.',
+    );
+    /** @type {any} */ (err).code = 'FEEDBACK_BUNDLE_RESIDUAL';
+    throw err;
+  }
   await writeFile(path, text, 'utf8');
   return path;
 }
@@ -1971,12 +2030,26 @@ function inferHarness(env) {
 async function pruneOldDiscarded(projectRoot, nowFn, windowDays = 30) {
   try {
     const all = await readEntries(projectRoot);
-    const cutoff = Date.now() - windowDays * 24 * 60 * 60 * 1000;
+    const discardedAt = await readDiscardTimestamps(projectRoot);
     const now = typeof nowFn === 'function' ? nowFn() : new Date();
+    const cutoff = now.getTime() - windowDays * 24 * 60 * 60 * 1000;
     for (const e of all) {
       if (e.status !== 'discarded') continue;
-      const t = Date.parse(e.recordedAt ?? '');
+      // F-slice-1-09 fix: the 30-day clock runs from the discard
+      // transition, not `recordedAt`. Design 3.1 L137 says "30 days
+      // after discard"; the earlier reading would prune an entry
+      // discarded today just because it was recorded 60 days ago.
+      // If we cannot find a discard timestamp (a hand-authored
+      // entry seeded with status:discarded, for instance), we err
+      // on the safe side and keep the entry.
+      const discardTs = discardedAt.get(e.id);
+      if (typeof discardTs !== 'string') continue;
+      const t = Date.parse(discardTs);
       if (!Number.isFinite(t) || t > cutoff) continue;
+      // The state line is the only trace after prune; the raw body
+      // stays visible in the fold-by-id read so `list --all` (below)
+      // can still cite what was there and why it went. Never a silent
+      // removal.
       await appendState(projectRoot, {
         id: e.id,
         at: now.toISOString().replace(/\.\d{3}Z$/, 'Z'),

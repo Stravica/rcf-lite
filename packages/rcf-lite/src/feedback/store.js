@@ -23,6 +23,7 @@ import {
   appendFile, mkdir, readFile, stat, writeFile,
 } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { spawn } from 'node:child_process';
 
 /** Absolute path helpers under a project root. */
 const FEEDBACK_DIR = '.rcf/feedback';
@@ -179,6 +180,44 @@ export async function appendEntry(projectRoot, entry) {
 }
 
 /**
+ * Read the raw JSONL log and return the FIRST `discarded` transition
+ * timestamp per id. Used by the retention sweep so the 30-day clock
+ * runs from when the operator discarded the entry, not from when it
+ * was first recorded (F-slice-1-09 fix: an entry discarded today that
+ * was recorded 60 days ago must not prune on the next add).
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<Map<string, string>>}
+ */
+export async function readDiscardTimestamps(projectRoot) {
+  const out = new Map();
+  let text;
+  try {
+    text = await readFile(entriesPath(projectRoot), 'utf8');
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') return out;
+    throw err;
+  }
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (line === '') continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    if (typeof obj?.id !== 'string') continue;
+    if (obj.status !== 'discarded') continue;
+    if (out.has(obj.id)) continue;
+    // A real state transition carries `at`; a seeded initial entry
+    // written with status:'discarded' from the start has only
+    // `recordedAt`. Both are legitimate first-discarded timestamps.
+    const ts = typeof obj.at === 'string'
+      ? obj.at
+      : (typeof obj.recordedAt === 'string' ? obj.recordedAt : null);
+    if (ts) out.set(obj.id, ts);
+  }
+  return out;
+}
+
+/**
  * Append one state-transition line for an existing id. Callers pass a
  * SHAPE that the reader's fold-by-id merges over the base entry; state
  * transitions are additive, never destructive rewrites.
@@ -233,22 +272,40 @@ export async function writeAskLedger(projectRoot, ledger) {
 }
 
 /**
- * Pre-write gitignore check. Returns `{ ok: true }` when the project's
- * `.gitignore` effectively ignores `.rcf/feedback/` (a bare
- * `.rcf/feedback/`, `.rcf/feedback`, `.rcf/`, or `.rcf`, one per line);
- * returns `{ ok: false, reason }` otherwise. Callers with `--force`
- * bypass the check.
+ * Pre-write gitignore check. Returns `{ ok: true }` when git itself
+ * would ignore the feedback store path we are about to write; returns
+ * `{ ok: false, reason }` otherwise. Callers with `--force` bypass the
+ * check.
  *
- * The check is coarse on purpose: mirroring the identity-seed doctor
- * check, we look for the LITERAL entries that keep the directory out
- * of a `git add .`, not a full git-check-ignore evaluation. If the
- * project uses a broader pattern (`.rcf/*` etc.) the operator can
- * either add the exact line via `rcf doctor --fix` or pass `--force`.
+ * F-slice-1-01 regression fix: the previous implementation walked
+ * `.gitignore` as a literal state machine and only recognised a small
+ * covers-set (`.rcf/feedback/`, `.rcf/`, ...) plus a hand-coded
+ * negation shortlist. That both missed valid wildcard shapes (`.rcf/*`
+ * covers the dir, but was rejected) and mis-judged the ignored-parent
+ * case (`.rcf/feedback/` + `!.rcf/feedback/*`: git cannot re-include a
+ * file whose parent is ignored, so the store is still safe, but the
+ * literal walker set `ignored=false` and refused). Delegating to
+ * `git check-ignore` means we judge the path the way git will judge it
+ * on the next `git add .`, which is the guarantee we actually need.
+ *
+ * When git is not installed or the project is not a git repo, we fall
+ * back to a conservative textual read of `.gitignore`: any line that
+ * folds one of `.rcf/feedback/`, `.rcf/feedback`, `.rcf/`, `.rcf`,
+ * `.rcf/*`, `.rcf/**`, or `.rcf/feedback/*` into the ignore set is
+ * enough. The fallback is deliberately generous because a machine
+ * without git cannot mis-publish through `git add`.
  *
  * @param {string} projectRoot
  * @returns {Promise<{ ok: true } | { ok: false, reason: string }>}
  */
 export async function ensureGitignore(projectRoot) {
+  const probeRelative = join('.rcf', 'feedback', 'entries.jsonl');
+  const git = await runGitCheckIgnore(projectRoot, probeRelative);
+  if (git.ok !== null) {
+    if (git.ok) return { ok: true };
+    return { ok: false, reason: `git check-ignore says ${probeRelative} would be committed by git add` };
+  }
+  // Fallback (no git, or not a repo): permissive textual scan.
   let text;
   try {
     text = await readFile(join(projectRoot, '.gitignore'), 'utf8');
@@ -258,26 +315,84 @@ export async function ensureGitignore(projectRoot) {
     }
     throw err;
   }
-  // F-slice-1-01: walk the lines in order and track the ignore state
-  // of `.rcf/feedback/`; a later `!` negation must cancel an earlier
-  // positive line the same way git does. A Set-membership check would
-  // pass a negated file straight through, leaking raw entries on push.
-  const covers = new Set(['.rcf/feedback/', '.rcf/feedback', '.rcf/', '.rcf']);
+  // Walk .gitignore in order; toggle the ignored state whenever a
+  // line (positive or `!` negation) covers the feedback store. The
+  // last-word wins, which mirrors git's own last-match-wins semantics
+  // for a file whose parent chain is not itself excluded through a
+  // pattern the negation cannot re-include (which we cannot judge
+  // without git; the check-ignore path above does).
   let ignored = false;
   for (const rawLine of text.split('\n')) {
     const line = rawLine.trim();
     if (line === '' || line.startsWith('#')) continue;
-    if (line.startsWith('!')) {
-      const negated = line.slice(1);
-      if (covers.has(negated) || negated === '.rcf/feedback/*' || negated === '.rcf/feedback/**') {
-        ignored = false;
-      }
-      continue;
-    }
-    if (covers.has(line)) ignored = true;
+    const isNeg = line.startsWith('!');
+    const pattern = (isNeg ? line.slice(1) : line).replace(/\/+$/, '').replace(/^\.\//, '');
+    if (coversFeedback(pattern)) ignored = !isNeg;
   }
   if (ignored) return { ok: true };
-  return { ok: false, reason: 'missing .gitignore entry .rcf/feedback/' };
+  return { ok: false, reason: 'no .gitignore rule covers .rcf/feedback/' };
+}
+
+/**
+ * Does a gitignore pattern (leading `!` already stripped, trailing
+ * slash normalised) cover the feedback store directory or a file
+ * inside it? Recognises the literal directory / file paths plus the
+ * common wildcard shapes callers write (`.rcf/*`, `.rcf/**`,
+ * `.rcf/feedback/*`, `.rcf/feedback/**`).
+ *
+ * @param {string} pattern
+ * @returns {boolean}
+ */
+function coversFeedback(pattern) {
+  const set = new Set([
+    '.rcf',
+    '.rcf/feedback',
+    '.rcf/feedback/entries.jsonl',
+    '.rcf/*',
+    '.rcf/**',
+    '.rcf/feedback/*',
+    '.rcf/feedback/**',
+  ]);
+  return set.has(pattern);
+}
+
+/**
+ * Run `git check-ignore -q <path>` in `projectRoot`. Returns `ok`
+ * true when git says the path would be ignored (exit 0), false when
+ * git says it would be committed (exit 1), and null when git could
+ * not answer (no git, not a repo, or any other error) so the caller
+ * knows to fall back.
+ *
+ * @param {string} projectRoot
+ * @param {string} relativePath
+ * @returns {Promise<{ ok: true | false | null, reason: string | null }>}
+ */
+async function runGitCheckIgnore(projectRoot, relativePath) {
+  return new Promise((resolvePromise) => {
+    let child;
+    try {
+      child = spawn('git', ['check-ignore', '-q', relativePath], {
+        cwd: projectRoot,
+        env: process.env,
+        stdio: ['ignore', 'ignore', 'ignore'],
+      });
+    } catch {
+      resolvePromise({ ok: null, reason: 'git not spawnable' });
+      return;
+    }
+    let done = false;
+    const finish = (payload) => {
+      if (done) return;
+      done = true;
+      resolvePromise(payload);
+    };
+    child.on('error', () => finish({ ok: null, reason: 'git spawn error' }));
+    child.on('close', (code) => {
+      if (code === 0) finish({ ok: true, reason: null });
+      else if (code === 1) finish({ ok: false, reason: null });
+      else finish({ ok: null, reason: `git check-ignore exit ${code}` });
+    });
+  });
 }
 
 /**
@@ -322,12 +437,23 @@ export function newEntryId(now = new Date(), rng = Math.random) {
  */
 export async function mintUniqueEntryId(projectRoot, now = new Date(), rng = Math.random) {
   const existing = new Set((await readEntries(projectRoot)).map((e) => e.id));
-  let id = newEntryId(now, rng);
   for (let i = 0; i < 32; i += 1) {
+    const id = newEntryId(now, rng);
     if (!existing.has(id)) return id;
-    id = newEntryId(now, rng);
   }
-  return id;
+  // F-slice-1-03 (fix round 2): fail closed rather than return a
+  // colliding id the caller would blindly append. R2's contract says
+  // "no two rows share an id"; returning the last colliding id would
+  // violate the shape even if the collision is astronomically
+  // unlikely (48 bits of entropy). handleAdd catches this and refuses
+  // the write with a usage-shaped error so the operator sees it.
+  const err = new Error(
+    'entry-id retry exhausted: 32 mint attempts all collided with existing ids. '
+    + 'This is astronomically unlikely with 48 bits of entropy - suspect a corrupted '
+    + '.rcf/feedback/entries.jsonl or a broken rng seed.',
+  );
+  /** @type {any} */ (err).code = 'FEEDBACK_ID_EXHAUSTED';
+  throw err;
 }
 
 /**
