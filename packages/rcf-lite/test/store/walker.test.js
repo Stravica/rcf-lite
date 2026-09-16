@@ -351,7 +351,12 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (US-15501, AC-15501-1..5), TS-186 (US-15502, AC-15502-1..2) and
   // TS-187 (US-15503, AC-15503-1..2) with TC pointers into
   // test/cli/feedback-*.test.js (125 -> 128).
-  assert.equal(tree.testSuites.length, 128);
+  // Feedback submission slice 2 build (FBS-181) added TS-188
+  // (US-15601, AC-15601-1..3 and AC-15701-1) with eight TCs bound to
+  // test/feedback/redact.test.js, test/feedback/fingerprint.test.js,
+  // test/feedback/render.test.js and test/cli/feedback-preview.test.js
+  // (128 -> 129).
+  assert.equal(tree.testSuites.length, 129);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

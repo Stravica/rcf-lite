@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 75,
-    "notStarted": 47,
+    "notStarted": 46,
     "inProgress": 0,
-    "complete": 13,
+    "complete": 14,
     "verified": 15,
-    "actionable": 32,
-    "blocked": 15
+    "actionable": 33,
+    "blocked": 13
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -939,11 +939,11 @@
       "buildOrder": 181,
       "tier": 1,
       "title": "Slice 2: redaction, fingerprint, preview",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-180"
       ],
-      "state": "blocked",
+      "state": "complete",
       "blockedBy": [
         "FBS-180"
       ]
@@ -957,10 +957,8 @@
       "dependsOnFbsIds": [
         "FBS-181"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-181"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-183",

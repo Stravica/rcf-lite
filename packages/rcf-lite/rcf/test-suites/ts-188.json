@@ -1,0 +1,74 @@
+{
+  "createdAt": "2026-09-16T15:27:35Z",
+  "updatedAt": "2026-09-16T15:27:35Z",
+  "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15601-1",
+    "AC-15601-2",
+    "AC-15601-3",
+    "AC-15701-1"
+  ],
+  "id": "TS-188",
+  "usId": "US-15601",
+  "title": "Slice 2 (FBS-181): rcf feedback preview renders redacted issue text, surfaces residual-secret markers, leaves the store byte-invariant, and attaches a stable fingerprint",
+  "testCases": [
+    {
+      "id": "TC-188-preview-renders-full-vocabulary-ledger",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 via the CLI test: --json emits titleRendered, bodyRendered, destination { repo, visibility } and a ledger whose rule names include project-root, absolute-path, email, hostname, private-ip, secret-token, operator-identity and size-shape; the rendered body carries none of the raw secret substrings, no private IP, no operator-name tokens, no em-dash, and stays under the byte cap.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-preview.test.js::AC-15601-1: rcf feedback preview --json emits rendered title, body, destination and full-vocabulary ledger"
+    },
+    {
+      "id": "TC-188-preview-residual-secret-refusal",
+      "acId": "AC-15601-2",
+      "description": "Cover AC-15601-2 (preview half) via the CLI test: an obfuscated token embedded in a longer identifier is caught by the second-pass residual check and surfaced with the residual-secret marker on that entry, while a clean entry reports residual: []. The submit half of the AC lands with slice 4 once the submit path exists.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-preview.test.js::AC-15601-2: preview surfaces a residual-secret line so the agent can rewrite before submit"
+    },
+    {
+      "id": "TC-188-preview-store-byte-invariant",
+      "acId": "AC-15601-3",
+      "description": "Cover AC-15601-3 via the CLI test: sha-256 of .rcf/feedback/entries.jsonl is invariant across two preview runs (text + --json).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-preview.test.js::AC-15601-3: preview never mutates the stored entries.jsonl (sha-256 invariant)"
+    },
+    {
+      "id": "TC-188-preview-fingerprint-folds-across-entries",
+      "acId": "AC-15701-1",
+      "description": "Cover AC-15701-1 via the CLI test: two entries with the same kind, targetKey, anchor and symptomClass yield identical fingerprints.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-preview.test.js::AC-15701-1: preview attaches a stable fingerprint per entry and it does not shift across blueprint versions"
+    },
+    {
+      "id": "TC-188-preview-fingerprint-fallback-warns",
+      "acId": "AC-15701-1",
+      "description": "Cover AC-15701-1 (fallback arm) via the CLI test: an entry with no anchor triggers the fingerprintFallback flag in --json and a warning banner in text mode so the agent learns to supply an anchor.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-preview.test.js::AC-15701-1 (fallback): missing anchor triggers the fingerprintFallback flag and a warning banner in text mode"
+    },
+    {
+      "id": "TC-188-redact-eight-rule-corpus",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fixture corpus for the redactor's rule vocabulary) via the unit test: every rule name in the design section 5 ledger (project-root, absolute-path, email, hostname, private-ip, secret-token, operator-identity, size-shape) fires against the corresponding fixture and the ledger is deterministic across two calls.",
+      "status": "pending",
+      "testPointer": "test/feedback/redact.test.js::redact rule 1: project root becomes <project> and paths under it keep their tail"
+    },
+    {
+      "id": "TC-188-fingerprint-canonical-input",
+      "acId": "AC-15701-1",
+      "description": "Cover AC-15701-1 (canonical input) via the unit test: fingerprintInput uses <kind>|<targetKey>|<anchor>|<symptomClass>, upper-cases the anchor, excludes blueprint version, and switches to the <kind>|<targetKey>|<symptomClass>|<normalisedTitle> fallback when the anchor is absent.",
+      "status": "pending",
+      "testPointer": "test/feedback/fingerprint.test.js::missing anchor uses the title-fallback canonical input"
+    },
+    {
+      "id": "TC-188-render-fingerprint-twin-and-labels",
+      "acId": "AC-15701-1",
+      "description": "Cover AC-15701-1 (render surface) via the unit test: renderIssue writes the fingerprint twice (visible line and HTML comment) and requests the six-label bootstrap subset for the entry's severity and kind.",
+      "status": "pending",
+      "testPointer": "test/feedback/render.test.js::renderIssue body carries the fingerprint twice and the Environment table"
+    }
+  ],
+  "status": "draft"
+}

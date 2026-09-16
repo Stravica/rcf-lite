@@ -1667,13 +1667,29 @@ flowchart LR
   REQ-156["REQ-156"]
   AC-15601-1["AC-15601-1"]
   REQ-156 --> AC-15601-1
+  TC-188-preview-renders-full-vocabulary-ledger["TC-188-preview-renders-full-vocabulary-ledger"]
+  AC-15601-1 -.-> TC-188-preview-renders-full-vocabulary-ledger
+  TC-188-redact-eight-rule-corpus["TC-188-redact-eight-rule-corpus"]
+  AC-15601-1 -.-> TC-188-redact-eight-rule-corpus
   AC-15601-2["AC-15601-2"]
   REQ-156 --> AC-15601-2
+  TC-188-preview-residual-secret-refusal["TC-188-preview-residual-secret-refusal"]
+  AC-15601-2 -.-> TC-188-preview-residual-secret-refusal
   AC-15601-3["AC-15601-3"]
   REQ-156 --> AC-15601-3
+  TC-188-preview-store-byte-invariant["TC-188-preview-store-byte-invariant"]
+  AC-15601-3 -.-> TC-188-preview-store-byte-invariant
   REQ-157["REQ-157"]
   AC-15701-1["AC-15701-1"]
   REQ-157 --> AC-15701-1
+  TC-188-fingerprint-canonical-input["TC-188-fingerprint-canonical-input"]
+  AC-15701-1 -.-> TC-188-fingerprint-canonical-input
+  TC-188-preview-fingerprint-fallback-warns["TC-188-preview-fingerprint-fallback-warns"]
+  AC-15701-1 -.-> TC-188-preview-fingerprint-fallback-warns
+  TC-188-preview-fingerprint-folds-across-entries["TC-188-preview-fingerprint-folds-across-entries"]
+  AC-15701-1 -.-> TC-188-preview-fingerprint-folds-across-entries
+  TC-188-render-fingerprint-twin-and-labels["TC-188-render-fingerprint-twin-and-labels"]
+  AC-15701-1 -.-> TC-188-render-fingerprint-twin-and-labels
   AC-15701-2["AC-15701-2"]
   REQ-157 --> AC-15701-2
   AC-15701-3["AC-15701-3"]
@@ -2618,10 +2634,18 @@ flowchart LR
   class TC-187-discard-refuses-unknown-id tc;
   class REQ-156 req;
   class AC-15601-1 ac;
+  class TC-188-preview-renders-full-vocabulary-ledger tc;
+  class TC-188-redact-eight-rule-corpus tc;
   class AC-15601-2 ac;
+  class TC-188-preview-residual-secret-refusal tc;
   class AC-15601-3 ac;
+  class TC-188-preview-store-byte-invariant tc;
   class REQ-157 req;
   class AC-15701-1 ac;
+  class TC-188-fingerprint-canonical-input tc;
+  class TC-188-preview-fingerprint-fallback-warns tc;
+  class TC-188-preview-fingerprint-folds-across-entries tc;
+  class TC-188-render-fingerprint-twin-and-labels tc;
   class AC-15701-2 ac;
   class AC-15701-3 ac;
   class REQ-158 req;

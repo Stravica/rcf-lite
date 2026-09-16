@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 100  covered: 93  covered-unresolved: 0  uncovered: 7
+Requirements: 100  covered: 95  covered-unresolved: 0  uncovered: 5
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -377,10 +377,10 @@ REQ-155      yes      AC-15501-1  yes         TC-185-add-writes-one-jsonl-line-a
                       AC-15502-2  yes         TC-186-status-json-shape, TC-186-status-optout-env-ask, T...
                       AC-15503-1  yes         TC-187-defer-appends-state-lines
                       AC-15503-2  yes         TC-187-discard-all-marks-every-pending, TC-187-discard-by...
-REQ-156      no       AC-15601-1  no          -
-                      AC-15601-2  no          -
-                      AC-15601-3  no          -
-REQ-157      no       AC-15701-1  no          -
+REQ-156      yes      AC-15601-1  yes         TC-188-preview-renders-full-vocabulary-ledger, TC-188-red...
+                      AC-15601-2  yes         TC-188-preview-residual-secret-refusal
+                      AC-15601-3  yes         TC-188-preview-store-byte-invariant
+REQ-157      yes      AC-15701-1  yes         TC-188-fingerprint-canonical-input, TC-188-preview-finger...
                       AC-15701-2  no          -
                       AC-15701-3  no          -
 REQ-158      no       AC-15801-1  no          -

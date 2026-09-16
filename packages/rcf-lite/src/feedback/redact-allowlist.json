@@ -1,0 +1,14 @@
+{
+  "hosts": [
+    "github.com",
+    "npmjs.com",
+    "nodejs.org",
+    "stravica.ai",
+    "developers.cloudflare.com",
+    "cloudflare.com",
+    "docs.github.com",
+    "developer.mozilla.org",
+    "localhost",
+    "127.0.0.1"
+  ]
+}

@@ -3,9 +3,9 @@
   "strict": false,
   "totals": {
     "requirements": 100,
-    "covered": 93,
+    "covered": 95,
     "coveredUnresolved": 0,
-    "uncovered": 7
+    "uncovered": 5
   },
   "requirements": [
     {
@@ -3691,38 +3691,50 @@
     },
     {
       "id": "REQ-156",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15601-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-renders-full-vocabulary-ledger",
+            "TC-188-redact-eight-rule-corpus"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15601-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-residual-secret-refusal"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15601-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-store-byte-invariant"
+          ],
           "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-157",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15701-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-188-fingerprint-canonical-input",
+            "TC-188-preview-fingerprint-fallback-warns",
+            "TC-188-preview-fingerprint-folds-across-entries",
+            "TC-188-render-fingerprint-twin-and-labels"
+          ],
           "unresolvedTestCases": []
         },
         {

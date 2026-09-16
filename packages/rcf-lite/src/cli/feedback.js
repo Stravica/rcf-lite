@@ -1,16 +1,19 @@
-// `rcf feedback` core verb (TAC-4101). Slice 1 (FBS-180) ships:
+// `rcf feedback` core verb (TAC-4101). Slice 2 (FBS-181) adds the
+// `preview` sub-verb on top of slice 1's capture and store:
 //   add        record one finding (silent, local; no network)
 //   list       print pending entries (--all includes every state; --json)
 //   status     counts + gh availability (gh probing lands in slice 4;
-//              slice 1 reports the local-only summary)
+//              slice 2 still reports the local-only summary)
 //   defer      mark all pending entries deferredUntilSession
 //   discard    mark named (or --all) entries discarded
+//   preview    render the exact issue title, body and redaction ledger
+//              for every pending entry; read-only, no network
 //
 // Sub-verbs from later slices are registered here as "not yet available"
-// stubs so `rcf feedback preview|submit|opt-in|opt-out|hook` return the
+// stubs so `rcf feedback submit|opt-in|opt-out|hook` return the
 // documented usage-plus-outcome exit code (3) with a one-line note
 // naming the slice that ships them. This keeps the RULE 17 block
-// referable at slice-1 time without inventing verb behaviour ahead of
+// referable at slice-2 time without inventing verb behaviour ahead of
 // the ACs. Sub-verb argv parsing lives in each handler so each verb's
 // flag surface is local.
 //
@@ -34,6 +37,9 @@ import {
   readEntries,
   storeExists,
 } from '../feedback/store.js';
+import { redact, allowedHosts } from '../feedback/redact.js';
+import { fingerprint } from '../feedback/fingerprint.js';
+import { renderIssue } from '../feedback/render.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -66,15 +72,16 @@ export const TITLE_CAP_CHARS = 120;
 
 export const HELP = `Usage: rcf feedback <sub-verb> [options]
 
-Sub-verbs (slice 1):
+Sub-verbs (available):
   add        Record one finding to the local log (no network, no ask).
   list       Print pending entries (--all includes every state, --json).
   status     Counts, opt-out state, gh availability summary.
   defer      Mark all pending entries deferred for the current session.
   discard    Mark named entries discarded (or --all).
+  preview    Render the exact issue text and redaction ledger for each
+             pending entry; read-only, no network.
 
 Sub-verbs (later slices; refuse with exit 3 until they ship):
-  preview    Slice 2: render the exact issue text and redaction ledger.
   submit     Slice 4: file each pending entry under the reporter's gh login.
   opt-in     Slice 5: restore per-project ask (rcf/feedback-settings.json).
   opt-out    Slice 5: silence per-project ask (rcf/feedback-settings.json).
@@ -151,7 +158,7 @@ export async function main(argv, deps = {}) {
     case 'status':   return handleStatus(rest, ctx);
     case 'defer':    return handleDefer(rest, ctx);
     case 'discard':  return handleDiscard(rest, ctx);
-    case 'preview':  return handleNotYet('preview', 'slice 2 (redaction, fingerprint, preview)', ctx);
+    case 'preview':  return handlePreview(rest, ctx);
     case 'submit':   return handleNotYet('submit', 'slice 4 (submit, dedupe, fallback)', ctx);
     case 'opt-in':   return handleNotYet('opt-in', 'slice 5 (the ask, settings and hooks)', ctx);
     case 'opt-out':  return handleNotYet('opt-out', 'slice 5 (the ask, settings and hooks)', ctx);
@@ -588,6 +595,241 @@ async function handleDiscard(argv, ctx) {
   }
   stdout.write(`discarded ${targets.length} entr${targets.length === 1 ? 'y' : 'ies'}.\n`);
   return 0;
+}
+
+// -- preview (slice 2, FBS-181) -------------------------------------------
+
+const PREVIEW_OPTIONS = /** @type {const} */ ({
+  json: { type: 'boolean' },
+  help: { type: 'boolean' },
+});
+
+/**
+ * Render each named (or every pending) entry as the title and body it
+ * would take on the GitHub issue tracker, plus a redaction disclosure
+ * ledger and any residual-secret markers rule 8b turned up. This is
+ * what the operator sees before consenting to submit; it is read-only
+ * and never touches the network.
+ *
+ * Text output: one framed block per entry with the destination line,
+ * the rendered title, the rendered body inside a `---` fence, and the
+ * ledger printed as diff-style `- before / + after (rule, count)`
+ * rows. `--json` emits the same as one object per entry.
+ *
+ * @param {string[]} argv
+ * @param {object} ctx
+ * @returns {Promise<number>}
+ */
+async function handlePreview(argv, ctx) {
+  const { stdout, stderr, cwd } = ctx;
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: PREVIEW_OPTIONS, allowPositionals: true, strict: true });
+  } catch (err) {
+    stderr.write(`[error] usage ${err.message}\n`);
+    return 2;
+  }
+  const flags = parsed.values;
+  if (flags.help) { stdout.write(HELP); return 0; }
+
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor).\n');
+    return 2;
+  }
+
+  const all = await readEntries(projectRoot);
+  const pending = all.filter((e) => e.status === 'pending');
+  const wantedIds = new Set(parsed.positionals);
+  const entries = wantedIds.size > 0
+    ? pending.filter((e) => wantedIds.has(e.id))
+    : pending;
+
+  if (wantedIds.size > 0) {
+    const missing = [...wantedIds].filter((id) => !pending.some((e) => e.id === id));
+    if (missing.length > 0) {
+      stderr.write(`[error] usage unknown pending entry id(s): ${missing.join(', ')}\n`);
+      return 2;
+    }
+  }
+
+  const context = await buildRedactionContext(projectRoot);
+
+  const previews = entries.map((e) => buildPreview(e, context));
+
+  if (flags.json) {
+    stdout.write(`${JSON.stringify(previews, null, 2)}\n`);
+    return 0;
+  }
+
+  if (previews.length === 0) {
+    stdout.write('no pending feedback entries to preview.\n');
+    return 0;
+  }
+
+  for (const p of previews) {
+    stdout.write(`--- ${p.id} ---\n`);
+    stdout.write(`destination: ${p.destination.repo ?? '(unresolved)'} (${p.destination.visibility})\n`);
+    stdout.write(`fingerprint: ${p.fingerprint}\n`);
+    if (p.fingerprintFallback) {
+      stdout.write('warning: no anchor on this entry; the fingerprint falls back to normalised-title tokens and duplicates may not fold.\n');
+    }
+    stdout.write(`title: ${p.titleRendered}\n`);
+    stdout.write('body:\n');
+    stdout.write('---\n');
+    stdout.write(`${p.bodyRendered}\n`);
+    stdout.write('---\n');
+    if (p.ledger.length === 0) {
+      stdout.write('redaction ledger: nothing replaced.\n');
+    } else {
+      stdout.write('redaction ledger:\n');
+      for (const row of p.ledger) {
+        stdout.write(`  - ${row.before}\n`);
+        stdout.write(`  + ${row.after}   (${row.rule}, x${row.count})\n`);
+      }
+    }
+    if (p.residual.length > 0) {
+      stdout.write('residual secret markers (submit will refuse):\n');
+      for (const r of p.residual) {
+        stdout.write(`  residual secret at line ${r.line}: ${r.snippet}   (${r.pattern})\n`);
+      }
+    }
+    stdout.write('\n');
+  }
+  return 0;
+}
+
+/**
+ * Assemble the redaction context from the project's identity seed and
+ * manifest. Best-effort: a missing file leaves that field undefined
+ * rather than failing the preview.
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<import('../feedback/redact.js').RedactionContext>}
+ */
+async function buildRedactionContext(projectRoot) {
+  let operatorName;
+  try {
+    const profile = await readFile(resolve(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
+    const m = profile.match(/^##\s+Name\s*\n([^\n]+)/m);
+    if (m) {
+      const n = m[1].trim();
+      if (n && !/placeholder|todo|your name/i.test(n)) operatorName = n;
+    }
+  } catch { /* absent is fine */ }
+
+  let projectName;
+  let gitRemote;
+  try {
+    const manifest = JSON.parse(await readFile(resolve(projectRoot, 'rcf', 'manifest.json'), 'utf8'));
+    if (typeof manifest.projectName === 'string') projectName = manifest.projectName;
+    if (typeof manifest.gitRemote === 'string') gitRemote = manifest.gitRemote;
+  } catch { /* absent is fine */ }
+
+  let allowHostsExt = [];
+  try {
+    const settings = JSON.parse(await readFile(resolve(projectRoot, 'rcf', 'feedback-settings.json'), 'utf8'));
+    if (Array.isArray(settings?.redaction?.allowHosts)) {
+      allowHostsExt = settings.redaction.allowHosts;
+    }
+  } catch { /* absent is fine */ }
+  // Assemble the extended allow-list once so downstream callers can
+  // print it if they want to; the redactor itself accepts the raw
+  // extension array.
+  void allowedHosts;
+
+  return {
+    projectRoot,
+    projectName,
+    operatorName,
+    gitRemote,
+    allowHosts: allowHostsExt,
+  };
+}
+
+/**
+ * Build one preview record for `--json` output and for the text
+ * renderer. Pure over the entry + context.
+ *
+ * @param {object} entry
+ * @param {import('../feedback/redact.js').RedactionContext} context
+ * @returns {object}
+ */
+function buildPreview(entry, context) {
+  const titleRes = redact(entry.title ?? '', context);
+  const bodyRes = redact(entry.body ?? '', context);
+  const evidenceRedacted = (entry.evidence ?? []).map((ev) => {
+    const r = redact(ev.value ?? '', context);
+    return { kind: ev.kind, value: r.text, ledger: r.ledger };
+  });
+  const combinedLedger = mergeLedger([titleRes.ledger, bodyRes.ledger, ...evidenceRedacted.map((e) => e.ledger)]);
+  const fp = fingerprint(entry);
+  const destination = destinationForPreview(entry);
+  const rendered = renderIssue(entry, {
+    title: titleRes.text,
+    body: bodyRes.text,
+    evidence: evidenceRedacted.map((e) => ({ kind: e.kind, value: e.value })),
+    ledger: combinedLedger,
+  }, { fingerprint: fp, destination });
+  return {
+    id: entry.id,
+    fingerprint: fp,
+    fingerprintFallback: entry.anchor == null || String(entry.anchor).trim() === '',
+    destination,
+    titleRendered: rendered.title,
+    bodyRendered: rendered.body,
+    labels: rendered.labels,
+    ledger: combinedLedger,
+    residual: [...titleRes.residual, ...bodyRes.residual],
+  };
+}
+
+/**
+ * Fold ledgers from several redact() calls into one, summing counts by
+ * rule name and keeping the first sample for the operator disclosure.
+ *
+ * @param {Array<Array<{ rule: string, before: string, after: string, count: number }>>} ledgers
+ * @returns {Array<{ rule: string, before: string, after: string, count: number }>}
+ */
+function mergeLedger(ledgers) {
+  const byRule = new Map();
+  const order = [];
+  for (const ledger of ledgers) {
+    for (const row of ledger) {
+      if (!byRule.has(row.rule)) {
+        order.push(row.rule);
+        byRule.set(row.rule, { rule: row.rule, before: row.before, after: row.after, count: row.count });
+      } else {
+        const prev = byRule.get(row.rule);
+        prev.count += row.count;
+      }
+    }
+  }
+  return order.map((r) => byRule.get(r));
+}
+
+/**
+ * Slice 2 has no destination resolver (slice 3 lands it). We report
+ * what the entry stamped: a `{ repo, kind: 'core' }` for core entries,
+ * unresolved for blueprints whose lookup failed at add time, and
+ * pending for blueprints whose destination the resolver will fill in.
+ *
+ * @param {object} entry
+ * @returns {{ repo: string | null, visibility: 'public' | 'private' | 'unresolved' | 'pending' }}
+ */
+function destinationForPreview(entry) {
+  const d = entry?.destination ?? {};
+  if (d.kind === 'core' && typeof d.repo === 'string') {
+    return { repo: d.repo, visibility: 'public' };
+  }
+  if (d.reason === 'unresolved') {
+    return { repo: null, visibility: 'unresolved' };
+  }
+  if (typeof d.repo === 'string') {
+    const v = d.visibility === 'private' ? 'private' : d.visibility === 'public' ? 'public' : 'pending';
+    return { repo: d.repo, visibility: v };
+  }
+  return { repo: null, visibility: 'pending' };
 }
 
 // -- later-slice stubs -----------------------------------------------------

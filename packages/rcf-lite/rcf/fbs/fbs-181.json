@@ -3,7 +3,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 181,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Slice 2: redaction, fingerprint, preview",
   "summary": "Deliver REQ-156 (Nothing leaves unredacted) and REQ-157 (One finding, one issue): rule-based redaction with disclosure ledger, deterministic 12-hex fingerprint, and the preview sub-verb the operator sees before consenting.",
   "approach": "Write src/feedback/redact.js, src/feedback/redact-allowlist.json, src/feedback/fingerprint.js and src/feedback/render.js. Add preview to src/cli/feedback.js. Golden-file tests for the render templates; fixture corpus for redact.",

@@ -74,13 +74,13 @@ Generation strategy: dependencyFirst
 | 68 | 0 | FBS-173 | H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded | notStarted | actionable |  |
 | 69 | 0 | FBS-174 | H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty | notStarted | actionable |  |
 | 180 | 0 | FBS-180 | Slice 1: capture and store | notStarted | actionable |  |
-| 181 | 1 | FBS-181 | Slice 2: redaction, fingerprint, preview | notStarted | blocked | FBS-180 |
-| 182 | 2 | FBS-182 | Slice 3: destination resolution | notStarted | blocked | FBS-181 |
+| 181 | 1 | FBS-181 | Slice 2: redaction, fingerprint, preview | complete | complete | FBS-180 |
+| 182 | 2 | FBS-182 | Slice 3: destination resolution | notStarted | actionable |  |
 | 183 | 3 | FBS-183 | Slice 4: submit, dedupe, fallback | notStarted | blocked | FBS-182 |
 | 184 | 4 | FBS-184 | Slice 5: the ask | notStarted | blocked | FBS-183 |
 | 185 | 5 | FBS-185 | Slice 6: instruction and release | notStarted | blocked | FBS-184 |
 
-Totals: items 75 | notStarted 47 | inProgress 0 | complete 13 | verified 15 | actionable 32 | blocked 15
+Totals: items 75 | notStarted 46 | inProgress 0 | complete 14 | verified 15 | actionable 33 | blocked 13
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-180
