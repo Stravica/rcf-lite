@@ -374,8 +374,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // AC-16103-1/-2 across four TCs on SessionEnd bundle idempotency
   // and SessionStart carry-over) and TS-198 (US-16104, AC-16104-1
   // /-2/-3 across ten TCs on rcf init + rcf doctor feedback-hooks)
-  // (135 -> 139).
-  assert.equal(tree.testSuites.length, 139);
+  // (135 -> 139). Feedback submission slice 6 (FBS-185) added TS-199
+  // (US-16201, AC-16201-1/-2 across five TCs on the RULE 17 byte-exact
+  // guidance test and the init/doctor upgrade path CLI test)
+  // (139 -> 140).
+  assert.equal(tree.testSuites.length, 140);
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');

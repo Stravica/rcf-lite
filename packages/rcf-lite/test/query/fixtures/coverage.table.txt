@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 100  covered: 99  covered-unresolved: 0  uncovered: 1
+Requirements: 100  covered: 100  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -409,5 +409,5 @@ REQ-161      yes      AC-16101-1  yes         TC-195-quiet-rule-truth-table
                       AC-16104-1  yes         TC-198-init-bin-path-pins-node, TC-198-init-idempotent, T...
                       AC-16104-2  yes         TC-198-init-no-feedback-hooks
                       AC-16104-3  yes         TC-198-doctor-clean-tree-no-writes, TC-198-doctor-fix-ins...
-REQ-162      no       AC-16201-1  no          -
-                      AC-16201-2  no          -
+REQ-162      yes      AC-16201-1  yes         TC-199-rule-17-names-verbs-and-redaction-posture, TC-199-...
+                      AC-16201-2  yes         TC-199-existing-project-picks-up-rule-17-on-doctor-fix, T...

@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-09-16T21:06:54Z",
+  "updatedAt": "2026-09-16T21:06:54Z",
+  "purpose": "Cover AC-16201-1 (RULE 17 lands in guidance/managed/agent-instructions-block.md with the wording in design 3.4, byte-exact against test/fixtures/managed/rule-17.md; block hash regenerated; naming and static-wording invariants) and AC-16201-2 (rcf init writes RULE 17 into CLAUDE.md and AGENTS.md between the managed markers; an existing project on the pre-slice block picks up RULE 17 on rcf doctor --fix without --force in non-interactive mode).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16201-1",
+    "AC-16201-2"
+  ],
+  "id": "TS-199",
+  "usId": "US-16201",
+  "title": "Slice 6 (FBS-185): RULE 17 landed in the managed block and reaches every project through init and doctor --fix",
+  "testCases": [
+    {
+      "id": "TC-199-rule-17-slice-byte-exact-against-fixture",
+      "acId": "AC-16201-1",
+      "description": "Cover AC-16201-1 via the guidance test: the RULE 17 slice extracted from guidance/managed/agent-instructions-block.md is byte-for-byte identical to the design 3.4 fixture at test/fixtures/managed/rule-17.md.",
+      "status": "pending",
+      "testPointer": "test/guidance/rule-17.test.js::AC-16201-1: the RULE 17 slice of the block is byte-for-byte the fixture"
+    },
+    {
+      "id": "TC-199-rule-17-names-verbs-and-redaction-posture",
+      "acId": "AC-16201-1",
+      "description": "Cover AC-16201-1 (naming clause) via the guidance test: RULE 17 names rcf feedback add, preview, submit --yes, defer, opt-out and carries the redaction posture sentence and the one-ask-per-session posture.",
+      "status": "pending",
+      "testPointer": "test/guidance/rule-17.test.js::AC-16201-1: RULE 17 names all four verbs and the redaction posture"
+    },
+    {
+      "id": "TC-199-rule-17-static-wording-no-em-dash-no-version-no-date",
+      "acId": "AC-16201-1",
+      "description": "Cover AC-16201-1 (static-wording clause) via the guidance test: the RULE 17 fixture carries no em-dash, no ISO date and no semver, so the block hash moves exactly once on the release that ships the rule.",
+      "status": "pending",
+      "testPointer": "test/guidance/rule-17.test.js::AC-16201-1: RULE 17 carries no em-dash and no version or date string"
+    },
+    {
+      "id": "TC-199-init-writes-rule-17-into-both-instructions-files",
+      "acId": "AC-16201-2",
+      "description": "Cover AC-16201-2 (fresh-init path) via the CLI test: rcf init on a fresh project writes CLAUDE.md and AGENTS.md with the managed block; RULE 17 sits between the managed markers on both files and its slice is byte-identical to the fixture.",
+      "status": "pending",
+      "testPointer": "test/cli/init-rule-17.test.js::AC-16201-2: rcf init writes RULE 17 into CLAUDE.md and AGENTS.md between the managed markers"
+    },
+    {
+      "id": "TC-199-existing-project-picks-up-rule-17-on-doctor-fix",
+      "acId": "AC-16201-2",
+      "description": "Cover AC-16201-2 (upgrade path) via the CLI test: a project initialised on the pre-slice block (block minus RULE 17) reports stale-hash on rcf doctor and picks up RULE 17 on rcf doctor --fix without --force in non-interactive mode, on both CLAUDE.md and AGENTS.md.",
+      "status": "pending",
+      "testPointer": "test/cli/init-rule-17.test.js::AC-16201-2: an existing project on the pre-slice block reports stale-hash and picks up RULE 17 on doctor --fix"
+    }
+  ],
+  "status": "draft"
+}

@@ -3,7 +3,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 185,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Slice 6: instruction and release",
   "summary": "Deliver REQ-162 (Agents know when to log and when to ask): RULE 17 in the managed instructions block, build:managed regen, CHANGELOG entry, docs index row, docs-site follow-up ticket for the mirror page and the form paragraph.",
   "approach": "Append RULE 17 to guidance/managed/agent-instructions-block.md (design section 3.4 wording, static). Run pnpm run build:managed to regenerate the block hash and harness-template.md. Update CHANGELOG.md, docs/README.md index and open a follow-up ticket for the docs-site mirror page and the \"submit a blueprint idea\" form paragraph.",

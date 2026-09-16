@@ -1,11 +1,11 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": false,
   "totals": {
     "requirements": 100,
-    "covered": 99,
+    "covered": 100,
     "coveredUnresolved": 0,
-    "uncovered": 1
+    "uncovered": 0
   },
   "requirements": [
     {
@@ -4018,19 +4018,26 @@
     },
     {
       "id": "REQ-162",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-16201-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-199-rule-17-names-verbs-and-redaction-posture",
+            "TC-199-rule-17-slice-byte-exact-against-fixture",
+            "TC-199-rule-17-static-wording-no-em-dash-no-version-no-date"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16201-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-199-existing-project-picks-up-rule-17-on-doctor-fix",
+            "TC-199-init-writes-rule-17-into-both-instructions-files"
+          ],
           "unresolvedTestCases": []
         }
       ]

@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 75,
-    "notStarted": 43,
+    "notStarted": 42,
     "inProgress": 1,
-    "complete": 16,
+    "complete": 17,
     "verified": 15,
-    "actionable": 33,
+    "actionable": 32,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -991,11 +991,11 @@
       "buildOrder": 185,
       "tier": 5,
       "title": "Slice 6: instruction and release",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-184"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     }
   ]
