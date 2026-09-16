@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-16T22:20:45Z",
+  "updatedAt": "2026-09-16T22:20:45Z",
+  "adrId": "ADR-16001-referee-validate-adr-crosslinks",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Walk ADR supersededBy and relatedAdrs at validate time, in the load-then-invert engine, not at ADR write time",
+  "context": "The referee-guarantees docs page promises that `rcf define validate` proves every reference in every document resolves. The 0.27.0 walker's referential-integrity pass (`collectBrokenReferences`) walks the parent-id fields (prdId, tadId, reqId, usId, tacId, bsId) and the child-borne cross-links (fbs.acIds, fbs.contextRequirements, ts.acIds, cn.implementsAcIds / dependencies, eval.usId / acIds), but the two ADR schema fields declared for supersession semantics (`supersededBy`, `relatedAdrs`) are skipped. That leaves an honest gap between the docs promise and the tool: an ADR whose supersededBy names an id with no file on disk passes validate today. Two places are candidates for the check: (a) at ADR write time in `updateDocument` / `createDocument` (reject the write on an unresolved target), (b) at validate time in the load-then-invert walker (raise a brokenReference on the tree pass).",
+  "decision": "Walk both fields inside `collectBrokenReferences`, reusing the existing `check` helper and the `brokenReference` error kind. Two additional call blocks appended to the existing ADR loop: one for `supersededBy` (single id), one for `relatedAdrs[i]` (each entry). Neither field is required by the ADR schema, so an absent or empty field is silent; a present target must resolve to a loaded ADR of the expected kind. This matches the pattern the walker already applies to every other cross-link (fbs.contextRequirements.adrIds is the closest sibling).",
+  "consequences": "The docs-page promise holds by construction from this release. Existing WSD projects that carry stale supersession pointers will surface those failures on the next `rcf define validate` run, with the ADR file and the field named; the fix is a one-line edit or a targeted `define update` write. Choosing validate-time rather than write-time keeps the write path fast and repairable: a broken write path could refuse an operator's legitimate fix mid-repair (write-then-validate is the load-then-invert engine's contract for a reason).",
+  "alternativesConsidered": [
+    {
+      "name": "Reject at ADR write time in createDocument / updateDocument",
+      "summary": "Add a pre-write check that refuses a write whose supersededBy or relatedAdrs entry does not resolve.",
+      "reasonNotChosen": "Breaks the load-then-invert repair pattern that lets `define update` fix a broken chain from the middle. A supersession that references a not-yet-created ADR (mid-refactor) would be blocked; validate is the right seam to enforce whole-tree integrity."
+    },
+    {
+      "name": "Add a separate `rcf define validate --adr-crosslinks` opt-in flag",
+      "summary": "Leave the default validate alone and expose an opt-in mode that checks the ADR cross-links.",
+      "reasonNotChosen": "The docs promise is universal, not opt-in. A flag-gated check is the same failure surface the referee page is being fixed to close."
+    }
+  ]
+}

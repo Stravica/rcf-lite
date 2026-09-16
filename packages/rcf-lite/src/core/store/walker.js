@@ -817,6 +817,36 @@ function collectBrokenReferences(tree, errors) {
       filePath: `rcf/adrs/${(adr.adrId ?? '').toLowerCase()}.json`,
       message: `ADR ${adr.adrId} references unknown TAD ${adr.tadId}`,
     });
+    // Referee-guarantee train (REQ-160 / US-16001, docs claims C-7, C-38):
+    // the "every reference in every document resolves" claim on the
+    // referee-guarantees page becomes true only when the ADR cross-links
+    // declared by the ADR schema (`supersededBy`, `relatedAdrs`) are
+    // walked here too. Pre-train these were schema-declared but never
+    // checked, so an ADR could point supersededBy at a stem that had no
+    // file on disk and validate would still pass. Both cross-links are
+    // optional; only a present target is checked.
+    if (typeof adr.supersededBy === 'string' && adr.supersededBy.length > 0) {
+      check({
+        docId: adr.adrId,
+        docKind: 'adr',
+        fromField: 'supersededBy',
+        targetId: adr.supersededBy,
+        expectedKind: 'adr',
+        filePath: `rcf/adrs/${(adr.adrId ?? '').toLowerCase()}.json`,
+        message: `ADR ${adr.adrId} references unknown ADR ${adr.supersededBy} in supersededBy`,
+      });
+    }
+    for (const [i, relatedId] of (adr.relatedAdrs ?? []).entries()) {
+      check({
+        docId: adr.adrId,
+        docKind: 'adr',
+        fromField: `relatedAdrs[${i}]`,
+        targetId: relatedId,
+        expectedKind: 'adr',
+        filePath: `rcf/adrs/${(adr.adrId ?? '').toLowerCase()}.json`,
+        message: `ADR ${adr.adrId} references unknown ADR ${relatedId} in relatedAdrs`,
+      });
+    }
   }
 
   // FBS parent + cross-link + dependency checks. `buildOrder` uniqueness

@@ -481,6 +481,37 @@ test('walkTree flags an ADR with a broken tadId as brokenReference', async () =>
   assert.ok(broken, JSON.stringify(errors, null, 2));
 });
 
+// Referee-guarantee train (REQ-160 / US-16001 / AC-16001-1): the
+// referee-guarantees docs page promises that every reference in every
+// document resolves. Before this train, ADR `supersededBy` was
+// schema-declared but never walked, so validate would pass on a chain
+// whose supersession target had no file on disk. TC-16001-supersededBy-broken.
+test('walkTree flags an ADR with a broken supersededBy pointer as brokenReference (REQ-160 AC-16001-1)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-superseded-'));
+  await initProject({ projectRoot: root });
+  const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
+  const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
+  adr.supersededBy = 'ADR-999';
+  await writeFile(adrPath, JSON.stringify(adr), 'utf8');
+  const { errors } = await walkTree({ projectRoot: root });
+  const broken = errors.find((e) => e.kind === 'brokenReference' && e.documentId === 'ADR-001' && e.field === 'supersededBy');
+  assert.ok(broken, JSON.stringify(errors, null, 2));
+});
+
+// AC-16001-2: same guarantee for the array-valued `relatedAdrs`.
+// TC-16001-relatedAdrs-broken.
+test('walkTree flags an ADR with an unknown id in relatedAdrs as brokenReference (REQ-160 AC-16001-2)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-related-'));
+  await initProject({ projectRoot: root });
+  const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
+  const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
+  adr.relatedAdrs = ['ADR-777'];
+  await writeFile(adrPath, JSON.stringify(adr), 'utf8');
+  const { errors } = await walkTree({ projectRoot: root });
+  const broken = errors.find((e) => e.kind === 'brokenReference' && e.documentId === 'ADR-001' && (e.field ?? '').startsWith('relatedAdrs'));
+  assert.ok(broken, JSON.stringify(errors, null, 2));
+});
+
 test('walkTree flags an FBS with an unknown acId as brokenReference', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-ac-'));
   await initProject({ projectRoot: root });
