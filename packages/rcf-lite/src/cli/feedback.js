@@ -39,9 +39,20 @@ import {
   ensureGitignore,
   mintUniqueEntryId,
   newEntryId,
+  readAskLedger,
   readEntries,
+  readFeedbackSettings,
   storeExists,
+  writeAskLedger,
+  writeFeedbackSettings,
 } from '../feedback/store.js';
+import {
+  buildAskReason,
+  buildCarryOverLine,
+  emit as emitHook,
+  emitSessionStart,
+  shouldAsk,
+} from '../feedback/hook.js';
 import { redact, allowedHosts, findResidualSecrets } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
 import { renderIssue, renderComment, renderBundle } from '../feedback/render.js';
@@ -50,7 +61,7 @@ import { readLibraryRegistry } from '../blueprint/library-registry.js';
 import { loadGhAdapter } from '../feedback/gh.js';
 import { labelsForEntry } from '../feedback/labels.js';
 import { outboxDir } from '../feedback/store.js';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, writeFile } from 'node:fs/promises';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -97,11 +108,16 @@ Sub-verbs (available):
              either creates the issue, comments on a match, or writes
              a bundle to .rcf/feedback/outbox/ and prints the paste
              URL. See docs/feedback.md for the full walk.
-
-Sub-verbs (later slices; refuse with exit 3 until they ship):
-  opt-in     Slice 5: restore per-project ask (rcf/feedback-settings.json).
-  opt-out    Slice 5: silence per-project ask (rcf/feedback-settings.json).
-  hook       Slice 5: harness hook handler (stop, session-end, session-start).
+  opt-out    Silence the per-session ask for this project by writing
+             rcf/feedback-settings.json:ask false. add / preview /
+             submit keep working (hand-driven flow).
+  opt-in     Restore the ask (writes rcf/feedback-settings.json:ask true).
+  hook       Harness hook handler (Stop / SessionEnd / SessionStart).
+             Reads harness JSON from stdin; applies the quiet rule
+             (design 3.5); on Claude Code, Stop exits 2 with the ask
+             on stderr; on Codex, stdout carries the block JSON.
+             Sub-shape: rcf feedback hook <stop|session-end|session-start>
+                        [--harness claude-code|codex].
 
 Common options:
   --help                Print this help.
@@ -176,9 +192,9 @@ export async function main(argv, deps = {}) {
     case 'discard':  return handleDiscard(rest, ctx);
     case 'preview':  return handlePreview(rest, ctx);
     case 'submit':   return handleSubmit(rest, ctx);
-    case 'opt-in':   return handleNotYet('opt-in', 'slice 5 (the ask, settings and hooks)', ctx);
-    case 'opt-out':  return handleNotYet('opt-out', 'slice 5 (the ask, settings and hooks)', ctx);
-    case 'hook':     return handleNotYet('hook', 'slice 5 (the ask, settings and hooks)', ctx);
+    case 'opt-in':   return handleOptToggle('opt-in', rest, ctx);
+    case 'opt-out':  return handleOptToggle('opt-out', rest, ctx);
+    case 'hook':     return handleHook(rest, ctx);
     default:
       stderr.write(`[error] usage unknown feedback sub-verb '${sub}'\n`);
       stdout.write(HELP);
@@ -530,9 +546,15 @@ async function handleStatus(argv, ctx) {
   const exists = await storeExists(projectRoot);
   const all = exists ? await readEntries(projectRoot) : [];
   const counts = countByStatus(all);
-  // The env-based silence is the only opt-out shape slice 1 knows
-  // about; slice 5 adds the file-driven ask flag.
-  const optOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
+  // Precedence (design section 8): env DISABLE > env ASK=0 > file
+  // ask false > file ask true (the default). The status view names
+  // the resolved source so the operator can tell whether an ask
+  // will fire without inspecting the file.
+  const settingsRead = await readFeedbackSettings(projectRoot);
+  const fileAskOff = settingsRead.settings.ask === false;
+  const optOut = env.RCF_FEEDBACK_DISABLE === '1'
+    || env.RCF_FEEDBACK_ASK === '0'
+    || fileAskOff;
   // Destination coverage across the library registry (design 3.1;
   // slice 3 landed the resolver). A parseable-but-empty registry means
   // no libraries are declared, so nothing to warn about. A broken
@@ -552,8 +574,13 @@ async function handleStatus(argv, ctx) {
     counts,
     optOut,
     optOutSource: optOut
-      ? (env.RCF_FEEDBACK_DISABLE === '1' ? 'env:RCF_FEEDBACK_DISABLE' : 'env:RCF_FEEDBACK_ASK=0')
+      ? (env.RCF_FEEDBACK_DISABLE === '1'
+        ? 'env:RCF_FEEDBACK_DISABLE'
+        : (env.RCF_FEEDBACK_ASK === '0'
+          ? 'env:RCF_FEEDBACK_ASK=0'
+          : 'file:rcf/feedback-settings.json'))
       : null,
+    quietMinutes: settingsRead.settings.quietMinutes,
     storePath: '.rcf/feedback/entries.jsonl',
     gh: ghSummary,
     destinations: {
@@ -1609,13 +1636,312 @@ function at(now) {
   return now().toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
-// -- later-slice stubs -----------------------------------------------------
+// -- opt-in / opt-out (slice 5, FBS-184) ----------------------------------
 
-function handleNotYet(name, sliceLabel, ctx) {
-  const { stderr } = ctx;
-  stderr.write(`rcf feedback ${name}: not yet available (${sliceLabel}).\n`);
-  return 3;
+const OPT_OPTIONS = /** @type {const} */ ({
+  help: { type: 'boolean' },
+  json: { type: 'boolean' },
+});
+
+/**
+ * Toggle the per-project ask via `rcf/feedback-settings.json`.
+ * `opt-out` writes `ask: false`; `opt-in` writes `ask: true`. Other
+ * fields (settingsVersion, quietMinutes, redaction) survive the merge
+ * (design section 8). The env-driven silences (RCF_FEEDBACK_ASK,
+ * RCF_FEEDBACK_DISABLE) are complementary and never toggled here.
+ *
+ * @param {'opt-in' | 'opt-out'} which
+ * @param {string[]} argv
+ * @param {object} ctx
+ */
+async function handleOptToggle(which, argv, ctx) {
+  const { stdout, stderr, cwd } = ctx;
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: OPT_OPTIONS, allowPositionals: false, strict: true });
+  } catch (err) {
+    stderr.write(`[error] usage ${err.message}\n`);
+    return 2;
+  }
+  const flags = parsed.values;
+  if (flags.help) { stdout.write(HELP); return 0; }
+
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor).\n');
+    return 2;
+  }
+
+  const ask = which === 'opt-in';
+  const result = await writeFeedbackSettings(projectRoot, { ask });
+  if (flags.json) {
+    stdout.write(`${JSON.stringify({ action: result.action, path: 'rcf/feedback-settings.json', settings: result.settings }, null, 2)}\n`);
+    return 0;
+  }
+  if (result.action === 'noop') {
+    stdout.write(`feedback ${which}: no change (rcf/feedback-settings.json already has ask: ${ask}).\n`);
+    return 0;
+  }
+  const verb = result.action === 'created' ? 'wrote' : 'updated';
+  const posture = ask
+    ? 'the harness will ask once per session at a natural pause (design 3.5).'
+    : 'the harness will not ask on this project; add / preview / submit still work by hand.';
+  stdout.write(`feedback ${which}: ${verb} rcf/feedback-settings.json (ask: ${ask}); ${posture}\n`);
+  return 0;
 }
+
+// -- hook (slice 5, FBS-184) ---------------------------------------------
+
+const HOOK_OPTIONS = /** @type {const} */ ({
+  harness: { type: 'string' },
+  help: { type: 'boolean' },
+});
+
+/**
+ * Harness hook handler (design 3.5). Sub-shape:
+ *   rcf feedback hook <stop|session-end|session-start> [--harness <h>]
+ *
+ * Reads harness JSON from stdin (session_id, cwd, hook_event_name,
+ * stop_hook_active, last_assistant_message on Stop) and never blocks
+ * longer than 1 second (the 1.5s SessionEnd shared budget on Claude
+ * Code). The store IO is small; no network is ever touched.
+ *
+ * Behaviour by sub-verb:
+ *   - stop: apply the quiet rule, and on 'ask' append the ledger
+ *     record BEFORE emitting so a crash between emit and reply
+ *     cannot cause a second ask; then emit per the harness.
+ *   - session-end: write a bundle of every pending entry into
+ *     `.rcf/feedback/outbox/`. Byte-idempotent: a re-run whose
+ *     rendered payload matches the last-written bundle does not
+ *     rewrite the file.
+ *   - session-start: with pending entries carried over from a
+ *     prior sessionId, print (or emit in the Codex shape) one
+ *     context line so the harness re-surfaces the ask at the next
+ *     natural pause (RULE 17). Never mutates state.json.
+ *
+ * @param {string[]} argv
+ * @param {object} ctx
+ */
+async function handleHook(argv, ctx) {
+  const { stdout, stderr, cwd, env, now, sessionId: fallbackSession } = ctx;
+  if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') {
+    stdout.write(HELP);
+    return argv.length === 0 ? 2 : 0;
+  }
+  const sub = argv[0];
+  const rest = argv.slice(1);
+  let parsed;
+  try {
+    parsed = parseArgs({ args: rest, options: HOOK_OPTIONS, allowPositionals: false, strict: true });
+  } catch (err) {
+    stderr.write(`[error] usage ${err.message}\n`);
+    return 2;
+  }
+  const flags = parsed.values;
+  if (flags.help) { stdout.write(HELP); return 0; }
+
+  const harness = normaliseHarness(flags.harness, env);
+  if (harness === 'unknown') {
+    // The hook must always know which shape to emit; refuse rather
+    // than guess. A missing --harness on a machine without either
+    // env signature is a configuration bug in the installer.
+    stderr.write("[error] usage --harness required (one of 'claude-code', 'codex') when neither CLAUDECODE nor CODEX_* env is set.\n");
+    return 2;
+  }
+  if (!['stop', 'session-end', 'session-start'].includes(sub)) {
+    stderr.write(`[error] usage unknown feedback hook sub-verb '${sub}' (expected stop, session-end, session-start).\n`);
+    return 2;
+  }
+
+  const payload = await readHarnessPayload(ctx);
+  const projectRootHint = typeof payload?.cwd === 'string' && payload.cwd.length > 0
+    ? payload.cwd
+    : cwd;
+  const projectRoot = await findProjectRoot(projectRootHint);
+  if (!projectRoot) {
+    // No project root: silently exit 0 (a hook on a non-rcf tree
+    // must never block or shout at the user; design 3.5 says the
+    // hook is quiet by default).
+    return 0;
+  }
+
+  const sessionIdIncoming = typeof payload?.session_id === 'string' && payload.session_id.length > 0
+    ? payload.session_id
+    : fallbackSession;
+
+  if (sub === 'session-end') {
+    return runSessionEndHook(projectRoot, { now });
+  }
+  if (sub === 'session-start') {
+    return runSessionStartHook(projectRoot, harness, sessionIdIncoming, { stdout });
+  }
+  return runStopHook(projectRoot, harness, sessionIdIncoming, payload, env, now, { stdout, stderr });
+}
+
+function normaliseHarness(flag, env) {
+  if (flag === 'claude-code' || flag === 'codex') return flag;
+  if (flag && flag !== '') return 'unknown';
+  if (env.CLAUDECODE === '1') return 'claude-code';
+  for (const k of Object.keys(env)) {
+    if (k.startsWith('CODEX_')) return 'codex';
+  }
+  return 'unknown';
+}
+
+async function readHarnessPayload(ctx) {
+  // The wrapper trusts the caller only to supply the payload; when
+  // driven by the harness the JSON arrives on stdin. Tests inject
+  // via ctx.hookStdin (a string) to avoid piping through process.
+  if (typeof ctx.hookStdin === 'string' && ctx.hookStdin.length > 0) {
+    try { return JSON.parse(ctx.hookStdin); } catch { return null; }
+  }
+  const stdin = process.stdin;
+  if (!stdin || (typeof stdin.isTTY === 'boolean' && stdin.isTTY)) return null;
+  const buf = await new Promise((resolvePromise) => {
+    let acc = '';
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolvePromise(acc); } };
+    stdin.setEncoding('utf8');
+    stdin.on('data', (chunk) => { acc += chunk; });
+    stdin.on('end', finish);
+    stdin.on('error', finish);
+    // A 1-second cap; hooks share a small budget and must never
+    // block the harness on a stalled parent.
+    setTimeout(finish, 1000).unref?.();
+  });
+  if (!buf) return null;
+  try { return JSON.parse(buf); } catch { return null; }
+}
+
+async function runStopHook(projectRoot, harness, sessionId, payload, env, now, streams) {
+  const settingsRead = await readFeedbackSettings(projectRoot);
+  const fileOptOut = settingsRead.settings.ask === false;
+  const envOptOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
+  const optedOut = fileOptOut || envOptOut;
+
+  const all = await readEntries(projectRoot);
+  const pending = all.filter((e) => e.status === 'pending');
+  const pendingCount = pending.length;
+
+  const ledger = await readAskLedger(projectRoot);
+  const askedThisSession = Boolean(sessionId)
+    && Array.isArray(ledger.asked)
+    && ledger.asked.some((r) => r?.sessionId === sessionId);
+
+  const stopHookActive = payload && (payload.stop_hook_active === true
+    || payload.stopHookActive === true);
+
+  const nowMs = now().getTime();
+  const ages = pending
+    .map((e) => Date.parse(e.recordedAt ?? ''))
+    .filter((t) => Number.isFinite(t))
+    .map((t) => nowMs - t);
+  const newestPendingAgeMs = ages.length === 0 ? null : Math.min(...ages);
+  const anyAskNow = pending.some((e) => e.askNow === true);
+  const anyCarriedOver = Boolean(sessionId) && pending.some((e) => {
+    const s = typeof e.sessionId === 'string' ? e.sessionId : '';
+    return s !== '' && s !== sessionId;
+  });
+  const queueComplete = typeof ledger.queueStateAt === 'string' && ledger.queueStateAt.length > 0;
+
+  const decision = shouldAsk({
+    optedOut,
+    pendingCount,
+    askedThisSession,
+    stopHookActive,
+    anyAskNow,
+    newestPendingAgeMs,
+    quietMinutes: settingsRead.settings.quietMinutes,
+    queueComplete,
+    anyCarriedOver,
+  });
+
+  if (decision === 'ask' && sessionId) {
+    // Ledger first, then emit (design 3.5 crash-safety clause).
+    const askedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    const next = {
+      ...ledger,
+      asked: [...(Array.isArray(ledger.asked) ? ledger.asked : []), { sessionId, askedAt }],
+    };
+    await writeAskLedger(projectRoot, next);
+  }
+  const reason = buildAskReason(pendingCount);
+  return emitHook(harness, decision, reason, streams);
+}
+
+async function runSessionStartHook(projectRoot, harness, sessionId, streams) {
+  const all = await readEntries(projectRoot);
+  const pending = all.filter((e) => e.status === 'pending');
+  const anyCarriedOver = pending.some((e) => {
+    const s = typeof e.sessionId === 'string' ? e.sessionId : '';
+    // Treat every pending entry as carried-over when we do not yet
+    // have a sessionId to compare against (a first SessionStart on
+    // a new session; the recorded sessionId is by definition prior).
+    return s !== '' && (!sessionId || s !== sessionId);
+  });
+  if (!anyCarriedOver) return 0;
+  const line = buildCarryOverLine(pending.length);
+  return emitSessionStart(harness, line, streams);
+}
+
+async function runSessionEndHook(projectRoot, { now }) {
+  const all = await readEntries(projectRoot);
+  const pending = all.filter((e) => e.status === 'pending');
+  if (pending.length === 0) return 0;
+  // Compose a fingerprint-only bundle text (idempotency check reads
+  // the last-written file and compares by content hash). We do not
+  // change entry state on session-end; slice 4's `submit` remains
+  // the terminal step. This is a safety flush of the exact set of
+  // pending titles so a crashed session's findings are pastable.
+  const stampSafe = now().toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[:]/g, '-');
+  const dir = outboxDir(projectRoot);
+  await mkdir(dir, { recursive: true });
+  const filename = `${stampSafe}-session-end.md`;
+  const path = resolve(dir, filename);
+  const body = renderSessionEndBundle(pending, now());
+  // Idempotency: if any prior session-end file in the outbox has this
+  // exact body (fingerprint contents identical), do nothing. This
+  // guards a re-run within the same second AND a re-run at a later
+  // second when the pending set has not changed.
+  try {
+    const entries = await readdir(dir);
+    for (const f of entries) {
+      if (!f.endsWith('-session-end.md')) continue;
+      try {
+        const existing = await readFile(resolve(dir, f), 'utf8');
+        if (existing === body) return 0;
+      } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+  await writeFile(path, body, 'utf8');
+  return 0;
+}
+
+function renderSessionEndBundle(pending, when) {
+  const stamp = when.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  const lines = [];
+  lines.push('# rcf feedback: session-end pending bundle');
+  lines.push('');
+  lines.push(`Generated: ${stamp}`);
+  lines.push(`Entries pending on this project at session end: ${pending.length}`);
+  lines.push('');
+  lines.push('The next session offers to send these on Stop (design 3.5).');
+  lines.push('This bundle is a local reminder; no issue was filed.');
+  lines.push('');
+  for (const e of pending) {
+    lines.push(`## ${e.id}: ${e.title ?? '(no title)'}`);
+    lines.push('');
+    lines.push(`- kind: ${e.kind ?? '?'}`);
+    lines.push(`- target: ${e?.target?.ref ?? '?'}`);
+    lines.push(`- anchor: ${e.anchor ?? '-'}`);
+    lines.push(`- class: ${e.symptomClass ?? '?'}`);
+    lines.push(`- severity: ${e.severity ?? '?'}`);
+    if (e.fingerprint) lines.push(`- fingerprint: ${e.fingerprint}`);
+    lines.push('');
+  }
+  return lines.join('\n');
+}
+
 
 // -- helpers ---------------------------------------------------------------
 

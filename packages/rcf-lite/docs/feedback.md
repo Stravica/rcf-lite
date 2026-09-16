@@ -141,12 +141,79 @@ Appends a `discarded` state line for the named entries (or every
 pending entry with `--all`). Discarded entries are hidden from `list`
 default output and excluded from the carry-over ask count in slice 5.
 
-## Later-slice sub-verbs (stubs)
+### `rcf feedback opt-out` / `rcf feedback opt-in`
 
-`preview`, `submit`, `opt-in`, `opt-out` and `hook` are registered as
-"not yet available" and exit 3 with a one-line note naming the slice
-that ships them. This keeps `rcf feedback --help` referable at slice-1
-time without inventing verb behaviour ahead of the ACs.
+Silences (or restores) the per-session ask by writing
+`rcf/feedback-settings.json`. The file is committed to the repo, so a
+shared project silences the ask for everyone; `add`, `preview` and
+`submit` keep working under `ask: false` for hand-driven flows. The
+CLI merges over any existing file rather than overwriting it, so
+`quietMinutes` and `redaction.allowHosts` (design section 8) survive.
+
+### `rcf feedback hook <stop|session-end|session-start> [--harness <h>]`
+
+The harness hook handler. Reads harness JSON from stdin, applies the
+quiet rule (design section 3.5), and emits per-harness output:
+
+- Claude Code Stop: exit 2 with the ask on stderr (Claude Code feeds
+  the reason back to Claude, which speaks to the user).
+- Codex Stop: stdout JSON `{"decision":"block","reason":"..."}` with
+  exit 0.
+- SessionEnd: writes a byte-idempotent bundle to
+  `.rcf/feedback/outbox/<ISO>-session-end.md` for every currently
+  pending entry so a crashed session's findings are pastable.
+- SessionStart: with pending entries recorded under a prior session
+  id, prints (or emits in the Codex `additionalContext` shape) one
+  line the harness re-surfaces as context so the next Stop asks.
+
+The `asked` ledger at `.rcf/feedback/state.json` is appended BEFORE
+the emit so a crash between emit and reply cannot cause a second ask.
+`--harness` defaults to `claude-code` when `CLAUDECODE=1` and to
+`codex` when any `CODEX_*` env var is set; otherwise the flag is
+required.
+
+## Settings file (`rcf/feedback-settings.json`)
+
+Written by `rcf feedback opt-out`, `opt-in` and (implicitly) `rcf
+init`; read by the hook and by `rcf feedback status`. Defaults:
+
+```json
+{
+  "settingsVersion": 1,
+  "ask": true,
+  "quietMinutes": 15,
+  "redaction": { "allowHosts": [] }
+}
+```
+
+- `ask` gates the Stop hook. `false` silences it; `add`, `preview`
+  and `submit` keep working. Restore with `rcf feedback opt-in`.
+- `quietMinutes` is the age threshold on the newest pending entry.
+  A lower value asks sooner; a blocker-severity entry can pass
+  `--ask-now` to bypass the age gate.
+- `redaction.allowHosts` extends the shipped vendor allowlist for
+  redaction (design section 5, rule 4).
+
+## Hook install (`rcf init` step 6)
+
+`rcf init` merges three feedback hook entries into
+`.claude/settings.json` and `.codex/hooks.json` (design section 3.5,
+ADR-4108): Stop (timeout 10), SessionEnd (timeout 5) and SessionStart
+with matcher `startup|resume` (timeout 5). Each command line is:
+
+```
+npx rcf-lite feedback hook <event> --harness <claude-code|codex>
+```
+
+`--bin-path <path>` on `rcf init` replaces the `npx rcf-lite` prefix
+with `node <path>` for pinned-bin deployments. `--no-feedback-hooks`
+skips both writes; RULE 17 in the managed instructions block (slice
+6) still covers the ask via the belt-and-braces fallback path.
+
+`rcf doctor --check feedback-hooks` diagnoses drift: `missing-hook`
+per file per event is fixable with `--fix`; `foreign-hook` (an entry
+whose command names our verbs but whose flags or timeout differ) is
+refused so a bespoke variant is never silently overwritten.
 
 ## Environment variables
 
@@ -161,5 +228,7 @@ time without inventing verb behaviour ahead of the ACs.
 
 - Design of record: `projects/rcf-lite-wsd/specs/2026-09-16-feedback-submission-design.md`
   in the operator repo.
-- Chain: REQ-155 (Local feedback capture) and its USes.
-- FBS: FBS-180 (Slice 1: capture and store).
+- Chain: REQ-155 to REQ-162 and their USes.
+- FBS: FBS-180 (slice 1), FBS-181 (slice 2), FBS-182 (slice 3),
+  FBS-183 (slice 4), FBS-184 (slice 5, the ask; this doc), FBS-185
+  (slice 6, RULE 17 + release).

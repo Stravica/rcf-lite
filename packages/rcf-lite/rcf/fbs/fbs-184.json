@@ -3,7 +3,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 184,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Slice 5: the ask",
   "summary": "Deliver REQ-161 (One ask per session, at idle, never automatic): hook quiet rule, per-harness hook handlers, installer wired into rcf init, doctor feedback-hooks check, settings file, env variables, opt-in/opt-out sub-verbs.",
   "approach": "Write src/feedback/hook.js with pure shouldAsk() and per-harness emit(). Write src/setup/feedback-hooks.js installer (mergeable). Wire init Step 6 and doctor feedback-hooks check. Add hook sub-verb and opt-in/opt-out sub-verbs. Add rcf/feedback-settings.json handling. Add RCF_FEEDBACK_ASK and RCF_FEEDBACK_DISABLE env handling.",
@@ -44,5 +44,5 @@
   "estimatedHours": 16,
   "notes": "Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17. Design section 9 decision: no global (~/.config) setting in v1 (rejected: a ~/.rcf/feedback.json file, because the behaviour a teammate sees on a shared project should come from the project, not from someone's home directory; a per-machine preference is the RCF_FEEDBACK_ASK env var).",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T14:14:36Z"
+  "updatedAt": "2026-09-16T19:20:00Z"
 }

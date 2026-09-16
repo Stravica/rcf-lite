@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 75,
-    "notStarted": 44,
+    "notStarted": 43,
     "inProgress": 1,
-    "complete": 15,
+    "complete": 16,
     "verified": 15,
-    "actionable": 32,
-    "blocked": 12
+    "actionable": 33,
+    "blocked": 10
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -977,11 +977,11 @@
       "buildOrder": 184,
       "tier": 4,
       "title": "Slice 5: the ask",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-183"
       ],
-      "state": "blocked",
+      "state": "complete",
       "blockedBy": [
         "FBS-183"
       ]
@@ -995,10 +995,8 @@
       "dependsOnFbsIds": [
         "FBS-184"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-184"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     }
   ]
 }

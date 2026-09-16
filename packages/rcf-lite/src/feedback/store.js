@@ -22,10 +22,31 @@
 import {
   appendFile, mkdir, readFile, stat, writeFile,
 } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 /** Absolute path helpers under a project root. */
 const FEEDBACK_DIR = '.rcf/feedback';
+
+/**
+ * Relative path (from project root) of the per-project feedback
+ * settings file. Committed to the repo; the hooks and the CLI treat
+ * this as the source of truth for `ask`, `quietMinutes` and the
+ * `redaction.allowHosts` extension list (design section 8).
+ */
+export const FEEDBACK_SETTINGS_PATH = 'rcf/feedback-settings.json';
+
+/**
+ * Default settings the hook and the ask-branch fall back to when
+ * `rcf/feedback-settings.json` is missing or empty. `ask: true` keeps
+ * the RULE 17 posture: silent capture, one ask per session at a
+ * pause, unless the operator has opted out for the project.
+ */
+export const DEFAULT_FEEDBACK_SETTINGS = Object.freeze({
+  settingsVersion: 1,
+  ask: true,
+  quietMinutes: 15,
+  redaction: Object.freeze({ allowHosts: [] }),
+});
 
 /**
  * Managed-gitignore aggregator entry (§4.1's 0.7.0-style extension:
@@ -307,6 +328,114 @@ export async function mintUniqueEntryId(projectRoot, now = new Date(), rng = Mat
     id = newEntryId(now, rng);
   }
   return id;
+}
+
+/**
+ * Read `rcf/feedback-settings.json` and fold onto the defaults. A
+ * missing file returns the defaults verbatim (design section 8: a
+ * project without the file is still an opted-in project); an
+ * unparseable file returns `{ settings: defaults, parseError }` so
+ * the caller can surface the fault without crashing the hook.
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<{ settings: { settingsVersion: number, ask: boolean, quietMinutes: number, redaction: { allowHosts: string[] } }, parseError: string | null, present: boolean }>}
+ */
+export async function readFeedbackSettings(projectRoot) {
+  const path = join(projectRoot, FEEDBACK_SETTINGS_PATH);
+  let text;
+  try {
+    text = await readFile(path, 'utf8');
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') {
+      return {
+        settings: { ...DEFAULT_FEEDBACK_SETTINGS, redaction: { allowHosts: [] } },
+        parseError: null,
+        present: false,
+      };
+    }
+    throw err;
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch (err) {
+    return {
+      settings: { ...DEFAULT_FEEDBACK_SETTINGS, redaction: { allowHosts: [] } },
+      parseError: err.message,
+      present: true,
+    };
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      settings: { ...DEFAULT_FEEDBACK_SETTINGS, redaction: { allowHosts: [] } },
+      parseError: 'not a JSON object',
+      present: true,
+    };
+  }
+  const ask = typeof parsed.ask === 'boolean' ? parsed.ask : DEFAULT_FEEDBACK_SETTINGS.ask;
+  const quietMinutes = Number.isFinite(parsed.quietMinutes) && parsed.quietMinutes >= 0
+    ? parsed.quietMinutes
+    : DEFAULT_FEEDBACK_SETTINGS.quietMinutes;
+  const settingsVersion = Number.isFinite(parsed.settingsVersion)
+    ? parsed.settingsVersion
+    : DEFAULT_FEEDBACK_SETTINGS.settingsVersion;
+  const allowHosts = Array.isArray(parsed?.redaction?.allowHosts)
+    ? parsed.redaction.allowHosts.filter((v) => typeof v === 'string')
+    : [];
+  return {
+    settings: { settingsVersion, ask, quietMinutes, redaction: { allowHosts } },
+    parseError: null,
+    present: true,
+  };
+}
+
+/**
+ * Overwrite `rcf/feedback-settings.json`, merging over the current
+ * on-disk file (or the defaults, if absent). Callers pass the delta
+ * they want applied; other fields survive verbatim.
+ *
+ * @param {string} projectRoot
+ * @param {Partial<{ settingsVersion: number, ask: boolean, quietMinutes: number, redaction: { allowHosts: string[] } }>} delta
+ * @returns {Promise<{ path: string, action: 'created' | 'updated' | 'noop', settings: object }>}
+ */
+export async function writeFeedbackSettings(projectRoot, delta) {
+  const path = join(projectRoot, FEEDBACK_SETTINGS_PATH);
+  let existed = true;
+  let currentText;
+  try {
+    currentText = await readFile(path, 'utf8');
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') {
+      existed = false;
+      currentText = null;
+    } else {
+      throw err;
+    }
+  }
+  let base = { ...DEFAULT_FEEDBACK_SETTINGS, redaction: { allowHosts: [] } };
+  if (existed) {
+    try {
+      const parsed = JSON.parse(currentText);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        base = { ...base, ...parsed };
+        if (parsed.redaction && typeof parsed.redaction === 'object' && !Array.isArray(parsed.redaction)) {
+          base.redaction = { allowHosts: Array.isArray(parsed.redaction.allowHosts) ? [...parsed.redaction.allowHosts] : [] };
+        }
+      }
+    } catch { /* fall through with defaults */ }
+  }
+  const next = {
+    ...base,
+    ...delta,
+    redaction: delta?.redaction ? { ...base.redaction, ...delta.redaction } : base.redaction,
+  };
+  const serialized = `${JSON.stringify(next, null, 2)}\n`;
+  if (existed && serialized === currentText) {
+    return { path, action: 'noop', settings: next };
+  }
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, serialized, 'utf8');
+  return { path, action: existed ? 'updated' : 'created', settings: next };
 }
 
 /**

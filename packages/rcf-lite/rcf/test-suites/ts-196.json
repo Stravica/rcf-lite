@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-09-16T19:20:00Z",
+  "purpose": "Cover AC-16102-1 (rcf feedback opt-out writes rcf/feedback-settings.json ask: false with the defaults merged, the hook returns silent under ask: false, and add/preview keep working) and AC-16102-2 (RCF_FEEDBACK_DISABLE=1 makes add a no-op that prints 'feedback disabled by env' and writes nothing; RCF_FEEDBACK_ASK=0 silences the hook while leaving add working; precedence order env DISABLE > env ASK=0 > file ask false > file ask true).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16102-1",
+    "AC-16102-2"
+  ],
+  "id": "TS-196",
+  "usId": "US-16102",
+  "title": "Slice 5 (FBS-184): rcf feedback opt-out / opt-in write ask false / true; env DISABLE and env ASK override the file with the documented precedence",
+  "testCases": [
+    {
+      "id": "TC-196-optout-writes-settings-and-silences-hook",
+      "acId": "AC-16102-1",
+      "description": "Cover AC-16102-1 via the CLI test: rcf feedback opt-out on a fresh project writes rcf/feedback-settings.json with { settingsVersion: 1, ask: false, quietMinutes: 15, redaction: { allowHosts: [] } }; a subsequent Stop hook on a pending --ask-now entry exits 0 silently; add and preview keep working under ask: false.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-1: opt-out writes ask: false and preserves defaults; the hook goes silent"
+    },
+    {
+      "id": "TC-196-optin-restores-ask-true",
+      "acId": "AC-16102-1",
+      "description": "Cover AC-16102-1 (round-trip) via the CLI test: rcf feedback opt-in after an opt-out flips ask back to true and preserves quietMinutes and redaction.allowHosts on the file.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-1: opt-in restores ask true and preserves other fields"
+    },
+    {
+      "id": "TC-196-env-disable-no-ops-add",
+      "acId": "AC-16102-2",
+      "description": "Cover AC-16102-2 (DISABLE branch) via the CLI test: rcf feedback add under RCF_FEEDBACK_DISABLE=1 prints exactly 'feedback disabled by env' on stdout, exits 0 and writes nothing under .rcf/feedback/.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_DISABLE=1 makes `add` a no-op that prints the disabled line"
+    },
+    {
+      "id": "TC-196-env-ask-silences-hook-only",
+      "acId": "AC-16102-2",
+      "description": "Cover AC-16102-2 (ASK=0 branch) via the CLI test: with ask: true on the file, rcf feedback add works normally; rcf feedback hook stop under RCF_FEEDBACK_ASK=0 exits 0 silently on a pending --ask-now entry.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_ASK=0 keeps add working, silences the hook"
+    },
+    {
+      "id": "TC-196-precedence-order",
+      "acId": "AC-16102-2",
+      "description": "Cover AC-16102-2 (precedence) via the CLI test: the same fixture with a pending --ask-now entry walks four combinations (no-env + file ask:true -> ask; file ask:false -> silent; file ask:true + env ASK=0 -> silent; env DISABLE -> silent) so the documented env-DISABLE > env-ASK > file precedence is asserted end-to-end.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-2: env DISABLE > env ASK=0 > file ask false > file ask true (precedence)"
+    },
+    {
+      "id": "TC-196-status-reports-optout-source",
+      "acId": "AC-16102-2",
+      "description": "Cover AC-16102-2 (surfacing) via the CLI test: rcf feedback status --json reports optOutSource='file:rcf/feedback-settings.json' after opt-out; the same JSON call under env ASK=0 reports optOutSource='env:RCF_FEEDBACK_ASK=0'; under env DISABLE it reports 'env:RCF_FEEDBACK_DISABLE'.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-opt-out.test.js::AC-16102-2: status reports the opt-out source verbatim"
+    }
+  ],
+  "status": "draft"
+}

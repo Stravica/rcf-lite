@@ -20094,71 +20094,108 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   US-16101 --&gt; AC-16101-1
   FBS-184[&quot;FBS-184&lt;br/&gt;Slice 5: the ask&quot;]
   AC-16101-1 -.-&gt;|delivered by| FBS-184
+  CN-623[&quot;CN-623&lt;br/&gt;src/feedback/hook.js&quot;]
+  AC-16101-1 -.-&gt;|implemented by| CN-623
   AC-16101-2[&quot;AC-16101-2&quot;]
   US-16101 --&gt; AC-16101-2
   AC-16101-2 -.-&gt;|delivered by| FBS-184
+  CN-600[&quot;CN-600&lt;br/&gt;src/cli/feedback.js&quot;]
+  AC-16101-2 -.-&gt;|implemented by| CN-600
+  AC-16101-2 -.-&gt;|implemented by| CN-623
   AC-16101-3[&quot;AC-16101-3&quot;]
   US-16101 --&gt; AC-16101-3
   AC-16101-3 -.-&gt;|delivered by| FBS-184
+  AC-16101-3 -.-&gt;|implemented by| CN-600
+  AC-16101-3 -.-&gt;|implemented by| CN-623
   US-16102[&quot;US-16102&lt;br/&gt;Operator silences the ask for this project&quot;]
   REQ-161 --&gt; US-16102
   AC-16102-1[&quot;AC-16102-1&quot;]
   US-16102 --&gt; AC-16102-1
   AC-16102-1 -.-&gt;|delivered by| FBS-184
+  AC-16102-1 -.-&gt;|implemented by| CN-600
+  CN-601[&quot;CN-601&lt;br/&gt;src/feedback/store.js&quot;]
+  AC-16102-1 -.-&gt;|implemented by| CN-601
   AC-16102-2[&quot;AC-16102-2&quot;]
   US-16102 --&gt; AC-16102-2
   AC-16102-2 -.-&gt;|delivered by| FBS-184
+  AC-16102-2 -.-&gt;|implemented by| CN-600
+  AC-16102-2 -.-&gt;|implemented by| CN-601
   US-16103[&quot;US-16103&lt;br/&gt;A carried-over batch is offered next session&quot;]
   REQ-161 --&gt; US-16103
   AC-16103-1[&quot;AC-16103-1&quot;]
   US-16103 --&gt; AC-16103-1
   AC-16103-1 -.-&gt;|delivered by| FBS-184
+  AC-16103-1 -.-&gt;|implemented by| CN-600
+  AC-16103-1 -.-&gt;|implemented by| CN-623
   AC-16103-2[&quot;AC-16103-2&quot;]
   US-16103 --&gt; AC-16103-2
   AC-16103-2 -.-&gt;|delivered by| FBS-184
+  AC-16103-2 -.-&gt;|implemented by| CN-600
+  AC-16103-2 -.-&gt;|implemented by| CN-623
   US-16104[&quot;US-16104&lt;br/&gt;rcf init installs the feedback hooks and rcf ...&quot;]
   REQ-161 --&gt; US-16104
   AC-16104-1[&quot;AC-16104-1&quot;]
   US-16104 --&gt; AC-16104-1
   AC-16104-1 -.-&gt;|delivered by| FBS-184
+  CN-624[&quot;CN-624&lt;br/&gt;src/setup/feedback-hooks.js&quot;]
+  AC-16104-1 -.-&gt;|implemented by| CN-624
+  CN-625[&quot;CN-625&lt;br/&gt;src/cli/init.js&quot;]
+  AC-16104-1 -.-&gt;|implemented by| CN-625
   AC-16104-2[&quot;AC-16104-2&quot;]
   US-16104 --&gt; AC-16104-2
   AC-16104-2 -.-&gt;|delivered by| FBS-184
+  AC-16104-2 -.-&gt;|implemented by| CN-624
+  AC-16104-2 -.-&gt;|implemented by| CN-625
   AC-16104-3[&quot;AC-16104-3&quot;]
   US-16104 --&gt; AC-16104-3
   AC-16104-3 -.-&gt;|delivered by| FBS-184
+  CN-609[&quot;CN-609&lt;br/&gt;src/cli/doctor.js&quot;]
+  AC-16104-3 -.-&gt;|implemented by| CN-609
+  AC-16104-3 -.-&gt;|implemented by| CN-624
   click REQ-161 &quot;#REQ-161&quot;;
   click US-16101 &quot;#US-16101&quot;;
   click AC-16101-1 &quot;#AC-16101-1&quot;;
   click FBS-184 &quot;#FBS-184&quot;;
+  click CN-623 &quot;#CN-623&quot;;
   click AC-16101-2 &quot;#AC-16101-2&quot;;
+  click CN-600 &quot;#CN-600&quot;;
   click AC-16101-3 &quot;#AC-16101-3&quot;;
   click US-16102 &quot;#US-16102&quot;;
   click AC-16102-1 &quot;#AC-16102-1&quot;;
+  click CN-601 &quot;#CN-601&quot;;
   click AC-16102-2 &quot;#AC-16102-2&quot;;
   click US-16103 &quot;#US-16103&quot;;
   click AC-16103-1 &quot;#AC-16103-1&quot;;
   click AC-16103-2 &quot;#AC-16103-2&quot;;
   click US-16104 &quot;#US-16104&quot;;
   click AC-16104-1 &quot;#AC-16104-1&quot;;
+  click CN-624 &quot;#CN-624&quot;;
+  click CN-625 &quot;#CN-625&quot;;
   click AC-16104-2 &quot;#AC-16104-2&quot;;
   click AC-16104-3 &quot;#AC-16104-3&quot;;
+  click CN-609 &quot;#CN-609&quot;;
   class REQ-161 req;
   class US-16101 us;
   class AC-16101-1 ac;
   class FBS-184 fbs;
+  class CN-623 cn;
   class AC-16101-2 ac;
+  class CN-600 cn;
   class AC-16101-3 ac;
   class US-16102 us;
   class AC-16102-1 ac;
+  class CN-601 cn;
   class AC-16102-2 ac;
   class US-16103 us;
   class AC-16103-1 ac;
   class AC-16103-2 ac;
   class US-16104 us;
   class AC-16104-1 ac;
+  class CN-624 cn;
+  class CN-625 cn;
   class AC-16104-2 ac;
   class AC-16104-3 ac;
+  class CN-609 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -23791,7 +23828,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   <p><strong>Build philosophy:</strong> Dependency-first. Build the document store, then the read-only view surface, then mutating CRUD, then the query layer, then the build loop, then the MCP surface over everything below. Each layer is usable on its own before the next is added.</p>
   <p><strong>Generation strategy:</strong> dependencyFirst</p>
-  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li><li><strong>59.</strong> <a href="#FBS-120">FBS-120</a> - <span class="status notStarted">notStarted</span> - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</li><li><strong>60.</strong> <a href="#FBS-130">FBS-130</a> - <span class="status notStarted">notStarted</span> - T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock</li><li><strong>61.</strong> <a href="#FBS-140">FBS-140</a> - <span class="status notStarted">notStarted</span> - T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service</li><li><strong>62.</strong> <a href="#FBS-150">FBS-150</a> - <span class="status notStarted">notStarted</span> - T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes)</li><li><strong>63.</strong> <a href="#FBS-160">FBS-160</a> - <span class="status notStarted">notStarted</span> - Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: minor bump adds hetznerObjectStorage provider; new hetzner-endpoint helper on the fixture side; new hetzner-object-storage-round-trip probe (accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE); MinIO round-5 T-2 probes and R2 smoke unchanged</li><li><strong>64.</strong> <a href="#FBS-165">FBS-165</a> - <span class="status notStarted">notStarted</span> - H-1 hardening: deploy-hetzner-server v1.0.0 to v1.0.1 patch train; fixes the nine defects the round-7 real-account gate run d-2026-09-08-010 found; makes the shared throwaway-server fixture consume the same rendered cloud-init the real path consumes</li><li><strong>65.</strong> <a href="#FBS-170">FBS-170</a> - <span class="status notStarted">notStarted</span> - H-2 kv re-anchor and observability: five kv probes and README anchored to shipped AC-31xxx band; two previously-uncovered ACs gain runtime observables via facade-round-trip env.CACHE grep and event-secrecy whitelist scan; kv-anatomy test assertions moved with the re-anchor (addendum ruling 1)</li><li><strong>66.</strong> <a href="#FBS-171">FBS-171</a> - <span class="status notStarted">notStarted</span> - H-2 DO real storage round-trip driver and anchor coverage: real-account-storage-smoke replaces credential-readiness pass-stub with byte-equal put/get round-trip via deployed Worker (or wrangler-dev locally); five previously-unbound DO ACs bound as additional-result anchors on existing probes; DO anatomy test assertions extended for the new bindings</li><li><strong>67.</strong> <a href="#FBS-172">FBS-172</a> - <span class="status notStarted">notStarted</span> - H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended</li><li><strong>68.</strong> <a href="#FBS-173">FBS-173</a> - <span class="status notStarted">notStarted</span> - H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded</li><li><strong>69.</strong> <a href="#FBS-174">FBS-174</a> - <span class="status notStarted">notStarted</span> - H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty</li><li><strong>180.</strong> <a href="#FBS-180">FBS-180</a> - <span class="status notStarted">notStarted</span> - Slice 1: capture and store</li><li><strong>181.</strong> <a href="#FBS-181">FBS-181</a> - <span class="status complete">complete</span> - Slice 2: redaction, fingerprint, preview</li><li><strong>182.</strong> <a href="#FBS-182">FBS-182</a> - <span class="status complete">complete</span> - Slice 3: destination resolution</li><li><strong>183.</strong> <a href="#FBS-183">FBS-183</a> - <span class="status inProgress">inProgress</span> - Slice 4: submit, dedupe, fallback</li><li><strong>184.</strong> <a href="#FBS-184">FBS-184</a> - <span class="status notStarted">notStarted</span> - Slice 5: the ask</li><li><strong>185.</strong> <a href="#FBS-185">FBS-185</a> - <span class="status notStarted">notStarted</span> - Slice 6: instruction and release</li></ol></section>
+  <section class="field-list"><h4>FBS slots</h4><ol><li><strong>1.</strong> <a href="#FBS-001">FBS-001</a> - <span class="status complete">complete</span> - Document store core</li><li><strong>2.</strong> <a href="#FBS-002">FBS-002</a> - <span class="status complete">complete</span> - Tree walk and validate command</li><li><strong>3.</strong> <a href="#FBS-003">FBS-003</a> - <span class="status complete">complete</span> - Diagram rendering</li><li><strong>4.</strong> <a href="#FBS-004">FBS-004</a> - <span class="status complete">complete</span> - HTML page rendering</li><li><strong>5.</strong> <a href="#FBS-005">FBS-005</a> - <span class="status complete">complete</span> - CLI read verbs</li><li><strong>6.</strong> <a href="#FBS-006">FBS-006</a> - <span class="status complete">complete</span> - CLI create and update verbs</li><li><strong>7.</strong> <a href="#FBS-007">FBS-007</a> - <span class="status complete">complete</span> - CLI delete with reference safety</li><li><strong>8.</strong> <a href="#FBS-008">FBS-008</a> - <span class="status complete">complete</span> - Coverage and trace queries</li><li><strong>9.</strong> <a href="#FBS-009">FBS-009</a> - <span class="status complete">complete</span> - Impact analysis</li><li><strong>10.</strong> <a href="#FBS-010">FBS-010</a> - <span class="status complete">complete</span> - Build adapter prompt assembly</li><li><strong>11.</strong> <a href="#FBS-011">FBS-011</a> - <span class="status complete">complete</span> - Mark-done on completion</li><li><strong>12.</strong> <a href="#FBS-012">FBS-012</a> - <span class="status complete">complete</span> - MCP server over the full surface</li><li><strong>13.</strong> <a href="#FBS-013">FBS-013</a> - <span class="status notStarted">notStarted</span> - Deploy-aware elicitation and hosting guidance</li><li><strong>14.</strong> <a href="#FBS-014">FBS-014</a> - <span class="status notStarted">notStarted</span> - Local-preview default, runtime-honest verification, interim self-review</li><li><strong>15.</strong> <a href="#FBS-015">FBS-015</a> - <span class="status complete">complete</span> - `rcf verify` group routing (0.10.0 CLI reorganisation)</li><li><strong>16.</strong> <a href="#FBS-016">FBS-016</a> - <span class="status notStarted">notStarted</span> - Blueprint verb family (add, list, remove, upgrade) with manifest.blueprints[] writes</li><li><strong>17.</strong> <a href="#FBS-017">FBS-017</a> - <span class="status notStarted">notStarted</span> - Namespaced blueprint ids and scope:global ADR conflict surfacing</li><li><strong>18.</strong> <a href="#FBS-018">FBS-018</a> - <span class="status notStarted">notStarted</span> - Standards ingestion: rcf define standards add + reference-by-default</li><li><strong>19.</strong> <a href="#FBS-019">FBS-019</a> - <span class="status notStarted">notStarted</span> - Selective retrieval at bundle assembly (contextRequirements.standardIds)</li><li><strong>20.</strong> <a href="#FBS-020">FBS-020</a> - <span class="status verified">verified</span> - Verify pins the Playwright MCP version</li><li><strong>21.</strong> <a href="#FBS-021">FBS-021</a> - <span class="status verified">verified</span> - Blueprints amend for e2e as a declared test level</li><li><strong>22.</strong> <a href="#FBS-022">FBS-022</a> - <span class="status verified">verified</span> - Doctor: playwright-present, browser-present, playwright-mcp-reachable, playwright-mcp-redundant</li><li><strong>23.</strong> <a href="#FBS-023">FBS-023</a> - <span class="status verified">verified</span> - Init: Playwright MCP entry only when no scope-visible entry exists</li><li><strong>24.</strong> <a href="#FBS-024">FBS-024</a> - <span class="status verified">verified</span> - Three-way compose test asserting no globalAdrTopic conflict on healthProbes or readinessSemantics across every ordering</li><li><strong>25.</strong> <a href="#FBS-025">FBS-025</a> - <span class="status verified">verified</span> - Compose test assertion 3: greppable no-literal-path invariant on the applied rcf/ tree</li><li><strong>26.</strong> <a href="#FBS-026">FBS-026</a> - <span class="status verified">verified</span> - Compose test assertions 4-9 covering the per-blueprint ratified alignment facts and the probe-path-owner doctor check</li><li><strong>27.</strong> <a href="#FBS-027">FBS-027</a> - <span class="status verified">verified</span> - `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb (drops one manifest.resolutions[] entry; idempotent; refuses exit 2 on malformed or unknown id)</li><li><strong>28.</strong> <a href="#FBS-028">FBS-028</a> - <span class="status verified">verified</span> - observability-logging v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets), applies clean into a fresh fixture</li><li><strong>29.</strong> <a href="#FBS-029">FBS-029</a> - <span class="status verified">verified</span> - application-error-handling v1.0.0 shelf blueprint (contributions + README + guide + docs/topics.md + assets); errorHandling topic distinct from errorEnvelope</li><li><strong>30.</strong> <a href="#FBS-030">FBS-030</a> - <span class="status verified">verified</span> - Loader accepts providesRoles[] and suggestedCompanions[] with shape validation + em-dash / emoji refusal on reason strings + paired-scope:global-ADR gate</li><li><strong>31.</strong> <a href="#FBS-031">FBS-031</a> - <span class="status verified">verified</span> - rcf define blueprint add prints resolved companion suggestions after apply; --companion selectors preflight-refuse non-providers; --no-companion-suggestions suppresses both phases; pins land in rcf/companions.json</li><li><strong>32.</strong> <a href="#FBS-032">FBS-032</a> - <span class="status verified">verified</span> - rcf define blueprint companions &lt;slug&gt;|set|unset sub-verbs (text output with origin annotations; --json envelope; set/unset round-trip; unset without pin refuses)</li><li><strong>33.</strong> <a href="#FBS-033">FBS-033</a> - <span class="status verified">verified</span> - Deterministic tier ladder resolver (applied &gt; pinned &gt; registered library &gt; shelf); two-libraries-one-role refuses exit 3 with three-path resolution message on both add and companions verb; validate refuses unresolvable pin exit 3</li><li><strong>34.</strong> <a href="#FBS-034">FBS-034</a> - <span class="status verified">verified</span> - Loader accepts standardsTrace[] + per-ADR recommendedDefault / elicited / standardsTraceClause; refuses missing standardsTraceClause when standardsTrace is declared; no cross-check on clause severity to kind (amendment A2)</li><li><strong>35.</strong> <a href="#FBS-035">FBS-035</a> - <span class="status notStarted">notStarted</span> - rcf-lite consumer wiring for the rcf-schemas 0.6.0 EVAL node (L1 audit / L2 verdict / L3 finalise / L4 define + judge)</li><li><strong>36.</strong> <a href="#FBS-036">FBS-036</a> - <span class="status notStarted">notStarted</span> - Browser-verify runner extension: blueprint-shipped probe pack loader, scoping predicate, aggregate verdict and --probe-pack CLI</li><li><strong>37.</strong> <a href="#FBS-037">FBS-037</a> - <span class="status notStarted">notStarted</span> - application-datatable v1.0.0 blueprint on the shelf: 22 contributions, Playwright probe pack with six anchored checks, sample-app fixture</li><li><strong>38.</strong> <a href="#FBS-038">FBS-038</a> - <span class="status notStarted">notStarted</span> - application-charts v1.0.0 blueprint on the shelf: 15 contributions, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches</li><li><strong>39.</strong> <a href="#FBS-039">FBS-039</a> - <span class="status notStarted">notStarted</span> - application-dashboard v1.0.0 blueprint on the shelf: 18 contributions, packaged design guidance, Playwright probe pack with three anchored checks, sample-app fixture with negative-run switches, pack-browser resize seam extension</li><li><strong>40.</strong> <a href="#FBS-040">FBS-040</a> - <span class="status notStarted">notStarted</span> - application-notifications-in-app v1.0.0 blueprint on the shelf: 19 contributions, Playwright probe pack with three anchored checks, sample-app fixture with four break switches, and the family-prefix reservation across the shelf registry</li><li><strong>41.</strong> <a href="#FBS-041">FBS-041</a> - <span class="status notStarted">notStarted</span> - Capability-declaration mechanism and four shelf auth blueprint 1.1.0/1.2.0 minor bumps</li><li><strong>42.</strong> <a href="#FBS-042">FBS-042</a> - <span class="status notStarted">notStarted</span> - application-admin-console v1.0.0 blueprint on the shelf with capability-gated probe pack and sample-app fixture</li><li><strong>43.</strong> <a href="#FBS-043">FBS-043</a> - <span class="status notStarted">notStarted</span> - application-empty-error-states v1.0.0 blueprint on the shelf with the eight-state probe pack and sample-app fixture</li><li><strong>44.</strong> <a href="#FBS-060">FBS-060</a> - <span class="status notStarted">notStarted</span> - persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes against a live postgres:17-alpine container and a sample-app fixture</li><li><strong>45.</strong> <a href="#FBS-044">FBS-044</a> - <span class="status notStarted">notStarted</span> - application-file-upload v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>46.</strong> <a href="#FBS-061">FBS-061</a> - <span class="status notStarted">notStarted</span> - object-storage-s3 v1.0.0 blueprint on the shelf with six Node-only probes against MinIO plus one accountBound R2 smoke and a shared sample-app fixture (T-2 slice)</li><li><strong>47.</strong> <a href="#FBS-045">FBS-045</a> - <span class="status notStarted">notStarted</span> - application-forms-wizard v1.0.0 blueprint on the shelf with the four-check probe pack and sample-app fixture</li><li><strong>48.</strong> <a href="#FBS-046">FBS-046</a> - <span class="status notStarted">notStarted</span> - application-account-settings v1.0.0 blueprint on the shelf with 5-check probe pack, sample-app fixture, four auth-blueprint minor bumps, observability-logging minor and mechanism minor for Q3 refusal</li><li><strong>49.</strong> <a href="#FBS-047">FBS-047</a> - <span class="status notStarted">notStarted</span> - application-onboarding-tour v1.0.0 blueprint on the shelf with 4-check probe pack, dependency-free sample-app fixture composing on dashboard notifications-in-app account-settings SPA and Q4 fallback (spa-local-storage) when no persistence blueprint is applied</li><li><strong>50.</strong> <a href="#FBS-062">FBS-062</a> - <span class="status notStarted">notStarted</span> - messaging-queue-cloudflare v1.0.0 blueprint on the shelf with six Node-only probes against wrangler dev plus one accountBound real-account concurrency smoke and a shared sample-app fixture (T-3 slice)</li><li><strong>51.</strong> <a href="#FBS-063">FBS-063</a> - <span class="status notStarted">notStarted</span> - T-0 deploy-cloudflare-workers v1.2.0 minor bump: seven-contribution additive delta on the shipped v1.1.0 blueprint, cf-platform shared sample-app fixture, assets-manifest-scan probe module, anatomy test suite</li><li><strong>52.</strong> <a href="#FBS-064">FBS-064</a> - <span class="status notStarted">notStarted</span> - jobs-background v1.0.0 blueprint on the shelf with five Node-only probes wired to the T-3 in-memory queue seam, a shared sample-app fixture extension carrying two toy jobs plus jobs-runtime plus scheduler, plus the CLI --allow-no-queue-yet flag and the queue-family sidecar-notes derivation on the T-5 mechanism (T-4 slice, post-#164 re-mint)</li><li><strong>53.</strong> <a href="#FBS-070">FBS-070</a> - <span class="status notStarted">notStarted</span> - T-1 platform-cloudflare-kv v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs, cf-platform fixture KV extension, 5 Node-only probes, anatomy test</li><li><strong>54.</strong> <a href="#FBS-080">FBS-080</a> - <span class="status notStarted">notStarted</span> - T-2 platform-cloudflare-cron-triggers v1.0.0: 4 REQs 7 USs 10 ACs 3 TACs 3 ADRs, cf-platform fixture cron extension, 5 Node-only probes, anatomy test</li><li><strong>55.</strong> <a href="#FBS-090">FBS-090</a> - <span class="status notStarted">notStarted</span> - T-3 platform-cloudflare-durable-objects v1.0.0: 8 REQs 10 USs 10 ACs 5 TACs 5 ADRs, cf-platform fixture DO extension, 7 Node-only probes, anatomy test</li><li><strong>56.</strong> <a href="#FBS-100">FBS-100</a> - <span class="status notStarted">notStarted</span> - T-4 edge-cloudflare-access v1.0.0: 6 REQs 9 USs 9 ACs 4 TACs 4 ADRs, cf-edge fixture with JWT signer + JWKS, 5 Node-only probes + 1 wrangler-seam probe, anatomy test</li><li><strong>57.</strong> <a href="#FBS-101">FBS-101</a> - <span class="status notStarted">notStarted</span> - T-4 application-admin-console v1.1.0 additive minor: consume zeroTrustGate optionally, Access-gated sign-in surface pack check AC-21815-1 on the existing application-admin-console.pack.mjs</li><li><strong>58.</strong> <a href="#FBS-110">FBS-110</a> - <span class="status notStarted">notStarted</span> - T-5 edge-cloudflare-turnstile v1.0.0: 5 REQs 8 USs 8 ACs 3 TACs 3 ADRs, dedicated probe-pack-edge-cloudflare-turnstile fixture with pinned test sitekeys, 4 Node-only probes and 1 Playwright pack with 4 checks</li><li><strong>59.</strong> <a href="#FBS-120">FBS-120</a> - <span class="status notStarted">notStarted</span> - T-6 edge-cloudflare-rate-limiting v1.0.0: 5 REQs, 8 USs, 8 ACs, 3 TACs, 4 ADRs, 4 Node-only probes; cf-edge fixture extended with rate-limit manifests, schema, drift-audit runner and induced-failure switches</li><li><strong>60.</strong> <a href="#FBS-130">FBS-130</a> - <span class="status notStarted">notStarted</span> - T-1 deploy-hetzner-server v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 6 Node-only probes; shared hetzner-throwaway-server fixture mint with provision/destroy/sweep-orphans and dry-run mock</li><li><strong>61.</strong> <a href="#FBS-140">FBS-140</a> - <span class="status notStarted">notStarted</span> - T-2 platform-docker-compose-host v1.0.0: 6 REQs 9 USs 4 TACs 4 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with compose stack, Caddyfile, secret file mount and healthchecked service</li><li><strong>62.</strong> <a href="#FBS-150">FBS-150</a> - <span class="status notStarted">notStarted</span> - T-3 edge-cloudflare-tunnel v1.0.0: 5 REQs 8 USs 3 TACs 3 ADRs 5 Node-only probes; extend shared hetzner-throwaway-server fixture with cloudflared connector (compose-service and systemd-unit variants; access-gated and public-hostname sidecar modes)</li><li><strong>63.</strong> <a href="#FBS-160">FBS-160</a> - <span class="status notStarted">notStarted</span> - Adapter object-storage-s3 v1.1.0 Hetzner Object Storage: minor bump adds hetznerObjectStorage provider; new hetzner-endpoint helper on the fixture side; new hetzner-object-storage-round-trip probe (accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE); MinIO round-5 T-2 probes and R2 smoke unchanged</li><li><strong>64.</strong> <a href="#FBS-165">FBS-165</a> - <span class="status notStarted">notStarted</span> - H-1 hardening: deploy-hetzner-server v1.0.0 to v1.0.1 patch train; fixes the nine defects the round-7 real-account gate run d-2026-09-08-010 found; makes the shared throwaway-server fixture consume the same rendered cloud-init the real path consumes</li><li><strong>65.</strong> <a href="#FBS-170">FBS-170</a> - <span class="status notStarted">notStarted</span> - H-2 kv re-anchor and observability: five kv probes and README anchored to shipped AC-31xxx band; two previously-uncovered ACs gain runtime observables via facade-round-trip env.CACHE grep and event-secrecy whitelist scan; kv-anatomy test assertions moved with the re-anchor (addendum ruling 1)</li><li><strong>66.</strong> <a href="#FBS-171">FBS-171</a> - <span class="status notStarted">notStarted</span> - H-2 DO real storage round-trip driver and anchor coverage: real-account-storage-smoke replaces credential-readiness pass-stub with byte-equal put/get round-trip via deployed Worker (or wrangler-dev locally); five previously-unbound DO ACs bound as additional-result anchors on existing probes; DO anatomy test assertions extended for the new bindings</li><li><strong>67.</strong> <a href="#FBS-172">FBS-172</a> - <span class="status notStarted">notStarted</span> - H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended</li><li><strong>68.</strong> <a href="#FBS-173">FBS-173</a> - <span class="status notStarted">notStarted</span> - H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded</li><li><strong>69.</strong> <a href="#FBS-174">FBS-174</a> - <span class="status notStarted">notStarted</span> - H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty</li><li><strong>180.</strong> <a href="#FBS-180">FBS-180</a> - <span class="status notStarted">notStarted</span> - Slice 1: capture and store</li><li><strong>181.</strong> <a href="#FBS-181">FBS-181</a> - <span class="status complete">complete</span> - Slice 2: redaction, fingerprint, preview</li><li><strong>182.</strong> <a href="#FBS-182">FBS-182</a> - <span class="status complete">complete</span> - Slice 3: destination resolution</li><li><strong>183.</strong> <a href="#FBS-183">FBS-183</a> - <span class="status inProgress">inProgress</span> - Slice 4: submit, dedupe, fallback</li><li><strong>184.</strong> <a href="#FBS-184">FBS-184</a> - <span class="status complete">complete</span> - Slice 5: the ask</li><li><strong>185.</strong> <a href="#FBS-185">FBS-185</a> - <span class="status notStarted">notStarted</span> - Slice 6: instruction and release</li></ol></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -29673,7 +29710,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
 </article>
 </details>
 <details class="doc-details doc-fbs-wrap" data-doc-id="FBS-184">
-  <summary><span class="summary-label">FBS-184 - Slice 5: the ask</span><span class="status notStarted">notStarted</span></summary>
+  <summary><span class="summary-label">FBS-184 - Slice 5: the ask</span><span class="status complete">complete</span></summary>
   <article id="FBS-184" class="doc doc-fbs">
   <h3>FBS-184 - Slice 5: the ask</h3>
   
@@ -29748,14 +29785,14 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <section class="field-list"><h4>Deliverables</h4><ul><li>hook.js with pure quiet-rule shouldAsk and per-harness emit</li><li>feedback-hooks.js installer merged into .claude/settings.json and .codex/hooks.json</li><li>rcf init step 6; --no-feedback-hooks flag; doctor feedback-hooks check</li><li>rcf feedback opt-in / opt-out sub-verbs; RCF_FEEDBACK_ASK, RCF_FEEDBACK_DISABLE env</li><li>session-end bundle flush and session-start carry-over context line</li></ul></section>
   <p><strong>Risk level:</strong> medium</p>
   <p><strong>Build order:</strong> 184</p>
-  <p><strong>Execution status:</strong> notStarted</p>
+  <p><strong>Execution status:</strong> complete</p>
   <p><strong>Notes:</strong> Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17. Design section 9 decision: no global (~/.config) setting in v1 (rejected: a ~/.rcf/feedback.json file, because the behaviour a teammate sees on a shared project should come from the project, not from someone&#39;s home directory; a per-machine preference is the RCF_FEEDBACK_ASK env var).</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;fbsId&quot;: &quot;FBS-184&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;bsId&quot;: &quot;BS-001&quot;,
   &quot;buildOrder&quot;: 184,
-  &quot;executionStatus&quot;: &quot;notStarted&quot;,
+  &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;title&quot;: &quot;Slice 5: the ask&quot;,
   &quot;summary&quot;: &quot;Deliver REQ-161 (One ask per session, at idle, never automatic): hook quiet rule, per-harness hook handlers, installer wired into rcf init, doctor feedback-hooks check, settings file, env variables, opt-in/opt-out sub-verbs.&quot;,
   &quot;approach&quot;: &quot;Write src/feedback/hook.js with pure shouldAsk() and per-harness emit(). Write src/setup/feedback-hooks.js installer (mergeable). Wire init Step 6 and doctor feedback-hooks check. Add hook sub-verb and opt-in/opt-out sub-verbs. Add rcf/feedback-settings.json handling. Add RCF_FEEDBACK_ASK and RCF_FEEDBACK_DISABLE env handling.&quot;,
@@ -29796,7 +29833,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   &quot;estimatedHours&quot;: 16,
   &quot;notes&quot;: &quot;Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17. Design section 9 decision: no global (~/.config) setting in v1 (rejected: a ~/.rcf/feedback.json file, because the behaviour a teammate sees on a shared project should come from the project, not from someone&#39;s home directory; a per-machine preference is the RCF_FEEDBACK_ASK env var).&quot;,
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T14:14:36Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;
 }
 </pre></details>
 </article>
@@ -39240,6 +39277,424 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-16001-4 via the CLI test: an applied library whose registry entry carries neither issuesRepo nor a derivable github source, plus publisher.contact &#39;orphan-owners@example.com&#39;; submit writes .rcf/feedback/outbox/&lt;ISO&gt;-unresolved[-&lt;id&gt;].md, prints publisher.contact on the same line as the outbox path, makes no gh create/comment/search call for that entry, entry state is bundled, exit 0.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-16001-4: unresolved destination writes an unresolved-slug bundle with publisher contact, no gh call&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-195">
+  <summary><span class="summary-label">TS-195 - Slice 5 (FBS-184): quiet-rule truth table plus per-harness Stop emit and same-session ledger idempotency</span><span class="status draft">draft</span></summary>
+  <article id="TS-195" class="doc doc-ts">
+  <h3>TS-195 - Slice 5 (FBS-184): quiet-rule truth table plus per-harness Stop emit and same-session ledger idempotency</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-16101">US-16101</a></p>
+  <p><strong>Purpose:</strong> Cover AC-16101-1 (shouldAsk applies the design-3.5 quiet rule: silent unless not-opted-out + pending + not-asked-this-session + stop-hook-inactive AND one of ask-now/older-than-quietMinutes/queue-complete/carried-over), AC-16101-2 (Stop on Claude Code exits 2 with the ask on stderr; Stop on Codex emits { decision: &#39;block&#39;, reason } on stdout with exit 0; the asked ledger is appended in both cases) and AC-16101-3 (a same-session second Stop is silent, a fresh session_id re-asks, and a Stop with stop_hook_active is silent even on a fresh session).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16101-1">AC-16101-1</a>, <a href="#AC-16101-2">AC-16101-2</a>, <a href="#AC-16101-3">AC-16101-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-195-quiet-rule-truth-table">
+  <p><strong>TC-195-quiet-rule-truth-table</strong> - covers <a href="#AC-16101-1">AC-16101-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16101-1 via the unit test: shouldAsk is total, deterministic and pure; a table walks opt-out (file/env), pending count, asked-this-session, stop-hook-active, ask-now, age-vs-quietMinutes (14 min: silent; 15 min: ask; 60 min: ask; quietMinutes 0/60 boundaries), queue-complete and carried-over rows and asserts the expected &#39;ask&#39;/&#39;silent&#39; verdict on each; buildAskReason names all four next-step verbs and the do-not-ask clause.</p>
+  <p><em>Test pointer:</em> <code>test/feedback/hook-quiet-rule.test.js::AC-16101-1: shouldAsk is ask when the newest pending entry crosses quietMinutes</code></p>
+</div>
+<div class="tc" id="TC-195-hook-stop-claude-code">
+  <p><strong>TC-195-hook-stop-claude-code</strong> - covers <a href="#AC-16101-2">AC-16101-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16101-2 (Claude Code half) via the CLI test: rcf feedback hook stop --harness claude-code with one pending entry and a mock Stop payload exits 2, writes the reason (all four verbs + do-not-ask) to stderr, writes nothing on stdout, and appends exactly one asked record to .rcf/feedback/state.json for the payload session_id.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16101-2: Stop on Claude Code exits 2 with the ask on stderr and appends ledger</code></p>
+</div>
+<div class="tc" id="TC-195-hook-stop-codex">
+  <p><strong>TC-195-hook-stop-codex</strong> - covers <a href="#AC-16101-2">AC-16101-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16101-2 (Codex half) via the CLI test: rcf feedback hook stop --harness codex emits stdout JSON parseable as { decision: &#39;block&#39;, reason: &lt;same clause&gt; }, exits 0, writes nothing on stderr, and appends exactly one asked record to state.json for the payload session_id.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16101-2: Stop on Codex emits stdout JSON block, exit 0, ledger appended</code></p>
+</div>
+<div class="tc" id="TC-195-hook-same-session-silent-then-fresh-reasks">
+  <p><strong>TC-195-hook-same-session-silent-then-fresh-reasks</strong> - covers <a href="#AC-16101-3">AC-16101-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16101-3 via the CLI test: two Stop invocations with the same session_id in sequence produce ask (exit 2) then silent (exit 0, no stderr); a third invocation with a fresh session_id re-asks (exit 2) because the pending entry is carried over; state.json ends with exactly two asked records for the two distinct sessionIds.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16101-3: same-session second Stop is silent; a fresh session_id re-asks</code></p>
+</div>
+<div class="tc" id="TC-195-hook-stop-hook-active-silent">
+  <p><strong>TC-195-hook-stop-hook-active-silent</strong> - covers <a href="#AC-16101-3">AC-16101-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16101-3 (stop_hook_active branch) via the CLI test: a Stop payload with stop_hook_active: true and a fresh session_id and a pending --ask-now entry still exits 0 with no reason emitted; the loop-guard fires even when every other trigger would.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16101-3: Stop with stop_hook_active is silent even on a fresh session</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-16101-1 (shouldAsk applies the design-3.5 quiet rule: silent unless not-opted-out + pending + not-asked-this-session + stop-hook-inactive AND one of ask-now/older-than-quietMinutes/queue-complete/carried-over), AC-16101-2 (Stop on Claude Code exits 2 with the ask on stderr; Stop on Codex emits { decision: &#39;block&#39;, reason } on stdout with exit 0; the asked ledger is appended in both cases) and AC-16101-3 (a same-session second Stop is silent, a fresh session_id re-asks, and a Stop with stop_hook_active is silent even on a fresh session).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-16101-1&quot;,
+    &quot;AC-16101-2&quot;,
+    &quot;AC-16101-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-195&quot;,
+  &quot;usId&quot;: &quot;US-16101&quot;,
+  &quot;title&quot;: &quot;Slice 5 (FBS-184): quiet-rule truth table plus per-harness Stop emit and same-session ledger idempotency&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-195-quiet-rule-truth-table&quot;,
+      &quot;acId&quot;: &quot;AC-16101-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16101-1 via the unit test: shouldAsk is total, deterministic and pure; a table walks opt-out (file/env), pending count, asked-this-session, stop-hook-active, ask-now, age-vs-quietMinutes (14 min: silent; 15 min: ask; 60 min: ask; quietMinutes 0/60 boundaries), queue-complete and carried-over rows and asserts the expected &#39;ask&#39;/&#39;silent&#39; verdict on each; buildAskReason names all four next-step verbs and the do-not-ask clause.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/feedback/hook-quiet-rule.test.js::AC-16101-1: shouldAsk is ask when the newest pending entry crosses quietMinutes&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-195-hook-stop-claude-code&quot;,
+      &quot;acId&quot;: &quot;AC-16101-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16101-2 (Claude Code half) via the CLI test: rcf feedback hook stop --harness claude-code with one pending entry and a mock Stop payload exits 2, writes the reason (all four verbs + do-not-ask) to stderr, writes nothing on stdout, and appends exactly one asked record to .rcf/feedback/state.json for the payload session_id.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16101-2: Stop on Claude Code exits 2 with the ask on stderr and appends ledger&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-195-hook-stop-codex&quot;,
+      &quot;acId&quot;: &quot;AC-16101-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16101-2 (Codex half) via the CLI test: rcf feedback hook stop --harness codex emits stdout JSON parseable as { decision: &#39;block&#39;, reason: &lt;same clause&gt; }, exits 0, writes nothing on stderr, and appends exactly one asked record to state.json for the payload session_id.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16101-2: Stop on Codex emits stdout JSON block, exit 0, ledger appended&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-195-hook-same-session-silent-then-fresh-reasks&quot;,
+      &quot;acId&quot;: &quot;AC-16101-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16101-3 via the CLI test: two Stop invocations with the same session_id in sequence produce ask (exit 2) then silent (exit 0, no stderr); a third invocation with a fresh session_id re-asks (exit 2) because the pending entry is carried over; state.json ends with exactly two asked records for the two distinct sessionIds.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16101-3: same-session second Stop is silent; a fresh session_id re-asks&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-195-hook-stop-hook-active-silent&quot;,
+      &quot;acId&quot;: &quot;AC-16101-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16101-3 (stop_hook_active branch) via the CLI test: a Stop payload with stop_hook_active: true and a fresh session_id and a pending --ask-now entry still exits 0 with no reason emitted; the loop-guard fires even when every other trigger would.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16101-3: Stop with stop_hook_active is silent even on a fresh session&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-196">
+  <summary><span class="summary-label">TS-196 - Slice 5 (FBS-184): rcf feedback opt-out / opt-in write ask false / true; env DISABLE and env ASK override the file with the documented precedence</span><span class="status draft">draft</span></summary>
+  <article id="TS-196" class="doc doc-ts">
+  <h3>TS-196 - Slice 5 (FBS-184): rcf feedback opt-out / opt-in write ask false / true; env DISABLE and env ASK override the file with the documented precedence</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-16102">US-16102</a></p>
+  <p><strong>Purpose:</strong> Cover AC-16102-1 (rcf feedback opt-out writes rcf/feedback-settings.json ask: false with the defaults merged, the hook returns silent under ask: false, and add/preview keep working) and AC-16102-2 (RCF_FEEDBACK_DISABLE=1 makes add a no-op that prints &#39;feedback disabled by env&#39; and writes nothing; RCF_FEEDBACK_ASK=0 silences the hook while leaving add working; precedence order env DISABLE &gt; env ASK=0 &gt; file ask false &gt; file ask true).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16102-1">AC-16102-1</a>, <a href="#AC-16102-2">AC-16102-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-196-optout-writes-settings-and-silences-hook">
+  <p><strong>TC-196-optout-writes-settings-and-silences-hook</strong> - covers <a href="#AC-16102-1">AC-16102-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-1 via the CLI test: rcf feedback opt-out on a fresh project writes rcf/feedback-settings.json with { settingsVersion: 1, ask: false, quietMinutes: 15, redaction: { allowHosts: [] } }; a subsequent Stop hook on a pending --ask-now entry exits 0 silently; add and preview keep working under ask: false.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-1: opt-out writes ask: false and preserves defaults; the hook goes silent</code></p>
+</div>
+<div class="tc" id="TC-196-optin-restores-ask-true">
+  <p><strong>TC-196-optin-restores-ask-true</strong> - covers <a href="#AC-16102-1">AC-16102-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-1 (round-trip) via the CLI test: rcf feedback opt-in after an opt-out flips ask back to true and preserves quietMinutes and redaction.allowHosts on the file.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-1: opt-in restores ask true and preserves other fields</code></p>
+</div>
+<div class="tc" id="TC-196-env-disable-no-ops-add">
+  <p><strong>TC-196-env-disable-no-ops-add</strong> - covers <a href="#AC-16102-2">AC-16102-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-2 (DISABLE branch) via the CLI test: rcf feedback add under RCF_FEEDBACK_DISABLE=1 prints exactly &#39;feedback disabled by env&#39; on stdout, exits 0 and writes nothing under .rcf/feedback/.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_DISABLE=1 makes `add` a no-op that prints the disabled line</code></p>
+</div>
+<div class="tc" id="TC-196-env-ask-silences-hook-only">
+  <p><strong>TC-196-env-ask-silences-hook-only</strong> - covers <a href="#AC-16102-2">AC-16102-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-2 (ASK=0 branch) via the CLI test: with ask: true on the file, rcf feedback add works normally; rcf feedback hook stop under RCF_FEEDBACK_ASK=0 exits 0 silently on a pending --ask-now entry.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_ASK=0 keeps add working, silences the hook</code></p>
+</div>
+<div class="tc" id="TC-196-precedence-order">
+  <p><strong>TC-196-precedence-order</strong> - covers <a href="#AC-16102-2">AC-16102-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-2 (precedence) via the CLI test: the same fixture with a pending --ask-now entry walks four combinations (no-env + file ask:true -&gt; ask; file ask:false -&gt; silent; file ask:true + env ASK=0 -&gt; silent; env DISABLE -&gt; silent) so the documented env-DISABLE &gt; env-ASK &gt; file precedence is asserted end-to-end.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-2: env DISABLE &gt; env ASK=0 &gt; file ask false &gt; file ask true (precedence)</code></p>
+</div>
+<div class="tc" id="TC-196-status-reports-optout-source">
+  <p><strong>TC-196-status-reports-optout-source</strong> - covers <a href="#AC-16102-2">AC-16102-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16102-2 (surfacing) via the CLI test: rcf feedback status --json reports optOutSource=&#39;file:rcf/feedback-settings.json&#39; after opt-out; the same JSON call under env ASK=0 reports optOutSource=&#39;env:RCF_FEEDBACK_ASK=0&#39;; under env DISABLE it reports &#39;env:RCF_FEEDBACK_DISABLE&#39;.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-opt-out.test.js::AC-16102-2: status reports the opt-out source verbatim</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-16102-1 (rcf feedback opt-out writes rcf/feedback-settings.json ask: false with the defaults merged, the hook returns silent under ask: false, and add/preview keep working) and AC-16102-2 (RCF_FEEDBACK_DISABLE=1 makes add a no-op that prints &#39;feedback disabled by env&#39; and writes nothing; RCF_FEEDBACK_ASK=0 silences the hook while leaving add working; precedence order env DISABLE &gt; env ASK=0 &gt; file ask false &gt; file ask true).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-16102-1&quot;,
+    &quot;AC-16102-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-196&quot;,
+  &quot;usId&quot;: &quot;US-16102&quot;,
+  &quot;title&quot;: &quot;Slice 5 (FBS-184): rcf feedback opt-out / opt-in write ask false / true; env DISABLE and env ASK override the file with the documented precedence&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-196-optout-writes-settings-and-silences-hook&quot;,
+      &quot;acId&quot;: &quot;AC-16102-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-1 via the CLI test: rcf feedback opt-out on a fresh project writes rcf/feedback-settings.json with { settingsVersion: 1, ask: false, quietMinutes: 15, redaction: { allowHosts: [] } }; a subsequent Stop hook on a pending --ask-now entry exits 0 silently; add and preview keep working under ask: false.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-1: opt-out writes ask: false and preserves defaults; the hook goes silent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-196-optin-restores-ask-true&quot;,
+      &quot;acId&quot;: &quot;AC-16102-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-1 (round-trip) via the CLI test: rcf feedback opt-in after an opt-out flips ask back to true and preserves quietMinutes and redaction.allowHosts on the file.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-1: opt-in restores ask true and preserves other fields&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-196-env-disable-no-ops-add&quot;,
+      &quot;acId&quot;: &quot;AC-16102-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-2 (DISABLE branch) via the CLI test: rcf feedback add under RCF_FEEDBACK_DISABLE=1 prints exactly &#39;feedback disabled by env&#39; on stdout, exits 0 and writes nothing under .rcf/feedback/.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_DISABLE=1 makes `add` a no-op that prints the disabled line&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-196-env-ask-silences-hook-only&quot;,
+      &quot;acId&quot;: &quot;AC-16102-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-2 (ASK=0 branch) via the CLI test: with ask: true on the file, rcf feedback add works normally; rcf feedback hook stop under RCF_FEEDBACK_ASK=0 exits 0 silently on a pending --ask-now entry.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-2: RCF_FEEDBACK_ASK=0 keeps add working, silences the hook&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-196-precedence-order&quot;,
+      &quot;acId&quot;: &quot;AC-16102-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-2 (precedence) via the CLI test: the same fixture with a pending --ask-now entry walks four combinations (no-env + file ask:true -&gt; ask; file ask:false -&gt; silent; file ask:true + env ASK=0 -&gt; silent; env DISABLE -&gt; silent) so the documented env-DISABLE &gt; env-ASK &gt; file precedence is asserted end-to-end.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-2: env DISABLE &gt; env ASK=0 &gt; file ask false &gt; file ask true (precedence)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-196-status-reports-optout-source&quot;,
+      &quot;acId&quot;: &quot;AC-16102-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16102-2 (surfacing) via the CLI test: rcf feedback status --json reports optOutSource=&#39;file:rcf/feedback-settings.json&#39; after opt-out; the same JSON call under env ASK=0 reports optOutSource=&#39;env:RCF_FEEDBACK_ASK=0&#39;; under env DISABLE it reports &#39;env:RCF_FEEDBACK_DISABLE&#39;.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-opt-out.test.js::AC-16102-2: status reports the opt-out source verbatim&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-197">
+  <summary><span class="summary-label">TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness</span><span class="status draft">draft</span></summary>
+  <article id="TS-197" class="doc doc-ts">
+  <h3>TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-16103">US-16103</a></p>
+  <p><strong>Purpose:</strong> Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16103-1">AC-16103-1</a>, <a href="#AC-16103-2">AC-16103-2</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-197-session-end-writes-idempotent-bundle">
+  <p><strong>TC-197-session-end-writes-idempotent-bundle</strong> - covers <a href="#AC-16103-1">AC-16103-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-1 via the CLI test: rcf feedback hook session-end with one pending entry writes a single .rcf/feedback/outbox/&lt;ISO&gt;-session-end.md file with the design section 4.2 header; a re-run with the same pending set does not create a second file (byte-idempotent); the two-call round trip completes in well under the SessionEnd budget.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-1: SessionEnd writes one bundle and is byte-idempotent on a re-run</code></p>
+</div>
+<div class="tc" id="TC-197-session-start-claude-code-line">
+  <p><strong>TC-197-session-start-claude-code-line</strong> - covers <a href="#AC-16103-2">AC-16103-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-2 (Claude Code shape) via the CLI test: rcf feedback hook session-start --harness claude-code with a pending entry recorded under a different sessionId prints the exact carry-over line naming the count and citing RULE 17 to stdout; exit 0; state.json is not created (the ledger is set on Stop, not on session-start).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Claude Code prints the carry-over line for a new session</code></p>
+</div>
+<div class="tc" id="TC-197-session-start-codex-additional-context">
+  <p><strong>TC-197-session-start-codex-additional-context</strong> - covers <a href="#AC-16103-2">AC-16103-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-2 (Codex shape) via the CLI test: rcf feedback hook session-start --harness codex emits a stdout JSON with additionalContext carrying the same carry-over line.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Codex emits the additionalContext JSON shape</code></p>
+</div>
+<div class="tc" id="TC-197-session-start-silent-when-nothing-carried-over">
+  <p><strong>TC-197-session-start-silent-when-nothing-carried-over</strong> - covers <a href="#AC-16103-2">AC-16103-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-16103-1&quot;,
+    &quot;AC-16103-2&quot;
+  ],
+  &quot;id&quot;: &quot;TS-197&quot;,
+  &quot;usId&quot;: &quot;US-16103&quot;,
+  &quot;title&quot;: &quot;Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-197-session-end-writes-idempotent-bundle&quot;,
+      &quot;acId&quot;: &quot;AC-16103-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-1 via the CLI test: rcf feedback hook session-end with one pending entry writes a single .rcf/feedback/outbox/&lt;ISO&gt;-session-end.md file with the design section 4.2 header; a re-run with the same pending set does not create a second file (byte-idempotent); the two-call round trip completes in well under the SessionEnd budget.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-1: SessionEnd writes one bundle and is byte-idempotent on a re-run&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-session-start-claude-code-line&quot;,
+      &quot;acId&quot;: &quot;AC-16103-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-2 (Claude Code shape) via the CLI test: rcf feedback hook session-start --harness claude-code with a pending entry recorded under a different sessionId prints the exact carry-over line naming the count and citing RULE 17 to stdout; exit 0; state.json is not created (the ledger is set on Stop, not on session-start).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Claude Code prints the carry-over line for a new session&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-session-start-codex-additional-context&quot;,
+      &quot;acId&quot;: &quot;AC-16103-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-2 (Codex shape) via the CLI test: rcf feedback hook session-start --harness codex emits a stdout JSON with additionalContext carrying the same carry-over line.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Codex emits the additionalContext JSON shape&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-session-start-silent-when-nothing-carried-over&quot;,
+      &quot;acId&quot;: &quot;AC-16103-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;draft&quot;
+}
+</pre></details>
+</article>
+</details>
+<details class="doc-details doc-ts-wrap" data-doc-id="TS-198">
+  <summary><span class="summary-label">TS-198 - Slice 5 (FBS-184): rcf init installs the feedback hooks and rcf doctor feedback-hooks keeps them honest across clones</span><span class="status draft">draft</span></summary>
+  <article id="TS-198" class="doc doc-ts">
+  <h3>TS-198 - Slice 5 (FBS-184): rcf init installs the feedback hooks and rcf doctor feedback-hooks keeps them honest across clones</h3>
+  
+  <p><strong>Verifies user story:</strong> <a href="#US-16104">US-16104</a></p>
+  <p><strong>Purpose:</strong> Cover AC-16104-1 (rcf init merges three feedback hook entries into .claude/settings.json and .codex/hooks.json with the design-3.5 shape, the matcher startup|resume on SessionStart, timeouts 10/5/5, is byte-idempotent on re-init, preserves neighbouring hooks and honours --bin-path with the node &lt;path&gt; pinned shape), AC-16104-2 (--no-feedback-hooks writes neither file and prints the RULE 17 fallback line once) and AC-16104-3 (rcf doctor --check feedback-hooks reports missing-hook per file per event when absent, --fix installs them, foreign-hook is refused with the entry left in place, a clean tree exits 0 with no writes, and a parse-error on the settings file is refused).</p>
+  <p><strong>Test level:</strong> integration</p>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16104-1">AC-16104-1</a>, <a href="#AC-16104-2">AC-16104-2</a>, <a href="#AC-16104-3">AC-16104-3</a></p></section>
+  <p><strong>Status:</strong> draft</p>
+  <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-198-init-writes-both-configs">
+  <p><strong>TC-198-init-writes-both-configs</strong> - covers <a href="#AC-16104-1">AC-16104-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-1 via the CLI test: rcf init on a fresh project writes three feedback hook entries into .claude/settings.json (Stop 10s, SessionEnd 5s, SessionStart 5s with matcher startup|resume) and three matching entries into .codex/hooks.json (Codex JSON shape); every command line is &#39;npx rcf-lite feedback hook &lt;event&gt; --harness &lt;h&gt;&#39;.</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-feedback-hooks.test.js::AC-16104-1: rcf init writes three feedback hook entries into both harness files</code></p>
+</div>
+<div class="tc" id="TC-198-init-idempotent">
+  <p><strong>TC-198-init-idempotent</strong> - covers <a href="#AC-16104-1">AC-16104-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-1 (idempotency) via the CLI test: a second rcf init against the same tree produces no byte change on either .claude/settings.json or .codex/hooks.json.</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-feedback-hooks.test.js::AC-16104-1: re-init on the same tree is byte-idempotent</code></p>
+</div>
+<div class="tc" id="TC-198-init-preserves-existing-hooks">
+  <p><strong>TC-198-init-preserves-existing-hooks</strong> - covers <a href="#AC-16104-1">AC-16104-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-1 (preserve) via the CLI test: a pre-existing .claude/settings.json with an unrelated Stop hook AND an unrelated top-level key survives rcf init; the feedback Stop entry is added alongside the unrelated one, not in place of it.</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-feedback-hooks.test.js::AC-16104-1: pre-existing hooks are preserved; feedback entries added alongside</code></p>
+</div>
+<div class="tc" id="TC-198-init-bin-path-pins-node">
+  <p><strong>TC-198-init-bin-path-pins-node</strong> - covers <a href="#AC-16104-1">AC-16104-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-1 (--bin-path pinned shape) via the CLI test: rcf init --bin-path /opt/pinned-rcf/rcf.js writes hook commands as &#39;node /opt/pinned-rcf/rcf.js feedback hook &lt;event&gt; --harness &lt;h&gt;&#39; instead of the npx rcf-lite shape.</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-feedback-hooks.test.js::AC-16104-1: --bin-path pins the hook command to node &lt;path&gt;</code></p>
+</div>
+<div class="tc" id="TC-198-init-no-feedback-hooks">
+  <p><strong>TC-198-init-no-feedback-hooks</strong> - covers <a href="#AC-16104-2">AC-16104-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-2 via the CLI test: rcf init --no-feedback-hooks exits 0, writes neither .claude/settings.json nor .codex/hooks.json, and prints the no-feedback-hooks fallback line naming RULE 17.</p>
+  <p><em>Test pointer:</em> <code>test/cli/init-feedback-hooks.test.js::AC-16104-2: --no-feedback-hooks writes neither file and prints the fallback line</code></p>
+</div>
+<div class="tc" id="TC-198-doctor-missing-hooks">
+  <p><strong>TC-198-doctor-missing-hooks</strong> - covers <a href="#AC-16104-3">AC-16104-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-3 (missing-hook detection) via the CLI test: rcf doctor --check feedback-hooks --json against a project scaffolded without hook install reports exactly three missing-hook rows for .claude/settings.json and three for .codex/hooks.json; exit 3.</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor reports missing-hook per file per event when both configs are absent</code></p>
+</div>
+<div class="tc" id="TC-198-doctor-fix-installs-and-reruns-clean">
+  <p><strong>TC-198-doctor-fix-installs-and-reruns-clean</strong> - covers <a href="#AC-16104-3">AC-16104-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-3 (--fix repair) via the CLI test: rcf doctor --check feedback-hooks --fix writes the missing entries; a re-run reports clean and exits 0.</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor --fix installs the missing entries and re-runs clean</code></p>
+</div>
+<div class="tc" id="TC-198-doctor-foreign-hook-refused">
+  <p><strong>TC-198-doctor-foreign-hook-refused</strong> - covers <a href="#AC-16104-3">AC-16104-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-3 (foreign-hook refusal) via the CLI test: after a clean init, mutating the Stop hook&#39;s command to add an unknown flag makes doctor --check feedback-hooks --fix --json emit exactly one foreign-hook drift row on .claude/settings.json; the mutated command survives (--fix did not overwrite it) and doctor exits 3.</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor refuses a foreign-hook entry and leaves it in place</code></p>
+</div>
+<div class="tc" id="TC-198-doctor-clean-tree-no-writes">
+  <p><strong>TC-198-doctor-clean-tree-no-writes</strong> - covers <a href="#AC-16104-3">AC-16104-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-3 (clean tree) via the CLI test: rcf doctor --check feedback-hooks --fix on a freshly initialised project makes no byte changes to either config file and exits 0.</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-feedback-hooks.test.js::AC-16104-3: a clean tree makes no writes and stays exit 0</code></p>
+</div>
+<div class="tc" id="TC-198-doctor-parse-error-refused">
+  <p><strong>TC-198-doctor-parse-error-refused</strong> - covers <a href="#AC-16104-3">AC-16104-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16104-3 (parse-error refusal) via the CLI test: an unparseable .claude/settings.json makes doctor --check feedback-hooks --fix emit one parse-error drift row on that file, leave the file untouched, and exit 3.</p>
+  <p><em>Test pointer:</em> <code>test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor rejects an unparseable settings file with parse-error and refuses --fix</code></p>
+</div></section>
+  <details class="raw-json"><summary>Show raw JSON</summary><pre>{
+  &quot;createdAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-16104-1 (rcf init merges three feedback hook entries into .claude/settings.json and .codex/hooks.json with the design-3.5 shape, the matcher startup|resume on SessionStart, timeouts 10/5/5, is byte-idempotent on re-init, preserves neighbouring hooks and honours --bin-path with the node &lt;path&gt; pinned shape), AC-16104-2 (--no-feedback-hooks writes neither file and prints the RULE 17 fallback line once) and AC-16104-3 (rcf doctor --check feedback-hooks reports missing-hook per file per event when absent, --fix installs them, foreign-hook is refused with the entry left in place, a clean tree exits 0 with no writes, and a parse-error on the settings file is refused).&quot;,
+  &quot;testLevel&quot;: &quot;integration&quot;,
+  &quot;acIds&quot;: [
+    &quot;AC-16104-1&quot;,
+    &quot;AC-16104-2&quot;,
+    &quot;AC-16104-3&quot;
+  ],
+  &quot;id&quot;: &quot;TS-198&quot;,
+  &quot;usId&quot;: &quot;US-16104&quot;,
+  &quot;title&quot;: &quot;Slice 5 (FBS-184): rcf init installs the feedback hooks and rcf doctor feedback-hooks keeps them honest across clones&quot;,
+  &quot;testCases&quot;: [
+    {
+      &quot;id&quot;: &quot;TC-198-init-writes-both-configs&quot;,
+      &quot;acId&quot;: &quot;AC-16104-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-1 via the CLI test: rcf init on a fresh project writes three feedback hook entries into .claude/settings.json (Stop 10s, SessionEnd 5s, SessionStart 5s with matcher startup|resume) and three matching entries into .codex/hooks.json (Codex JSON shape); every command line is &#39;npx rcf-lite feedback hook &lt;event&gt; --harness &lt;h&gt;&#39;.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-feedback-hooks.test.js::AC-16104-1: rcf init writes three feedback hook entries into both harness files&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-init-idempotent&quot;,
+      &quot;acId&quot;: &quot;AC-16104-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-1 (idempotency) via the CLI test: a second rcf init against the same tree produces no byte change on either .claude/settings.json or .codex/hooks.json.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-feedback-hooks.test.js::AC-16104-1: re-init on the same tree is byte-idempotent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-init-preserves-existing-hooks&quot;,
+      &quot;acId&quot;: &quot;AC-16104-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-1 (preserve) via the CLI test: a pre-existing .claude/settings.json with an unrelated Stop hook AND an unrelated top-level key survives rcf init; the feedback Stop entry is added alongside the unrelated one, not in place of it.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-feedback-hooks.test.js::AC-16104-1: pre-existing hooks are preserved; feedback entries added alongside&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-init-bin-path-pins-node&quot;,
+      &quot;acId&quot;: &quot;AC-16104-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-1 (--bin-path pinned shape) via the CLI test: rcf init --bin-path /opt/pinned-rcf/rcf.js writes hook commands as &#39;node /opt/pinned-rcf/rcf.js feedback hook &lt;event&gt; --harness &lt;h&gt;&#39; instead of the npx rcf-lite shape.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-feedback-hooks.test.js::AC-16104-1: --bin-path pins the hook command to node &lt;path&gt;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-init-no-feedback-hooks&quot;,
+      &quot;acId&quot;: &quot;AC-16104-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-2 via the CLI test: rcf init --no-feedback-hooks exits 0, writes neither .claude/settings.json nor .codex/hooks.json, and prints the no-feedback-hooks fallback line naming RULE 17.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/init-feedback-hooks.test.js::AC-16104-2: --no-feedback-hooks writes neither file and prints the fallback line&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-doctor-missing-hooks&quot;,
+      &quot;acId&quot;: &quot;AC-16104-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-3 (missing-hook detection) via the CLI test: rcf doctor --check feedback-hooks --json against a project scaffolded without hook install reports exactly three missing-hook rows for .claude/settings.json and three for .codex/hooks.json; exit 3.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor reports missing-hook per file per event when both configs are absent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-doctor-fix-installs-and-reruns-clean&quot;,
+      &quot;acId&quot;: &quot;AC-16104-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-3 (--fix repair) via the CLI test: rcf doctor --check feedback-hooks --fix writes the missing entries; a re-run reports clean and exits 0.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor --fix installs the missing entries and re-runs clean&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-doctor-foreign-hook-refused&quot;,
+      &quot;acId&quot;: &quot;AC-16104-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-3 (foreign-hook refusal) via the CLI test: after a clean init, mutating the Stop hook&#39;s command to add an unknown flag makes doctor --check feedback-hooks --fix --json emit exactly one foreign-hook drift row on .claude/settings.json; the mutated command survives (--fix did not overwrite it) and doctor exits 3.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor refuses a foreign-hook entry and leaves it in place&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-doctor-clean-tree-no-writes&quot;,
+      &quot;acId&quot;: &quot;AC-16104-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-3 (clean tree) via the CLI test: rcf doctor --check feedback-hooks --fix on a freshly initialised project makes no byte changes to either config file and exits 0.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-feedback-hooks.test.js::AC-16104-3: a clean tree makes no writes and stays exit 0&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-198-doctor-parse-error-refused&quot;,
+      &quot;acId&quot;: &quot;AC-16104-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16104-3 (parse-error refusal) via the CLI test: an unparseable .claude/settings.json makes doctor --check feedback-hooks --fix emit one parse-error drift row on that file, leave the file untouched, and exit 3.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor rejects an unparseable settings file with parse-error and refuses --fix&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

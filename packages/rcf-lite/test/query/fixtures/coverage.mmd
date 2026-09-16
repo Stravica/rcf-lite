@@ -1782,24 +1782,74 @@ flowchart LR
   REQ-161["REQ-161"]
   AC-16101-1["AC-16101-1"]
   REQ-161 --> AC-16101-1
+  TC-195-quiet-rule-truth-table["TC-195-quiet-rule-truth-table"]
+  AC-16101-1 -.-> TC-195-quiet-rule-truth-table
   AC-16101-2["AC-16101-2"]
   REQ-161 --> AC-16101-2
+  TC-195-hook-stop-claude-code["TC-195-hook-stop-claude-code"]
+  AC-16101-2 -.-> TC-195-hook-stop-claude-code
+  TC-195-hook-stop-codex["TC-195-hook-stop-codex"]
+  AC-16101-2 -.-> TC-195-hook-stop-codex
   AC-16101-3["AC-16101-3"]
   REQ-161 --> AC-16101-3
+  TC-195-hook-same-session-silent-then-fresh-reasks["TC-195-hook-same-session-silent-then-fresh-reasks"]
+  AC-16101-3 -.-> TC-195-hook-same-session-silent-then-fresh-reasks
+  TC-195-hook-stop-hook-active-silent["TC-195-hook-stop-hook-active-silent"]
+  AC-16101-3 -.-> TC-195-hook-stop-hook-active-silent
   AC-16102-1["AC-16102-1"]
   REQ-161 --> AC-16102-1
+  TC-196-optin-restores-ask-true["TC-196-optin-restores-ask-true"]
+  AC-16102-1 -.-> TC-196-optin-restores-ask-true
+  TC-196-optout-writes-settings-and-silences-hook["TC-196-optout-writes-settings-and-silences-hook"]
+  AC-16102-1 -.-> TC-196-optout-writes-settings-and-silences-hook
   AC-16102-2["AC-16102-2"]
   REQ-161 --> AC-16102-2
+  TC-196-env-ask-silences-hook-only["TC-196-env-ask-silences-hook-only"]
+  AC-16102-2 -.-> TC-196-env-ask-silences-hook-only
+  TC-196-env-disable-no-ops-add["TC-196-env-disable-no-ops-add"]
+  AC-16102-2 -.-> TC-196-env-disable-no-ops-add
+  TC-196-precedence-order["TC-196-precedence-order"]
+  AC-16102-2 -.-> TC-196-precedence-order
+  TC-196-status-reports-optout-source["TC-196-status-reports-optout-source"]
+  AC-16102-2 -.-> TC-196-status-reports-optout-source
   AC-16103-1["AC-16103-1"]
   REQ-161 --> AC-16103-1
+  TC-197-session-end-writes-idempotent-bundle["TC-197-session-end-writes-idempotent-bundle"]
+  AC-16103-1 -.-> TC-197-session-end-writes-idempotent-bundle
   AC-16103-2["AC-16103-2"]
   REQ-161 --> AC-16103-2
+  TC-197-session-start-claude-code-line["TC-197-session-start-claude-code-line"]
+  AC-16103-2 -.-> TC-197-session-start-claude-code-line
+  TC-197-session-start-codex-additional-context["TC-197-session-start-codex-additional-context"]
+  AC-16103-2 -.-> TC-197-session-start-codex-additional-context
+  TC-197-session-start-silent-when-nothing-carried-over["TC-197-session-start-silent-when-nothing-carried-over"]
+  AC-16103-2 -.-> TC-197-session-start-silent-when-nothing-carried-over
   AC-16104-1["AC-16104-1"]
   REQ-161 --> AC-16104-1
+  TC-198-init-bin-path-pins-node["TC-198-init-bin-path-pins-node"]
+  AC-16104-1 -.-> TC-198-init-bin-path-pins-node
+  TC-198-init-idempotent["TC-198-init-idempotent"]
+  AC-16104-1 -.-> TC-198-init-idempotent
+  TC-198-init-preserves-existing-hooks["TC-198-init-preserves-existing-hooks"]
+  AC-16104-1 -.-> TC-198-init-preserves-existing-hooks
+  TC-198-init-writes-both-configs["TC-198-init-writes-both-configs"]
+  AC-16104-1 -.-> TC-198-init-writes-both-configs
   AC-16104-2["AC-16104-2"]
   REQ-161 --> AC-16104-2
+  TC-198-init-no-feedback-hooks["TC-198-init-no-feedback-hooks"]
+  AC-16104-2 -.-> TC-198-init-no-feedback-hooks
   AC-16104-3["AC-16104-3"]
   REQ-161 --> AC-16104-3
+  TC-198-doctor-clean-tree-no-writes["TC-198-doctor-clean-tree-no-writes"]
+  AC-16104-3 -.-> TC-198-doctor-clean-tree-no-writes
+  TC-198-doctor-fix-installs-and-reruns-clean["TC-198-doctor-fix-installs-and-reruns-clean"]
+  AC-16104-3 -.-> TC-198-doctor-fix-installs-and-reruns-clean
+  TC-198-doctor-foreign-hook-refused["TC-198-doctor-foreign-hook-refused"]
+  AC-16104-3 -.-> TC-198-doctor-foreign-hook-refused
+  TC-198-doctor-missing-hooks["TC-198-doctor-missing-hooks"]
+  AC-16104-3 -.-> TC-198-doctor-missing-hooks
+  TC-198-doctor-parse-error-refused["TC-198-doctor-parse-error-refused"]
+  AC-16104-3 -.-> TC-198-doctor-parse-error-refused
   REQ-162["REQ-162"]
   AC-16201-1["AC-16201-1"]
   REQ-162 --> AC-16201-1
@@ -2746,15 +2796,40 @@ flowchart LR
   class TC-194-unresolved-destination-bundle tc;
   class REQ-161 req;
   class AC-16101-1 ac;
+  class TC-195-quiet-rule-truth-table tc;
   class AC-16101-2 ac;
+  class TC-195-hook-stop-claude-code tc;
+  class TC-195-hook-stop-codex tc;
   class AC-16101-3 ac;
+  class TC-195-hook-same-session-silent-then-fresh-reasks tc;
+  class TC-195-hook-stop-hook-active-silent tc;
   class AC-16102-1 ac;
+  class TC-196-optin-restores-ask-true tc;
+  class TC-196-optout-writes-settings-and-silences-hook tc;
   class AC-16102-2 ac;
+  class TC-196-env-ask-silences-hook-only tc;
+  class TC-196-env-disable-no-ops-add tc;
+  class TC-196-precedence-order tc;
+  class TC-196-status-reports-optout-source tc;
   class AC-16103-1 ac;
+  class TC-197-session-end-writes-idempotent-bundle tc;
   class AC-16103-2 ac;
+  class TC-197-session-start-claude-code-line tc;
+  class TC-197-session-start-codex-additional-context tc;
+  class TC-197-session-start-silent-when-nothing-carried-over tc;
   class AC-16104-1 ac;
+  class TC-198-init-bin-path-pins-node tc;
+  class TC-198-init-idempotent tc;
+  class TC-198-init-preserves-existing-hooks tc;
+  class TC-198-init-writes-both-configs tc;
   class AC-16104-2 ac;
+  class TC-198-init-no-feedback-hooks tc;
   class AC-16104-3 ac;
+  class TC-198-doctor-clean-tree-no-writes tc;
+  class TC-198-doctor-fix-installs-and-reruns-clean tc;
+  class TC-198-doctor-foreign-hook-refused tc;
+  class TC-198-doctor-missing-hooks tc;
+  class TC-198-doctor-parse-error-refused tc;
   class REQ-162 req;
   class AC-16201-1 ac;
   class AC-16201-2 ac;

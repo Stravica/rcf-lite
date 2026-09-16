@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-09-16T19:20:00Z",
+  "purpose": "Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16103-1",
+    "AC-16103-2"
+  ],
+  "id": "TS-197",
+  "usId": "US-16103",
+  "title": "Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness",
+  "testCases": [
+    {
+      "id": "TC-197-session-end-writes-idempotent-bundle",
+      "acId": "AC-16103-1",
+      "description": "Cover AC-16103-1 via the CLI test: rcf feedback hook session-end with one pending entry writes a single .rcf/feedback/outbox/<ISO>-session-end.md file with the design section 4.2 header; a re-run with the same pending set does not create a second file (byte-idempotent); the two-call round trip completes in well under the SessionEnd budget.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-1: SessionEnd writes one bundle and is byte-idempotent on a re-run"
+    },
+    {
+      "id": "TC-197-session-start-claude-code-line",
+      "acId": "AC-16103-2",
+      "description": "Cover AC-16103-2 (Claude Code shape) via the CLI test: rcf feedback hook session-start --harness claude-code with a pending entry recorded under a different sessionId prints the exact carry-over line naming the count and citing RULE 17 to stdout; exit 0; state.json is not created (the ledger is set on Stop, not on session-start).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Claude Code prints the carry-over line for a new session"
+    },
+    {
+      "id": "TC-197-session-start-codex-additional-context",
+      "acId": "AC-16103-2",
+      "description": "Cover AC-16103-2 (Codex shape) via the CLI test: rcf feedback hook session-start --harness codex emits a stdout JSON with additionalContext carrying the same carry-over line.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-2: SessionStart on Codex emits the additionalContext JSON shape"
+    },
+    {
+      "id": "TC-197-session-start-silent-when-nothing-carried-over",
+      "acId": "AC-16103-2",
+      "description": "Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent"
+    }
+  ],
+  "status": "draft"
+}

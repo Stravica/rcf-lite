@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 100  covered: 98  covered-unresolved: 0  uncovered: 2
+Requirements: 100  covered: 99  covered-unresolved: 0  uncovered: 1
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -398,15 +398,15 @@ REQ-160      yes      AC-16001-1  yes         TC-194-preflight-auth-off, TC-194-
                       AC-16001-2  yes         TC-194-retry-without-labels-then-bundle
                       AC-16001-3  yes         TC-194-bundled-terminal-for-ask
                       AC-16001-4  yes         TC-194-unresolved-destination-bundle
-REQ-161      no       AC-16101-1  no          -
-                      AC-16101-2  no          -
-                      AC-16101-3  no          -
-                      AC-16102-1  no          -
-                      AC-16102-2  no          -
-                      AC-16103-1  no          -
-                      AC-16103-2  no          -
-                      AC-16104-1  no          -
-                      AC-16104-2  no          -
-                      AC-16104-3  no          -
+REQ-161      yes      AC-16101-1  yes         TC-195-quiet-rule-truth-table
+                      AC-16101-2  yes         TC-195-hook-stop-claude-code, TC-195-hook-stop-codex
+                      AC-16101-3  yes         TC-195-hook-same-session-silent-then-fresh-reasks, TC-195...
+                      AC-16102-1  yes         TC-196-optin-restores-ask-true, TC-196-optout-writes-sett...
+                      AC-16102-2  yes         TC-196-env-ask-silences-hook-only, TC-196-env-disable-no-...
+                      AC-16103-1  yes         TC-197-session-end-writes-idempotent-bundle
+                      AC-16103-2  yes         TC-197-session-start-claude-code-line, TC-197-session-sta...
+                      AC-16104-1  yes         TC-198-init-bin-path-pins-node, TC-198-init-idempotent, T...
+                      AC-16104-2  yes         TC-198-init-no-feedback-hooks
+                      AC-16104-3  yes         TC-198-doctor-clean-tree-no-writes, TC-198-doctor-fix-ins...
 REQ-162      no       AC-16201-1  no          -
                       AC-16201-2  no          -

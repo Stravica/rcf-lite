@@ -3,9 +3,9 @@
   "strict": false,
   "totals": {
     "requirements": 100,
-    "covered": 98,
+    "covered": 99,
     "coveredUnresolved": 0,
-    "uncovered": 2
+    "uncovered": 1
   },
   "requirements": [
     {
@@ -3907,67 +3907,102 @@
     },
     {
       "id": "REQ-161",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-16101-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-195-quiet-rule-truth-table"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16101-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-195-hook-stop-claude-code",
+            "TC-195-hook-stop-codex"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16101-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-195-hook-same-session-silent-then-fresh-reasks",
+            "TC-195-hook-stop-hook-active-silent"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16102-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-196-optin-restores-ask-true",
+            "TC-196-optout-writes-settings-and-silences-hook"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16102-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-196-env-ask-silences-hook-only",
+            "TC-196-env-disable-no-ops-add",
+            "TC-196-precedence-order",
+            "TC-196-status-reports-optout-source"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16103-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-197-session-end-writes-idempotent-bundle"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16103-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-197-session-start-claude-code-line",
+            "TC-197-session-start-codex-additional-context",
+            "TC-197-session-start-silent-when-nothing-carried-over"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16104-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-198-init-bin-path-pins-node",
+            "TC-198-init-idempotent",
+            "TC-198-init-preserves-existing-hooks",
+            "TC-198-init-writes-both-configs"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16104-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-198-init-no-feedback-hooks"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16104-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-198-doctor-clean-tree-no-writes",
+            "TC-198-doctor-fix-installs-and-reruns-clean",
+            "TC-198-doctor-foreign-hook-refused",
+            "TC-198-doctor-missing-hooks",
+            "TC-198-doctor-parse-error-refused"
+          ],
           "unresolvedTestCases": []
         }
       ]

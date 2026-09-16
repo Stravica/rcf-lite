@@ -50,6 +50,12 @@ import { knowledgePaths } from '../setup/knowledge-seed.js';
 import { readLibraryRegistry } from '../blueprint/library-registry.js';
 import { listUnresolvedLibraries } from '../feedback/destination.js';
 import {
+  diagnoseClaudeFeedbackHooks,
+  diagnoseCodexFeedbackHooks,
+  writeClaudeFeedbackHooks,
+  writeCodexFeedbackHooks,
+} from '../setup/feedback-hooks.js';
+import {
   checkBrowserPresent,
   checkPlaywrightMcpReachable,
   checkPlaywrightPresent,
@@ -80,6 +86,7 @@ const KNOWN_CHECKS = /** @type {const} */ ([
   'playwright-mcp-redundant',
   'probe-path-owner',
   'feedback-destinations',
+  'feedback-hooks',
 ]);
 
 /** The four Playwright-related checks doctor runs conditionally for
@@ -107,7 +114,7 @@ Options:
                                     knowledge, identity, playwright-present,
                                     browser-present, playwright-mcp-reachable,
                                     playwright-mcp-redundant, probe-path-owner,
-                                    feedback-destinations.
+                                    feedback-destinations, feedback-hooks.
   --json                    Emit machine-readable envelope: { ok, drift, writes, notices }.
   --quiet                   Only summary line + first 3 drift items.
   --force                   Accept a legacy-markers --fix on hand-edited
@@ -264,6 +271,14 @@ export async function main(argv, deps = {}) {
       // `issues` field to library.json) or the consuming operator
       // (contact the library owner).
       result = await runFeedbackDestinationsCheck(ctx);
+    } else if (check === 'feedback-hooks') {
+      // Feedback hook install coverage across .claude/settings.json
+      // and .codex/hooks.json (ADR-4108, AC-16104-3). Missing
+      // entries are fixable; foreign entries (a rcf feedback hook
+      // command under our marker but with different flags) are
+      // refused and named in the drift row so the operator can
+      // repair by hand.
+      result = await runFeedbackHooksCheck(ctx);
     } else continue;
     for (const d of result.drift) drift.push({ check, ...d });
     for (const w of result.writes) writes.push(w);
@@ -855,6 +870,101 @@ async function runFeedbackDestinationsCheck(ctx) {
     });
   }
   return { drift, writes: [] };
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Check: feedback-hooks                                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Diagnose both harness config files and report:
+ *   - missing-hook (per event per file): fixable with --fix; the
+ *     installer merges the entry in without touching neighbours;
+ *   - foreign-hook (per file): an entry whose command names our
+ *     marker but whose flags/timeout/matcher differ from the current
+ *     install shape. Refused: the operator repairs by hand so a
+ *     bespoke variant is not silently overwritten;
+ *   - parse-error (per file): a settings file that exists but is not
+ *     valid JSON. Refused; the operator repairs by hand.
+ *
+ * With --fix, only missing-hook rows are repaired; the writer never
+ * touches a file when the merge would produce a foreign row.
+ *
+ * @param {object} ctx
+ * @returns {Promise<{ drift: Array<{item: string, file: string, message: string, refusedByFix: boolean}>, writes: Array<{file: string, action: string}> }>}
+ */
+async function runFeedbackHooksCheck(ctx) {
+  const drift = [];
+  const writes = [];
+
+  const claudeDiag = await diagnoseClaudeFeedbackHooks({ projectRoot: ctx.projectRoot });
+  if (claudeDiag.parseError) {
+    drift.push({
+      item: 'parse-error',
+      file: '.claude/settings.json',
+      message: `.claude/settings.json is present but not valid JSON (${claudeDiag.parseError}). Repair by hand.`,
+      refusedByFix: true,
+    });
+  } else {
+    for (const event of claudeDiag.missing) {
+      drift.push({
+        item: 'missing-hook',
+        file: '.claude/settings.json',
+        message: `.claude/settings.json is missing the feedback ${event} hook; \`rcf doctor --fix\` merges it in.`,
+        refusedByFix: false,
+      });
+    }
+    for (const f of claudeDiag.foreign) {
+      drift.push({
+        item: 'foreign-hook',
+        file: '.claude/settings.json',
+        message: `.claude/settings.json ${f.event} hook has a foreign command shape (${f.command}); refused. Repair by hand or remove the entry and re-run \`rcf init\`.`,
+        refusedByFix: true,
+      });
+    }
+    if (ctx.fix && claudeDiag.missing.length > 0 && claudeDiag.foreign.length === 0) {
+      const w = await writeClaudeFeedbackHooks({ projectRoot: ctx.projectRoot });
+      if (!('kind' in w)) {
+        writes.push({ file: '.claude/settings.json', action: w.action });
+      }
+    }
+  }
+
+  const codexDiag = await diagnoseCodexFeedbackHooks({ projectRoot: ctx.projectRoot });
+  if (codexDiag.parseError) {
+    drift.push({
+      item: 'parse-error',
+      file: '.codex/hooks.json',
+      message: `.codex/hooks.json is present but not valid JSON (${codexDiag.parseError}). Repair by hand.`,
+      refusedByFix: true,
+    });
+  } else {
+    for (const event of codexDiag.missing) {
+      drift.push({
+        item: 'missing-hook',
+        file: '.codex/hooks.json',
+        message: `.codex/hooks.json is missing the feedback ${event} hook; \`rcf doctor --fix\` merges it in.`,
+        refusedByFix: false,
+      });
+    }
+    for (const f of codexDiag.foreign) {
+      drift.push({
+        item: 'foreign-hook',
+        file: '.codex/hooks.json',
+        message: `.codex/hooks.json ${f.event} hook has a foreign command shape (${f.command}); refused. Repair by hand or remove the entry and re-run \`rcf init\`.`,
+        refusedByFix: true,
+      });
+    }
+    if (ctx.fix && codexDiag.missing.length > 0 && codexDiag.foreign.length === 0) {
+      const w = await writeCodexFeedbackHooks({ projectRoot: ctx.projectRoot });
+      if (!('kind' in w)) {
+        writes.push({ file: '.codex/hooks.json', action: w.action });
+      }
+    }
+  }
+
+  return { drift, writes };
 }
 
 
