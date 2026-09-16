@@ -60,10 +60,30 @@ the operator sees at preview time:
   `Authorization:` header values, well-known `key: value` pairs
   (`password`, `token`, `api_key`, ...), high-entropy blobs.
 - Rendered body cap: 8 KB after redaction; the fingerprint tail is
-  kept so dedupe survives the truncation.
+  kept so dedupe survives the truncation. The cap is enforced on the
+  fully assembled body (free-form text + evidence rows + environment
+  table + fingerprint twin + consent tail), not just the free-form
+  head, so an oversized evidence pointer cannot push the rendered
+  body past the cap.
 
 Attachments, screenshots and arbitrary binary files are never
 attached to an issue.
+
+### Safeguard: final whole-text residual scan (AC-15601-4)
+
+After the eight redaction rules run and dash / control-char / cap
+normalisation is applied, one last pass runs `findResidualSecrets`
+over the WHOLE rendered issue body (and over each bundle file) with
+multiline patterns. If any residual shape survives (a token buried
+inside a longer identifier, a multiline PEM block whose first-pass
+delimiters were folded by dash normalisation, an `Authorization:`
+line ...), the entry stays pending: `preview` prints the residual
+line and pattern, `submit` refuses that entry and exits 3, and the
+bundle write is refused fail-closed. This is defence-in-depth: the
+per-field redaction ledger tells the operator what was stripped;
+the safeguard guarantees that even if a shape re-appears after
+per-field redaction + normalisation + assembly, nothing carrying it
+leaves the machine.
 
 ## Store layout
 

@@ -35,8 +35,17 @@
       "then": "a sha-256 of entries.jsonl before and after each preview run matches",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-15601-4",
+      "description": "After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.",
+      "given": "a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)",
+      "when": "the operator runs rcf feedback preview then rcf feedback submit --yes",
+      "then": "preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T14:14:36Z"
+  "updatedAt": "2026-09-16T20:28:13Z"
 }

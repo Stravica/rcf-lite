@@ -1,12 +1,13 @@
 {
   "createdAt": "2026-09-16T15:27:35Z",
-  "updatedAt": "2026-09-16T15:27:35Z",
-  "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
+  "updatedAt": "2026-09-16T20:28:13Z",
+  "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
   "testLevel": "integration",
   "acIds": [
     "AC-15601-1",
     "AC-15601-2",
     "AC-15601-3",
+    "AC-15601-4",
     "AC-15701-1"
   ],
   "id": "TS-188",
@@ -68,6 +69,20 @@
       "description": "Cover AC-15701-1 (render surface) via the unit test: renderIssue writes the fingerprint twice (visible line and HTML comment) and requests the six-label bootstrap subset for the entry's severity and kind.",
       "status": "pending",
       "testPointer": "test/feedback/render.test.js::renderIssue body carries the fingerprint twice and the Environment table"
+    },
+    {
+      "id": "TC-188-safeguard-whole-text-residual",
+      "acId": "AC-15601-4",
+      "description": "Cover AC-15601-4 (safeguard, per-entry) via the unit test: findResidualSecrets detects a multiline PEM shape in a rendered-body-shaped string, which a per-line scan could not see. Binds the whole-text/multiline shape of the residual pass introduced in fix round 2 (R-P0-2 root fix + defence).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: whole-text residual scan detects a multiline PEM in the rendered surface"
+    },
+    {
+      "id": "TC-188-safeguard-submit-refuses-residual",
+      "acId": "AC-15601-4",
+      "description": "Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body"
     }
   ],
   "status": "draft"

@@ -571,6 +571,11 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     return 2;
   }
   const libraryPrefix = args[0];
+  // F-slice-3-02 regression fix: honour --dry-run on refresh. The
+  // re-snapshot writes below (local / git / tarball) previously ran
+  // unconditionally, so a dry-run mutated the registry even though
+  // the flag is documented as "print intended writes without executing".
+  const dryRun = parsed.values['dry-run'] === true;
   const registry = await readLibraryRegistry(projectRoot);
   if (isRcfError(registry)) {
     stderr.write(`[error] blueprint library refresh: ${registry.message}\n`);
@@ -598,7 +603,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     // later change to issues.repo / issues.visibility reaches
     // consumers on refresh, without a re-add.
     const snap = refreshRegistryIssues(registry, libraryPrefix, library);
-    if (snap.changed) {
+    if (snap.changed && !dryRun) {
       const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
       if (isRcfError(write)) {
         stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
@@ -608,7 +613,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: on-disk library matches the registry snapshot.\n`);
       if (snap.changed) {
-        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination ${dryRun ? 'would be re-snapshotted (dry-run)' : 're-snapshotted'}: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
       }
     }
     return 0;
@@ -671,7 +676,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
       return 2;
     }
     const snap = refreshRegistryIssues(registryReload, libraryPrefix, library);
-    if (snap.changed) {
+    if (snap.changed && !dryRun) {
       const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
       if (isRcfError(write)) {
         stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
@@ -681,7 +686,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: git ref '${parsedGit.ref}' still resolves to ${upstream.resolvedSha.slice(0, 12)}.\n`);
       if (snap.changed) {
-        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination ${dryRun ? 'would be re-snapshotted (dry-run)' : 're-snapshotted'}: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
       }
     }
     return 0;
@@ -727,7 +732,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
       return 2;
     }
     const snap = refreshRegistryIssues(registryReload, libraryPrefix, library);
-    if (snap.changed) {
+    if (snap.changed && !dryRun) {
       const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
       if (isRcfError(write)) {
         stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
@@ -737,7 +742,7 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: tarball SHA-256 still matches ${expected.slice(0, 12)}.\n`);
       if (snap.changed) {
-        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination ${dryRun ? 'would be re-snapshotted (dry-run)' : 're-snapshotted'}: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
       }
     }
     return 0;
