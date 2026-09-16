@@ -3,9 +3,9 @@
   "strict": false,
   "totals": {
     "requirements": 100,
-    "covered": 96,
+    "covered": 98,
     "coveredUnresolved": 0,
-    "uncovered": 4
+    "uncovered": 2
   },
   "requirements": [
     {
@@ -3739,14 +3739,21 @@
         },
         {
           "id": "AC-15701-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-191-submit-many-hit-comment-lowest",
+            "TC-191-submit-one-hit-comments",
+            "TC-191-submit-zero-hit-creates"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15701-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-191-submit-closed-reference",
+            "TC-191-submit-search-unchecked"
+          ],
           "unresolvedTestCases": []
         }
       ]
@@ -3800,74 +3807,100 @@
     },
     {
       "id": "REQ-159",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-15901-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-192-submit-yes-happy-path"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15901-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-192-submit-no-token-synthesised",
+            "TC-192-submit-refuses-without-yes"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15902-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-193-label-precheck-drops-missing"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15902-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-193-bootstrap-creates-six",
+            "TC-193-bootstrap-idempotent-full",
+            "TC-193-bootstrap-partial-subset"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15902-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-193-title-prefix-and-fingerprint-twin"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-15902-4",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-193-labels-catalogue-single-source"
+          ],
           "unresolvedTestCases": []
         }
       ]
     },
     {
       "id": "REQ-160",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-16001-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-194-preflight-auth-off",
+            "TC-194-preflight-gh-missing",
+            "TC-194-preflight-issues-disabled",
+            "TC-194-preflight-private-none"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16001-2",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-194-retry-without-labels-then-bundle"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16001-3",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-194-bundled-terminal-for-ask"
+          ],
           "unresolvedTestCases": []
         },
         {
           "id": "AC-16001-4",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-194-unresolved-destination-bundle"
+          ],
           "unresolvedTestCases": []
         }
       ]

@@ -19,6 +19,11 @@ import { initProject } from '#core/store/init.js';
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
+const fixturesDir = resolve(here, '..', 'feedback', 'gh-fakes');
+
+function absoluteFixturePath(name) {
+  return resolve(fixturesDir, name);
+}
 
 async function runBin(cwd, args = [], envOverrides = {}) {
   try {
@@ -127,7 +132,11 @@ test('AC-15502-2: rcf feedback status --json emits counts, optOut and gh summary
   const disc = await runBin(tmp, ['feedback', 'discard', '--all']);
   assert.equal(disc.code, 0);
   await addOne(tmp, 'three');
-  const { code, stdout } = await runBin(tmp, ['feedback', 'status', '--json']);
+  const { code, stdout } = await runBin(tmp, ['feedback', 'status', '--json'], {
+    // Route the slice-4 probe through a fake so the CI machine's own
+    // gh state does not leak into the assertion.
+    RCF_FEEDBACK_GH_MODULE: absoluteFixturePath('gh-fake-absent.mjs'),
+  });
   assert.equal(code, 0);
   const obj = JSON.parse(stdout);
   assert.equal(obj.counts.pending, 1);
@@ -135,12 +144,18 @@ test('AC-15502-2: rcf feedback status --json emits counts, optOut and gh summary
   assert.equal(obj.optOut, false);
   assert.equal(obj.optOutSource, null);
   assert.ok(obj.gh, 'gh key present');
+  // Slice 4 populates the probe: the absent fake reports present:false.
+  assert.equal(obj.gh.present, false);
+  assert.equal(obj.gh.authed, false);
   assert.ok(obj.destinations, 'destinations key present');
 });
 
 test('AC-15502-2: RCF_FEEDBACK_ASK=0 flips optOut in status', async () => {
   const tmp = await scaffold();
-  const { stdout } = await runBin(tmp, ['feedback', 'status', '--json'], { RCF_FEEDBACK_ASK: '0' });
+  const { stdout } = await runBin(tmp, ['feedback', 'status', '--json'], {
+    RCF_FEEDBACK_ASK: '0',
+    RCF_FEEDBACK_GH_MODULE: absoluteFixturePath('gh-fake-absent.mjs'),
+  });
   const obj = JSON.parse(stdout);
   assert.equal(obj.optOut, true);
   assert.equal(obj.optOutSource, 'env:RCF_FEEDBACK_ASK=0');
@@ -148,7 +163,10 @@ test('AC-15502-2: RCF_FEEDBACK_ASK=0 flips optOut in status', async () => {
 
 test('AC-15502-2: RCF_FEEDBACK_DISABLE=1 flips optOut and names its source', async () => {
   const tmp = await scaffold();
-  const { stdout } = await runBin(tmp, ['feedback', 'status', '--json'], { RCF_FEEDBACK_DISABLE: '1' });
+  const { stdout } = await runBin(tmp, ['feedback', 'status', '--json'], {
+    RCF_FEEDBACK_DISABLE: '1',
+    RCF_FEEDBACK_GH_MODULE: absoluteFixturePath('gh-fake-absent.mjs'),
+  });
   const obj = JSON.parse(stdout);
   assert.equal(obj.optOut, true);
   assert.equal(obj.optOutSource, 'env:RCF_FEEDBACK_DISABLE');
@@ -157,12 +175,19 @@ test('AC-15502-2: RCF_FEEDBACK_DISABLE=1 flips optOut and names its source', asy
 test('AC-15502-2: text status summarises counts on one line and opt-out state on another', async () => {
   const tmp = await scaffold();
   await addOne(tmp, 'one');
-  const { code, stdout } = await runBin(tmp, ['feedback', 'status']);
+  const { code, stdout } = await runBin(tmp, ['feedback', 'status'], {
+    // Slice 4 wires the gh probe into status; a fake adapter reports
+    // gh as not installed so the assertion is deterministic and no
+    // real gh call is made.
+    RCF_FEEDBACK_GH_MODULE: absoluteFixturePath('gh-fake-absent.mjs'),
+  });
   assert.equal(code, 0);
   assert.match(stdout, /1 pending/);
   assert.match(stdout, /opt-out: no/);
-  assert.match(stdout, /gh: not probed/);
-  // Sanity: no network probe (the store file exists after add; status is a
-  // pure read of the store + env).
+  // gh line is now populated by the slice-4 probe; the fake reports
+  // absent so the fallback wording appears.
+  assert.match(stdout, /gh: not installed/);
+  // Sanity: no store mutation (the file exists after add; status is
+  // a pure read of the store + env + one gh probe through the fake).
   await stat(join(tmp, '.rcf/feedback/entries.jsonl'));
 });

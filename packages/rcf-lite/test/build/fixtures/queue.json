@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 75,
-    "notStarted": 45,
-    "inProgress": 0,
+    "notStarted": 44,
+    "inProgress": 1,
     "complete": 15,
     "verified": 15,
-    "actionable": 33,
+    "actionable": 32,
     "blocked": 12
   },
   "nextActionable": "FBS-013",
@@ -965,11 +965,11 @@
       "buildOrder": 183,
       "tier": 3,
       "title": "Slice 4: submit, dedupe, fallback",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-182"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

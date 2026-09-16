@@ -1,5 +1,5 @@
 Coverage mode: shallow-any
-Requirements: 100  covered: 96  covered-unresolved: 0  uncovered: 4
+Requirements: 100  covered: 98  covered-unresolved: 0  uncovered: 2
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -381,23 +381,23 @@ REQ-156      yes      AC-15601-1  yes         TC-188-preview-renders-full-vocabu
                       AC-15601-2  yes         TC-188-preview-residual-secret-refusal
                       AC-15601-3  yes         TC-188-preview-store-byte-invariant
 REQ-157      yes      AC-15701-1  yes         TC-188-fingerprint-canonical-input, TC-188-preview-finger...
-                      AC-15701-2  no          -
-                      AC-15701-3  no          -
+                      AC-15701-2  yes         TC-191-submit-many-hit-comment-lowest, TC-191-submit-one-...
+                      AC-15701-3  yes         TC-191-submit-closed-reference, TC-191-submit-search-unch...
 REQ-158      yes      AC-15801-1  yes         TC-189-library-add-snapshots-issues-and-prints-review-line
                       AC-15801-2  yes         TC-189-resolver-four-fixture-walk
                       AC-15801-3  yes         TC-189-doctor-feedback-destinations-warn-only
                       AC-15802-1  yes         TC-190-core-repo-pinned-to-bugs-url
                       AC-15802-2  yes         TC-190-core-kind-ignores-library-manifest-content
-REQ-159      no       AC-15901-1  no          -
-                      AC-15901-2  no          -
-                      AC-15902-1  no          -
-                      AC-15902-2  no          -
-                      AC-15902-3  no          -
-                      AC-15902-4  no          -
-REQ-160      no       AC-16001-1  no          -
-                      AC-16001-2  no          -
-                      AC-16001-3  no          -
-                      AC-16001-4  no          -
+REQ-159      yes      AC-15901-1  yes         TC-192-submit-yes-happy-path
+                      AC-15901-2  yes         TC-192-submit-no-token-synthesised, TC-192-submit-refuses...
+                      AC-15902-1  yes         TC-193-label-precheck-drops-missing
+                      AC-15902-2  yes         TC-193-bootstrap-creates-six, TC-193-bootstrap-idempotent...
+                      AC-15902-3  yes         TC-193-title-prefix-and-fingerprint-twin
+                      AC-15902-4  yes         TC-193-labels-catalogue-single-source
+REQ-160      yes      AC-16001-1  yes         TC-194-preflight-auth-off, TC-194-preflight-gh-missing, T...
+                      AC-16001-2  yes         TC-194-retry-without-labels-then-bundle
+                      AC-16001-3  yes         TC-194-bundled-terminal-for-ask
+                      AC-16001-4  yes         TC-194-unresolved-destination-bundle
 REQ-161      no       AC-16101-1  no          -
                       AC-16101-2  no          -
                       AC-16101-3  no          -

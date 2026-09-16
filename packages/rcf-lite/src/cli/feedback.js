@@ -37,11 +37,15 @@ import {
   readEntries,
   storeExists,
 } from '../feedback/store.js';
-import { redact, allowedHosts } from '../feedback/redact.js';
+import { redact, allowedHosts, findResidualSecrets } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
-import { renderIssue } from '../feedback/render.js';
+import { renderIssue, renderComment, renderBundle } from '../feedback/render.js';
 import { resolve as resolveDestination, listUnresolvedLibraries } from '../feedback/destination.js';
 import { readLibraryRegistry } from '../blueprint/library-registry.js';
+import { loadGhAdapter } from '../feedback/gh.js';
+import { labelsForEntry } from '../feedback/labels.js';
+import { outboxDir } from '../feedback/store.js';
+import { mkdir, writeFile } from 'node:fs/promises';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -82,9 +86,14 @@ Sub-verbs (available):
   discard    Mark named entries discarded (or --all).
   preview    Render the exact issue text and redaction ledger for each
              pending entry; read-only, no network.
+  submit     File each pending entry under the reporter's ambient gh
+             login; --yes is required. Runs preflight (gh, auth, repo
+             access, issues-enabled), a fingerprint dedupe search, then
+             either creates the issue, comments on a match, or writes
+             a bundle to .rcf/feedback/outbox/ and prints the paste
+             URL. See docs/feedback.md for the full walk.
 
 Sub-verbs (later slices; refuse with exit 3 until they ship):
-  submit     Slice 4: file each pending entry under the reporter's gh login.
   opt-in     Slice 5: restore per-project ask (rcf/feedback-settings.json).
   opt-out    Slice 5: silence per-project ask (rcf/feedback-settings.json).
   hook       Slice 5: harness hook handler (stop, session-end, session-start).
@@ -161,7 +170,7 @@ export async function main(argv, deps = {}) {
     case 'defer':    return handleDefer(rest, ctx);
     case 'discard':  return handleDiscard(rest, ctx);
     case 'preview':  return handlePreview(rest, ctx);
-    case 'submit':   return handleNotYet('submit', 'slice 4 (submit, dedupe, fallback)', ctx);
+    case 'submit':   return handleSubmit(rest, ctx);
     case 'opt-in':   return handleNotYet('opt-in', 'slice 5 (the ask, settings and hooks)', ctx);
     case 'opt-out':  return handleNotYet('opt-out', 'slice 5 (the ask, settings and hooks)', ctx);
     case 'hook':     return handleNotYet('hook', 'slice 5 (the ask, settings and hooks)', ctx);
@@ -491,6 +500,11 @@ async function handleStatus(argv, ctx) {
     ? { libraries: [] }
     : registryRead;
   const unresolvedLibraries = listUnresolvedLibraries(registry);
+  // Slice 4 (FBS-183): probe gh availability once so `rcf feedback
+  // status` warns the operator when submit would fall through to a
+  // bundle. A failed probe never fails status; the summary just
+  // records what the probe saw.
+  const ghSummary = await probeGhSummary(env);
   const summary = {
     counts,
     optOut,
@@ -498,8 +512,7 @@ async function handleStatus(argv, ctx) {
       ? (env.RCF_FEEDBACK_DISABLE === '1' ? 'env:RCF_FEEDBACK_DISABLE' : 'env:RCF_FEEDBACK_ASK=0')
       : null,
     storePath: '.rcf/feedback/entries.jsonl',
-    // Slice 4 populates gh availability; slice 1 reports it as unknown.
-    gh: { present: null, authed: null, note: 'gh probe lands in slice 4 (submit, dedupe, fallback)' },
+    gh: ghSummary,
     destinations: {
       registeredLibraries: Array.isArray(registry?.libraries) ? registry.libraries.length : 0,
       unresolvedLibraries,
@@ -512,13 +525,40 @@ async function handleStatus(argv, ctx) {
   }
   stdout.write(`feedback: ${counts.pending} pending, ${counts.submitted} submitted, ${counts.bundled} bundled, ${counts.deferredUntilSession} deferred, ${counts.discarded} discarded\n`);
   stdout.write(`opt-out: ${optOut ? `yes (${summary.optOutSource})` : 'no'}\n`);
-  stdout.write('gh: not probed (slice 4 wires the check).\n');
+  stdout.write(`gh: ${ghSummary.present ? (ghSummary.authed ? 'installed, authed on github.com' : 'installed, not logged in (submit will bundle)') : 'not installed (submit will bundle)'}\n`);
   if (summary.destinations.unresolvedLibraries.length > 0) {
     stdout.write(`destinations: ${summary.destinations.unresolvedLibraries.length} of ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y has' : 'ies have'} no resolvable destination; run \`rcf doctor --check feedback-destinations\` for the list.\n`);
   } else if (summary.destinations.registeredLibraries > 0) {
     stdout.write(`destinations: all ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y resolves' : 'ies resolve'} to a feedback destination.\n`);
   }
   return 0;
+}
+
+/**
+ * Probe the gh adapter for install + auth state. Slice 4 wires this;
+ * the returned shape is what `feedback status --json` emits under
+ * `gh`. A failed probe never throws.
+ *
+ * @param {NodeJS.ProcessEnv} env
+ */
+async function probeGhSummary(env) {
+  try {
+    const gh = await loadGhAdapter(env);
+    const path = await gh.ghOnPath();
+    const present = !!(path.ok && path.value?.present !== false);
+    if (!present) {
+      return { present: false, authed: false, host: 'github.com', note: 'gh not on PATH' };
+    }
+    const auth = await gh.ghAuthStatus({ host: 'github.com' });
+    return {
+      present: true,
+      authed: !!auth.ok,
+      host: 'github.com',
+      note: auth.ok ? null : 'run `gh auth login` to enable submit',
+    };
+  } catch (err) {
+    return { present: null, authed: null, host: 'github.com', note: `probe failed: ${err.message}` };
+  }
 }
 
 function countByStatus(entries) {
@@ -875,6 +915,552 @@ function mergeLedger(ledgers) {
     }
   }
   return order.map((r) => byRule.get(r));
+}
+
+// -- submit (slice 4, FBS-183) --------------------------------------------
+
+const SUBMIT_OPTIONS = /** @type {const} */ ({
+  yes: { type: 'boolean' },
+  'dry-run': { type: 'boolean' },
+  'no-preview': { type: 'boolean' },
+  help: { type: 'boolean' },
+});
+
+/**
+ * `rcf feedback submit`: file each pending entry (or those named by
+ * positional id) under the reporter's ambient gh login. Refuses
+ * without `--yes` on a non-TTY (design section 9's consent contract);
+ * on a TTY the sub-verb prompts once. `--dry-run` runs the preflight
+ * and dedupe search and prints the plan without any create/comment.
+ *
+ * Preflight order (per destination): gh on PATH -> gh auth status ->
+ * gh repo view (visibility + viewerPermission + hasIssuesEnabled).
+ * First failure routes that destination's entries to a bundle. The
+ * unresolved-destination case (destination.resolve returned unresolved)
+ * bundles directly with no gh calls for those entries (AC-16001-4).
+ *
+ * Dedupe (per entry passing preflight): gh search issues on the
+ * destination for `rcf-feedback-fingerprint: <fp>` (open, in:body,
+ * limit 5). Zero hits -> create. One hit -> +1 comment. Many hits ->
+ * comment on the lowest number and mention the others. Search failure
+ * -> create with dedupe:unchecked. Closed search runs only after a
+ * zero-hit open search so the create body can reference the prior
+ * number.
+ *
+ * Create/comment failure (network/4xx/5xx/ratelimit or unexpected
+ * label rejection): retry once WITHOUT labels; still failing, bundle
+ * that entry only. Exit 0 when every entry ended submitted or
+ * bundled; exit 3 when a residual secret leaves one pending.
+ *
+ * @param {string[]} argv
+ * @param {object} ctx
+ * @returns {Promise<number>}
+ */
+async function handleSubmit(argv, ctx) {
+  const { stdout, stderr, cwd, env, now, sessionId } = ctx;
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: SUBMIT_OPTIONS, allowPositionals: true, strict: true });
+  } catch (err) {
+    stderr.write(`[error] usage ${err.message}\n`);
+    return 2;
+  }
+  const flags = parsed.values;
+  if (flags.help) { stdout.write(HELP); return 0; }
+
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor).\n');
+    return 2;
+  }
+
+  // Consent gate: --yes is required unless stdin is a TTY and the
+  // user answers y. In practice the agent always passes --yes after
+  // the operator said yes in conversation; the flag is the contract
+  // that a human answered. AC-15901-2 asserts the non-TTY branch.
+  if (!flags.yes) {
+    const stdin = process.stdin;
+    const isTty = typeof stdin?.isTTY === 'boolean' ? stdin.isTTY : false;
+    if (!isTty) {
+      stderr.write('[error] usage rcf feedback submit requires --yes (or an interactive TTY where you can confirm the send).\n');
+      return 2;
+    }
+    const ok = await promptForYes(stdin, stdout);
+    if (!ok) {
+      stdout.write('submit cancelled.\n');
+      return 0;
+    }
+  }
+
+  const all = await readEntries(projectRoot);
+  const pending = all.filter((e) => e.status === 'pending');
+  const wantedIds = new Set(parsed.positionals);
+  const entries = wantedIds.size > 0
+    ? pending.filter((e) => wantedIds.has(e.id))
+    : pending;
+
+  if (wantedIds.size > 0) {
+    const missing = [...wantedIds].filter((id) => !pending.some((e) => e.id === id));
+    if (missing.length > 0) {
+      stderr.write(`[error] usage unknown pending entry id(s): ${missing.join(', ')}\n`);
+      return 2;
+    }
+  }
+
+  if (entries.length === 0) {
+    stdout.write('no pending feedback entries to submit.\n');
+    return 0;
+  }
+
+  const context = await buildRedactionContext(projectRoot);
+  const resolverInputs = await loadResolverInputs(projectRoot);
+  const gh = await loadGhAdapter(env);
+  const rcfLiteVersion = await readOwnVersion();
+
+  // Group entries by destination repo so the preflight (auth,
+  // repo-view, label-list) runs once per repo, not once per entry.
+  // Unresolved destinations get their own bucket so the case-5 path
+  // (AC-16001-4) is a first-class fold, not a special-case.
+  const buckets = new Map();
+  for (const e of entries) {
+    const destination = await resolveDestination(e, resolverInputs);
+    const key = destination.repo ?? `__unresolved__:${destination.reason ?? 'unknown'}`;
+    if (!buckets.has(key)) buckets.set(key, { destination, entries: [] });
+    buckets.get(key).entries.push(e);
+  }
+
+  // Preflight once per bucket; per-destination results feed the
+  // per-entry submit loop.
+  const preflightCache = new Map();
+  for (const [key, bucket] of buckets) {
+    if (bucket.destination.visibility === 'unresolved') {
+      preflightCache.set(key, { ok: false, reason: 'unresolved-destination', bucket: true });
+    } else {
+      preflightCache.set(key, await runPreflight(bucket.destination, gh));
+    }
+  }
+
+  const summary = {
+    submitted: 0,
+    bundled: 0,
+    pending: 0,
+  };
+  const bundleRowsByKey = new Map();
+
+  for (const [key, bucket] of buckets) {
+    const destination = bucket.destination;
+    const pre = preflightCache.get(key);
+
+    if (!pre.ok && pre.bucket === true) {
+      // Whole-destination fallback: build one bundle file for every
+      // entry in this bucket; the message is the preflight reason.
+      const rows = [];
+      for (const e of bucket.entries) {
+        const built = await buildEntryPayload(e, context, rcfLiteVersion);
+        if (built.residual.length > 0) {
+          await markResidual(projectRoot, e.id, at(now), sessionId);
+          stdout.write(`${e.id} -> pending (residual secret in body; run \`rcf feedback preview\` and rewrite)\n`);
+          summary.pending += 1;
+          continue;
+        }
+        rows.push({ entry: e, redacted: built.redacted, fingerprint: built.fingerprint });
+      }
+      if (rows.length > 0) {
+        bundleRowsByKey.set(key, { destination, rows, reason: pre.message });
+      }
+      continue;
+    }
+
+    for (const e of bucket.entries) {
+      const built = await buildEntryPayload(e, context, rcfLiteVersion);
+      if (built.residual.length > 0) {
+        await markResidual(projectRoot, e.id, at(now), sessionId);
+        stdout.write(`${e.id} -> pending (residual secret in body; run \`rcf feedback preview\` and rewrite)\n`);
+        summary.pending += 1;
+        continue;
+      }
+
+      // Label pre-check per entry-repo pair. Cached on the preflight
+      // record so the second entry against the same repo does not
+      // re-list.
+      if (!pre.labelsChecked) {
+        pre.labels = await runLabelPrecheck(destination.repo, gh);
+        pre.labelsChecked = true;
+      }
+      const requestedLabels = labelsForEntry(e.severity, e.kind);
+      const availableLabels = pre.labels?.available ?? null;
+      const usedLabels = availableLabels
+        ? requestedLabels.filter((l) => availableLabels.includes(l))
+        : requestedLabels;
+      const droppedLabels = availableLabels
+        ? requestedLabels.filter((l) => !availableLabels.includes(l))
+        : [];
+
+      // Dedupe search on the destination (open first).
+      const searchOpen = await gh.ghIssueSearch({
+        repo: destination.repo,
+        query: `rcf-feedback-fingerprint: ${built.fingerprint}`,
+        state: 'open',
+        limit: 5,
+      });
+
+      let dedupe = 'new';
+      let closedRef = null;
+      let matches = [];
+      if (!searchOpen.ok) {
+        dedupe = 'unchecked';
+      } else {
+        matches = searchOpen.value?.matches ?? [];
+      }
+
+      if (flags['dry-run']) {
+        const plan = matches.length === 1
+          ? `comment on #${matches[0].number}`
+          : matches.length > 1
+            ? `comment on #${matches.sort((a, b) => a.number - b.number)[0].number} (${matches.length} matches)`
+            : 'create';
+        stdout.write(`${e.id} -> dry-run ${plan} (${dedupe === 'unchecked' ? 'unchecked' : matches.length === 0 ? 'new' : 'comment'})\n`);
+        continue;
+      }
+
+      // Zero-open-hit case: check closed-hit so the create body can
+      // reference the previously reported number.
+      if (matches.length === 0 && dedupe !== 'unchecked') {
+        const searchClosed = await gh.ghIssueSearch({
+          repo: destination.repo,
+          query: `rcf-feedback-fingerprint: ${built.fingerprint}`,
+          state: 'closed',
+          limit: 1,
+        });
+        if (searchClosed.ok && (searchClosed.value?.matches ?? []).length > 0) {
+          closedRef = searchClosed.value.matches[0].number;
+        }
+      }
+
+      let result;
+      if (matches.length === 0) {
+        // Create.
+        let createBody = built.rendered.body;
+        if (closedRef) {
+          createBody = `${createBody}\nPreviously reported and closed as #${closedRef}.\n`;
+        }
+        result = await createWithRetry(gh, {
+          repo: destination.repo,
+          title: built.rendered.title,
+          body: createBody,
+          labels: usedLabels,
+        });
+      } else if (matches.length === 1) {
+        // Comment.
+        dedupe = 'comment';
+        const commentBody = renderComment(e, {
+          body: built.redacted.body,
+          ledger: built.redacted.ledger,
+        }, { fingerprint: built.fingerprint, includeBody: false }).body;
+        result = await commentWithRetry(gh, {
+          repo: destination.repo,
+          number: matches[0].number,
+          body: commentBody,
+        });
+      } else {
+        // Many: comment on lowest, mention the others.
+        dedupe = 'comment';
+        const sorted = matches.slice().sort((a, b) => a.number - b.number);
+        const others = sorted.slice(1).map((m) => `#${m.number}`).join(', ');
+        const base = renderComment(e, {
+          body: built.redacted.body,
+          ledger: built.redacted.ledger,
+        }, { fingerprint: built.fingerprint, includeBody: false }).body;
+        const commentBody = `${base}\nalso see ${others}\n`;
+        result = await commentWithRetry(gh, {
+          repo: destination.repo,
+          number: sorted[0].number,
+          body: commentBody,
+        });
+      }
+
+      if (result.ok) {
+        await appendState(projectRoot, {
+          id: e.id,
+          at: at(now),
+          status: 'submitted',
+          issueUrl: result.url,
+          dedupe,
+          droppedLabels,
+          sessionId,
+        });
+        stdout.write(`${e.id} -> ${result.url} (${dedupe})\n`);
+        summary.submitted += 1;
+      } else {
+        // Retry-without-labels failed too: bundle this one entry.
+        const rows = bundleRowsByKey.get(`__perentry__:${e.id}`)?.rows ?? [];
+        rows.push({ entry: e, redacted: built.redacted, fingerprint: built.fingerprint });
+        bundleRowsByKey.set(`__perentry__:${e.id}`, {
+          destination,
+          rows,
+          reason: `create/comment failed: ${result.reason}`,
+        });
+      }
+    }
+  }
+
+  // Write bundle files (whole-destination and per-entry).
+  const generatedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  for (const [key, bundle] of bundleRowsByKey) {
+    const outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {
+      generatedAt,
+      rcfLiteVersion,
+      reasonNotFiled: bundle.reason,
+    });
+    const issuesUrl = bundle.destination.repo
+      ? `https://github.com/${bundle.destination.repo}/issues/new`
+      : '(no repo; paste to the library owner)';
+    const contactLine = bundle.destination.publisherContact
+      ? ` (contact: ${bundle.destination.publisherContact})`
+      : '';
+    stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> bundle ${outboxPath} | ${issuesUrl}${contactLine}\n`);
+    for (const row of bundle.rows) {
+      await appendState(projectRoot, {
+        id: row.entry.id,
+        at: at(now),
+        status: 'bundled',
+        outboxPath,
+        reason: bundle.reason,
+        sessionId,
+      });
+      summary.bundled += 1;
+    }
+  }
+
+  return summary.pending > 0 ? 3 : 0;
+}
+
+/**
+ * Read up to a single line of yes/no from stdin (blocking one-shot).
+ * Returns true only for `y` or `yes` (case-insensitive).
+ *
+ * @param {NodeJS.ReadStream} stdin
+ * @param {NodeJS.WritableStream} stdout
+ * @returns {Promise<boolean>}
+ */
+async function promptForYes(stdin, stdout) {
+  stdout.write('submit each pending entry under your ambient gh login? [y/N] ');
+  return new Promise((resolvePromise) => {
+    let buf = '';
+    const onData = (chunk) => {
+      buf += chunk.toString('utf8');
+      const nl = buf.indexOf('\n');
+      if (nl >= 0) {
+        stdin.off('data', onData);
+        try { stdin.pause(); } catch { /* ignore */ }
+        const answer = buf.slice(0, nl).trim().toLowerCase();
+        resolvePromise(answer === 'y' || answer === 'yes');
+      }
+    };
+    stdin.on('data', onData);
+    try { stdin.resume(); } catch { /* ignore */ }
+  });
+}
+
+/**
+ * Build the redacted body/title and the rendered issue payload for
+ * one entry. Records residual-secret markers on the returned object
+ * so the caller can refuse the entry.
+ *
+ * @param {object} entry
+ * @param {import('../feedback/redact.js').RedactionContext} context
+ * @param {string} rcfLiteVersion
+ */
+async function buildEntryPayload(entry, context, rcfLiteVersion) {
+  const titleRes = redact(entry.title ?? '', context);
+  const bodyRes = redact(entry.body ?? '', context);
+  const evidenceRedacted = (entry.evidence ?? []).map((ev) => {
+    const r = redact(ev.value ?? '', context);
+    return { kind: ev.kind, value: r.text, ledger: r.ledger };
+  });
+  const ledger = mergeLedger([titleRes.ledger, bodyRes.ledger, ...evidenceRedacted.map((e) => e.ledger)]);
+  const fp = fingerprint(entry);
+  // A destination shape the render helper accepts; the submit path
+  // does not use bundle-specific fields on rendered issues.
+  const rendered = renderIssue(entry, {
+    title: titleRes.text,
+    body: bodyRes.text,
+    evidence: evidenceRedacted.map((e) => ({ kind: e.kind, value: e.value })),
+    ledger,
+  }, { fingerprint: fp, destination: { repo: null, visibility: 'unresolved' } });
+  const residual = [
+    ...titleRes.residual,
+    ...bodyRes.residual,
+    ...findResidualSecrets(rendered.body),
+  ];
+  void rcfLiteVersion;
+  return {
+    fingerprint: fp,
+    redacted: {
+      title: titleRes.text,
+      body: bodyRes.text,
+      evidence: evidenceRedacted.map((e) => ({ kind: e.kind, value: e.value })),
+      ledger,
+    },
+    rendered,
+    residual,
+  };
+}
+
+/**
+ * Preflight one destination repo. Records the classified reason on
+ * failure so the bundle message can name it.
+ *
+ * @param {object} destination
+ * @param {import('../feedback/gh.js').GhAdapter} gh
+ */
+async function runPreflight(destination, gh) {
+  // (1) gh on PATH.
+  const path = await gh.ghOnPath();
+  if (!path.ok || (path.ok && path.value?.present === false)) {
+    return {
+      ok: false,
+      bucket: true,
+      reason: 'gh-missing',
+      message: 'gh not on PATH; install from https://cli.github.com',
+    };
+  }
+  // (2) gh auth status.
+  const auth = await gh.ghAuthStatus({ host: 'github.com' });
+  if (!auth.ok) {
+    return {
+      ok: false,
+      bucket: true,
+      reason: 'gh-auth',
+      message: 'gh is not logged in; run `gh auth login`',
+    };
+  }
+  // (3) repo access, visibility, hasIssuesEnabled.
+  const view = await gh.ghRepoView({ repo: destination.repo });
+  if (!view.ok) {
+    return {
+      ok: false,
+      bucket: true,
+      reason: 'repo-unreachable',
+      message: `cannot reach ${destination.repo}: ${view.message}`,
+    };
+  }
+  const v = view.value;
+  const isPrivate = (v?.visibility && String(v.visibility).toLowerCase() === 'private')
+    || destination.visibility === 'private';
+  if (isPrivate && (v?.viewerPermission === null || v?.viewerPermission === undefined || String(v.viewerPermission).toUpperCase() === 'NONE')) {
+    const contact = destination.publisherContact ? ` (library contact: ${destination.publisherContact})` : '';
+    return {
+      ok: false,
+      bucket: true,
+      reason: 'private-no-access',
+      message: `no access to private repo ${destination.repo}${contact}`,
+    };
+  }
+  if (v?.hasIssuesEnabled === false) {
+    return {
+      ok: false,
+      bucket: true,
+      reason: 'issues-disabled',
+      message: `issues are disabled on ${destination.repo}`,
+    };
+  }
+  return { ok: true, view: v };
+}
+
+/**
+ * Label pre-check: list labels on the destination once and cache the
+ * `available` set of the requested six (any not-present label is
+ * dropped). A gh label list failure returns null available so the
+ * submit path proceeds with the requested labels (best-effort per
+ * design section 4.3 note).
+ *
+ * @param {string} repo
+ * @param {import('../feedback/gh.js').GhAdapter} gh
+ */
+async function runLabelPrecheck(repo, gh) {
+  const r = await gh.ghLabelList({ repo });
+  if (!r.ok) return { available: null };
+  const names = r.value?.names ?? [];
+  return { available: names };
+}
+
+async function createWithRetry(gh, opts) {
+  const first = await gh.ghIssueCreate(opts);
+  if (first.ok) return { ok: true, url: first.value.url, number: first.value.number };
+  // Retry once without labels.
+  const second = await gh.ghIssueCreate({ ...opts, labels: [] });
+  if (second.ok) return { ok: true, url: second.value.url, number: second.value.number };
+  return { ok: false, reason: second.message };
+}
+
+async function commentWithRetry(gh, opts) {
+  const first = await gh.ghIssueComment(opts);
+  if (first.ok) return { ok: true, url: first.value.url };
+  const second = await gh.ghIssueComment(opts);
+  if (second.ok) return { ok: true, url: second.value.url };
+  return { ok: false, reason: second.message };
+}
+
+/**
+ * Write one bundle file under `.rcf/feedback/outbox/`. Filename shape:
+ * `<ISO-timestamp>-<repo-slug>.md`; unresolved destinations use
+ * `<ISO-timestamp>-unresolved.md`. Returns the absolute path.
+ *
+ * @param {string} projectRoot
+ * @param {object} destination
+ * @param {Array<{ entry: object, redacted: object, fingerprint: string }>} rows
+ * @param {{ generatedAt: string, rcfLiteVersion: string, reasonNotFiled?: string }} meta
+ * @returns {Promise<string>}
+ */
+async function writeBundle(projectRoot, destination, rows, meta) {
+  const dir = outboxDir(projectRoot);
+  await mkdir(dir, { recursive: true });
+  const stampSafe = meta.generatedAt.replace(/[:]/g, '-');
+  const slug = destination.repo
+    ? destination.repo.replace(/[^A-Za-z0-9._-]+/g, '-').toLowerCase()
+    : 'unresolved';
+  // A per-entry fallback bundle (retry-then-fail) uses the entry id as
+  // a disambiguator so two fallbacks in the same second do not
+  // overwrite each other. A whole-destination bundle keeps the base
+  // filename shape.
+  const tail = rows.length === 1 ? `-${rows[0].entry.id}` : '';
+  const filename = `${stampSafe}-${slug}${tail}.md`;
+  const path = resolve(dir, filename);
+  const bundleDestination = {
+    repo: destination.repo,
+    visibility: destination.visibility === 'private' ? 'private' : (destination.repo ? 'public' : 'unresolved'),
+    reasonNotFiled: meta.reasonNotFiled,
+    libraryContact: destination.publisherContact,
+  };
+  const text = renderBundle(bundleDestination, rows, {
+    generatedAt: meta.generatedAt,
+    rcfLiteVersion: meta.rcfLiteVersion,
+  });
+  await writeFile(path, text, 'utf8');
+  return path;
+}
+
+/**
+ * Stamp a residual-secret refusal on the entry state (kept pending).
+ *
+ * @param {string} projectRoot
+ * @param {string} id
+ * @param {string} atStamp
+ * @param {string} sessionId
+ */
+async function markResidual(projectRoot, id, atStamp, sessionId) {
+  await appendState(projectRoot, {
+    id,
+    at: atStamp,
+    status: 'pending',
+    residual: true,
+    sessionId,
+  });
+}
+
+function at(now) {
+  return now().toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 // -- later-slice stubs -----------------------------------------------------

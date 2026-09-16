@@ -3,7 +3,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 183,
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "title": "Slice 4: submit, dedupe, fallback",
   "summary": "Deliver REQ-159 (Consent-gated submission under reporter identity) and REQ-160 (No path leaves the operator stuck): gh module seam, submit sub-verb with dedupe search, label pre-check, outbox bundle fallback, and the scripts/bootstrap-feedback-labels.mjs maintainer aid.",
   "approach": "Write src/feedback/gh.js with the RCF_FEEDBACK_GH_MODULE seam. Implement submit in src/cli/feedback.js: preflight -> dedupe search -> create-or-comment -> label pre-check -> bundle fallback. Write the bootstrap script. Extend rcf feedback status with gh availability. Tests use a fake gh module through the seam.",
@@ -46,5 +46,5 @@
   "estimatedHours": 16,
   "notes": "Largest slice; carries the operator-visible submit flow and every fallback branch.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T14:14:36Z"
+  "updatedAt": "2026-09-16T17:25:50Z"
 }

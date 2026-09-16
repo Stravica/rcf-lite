@@ -1,0 +1,67 @@
+{
+  "createdAt": "2026-09-16T17:23:12Z",
+  "updatedAt": "2026-09-16T17:23:12Z",
+  "purpose": "Cover AC-16001-1 (four preflight branches each routing to a bundle with a distinct one-line message), AC-16001-2 (create/comment failure retries once without labels and then bundles that entry, other entries continue, exit 0 when every entry ended submitted or bundled), AC-16001-3 (bundled entries are terminal for the ask loop: list default hides them, list --all reports status bundled, submit picks up only pending entries on a subsequent run), and AC-16001-4 (destination unresolved case writes an unresolved-slug bundle with publisher contact on the same line as the outbox path, no gh call for that entry, exit 0).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16001-1",
+    "AC-16001-2",
+    "AC-16001-3",
+    "AC-16001-4"
+  ],
+  "id": "TS-194",
+  "usId": "US-16001",
+  "title": "Slice 4 (FBS-183): four preflight cases + retry-then-bundle + terminal bundled entries + unresolved-destination bundle",
+  "testCases": [
+    {
+      "id": "TC-194-preflight-gh-missing",
+      "acId": "AC-16001-1",
+      "description": "Cover AC-16001-1 case (1) via the CLI test: onPath fake returns { present: false }; the entry lands in .rcf/feedback/outbox/<ISO>-stravica-rcf-lite[-<id>].md; the bundle Reason not filed line names gh; stdout carries the outbox path and the issues/new URL on one line; entry state is bundled; exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-1a: gh missing on PATH routes to bundle"
+    },
+    {
+      "id": "TC-194-preflight-auth-off",
+      "acId": "AC-16001-1",
+      "description": "Cover AC-16001-1 case (2) via the CLI test: auth fake returns { authed: false }; bundle reason names 'run gh auth login'; entry state is bundled; exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-1b: gh auth status non-zero routes to bundle"
+    },
+    {
+      "id": "TC-194-preflight-private-none",
+      "acId": "AC-16001-1",
+      "description": "Cover AC-16001-1 case (3) via the CLI test: repoView returns visibility PRIVATE and viewerPermission NONE; bundle reason names 'no access to private repo'; exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-1c: private repo with viewerPermission NONE routes to bundle"
+    },
+    {
+      "id": "TC-194-preflight-issues-disabled",
+      "acId": "AC-16001-1",
+      "description": "Cover AC-16001-1 case (4) via the CLI test: repoView returns hasIssuesEnabled false; bundle reason names 'issues are disabled on <repo>'; exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-1d: hasIssuesEnabled false routes to bundle"
+    },
+    {
+      "id": "TC-194-retry-without-labels-then-bundle",
+      "acId": "AC-16001-2",
+      "description": "Cover AC-16001-2 via the CLI test: create fake returns ratelimit twice for entry A, twice for entry B, then success for entry C; A and B end bundled, C ends submitted; two bundle files under outbox (one per bundled entry); exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-2: create 429 retries without labels, still fails, bundles that entry; another submits"
+    },
+    {
+      "id": "TC-194-bundled-terminal-for-ask",
+      "acId": "AC-16001-3",
+      "description": "Cover AC-16001-3 via the CLI test: after a preflight-forced bundle for entry X, list --json (default pending) omits X; list --all --json includes X with status bundled; a subsequent submit --yes with a working fake only creates for the still-pending entry (bundled entries are terminal, not re-picked-up).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-3: list default hides bundled; submit <id> re-attempts one bundled entry"
+    },
+    {
+      "id": "TC-194-unresolved-destination-bundle",
+      "acId": "AC-16001-4",
+      "description": "Cover AC-16001-4 via the CLI test: an applied library whose registry entry carries neither issuesRepo nor a derivable github source, plus publisher.contact 'orphan-owners@example.com'; submit writes .rcf/feedback/outbox/<ISO>-unresolved[-<id>].md, prints publisher.contact on the same line as the outbox path, makes no gh create/comment/search call for that entry, entry state is bundled, exit 0.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-16001-4: unresolved destination writes an unresolved-slug bundle with publisher contact, no gh call"
+    }
+  ],
+  "status": "draft"
+}

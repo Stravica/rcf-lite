@@ -76,11 +76,11 @@ Generation strategy: dependencyFirst
 | 180 | 0 | FBS-180 | Slice 1: capture and store | notStarted | actionable |  |
 | 181 | 1 | FBS-181 | Slice 2: redaction, fingerprint, preview | complete | complete | FBS-180 |
 | 182 | 2 | FBS-182 | Slice 3: destination resolution | complete | complete |  |
-| 183 | 3 | FBS-183 | Slice 4: submit, dedupe, fallback | notStarted | actionable |  |
+| 183 | 3 | FBS-183 | Slice 4: submit, dedupe, fallback | inProgress | inProgress |  |
 | 184 | 4 | FBS-184 | Slice 5: the ask | notStarted | blocked | FBS-183 |
 | 185 | 5 | FBS-185 | Slice 6: instruction and release | notStarted | blocked | FBS-184 |
 
-Totals: items 75 | notStarted 45 | inProgress 0 | complete 15 | verified 15 | actionable 33 | blocked 12
+Totals: items 75 | notStarted 44 | inProgress 1 | complete 15 | verified 15 | actionable 32 | blocked 12
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-180

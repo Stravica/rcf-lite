@@ -15,6 +15,8 @@
 //   - section 4.2 outbox bundle
 //   - section 6 fingerprint twin (visible line + HTML comment)
 
+import { FEEDBACK_LABELS, labelsForEntry } from './labels.js';
+
 /**
  * @typedef {object} RenderedIssue
  * @property {string} title
@@ -117,18 +119,16 @@ export function renderBundle(destination, rows, meta) {
 }
 
 /**
- * The six-label bootstrap catalogue (ADR-4102). Exported so the slice-4
- * label pre-check and the `scripts/bootstrap-feedback-labels.mjs`
- * script consume the same source (F-6 catalogue drift guard).
+ * The six-label bootstrap catalogue (ADR-4102). Re-exported from the
+ * canonical source (src/feedback/labels.js) so existing importers do
+ * not break; new code should import FEEDBACK_LABELS directly. The
+ * F-6 gate finding required one source of truth for the label
+ * catalogue that the submit-time pre-check, the bootstrap script and
+ * the render defaults all consume; that source is labels.js and the
+ * grep test in test/feedback/labels-catalogue.test.js refuses any
+ * bare literal for these names elsewhere.
  */
-export const LABEL_CATALOGUE = Object.freeze([
-  'rcf-feedback',
-  'severity:blocker',
-  'severity:major',
-  'severity:minor',
-  'area:blueprint',
-  'area:core',
-]);
+export const LABEL_CATALOGUE = FEEDBACK_LABELS;
 
 // -- internal -------------------------------------------------------------
 
@@ -205,8 +205,5 @@ function renderEnvironmentTable(entry) {
 }
 
 function defaultLabels(entry) {
-  const sev = entry?.severity;
-  const area = entry?.kind === 'blueprint' ? 'area:blueprint' : 'area:core';
-  const sevLabel = sev && LABEL_CATALOGUE.includes(`severity:${sev}`) ? `severity:${sev}` : null;
-  return ['rcf-feedback', ...(sevLabel ? [sevLabel] : []), area];
+  return labelsForEntry(entry?.severity, entry?.kind);
 }

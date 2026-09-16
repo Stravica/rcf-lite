@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-16T17:23:12Z",
+  "updatedAt": "2026-09-16T17:23:12Z",
+  "purpose": "Cover AC-15901-1 (submit --yes files entries under the ambient gh login, stamps submitted with issueUrl and dedupe, prints one line per entry, exit 0) and AC-15901-2 (submit without --yes on a non-TTY exits 2 naming --yes; env passed to gh has no synthesised GH_TOKEN or GITHUB_TOKEN key).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15901-1",
+    "AC-15901-2"
+  ],
+  "id": "TS-192",
+  "usId": "US-15901",
+  "title": "Slice 4 (FBS-183): submit --yes files under the reporter's ambient gh login and refuses on a non-TTY without --yes; the CLI never synthesises GH_TOKEN or GITHUB_TOKEN",
+  "testCases": [
+    {
+      "id": "TC-192-submit-yes-happy-path",
+      "acId": "AC-15901-1",
+      "description": "Cover AC-15901-1 via the CLI test: two pending entries, zero-hit search, distinct URLs returned; both entries fold to status submitted with issueUrl and dedupe: new; stdout carries two '<id> -> <url> (new)' lines.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15901-1: submit --yes with zero-hit search creates each entry, marks submitted, prints URL"
+    },
+    {
+      "id": "TC-192-submit-refuses-without-yes",
+      "acId": "AC-15901-2",
+      "description": "Cover AC-15901-2 (refusal arm) via the CLI test: submit without --yes on a non-TTY child exits 2, stderr names --yes as required, and no gh call is made.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15901-2: submit without --yes on a non-TTY exits 2, names --yes, no gh call is made"
+    },
+    {
+      "id": "TC-192-submit-no-token-synthesised",
+      "acId": "AC-15901-2",
+      "description": "Cover AC-15901-2 (env arm) via the CLI test: launch with a stripped env (no GH_TOKEN, no GITHUB_TOKEN); the fake ghIssueCreate call records ghToken:null and githubToken:null so the CLI never synthesised either.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15901-2: the CLI does not synthesise GH_TOKEN or GITHUB_TOKEN before calling gh"
+    }
+  ],
+  "status": "draft"
+}

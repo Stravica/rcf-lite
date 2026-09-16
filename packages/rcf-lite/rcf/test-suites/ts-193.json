@@ -1,0 +1,60 @@
+{
+  "createdAt": "2026-09-16T17:23:12Z",
+  "updatedAt": "2026-09-16T17:23:12Z",
+  "purpose": "Cover AC-15902-1 (label pre-check drops labels the destination repo does not carry and stamps droppedLabels[] on the entry state), AC-15902-2 (scripts/bootstrap-feedback-labels.mjs idempotently creates the six labels), AC-15902-3 (rendered issue title carries the prefix and the body carries the fingerprint on its own line and inside an HTML comment) and AC-15902-4 (the six-label catalogue is exported from src/feedback/labels.js and a grep test refuses bare literals for these names outside the allowed consumers).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15902-1",
+    "AC-15902-2",
+    "AC-15902-3",
+    "AC-15902-4"
+  ],
+  "id": "TS-193",
+  "usId": "US-15902",
+  "title": "Slice 4 (FBS-183): label pre-check + bootstrap script + title/fingerprint handles + label-catalogue single-source guard",
+  "testCases": [
+    {
+      "id": "TC-193-label-precheck-drops-missing",
+      "acId": "AC-15902-1",
+      "description": "Cover AC-15902-1 via the CLI test: the fake labelList returns { rcf-feedback, severity:major } but not area:core; submit creates the issue with the reduced label set and stamps droppedLabels: ['area:core'] on the entry state.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15902-1: submit drops labels the destination does not carry and records droppedLabels"
+    },
+    {
+      "id": "TC-193-bootstrap-creates-six",
+      "acId": "AC-15902-2",
+      "description": "Cover AC-15902-2 (first run) via the unit test: with the fake labelList returning names:[], the bootstrap script creates all six labels via ghLabelCreate with descriptions and colours.",
+      "status": "pending",
+      "testPointer": "test/feedback/bootstrap-labels.test.js::AC-15902-2: bootstrap creates every missing label on the first run"
+    },
+    {
+      "id": "TC-193-bootstrap-idempotent-full",
+      "acId": "AC-15902-2",
+      "description": "Cover AC-15902-2 (idempotency) via the unit test: with the fake labelList returning every catalogue label, the bootstrap script makes zero ghLabelCreate calls.",
+      "status": "pending",
+      "testPointer": "test/feedback/bootstrap-labels.test.js::AC-15902-2: bootstrap makes zero create calls when every label is already present"
+    },
+    {
+      "id": "TC-193-bootstrap-partial-subset",
+      "acId": "AC-15902-2",
+      "description": "Cover AC-15902-2 (partial arm) via the unit test: with only two of the six labels present, the bootstrap script creates the missing four (area:blueprint, area:core, severity:major, severity:minor).",
+      "status": "pending",
+      "testPointer": "test/feedback/bootstrap-labels.test.js::AC-15902-2: bootstrap creates only the missing subset (partial second run)"
+    },
+    {
+      "id": "TC-193-title-prefix-and-fingerprint-twin",
+      "acId": "AC-15902-3",
+      "description": "Cover AC-15902-3 via the CLI test: the ghIssueCreate call sees a title starting with [rcf-lite] and a body carrying the fingerprint on its own line and inside an HTML comment (asserted end-to-end in the render unit test at test/feedback/render.test.js and reasserted at submit time here).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15902-3: rendered title prefix and body fingerprint twin are on the create call"
+    },
+    {
+      "id": "TC-193-labels-catalogue-single-source",
+      "acId": "AC-15902-4",
+      "description": "Cover AC-15902-4 via the unit test: FEEDBACK_LABELS is the six-label frozen catalogue exported from src/feedback/labels.js, and a scanner walks src/, scripts/, bin/ refusing any bare literal for these names outside labels.js, its tests, the bootstrap script and render.js's re-export shim.",
+      "status": "pending",
+      "testPointer": "test/feedback/labels-catalogue.test.js::AC-15902-4: no bare literal for any catalogue label appears outside labels.js and its allowed consumers"
+    }
+  ],
+  "status": "draft"
+}

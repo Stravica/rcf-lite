@@ -1692,8 +1692,18 @@ flowchart LR
   AC-15701-1 -.-> TC-188-render-fingerprint-twin-and-labels
   AC-15701-2["AC-15701-2"]
   REQ-157 --> AC-15701-2
+  TC-191-submit-many-hit-comment-lowest["TC-191-submit-many-hit-comment-lowest"]
+  AC-15701-2 -.-> TC-191-submit-many-hit-comment-lowest
+  TC-191-submit-one-hit-comments["TC-191-submit-one-hit-comments"]
+  AC-15701-2 -.-> TC-191-submit-one-hit-comments
+  TC-191-submit-zero-hit-creates["TC-191-submit-zero-hit-creates"]
+  AC-15701-2 -.-> TC-191-submit-zero-hit-creates
   AC-15701-3["AC-15701-3"]
   REQ-157 --> AC-15701-3
+  TC-191-submit-closed-reference["TC-191-submit-closed-reference"]
+  AC-15701-3 -.-> TC-191-submit-closed-reference
+  TC-191-submit-search-unchecked["TC-191-submit-search-unchecked"]
+  AC-15701-3 -.-> TC-191-submit-search-unchecked
   REQ-158["REQ-158"]
   AC-15801-1["AC-15801-1"]
   REQ-158 --> AC-15801-1
@@ -1718,25 +1728,57 @@ flowchart LR
   REQ-159["REQ-159"]
   AC-15901-1["AC-15901-1"]
   REQ-159 --> AC-15901-1
+  TC-192-submit-yes-happy-path["TC-192-submit-yes-happy-path"]
+  AC-15901-1 -.-> TC-192-submit-yes-happy-path
   AC-15901-2["AC-15901-2"]
   REQ-159 --> AC-15901-2
+  TC-192-submit-no-token-synthesised["TC-192-submit-no-token-synthesised"]
+  AC-15901-2 -.-> TC-192-submit-no-token-synthesised
+  TC-192-submit-refuses-without-yes["TC-192-submit-refuses-without-yes"]
+  AC-15901-2 -.-> TC-192-submit-refuses-without-yes
   AC-15902-1["AC-15902-1"]
   REQ-159 --> AC-15902-1
+  TC-193-label-precheck-drops-missing["TC-193-label-precheck-drops-missing"]
+  AC-15902-1 -.-> TC-193-label-precheck-drops-missing
   AC-15902-2["AC-15902-2"]
   REQ-159 --> AC-15902-2
+  TC-193-bootstrap-creates-six["TC-193-bootstrap-creates-six"]
+  AC-15902-2 -.-> TC-193-bootstrap-creates-six
+  TC-193-bootstrap-idempotent-full["TC-193-bootstrap-idempotent-full"]
+  AC-15902-2 -.-> TC-193-bootstrap-idempotent-full
+  TC-193-bootstrap-partial-subset["TC-193-bootstrap-partial-subset"]
+  AC-15902-2 -.-> TC-193-bootstrap-partial-subset
   AC-15902-3["AC-15902-3"]
   REQ-159 --> AC-15902-3
+  TC-193-title-prefix-and-fingerprint-twin["TC-193-title-prefix-and-fingerprint-twin"]
+  AC-15902-3 -.-> TC-193-title-prefix-and-fingerprint-twin
   AC-15902-4["AC-15902-4"]
   REQ-159 --> AC-15902-4
+  TC-193-labels-catalogue-single-source["TC-193-labels-catalogue-single-source"]
+  AC-15902-4 -.-> TC-193-labels-catalogue-single-source
   REQ-160["REQ-160"]
   AC-16001-1["AC-16001-1"]
   REQ-160 --> AC-16001-1
+  TC-194-preflight-auth-off["TC-194-preflight-auth-off"]
+  AC-16001-1 -.-> TC-194-preflight-auth-off
+  TC-194-preflight-gh-missing["TC-194-preflight-gh-missing"]
+  AC-16001-1 -.-> TC-194-preflight-gh-missing
+  TC-194-preflight-issues-disabled["TC-194-preflight-issues-disabled"]
+  AC-16001-1 -.-> TC-194-preflight-issues-disabled
+  TC-194-preflight-private-none["TC-194-preflight-private-none"]
+  AC-16001-1 -.-> TC-194-preflight-private-none
   AC-16001-2["AC-16001-2"]
   REQ-160 --> AC-16001-2
+  TC-194-retry-without-labels-then-bundle["TC-194-retry-without-labels-then-bundle"]
+  AC-16001-2 -.-> TC-194-retry-without-labels-then-bundle
   AC-16001-3["AC-16001-3"]
   REQ-160 --> AC-16001-3
+  TC-194-bundled-terminal-for-ask["TC-194-bundled-terminal-for-ask"]
+  AC-16001-3 -.-> TC-194-bundled-terminal-for-ask
   AC-16001-4["AC-16001-4"]
   REQ-160 --> AC-16001-4
+  TC-194-unresolved-destination-bundle["TC-194-unresolved-destination-bundle"]
+  AC-16001-4 -.-> TC-194-unresolved-destination-bundle
   REQ-161["REQ-161"]
   AC-16101-1["AC-16101-1"]
   REQ-161 --> AC-16101-1
@@ -2657,7 +2699,12 @@ flowchart LR
   class TC-188-preview-fingerprint-folds-across-entries tc;
   class TC-188-render-fingerprint-twin-and-labels tc;
   class AC-15701-2 ac;
+  class TC-191-submit-many-hit-comment-lowest tc;
+  class TC-191-submit-one-hit-comments tc;
+  class TC-191-submit-zero-hit-creates tc;
   class AC-15701-3 ac;
+  class TC-191-submit-closed-reference tc;
+  class TC-191-submit-search-unchecked tc;
   class REQ-158 req;
   class AC-15801-1 ac;
   class TC-189-library-add-snapshots-issues-and-prints-review-line tc;
@@ -2671,16 +2718,32 @@ flowchart LR
   class TC-190-core-kind-ignores-library-manifest-content tc;
   class REQ-159 req;
   class AC-15901-1 ac;
+  class TC-192-submit-yes-happy-path tc;
   class AC-15901-2 ac;
+  class TC-192-submit-no-token-synthesised tc;
+  class TC-192-submit-refuses-without-yes tc;
   class AC-15902-1 ac;
+  class TC-193-label-precheck-drops-missing tc;
   class AC-15902-2 ac;
+  class TC-193-bootstrap-creates-six tc;
+  class TC-193-bootstrap-idempotent-full tc;
+  class TC-193-bootstrap-partial-subset tc;
   class AC-15902-3 ac;
+  class TC-193-title-prefix-and-fingerprint-twin tc;
   class AC-15902-4 ac;
+  class TC-193-labels-catalogue-single-source tc;
   class REQ-160 req;
   class AC-16001-1 ac;
+  class TC-194-preflight-auth-off tc;
+  class TC-194-preflight-gh-missing tc;
+  class TC-194-preflight-issues-disabled tc;
+  class TC-194-preflight-private-none tc;
   class AC-16001-2 ac;
+  class TC-194-retry-without-labels-then-bundle tc;
   class AC-16001-3 ac;
+  class TC-194-bundled-terminal-for-ask tc;
   class AC-16001-4 ac;
+  class TC-194-unresolved-destination-bundle tc;
   class REQ-161 req;
   class AC-16101-1 ac;
   class AC-16101-2 ac;
