@@ -121,6 +121,14 @@ export function parseGithubSource(sourceRef) {
  * (`wsd:std-error-envelope`) and the effective slug already stamped
  * onto the record (`wsd-std-error-envelope`).
  *
+ * F-slice-3-01: a QUALIFIED ref (`prefix:slug`) must resolve to a
+ * record whose libraryPrefix matches the qualifier. Falling back to
+ * an unqualified shelf record on slug collision would route a
+ * private WSD finding to the public Stravica/rcf-lite repo. The
+ * matcher therefore has two passes: first, any record whose stamped
+ * effectiveSlug OR (slug + libraryPrefix) matches the qualifier
+ * wins; only when the ref is unqualified do bare-slug matches apply.
+ *
  * @param {object | null | undefined} manifest
  * @param {string} ref
  * @returns {object | null}
@@ -128,20 +136,72 @@ export function parseGithubSource(sourceRef) {
 export function findBlueprintRecord(manifest, ref) {
   const list = Array.isArray(manifest?.blueprints) ? manifest.blueprints : [];
   if (typeof ref !== 'string' || ref.length === 0) return null;
-  const wants = new Set([ref]);
+
+  // Qualified `prefix:slug` (and the equivalent `prefix-slug`
+  // effective-slug shape) must NEVER match a shelf record whose
+  // libraryPrefix does not equal the qualifier. F-slice-3-01: a
+  // qualified WSD ref must not fall back to a public shelf record
+  // on slug collision.
   if (ref.includes(':')) {
     const [pre, slug] = ref.split(':');
     if (pre && slug) {
-      wants.add(`${pre}-${slug}`);
-      wants.add(slug);
+      const effective = `${pre}-${slug}`;
+      for (const r of list) {
+        if (!r || typeof r !== 'object') continue;
+        if (r.libraryPrefix !== pre) continue;
+        const candidates = recordCandidates(r);
+        if (candidates.includes(ref) || candidates.includes(effective) || candidates.includes(slug)) return r;
+      }
+      return null;
     }
   }
+
+  // Unqualified ref: match by any candidate. A record with a
+  // libraryPrefix still matches, but only through its stamped
+  // canonical effective slug (`libraryPrefix-slug`) - never through
+  // a bare, unqualified slug that could collide with a shelf record.
   for (const r of list) {
     if (!r || typeof r !== 'object') continue;
-    const candidates = [r.slug, r.effectiveSlug, r.name].filter((s) => typeof s === 'string' && s.length > 0);
-    for (const c of candidates) if (wants.has(c)) return r;
+    const isQualifiedRecord = typeof r.libraryPrefix === 'string' && r.libraryPrefix.length > 0;
+    if (isQualifiedRecord) {
+      const canonical = recordEffectiveSlug(r);
+      if (canonical && ref === canonical) return r;
+      continue;
+    }
+    const candidates = recordCandidates(r);
+    if (candidates.includes(ref)) return r;
   }
   return null;
+}
+
+/**
+ * The candidate name set stamped on a manifest record: any of
+ * effectiveSlug, slug, name that are non-empty strings.
+ *
+ * @param {object} record
+ * @returns {string[]}
+ */
+function recordCandidates(record) {
+  return [record.effectiveSlug, record.slug, record.name].filter(
+    (s) => typeof s === 'string' && s.length > 0,
+  );
+}
+
+/**
+ * The canonical effective slug for a qualified manifest record. If
+ * the record already carries `effectiveSlug`, that wins; otherwise
+ * synthesise it from `libraryPrefix` + `slug` (either the slug is
+ * already prefixed, or we prepend the prefix).
+ *
+ * @param {object} record
+ * @returns {string | null}
+ */
+function recordEffectiveSlug(record) {
+  if (typeof record.effectiveSlug === 'string' && record.effectiveSlug.length > 0) return record.effectiveSlug;
+  const pre = typeof record.libraryPrefix === 'string' ? record.libraryPrefix : '';
+  const slug = typeof record.slug === 'string' ? record.slug : '';
+  if (!pre || !slug) return null;
+  return slug.startsWith(`${pre}-`) ? slug : `${pre}-${slug}`;
 }
 
 /**

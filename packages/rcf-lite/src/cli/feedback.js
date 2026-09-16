@@ -40,7 +40,7 @@ import {
 import { redact, allowedHosts, findResidualSecrets } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
 import { renderIssue, renderComment, renderBundle } from '../feedback/render.js';
-import { resolve as resolveDestination, listUnresolvedLibraries } from '../feedback/destination.js';
+import { resolve as resolveDestination, listUnresolvedLibraries, findBlueprintRecord } from '../feedback/destination.js';
 import { readLibraryRegistry } from '../blueprint/library-registry.js';
 import { loadGhAdapter } from '../feedback/gh.js';
 import { labelsForEntry } from '../feedback/labels.js';
@@ -527,9 +527,38 @@ async function handleStatus(argv, ctx) {
   stdout.write(`opt-out: ${optOut ? `yes (${summary.optOutSource})` : 'no'}\n`);
   stdout.write(`gh: ${ghSummary.present ? (ghSummary.authed ? 'installed, authed on github.com' : 'installed, not logged in (submit will bundle)') : 'not installed (submit will bundle)'}\n`);
   if (summary.destinations.unresolvedLibraries.length > 0) {
-    stdout.write(`destinations: ${summary.destinations.unresolvedLibraries.length} of ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y has' : 'ies have'} no resolvable destination; run \`rcf doctor --check feedback-destinations\` for the list.\n`);
+    stdout.write(`destinations: ${summary.destinations.unresolvedLibraries.length} of ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y has' : 'ies have'} no resolvable destination:\n`);
+    // F-slice-3-04: text output must LIST every unresolved library
+    // (design 3.3 L163); JSON already emits the array.
+    for (const u of summary.destinations.unresolvedLibraries) {
+      const contact = u.publisherContact ? ` (contact: ${u.publisherContact})` : '';
+      stdout.write(`  - ${u.libraryPrefix}: ${u.reason}${contact}\n`);
+    }
   } else if (summary.destinations.registeredLibraries > 0) {
     stdout.write(`destinations: all ${summary.destinations.registeredLibraries} registered librar${summary.destinations.registeredLibraries === 1 ? 'y resolves' : 'ies resolve'} to a feedback destination.\n`);
+  }
+  // Per-blueprint destination table (design 3.1 L140): for every
+  // applied blueprint on the manifest, show the destination the
+  // resolver would return today. Read-only, no network.
+  const resolverInputsStatus = await loadResolverInputs(projectRoot);
+  const appliedBlueprints = Array.isArray(resolverInputsStatus.manifest?.blueprints)
+    ? resolverInputsStatus.manifest.blueprints
+    : [];
+  if (appliedBlueprints.length > 0) {
+    stdout.write(`applied blueprints (${appliedBlueprints.length}):\n`);
+    for (const r of appliedBlueprints) {
+      const ref = r.libraryPrefix
+        ? `${r.libraryPrefix}:${r.slug}`
+        : (r.slug ?? r.name ?? '(unnamed)');
+      const dest = await resolveDestination(
+        { kind: 'blueprint', target: { ref } },
+        resolverInputsStatus,
+      );
+      const cell = dest.repo
+        ? `${dest.repo} (${dest.visibility}${dest.derived ? ', derived' : ''})`
+        : `(unresolved${dest.reason ? `: ${dest.reason}` : ''})`;
+      stdout.write(`  - ${ref} -> ${cell}\n`);
+    }
   }
   return 0;
 }
@@ -749,7 +778,19 @@ async function handlePreview(argv, ctx) {
 
   for (const p of previews) {
     stdout.write(`--- ${p.id} ---\n`);
+    // F-slice-3-03: preview must show derived-source disclosure and
+    // the unresolved-library bundle message, not just repo + visibility.
     stdout.write(`destination: ${p.destination.repo ?? '(unresolved)'} (${p.destination.visibility})\n`);
+    if (p.destination.derived === true) {
+      stdout.write("  source: derived from the library's git source (no explicit issues field on the library)\n");
+    } else if (p.destination.source) {
+      stdout.write(`  source: ${p.destination.source}\n`);
+    }
+    if (p.destination.visibility === 'unresolved') {
+      const reason = p.destination.reason ?? 'unresolved';
+      const contact = p.destination.publisherContact ? ` (library contact: ${p.destination.publisherContact})` : '';
+      stdout.write(`  no issue destination declared${p.destination.reason ? ` (${reason})` : ''}; bundle will be written${contact}\n`);
+    }
     stdout.write(`fingerprint: ${p.fingerprint}\n`);
     if (p.fingerprintFallback) {
       stdout.write('warning: no anchor on this entry; the fingerprint falls back to normalised-title tokens and duplicates may not fold.\n');
@@ -1504,22 +1545,12 @@ async function readOwnVersion() {
 async function lookupBlueprintRecord(projectRoot, ref) {
   try {
     const manifest = JSON.parse(await readFile(resolve(projectRoot, 'rcf', 'manifest.json'), 'utf8'));
-    const list = Array.isArray(manifest?.blueprints) ? manifest.blueprints : [];
-    // effective-slug and prefix:slug both normalise to `libraryPrefix-slug`.
-    const wants = new Set();
-    wants.add(ref);
-    if (ref.includes(':')) {
-      const [pre, slug] = ref.split(':');
-      wants.add(`${pre}-${slug}`);
-      wants.add(slug);
-    } else if (ref.includes('-')) {
-      wants.add(ref);
-    }
-    for (const r of list) {
-      const candidates = [r.slug, r.effectiveSlug, r.name]
-        .filter((s) => typeof s === 'string');
-      for (const c of candidates) if (wants.has(c)) return r;
-    }
+    // Delegate to the resolver's own findBlueprintRecord so the
+    // qualified-ref safety (F-slice-3-01) applies here too; slice-1
+    // stamping and slice-3 destination resolution walk the same
+    // matcher, so a qualified WSD ref never picks up a shelf record
+    // by slug collision.
+    return findBlueprintRecord(manifest, ref);
   } catch { /* fall through to null */ }
   return null;
 }

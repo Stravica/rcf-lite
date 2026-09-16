@@ -219,3 +219,104 @@ test("AC-15802-1: rcf feedback preview prints Stravica/rcf-lite (public) as the 
   assert.equal(previews[0].destination.visibility, 'public');
   assert.equal(previews[0].destination.kind, 'core');
 });
+
+test('F-slice-3-02: library refresh re-snapshots issuesRepo and issuesVisibility on the registry entry', async () => {
+  const project = await scaffoldFeedbackProject('S3RefreshIssues');
+  const lib = await scaffoldLibrary({
+    prefix: 'wsd',
+    blueprintSlug: 'std-error-envelope',
+    bands: { ac: { start: 50000, end: 59999 } },
+    contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+    // Add without an issues field so the registered entry starts
+    // without issuesRepo/issuesVisibility - the pre-feature shape
+    // consumers who registered before 0.28.0 would carry.
+    publisher: { id: 'wsd', displayName: 'WSD', contact: 'engineering@wsd.example' },
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', lib, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  const preRegistry = JSON.parse(await readFile(join(project, 'rcf', 'blueprint-libraries.json'), 'utf8'));
+  const preEntry = preRegistry.libraries.find((l) => l.libraryPrefix === 'wsd');
+  assert.equal(preEntry.issuesRepo, undefined, 'pre-refresh entry lacks issuesRepo');
+  assert.equal(preEntry.issuesVisibility, undefined, 'pre-refresh entry lacks issuesVisibility');
+
+  // Library owner later adds an issues field to library.json - the
+  // exact scenario design 3.3 L161 names for `library refresh` to
+  // pick up.
+  const libraryManifest = JSON.parse(await readFile(join(lib, 'library.json'), 'utf8'));
+  libraryManifest.issues = { repo: 'wsd-team-dev/rcf-lite-blueprints', visibility: 'private' };
+  await writeFile(join(lib, 'library.json'), JSON.stringify(libraryManifest, null, 2), 'utf8');
+
+  const refresh = await runBin(project, ['define', 'blueprint', 'library', 'refresh', 'wsd']);
+  assert.equal(refresh.code, 0, `refresh stderr: ${refresh.stderr}`);
+  assert.match(refresh.stdout, /feedback destination re-snapshotted/);
+
+  const postRegistry = JSON.parse(await readFile(join(project, 'rcf', 'blueprint-libraries.json'), 'utf8'));
+  const postEntry = postRegistry.libraries.find((l) => l.libraryPrefix === 'wsd');
+  assert.equal(postEntry.issuesRepo, 'wsd-team-dev/rcf-lite-blueprints');
+  assert.equal(postEntry.issuesVisibility, 'private');
+});
+
+test('F-slice-3-03: preview text output shows derived-source disclosure and the unresolved-library bundle message', async () => {
+  const project = await scaffoldFeedbackProject('S3PrevDerived');
+  const lib = await scaffoldLibrary({
+    prefix: 'derived',
+    blueprintSlug: 'std-thing',
+    bands: { ac: { start: 50000, end: 59999 } },
+    contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+    // No issues field; sourceRef derived from a github URL below.
+    publisher: { id: 'derived', displayName: 'Derived' },
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', lib, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+  // Rewrite the registry entry's sourceRef in place to a github URL
+  // so destination.resolve derives the repo.
+  const regPath = join(project, 'rcf', 'blueprint-libraries.json');
+  const reg = JSON.parse(await readFile(regPath, 'utf8'));
+  const entry = reg.libraries.find((l) => l.libraryPrefix === 'derived');
+  entry.sourceRef = 'git+https://github.com/derived-team/derived-repo.git#v1';
+  await writeFile(regPath, JSON.stringify(reg, null, 2), 'utf8');
+
+  // Apply the derived blueprint onto the manifest so preview finds
+  // a matching manifest record.
+  const manifestPath = join(project, 'rcf', 'manifest.json');
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.blueprints = manifest.blueprints ?? [];
+  manifest.blueprints.push({ slug: 'derived-std-thing', libraryPrefix: 'derived' });
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+  const addFb = await runBin(project, [
+    'feedback', 'add',
+    '--kind', 'blueprint',
+    '--target', 'derived:std-thing',
+    '--anchor', 'AC-1-1',
+    '--class', 'docs-mismatch',
+    '--severity', 'minor',
+    '--title', 'A finding',
+    '--body', 'The body.',
+    '--evidence', 'rcf define validate',
+  ]);
+  assert.equal(addFb.code, 0, `add feedback stderr: ${addFb.stderr}`);
+
+  const preview = await runBin(project, ['feedback', 'preview']);
+  assert.equal(preview.code, 0, `preview stderr: ${preview.stderr}`);
+  assert.match(preview.stdout, /derived-team\/derived-repo/);
+  assert.match(preview.stdout, /derived from the library's git source/);
+});
+
+test('F-slice-3-04: status text lists every unresolved library, not only the count (design 3.3 L163)', async () => {
+  const project = await scaffoldFeedbackProject('S3StatusList');
+  const noIssues = await scaffoldLibrary({
+    prefix: 'acme',
+    blueprintSlug: 'foo',
+    bands: { ac: { start: 60000, end: 60999 } },
+    contributions: [{ kind: 'req', id: 'REQ-60001', path: 'req.json' }],
+    publisher: { id: 'acme', displayName: 'ACME', contact: 'ops@acme.example' },
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', noIssues, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+
+  const status = await runBin(project, ['feedback', 'status']);
+  assert.equal(status.code, 0, `status stderr: ${status.stderr}`);
+  assert.match(status.stdout, /- acme:/, 'names the unresolved library, not just a count');
+  assert.match(status.stdout, /ops@acme\.example/, 'shows the publisher contact');
+});

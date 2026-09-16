@@ -150,6 +150,57 @@ test('unknown-target: a blueprint entry whose target does not appear in the mani
   assert.equal(dest.reason, 'unknown-target');
 });
 
+test('F-slice-3-01: qualified prefix:slug never falls back to a shelf record on slug collision (private WSD stays off Stravica/rcf-lite)', async () => {
+  const manifest = {
+    blueprints: [
+      // The shelf record is listed FIRST so a first-match-wins
+      // scanner would return it. The qualified WSD record must
+      // still win when the ref is `wsd:security-auth-magic-link`.
+      { slug: 'security-auth-magic-link' },
+      { slug: 'wsd-security-auth-magic-link', libraryPrefix: 'wsd' },
+    ],
+  };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        sourceRef: 'local:./wsd-blueprints',
+        issuesRepo: 'wsd-team-dev/rcf-lite-blueprints',
+        issuesVisibility: 'private',
+      },
+    ],
+  };
+  const dest = await resolve(
+    { kind: 'blueprint', target: { ref: 'wsd:security-auth-magic-link' } },
+    { manifest, registry },
+  );
+  assert.equal(dest.repo, 'wsd-team-dev/rcf-lite-blueprints', 'AC-15801-2 qualified ref must match the WSD library');
+  assert.equal(dest.visibility, 'private');
+  assert.equal(dest.kind, 'library');
+});
+
+test('F-slice-3-01: bare slug against a qualified record does not match (routes to shelf CORE_REPO on slug collision)', async () => {
+  const manifest = {
+    blueprints: [
+      // Only a qualified WSD record on the manifest; a bare
+      // `security-auth-magic-link` reference is a shelf reference
+      // by intent and must not be diverted to the WSD destination.
+      { slug: 'wsd-security-auth-magic-link', libraryPrefix: 'wsd' },
+    ],
+  };
+  const registry = {
+    libraries: [
+      { libraryPrefix: 'wsd', issuesRepo: 'wsd-team-dev/rcf-lite-blueprints', issuesVisibility: 'private' },
+    ],
+  };
+  const dest = await resolve(
+    { kind: 'blueprint', target: { ref: 'security-auth-magic-link' } },
+    { manifest, registry },
+  );
+  assert.equal(dest.visibility, 'unresolved');
+  assert.equal(dest.reason, 'unknown-target');
+});
+
 test('resolve accepts prefix:slug, effective slug, and bare slug references', async () => {
   const manifest = { blueprints: [{ slug: 'wsd-std-error-envelope', libraryPrefix: 'wsd' }] };
   const registry = {

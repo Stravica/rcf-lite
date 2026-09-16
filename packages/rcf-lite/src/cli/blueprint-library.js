@@ -594,8 +594,22 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
       stderr.write("re-run 'rcf define blueprint library add <ref>' to pick up the newer library (spec §10.1: freshness is advisory, adoption is an operator act).\n");
       return 3;
     }
+    // F-slice-3-02: re-snapshot the issues field so a library owner's
+    // later change to issues.repo / issues.visibility reaches
+    // consumers on refresh, without a re-add.
+    const snap = refreshRegistryIssues(registry, libraryPrefix, library);
+    if (snap.changed) {
+      const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
+      if (isRcfError(write)) {
+        stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
+        return 2;
+      }
+    }
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: on-disk library matches the registry snapshot.\n`);
+      if (snap.changed) {
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+      }
     }
     return 0;
   }
@@ -649,8 +663,26 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     const finalAbs = resolveCachePath(projectRoot, entry.cachePath);
     const settleErr = await settleFinal(scratchAbs, finalAbs);
     if (settleErr) { stderr.write(`[error] blueprint library refresh: ${settleErr.message}\n`); return 2; }
+    // F-slice-3-02: re-snapshot the issues field on the registered
+    // entry now that the on-disk library has landed.
+    const registryReload = await readLibraryRegistry(projectRoot);
+    if (isRcfError(registryReload)) {
+      stderr.write(`[error] blueprint library refresh: ${registryReload.message}\n`);
+      return 2;
+    }
+    const snap = refreshRegistryIssues(registryReload, libraryPrefix, library);
+    if (snap.changed) {
+      const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
+      if (isRcfError(write)) {
+        stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
+        return 2;
+      }
+    }
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: git ref '${parsedGit.ref}' still resolves to ${upstream.resolvedSha.slice(0, 12)}.\n`);
+      if (snap.changed) {
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+      }
     }
     return 0;
   }
@@ -687,8 +719,26 @@ async function handleRefresh({ args, parsed, projectRoot, stdout, stderr }) {
     const finalAbs = resolveCachePath(projectRoot, entry.cachePath);
     const settleErr = await settleFinal(scratchAbs, finalAbs);
     if (settleErr) { stderr.write(`[error] blueprint library refresh: ${settleErr.message}\n`); return 2; }
+    // F-slice-3-02: re-snapshot the issues field on the registered
+    // entry now that the on-disk library has landed.
+    const registryReload = await readLibraryRegistry(projectRoot);
+    if (isRcfError(registryReload)) {
+      stderr.write(`[error] blueprint library refresh: ${registryReload.message}\n`);
+      return 2;
+    }
+    const snap = refreshRegistryIssues(registryReload, libraryPrefix, library);
+    if (snap.changed) {
+      const write = await writeLibraryRegistry(projectRoot, snap.registry, {});
+      if (isRcfError(write)) {
+        stderr.write(`[error] blueprint library refresh: ${write.message}\n`);
+        return 2;
+      }
+    }
     if (!parsed.values.quiet) {
       stdout.write(`[blueprint library] '${libraryPrefix}' refresh clean: tarball SHA-256 still matches ${expected.slice(0, 12)}.\n`);
+      if (snap.changed) {
+        stdout.write(`[blueprint library] '${libraryPrefix}' feedback destination re-snapshotted: ${describeIssuesTransition(snap.from, snap.to)}.\n`);
+      }
     }
     return 0;
   }
@@ -702,6 +752,86 @@ function compareLibrarySnapshot(entry, library) {
   if (library.libraryRef !== entry.libraryRef) drifted.push(`libraryRef '${entry.libraryRef}' -> '${library.libraryRef}'`);
   if (JSON.stringify(library.bands) !== JSON.stringify(entry.bands)) drifted.push('bands changed');
   return drifted;
+}
+
+/**
+ * F-slice-3-02: re-snapshot the library's `issues` field onto the
+ * registry entry. Design 3.3 says `library refresh` re-snapshots the
+ * feedback destination so a library owner's later change to
+ * `issues.repo` or `issues.visibility` reaches consumers without a
+ * re-add. Returns `{ changed, next, from, to }` where `next` is the
+ * merged entry to write; `changed` is true when the on-disk library
+ * carries a different repo or visibility from the registered snapshot
+ * (including the case where the entry never had the fields).
+ *
+ * @param {object} entry
+ * @param {object} library
+ * @returns {{ changed: boolean, next: object, from: object, to: object }}
+ */
+export function reSnapshotIssues(entry, library) {
+  const nextRepo = typeof library?.issues?.repo === 'string' && library.issues.repo.length > 0
+    ? library.issues.repo
+    : undefined;
+  const nextVisibility = library?.issues?.visibility === 'private' ? 'private'
+    : library?.issues?.visibility === 'public' ? 'public'
+      : undefined;
+  const from = {
+    issuesRepo: entry.issuesRepo,
+    issuesVisibility: entry.issuesVisibility,
+  };
+  const to = { issuesRepo: nextRepo, issuesVisibility: nextVisibility };
+  const changed = from.issuesRepo !== to.issuesRepo || from.issuesVisibility !== to.issuesVisibility;
+  const next = { ...entry };
+  if (nextRepo === undefined) delete next.issuesRepo;
+  else next.issuesRepo = nextRepo;
+  if (nextVisibility === undefined) delete next.issuesVisibility;
+  else next.issuesVisibility = nextVisibility;
+  return { changed, next, from, to };
+}
+
+/**
+ * Apply reSnapshotIssues across a registry: given the current registry
+ * and the freshly-loaded library, return the registry object with the
+ * matched entry replaced by the re-snapshotted one. Callers write the
+ * returned registry back through `writeLibraryRegistry`.
+ *
+ * @param {object} registry
+ * @param {string} libraryPrefix
+ * @param {object} library
+ * @returns {{ registry: object, changed: boolean, from: object, to: object }}
+ */
+function describeIssuesTransition(from, to) {
+  const fromRepo = from.issuesRepo ?? '(none)';
+  const toRepo = to.issuesRepo ?? '(none)';
+  const fromVis = from.issuesVisibility ?? '-';
+  const toVis = to.issuesVisibility ?? '-';
+  return `${fromRepo} (${fromVis}) -> ${toRepo} (${toVis})`;
+}
+
+function refreshRegistryIssues(registry, libraryPrefix, library) {
+  const nextLibs = [];
+  let changed = false;
+  let from = { issuesRepo: undefined, issuesVisibility: undefined };
+  let to = from;
+  for (const l of registry.libraries) {
+    if (l.libraryPrefix !== libraryPrefix) {
+      nextLibs.push(l);
+      continue;
+    }
+    const snap = reSnapshotIssues(l, library);
+    if (snap.changed) {
+      changed = true;
+      from = snap.from;
+      to = snap.to;
+    }
+    nextLibs.push(snap.next);
+  }
+  return {
+    registry: { ...registry, libraries: nextLibs },
+    changed,
+    from,
+    to,
+  };
 }
 
 function classifySourceRef(ref) {
