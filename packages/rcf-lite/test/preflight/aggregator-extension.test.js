@@ -47,11 +47,14 @@ test('preflightEntry has the aggregator entry shape and the spec-declared path',
 test('managedGitignoreEntries() carries identity then preflight then view-supervisor entries, in aggregator-registered order', () => {
   const entries = managedGitignoreEntries();
   // Track C+D §9.3 added the view-server pid file and supervisor log.
-  assert.equal(entries.length, 4, 'aggregator carries identity + preflight + view-server pid + view-server log after the 0.7.0 extension');
+  // FBS-180 (slice 1, feedback submission) added the feedback log at
+  // .rcf/feedback/ via the same aggregator seam.
+  assert.equal(entries.length, 5, 'aggregator carries identity + preflight + view-server pid + view-server log + feedback log after the 0.28.0 extension');
   assert.equal(entries[0].path, 'rcf/.identity/');
   assert.equal(entries[1].path, '.rcf/preflight-secrets.local.json');
   assert.equal(entries[2].path, '.rcf/view-server.pid');
   assert.equal(entries[3].path, '.rcf/view-server.log');
+  assert.equal(entries[4].path, '.rcf/feedback/');
   // Object identity: the second entry IS the exported constant, not a
   // dup. Proves the extension is by import, not by inline literal.
   assert.equal(entries[1], preflightEntry);

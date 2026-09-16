@@ -11,6 +11,7 @@ The RCF Lite documentation set. Pick by what you need:
 | [blueprint-authoring.md](blueprint-authoring.md) | The standard a shippable blueprint must meet | Blueprint author |
 | [blueprint-authoring-walkthrough.md](blueprint-authoring-walkthrough.md) | A minimal blueprint built end to end | Blueprint author |
 | [blueprint-authoring-checklist.md](blueprint-authoring-checklist.md) | The quality gate a new blueprint must pass before ship | Blueprint author |
+| [feedback.md](feedback.md) | How the agent logs blueprint and core findings (slice 1: capture and store) | Blueprint author and operating agent |
 | [../guidance/](../guidance/README.md) | The agent-facing method pack: playbooks, harness template | Operating agent (also served over MCP) |
 
 Per-verb flag reference: `rcf help <verb>` (canonical, ships with the bin - not duplicated here). Field-level schema reference: [rcf-schemas docs](https://github.com/Stravica/rcf-schemas/tree/main/docs). Complete example trees: [rcf-examples](https://github.com/Stravica/rcf-examples).

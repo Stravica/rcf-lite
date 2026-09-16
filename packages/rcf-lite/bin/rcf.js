@@ -23,6 +23,7 @@ import { main as coverageMain } from '../src/cli/coverage.js';
 import { main as createMain } from '../src/cli/create.js';
 import { main as deleteMain } from '../src/cli/delete.js';
 import { main as doctorMain } from '../src/cli/doctor.js';
+import { main as feedbackMain } from '../src/cli/feedback.js';
 import { main as finaliseMain } from '../src/cli/finalise.js';
 import { main as guidanceMain } from '../src/cli/guidance.js';
 import { main as helpMain, TOP_LEVEL_HELP, GROUP_HELP, HELP_MAP } from '../src/cli/help.js';
@@ -68,6 +69,7 @@ export const CORE = {
   guidance: guidanceMain,
   mcp: mcpMain,
   version: versionMain,
+  feedback: feedbackMain,
   // help handled inline below (needs group context)
 };
 

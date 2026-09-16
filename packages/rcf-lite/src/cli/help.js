@@ -19,6 +19,7 @@ import { HELP as AUDIT_EVAL_HELP } from './eval.js';
 import { HELP as CREATE_HELP } from './create.js';
 import { HELP as DELETE_HELP } from './delete.js';
 import { HELP as DOCTOR_HELP } from './doctor.js';
+import { HELP as FEEDBACK_HELP } from './feedback.js';
 import { HELP as FINALISE_HELP } from './finalise.js';
 import { HELP as GUIDANCE_HELP } from './guidance.js';
 import { HELP as IMPACT_HELP } from './impact.js';
@@ -68,6 +69,8 @@ core         Platform plumbing that predates any RCF stage.
   mcp                      Serve the project over MCP (local stdio).
   version [--check]        Print installed version; --check compares
                            against the release feed.
+  feedback <verb>          Log a blueprint or core finding locally, and
+                           (later slices) ask once, submit or bundle.
   help [group] [verb]      Print help for a group or a verb.
 
 discover     Learn what is already true for this project.
@@ -143,6 +146,8 @@ Verbs:
   mcp                      Serve the project over MCP (local stdio).
   version [--check]        Print installed version; --check compares
                            against the release feed.
+  feedback <verb>          Log a blueprint or core finding locally, and
+                           (later slices) ask once, submit or bundle.
   help [group] [verb]      Print help for a group or a verb.
 
 Run 'rcf help <verb>' for per-verb help.
@@ -313,6 +318,7 @@ export const CORE_HELP = {
   guidance: GUIDANCE_HELP,
   mcp: MCP_HELP,
   version: VERSION_HELP,
+  feedback: FEEDBACK_HELP,
 };
 
 /**

@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-16T14:25:30Z",
+  "updatedAt": "2026-09-16T14:25:30Z",
+  "purpose": "Cover AC-15503-1 (rcf feedback defer appends a deferredUntilSession state line per pending entry stamped with the current sessionId) and AC-15503-2 (rcf feedback discard marks only named entries or every pending under --all, hides them from list default, and refuses on an unknown id).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15503-1",
+    "AC-15503-2"
+  ],
+  "id": "TS-187",
+  "usId": "US-15503",
+  "title": "Slice 1 (FBS-180): rcf feedback defer and rcf feedback discard honour the fold-by-id state transitions and refuse on unknown ids",
+  "testCases": [
+    {
+      "id": "TC-187-defer-appends-state-lines",
+      "acId": "AC-15503-1",
+      "description": "Cover AC-15503-1 via the CLI test: defer appends one deferredUntilSession state line per pending entry, stamped with the current sessionId; the folded read reports both entries at status deferredUntilSession; no network call.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-defer-discard.test.js::AC-15503-1: defer appends a deferredUntilSession state line per pending entry"
+    },
+    {
+      "id": "TC-187-discard-by-id-hides-from-default",
+      "acId": "AC-15503-2",
+      "description": "Cover AC-15503-2 (named ids) via the CLI test: discard <id1> <id2> marks those entries discarded, list default hides them, --all shows their status.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-defer-discard.test.js::AC-15503-2: discard <id> marks only named entries and hides them from list default"
+    },
+    {
+      "id": "TC-187-discard-all-marks-every-pending",
+      "acId": "AC-15503-2",
+      "description": "Cover AC-15503-2 (--all arm) via the CLI test: discard --all marks every pending entry discarded and list default is empty.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-defer-discard.test.js::AC-15503-2: discard --all marks every pending entry discarded"
+    },
+    {
+      "id": "TC-187-discard-refuses-unknown-id",
+      "acId": "AC-15503-2",
+      "description": "Cover AC-15503-2 (unknown-id arm) via the CLI test: discard on an unknown id exits 2, no state line is written to the log.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-defer-discard.test.js::AC-15503-2: discard with an unknown id exits 2 and writes nothing"
+    }
+  ],
+  "status": "draft"
+}
