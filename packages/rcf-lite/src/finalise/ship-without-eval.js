@@ -7,9 +7,37 @@
 // Landing shape mirrors ship-without-verified: an optional
 // `shipWithoutEval[]` array on the manifest, with monotonic ids
 // `swe-<fbsId>-<n>`, the operator's reason string, the declared AC
-// verdicts, the report path, and an ISO timestamp. rcf-schemas 0.6.0
-// does not yet declare this field on the manifest schema; consumers
-// treat its absence as "no acks" and its presence as data.
+// verdicts, the report path, and an ISO timestamp.
+//
+// Referee-guarantee train (REQ-162 / US-16203, docs claim C-33):
+// rcf-schemas 0.6.2 does NOT yet declare this field on the manifest
+// schema, so the write path deliberately skips the schema validator
+// on the manifest write (see `writeShipWithoutEvalRecord` below). The
+// docs sentence "--ship-without-eval records its acknowledgement as
+// a valid manifest field" holds only once rcf-schemas ships a minor
+// bump declaring the field. The exact delta needed on
+// `manifest.schema.json` mirrors `shipWithoutVerified`:
+//
+//   1. Under `properties`, add:
+//        "shipWithoutEval": {
+//          "type": "array",
+//          "items": { "$ref": "#/$defs/shipWithoutEvalRecord" },
+//          "description": "Operator acknowledgements recorded on rcf
+//            finalise --ship-without-eval. One entry per acknowledgement."
+//        }
+//   2. Under `$defs`, add `shipWithoutEvalRecord` mirroring
+//      `shipWithoutVerifiedRecord`, but with an extra required
+//      `reason` string field and a `declaredAcs` items shape whose
+//      verdict enum is `["EVAL-MISSING", "EVAL-BELOW-THRESHOLD"]`.
+//   3. Under `$defs`, add `shipWithoutEvalDeclaredAc` mirroring
+//      `shipWithoutVerifiedDeclaredAc` with the new verdict enum.
+//   4. Extend the top-level `description` to name the new field
+//      (0.6.3 or later) and its shape.
+//
+// Until that ships (tracked as the schemas follow-up on this train),
+// this writer keeps the acknowledgement on the manifest but the
+// manifest fails strict validation. Consumers treat its absence as
+// "no acks" and its presence as data.
 
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';

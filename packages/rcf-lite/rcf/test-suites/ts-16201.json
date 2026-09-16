@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "purpose": "Cover AC-16201-1 (UI-BASELINE-UNMET refusal, C-28 + C-36), AC-16201-2 (BROWSER-VERIFICATION-MISSING refusal, C-29) and AC-16201-3 (SCOPE-MISMATCH refusal, C-30). Each test scaffolds a fresh RCF project with initProject, wires a stub verify subprocess that writes a passing report carrying the named per-AC verdict, invokes rcf build finalise, and asserts exit 4 with the expected stderr message.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16201-1",
+    "AC-16201-2",
+    "AC-16201-3"
+  ],
+  "id": "TS-16201",
+  "usId": "US-16201",
+  "title": "finalise per-AC refusals: UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH",
+  "testCases": [
+    {
+      "id": "TC-16201-ui-baseline-unmet-refusal",
+      "acId": "AC-16201-1",
+      "description": "Fresh project via initProject with FBS-001 at complete; stub verify writes a passing report with perAcVerdicts = [{acId: AC-101-1, verdict: UI-BASELINE-UNMET}]; invoke rcf build finalise; assert exit 4, FBS at complete, stderr matches /UI-BASELINE-UNMET/ and /Referee-guarantees claims C-28 and C-36/.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries UI-BASELINE-UNMET (referee-guarantees C-28, C-36)"
+    },
+    {
+      "id": "TC-16201-browser-verification-missing-refusal",
+      "acId": "AC-16201-2",
+      "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: BROWSER-VERIFICATION-MISSING}]; assert exit 4, FBS at complete, stderr matches /BROWSER-VERIFICATION-MISSING/ and /Referee-guarantees claim C-29/.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries BROWSER-VERIFICATION-MISSING (referee-guarantees C-29)"
+    },
+    {
+      "id": "TC-16201-scope-mismatch-refusal",
+      "acId": "AC-16201-3",
+      "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: SCOPE-MISMATCH}]; assert exit 4, FBS at complete, stderr matches /SCOPE-MISMATCH/ and /Referee-guarantees claim C-30/.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries SCOPE-MISMATCH (referee-guarantees C-30)"
+    }
+  ],
+  "status": "approved"
+}

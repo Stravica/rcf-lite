@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "tacId": "TAC-16201-referee-finalise-per-ac-refusals",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "finalise per-AC refusals for UI-BASELINE-UNMET / BROWSER-VERIFICATION-MISSING / SCOPE-MISMATCH",
+  "purpose": "Add three refusal branches to `packages/rcf-lite/src/cli/finalise.js` that read `passLoaded.report.perAcVerdicts[]` after the existing MOCK-ONLY and EVAL branches and refuse promotion (exit 4) when any per-AC verdict matches one of {UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH}. Each refusal leaves the FBS at its current status, prints a stderr message that names the AC(s), the count and the referee-guarantees claim ids, and appends the `summariseReport` block for context. The three ingest helpers land in `packages/rcf-lite/src/finalise/ingest.js` as `findUiBaselineUnmetAcs` / `reportHasUiBaselineUnmet` and `findBrowserVerificationMissingAcs` / `reportHasBrowserVerificationMissing`; `findScopeMismatchAcs` / `reportHasScopeMismatch` already exist and are reused as-is. All three helpers and the finalise-side booleans are re-exported through `src/finalise/index.js`.",
+  "responsibilities": [
+    "Add findUiBaselineUnmetAcs and reportHasUiBaselineUnmet to ingest.js (AC-16201-1, AC-16201-3).",
+    "Add findBrowserVerificationMissingAcs and reportHasBrowserVerificationMissing to ingest.js (AC-16201-2).",
+    "Add three finalise refusal branches after the EVAL refusal branch, in the order UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH; each names the referee-guarantees claim ids in the stderr message so a downstream reader can trace the refusal to the docs promise it enforces (AC-16201-1, AC-16201-2, AC-16201-3).",
+    "Re-export the new helpers through src/finalise/index.js.",
+    "The refusals do NOT expose a --ship-without-* opt-out: the docs page names no sister opt-out for these three (unlike MOCK-ONLY / EVAL). If a project needs to ship anyway, the fix is on the tree (widen the TC, land the browser check, fix the baseline)."
+  ],
+  "internalStructure": "Three straight-line branches modelled on the existing MOCK-ONLY / EVAL refusal shape. Each reads perAcVerdicts, filters by verdict, prints a message, appends summariseReport, and returns 4. Graceful on the pre-0.7.0 report shape (no perAcVerdicts): the helpers return an empty array and the branches fall through to the next check.",
+  "interfaces": [],
+  "notes": "Behavioural addition, not a change: existing verify reports that never emit these verdicts are unaffected. Existing WSD projects whose verify layer already emits UI-BASELINE-UNMET / BROWSER-VERIFICATION-MISSING / SCOPE-MISMATCH will see finalise refuse where it previously silently promoted; that is the referee-guarantees claim holding."
+}

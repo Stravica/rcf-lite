@@ -1,0 +1,20 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "adrId": "ADR-16201-referee-finalise-refusals",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "finalise refuses on UI-BASELINE-UNMET / BROWSER-VERIFICATION-MISSING / SCOPE-MISMATCH with no sister opt-out",
+  "context": "The referee-guarantees docs page names three per-AC verdicts that finalise refuses on top of the 0.7.0 MOCK-ONLY / BLOCKED-BY-DECLARATION and rcf-eval-node EVAL-MISSING / EVAL-BELOW-THRESHOLD refusals: UI-BASELINE-UNMET (docs claim C-28; a block-severity probe-pack failure aggregates into the same verdict, C-36), BROWSER-VERIFICATION-MISSING (C-29) and SCOPE-MISMATCH (C-30). The verdict layer already emits all three (see `uiPerAcVerdict` and `scopePerAcVerdict` in `src/verify/verdict/index.js`); the aggregator in `src/browser-verify/manifest-writer.js` produces UI-BASELINE-UNMET for a block-severity probe-pack failure. The gap is at finalise: the 0.27.0 CLI branched on MOCK-ONLY / EVAL but not on the three new verdicts, so a report that passed the top-level verdict with a UI-BASELINE-UNMET on a per-AC verdict silently promoted. The docs page also names two sister opt-outs (--ship-without-verified, --ship-without-eval) for the existing refusals; it does NOT spell an opt-out for the three new verdicts.",
+  "decision": "Refuse promotion (exit 4) on any of the three per-AC verdicts, in the order UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH, appended after the EVAL refusal branch in finalise.js. No --ship-without-* opt-out is added for these three: the docs page names none, and the underlying failures (broken UI baseline, missing browser check, scope-mismatched TC) are exactly the shape the referee is chartered to refuse. If a project needs to ship anyway, the fix is on the tree (widen the TC, land the browser-verify record, fix the baseline). Each refusal message names the referee-guarantees claim ids so a downstream reader can trace back to the docs promise.",
+  "consequences": "The referee-guarantees page's three sentences hold by construction. Verify reports on existing WSD projects that already emit these verdicts will now fail finalise where they previously silently promoted; that is the point. Adding a --ship-without-* opt-out later remains open (would follow the ship-without-verified shape with a schema addition for the new verdict enum), but is not landed here because the docs page has not named one and the failure classes are the kind that should be fixed on the tree, not acked away.",
+  "alternativesConsidered": [
+    {
+      "name": "Add a single --ship-without-referee flag for all three",
+      "summary": "Introduce a catch-all acknowledgement flag that acks any of the three new verdicts and records the ack on the manifest under a new shipWithoutRefereeChecks[] section.",
+      "reasonNotChosen": "Requires a rcf-schemas manifest bump (a new shipWithoutRefereeChecksRecord shape), the docs page has not spelled such an opt-out, and the failure classes (broken baseline, missing browser check, scope mismatch) are not the kind that operators legitimately ship over. Refusing without an opt-out matches the docs promise as written."
+    }
+  ]
+}

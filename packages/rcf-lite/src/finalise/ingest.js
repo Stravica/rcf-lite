@@ -185,3 +185,64 @@ export function findEvalRefusalAcs(report) {
 export function reportHasEvalRefusal(report) {
   return findEvalRefusalAcs(report).length > 0;
 }
+
+/**
+ * Referee-guarantee train (REQ-162 / US-16201, docs claims C-28 / C-36).
+ * Extract per-AC verdicts in {UI-BASELINE-UNMET} from a verify report.
+ * The verdict is emitted by `uiPerAcVerdict` when a UI-bearing FBS has
+ * a bound `browserVerification[]` record whose `verdict` came back
+ * `block`; a block-severity probe-pack failure aggregates into the same
+ * verdict (docs claim C-36). Earlier reports carry no perAcVerdicts
+ * field; this returns an empty array in that case.
+ *
+ * @param {object} report
+ * @returns {Array<{ acId: string, verdict: string, reason?: string }>}
+ */
+export function findUiBaselineUnmetAcs(report) {
+  const perAc = Array.isArray(report?.perAcVerdicts) ? report.perAcVerdicts : [];
+  return perAc
+    .filter((e) => e && e.verdict === 'UI-BASELINE-UNMET')
+    .map((e) => ({ acId: e.acId, verdict: e.verdict, reason: e.reason }));
+}
+
+/**
+ * True when a verify report carries at least one UI-BASELINE-UNMET verdict.
+ * Consumed by the finalise gate to refuse promotion to `verified` on a
+ * failed UI baseline check (referee-guarantee C-28 / C-36).
+ *
+ * @param {object} report
+ * @returns {boolean}
+ */
+export function reportHasUiBaselineUnmet(report) {
+  return findUiBaselineUnmetAcs(report).length > 0;
+}
+
+/**
+ * Referee-guarantee train (REQ-162 / US-16201, docs claim C-29).
+ * Extract per-AC verdicts in {BROWSER-VERIFICATION-MISSING} from a
+ * verify report. Emitted by `uiPerAcVerdict` when a UI-bearing FBS has
+ * no `browserVerification[]` record on the manifest (verify has nothing
+ * to read for the baseline check).
+ *
+ * @param {object} report
+ * @returns {Array<{ acId: string, verdict: string, reason?: string }>}
+ */
+export function findBrowserVerificationMissingAcs(report) {
+  const perAc = Array.isArray(report?.perAcVerdicts) ? report.perAcVerdicts : [];
+  return perAc
+    .filter((e) => e && e.verdict === 'BROWSER-VERIFICATION-MISSING')
+    .map((e) => ({ acId: e.acId, verdict: e.verdict, reason: e.reason }));
+}
+
+/**
+ * True when a verify report carries at least one
+ * BROWSER-VERIFICATION-MISSING verdict. Consumed by the finalise gate
+ * to refuse promotion to `verified` on a UI-bearing FBS whose bound
+ * browser-verification record is absent (referee-guarantee C-29).
+ *
+ * @param {object} report
+ * @returns {boolean}
+ */
+export function reportHasBrowserVerificationMissing(report) {
+  return findBrowserVerificationMissingAcs(report).length > 0;
+}

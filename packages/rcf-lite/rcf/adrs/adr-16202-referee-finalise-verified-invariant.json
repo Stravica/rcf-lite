@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "adrId": "ADR-16202-referee-finalise-verified-invariant",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Gate the manual verified override behind --acknowledge-verified-override; add a default-branch precondition to finalise with --allow-pre-merge as the opt-out",
+  "context": "The referee-guarantees docs page promises that `rcf build finalise` is the only path to `verified` (docs claim C-22) and that a chain that says `verified` traces to an actual post-merge runtime check by construction (C-26). Two 0.27.0 gaps break those promises: (a) `rcf define update <fbs> --set executionStatus=verified` writes the value directly through the writer, bypassing finalise entirely, and (b) finalise itself has no merge-state precondition, so a mid-branch dev-loop run can stamp verified against a localhost URL. The docs sentence explicitly says both are on the 0.28.0 landing plan: 'The next release removes the manual override and adds the merge-state precondition, so once shipped, a chain that says verified traces to an actual post-merge runtime check by construction.' Two constraints shape the fix: (1) the manifest schema admits `verified` as a valid executionStatus so finalise itself can write it, and (2) the escalation clause on this dispatch: if the fix breaks existing WSD projects, land it behind a flag whose default matches the docs promise.",
+  "decision": "Two symmetric refusals, each with a documented escape flag. (a) The writer refuses FBS.executionStatus=verified when `options.allowVerifiedOverride` is not true; finalise's own updateDocument call passes the flag through, and `rcf define update` exposes `--acknowledge-verified-override` for the deliberate manual override (a logged operator decision). (b) Finalise spawns `git rev-parse --abbrev-ref HEAD` just before the executionStatus write and refuses (exit 4) when the branch is not one of {main, master}; `--allow-pre-merge` is the deliberate pre-merge dry-run opt-out, and the decision is logged on stdout so the operator sees it. Absent a git checkout (bare tarball deploy, container ephemeral CWD), the check degrades to a warn line rather than a hard fail so legitimate non-git deploys are not refused by a git-shape check.",
+  "consequences": "Both docs sentences hold by default from this release. Downstream projects that ran `rcf define update <fbs> --set executionStatus=verified` for a repair scenario keep the escape valve through the new flag; downstream projects that ran finalise on a feature branch for a dev-loop dry run keep the escape valve through --allow-pre-merge. The refusal messages and the log lines name the referee-guarantees claim ids so a downstream reader can trace the behaviour to the docs promise it enforces. The two default-branch names (main, master) are hard-coded rather than read from the git remote's symbolic ref; projects on a non-default trunk name either rename to a listed name or run --allow-pre-merge every time (unusual in modern repos).",
+  "alternativesConsidered": [
+    {
+      "name": "Remove the manual override entirely (no --acknowledge-verified-override flag)",
+      "summary": "Refuse FBS.executionStatus=verified through the writer with no escape flag; force every verified write through finalise.",
+      "reasonNotChosen": "Escalation clause: existing WSD projects may need a manual repair escape (e.g. a finalise gate that promoted then a partial rollback that needs the state re-stamped). A hard removal invalidates that repair path; the flag preserves it with a logged, deliberate operator decision."
+    },
+    {
+      "name": "Merge-state check reads the git remote's symbolic ref for the default branch",
+      "summary": "Instead of hard-coding {main, master}, run `git symbolic-ref refs/remotes/origin/HEAD` and use its value as the default trunk name.",
+      "reasonNotChosen": "Adds a network round-trip on every finalise, fails offline, and depends on the remote's ref being set (many test scaffolds do not set it). The small hard-coded list matches what git init and every hosted git provider default to today; projects on an unusual trunk name pass --allow-pre-merge every time or rename to a listed name."
+    },
+    {
+      "name": "Verify the merge with git merge-base HEAD origin/main",
+      "summary": "Instead of a branch-name check, verify the current commit is an ancestor of origin/main.",
+      "reasonNotChosen": "Requires the operator to `git fetch` before finalise (a silent staleness bug otherwise), depends on the remote name and is slower. The branch-name check is a proxy that catches the common failure (finalise on a feature branch) without a network hop."
+    }
+  ]
+}
