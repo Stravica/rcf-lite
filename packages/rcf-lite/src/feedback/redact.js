@@ -94,18 +94,33 @@ export function redact(input, context = {}) {
   // Rule 2: other absolute paths -> <path>/<basename>. POSIX and
   // Windows shapes. Path segments allow letters, digits, dots,
   // hyphens, underscores, tildes, pluses, colons, at-signs and
-  // spaces. A segment carrying a space (e.g. `/Users/john doe/work`)
-  // is only accepted when it is followed by another path separator,
-  // so a sentence with a lone `/tmp/x and other stuff` does not
-  // swallow the trailing words (F-slice-2-06).
-  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\/)|[A-Za-z0-9._+@~-]+))+/g;
+  // spaces. A non-terminal segment carrying spaces (e.g.
+  // `/Users/john doe/work` or `/Users/john  doe/work` with a double
+  // space) is accepted when it is followed by another separator, so
+  // any width of whitespace between tokens folds. A terminal
+  // (no-separator) segment accepts at most ONE space continuation
+  // so a sentence like `in /Users/john doe end here` folds the path
+  // (`/Users/john doe`) without swallowing the rest of the sentence
+  // (F-slice-2-06).
+  // Terminal-segment shape: a first word with a `.` looks like a
+  // filename (no space continuation - space starts a sentence again,
+  // as in `/foo.js line 42`); a first word without a `.` looks like
+  // a directory (allow ONE space continuation - `john doe` is one
+  // dir on macOS). This split avoids swallowing the trailing sentence
+  // when the path ends in a filename.
+  const posixAbsRe = /(?<![A-Za-z0-9_/-])\/(?:Users|home|tmp|var|opt|private|etc|root)(?:\/(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\/)|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, posixAbsRe, (match) => {
     const bn = match.split('/').filter(Boolean).pop() ?? 'file';
+    // A basename with a space is almost always a username directory
+    // (e.g. macOS `Users/First Last`); dropping the basename keeps
+    // the personal name off the wire (F-slice-2-06 terminal case).
+    if (/\s/.test(bn)) return '<path>';
     return `<path>/${bn}`;
   }, 'absolute-path', ledger);
-  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9._+@~-]+)(?:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9._+@~-]+))+/g;
+  const winAbsRe = /(?<![A-Za-z0-9])[A-Z]:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+)(?:\\(?:(?:[A-Za-z0-9._+@~-]+(?:\s+[A-Za-z0-9._+@~-]+)*(?=\\))|[A-Za-z0-9_+@~-]+(?:[ \t][A-Za-z0-9._+@~-]+)?|[A-Za-z0-9._+@~-]+))+/g;
   text = replaceRegex(text, winAbsRe, (match) => {
     const bn = match.split('\\').pop() ?? 'file';
+    if (/\s/.test(bn)) return '<path>';
     return `<path>\\${bn}`;
   }, 'absolute-path', ledger);
 
@@ -183,7 +198,13 @@ export function redact(input, context = {}) {
   // (fe80::/10) and generic IPv6 shapes (including :: compression),
   // but keep loopback `::1`. Runs after IPv4 so a `::ffff:10.0.0.1`
   // mapped-address form still folds sensibly.
-  const ipv6LoopbackRe = /(?<![0-9A-Fa-f:])::1(?![0-9A-Fa-f:])/g;
+  // F-slice-2-05: preserve loopback in every legal spelling - `::1`,
+  // the fully expanded `0:0:0:0:0:0:0:1`, and every zero-padded
+  // variant of it (`0000:0000:0000:0000:0000:0000:0000:0001`, etc).
+  // A single `::1` matcher would let the expanded forms fall through
+  // to the general ipv6 pattern and get redacted against design 5
+  // rule 4's loopback exemption.
+  const ipv6LoopbackRe = /(?<![0-9A-Fa-f:])(?:::1|(?:0{1,4}:){7}0{0,3}1)(?![0-9A-Fa-f:])/g;
   const ipv6Re = /(?<![0-9A-Fa-f:])(?:(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,7}:|(?:[0-9A-Fa-f]{1,4}:){1,6}:[0-9A-Fa-f]{1,4}|(?:[0-9A-Fa-f]{1,4}:){1,5}(?::[0-9A-Fa-f]{1,4}){1,2}|(?:[0-9A-Fa-f]{1,4}:){1,4}(?::[0-9A-Fa-f]{1,4}){1,3}|(?:[0-9A-Fa-f]{1,4}:){1,3}(?::[0-9A-Fa-f]{1,4}){1,4}|(?:[0-9A-Fa-f]{1,4}:){1,2}(?::[0-9A-Fa-f]{1,4}){1,5}|[0-9A-Fa-f]{1,4}:(?::[0-9A-Fa-f]{1,4}){1,6}|:(?::[0-9A-Fa-f]{1,4}){1,7})(?![0-9A-Fa-f:])/g;
   // Protect loopback markers before the general pattern runs.
   const LOOPBACK_TOKEN = 'IPV6LO';
@@ -195,19 +216,12 @@ export function redact(input, context = {}) {
   text = replaceRegex(text, ipv6Re, () => '<ip>', 'private-ip', ledger);
   text = text.replace(new RegExp(`${LOOPBACK_TOKEN}(\\d+)${LOOPBACK_TOKEN}`, 'g'), (_m, i) => savedLoopback[Number(i)]);
 
-  // Rule 6: secret-looking strings -> <redacted:secret>. This block is
-  // the last line of defence and rule 8's residual check re-runs it.
-  text = redactSecrets(text, ledger);
-
-  // Rule 8a: size / shape. Strip control characters; normalise dashes
-  // to ASCII hyphens (register rule and keeps fingerprint input stable);
-  // truncate to BODY_CAP_BYTES with an explicit marker.
-  const before = text;
-  let ctrl = 0;
-  text = text.replace(/[ --]/g, () => {
-    ctrl += 1;
-    return '';
-  });
+  // Rule 8a-early: dash normalisation runs BEFORE the rule-6 secret
+  // pass so em-dash-delimited shapes (e.g. `—BEGIN PRIVATE KEY—`)
+  // reach the secret patterns as ASCII forms. Doing this later would
+  // let a PEM block with em-dashes on the delimiters slip both the
+  // first-pass PEM regex (needs `-`) AND the residual pass because
+  // the residual scan runs after this normalisation - R-P0-2.
   // Normalise dashes: em (—), en (–), figure (‒),
   // horizontal bar (―), hyphen (‐), non-breaking hyphen
   // (‑), minus sign (−). All become ASCII hyphen.
@@ -216,6 +230,20 @@ export function redact(input, context = {}) {
   text = text.replace(dashRe, () => {
     dashes += 1;
     return '-';
+  });
+
+  // Rule 6: secret-looking strings -> <redacted:secret>. This block is
+  // the last line of defence and rule 8's residual check re-runs it.
+  text = redactSecrets(text, ledger);
+
+  // Rule 8a-late: size / shape. Strip control characters; truncate to
+  // BODY_CAP_BYTES with an explicit marker. Dash normalisation is now
+  // in 8a-early above; the size-shape ledger row still totals both.
+  const before = text;
+  let ctrl = 0;
+  text = text.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, () => {
+    ctrl += 1;
+    return '';
   });
   let truncated = 0;
   if (Buffer.byteLength(text, 'utf8') > BODY_CAP_BYTES) {
@@ -253,12 +281,15 @@ export function redact(input, context = {}) {
  * @returns {ResidualHit[]}
  */
 export function findResidualSecrets(text) {
-  // F-slice-2-04: the residual pass runs the SAME pattern family the
-  // first pass used, plus the word-boundary-loosened token variants
-  // so a secret buried inside a longer identifier still trips the
-  // refusal. Every rule-5 family is represented: what leaves the
-  // machine cannot include a shape the first pass would have caught
-  // even after later normalisation.
+  // F-slice-2-04 / R-P0-2: the residual pass runs the SAME pattern
+  // family the first pass used, plus the word-boundary-loosened
+  // token variants so a secret buried inside a longer identifier
+  // still trips the refusal. Scans the WHOLE text with each pattern
+  // (not line-by-line) so multiline shapes such as a PEM block are
+  // matched: a per-line loop could never see a BEGIN..END pair on
+  // its own line. Every rule-5 family is represented: what leaves
+  // the machine cannot include a shape the first pass would have
+  // caught even after later normalisation.
   const primaries = secretPatterns();
   const looseTokens = [
     { name: 'github-token',  re: /(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}/g },
@@ -271,22 +302,33 @@ export function findResidualSecrets(text) {
     { name: 'bearer',        re: /Bearer\s+[A-Za-z0-9._~+/=-]{4,}/g },
   ];
   const residualPatterns = [...primaries, ...looseTokens];
-  const lines = text.split('\n');
   /** @type {ResidualHit[]} */
   const hits = [];
   const seen = new Set();
-  for (let i = 0; i < lines.length; i += 1) {
-    for (const { name, re } of residualPatterns) {
-      re.lastIndex = 0;
-      const m = re.exec(lines[i]);
-      if (m) {
-        const key = `${name}|${i + 1}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        hits.push({ line: i + 1, snippet: m[0].slice(0, 80), pattern: name });
+  for (const { name, re } of residualPatterns) {
+    re.lastIndex = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      // Line number = 1 + count of newlines before m.index.
+      let line = 1;
+      for (let i = 0; i < m.index; i += 1) {
+        if (text.charCodeAt(i) === 10) line += 1;
       }
+      // Collapse whitespace in the snippet so a multiline PEM block
+      // renders on one console line for the operator refusal message.
+      const snippet = m[0].replace(/\s+/g, ' ').slice(0, 80);
+      const key = `${name}|${line}|${snippet}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        hits.push({ line, snippet, pattern: name });
+      }
+      // Guard against zero-width matches (defensive; no such pattern
+      // in the set today, but a future pattern with an optional group
+      // could hang the loop otherwise).
+      if (re.lastIndex === m.index) re.lastIndex += 1;
     }
   }
+  hits.sort((a, b) => a.line - b.line || a.pattern.localeCompare(b.pattern));
   return hits;
 }
 
@@ -421,13 +463,24 @@ function secretPatterns() {
     { name: 'openai',        re: /\bsk-[A-Za-z0-9]{20,}\b/g },
     { name: 'slack',         re: /\bxox[abp]-[A-Za-z0-9-]{10,}\b/g },
     { name: 'jwt',           re: /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g },
-    { name: 'pem',           re: /-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----[\s\S]*?-----END (?:[A-Z0-9 ]+ )?PRIVATE KEY-----/g },
+    // R-P0-2: broaden PEM to accept 1..5 dashes on each delimiter so a
+    // block whose fences were folded by dash normalisation earlier in
+    // the pass (em-dash `—BEGIN...—` -> `-BEGIN...-`) still
+    // matches. The eight-rule ordering keeps this the last line of
+    // defence before the residual scan.
+    { name: 'pem',           re: /-{1,5}BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-{1,5}[\s\S]*?-{1,5}END (?:[A-Z0-9 ]+ )?PRIVATE KEY-{1,5}/g },
     { name: 'bearer',        re: /\bBearer\s+[A-Za-z0-9._~+/=-]{4,}/g },
     { name: 'authorization', re: /^[ \t]*authorization[ \t]*:[^\n]+/gim },
     // Well-known key names paired with ANY non-empty value are
     // secrets by convention. The value class stays permissive so
     // short and quoted values (e.g. "password": "abc") fold too.
-    { name: 'kv-secret',     re: /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["' ]*[:=][ \t]*(?:"[^"\n]+"|'[^'\n]+'|[^\s,;)}\]]+)/gi },
+    // R-P0-1: allow tab (and any whitespace) between key and the
+    // `:` / `=` separator; the previous ["' ]* class dropped tabs
+    // and let `password\t=Abc12345` slip past the redactor.
+    // F-slice-2-01: quoted values with an embedded escaped quote
+    // (`"ab\"cd"`) previously truncated at the first `"`; the value
+    // alternatives now consume `\<any>` escape sequences too.
+    { name: 'kv-secret',     re: /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n])+"|'(?:\\.|[^'\\\n])+'|[^\s,;)}\]]+)/gi },
     // High-entropy blob. Anchored to non-word boundaries so it does not
     // fold with the specific patterns above; excludes 7/12/40-char
     // hex-only sha values (git object shape).

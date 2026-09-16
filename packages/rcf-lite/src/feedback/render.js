@@ -71,25 +71,39 @@ export function renderIssue(entry, redacted, meta) {
 export function capRenderedBody(body) {
   if (Buffer.byteLength(body, 'utf8') <= BODY_CAP_BYTES) return body;
   const fenceIndex = body.indexOf('\n---\n');
+  let out;
   if (fenceIndex < 0) {
     // Should never happen (renderBody always writes the fence) but
     // fall back to a raw byte truncation with a marker so the cap
     // still holds.
-    return `${truncateToBytes(body, BODY_CAP_BYTES - 32)}\n[truncated by rcf feedback]\n`;
+    out = `${truncateToBytes(body, BODY_CAP_BYTES - 32)}\n[truncated by rcf feedback]\n`;
+  } else {
+    const head = body.slice(0, fenceIndex);
+    const tail = body.slice(fenceIndex);
+    const tailBytes = Buffer.byteLength(tail, 'utf8');
+    const marker = '\n\n[truncated by rcf feedback]\n';
+    const markerBytes = Buffer.byteLength(marker, 'utf8');
+    const headBudget = BODY_CAP_BYTES - tailBytes - markerBytes;
+    if (headBudget <= 0) {
+      // Tail alone exceeds the cap; keep the tail (fingerprint is
+      // load-bearing for dedupe) and drop the entire free-form head.
+      out = `[truncated by rcf feedback]${tail}`;
+    } else {
+      const truncatedHead = truncateToBytes(head, headBudget);
+      out = `${truncatedHead}${marker}${tail}`;
+    }
   }
-  const head = body.slice(0, fenceIndex);
-  const tail = body.slice(fenceIndex);
-  const tailBytes = Buffer.byteLength(tail, 'utf8');
-  const marker = '\n\n[truncated by rcf feedback]\n';
-  const markerBytes = Buffer.byteLength(marker, 'utf8');
-  const headBudget = BODY_CAP_BYTES - tailBytes - markerBytes;
-  if (headBudget <= 0) {
-    // Tail alone exceeds the cap; keep the tail (fingerprint is
-    // load-bearing for dedupe) and drop the entire free-form head.
-    return `[truncated by rcf feedback]${tail}`;
+  // F-slice-2-10 (fix round 2): oversized evidence can push the whole
+  // assembled body past BODY_CAP_BYTES even after the head-side
+  // truncation above (the tail-alone case is the obvious one, but
+  // heavy evidence rows also inflate the fence-and-tail). Enforce the
+  // cap unconditionally at the end so the return is never over-budget.
+  if (Buffer.byteLength(out, 'utf8') > BODY_CAP_BYTES) {
+    const marker = '\n[truncated by rcf feedback]\n';
+    const markerBytes = Buffer.byteLength(marker, 'utf8');
+    out = `${truncateToBytes(out, BODY_CAP_BYTES - markerBytes)}${marker}`;
   }
-  const truncatedHead = truncateToBytes(head, headBudget);
-  return `${truncatedHead}${marker}${tail}`;
+  return out;
 }
 
 function truncateToBytes(text, maxBytes) {

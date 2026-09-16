@@ -255,3 +255,85 @@ test('F-slice-2-09: ledger keeps every distinct secret sample so the operator se
   assert.ok(rows.length >= 2, `expected at least 2 secret-token rows, got ${rows.length}`);
 });
 
+
+// -- Fix round 2 (2026-09-16) ---------------------------------------------
+
+test('R-P0-1: kv-secret rule accepts TAB (and any whitespace) between key and separator', () => {
+  // Reviewer runtime probe: `password\t=Abc12345` (tab between key
+  // and `=`) previously bypassed both kv-secret and the residual
+  // pass. AC-15601-1 (design 5 rule 5) requires the value to fold.
+  const cases = [
+    ['password\t=Abc12345', 'tab before `=`'],
+    ['password \t= Abc12345', 'space + tab before `=`'],
+    ['api_key\t\t: mnop9876', 'double tab before `:`'],
+    ['secret \t\t = MyLong0Value1234', 'mixed spaces + tabs'],
+  ];
+  for (const [input, label] of cases) {
+    const { text } = redact(input, {});
+    assert.match(text, /<redacted:secret>/, `expected redaction for ${label} (${input})`);
+  }
+});
+
+test('R-P0-2: em-dash-delimited PEM block is redacted (dash normalisation runs first)', () => {
+  // Reviewer runtime probe: an em-dash-prefixed PEM survived the
+  // first pass (needs `-`) AND the residual (line-by-line, so a
+  // multiline PEM never matched). Payload was emitted verbatim.
+  const pem = [
+    '—BEGIN RSA PRIVATE KEY—',
+    'MIIEowIBAAKCAQEAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    '—END RSA PRIVATE KEY—',
+  ].join('\n');
+  const { text, residual } = redact(`prelude\n${pem}\npostlude`, {});
+  assert.doesNotMatch(text, /MIIEow/, 'PEM payload must not survive');
+  assert.doesNotMatch(text, /RSA PRIVATE KEY/, 'PEM delimiters must be gone');
+  assert.match(text, /<redacted:secret>/);
+  // Residual pass belt-and-braces: nothing PEM-shaped in the output.
+  const pemResiduals = residual.filter((r) => r.pattern === 'pem');
+  assert.equal(pemResiduals.length, 0, 'no PEM residual should remain');
+});
+
+test('R-P0-2: findResidualSecrets runs whole-text so multiline PEM is detected', () => {
+  // Belt-and-braces: even if the first pass somehow missed a PEM
+  // block, the residual scan catches it end-to-end (whole-text scan).
+  const pem = [
+    '-----BEGIN RSA PRIVATE KEY-----',
+    'MIIEowIBAAKCAQEAyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy',
+    '-----END RSA PRIVATE KEY-----',
+  ].join('\n');
+  const hits = findResidualSecrets(`prelude\n${pem}\npostlude`);
+  const pemHits = hits.filter((h) => h.pattern === 'pem');
+  assert.ok(pemHits.length >= 1, 'residual pass must detect multiline PEM');
+});
+
+test('F-slice-2-01: quoted values with an embedded escaped quote fold completely', () => {
+  // Reviewer runtime probe: `{"password": "ab\"cd"}` left `cd"` behind
+  // because `"[^"\n]+"` stopped at the first embedded quote.
+  const { text } = redact('{"password": "ab\\"cd"}', {});
+  assert.doesNotMatch(text, /cd"/, 'nothing after the escaped quote may bleed');
+  assert.match(text, /<redacted:secret>/);
+});
+
+test('F-slice-2-05: expanded IPv6 loopback (0:0:0:0:0:0:0:1 and zero-padded) survives redaction', () => {
+  // Design rule 4 exempts loopback in every legal spelling.
+  const { text } = redact(
+    'shorthand ::1 and full 0:0:0:0:0:0:0:1 and padded 0000:0000:0000:0000:0000:0000:0000:0001',
+    {},
+  );
+  assert.match(text, /(?<![0-9A-Fa-f:])::1(?![0-9A-Fa-f:])/);
+  assert.match(text, /(?<![0-9A-Fa-f:])0:0:0:0:0:0:0:1(?![0-9A-Fa-f:])/);
+  assert.match(text, /(?<![0-9A-Fa-f:])0000:0000:0000:0000:0000:0000:0000:0001(?![0-9A-Fa-f:])/);
+});
+
+test('F-slice-2-06: double-space and terminal spaced dirs fold cleanly', () => {
+  // Reviewer runtime probes: `/Users/john  doe/foo.js` (double space)
+  // and `in /Users/john doe` (terminal spaced dir) both left the
+  // username fragment behind.
+  const { text: dbl } = redact('crashed at /Users/john  doe/foo.js line 42', {});
+  assert.match(dbl, /<path>\/foo\.js/);
+  assert.doesNotMatch(dbl, /doe/, 'username fragment must not bleed via double-space path');
+
+  const { text: term } = redact('crashed in /Users/john doe end here', {});
+  assert.doesNotMatch(term, /john doe/, 'terminal spaced dir must fold');
+  assert.match(term, /end here/, 'trailing sentence must survive');
+});
+
