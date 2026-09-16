@@ -1,0 +1,46 @@
+{
+  "tacId": "TAC-4108-feedback-hook",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback harness hook",
+  "purpose": "The single hook handler for both Claude Code and Codex, exposing the quiet rule as a pure function and the per-harness output shape as a thin wrapper.",
+  "responsibilities": [
+    "Read harness JSON from stdin (session_id, cwd, hook_event_name, stop_hook_active, last_assistant_message) and never block longer than 1 second",
+    "Apply the quiet rule (design section 3.5) and return ask or silent",
+    "Emit the exit-2-plus-stderr shape for Claude Code and the JSON block shape for Codex",
+    "Install itself under .claude/settings.json and .codex/hooks.json via a mergeable installer that never clobbers other hooks",
+    "Report missing-hook and foreign-hook conditions to doctor and repair missing hooks under --fix"
+  ],
+  "internalStructure": "src/feedback/hook.js exports shouldAsk(state) -> \"ask\"|\"silent\" (pure) and emit(harness, decision, entries) (side-effect). src/setup/feedback-hooks.js merges the entries into .claude/settings.json and .codex/hooks.json; doctor reuses the installer helpers for the report.",
+  "interfaces": [
+    {
+      "name": "shouldAsk",
+      "kind": "function",
+      "description": "Pure decision on the quiet rule; unit-tested across the full table."
+    },
+    {
+      "name": "emit",
+      "kind": "function",
+      "description": "Per-harness output; exit code and shape."
+    },
+    {
+      "name": "installHooks",
+      "kind": "function",
+      "description": "Merge the hook entries into the two harness config files."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "TAC-4102-feedback-store",
+      "kind": "tac",
+      "tacId": "TAC-4102-feedback-store",
+      "description": "Read state and settings; write the asked ledger."
+    }
+  ],
+  "tradeoffs": "Two harness config files to maintain and one handler; the cost is small (one merge pattern per file) and the benefit is one implementation of the quiet rule for both harnesses.",
+  "notes": "The asked record is appended before the emit path, so a crash between emit and reply cannot cause a second ask.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

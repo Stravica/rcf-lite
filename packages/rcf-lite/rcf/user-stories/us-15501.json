@@ -1,0 +1,51 @@
+{
+  "usId": "US-15501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-155",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Agent records a finding with one command",
+  "asA": "agent that has just seen a blueprint or rcf-lite misbehave",
+  "iWant": "to record the finding with a single rcf feedback add call whose flags cover kind, target, anchor, symptom class, severity, title, body and evidence pointers, and to be told nothing was sent",
+  "soThat": "a finding is captured at the moment I see it, without any user-facing interruption and without any network traffic",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15501-1",
+      "description": "rcf feedback add with the required flags (--kind, --target, --anchor, --class, --severity, --title, --body or --body-file, --evidence at least once, optional --harness and --ask-now) writes exactly one JSONL line to .rcf/feedback/entries.jsonl, stamps environment (harness, rcf-lite version, node version, platform) on the entry, prints \"recorded <id> (<n> pending). Nothing sent.\" on stdout, and exits 0. No network syscall is made (assertable by a stubbed submit path and by absence of gh calls).",
+      "given": "a fixture project whose .gitignore covers .rcf/feedback/",
+      "when": "the agent runs rcf feedback add with every required flag",
+      "then": "entries.jsonl has one line whose fields match the flags and the environment stamp; stdout carries the \"recorded\" line; exit code is 0; the network seam has not been touched",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-2",
+      "description": "rcf feedback add refuses when the project .gitignore does not cover .rcf/feedback/ and no --force flag is passed. The error names the missing gitignore entry and points at rcf doctor --fix. Exit code is 2. No file is created under .rcf/feedback/.",
+      "given": "a fixture project whose .gitignore lacks the .rcf/feedback/ entry",
+      "when": "the agent runs rcf feedback add without --force",
+      "then": "the command exits 2, stderr names the missing gitignore entry and the rcf doctor --fix remedy, and .rcf/feedback/ is not created",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-3",
+      "description": "When --kind blueprint is passed and the target cannot be resolved to a known blueprint in rcf/manifest.json:blueprints[], the entry is still recorded with destination: unresolved. Exit code is 3 (usage-plus-outcome), stdout carries the recorded line and stderr carries a one-line \"destination unresolved: <target>\" note that the agent can relay.",
+      "given": "a fixture project whose manifest carries no matching blueprint",
+      "when": "the agent runs rcf feedback add --kind blueprint --target unknown-slug ...",
+      "then": "the entry is written with destination.repo absent and destination.reason set to unresolved; exit code is 3; stderr carries the one-line note",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-4",
+      "description": "Symptom class must be one of the closed enum (docs-mismatch, validate-fails, apply-fails, internal-contradiction, stale-citation, missing-scenario, verb-error, verb-hang, wrong-output, other). Any other value exits 2 with a usage error naming the enum. Severity must be one of blocker, major, minor. Title is capped at 120 chars, body at 8 KB (either --body or --body-file); over-cap inputs exit 2 with a size error.",
+      "given": "a fixture project whose gitignore is set up correctly",
+      "when": "the agent runs rcf feedback add with an invalid class or severity, an oversize title, or an oversize body",
+      "then": "each invalid invocation exits 2, stderr names the specific violation and the enum or size limit; no entry is written",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

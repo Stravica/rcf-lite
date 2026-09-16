@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-156",
+  "prdId": "PRD-001",
+  "title": "Nothing leaves the machine unredacted",
+  "description": "Every issue title, body and evidence pointer that would leave the machine is redacted by a deterministic, rule-based pass and the redactions are disclosed to the operator before consent. The stored entry stays raw; only the rendered issue and bundle are redacted. Project root, other absolute paths, emails, non-allowlisted hostnames and URLs, private and link-local IPs, secret-looking strings, operator identity and the git remote of the reporting project are stripped. A body with a residual secret pattern refuses to submit and the offending line is shown to the operator so the agent can rewrite it.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

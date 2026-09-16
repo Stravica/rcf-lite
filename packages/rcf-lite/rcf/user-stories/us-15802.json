@@ -1,0 +1,33 @@
+{
+  "usId": "US-15802",
+  "prdId": "PRD-001",
+  "reqId": "REQ-158",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Findings on shelf blueprints and on rcf-lite itself go to rcf-lite",
+  "asA": "operator whose agent has logged a finding on a shelf blueprint or on rcf-lite core",
+  "iWant": "those findings routed to Stravica/rcf-lite by default without any per-project configuration",
+  "soThat": "reports about shelf content and core verbs reach the maintainers who own them",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15802-1",
+      "description": "A pending entry with kind blueprint and a target that resolves in the manifest without a libraryPrefix (a shelf blueprint) has destination.repo Stravica/rcf-lite on preview and submit. The constant is sourced from packages/rcf-lite/package.json:bugs.url so a rename ripples through one file. A test pins the constant to the current package.json value.",
+      "given": "a fixture project applying application-forms-wizard (shelf blueprint) with one pending entry",
+      "when": "rcf feedback preview is run",
+      "then": "the rendered destination row is \"Stravica/rcf-lite (public)\"; a unit test asserts the constant equals bugs.url from package.json",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15802-2",
+      "description": "A pending entry with kind core (target is a verb path like \"define validate\" or \"docs\") has destination.repo Stravica/rcf-lite regardless of any library manifest content; the entry cannot be routed to a library repo even if a library declares the verb name as a target.",
+      "given": "a fixture with a library declaring \"define validate\" as a target and one pending core entry",
+      "when": "rcf feedback preview is run",
+      "then": "the destination.repo is Stravica/rcf-lite for the core entry; the library declaration is ignored for kind core; a warning is not emitted (this is by design)",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

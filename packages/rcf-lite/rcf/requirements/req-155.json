@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-155",
+  "prdId": "PRD-001",
+  "title": "Local feedback capture",
+  "description": "The agent records a finding about a blueprint or about rcf-lite itself with one CLI call. Nothing leaves the machine. The store is per-clone and gitignored, so unredacted content cannot ride a git push. The operator can list, defer or discard recorded findings by hand. Pre-upgrade projects whose .gitignore does not cover the store path are refused (with the rcf doctor --fix line) so a working tree cannot leak by accident.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

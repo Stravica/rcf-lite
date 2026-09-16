@@ -1,0 +1,42 @@
+{
+  "usId": "US-15601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-156",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator sees the exact issue text and what was stripped before consenting",
+  "asA": "operator being asked to submit findings",
+  "iWant": "rcf feedback preview to print the exact rendered issue title and body, the destination repo and its visibility, and a redaction ledger that lists every rule-triggered replacement so I can see what was stripped",
+  "soThat": "my yes is informed and nothing surprising leaves the machine",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15601-1",
+      "description": "rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\"- before  + after\") with the rule name. --json emits the same as a machine-readable object per entry. No network calls.",
+      "given": "a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, and a token-shaped string",
+      "when": "the operator runs rcf feedback preview --json",
+      "then": "the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] with entries whose rule names are project-root, absolute-path, email, hostname and secret-token; the rendered body contains none of the original secret substrings",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15601-2",
+      "description": "When a body still matches a rule-5 secret pattern on the second redaction pass, preview marks the entry as \"residual secret at line N\" and submit refuses that entry. Other pending entries are unaffected. The exact refusing line is shown to the operator so the agent can rewrite the body.",
+      "given": "a fixture project with two entries, one containing a token that survives the first pass through obfuscation and one clean",
+      "when": "the operator runs rcf feedback preview then rcf feedback submit --yes",
+      "then": "the tainted entry is shown with the residual-secret line; submit does not send the tainted entry; the clean entry is submitted (or fallbacks to bundle if that path applies); exit code is 3 while any residual-secret entry is still pending",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15601-3",
+      "description": "The stored entries.jsonl body is never mutated by preview. A byte-for-byte comparison of entries.jsonl before and after preview is identical; the redaction lives only in the rendered output.",
+      "given": "a fixture project with entries whose bodies contain redactable content",
+      "when": "the operator runs rcf feedback preview repeatedly",
+      "then": "a sha-256 of entries.jsonl before and after each preview run matches",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

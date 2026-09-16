@@ -1,0 +1,42 @@
+{
+  "fbsId": "FBS-182",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 182,
+  "executionStatus": "notStarted",
+  "title": "Slice 3: destination resolution",
+  "summary": "Deliver REQ-158 (Reports reach the owning repo): library.json:issues field, registry snapshot, destination resolver, review-on-add line, doctor feedback-destinations warn check, docs/library-authoring.md field-table row.",
+  "approach": "Extend library.json schema (issues object) and rcf/blueprint-libraries.json:entries[] snapshot in src/blueprint/library-registry.js. Write src/feedback/destination.js with the walk-and-derive logic. Add the doctor warn-only check. Update docs/library-authoring.md.",
+  "acIds": [
+    "AC-15801-1",
+    "AC-15801-2",
+    "AC-15801-3",
+    "AC-15802-1",
+    "AC-15802-2"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-181"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4106-feedback-destination"
+    ],
+    "adrIds": [
+      "ADR-4104-destination-on-library"
+    ]
+  },
+  "deliverables": [
+    "library.json issues field (schema + docs)",
+    "rcf library add snapshot into blueprint-libraries.json",
+    "destination.js resolver with derivation fallback and CORE_REPO constant",
+    "doctor feedback-destinations warn check",
+    "docs/library-authoring.md field-table row"
+  ],
+  "riskLevel": "medium",
+  "domain": "feedback",
+  "estimatedSize": "small",
+  "estimatedHours": 8,
+  "notes": "Extends the library manifest surface; downstream library owners can adopt at their own cadence.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

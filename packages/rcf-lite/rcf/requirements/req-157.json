@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-157",
+  "prdId": "PRD-001",
+  "title": "One finding, one issue",
+  "description": "The same defect reported by many users folds into one GitHub issue with additional reporters as +1 comments, not into one issue per user. The fingerprint is deterministic from kind, target key, anchor and symptom class; blueprint version is not part of the fingerprint so a defect that persists across versions folds. Search unavailability falls through to create with a dedupe: unchecked stamp; closed issues are not matched (a recurrence is a regression).",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

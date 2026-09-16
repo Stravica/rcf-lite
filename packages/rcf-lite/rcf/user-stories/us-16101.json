@@ -1,0 +1,42 @@
+{
+  "usId": "US-16101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-161",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator is asked once, at a pause, with the exact preview text, and never nagged",
+  "asA": "operator in the middle of getting work done",
+  "iWant": "the ask to arrive at a natural pause (queue complete, an entry older than 15 minutes, a carried-over entry, or a --ask-now blocker), for the ask to carry the exact preview text and destination, and for me never to be asked twice in one session",
+  "soThat": "the ask is welcome rather than an interruption",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16101-1",
+      "description": "The quiet rule in src/feedback/hook.js returns \"ask\" on stop when ALL hold: not opted out (rcf/feedback-settings.json ask true and RCF_FEEDBACK_ASK unset or 1); at least one pending entry; state.json has no asked record for the incoming session_id; stop_hook_active is false; and one of: an entry carries askNow; the newest pending entry is older than quietMinutes (default 15) minutes; the queue-state cache reports complete or nothing actionable; the entry was carried over. Otherwise returns \"silent\". A table test walks every named row.",
+      "given": "a fixture state file and a table of pending/asked/optOut/stopHookActive/age/queueState/carriedOver/askNow rows",
+      "when": "shouldAsk(input) is called on each row",
+      "then": "every row returns the expected verdict; the asked record is appended to state.json before the emit path in the wrapper (assertable at the caller by observing state mutation before hook stdout is produced)",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16101-2",
+      "description": "On Claude Code (--harness claude-code default when CLAUDECODE is set), the stop hook exits 2 with the reason text on stderr. The reason names the exact next-step verbs (\"rcf feedback preview\", \"rcf feedback submit --yes\", \"rcf feedback defer\", \"rcf feedback opt-out\") and says \"Do not ask again this session.\" On Codex (--harness codex), the hook emits stdout JSON { \"decision\": \"block\", \"reason\": \"<same text>\" } with exit 0. Both branches append the asked record to state.json exactly once per session_id.",
+      "given": "a fixture project with one pending entry, and two mock harness JSON inputs on stdin (Claude Code and Codex shapes)",
+      "when": "rcf feedback hook stop --harness claude-code and --harness codex are run",
+      "then": "Claude Code run: exit code 2, stderr carries the four verb names and the \"do not ask again this session\" clause; Codex run: exit 0, stdout parses to { decision: \"block\", reason: ... } with the same clause; state.json in both cases gained exactly one asked record for the input session_id",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16101-3",
+      "description": "A second stop invocation with the same session_id is silent (no exit-2, no JSON block emission, exit 0) even when new pending entries arrive after the first ask. A new session_id resets the ledger and asks again per the quiet rule.",
+      "given": "a fixture state.json with one asked record, one further pending entry added after the ask",
+      "when": "rcf feedback hook stop is run twice with the same session_id and then once with a fresh session_id",
+      "then": "the two same-session calls are silent (exit 0, no reason emitted); the fresh-session call re-emits the ask per the quiet rule",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

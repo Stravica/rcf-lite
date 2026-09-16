@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-4108-hooks-in-committed-config",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Hooks live in committed harness config, installed by init and maintained by doctor",
+  "context": "Every clone must get the same feedback ask behaviour. A user-scope hook fires on non-rcf projects and rcf init must never write outside the project. settings.local.json is per-clone and would silently skip the second developer.",
+  "decision": "rcf init merges Stop, SessionEnd and SessionStart entries into <project>/.claude/settings.json (Claude Code) and <project>/.codex/hooks.json (Codex), each pointing at npx rcf-lite feedback hook <event>. The merge respects other hooks (parse, refuse on invalid JSON, add ours only when absent, never clobber). rcf doctor gains a feedback-hooks check that reports missing-hook (fixable) and foreign-hook (a different command under our name; refused). --no-feedback-hooks on rcf init skips both writes.",
+  "consequences": "Every clone gets the ask behaviour without extra setup. doctor keeps the config honest the same way it keeps the managed block honest. Codex asks the operator to trust repo hooks the first time; RULE 17 in AGENTS.md covers the case where they decline.",
+  "alternativesConsidered": [
+    {
+      "name": ".claude/settings.local.json per-clone",
+      "summary": "Write hooks to the per-clone settings file instead of the committed one.",
+      "reasonNotChosen": "The second developer never gets the hook; teams silently diverge."
+    },
+    {
+      "name": "User-scope ~/.claude hooks",
+      "summary": "Install hooks in the user home so they cover every project.",
+      "reasonNotChosen": "Fires on non-rcf projects; rcf init must never write outside the project."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

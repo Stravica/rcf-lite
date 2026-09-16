@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-161",
+  "prdId": "PRD-001",
+  "title": "One ask per session, at a pause, never automatic",
+  "description": "The operator is asked at most once per session and only when the agent is genuinely idle: not in the middle of a fix and not on the same day the entry was recorded unless a blocker forces it. The quiet rule (15 minute age or queue complete or carried over or --ask-now) is configurable via quietMinutes in rcf/feedback-settings.json. The ask is offered by the harness hook on Stop and by RULE 17 in the managed block as the belt-and-braces fallback. rcf feedback opt-out silences the ask permanently for a project; RCF_FEEDBACK_ASK=0 silences it per user or per CI run; RCF_FEEDBACK_DISABLE=1 turns even the local log off.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

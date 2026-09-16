@@ -1,0 +1,42 @@
+{
+  "usId": "US-15902",
+  "prdId": "PRD-001",
+  "reqId": "REQ-159",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Labels are applied where the reporter may set them",
+  "asA": "maintainer triaging inbound issues",
+  "iWant": "rcf-feedback plus severity:<...> plus area:<...> labels applied by the tool when the destination repo carries them and the reporter has push or triage access",
+  "soThat": "triage queues sort correctly for reporters who have the right, while outside reporters on a public repo still land readable issues (title prefix and body fingerprint remain the load-bearing handles).",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15902-1",
+      "description": "Before create, the tool calls gh label list --json name on the destination repo and intersects the requested labels (\"rcf-feedback\", \"severity:<sev>\", \"area:<blueprint|core>\") with the returned set. Missing labels are dropped from the create call and recorded on the entry state as droppedLabels[] and in the preview ledger.",
+      "given": "a fake gh module whose label list returns { rcf-feedback, severity:major } but not area:blueprint",
+      "when": "submit --yes is run with one pending major-severity blueprint entry",
+      "then": "gh issue create is called with labels rcf-feedback, severity:major only; the entry state carries droppedLabels: [\"area:blueprint\"]",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15902-2",
+      "description": "scripts/bootstrap-feedback-labels.mjs is a one-shot script a repo admin runs to create the six labels in one destination repo: rcf-feedback, severity:blocker, severity:major, severity:minor, area:blueprint, area:core. Idempotent: existing labels are left alone; missing ones are created via gh label create. The script is a maintainer aid, not called from init or doctor.",
+      "given": "a fake gh module in the script fixture whose label list starts empty",
+      "when": "the script is run once, then again",
+      "then": "first run creates six labels via gh label create; second run makes zero create calls; exit 0 on both",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15902-3",
+      "description": "The rendered issue title always carries the prefix (\"[<effective-slug>] \" for blueprints, \"[rcf-lite] \" for core) and the body always carries the visible rcf-feedback-fingerprint: <fp> line plus the HTML-comment twin. Both are load-bearing triage handles when labels are missing or dropped.",
+      "given": "render() is called on a blueprint and a core entry",
+      "when": "the rendered title and body are compared to templates",
+      "then": "blueprint titles start with \"[<slug>] \"; core titles start with \"[rcf-lite] \"; each body carries the fingerprint on its own line and inside an HTML comment (fingerprint appears twice on purpose)",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

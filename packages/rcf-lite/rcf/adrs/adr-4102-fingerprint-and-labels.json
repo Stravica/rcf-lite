@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-4102-fingerprint-and-labels",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Fingerprint from anchor plus symptom class; labels best-effort with a six-label bootstrap",
+  "context": "Same-defect folding needs a deterministic key and a triage discipline for both signed-in and outside reporters. Fingerprint from title-similarity folds wrong across unrelated findings on the same blueprint. Labels are triage handles that break for outside reporters on a public repo.",
+  "decision": "The fingerprint is sha-256(kind|targetKey|anchor|symptomClass) truncated to 12 hex characters (design section 6). Blueprint version is not part of the fingerprint. Labels are best-effort, with a fixed six-label bootstrap catalogue on every destination repo: rcf-feedback, severity:blocker, severity:major, severity:minor, area:blueprint, area:core. A repo admin runs scripts/bootstrap-feedback-labels.mjs once per destination. Title prefix (\"[<slug>] \" or \"[rcf-lite] \") and the visible rcf-feedback-fingerprint: <fp> line stay load-bearing when labels are missing. Per-slug labels are refused (forty-plus labels to bootstrap and outside reporters cannot apply them).\n\nOperator default (pending, adjustable): Six-label bootstrap accepted as the operator default pending, adjustable. Baz can widen or narrow the catalogue at any time and library owners choose whether to add area or severity labels beyond the six on their own repos; the tool always intersects with the destination label list at submit time.",
+  "consequences": "Two agents describing the same defect on the same AC fold correctly. A defect that persists across blueprint versions produces one issue with versions in the comments. A minimal fixed label catalogue serves triage without inflating the label list per blueprint. Outside contributors on the public Stravica/rcf-lite repo still land readable issues because label absence is a soft degrade.",
+  "alternativesConsidered": [
+    {
+      "name": "Fuzzy title matching for the fingerprint",
+      "summary": "Compute an edit-distance or token-set score across issue titles instead of the anchor input.",
+      "reasonNotChosen": "False folds across unrelated findings on the same blueprint and non-deterministic to test."
+    },
+    {
+      "name": "Per-slug blueprint:<slug> labels",
+      "summary": "Create one label per blueprint slug on every destination repo for finer triage.",
+      "reasonNotChosen": "Forty-plus labels to bootstrap on every destination and outside users still cannot apply them."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

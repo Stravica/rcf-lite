@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-4106-feedback-destination",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback destination resolver",
+  "purpose": "Resolve a pending entry to its destination repo and visibility, using the library.json issues field, the rcf/blueprint-libraries.json snapshot, the manifest sourceRef derivation, and the shelf-and-core constant.",
+  "responsibilities": [
+    "Walk entry.target -> manifest.blueprints[] -> registry entry -> issuesRepo, with sourceRef derivation as fallback",
+    "Return a { repo, visibility, derived, reason } shape; unresolved carries a reason for the doctor row",
+    "Route --kind core and shelf blueprints to the constant sourced from package.json:bugs.url (a test pins the constant)",
+    "Report the doctor feedback-destinations warn row for every registered library without a resolvable destination"
+  ],
+  "internalStructure": "src/feedback/destination.js is a pure resolver; the constant lives at the top of the module and is exported for the test to compare against package.json.",
+  "interfaces": [
+    {
+      "name": "resolve",
+      "kind": "function",
+      "description": "Given an entry and the manifest+registry, return the destination shape."
+    },
+    {
+      "name": "CORE_REPO",
+      "kind": "constant",
+      "description": "The Stravica/rcf-lite constant; pinned to package.json:bugs.url in a test."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "src/blueprint/library-registry.js",
+      "kind": "external",
+      "description": "RegistryEntry read for issuesRepo and issuesVisibility fields."
+    }
+  ],
+  "tradeoffs": "A declared destination on library.json requires library owners to author one field; the cost is a one-time PR per library, in exchange for correctness on every consuming project.",
+  "notes": "A library mirrored from a fork would have derivation pointing at the fork; the declared issues field is why derivation is only a fallback.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

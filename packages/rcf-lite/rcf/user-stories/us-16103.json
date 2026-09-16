@@ -1,0 +1,33 @@
+{
+  "usId": "US-16103",
+  "prdId": "PRD-001",
+  "reqId": "REQ-161",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A carried-over batch is offered next session",
+  "asA": "operator whose session ended before the ask fired",
+  "iWant": "the SessionEnd hook to flush a bundle idempotently and the SessionStart hook of the next session to inject a one-line context reminder that pending entries exist",
+  "soThat": "a crash or /clear does not lose findings and the next session's first pause carries the ask",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16103-1",
+      "description": "rcf feedback hook session-end writes the outbox bundle for any pending entries under 1 second (the shared Claude Code SessionEnd budget is 1.5s) and is byte-idempotent (same content hash means no rewrite). Codex SessionEnd runs the same handler; output is discarded either way.",
+      "given": "a fixture with two pending entries and a stubbed clock so the elapsed time is measurable",
+      "when": "rcf feedback hook session-end is run twice back-to-back",
+      "then": "the first run writes one bundle file under outbox; the second run runs to completion in under 1 second without rewriting the same-hash file; both exit 0",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16103-2",
+      "description": "rcf feedback hook session-start with pending entries and a new sessionId prints one plain line to stdout on Claude Code (\"rcf feedback: <n> unsubmitted entr(y|ies) carried over from an earlier session; ask the operator once at a natural pause (RULE 17).\") and the Codex-shaped equivalent under --harness codex. The line is what the harness injects as context; it never blocks. If SessionStart on Codex cannot inject context (verified at build time against the current Codex reference), the fallback in RULE 17 (\"check rcf feedback status at session start\") is what carries the same posture.",
+      "given": "a fixture with two pending entries carried over from a prior sessionId",
+      "when": "rcf feedback hook session-start is run under each harness",
+      "then": "the Claude Code stdout matches the exact wording above; the Codex JSON matches the reference shape currently accepted for SessionStart context; both return exit 0; state.json is not mutated (asked is set on Stop, not on session-start)",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

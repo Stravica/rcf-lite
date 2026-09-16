@@ -1,0 +1,33 @@
+{
+  "usId": "US-15503",
+  "prdId": "PRD-001",
+  "reqId": "REQ-155",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator defers or discards recorded findings",
+  "asA": "operator who has decided not to submit some findings",
+  "iWant": "to mark the pending batch deferred for this session, or discard specific entries entirely, without any network activity",
+  "soThat": "a \"not now\" or \"never for this one\" answer is honoured immediately and the state is durable across the next boot",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15503-1",
+      "description": "rcf feedback defer appends a state line for every currently pending entry stamping status: deferredUntilSession with the current sessionId; the entries stay in the log so the next session sees them; the current session-end hook does not re-ask. Exit 0. Nothing is sent.",
+      "given": "a fixture project with two pending entries and a known sessionId",
+      "when": "the operator runs rcf feedback defer",
+      "then": "entries.jsonl grows by two lines each carrying the deferred status and sessionId; a folded read shows both entries at status deferredUntilSession; no network call was made",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15503-2",
+      "description": "rcf feedback discard <id> marks only the named entries discarded (kept in the log for 30 days, then pruned on the next add). --all discards every pending entry. Discarded entries are excluded from list default output, hidden from the SessionStart carry-over count, and never appear in a submit or bundle. Exit 0.",
+      "given": "a fixture project with three pending entries",
+      "when": "the operator runs rcf feedback discard fb-<a> fb-<b> then rcf feedback list",
+      "then": "the two named entries are folded to status discarded; list shows only the remaining entry; the next add older than 30 days prunes them",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

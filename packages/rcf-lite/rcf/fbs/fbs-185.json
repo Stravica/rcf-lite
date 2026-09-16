@@ -1,0 +1,34 @@
+{
+  "fbsId": "FBS-185",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 185,
+  "executionStatus": "notStarted",
+  "title": "Slice 6: instruction and release",
+  "summary": "Deliver REQ-162 (Agents know when to log and when to ask): RULE 17 in the managed instructions block, build:managed regen, CHANGELOG entry, docs index row, docs-site follow-up ticket for the mirror page and the form paragraph.",
+  "approach": "Append RULE 17 to guidance/managed/agent-instructions-block.md (design section 3.4 wording, static). Run pnpm run build:managed to regenerate the block hash and harness-template.md. Update CHANGELOG.md, docs/README.md index and open a follow-up ticket for the docs-site mirror page and the \"submit a blueprint idea\" form paragraph.",
+  "acIds": [
+    "AC-16201-1",
+    "AC-16201-2"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-184"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "deliverables": [
+    "RULE 17 in guidance/managed/agent-instructions-block.md (static wording)",
+    "pnpm run build:managed regenerated block hash and harness-template.md",
+    "CHANGELOG entry and docs/README.md index row for docs/feedback.md",
+    "Docs-site follow-up ticket opened for the mirror page and form paragraph"
+  ],
+  "riskLevel": "low",
+  "domain": "feedback",
+  "estimatedSize": "small",
+  "estimatedHours": 4,
+  "notes": "Ships with slice 5 (the rule and the hook reference each other); one-file edit plus the hash regen.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

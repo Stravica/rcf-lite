@@ -1,0 +1,42 @@
+{
+  "usId": "US-16001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-160",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "No gh, no login or no access still gives the operator a bundle and a URL",
+  "asA": "operator without gh installed, not logged in, or without access to a private destination repo",
+  "iWant": "submit to write a bundle file with the exact issue text and print the file path and the destination issues/new URL in one line",
+  "soThat": "I can paste or email the report even when the tool cannot file it on my behalf, and I am not asked about the same entries again next session",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16001-1",
+      "description": "Preflight order (per destination): gh on PATH -> gh auth status non-zero -> gh repo view viewerPermission NONE on a private repo -> gh repo view hasIssuesEnabled false. The first failure routes to a bundle for that destination without any further gh call. The bundle path <cwd>/.rcf/feedback/outbox/<ISO-timestamp>-<repo-slug>.md is printed on its own line next to the destination issues/new URL. Each failure kind maps to a distinct one-line message (naming gh, naming \"run gh auth login\", naming private-access with the library contact, naming issues-disabled).",
+      "given": "four fixture cases: gh missing on PATH; gh present but auth status non-zero; repo private with viewerPermission NONE; repo with hasIssuesEnabled false",
+      "when": "submit --yes is run once per case with one pending entry",
+      "then": "each run writes the bundle under outbox with the expected filename shape and prints the URL and path on one line together; entry state is bundled with outboxPath; exit code 0",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16001-2",
+      "description": "If create or comment fails after the label pre-check (network 4xx or 5xx, abuse rate limit, unexpected label rejection), submit retries once without labels and, on a second failure, bundles that entry only. Other entries continue. Exit code is 0 when every entry ended submitted or bundled, and 3 when a residual secret leaves one entry pending.",
+      "given": "a fake gh module whose issue create throws with a 429-shaped error on the first two calls and succeeds on the third",
+      "when": "submit --yes runs with three pending entries",
+      "then": "the first entry retries once, then bundles; the second retries once, then bundles; the third submits; exit 0; two bundle files exist and the third entry is submitted",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16001-3",
+      "description": "Bundled entries are terminal for the ask loop: rcf feedback list default (pending) does not show them, the SessionStart hook does not count them into the carry-over ask, and the Stop hook does not re-ask about them. rcf feedback submit <id> re-attempts one bundled entry by hand and moves it to submitted on success.",
+      "given": "a fixture with two bundled entries and one pending entry",
+      "when": "the Stop hook decision function is invoked and rcf feedback list default is called",
+      "then": "Stop asks only about the pending entry, list shows only the pending entry, list --all shows the bundled entries with status bundled; submit fb-<id-of-bundle> retries just that one",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

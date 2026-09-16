@@ -1,0 +1,33 @@
+{
+  "usId": "US-15901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-159",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator yes files issues under the reporter GitHub login",
+  "asA": "operator saying yes to the ask",
+  "iWant": "the tool to call gh under my ambient login and file each pending entry as a GitHub issue or +1 comment, mark each entry submitted with the URL, and print the URLs so the agent can relay them",
+  "soThat": "reports are visibly mine, with no relay in between and no token handling in the tool",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15901-1",
+      "description": "rcf feedback submit --yes runs section-7 preflight, section-6 dedupe search, then gh issue create or gh issue comment per entry (through src/feedback/gh.js, or its RCF_FEEDBACK_GH_MODULE stand-in). Each entry state line records status submitted with issueUrl and dedupe (new|comment|unchecked). Stdout prints one line per entry: \"<id> -> <url> (<dedupe>)\". Exit 0 when every entry ended submitted or bundled; exit 3 when any entry stayed pending (residual secret).",
+      "given": "a fixture project with two pending entries and a fake gh module whose create returns an issue URL and whose search returns zero hits",
+      "when": "the operator runs rcf feedback submit --yes",
+      "then": "both entries fold to status submitted with the returned URL and dedupe new; stdout carries two \"<id> -> <url> (new)\" lines; entries.jsonl is not rewritten (only appended)",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15901-2",
+      "description": "rcf feedback submit without --yes refuses on a non-TTY (exit 2, stderr names the --yes requirement); on a TTY it prompts once and only proceeds on a y answer. The tool never reads GH_TOKEN or GITHUB_TOKEN itself, never asks for a token, and never spawns gh auth login. A test asserts the process env passed to gh is a copy without any TOKEN mutation.",
+      "given": "a fixture project with one pending entry, run under a non-TTY child process",
+      "when": "rcf feedback submit is run without --yes",
+      "then": "exit code 2, stderr names --yes as required; no gh invocation is made; process.env passed through to the fake gh has no synthesised TOKEN key",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

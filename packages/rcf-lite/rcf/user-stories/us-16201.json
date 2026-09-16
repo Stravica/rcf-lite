@@ -1,0 +1,33 @@
+{
+  "usId": "US-16201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-162",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "RULE 17 tells every agent when to log and when to ask",
+  "asA": "harness (Claude Code or Codex) that reads the managed instructions block",
+  "iWant": "a static RULE 17 in guidance/managed/agent-instructions-block.md that names rcf feedback add for logging, describes the one-ask-per-session posture (harness hook or operator wrap-up as trigger, preview then submit --yes or defer or opt-out), and states the redaction posture",
+  "soThat": "an agent under pace still follows the shape when the harness hooks are not trusted, and the same rule serves both harnesses",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16201-1",
+      "description": "guidance/managed/agent-instructions-block.md gains RULE 17 with the wording specified in design section 3.4. pnpm run build:managed regenerates the block hash and harness-template.md so rcf doctor doctor-agent-instructions and gen-managed-artefacts stay byte-consistent. The wording is static (no version numbers, no dates) and names all four verbs (preview, submit --yes, defer, opt-out).",
+      "given": "a fixture repository state with RULE 17 not yet added",
+      "when": "the change is applied, pnpm run build:managed is run, and rcf doctor is run",
+      "then": "RULE 17 appears in the block file exactly as specified; the hash file changes on this release; doctor doctor-agent-instructions reports clean; a rule-text anatomy test asserts the four verb names and the redaction posture sentence are all present",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16201-2",
+      "description": "rcf init writes CLAUDE.md and AGENTS.md with the regenerated block (RULE 17 included). The existing managed-block installation path (writeAgentInstructions) is the only touch-point; no init-time flag is added for RULE 17.",
+      "given": "a fresh fixture project",
+      "when": "rcf init is run",
+      "then": "CLAUDE.md and AGENTS.md both contain the RULE 17 block text between the managed-block markers; the block outside the markers is untouched",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

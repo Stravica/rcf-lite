@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-159",
+  "prdId": "PRD-001",
+  "title": "Consent-gated submission under the reporter identity",
+  "description": "Nothing is submitted without an explicit yes. When yes is given, issues are filed under the operator own GitHub login via the ambient gh CLI; the tool never asks for or stores a token, never calls the network for authentication, and never speaks for anyone but the operator. Labels are requested best-effort and per-repo label discovery drops names the destination does not carry; the title prefix and body fingerprint stay load-bearing for triage. Submit refuses without --yes unless a TTY operator confirms.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

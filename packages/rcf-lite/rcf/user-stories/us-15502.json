@@ -1,0 +1,33 @@
+{
+  "usId": "US-15502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-155",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator lists and inspects what has been recorded",
+  "asA": "operator who wants to see what the agent has logged this session",
+  "iWant": "to run rcf feedback list (and rcf feedback status) to see pending entries and their state without triggering any submission",
+  "soThat": "I can decide by hand what to do with the log, and doctor can report the same counts on demand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15502-1",
+      "description": "rcf feedback list prints one line per pending entry (id, target, symptom class, severity, one-line title) sorted by recordedAt ascending; --all includes submitted, deferred, discarded, bundled entries with their status column; --json emits a stable machine-readable shape. Neither invocation touches the network or writes to entries.jsonl.",
+      "given": "a fixture project with three entries of mixed status",
+      "when": "the operator runs rcf feedback list and then rcf feedback list --all --json",
+      "then": "default output shows only pending entries in order; --all includes every state; --json parses to an array whose length equals total entries; no file mutation, no network calls",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15502-2",
+      "description": "rcf feedback status prints counts by status, the opt-out state (from rcf/feedback-settings.json or RCF_FEEDBACK_ASK env), a destination table for every applied blueprint (rows: target, resolved repo or unresolved with reason, visibility hint), and gh availability (present, authed, absent, unknown). --json emits the same as machine-readable object. The status shape is the one the SessionStart hook and doctor both consume.",
+      "given": "a fixture project with several blueprints applied and gh present",
+      "when": "the operator runs rcf feedback status --json",
+      "then": "the JSON carries counts, optOut boolean, destinations[] with target/repo/visibility, and gh { present, authed } fields; the text form prints the same as a readable summary",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

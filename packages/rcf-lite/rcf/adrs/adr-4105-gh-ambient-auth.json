@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4105-gh-ambient-auth",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "gh runs under the reporter ambient auth; visible identity on the public repo",
+  "context": "A relay endpoint would anonymise reporters but requires Stravica to run a service, store submissions and become the abuse surface, and is invisible to WSD for their private library. The gh CLI already carries the reporter identity and the correct permissions on every destination the reporter may reach.",
+  "decision": "Issues are created via the ambient gh CLI, under the operator own GitHub login, visibly on public and private repos alike. The tool never asks for a token, never reads GH_TOKEN or GITHUB_TOKEN itself, never spawns gh auth login. The preview names the destination and the visibility so the operator sees \"under your GitHub login, on the public Stravica/rcf-lite repo\" before consenting.\n\nOperator default (pending, adjustable): Visible reporter identity on Stravica/rcf-lite accepted as the operator default pending, adjustable. Baz can flip this to a relay design later without changing the CLI surface; the tool would swap gh for the relay client behind src/feedback/gh.js.",
+  "consequences": "Reporter identity is honest, which matches the operator ruling and open-source practice. The tool stays out of the credential business. Reports on the private WSD library route to WSD directly without a Stravica-side mirror.",
+  "alternativesConsidered": [
+    {
+      "name": "A Stravica relay endpoint",
+      "summary": "Route every report through a Stravica-hosted API that anonymises before filing.",
+      "reasonNotChosen": "Stravica runs a service and becomes the abuse surface; invisible to WSD for their private library."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}
