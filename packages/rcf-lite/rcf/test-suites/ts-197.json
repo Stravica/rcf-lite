@@ -1,15 +1,16 @@
 {
   "createdAt": "2026-09-16T19:20:00Z",
-  "updatedAt": "2026-09-16T19:20:00Z",
-  "purpose": "Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).",
+  "updatedAt": "2026-09-17T03:30:00Z",
+  "purpose": "Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget), AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent) and AC-16103-3 (defer means \"not now, ask again next session\": deferredUntilSession entries carried over from a prior sessionId return to pending on SessionStart and on Stop; idempotent per session).",
   "testLevel": "integration",
   "acIds": [
     "AC-16103-1",
-    "AC-16103-2"
+    "AC-16103-2",
+    "AC-16103-3"
   ],
   "id": "TS-197",
   "usId": "US-16103",
-  "title": "Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness",
+  "title": "Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently, SessionStart re-surfaces a carried-over ask per harness, and defer requeues on the next session",
   "testCases": [
     {
       "id": "TC-197-session-end-writes-idempotent-bundle",
@@ -38,6 +39,27 @@
       "description": "Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.",
       "status": "pending",
       "testPointer": "test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent"
+    },
+    {
+      "id": "TC-197-session-start-requeues-deferred-then-stop-asks",
+      "acId": "AC-16103-3",
+      "description": "Cover AC-16103-3 (SessionStart-path requeue) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id B; the entry is written back to pending (a { status: pending } state line appended, no sessionId field so the fold preserves A) and rcf feedback list shows it as pending; the stdout prints the carry-over line naming the count and RULE 17; a subsequent rcf feedback hook stop --harness claude-code with session_id B exits 2 with the ask on stderr and appends exactly one asked record for session B.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-3: SessionStart requeues a deferred entry from a prior session and Stop asks in the new session"
+    },
+    {
+      "id": "TC-197-stop-only-path-requeues-deferred",
+      "acId": "AC-16103-3",
+      "description": "Cover AC-16103-3 (Stop-only fallback) via the CLI test: add one entry and defer it in session A; skip the SessionStart hook entirely and run rcf feedback hook stop --harness claude-code with session_id B directly; the Stop hook requeues the deferred entry back to pending, exits 2 with the ask on stderr and appends one asked record for session B (the carried-over trigger fires the quiet rule regardless of age).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-3: Stop without a prior SessionStart still requeues a deferred entry and asks"
+    },
+    {
+      "id": "TC-197-session-start-idempotent-same-session",
+      "acId": "AC-16103-3",
+      "description": "Cover AC-16103-3 (idempotency per session) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id A (same as the defer's session); no requeue transition is written and stdout is empty. A second SessionStart in session B requeues once; a third SessionStart also in session B is a no-op (no new transition, silent stdout).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16103-3: SessionStart is a no-op when the deferred session id matches the incoming session id"
     }
   ],
   "status": "draft"

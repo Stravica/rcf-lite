@@ -1852,6 +1852,14 @@ flowchart LR
   AC-16103-2 -.-> TC-197-session-start-codex-additional-context
   TC-197-session-start-silent-when-nothing-carried-over["TC-197-session-start-silent-when-nothing-carried-over"]
   AC-16103-2 -.-> TC-197-session-start-silent-when-nothing-carried-over
+  AC-16103-3["AC-16103-3"]
+  REQ-161 --> AC-16103-3
+  TC-197-session-start-idempotent-same-session["TC-197-session-start-idempotent-same-session"]
+  AC-16103-3 -.-> TC-197-session-start-idempotent-same-session
+  TC-197-session-start-requeues-deferred-then-stop-asks["TC-197-session-start-requeues-deferred-then-stop-asks"]
+  AC-16103-3 -.-> TC-197-session-start-requeues-deferred-then-stop-asks
+  TC-197-stop-only-path-requeues-deferred["TC-197-stop-only-path-requeues-deferred"]
+  AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
   AC-16104-1["AC-16104-1"]
   REQ-161 --> AC-16104-1
   TC-198-init-bin-path-pins-node["TC-198-init-bin-path-pins-node"]
@@ -2916,6 +2924,10 @@ flowchart LR
   class TC-197-session-start-claude-code-line tc;
   class TC-197-session-start-codex-additional-context tc;
   class TC-197-session-start-silent-when-nothing-carried-over tc;
+  class AC-16103-3 ac;
+  class TC-197-session-start-idempotent-same-session tc;
+  class TC-197-session-start-requeues-deferred-then-stop-asks tc;
+  class TC-197-stop-only-path-requeues-deferred tc;
   class AC-16104-1 ac;
   class TC-198-init-bin-path-pins-node tc;
   class TC-198-init-idempotent tc;

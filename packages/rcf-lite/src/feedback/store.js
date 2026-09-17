@@ -116,7 +116,7 @@ export function outboxDir(projectRoot) {
  * @typedef {object} StateTransition
  * @property {string} id
  * @property {string} at                 ISO timestamp
- * @property {'submitted' | 'bundled' | 'deferredUntilSession' | 'discarded'} status
+ * @property {'pending' | 'submitted' | 'bundled' | 'deferredUntilSession' | 'discarded'} status
  * @property {string} [issueUrl]
  * @property {string} [outboxPath]
  * @property {'new' | 'comment' | 'unchecked'} [dedupe]

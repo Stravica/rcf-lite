@@ -202,10 +202,15 @@ respectively; slice 1 reports them as pending.
 
 ### `rcf feedback defer`
 
-Appends a `deferredUntilSession` state line for every currently pending
-entry, stamped with the current session id. Entries stay in the log so
-the next session sees them; the current session's Stop hook (slice 5)
-will not re-ask.
+"Not now, ask me again next session." Appends a `deferredUntilSession`
+state line for every currently pending entry, stamped with the current
+session id. The current session's `Stop` hook goes silent for the
+deferred batch. On the next session the `SessionStart` hook (and, as a
+belt to that hook's braces, the next `Stop` hook) requeues deferred
+entries whose stored session id is not the current one back to
+`pending`, so the operator sees the carry-over line at session start
+and the ask fires again at the first natural pause. Deferring twice is
+fine; opt-out is the only way to stop the ask for a project.
 
 ### `rcf feedback discard <id> [<id>...] | --all`
 
