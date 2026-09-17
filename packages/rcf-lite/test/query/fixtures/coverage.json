@@ -3699,7 +3699,13 @@
           "covered": true,
           "testCases": [
             "TC-188-preview-renders-full-vocabulary-ledger",
-            "TC-188-redact-eight-rule-corpus"
+            "TC-188-redact-eight-rule-corpus",
+            "TC-188-url-credential-query",
+            "TC-188-url-credential-userinfo",
+            "TC-188-url-credential-webhook",
+            "TC-188-vocab-keyword-authors-negative",
+            "TC-188-vocab-shared-constant",
+            "TC-188-vocab-shortname-probes"
           ],
           "unresolvedTestCases": []
         },
@@ -3723,6 +3729,8 @@
           "id": "AC-15601-4",
           "covered": true,
           "testCases": [
+            "TC-188-dryrun-writes-nothing",
+            "TC-188-safeguard-shortname-webhook",
             "TC-188-safeguard-submit-refuses-residual",
             "TC-188-safeguard-whole-text-residual"
           ],

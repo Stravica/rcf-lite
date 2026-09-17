@@ -1,5 +1,5 @@
 // Feedback redactor (TAC-4103-feedback-redact, ADR-4103). Slice 2
-// (FBS-181) ships the eight rules of design section 5, applied to any
+// (FBS-181) ships the rules of design section 5 (eight in slice 2, plus rule 9 url-credential added round 4 for R3b), applied to any
 // string that would leave the machine (issue title, body, evidence
 // pointers). Pure, deterministic, no network, no LLM.
 //
@@ -10,9 +10,10 @@
 // return residual { line, snippet } markers so the caller can refuse
 // the entry rather than send it.
 //
-// The eight rules, in canonical order (also the ledger's rule-name
+// The rules, in canonical order (also the ledger's rule-name
 // vocabulary): `project-root`, `absolute-path`, `email`, `hostname`,
-// `private-ip`, `secret-token`, `operator-identity`, `size-shape`.
+// `private-ip`, `secret-token`, `operator-identity`, `size-shape`,
+// `url-credential` (design amendment R3b, added fix round 4).
 // Rule 6 in the design (operator identity) is applied AFTER rule 5
 // (secret-token) so a name that looks like a random token is redacted
 // as a token first; both are load-bearing and this ordering keeps the
@@ -30,6 +31,151 @@ const BUNDLED_ALLOWLIST = JSON.parse(
 
 /** Body size cap (bytes). Mirrors src/cli/feedback.js:BODY_CAP_BYTES. */
 export const BODY_CAP_BYTES = 8 * 1024;
+
+/**
+ * Open secret-key vocabulary (design amendment R3a). A key/value pair
+ * is treated as a secret when the key, right-bounded at a word edge so
+ * `keyword` and `authors` do not fold, matches any stem below. False
+ * positives (`mypw=1`) are acceptable per design; false negatives are
+ * not. Consumed in exactly three places so the first pass, the residual
+ * pass and the whole-text safeguard scan share ONE vocabulary:
+ *
+ *   1. `kv-secret` early-guard regex in `redact()` (before path pass).
+ *   2. `kv-secret` entry in `secretPatterns()` (rule 5 primary pass).
+ *   3. `matchesSecretKeyLoose()` used by the rule-9 URL-credential
+ *      scanner for query-parameter names.
+ *
+ * The list intentionally covers the full shortname surface the HQ gate
+ * on PR #221 (F-P0-A) named as leaking: `pw`, `pwd`, `pass`, `key`,
+ * `auth`, plus the long list from R3a. Word-boundary detail:
+ * `stem\b` at the right side only. That fails inside `keyword`
+ * (`y` -> `w`, no boundary) but succeeds inside `dbpassword`
+ * (`d` -> `=`, boundary), matching the round 3 gate probes.
+ */
+export const SECRET_KEY_VOCABULARY = Object.freeze([
+  // Long forms first so alternation prefers them (does not change
+  // correctness under `\b`, but keeps the ledger `before` samples
+  // stable for the operator).
+  //
+  // `authorization` is intentionally NOT in this list. The
+  // `Authorization:` header shape is handled by a line-anchored
+  // pattern in `secretPatterns()` that folds the WHOLE header line
+  // (scheme + credential + any tail), which is what the operator
+  // wants for the header case (F-slice-2-02). Adding `authorization`
+  // to the kv vocabulary would preempt that pattern: the guard would
+  // fold `Authorization: Basic` alone and leave the credential.
+  'passphrase',
+  'clientsecret',
+  'client_secret',
+  'client-secret',
+  'privatekey',
+  'private_key',
+  'private-key',
+  'accesskey',
+  'access_key',
+  'access-key',
+  'apikey',
+  'api_key',
+  'api-key',
+  'credential',
+  'credentials',
+  'signature',
+  'password',
+  'passwd',
+  'session',
+  'cookie',
+  'secret',
+  'bearer',
+  'creds',
+  'token',
+  'salt',
+  'cred',
+  'pass',
+  'auth',
+  'pwd',
+  'sig',
+  'pw',
+  'key',
+  // `hash` is intentionally NOT in this vocabulary. Per design R3a
+  // the `hash` stem is only a secret when the value is 16+ chars.
+  // The specific `hash`-with-long-value pattern is a separate regex
+  // handled inside `secretPatterns()` so a bare `hash=abc` (short
+  // digest displayed for humans) does not fold.
+]);
+
+// Build the alternation source ONCE at module load. Regex-escapes each
+// stem (currently none carry regex metacharacters, but the escape keeps
+// the constant safe if vocabulary is extended by extension in future).
+const SECRET_KEY_ALTERNATION = SECRET_KEY_VOCABULARY.map(escapeReStatic).join('|');
+
+/**
+ * Regex source for the vocabulary above, right-bounded with `\b` so
+ * `keyword` and `authors` do not fold but `dbpassword` still does.
+ * Callers wrap this in a larger regex with their own value pattern.
+ */
+export function secretKeyRegexSource() {
+  return `(?:${SECRET_KEY_ALTERNATION})\\b`;
+}
+
+/**
+ * Case-insensitive test: does `name`, after lower-casing and stripping
+ * separators, MATCH any vocabulary stem? Used by the rule-9 URL-
+ * credential scanner to decide whether a URL query parameter name
+ * (`?apiKey=...`, `?client-secret=...`) is secret-carrying. Distinct
+ * from the regex above because query-parameter names are already
+ * isolated by the URL parser, so we do not need a boundary check.
+ *
+ * @param {string} name
+ */
+export function matchesSecretKeyLoose(name) {
+  if (typeof name !== 'string' || name.length === 0) return false;
+  const norm = name.toLowerCase().replace(/[_\-\s]/g, '');
+  for (const stem of SECRET_KEY_VOCABULARY) {
+    if (norm === stem.replace(/[_\-]/g, '')) return true;
+  }
+  return false;
+}
+
+/**
+ * Known webhook-style hosts where the credential lives in the URL path
+ * (design amendment R3b). Format: `host[/pathPrefix]`. When a URL's
+ * host matches (exact or as a suffix under a subdomain), any path
+ * segments AFTER the recognisable prefix are folded to
+ * `<url-credential>` because the token IS the path.
+ */
+const WEBHOOK_HOST_PATH_PREFIXES = Object.freeze([
+  { host: 'hooks.slack.com',  prefix: '/services' },
+  { host: 'discord.com',      prefix: '/api/webhooks' },
+  { host: 'discordapp.com',   prefix: '/api/webhooks' },
+  { host: 'hooks.zapier.com', prefix: '' },
+  { host: 'api.telegram.org', prefix: '/bot' },
+]);
+
+/**
+ * Presigned-URL query parameter names (design amendment R3b). Lower-
+ * cased on match. The rule-9 scanner also consults the open vocabulary
+ * above via `matchesSecretKeyLoose`, so `?token=` and `?api_key=` fold
+ * without appearing here; this list carries the presigned-only names
+ * that would not otherwise trip the vocabulary.
+ */
+const PRESIGNED_QUERY_NAMES = Object.freeze(new Set([
+  'x-amz-signature',
+  'x-amz-credential',
+  'x-amz-security-token',
+  'x-amz-date',
+  'sas',
+  'se',
+  'sv',
+  'sp',
+  'access_token',
+]));
+
+// Small local escape helper used at module-init time before the main
+// `escapeRe` is defined below. Cheap and duplicates one line to keep
+// module ordering simple.
+function escapeReStatic(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 /**
  * @typedef {object} RedactionContext
@@ -67,7 +213,7 @@ export const BODY_CAP_BYTES = 8 * 1024;
  */
 
 /**
- * Redact one string with the eight rules from design section 5.
+ * Redact one string with the rules from design section 5 (eight core plus rule 9 url-credential).
  * Deterministic; safe to call repeatedly; no I/O beyond the bundled
  * allowlist read at module load.
  *
@@ -100,8 +246,20 @@ export function redact(input, context = {}) {
   // guard redacts every `keyname=value` pair first, so the path
   // sweep only sees `/tmp/cache <redacted:secret>` and cannot swallow
   // the key. Round 3: R-P0-3 P0 regression from round 2.
-  const kvSecretGuardRe = /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n])+"|'(?:\\.|[^'\\\n])+'|[^\s,;)}\]]+)/gi;
+  //
+  // Round 4 (F-P0-A): vocabulary comes from the shared
+  // SECRET_KEY_VOCABULARY constant so this guard, the rule-5 first-
+  // pass entry and the residual-scan safeguard cover the same set.
+  const kvSecretGuardRe = new RegExp(
+    `${secretKeyRegexSource()}["'\\s]*[:=][ \\t]*(?:"(?:\\\\.|[^"\\\\\\n])+"|'(?:\\\\.|[^'\\\\\\n])+'|[^\\s,;)}\\]]+)`,
+    'gi',
+  );
   text = replaceEachDistinct(text, kvSecretGuardRe, '<redacted:secret>', 'secret-token', ledger);
+  // Round 4: `hash` is redacted only when the value is 16+ chars
+  // (design R3a). Handled as its own regex so a short `hash=abc` shape
+  // (public commit digest displayed for humans) does not fold.
+  const kvHashGuardRe = /\bhash["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n]){16,}"|'(?:\\.|[^'\\\n]){16,}'|[^\s,;)}\]]{16,})/gi;
+  text = replaceEachDistinct(text, kvHashGuardRe, '<redacted:secret>', 'secret-token', ledger);
 
   // Rule 2: other absolute paths -> <path>/<basename>. POSIX and
   // Windows shapes. Path segments allow letters, digits, dots,
@@ -179,6 +337,17 @@ export function redact(input, context = {}) {
     ...BUNDLED_ALLOWLIST.hosts,
     ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
   ].map((h) => h.toLowerCase()));
+
+  // Rule 9: URL-embedded credentials (design amendment R3b, added
+  // round 4 for F-P0-B). Runs BEFORE the rule-4 hostname pass so a
+  // Slack/Discord webhook URL whose path IS the credential has that
+  // path folded to `<url-credential>` before the host itself is
+  // folded to `<host>` and the path suffix would otherwise leave the
+  // machine intact. Same for `user:pass@host` userinfo, presigned
+  // query tokens, and any query parameter whose name matches the
+  // shared secret-key vocabulary. The ledger names this rule
+  // `url-credential`; false positives are visible in the disclosure.
+  text = redactUrlCredentials(text, ledger);
 
   // URLs first (http/https), then bare hostnames.
   const urlRe = /https?:\/\/([A-Za-z0-9.-]+)((?::[0-9]+)?(?:\/[^\s)]*)?)/g;
@@ -429,6 +598,159 @@ export function allowedHosts(extend = []) {
   ].map((h) => h.toLowerCase()))];
 }
 
+/**
+ * Rule 9 (design amendment R3b): fold URL-embedded credentials.
+ * Called from `redact()` before the rule-4 hostname pass so the
+ * webhook path IS folded before the host would collapse and leave
+ * the credential-carrying tail intact. Every replacement lands on
+ * the ledger as one `url-credential` row per distinct before-URL
+ * so the operator sees exactly what was stripped.
+ *
+ * The URL regex is deliberately looser than the rule-4 hostname
+ * regex: it captures optional userinfo, host with optional port,
+ * an optional path, and an optional query. A match that leaves the
+ * URL unchanged (no credential detected) is treated as a no-op and
+ * the ledger stays clean.
+ *
+ * @param {string} input
+ * @param {LedgerRow[]} ledger
+ * @returns {string}
+ */
+function redactUrlCredentials(input, ledger) {
+  // Optional userinfo (`user:pass@`), host with optional port,
+  // optional path (up to `?`, `#` or whitespace), optional query.
+  const re = /https?:\/\/(?:([^\s@/]+)@)?([A-Za-z0-9.-]+(?::[0-9]+)?)(\/[^\s?#)]*)?(\?[^\s#)]*)?/g;
+  const counts = new Map();
+  const afterFor = new Map();
+  const out = input.replace(re, (match, userinfo, hostAndPort, path, query) => {
+    const rewritten = rewriteOneUrlForCredentials(match, userinfo, hostAndPort, path, query);
+    if (rewritten === match) return match;
+    counts.set(match, (counts.get(match) ?? 0) + 1);
+    afterFor.set(match, rewritten);
+    return rewritten;
+  });
+  for (const [before, count] of counts) {
+    ledger.push({
+      rule: 'url-credential',
+      before,
+      after: afterFor.get(before) ?? '',
+      count,
+    });
+  }
+  return out;
+}
+
+/**
+ * Per-match URL rewriter. Extracted from `redactUrlCredentials` so the
+ * inner logic is straight-line and unit-testable. Returns the original
+ * `match` string when no credential shape was detected (caller treats
+ * that as a no-op and does not append a ledger row).
+ *
+ * @param {string} match
+ * @param {string | undefined} userinfo
+ * @param {string} hostAndPort
+ * @param {string | undefined} path
+ * @param {string | undefined} query
+ * @returns {string}
+ */
+function rewriteOneUrlForCredentials(match, userinfo, hostAndPort, path, query) {
+  let credRedacted = false;
+  let out = match.slice(0, match.indexOf('://') + 3);
+
+  if (userinfo) {
+    // Drop the userinfo entirely so the rule-4 hostname pass that
+    // runs next still sees a well-formed URL and can fold a non-
+    // allowlisted host to `<host>`. Keeping a `<url-credential>@`
+    // marker in front of the host would leave the regex looking at
+    // a `<` first char and the host would leak. The ledger row for
+    // this URL still names `url-credential` so the operator sees
+    // exactly what was stripped (before -> after diff).
+    credRedacted = true;
+  }
+  out += hostAndPort;
+
+  let pathOut = path ?? '';
+  if (path) {
+    const hostOnly = hostAndPort.toLowerCase().split(':')[0];
+    let webhookHit = false;
+    for (const wh of WEBHOOK_HOST_PATH_PREFIXES) {
+      if (hostOnly === wh.host || hostOnly.endsWith(`.${wh.host}`)) {
+        const prefix = wh.prefix;
+        if (prefix === '' || path === prefix || path.startsWith(`${prefix}/`)) {
+          const suffix = path.slice(prefix.length);
+          if (suffix.length > 1) {
+            pathOut = `${prefix}/<url-credential>`;
+            credRedacted = true;
+            webhookHit = true;
+          }
+          break;
+        }
+      }
+    }
+    if (!webhookHit) {
+      const parts = path.split('/');
+      for (let i = 1; i < parts.length; i += 1) {
+        if (looksHighEntropyPath(parts[i])) {
+          parts[i] = '<url-credential>';
+          credRedacted = true;
+        }
+      }
+      pathOut = parts.join('/');
+    }
+  }
+  out += pathOut;
+
+  let queryOut = '';
+  if (query) {
+    const kvs = query.slice(1).split('&').map((pair) => {
+      if (!pair.includes('=')) return pair;
+      const eq = pair.indexOf('=');
+      const k = pair.slice(0, eq);
+      const v = pair.slice(eq + 1);
+      const kLower = k.toLowerCase();
+      if (PRESIGNED_QUERY_NAMES.has(kLower) || matchesSecretKeyLoose(k)) {
+        if (v.length > 0) {
+          credRedacted = true;
+          return `${k}=<url-credential>`;
+        }
+        return pair;
+      }
+      if (looksHighEntropyPath(v)) {
+        credRedacted = true;
+        return `${k}=<url-credential>`;
+      }
+      return pair;
+    });
+    queryOut = `?${kvs.join('&')}`;
+  }
+  out += queryOut;
+
+  return credRedacted ? out : match;
+}
+
+/**
+ * Entropy heuristic for URL path or query values: 16+ chars of the
+ * URL-safe alphabet with at least two character classes present. The
+ * webhook token `AAAAAAAAAAAAAAAAAAAAAAAA` (single class) will NOT
+ * trip this on its own; the webhook host-prefix rule catches it. The
+ * threshold is lower than the general `entropy-blob` (32) because a
+ * URL segment carrying a credential is usually shorter than a raw
+ * secret in prose.
+ *
+ * @param {string} value
+ */
+function looksHighEntropyPath(value) {
+  if (typeof value !== 'string') return false;
+  if (value.length < 16) return false;
+  if (!/^[A-Za-z0-9._~+/=-]+$/.test(value)) return false;
+  let classes = 0;
+  if (/[A-Z]/.test(value)) classes += 1;
+  if (/[a-z]/.test(value)) classes += 1;
+  if (/\d/.test(value)) classes += 1;
+  if (/[._~+/=-]/.test(value)) classes += 1;
+  return classes >= 2;
+}
+
 // -- internal helpers -----------------------------------------------------
 
 /**
@@ -588,7 +910,25 @@ function secretPatterns() {
     // F-slice-2-01: quoted values with an embedded escaped quote
     // (`"ab\"cd"`) previously truncated at the first `"`; the value
     // alternatives now consume `\<any>` escape sequences too.
-    { name: 'kv-secret',     re: /(?:secret|token|password|passwd|api[_-]?key|private[_-]?key|access[_-]?key|client[_-]?secret)["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n])+"|'(?:\\.|[^'\\\n])+'|[^\s,;)}\]]+)/gi },
+    // Round 4 (F-P0-A): vocabulary comes from the shared
+    // SECRET_KEY_VOCABULARY constant so the first-pass, early-guard
+    // and residual-scan safeguard cover the same set.
+    {
+      name: 'kv-secret',
+      re: new RegExp(
+        `${secretKeyRegexSource()}["'\\s]*[:=][ \\t]*(?:"(?:\\\\.|[^"\\\\\\n])+"|'(?:\\\\.|[^'\\\\\\n])+'|[^\\s,;)}\\]]+)`,
+        'gi',
+      ),
+    },
+    // Round 4 (R3a): `hash` fires only when the value is 16+ chars.
+    { name: 'kv-hash-long',  re: /\bhash["'\s]*[:=][ \t]*(?:"(?:\\.|[^"\\\n]){16,}"|'(?:\\.|[^'\\\n]){16,}'|[^\s,;)}\]]{16,})/gi },
+    // Round 4 (R3b): URL-embedded credentials caught at residual time.
+    // Slack/Discord webhook path shape and userinfo shape. The first-
+    // pass rule 9 handles these; this residual pattern is the belt-
+    // and-braces backstop for a body that reassembled a webhook URL
+    // from parts the primary scan did not treat as one URL.
+    { name: 'webhook-path',  re: /\/(?:services|api\/webhooks|bot)\/[A-Za-z0-9._~+/=-]{20,}/g },
+    { name: 'url-userinfo',  re: /https?:\/\/[^\s\/@]+:[^\s\/@]+@[A-Za-z0-9.-]+/g },
     // High-entropy blob. Anchored to non-word boundaries so it does not
     // fold with the specific patterns above; excludes 7/12/40-char
     // hex-only sha values (git object shape).

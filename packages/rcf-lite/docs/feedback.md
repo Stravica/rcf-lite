@@ -57,8 +57,34 @@ the operator sees at preview time:
   the identity seed.
 - Secret-shaped strings: GitHub tokens, AWS keys, `sk-`/`sk_live_`,
   Slack `xox[abp]-`, JWTs, PEM blocks (BEGIN..END), `Bearer <token>`,
-  `Authorization:` header values, well-known `key: value` pairs
-  (`password`, `token`, `api_key`, ...), high-entropy blobs.
+  `Authorization:` header values, high-entropy blobs.
+- Well-known `key: value` pairs whose key matches an open secret-key
+  vocabulary (design amendment R3a). The vocabulary is exported from
+  `src/feedback/redact.js` as `SECRET_KEY_VOCABULARY` and is shared by
+  the first-pass redactor, the URL query-parameter scanner and the
+  whole-text residual safeguard, so all three cover the same set. The
+  current stems are: `authorization`, `passphrase`, `clientsecret`,
+  `client_secret`, `client-secret`, `privatekey`, `private_key`,
+  `private-key`, `accesskey`, `access_key`, `access-key`, `apikey`,
+  `api_key`, `api-key`, `credential`, `credentials`, `signature`,
+  `password`, `passwd`, `session`, `cookie`, `secret`, `bearer`,
+  `creds`, `token`, `salt`, `cred`, `pass`, `auth`, `pwd`, `sig`,
+  `pw`, `key`. Match is right-bounded at a word edge so `keyword` and
+  `authors` do not fold. `hash` folds only when the value is 16+
+  characters (so a short commit digest displayed for humans stays).
+- URL-embedded credentials (design amendment R3b, rule 9, ledger name
+  `url-credential`). A URL's `user:pass@host` userinfo is dropped
+  before the hostname pass so the host still folds cleanly. Under a
+  known webhook host (`hooks.slack.com/services`,
+  `discord.com/api/webhooks`, `discordapp.com/api/webhooks`,
+  `hooks.zapier.com`, `api.telegram.org/bot`) the path AFTER the
+  recognisable prefix is folded to `<url-credential>` because the
+  token IS the path. Query parameters whose name matches the
+  vocabulary above or the presigned-URL set (`X-Amz-Signature`,
+  `X-Amz-Credential`, `X-Amz-Security-Token`, `X-Amz-Date`, `sas`,
+  `se`, `sv`, `sp`, `access_token`) have their values replaced with
+  `<url-credential>`. Any remaining path or query segment that trips
+  a 16+/mixed-class entropy heuristic is also replaced.
 - Rendered body cap: 8 KB after redaction; the fingerprint tail is
   kept so dedupe survives the truncation. The cap is enforced on the
   fully assembled body (free-form text + evidence rows + environment

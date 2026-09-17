@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T15:27:35Z",
-  "updatedAt": "2026-09-16T20:28:13Z",
+  "updatedAt": "2026-09-17T00:36:18Z",
   "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
   "testLevel": "integration",
   "acIds": [
@@ -83,6 +83,62 @@
       "description": "Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).",
       "status": "pending",
       "testPointer": "test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body"
+    },
+    {
+      "id": "TC-188-vocab-shared-constant",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-A) via the unit test: SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking (pw, pwd, pass, key, auth) and its regex source is right-bounded at a word edge so `keyword` and `authors` do not fold.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking"
+    },
+    {
+      "id": "TC-188-vocab-shortname-probes",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-A) via the probe suite: each of the ten HQ-gate leak inputs (pw=, pwd=, pass=, key=, auth= plus quoted / tab / caps / hyphen / JSON variants) folds under the kv-secret pass and leaves nothing on the residual scan.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): all ten shortname kv probes fold cleanly and leave nothing residual"
+    },
+    {
+      "id": "TC-188-vocab-keyword-authors-negative",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-A negative case) via the unit test: keyword=X and authors=X are NOT folded (right-bound word-edge guard on the vocabulary alternation) so false-positive redactions do not swallow benign prose.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): keyword and authors kv pairs are NOT folded by the right-bound word-edge guard"
+    },
+    {
+      "id": "TC-188-url-credential-webhook",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: rule 9 (url-credential) folds the Slack webhook path segment to <url-credential> before the rule-4 hostname pass folds the host to <host>, so a webhook URL in prose loses the token but keeps the surrounding text intact.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): Slack webhook path is folded before hostname folding (P07 from the gate)"
+    },
+    {
+      "id": "TC-188-url-credential-userinfo",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: user:pass@host userinfo is dropped by rule 9 so the rule-4 hostname pass still sees a well-formed URL and folds a non-allowlisted host to <host>. The credential does not leak on the wire.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): userinfo (user:pass@host) is dropped and the host still folds via rule 4"
+    },
+    {
+      "id": "TC-188-url-credential-query",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: URL query parameters whose name matches the shared vocabulary (`?token=`, `?api_key=`) or the presigned-URL set (`?X-Amz-Signature=`) have their values folded to <url-credential>, and a benign allowlisted URL (github.com/foo/bar) has no url-credential ledger row.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): presigned URL query parameter value is redacted"
+    },
+    {
+      "id": "TC-188-safeguard-shortname-webhook",
+      "acId": "AC-15601-4",
+      "description": "Cover AC-15601-4 (fix round 4, safeguard) via the unit test: findResidualSecrets catches both a shortname-key kv shape (pw=...) and a webhook-path shape (/services/.../ or /api/webhooks/.../) in one pass, proving the safeguard shares the same vocabulary as the first-pass redactor.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-P0-A/B (round 4): findResidualSecrets catches shortname kv AND webhook-path shapes in one pass"
+    },
+    {
+      "id": "TC-188-dryrun-writes-nothing",
+      "acId": "AC-15601-4",
+      "description": "Cover AC-15601-4 (fix round 4, F-01, design R3c) via the CLI test: `rcf feedback submit --yes --dry-run` writes no files under .rcf/feedback/outbox/ even for the unresolved-destination and whole-destination-fallback branches (previously the dry-run gate on the create/comment path let the bundle write run unconditionally).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-4.test.js::F-01 (round 4, R3c): submit --dry-run --yes writes no outbox bundle for an unresolved destination"
     }
   ],
   "status": "draft"

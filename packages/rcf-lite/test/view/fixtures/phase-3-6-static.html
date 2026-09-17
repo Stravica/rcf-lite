@@ -19231,8 +19231,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
     <ul class="ac-list">
-      <li id="AC-15601-1" class="ac-item"><strong>AC-15601-1</strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls.
-<div class="ac-gwt"><p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line</p><p><em>When</em> the operator runs rcf feedback preview --json</p><p><em>Then</em> the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity and size-shape; the rendered body contains none of the original secret substrings, none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB</p></div>
+      <li id="AC-15601-1" class="ac-item"><strong>AC-15601-1</strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls. The kv-secret rule (design section 5 rule 5) is driven by the shared SECRET_KEY_VOCABULARY constant exported from src/feedback/redact.js (design amendment R3a) so the first-pass redactor, the residual safeguard pass and the rule-9 URL-credential scanner cover exactly the same open vocabulary of key stems (secret, token, password, passwd, passphrase, pw, pwd, pass, key, apikey/api_key/api-key, privatekey/private_key/private-key, accesskey/access_key/access-key, clientsecret/client_secret/client-secret, bearer, credential/credentials/cred/creds, session, cookie, signature, sig, salt; hash carries a 16+-value length guard); the match is right-bounded at a word edge so `keyword` and `authors` do not fold but `dbpassword` still does.
+<div class="ac-gwt"><p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, an operator name that matches a seeded rcf/.identity/profile.md ## Name line, AND at least one shortname-key secret (`pw=`) and one URL-embedded credential (a Slack webhook path)</p><p><em>When</em> the operator runs rcf feedback preview --json</p><p><em>Then</em> the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity, size-shape and url-credential; the rendered body contains none of the original secret substrings (including the shortname-key value and the webhook path segment), none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
 <li id="AC-15601-2" class="ac-item"><strong>AC-15601-2</strong> - When a body still matches a rule-5 secret pattern on the second redaction pass, preview marks the entry as &quot;residual secret at line N&quot; and submit refuses that entry. Other pending entries are unaffected. The exact refusing line is shown to the operator so the agent can rewrite the body.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with two entries, one containing a token that survives the first pass through obfuscation and one clean</p><p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p><p><em>Then</em> the tainted entry is shown with the residual-secret line; submit does not send the tainted entry; the clean entry is submitted (or fallbacks to bundle if that path applies); exit code is 3 while any residual-secret entry is still pending</p></div>
@@ -19240,7 +19240,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-15601-3" class="ac-item"><strong>AC-15601-3</strong> - The stored entries.jsonl body is never mutated by preview. A byte-for-byte comparison of entries.jsonl before and after preview is identical; the redaction lives only in the rendered output.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with entries whose bodies contain redactable content</p><p><em>When</em> the operator runs rcf feedback preview repeatedly</p><p><em>Then</em> a sha-256 of entries.jsonl before and after each preview run matches</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
-<li id="AC-15601-4" class="ac-item"><strong>AC-15601-4</strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.
+<li id="AC-15601-4" class="ac-item"><strong>AC-15601-4</strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see. The safeguard shares the SECRET_KEY_VOCABULARY constant with the first-pass redactor and the rule-9 URL-credential scanner (design amendment R3a), so a shortname-key value (`pw=...`, `pwd=...`) or a webhook-path shape (`/services/&lt;token&gt;`, `/api/webhooks/&lt;token&gt;`, `/bot&lt;token&gt;/method`) that reappears after per-field normalisation is caught by the same set the first pass used.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)</p><p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p><p><em>Then</em> preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
     </ul>
@@ -19258,10 +19258,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;acceptanceCriteria&quot;: [
     {
       &quot;id&quot;: &quot;AC-15601-1&quot;,
-      &quot;description&quot;: &quot;rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\&quot;- before  + after\&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls.&quot;,
-      &quot;given&quot;: &quot;a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line&quot;,
+      &quot;description&quot;: &quot;rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\&quot;- before  + after\&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls. The kv-secret rule (design section 5 rule 5) is driven by the shared SECRET_KEY_VOCABULARY constant exported from src/feedback/redact.js (design amendment R3a) so the first-pass redactor, the residual safeguard pass and the rule-9 URL-credential scanner cover exactly the same open vocabulary of key stems (secret, token, password, passwd, passphrase, pw, pwd, pass, key, apikey/api_key/api-key, privatekey/private_key/private-key, accesskey/access_key/access-key, clientsecret/client_secret/client-secret, bearer, credential/credentials/cred/creds, session, cookie, signature, sig, salt; hash carries a 16+-value length guard); the match is right-bounded at a word edge so `keyword` and `authors` do not fold but `dbpassword` still does.&quot;,
+      &quot;given&quot;: &quot;a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, an operator name that matches a seeded rcf/.identity/profile.md ## Name line, AND at least one shortname-key secret (`pw=`) and one URL-embedded credential (a Slack webhook path)&quot;,
       &quot;when&quot;: &quot;the operator runs rcf feedback preview --json&quot;,
-      &quot;then&quot;: &quot;the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity and size-shape; the rendered body contains none of the original secret substrings, none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB&quot;,
+      &quot;then&quot;: &quot;the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity, size-shape and url-credential; the rendered body contains none of the original secret substrings (including the shortname-key value and the webhook path segment), none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;runtime&quot;
     },
@@ -19285,7 +19285,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     },
     {
       &quot;id&quot;: &quot;AC-15601-4&quot;,
-      &quot;description&quot;: &quot;After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.&quot;,
+      &quot;description&quot;: &quot;After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see. The safeguard shares the SECRET_KEY_VOCABULARY constant with the first-pass redactor and the rule-9 URL-credential scanner (design amendment R3a), so a shortname-key value (`pw=...`, `pwd=...`) or a webhook-path shape (`/services/&lt;token&gt;`, `/api/webhooks/&lt;token&gt;`, `/bot&lt;token&gt;/method`) that reappears after per-field normalisation is caught by the same set the first pass used.&quot;,
       &quot;given&quot;: &quot;a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)&quot;,
       &quot;when&quot;: &quot;the operator runs rcf feedback preview then rcf feedback submit --yes&quot;,
       &quot;then&quot;: &quot;preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape&quot;,
@@ -19294,7 +19294,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T20:28:13Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T00:36:18Z&quot;
 }
 </pre></details>
 </article>
@@ -29418,10 +29418,10 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Approach:</strong> Write src/feedback/redact.js, src/feedback/redact-allowlist.json, src/feedback/fingerprint.js and src/feedback/render.js. Add preview to src/cli/feedback.js. Golden-file tests for the render templates; fixture corpus for redact.</p>
   <div class="ac-pills"><a class="ac-pill" href="#AC-15601-1">AC-15601-1</a><a class="ac-pill" href="#AC-15601-2">AC-15601-2</a><a class="ac-pill" href="#AC-15601-3">AC-15601-3</a><a class="ac-pill" href="#AC-15601-4">AC-15601-4</a><a class="ac-pill" href="#AC-15701-1">AC-15701-1</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
-  <p><strong><a href="#AC-15601-1">AC-15601-1</a></strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls.</p>
-  <p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line</p>
+  <p><strong><a href="#AC-15601-1">AC-15601-1</a></strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls. The kv-secret rule (design section 5 rule 5) is driven by the shared SECRET_KEY_VOCABULARY constant exported from src/feedback/redact.js (design amendment R3a) so the first-pass redactor, the residual safeguard pass and the rule-9 URL-credential scanner cover exactly the same open vocabulary of key stems (secret, token, password, passwd, passphrase, pw, pwd, pass, key, apikey/api_key/api-key, privatekey/private_key/private-key, accesskey/access_key/access-key, clientsecret/client_secret/client-secret, bearer, credential/credentials/cred/creds, session, cookie, signature, sig, salt; hash carries a 16+-value length guard); the match is right-bounded at a word edge so `keyword` and `authors` do not fold but `dbpassword` still does.</p>
+  <p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, an operator name that matches a seeded rcf/.identity/profile.md ## Name line, AND at least one shortname-key secret (`pw=`) and one URL-embedded credential (a Slack webhook path)</p>
   <p><em>When</em> the operator runs rcf feedback preview --json</p>
-  <p><em>Then</em> the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity and size-shape; the rendered body contains none of the original secret substrings, none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB</p>
+  <p><em>Then</em> the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity, size-shape and url-credential; the rendered body contains none of the original secret substrings (including the shortname-key value and the webhook path segment), none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-15601-2">AC-15601-2</a></strong> - When a body still matches a rule-5 secret pattern on the second redaction pass, preview marks the entry as &quot;residual secret at line N&quot; and submit refuses that entry. Other pending entries are unaffected. The exact refusing line is shown to the operator so the agent can rewrite the body.</p>
@@ -29436,7 +29436,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><em>Then</em> a sha-256 of entries.jsonl before and after each preview run matches</p>
 </div>
 <div class="ac-resolved">
-  <p><strong><a href="#AC-15601-4">AC-15601-4</a></strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.</p>
+  <p><strong><a href="#AC-15601-4">AC-15601-4</a></strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see. The safeguard shares the SECRET_KEY_VOCABULARY constant with the first-pass redactor and the rule-9 URL-credential scanner (design amendment R3a), so a shortname-key value (`pw=...`, `pwd=...`) or a webhook-path shape (`/services/&lt;token&gt;`, `/api/webhooks/&lt;token&gt;`, `/bot&lt;token&gt;/method`) that reappears after per-field normalisation is caught by the same set the first pass used.</p>
   <p><em>Given</em> a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)</p>
   <p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p>
   <p><em>Then</em> preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape</p>
@@ -38757,10 +38757,50 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-188-safeguard-submit-refuses-residual</strong> - covers <a href="#AC-15601-4">AC-15601-4</a> <span class="status pending">pending</span></p>
   <p>Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).</p>
   <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body</code></p>
+</div>
+<div class="tc" id="TC-188-vocab-shared-constant">
+  <p><strong>TC-188-vocab-shared-constant</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-A) via the unit test: SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking (pw, pwd, pass, key, auth) and its regex source is right-bounded at a word edge so `keyword` and `authors` do not fold.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking</code></p>
+</div>
+<div class="tc" id="TC-188-vocab-shortname-probes">
+  <p><strong>TC-188-vocab-shortname-probes</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-A) via the probe suite: each of the ten HQ-gate leak inputs (pw=, pwd=, pass=, key=, auth= plus quoted / tab / caps / hyphen / JSON variants) folds under the kv-secret pass and leaves nothing on the residual scan.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): all ten shortname kv probes fold cleanly and leave nothing residual</code></p>
+</div>
+<div class="tc" id="TC-188-vocab-keyword-authors-negative">
+  <p><strong>TC-188-vocab-keyword-authors-negative</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-A negative case) via the unit test: keyword=X and authors=X are NOT folded (right-bound word-edge guard on the vocabulary alternation) so false-positive redactions do not swallow benign prose.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): keyword and authors kv pairs are NOT folded by the right-bound word-edge guard</code></p>
+</div>
+<div class="tc" id="TC-188-url-credential-webhook">
+  <p><strong>TC-188-url-credential-webhook</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: rule 9 (url-credential) folds the Slack webhook path segment to &lt;url-credential&gt; before the rule-4 hostname pass folds the host to &lt;host&gt;, so a webhook URL in prose loses the token but keeps the surrounding text intact.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): Slack webhook path is folded before hostname folding (P07 from the gate)</code></p>
+</div>
+<div class="tc" id="TC-188-url-credential-userinfo">
+  <p><strong>TC-188-url-credential-userinfo</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: user:pass@host userinfo is dropped by rule 9 so the rule-4 hostname pass still sees a well-formed URL and folds a non-allowlisted host to &lt;host&gt;. The credential does not leak on the wire.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): userinfo (user:pass@host) is dropped and the host still folds via rule 4</code></p>
+</div>
+<div class="tc" id="TC-188-url-credential-query">
+  <p><strong>TC-188-url-credential-query</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: URL query parameters whose name matches the shared vocabulary (`?token=`, `?api_key=`) or the presigned-URL set (`?X-Amz-Signature=`) have their values folded to &lt;url-credential&gt;, and a benign allowlisted URL (github.com/foo/bar) has no url-credential ledger row.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): presigned URL query parameter value is redacted</code></p>
+</div>
+<div class="tc" id="TC-188-safeguard-shortname-webhook">
+  <p><strong>TC-188-safeguard-shortname-webhook</strong> - covers <a href="#AC-15601-4">AC-15601-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-4 (fix round 4, safeguard) via the unit test: findResidualSecrets catches both a shortname-key kv shape (pw=...) and a webhook-path shape (/services/.../ or /api/webhooks/.../) in one pass, proving the safeguard shares the same vocabulary as the first-pass redactor.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-P0-A/B (round 4): findResidualSecrets catches shortname kv AND webhook-path shapes in one pass</code></p>
+</div>
+<div class="tc" id="TC-188-dryrun-writes-nothing">
+  <p><strong>TC-188-dryrun-writes-nothing</strong> - covers <a href="#AC-15601-4">AC-15601-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-4 (fix round 4, F-01, design R3c) via the CLI test: `rcf feedback submit --yes --dry-run` writes no files under .rcf/feedback/outbox/ even for the unresolved-destination and whole-destination-fallback branches (previously the dry-run gate on the create/comment path let the bundle write run unconditionally).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-4.test.js::F-01 (round 4, R3c): submit --dry-run --yes writes no outbox bundle for an unresolved destination</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T15:27:35Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T20:28:13Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-17T00:36:18Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -38843,6 +38883,62 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-15601-4 (safeguard, submit half) via the CLI test: an entry whose stealth token slips the first-pass but is caught by the loose-pattern residual scan in the rendered body causes submit --yes --dry-run to exit 3 (entry stays pending; no create/comment path runs).&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-2.test.js::AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token survives to the rendered body&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-vocab-shared-constant&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-A) via the unit test: SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking (pw, pwd, pass, key, auth) and its regex source is right-bounded at a word edge so `keyword` and `authors` do not fold.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): SECRET_KEY_VOCABULARY carries every shortname the HQ gate probes named as leaking&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-vocab-shortname-probes&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-A) via the probe suite: each of the ten HQ-gate leak inputs (pw=, pwd=, pass=, key=, auth= plus quoted / tab / caps / hyphen / JSON variants) folds under the kv-secret pass and leaves nothing on the residual scan.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): all ten shortname kv probes fold cleanly and leave nothing residual&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-vocab-keyword-authors-negative&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-A negative case) via the unit test: keyword=X and authors=X are NOT folded (right-bound word-edge guard on the vocabulary alternation) so false-positive redactions do not swallow benign prose.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-A (round 4): keyword and authors kv pairs are NOT folded by the right-bound word-edge guard&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-url-credential-webhook&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: rule 9 (url-credential) folds the Slack webhook path segment to &lt;url-credential&gt; before the rule-4 hostname pass folds the host to &lt;host&gt;, so a webhook URL in prose loses the token but keeps the surrounding text intact.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): Slack webhook path is folded before hostname folding (P07 from the gate)&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-url-credential-userinfo&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: user:pass@host userinfo is dropped by rule 9 so the rule-4 hostname pass still sees a well-formed URL and folds a non-allowlisted host to &lt;host&gt;. The credential does not leak on the wire.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): userinfo (user:pass@host) is dropped and the host still folds via rule 4&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-url-credential-query&quot;,
+      &quot;acId&quot;: &quot;AC-15601-1&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 4, F-P0-B) via the unit test: URL query parameters whose name matches the shared vocabulary (`?token=`, `?api_key=`) or the presigned-URL set (`?X-Amz-Signature=`) have their values folded to &lt;url-credential&gt;, and a benign allowlisted URL (github.com/foo/bar) has no url-credential ledger row.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-B (round 4): presigned URL query parameter value is redacted&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-safeguard-shortname-webhook&quot;,
+      &quot;acId&quot;: &quot;AC-15601-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-4 (fix round 4, safeguard) via the unit test: findResidualSecrets catches both a shortname-key kv shape (pw=...) and a webhook-path shape (/services/.../ or /api/webhooks/.../) in one pass, proving the safeguard shares the same vocabulary as the first-pass redactor.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-P0-A/B (round 4): findResidualSecrets catches shortname kv AND webhook-path shapes in one pass&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-dryrun-writes-nothing&quot;,
+      &quot;acId&quot;: &quot;AC-15601-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-4 (fix round 4, F-01, design R3c) via the CLI test: `rcf feedback submit --yes --dry-run` writes no files under .rcf/feedback/outbox/ even for the unresolved-destination and whole-destination-fallback branches (previously the dry-run gate on the create/comment path let the bundle write run unconditionally).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-4.test.js::F-01 (round 4, R3c): submit --dry-run --yes writes no outbox bundle for an unresolved destination&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

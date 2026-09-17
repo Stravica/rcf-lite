@@ -1431,6 +1431,22 @@ async function handleSubmit(argv, ctx) {
   // Write bundle files (whole-destination and per-entry).
   const generatedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
   for (const [key, bundle] of bundleRowsByKey) {
+    // Round 4 (F-01, design R3c): `submit --dry-run` writes nothing
+    // under `.rcf/feedback/`, including outbox bundles for the
+    // unresolved-destination and whole-destination-fallback branches.
+    // Previously the dry-run gate on the create/comment path (L1340)
+    // let the bundle write path run unconditionally, so an
+    // `unresolved` entry produced a real outbox file on a dry-run.
+    if (flags['dry-run']) {
+      const issuesUrl = bundle.destination.repo
+        ? `https://github.com/${bundle.destination.repo}/issues/new`
+        : '(no repo; paste to the library owner)';
+      const contactLine = bundle.destination.publisherContact
+        ? ` (contact: ${bundle.destination.publisherContact})`
+        : '';
+      stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> dry-run bundle ${issuesUrl}${contactLine}\n`);
+      continue;
+    }
     let outboxPath;
     try {
       outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {

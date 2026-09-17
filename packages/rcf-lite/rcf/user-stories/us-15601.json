@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-15601-1",
-      "description": "rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\"- before  + after\") with the rule name. --json emits the same as a machine-readable object per entry. No network calls.",
-      "given": "a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, and an operator name that matches a seeded rcf/.identity/profile.md ## Name line",
+      "description": "rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (\"- before  + after\") with the rule name. --json emits the same as a machine-readable object per entry. No network calls. The kv-secret rule (design section 5 rule 5) is driven by the shared SECRET_KEY_VOCABULARY constant exported from src/feedback/redact.js (design amendment R3a) so the first-pass redactor, the residual safeguard pass and the rule-9 URL-credential scanner cover exactly the same open vocabulary of key stems (secret, token, password, passwd, passphrase, pw, pwd, pass, key, apikey/api_key/api-key, privatekey/private_key/private-key, accesskey/access_key/access-key, clientsecret/client_secret/client-secret, bearer, credential/credentials/cred/creds, session, cookie, signature, sig, salt; hash carries a 16+-value length guard); the match is right-bounded at a word edge so `keyword` and `authors` do not fold but `dbpassword` still does.",
+      "given": "a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, an operator name that matches a seeded rcf/.identity/profile.md ## Name line, AND at least one shortname-key secret (`pw=`) and one URL-embedded credential (a Slack webhook path)",
       "when": "the operator runs rcf feedback preview --json",
-      "then": "the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity and size-shape; the rendered body contains none of the original secret substrings, none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB",
+      "then": "the JSON output carries titleRendered, bodyRendered, destination { repo, visibility }, and ledger[] entries whose rule names include project-root, absolute-path, email, hostname, secret-token, private-ip, operator-identity, size-shape and url-credential; the rendered body contains none of the original secret substrings (including the shortname-key value and the webhook path segment), none of the private IP, none of the operator-name tokens, no em-dash, and is at most 8 KB",
       "testable": true,
       "scope": "runtime"
     },
@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-15601-4",
-      "description": "After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see.",
+      "description": "After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see. The safeguard shares the SECRET_KEY_VOCABULARY constant with the first-pass redactor and the rule-9 URL-credential scanner (design amendment R3a), so a shortname-key value (`pw=...`, `pwd=...`) or a webhook-path shape (`/services/<token>`, `/api/webhooks/<token>`, `/bot<token>/method`) that reappears after per-field normalisation is caught by the same set the first pass used.",
       "given": "a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)",
       "when": "the operator runs rcf feedback preview then rcf feedback submit --yes",
       "then": "preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape",
@@ -47,5 +47,5 @@
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T20:28:13Z"
+  "updatedAt": "2026-09-17T00:36:18Z"
 }
