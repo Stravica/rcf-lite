@@ -19170,6 +19170,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-15601-4 -.-&gt;|implemented by| CN-600
   AC-15601-4 -.-&gt;|implemented by| CN-602
   AC-15601-4 -.-&gt;|implemented by| CN-604
+  AC-15601-5[&quot;AC-15601-5&quot;]
+  US-15601 --&gt; AC-15601-5
   click REQ-156 &quot;#REQ-156&quot;;
   click US-15601 &quot;#US-15601&quot;;
   click AC-15601-1 &quot;#AC-15601-1&quot;;
@@ -19180,6 +19182,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-15601-2 &quot;#AC-15601-2&quot;;
   click AC-15601-3 &quot;#AC-15601-3&quot;;
   click AC-15601-4 &quot;#AC-15601-4&quot;;
+  click AC-15601-5 &quot;#AC-15601-5&quot;;
   class REQ-156 req;
   class US-15601 us;
   class AC-15601-1 ac;
@@ -19190,6 +19193,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-15601-2 ac;
   class AC-15601-3 ac;
   class AC-15601-4 ac;
+  class AC-15601-5 ac;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -19243,6 +19247,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-15601-4" class="ac-item"><strong>AC-15601-4</strong> - After rendering and normalising the fully assembled issue body (and, for the bundle path, each bundle file), a final whole-text residual-secret pass runs findResidualSecrets over the whole text with multiline patterns. Any hit means the entry stays pending (preview marks it refused-residual and submit refuses that entry with exit 3) and no create/comment/bundle-write occurs for it. The safeguard is defence-in-depth: it catches multiline shapes (e.g. an em-dash-delimited PEM block that survives per-field redaction of a slice-2-style body) that a per-line scan could not see. The safeguard shares the SECRET_KEY_VOCABULARY constant with the first-pass redactor and the rule-9 URL-credential scanner (design amendment R3a), so a shortname-key value (`pw=...`, `pwd=...`) or a webhook-path shape (`/services/&lt;token&gt;`, `/api/webhooks/&lt;token&gt;`, `/bot&lt;token&gt;/method`) that reappears after per-field normalisation is caught by the same set the first pass used.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with an entry whose body assembles into a rendered issue body containing a shape a per-line residual scan would miss (a multiline PEM block or a token buried inside a longer identifier)</p><p><em>When</em> the operator runs rcf feedback preview then rcf feedback submit --yes</p><p><em>Then</em> preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
+<li id="AC-15601-5" class="ac-item"><strong>AC-15601-5</strong> - The operator-identity substitution (design section 5 rule 6) applies word-boundary and stopword guards so a common noun that happens to appear in the operator&#39;s identity name is not folded. A RESERVED_IDENTITY_TOKENS constant, exported from src/feedback/redact.js and defence-in-depth applied at every operator-name token loop, blocks the fold when the whitespace-separated token (case-insensitive) is one of: agent, agents, user, users, operator, operators, admin, admins, root, client, clients, server, servers, service, services, system, systems, name, main, test, code, api, apis, anon, anonymous, human, humans, dev, ops, sre, docs, developer, developers, engineer, engineers, team, teams. Substitution still fires for a real given name (Alice, Smith) even when the full identity string contains a stopword. The URL and prose canon phrase &#39;the agent files feedback&#39; survives unmodified when the identity contains &#39;agent&#39;. Rationale: the rcf-lite ecosystem uses &#39;agent&#39; as a canonical noun (RULE 17, docs paths); operator-identity folds must be driven by real identity values, never by a bare common noun.
+<div class="ac-gwt"><p><em>Given</em> a fixture project whose rcf/.identity/profile.md ## Name reads &#39;The Agent Alice&#39;, and a body containing the docs URL &#39;https://stravica.ai/docs/rcf/how-the-agent-files-feedback&#39;, the prose &#39;when the agent stops the queue&#39;, and the personal name &#39;Alice reviewed this&#39;</p><p><em>When</em> the redactor runs over the body with the seeded operator identity</p><p><em>Then</em> the docs URL survives verbatim; the prose &#39;when the agent stops the queue&#39; survives verbatim; the personal name &#39;Alice&#39; folds to &lt;operator&gt;; the ledger records an operator-identity row for &#39;Alice&#39; but no row for &#39;agent&#39; or &#39;the&#39;</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - <em>not yet delivered by any FBS</em></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -19291,10 +19298,19 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;then&quot;: &quot;preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-15601-5&quot;,
+      &quot;description&quot;: &quot;The operator-identity substitution (design section 5 rule 6) applies word-boundary and stopword guards so a common noun that happens to appear in the operator&#39;s identity name is not folded. A RESERVED_IDENTITY_TOKENS constant, exported from src/feedback/redact.js and defence-in-depth applied at every operator-name token loop, blocks the fold when the whitespace-separated token (case-insensitive) is one of: agent, agents, user, users, operator, operators, admin, admins, root, client, clients, server, servers, service, services, system, systems, name, main, test, code, api, apis, anon, anonymous, human, humans, dev, ops, sre, docs, developer, developers, engineer, engineers, team, teams. Substitution still fires for a real given name (Alice, Smith) even when the full identity string contains a stopword. The URL and prose canon phrase &#39;the agent files feedback&#39; survives unmodified when the identity contains &#39;agent&#39;. Rationale: the rcf-lite ecosystem uses &#39;agent&#39; as a canonical noun (RULE 17, docs paths); operator-identity folds must be driven by real identity values, never by a bare common noun.&quot;,
+      &quot;given&quot;: &quot;a fixture project whose rcf/.identity/profile.md ## Name reads &#39;The Agent Alice&#39;, and a body containing the docs URL &#39;https://stravica.ai/docs/rcf/how-the-agent-files-feedback&#39;, the prose &#39;when the agent stops the queue&#39;, and the personal name &#39;Alice reviewed this&#39;&quot;,
+      &quot;when&quot;: &quot;the redactor runs over the body with the seeded operator identity&quot;,
+      &quot;then&quot;: &quot;the docs URL survives verbatim; the prose &#39;when the agent stops the queue&#39; survives verbatim; the personal name &#39;Alice&#39; folds to &lt;operator&gt;; the ledger records an operator-identity row for &#39;Alice&#39; but no row for &#39;agent&#39; or &#39;the&#39;&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-17T00:36:18Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:47:03Z&quot;
 }
 </pre></details>
 </article>
@@ -19492,6 +19508,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-15801-3 -.-&gt;|implemented by| CN-605
   CN-609[&quot;CN-609&lt;br/&gt;src/cli/doctor.js&quot;]
   AC-15801-3 -.-&gt;|implemented by| CN-609
+  AC-15801-4[&quot;AC-15801-4&quot;]
+  US-15801 --&gt; AC-15801-4
   US-15802[&quot;US-15802&lt;br/&gt;Findings on shelf blueprints and on rcf-lite ...&quot;]
   REQ-158 --&gt; US-15802
   AC-15802-1[&quot;AC-15802-1&quot;]
@@ -19513,6 +19531,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click CN-605 &quot;#CN-605&quot;;
   click AC-15801-3 &quot;#AC-15801-3&quot;;
   click CN-609 &quot;#CN-609&quot;;
+  click AC-15801-4 &quot;#AC-15801-4&quot;;
   click US-15802 &quot;#US-15802&quot;;
   click AC-15802-1 &quot;#AC-15802-1&quot;;
   click AC-15802-2 &quot;#AC-15802-2&quot;;
@@ -19527,6 +19546,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class CN-605 cn;
   class AC-15801-3 ac;
   class CN-609 cn;
+  class AC-15801-4 ac;
   class US-15802 us;
   class AC-15802-1 ac;
   class AC-15802-2 ac;
@@ -19580,6 +19600,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-15801-3" class="ac-item"><strong>AC-15801-3</strong> - rcf doctor gains a warn-only check feedback-destinations that lists every registered library without a resolvable destination (no issues field and no derivable git source) and every applied blueprint whose destination the resolver returns unresolved. --fix does not touch destinations; the fix is for the library owner or the consuming operator.
 <div class="ac-gwt"><p><em>Given</em> a fixture with two registered libraries: one with issues, one with neither issues nor a github source</p><p><em>When</em> rcf doctor is run</p><p><em>Then</em> doctor output carries one feedback-destinations warn row naming the second library, --fix is not offered on that row, exit code stays 0</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-182">FBS-182</a></p></li>
+<li id="AC-15801-4" class="ac-item"><strong>AC-15801-4</strong> - The destination resolver cross-checks the registry BEFORE falling through to the shelf constant for `--kind blueprint` entries whose manifest record has no `libraryPrefix`. If exactly one registered library owns a blueprint with the applied slug AND that library resolves to a destination (issuesRepo, or a derivable git+https://github.com/... sourceRef), the resolver returns that library&#39;s destination with source: &#39;library-slug-inference&#39; (derived: false for the declared case, derived: true for the sourceRef case). Two-or-more matches return unresolved with reason: &#39;ambiguous-library-slug&#39; and a candidates[] array of library prefixes. Zero matches keep the current shelf-constant fall-through. This never overrides an existing libraryPrefix resolution: it only fires where the resolver would have picked the shelf constant.
+<div class="ac-gwt"><p><em>Given</em> a fixture with three registered libraries and a bare-slug manifest record for &#39;application-spa&#39;; case A: only library &#39;wsd&#39; owns application-spa and declares issuesRepo &#39;wsd-team-dev/rcf-lite-blueprints&#39;; case B: libraries &#39;wsd&#39; and &#39;ally&#39; both own application-spa and both declare issuesRepo; case C: no registered library owns application-spa</p><p><em>When</em> destination.resolve() is called for each case</p><p><em>Then</em> case A resolves to &#39;wsd-team-dev/rcf-lite-blueprints&#39; with source &#39;library-slug-inference&#39; and derived false; case B resolves to unresolved with reason &#39;ambiguous-library-slug&#39; and candidates [&#39;ally&#39;,&#39;wsd&#39;]; case C resolves to Stravica/rcf-lite (shelf-constant fall-through), unchanged from AC-15801-2 shelf behaviour</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - <em>not yet delivered by any FBS</em></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -19619,10 +19642,19 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;then&quot;: &quot;doctor output carries one feedback-destinations warn row naming the second library, --fix is not offered on that row, exit code stays 0&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;runtime&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-15801-4&quot;,
+      &quot;description&quot;: &quot;The destination resolver cross-checks the registry BEFORE falling through to the shelf constant for `--kind blueprint` entries whose manifest record has no `libraryPrefix`. If exactly one registered library owns a blueprint with the applied slug AND that library resolves to a destination (issuesRepo, or a derivable git+https://github.com/... sourceRef), the resolver returns that library&#39;s destination with source: &#39;library-slug-inference&#39; (derived: false for the declared case, derived: true for the sourceRef case). Two-or-more matches return unresolved with reason: &#39;ambiguous-library-slug&#39; and a candidates[] array of library prefixes. Zero matches keep the current shelf-constant fall-through. This never overrides an existing libraryPrefix resolution: it only fires where the resolver would have picked the shelf constant.&quot;,
+      &quot;given&quot;: &quot;a fixture with three registered libraries and a bare-slug manifest record for &#39;application-spa&#39;; case A: only library &#39;wsd&#39; owns application-spa and declares issuesRepo &#39;wsd-team-dev/rcf-lite-blueprints&#39;; case B: libraries &#39;wsd&#39; and &#39;ally&#39; both own application-spa and both declare issuesRepo; case C: no registered library owns application-spa&quot;,
+      &quot;when&quot;: &quot;destination.resolve() is called for each case&quot;,
+      &quot;then&quot;: &quot;case A resolves to &#39;wsd-team-dev/rcf-lite-blueprints&#39; with source &#39;library-slug-inference&#39; and derived false; case B resolves to unresolved with reason &#39;ambiguous-library-slug&#39; and candidates [&#39;ally&#39;,&#39;wsd&#39;]; case C resolves to Stravica/rcf-lite (shelf-constant fall-through), unchanged from AC-15801-2 shelf behaviour&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;library&quot;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:46:02.000Z&quot;
 }
 </pre></details>
 </article>
@@ -22701,7 +22733,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>TAC-4103-feedback-redact - Feedback redactor</h3>
   
   <p><strong>Purpose:</strong> Rule-based, deterministic redaction of any string that would leave the machine (issue title, body, evidence pointers). No LLM anywhere; the ledger of every replacement is what the operator sees on preview.</p>
-  <section class="field-list"><h4>Responsibilities</h4><ul><li>Apply the eight redaction rules from design section 5 to title, body and evidence strings</li><li>Return a ledger of { rule, before, after, count } entries for the operator disclosure</li><li>Refuse on residual-secret matches (second pass) with a line pointer so the offending body is not sent</li><li>Ship a bundled allowlist of vendor hosts and honour the extension array on rcf/feedback-settings.json</li></ul></section>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Apply the eight redaction rules from design section 5 to title, body and evidence strings</li><li>Return a ledger of { rule, before, after, count } entries for the operator disclosure</li><li>Refuse on residual-secret matches (second pass) with a line pointer so the offending body is not sent</li><li>Ship a bundled allowlist of vendor hosts and honour the extension array on rcf/feedback-settings.json</li><li>Guard operator-identity substitution with a RESERVED_IDENTITY_TOKENS stopword list (agent, user, admin, api, code, system, etc.) so a common noun in the operator&#39;s identity name never folds; substitution still fires for real given names in the identity</li></ul></section>
   <p><strong>Internal structure:</strong> src/feedback/redact.js is a pure module: redact(text, context) -&gt; { text, ledger[] } plus small per-rule helpers. src/feedback/redact-allowlist.json ships the vendor host set; the extension array is merged at call time.</p>
   <section class="field-list"><h4>Interfaces</h4><ul><li><strong>redact</strong> (function) - Redact one string with the eight rules; return the redacted text and the ledger.</li><li><strong>RedactionContext</strong> (type) - projectRoot, projectName, operatorName, gitRemote, allowHosts.</li></ul></section>
   <section class="field-list"><h4>Dependencies</h4><ul><li><strong>node:crypto</strong> (external) - Entropy heuristic implementation for rule 5 (secret-looking strings).</li></ul></section>
@@ -22719,7 +22751,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;Apply the eight redaction rules from design section 5 to title, body and evidence strings&quot;,
     &quot;Return a ledger of { rule, before, after, count } entries for the operator disclosure&quot;,
     &quot;Refuse on residual-secret matches (second pass) with a line pointer so the offending body is not sent&quot;,
-    &quot;Ship a bundled allowlist of vendor hosts and honour the extension array on rcf/feedback-settings.json&quot;
+    &quot;Ship a bundled allowlist of vendor hosts and honour the extension array on rcf/feedback-settings.json&quot;,
+    &quot;Guard operator-identity substitution with a RESERVED_IDENTITY_TOKENS stopword list (agent, user, admin, api, code, system, etc.) so a common noun in the operator&#39;s identity name never folds; substitution still fires for real given names in the identity&quot;
   ],
   &quot;internalStructure&quot;: &quot;src/feedback/redact.js is a pure module: redact(text, context) -&gt; { text, ledger[] } plus small per-rule helpers. src/feedback/redact-allowlist.json ships the vendor host set; the extension array is merged at call time.&quot;,
   &quot;interfaces&quot;: [
@@ -22744,7 +22777,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;tradeoffs&quot;: &quot;Rule-based redaction is testable with a fixture corpus and deterministic under review; the cost is that it will occasionally over-redact (a benign name that matches an entropy rule), which is what the disclosure ledger exists to catch.&quot;,
   &quot;notes&quot;: &quot;The stored entry is never mutated by redaction; the rendered output is what leaves.&quot;,
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:47:09Z&quot;
 }
 </pre></details>
 </article>
@@ -22863,7 +22896,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>TAC-4106-feedback-destination - Feedback destination resolver</h3>
   
   <p><strong>Purpose:</strong> Resolve a pending entry to its destination repo and visibility, using the library.json issues field, the rcf/blueprint-libraries.json snapshot, the manifest sourceRef derivation, and the shelf-and-core constant.</p>
-  <section class="field-list"><h4>Responsibilities</h4><ul><li>Walk entry.target -&gt; manifest.blueprints[] -&gt; registry entry -&gt; issuesRepo, with sourceRef derivation as fallback</li><li>Return a { repo, visibility, derived, reason } shape; unresolved carries a reason for the doctor row</li><li>Route --kind core and shelf blueprints to the constant sourced from package.json:bugs.url (a test pins the constant)</li><li>Report the doctor feedback-destinations warn row for every registered library without a resolvable destination</li></ul></section>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>Walk entry.target -&gt; manifest.blueprints[] -&gt; registry entry -&gt; issuesRepo, with sourceRef derivation as fallback</li><li>Return a { repo, visibility, derived, reason } shape; unresolved carries a reason for the doctor row</li><li>Route --kind core and shelf blueprints to the constant sourced from package.json:bugs.url (a test pins the constant)</li><li>Report the doctor feedback-destinations warn row for every registered library without a resolvable destination</li><li>Cross-check the registry BEFORE the shelf-constant fall-through for --kind blueprint entries with no libraryPrefix on the manifest record: one library owns the slug and resolves -&gt; library destination (source: library-slug-inference); two-or-more libraries own the slug and resolve -&gt; unresolved with reason ambiguous-library-slug and a candidates[] array; zero libraries own the slug -&gt; shelf constant</li></ul></section>
   <p><strong>Internal structure:</strong> src/feedback/destination.js is a pure resolver; the constant lives at the top of the module and is exported for the test to compare against package.json.</p>
   <section class="field-list"><h4>Interfaces</h4><ul><li><strong>resolve</strong> (function) - Given an entry and the manifest+registry, return the destination shape.</li><li><strong>CORE_REPO</strong> (constant) - The Stravica/rcf-lite constant; pinned to package.json:bugs.url in a test.</li></ul></section>
   <section class="field-list"><h4>Dependencies</h4><ul><li><strong>src/blueprint/library-registry.js</strong> (external) - RegistryEntry read for issuesRepo and issuesVisibility fields.</li></ul></section>
@@ -22881,7 +22914,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
     &quot;Walk entry.target -&gt; manifest.blueprints[] -&gt; registry entry -&gt; issuesRepo, with sourceRef derivation as fallback&quot;,
     &quot;Return a { repo, visibility, derived, reason } shape; unresolved carries a reason for the doctor row&quot;,
     &quot;Route --kind core and shelf blueprints to the constant sourced from package.json:bugs.url (a test pins the constant)&quot;,
-    &quot;Report the doctor feedback-destinations warn row for every registered library without a resolvable destination&quot;
+    &quot;Report the doctor feedback-destinations warn row for every registered library without a resolvable destination&quot;,
+    &quot;Cross-check the registry BEFORE the shelf-constant fall-through for --kind blueprint entries with no libraryPrefix on the manifest record: one library owns the slug and resolves -&gt; library destination (source: library-slug-inference); two-or-more libraries own the slug and resolve -&gt; unresolved with reason ambiguous-library-slug and a candidates[] array; zero libraries own the slug -&gt; shelf constant&quot;
   ],
   &quot;internalStructure&quot;: &quot;src/feedback/destination.js is a pure resolver; the constant lives at the top of the module and is exported for the test to compare against package.json.&quot;,
   &quot;interfaces&quot;: [
@@ -22906,7 +22940,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;tradeoffs&quot;: &quot;A declared destination on library.json requires library owners to author one field; the cost is a one-time PR per library, in exchange for correctness on every consuming project.&quot;,
   &quot;notes&quot;: &quot;A library mirrored from a fork would have derivation pointing at the fork; the declared issues field is why derivation is only a fallback.&quot;,
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:46:24.000Z&quot;
 }
 </pre></details>
 </article>
@@ -39768,7 +39802,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Verifies user story:</strong> <a href="#US-15601">US-15601</a></p>
   <p><strong>Purpose:</strong> Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).</p>
   <p><strong>Test level:</strong> integration</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15601-1">AC-15601-1</a>, <a href="#AC-15601-2">AC-15601-2</a>, <a href="#AC-15601-3">AC-15601-3</a>, <a href="#AC-15601-4">AC-15601-4</a>, <a href="#AC-15701-1">AC-15701-1</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15601-1">AC-15601-1</a>, <a href="#AC-15601-2">AC-15601-2</a>, <a href="#AC-15601-3">AC-15601-3</a>, <a href="#AC-15601-4">AC-15601-4</a>, <a href="#AC-15701-1">AC-15701-1</a>, <a href="#AC-15601-5">AC-15601-5</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-188-preview-renders-full-vocabulary-ledger">
   <p><strong>TC-188-preview-renders-full-vocabulary-ledger</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
@@ -39874,10 +39908,15 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-188-r4-overredaction-guard</strong> - covers <a href="#AC-15601-1">AC-15601-1</a> <span class="status pending">pending</span></p>
   <p>Cover AC-15601-1 (fix round 5, R4 negative case) via the unit test: ordinary prose that carries a vocabulary word (`the password field is required`, `the password is required`, `see commit abc1234 at HEAD`, `keyword=abcdef`, `authors=joe,jane`) does NOT fold because the value-shape gate rejects single-class values and values under 8 characters.</p>
   <p><em>Test pointer:</em> <code>test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4 guard): a vocabulary word in ordinary prose (single-class value, or short value) does NOT fold</code></p>
+</div>
+<div class="tc" id="TC-188-redact-operator-identity-stopword-guard">
+  <p><strong>TC-188-redact-operator-identity-stopword-guard</strong> - covers <a href="#AC-15601-5">AC-15601-5</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15601-5 via the unit test: redact runs over a body containing the docs URL &#39;https://stravica.ai/docs/rcf/how-the-agent-files-feedback&#39;, the prose &#39;when the agent stops the queue&#39; and the personal name &#39;Alice reviewed this&#39;, with operatorName seeded as &#39;The Agent Alice&#39;; the docs URL is emitted verbatim; the prose &#39;when the agent stops the queue&#39; is emitted verbatim; &#39;Alice&#39; folds to &lt;operator&gt;; no operator-identity ledger row names &#39;agent&#39; or &#39;the&#39;.</p>
+  <p><em>Test pointer:</em> <code>test/feedback/redact.test.js::AC-15601-5 operator-identity stopword guard: common nouns in the identity string are never folded; real given names still fold</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T15:27:35Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-17T01:30:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:47:28Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -39885,7 +39924,8 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-15601-2&quot;,
     &quot;AC-15601-3&quot;,
     &quot;AC-15601-4&quot;,
-    &quot;AC-15701-1&quot;
+    &quot;AC-15701-1&quot;,
+    &quot;AC-15601-5&quot;
   ],
   &quot;id&quot;: &quot;TS-188&quot;,
   &quot;usId&quot;: &quot;US-15601&quot;,
@@ -40037,6 +40077,13 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-15601-1 (fix round 5, R4 negative case) via the unit test: ordinary prose that carries a vocabulary word (`the password field is required`, `the password is required`, `see commit abc1234 at HEAD`, `keyword=abcdef`, `authors=joe,jane`) does NOT fold because the value-shape gate rejects single-class values and values under 8 characters.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4 guard): a vocabulary word in ordinary prose (single-class value, or short value) does NOT fold&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-188-redact-operator-identity-stopword-guard&quot;,
+      &quot;acId&quot;: &quot;AC-15601-5&quot;,
+      &quot;description&quot;: &quot;Cover AC-15601-5 via the unit test: redact runs over a body containing the docs URL &#39;https://stravica.ai/docs/rcf/how-the-agent-files-feedback&#39;, the prose &#39;when the agent stops the queue&#39; and the personal name &#39;Alice reviewed this&#39;, with operatorName seeded as &#39;The Agent Alice&#39;; the docs URL is emitted verbatim; the prose &#39;when the agent stops the queue&#39; is emitted verbatim; &#39;Alice&#39; folds to &lt;operator&gt;; no operator-identity ledger row names &#39;agent&#39; or &#39;the&#39;.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/feedback/redact.test.js::AC-15601-5 operator-identity stopword guard: common nouns in the identity string are never folded; real given names still fold&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
@@ -40052,7 +40099,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Verifies user story:</strong> <a href="#US-15801">US-15801</a></p>
   <p><strong>Purpose:</strong> Cover AC-15801-1 (library.json:issues object snapshotted onto rcf/blueprint-libraries.json:entries[] as issuesRepo and issuesVisibility on rcf library add; the review-on-add card prints the Feedback destination line naming repo and visibility), AC-15801-2 (destination.resolve walks entry -&gt; manifest -&gt; registry issuesRepo, falls back to sourceRef derivation for github URLs with derived:true, returns unresolved when neither is available; shelf and core route to Stravica/rcf-lite) and AC-15801-3 (rcf doctor --check feedback-destinations lists every registered library with no resolvable destination as a warn-only row with refusedByFix:true; exit stays 0).</p>
   <p><strong>Test level:</strong> integration</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15801-1">AC-15801-1</a>, <a href="#AC-15801-2">AC-15801-2</a>, <a href="#AC-15801-3">AC-15801-3</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-15801-1">AC-15801-1</a>, <a href="#AC-15801-2">AC-15801-2</a>, <a href="#AC-15801-3">AC-15801-3</a>, <a href="#AC-15801-4">AC-15801-4</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-189-library-add-snapshots-issues-and-prints-review-line">
   <p><strong>TC-189-library-add-snapshots-issues-and-prints-review-line</strong> - covers <a href="#AC-15801-1">AC-15801-1</a> <span class="status pending">pending</span></p>
@@ -40068,16 +40115,32 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-189-doctor-feedback-destinations-warn-only</strong> - covers <a href="#AC-15801-3">AC-15801-3</a> <span class="status pending">pending</span></p>
   <p>Cover AC-15801-3 via the CLI test: rcf doctor --check feedback-destinations --json against a project with two registered libraries (one with issues, one without) returns exactly one drift row of item unresolved-library naming the second library, whose message includes the publisher.contact from the registry entry and whose refusedByFix flag is true; the overall doctor exit code stays 0 because the check is warn-only.</p>
   <p><em>Test pointer:</em> <code>test/cli/feedback-destinations.test.js::AC-15801-3: rcf doctor --check feedback-destinations warns on a library without a resolvable destination and exits 0</code></p>
+</div>
+<div class="tc" id="TC-189-resolver-library-slug-inference-single">
+  <p><strong>TC-189-resolver-library-slug-inference-single</strong> - covers <a href="#AC-15801-4">AC-15801-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15801-4 (single-library slug match) via the unit test: a bare-slug manifest record (no libraryPrefix) for &#39;application-spa&#39; plus exactly one registered library (&#39;wsd&#39;) that owns &#39;application-spa&#39; and declares issuesRepo resolves to that library&#39;s declared destination with source &#39;library-slug-inference&#39;, derived false, kind library.</p>
+  <p><em>Test pointer:</em> <code>test/feedback/destination.test.js::AC-15801-4 library-slug-inference: bare-slug apply routes to the single library owning the slug when it declares issuesRepo</code></p>
+</div>
+<div class="tc" id="TC-189-resolver-library-slug-inference-ambiguous">
+  <p><strong>TC-189-resolver-library-slug-inference-ambiguous</strong> - covers <a href="#AC-15801-4">AC-15801-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15801-4 (multi-library slug ambiguity) via the unit test: a bare-slug manifest record for &#39;application-spa&#39; plus two registered libraries (&#39;wsd&#39; and &#39;ally&#39;) that both own &#39;application-spa&#39; and both declare issuesRepo resolves to unresolved, reason &#39;ambiguous-library-slug&#39;, with candidates [&#39;ally&#39;,&#39;wsd&#39;] (sorted).</p>
+  <p><em>Test pointer:</em> <code>test/feedback/destination.test.js::AC-15801-4 library-slug-inference: two libraries owning the same slug return unresolved with reason ambiguous-library-slug</code></p>
+</div>
+<div class="tc" id="TC-189-resolver-library-slug-inference-none">
+  <p><strong>TC-189-resolver-library-slug-inference-none</strong> - covers <a href="#AC-15801-4">AC-15801-4</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15801-4 (no-library fall-through) via the unit test: a bare-slug manifest record for &#39;security-auth-magic-link&#39; plus registered libraries that do NOT own the slug falls through to the shelf constant unchanged from AC-15801-2.</p>
+  <p><em>Test pointer:</em> <code>test/feedback/destination.test.js::AC-15801-4 library-slug-inference: no library owns the slug -&gt; shelf constant fall-through</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T16:20:01Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T16:20:01Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-17T13:46:16Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-15801-1 (library.json:issues object snapshotted onto rcf/blueprint-libraries.json:entries[] as issuesRepo and issuesVisibility on rcf library add; the review-on-add card prints the Feedback destination line naming repo and visibility), AC-15801-2 (destination.resolve walks entry -&gt; manifest -&gt; registry issuesRepo, falls back to sourceRef derivation for github URLs with derived:true, returns unresolved when neither is available; shelf and core route to Stravica/rcf-lite) and AC-15801-3 (rcf doctor --check feedback-destinations lists every registered library with no resolvable destination as a warn-only row with refusedByFix:true; exit stays 0).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
     &quot;AC-15801-1&quot;,
     &quot;AC-15801-2&quot;,
-    &quot;AC-15801-3&quot;
+    &quot;AC-15801-3&quot;,
+    &quot;AC-15801-4&quot;
   ],
   &quot;id&quot;: &quot;TS-189&quot;,
   &quot;usId&quot;: &quot;US-15801&quot;,
@@ -40103,6 +40166,27 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-15801-3 via the CLI test: rcf doctor --check feedback-destinations --json against a project with two registered libraries (one with issues, one without) returns exactly one drift row of item unresolved-library naming the second library, whose message includes the publisher.contact from the registry entry and whose refusedByFix flag is true; the overall doctor exit code stays 0 because the check is warn-only.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-destinations.test.js::AC-15801-3: rcf doctor --check feedback-destinations warns on a library without a resolvable destination and exits 0&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-189-resolver-library-slug-inference-single&quot;,
+      &quot;acId&quot;: &quot;AC-15801-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15801-4 (single-library slug match) via the unit test: a bare-slug manifest record (no libraryPrefix) for &#39;application-spa&#39; plus exactly one registered library (&#39;wsd&#39;) that owns &#39;application-spa&#39; and declares issuesRepo resolves to that library&#39;s declared destination with source &#39;library-slug-inference&#39;, derived false, kind library.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/feedback/destination.test.js::AC-15801-4 library-slug-inference: bare-slug apply routes to the single library owning the slug when it declares issuesRepo&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-189-resolver-library-slug-inference-ambiguous&quot;,
+      &quot;acId&quot;: &quot;AC-15801-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15801-4 (multi-library slug ambiguity) via the unit test: a bare-slug manifest record for &#39;application-spa&#39; plus two registered libraries (&#39;wsd&#39; and &#39;ally&#39;) that both own &#39;application-spa&#39; and both declare issuesRepo resolves to unresolved, reason &#39;ambiguous-library-slug&#39;, with candidates [&#39;ally&#39;,&#39;wsd&#39;] (sorted).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/feedback/destination.test.js::AC-15801-4 library-slug-inference: two libraries owning the same slug return unresolved with reason ambiguous-library-slug&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-189-resolver-library-slug-inference-none&quot;,
+      &quot;acId&quot;: &quot;AC-15801-4&quot;,
+      &quot;description&quot;: &quot;Cover AC-15801-4 (no-library fall-through) via the unit test: a bare-slug manifest record for &#39;security-auth-magic-link&#39; plus registered libraries that do NOT own the slug falls through to the shelf constant unchanged from AC-15801-2.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/feedback/destination.test.js::AC-15801-4 library-slug-inference: no library owns the slug -&gt; shelf constant fall-through&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
