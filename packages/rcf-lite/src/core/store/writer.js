@@ -1115,7 +1115,7 @@ export async function updateDocument({ projectRoot, tree, id, patch, sets = [], 
     return rcfError({ kind: 'usage', message: `update: id ${id} not found`, documentId: id });
   }
 
-  // Referee-guarantee train (REQ-162 / US-16202, docs claim C-22):
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
   // `rcf build finalise` is the only path that writes FBS
   // executionStatus=verified. The manifest / FBS schema admits
   // `verified` as an executionStatus value (the finalise writer

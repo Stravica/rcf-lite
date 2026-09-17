@@ -5,7 +5,7 @@
   "category": "functional",
   "domain": "functional",
   "priority": "must",
-  "reqId": "REQ-161",
+  "reqId": "REQ-164",
   "prdId": "PRD-001",
   "title": "Referee guarantee: `rcf audit coverage` is strict-by-default; `--mode shallow-any` is the explicit opt-out; `--strict` remains a no-op alias",
   "version": "0.1.0",

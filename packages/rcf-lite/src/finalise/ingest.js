@@ -187,7 +187,7 @@ export function reportHasEvalRefusal(report) {
 }
 
 /**
- * Referee-guarantee train (REQ-162 / US-16201, docs claims C-28 / C-36).
+ * Referee-guarantee train (REQ-165 / US-16501, docs claims C-28 / C-36).
  * Extract per-AC verdicts in {UI-BASELINE-UNMET} from a verify report.
  * The verdict is emitted by `uiPerAcVerdict` when a UI-bearing FBS has
  * a bound `browserVerification[]` record whose `verdict` came back
@@ -218,7 +218,7 @@ export function reportHasUiBaselineUnmet(report) {
 }
 
 /**
- * Referee-guarantee train (REQ-162 / US-16201, docs claim C-29).
+ * Referee-guarantee train (REQ-165 / US-16501, docs claim C-29).
  * Extract per-AC verdicts in {BROWSER-VERIFICATION-MISSING} from a
  * verify report. Emitted by `uiPerAcVerdict` when a UI-bearing FBS has
  * no `browserVerification[]` record on the manifest (verify has nothing

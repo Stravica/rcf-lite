@@ -167,16 +167,28 @@ test('rcf_validate: broken tree returns issues as data, NOT an error (D10 row)',
   assert.equal(result.structuredContent.issues[0].kind, 'brokenReference');
 });
 
-test('rcf_coverage: envelope is the D15 CoverageResult; strict gaps are data, not error (OQ-P7-8)', async () => {
+test('rcf_coverage: envelope is the D15 CoverageResult; strict gaps are data, not error (OQ-P7-8 + REQ-164 strict-by-default)', async () => {
   const registry = registryFor(await scaffold());
-  const shallow = await registry.call('rcf_coverage', {});
-  assert.equal(shallow.isError, undefined);
+  // REQ-164 (strict-by-default): the plain rcf_coverage call now
+  // returns a strict envelope. Gaps still come back as data, never as
+  // an isError, matching the CLI's exit-4-vs-error split.
+  const defaultCall = await registry.call('rcf_coverage', {});
+  assert.equal(defaultCall.isError, undefined);
+  assert.equal(defaultCall.structuredContent.strict, true, 'strict is the shipped default');
+  assert.equal(defaultCall.structuredContent.totals.requirements, 1);
+  assert.equal(defaultCall.structuredContent.ok, false, 'the scaffold has an uncovered AC; strict must report ok=false');
+  const shallow = await registry.call('rcf_coverage', { mode: 'shallow-any' });
+  assert.equal(shallow.isError, undefined, 'shallow-any is the documented opt-out');
   assert.equal(shallow.structuredContent.strict, false);
   assert.equal(shallow.structuredContent.totals.requirements, 1);
-  const strict = await registry.call('rcf_coverage', { strict: true });
-  assert.equal(strict.isError, undefined, 'strict gaps must come back as data');
-  assert.equal(strict.structuredContent.ok, false);
-  assert.equal(strict.structuredContent.strict, true);
+  // Legacy callers that still spell strict: false get the shallow-any envelope.
+  const legacyShallow = await registry.call('rcf_coverage', { strict: false });
+  assert.equal(legacyShallow.structuredContent.strict, false);
+  // Legacy callers that spell strict: true get the strict envelope.
+  const legacyStrict = await registry.call('rcf_coverage', { strict: true });
+  assert.equal(legacyStrict.isError, undefined, 'strict gaps must come back as data');
+  assert.equal(legacyStrict.structuredContent.ok, false);
+  assert.equal(legacyStrict.structuredContent.strict, true);
 });
 
 test('rcf_coverage: below-AC scope and unknown scope are usage execution errors', async () => {

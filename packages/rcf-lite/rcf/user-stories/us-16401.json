@@ -4,15 +4,15 @@
   "asA": "beta reader who typed the command from the referee-guarantees page",
   "iWant": "`rcf audit coverage` with no flag to fail the gate on a stub or missing test, and `--mode shallow-any` to be the documented escape valve",
   "soThat": "the docs promise 'a stub or stale pointer fails the gate exactly as a missing test does' holds by construction, and my existing `--strict` invocations do not need rewriting",
-  "usId": "US-16101",
+  "usId": "US-16401",
   "prdId": "PRD-001",
-  "reqId": "REQ-161",
+  "reqId": "REQ-164",
   "version": "0.1.0",
   "status": "draft",
-  "title": "US-16101: strict-by-default coverage with a shallow-any opt-out and a legacy --strict alias",
+  "title": "US-16401: strict-by-default coverage with a shallow-any opt-out and a legacy --strict alias",
   "acceptanceCriteria": [
     {
-      "id": "AC-16101-1",
+      "id": "AC-16401-1",
       "description": "The plain `rcf audit coverage` command runs strict (per-AC) mode. On a tree whose ACs are not all covered by resolving TCs, it prints the table and exits 4; on a fully covered tree it exits 0. The default is the same as the legacy `--strict` invocation.",
       "given": "an initialised RCF project with a scaffold AC-101-1 that has no covering TC",
       "when": "`rcf audit coverage` is invoked with no strictness flag",
@@ -21,16 +21,16 @@
       "scope": "library"
     },
     {
-      "id": "AC-16101-2",
+      "id": "AC-16401-2",
       "description": "`--mode shallow-any` reports gaps and exits 0. The output's Coverage-mode line reads `shallow-any` and the table renders the same shape as strict mode; the exit code is 0 even on uncovered ACs.",
-      "given": "the same scaffold as AC-16101-1",
+      "given": "the same scaffold as AC-16401-1",
       "when": "`rcf audit coverage --mode shallow-any` is invoked",
       "then": "the exit code is 0 and the output includes 'Coverage mode: shallow-any'",
       "testable": true,
       "scope": "library"
     },
     {
-      "id": "AC-16101-3",
+      "id": "AC-16401-3",
       "description": "Conflicting flags exit 2 with a usage message. Passing `--mode shallow-any --strict` (in either order) is refused before running the audit; the error names both flags. `--mode` with an unknown value (e.g. `lenient`) also exits 2 with a usage message.",
       "given": "an initialised RCF project",
       "when": "`rcf audit coverage --mode shallow-any --strict` is invoked",
@@ -40,6 +40,6 @@
     }
   ],
   "tacIds": [
-    "TAC-16101-referee-coverage-mode-selector"
+    "TAC-4110-referee-coverage-mode-selector"
   ]
 }

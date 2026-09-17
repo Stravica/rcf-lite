@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-09-16T22:20:45Z",
   "updatedAt": "2026-09-16T22:20:45Z",
-  "tacId": "TAC-16001-referee-validate-adr-crosslinks",
+  "tacId": "TAC-4109-referee-validate-adr-crosslinks",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "0.1.0",
@@ -9,8 +9,8 @@
   "name": "referee-validate ADR cross-link walker",
   "purpose": "Extend the load-then-invert walker's referential-integrity pass (`collectBrokenReferences` in `packages/rcf-lite/src/core/store/walker.js`) to check the two ADR-schema-declared reference fields that the 0.27.0 walker skipped: `supersededBy` (single ADR id) and `relatedAdrs` (array of ADR ids). Each present target must resolve to a loaded ADR; a mismatch surfaces as a `brokenReference` error named to the ADR file, keyed by field. An absent or empty field is silent.",
   "responsibilities": [
-    "Inside `collectBrokenReferences`, after the existing ADR->TAD parent check, walk `supersededBy` when it is a non-empty string and delegate to the existing `check` helper with expectedKind `adr` (AC-16001-1).",
-    "Iterate every entry in `relatedAdrs ?? []`, delegate each to the same `check` helper with a field name `relatedAdrs[i]` naming the array index (AC-16001-2).",
+    "Inside `collectBrokenReferences`, after the existing ADR->TAD parent check, walk `supersededBy` when it is a non-empty string and delegate to the existing `check` helper with expectedKind `adr` (AC-16301-1).",
+    "Iterate every entry in `relatedAdrs ?? []`, delegate each to the same `check` helper with a field name `relatedAdrs[i]` naming the array index (AC-16301-2).",
     "Reuse the existing `brokenReference` error shape (kind, documentId, filePath, field, rule) so downstream consumers of `formatErrors` need no change.",
     "Ensure the widened check contributes to `tree.brokenIds` exactly the way the existing checks do."
   ],

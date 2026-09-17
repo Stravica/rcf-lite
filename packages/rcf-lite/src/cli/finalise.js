@@ -58,7 +58,7 @@ import {
   writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
 
-// Referee-guarantee train (REQ-162 / US-16202, docs claim C-26): the
+// Referee-guarantee train (REQ-165 / US-16502, docs claim C-26): the
 // merge-state precondition. Finalise refuses to promote to verified
 // when the git working tree is not on one of these default branches.
 // Kept small and conventional (git init and every hosted git provider
@@ -101,7 +101,7 @@ const OPTION_SPEC = {
   // string (spec section 8: missing reason exits 2). Shape mirrors
   // `--provision`: a value that looks like a flag is refused.
   'ship-without-eval': { type: 'string' },
-  // Referee-guarantee train (REQ-162 / US-16202, docs claim C-26):
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
   // finalise refuses promotion when the git working tree is not on
   // the default branch (main / master) so `verified` traces to an
   // actual post-merge runtime check by construction. --allow-pre-merge
@@ -190,7 +190,7 @@ Exit codes:
 `;
 
 /**
- * Referee-guarantee train (REQ-162 / US-16202, docs claim C-26).
+ * Referee-guarantee train (REQ-165 / US-16502, docs claim C-26).
  * Resolve the current git branch as an out-of-band read so finalise
  * can refuse promotion when the working tree is not on the default
  * branch. Returns `{ ok: true, branch }` on success, `{ ok: false,
@@ -498,7 +498,7 @@ export async function main(argv, deps = {}) {
       stderr.write(`Report: ${outPath}\n`);
       return 4;
     }
-    // Referee-guarantee train (REQ-162 / US-16201, docs claims C-28,
+    // Referee-guarantee train (REQ-165 / US-16501, docs claims C-28,
     // C-29, C-30, C-36): three further per-AC verdicts join the
     // finalise refusal list. UI-BASELINE-UNMET (a browserVerification
     // record whose verdict came back `block`, including the aggregate
@@ -536,7 +536,7 @@ export async function main(argv, deps = {}) {
       stderr.write(`Report: ${outPath}\n`);
       return 4;
     }
-    // Referee-guarantee train (REQ-162 / US-16202, docs claim C-26):
+    // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
     // the merge-state precondition. `verified` promises "an actual
     // post-merge runtime check" and the way finalise proves that is
     // by refusing when the working tree is not on the default branch
@@ -563,7 +563,7 @@ export async function main(argv, deps = {}) {
     }
     const result = await updateDocument({
       projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }],
-      // Referee-guarantee train (REQ-162 / US-16202, docs claim C-22):
+      // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
       // the writer refuses executionStatus=verified on FBS by default.
       // Finalise is the only path the docs promise can write it, so
       // this call carries the override flag through.

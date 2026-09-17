@@ -75,7 +75,7 @@ test('rcf coverage with a TS whose pointer resolves exits 0 and reports covered:
 test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unresolved, and the default (strict) exits 4', async () => {
   const tmp = await scaffold();
   await addCoveringTs(tmp, { withRealTest: false });
-  // REQ-161 (strict-by-default) — pass --mode shallow-any to inspect
+  // REQ-164 (strict-by-default) — pass --mode shallow-any to inspect
   // the covered-unresolved data without tripping the gate.
   const json = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any', '--format', 'json']);
   assert.equal(json.code, 0);
@@ -117,7 +117,7 @@ test('rcf coverage (strict-by-default) with a gap exits 4', async () => {
 });
 
 test('rcf coverage --mode shallow-any prints gaps and exits 0 (explicit opt-out)', async () => {
-  // REQ-161 (strict-by-default) opt-out: the shallow-any mode is
+  // REQ-164 (strict-by-default) opt-out: the shallow-any mode is
   // the documented escape valve for author-time exploration.
   const tmp = await scaffold();
   const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any']);
@@ -159,7 +159,7 @@ test('rcf coverage on a broken tree exits 3 (walker errors block)', async () => 
 
 test('rcf coverage REQ-001 scopes to a REQ (positional)', async () => {
   const tmp = await scaffold();
-  // REQ-161 (strict-by-default): the scaffold's REQ-001 has an
+  // REQ-164 (strict-by-default): the scaffold's REQ-001 has an
   // uncovered AC-101-1, so run in shallow-any so the positional-scope
   // shape is the focus rather than the strict-gate exit code.
   const { code, stdout } = await runBin(tmp, ['audit', 'coverage', 'REQ-001', '--mode', 'shallow-any', '--format', 'json']);

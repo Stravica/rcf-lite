@@ -5,7 +5,7 @@
   "category": "functional",
   "domain": "functional",
   "priority": "must",
-  "reqId": "REQ-160",
+  "reqId": "REQ-163",
   "prdId": "PRD-001",
   "title": "Referee guarantee: `rcf define validate` walks every schema-declared reference field on ADR (supersededBy, relatedAdrs) so the docs-page 'nothing points at nothing' claim holds",
   "version": "0.1.0",

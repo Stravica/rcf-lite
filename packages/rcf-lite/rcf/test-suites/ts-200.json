@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-16T22:20:45Z",
+  "updatedAt": "2026-09-16T22:20:45Z",
+  "purpose": "Cover AC-16301-1 (supersededBy broken pointer surfaces as brokenReference with field=supersededBy) and AC-16301-2 (relatedAdrs unknown entry stays SILENT; the compatibility carry keeps the ratified `rcf define blueprint supersede` workflow unbroken). The tests scaffold a fresh RCF project with initProject, mutate adr-001.json's cross-links, then walkTree and assert the presence / absence of brokenReference entries accordingly.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16301-1",
+    "AC-16301-2"
+  ],
+  "id": "TS-200",
+  "usId": "US-16301",
+  "title": "referee-validate ADR cross-link walker: AC-16301-1 supersededBy broken, AC-16301-2 relatedAdrs unknown",
+  "testCases": [
+    {
+      "id": "TC-200-superseded-by-broken",
+      "acId": "AC-16301-1",
+      "description": "Fresh project via initProject; set adr-001.json supersededBy to ADR-999; walkTree; assert errors contain a brokenReference with documentId=ADR-001 and field=supersededBy.",
+      "status": "pending",
+      "testPointer": "test/store/walker.test.js::walkTree flags an ADR with a broken supersededBy pointer as brokenReference (REQ-163 AC-16301-1)"
+    },
+    {
+      "id": "TC-200-related-adrs-silent",
+      "acId": "AC-16301-2",
+      "description": "Fresh project via initProject; set adr-001.json relatedAdrs to [ADR-777]; walkTree; assert NO brokenReference targets the relatedAdrs field on ADR-001 (compatibility carry: the ratified `rcf define blueprint supersede` workflow leaves a transient unresolved relatedAdrs pointer between the supersede write and the closing re-add step).",
+      "status": "pending",
+      "testPointer": "test/store/walker.test.js::walkTree stays silent on an ADR with an unknown id in relatedAdrs (referee-guarantee C-7 compatibility carry: soft-reference half deferred)"
+    }
+  ],
+  "status": "approved"
+}

@@ -1,5 +1,5 @@
-Coverage mode: shallow-any
-Requirements: 92  covered: 92  covered-unresolved: 0  uncovered: 0
+Coverage mode: strict (per-AC)
+Requirements: 95  covered: 95  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -368,3 +368,14 @@ REQ-153      yes      AC-15301-1  yes         TC-183-tunnel-connector-healthy-re
 REQ-154      yes      AC-15401-1  yes         TC-184-simulate-purity-four-blueprints
                       AC-15401-2  yes         TC-184-envelope-hygiene-four-blueprints
                       AC-15401-3  yes         TC-184-marker-hygiene-four-blueprints
+REQ-163      yes      AC-16301-1  yes         TC-200-superseded-by-broken
+                      AC-16301-2  yes         TC-200-related-adrs-silent
+REQ-164      yes      AC-16401-1  yes         TC-201-strict-by-default-exit-4
+                      AC-16401-2  yes         TC-201-shallow-any-opt-out
+                      AC-16401-3  yes         TC-201-conflicting-flags-exit-2
+REQ-165      yes      AC-16501-1  yes         TC-202-ui-baseline-unmet-refusal
+                      AC-16501-2  yes         TC-202-browser-verification-missing-refusal
+                      AC-16501-3  yes         TC-202-scope-mismatch-refusal
+                      AC-16502-1  yes         TC-203-writer-refuses-manual-verified
+                      AC-16502-2  yes         TC-203-writer-accepts-with-override
+                      AC-16502-3  yes         TC-203-merge-state-refusal-and-opt-out

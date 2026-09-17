@@ -24,7 +24,7 @@ const OPTION_SPEC = {
   // Phase 10 (X2 CodeNode bridge, D5): re-derive a CN's file-level
   // dependencies via dependency-cruiser, merged into dependencies[].
   'derive-deps': { type: 'boolean' },
-  // Referee-guarantee train (REQ-162 / US-16202, docs claim C-22):
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
   // the writer refuses executionStatus=verified on FBS by default so
   // finalise is the only path that promotes to verified. This flag
   // is the deliberate manual override: a logged operator decision
@@ -154,7 +154,7 @@ export async function main(argv, deps = {}) {
     projectRoot, tree: walkResult.tree, id, patch, sets,
     options: {
       dryRun: Boolean(flags['dry-run']),
-      // Referee-guarantee train (REQ-162 / US-16202, docs claim C-22):
+      // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
       // the writer's default refuses executionStatus=verified on FBS;
       // this flag routes the operator's deliberate override through.
       allowVerifiedOverride: Boolean(flags['acknowledge-verified-override']),

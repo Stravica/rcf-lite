@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-627",
+  "path": "src/core/store/walker.js#collectBrokenReferences",
+  "implementsAcIds": [
+    "AC-16301-1",
+    "AC-16301-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-17T00:15:00Z",
+  "updatedAt": "2026-09-17T00:15:00Z"
+}

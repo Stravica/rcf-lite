@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-09-17T00:15:00Z",
+  "updatedAt": "2026-09-17T00:15:00Z",
+  "acIds": [
+    "AC-16301-1",
+    "AC-16301-2"
+  ],
+  "fbsId": "FBS-186",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 70,
+  "executionStatus": "notStarted",
+  "title": "Referee-guarantees: define validate walks ADR supersededBy and relatedAdrs",
+  "summary": "Extend collectBrokenReferences in packages/rcf-lite/src/core/store/walker.js so the two ADR schema-declared cross-links (supersededBy, relatedAdrs) walk through the same check helper as the existing FBS / TS / CN / EVAL cross-links. Broken targets surface as brokenReference errors named to the ADR file and the field, keyed rule:resolveTo:adr. Empty / absent fields stay silent. The walker change plus test/store/walker.test.js coverage closes referee-guarantees docs claim C-7. w-2026-09-16-dave-011.",
+  "dependsOnFbsIds": []
+}

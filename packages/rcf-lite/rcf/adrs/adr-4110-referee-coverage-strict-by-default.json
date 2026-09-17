@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-09-16T22:28:54Z",
   "updatedAt": "2026-09-16T22:28:54Z",
-  "adrId": "ADR-16101-referee-coverage-strict-by-default",
+  "adrId": "ADR-4110-referee-coverage-strict-by-default",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "0.1.0",

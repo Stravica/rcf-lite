@@ -5,7 +5,7 @@
   "category": "functional",
   "domain": "functional",
   "priority": "must",
-  "reqId": "REQ-162",
+  "reqId": "REQ-165",
   "prdId": "PRD-001",
   "title": "Referee guarantee: `rcf build finalise` refuses UI-BASELINE-UNMET / BROWSER-VERIFICATION-MISSING / SCOPE-MISMATCH; verified traces to a post-merge run; manual override is gated",
   "version": "0.1.0",

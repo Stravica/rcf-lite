@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-17T00:15:00Z",
+  "updatedAt": "2026-09-17T00:15:00Z",
+  "acIds": [
+    "AC-16502-1",
+    "AC-16502-2",
+    "AC-16502-3"
+  ],
+  "fbsId": "FBS-189",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 73,
+  "executionStatus": "notStarted",
+  "title": "Referee-guarantees: verified-invariant gate + merge-state precondition on finalise",
+  "summary": "Gate the two paths that let the 0.27.0 chain say verified without a real finalise run. Writer refuses FBS.executionStatus=verified unless options.allowVerifiedOverride is true; rcf define update exposes --acknowledge-verified-override as the deliberate manual escape; rcf build finalise passes the seam through so its happy path is unchanged. Finalise spawns git rev-parse --abbrev-ref HEAD before the executionStatus write and refuses promotion (exit 4) when the branch is not main / master; --allow-pre-merge is the deliberate opt-out (logged on stdout). Absent a git checkout the check degrades to a warn line. Closes referee-guarantees docs claims C-22 and C-26. w-2026-09-16-dave-013.",
+  "dependsOnFbsIds": []
+}

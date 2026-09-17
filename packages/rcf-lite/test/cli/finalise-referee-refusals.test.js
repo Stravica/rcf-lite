@@ -1,5 +1,5 @@
 // `rcf build finalise` referee-guarantee refusal branches
-// (referee-guarantees train, REQ-162 / US-16201 + US-16202, docs
+// (referee-guarantees train, REQ-165 / US-16501 + US-16502, docs
 // claims C-22 / C-26 / C-28 / C-29 / C-30 / C-36).
 //
 // Load-bearing behaviour: on a verify PASS whose report carries at

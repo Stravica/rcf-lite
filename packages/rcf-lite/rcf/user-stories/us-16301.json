@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-09-16T22:20:45Z",
+  "updatedAt": "2026-09-16T22:20:45Z",
+  "asA": "beta reader relying on the referee-guarantees page to know what `rcf define validate` proves",
+  "iWant": "a broken ADR supersededBy pointer to be reported as a brokenReference the same way a broken parent link is, and the soft `relatedAdrs` back-reference to stay silent so the ratified blueprint-supersede workflow is not broken",
+  "soThat": "the docs-page promise that every reference in every document resolves is enforced on the strong chain-of-decisions reference (supersededBy), while the soft see-also field stays a schemas follow-up (either value-narrowed or workflow-aware)",
+  "usId": "US-16301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-163",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16301: define validate walks ADR supersededBy; relatedAdrs stays a schemas follow-up (compatibility carry)",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16301-1",
+      "description": "An ADR whose supersededBy names an id with no file on disk (or an id that resolves to a non-ADR kind) surfaces as a brokenReference error naming the ADR file and the field `supersededBy`, and the corresponding target id joins tree.brokenIds. A supersededBy field that is absent or empty is silent.",
+      "given": "an initialised RCF project with adr-001.json whose supersededBy is set to a non-existent id ADR-999",
+      "when": "walkTree runs (as invoked by `rcf define validate`)",
+      "then": "errors contain a brokenReference with documentId ADR-001 and field supersededBy naming ADR-999, and tree.brokenIds contains ADR-999",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16301-2",
+      "description": "An ADR whose relatedAdrs contains an id with no file on disk stays SILENT under walkTree: the ratified `rcf define blueprint supersede` workflow writes a project ADR whose relatedAdrs lists both the applied blueprint ADR (on disk) and the incoming blueprint ADR (not yet on disk; the incoming add is the closing step of option 3). Walking relatedAdrs would refuse that workflow between the supersede write and the re-add; the compatibility carry keeps the soft back-reference unchecked here. Tightening this is a schemas follow-up (value-narrow to applied ADR ids, or a workflow-aware exception on the supersede write path).",
+      "given": "an initialised RCF project with adr-001.json whose relatedAdrs is set to [ADR-777] (a non-existent id, mirroring the transient state between supersede and re-add)",
+      "when": "walkTree runs (as invoked by `rcf define validate`)",
+      "then": "no brokenReference error targets the relatedAdrs field on ADR-001",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "tacIds": [
+    "TAC-4109-referee-validate-adr-crosslinks"
+  ]
+}

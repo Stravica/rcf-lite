@@ -1,7 +1,7 @@
 // `rcf coverage` subcommand handler. Reports structural coverage over
 // the REQ chain (PRD -> REQ -> US -> AC -> TS -> TC). Phase 5 §D2 / §D10.
 //
-// Referee-guarantees train (REQ-161 / US-16101, docs claims C-11 /
+// Referee-guarantees train (REQ-164 / US-16401, docs claims C-11 /
 // C-14): strict-by-default. The default mode is per-AC-strict; a
 // stub or stale pointer fails the gate exactly as a missing test does
 // when the plain `rcf audit coverage` command is run. The explicit
@@ -37,7 +37,7 @@ import {
 
 const OPTION_SPEC = {
   strict: { type: 'boolean' },
-  // Referee-guarantee train (REQ-161 / US-16101): explicit --mode
+  // Referee-guarantee train (REQ-164 / US-16401): explicit --mode
   // selector. Values: strict | shallow-any. Default: strict.
   mode: { type: 'string' },
   format: { type: 'string' },
@@ -129,7 +129,7 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage coverage: multiple positional ids are not supported\n');
     return 2;
   }
-  // Referee-guarantee train (REQ-161): resolve strict-vs-shallow.
+  // Referee-guarantee train (REQ-164): resolve strict-vs-shallow.
   // Default is strict. --mode wins if set; --strict is a legacy alias
   // for --mode strict; --mode shallow-any --strict is a usage refusal
   // so a scripted invocation cannot silently disagree with itself.
