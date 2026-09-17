@@ -57,21 +57,47 @@ the operator sees at preview time:
   the identity seed.
 - Secret-shaped strings: GitHub tokens, AWS keys, `sk-`/`sk_live_`,
   Slack `xox[abp]-`, JWTs, PEM blocks (BEGIN..END), `Bearer <token>`,
-  `Authorization:` header values, high-entropy blobs.
+  and the whole `Authorization:` header line (a line-anchored rule
+  folds the scheme, the credential and any tail together so the token
+  never reaches the body on its own; `authorization` is deliberately
+  NOT in the vocabulary list below because the vocabulary rule would
+  fold `Authorization: Basic` alone and leave the credential),
+  high-entropy blobs.
 - Well-known `key: value` pairs whose key matches an open secret-key
   vocabulary (design amendment R3a). The vocabulary is exported from
   `src/feedback/redact.js` as `SECRET_KEY_VOCABULARY` and is shared by
   the first-pass redactor, the URL query-parameter scanner and the
   whole-text residual safeguard, so all three cover the same set. The
-  current stems are: `authorization`, `passphrase`, `clientsecret`,
-  `client_secret`, `client-secret`, `privatekey`, `private_key`,
-  `private-key`, `accesskey`, `access_key`, `access-key`, `apikey`,
-  `api_key`, `api-key`, `credential`, `credentials`, `signature`,
-  `password`, `passwd`, `session`, `cookie`, `secret`, `bearer`,
-  `creds`, `token`, `salt`, `cred`, `pass`, `auth`, `pwd`, `sig`,
-  `pw`, `key`. Match is right-bounded at a word edge so `keyword` and
+  current stems are: `passphrase`, `clientsecret`, `client_secret`,
+  `client-secret`, `privatekey`, `private_key`, `private-key`,
+  `accesskey`, `access_key`, `access-key`, `apikey`, `api_key`,
+  `api-key`, `credential`, `credentials`, `signature`, `password`,
+  `passwd`, `session`, `cookie`, `secret`, `bearer`, `creds`,
+  `token`, `salt`, `cred`, `pass`, `auth`, `pwd`, `sig`, `pw`,
+  `key`. Match is right-bounded at a word edge so `keyword` and
   `authors` do not fold. `hash` folds only when the value is 16+
   characters (so a short commit digest displayed for humans stays).
+  The vocabulary is English-only; a non-English key stem
+  (`motdepasse=`, `contrasena=`, `passwort=`, `senha=`,
+  `wachtwoord=`) is not recognised on its own. A non-English key
+  paired with a 32+ char high-entropy value still folds via the
+  entropy-blob backstop; a shorter value carrying a non-English key
+  should be hand-redacted before submit.
+- Vocabulary-key labels separated from a value-shape token by any
+  separator (design amendment R4). The R4 pass runs after the primary
+  rule-5 loop and folds a vocabulary key labelling a value via
+  markdown-table pipes (`| password | Sup3rSecretV@lue!! |`), prose
+  bridges (`password is Sup3rSecretValueLong`, `password was ...`,
+  `password set to ...`), arrows, whitespace runs, tabs, hyphens,
+  HTML numeric entities (`pass&#61;SuperSecretValue1234`,
+  `pass&#x3d;...`) and any other non-`:=` separator up to 40 chars
+  between the key and the value. The value has to be 8+ chars and
+  carry at least two character classes among {upper, lower, digit,
+  symbol}, so ordinary prose (`the password is required`,
+  `the password field is required`) is left alone; false positives
+  are visible in the ledger and preferred over a labelled value
+  reaching the body. The residual safeguard runs the same scan so a
+  shape the primary pass missed refuses submit fail-closed.
 - URL-embedded credentials (design amendment R3b, rule 9, ledger name
   `url-credential`). A URL's `user:pass@host` userinfo is dropped
   before the hostname pass so the host still folds cleanly. Under a

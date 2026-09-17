@@ -233,7 +233,12 @@ test('AC-15601-4 safeguard: submit refuses (exit 3) when a title-embedded token 
   // canonical AC-15601-2 shape rewritten to prove the whole-text
   // residual scan runs on the rendered body.
   const stealthToken = 'xxx' + ['ghp', '_', filler].join('') + 'yyy';
-  await addCore(tmp, 'stealthy-secret', `the token is ${stealthToken} inside a sentence`);
+  // Round 5 note: the body prose deliberately avoids a vocabulary
+  // keyword (token / password / secret / ...) followed by a prose
+  // bridge, so the R4 (round-5) pass does not fold the stealth token
+  // during the primary redaction; the assertion is that the residual
+  // scan is what catches this shape and refuses submit.
+  await addCore(tmp, 'stealthy-secret', `an arbitrary identifier ${stealthToken} appears in the trace`);
   const previewRes = await runBin(tmp, ['feedback', 'preview', '--json']);
   assert.equal(previewRes.code, 0, previewRes.stderr);
   const preview = JSON.parse(previewRes.stdout)[0];

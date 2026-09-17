@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T15:27:35Z",
-  "updatedAt": "2026-09-17T00:36:18Z",
+  "updatedAt": "2026-09-17T01:30:00Z",
   "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
   "testLevel": "integration",
   "acIds": [
@@ -139,6 +139,27 @@
       "description": "Cover AC-15601-4 (fix round 4, F-01, design R3c) via the CLI test: `rcf feedback submit --yes --dry-run` writes no files under .rcf/feedback/outbox/ even for the unresolved-destination and whole-destination-fallback branches (previously the dry-run gate on the create/comment path let the bundle write run unconditionally).",
       "status": "pending",
       "testPointer": "test/cli/feedback-fix-round-4.test.js::F-01 (round 4, R3c): submit --dry-run --yes writes no outbox bundle for an unresolved destination"
+    },
+    {
+      "id": "TC-188-r4-separator-probes",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 5, F-05, design amendment R4) via the unit test: every re-gate R4 probe (markdown table pipes, whitespace runs, tabs, hyphens, em-dashes, HTML numeric entities, prose is / was / set to bridges, arrows) folds a vocabulary key labelling a value-shape token, the raw value never survives, and the residual scan is clean.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4): every re-gate R4 probe folds under the primary pass and leaves nothing residual"
+    },
+    {
+      "id": "TC-188-r4-residual-safeguard",
+      "acId": "AC-15601-4",
+      "description": "Cover AC-15601-4 (fix round 5, R4 safeguard) via the unit test: findResidualSecrets flags a raw R4 shape (markdown table, prose bridge, HTML entity, em-dash separator) as kv-secret-r4 so submit refuses fail-closed on any R4 leak the first-pass missed.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4): findResidualSecrets flags a raw R4 shape as kv-secret-r4"
+    },
+    {
+      "id": "TC-188-r4-overredaction-guard",
+      "acId": "AC-15601-1",
+      "description": "Cover AC-15601-1 (fix round 5, R4 negative case) via the unit test: ordinary prose that carries a vocabulary word (`the password field is required`, `the password is required`, `see commit abc1234 at HEAD`, `keyword=abcdef`, `authors=joe,jane`) does NOT fold because the value-shape gate rejects single-class values and values under 8 characters.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4 guard): a vocabulary word in ordinary prose (single-class value, or short value) does NOT fold"
     }
   ],
   "status": "draft"

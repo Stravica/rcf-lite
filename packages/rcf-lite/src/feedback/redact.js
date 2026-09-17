@@ -118,6 +118,85 @@ export function secretKeyRegexSource() {
 }
 
 /**
+ * Value-shape character class (design amendment R4). Common secret /
+ * URL-safe alphabet plus punctuation that turns up in passwords. Used
+ * by the R4 separator scanner to bound the value token; the length
+ * gate and mixed-classes check are applied by `looksLikeSecretValue`.
+ */
+const R4_VALUE_CHAR_CLASS = `[A-Za-z0-9._~+/=@!#$%^&*?\\-]`;
+
+/**
+ * R4 separator: one of the prose bridges `is` / `was` / `set to`
+ * bounded by whitespace, OR up to 40 units of a non-word non-newline
+ * character or an HTML numeric entity (`&#61;`, `&#x3d;`). Ordering
+ * matters: the entity alternative is tried first so the digits inside
+ * (`61`) do not stop the run at the leading `&#`. The prose bridge
+ * captures markdown-table pipes, bullet-list dashes, arrows,
+ * whitespace, tabs and `:` / `=` alongside the R3a shape.
+ */
+const R4_SEPARATOR_SRC =
+  '(?:\\s+(?:is|was|set\\s+to)\\s+|(?:&#(?:\\d+|x[0-9a-fA-F]+);|[^\\w\\n]){1,40})';
+
+/**
+ * R4 combined regex source: `<vocab-key>\b<separator><value-shape>`.
+ * The value shape is bounded by the R4 character class so `\S{8,}`
+ * greed does not consume adjacent structural punctuation (e.g. the
+ * closing pipe of a markdown table cell). Post-match, callers apply
+ * `looksLikeSecretValue` to gate on 2+ character classes so plain
+ * English words (`required`, `enabled`) do not fold.
+ */
+const R4_REGEX_SRC =
+  `\\b(?:${SECRET_KEY_ALTERNATION})\\b${R4_SEPARATOR_SRC}(${R4_VALUE_CHAR_CLASS}{8,})`;
+
+/**
+ * Round 5 (design amendment R4): does a candidate value shape look
+ * like a secret? Guards R4 against over-redaction of ordinary prose:
+ * requires 8+ chars AND at least two character classes among {upper,
+ * lower, digit, symbol}. Rejects single-class runs like `required`
+ * (all lower) and `12345678` (all digits) so a sentence like
+ * `the password is required` does not fold the trailing word.
+ *
+ * @param {string} value
+ */
+function looksLikeSecretValue(value) {
+  if (typeof value !== 'string') return false;
+  if (value.length < 8) return false;
+  let classes = 0;
+  if (/[A-Z]/.test(value)) classes += 1;
+  if (/[a-z]/.test(value)) classes += 1;
+  if (/\d/.test(value)) classes += 1;
+  if (/[^A-Za-z0-9]/.test(value)) classes += 1;
+  return classes >= 2;
+}
+
+/**
+ * Round 5 (design amendment R4): scan `text` for vocabulary keys
+ * separated from a value-shape token by any separator. Returns the
+ * match ranges the redactor should fold (and the residual scan should
+ * flag). Skips matches whose value fails `looksLikeSecretValue` so
+ * ordinary prose survives.
+ *
+ * @param {string} text
+ * @returns {Array<{start: number, end: number, match: string, value: string}>}
+ */
+function scanR4Leaks(text) {
+  const re = new RegExp(R4_REGEX_SRC, 'gi');
+  const out = [];
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const value = m[1];
+    if (!looksLikeSecretValue(value)) {
+      // Guard against zero-width infinite loops on future pattern
+      // changes; the fixed regex above cannot match zero-length.
+      if (re.lastIndex === m.index) re.lastIndex += 1;
+      continue;
+    }
+    out.push({ start: m.index, end: m.index + m[0].length, match: m[0], value });
+  }
+  return out;
+}
+
+/**
  * Case-insensitive test: does `name`, after lower-casing and stripping
  * separators, MATCH any vocabulary stem? Used by the rule-9 URL-
  * credential scanner to decide whether a URL query parameter name
@@ -530,6 +609,30 @@ export function findResidualSecrets(text) {
       }
     }
   }
+  // Round 5 (design amendment R4): also scan for a vocabulary key
+  // labelling a value-shape token via a non-`:=` separator (markdown
+  // table pipe, prose bridge, whitespace, tab, hyphen, arrow, HTML
+  // entity). The residual pass and the primary pass share
+  // `scanR4Leaks` so the mixed-classes gate is the same on both
+  // sides: what the redactor deemed benign under R4 does not
+  // resurface as a refusal here.
+  for (const scan of scans) {
+    const r4Hits = scanR4Leaks(scan.source);
+    for (const hit of r4Hits) {
+      let line = 1;
+      for (let i = 0; i < hit.start; i += 1) {
+        if (text.charCodeAt(i) === 10) line += 1;
+      }
+      const rawSnippet = text.slice(hit.start, hit.end);
+      const snippet = rawSnippet.replace(/\s+/g, ' ').slice(0, 80);
+      const pattern = scan.label ? `${scan.label}:kv-secret-r4` : 'kv-secret-r4';
+      const key = `${pattern}|${line}|${snippet}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        hits.push({ line, snippet, pattern });
+      }
+    }
+  }
   hits.sort((a, b) => a.line - b.line || a.pattern.localeCompare(b.pattern));
   return hits;
 }
@@ -936,11 +1039,51 @@ function secretPatterns() {
   ];
 }
 
+/**
+ * Round 5 (design amendment R4): apply the R4 scanner and fold each
+ * hit to `<redacted:secret>`. Ledger rows land under the canonical
+ * `secret-token` rule name so operator disclosure stays consistent
+ * with the primary kv-secret pass; `replaceEachDistinct` in the
+ * caller-side ledger fold sums counts across identical before-samples.
+ *
+ * @param {string} text
+ * @param {LedgerRow[]} ledger
+ * @returns {string}
+ */
+function redactR4Separators(text, ledger) {
+  const hits = scanR4Leaks(text);
+  if (hits.length === 0) return text;
+  // Splice from the right so earlier indices stay valid.
+  const counts = new Map();
+  let out = text;
+  for (let i = hits.length - 1; i >= 0; i -= 1) {
+    const { start, end, match } = hits[i];
+    counts.set(match, (counts.get(match) ?? 0) + 1);
+    out = `${out.slice(0, start)}<redacted:secret>${out.slice(end)}`;
+  }
+  for (const [before, count] of counts) {
+    ledger.push({ rule: 'secret-token', before, after: '<redacted:secret>', count });
+  }
+  return out;
+}
+
 function redactSecrets(input, ledger) {
   let text = input;
   for (const { re } of secretPatterns()) {
     text = replaceEachDistinct(text, re, '<redacted:secret>', 'secret-token', ledger);
   }
+  // Round 5 (design amendment R4): a vocabulary key labelling a value
+  // via any separator (markdown table pipe, whitespace, tab, hyphen,
+  // arrow, HTML entity, or the prose bridges is / was / set to) is a
+  // secret. Runs AFTER the primary rule-5 loop so `key=value` and
+  // `Authorization:` shapes already folded (canonical rule names
+  // stay visible in the ledger), and AFTER the dash normalisation in
+  // rule 8a-early so em-dash and other Unicode separators reach this
+  // pass as ASCII hyphens. False positives are visible in the ledger
+  // (design says false positives are acceptable; a labelled value
+  // reaching the body is not) but the mixed-classes gate in
+  // `looksLikeSecretValue` keeps ordinary prose intact.
+  text = redactR4Separators(text, ledger);
   // F-slice-2-09: keep every distinct before/after pair so the
   // operator disclosure ledger shows exactly what was stripped.
   // `replaceEachDistinct` already writes one row per distinct

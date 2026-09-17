@@ -146,7 +146,11 @@ test('AC-15601-4 (round 3): bundle-level residual returns exit 3, not 1', async 
   // per-entry redactor while the residual (loose) pattern still
   // catches it at the whole-bundle scan.
   const stealthToken = 'xxx' + ['ghp', '_', filler].join('') + 'yyy';
-  await addCore(tmp, 'bundle-safeguard-probe', `token ${stealthToken} in body`);
+  // Round 5 note: body prose avoids a vocabulary keyword followed by
+  // a prose bridge so the R4 (round-5) pass does not fold this in the
+  // primary redaction; the residual scan on the assembled bundle is
+  // what catches the stealth token and produces exit 3.
+  await addCore(tmp, 'bundle-safeguard-probe', `raw trace line ${stealthToken} in tail`);
   // Force bundling by pointing gh at a nonexistent binary; the CLI
   // preflight falls through to the whole-destination bundle path.
   const res = await runBin(tmp, ['feedback', 'submit', '--yes'], { PATH: '/nonexistent-bin' });

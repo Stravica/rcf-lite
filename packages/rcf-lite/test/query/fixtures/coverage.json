@@ -3699,6 +3699,8 @@
           "covered": true,
           "testCases": [
             "TC-188-preview-renders-full-vocabulary-ledger",
+            "TC-188-r4-overredaction-guard",
+            "TC-188-r4-separator-probes",
             "TC-188-redact-eight-rule-corpus",
             "TC-188-url-credential-query",
             "TC-188-url-credential-userinfo",
@@ -3730,6 +3732,7 @@
           "covered": true,
           "testCases": [
             "TC-188-dryrun-writes-nothing",
+            "TC-188-r4-residual-safeguard",
             "TC-188-safeguard-shortname-webhook",
             "TC-188-safeguard-submit-refuses-residual",
             "TC-188-safeguard-whole-text-residual"

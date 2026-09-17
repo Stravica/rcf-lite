@@ -1669,6 +1669,10 @@ flowchart LR
   REQ-156 --> AC-15601-1
   TC-188-preview-renders-full-vocabulary-ledger["TC-188-preview-renders-full-vocabulary-ledger"]
   AC-15601-1 -.-> TC-188-preview-renders-full-vocabulary-ledger
+  TC-188-r4-overredaction-guard["TC-188-r4-overredaction-guard"]
+  AC-15601-1 -.-> TC-188-r4-overredaction-guard
+  TC-188-r4-separator-probes["TC-188-r4-separator-probes"]
+  AC-15601-1 -.-> TC-188-r4-separator-probes
   TC-188-redact-eight-rule-corpus["TC-188-redact-eight-rule-corpus"]
   AC-15601-1 -.-> TC-188-redact-eight-rule-corpus
   TC-188-url-credential-query["TC-188-url-credential-query"]
@@ -1695,6 +1699,8 @@ flowchart LR
   REQ-156 --> AC-15601-4
   TC-188-dryrun-writes-nothing["TC-188-dryrun-writes-nothing"]
   AC-15601-4 -.-> TC-188-dryrun-writes-nothing
+  TC-188-r4-residual-safeguard["TC-188-r4-residual-safeguard"]
+  AC-15601-4 -.-> TC-188-r4-residual-safeguard
   TC-188-safeguard-shortname-webhook["TC-188-safeguard-shortname-webhook"]
   AC-15601-4 -.-> TC-188-safeguard-shortname-webhook
   TC-188-safeguard-submit-refuses-residual["TC-188-safeguard-submit-refuses-residual"]
@@ -2816,6 +2822,8 @@ flowchart LR
   class REQ-156 req;
   class AC-15601-1 ac;
   class TC-188-preview-renders-full-vocabulary-ledger tc;
+  class TC-188-r4-overredaction-guard tc;
+  class TC-188-r4-separator-probes tc;
   class TC-188-redact-eight-rule-corpus tc;
   class TC-188-url-credential-query tc;
   class TC-188-url-credential-userinfo tc;
@@ -2829,6 +2837,7 @@ flowchart LR
   class TC-188-preview-store-byte-invariant tc;
   class AC-15601-4 ac;
   class TC-188-dryrun-writes-nothing tc;
+  class TC-188-r4-residual-safeguard tc;
   class TC-188-safeguard-shortname-webhook tc;
   class TC-188-safeguard-submit-refuses-residual tc;
   class TC-188-safeguard-whole-text-residual tc;
