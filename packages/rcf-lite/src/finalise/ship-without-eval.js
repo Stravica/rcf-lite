@@ -9,7 +9,7 @@
 // `swe-<fbsId>-<n>`, the operator's reason string, the declared AC
 // verdicts, the report path, and an ISO timestamp.
 //
-// Referee-guarantee train (REQ-165 / US-16203, docs claim C-33):
+// Referee-guarantee train (REQ-165, docs claim C-33 (schemas follow-up)):
 // rcf-schemas 0.6.2 does NOT yet declare this field on the manifest
 // schema, so the write path deliberately skips the schema validator
 // on the manifest write (see `writeShipWithoutEvalRecord` below). The

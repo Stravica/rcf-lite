@@ -1,20 +1,20 @@
 {
   "createdAt": "2026-09-16T22:20:45Z",
-  "updatedAt": "2026-09-16T22:20:45Z",
+  "updatedAt": "2026-09-17T01:05:07Z",
   "tacId": "TAC-4109-referee-validate-adr-crosslinks",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "0.1.0",
   "status": "draft",
   "name": "referee-validate ADR cross-link walker",
-  "purpose": "Extend the load-then-invert walker's referential-integrity pass (`collectBrokenReferences` in `packages/rcf-lite/src/core/store/walker.js`) to check the two ADR-schema-declared reference fields that the 0.27.0 walker skipped: `supersededBy` (single ADR id) and `relatedAdrs` (array of ADR ids). Each present target must resolve to a loaded ADR; a mismatch surfaces as a `brokenReference` error named to the ADR file, keyed by field. An absent or empty field is silent.",
+  "purpose": "Extend the load-then-invert walker's referential-integrity pass (`collectBrokenReferences` in `packages/rcf-lite/src/core/store/walker.js`) to walk the strong ADR cross-link the 0.27.0 walker skipped: `supersededBy` (single ADR id). A present target must resolve to a loaded ADR; a mismatch surfaces as a `brokenReference` error named to the ADR file, keyed by field. An absent or empty field is silent. The soft back-reference `relatedAdrs` is deliberately left unwalked at this phase (AC-16301-2 compatibility carry) so the ratified `rcf define blueprint supersede` workflow keeps working; tightening it is a schemas follow-up.",
   "responsibilities": [
     "Inside `collectBrokenReferences`, after the existing ADR->TAD parent check, walk `supersededBy` when it is a non-empty string and delegate to the existing `check` helper with expectedKind `adr` (AC-16301-1).",
-    "Iterate every entry in `relatedAdrs ?? []`, delegate each to the same `check` helper with a field name `relatedAdrs[i]` naming the array index (AC-16301-2).",
+    "Leave `relatedAdrs` unwalked here (AC-16301-2 compatibility carry): the ratified `rcf define blueprint supersede` workflow writes a project ADR whose `relatedAdrs` lists both the applied blueprint ADR and the not-yet-on-disk incoming blueprint ADR, so walking would refuse the workflow between the supersede write and the closing re-add. Tightening moves to the schemas follow-up (value-narrow to applied ADR ids, or a workflow-aware exception on the supersede write path).",
     "Reuse the existing `brokenReference` error shape (kind, documentId, filePath, field, rule) so downstream consumers of `formatErrors` need no change.",
     "Ensure the widened check contributes to `tree.brokenIds` exactly the way the existing checks do."
   ],
-  "internalStructure": "Two additional call blocks appended to the existing ADR loop inside `collectBrokenReferences`. The `check` helper is unchanged. Neither field is required by the ADR schema, so an omitted or empty field never emits an error; the check runs only on a present target.",
+  "internalStructure": "One additional call block appended to the existing ADR loop inside `collectBrokenReferences`, delegating `supersededBy` to the `check` helper. The `check` helper is unchanged. `supersededBy` is not required by the ADR schema, so an omitted or empty field never emits an error; the check runs only on a present target. `relatedAdrs` is intentionally not walked at this phase (see responsibilities and AC-16301-2).",
   "interfaces": [],
-  "notes": "Existing WSD projects that carry stale supersededBy pointers will start failing validate on upgrade; that is the intended behaviour (the referee-guarantees docs page promises exactly this refusal). Failures name the ADR file and the field so the fix is a one-line edit or a `define update` write."
+  "notes": "Existing WSD projects that carry stale `supersededBy` pointers will start failing validate on upgrade; that is the intended behaviour (the referee-guarantees docs page promises exactly this refusal). Failures name the ADR file and the field so the fix is a one-line edit or a `define update` write. `relatedAdrs` is untouched by this train and is picked up in the schemas follow-up."
 }
