@@ -77,16 +77,22 @@ Generation strategy: dependencyFirst
 | 71 | 0 | FBS-187 | Referee-guarantees: rcf audit coverage strict-by-default with --mode shallow-any opt-out | notStarted | actionable |  |
 | 72 | 0 | FBS-188 | Referee-guarantees: finalise refuses UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH | notStarted | actionable |  |
 | 73 | 0 | FBS-189 | Referee-guarantees: verified-invariant gate + merge-state precondition on finalise | notStarted | actionable |  |
+| 180 | 0 | FBS-180 | Slice 1: capture and store | notStarted | actionable |  |
+| 181 | 1 | FBS-181 | Slice 2: redaction, fingerprint, preview | complete | complete | FBS-180 |
+| 182 | 2 | FBS-182 | Slice 3: destination resolution | complete | complete |  |
+| 183 | 3 | FBS-183 | Slice 4: submit, dedupe, fallback | inProgress | inProgress |  |
+| 184 | 4 | FBS-184 | Slice 5: the ask | complete | complete | FBS-183 |
+| 185 | 5 | FBS-185 | Slice 6: instruction and release | complete | complete |  |
 
-Totals: items 73 | notStarted 45 | inProgress 0 | complete 13 | verified 15 | actionable 35 | blocked 10
+Totals: items 79 | notStarted 46 | inProgress 1 | complete 17 | verified 15 | actionable 36 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189
-- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
-- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
-- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044
-- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045
-- tier 5: FBS-029, FBS-046
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182
+- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183
+- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184
+- tier 5: FBS-029, FBS-046, FBS-185
 - tier 6: FBS-030, FBS-047
 - tier 7: FBS-031
 - tier 8: FBS-032

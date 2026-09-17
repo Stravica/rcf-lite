@@ -60,6 +60,9 @@ test('the docs set exists: README.md plus the docs/ files', async () => {
     'docs/blueprint-authoring.md',
     // Phase 10 (X2 CodeNode bridge, D19): in-repo docs for the CN layer.
     'docs/code-nodes.md',
+    // FBS-180 (slice 1, feedback submission): local capture and store
+    // documented ahead of the later-slice submit and hook surfaces.
+    'docs/feedback.md',
     'docs/getting-started.md',
     'docs/how-it-works.md',
     'docs/install.md',

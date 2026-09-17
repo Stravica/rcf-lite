@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-160",
+  "prdId": "PRD-001",
+  "title": "No path leaves the operator stuck",
+  "description": "Every failure mode of the submit path routes to a local bundle file with a one-line message that names the reason, the repo URL to paste into, and where the bundle was written. gh missing, gh not logged in, repo unreachable, viewerPermission NONE on a private repo, issues disabled, create or comment failure and unresolved destination all map to a bundle rather than a stall. Bundled entries are terminal (not re-asked) so the operator is never nagged about the same finding; a hand-driven re-submit is supported for one entry once access exists.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

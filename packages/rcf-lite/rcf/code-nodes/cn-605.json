@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-605",
+  "path": "src/feedback/destination.js",
+  "implementsAcIds": [
+    "AC-15801-2",
+    "AC-15801-3",
+    "AC-15802-1",
+    "AC-15802-2"
+  ],
+  "dependencies": [
+    "CN-606"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z"
+}

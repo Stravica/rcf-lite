@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4101-feedback-store-gitignored",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Feedback log lives at .rcf/feedback/ and is gitignored",
+  "context": "Raw feedback entries are written before redaction runs and may hold absolute paths, hostnames and pasted error output. The store is per-clone and per-person, like rcf/.identity/ and .rcf/preflight-secrets.local.json, both already gitignored through the managed block.",
+  "decision": "The store lives under .rcf/feedback/ and is added to the managed gitignore aggregator via src/feedback/store.js:feedbackGitignoreEntry. src/setup/managed-gitignore.js:managedGitignoreEntries() imports it. rcf feedback add refuses on a project whose .gitignore does not cover the path unless --force is passed, printing the rcf doctor --fix line.",
+  "consequences": "Unredacted content cannot ride a git push, even accidentally. Existing projects need a rcf doctor --fix (or a rcf init on a fresh clone) to pick up the ignore entry. The shareable, durable record is the GitHub issue; the outbox bundle exists for cases where that record could not be made.",
+  "alternativesConsidered": [
+    {
+      "name": "Commit rcf/feedback/ so a team can see it",
+      "summary": "Store entries under the committed rcf/ tree so any team member can browse the log.",
+      "reasonNotChosen": "Leaks a public-repo user's unredacted findings on the next push, which is the exact failure the redaction step exists to prevent."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

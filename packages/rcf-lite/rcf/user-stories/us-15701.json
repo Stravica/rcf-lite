@@ -1,0 +1,42 @@
+{
+  "usId": "US-15701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-157",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The same finding from many reporters folds into one issue",
+  "asA": "blueprint maintainer receiving reports",
+  "iWant": "ten reporters hitting the same defect on the same anchor to land as one issue with nine +1 comments carrying their environments, not ten separate issues",
+  "soThat": "triage is cheap and duplicate storms do not swamp the tracker",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15701-1",
+      "description": "fingerprint(entry) returns the first 12 hex chars of sha-256 over \"<kind>|<targetKey>|<anchor>|<symptomClass>\" where targetKey is the effective slug for blueprints (no version) or the verb path for core, anchor is upper-cased or \"-\" when absent, and symptomClass is one of the closed enum. Same fingerprint across two entries whose blueprint versions differ; different fingerprint when the anchor or class differs.",
+      "given": "a fixture corpus of five entries: same-defect different-version, same-defect different-anchor, same-defect different-class, missing-anchor pair (title-only fallback), and one clean",
+      "when": "fingerprint() is called on each entry",
+      "then": "the versioned pair yields identical fingerprints; the anchor and class variants yield different fingerprints; the missing-anchor pair uses the \"<kind>|<targetKey>|<symptomClass>|<normalisedTitle>\" fallback (first eight tokens, punctuation and stop-words stripped, lower-case)",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15701-2",
+      "description": "On submit, per pending entry, gh search issues is called for the destination repo with query \"rcf-feedback-fingerprint: <fp>\", --match body, --state open, --limit 5. Exactly one hit: gh issue comment on that number, comment body carries \"+1 from another reporter\" plus the Environment table and the redacted body only when it differs from the original by more than the environment lines. Zero hits: gh issue create. More than one hit: comment on the lowest number and mention the others.",
+      "given": "a fake gh module (via RCF_FEEDBACK_GH_MODULE) whose search stub yields zero, one and two hits in three sequential invocations, and one pending entry per case",
+      "when": "rcf feedback submit --yes runs three times",
+      "then": "the zero-hit case calls gh issue create; the one-hit case calls gh issue comment on the returned number; the two-hit case calls gh issue comment on the smaller number and includes \"also see #<other>\" in the comment body",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15701-3",
+      "description": "When gh search issues is unavailable or errors (rate-limit, GHES search off, non-zero exit), submit falls through to gh issue create for that entry and the state line stamps dedupe: unchecked. Closed issues are never matched; if --state closed search finds an issue with the same fingerprint the created new issue body carries \"previously reported and closed as #<n>\".",
+      "given": "a fake gh module whose search stub throws for one call and returns a closed match for the next",
+      "when": "rcf feedback submit --yes runs twice with one pending entry each",
+      "then": "the first entry is created with dedupe: unchecked in state; the second is created with a body reference to the previously closed issue number",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

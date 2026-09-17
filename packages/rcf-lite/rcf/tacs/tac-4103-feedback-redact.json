@@ -1,0 +1,39 @@
+{
+  "tacId": "TAC-4103-feedback-redact",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback redactor",
+  "purpose": "Rule-based, deterministic redaction of any string that would leave the machine (issue title, body, evidence pointers). No LLM anywhere; the ledger of every replacement is what the operator sees on preview.",
+  "responsibilities": [
+    "Apply the eight redaction rules from design section 5 to title, body and evidence strings",
+    "Return a ledger of { rule, before, after, count } entries for the operator disclosure",
+    "Refuse on residual-secret matches (second pass) with a line pointer so the offending body is not sent",
+    "Ship a bundled allowlist of vendor hosts and honour the extension array on rcf/feedback-settings.json"
+  ],
+  "internalStructure": "src/feedback/redact.js is a pure module: redact(text, context) -> { text, ledger[] } plus small per-rule helpers. src/feedback/redact-allowlist.json ships the vendor host set; the extension array is merged at call time.",
+  "interfaces": [
+    {
+      "name": "redact",
+      "kind": "function",
+      "description": "Redact one string with the eight rules; return the redacted text and the ledger."
+    },
+    {
+      "name": "RedactionContext",
+      "kind": "type",
+      "description": "projectRoot, projectName, operatorName, gitRemote, allowHosts."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "node:crypto",
+      "kind": "external",
+      "description": "Entropy heuristic implementation for rule 5 (secret-looking strings)."
+    }
+  ],
+  "tradeoffs": "Rule-based redaction is testable with a fixture corpus and deterministic under review; the cost is that it will occasionally over-redact (a benign name that matches an entropy rule), which is what the disclosure ledger exists to catch.",
+  "notes": "The stored entry is never mutated by redaction; the rendered output is what leaves.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

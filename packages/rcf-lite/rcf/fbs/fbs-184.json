@@ -1,0 +1,48 @@
+{
+  "fbsId": "FBS-184",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 184,
+  "executionStatus": "complete",
+  "title": "Slice 5: the ask",
+  "summary": "Deliver REQ-161 (One ask per session, at idle, never automatic): hook quiet rule, per-harness hook handlers, installer wired into rcf init, doctor feedback-hooks check, settings file, env variables, opt-in/opt-out sub-verbs.",
+  "approach": "Write src/feedback/hook.js with pure shouldAsk() and per-harness emit(). Write src/setup/feedback-hooks.js installer (mergeable). Wire init Step 6 and doctor feedback-hooks check. Add hook sub-verb and opt-in/opt-out sub-verbs. Add rcf/feedback-settings.json handling. Add RCF_FEEDBACK_ASK and RCF_FEEDBACK_DISABLE env handling.",
+  "acIds": [
+    "AC-16101-1",
+    "AC-16101-2",
+    "AC-16101-3",
+    "AC-16102-1",
+    "AC-16102-2",
+    "AC-16103-1",
+    "AC-16103-2",
+    "AC-16104-1",
+    "AC-16104-2",
+    "AC-16104-3"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-183"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4108-feedback-hook"
+    ],
+    "adrIds": [
+      "ADR-4107-stop-is-ask-event",
+      "ADR-4108-hooks-in-committed-config"
+    ]
+  },
+  "deliverables": [
+    "hook.js with pure quiet-rule shouldAsk and per-harness emit",
+    "feedback-hooks.js installer merged into .claude/settings.json and .codex/hooks.json",
+    "rcf init step 6; --no-feedback-hooks flag; doctor feedback-hooks check",
+    "rcf feedback opt-in / opt-out sub-verbs; RCF_FEEDBACK_ASK, RCF_FEEDBACK_DISABLE env",
+    "session-end bundle flush and session-start carry-over context line"
+  ],
+  "riskLevel": "medium",
+  "domain": "feedback",
+  "estimatedSize": "large",
+  "estimatedHours": 16,
+  "notes": "Introduces harness-facing config; the Codex hook trust prompt is a first-run curiosity, covered by RULE 17. Design section 9 decision: no global (~/.config) setting in v1 (rejected: a ~/.rcf/feedback.json file, because the behaviour a teammate sees on a shared project should come from the project, not from someone's home directory; a per-machine preference is the RCF_FEEDBACK_ASK env var).",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T19:20:00Z"
+}

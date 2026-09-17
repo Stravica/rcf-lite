@@ -1,0 +1,50 @@
+{
+  "fbsId": "FBS-183",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 183,
+  "executionStatus": "inProgress",
+  "title": "Slice 4: submit, dedupe, fallback",
+  "summary": "Deliver REQ-159 (Consent-gated submission under reporter identity) and REQ-160 (No path leaves the operator stuck): gh module seam, submit sub-verb with dedupe search, label pre-check, outbox bundle fallback, and the scripts/bootstrap-feedback-labels.mjs maintainer aid.",
+  "approach": "Write src/feedback/gh.js with the RCF_FEEDBACK_GH_MODULE seam. Implement submit in src/cli/feedback.js: preflight -> dedupe search -> create-or-comment -> label pre-check -> bundle fallback. Write the bootstrap script. Extend rcf feedback status with gh availability. Tests use a fake gh module through the seam.",
+  "acIds": [
+    "AC-15701-2",
+    "AC-15701-3",
+    "AC-15901-1",
+    "AC-15901-2",
+    "AC-15902-1",
+    "AC-15902-2",
+    "AC-15902-3",
+    "AC-16001-1",
+    "AC-16001-2",
+    "AC-16001-3",
+    "AC-15902-4",
+    "AC-16001-4"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-182"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4107-feedback-gh"
+    ],
+    "adrIds": [
+      "ADR-4105-gh-ambient-auth",
+      "ADR-4106-bundled-entries-terminal"
+    ]
+  },
+  "deliverables": [
+    "gh.js single-shell-out seam with fake-module override",
+    "submit sub-verb with preflight, dedupe, create-or-comment and bundle fallback",
+    "Label pre-check with droppedLabels ledger",
+    "scripts/bootstrap-feedback-labels.mjs (six-label idempotent bootstrap)",
+    "gh availability surfaced by rcf feedback status"
+  ],
+  "riskLevel": "medium",
+  "domain": "feedback",
+  "estimatedSize": "large",
+  "estimatedHours": 16,
+  "notes": "Largest slice; carries the operator-visible submit flow and every fallback branch.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T17:25:50Z"
+}

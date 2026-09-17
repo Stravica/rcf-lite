@@ -1,0 +1,43 @@
+{
+  "tacId": "TAC-4107-feedback-gh",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback gh adapter",
+  "purpose": "The single place that shells out to gh. Named seam via RCF_FEEDBACK_GH_MODULE so every test replaces gh with a fake that records calls.",
+  "responsibilities": [
+    "Provide ghLabelList, ghIssueSearch, ghIssueCreate, ghIssueComment, ghRepoView (viewerPermission, visibility, hasIssuesEnabled), ghAuthStatus",
+    "Never read GH_TOKEN or GITHUB_TOKEN; never spawn gh auth login; never mutate process.env",
+    "Return typed results, not raw shell output; errors carry the classified reason (network, 4xx, 5xx, ratelimit, notFound)"
+  ],
+  "internalStructure": "src/feedback/gh.js exports the interface; RCF_FEEDBACK_GH_MODULE names an alternative module (import() at test time) that exports the same signatures. This mirrors the verifier launchAgent override in src/verify/engine/launcher.js.",
+  "interfaces": [
+    {
+      "name": "ghIssueCreate",
+      "kind": "function",
+      "description": "Create one issue on a repo with title, body and labels; return { url, number }."
+    },
+    {
+      "name": "ghIssueSearch",
+      "kind": "function",
+      "description": "Search issues on a repo by body query; return matches."
+    },
+    {
+      "name": "ghIssueComment",
+      "kind": "function",
+      "description": "Comment on an issue; return { url }."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "gh",
+      "kind": "external",
+      "description": "The GitHub CLI; the tool never handles tokens itself."
+    }
+  ],
+  "tradeoffs": "gh is a dependency the reporter chooses to install; the cost is a fallback bundle path when gh is missing, which the design considers a feature rather than a bug.",
+  "notes": "A future MCP-only harness would call the CLI too; a native gh-lib port is not planned for v1.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

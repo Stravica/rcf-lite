@@ -1,0 +1,52 @@
+{
+  "createdAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-09-16T19:20:00Z",
+  "purpose": "Cover AC-16101-1 (shouldAsk applies the design-3.5 quiet rule: silent unless not-opted-out + pending + not-asked-this-session + stop-hook-inactive AND one of ask-now/older-than-quietMinutes/queue-complete/carried-over), AC-16101-2 (Stop on Claude Code exits 2 with the ask on stderr; Stop on Codex emits { decision: 'block', reason } on stdout with exit 0; the asked ledger is appended in both cases) and AC-16101-3 (a same-session second Stop is silent, a fresh session_id re-asks, and a Stop with stop_hook_active is silent even on a fresh session).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16101-1",
+    "AC-16101-2",
+    "AC-16101-3"
+  ],
+  "id": "TS-195",
+  "usId": "US-16101",
+  "title": "Slice 5 (FBS-184): quiet-rule truth table plus per-harness Stop emit and same-session ledger idempotency",
+  "testCases": [
+    {
+      "id": "TC-195-quiet-rule-truth-table",
+      "acId": "AC-16101-1",
+      "description": "Cover AC-16101-1 via the unit test: shouldAsk is total, deterministic and pure; a table walks opt-out (file/env), pending count, asked-this-session, stop-hook-active, ask-now, age-vs-quietMinutes (14 min: silent; 15 min: ask; 60 min: ask; quietMinutes 0/60 boundaries), queue-complete and carried-over rows and asserts the expected 'ask'/'silent' verdict on each; buildAskReason names all four next-step verbs and the do-not-ask clause.",
+      "status": "pending",
+      "testPointer": "test/feedback/hook-quiet-rule.test.js::AC-16101-1: shouldAsk is ask when the newest pending entry crosses quietMinutes"
+    },
+    {
+      "id": "TC-195-hook-stop-claude-code",
+      "acId": "AC-16101-2",
+      "description": "Cover AC-16101-2 (Claude Code half) via the CLI test: rcf feedback hook stop --harness claude-code with one pending entry and a mock Stop payload exits 2, writes the reason (all four verbs + do-not-ask) to stderr, writes nothing on stdout, and appends exactly one asked record to .rcf/feedback/state.json for the payload session_id.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16101-2: Stop on Claude Code exits 2 with the ask on stderr and appends ledger"
+    },
+    {
+      "id": "TC-195-hook-stop-codex",
+      "acId": "AC-16101-2",
+      "description": "Cover AC-16101-2 (Codex half) via the CLI test: rcf feedback hook stop --harness codex emits stdout JSON parseable as { decision: 'block', reason: <same clause> }, exits 0, writes nothing on stderr, and appends exactly one asked record to state.json for the payload session_id.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16101-2: Stop on Codex emits stdout JSON block, exit 0, ledger appended"
+    },
+    {
+      "id": "TC-195-hook-same-session-silent-then-fresh-reasks",
+      "acId": "AC-16101-3",
+      "description": "Cover AC-16101-3 via the CLI test: two Stop invocations with the same session_id in sequence produce ask (exit 2) then silent (exit 0, no stderr); a third invocation with a fresh session_id re-asks (exit 2) because the pending entry is carried over; state.json ends with exactly two asked records for the two distinct sessionIds.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16101-3: same-session second Stop is silent; a fresh session_id re-asks"
+    },
+    {
+      "id": "TC-195-hook-stop-hook-active-silent",
+      "acId": "AC-16101-3",
+      "description": "Cover AC-16101-3 (stop_hook_active branch) via the CLI test: a Stop payload with stop_hook_active: true and a fresh session_id and a pending --ask-now entry still exits 0 with no reason emitted; the loop-guard fires even when every other trigger would.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-hook.test.js::AC-16101-3: Stop with stop_hook_active is silent even on a fresh session"
+    }
+  ],
+  "status": "draft"
+}

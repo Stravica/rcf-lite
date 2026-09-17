@@ -27,6 +27,8 @@ import { identityEntry } from './identity-seed.js';
 import { preflightEntry } from '../preflight/secrets.js';
 // Track C+D §9.3: gitignore the view-server pid file and supervisor log.
 import { viewServerGitignoreEntry, viewServerLogGitignoreEntry } from '../view-supervisor/manifest-writer.js';
+// FBS-180 slice 1: gitignore the local feedback log and outbox.
+import { feedbackGitignoreEntry } from '../feedback/store.js';
 
 /**
  * @typedef {object} GitignoreEntry
@@ -53,6 +55,7 @@ export function managedGitignoreEntries() {
     preflightEntry,
     viewServerGitignoreEntry,
     viewServerLogGitignoreEntry,
+    feedbackGitignoreEntry,
   ];
 }
 

@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-16T16:20:01Z",
+  "purpose": "Cover AC-15801-1 (library.json:issues object snapshotted onto rcf/blueprint-libraries.json:entries[] as issuesRepo and issuesVisibility on rcf library add; the review-on-add card prints the Feedback destination line naming repo and visibility), AC-15801-2 (destination.resolve walks entry -> manifest -> registry issuesRepo, falls back to sourceRef derivation for github URLs with derived:true, returns unresolved when neither is available; shelf and core route to Stravica/rcf-lite) and AC-15801-3 (rcf doctor --check feedback-destinations lists every registered library with no resolvable destination as a warn-only row with refusedByFix:true; exit stays 0).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15801-1",
+    "AC-15801-2",
+    "AC-15801-3"
+  ],
+  "id": "TS-189",
+  "usId": "US-15801",
+  "title": "Slice 3 (FBS-182): library.json issues field snapshotted on library add, destination resolver walks the manifest/registry chain, and rcf doctor feedback-destinations warns on libraries with no resolvable destination",
+  "testCases": [
+    {
+      "id": "TC-189-library-add-snapshots-issues-and-prints-review-line",
+      "acId": "AC-15801-1",
+      "description": "Cover AC-15801-1 via the CLI test: a library.json with an issues object of { repo, visibility: 'private' } is added to a fresh project; rcf/blueprint-libraries.json carries issuesRepo and issuesVisibility on the entry, the review-on-add stdout matches 'Feedback destination: OWNER/REPO (private)', and a second library without an issues field neither prints the line nor writes the fields on the registry entry.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-destinations.test.js::AC-15801-1: library.json issues is snapshotted onto the registry entry and the review card prints the Feedback destination line"
+    },
+    {
+      "id": "TC-189-resolver-four-fixture-walk",
+      "acId": "AC-15801-2",
+      "description": "Cover AC-15801-2 via the unit test: destination.resolve returns the expected shape for each of the four fixture cases from the AC given: a shelf blueprint routes to CORE_REPO with derived:false; a library entry with explicit issues wins over derivation and reports source: library-manifest; a library entry with no issues but a github git+https sourceRef derives OWNER/REPO with derived:true and source: sourceRef-derivation; a library entry with neither issues nor a github source returns unresolved with reason no-github-source; a library entry that is completely absent returns unresolved with reason unknown-target.",
+      "status": "pending",
+      "testPointer": "test/feedback/destination.test.js::AC-15801-2 shelf fixture: a blueprint with no libraryPrefix routes to CORE_REPO"
+    },
+    {
+      "id": "TC-189-doctor-feedback-destinations-warn-only",
+      "acId": "AC-15801-3",
+      "description": "Cover AC-15801-3 via the CLI test: rcf doctor --check feedback-destinations --json against a project with two registered libraries (one with issues, one without) returns exactly one drift row of item unresolved-library naming the second library, whose message includes the publisher.contact from the registry entry and whose refusedByFix flag is true; the overall doctor exit code stays 0 because the check is warn-only.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-destinations.test.js::AC-15801-3: rcf doctor --check feedback-destinations warns on a library without a resolvable destination and exits 0"
+    }
+  ],
+  "status": "draft"
+}

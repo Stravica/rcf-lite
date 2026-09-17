@@ -1,0 +1,42 @@
+{
+  "usId": "US-15801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-158",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Library owner declares where feedback issues go",
+  "asA": "library owner shipping a blueprint library",
+  "iWant": "to name the reports destination in one field on library.json, snapshotted into the consuming project registry on library add, so every project using my library files reports on my repo",
+  "soThat": "I hear about defects on my library without every consuming project having to be told separately",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15801-1",
+      "description": "library.json accepts an optional issues object with { repo: \"OWNER/REPO\" (host-qualified HOST/OWNER/REPO permitted for GHES), visibility: \"public\" | \"private\" }. Absence is valid; the presence-with-shape is schema-checked (documented in docs/library-authoring.md field table). On rcf library add the value is snapshotted onto the registry entry as issuesRepo and issuesVisibility, alongside publisher. rcf library refresh re-snapshots.",
+      "given": "a fixture library.json with { issues: { repo: \"wsd-team-dev/rcf-lite-blueprints\", visibility: \"private\" } }",
+      "when": "rcf library add is run against the fixture",
+      "then": "rcf/blueprint-libraries.json:entries[] for the library carries issuesRepo and issuesVisibility with the exact values; the review-on-add card prints \"Feedback destination: wsd-team-dev/rcf-lite-blueprints (private)\"",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15801-2",
+      "description": "The destination resolver (src/feedback/destination.js) walks: entry.target -> rcf/manifest.json:blueprints[] -> if libraryPrefix present, the registry entry issuesRepo; absent on the entry, derives from the library sourceRef when it parses as git+https://github.com/OWNER/REPO(.git)#ref (marked derived: true); otherwise unresolved. Shelf blueprints (no libraryPrefix) and --kind core route to a constant read from package.json:bugs.url (Stravica/rcf-lite).",
+      "given": "a fixture with three applied blueprints: one shelf, one library with explicit issues, one library with a github git source and no issues",
+      "when": "destination.resolve() is called for each",
+      "then": "the shelf entry resolves to Stravica/rcf-lite; the explicit-issues library resolves to its declared repo, derived false; the git-source library resolves to the OWNER/REPO parsed from the URL, derived true; a fourth library with no issues and no github source is returned as unresolved",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15801-3",
+      "description": "rcf doctor gains a warn-only check feedback-destinations that lists every registered library without a resolvable destination (no issues field and no derivable git source) and every applied blueprint whose destination the resolver returns unresolved. --fix does not touch destinations; the fix is for the library owner or the consuming operator.",
+      "given": "a fixture with two registered libraries: one with issues, one with neither issues nor a github source",
+      "when": "rcf doctor is run",
+      "then": "doctor output carries one feedback-destinations warn row naming the second library, --fix is not offered on that row, exit code stays 0",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

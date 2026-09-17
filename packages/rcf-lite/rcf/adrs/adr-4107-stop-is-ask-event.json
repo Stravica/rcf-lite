@@ -1,0 +1,30 @@
+{
+  "adrId": "ADR-4107-stop-is-ask-event",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Stop is the ask event; a 15-minute quiet gate keeps the ask at a pause",
+  "context": "Claude Code SessionEnd output is discarded, cannot speak to the user, and shares a 1.5 second budget across hooks; Stop is the only lifecycle event that can put words in front of the user. A Stop after every rcf feedback add would interrupt the operator mid-task and read as nagging. Wrap-up cues (operator says \"done\", queue complete) miss most single-session users.",
+  "decision": "The ask is triggered from the Stop hook (Claude Code exit 2 + stderr; Codex JSON { decision: \"block\", reason }). The quiet rule (design section 3.5) requires all of: not opted out, pending entries exist, no prior asked record for this session_id, stop_hook_active is false, AND one of: entry carries askNow; the newest pending entry is older than quietMinutes (default 15) minutes; the queue-state cache reports complete or nothing actionable; the entry was carried over. quietMinutes is configurable in rcf/feedback-settings.json; --ask-now on rcf feedback add bypasses the age gate for a blocker-severity entry.\n\nOperator default (pending, adjustable): Fifteen-minute quiet gate with quietMinutes configurable and --ask-now for blocker-severity entries accepted as the operator default pending, adjustable. Baz can widen or shorten quietMinutes in rcf/feedback-settings.json at any time without a code change.",
+  "consequences": "The ask arrives at a natural pause with the exact preview text, exactly once per session_id, with a durable asked ledger that survives a crash between emit and reply. A single-session user is asked; a wrap-up-only design would miss most. quietMinutes is the single knob for anyone who finds 15 too eager or too shy.",
+  "alternativesConsidered": [
+    {
+      "name": "Ask at the first Stop after any add",
+      "summary": "Drop the age and queue gate; the first Stop after any add asks.",
+      "reasonNotChosen": "Interrupts the operator mid-task and reads as nagging even though it is one question."
+    },
+    {
+      "name": "Ask on strict wrap-up cues only",
+      "summary": "Only ask when the operator says \"done\" or the queue reports complete.",
+      "reasonNotChosen": "Many single-session users are never asked."
+    },
+    {
+      "name": "Ask on SessionEnd only",
+      "summary": "Move the ask to SessionEnd so it never fires mid-session.",
+      "reasonNotChosen": "SessionEnd cannot speak to the user in either harness; loses single-session users entirely."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

@@ -1,0 +1,77 @@
+{
+  "tacId": "TAC-4101-feedback-cli",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback CLI verb family",
+  "purpose": "Own the rcf feedback core verb and its sub-dispatcher (add, list, preview, submit, defer, discard, opt-in, opt-out, hook, status), exposing the surface the agent, the operator and the harness hooks all call.",
+  "responsibilities": [
+    "Register feedback in bin/rcf.js CORE map alongside init, doctor, guidance, mcp, version",
+    "Parse and validate sub-verb flags and enums before touching store or network",
+    "Return the documented exit codes per sub-verb (0 success, 2 usage, 3 outcome with residual pending)",
+    "Export HELP text for the help-parity test and mirror the core verb help conventions",
+    "Route each sub-verb to store, redact, render, destination, gh, hook without any cross-module state"
+  ],
+  "internalStructure": "src/cli/feedback.js is a sub-dispatcher with a HELP export and one handler per sub-verb; each handler reads flags, calls into src/feedback/* pure modules, and prints the shaped result. Handlers never shell out directly; the gh call sits behind src/feedback/gh.js.",
+  "interfaces": [
+    {
+      "name": "feedbackMain",
+      "kind": "function",
+      "description": "Argv-driven main; matches the core-verb signature the top-level dispatcher expects."
+    },
+    {
+      "name": "HELP",
+      "kind": "constant",
+      "description": "Static help text asserted by the help-parity test."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "TAC-4102-feedback-store",
+      "kind": "tac",
+      "tacId": "TAC-4102-feedback-store",
+      "description": "All state reads and writes."
+    },
+    {
+      "name": "TAC-4103-feedback-redact",
+      "kind": "tac",
+      "tacId": "TAC-4103-feedback-redact",
+      "description": "Preview and submit pipelines."
+    },
+    {
+      "name": "TAC-4104-feedback-fingerprint",
+      "kind": "tac",
+      "tacId": "TAC-4104-feedback-fingerprint",
+      "description": "Fingerprint per entry."
+    },
+    {
+      "name": "TAC-4105-feedback-render",
+      "kind": "tac",
+      "tacId": "TAC-4105-feedback-render",
+      "description": "Title, body and bundle rendering."
+    },
+    {
+      "name": "TAC-4106-feedback-destination",
+      "kind": "tac",
+      "tacId": "TAC-4106-feedback-destination",
+      "description": "Destination resolution."
+    },
+    {
+      "name": "TAC-4107-feedback-gh",
+      "kind": "tac",
+      "tacId": "TAC-4107-feedback-gh",
+      "description": "The single gh shell-out seam."
+    },
+    {
+      "name": "TAC-4108-feedback-hook",
+      "kind": "tac",
+      "tacId": "TAC-4108-feedback-hook",
+      "description": "Hook handler; called by hook sub-verb."
+    }
+  ],
+  "tradeoffs": "A single core verb keeps the surface easy to reference in RULE 17 and in docs; the cost is a moderately sized sub-dispatcher, matched by preflight and other multi-verb families already in the tree.",
+  "notes": "The verb is core, not grouped, because it spans discover-to-audit and is invoked from harness hooks; OLD_FLAT_MAP is untouched (no legacy form existed). Design section 9 decision: no MCP tool for feedback in v1 (rejected: an rcf_feedback_add MCP tool, adds a second code path to test before the first has users; add when an MCP-only harness appears).",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T14:14:36Z"
+}

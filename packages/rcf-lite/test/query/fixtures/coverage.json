@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 95,
-    "covered": 95,
+    "requirements": 103,
+    "covered": 103,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3599,6 +3599,455 @@
           "covered": true,
           "testCases": [
             "TC-184-marker-hygiene-four-blueprints"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-155",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15501-1",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-writes-one-jsonl-line-and-stamps-env"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-2",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-refuses-without-gitignore"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-3",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-blueprint-unresolved-exits-3"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-4",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-rejects-bad-class"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15501-5",
+          "covered": true,
+          "testCases": [
+            "TC-185-add-blueprint-stamps"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15502-1",
+          "covered": true,
+          "testCases": [
+            "TC-186-list-default-hides-non-pending",
+            "TC-186-list-json-and-no-mutation"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15502-2",
+          "covered": true,
+          "testCases": [
+            "TC-186-status-json-shape",
+            "TC-186-status-optout-env-ask",
+            "TC-186-status-optout-env-disable",
+            "TC-186-status-text-summary"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15503-1",
+          "covered": true,
+          "testCases": [
+            "TC-187-defer-appends-state-lines"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15503-2",
+          "covered": true,
+          "testCases": [
+            "TC-187-discard-all-marks-every-pending",
+            "TC-187-discard-by-id-hides-from-default",
+            "TC-187-discard-refuses-unknown-id"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-156",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15601-1",
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-renders-full-vocabulary-ledger",
+            "TC-188-r4-overredaction-guard",
+            "TC-188-r4-separator-probes",
+            "TC-188-redact-eight-rule-corpus",
+            "TC-188-url-credential-query",
+            "TC-188-url-credential-userinfo",
+            "TC-188-url-credential-webhook",
+            "TC-188-vocab-keyword-authors-negative",
+            "TC-188-vocab-shared-constant",
+            "TC-188-vocab-shortname-probes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-2",
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-residual-secret-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-3",
+          "covered": true,
+          "testCases": [
+            "TC-188-preview-store-byte-invariant"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-4",
+          "covered": true,
+          "testCases": [
+            "TC-188-dryrun-writes-nothing",
+            "TC-188-r4-residual-safeguard",
+            "TC-188-safeguard-shortname-webhook",
+            "TC-188-safeguard-submit-refuses-residual",
+            "TC-188-safeguard-whole-text-residual"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-157",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15701-1",
+          "covered": true,
+          "testCases": [
+            "TC-188-fingerprint-canonical-input",
+            "TC-188-preview-fingerprint-fallback-warns",
+            "TC-188-preview-fingerprint-folds-across-entries",
+            "TC-188-render-fingerprint-twin-and-labels"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15701-2",
+          "covered": true,
+          "testCases": [
+            "TC-191-submit-many-hit-comment-lowest",
+            "TC-191-submit-one-hit-comments",
+            "TC-191-submit-zero-hit-creates"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15701-3",
+          "covered": true,
+          "testCases": [
+            "TC-191-submit-closed-reference",
+            "TC-191-submit-search-unchecked"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-158",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15801-1",
+          "covered": true,
+          "testCases": [
+            "TC-189-library-add-snapshots-issues-and-prints-review-line"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15801-2",
+          "covered": true,
+          "testCases": [
+            "TC-189-resolver-four-fixture-walk"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15801-3",
+          "covered": true,
+          "testCases": [
+            "TC-189-doctor-feedback-destinations-warn-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15802-1",
+          "covered": true,
+          "testCases": [
+            "TC-190-core-repo-pinned-to-bugs-url"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15802-2",
+          "covered": true,
+          "testCases": [
+            "TC-190-core-kind-ignores-library-manifest-content"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-159",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-15901-1",
+          "covered": true,
+          "testCases": [
+            "TC-192-submit-yes-happy-path"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15901-2",
+          "covered": true,
+          "testCases": [
+            "TC-192-submit-no-token-synthesised",
+            "TC-192-submit-refuses-without-yes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-1",
+          "covered": true,
+          "testCases": [
+            "TC-193-label-precheck-drops-missing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-2",
+          "covered": true,
+          "testCases": [
+            "TC-193-bootstrap-creates-six",
+            "TC-193-bootstrap-idempotent-full",
+            "TC-193-bootstrap-partial-subset"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-3",
+          "covered": true,
+          "testCases": [
+            "TC-193-title-prefix-and-fingerprint-twin"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15902-4",
+          "covered": true,
+          "testCases": [
+            "TC-193-labels-catalogue-single-source"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-160",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16001-1",
+          "covered": true,
+          "testCases": [
+            "TC-194-preflight-auth-off",
+            "TC-194-preflight-gh-missing",
+            "TC-194-preflight-issues-disabled",
+            "TC-194-preflight-private-none"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-2",
+          "covered": true,
+          "testCases": [
+            "TC-194-retry-without-labels-then-bundle"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-3",
+          "covered": true,
+          "testCases": [
+            "TC-194-bundled-terminal-for-ask"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16001-4",
+          "covered": true,
+          "testCases": [
+            "TC-194-unresolved-destination-bundle"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-161",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16101-1",
+          "covered": true,
+          "testCases": [
+            "TC-195-quiet-rule-truth-table"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16101-2",
+          "covered": true,
+          "testCases": [
+            "TC-195-hook-stop-claude-code",
+            "TC-195-hook-stop-codex"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16101-3",
+          "covered": true,
+          "testCases": [
+            "TC-195-hook-same-session-silent-then-fresh-reasks",
+            "TC-195-hook-stop-hook-active-silent"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16102-1",
+          "covered": true,
+          "testCases": [
+            "TC-196-optin-restores-ask-true",
+            "TC-196-optout-writes-settings-and-silences-hook"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16102-2",
+          "covered": true,
+          "testCases": [
+            "TC-196-env-ask-silences-hook-only",
+            "TC-196-env-disable-no-ops-add",
+            "TC-196-precedence-order",
+            "TC-196-status-reports-optout-source"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16103-1",
+          "covered": true,
+          "testCases": [
+            "TC-197-session-end-writes-idempotent-bundle"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16103-2",
+          "covered": true,
+          "testCases": [
+            "TC-197-session-start-claude-code-line",
+            "TC-197-session-start-codex-additional-context",
+            "TC-197-session-start-silent-when-nothing-carried-over"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-1",
+          "covered": true,
+          "testCases": [
+            "TC-198-init-bin-path-pins-node",
+            "TC-198-init-idempotent",
+            "TC-198-init-preserves-existing-hooks",
+            "TC-198-init-writes-both-configs"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-2",
+          "covered": true,
+          "testCases": [
+            "TC-198-init-no-feedback-hooks"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16104-3",
+          "covered": true,
+          "testCases": [
+            "TC-198-doctor-clean-tree-no-writes",
+            "TC-198-doctor-fix-installs-and-reruns-clean",
+            "TC-198-doctor-foreign-hook-refused",
+            "TC-198-doctor-missing-hooks",
+            "TC-198-doctor-parse-error-refused"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-162",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16201-1",
+          "covered": true,
+          "testCases": [
+            "TC-199-rule-17-names-verbs-and-redaction-posture",
+            "TC-199-rule-17-slice-byte-exact-against-fixture",
+            "TC-199-rule-17-static-wording-no-em-dash-no-version-no-date"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16201-2",
+          "covered": true,
+          "testCases": [
+            "TC-199-existing-project-picks-up-rule-17-on-doctor-fix",
+            "TC-199-init-writes-rule-17-into-both-instructions-files"
           ],
           "unresolvedTestCases": []
         }

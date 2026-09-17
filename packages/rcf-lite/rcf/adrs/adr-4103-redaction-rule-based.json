@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4103-redaction-rule-based",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Redaction is deterministic and rule-based; no model, no network",
+  "context": "The subscription-only-LLM estate rule and the requirement that redaction be testable both point away from model-assisted redaction. Every replacement must be defensible under review; every ledger row must be reproducible from the inputs.",
+  "decision": "src/feedback/redact.js applies the eight rules of design section 5 (project root, other absolute paths, emails, non-allowlisted hosts, private IPs, secret-looking strings, operator identity, size and shape). The vendor host allowlist ships as src/feedback/redact-allowlist.json and is extended per project via rcf/feedback-settings.json:redaction.allowHosts[]. A body that still matches rule 5 on the second pass is refused, not sent.",
+  "consequences": "Redaction is testable with a fixture corpus and deterministic under review. Some over-redaction is expected (a benign name matching an entropy rule); the disclosure ledger surfaces every case so the operator can see and the agent can rewrite. The rendered output is what leaves; the stored raw entry is untouched.",
+  "alternativesConsidered": [
+    {
+      "name": "Model-assisted redaction or summarisation",
+      "summary": "Route the body through a model to strip PII and produce a compact narrative.",
+      "reasonNotChosen": "Estate subscription-only rule and non-deterministic output that cannot be unit-tested."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

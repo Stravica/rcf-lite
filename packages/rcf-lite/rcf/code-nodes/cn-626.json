@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-626",
+  "path": "guidance/managed/agent-instructions-block.md",
+  "implementsAcIds": [
+    "AC-16201-1",
+    "AC-16201-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T21:17:00Z",
+  "updatedAt": "2026-09-16T21:17:00Z"
+}

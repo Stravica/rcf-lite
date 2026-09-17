@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-4104-destination-on-library",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Destination is declared on library.json:issues, snapshotted on library add",
+  "context": "A library that ships blueprints across many consuming projects needs one authoritative statement of where reports go. Configuring destination per consuming project means every project has to be told and every project can get it wrong independently. Derivation from the git source picks up forks and mirrors incorrectly.",
+  "decision": "library.json carries an optional issues object with repo (OWNER/REPO or HOST/OWNER/REPO for GHES) and visibility (public or private, advisory). rcf library add snapshots it onto rcf/blueprint-libraries.json:entries[] as issuesRepo and issuesVisibility. src/feedback/destination.js walks entry -> manifest -> registry -> issuesRepo, falling back to git source derivation only when the sourceRef parses as github.com/OWNER/REPO. rcf doctor gains a warn-only feedback-destinations check listing unresolved registrations.",
+  "consequences": "The library owner names where they want reports; the consuming project does not guess. Existing libraries without the field warn on doctor and route to the outbox with the publisher contact until a library update lands. Mirrored libraries no longer risk routing to the mirror.",
+  "alternativesConsidered": [
+    {
+      "name": "Destination configured per consuming project",
+      "summary": "Put the destination in each project's rcf/feedback-settings.json.",
+      "reasonNotChosen": "Every WSD-using project would have to be told and get it right independently."
+    },
+    {
+      "name": "Git-source derivation as the primary route",
+      "summary": "Use the library sourceRef URL as the destination without a declared field.",
+      "reasonNotChosen": "A library mirrored from a fork would route reports to the fork."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

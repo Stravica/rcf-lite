@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4106-bundled-entries-terminal",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Bundled entries are terminal for the ask loop",
+  "context": "A reporter without gh, without login, or without access to a private repo would otherwise be asked every session about the same entries. Re-asking a batch that cannot land under the reporter identity nags without benefit.",
+  "decision": "When submit falls through to a bundle for an entry, that entry is marked bundled (terminal for the ask loop). rcf feedback list default (pending) hides bundled entries; the SessionStart hook does not count them; the Stop hook does not re-ask. rcf feedback submit <id> re-attempts one entry by hand once access exists.",
+  "consequences": "The operator is never nagged about the same finding. The outbox file and the printed one-line URL are what the operator uses to relay or paste the bundle. A future access change is a hand-driven re-submit, not an automatic retry.",
+  "alternativesConsidered": [
+    {
+      "name": "Re-ask every session until submitted",
+      "summary": "Keep bundled entries pending so the next session asks again.",
+      "reasonNotChosen": "Nags an operator who has no path to access; a hand-driven re-submit is the correct fix."
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

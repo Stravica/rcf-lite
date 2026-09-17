@@ -1,0 +1,45 @@
+{
+  "tacId": "TAC-4105-feedback-render",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback renderer",
+  "purpose": "Deterministic templates for issue title and body, the +1 comment body, and the outbox bundle file. The output is what preview shows and what leaves on submit.",
+  "responsibilities": [
+    "Render the issue title as \"[<effective-slug>] <title>\" for blueprints and \"[rcf-lite] <title>\" for core",
+    "Render the body with the Evidence and Environment tables, the visible fingerprint line and its HTML-comment twin",
+    "Render the outbox bundle header and one section per entry (title first, then body) so a paste is one-shot",
+    "Consume redacted strings and the redaction ledger; never re-run redaction itself"
+  ],
+  "internalStructure": "src/feedback/render.js exposes renderIssue(entry, redacted), renderComment(entry, redacted, deltaOnly), renderBundle(destinationInfo, entries). All output is UTF-8, LF line endings, ASCII hyphens only (register rule and fingerprint stability).",
+  "interfaces": [
+    {
+      "name": "renderIssue",
+      "kind": "function",
+      "description": "Return { title, body, labels[] } for a create call."
+    },
+    {
+      "name": "renderComment",
+      "kind": "function",
+      "description": "Return the comment body for a +1 add."
+    },
+    {
+      "name": "renderBundle",
+      "kind": "function",
+      "description": "Return the markdown bundle string for outbox files."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "TAC-4103-feedback-redact",
+      "kind": "tac",
+      "tacId": "TAC-4103-feedback-redact",
+      "description": "The renderer consumes redacted strings the caller supplies."
+    }
+  ],
+  "tradeoffs": "Static templates keep the shape reviewable by eye and byte-comparable in tests; the cost is that template drift requires golden updates, which is exactly the discipline the tests exist for.",
+  "notes": "The docs-site \"submit a blueprint idea\" form reuses these templates verbatim so triage sees one shape from both producers.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

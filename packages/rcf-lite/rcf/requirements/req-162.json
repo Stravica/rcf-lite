@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-162",
+  "prdId": "PRD-001",
+  "title": "Agents know when to log and when to ask",
+  "description": "RULE 17 in the managed instructions block tells every harness (Claude Code and Codex) when to run rcf feedback add, how to ask exactly once at a natural pause, and which of preview, submit --yes, defer and opt-out to run in each branch. The rule is static text (no versions, no dates) so the block hash moves once on the release that ships it, and it is loaded into CLAUDE.md and AGENTS.md by rcf init through the existing managed-block mechanism. It names all four verbs and the redaction posture so an agent under pace still follows the shape when the harness hook has not been trusted.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

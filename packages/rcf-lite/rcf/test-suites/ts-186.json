@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-09-16T14:25:30Z",
+  "updatedAt": "2026-09-16T14:25:30Z",
+  "purpose": "Cover AC-15502-1 (rcf feedback list default vs --all/--json) and AC-15502-2 (rcf feedback status counts, opt-out state and gh availability summary) with no file mutation and no network calls.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15502-1",
+    "AC-15502-2"
+  ],
+  "id": "TS-186",
+  "usId": "US-15502",
+  "title": "Slice 1 (FBS-180): rcf feedback list and rcf feedback status expose the pending set, every state under --all/--json, and the counts / opt-out / gh summary",
+  "testCases": [
+    {
+      "id": "TC-186-list-default-hides-non-pending",
+      "acId": "AC-15502-1",
+      "description": "Cover AC-15502-1 (default and --all rows) via the CLI test: default output shows only pending; --all shows every state with a [status] prefix column.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-1: rcf feedback list default shows only pending entries, --all includes every state"
+    },
+    {
+      "id": "TC-186-list-json-and-no-mutation",
+      "acId": "AC-15502-1",
+      "description": "Cover AC-15502-1 (--json shape and no file mutation) via the CLI test: --json emits an array whose length matches total in --all; sha-256 of entries.jsonl is invariant across list runs.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-1: list --json is machine-readable and length matches total in --all mode"
+    },
+    {
+      "id": "TC-186-status-json-shape",
+      "acId": "AC-15502-2",
+      "description": "Cover AC-15502-2 (--json shape) via the CLI test: status --json returns counts by status, optOut boolean, optOutSource, and the gh / destinations summary keys.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-2: rcf feedback status --json emits counts, optOut and gh summary"
+    },
+    {
+      "id": "TC-186-status-optout-env-ask",
+      "acId": "AC-15502-2",
+      "description": "Cover AC-15502-2 (env RCF_FEEDBACK_ASK=0 arm) via the CLI test: the env variable flips optOut to true and names its source.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-2: RCF_FEEDBACK_ASK=0 flips optOut in status"
+    },
+    {
+      "id": "TC-186-status-optout-env-disable",
+      "acId": "AC-15502-2",
+      "description": "Cover AC-15502-2 (env RCF_FEEDBACK_DISABLE=1 arm) via the CLI test: the env variable flips optOut to true and names its source.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-2: RCF_FEEDBACK_DISABLE=1 flips optOut and names its source"
+    },
+    {
+      "id": "TC-186-status-text-summary",
+      "acId": "AC-15502-2",
+      "description": "Cover AC-15502-2 (text output) via the CLI test: the text status summarises counts on one line and opt-out state on another line, and never touches the network (store read only).",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-list-status.test.js::AC-15502-2: text status summarises counts on one line and opt-out state on another"
+    }
+  ],
+  "status": "draft"
+}

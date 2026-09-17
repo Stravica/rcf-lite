@@ -152,7 +152,7 @@ const expectedCounts = {
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (68 -> 74).
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host
   // v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (74 -> 80).
-  req: 95, // Round-7 T-3 added REQ-130..134 for the edge-cloudflare-tunnel v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (80 -> 85). Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08 (85 -> 86). H-1 hardening train added REQ-145 for the deploy-hetzner-server 1.0.1 real-path fidelity patch (86 -> 87). Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (87 -> 92).
+  req: 103, // Round-7 T-3 added REQ-130..134 for the edge-cloudflare-tunnel v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07 (80 -> 85). Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08 (85 -> 86). H-1 hardening train added REQ-145 for the deploy-hetzner-server 1.0.1 real-path fidelity patch (86 -> 87). Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (87 -> 92). Feedback submission chain (w-2026-09-14-dave-026) added REQ-155..162 for the feedback core verb (capture, redact, dedupe, destination, submit-under-identity, fallback bundle, one-ask-per-session, RULE 17) (92 -> 100). Referee-guarantee train added REQ-163..165 (round-6 gate close 2026-09-17, merged from origin/main) (100 -> 103).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 (37) binding
   // the `rcf define blueprint remove-resolution` verb the spec section
   // 9 remedy names. Core companions train added US-1301/1302/1401..1404/1501
@@ -202,7 +202,7 @@ const expectedCounts = {
   // Round-7 T-2 added US-12001, 12101, 12102, 12201, 12202, 12301,
   // 12401, 12402, 12501 derived from REQ-120..125 per HQ reserved-block
   // ruling 2026-09-07 (125 -> 134).
-  userStory: 153, // Round-7 T-3 added US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401 derived from REQ-130..134 per HQ reserved-block ruling 2026-09-07 (134 -> 142). Round-7 follow-up adapter added US-14001 derived from REQ-140 per HQ reserved-block ruling 2026-09-08 (142 -> 143). H-1 hardening train added US-14501 derived from REQ-145 per HQ reserved-block ruling 2026-09-08 (143 -> 144). Shelf-audit H-2 train added US-15001, US-15101, US-15201, US-15301, US-15401 derived from REQ-150..154 per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (144 -> 149).
+  userStory: 168, // Round-7 T-3 added US-13001, 13002, 13101, 13102, 13201, 13301, 13302, 13401 derived from REQ-130..134 per HQ reserved-block ruling 2026-09-07 (134 -> 142). Round-7 follow-up adapter added US-14001 derived from REQ-140 per HQ reserved-block ruling 2026-09-08 (142 -> 143). H-1 hardening train added US-14501 derived from REQ-145 per HQ reserved-block ruling 2026-09-08 (143 -> 144). Shelf-audit H-2 train added US-15001, US-15101, US-15201, US-15301, US-15401 derived from REQ-150..154 per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (144 -> 149). Feedback submission chain added US-15501..15503, 15601, 15701, 15801..15802, 15901..15902, 16001, 16101..16104, 16201 (15 USs; US-16104 added by gate-review fix F-3 for the hook installer/doctor ACs) (149 -> 164). Referee-guarantee train added US-16301, US-16401, US-16501, US-16502 (round-6 gate close 2026-09-17, merged from origin/main) (164 -> 168).
   tad: 1,
   // Cloudflare round 6 T-4 added TAC-3501..3504 (Access JWT validator,
   // application declaration, policy shape, audit sink) plus TAC-2214
@@ -216,7 +216,7 @@ const expectedCounts = {
   // Round-7 T-2 added TAC-3901..3904 (compose layout, secrets mount,
   // healthcheck lint, reverse-proxy artefact) per HQ reserved-block
   // ruling 2026-09-07 (23 -> 27).
-  tac: 34, // Round-7 T-3 added TAC-4001..4003 (edge-cloudflare-tunnel connector shape, manifest schema, Access AUD binding) per HQ reserved-block ruling 2026-09-07 (27 -> 30).
+  tac: 42, // Round-7 T-3 added TAC-4001..4003 (edge-cloudflare-tunnel connector shape, manifest schema, Access AUD binding) per HQ reserved-block ruling 2026-09-07 (27 -> 30). Feedback submission chain added TAC-4101..4108 (feedback-cli, feedback-store, feedback-redact, feedback-fingerprint, feedback-render, feedback-destination, feedback-gh, feedback-hook) (30 -> 38). Referee-guarantee train added TAC-4109..4112 (round-6 gate close 2026-09-17, merged from origin/main) (38 -> 42).
   // fbs bumps 19 -> 23 for FBS-020..023 covering the four US-1101..1104
   // AC sets. See test/store/walker.test.js's expected-count comment.
   //
@@ -236,7 +236,7 @@ const expectedCounts = {
   // Round-7 T-2 added ADR-3901..3904 (container host contract, reverse
   // proxy, reject Coolify, log driver) per HQ reserved-block ruling
   // 2026-09-07 (26 -> 30).
-  adr: 37, // Round-7 T-3 added ADR-4001..4003 (edge-cloudflare-tunnel ingress bridge contract on new topic edgeIngressBridge, connector runtime, hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33).
+  adr: 45, // Round-7 T-3 added ADR-4001..4003 (edge-cloudflare-tunnel ingress bridge contract on new topic edgeIngressBridge, connector runtime, hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33). Feedback submission chain added ADR-4101..4108 (store gitignored, fingerprint-and-labels, redaction-rule-based, destination-on-library, gh-ambient-auth, bundled-entries-terminal, stop-is-ask-event, hooks-in-committed-config) (33 -> 41). Referee-guarantee train added ADR-4109..4112 (round-6 gate close 2026-09-17, merged from origin/main) (41 -> 45).
   buildSequence: 1,
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
@@ -276,7 +276,7 @@ const expectedCounts = {
   // buildOrder 57) (55 -> 57).
   // Round-7 T-2 added FBS-140 (buildOrder 61) per HQ reserved-block
   // ruling 2026-09-07 (60 -> 61).
-  fbs: 73, // Round-7 T-3 added FBS-150 (buildOrder 62) covering the eight T-3 ACs per HQ reserved-block ruling 2026-09-07 (61 -> 62). Round-7 follow-up adapter added FBS-160 (buildOrder 63) covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (62 -> 63). H-1 hardening train added FBS-165 (buildOrder 64) covering the AC of REQ-145 for deploy-hetzner-server 1.0.1 (63 -> 64). Shelf-audit H-2 train added FBS-170..174 (buildOrder 65..69 after Group C rebase-time re-derivation: H-1's FBS-165 took slot 64, so H-2's block shifted up by one) covering the five REQs of the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (64 -> 69).
+  fbs: 79, // Round-7 T-3 added FBS-150 (buildOrder 62) covering the eight T-3 ACs per HQ reserved-block ruling 2026-09-07 (61 -> 62). Round-7 follow-up adapter added FBS-160 (buildOrder 63) covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (62 -> 63). H-1 hardening train added FBS-165 (buildOrder 64) covering the AC of REQ-145 for deploy-hetzner-server 1.0.1 (63 -> 64). Shelf-audit H-2 train added FBS-170..174 (buildOrder 65..69 after Group C rebase-time re-derivation: H-1's FBS-165 took slot 64, so H-2's block shifted up by one) covering the five REQs of the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (64 -> 69). Feedback submission chain added FBS-180..185 (slice 1 capture and store, slice 2 redaction/fingerprint/preview, slice 3 destination resolution, slice 4 submit/dedupe/fallback, slice 5 the ask, slice 6 instruction and release) (69 -> 75). Referee-guarantee train added FBS-186..189 (round-6 gate close 2026-09-17, merged from origin/main) (75 -> 79).
   // Phase 10 (X2 CodeNode bridge, D20): full-tree dogfood backfill.
   // REQ-008 Tier-1 hardening added 25 guidance/drift-test CNs (29 -> 54).
   // 0.7.1 packaging added 3 CNs for the verify subcommand routing.
@@ -398,7 +398,7 @@ const expectedCounts = {
   // (232 -> 234).
   // Round-7 T-2 added CN-440 anchoring the platform-docker-compose-host
   // blueprint.json per HQ reserved-block ruling 2026-09-07 (237 -> 238).
-  codeNode: 254, // Round-7 T-3 added CN-470 anchoring blueprints/edge-cloudflare-tunnel/blueprint.json per HQ reserved-block ruling 2026-09-07 (238 -> 239). Round-7 follow-up adapter added CN-500 anchoring blueprints/object-storage-s3/blueprint.json per HQ reserved-block ruling 2026-09-08 (239 -> 240). H-1 hardening train added CN-510 anchoring the hetzner-throwaway-server fixture / deploy-hetzner-server probes (240 -> 241). Shelf-audit H-2 train added CN-520..526 anchoring the four Cloudflare-platform blueprint.json carriers plus the kv fixture shims and the kv-anatomy test per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (241 -> 248); CN-527..529 remain reserved for later groups (fixture shims for DO/queue/tunnel, the h2-cf-platform-probe-integrity anatomy test, and any Group D follow-ups).
+  codeNode: 271, // Round-7 T-3 added CN-470 anchoring blueprints/edge-cloudflare-tunnel/blueprint.json per HQ reserved-block ruling 2026-09-07 (238 -> 239). Round-7 follow-up adapter added CN-500 anchoring blueprints/object-storage-s3/blueprint.json per HQ reserved-block ruling 2026-09-08 (239 -> 240). H-1 hardening train added CN-510 anchoring the hetzner-throwaway-server fixture / deploy-hetzner-server probes (240 -> 241). Shelf-audit H-2 train added CN-520..526 anchoring the four Cloudflare-platform blueprint.json carriers plus the kv fixture shims and the kv-anatomy test per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (241 -> 248); CN-527..529 remain reserved for later groups (fixture shims for DO/queue/tunnel, the h2-cf-platform-probe-integrity anatomy test, and any Group D follow-ups). Feedback submission slice 1 (FBS-180) added CN-600 (src/cli/feedback.js, all nine slice-1 ACs) and CN-601 (src/feedback/store.js, the AC-15501/2/3 store-facing shape) (248 -> 250). Feedback submission slice 2 (FBS-181) added CN-602 (src/feedback/redact.js, AC-15601-1..3), CN-603 (src/feedback/fingerprint.js, AC-15701-1) and CN-604 (src/feedback/render.js, AC-15601-1 + AC-15701-1) and extended CN-600 to also implement AC-15601-1..3 for the preview handler (250 -> 253). Feedback submission slice 3 (FBS-182) added CN-605 (src/feedback/destination.js, AC-15801-2/-3 + AC-15802-1/-2 resolver), CN-606 (src/blueprint/library-registry.js, AC-15801-1 issuesRepo/issuesVisibility snapshot validator), CN-607 (src/blueprint/library-loader.js, AC-15801-1 issues field parse + validate), CN-608 (src/cli/blueprint-library.js, AC-15801-1 review-on-add snapshot and Feedback destination line) and CN-609 (src/cli/doctor.js, AC-15801-3 feedback-destinations warn-only check) (253 -> 258). Feedback submission slice 4 (FBS-183) added CN-620 (src/feedback/gh.js, single-shell-out seam covering AC-15701-2..3, AC-15901-1..2, AC-15902-1, AC-16001-1..2), CN-621 (src/feedback/labels.js, one-source catalogue covering AC-15902-1/-3/-4) and CN-622 (scripts/bootstrap-feedback-labels.mjs, AC-15902-2 idempotent bootstrap) and extended CN-600 to also implement AC-15701-2..3, AC-15901-1..2, AC-15902-1/-3 and AC-16001-1..4 for the submit handler (258 -> 261). Feedback submission slice 5 (FBS-184) added CN-623 (src/feedback/hook.js, pure shouldAsk + per-harness emit for AC-16101-1/-2/-3 and AC-16103-1/-2), CN-624 (src/setup/feedback-hooks.js, mergeable installer + diagnose for AC-16104-1/-2/-3) and CN-625 (src/cli/init.js, step 6 wiring for AC-16104-1/-2) and extended CN-600 with the hook / opt-in / opt-out handlers, CN-601 with the settings reader/writer and CN-609 with the feedback-hooks doctor check (261 -> 264). Feedback submission slice 6 (FBS-185) added CN-626 (guidance/managed/agent-instructions-block.md, AC-16201-1/-2 for RULE 17 in the managed block) (264 -> 265). Referee-guarantee train added CN-627..632 (round-6 gate close 2026-09-17, merged from origin/main) (265 -> 271).
   // w-2026-07-28-005 step 4: the test axis. One TS per US; every TC binds
   // an AC to a resolving testPointer. Pending ACs are registered in
   // rcf/test-suites/PENDING.md, never stubbed as TCs.
@@ -441,7 +441,7 @@ const expectedCounts = {
   // T-5 USs per HQ reserved-block ruling 2026-09-07 (100 -> 107).
   // Round-7 T-2 added TS-150 with nine TCs paired with the nine T-2 USs
   // per HQ reserved-block ruling 2026-09-07 (116 -> 117).
-  testSuite: 129, // Round-7 T-3 added TS-160 with eight TCs covering the T-3 ACs per HQ reserved-block ruling 2026-09-07 (117 -> 118). Round-7 follow-up adapter added TS-170 with TC-170-hetzner-endpoint-round-trip-and-skipped-shape covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (118 -> 119). H-1 hardening train added TS-175 paired with US-14501 for deploy-hetzner-server 1.0.1 (119 -> 120). Shelf-audit H-2 train added TS-180..184 with eleven TCs total covering AC-15001-1..AC-15401-3 per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (120 -> 125).
+  testSuite: 144, // Round-7 T-3 added TS-160 with eight TCs covering the T-3 ACs per HQ reserved-block ruling 2026-09-07 (117 -> 118). Round-7 follow-up adapter added TS-170 with TC-170-hetzner-endpoint-round-trip-and-skipped-shape covering AC-14001-1 per HQ reserved-block ruling 2026-09-08 (118 -> 119). H-1 hardening train added TS-175 paired with US-14501 for deploy-hetzner-server 1.0.1 (119 -> 120). Shelf-audit H-2 train added TS-180..184 with eleven TCs total covering AC-15001-1..AC-15401-3 per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca (120 -> 125). Feedback submission slice 1 build added TS-185 (US-15501, 5 ACs), TS-186 (US-15502, 2 ACs) and TS-187 (US-15503, 2 ACs) each pointing at test/cli/feedback-*.test.js and test/feedback/store.test.js (125 -> 128). Feedback submission slice 2 (FBS-181) added TS-188 (US-15601, four ACs covered across eight TCs bound to test/feedback/redact.test.js, test/feedback/fingerprint.test.js, test/feedback/render.test.js and test/cli/feedback-preview.test.js) (128 -> 129). Feedback submission slice 3 (FBS-182) added TS-189 (US-15801, three ACs across three TCs binding library-add snapshot, four-fixture resolver walk and doctor feedback-destinations warn) and TS-190 (US-15802, two ACs across two TCs binding CORE_REPO pin to package.json:bugs.url and --kind core routing) (129 -> 131). Feedback submission slice 4 (FBS-183) added TS-191 (US-15701 slice-4 arm, AC-15701-2/-3 across five TCs on test/cli/feedback-submit.test.js), TS-192 (US-15901, AC-15901-1/-2 across three TCs), TS-193 (US-15902, AC-15902-1/-2/-3/-4 across six TCs spanning test/cli/feedback-submit.test.js, test/feedback/bootstrap-labels.test.js and test/feedback/labels-catalogue.test.js) and TS-194 (US-16001, AC-16001-1..4 across seven TCs binding the four preflight branches, retry-then-bundle, terminal-bundled and unresolved-destination cases) (131 -> 135). Feedback submission slice 5 (FBS-184) added TS-195 (US-16101, AC-16101-1/-2/-3 across five TCs on test/feedback/hook-quiet-rule.test.js and test/cli/feedback-hook.test.js), TS-196 (US-16102, AC-16102-1/-2 across six TCs on test/cli/feedback-opt-out.test.js), TS-197 (US-16103, AC-16103-1/-2 across four TCs on test/cli/feedback-hook.test.js) and TS-198 (US-16104, AC-16104-1/-2/-3 across ten TCs spanning test/cli/init-feedback-hooks.test.js and test/cli/doctor-feedback-hooks.test.js) (135 -> 139). Feedback submission slice 6 (FBS-185) added TS-199 (US-16201, AC-16201-1/-2 across five TCs binding test/guidance/rule-17.test.js and test/cli/init-rule-17.test.js) (139 -> 140). Referee-guarantee train added TS-200..203 (round-6 gate close 2026-09-17, merged from origin/main) (140 -> 144).
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,
@@ -637,7 +637,7 @@ test('manifest roots resolve to existing files with matching ids', () => {
 // verbs (13 hand-authored-then-reproduced-via-CRUD nodes, PoC-ported).
 // ---------------------------------------------------------------------------
 
-test('every CN implementsAcIds entry resolves to a real AC; every AC carries at least one CN', () => {
+test('every CN implementsAcIds entry resolves to a real AC; every AC on a built FBS carries at least one CN', () => {
   const docs = loadAll();
   const usDocs = docs.filter((d) => d.kind === 'userStory').map((d) => d.json);
   const acIds = new Set();
@@ -652,8 +652,26 @@ test('every CN implementsAcIds entry resolves to a real AC; every AC carries at 
       covered.add(acId);
     }
   }
-  const orphans = [...acIds].filter((id) => !covered.has(id)).sort();
-  assert.equal(orphans.length, 0, `acceptance criteria with no Code Node: ${orphans.join(', ')}`);
+  // The CN axis follows the build, not the chain. A chain-only PR
+  // (design + REQ/US/AC/TAC/ADR/FBS defined; slices not yet built)
+  // leaves the FBSes' ACs legitimately CN-less until each slice PR
+  // lands its Code Nodes. So an AC on an FBS whose executionStatus is
+  // still `notStarted` is deferred, not orphaned. An AC on any other
+  // FBS status (`inProgress`, `complete`, `verified`) MUST have a CN.
+  const fbsDocs = docs.filter((d) => d.kind === 'fbs').map((d) => d.json);
+  const deferredAcs = new Set();
+  for (const fbs of fbsDocs) {
+    if (fbs.executionStatus !== 'notStarted') continue;
+    for (const acId of fbs.acIds ?? []) deferredAcs.add(acId);
+  }
+  const orphans = [...acIds]
+    .filter((id) => !covered.has(id) && !deferredAcs.has(id))
+    .sort();
+  assert.equal(
+    orphans.length,
+    0,
+    `acceptance criteria with no Code Node on a built FBS: ${orphans.join(', ')}`,
+  );
 });
 
 test('every CN dependencies entry resolves to a real, distinct CN', () => {

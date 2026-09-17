@@ -39,6 +39,10 @@ import { PLAYWRIGHT_MCP_VERSION } from '../verify/engine/launcher.js';
 import { writeKnowledgeSeed } from '../setup/knowledge-seed.js';
 import { writeIdentityTemplate } from '../setup/identity-seed.js';
 import {
+  writeClaudeFeedbackHooks,
+  writeCodexFeedbackHooks,
+} from '../setup/feedback-hooks.js';
+import {
   composeGitignoreBlock,
   computeGitignoreBlockHash,
   extractGitignoreBlock,
@@ -52,6 +56,8 @@ const OPTION_SPEC = {
   'non-interactive': { type: 'boolean' },
   'no-agent-setup': { type: 'boolean' },
   'no-playwright-mcp': { type: 'boolean' },
+  'no-feedback-hooks': { type: 'boolean' },
+  'bin-path': { type: 'string' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -81,6 +87,13 @@ Options:
                             init writes no Playwright entry and touches no
                             existing one. Use when a user-scope Playwright
                             entry is declared in a harness init cannot probe.
+  --no-feedback-hooks       Skip the feedback hook install step
+                            (.claude/settings.json + .codex/hooks.json).
+                            RULE 17 in the managed instructions block still
+                            covers the ask via the belt-and-braces path.
+  --bin-path <path>         Absolute path to the rcf binary. When set, hook
+                            and MCP entries use 'node <path> ...' instead of
+                            'npx rcf-lite ...' (pinned deployments).
   --quiet                   Suppress non-error stdout
   --help                    Print this help
 `;
@@ -222,6 +235,29 @@ export async function main(argv, deps = {}) {
   // refreshed in place; operator content outside preserved byte-for-byte.
   const gitignoreResult = await ensureManagedGitignore({ projectRoot: cwd });
 
+  // Step 6: feedback hooks (ADR-4108). Writes the three Stop /
+  // SessionEnd / SessionStart entries into .claude/settings.json and
+  // .codex/hooks.json unless --no-feedback-hooks is set. Merge
+  // discipline mirrors writeMcpConfig: parse, refuse on invalid JSON,
+  // add ours only when absent, never clobber. --bin-path pins the
+  // hook command to `node <path>` for pinned-bin deployments.
+  const feedbackOptOut = Boolean(flags['no-feedback-hooks']);
+  const feedbackBinPath = typeof flags['bin-path'] === 'string' ? flags['bin-path'] : undefined;
+  let claudeHookResult = null;
+  let codexHookResult = null;
+  if (!feedbackOptOut) {
+    claudeHookResult = await writeClaudeFeedbackHooks({ projectRoot: cwd, binPath: feedbackBinPath });
+    if (claudeHookResult && 'kind' in claudeHookResult && 'message' in claudeHookResult) {
+      stderr.write(`[error] ${claudeHookResult.kind} ${claudeHookResult.message}\n`);
+      return 2;
+    }
+    codexHookResult = await writeCodexFeedbackHooks({ projectRoot: cwd, binPath: feedbackBinPath });
+    if (codexHookResult && 'kind' in codexHookResult && 'message' in codexHookResult) {
+      stderr.write(`[error] ${codexHookResult.kind} ${codexHookResult.message}\n`);
+      return 2;
+    }
+  }
+
   // High-level completion summary: what was set up and what to do next -
   // not a developer file list (operator review 2026-07-16, comment 3a).
   if (!flags.quiet) {
@@ -248,6 +284,10 @@ export async function main(argv, deps = {}) {
     stdout.write(`  Knowledge space    ${knowledgeVerbAndTarget(knowledgeResult)}.\n`);
     stdout.write(`  Operator profile   ${identityVerbAndTarget(identityResult)}.\n`);
     stdout.write(`  Gitignore          ${gitignoreVerbAndTarget(gitignoreResult)}.\n`);
+    stdout.write(`  Feedback hooks     ${feedbackHooksVerbAndTarget(feedbackOptOut, claudeHookResult, codexHookResult)}.\n`);
+    if (feedbackOptOut) {
+      stdout.write('    (no-feedback-hooks) RULE 17 in the managed instructions block still covers the ask via the belt-and-braces path.\n');
+    }
     stdout.write('\nNext: start your agent session in this directory and tell it what you want to build. '
       + 'It elicits the requirements and drives the build from there - you do not fill in the document chain by hand.\n');
     stdout.write('\nRun `rcf doctor` to confirm the wiring stays clean over time '
@@ -266,6 +306,29 @@ function knowledgeVerbAndTarget(result) {
 function identityVerbAndTarget(result) {
   if (result.action === 'kept') return 'left as-is at rcf/.identity/profile.md (already present)';
   return 'template at rcf/.identity/profile.md (gitignored by default; fill in what is useful)';
+}
+
+function feedbackHooksVerbAndTarget(optOut, claudeResult, codexResult) {
+  if (optOut) return 'skipped (--no-feedback-hooks; RULE 17 fallback in the managed instructions block still applies)';
+  const claudeVerb = claudeResult
+    ? (claudeResult.action === 'kept'
+      ? 'already present in .claude/settings.json'
+      : (claudeResult.action === 'created'
+        ? 'written to .claude/settings.json'
+        : (claudeResult.action === 'foreign'
+          ? 'foreign entry present in .claude/settings.json (rcf doctor --check feedback-hooks reports the details; no clobber)'
+          : 'merged into .claude/settings.json')))
+    : 'not touched';
+  const codexVerb = codexResult
+    ? (codexResult.action === 'kept'
+      ? 'already present in .codex/hooks.json'
+      : (codexResult.action === 'created'
+        ? 'written to .codex/hooks.json'
+        : (codexResult.action === 'foreign'
+          ? 'foreign entry present in .codex/hooks.json (rcf doctor --check feedback-hooks reports the details; no clobber)'
+          : 'merged into .codex/hooks.json')))
+    : 'not touched';
+  return `${claudeVerb}; ${codexVerb}`;
 }
 
 function gitignoreVerbAndTarget(result) {

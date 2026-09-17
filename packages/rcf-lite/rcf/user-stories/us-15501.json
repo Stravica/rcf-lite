@@ -1,0 +1,60 @@
+{
+  "usId": "US-15501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-155",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Agent records a finding with one command",
+  "asA": "agent that has just seen a blueprint or rcf-lite misbehave",
+  "iWant": "to record the finding with a single rcf feedback add call whose flags cover kind, target, anchor, symptom class, severity, title, body and evidence pointers, and to be told nothing was sent",
+  "soThat": "a finding is captured at the moment I see it, without any user-facing interruption and without any network traffic",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-15501-1",
+      "description": "rcf feedback add with the required flags (--kind, --target, --anchor, --class, --severity, --title, --body or --body-file, --evidence at least once, optional --harness and --ask-now) writes exactly one JSONL line to .rcf/feedback/entries.jsonl, stamps environment (harness, rcf-lite version, node version, platform) on the entry, prints \"recorded <id> (<n> pending). Nothing sent.\" on stdout, and exits 0. No network syscall is made (assertable by a stubbed submit path and by absence of gh calls).",
+      "given": "a fixture project whose .gitignore covers .rcf/feedback/",
+      "when": "the agent runs rcf feedback add with every required flag",
+      "then": "entries.jsonl has one line whose fields match the flags and the environment stamp; stdout carries the \"recorded\" line; exit code is 0; the network seam has not been touched",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-2",
+      "description": "rcf feedback add refuses when the project .gitignore does not cover .rcf/feedback/ and no --force flag is passed. The error names the missing gitignore entry and points at rcf doctor --fix. Exit code is 2. No file is created under .rcf/feedback/.",
+      "given": "a fixture project whose .gitignore lacks the .rcf/feedback/ entry",
+      "when": "the agent runs rcf feedback add without --force",
+      "then": "the command exits 2, stderr names the missing gitignore entry and the rcf doctor --fix remedy, and .rcf/feedback/ is not created",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-3",
+      "description": "Ruling R1 (Dave 2026-09-16): --kind blueprint exits 3 ONLY when the target is absent from rcf/manifest.json:blueprints[] (unknown target). A KNOWN blueprint whose registered library carries no resolvable feedback destination (no issuesRepo and no derivable github sourceRef) is exit 0 with the entry stamped destination: unresolved; slice 4 writes the bundle at submit time (design section 7 case 5 wins). In both cases the entry is recorded; stdout carries the recorded line. On the exit-3 branch stderr carries \"destination unresolved: <target>\"; on the exit-0 unresolved branch stderr carries a one-line note naming the library.",
+      "given": "a fixture project whose manifest carries no matching blueprint (exit 3), and a second project whose manifest holds a blueprint from a library with no issuesRepo (exit 0)",
+      "when": "the agent runs rcf feedback add --kind blueprint --target <ref> ... against each",
+      "then": "the unknown-target invocation writes the entry with destination.reason=unresolved, exit code 3, stderr names the target; the known-target-no-destination invocation writes the entry with destination.reason=unresolved, exit code 0, stderr names the library",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-15501-4",
+      "description": "Symptom class must be one of the closed enum (docs-mismatch, validate-fails, apply-fails, internal-contradiction, stale-citation, missing-scenario, verb-error, verb-hang, wrong-output, other). Any other value exits 2 with a usage error naming the enum. Severity must be one of blocker, major, minor. Title is capped at 120 chars, body at 8 KB (either --body or --body-file); over-cap inputs exit 2 with a size error.",
+      "given": "a fixture project whose gitignore is set up correctly",
+      "when": "the agent runs rcf feedback add with an invalid class or severity, an oversize title, or an oversize body",
+      "then": "each invalid invocation exits 2, stderr names the specific violation and the enum or size limit; no entry is written",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-15501-5",
+      "description": "When --kind blueprint is passed and the target resolves to a known blueprint in rcf/manifest.json:blueprints[], the recorded entry additionally stamps blueprintVersion, libraryPrefix, libraryRef and resolvedSha (or tarballSha256 when the pin is a tarball) on target, sourced from the manifest record and the matching rcf/blueprint-libraries.json registry entry. Core entries (kind core) carry none of these fields. A shelf blueprint (no libraryPrefix on the manifest record) carries blueprintVersion and resolvedSha but leaves libraryPrefix and libraryRef unset.",
+      "given": "a fixture project with three applied blueprints: one shelf, one library (git pin) and one library (tarball pin), plus one core entry",
+      "when": "the agent runs rcf feedback add --kind blueprint for each blueprint target and --kind core for the core entry",
+      "then": "each blueprint entry carries the expected blueprint-specific stamps sourced from manifest + registry (shelf omits libraryPrefix and libraryRef; git-pin carries resolvedSha; tarball-pin carries tarballSha256); the core entry carries none of the four fields",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T14:14:36Z"
+}

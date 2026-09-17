@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-620",
+  "path": "src/feedback/gh.js",
+  "implementsAcIds": [
+    "AC-15701-2",
+    "AC-15701-3",
+    "AC-15901-1",
+    "AC-15901-2",
+    "AC-15902-1",
+    "AC-16001-1",
+    "AC-16001-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T17:23:38Z",
+  "updatedAt": "2026-09-16T17:23:38Z"
+}

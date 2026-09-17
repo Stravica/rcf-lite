@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-624",
+  "path": "src/setup/feedback-hooks.js",
+  "implementsAcIds": [
+    "AC-16104-1",
+    "AC-16104-2",
+    "AC-16104-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-09-16T19:20:00Z"
+}

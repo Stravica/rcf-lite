@@ -1,0 +1,87 @@
+{
+  "createdAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-09-16T19:20:00Z",
+  "purpose": "Cover AC-16104-1 (rcf init merges three feedback hook entries into .claude/settings.json and .codex/hooks.json with the design-3.5 shape, the matcher startup|resume on SessionStart, timeouts 10/5/5, is byte-idempotent on re-init, preserves neighbouring hooks and honours --bin-path with the node <path> pinned shape), AC-16104-2 (--no-feedback-hooks writes neither file and prints the RULE 17 fallback line once) and AC-16104-3 (rcf doctor --check feedback-hooks reports missing-hook per file per event when absent, --fix installs them, foreign-hook is refused with the entry left in place, a clean tree exits 0 with no writes, and a parse-error on the settings file is refused).",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16104-1",
+    "AC-16104-2",
+    "AC-16104-3"
+  ],
+  "id": "TS-198",
+  "usId": "US-16104",
+  "title": "Slice 5 (FBS-184): rcf init installs the feedback hooks and rcf doctor feedback-hooks keeps them honest across clones",
+  "testCases": [
+    {
+      "id": "TC-198-init-writes-both-configs",
+      "acId": "AC-16104-1",
+      "description": "Cover AC-16104-1 via the CLI test: rcf init on a fresh project writes three feedback hook entries into .claude/settings.json (Stop 10s, SessionEnd 5s, SessionStart 5s with matcher startup|resume) and three matching entries into .codex/hooks.json (Codex JSON shape); every command line is 'npx rcf-lite feedback hook <event> --harness <h>'.",
+      "status": "pending",
+      "testPointer": "test/cli/init-feedback-hooks.test.js::AC-16104-1: rcf init writes three feedback hook entries into both harness files"
+    },
+    {
+      "id": "TC-198-init-idempotent",
+      "acId": "AC-16104-1",
+      "description": "Cover AC-16104-1 (idempotency) via the CLI test: a second rcf init against the same tree produces no byte change on either .claude/settings.json or .codex/hooks.json.",
+      "status": "pending",
+      "testPointer": "test/cli/init-feedback-hooks.test.js::AC-16104-1: re-init on the same tree is byte-idempotent"
+    },
+    {
+      "id": "TC-198-init-preserves-existing-hooks",
+      "acId": "AC-16104-1",
+      "description": "Cover AC-16104-1 (preserve) via the CLI test: a pre-existing .claude/settings.json with an unrelated Stop hook AND an unrelated top-level key survives rcf init; the feedback Stop entry is added alongside the unrelated one, not in place of it.",
+      "status": "pending",
+      "testPointer": "test/cli/init-feedback-hooks.test.js::AC-16104-1: pre-existing hooks are preserved; feedback entries added alongside"
+    },
+    {
+      "id": "TC-198-init-bin-path-pins-node",
+      "acId": "AC-16104-1",
+      "description": "Cover AC-16104-1 (--bin-path pinned shape) via the CLI test: rcf init --bin-path /opt/pinned-rcf/rcf.js writes hook commands as 'node /opt/pinned-rcf/rcf.js feedback hook <event> --harness <h>' instead of the npx rcf-lite shape.",
+      "status": "pending",
+      "testPointer": "test/cli/init-feedback-hooks.test.js::AC-16104-1: --bin-path pins the hook command to node <path>"
+    },
+    {
+      "id": "TC-198-init-no-feedback-hooks",
+      "acId": "AC-16104-2",
+      "description": "Cover AC-16104-2 via the CLI test: rcf init --no-feedback-hooks exits 0, writes neither .claude/settings.json nor .codex/hooks.json, and prints the no-feedback-hooks fallback line naming RULE 17.",
+      "status": "pending",
+      "testPointer": "test/cli/init-feedback-hooks.test.js::AC-16104-2: --no-feedback-hooks writes neither file and prints the fallback line"
+    },
+    {
+      "id": "TC-198-doctor-missing-hooks",
+      "acId": "AC-16104-3",
+      "description": "Cover AC-16104-3 (missing-hook detection) via the CLI test: rcf doctor --check feedback-hooks --json against a project scaffolded without hook install reports exactly three missing-hook rows for .claude/settings.json and three for .codex/hooks.json; exit 3.",
+      "status": "pending",
+      "testPointer": "test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor reports missing-hook per file per event when both configs are absent"
+    },
+    {
+      "id": "TC-198-doctor-fix-installs-and-reruns-clean",
+      "acId": "AC-16104-3",
+      "description": "Cover AC-16104-3 (--fix repair) via the CLI test: rcf doctor --check feedback-hooks --fix writes the missing entries; a re-run reports clean and exits 0.",
+      "status": "pending",
+      "testPointer": "test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor --fix installs the missing entries and re-runs clean"
+    },
+    {
+      "id": "TC-198-doctor-foreign-hook-refused",
+      "acId": "AC-16104-3",
+      "description": "Cover AC-16104-3 (foreign-hook refusal) via the CLI test: after a clean init, mutating the Stop hook's command to add an unknown flag makes doctor --check feedback-hooks --fix --json emit exactly one foreign-hook drift row on .claude/settings.json; the mutated command survives (--fix did not overwrite it) and doctor exits 3.",
+      "status": "pending",
+      "testPointer": "test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor refuses a foreign-hook entry and leaves it in place"
+    },
+    {
+      "id": "TC-198-doctor-clean-tree-no-writes",
+      "acId": "AC-16104-3",
+      "description": "Cover AC-16104-3 (clean tree) via the CLI test: rcf doctor --check feedback-hooks --fix on a freshly initialised project makes no byte changes to either config file and exits 0.",
+      "status": "pending",
+      "testPointer": "test/cli/doctor-feedback-hooks.test.js::AC-16104-3: a clean tree makes no writes and stays exit 0"
+    },
+    {
+      "id": "TC-198-doctor-parse-error-refused",
+      "acId": "AC-16104-3",
+      "description": "Cover AC-16104-3 (parse-error refusal) via the CLI test: an unparseable .claude/settings.json makes doctor --check feedback-hooks --fix emit one parse-error drift row on that file, leave the file untouched, and exit 3.",
+      "status": "pending",
+      "testPointer": "test/cli/doctor-feedback-hooks.test.js::AC-16104-3: doctor rejects an unparseable settings file with parse-error and refuses --fix"
+    }
+  ],
+  "status": "draft"
+}

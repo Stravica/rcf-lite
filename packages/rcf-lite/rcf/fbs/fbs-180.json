@@ -1,0 +1,45 @@
+{
+  "fbsId": "FBS-180",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 180,
+  "executionStatus": "notStarted",
+  "title": "Slice 1: capture and store",
+  "summary": "Deliver REQ-155 (Local feedback capture): the rcf feedback CLI skeleton, the append-only JSONL store, the gitignore entry with pre-upgrade refusal, list/status/defer/discard sub-verbs, HELP parity, and docs/feedback.md first cut.",
+  "approach": "Add feedbackMain to bin/rcf.js CORE. Write src/cli/feedback.js dispatcher and src/feedback/store.js (append-only JSONL, per-session state ledger, gitignore contribution). Wire feedbackGitignoreEntry into src/setup/managed-gitignore.js. Add doctor check for the gitignore. Publish docs/feedback.md and index it in docs/README.md.",
+  "acIds": [
+    "AC-15501-1",
+    "AC-15501-2",
+    "AC-15501-3",
+    "AC-15501-4",
+    "AC-15502-1",
+    "AC-15502-2",
+    "AC-15503-1",
+    "AC-15503-2",
+    "AC-15501-5"
+  ],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4101-feedback-cli",
+      "TAC-4102-feedback-store"
+    ],
+    "adrIds": [
+      "ADR-4101-feedback-store-gitignored"
+    ]
+  },
+  "deliverables": [
+    "rcf feedback core verb registered and dispatched",
+    "Append-only JSONL store with fold-by-id read path",
+    "Managed gitignore entry with pre-upgrade refusal on rcf feedback add",
+    "add / list / status / defer / discard sub-verbs with exit-code contracts",
+    "docs/feedback.md first cut"
+  ],
+  "riskLevel": "low",
+  "domain": "feedback",
+  "estimatedSize": "medium",
+  "estimatedHours": 12,
+  "notes": "Foundation slice; nothing depends on anything not in the tree before this lands. Design section 9 decision: body cap 8 KB, no attachments, no screenshots (rejected: attaching rcf define validate --json output and artefact files, marginal value for a larger redaction surface in v1).",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T14:14:36Z"
+}

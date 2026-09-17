@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-09-16T14:25:30Z",
+  "updatedAt": "2026-09-16T14:25:30Z",
+  "purpose": "Cover AC-15501-1..5 (rcf feedback add): happy-path write and env stamp; gitignore refusal and --force bypass; blueprint destination-cannot-be-resolved exits 3 (design 3.1); enum and size validation on class, severity, title and body; blueprint-specific env stamps (blueprintVersion, libraryPrefix, libraryRef, resolvedSha/tarballSha256) sourced from the manifest record.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15501-1",
+    "AC-15501-2",
+    "AC-15501-3",
+    "AC-15501-4",
+    "AC-15501-5"
+  ],
+  "id": "TS-185",
+  "usId": "US-15501",
+  "title": "Slice 1 (FBS-180): rcf feedback add records one JSONL entry, honours the gitignore refusal, marks blueprint-unresolved with exit 3, validates enums and caps, and stamps blueprint-specific env fields",
+  "testCases": [
+    {
+      "id": "TC-185-add-writes-one-jsonl-line-and-stamps-env",
+      "acId": "AC-15501-1",
+      "description": "Cover AC-15501-1 via the CLI test: a fully-flagged add writes exactly one JSONL line, prints \"recorded <id> (<n> pending). Nothing sent.\", exit 0, and the entry environment carries harness, rcfLiteVersion, nodeVersion and platform.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-add.test.js::AC-15501-1: rcf feedback add writes one JSONL line and stamps env"
+    },
+    {
+      "id": "TC-185-add-refuses-without-gitignore",
+      "acId": "AC-15501-2",
+      "description": "Cover AC-15501-2 via the CLI test: add on a project whose .gitignore does not cover .rcf/feedback/ refuses with exit 2 and points at rcf doctor --fix; --force bypasses the refusal.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-add.test.js::AC-15501-2: add refuses when .gitignore does not cover .rcf/feedback/"
+    },
+    {
+      "id": "TC-185-add-blueprint-unresolved-exits-3",
+      "acId": "AC-15501-3",
+      "description": "Cover AC-15501-3 via the CLI test: --kind blueprint against a target absent from rcf/manifest.json:blueprints[] still records the entry, prints the recorded line on stdout, prints \"destination unresolved: <target>\" on stderr, exit 3.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-add.test.js::AC-15501-3: blueprint target that does not resolve exits 3 and records unresolved"
+    },
+    {
+      "id": "TC-185-add-rejects-bad-class",
+      "acId": "AC-15501-4",
+      "description": "Cover AC-15501-4 (enum arm) via the CLI test: --class not-a-real-class exits 2 and stderr names the enum.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-add.test.js::AC-15501-4: invalid --class exits 2 naming the enum"
+    },
+    {
+      "id": "TC-185-add-blueprint-stamps",
+      "acId": "AC-15501-5",
+      "description": "Cover AC-15501-5 via the CLI test: given a manifest with a git-pinned library blueprint, a shelf blueprint and a core entry, the recorded entries stamp blueprintVersion/libraryPrefix/libraryRef/resolvedSha appropriately; the core entry carries none of these fields.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-add.test.js::AC-15501-5: blueprint entries stamp version, libraryPrefix, libraryRef and resolvedSha from the manifest record"
+    }
+  ],
+  "status": "draft"
+}

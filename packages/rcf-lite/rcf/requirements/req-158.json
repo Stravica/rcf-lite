@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-158",
+  "prdId": "PRD-001",
+  "title": "Reports reach the owning repo",
+  "description": "A finding is filed on the repo that owns the code the finding is about: Stravica/rcf-lite for shelf blueprints and core, and the library-declared repo for library blueprints. Library owners declare their destination via an optional issues field on library.json; the consuming project does not guess. Applied blueprints without a declared destination fall back to derivation from the library git source when unambiguous, else route to the outbox and name the library publisher contact. Doctor lists any registered library missing a destination as a warn-only finding.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

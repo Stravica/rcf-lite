@@ -1,0 +1,33 @@
+{
+  "tacId": "TAC-4104-feedback-fingerprint",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback fingerprint",
+  "purpose": "Deterministic 12-hex fingerprint per entry that keys the same-defect fold on issue create.",
+  "responsibilities": [
+    "Compute the first 12 hex characters of sha-256 over the canonical fingerprint input",
+    "Exclude blueprint version from the input so a defect across versions folds",
+    "Fall back to normalised-title tokens when the anchor is absent, and warn in preview"
+  ],
+  "internalStructure": "src/feedback/fingerprint.js is pure and tiny: fingerprint(entry) -> hex12 plus normaliseTitle(title) helper for the fallback.",
+  "interfaces": [
+    {
+      "name": "fingerprint",
+      "kind": "function",
+      "description": "Compute the entry fingerprint from its canonical input."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "node:crypto",
+      "kind": "external",
+      "description": "sha-256 for the fingerprint hash."
+    }
+  ],
+  "tradeoffs": "A tiny fingerprint (12 hex = 48 bits) risks a collision at very large corpuses; at the scale of a single blueprint tracker it is safe, and issues carry the full-anchor context in the body so a maintainer resolves a rare collision by hand.",
+  "notes": "The fingerprint appears twice in the body (visible line and HTML comment) so maintainer edits do not lose it.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

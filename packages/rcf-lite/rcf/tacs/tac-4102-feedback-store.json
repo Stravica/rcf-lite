@@ -1,0 +1,50 @@
+{
+  "tacId": "TAC-4102-feedback-store",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Feedback local store",
+  "purpose": "Own the on-disk feedback log at .rcf/feedback/entries.jsonl (append-only, one JSON object per line, folded by id), the per-session ask ledger at .rcf/feedback/state.json, and the outbox bundle directory .rcf/feedback/outbox/. Contribute the gitignore entry so the store never rides a git push.",
+  "responsibilities": [
+    "Append entry and state lines atomically with no reader ever seeing a partial line",
+    "Fold entries.jsonl by id, last line wins, when returning current state",
+    "Export feedbackGitignoreEntry so managed-gitignore aggregation picks up the path on doctor --fix",
+    "Refuse a first write when the gitignore does not cover .rcf/feedback/ and --force is absent",
+    "Provide state helpers for asked-records, deferred-until-session, discarded, submitted and bundled transitions"
+  ],
+  "internalStructure": "src/feedback/store.js exposes readEntries(root), appendEntry(root, entry), appendState(root, transition) and readSettings(root); a small ensureGitignore(root, opts) enforces the pre-write check. Outbox writes go through a separate helper that computes the filename from the destination slug and the ISO timestamp.",
+  "interfaces": [
+    {
+      "name": "readEntries",
+      "kind": "function",
+      "description": "Load and fold the JSONL log to current-state entries."
+    },
+    {
+      "name": "appendEntry",
+      "kind": "function",
+      "description": "Append one entry object as a JSONL line."
+    },
+    {
+      "name": "appendState",
+      "kind": "function",
+      "description": "Append one state-transition line for an existing id."
+    },
+    {
+      "name": "feedbackGitignoreEntry",
+      "kind": "constant",
+      "description": "Managed-gitignore contribution consumed by src/setup/managed-gitignore.js."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "node:fs/promises",
+      "kind": "external",
+      "description": "Filesystem I/O; the store is deliberately synchronous where safe."
+    }
+  ],
+  "tradeoffs": "Append-only JSONL is trivial to write correctly and to inspect by eye; the cost is a fold on every read, which is negligible at the entry counts a single project will ever see.",
+  "notes": "Gitignored, not committed. Raw entries can hold what redaction removes; committing them would leak on the next push for a public project.",
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T13:45:23.000Z"
+}

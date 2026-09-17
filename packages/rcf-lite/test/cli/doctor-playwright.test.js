@@ -18,6 +18,10 @@ import {
 import { writeIdentityTemplate } from '../../src/setup/identity-seed.js';
 import { writeKnowledgeSeed } from '../../src/setup/knowledge-seed.js';
 import {
+  writeClaudeFeedbackHooks,
+  writeCodexFeedbackHooks,
+} from '../../src/setup/feedback-hooks.js';
+import {
   composeGitignoreBlock,
 } from '../../src/setup/managed-gitignore.js';
 import { FIX_LINES, SKIP_LINE_NON_BROWSER_FACING } from '../../src/setup/playwright-checks.js';
@@ -35,6 +39,12 @@ async function scaffoldCleanProject(browserFacing) {
   await writeKnowledgeSeed({ projectRoot: root });
   await writeIdentityTemplate({ projectRoot: root });
   await writeFile(join(root, '.gitignore'), composeGitignoreBlock(), 'utf8');
+  // Slice 5 (FBS-184): a fully-set-up project also carries the two
+  // feedback hook configs, so the whole-tree doctor run stays clean.
+  // Individual playwright tests never touch them; the feedback-hooks
+  // check has its own coverage under test/cli/doctor-feedback-hooks.
+  await writeClaudeFeedbackHooks({ projectRoot: root });
+  await writeCodexFeedbackHooks({ projectRoot: root });
 
   if (browserFacing) {
     // Fake an applied browser-facing blueprint by pointing the manifest at

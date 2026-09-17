@@ -64,11 +64,12 @@ test('AC-3.1: rcf init creates a .gitignore with the managed block containing ex
   // adds the view-server pid file and supervisor log at the same seam.
   // The count and registered order are the load-bearing assertions.
   const entries = managedGitignoreEntries();
-  assert.equal(entries.length, 4);
+  assert.equal(entries.length, 5);
   assert.equal(entries[0].path, 'rcf/.identity/');
   assert.equal(entries[1].path, '.rcf/preflight-secrets.local.json');
   assert.equal(entries[2].path, '.rcf/view-server.pid');
   assert.equal(entries[3].path, '.rcf/view-server.log');
+  assert.equal(entries[4].path, '.rcf/feedback/');
 });
 
 test('AC-3.2: rcf init on a repo with an existing .gitignore preserves operator entries and appends the managed block', async () => {
@@ -136,7 +137,7 @@ test('AC-3.6: aggregator extension pipeline (parts a-d) via the real compose hel
     since: '0.0.0-test',
   };
   const baseEntries = managedGitignoreEntries();
-  assert.equal(baseEntries.length, 4, '0.7.0 aggregator ships the identity + preflight + view-server pid + view-server log entries');
+  assert.equal(baseEntries.length, 5, '0.7.0 aggregator ships the identity + preflight + view-server pid + view-server log + feedback entries');
   const extendedEntries = [...baseEntries, extraEntry];
 
   // Part (a): composeGitignoreBlockFromEntries produces both entries in

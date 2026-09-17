@@ -1,0 +1,33 @@
+{
+  "usId": "US-16102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-161",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Operator silences the ask for this project",
+  "asA": "operator who does not want to be asked about feedback on this project",
+  "iWant": "a one-command opt-out that writes rcf/feedback-settings.json:ask false (checked in), and an env variable that silences the ask per user without touching the file",
+  "soThat": "a shared project silences the ask for everyone, and a CI or per-user preference silences it locally",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16102-1",
+      "description": "rcf feedback opt-out writes rcf/feedback-settings.json with { settingsVersion: 1, ask: false, redaction: { allowHosts: [] }, quietMinutes: 15 } (merging with any prior file). rcf feedback opt-in restores ask true. The hook shouldAsk returns silent when ask is false. rcf feedback add, preview and submit keep working under ask: false (hand-driven flow).",
+      "given": "a fresh fixture project",
+      "when": "rcf feedback opt-out then rcf feedback hook stop with one pending entry, then rcf feedback preview",
+      "then": "the settings file contains ask: false; the hook exits 0 silently; preview still renders the entry",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16102-2",
+      "description": "RCF_FEEDBACK_ASK=0 forces silent on the hook regardless of file setting. RCF_FEEDBACK_DISABLE=1 makes rcf feedback add a no-op that prints \"feedback disabled by env\" (no file write, no exit-2). Precedence order: env DISABLE > env ASK=0 > file ask false > file ask true.",
+      "given": "a fixture project with ask true in the file, plus each env variable in turn",
+      "when": "rcf feedback add and rcf feedback hook stop are run under each precedence combination",
+      "then": "env DISABLE suppresses add entirely; env ASK=0 keeps add working but silences the hook; file ask false silences the hook and add still works",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-09-16T13:45:23.000Z",
+  "updatedAt": "2026-09-16T14:14:36Z"
+}

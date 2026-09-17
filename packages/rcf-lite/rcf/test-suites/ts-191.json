@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-09-16T17:23:12Z",
+  "updatedAt": "2026-09-16T17:23:12Z",
+  "purpose": "Cover AC-15701-2 (submit calls gh search + create/comment per the zero/one/many hit table) and AC-15701-3 (search unavailable falls through to create with dedupe: unchecked; closed-state hit stamps a previously reported reference into the create body). Slice 4 arm of US-15701.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-15701-2",
+    "AC-15701-3"
+  ],
+  "id": "TS-191",
+  "usId": "US-15701",
+  "title": "Slice 4 (FBS-183): dedupe search folds zero/one/many hits into create or +1 comment; search unavailable falls through with dedupe: unchecked and closed hits stamp a previously reported reference",
+  "testCases": [
+    {
+      "id": "TC-191-submit-zero-hit-creates",
+      "acId": "AC-15701-2",
+      "description": "Cover AC-15701-2 (zero-hit arm) via the CLI test: with the configurable gh fake returning { matches: [] }, submit --yes calls ghIssueCreate for each entry and stamps dedupe: new.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15901-1: submit --yes with zero-hit search creates each entry, marks submitted, prints URL"
+    },
+    {
+      "id": "TC-191-submit-one-hit-comments",
+      "acId": "AC-15701-2",
+      "description": "Cover AC-15701-2 (one-hit arm) via the CLI test: with matches returning one issue, submit calls ghIssueComment on that number and no ghIssueCreate.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-2: one-hit search calls gh issue comment on that number"
+    },
+    {
+      "id": "TC-191-submit-many-hit-comment-lowest",
+      "acId": "AC-15701-2",
+      "description": "Cover AC-15701-2 (many-hit arm) via the CLI test: with three matches returning numbers 30/12/47, submit comments on #12 (lowest) and the body mentions #30 and #47.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-2: many-hit search comments on the lowest number and names the others"
+    },
+    {
+      "id": "TC-191-submit-search-unchecked",
+      "acId": "AC-15701-3",
+      "description": "Cover AC-15701-3 (search failure arm) via the CLI test: with search returning { error: 'search-unavailable' }, submit falls through to create and stamps dedupe: unchecked on the entry state.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-3: search error falls through to create with dedupe:unchecked"
+    },
+    {
+      "id": "TC-191-submit-closed-reference",
+      "acId": "AC-15701-3",
+      "description": "Cover AC-15701-3 (closed-hit arm) via the CLI test: with open search empty and closed search returning #88, submit creates a new issue whose body carries 'Previously reported and closed as #88'.",
+      "status": "pending",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-3: closed-state hit produces a create with previously reported reference"
+    }
+  ],
+  "status": "draft"
+}
