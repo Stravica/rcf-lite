@@ -42,11 +42,18 @@ jobs:
           sops --version --disable-version-check
       # RCF referees over the repo's own tree: schema/reference integrity,
       # then per-AC strict coverage (every AC bound to a TC whose
-      # testPointer resolves to a real test). A stub TC or a new
-      # uncovered AC fails the build here.
+      # testPointer resolves to a real test), then per-AC EVAL coverage
+      # in strict mode (every nonDeterministic AC bound to a resolving
+      # EVAL whose latest run is not pending). Strict is the shipped
+      # default from the referee-guarantees train (0.28.0); the
+      # `--strict` flag remains a no-op alias for readers who still
+      # spell it out. Referee-guarantees claim C-20: this CI runs both
+      # ordinary coverage and EVAL coverage in strict mode.
       - run: node bin/rcf.js define validate
         working-directory: packages/rcf-lite
-      - run: node bin/rcf.js audit coverage --strict
+      - run: node bin/rcf.js audit coverage
+        working-directory: packages/rcf-lite
+      - run: node bin/rcf.js audit eval coverage --strict
         working-directory: packages/rcf-lite
       # Customer-register scan over the shipped shelf. Refuses any hit
       # for internal operator names, workflow ids, internal host names,

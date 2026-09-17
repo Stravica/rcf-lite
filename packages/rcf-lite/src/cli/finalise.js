@@ -25,6 +25,7 @@
 //   - if rcf-verify is absent, PROMPT to install (or accept an explicit
 //     --install-verify flag) - NEVER silently skip the gate (§8.3).
 
+import { spawn } from 'node:child_process';
 import { resolve as resolvePath } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
@@ -39,11 +40,17 @@ import {
   composeShipWithoutVerifiedRecord,
   composeShipWithoutEvalRecord,
   detectVerify,
+  findBrowserVerificationMissingAcs,
   findEvalRefusalAcs,
   findMockOnlyDeclaredAcs,
+  findScopeMismatchAcs,
+  findUiBaselineUnmetAcs,
   loadReport,
+  reportHasBrowserVerificationMissing,
   reportHasEvalRefusal,
   reportHasMockOnlyDeclared,
+  reportHasScopeMismatch,
+  reportHasUiBaselineUnmet,
   resolveAbsentVerify,
   spawnVerify,
   summariseReport,
@@ -51,6 +58,17 @@ import {
   writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
 
+// Referee-guarantee train (REQ-165 / US-16502, docs claim C-26): the
+// merge-state precondition. Finalise refuses to promote to verified
+// when the git working tree is not on one of these default branches.
+// Kept small and conventional (git init and every hosted git provider
+// default to `main` or `master`); projects on a non-default trunk
+// (rare in modern repos) either rename the trunk to a listed name or
+// pass --allow-pre-merge on every finalise run. The alternative --
+// reading the git remote's default-branch symbolic ref -- adds a
+// network round-trip on every finalise and fails offline; the small
+// name list is deliberately the safer default.
+const DEFAULT_BRANCH_NAMES = new Set(['main', 'master']);
 // Kept in sync with verify's own sets by contract (build never imports verify -
 // that would break the §9 independence guarantee). Profiles: spec §4.
 // Severities: spec §5.1 finding taxonomy.
@@ -83,6 +101,16 @@ const OPTION_SPEC = {
   // string (spec section 8: missing reason exits 2). Shape mirrors
   // `--provision`: a value that looks like a flag is refused.
   'ship-without-eval': { type: 'string' },
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
+  // finalise refuses promotion when the git working tree is not on
+  // the default branch (main / master) so `verified` traces to an
+  // actual post-merge runtime check by construction. --allow-pre-merge
+  // is the deliberate opt-out for pre-merge dev-loop dry runs; the
+  // decision is logged in the finalise stdout so the operator sees
+  // it. Absent a git working tree (e.g. verify against a bare tarball
+  // deploy), the check is skipped and a warn line records that
+  // finalise could not resolve the branch state.
+  'allow-pre-merge': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -139,6 +167,15 @@ Options:
                             string is mandatory; a missing reason exits
                             2. The ack lands on the manifest under
                             shipWithoutEval[] with a monotonic id.
+  --allow-pre-merge         Referee-guarantee train (C-26): finalise
+                            refuses to promote when the git working
+                            tree is not on the default branch
+                            (main / master), so verified traces to an
+                            actual post-merge runtime check. This flag
+                            is the deliberate opt-out for pre-merge
+                            dev-loop dry runs; the decision is logged
+                            on stdout. Absent a git checkout the check
+                            degrades to a warn line.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -151,6 +188,58 @@ Exit codes:
      ship authority (a correctness-only HOLD), OR rcf-lite absent and install
      declined/unavailable - the FBS is left unchanged, findings surfaced
 `;
+
+/**
+ * Referee-guarantee train (REQ-165 / US-16502, docs claim C-26).
+ * Resolve the current git branch as an out-of-band read so finalise
+ * can refuse promotion when the working tree is not on the default
+ * branch. Returns `{ ok: true, branch }` on success, `{ ok: false,
+ * reason }` when git is absent or the working tree is not a git
+ * checkout (bare tarball deploys, container ephemeral CWD). Never
+ * throws; the caller degrades to a warn line rather than a hard fail.
+ *
+ * Kept out of `#core/store` deliberately: this is a build-lite CLI
+ * concern (the ship gate reads the working tree state), not a document
+ * store concern. It also keeps the store free of a `spawn` seam.
+ *
+ * @param {object} args
+ * @param {string} args.cwd
+ * @param {{ spawn?: typeof spawn }} [args.deps]
+ * @returns {Promise<{ ok: true, branch: string } | { ok: false, reason: string }>}
+ */
+async function resolveGitBranch({ cwd, deps = {} }) {
+  const spawnFn = deps.spawn ?? spawn;
+  return new Promise((resolveP) => {
+    let stdout = '';
+    let stderr = '';
+    let child;
+    try {
+      child = spawnFn('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+        cwd, stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch (err) {
+      resolveP({ ok: false, reason: `git spawn failed: ${err.message}` });
+      return;
+    }
+    child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
+    child.stderr.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
+    child.on('error', (err) => {
+      resolveP({ ok: false, reason: `git spawn failed: ${err.message}` });
+    });
+    child.on('close', (code) => {
+      if (code !== 0) {
+        resolveP({ ok: false, reason: `git rev-parse exited ${code}: ${stderr.trim() || 'no output'}` });
+        return;
+      }
+      const branch = stdout.trim();
+      if (!branch) {
+        resolveP({ ok: false, reason: 'git rev-parse returned empty branch name' });
+        return;
+      }
+      resolveP({ ok: true, branch });
+    });
+  });
+}
 
 /**
  * @param {string[]} argv - argv slice after `finalise`
@@ -409,8 +498,76 @@ export async function main(argv, deps = {}) {
       stderr.write(`Report: ${outPath}\n`);
       return 4;
     }
+    // Referee-guarantee train (REQ-165 / US-16501, docs claims C-28,
+    // C-29, C-30, C-36): three further per-AC verdicts join the
+    // finalise refusal list. UI-BASELINE-UNMET (a browserVerification
+    // record whose verdict came back `block`, including the aggregate
+    // for a block-severity probe-pack failure, C-36), BROWSER-VERIFICATION-MISSING
+    // (a UI-bearing FBS with no bound browserVerification record), and
+    // SCOPE-MISMATCH (a bound TC narrower than the AC scope, per NV-BL-GATE-01).
+    // The docs page does not spell a named sister opt-out for these three;
+    // the refusal is honest and there is no ack path here. Graceful on the
+    // older report shape (no perAcVerdicts field): behaviour matches the
+    // MOCK-ONLY branch above.
+    if (passLoaded.ok && reportHasUiBaselineUnmet(passLoaded.report)) {
+      const uiUnmet = findUiBaselineUnmetAcs(passLoaded.report);
+      const acList = uiUnmet.map((a) => a.acId).filter(Boolean).join(', ');
+      stderr.write(`[finalise] gate NOT promoted: ${uiUnmet.length} AC(s) came back UI-BASELINE-UNMET on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('The deployed UI failed at least one bound baseline invariant; a block-severity probe-pack failure aggregates into the same verdict. Fix the UI or the baseline, re-run rcf verify browser, then re-run finalise. Referee-guarantees claims C-28 and C-36.\n');
+      stderr.write(summariseReport(passLoaded.report));
+      stderr.write(`Report: ${outPath}\n`);
+      return 4;
+    }
+    if (passLoaded.ok && reportHasBrowserVerificationMissing(passLoaded.report)) {
+      const bvMissing = findBrowserVerificationMissingAcs(passLoaded.report);
+      const acList = bvMissing.map((a) => a.acId).filter(Boolean).join(', ');
+      stderr.write(`[finalise] gate NOT promoted: ${bvMissing.length} AC(s) came back BROWSER-VERIFICATION-MISSING on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('A UI-bearing FBS has no browserVerification record on the manifest; verify has nothing to read for the baseline check. Run rcf verify browser <fbs-id> to lay the record down, then re-run finalise. Referee-guarantees claim C-29.\n');
+      stderr.write(summariseReport(passLoaded.report));
+      stderr.write(`Report: ${outPath}\n`);
+      return 4;
+    }
+    if (passLoaded.ok && reportHasScopeMismatch(passLoaded.report)) {
+      const scopeMismatch = findScopeMismatchAcs(passLoaded.report);
+      const acList = scopeMismatch.map((a) => a.acId).filter(Boolean).join(', ');
+      stderr.write(`[finalise] gate NOT promoted: ${scopeMismatch.length} AC(s) came back SCOPE-MISMATCH on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('A bound TC is narrower than the AC scope (NV-BL-GATE-01). Widen the TC or narrow the AC scope in define, then re-run verify and finalise. Referee-guarantees claim C-30.\n');
+      stderr.write(summariseReport(passLoaded.report));
+      stderr.write(`Report: ${outPath}\n`);
+      return 4;
+    }
+    // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
+    // the merge-state precondition. `verified` promises "an actual
+    // post-merge runtime check" and the way finalise proves that is
+    // by refusing when the working tree is not on the default branch
+    // (main / master), so a mid-branch dev-loop run cannot stamp
+    // verified. --allow-pre-merge is the deliberate opt-out for
+    // pre-merge dry runs; the decision is logged in the finalise
+    // stdout so the operator sees it. Absent a git working tree the
+    // check degrades to a warn line rather than a hard fail: verify
+    // against a bare tarball deploy is legitimate and should not be
+    // refused by a git-shape check.
+    const gitBranch = await resolveGitBranch({ cwd, deps });
+    if (!gitBranch.ok) {
+      stderr.write(`[warn] finalise: could not resolve git branch (${gitBranch.reason}); skipping the post-merge precondition. Referee-guarantees claim C-26.\n`);
+    } else if (!DEFAULT_BRANCH_NAMES.has(gitBranch.branch)) {
+      if (flags['allow-pre-merge']) {
+        if (!quiet) {
+          stdout.write(`[finalise] --allow-pre-merge: promoting on branch '${gitBranch.branch}' (not a default trunk). Referee-guarantees claim C-26 records the pre-merge decision here.\n`);
+        }
+      } else {
+        stderr.write(`[finalise] gate NOT promoted: git working tree is on branch '${gitBranch.branch}', not a default trunk (${[...DEFAULT_BRANCH_NAMES].join(' / ')}); ${fbsId} left '${currentStatus}'.\n`);
+        stderr.write('The referee-guarantees page promises that verified traces to an actual post-merge runtime check. Merge the branch and re-run finalise, or pass --allow-pre-merge for a deliberate pre-merge dry run (the decision is logged on stdout). Referee-guarantees claim C-26.\n');
+        return 4;
+      }
+    }
     const result = await updateDocument({
-      projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }], options: {},
+      projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }],
+      // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
+      // the writer refuses executionStatus=verified on FBS by default.
+      // Finalise is the only path the docs promise can write it, so
+      // this call carries the override flag through.
+      options: { allowVerifiedOverride: true },
     });
     if (isRcfError(result)) {
       if (result.kind === 'ioFailure') { writeUnexpectedFailure(result, stderr); return 1; }

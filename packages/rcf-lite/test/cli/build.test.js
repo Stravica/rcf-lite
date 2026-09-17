@@ -252,19 +252,28 @@ test('--mark verified is refused (exit 4), names rcf finalise, and writes nothin
   assert.equal(code, 4);
   assert.match(stderr, /\[error\] refused/);
   assert.match(stderr, /rcf build finalise FBS-001/);
-  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=verified/);
+  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=verified --acknowledge-verified-override/);
   // No write landed: the FBS is still complete, not verified.
   const fbs = await readFbs(tmp);
   assert.equal(fbs.executionStatus, 'complete');
 });
 
-test('the sanctioned manual override still works: rcf update --set executionStatus=verified', async () => {
+test('the sanctioned manual override still works: rcf update --set executionStatus=verified --acknowledge-verified-override (referee-guarantees C-22 gated escape)', async () => {
   const tmp = await scaffold();
   await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  const { code } = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified']);
+  // Referee-guarantee train (REQ-165 / US-16502): the writer refuses
+  // FBS.executionStatus=verified by default; --acknowledge-verified-override
+  // is the deliberate, logged operator escape valve.
+  const bare = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified']);
+  assert.equal(bare.code, 2, 'unflagged manual override is refused (usage)');
+  assert.match(bare.stderr, /verified is written only by the finalise gate/);
+  const bareFbs = await readFbs(tmp);
+  assert.equal(bareFbs.executionStatus, 'complete', 'no write landed without the override flag');
+
+  const { code } = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified', '--acknowledge-verified-override']);
   assert.equal(code, 0);
   const fbs = await readFbs(tmp);
-  assert.equal(fbs.executionStatus, 'verified', 'rcf update remains the explicit verified override');
+  assert.equal(fbs.executionStatus, 'verified', 'rcf update remains the explicit verified override when the operator acknowledges it');
 });
 
 test('bad --mark value exits 2', async () => {

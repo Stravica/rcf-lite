@@ -147,7 +147,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // + d-2026-09-16-008) added REQ-155..162 for the feedback core verb
   // (capture, redact, dedupe, destination, submit-under-identity,
   // fallback bundle, one-ask-per-session, RULE 17) (92 -> 100).
-  assert.equal(tree.requirements.length, 100);
+  assert.equal(tree.requirements.length, 103);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (3 more).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
   // section 9 name as the redundant-resolution remedy. Core companions
@@ -208,7 +209,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // 15801..15802, 15901..15902, 16001, 16101..16104, 16201 (14 in the
   // chain PR, plus US-16104 added by gate-review fix F-3 for the hook
   // installer/doctor ACs) (149 -> 164).
-  assert.equal(tree.userStories.length, 164);
+  assert.equal(tree.userStories.length, 168);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
   // shape per HQ reserved-block ruling 2026-09-07 (19 -> 23).
@@ -222,7 +224,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // feedback-store, feedback-redact, feedback-fingerprint,
   // feedback-render, feedback-destination, feedback-gh, feedback-hook)
   // (30 -> 38).
-  assert.equal(tree.tacs.length, 38);
+  assert.equal(tree.tacs.length, 42);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
   // camelCase topics).
@@ -239,7 +242,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // fingerprint-and-labels, redaction-rule-based, destination-on-library,
   // gh-ambient-auth, bundled-entries-terminal, stop-is-ask-event,
   // hooks-in-committed-config) (33 -> 41).
-  assert.equal(tree.adrs.length, 41);
+  assert.equal(tree.adrs.length, 45);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
   // companions train added FBS-028..034 for the seven new USs on
@@ -294,7 +298,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // store, slice 2 redaction/fingerprint/preview, slice 3 destination
   // resolution, slice 4 submit/dedupe/fallback, slice 5 the ask,
   // slice 6 instruction and release) (69 -> 75).
-  assert.equal(tree.fbsItems.length, 75);
+  assert.equal(tree.fbsItems.length, 79);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
   // (US-1101..1104) intentionally ship without paired TS entries, see
@@ -378,7 +383,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (US-16201, AC-16201-1/-2 across five TCs on the RULE 17 byte-exact
   // guidance test and the init/doctor upgrade path CLI test)
   // (139 -> 140).
-  assert.equal(tree.testSuites.length, 140);
+  assert.equal(tree.testSuites.length, 144);
+  // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
   assert.equal(tree.bs?.bsId, 'BS-001');
@@ -471,15 +477,15 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154, REQ-155..REQ-162)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154, REQ-155..REQ-162, REQ-163..REQ-165)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07.
   // Round-7 follow-up adapter added REQ-140 for the object-storage-s3 v1.1.0 Hetzner Object Storage adapter minor bump per HQ reserved-block ruling 2026-09-08.
   // H-1 hardening train added REQ-145 for the deploy-hetzner-server 1.0.1 real-path fidelity patch.
   // Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca.
-  // Feedback submission chain (w-2026-09-14-dave-026) added REQ-155..162 for the feedback core verb, redaction, dedupe, destination, submission under reporter identity, fallback bundle, one-ask-per-session and RULE 17.
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154', 'REQ-155', 'REQ-156', 'REQ-157', 'REQ-158', 'REQ-159', 'REQ-160', 'REQ-161', 'REQ-162']);
+  // Referee-guarantee train (merged 2026-09-17) added REQ-163..REQ-165.
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154', 'REQ-155', 'REQ-156', 'REQ-157', 'REQ-158', 'REQ-159', 'REQ-160', 'REQ-161', 'REQ-162', 'REQ-163', 'REQ-164', 'REQ-165']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {
@@ -531,6 +537,43 @@ test('walkTree flags an ADR with a broken tadId as brokenReference', async () =>
   const { errors } = await walkTree({ projectRoot: root });
   const broken = errors.find((e) => e.kind === 'brokenReference' && e.documentId === 'ADR-001' && e.field === 'tadId');
   assert.ok(broken, JSON.stringify(errors, null, 2));
+});
+
+// Referee-guarantee train (REQ-163 / US-16301 / AC-16301-1): the
+// referee-guarantees docs page promises that every reference in every
+// document resolves. Before this train, ADR `supersededBy` was
+// schema-declared but never walked, so validate would pass on a chain
+// whose supersession target had no file on disk. TC-200-supersededBy-broken.
+test('walkTree flags an ADR with a broken supersededBy pointer as brokenReference (REQ-163 AC-16301-1)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-superseded-'));
+  await initProject({ projectRoot: root });
+  const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
+  const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
+  adr.supersededBy = 'ADR-999';
+  await writeFile(adrPath, JSON.stringify(adr), 'utf8');
+  const { errors } = await walkTree({ projectRoot: root });
+  const broken = errors.find((e) => e.kind === 'brokenReference' && e.documentId === 'ADR-001' && e.field === 'supersededBy');
+  assert.ok(broken, JSON.stringify(errors, null, 2));
+});
+
+// AC-16301-2 (compatibility carry): `relatedAdrs` is intentionally NOT
+// walked because `rcf define blueprint supersede` writes a project ADR
+// whose relatedAdrs lists both the applied blueprint ADR and the
+// incoming blueprint ADR (not yet on disk; the incoming add is the
+// closing step of option 3). Walking relatedAdrs would refuse that
+// ratified workflow between the supersede write and the re-add. The
+// test proves that an unresolved relatedAdrs pointer stays silent:
+// silence is exactly the compatibility carry.
+test('walkTree stays silent on an ADR with an unknown id in relatedAdrs (referee-guarantee C-7 compatibility carry: soft-reference half deferred)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-related-'));
+  await initProject({ projectRoot: root });
+  const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
+  const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
+  adr.relatedAdrs = ['ADR-777'];
+  await writeFile(adrPath, JSON.stringify(adr), 'utf8');
+  const { errors } = await walkTree({ projectRoot: root });
+  const noisy = errors.find((e) => e.kind === 'brokenReference' && e.documentId === 'ADR-001' && (e.field ?? '').startsWith('relatedAdrs'));
+  assert.equal(noisy, undefined, `relatedAdrs must stay silent; got ${JSON.stringify(errors, null, 2)}`);
 });
 
 test('walkTree flags an FBS with an unknown acId as brokenReference', async () => {

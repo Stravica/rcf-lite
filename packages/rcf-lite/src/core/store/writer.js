@@ -1115,6 +1115,29 @@ export async function updateDocument({ projectRoot, tree, id, patch, sets = [], 
     return rcfError({ kind: 'usage', message: `update: id ${id} not found`, documentId: id });
   }
 
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
+  // `rcf build finalise` is the only path that writes FBS
+  // executionStatus=verified. The manifest / FBS schema admits
+  // `verified` as an executionStatus value (the finalise writer
+  // depends on that), so `validateDocument` would silently accept a
+  // manual override on the update path. Refuse it here unless the
+  // caller passed `options.allowVerifiedOverride: true` (finalise
+  // sets that flag; the define-update CLI sets it only when the
+  // operator passes `--acknowledge-verified-override`, per the
+  // escalation clause on this train). The docs promise is that a
+  // chain that says `verified` traces to an actual post-merge
+  // runtime check by construction; this refusal is the gate.
+  if (kind === 'fbs' && !options.allowVerifiedOverride) {
+    const touchesVerified = (patch && patch.executionStatus === 'verified')
+      || sets.some((s) => s.path === 'executionStatus' && s.value === 'verified');
+    if (touchesVerified) {
+      return rcfError({
+        kind: 'usage',
+        message: `update: refusing to write executionStatus=verified on ${id}; verified is written only by the finalise gate (rcf build finalise <fbs-id> --url <deploy-url>). For a deliberate manual override use --acknowledge-verified-override on rcf define update; the override is a logged operator decision that skips the post-merge runtime check.`,
+        documentId: id,
+      });
+    }
+  }
   // Build patched body: start from doc, apply --from-file deep merge,
   // then apply each --set dot-path assignment.
   let next = deepClone(doc);

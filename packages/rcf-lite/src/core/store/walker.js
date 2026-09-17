@@ -817,6 +817,39 @@ function collectBrokenReferences(tree, errors) {
       filePath: `rcf/adrs/${(adr.adrId ?? '').toLowerCase()}.json`,
       message: `ADR ${adr.adrId} references unknown TAD ${adr.tadId}`,
     });
+    // Referee-guarantee train (REQ-163 / US-16301, docs claim C-7):
+    // the "every reference in every document resolves" promise on the
+    // referee-guarantees page needs the ADR-schema-declared cross-links
+    // walked here. `supersededBy` is the strong, chain-of-decisions
+    // reference: an ADR that points at an unknown successor is a broken
+    // history record. Walk it under the same check helper as every other
+    // cross-link so a bad target fails validate with a brokenReference
+    // named to the ADR file and the field.
+    //
+    // `relatedAdrs` (the soft, "see also" back-reference) is intentionally
+    // NOT walked here. The `rcf define blueprint supersede` verb writes
+    // a project ruling ADR whose relatedAdrs lists BOTH the applied
+    // blueprint ADR (present on disk) AND the incoming blueprint ADR
+    // (not yet on disk: the incoming blueprint add is the closing step
+    // of the option-3 workflow the conflict message prints). Walking
+    // relatedAdrs would refuse that ratified workflow between the
+    // supersede write and the re-add. Escalation-clause carry: the docs
+    // claim held by `supersededBy` alone matches the strong-reference
+    // half of the referee promise; the soft `relatedAdrs` half is a
+    // schemas follow-up (either "value-narrowed to already-applied ADR
+    // ids" or "walked but with a workflow-aware exception on the
+    // supersede write path").
+    if (typeof adr.supersededBy === 'string' && adr.supersededBy.length > 0) {
+      check({
+        docId: adr.adrId,
+        docKind: 'adr',
+        fromField: 'supersededBy',
+        targetId: adr.supersededBy,
+        expectedKind: 'adr',
+        filePath: `rcf/adrs/${(adr.adrId ?? '').toLowerCase()}.json`,
+        message: `ADR ${adr.adrId} references unknown ADR ${adr.supersededBy} in supersededBy`,
+      });
+    }
   }
 
   // FBS parent + cross-link + dependency checks. `buildOrder` uniqueness

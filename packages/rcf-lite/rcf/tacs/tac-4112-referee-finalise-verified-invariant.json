@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "tacId": "TAC-4112-referee-finalise-verified-invariant",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "finalise verified-invariant: writer refusal + merge-state precondition",
+  "purpose": "Gate the two paths that let the 0.27.0 chain say verified without an actual post-merge runtime check. (a) Refuse a define-update patch that writes FBS.executionStatus=verified unless the caller passes options.allowVerifiedOverride=true; the finalise CLI is the sole caller that sets that seam. The define-update CLI exposes the escape valve as --acknowledge-verified-override, matching the escalation clause on this train (existing WSD projects may still need a manual escape hatch for repair scenarios). (b) In `packages/rcf-lite/src/cli/finalise.js`, spawn a git rev-parse subprocess just before the executionStatus write and refuse promotion (exit 4) when the branch is not one of {main, master}. --allow-pre-merge is the deliberate pre-merge dry-run opt-out; the decision is logged on stdout so the operator sees it. Absent a git checkout the check degrades to a warn line rather than a hard fail.",
+  "responsibilities": [
+    "Add the FBS.executionStatus=verified refusal to updateDocument in `packages/rcf-lite/src/core/store/writer.js`, gated on options.allowVerifiedOverride (AC-16502-1, AC-16502-2).",
+    "Add --acknowledge-verified-override to the define-update CLI, threading options.allowVerifiedOverride through (AC-16502-1).",
+    "Wire the finalise CLI's own updateDocument call to pass options.allowVerifiedOverride:true (backward compatibility for the finalise happy path).",
+    "Add resolveGitBranch helper in finalise.js as a testable seam (deps.spawn) around child_process.spawn (AC-16502-3).",
+    "Add the branch-name refusal branch just before the executionStatus write; support --allow-pre-merge and degrade to a warn line when the branch cannot be resolved (AC-16502-3).",
+    "Update HELP for both CLIs so the flags and their intent are self-documenting."
+  ],
+  "internalStructure": "Writer refusal fires at the very top of the patch-apply path in updateDocument, before deep-merge and dot-path assignments run, so no partial state ever lands. The finalise-side branch check uses child_process.spawn (imported at module top) with the deps.spawn seam consumers can override in tests; the shape mirrors spawnVerify's own seam. The default-branch set is small and conventional ({main, master}) rather than reading the git remote's symbolic ref (which fails offline and adds a round-trip on every finalise).",
+  "interfaces": [],
+  "notes": "Behavioural addition, not a change on the finalise happy path (finalise passes the override flag through). Downstream projects that ran `rcf define update <fbs> --set executionStatus=verified` without --acknowledge-verified-override will see the write refused; the fix is either finalise or the new opt-out flag. Downstream projects whose finalise ran off a non-default branch will see the pre-merge refusal; --allow-pre-merge is the documented dry-run seam."
+}

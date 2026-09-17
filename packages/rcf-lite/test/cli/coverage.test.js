@@ -72,10 +72,12 @@ test('rcf coverage with a TS whose pointer resolves exits 0 and reports covered:
   assert.equal(body.totals.coveredUnresolved, 0);
 });
 
-test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unresolved, and --strict exits 4', async () => {
+test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unresolved, and the default (strict) exits 4', async () => {
   const tmp = await scaffold();
   await addCoveringTs(tmp, { withRealTest: false });
-  const json = await runBin(tmp, ['audit', 'coverage', '--format', 'json']);
+  // REQ-164 (strict-by-default) — pass --mode shallow-any to inspect
+  // the covered-unresolved data without tripping the gate.
+  const json = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any', '--format', 'json']);
   assert.equal(json.code, 0);
   const body = JSON.parse(json.stdout);
   assert.equal(body.ok, false, 'a stub TC must not report ok');
@@ -89,22 +91,52 @@ test('rcf coverage with a stub TC (pointer does not resolve) reports covered-unr
     reason: 'file-missing',
   }]);
 
-  const table = await runBin(tmp, ['audit', 'coverage']);
+  const table = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any']);
   assert.match(table.stdout, /covered-unresolved: 1/);
   assert.match(table.stdout, /TC-001-happy-path\[unresolved\]/);
   assert.match(table.stdout, /Unresolved test pointers \(never counted as coverage\):/);
 
+  // The plain default is strict-by-default from the referee-guarantees
+  // train (0.28.0), so a stub coverage fails the gate with no flag.
+  const defaultRun = await runBin(tmp, ['audit', 'coverage']);
+  assert.equal(defaultRun.code, 4, 'stub coverage must fail the default (strict) gate');
+
+  // The legacy --strict alias behaves identically.
   const strict = await runBin(tmp, ['audit', 'coverage', '--strict']);
-  assert.equal(strict.code, 4, 'stub coverage must fail the strict gate');
+  assert.equal(strict.code, 4, 'stub coverage must fail the legacy --strict alias');
 });
 
-test('rcf coverage --strict with a gap exits 4', async () => {
+test('rcf coverage (strict-by-default) with a gap exits 4', async () => {
   const tmp = await scaffold();
   // No covering TS added - the scaffold has an AC-101-1 with no TC coverage.
-  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--strict']);
+  // Plain invocation: strict is the default.
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage']);
   assert.equal(code, 4);
   // Nothing on stderr from the compute path; the table went to stdout.
   void stderr;
+});
+
+test('rcf coverage --mode shallow-any prints gaps and exits 0 (explicit opt-out)', async () => {
+  // REQ-164 (strict-by-default) opt-out: the shallow-any mode is
+  // the documented escape valve for author-time exploration.
+  const tmp = await scaffold();
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any']);
+  assert.equal(code, 0);
+  assert.match(stdout, /Coverage mode: shallow-any/);
+});
+
+test('rcf coverage --mode shallow-any --strict exits 2 (conflicting flags)', async () => {
+  const tmp = await scaffold();
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any', '--strict']);
+  assert.equal(code, 2);
+  assert.match(stderr, /--mode shallow-any conflicts with --strict/);
+});
+
+test('rcf coverage --mode unknown exits 2', async () => {
+  const tmp = await scaffold();
+  const { code, stderr } = await runBin(tmp, ['audit', 'coverage', '--mode', 'lenient']);
+  assert.equal(code, 2);
+  assert.match(stderr, /unknown --mode lenient/);
 });
 
 test('rcf coverage --format yaml exits 2 (bad format)', async () => {
@@ -127,7 +159,10 @@ test('rcf coverage on a broken tree exits 3 (walker errors block)', async () => 
 
 test('rcf coverage REQ-001 scopes to a REQ (positional)', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', 'REQ-001', '--format', 'json']);
+  // REQ-164 (strict-by-default): the scaffold's REQ-001 has an
+  // uncovered AC-101-1, so run in shallow-any so the positional-scope
+  // shape is the focus rather than the strict-gate exit code.
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', 'REQ-001', '--mode', 'shallow-any', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.totals.requirements, 1);

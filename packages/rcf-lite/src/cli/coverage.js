@@ -1,10 +1,15 @@
 // `rcf coverage` subcommand handler. Reports structural coverage over
 // the REQ chain (PRD -> REQ -> US -> AC -> TS -> TC). Phase 5 §D2 / §D10.
 //
-// Shallow-any default (any AC covered by any TC = REQ covered);
-// --strict opts into per-AC-strict. --strict on a tree with uncovered
-// ACs exits 4 (CI-gate friendly). Otherwise coverage always exits 0 -
-// the gap count is data, not a refusal.
+// Referee-guarantees train (REQ-164 / US-16401, docs claims C-11 /
+// C-14): strict-by-default. The default mode is per-AC-strict; a
+// stub or stale pointer fails the gate exactly as a missing test does
+// when the plain `rcf audit coverage` command is run. The explicit
+// opt-out is `--mode shallow-any` (any AC covered by any resolving
+// TC = REQ covered), which prints the gaps and exits 0 as before. The
+// legacy `--strict` flag remains a no-op alias for the new default so
+// existing CI invocations, blueprints and dogfood scripts stay green;
+// `--mode shallow-any --strict` (or the inverse) is a usage refusal.
 //
 // Phase-boundary reminder (§D2, §1.4): this verb is a MECHANICAL /
 // DETERMINISTIC structural check. It does NOT answer "does the AC
@@ -32,14 +37,19 @@ import {
 
 const OPTION_SPEC = {
   strict: { type: 'boolean' },
+  // Referee-guarantee train (REQ-164 / US-16401): explicit --mode
+  // selector. Values: strict | shallow-any. Default: strict.
+  mode: { type: 'string' },
   format: { type: 'string' },
   help: { type: 'boolean' },
   // Phase 10 (X2 CodeNode bridge, D11): layer the code axis onto coverage.
   'with-code': { type: 'boolean' },
-  // 0.7.0 verification-integrity: opt-in extra gate on --strict that
+  // 0.7.0 verification-integrity: opt-in extra gate on strict mode that
   // refuses any TS still `draft` after Stage 4 (spec §7.2).
   'require-approved': { type: 'boolean' },
 };
+
+const VALID_MODES = new Set(['strict', 'shallow-any']);
 
 export const HELP = `Usage: rcf audit coverage [scope-id] [options]
 
@@ -47,9 +57,9 @@ Report structural coverage over the REQ chain (PRD -> REQ -> US -> AC
 -> TS -> TC). A TC counts as covering its AC only when its testPointer
 (filePath::testName) resolves to a real test in the working tree; a TC
 whose pointer does not resolve is reported as covered-unresolved, never
-counted as coverage. Default is shallow-any (any AC covered by any
-resolving TC = REQ covered); --strict flips to per-AC-strict (every AC
-has resolving TC coverage).
+counted as coverage. Strict-by-default (per-AC: every AC has resolving
+TC coverage); --mode shallow-any is the explicit opt-out (any AC
+covered by any resolving TC = REQ covered) and always exits 0.
 
 This is a mechanical / deterministic structural check. It does NOT
 answer 'does the AC set adequately capture the REQ's intent?' - that
@@ -63,14 +73,16 @@ Positional:
                             TAD) are refused with exit 2.
 
 Options:
-  --strict                  Per-AC-strict mode; exits 4 on any gap. Also
-                            runs the attestation × profile matrix over
-                            every AC that binds a dependsOnServices
-                            entry (verification-integrity 0.7.0 §5.2):
-                            attestation drift, missing provenance, and
-                            missing FBS-level attestation all exit 4.
-  --require-approved        Extra --strict gate: refuse any TS still at
-                            authoringStatus 'draft' after Stage 4
+  --mode <mode>             strict (default) | shallow-any. Strict is
+                            per-AC and exits 4 on any gap; shallow-any
+                            prints gaps and exits 0.
+  --strict                  Legacy alias for --mode strict; kept for
+                            backward compatibility with existing CI,
+                            blueprints and dogfood invocations. A no-op
+                            under the new default; conflict with an
+                            explicit --mode shallow-any exits 2.
+  --require-approved        Extra strict-mode gate: refuse any TS still
+                            at authoringStatus 'draft' after Stage 4
                             (verification-integrity 0.7.0 §7.2). Off
                             by default; opt-in via CI.
   --with-code               Layer the code axis onto every AC: one of
@@ -117,6 +129,19 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage coverage: multiple positional ids are not supported\n');
     return 2;
   }
+  // Referee-guarantee train (REQ-164): resolve strict-vs-shallow.
+  // Default is strict. --mode wins if set; --strict is a legacy alias
+  // for --mode strict; --mode shallow-any --strict is a usage refusal
+  // so a scripted invocation cannot silently disagree with itself.
+  if (flags.mode !== undefined && !VALID_MODES.has(flags.mode)) {
+    stderr.write(`[error] usage coverage: unknown --mode ${flags.mode} (expected strict | shallow-any)\n`);
+    return 2;
+  }
+  if (flags.mode === 'shallow-any' && flags.strict === true) {
+    stderr.write('[error] usage coverage: --mode shallow-any conflicts with --strict; pick one\n');
+    return 2;
+  }
+  const strict = flags.mode === 'shallow-any' ? false : true;
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -156,7 +181,7 @@ export async function main(argv, deps = {}) {
   // and a TC that fails resolution surfaces as covered-unresolved.
   const testPointers = await resolveTestPointers({ projectRoot, tree });
   const result = computeCoverage(tree, {
-    strict: Boolean(flags.strict), scopeId, withCode: Boolean(flags['with-code']), testPointers,
+    strict, scopeId, withCode: Boolean(flags['with-code']), testPointers,
   });
 
   let output;
@@ -165,16 +190,16 @@ export async function main(argv, deps = {}) {
   else output = formatTable(result, 'coverage');
   stdout.write(output);
 
-  // --strict on any gap = exit 4 (CI-gate friendly). Otherwise 0.
-  if (flags.strict && !result.ok) return 4;
+  // Strict mode on any gap = exit 4 (CI-gate friendly). Otherwise 0.
+  if (strict && !result.ok) return 4;
 
-  // 0.7.0 verification-integrity extension: --strict also runs the
+  // 0.7.0 verification-integrity extension: strict mode also runs the
   // attestation × profile matrix (spec §5.2). Three refusal classes:
   // (1) attestation missing, (2) provenance missing, (3) attestation
   // drift. All are additive — they never turn a passing coverage into
   // a passing --strict run; they only add exit-4 refusals on new
   // failure modes that the matrix now polices.
-  if (flags.strict) {
+  if (strict) {
     // Review N-3 (non-blocking): surface preFlightConfig services with
     // empty affectedFbsIds so the operator knows findAttestationMissing
     // is skipping them on purpose (honest-but-invisible without this
@@ -182,7 +207,7 @@ export async function main(argv, deps = {}) {
     // into a failing one.
     const emptyAffected = findServicesWithEmptyAffectedFbsIds(tree);
     for (const s of emptyAffected) {
-      stderr.write(`[warn] coverage --strict: preFlightConfig service '${s.serviceId}' (${s.preFlightConfigId}) has empty affectedFbsIds; the attestation-missing detector cannot cross-check it until the back-reference is populated.\n`);
+      stderr.write(`[warn] coverage strict: preFlightConfig service '${s.serviceId}' (${s.preFlightConfigId}) has empty affectedFbsIds; the attestation-missing detector cannot cross-check it until the back-reference is populated.\n`);
     }
 
     const missing = findAttestationMissing(tree);
@@ -203,14 +228,14 @@ export async function main(argv, deps = {}) {
       for (const d of drifts) refusals.push(`  - ${d.tsId}/${d.tcId} on ${d.acId} (service ${d.serviceId}): ${d.reason}`);
     }
     if (refusals.length > 0) {
-      stderr.write(`[error] coverage --strict: refused - the verification-integrity matrix caught the following:\n${refusals.join('\n')}\n`);
+      stderr.write(`[error] coverage strict: refused - the verification-integrity matrix caught the following:\n${refusals.join('\n')}\n`);
       return 4;
     }
 
     if (flags['require-approved']) {
       const draftTsIds = (tree.testSuites ?? []).filter((ts) => ts.status !== 'approved').map((ts) => ts.id);
       if (draftTsIds.length > 0) {
-        stderr.write(`[error] coverage --strict --require-approved: refused - ${draftTsIds.length} test suite(s) still not approved: ${draftTsIds.join(', ')}\n`);
+        stderr.write(`[error] coverage strict --require-approved: refused - ${draftTsIds.length} test suite(s) still not approved: ${draftTsIds.join(', ')}\n`);
         return 4;
       }
     }

@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "purpose": "Cover AC-16502-1 (writer refuses executionStatus=verified without allowVerifiedOverride, C-22), AC-16502-2 (writer accepts when allowVerifiedOverride:true, C-22 opt-out seam), and AC-16502-3 (finalise refuses on a non-default branch, --allow-pre-merge is the opt-out, C-26). AC-16502-1 and AC-16502-2 drive the writer directly through updateDocument; AC-16502-3 drives the finalise CLI end-to-end with a spawn seam that returns the branch name.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16502-1",
+    "AC-16502-2",
+    "AC-16502-3"
+  ],
+  "id": "TS-203",
+  "usId": "US-16502",
+  "title": "finalise verified-invariant: writer refusal and merge-state precondition",
+  "testCases": [
+    {
+      "id": "TC-203-writer-refuses-manual-verified",
+      "acId": "AC-16502-1",
+      "description": "Fresh project via initProject with FBS-001 at complete; call updateDocument with sets=[{path:'executionStatus', value:'verified'}] and options={}; assert result is RcfError kind='usage' matching /verified is written only by the finalise gate/; FBS on disk still at complete.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::define update FBS.executionStatus=verified is refused without --acknowledge-verified-override (referee-guarantees C-22)"
+    },
+    {
+      "id": "TC-203-writer-accepts-with-override",
+      "acId": "AC-16502-2",
+      "description": "Same scaffold; call updateDocument with options={allowVerifiedOverride:true}; assert result carries an id and FBS on disk reads status verified.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::define update FBS.executionStatus=verified proceeds with allowVerifiedOverride:true (finalise seam, C-22 opt-out)"
+    },
+    {
+      "id": "TC-203-merge-state-refusal-and-opt-out",
+      "acId": "AC-16502-3",
+      "description": "Fresh scaffold with a stub verify subprocess and a spawn seam that returns 'feature/x' as the git branch. First invocation: rcf build finalise <fbs> --url ...; assert exit 4 and stderr matches /git working tree is on branch 'feature\\/x'/. Second invocation: add --allow-pre-merge; assert exit 0, FBS at verified, and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/.",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses promotion when git is not on a default branch (referee-guarantees C-26)"
+    }
+  ],
+  "status": "approved"
+}

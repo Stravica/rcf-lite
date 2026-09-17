@@ -190,7 +190,7 @@ The point of keeping this structure is that mechanical questions get mechanical 
 **Which requirements are actually covered by tests?**
 
 ```sh
-rcf audit coverage
+rcf audit coverage --mode shallow-any
 ```
 
 ```
@@ -203,6 +203,8 @@ REQ-001      no       AC-101-1  no          -
 REQ-002      no       AC-201-1  no          -
                       AC-201-2  no          -
 ```
+
+The default `rcf audit coverage` is per-AC strict (every AC has resolving TC coverage) and exits 4 on any gap; `--mode shallow-any` is the explicit opt-out that prints gaps and exits 0, useful for author-time exploration on a chain that does not yet claim to be shippable.
 
 Zero covered - true, because nothing specifies tests yet. Coverage is answered by the test layer of the chain: a test suite (TS) owns test cases (TC), each test case verifies one acceptance criterion, and each test case carries a `testPointer` (`filePath::testName`) naming the executable test behind it. The pointer is not decoration: `rcf audit coverage` counts a test case only when its pointer resolves to a real test in the tree. So write the tests first:
 
@@ -236,7 +238,7 @@ TC-001-unknown-ingredient created at rcf/test-suites/ts-001.json
 ```
 
 ```sh
-rcf audit coverage
+rcf audit coverage --mode shallow-any
 ```
 
 ```
@@ -252,7 +254,7 @@ REQ-002      yes      AC-201-1  yes         TC-001-flour-search
 
 If a pointer stops resolving - the test file moves, or the test is renamed - the requirement drops out of `covered` into its own `covered-unresolved` column, and the offending pointer is listed under the table with the reason. A test-case row on the tree never counts as coverage on its own; the test behind it has to exist.
 
-`--strict` is the CI-gate form: per-AC coverage, exit 4 on any gap - and an unresolved pointer is a gap. With REQ-001 still uncovered it prints the same table and exits 4 - wire exactly that into a pipeline when you want "nothing unspecified gets merged".
+Plain `rcf audit coverage` is the CI-gate form: strict-by-default, per-AC coverage, exit 4 on any gap - and an unresolved pointer is a gap. With REQ-001 still uncovered it prints the same table and exits 4 - wire exactly that into a pipeline when you want "nothing unspecified gets merged". The legacy `--strict` flag is still accepted for readers who spell it out.
 
 **What does this document connect to?**
 
