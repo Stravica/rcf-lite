@@ -754,6 +754,47 @@ async function handleDefer(argv, ctx) {
   return 0;
 }
 
+/**
+ * Requeue entries that were `deferredUntilSession` under a prior
+ * `sessionId` back to `pending` for the current session. Called from
+ * both `runSessionStartHook` and `runStopHook` so a defer taken in
+ * session A returns to the ask queue in session B whether the
+ * SessionStart hook is installed or not (design 3.1: defer = "not
+ * now", ask again next session; AC-16103-3).
+ *
+ * The transition line writes `{ id, at, status: 'pending' }` with
+ * NO `sessionId` field, so fold-by-id preserves the entry's prior
+ * `sessionId` (the session it was last deferred in). That keeps the
+ * `anyCarriedOver` gate in both hooks naturally true in the new
+ * session: `pending.sessionId !== currentSessionId`.
+ *
+ * Idempotent per session: entries whose folded `sessionId` already
+ * equals the current session (a fresh add this session, or a
+ * previous requeue for this same session) are skipped.
+ *
+ * @param {string} projectRoot
+ * @param {string | undefined} sessionId
+ * @param {() => Date} now
+ * @returns {Promise<number>} number of entries requeued
+ */
+async function requeueDeferredForSession(projectRoot, sessionId, now) {
+  if (!sessionId) return 0;
+  const all = await readEntries(projectRoot);
+  const toRequeue = all.filter((e) => {
+    if (e.status !== 'deferredUntilSession') return false;
+    const s = typeof e.sessionId === 'string' ? e.sessionId : '';
+    return s !== '' && s !== sessionId;
+  });
+  if (toRequeue.length === 0) return 0;
+  const at = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+  for (const e of toRequeue) {
+    await appendState(projectRoot, {
+      id: e.id, at, status: 'pending',
+    });
+  }
+  return toRequeue.length;
+}
+
 // -- discard ---------------------------------------------------------------
 
 const DISCARD_OPTIONS = /** @type {const} */ ({
@@ -1880,7 +1921,7 @@ async function handleHook(argv, ctx) {
     return runSessionEndHook(projectRoot, { now });
   }
   if (sub === 'session-start') {
-    return runSessionStartHook(projectRoot, harness, sessionIdIncoming, { stdout });
+    return runSessionStartHook(projectRoot, harness, sessionIdIncoming, now, { stdout });
   }
   return runStopHook(projectRoot, harness, sessionIdIncoming, payload, env, now, { stdout, stderr });
 }
@@ -1925,6 +1966,11 @@ async function runStopHook(projectRoot, harness, sessionId, payload, env, now, s
   const fileOptOut = settingsRead.settings.ask === false;
   const envOptOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
   const optedOut = fileOptOut || envOptOut;
+
+  // AC-16103-3: deferred entries from an earlier sessionId return to
+  // pending here so a defer taken in session A is asked again in
+  // session B whether or not the SessionStart hook fired first.
+  await requeueDeferredForSession(projectRoot, sessionId, now);
 
   const all = await readEntries(projectRoot);
   const pending = all.filter((e) => e.status === 'pending');
@@ -1976,7 +2022,14 @@ async function runStopHook(projectRoot, harness, sessionId, payload, env, now, s
   return emitHook(harness, decision, reason, streams);
 }
 
-async function runSessionStartHook(projectRoot, harness, sessionId, streams) {
+async function runSessionStartHook(projectRoot, harness, sessionId, now, streams) {
+  // AC-16103-3: deferred entries from an earlier sessionId return to
+  // pending on SessionStart so the same session's Stop offers the
+  // ask (design 3.1: defer = "not now", ask again next session).
+  // The transition preserves the entry's prior sessionId so the
+  // carry-over gate below still fires for the requeued entries.
+  await requeueDeferredForSession(projectRoot, sessionId, now);
+
   const all = await readEntries(projectRoot);
   const pending = all.filter((e) => e.status === 'pending');
   const anyCarriedOver = pending.some((e) => {

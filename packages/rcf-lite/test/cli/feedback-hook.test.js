@@ -7,7 +7,11 @@
 //     session_id re-asks per the quiet rule;
 //   - AC-16103-1: SessionEnd writes an idempotent outbox bundle;
 //   - AC-16103-2: SessionStart injects the carry-over context line
-//     (Claude Code shape and Codex shape).
+//     (Claude Code shape and Codex shape);
+//   - AC-16103-3: defer means "not now, ask again next session":
+//     deferredUntilSession entries with a prior sessionId return to
+//     pending on SessionStart AND on Stop (belt to the SessionStart
+//     hook's braces), and the transition is idempotent per session.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -210,4 +214,143 @@ test('AC-16103-2: SessionStart with no carried-over entries is silent', async ()
   });
   assert.equal(res.code, 0);
   assert.equal(res.stdout, '');
+});
+
+// -- AC-16103-3 -----------------------------------------------------------
+
+async function runVerb(cwd, args, sessionId) {
+  const env = { ...process.env, CI: '1', RCF_FEEDBACK_SESSION_ID: sessionId };
+  try {
+    const { stdout, stderr } = await exec(process.execPath, [bin, ...args], {
+      cwd, encoding: 'utf8', env,
+    });
+    return { code: 0, stdout, stderr };
+  } catch (err) {
+    return { code: err.code ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
+  }
+}
+
+async function countStateLines(cwd, id, status) {
+  const raw = await readFile(join(cwd, '.rcf/feedback/entries.jsonl'), 'utf8');
+  let n = 0;
+  for (const line of raw.split('\n')) {
+    if (line.trim() === '') continue;
+    let obj;
+    try { obj = JSON.parse(line); } catch { continue; }
+    if (obj.id === id && obj.status === status) n += 1;
+  }
+  return n;
+}
+
+test('AC-16103-3: SessionStart requeues a deferred entry from a prior session and Stop asks in the new session', async () => {
+  const cwd = await scaffoldReady();
+  await addOne(cwd, 'session-a');
+  const deferRes = await runVerb(cwd, ['feedback', 'defer'], 'session-a');
+  assert.equal(deferRes.code, 0, deferRes.stderr);
+  const list0 = await runVerb(cwd, ['feedback', 'list'], 'session-b');
+  assert.equal(list0.code, 0, list0.stderr);
+  assert.match(list0.stdout, /no pending feedback entries/i);
+
+  const start = await runHook(cwd, 'session-start', 'claude-code', {
+    session_id: 'session-b',
+    cwd: '.',
+    hook_event_name: 'SessionStart',
+  });
+  assert.equal(start.code, 0);
+  assert.match(start.stdout, /rcf feedback: 1 unsubmitted entry carried over/);
+  assert.match(start.stdout, /RULE 17/);
+
+  const rawId = (await readFile(join(cwd, '.rcf/feedback/entries.jsonl'), 'utf8'))
+    .split('\n').find(Boolean);
+  const id = JSON.parse(rawId).id;
+  assert.equal(await countStateLines(cwd, id, 'pending'), 2, // original + requeue
+    'SessionStart appends one { status: pending } transition');
+
+  const list1 = await runVerb(cwd, ['feedback', 'list'], 'session-b');
+  assert.equal(list1.code, 0, list1.stderr);
+  assert.doesNotMatch(list1.stdout, /no pending feedback entries/i);
+  assert.match(list1.stdout, /docs-mismatch/);
+
+  const stop = await runHook(cwd, 'stop', 'claude-code', {
+    session_id: 'session-b',
+    cwd: '.',
+    hook_event_name: 'Stop',
+    stop_hook_active: false,
+  });
+  assert.equal(stop.code, 2);
+  assert.match(stop.stderr, /rcf feedback preview/);
+  const state = JSON.parse(await readFile(join(cwd, '.rcf/feedback/state.json'), 'utf8'));
+  assert.equal(state.asked.length, 1);
+  assert.equal(state.asked[0].sessionId, 'session-b');
+});
+
+test('AC-16103-3: Stop without a prior SessionStart still requeues a deferred entry and asks', async () => {
+  const cwd = await scaffoldReady();
+  await addOne(cwd, 'session-a');
+  const deferRes = await runVerb(cwd, ['feedback', 'defer'], 'session-a');
+  assert.equal(deferRes.code, 0, deferRes.stderr);
+
+  const stop = await runHook(cwd, 'stop', 'claude-code', {
+    session_id: 'session-b',
+    cwd: '.',
+    hook_event_name: 'Stop',
+    stop_hook_active: false,
+  });
+  assert.equal(stop.code, 2, stop.stderr);
+  assert.match(stop.stderr, /rcf feedback preview/);
+  assert.match(stop.stderr, /Do not ask again this session/);
+
+  const rawId = (await readFile(join(cwd, '.rcf/feedback/entries.jsonl'), 'utf8'))
+    .split('\n').find(Boolean);
+  const id = JSON.parse(rawId).id;
+  assert.equal(await countStateLines(cwd, id, 'pending'), 2,
+    'Stop appended one { status: pending } transition when SessionStart never fired');
+  const state = JSON.parse(await readFile(join(cwd, '.rcf/feedback/state.json'), 'utf8'));
+  assert.equal(state.asked.length, 1);
+  assert.equal(state.asked[0].sessionId, 'session-b');
+});
+
+test('AC-16103-3: SessionStart is a no-op when the deferred session id matches the incoming session id', async () => {
+  const cwd = await scaffoldReady();
+  await addOne(cwd, 'session-a');
+  const deferRes = await runVerb(cwd, ['feedback', 'defer'], 'session-a');
+  assert.equal(deferRes.code, 0);
+
+  const startSame = await runHook(cwd, 'session-start', 'claude-code', {
+    session_id: 'session-a',
+    cwd: '.',
+    hook_event_name: 'SessionStart',
+  });
+  assert.equal(startSame.code, 0);
+  assert.equal(startSame.stdout, '', 'same-session SessionStart is silent');
+
+  const rawId = (await readFile(join(cwd, '.rcf/feedback/entries.jsonl'), 'utf8'))
+    .split('\n').find(Boolean);
+  const id = JSON.parse(rawId).id;
+  assert.equal(await countStateLines(cwd, id, 'pending'), 1,
+    'no pending transition appended when the session id matches');
+
+  // A fresh session requeues once; a repeat in the same fresh session is a no-op.
+  const startFresh1 = await runHook(cwd, 'session-start', 'claude-code', {
+    session_id: 'session-b',
+    cwd: '.',
+    hook_event_name: 'SessionStart',
+  });
+  assert.equal(startFresh1.code, 0);
+  assert.match(startFresh1.stdout, /carried over/);
+  assert.equal(await countStateLines(cwd, id, 'pending'), 2);
+
+  const startFresh2 = await runHook(cwd, 'session-start', 'claude-code', {
+    session_id: 'session-b',
+    cwd: '.',
+    hook_event_name: 'SessionStart',
+  });
+  assert.equal(startFresh2.code, 0);
+  // The entry is now already pending under a prior sessionId (A);
+  // a second SessionStart in B finds no deferredUntilSession lines
+  // matching the requeue predicate, so no further transition is
+  // written and the carry-over line prints again (the state carries
+  // sessionId A still, so the pending entry still counts as carried).
+  assert.equal(await countStateLines(cwd, id, 'pending'), 2,
+    'a second SessionStart in the same session appends no further pending transition');
 });

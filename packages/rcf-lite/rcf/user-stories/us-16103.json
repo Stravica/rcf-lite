@@ -26,8 +26,17 @@
       "then": "the Claude Code stdout matches the exact wording above; the Codex JSON matches the reference shape currently accepted for SessionStart context; both return exit 0; state.json is not mutated (asked is set on Stop, not on session-start)",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-16103-3",
+      "description": "rcf feedback defer means \"not now, ask again next session\" (design 3.1). Entries in status deferredUntilSession whose stored sessionId is not the current one are requeued to pending on the SessionStart hook AND on the Stop hook (belt to the SessionStart braces, so the flow works when only Stop is installed). The requeue appends one state-transition line per entry with status pending and no sessionId field, so fold-by-id preserves the entry's prior sessionId and the carry-over gate in both hooks (pending.sessionId !== currentSessionId) fires naturally in the new session. Entries recorded or last deferred under the current sessionId are not re-transitioned (idempotent per session; deferring twice in one session is a no-op on the second call).",
+      "given": "a fixture with one pending entry deferred in session A (entries.jsonl carries the deferredUntilSession line with sessionId A)",
+      "when": "rcf feedback hook session-start --harness claude-code is run with session_id B, then rcf feedback hook stop --harness claude-code is run with the same session_id B",
+      "then": "SessionStart appends one { status: pending } transition (no sessionId field) so the entry returns to pending with its sessionId still A; the carry-over line prints to stdout naming the count and RULE 17; the following Stop exits 2 with the ask on stderr and appends exactly one asked record for session B; a second SessionStart in session B is a no-op (no new transition, silent stdout); a further SessionStart in a fresh session_id C after a Stop-only path (no SessionStart wired) still requeues on the Stop hook so the ask fires there",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-17T03:30:00Z"
 }

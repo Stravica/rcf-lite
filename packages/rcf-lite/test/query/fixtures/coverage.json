@@ -3995,6 +3995,16 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-16103-3",
+          "covered": true,
+          "testCases": [
+            "TC-197-session-start-idempotent-same-session",
+            "TC-197-session-start-requeues-deferred-then-stop-asks",
+            "TC-197-stop-only-path-requeues-deferred"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-16104-1",
           "covered": true,
           "testCases": [

@@ -20152,6 +20152,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-16103-2 -.-&gt;|delivered by| FBS-184
   AC-16103-2 -.-&gt;|implemented by| CN-600
   AC-16103-2 -.-&gt;|implemented by| CN-623
+  AC-16103-3[&quot;AC-16103-3&quot;]
+  US-16103 --&gt; AC-16103-3
+  AC-16103-3 -.-&gt;|delivered by| FBS-184
+  AC-16103-3 -.-&gt;|implemented by| CN-600
   US-16104[&quot;US-16104&lt;br/&gt;rcf init installs the feedback hooks and rcf ...&quot;]
   REQ-161 --&gt; US-16104
   AC-16104-1[&quot;AC-16104-1&quot;]
@@ -20187,6 +20191,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click US-16103 &quot;#US-16103&quot;;
   click AC-16103-1 &quot;#AC-16103-1&quot;;
   click AC-16103-2 &quot;#AC-16103-2&quot;;
+  click AC-16103-3 &quot;#AC-16103-3&quot;;
   click US-16104 &quot;#US-16104&quot;;
   click AC-16104-1 &quot;#AC-16104-1&quot;;
   click CN-624 &quot;#CN-624&quot;;
@@ -20209,6 +20214,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class US-16103 us;
   class AC-16103-1 ac;
   class AC-16103-2 ac;
+  class AC-16103-3 ac;
   class US-16104 us;
   class AC-16104-1 ac;
   class CN-624 cn;
@@ -20389,6 +20395,9 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <li id="AC-16103-2" class="ac-item"><strong>AC-16103-2</strong> - rcf feedback hook session-start with pending entries and a new sessionId prints one plain line to stdout on Claude Code (&quot;rcf feedback: &lt;n&gt; unsubmitted entr(y|ies) carried over from an earlier session; ask the operator once at a natural pause (RULE 17).&quot;) and the Codex-shaped equivalent under --harness codex. The line is what the harness injects as context; it never blocks. If SessionStart on Codex cannot inject context (verified at build time against the current Codex reference), the fallback in RULE 17 (&quot;check rcf feedback status at session start&quot;) is what carries the same posture.
 <div class="ac-gwt"><p><em>Given</em> a fixture with two pending entries carried over from a prior sessionId</p><p><em>When</em> rcf feedback hook session-start is run under each harness</p><p><em>Then</em> the Claude Code stdout matches the exact wording above; the Codex JSON matches the reference shape currently accepted for SessionStart context; both return exit 0; state.json is not mutated (asked is set on Stop, not on session-start)</p></div>
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-184">FBS-184</a></p></li>
+<li id="AC-16103-3" class="ac-item"><strong>AC-16103-3</strong> - rcf feedback defer means &quot;not now, ask again next session&quot; (design 3.1). Entries in status deferredUntilSession whose stored sessionId is not the current one are requeued to pending on the SessionStart hook AND on the Stop hook (belt to the SessionStart braces, so the flow works when only Stop is installed). The requeue appends one state-transition line per entry with status pending and no sessionId field, so fold-by-id preserves the entry&#39;s prior sessionId and the carry-over gate in both hooks (pending.sessionId !== currentSessionId) fires naturally in the new session. Entries recorded or last deferred under the current sessionId are not re-transitioned (idempotent per session; deferring twice in one session is a no-op on the second call).
+<div class="ac-gwt"><p><em>Given</em> a fixture with one pending entry deferred in session A (entries.jsonl carries the deferredUntilSession line with sessionId A)</p><p><em>When</em> rcf feedback hook session-start --harness claude-code is run with session_id B, then rcf feedback hook stop --harness claude-code is run with the same session_id B</p><p><em>Then</em> SessionStart appends one { status: pending } transition (no sessionId field) so the entry returns to pending with its sessionId still A; the carry-over line prints to stdout naming the count and RULE 17; the following Stop exits 2 with the ask on stderr and appends exactly one asked record for session B; a second SessionStart in session B is a no-op (no new transition, silent stdout); a further SessionStart in a fresh session_id C after a Stop-only path (no SessionStart wired) still requeues on the Stop hook so the ask fires there</p></div>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-184">FBS-184</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -20419,10 +20428,19 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;then&quot;: &quot;the Claude Code stdout matches the exact wording above; the Codex JSON matches the reference shape currently accepted for SessionStart context; both return exit 0; state.json is not mutated (asked is set on Stop, not on session-start)&quot;,
       &quot;testable&quot;: true,
       &quot;scope&quot;: &quot;library&quot;
+    },
+    {
+      &quot;id&quot;: &quot;AC-16103-3&quot;,
+      &quot;description&quot;: &quot;rcf feedback defer means \&quot;not now, ask again next session\&quot; (design 3.1). Entries in status deferredUntilSession whose stored sessionId is not the current one are requeued to pending on the SessionStart hook AND on the Stop hook (belt to the SessionStart braces, so the flow works when only Stop is installed). The requeue appends one state-transition line per entry with status pending and no sessionId field, so fold-by-id preserves the entry&#39;s prior sessionId and the carry-over gate in both hooks (pending.sessionId !== currentSessionId) fires naturally in the new session. Entries recorded or last deferred under the current sessionId are not re-transitioned (idempotent per session; deferring twice in one session is a no-op on the second call).&quot;,
+      &quot;given&quot;: &quot;a fixture with one pending entry deferred in session A (entries.jsonl carries the deferredUntilSession line with sessionId A)&quot;,
+      &quot;when&quot;: &quot;rcf feedback hook session-start --harness claude-code is run with session_id B, then rcf feedback hook stop --harness claude-code is run with the same session_id B&quot;,
+      &quot;then&quot;: &quot;SessionStart appends one { status: pending } transition (no sessionId field) so the entry returns to pending with its sessionId still A; the carry-over line prints to stdout naming the count and RULE 17; the following Stop exits 2 with the ask on stderr and appends exactly one asked record for session B; a second SessionStart in session B is a no-op (no new transition, silent stdout); a further SessionStart in a fresh session_id C after a Stop-only path (no SessionStart wired) still requeues on the Stop hook so the ask fires there&quot;,
+      &quot;testable&quot;: true,
+      &quot;scope&quot;: &quot;runtime&quot;
     }
   ],
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-17T03:30:00Z&quot;
 }
 </pre></details>
 </article>
@@ -30572,7 +30590,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   <p><strong>Summary:</strong> Deliver REQ-161 (One ask per session, at idle, never automatic): hook quiet rule, per-harness hook handlers, installer wired into rcf init, doctor feedback-hooks check, settings file, env variables, opt-in/opt-out sub-verbs.</p>
   <p><strong>Approach:</strong> Write src/feedback/hook.js with pure shouldAsk() and per-harness emit(). Write src/setup/feedback-hooks.js installer (mergeable). Wire init Step 6 and doctor feedback-hooks check. Add hook sub-verb and opt-in/opt-out sub-verbs. Add rcf/feedback-settings.json handling. Add RCF_FEEDBACK_ASK and RCF_FEEDBACK_DISABLE env handling.</p>
-  <div class="ac-pills"><a class="ac-pill" href="#AC-16101-1">AC-16101-1</a><a class="ac-pill" href="#AC-16101-2">AC-16101-2</a><a class="ac-pill" href="#AC-16101-3">AC-16101-3</a><a class="ac-pill" href="#AC-16102-1">AC-16102-1</a><a class="ac-pill" href="#AC-16102-2">AC-16102-2</a><a class="ac-pill" href="#AC-16103-1">AC-16103-1</a><a class="ac-pill" href="#AC-16103-2">AC-16103-2</a><a class="ac-pill" href="#AC-16104-1">AC-16104-1</a><a class="ac-pill" href="#AC-16104-2">AC-16104-2</a><a class="ac-pill" href="#AC-16104-3">AC-16104-3</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-16101-1">AC-16101-1</a><a class="ac-pill" href="#AC-16101-2">AC-16101-2</a><a class="ac-pill" href="#AC-16101-3">AC-16101-3</a><a class="ac-pill" href="#AC-16102-1">AC-16102-1</a><a class="ac-pill" href="#AC-16102-2">AC-16102-2</a><a class="ac-pill" href="#AC-16103-1">AC-16103-1</a><a class="ac-pill" href="#AC-16103-2">AC-16103-2</a><a class="ac-pill" href="#AC-16103-3">AC-16103-3</a><a class="ac-pill" href="#AC-16104-1">AC-16104-1</a><a class="ac-pill" href="#AC-16104-2">AC-16104-2</a><a class="ac-pill" href="#AC-16104-3">AC-16104-3</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-16101-1">AC-16101-1</a></strong> - The quiet rule in src/feedback/hook.js returns &quot;ask&quot; on stop when ALL hold: not opted out (rcf/feedback-settings.json ask true and RCF_FEEDBACK_ASK unset or 1); at least one pending entry; state.json has no asked record for the incoming session_id; stop_hook_active is false; and one of: an entry carries askNow; the newest pending entry is older than quietMinutes (default 15) minutes; the queue-state cache reports complete or nothing actionable; the entry was carried over. Otherwise returns &quot;silent&quot;. A table test walks every named row.</p>
   <p><em>Given</em> a fixture state file and a table of pending/asked/optOut/stopHookActive/age/queueState/carriedOver/askNow rows</p>
@@ -30614,6 +30632,12 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><em>Given</em> a fixture with two pending entries carried over from a prior sessionId</p>
   <p><em>When</em> rcf feedback hook session-start is run under each harness</p>
   <p><em>Then</em> the Claude Code stdout matches the exact wording above; the Codex JSON matches the reference shape currently accepted for SessionStart context; both return exit 0; state.json is not mutated (asked is set on Stop, not on session-start)</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-16103-3">AC-16103-3</a></strong> - rcf feedback defer means &quot;not now, ask again next session&quot; (design 3.1). Entries in status deferredUntilSession whose stored sessionId is not the current one are requeued to pending on the SessionStart hook AND on the Stop hook (belt to the SessionStart braces, so the flow works when only Stop is installed). The requeue appends one state-transition line per entry with status pending and no sessionId field, so fold-by-id preserves the entry&#39;s prior sessionId and the carry-over gate in both hooks (pending.sessionId !== currentSessionId) fires naturally in the new session. Entries recorded or last deferred under the current sessionId are not re-transitioned (idempotent per session; deferring twice in one session is a no-op on the second call).</p>
+  <p><em>Given</em> a fixture with one pending entry deferred in session A (entries.jsonl carries the deferredUntilSession line with sessionId A)</p>
+  <p><em>When</em> rcf feedback hook session-start --harness claude-code is run with session_id B, then rcf feedback hook stop --harness claude-code is run with the same session_id B</p>
+  <p><em>Then</em> SessionStart appends one { status: pending } transition (no sessionId field) so the entry returns to pending with its sessionId still A; the carry-over line prints to stdout naming the count and RULE 17; the following Stop exits 2 with the ask on stderr and appends exactly one asked record for session B; a second SessionStart in session B is a no-op (no new transition, silent stdout); a further SessionStart in a fresh session_id C after a Stop-only path (no SessionStart wired) still requeues on the Stop hook so the ask fires there</p>
 </div>
 <div class="ac-resolved">
   <p><strong><a href="#AC-16104-1">AC-16104-1</a></strong> - rcf init merges three feedback hook entries into .claude/settings.json (Stop -&gt; &quot;npx rcf-lite feedback hook stop --harness claude-code&quot; timeout 10; SessionEnd -&gt; &quot;... hook session-end ...&quot; timeout 5; SessionStart matcher &quot;startup|resume&quot; -&gt; &quot;... hook session-start ...&quot;) and three matching entries into .codex/hooks.json (in the Codex schema for the same events). Merge discipline mirrors writeMcpConfig: parse, refuse on invalid JSON with the same message shape as .mcp.json, never clobber other hooks, add ours only if an entry whose command contains &quot;rcf feedback hook&quot; is absent. The &quot;npx rcf-lite&quot; prefix is replaced by binPath when init was called with --bin-path, mirroring the .mcp.json entry pattern.</p>
@@ -30660,6 +30684,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-16102-2&quot;,
     &quot;AC-16103-1&quot;,
     &quot;AC-16103-2&quot;,
+    &quot;AC-16103-3&quot;,
     &quot;AC-16104-1&quot;,
     &quot;AC-16104-2&quot;,
     &quot;AC-16104-3&quot;
@@ -40702,14 +40727,14 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
 </article>
 </details>
 <details class="doc-details doc-ts-wrap" data-doc-id="TS-197">
-  <summary><span class="summary-label">TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness</span><span class="status draft">draft</span></summary>
+  <summary><span class="summary-label">TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently, SessionStart re-surfaces a carried-over ask per harness, and defer requeues on the next session</span><span class="status draft">draft</span></summary>
   <article id="TS-197" class="doc doc-ts">
-  <h3>TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness</h3>
+  <h3>TS-197 - Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently, SessionStart re-surfaces a carried-over ask per harness, and defer requeues on the next session</h3>
   
   <p><strong>Verifies user story:</strong> <a href="#US-16103">US-16103</a></p>
-  <p><strong>Purpose:</strong> Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).</p>
+  <p><strong>Purpose:</strong> Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget), AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent) and AC-16103-3 (defer means &quot;not now, ask again next session&quot;: deferredUntilSession entries carried over from a prior sessionId return to pending on SessionStart and on Stop; idempotent per session).</p>
   <p><strong>Test level:</strong> integration</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16103-1">AC-16103-1</a>, <a href="#AC-16103-2">AC-16103-2</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-16103-1">AC-16103-1</a>, <a href="#AC-16103-2">AC-16103-2</a>, <a href="#AC-16103-3">AC-16103-3</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-197-session-end-writes-idempotent-bundle">
   <p><strong>TC-197-session-end-writes-idempotent-bundle</strong> - covers <a href="#AC-16103-1">AC-16103-1</a> <span class="status pending">pending</span></p>
@@ -40730,19 +40755,35 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-197-session-start-silent-when-nothing-carried-over</strong> - covers <a href="#AC-16103-2">AC-16103-2</a> <span class="status pending">pending</span></p>
   <p>Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.</p>
   <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent</code></p>
+</div>
+<div class="tc" id="TC-197-session-start-requeues-deferred-then-stop-asks">
+  <p><strong>TC-197-session-start-requeues-deferred-then-stop-asks</strong> - covers <a href="#AC-16103-3">AC-16103-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-3 (SessionStart-path requeue) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id B; the entry is written back to pending (a { status: pending } state line appended, no sessionId field so the fold preserves A) and rcf feedback list shows it as pending; the stdout prints the carry-over line naming the count and RULE 17; a subsequent rcf feedback hook stop --harness claude-code with session_id B exits 2 with the ask on stderr and appends exactly one asked record for session B.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-3: SessionStart requeues a deferred entry from a prior session and Stop asks in the new session</code></p>
+</div>
+<div class="tc" id="TC-197-stop-only-path-requeues-deferred">
+  <p><strong>TC-197-stop-only-path-requeues-deferred</strong> - covers <a href="#AC-16103-3">AC-16103-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-3 (Stop-only fallback) via the CLI test: add one entry and defer it in session A; skip the SessionStart hook entirely and run rcf feedback hook stop --harness claude-code with session_id B directly; the Stop hook requeues the deferred entry back to pending, exits 2 with the ask on stderr and appends one asked record for session B (the carried-over trigger fires the quiet rule regardless of age).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-3: Stop without a prior SessionStart still requeues a deferred entry and asks</code></p>
+</div>
+<div class="tc" id="TC-197-session-start-idempotent-same-session">
+  <p><strong>TC-197-session-start-idempotent-same-session</strong> - covers <a href="#AC-16103-3">AC-16103-3</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-16103-3 (idempotency per session) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id A (same as the defer&#39;s session); no requeue transition is written and stdout is empty. A second SessionStart in session B requeues once; a third SessionStart also in session B is a no-op (no new transition, silent stdout).</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-hook.test.js::AC-16103-3: SessionStart is a no-op when the deferred session id matches the incoming session id</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T19:20:00Z&quot;,
-  &quot;purpose&quot;: &quot;Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget) and AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent).&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-17T03:30:00Z&quot;,
+  &quot;purpose&quot;: &quot;Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget), AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent) and AC-16103-3 (defer means \&quot;not now, ask again next session\&quot;: deferredUntilSession entries carried over from a prior sessionId return to pending on SessionStart and on Stop; idempotent per session).&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
     &quot;AC-16103-1&quot;,
-    &quot;AC-16103-2&quot;
+    &quot;AC-16103-2&quot;,
+    &quot;AC-16103-3&quot;
   ],
   &quot;id&quot;: &quot;TS-197&quot;,
   &quot;usId&quot;: &quot;US-16103&quot;,
-  &quot;title&quot;: &quot;Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently and SessionStart re-surfaces a carried-over ask per harness&quot;,
+  &quot;title&quot;: &quot;Slice 5 (FBS-184): SessionEnd flushes a bundle idempotently, SessionStart re-surfaces a carried-over ask per harness, and defer requeues on the next session&quot;,
   &quot;testCases&quot;: [
     {
       &quot;id&quot;: &quot;TC-197-session-end-writes-idempotent-bundle&quot;,
@@ -40771,6 +40812,27 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-16103-2 (silence branch) via the CLI test: rcf feedback hook session-start on a project with no pending entries writes nothing on stdout and exits 0.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-2: SessionStart with no carried-over entries is silent&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-session-start-requeues-deferred-then-stop-asks&quot;,
+      &quot;acId&quot;: &quot;AC-16103-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-3 (SessionStart-path requeue) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id B; the entry is written back to pending (a { status: pending } state line appended, no sessionId field so the fold preserves A) and rcf feedback list shows it as pending; the stdout prints the carry-over line naming the count and RULE 17; a subsequent rcf feedback hook stop --harness claude-code with session_id B exits 2 with the ask on stderr and appends exactly one asked record for session B.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-3: SessionStart requeues a deferred entry from a prior session and Stop asks in the new session&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-stop-only-path-requeues-deferred&quot;,
+      &quot;acId&quot;: &quot;AC-16103-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-3 (Stop-only fallback) via the CLI test: add one entry and defer it in session A; skip the SessionStart hook entirely and run rcf feedback hook stop --harness claude-code with session_id B directly; the Stop hook requeues the deferred entry back to pending, exits 2 with the ask on stderr and appends one asked record for session B (the carried-over trigger fires the quiet rule regardless of age).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-3: Stop without a prior SessionStart still requeues a deferred entry and asks&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-197-session-start-idempotent-same-session&quot;,
+      &quot;acId&quot;: &quot;AC-16103-3&quot;,
+      &quot;description&quot;: &quot;Cover AC-16103-3 (idempotency per session) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id A (same as the defer&#39;s session); no requeue transition is written and stdout is empty. A second SessionStart in session B requeues once; a third SessionStart also in session B is a no-op (no new transition, silent stdout).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-hook.test.js::AC-16103-3: SessionStart is a no-op when the deferred session id matches the incoming session id&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
