@@ -237,3 +237,136 @@ test('listUnresolvedLibraries names every registered library without a destinati
   const empty = rows.find((r) => r.libraryPrefix === 'empty');
   assert.equal(empty?.reason, 'no-issues-field');
 });
+
+test('AC-15801-4 library-slug-inference: bare-slug apply routes to the single library owning the slug when it declares issuesRepo', async () => {
+  const entry = { kind: 'blueprint', target: { ref: 'application-spa' } };
+  // Bare-slug manifest record: no libraryPrefix stamped. This is what a
+  // `rcf define blueprint add application-spa` produces when the shelf
+  // and a registered library both own the slug (design amendment R5a).
+  const manifest = { blueprints: [{ slug: 'application-spa' }] };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        issuesRepo: 'wsd-team-dev/rcf-lite-blueprints',
+        issuesVisibility: 'private',
+        publisher: { id: 'wsd', displayName: 'WSD', contact: 'ops@wsd.example' },
+        blueprints: [{ slug: 'application-spa', path: 'blueprints/application-spa' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, 'wsd-team-dev/rcf-lite-blueprints');
+  assert.equal(dest.kind, 'library');
+  assert.equal(dest.visibility, 'private');
+  assert.equal(dest.derived, false);
+  assert.equal(dest.source, 'library-slug-inference');
+  assert.equal(dest.publisherContact, 'ops@wsd.example');
+});
+
+test('AC-15801-4 library-slug-inference: derives from sourceRef when the single library owner has no issuesRepo but has a github source', async () => {
+  const entry = { kind: 'blueprint', target: { ref: 'application-spa' } };
+  const manifest = { blueprints: [{ slug: 'application-spa' }] };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        sourceRef: 'git+https://github.com/wsd-team-dev/rcf-lite-blueprints.git#v1.0.0',
+        blueprints: [{ slug: 'application-spa' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, 'wsd-team-dev/rcf-lite-blueprints');
+  assert.equal(dest.derived, true);
+  assert.equal(dest.source, 'library-slug-inference');
+});
+
+test('AC-15801-4 library-slug-inference: two libraries owning the same slug return unresolved with reason ambiguous-library-slug', async () => {
+  const entry = { kind: 'blueprint', target: { ref: 'application-spa' } };
+  const manifest = { blueprints: [{ slug: 'application-spa' }] };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        issuesRepo: 'wsd-team-dev/rcf-lite-blueprints',
+        blueprints: [{ slug: 'application-spa' }],
+      },
+      {
+        libraryPrefix: 'ally',
+        issuesRepo: 'ally-team/blueprints',
+        blueprints: [{ slug: 'application-spa' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, null);
+  assert.equal(dest.visibility, 'unresolved');
+  assert.equal(dest.kind, 'library');
+  assert.equal(dest.reason, 'ambiguous-library-slug');
+  assert.deepEqual(dest.candidates, ['ally', 'wsd']);
+});
+
+test('AC-15801-4 library-slug-inference: no library owns the slug -> shelf constant fall-through', async () => {
+  const entry = { kind: 'blueprint', target: { ref: 'security-auth-magic-link' } };
+  const manifest = { blueprints: [{ slug: 'security-auth-magic-link' }] };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        issuesRepo: 'wsd-team-dev/rcf-lite-blueprints',
+        blueprints: [{ slug: 'wsd-payments' }, { slug: 'wsd-invoicing' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, CORE_REPO);
+  assert.equal(dest.kind, 'shelf');
+  assert.equal(dest.source, 'package-bugs-url');
+});
+
+test('AC-15801-4 library-slug-inference: an owning library that resolves to nothing (no issues, no github source) does not count and shelf still fires', async () => {
+  const entry = { kind: 'blueprint', target: { ref: 'application-spa' } };
+  const manifest = { blueprints: [{ slug: 'application-spa' }] };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        // No issuesRepo, no github sourceRef -> library does not resolve.
+        sourceRef: 'local:./wsd-blueprints',
+        blueprints: [{ slug: 'application-spa' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, CORE_REPO);
+  assert.equal(dest.kind, 'shelf');
+});
+
+test('AC-15801-4 library-slug-inference: never overrides an existing libraryPrefix resolution', async () => {
+  // A qualified apply produces a manifest record with libraryPrefix
+  // and the effectiveSlug already stamped. That path must go straight
+  // to the registry's issuesRepo (AC-15801-2), NOT through the R5a
+  // slug-inference branch.
+  const entry = { kind: 'blueprint', target: { ref: 'wsd:application-spa' } };
+  const manifest = {
+    blueprints: [{
+      slug: 'wsd-application-spa',
+      effectiveSlug: 'wsd-application-spa',
+      libraryPrefix: 'wsd',
+    }],
+  };
+  const registry = {
+    libraries: [
+      {
+        libraryPrefix: 'wsd',
+        issuesRepo: 'wsd-team-dev/rcf-lite-blueprints',
+        issuesVisibility: 'private',
+        blueprints: [{ slug: 'application-spa' }],
+      },
+    ],
+  };
+  const dest = await resolve(entry, { manifest, registry });
+  assert.equal(dest.repo, 'wsd-team-dev/rcf-lite-blueprints');
+  assert.equal(dest.source, 'library-manifest', 'must come from AC-15801-2 path, not R5a');
+});

@@ -1,12 +1,13 @@
 {
   "createdAt": "2026-09-16T16:20:01Z",
-  "updatedAt": "2026-09-16T16:20:01Z",
+  "updatedAt": "2026-09-17T13:46:16Z",
   "purpose": "Cover AC-15801-1 (library.json:issues object snapshotted onto rcf/blueprint-libraries.json:entries[] as issuesRepo and issuesVisibility on rcf library add; the review-on-add card prints the Feedback destination line naming repo and visibility), AC-15801-2 (destination.resolve walks entry -> manifest -> registry issuesRepo, falls back to sourceRef derivation for github URLs with derived:true, returns unresolved when neither is available; shelf and core route to Stravica/rcf-lite) and AC-15801-3 (rcf doctor --check feedback-destinations lists every registered library with no resolvable destination as a warn-only row with refusedByFix:true; exit stays 0).",
   "testLevel": "integration",
   "acIds": [
     "AC-15801-1",
     "AC-15801-2",
-    "AC-15801-3"
+    "AC-15801-3",
+    "AC-15801-4"
   ],
   "id": "TS-189",
   "usId": "US-15801",
@@ -32,6 +33,27 @@
       "description": "Cover AC-15801-3 via the CLI test: rcf doctor --check feedback-destinations --json against a project with two registered libraries (one with issues, one without) returns exactly one drift row of item unresolved-library naming the second library, whose message includes the publisher.contact from the registry entry and whose refusedByFix flag is true; the overall doctor exit code stays 0 because the check is warn-only.",
       "status": "pending",
       "testPointer": "test/cli/feedback-destinations.test.js::AC-15801-3: rcf doctor --check feedback-destinations warns on a library without a resolvable destination and exits 0"
+    },
+    {
+      "id": "TC-189-resolver-library-slug-inference-single",
+      "acId": "AC-15801-4",
+      "description": "Cover AC-15801-4 (single-library slug match) via the unit test: a bare-slug manifest record (no libraryPrefix) for 'application-spa' plus exactly one registered library ('wsd') that owns 'application-spa' and declares issuesRepo resolves to that library's declared destination with source 'library-slug-inference', derived false, kind library.",
+      "status": "pending",
+      "testPointer": "test/feedback/destination.test.js::AC-15801-4 library-slug-inference: bare-slug apply routes to the single library owning the slug when it declares issuesRepo"
+    },
+    {
+      "id": "TC-189-resolver-library-slug-inference-ambiguous",
+      "acId": "AC-15801-4",
+      "description": "Cover AC-15801-4 (multi-library slug ambiguity) via the unit test: a bare-slug manifest record for 'application-spa' plus two registered libraries ('wsd' and 'ally') that both own 'application-spa' and both declare issuesRepo resolves to unresolved, reason 'ambiguous-library-slug', with candidates ['ally','wsd'] (sorted).",
+      "status": "pending",
+      "testPointer": "test/feedback/destination.test.js::AC-15801-4 library-slug-inference: two libraries owning the same slug return unresolved with reason ambiguous-library-slug"
+    },
+    {
+      "id": "TC-189-resolver-library-slug-inference-none",
+      "acId": "AC-15801-4",
+      "description": "Cover AC-15801-4 (no-library fall-through) via the unit test: a bare-slug manifest record for 'security-auth-magic-link' plus registered libraries that do NOT own the slug falls through to the shelf constant unchanged from AC-15801-2.",
+      "status": "pending",
+      "testPointer": "test/feedback/destination.test.js::AC-15801-4 library-slug-inference: no library owns the slug -> shelf constant fall-through"
     }
   ],
   "status": "draft"

@@ -35,8 +35,17 @@
       "then": "doctor output carries one feedback-destinations warn row naming the second library, --fix is not offered on that row, exit code stays 0",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-15801-4",
+      "description": "The destination resolver cross-checks the registry BEFORE falling through to the shelf constant for `--kind blueprint` entries whose manifest record has no `libraryPrefix`. If exactly one registered library owns a blueprint with the applied slug AND that library resolves to a destination (issuesRepo, or a derivable git+https://github.com/... sourceRef), the resolver returns that library's destination with source: 'library-slug-inference' (derived: false for the declared case, derived: true for the sourceRef case). Two-or-more matches return unresolved with reason: 'ambiguous-library-slug' and a candidates[] array of library prefixes. Zero matches keep the current shelf-constant fall-through. This never overrides an existing libraryPrefix resolution: it only fires where the resolver would have picked the shelf constant.",
+      "given": "a fixture with three registered libraries and a bare-slug manifest record for 'application-spa'; case A: only library 'wsd' owns application-spa and declares issuesRepo 'wsd-team-dev/rcf-lite-blueprints'; case B: libraries 'wsd' and 'ally' both own application-spa and both declare issuesRepo; case C: no registered library owns application-spa",
+      "when": "destination.resolve() is called for each case",
+      "then": "case A resolves to 'wsd-team-dev/rcf-lite-blueprints' with source 'library-slug-inference' and derived false; case B resolves to unresolved with reason 'ambiguous-library-slug' and candidates ['ally','wsd']; case C resolves to Stravica/rcf-lite (shelf-constant fall-through), unchanged from AC-15801-2 shelf behaviour",
+      "testable": true,
+      "scope": "library"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-17T13:46:02.000Z"
 }

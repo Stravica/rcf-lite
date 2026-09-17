@@ -33,6 +33,26 @@ const BUNDLED_ALLOWLIST = JSON.parse(
 export const BODY_CAP_BYTES = 8 * 1024;
 
 /**
+ * Common-noun stopwords the operator-identity substitution never folds
+ * (AC-15601-5 / design amendment R5c). The rcf-lite ecosystem uses
+ * `agent` as a canonical noun (RULE 17, docs paths such as
+ * `how-the-agent-files-feedback`); if the operator's identity name
+ * happens to contain one of these words, the token loop skips it so
+ * the docs URL and prose like `when the agent stops` survive. Real
+ * given names in the identity still fold. The list is intentionally
+ * conservative: anything a normal profile.md ## Name line might carry
+ * as a common English or engineering noun.
+ */
+export const RESERVED_IDENTITY_TOKENS = Object.freeze(new Set([
+  'agent', 'agents', 'user', 'users', 'operator', 'operators',
+  'admin', 'admins', 'root', 'client', 'clients', 'server', 'servers',
+  'service', 'services', 'system', 'systems', 'name', 'main', 'test',
+  'code', 'api', 'apis', 'anon', 'anonymous', 'human', 'humans',
+  'dev', 'ops', 'sre', 'docs', 'developer', 'developers', 'engineer',
+  'engineers', 'team', 'teams',
+]));
+
+/**
  * Open secret-key vocabulary (design amendment R3a). A key/value pair
  * is treated as a secret when the key, right-bounded at a word edge so
  * `keyword` and `authors` do not fold, matches any stem below. False
@@ -389,9 +409,20 @@ export function redact(input, context = {}) {
   if (context.operatorName) {
     const opName = context.operatorName.trim();
     if (opName.length > 0) {
-      text = replaceAndLog(text, escapedLiteral(opName), '<operator>', 'operator-identity', ledger);
-      for (const tok of opName.split(/\s+/)) {
-        if (tok.length > 3) {
+      // AC-15601-5 / design amendment R5c: never fold a common noun
+      // that happens to appear in the identity string. The rcf-lite
+      // ecosystem uses 'agent' as a canonical noun (RULE 17, docs
+      // paths); folding it as operator-identity mangles the docs URL
+      // `how-the-agent-files-feedback` and prose like `when the
+      // agent stops`. Substitution still fires for a real given name
+      // (Alice, Smith) even when the full identity string carries a
+      // stopword. When the identity contains ONLY stopwords (a
+      // placeholder-in-disguise), skip identity folds entirely.
+      const rawTokens = opName.split(/\s+/);
+      const foldable = rawTokens.filter((t) => t.length > 3 && !RESERVED_IDENTITY_TOKENS.has(t.toLowerCase()));
+      if (foldable.length > 0) {
+        text = replaceAndLog(text, escapedLiteral(opName), '<operator>', 'operator-identity', ledger);
+        for (const tok of foldable) {
           text = replaceAndLog(text, `\\b${escapeRe(tok)}\\b`, '<operator>', 'operator-identity', ledger);
         }
       }
@@ -399,7 +430,7 @@ export function redact(input, context = {}) {
   }
   if (context.projectName) {
     const pn = context.projectName.trim();
-    if (pn.length > 0) {
+    if (pn.length > 0 && !RESERVED_IDENTITY_TOKENS.has(pn.toLowerCase())) {
       text = replaceAndLog(text, `\\b${escapeRe(pn)}\\b`, '<project>', 'operator-identity', ledger);
     }
   }
@@ -846,6 +877,15 @@ function looksHighEntropyPath(value) {
   if (typeof value !== 'string') return false;
   if (value.length < 16) return false;
   if (!/^[A-Za-z0-9._~+/=-]+$/.test(value)) return false;
+  // AC-15601-5 canon-phrase guard: a lowercase kebab-case segment with
+  // three or more hyphen-separated word parts is a documentation slug,
+  // not a credential. The rcf-lite docs URL
+  // `how-the-agent-files-feedback` is 28 chars, 2 classes (lowercase
+  // and separator), and would otherwise trip the 16-char, 2-class rule
+  // and produce `<url-credential>` inside the docs URL. Real credential
+  // segments in URL paths (webhook tokens, session ids, presigned
+  // credentials) are mixed-case-alphanumeric, not kebab-case English.
+  if (/^[a-z]+(-[a-z]+){2,}$/.test(value)) return false;
   let classes = 0;
   if (/[A-Z]/.test(value)) classes += 1;
   if (/[a-z]/.test(value)) classes += 1;
