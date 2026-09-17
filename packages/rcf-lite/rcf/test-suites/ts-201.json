@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-16T22:28:54Z",
+  "updatedAt": "2026-09-16T22:28:54Z",
+  "purpose": "Cover the strict-by-default default (AC-16401-1), the --mode shallow-any opt-out (AC-16401-2), and the conflict / unknown-mode usage refusals (AC-16401-3). Every test scaffolds a fresh RCF project and invokes the coverage bin as an out-of-process subprocess, matching the pattern the rest of `test/cli/coverage.test.js` uses.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16401-1",
+    "AC-16401-2",
+    "AC-16401-3"
+  ],
+  "id": "TS-201",
+  "usId": "US-16401",
+  "title": "coverage --mode selector: strict-by-default, shallow-any opt-out, conflict refusal",
+  "testCases": [
+    {
+      "id": "TC-201-strict-by-default-exit-4",
+      "acId": "AC-16401-1",
+      "description": "Fresh project via initProject (AC-101-1 uncovered by construction); invoke `rcf audit coverage` with no flag; assert exit code 4.",
+      "status": "pending",
+      "testPointer": "test/cli/coverage.test.js::rcf coverage (strict-by-default) with a gap exits 4"
+    },
+    {
+      "id": "TC-201-shallow-any-opt-out",
+      "acId": "AC-16401-2",
+      "description": "Fresh project via initProject; invoke `rcf audit coverage --mode shallow-any`; assert exit code 0 and stdout matches /Coverage mode: shallow-any/.",
+      "status": "pending",
+      "testPointer": "test/cli/coverage.test.js::rcf coverage --mode shallow-any prints gaps and exits 0 (explicit opt-out)"
+    },
+    {
+      "id": "TC-201-conflicting-flags-exit-2",
+      "acId": "AC-16401-3",
+      "description": "Fresh project via initProject; invoke `rcf audit coverage --mode shallow-any --strict`; assert exit code 2 and stderr matches /--mode shallow-any conflicts with --strict/.",
+      "status": "pending",
+      "testPointer": "test/cli/coverage.test.js::rcf coverage --mode shallow-any --strict exits 2 (conflicting flags)"
+    }
+  ],
+  "status": "approved"
+}

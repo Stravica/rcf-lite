@@ -95,7 +95,10 @@ test('rcf coverage --with-code reports the four classes and never blocks', async
   await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'A second acceptance criterion']);
   await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
   await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/orphan.js']);
-  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--with-code', '--format', 'json']);
+  // REQ-164 (strict-by-default): exercise the --with-code shape on an
+  // uncovered scaffold via --mode shallow-any so the strict gate's
+  // exit-4 does not mask the assertion body.
+  const { code, stdout } = await runBin(tmp, ['audit', 'coverage', '--mode', 'shallow-any', '--with-code', '--format', 'json']);
   assert.equal(code, 0, stdout);
   const body = JSON.parse(stdout);
   assert.equal(body.withCode, true);

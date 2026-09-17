@@ -24,6 +24,12 @@ const OPTION_SPEC = {
   // Phase 10 (X2 CodeNode bridge, D5): re-derive a CN's file-level
   // dependencies via dependency-cruiser, merged into dependencies[].
   'derive-deps': { type: 'boolean' },
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
+  // the writer refuses executionStatus=verified on FBS by default so
+  // finalise is the only path that promotes to verified. This flag
+  // is the deliberate manual override: a logged operator decision
+  // that skips the post-merge runtime check finalise runs.
+  'acknowledge-verified-override': { type: 'boolean' },
 };
 
 export const HELP = `Usage: rcf define update <id> [options]
@@ -38,6 +44,14 @@ Options:
   --derive-deps             CN only: re-derive file-level dependencies via
                             dependency-cruiser and merge into dependencies[]
                             (dev-time assist; never a runtime dependency)
+  --acknowledge-verified-override
+                            FBS only: acknowledge writing
+                            executionStatus=verified without a finalise
+                            run. The writer refuses this write by
+                            default so finalise (rcf build finalise) is
+                            the sole path to verified; the override is
+                            a deliberate, logged operator decision that
+                            skips the post-merge runtime check.
   --help                    Print this help
 `;
 
@@ -138,7 +152,13 @@ export async function main(argv, deps = {}) {
   }
   const result = await updateDocument({
     projectRoot, tree: walkResult.tree, id, patch, sets,
-    options: { dryRun: Boolean(flags['dry-run']) },
+    options: {
+      dryRun: Boolean(flags['dry-run']),
+      // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
+      // the writer's default refuses executionStatus=verified on FBS;
+      // this flag routes the operator's deliberate override through.
+      allowVerifiedOverride: Boolean(flags['acknowledge-verified-override']),
+    },
     walkErrors: walkResult.errors,
   });
   if (isRcfError(result)) return handleWriterError(result, stderr);

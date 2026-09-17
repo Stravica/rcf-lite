@@ -477,7 +477,8 @@ const DEFINITIONS = [
       type: 'object',
       properties: {
         scopeId: { type: 'string', description: 'Optional PRD / REQ / US id to scope coverage; below-AC ids are refused' },
-        strict: { type: 'boolean', description: 'Per-AC-strict mode (every AC needs TC coverage); defaults to false (shallow-any)' },
+        mode: { type: 'string', enum: ['strict', 'shallow-any'], description: 'Coverage mode (referee-guarantee train REQ-164): strict (per-AC, default) or shallow-any (any AC covered by any resolving TC = REQ covered).' },
+        strict: { type: 'boolean', description: 'Legacy alias for mode; true = strict, false = shallow-any. Kept for backward compatibility. Prefer mode.' },
         withCode: { type: 'boolean', description: 'Phase 10: layer the code axis onto every AC (implemented-and-covered / implemented-uncovered / unimplemented) plus a codeNodeOrphans list. Informational only - never affects ok or the exit-code twin.' },
       },
       additionalProperties: false,
@@ -892,8 +893,13 @@ export function createToolRegistry({ projectRoot, log }) {
       // Phase 10 (D11): withCode layers the informational code axis on.
       // w-2026-07-28-005: pointer resolution gates "covered" - same rule
       // as the CLI, one resolution pass against the working tree.
+      // Referee-guarantee train (REQ-164 / US-16401): strict is the
+      // shipped default; pass `mode: 'shallow-any'` (or the legacy
+      // `strict: false`) to opt out. `strict: true` is honoured as-is
+      // for backward-compatible callers that still spell it out.
       const testPointers = await resolveTestPointers({ projectRoot, tree });
-      return okResult(computeCoverage(tree, { strict: Boolean(args.strict), scopeId, withCode: Boolean(args.withCode), testPointers }));
+      const strict = args.mode === 'shallow-any' ? false : (args.strict === false ? false : true);
+      return okResult(computeCoverage(tree, { strict, scopeId, withCode: Boolean(args.withCode), testPointers }));
     },
 
     rcf_trace: async (args) => {

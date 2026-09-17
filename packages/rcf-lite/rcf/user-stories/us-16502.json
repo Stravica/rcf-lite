@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "asA": "beta reader trusting the referee-guarantees page's verified-invariant promise",
+  "iWant": "`rcf define update` to refuse writing FBS.executionStatus=verified by default, and `rcf build finalise` to refuse promotion when the git working tree is not on a default trunk",
+  "soThat": "a chain that says verified traces to an actual post-merge runtime check by construction, and a mid-branch dev-loop finalise cannot stamp verified without the operator's deliberate opt-out",
+  "usId": "US-16502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-165",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16502: finalise is the only path to verified, and it fires only on a default trunk",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16502-1",
+      "description": "The writer refuses a define-update patch that sets FBS.executionStatus=verified when `options.allowVerifiedOverride` is not true. The refusal is an RcfError with kind='usage' whose message names the finalise gate and the --acknowledge-verified-override escape flag; the FBS on disk stays unchanged.",
+      "given": "an FBS at status 'complete' loaded through walkTree",
+      "when": "updateDocument is called with sets = [{path:'executionStatus', value:'verified'}] and options = {}",
+      "then": "the result is an RcfError with kind='usage' matching /verified is written only by the finalise gate/, and the FBS file on disk still reads status 'complete'",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16502-2",
+      "description": "Passing `options.allowVerifiedOverride: true` (the seam that finalise and `rcf define update --acknowledge-verified-override` both use) writes the value: the returned shape carries the doc id and the FBS on disk reads status 'verified'.",
+      "given": "the same scaffold as AC-16502-1",
+      "when": "updateDocument is called with the same sets and options = {allowVerifiedOverride: true}",
+      "then": "the result carries an id and the FBS file on disk reads status 'verified'",
+      "testable": true,
+      "scope": "library"
+    },
+    {
+      "id": "AC-16502-3",
+      "description": "`rcf build finalise` refuses promotion when the git working tree is not on a default trunk (main or master). Exit 4, FBS at 'complete', stderr names the branch and the referee-guarantees claim C-26. --allow-pre-merge is the deliberate opt-out: on a non-default branch it promotes and logs the pre-merge decision on stdout including the C-26 claim id.",
+      "given": "the same scaffold with a spawn seam that returns 'feature/x' as the current branch",
+      "when": "`rcf build finalise <fbsId> --url ...` is invoked",
+      "then": "the exit code is 4 and stderr matches /git working tree is on branch 'feature\\/x'/; with --allow-pre-merge appended the exit code is 0 and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4112-referee-finalise-verified-invariant"
+  ]
+}

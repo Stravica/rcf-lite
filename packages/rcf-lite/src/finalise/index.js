@@ -25,6 +25,10 @@ export {
   // rcf-eval-node spec 2026-09-04 sections 5.2 + 8: EVAL-MISSING and
   // EVAL-BELOW-THRESHOLD refusal on `rcf finalise`.
   findEvalRefusalAcs, reportHasEvalRefusal,
+  // Referee-guarantee train (REQ-165, docs claims C-28 / C-29 / C-36):
+  // finalise refuses on UI-BASELINE-UNMET and BROWSER-VERIFICATION-MISSING.
+  findUiBaselineUnmetAcs, reportHasUiBaselineUnmet,
+  findBrowserVerificationMissingAcs, reportHasBrowserVerificationMissing,
 } from './ingest.js';
 export {
   composeShipWithoutVerifiedRecord,

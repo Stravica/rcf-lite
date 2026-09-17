@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-09-16T22:38:04Z",
+  "asA": "beta reader trusting the referee-guarantees page's finalise refusal list",
+  "iWant": "`rcf build finalise` to refuse promotion when the verify report carries UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH on any AC",
+  "soThat": "a UI baseline violation, a missing browser check on a UI-bearing FBS, a bound TC narrower than its AC scope, or a block-severity probe-pack failure all fail the gate the same way the mock-only and EVAL refusals already do",
+  "usId": "US-16501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-165",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16501: finalise refuses on UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING and SCOPE-MISMATCH",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16501-1",
+      "description": "On a verify PASS (exit 0, ship authority) whose report carries at least one per-AC UI-BASELINE-UNMET verdict, `rcf build finalise` exits 4 and leaves the FBS at 'complete'. The stderr message names the AC(s), the count of UI-BASELINE-UNMET verdicts, and the referee-guarantees claim ids C-28 and C-36 (a block-severity probe-pack failure aggregates into UI-BASELINE-UNMET, so the same branch closes both).",
+      "given": "an FBS at status 'complete' and a stub verify subprocess whose report writes verdictAuthority='ship' and perAcVerdicts includes {acId, verdict: 'UI-BASELINE-UNMET'}",
+      "when": "`rcf build finalise <fbsId> --url ...` is invoked",
+      "then": "the exit code is 4, the FBS on disk stays at 'complete', and stderr matches /UI-BASELINE-UNMET/ and /Referee-guarantees claims C-28 and C-36/",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16501-2",
+      "description": "Same shape for BROWSER-VERIFICATION-MISSING: a UI-bearing FBS with no browserVerification[] record aggregates into a per-AC verdict that finalise refuses. Exit 4, FBS at 'complete', stderr names C-29.",
+      "given": "the same scaffold with perAcVerdicts = [{acId, verdict: 'BROWSER-VERIFICATION-MISSING'}]",
+      "when": "`rcf build finalise <fbsId> --url ...` is invoked",
+      "then": "the exit code is 4 and stderr matches /BROWSER-VERIFICATION-MISSING/ and /Referee-guarantees claim C-29/",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16501-3",
+      "description": "Same shape for SCOPE-MISMATCH (NV-BL-GATE-01): a bound TC narrower than its AC scope aggregates into a per-AC SCOPE-MISMATCH verdict that finalise refuses. Exit 4, FBS at 'complete', stderr names C-30.",
+      "given": "the same scaffold with perAcVerdicts = [{acId, verdict: 'SCOPE-MISMATCH'}]",
+      "when": "`rcf build finalise <fbsId> --url ...` is invoked",
+      "then": "the exit code is 4 and stderr matches /SCOPE-MISMATCH/ and /Referee-guarantees claim C-30/",
+      "testable": true,
+      "scope": "runtime"
+    }
+  ],
+  "tacIds": [
+    "TAC-4111-referee-finalise-per-ac-refusals"
+  ]
+}

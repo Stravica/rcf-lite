@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-17T00:15:00Z",
+  "updatedAt": "2026-09-17T00:15:00Z",
+  "acIds": [
+    "AC-16401-1",
+    "AC-16401-2",
+    "AC-16401-3"
+  ],
+  "fbsId": "FBS-187",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 71,
+  "executionStatus": "notStarted",
+  "title": "Referee-guarantees: rcf audit coverage strict-by-default with --mode shallow-any opt-out",
+  "summary": "Flip the shipped default of `rcf audit coverage` from shallow-any to strict; add --mode shallow-any as the explicit opt-out (prints gaps, exits 0); keep --strict as a no-op alias; refuse --mode shallow-any --strict and --mode <unknown>. Update the repo's own CI dogfood step to the shipped default and add `rcf audit eval coverage --strict` alongside so referee-guarantees claim C-20 holds. Update docs/getting-started.md and docs/how-it-works.md to show the new default and the opt-out. Closes referee-guarantees docs claims C-11, C-14 and C-20. w-2026-09-16-dave-012.",
+  "dependsOnFbsIds": []
+}

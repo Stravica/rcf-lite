@@ -223,7 +223,7 @@ FBS-011  fbs   descendant  re-execute
 Now the honest part:
 
 ```sh
-rcf audit coverage
+rcf audit coverage --mode shallow-any
 ```
 
 ```
@@ -242,7 +242,7 @@ REQ-001      yes      AC-101-1  yes         TC-001-init-clean-tree-roots
 
 (The remaining seven requirement blocks are elided here; run it from a clone for the full table.)
 
-Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind all 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. `rcf audit coverage --strict` exits 0 against this tree - and it did not always: the audit that built this test axis found 14 acceptance criteria with no genuine outcome-asserting test, registered every one in `rcf/test-suites/PENDING.md` rather than stubbing test cases, and held strict mode at exit 4 until the last row closed. The last row was the referee catching a real defect: an AC the tree claimed was delivered (parallel-safe build groups) that the code never implemented - the feature was built and bound before the register could empty. CI now runs `rcf define validate` and `rcf audit coverage --strict` on every push and pull request, so the strict verdict is a gate, not a report: a stub test case or a new uncovered AC fails the build. That is the behaviour you want from the referee.
+Eight of eight - but shallow-any is the generous reading, and the strict one is the honest one. This tree's test-suite documents bind all 76 acceptance criteria to named tests in the repo's own suite, and every binding is load-bearing: each test case carries a `testPointer` that must resolve to a real, named test in the working tree, or it is reported as `covered-unresolved` rather than covered. Plain `rcf audit coverage` runs strict-by-default (the referee-guarantees train in 0.28.0 flipped the default; the legacy `--strict` flag stays as a no-op alias) and exits 0 against this tree - and it did not always: the audit that built this test axis found 14 acceptance criteria with no genuine outcome-asserting test, registered every one in `rcf/test-suites/PENDING.md` rather than stubbing test cases, and held strict mode at exit 4 until the last row closed. The last row was the referee catching a real defect: an AC the tree claimed was delivered (parallel-safe build groups) that the code never implemented - the feature was built and bound before the register could empty. CI now runs `rcf define validate` and `rcf audit coverage` on every push and pull request, so the strict verdict is a gate, not a report: a stub test case or a new uncovered AC fails the build. That is the behaviour you want from the referee.
 
 ## 8. Under the hood, briefly
 

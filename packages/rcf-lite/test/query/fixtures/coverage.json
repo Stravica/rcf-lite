@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "strict": false,
+  "strict": true,
   "totals": {
-    "requirements": 92,
-    "covered": 92,
+    "requirements": 95,
+    "covered": 95,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -3599,6 +3599,115 @@
           "covered": true,
           "testCases": [
             "TC-184-marker-hygiene-four-blueprints"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-163",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16301-1",
+          "covered": true,
+          "testCases": [
+            "TC-200-superseded-by-broken"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16301-2",
+          "covered": true,
+          "testCases": [
+            "TC-200-related-adrs-silent"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-164",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16401-1",
+          "covered": true,
+          "testCases": [
+            "TC-201-strict-by-default-exit-4"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16401-2",
+          "covered": true,
+          "testCases": [
+            "TC-201-shallow-any-opt-out"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16401-3",
+          "covered": true,
+          "testCases": [
+            "TC-201-conflicting-flags-exit-2"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-165",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-16501-1",
+          "covered": true,
+          "testCases": [
+            "TC-202-ui-baseline-unmet-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16501-2",
+          "covered": true,
+          "testCases": [
+            "TC-202-browser-verification-missing-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16501-3",
+          "covered": true,
+          "testCases": [
+            "TC-202-scope-mismatch-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16502-1",
+          "covered": true,
+          "testCases": [
+            "TC-203-writer-refuses-manual-verified"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16502-2",
+          "covered": true,
+          "testCases": [
+            "TC-203-writer-accepts-with-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16502-3",
+          "covered": true,
+          "testCases": [
+            "TC-203-merge-state-refusal-and-opt-out"
           ],
           "unresolvedTestCases": []
         }

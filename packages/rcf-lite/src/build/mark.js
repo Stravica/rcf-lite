@@ -86,7 +86,7 @@ export function planMark(tree, { fbsId, status }) {
       refused: true,
       message: `build: refusing --mark verified on ${fbsId}; 'verified' is written only by the `
         + `independent verify gate, not by --mark. Promote it with: rcf build finalise ${fbsId} --url <deploy-url>. `
-        + `For a deliberate manual override (no verify run) use: rcf define update ${fbsId} --set executionStatus=verified`,
+        + `For a deliberate manual override (no verify run) use: rcf define update ${fbsId} --set executionStatus=verified --acknowledge-verified-override`,
     };
   }
   const fromIndex = LIFECYCLE.indexOf(from);

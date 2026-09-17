@@ -73,11 +73,15 @@ Generation strategy: dependencyFirst
 | 67 | 0 | FBS-172 | H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap; env-absent branch keeps pass-with-skip; queue anatomy test assertions extended | notStarted | actionable |  |
 | 68 | 0 | FBS-173 | H-2 tunnel real drivers: connector-healthy runs cloudflared tunnel info against a throwaway hetzner server via T-1 fixture; hostname-routes drives undici + (with Access) two-identity JWT; manifest-schema-validate placeholder becomes fail-with-pointer; tunnel anatomy test assertions extended and the symbolic-anchor ruling recorded | notStarted | actionable |  |
 | 69 | 0 | FBS-174 | H-2 cross-cutting probe hygiene: SIMULATE_ branches moved out of shipped probe bodies into fixture-side h2-cf-platform-probe-integrity shims across the four blueprints; committed fail envelope removed and shipped-code pass envelopes committed; probe comments name test doubles honestly; new h2-cf-platform-probe-integrity anatomy test asserts SIMULATE_ purity, envelope hygiene and marker honesty | notStarted | actionable |  |
+| 70 | 0 | FBS-186 | Referee-guarantees: define validate walks ADR supersededBy and relatedAdrs | notStarted | actionable |  |
+| 71 | 0 | FBS-187 | Referee-guarantees: rcf audit coverage strict-by-default with --mode shallow-any opt-out | notStarted | actionable |  |
+| 72 | 0 | FBS-188 | Referee-guarantees: finalise refuses UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH | notStarted | actionable |  |
+| 73 | 0 | FBS-189 | Referee-guarantees: verified-invariant gate + merge-state precondition on finalise | notStarted | actionable |  |
 
-Totals: items 69 | notStarted 41 | inProgress 0 | complete 13 | verified 15 | actionable 31 | blocked 10
+Totals: items 73 | notStarted 45 | inProgress 0 | complete 13 | verified 15 | actionable 35 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044

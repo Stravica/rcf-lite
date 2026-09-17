@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-09-16T22:20:45Z",
+  "updatedAt": "2026-09-16T22:20:45Z",
+  "description": "Referee-guarantees docs page (how-it-works/what-the-referee-guarantees) promises that `rcf define validate` proves every reference in every document resolves, so a walked tree that passes has nothing pointing at nothing. The 0.27.0 walker checks the parent-id fields and the FBS / TS / EVAL / CN cross-links, but two ADR-schema-declared reference fields, supersededBy and relatedAdrs, are declared in the ADR schema without being walked: a bad target passes validate. This train closes the gap by walking both fields inside collectBrokenReferences, keeping the existing brokenReference error kind, and reporting the exact ADR file + field on failure. Chain: referee-guarantees docs claims C-7 and C-38 (audit at reviews/2026-09-15-docs-claims-audit/how-it-works__what-the-referee-guarantees.json). No schema change (the schema already declares both fields); rcf-lite behaviour widens, and any project whose ADRs have stale supersession pointers surfaces the defect the next time validate runs.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "reqId": "REQ-163",
+  "prdId": "PRD-001",
+  "title": "Referee guarantee: `rcf define validate` walks every schema-declared reference field on ADR (supersededBy, relatedAdrs) so the docs-page 'nothing points at nothing' claim holds",
+  "version": "0.1.0",
+  "status": "draft"
+}

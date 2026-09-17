@@ -1615,6 +1615,53 @@ flowchart LR
   REQ-154 --> AC-15401-3
   TC-184-marker-hygiene-four-blueprints["TC-184-marker-hygiene-four-blueprints"]
   AC-15401-3 -.-> TC-184-marker-hygiene-four-blueprints
+  REQ-163["REQ-163"]
+  AC-16301-1["AC-16301-1"]
+  REQ-163 --> AC-16301-1
+  TC-200-superseded-by-broken["TC-200-superseded-by-broken"]
+  AC-16301-1 -.-> TC-200-superseded-by-broken
+  AC-16301-2["AC-16301-2"]
+  REQ-163 --> AC-16301-2
+  TC-200-related-adrs-silent["TC-200-related-adrs-silent"]
+  AC-16301-2 -.-> TC-200-related-adrs-silent
+  REQ-164["REQ-164"]
+  AC-16401-1["AC-16401-1"]
+  REQ-164 --> AC-16401-1
+  TC-201-strict-by-default-exit-4["TC-201-strict-by-default-exit-4"]
+  AC-16401-1 -.-> TC-201-strict-by-default-exit-4
+  AC-16401-2["AC-16401-2"]
+  REQ-164 --> AC-16401-2
+  TC-201-shallow-any-opt-out["TC-201-shallow-any-opt-out"]
+  AC-16401-2 -.-> TC-201-shallow-any-opt-out
+  AC-16401-3["AC-16401-3"]
+  REQ-164 --> AC-16401-3
+  TC-201-conflicting-flags-exit-2["TC-201-conflicting-flags-exit-2"]
+  AC-16401-3 -.-> TC-201-conflicting-flags-exit-2
+  REQ-165["REQ-165"]
+  AC-16501-1["AC-16501-1"]
+  REQ-165 --> AC-16501-1
+  TC-202-ui-baseline-unmet-refusal["TC-202-ui-baseline-unmet-refusal"]
+  AC-16501-1 -.-> TC-202-ui-baseline-unmet-refusal
+  AC-16501-2["AC-16501-2"]
+  REQ-165 --> AC-16501-2
+  TC-202-browser-verification-missing-refusal["TC-202-browser-verification-missing-refusal"]
+  AC-16501-2 -.-> TC-202-browser-verification-missing-refusal
+  AC-16501-3["AC-16501-3"]
+  REQ-165 --> AC-16501-3
+  TC-202-scope-mismatch-refusal["TC-202-scope-mismatch-refusal"]
+  AC-16501-3 -.-> TC-202-scope-mismatch-refusal
+  AC-16502-1["AC-16502-1"]
+  REQ-165 --> AC-16502-1
+  TC-203-writer-refuses-manual-verified["TC-203-writer-refuses-manual-verified"]
+  AC-16502-1 -.-> TC-203-writer-refuses-manual-verified
+  AC-16502-2["AC-16502-2"]
+  REQ-165 --> AC-16502-2
+  TC-203-writer-accepts-with-override["TC-203-writer-accepts-with-override"]
+  AC-16502-2 -.-> TC-203-writer-accepts-with-override
+  AC-16502-3["AC-16502-3"]
+  REQ-165 --> AC-16502-3
+  TC-203-merge-state-refusal-and-opt-out["TC-203-merge-state-refusal-and-opt-out"]
+  AC-16502-3 -.-> TC-203-merge-state-refusal-and-opt-out
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2469,6 +2516,31 @@ flowchart LR
   class TC-184-envelope-hygiene-four-blueprints tc;
   class AC-15401-3 ac;
   class TC-184-marker-hygiene-four-blueprints tc;
+  class REQ-163 req;
+  class AC-16301-1 ac;
+  class TC-200-superseded-by-broken tc;
+  class AC-16301-2 ac;
+  class TC-200-related-adrs-silent tc;
+  class REQ-164 req;
+  class AC-16401-1 ac;
+  class TC-201-strict-by-default-exit-4 tc;
+  class AC-16401-2 ac;
+  class TC-201-shallow-any-opt-out tc;
+  class AC-16401-3 ac;
+  class TC-201-conflicting-flags-exit-2 tc;
+  class REQ-165 req;
+  class AC-16501-1 ac;
+  class TC-202-ui-baseline-unmet-refusal tc;
+  class AC-16501-2 ac;
+  class TC-202-browser-verification-missing-refusal tc;
+  class AC-16501-3 ac;
+  class TC-202-scope-mismatch-refusal tc;
+  class AC-16502-1 ac;
+  class TC-203-writer-refuses-manual-verified tc;
+  class AC-16502-2 ac;
+  class TC-203-writer-accepts-with-override tc;
+  class AC-16502-3 ac;
+  class TC-203-merge-state-refusal-and-opt-out tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

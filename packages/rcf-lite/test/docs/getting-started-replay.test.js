@@ -58,7 +58,10 @@ const SEQUENCE = {
   s4DeleteDryRun: ['define', 'delete', 'ADR-001', '--dry-run'],
   s4Delete: ['define', 'delete', 'ADR-001'],
   s5Validate: ['define', 'validate'],
-  s6Coverage: ['audit', 'coverage'],
+  // REQ-164 (strict-by-default): the walkthrough shows both modes.
+  // s6Coverage explores the shallow-any table on an intentionally-uncovered
+  // scaffold (exit 0, gaps printed); s6CoverageStrict is the shipped default.
+  s6Coverage: ['audit', 'coverage', '--mode', 'shallow-any'],
   s6TestLayer: [
     ['define', 'create', 'ts', '--parent', 'US-201', '--title', 'Ingredient search behaviour', '--purpose', 'Verify ingredient search returns complete and safe results.', '--test-level', 'integration', '--acs', 'AC-201-1,AC-201-2'],
     ['define', 'create', 'tc', '--parent', 'TS-001', '--ac', 'AC-201-1', '--slug', 'flour-search', '--description', 'Searching for flour lists every recipe that uses flour', '--test-pointer', 'test/search.test.js::flour search lists every matching recipe'],
@@ -68,7 +71,7 @@ const SEQUENCE = {
   s6TraceBoth: ['audit', 'trace', 'US-201', '--both'],
   s6TraceBack: ['audit', 'trace', 'TC-001-flour-search', '--back'],
   s6Impact: ['audit', 'impact', 'TAC-001'],
-  s6CoverageJson: ['audit', 'coverage', '--format', 'json'],
+  s6CoverageJson: ['audit', 'coverage', '--mode', 'shallow-any', '--format', 'json'],
   s7Queue: [
     ['define', 'update', 'FBS-001', '--set', 'title=Save a recipe end to end', '--set', 'summary=Implement recipe capture: the recipe model, storage and the save flow behind AC-101-1.'],
     ['define', 'create', 'fbs', '--parent', 'BS-001', '--title', 'Ingredient search', '--acs', 'AC-201-1,AC-201-2'],
