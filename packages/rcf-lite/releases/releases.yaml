@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.27.0"
+latest: "0.28.0"
 releases:
+  - version: "0.28.0"
+    date: "2026-09-17"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.28.0 lands two referee-facing trains together. The rcf feedback verb family lets an agent record what a blueprint or rcf-lite did that contradicts its own docs, fails, or forces a workaround, and after one operator yes at a natural pause files each finding as a GitHub issue under the operator's own gh login, or writes a pastable outbox bundle when gh is not available."
+      - "The referee-guarantees train tightens the three sentences the docs page makes about rcf define validate, rcf audit coverage and rcf build finalise: validate now walks ADR supersededBy, coverage is strict by default with --mode shallow-any as the deliberate opt-out, and finalise refuses on the three per-AC verdicts, gates the manual verified override behind --acknowledge-verified-override, and adds a merge-state precondition with --allow-pre-merge as the deliberate pre-merge dry-run opt-out."
+      - "rcf init merges three hook entries into .claude/settings.json and .codex/hooks.json so the feedback ask fires once per session at idle; RULE 17 lands in the managed instructions block as the belt-and-braces path. Coverage-strict-by-default is the single migration surface: run rcf audit coverage --mode shallow-any when the intent is a printed gap report rather than a gate."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.27.0"
     date: "2026-09-11"
     breaking: false
