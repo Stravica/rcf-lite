@@ -176,3 +176,35 @@ test('runProbePacksForFbs treats a check whose run throws as a fail with detail'
   assert.equal(probePacks[0].checks[0].verdict, 'fail');
   assert.match(probePacks[0].checks[0].detail, /check threw: page\.goto failed/);
 });
+
+test('check-level appliesTo returning false records applicable=false with no verdict/severity (rcf-schemas 0.6.3 shape, referee-guarantees C-38)', async () => {
+  let ranScopedCheck = false;
+  const packs = [
+    pack({
+      packName: 'application-admin-console',
+      appliesTo: () => true,
+      checks: [
+        { id: 'AC-21102-1', severity: 'block', description: 'gated', appliesTo: () => false, run: async () => { ranScopedCheck = true; return { verdict: 'pass' }; } },
+        { id: 'AC-21103-1', severity: 'block', description: 'always', run: async () => ({ verdict: 'pass' }) },
+      ],
+    }),
+  ];
+  const { probePacks } = await runProbePacksForFbs({
+    packs, fbs: { fbsId: 'FBS-200' }, uiBaseline: null, manifest: null,
+    browser: null, fetch: null, runtimeUrl: '', routes: [], themes: [],
+  });
+  assert.equal(ranScopedCheck, false, 'run must not fire when check.appliesTo returned false');
+  const skipped = probePacks[0].checks.find((c) => c.id === 'AC-21102-1');
+  assert.equal(skipped.applicable, false, 'inapplicable check records applicable: false');
+  assert.equal(Object.prototype.hasOwnProperty.call(skipped, 'verdict'), false, 'no verdict when applicable is false');
+  assert.equal(Object.prototype.hasOwnProperty.call(skipped, 'severity'), false, 'no severity when applicable is false');
+  assert.match(skipped.detail, /appliesTo returned false/);
+  const ran = probePacks[0].checks.find((c) => c.id === 'AC-21103-1');
+  assert.equal(ran.verdict, 'pass');
+  const verdict = aggregateVerdict(
+    [{ invariant: 'sharedNavPresent', verdict: 'pass', severity: 'block' }],
+    [],
+    probePacks,
+  );
+  assert.equal(verdict, 'pass', 'applicable:false check is neither pass nor fail; other check passed');
+});

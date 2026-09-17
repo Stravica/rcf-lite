@@ -139,20 +139,15 @@ export async function runProbePacksForFbs({
           checkAppliesDetail = `appliesTo threw: ${err.message}`;
         }
         if (!checkApplicable) {
-          // Spec section 5.5 says the residual cure records
-          // applicable: false at the check level. rcf-schemas 0.6.1
-          // (browserVerificationProbePackCheck) closes the schema and
-          // still requires a verdict enum, so the manifest write path
-          // refuses a check that carries `applicable: false` alone.
-          // Until the schema minor promotes an `applicable` field at
-          // the check level (follow-up rcf-schemas bump), emit
-          // `verdict: 'skipped'` with a detail naming the applicability
-          // gate. Semantically the aggregate verdict still treats this
-          // as neither pass nor fail (skipped does not raise `highest`).
+          // Spec section 5.5 residual cure: record `applicable: false`
+          // at the check level so the aggregate verdict treats the
+          // check as neither pass nor fail. rcf-schemas 0.6.3 added
+          // the optional `applicable` boolean on
+          // browserVerificationProbePackCheck, and its if/then guard
+          // omits `verdict`/`severity` when `applicable: false`.
           checkRecords.push({
             id: check.id,
-            verdict: 'skipped',
-            severity: check.severity,
+            applicable: false,
             detail: checkAppliesDetail ?? 'check appliesTo returned false (required capability not applied)',
           });
           continue;
