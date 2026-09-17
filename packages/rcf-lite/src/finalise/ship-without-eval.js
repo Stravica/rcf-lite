@@ -9,40 +9,18 @@
 // `swe-<fbsId>-<n>`, the operator's reason string, the declared AC
 // verdicts, the report path, and an ISO timestamp.
 //
-// Referee-guarantee train (REQ-165, docs claim C-33 (schemas follow-up)):
-// rcf-schemas 0.6.2 does NOT yet declare this field on the manifest
-// schema, so the write path deliberately skips the schema validator
-// on the manifest write (see `writeShipWithoutEvalRecord` below). The
-// docs sentence "--ship-without-eval records its acknowledgement as
-// a valid manifest field" holds only once rcf-schemas ships a minor
-// bump declaring the field. The exact delta needed on
-// `manifest.schema.json` mirrors `shipWithoutVerified`:
-//
-//   1. Under `properties`, add:
-//        "shipWithoutEval": {
-//          "type": "array",
-//          "items": { "$ref": "#/$defs/shipWithoutEvalRecord" },
-//          "description": "Operator acknowledgements recorded on rcf
-//            finalise --ship-without-eval. One entry per acknowledgement."
-//        }
-//   2. Under `$defs`, add `shipWithoutEvalRecord` mirroring
-//      `shipWithoutVerifiedRecord`, but with an extra required
-//      `reason` string field and a `declaredAcs` items shape whose
-//      verdict enum is `["EVAL-MISSING", "EVAL-BELOW-THRESHOLD"]`.
-//   3. Under `$defs`, add `shipWithoutEvalDeclaredAc` mirroring
-//      `shipWithoutVerifiedDeclaredAc` with the new verdict enum.
-//   4. Extend the top-level `description` to name the new field
-//      (0.6.3 or later) and its shape.
-//
-// Until that ships (tracked as the schemas follow-up on this train),
-// this writer keeps the acknowledgement on the manifest but the
-// manifest fails strict validation. Consumers treat its absence as
-// "no acks" and its presence as data.
+// Referee-guarantee train (REQ-165, docs claim C-33): rcf-schemas 0.6.3
+// declares the field on the manifest schema, so the write path validates
+// the composed manifest before writing it (mirrors the sister
+// ship-without-verified writer's discipline). The docs sentence
+// "--ship-without-eval records its acknowledgement as a valid manifest
+// field" holds against the shipped pin.
 
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '#core/errors';
+import { validateDocument } from '#core/store';
 
 /**
  * @typedef {object} ShipWithoutEvalDeclaredAc
@@ -112,9 +90,11 @@ export function composeShipWithoutEvalRecord({
 
 /**
  * Persist a ship-without-eval acknowledgement onto the manifest.
- * Manifest write is atomic (tmp + rename). rcf-schemas 0.6.0's manifest
- * schema does not declare this field, so the write path skips the
- * validator (spec section 9: extensions land at a later minor).
+ * Reads `tree.manifest` for the current state, appends the composed
+ * record to `manifest.shipWithoutEval[]`, validates the composed
+ * manifest against the rcf-schemas 0.6.3 schema, and writes it
+ * atomically. On validation failure the on-disk manifest is untouched
+ * (mirrors the sister ship-without-verified writer's discipline).
  *
  * @param {object} args
  * @param {string} args.projectRoot
@@ -127,6 +107,10 @@ export async function writeShipWithoutEvalRecord({ projectRoot, tree, record }) 
   const nextManifest = { ...manifest };
   const existing = Array.isArray(nextManifest.shipWithoutEval) ? nextManifest.shipWithoutEval : [];
   nextManifest.shipWithoutEval = [...existing, record];
+
+  const relPath = 'rcf/manifest.json';
+  const validation = validateDocument({ doc: nextManifest, kind: 'manifest', filePath: relPath });
+  if (validation) return validation;
 
   const absPath = join(projectRoot, 'rcf', 'manifest.json');
   try {
@@ -143,7 +127,7 @@ export async function writeShipWithoutEvalRecord({ projectRoot, tree, record }) 
     return rcfError({
       kind: 'ioFailure',
       message: `finalise: ship-without-eval manifest write failed: ${err.message}`,
-      filePath: 'rcf/manifest.json',
+      filePath: relPath,
       stack: err.stack,
     });
   }
