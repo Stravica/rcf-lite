@@ -1707,6 +1707,10 @@ flowchart LR
   AC-15601-4 -.-> TC-188-safeguard-submit-refuses-residual
   TC-188-safeguard-whole-text-residual["TC-188-safeguard-whole-text-residual"]
   AC-15601-4 -.-> TC-188-safeguard-whole-text-residual
+  AC-15601-5["AC-15601-5"]
+  REQ-156 --> AC-15601-5
+  TC-188-redact-operator-identity-stopword-guard["TC-188-redact-operator-identity-stopword-guard"]
+  AC-15601-5 -.-> TC-188-redact-operator-identity-stopword-guard
   REQ-157["REQ-157"]
   AC-15701-1["AC-15701-1"]
   REQ-157 --> AC-15701-1
@@ -1745,6 +1749,14 @@ flowchart LR
   REQ-158 --> AC-15801-3
   TC-189-doctor-feedback-destinations-warn-only["TC-189-doctor-feedback-destinations-warn-only"]
   AC-15801-3 -.-> TC-189-doctor-feedback-destinations-warn-only
+  AC-15801-4["AC-15801-4"]
+  REQ-158 --> AC-15801-4
+  TC-189-resolver-library-slug-inference-ambiguous["TC-189-resolver-library-slug-inference-ambiguous"]
+  AC-15801-4 -.-> TC-189-resolver-library-slug-inference-ambiguous
+  TC-189-resolver-library-slug-inference-none["TC-189-resolver-library-slug-inference-none"]
+  AC-15801-4 -.-> TC-189-resolver-library-slug-inference-none
+  TC-189-resolver-library-slug-inference-single["TC-189-resolver-library-slug-inference-single"]
+  AC-15801-4 -.-> TC-189-resolver-library-slug-inference-single
   AC-15802-1["AC-15802-1"]
   REQ-158 --> AC-15802-1
   TC-190-core-repo-pinned-to-bugs-url["TC-190-core-repo-pinned-to-bugs-url"]
@@ -2849,6 +2861,8 @@ flowchart LR
   class TC-188-safeguard-shortname-webhook tc;
   class TC-188-safeguard-submit-refuses-residual tc;
   class TC-188-safeguard-whole-text-residual tc;
+  class AC-15601-5 ac;
+  class TC-188-redact-operator-identity-stopword-guard tc;
   class REQ-157 req;
   class AC-15701-1 ac;
   class TC-188-fingerprint-canonical-input tc;
@@ -2869,6 +2883,10 @@ flowchart LR
   class TC-189-resolver-four-fixture-walk tc;
   class AC-15801-3 ac;
   class TC-189-doctor-feedback-destinations-warn-only tc;
+  class AC-15801-4 ac;
+  class TC-189-resolver-library-slug-inference-ambiguous tc;
+  class TC-189-resolver-library-slug-inference-none tc;
+  class TC-189-resolver-library-slug-inference-single tc;
   class AC-15802-1 ac;
   class TC-190-core-repo-pinned-to-bugs-url tc;
   class AC-15802-2 ac;

@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.28.0"
+latest: "0.28.1"
 releases:
+  - version: "0.28.1"
+    date: "2026-09-17"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.28.1 fixes three defects the first WSD-lens round-trip surfaced on 0.28.0. Feedback on a library-owned blueprint now reaches the library owner even when the blueprint was applied by its bare slug, so a colleague running rcf define blueprint add application-spa against a project with a registered WSD library that also owns application-spa no longer sees the finding silently routed to Stravica/rcf-lite."
+      - "The operator-identity redactor no longer folds the canonical noun agent when it appears in an operator's ## Name line. The docs URL how-the-agent-files-feedback and prose like when the agent stops survive; real given names still fold. A common-noun stopword set (agent, user, admin, api, code, system, and the rest) is exported as RESERVED_IDENTITY_TOKENS."
+      - "The rcf feedback add help text now names --evidence as required and repeatable, matching the shipped behaviour and AC-15501-1. A README callout box discloses the rename from the retired @stravica-ai/rcf-build-lite name to rcf-lite so a colleague hitting no matching version on the old name has a paste-ready recovery command."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.28.0"
     date: "2026-09-17"
     breaking: false

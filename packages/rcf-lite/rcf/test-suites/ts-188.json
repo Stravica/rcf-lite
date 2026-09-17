@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T15:27:35Z",
-  "updatedAt": "2026-09-17T01:30:00Z",
+  "updatedAt": "2026-09-17T13:47:28Z",
   "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
   "testLevel": "integration",
   "acIds": [
@@ -8,7 +8,8 @@
     "AC-15601-2",
     "AC-15601-3",
     "AC-15601-4",
-    "AC-15701-1"
+    "AC-15701-1",
+    "AC-15601-5"
   ],
   "id": "TS-188",
   "usId": "US-15601",
@@ -160,6 +161,13 @@
       "description": "Cover AC-15601-1 (fix round 5, R4 negative case) via the unit test: ordinary prose that carries a vocabulary word (`the password field is required`, `the password is required`, `see commit abc1234 at HEAD`, `keyword=abcdef`, `authors=joe,jane`) does NOT fold because the value-shape gate rejects single-class values and values under 8 characters.",
       "status": "pending",
       "testPointer": "test/cli/feedback-fix-round-5.test.js::F-05 (round 5, R4 guard): a vocabulary word in ordinary prose (single-class value, or short value) does NOT fold"
+    },
+    {
+      "id": "TC-188-redact-operator-identity-stopword-guard",
+      "acId": "AC-15601-5",
+      "description": "Cover AC-15601-5 via the unit test: redact runs over a body containing the docs URL 'https://stravica.ai/docs/rcf/how-the-agent-files-feedback', the prose 'when the agent stops the queue' and the personal name 'Alice reviewed this', with operatorName seeded as 'The Agent Alice'; the docs URL is emitted verbatim; the prose 'when the agent stops the queue' is emitted verbatim; 'Alice' folds to <operator>; no operator-identity ledger row names 'agent' or 'the'.",
+      "status": "pending",
+      "testPointer": "test/feedback/redact.test.js::AC-15601-5 operator-identity stopword guard: common nouns in the identity string are never folded; real given names still fold"
     }
   ],
   "status": "draft"

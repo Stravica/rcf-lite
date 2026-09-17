@@ -12,6 +12,7 @@
     "AC-15601-2",
     "AC-15601-3",
     "AC-15601-4",
+    "AC-15601-5",
     "AC-15701-1"
   ],
   "dependsOnFbsIds": [
@@ -41,5 +42,5 @@
   "estimatedHours": 16,
   "notes": "Fingerprint decision confined to this slice via ADR-4102; the labels half of that ADR pays off in slice 4.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-17T14:14:56Z"
 }

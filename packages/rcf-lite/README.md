@@ -7,6 +7,15 @@
 
 Build software with an AI coding agent without losing the plot.
 
+> **Package name note (0.7.1+).** This tool ships as `rcf-lite` on npm. The retired scoped name `@stravica-ai/rcf-build-lite` was frozen at 0.7.0 in August 2026 and every release from 0.7.1 onwards lives here. If `npm install -g @stravica-ai/rcf-build-lite@<version>` returns "no matching version" for any version above 0.7.0, uninstall the scoped name and install `rcf-lite` at the same version instead:
+>
+> ```sh
+> npm uninstall -g @stravica-ai/rcf-build-lite
+> npm install -g rcf-lite
+> ```
+>
+> The `rcf` and `rcf-verify` bin names are unchanged.
+
 Anyone who has shipped with a coding agent knows the failure mode: the code arrives fast, but what the product is supposed to do lives in prompt history, and prompt history is not a spec. Three weeks later nobody can say what is covered, what is tested, or what breaks when something changes.
 
 RCF Lite keeps those answers machine-checkable. It maintains a live chain from what you asked for, through requirements, user stories, acceptance criteria and tests, into the code itself, as plain JSON files in your own repository. Your agent works the chain instead of improvising; `rcf define validate` catches drift the moment it happens; and when your app is deployed, `rcf verify` sends an independent verifier at it before anything gets called done.

@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { redact, findResidualSecrets, allowedHosts, BODY_CAP_BYTES } from '../../src/feedback/redact.js';
+import { redact, findResidualSecrets, allowedHosts, BODY_CAP_BYTES, RESERVED_IDENTITY_TOKENS } from '../../src/feedback/redact.js';
 
 test('redact rule 1: project root becomes <project> and paths under it keep their tail', () => {
   const { text, ledger } = redact('build failed at /Users/jo/proj/src/app.js line 12', {
@@ -118,6 +118,47 @@ test('redact rule 7: operator name and its long tokens become <operator>', () =>
   assert.match(text, /<operator> reviewed this\. <operator> wrote the code\. Al is a nickname\./);
   const row = ledger.find((r) => r.rule === 'operator-identity');
   assert.ok(row);
+});
+
+test('AC-15601-5 operator-identity stopword guard: common nouns in the identity string are never folded; real given names still fold', () => {
+  const body = [
+    'see https://stravica.ai/docs/rcf/how-the-agent-files-feedback for the wording,',
+    'this happens when the agent stops the queue and the operator is waiting,',
+    'Alice reviewed this change.',
+  ].join('\n');
+  const { text, ledger } = redact(body, {
+    operatorName: 'The Agent Alice',
+  });
+  assert.match(text, /how-the-agent-files-feedback/, 'the docs URL must survive verbatim');
+  assert.match(text, /when the agent stops the queue/, 'the prose "when the agent stops" must survive verbatim');
+  assert.match(text, /<operator> reviewed this change\./, 'the personal name Alice must fold to <operator>');
+  const opRows = ledger.filter((r) => r.rule === 'operator-identity');
+  // Full-string 'The Agent Alice' does not appear literally, so its
+  // literal-substitution row should be absent. Per-token folds must
+  // fire for 'Alice' and not for 'agent' or 'the'.
+  const beforeValues = opRows.map((r) => r.before);
+  assert.ok(beforeValues.includes('Alice'), 'expected an operator-identity row folding Alice');
+  assert.ok(!beforeValues.includes('agent'), 'must not fold the reserved noun agent');
+  assert.ok(!beforeValues.includes('Agent'), 'must not fold Agent even when it appears verbatim in the identity');
+  assert.ok(!beforeValues.includes('the'), 'must not fold the article the');
+});
+
+test('AC-15601-5: RESERVED_IDENTITY_TOKENS export carries the guarded common nouns', () => {
+  assert.ok(RESERVED_IDENTITY_TOKENS instanceof Set, 'exported constant is a Set');
+  for (const stop of ['agent', 'user', 'operator', 'admin', 'system', 'api', 'code', 'name']) {
+    assert.ok(RESERVED_IDENTITY_TOKENS.has(stop), `RESERVED_IDENTITY_TOKENS must include ${stop}`);
+  }
+});
+
+test('AC-15601-5: an identity whose ONLY token is a reserved noun folds nothing per-token but still substitutes the full literal when present', () => {
+  const { text, ledger } = redact('the agent processed this. Agent did the work.', {
+    operatorName: 'Agent',
+  });
+  // No per-token fold (the only token is the stopword itself).
+  assert.match(text, /the agent processed this\./);
+  assert.match(text, /Agent did the work\./);
+  const opRows = ledger.filter((r) => r.rule === 'operator-identity');
+  assert.deepEqual(opRows, [], 'no operator-identity rows expected when the identity is a bare stopword');
 });
 
 test('redact rule 7: project name and git remote redact', () => {

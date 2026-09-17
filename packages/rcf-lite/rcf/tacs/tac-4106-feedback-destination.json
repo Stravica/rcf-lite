@@ -10,7 +10,8 @@
     "Walk entry.target -> manifest.blueprints[] -> registry entry -> issuesRepo, with sourceRef derivation as fallback",
     "Return a { repo, visibility, derived, reason } shape; unresolved carries a reason for the doctor row",
     "Route --kind core and shelf blueprints to the constant sourced from package.json:bugs.url (a test pins the constant)",
-    "Report the doctor feedback-destinations warn row for every registered library without a resolvable destination"
+    "Report the doctor feedback-destinations warn row for every registered library without a resolvable destination",
+    "Cross-check the registry BEFORE the shelf-constant fall-through for --kind blueprint entries with no libraryPrefix on the manifest record: one library owns the slug and resolves -> library destination (source: library-slug-inference); two-or-more libraries own the slug and resolve -> unresolved with reason ambiguous-library-slug and a candidates[] array; zero libraries own the slug -> shelf constant"
   ],
   "internalStructure": "src/feedback/destination.js is a pure resolver; the constant lives at the top of the module and is exported for the test to compare against package.json.",
   "interfaces": [
@@ -35,5 +36,5 @@
   "tradeoffs": "A declared destination on library.json requires library owners to author one field; the cost is a one-time PR per library, in exchange for correctness on every consuming project.",
   "notes": "A library mirrored from a fork would have derivation pointing at the fork; the declared issues field is why derivation is only a fallback.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-09-17T13:46:24.000Z"
 }

@@ -44,8 +44,17 @@
       "then": "preview surfaces the residual line and the tainted entry stays pending; submit exits 3 without a create/comment for that entry and without writing a bundle whose text carries the residual shape",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-15601-5",
+      "description": "The operator-identity substitution (design section 5 rule 6) applies word-boundary and stopword guards so a common noun that happens to appear in the operator's identity name is not folded. A RESERVED_IDENTITY_TOKENS constant, exported from src/feedback/redact.js and defence-in-depth applied at every operator-name token loop, blocks the fold when the whitespace-separated token (case-insensitive) is one of: agent, agents, user, users, operator, operators, admin, admins, root, client, clients, server, servers, service, services, system, systems, name, main, test, code, api, apis, anon, anonymous, human, humans, dev, ops, sre, docs, developer, developers, engineer, engineers, team, teams. Substitution still fires for a real given name (Alice, Smith) even when the full identity string contains a stopword. The URL and prose canon phrase 'the agent files feedback' survives unmodified when the identity contains 'agent'. Rationale: the rcf-lite ecosystem uses 'agent' as a canonical noun (RULE 17, docs paths); operator-identity folds must be driven by real identity values, never by a bare common noun.",
+      "given": "a fixture project whose rcf/.identity/profile.md ## Name reads 'The Agent Alice', and a body containing the docs URL 'https://stravica.ai/docs/rcf/how-the-agent-files-feedback', the prose 'when the agent stops the queue', and the personal name 'Alice reviewed this'",
+      "when": "the redactor runs over the body with the seeded operator identity",
+      "then": "the docs URL survives verbatim; the prose 'when the agent stops the queue' survives verbatim; the personal name 'Alice' folds to <operator>; the ledger records an operator-identity row for 'Alice' but no row for 'agent' or 'the'",
+      "testable": true,
+      "scope": "runtime"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-17T00:36:18Z"
+  "updatedAt": "2026-09-17T13:47:03Z"
 }

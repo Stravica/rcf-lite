@@ -11,6 +11,7 @@
     "AC-15801-1",
     "AC-15801-2",
     "AC-15801-3",
+    "AC-15801-4",
     "AC-15802-1",
     "AC-15802-2"
   ],
@@ -38,5 +39,5 @@
   "estimatedHours": 8,
   "notes": "Extends the library manifest surface; downstream library owners can adopt at their own cadence.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T16:20:01Z"
+  "updatedAt": "2026-09-17T14:14:56Z"
 }

@@ -3738,6 +3738,14 @@
             "TC-188-safeguard-whole-text-residual"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-5",
+          "covered": true,
+          "testCases": [
+            "TC-188-redact-operator-identity-stopword-guard"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -3804,6 +3812,16 @@
           "covered": true,
           "testCases": [
             "TC-189-doctor-feedback-destinations-warn-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15801-4",
+          "covered": true,
+          "testCases": [
+            "TC-189-resolver-library-slug-inference-ambiguous",
+            "TC-189-resolver-library-slug-inference-none",
+            "TC-189-resolver-library-slug-inference-single"
           ],
           "unresolvedTestCases": []
         },

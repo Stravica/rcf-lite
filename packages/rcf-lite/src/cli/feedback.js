@@ -136,8 +136,10 @@ Common options:
   --body <text> | --body-file <path>
                                 Body markdown, <= ${BODY_CAP_BYTES / 1024} KB
                                 after UTF-8 encoding.
-  --evidence <pointer>          Repeatable: a command, a path:line
-                                inside the project, or an id.
+  --evidence <pointer>          Required, repeatable: a command, a
+                                path:line inside the project, or an id.
+                                At least one --evidence is required
+                                (AC-15501-1); absence exits 2.
   --harness claude-code|codex|other
                                 Optional; inferred from env when absent.
   --ask-now                     Blocker shortcut; flags the batch so the
@@ -954,6 +956,13 @@ async function handlePreview(argv, ctx) {
       const reason = p.destination.reason ?? 'unresolved';
       const contact = p.destination.publisherContact ? ` (library contact: ${p.destination.publisherContact})` : '';
       stdout.write(`  no issue destination declared${p.destination.reason ? ` (${reason})` : ''}; bundle will be written${contact}\n`);
+      // AC-15801-4 / design amendment R5b: for ambiguous-library-slug
+      // surface the candidate library prefixes so the operator sees
+      // exactly which qualified refs would resolve it.
+      if (Array.isArray(p.destination.candidates) && p.destination.candidates.length > 0) {
+        const qualified = p.destination.candidates.map((prefix) => `${prefix}:<slug>`).join(', ');
+        stdout.write(`  candidate libraries owning this slug: ${p.destination.candidates.join(', ')} (re-apply with a qualified ref, e.g. ${qualified})\n`);
+      }
     }
     stdout.write(`fingerprint: ${p.fingerprint}\n`);
     if (p.fingerprintFallback) {

@@ -7,7 +7,14 @@
 //
 // Resolution order (design section 3.3):
 //   1. --kind core                        -> CORE_REPO (public)
-//   2. --kind blueprint, no libraryPrefix -> CORE_REPO (shelf; public)
+//   2. --kind blueprint, no libraryPrefix -> library-slug inference
+//      (AC-15801-4 / design amendment R5a): if the applied slug is
+//      owned by exactly one registered library that resolves to a
+//      destination (issuesRepo or derivable sourceRef), route there
+//      with source: 'library-slug-inference'; if two or more libraries
+//      own the slug and resolve, return unresolved with reason
+//      'ambiguous-library-slug' and a candidates[] array of prefixes;
+//      otherwise fall through to CORE_REPO (shelf; public).
 //   3. --kind blueprint, libraryPrefix    -> registry entry issuesRepo
 //                                            (declared destination wins;
 //                                            visibility from the entry)
@@ -210,9 +217,10 @@ function recordEffectiveSlug(record) {
  * @property {'public' | 'private' | 'unresolved'} visibility
  * @property {'core' | 'shelf' | 'library'} kind
  * @property {boolean} derived            true when repo came from sourceRef derivation
- * @property {string} [reason]            filled on unresolved: 'no-issues-field' | 'no-github-source' | 'no-libraryprefix-record' | 'unknown-target'
+ * @property {string} [reason]            filled on unresolved: 'no-issues-field' | 'no-github-source' | 'no-libraryprefix-record' | 'unknown-target' | 'ambiguous-library-slug'
+ * @property {string[]} [candidates]      filled on unresolved with reason 'ambiguous-library-slug': sorted library prefixes owning the slug
  * @property {string} [publisherContact]  registry entry's publisher.contact (bundle uses it)
- * @property {string} [source]            'library-manifest' | 'sourceRef-derivation' | 'package-bugs-url' | 'shelf-constant'
+ * @property {string} [source]            'library-manifest' | 'sourceRef-derivation' | 'package-bugs-url' | 'shelf-constant' | 'library-slug-inference'
  */
 
 /**
@@ -263,8 +271,27 @@ export async function resolve(entry, context = {}) {
 
   const libraryPrefix = record.libraryPrefix ?? entry?.target?.libraryPrefix ?? null;
 
-  // Shelf blueprint (no libraryPrefix) -> Stravica/rcf-lite.
+  // Shelf blueprint (no libraryPrefix on the manifest record). Before
+  // falling through to the shelf constant, cross-check the registry:
+  // if exactly one registered library owns a blueprint with the applied
+  // slug AND that library resolves to a destination, route to that
+  // library so a bare-slug apply of a library-shared name still lands
+  // on the library owner's repo (design amendment R5, AC-15801-4).
   if (!libraryPrefix) {
+    const inferred = inferLibraryFromSlug(record, registry);
+    if (inferred.kind === 'single') {
+      return inferred.destination;
+    }
+    if (inferred.kind === 'ambiguous') {
+      return {
+        repo: null,
+        visibility: 'unresolved',
+        kind: 'library',
+        derived: false,
+        reason: 'ambiguous-library-slug',
+        candidates: inferred.candidates,
+      };
+    }
     return {
       repo: CORE_REPO,
       visibility: 'public',
@@ -358,4 +385,71 @@ export function listUnresolvedLibraries(registry) {
 function findLibraryEntry(registry, libraryPrefix) {
   const libs = Array.isArray(registry?.libraries) ? registry.libraries : [];
   return libs.find((l) => l?.libraryPrefix === libraryPrefix) ?? null;
+}
+
+/**
+ * AC-15801-4 / design amendment R5a: given a manifest record with no
+ * libraryPrefix, cross-check the registry to see whether the applied
+ * slug is owned by exactly one registered library that resolves to a
+ * destination. Returns:
+ *   { kind: 'none' }                                 no library owns the slug (or none resolve)
+ *   { kind: 'single', destination }                  exactly one library owns the slug and resolves
+ *   { kind: 'ambiguous', candidates: string[] }      two or more libraries own the slug and resolve
+ *
+ * The resolver only calls this on the shelf-constant fall-through
+ * branch, so it never overrides an existing libraryPrefix resolution.
+ *
+ * @param {object} record                              manifest.blueprints[] record
+ * @param {object | null | undefined} registry         parsed rcf/blueprint-libraries.json
+ */
+function inferLibraryFromSlug(record, registry) {
+  const slug = typeof record?.slug === 'string' ? record.slug : null;
+  if (!slug) return { kind: 'none' };
+  const libs = Array.isArray(registry?.libraries) ? registry.libraries : [];
+  const owners = [];
+  for (const lib of libs) {
+    if (!lib || typeof lib !== 'object') continue;
+    if (typeof lib.libraryPrefix !== 'string' || lib.libraryPrefix.length === 0) continue;
+    const bps = Array.isArray(lib.blueprints) ? lib.blueprints : [];
+    const owns = bps.some((b) => b && typeof b.slug === 'string' && b.slug === slug);
+    if (!owns) continue;
+    const declared = typeof lib.issuesRepo === 'string' && lib.issuesRepo.length > 0 ? lib.issuesRepo : null;
+    const derivedRepo = declared ? null : parseGithubSource(lib.sourceRef ?? '');
+    if (!declared && !derivedRepo) continue;
+    const contact = typeof lib?.publisher?.contact === 'string' ? lib.publisher.contact : undefined;
+    owners.push({ lib, declared, derivedRepo, contact });
+  }
+  if (owners.length === 0) return { kind: 'none' };
+  if (owners.length === 1) {
+    const [o] = owners;
+    if (o.declared) {
+      const declaredVisibility = o.lib.issuesVisibility === 'private' ? 'private'
+        : o.lib.issuesVisibility === 'public' ? 'public'
+          : 'public';
+      return {
+        kind: 'single',
+        destination: {
+          repo: o.declared,
+          visibility: declaredVisibility,
+          kind: 'library',
+          derived: false,
+          source: 'library-slug-inference',
+          ...(o.contact ? { publisherContact: o.contact } : {}),
+        },
+      };
+    }
+    return {
+      kind: 'single',
+      destination: {
+        repo: o.derivedRepo,
+        visibility: 'public',
+        kind: 'library',
+        derived: true,
+        source: 'library-slug-inference',
+        ...(o.contact ? { publisherContact: o.contact } : {}),
+      },
+    };
+  }
+  const candidates = owners.map((o) => o.lib.libraryPrefix).sort();
+  return { kind: 'ambiguous', candidates };
 }
