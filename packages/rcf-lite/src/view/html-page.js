@@ -353,7 +353,11 @@ function inlineScript() {
   }
 
   function tabButtons() {
-    return Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    // Scope to the top-level nav.tabs to avoid matching Product Map
+    // pm-group-btn nodes (they also carry role="tab" for a11y). Without
+    // this scope, a top-level tab click force-writes aria-selected on
+    // every pm-group-btn, breaking Product Map hash serialisation.
+    return Array.prototype.slice.call(document.querySelectorAll('nav.tabs [role="tab"]'));
   }
 
   function panelFor(name) {
@@ -477,24 +481,37 @@ function inlineScript() {
   }
 
   function updatePmHash() {
-    if (!window.history || typeof window.history.replaceState !== 'function') return;
+    // AC-17001-2: grouping button clicks and status filter changes push
+    // a new history entry so Back/Forward traverse them. Top-level tab
+    // clicks keep their replaceState behaviour (see onTabClick).
+    if (!window.history || typeof window.history.pushState !== 'function') return;
     var sel = document.querySelector('.pm-group-btn[aria-selected="true"]');
     var group = sel ? sel.getAttribute('data-pm-group') : 'shape';
     var statusEl = document.querySelector('.pm-status-select');
     var status = statusEl ? statusEl.value : 'all';
-    window.history.replaceState(null, '', '#tab=product-map&group=' + group + '&status=' + status);
+    var next = '#tab=product-map&group=' + group + '&status=' + status;
+    // Avoid noisy duplicate entries when the same hash would land twice
+    // (e.g. a click that does not change the selection).
+    if (window.location.hash === next) return;
+    window.history.pushState(null, '', next);
   }
 
   function wireProductMap() {
+    // Idempotent: pm nodes live inside the SSE swap wrapper so their DOM
+    // is fresh after every swap - no guard needed on those. Guard here
+    // covers the same-render re-invocation path (init() called twice).
     var buttons = document.querySelectorAll('.pm-group-btn');
     for (var i = 0; i < buttons.length; i += 1) {
+      if (buttons[i].__rcfPmWired) continue;
+      buttons[i].__rcfPmWired = true;
       buttons[i].addEventListener('click', function (ev) {
         var name = ev.currentTarget.getAttribute('data-pm-group');
         if (activatePmGroup(name)) updatePmHash();
       });
     }
     var select = document.querySelector('.pm-status-select');
-    if (select) {
+    if (select && !select.__rcfPmWired) {
+      select.__rcfPmWired = true;
       select.addEventListener('change', function () {
         applyPmStatusFilter(select.value);
         updatePmHash();
@@ -550,20 +567,37 @@ function inlineScript() {
   }
 
   function wireTabs() {
+    // Idempotent: tab buttons live in the header outside the SSE swap
+    // wrapper, so their DOM nodes survive rcfPage.init() re-invocations.
+    // Guard against double-binding by tagging each node once.
     tabButtons().forEach(function (btn) {
+      if (btn.__rcfTabWired) return;
+      btn.__rcfTabWired = true;
       btn.addEventListener('click', onTabClick);
     });
   }
 
+  var hashchangeWired = false;
   function onReady() {
     initMermaid();
     wireTabs();
     wireProductMap();
     resolveHash(window.location.hash);
-    window.addEventListener('hashchange', function () {
-      resolveHash(window.location.hash);
-    });
+    if (!hashchangeWired) {
+      hashchangeWired = true;
+      window.addEventListener('hashchange', function () {
+        resolveHash(window.location.hash);
+      });
+    }
   }
+
+  // Phase 3.8 promise: expose window.rcfPage.init() so the live client
+  // can re-invoke the tab + product-map wiring after every SSE
+  // innerHTML swap. Without this assignment, pm-group-btn and
+  // pm-status-select listeners die on the first swap and the panel
+  // silently freezes.
+  window.rcfPage = window.rcfPage || {};
+  window.rcfPage.init = onReady;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onReady);

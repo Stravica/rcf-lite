@@ -187,15 +187,18 @@ test('renderPage footer refers to live streaming rather than manual regenerate (
   assert.doesNotMatch(html, /regenerate with/);
 });
 
-test('renderPage inline script is byte-identical to Phase 3.6 (guarded by layout regression)', async () => {
+test('renderPage inline script wires the Phase-3.8 rcfPage.init entry and idempotence markers', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  // The inline IIFE stays exactly as Phase 3.6 shipped it; the
-  // layout-regression test asserts the full byte match against the
-  // committed fixture. Here we spot-check its unchanged surface.
-  assert.doesNotMatch(html, /__rcfWired/);
-  assert.doesNotMatch(html, /window\.rcfPage/);
+  // Phase 3.9 wired the promise the header comment made: window.rcfPage
+  // exposes init() so the live client can re-invoke the tab and product
+  // map wiring after every SSE innerHTML swap (P1-1). Idempotence
+  // markers keep re-invocation cheap.
+  assert.match(html, /window\.rcfPage\s*=\s*window\.rcfPage\s*\|\|\s*\{\}/);
+  assert.match(html, /window\.rcfPage\.init\s*=\s*onReady/);
+  assert.match(html, /__rcfTabWired/);
+  assert.match(html, /__rcfPmWired/);
   assert.match(html, /function wireTabs\(\) \{[\s\S]*?btn\.addEventListener\('click', onTabClick\);[\s\S]*?\}/);
 });
 
