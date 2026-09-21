@@ -12,11 +12,11 @@
   "acceptanceCriteria": [
     {
       "id": "AC-17005-1",
-      "description": "The capability grouping enumerates one bucket per distinct capability:<slug> value present on any REQ across the tree. A REQ carrying multiple capability tags appears under each. REQs whose tags carry no capability:<slug> entry are collected under an \"Unclassified\" bucket. Slugs are rendered as their kebab form in the heading; buckets are ordered by REQ count desc, then alphabetically.",
+      "description": "The capability grouping enumerates one bucket per distinct capability:<slug> value present on any REQ across the tree. A REQ carrying multiple capability tags appears under each. REQs whose tags carry no capability:<slug> entry are collected under an \"Unclassified\" bucket. Slugs are rendered as their kebab form in the heading; named capability buckets are ordered by REQ count desc, then alphabetically, and the Unclassified bucket is always pinned last.",
       "testable": true
     }
   ],
   "tags": [],
   "createdAt": "2026-09-21T17:00:00.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-09-21T17:43:06.511Z"
 }

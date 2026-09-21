@@ -17,11 +17,11 @@
     },
     {
       "id": "AC-17001-2",
-      "description": "Selecting the shape grouping drills each bucket to its REQs (rendered with the same doc-details helper and status pill as the Requirements tab), each REQ to its user stories, and each user story to its acceptance criteria, so the reader can go from a shape bucket to an AC in the same tab.",
+      "description": "Selecting the shape grouping drills each bucket to its REQs (rendered with the same doc-details helper and status pill as the Requirements tab), each REQ to its user stories, and each user story to its acceptance criteria, so the reader can go from a shape bucket to an AC in the same tab. Grouping button clicks and status filter changes push a new history entry (Back/Forward traverse them); top-level tab clicks keep their existing behaviour.",
       "testable": true
     }
   ],
   "tags": [],
   "createdAt": "2026-09-21T17:00:00.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-09-21T17:43:06.307Z"
 }
