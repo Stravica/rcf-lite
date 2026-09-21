@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T19:54:01.626Z",
-  "updatedAt": "2026-09-07T20:18:17.970Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "The applying operator elicits one of Cloudflare Turnstile documented widget modes: managed (default; renders challenge only when Cloudflare deems it necessary), non-interactive (always renders a non-interactive challenge) or invisible (mounts an invisible widget). The default mode is managed per the shipped ADR.",
   "reqId": "REQ-094",
   "prdId": "PRD-001",
@@ -28,5 +28,9 @@
         "match": "renders"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:edge-security"
+  ]
 }

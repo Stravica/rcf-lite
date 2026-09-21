@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "Verify is the ship gate. A silent runtime change in the browser MCP on the next verify run is the reproducibility hole Baz named on 2026-09-03. Pinning the MCP closes it. Formalising e2e as a declared test level gives browser-facing projects a first-class contract instead of relying on the verify browser stage as a proxy for coverage. Doctor and init together make Playwright the operator's decision, not rcf-lite's ambient inheritance.",
   "tags": [
+    "capability:verify",
     "verify",
     "playwright-mcp",
     "e2e",
@@ -18,5 +19,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-03T16:56:00Z",
-  "updatedAt": "2026-09-03T16:56:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

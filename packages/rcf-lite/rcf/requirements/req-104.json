@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T21:38:52.795Z",
-  "updatedAt": "2026-09-07T23:05:24.201Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "When both edge-cloudflare-rate-limiting and security-auth-magic-link are applied on the same project, the zone-level rate rule sits at the CF edge and refuses the (N+1)th request for the elicited duration before it reaches the origin; the security-auth-magic-link per-email application rate limiter continues to run at the mint-surface. The two rules operate on different characteristic sets (IP-per-URL vs per-email per-minute) and are additive. ADR-3702 records the layering. Chain: HQ round-6 T-6 reserved-block per HQ chain-block ruling 2026-09-07.",
   "reqId": "REQ-104",
   "prdId": "PRD-001",
@@ -9,5 +9,9 @@
   "domain": "functional",
   "priority": "must",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:blueprints",
+    "capability:edge-security"
+  ]
 }

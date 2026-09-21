@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T20:05:06.758Z",
-  "updatedAt": "2026-09-04T20:05:16.473Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-018",
   "prdId": "PRD-001",
   "title": "Application-datatable v1.0.0 blueprint on the shelf with its Playwright probe pack and sample-app fixture",
@@ -14,5 +14,9 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-04T20:05:06.779Z"
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }

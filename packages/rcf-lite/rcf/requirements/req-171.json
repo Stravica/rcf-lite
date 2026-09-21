@@ -37,6 +37,7 @@
   },
   "rationale": "Analysis d-019 established that the shipped schema has no capability or feature level between PRD and REQ. The trial answers whether a lightweight convention on the existing tags array carries a usable product taxonomy without a schema change. If the tags and the by-capability view earn their keep, the capability level is promoted to a proper schema field later; if not, nothing was spent.",
   "tags": [
+    "capability:requirements-authoring",
     "capability:review-surface",
     "capability-tags-trial"
   ]

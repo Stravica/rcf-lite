@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T16:49:12.737Z",
-  "updatedAt": "2026-09-07T17:14:20.026Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-085",
   "prdId": "PRD-001",
   "title": "T-4 edge-cloudflare-access v1.0.0: the composition with application-admin-console flips the sign-in surface when the applied capability set contains zeroTrustGate",
@@ -14,5 +14,9 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T16:49:12.772Z"
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:edge-security"
+  ]
 }

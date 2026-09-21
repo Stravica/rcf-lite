@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T16:59:00.000Z",
-  "updatedAt": "2026-09-06T16:59:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-040",
   "prdId": "PRD-001",
   "title": "Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container",
@@ -9,5 +9,9 @@
   "domain": "application",
   "priority": "must",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }

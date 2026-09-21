@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:38.018Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-076",
   "prdId": "PRD-001",
   "title": "T-3 sole-reader guarantee enforced by AST scan: no non-facade module imports env.CELL or env.HUB",
@@ -14,5 +14,9 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T14:11:38.051Z"
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:platform-integrations"
+  ]
 }

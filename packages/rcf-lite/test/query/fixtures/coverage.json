@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 103,
-    "covered": 103,
+    "requirements": 105,
+    "covered": 105,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4195,6 +4195,84 @@
           "covered": true,
           "testCases": [
             "TC-203-merge-state-refusal-and-opt-out"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-170",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17001-1",
+          "covered": true,
+          "testCases": [
+            "TC-204-shape-buckets-present"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17001-2",
+          "covered": true,
+          "testCases": [
+            "TC-204-shape-drill-req-us-ac"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17002-1",
+          "covered": true,
+          "testCases": [
+            "TC-205-status-filter-control"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17003-1",
+          "covered": true,
+          "testCases": [
+            "TC-206-component-tad-root"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17004-1",
+          "covered": true,
+          "testCases": [
+            "TC-207-trace-coverage-buckets"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17005-1",
+          "covered": true,
+          "testCases": [
+            "TC-208-capability-buckets"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-171",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17101-1",
+          "covered": true,
+          "testCases": [
+            "TC-209-every-req-has-capability-tag"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17102-1",
+          "covered": true,
+          "testCases": [
+            "TC-210-taxonomy-doc-present"
           ],
           "unresolvedTestCases": []
         }

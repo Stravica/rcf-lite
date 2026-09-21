@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T21:08:13.117Z",
-  "updatedAt": "2026-09-04T21:08:13.139Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "The rcf-lite shelf ships the application-charts v1.0.0 blueprint (blueprints/application-charts/) with 15 contributions (4 REQs, 6 USs binding runtime-observable ACs, 2 TACs, 3 ADRs), a shipped Playwright probe pack (blueprints/application-charts/probe-packs/application-charts.pack.mjs) whose three checks (AC-18102-1 non-colour distinction, AC-18103-1 text-alternative table, AC-18104-1 keyboard traversal with reduced motion) are anchored to blueprint AC ids per T-0 AC-1701-3, and a dependency-free sample-app fixture (packages/rcf-lite/test/fixtures/probe-pack-application-charts/) the pack probes at the shelf gate. The blueprint is the ratification of the visual round T-2 (spec 2026-09-04 section 5.2), the second shipped consumer of T-0's probe-pack runner extension, and the leaf blueprint the application-dashboard T-3 consumes.",
   "category": "functional",
   "domain": "application",
@@ -34,5 +34,9 @@
         "match": "dashboard"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }

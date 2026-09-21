@@ -27,6 +27,7 @@ import {
 } from './doc-renderers/index.js';
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
+import { renderProductMapPanel } from './product-map.js';
 
 // Inline SVG favicon: the Stravica kit mark (deep-navy tile with the
 // ribbon symbol in Stravica blue), taken from the estate brand kit at
@@ -77,6 +78,7 @@ export function renderPage(model) {
       <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
       <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
       <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build sequence</button>
+      <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
     </nav>
   </header>
   <main>
@@ -119,6 +121,7 @@ export function renderContent(model) {
   const requirementsPanel = renderRequirementsPanel(model, subdiagrams);
   const architecturePanel = renderArchitecturePanel(model);
   const buildPanel = renderBuildPanel(model);
+  const productMapPanel = renderProductMapPanel(model);
 
   const errorBanner = renderErrorBanner(model.errors ?? []);
 
@@ -140,6 +143,10 @@ export function renderContent(model) {
     <section id="tab-build" role="tabpanel" hidden>
       <h2 class="tab-heading">Build sequence</h2>
       ${buildPanel}
+    </section>
+    <section id="tab-product-map" role="tabpanel" hidden>
+      <h2 class="tab-heading">Product Map</h2>
+      ${productMapPanel}
     </section>`;
 }
 
@@ -320,7 +327,9 @@ function renderErrorBanner(errors) {
 function inlineScript() {
   return `
 (function () {
-  var TABS = ['overview', 'requirements', 'architecture', 'build'];
+  var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
+  var PM_GROUPS = ['shape', 'component', 'trace', 'capability'];
+  var PM_STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
 
   function initMermaid() {
     if (typeof window.mermaid !== 'undefined') {
@@ -399,6 +408,100 @@ function inlineScript() {
     return document.querySelector('[data-doc-id="' + id.replace(/"/g, '\\\\"') + '"]');
   }
 
+  function parseHashParams(raw) {
+    var out = {};
+    if (!raw) return out;
+    var parts = raw.split('&');
+    for (var i = 0; i < parts.length; i += 1) {
+      var eq = parts[i].indexOf('=');
+      if (eq === -1) continue;
+      var k = parts[i].slice(0, eq);
+      var v = parts[i].slice(eq + 1);
+      if (k) out[k] = v;
+    }
+    return out;
+  }
+
+  function activatePmGroup(name) {
+    if (PM_GROUPS.indexOf(name) === -1) return false;
+    var buttons = document.querySelectorAll('.pm-group-btn');
+    for (var i = 0; i < buttons.length; i += 1) {
+      var btn = buttons[i];
+      var isTarget = btn.getAttribute('data-pm-group') === name;
+      btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+    }
+    var panels = document.querySelectorAll('.pm-group');
+    for (var j = 0; j < panels.length; j += 1) {
+      var p = panels[j];
+      if (p.getAttribute('data-pm-group') === name) {
+        p.removeAttribute('hidden');
+      } else {
+        p.setAttribute('hidden', '');
+      }
+    }
+    return true;
+  }
+
+  function applyPmStatusFilter(status) {
+    if (PM_STATUSES.indexOf(status) === -1) return false;
+    var select = document.querySelector('.pm-status-select');
+    if (select) select.value = status;
+    var reqCards = document.querySelectorAll('#tab-product-map [data-req-status]');
+    for (var i = 0; i < reqCards.length; i += 1) {
+      var card = reqCards[i];
+      var s = card.getAttribute('data-req-status') || '';
+      if (status === 'all' || s === status) {
+        card.removeAttribute('hidden');
+      } else {
+        card.setAttribute('hidden', '');
+      }
+    }
+    // Empty-bucket collapse: keep the heading; add the empty note.
+    var buckets = document.querySelectorAll('#tab-product-map .pm-bucket');
+    for (var k = 0; k < buckets.length; k += 1) {
+      var bk = buckets[k];
+      var visible = bk.querySelectorAll('[data-req-status]:not([hidden])');
+      var emptyNote = bk.querySelector('.pm-bucket-empty-filter');
+      if (visible.length === 0) {
+        if (!emptyNote) {
+          emptyNote = document.createElement('p');
+          emptyNote.className = 'pm-bucket-empty pm-bucket-empty-filter';
+          emptyNote.innerHTML = '<em>0 requirements match this filter.</em>';
+          bk.appendChild(emptyNote);
+        }
+      } else if (emptyNote) {
+        emptyNote.parentNode.removeChild(emptyNote);
+      }
+    }
+    return true;
+  }
+
+  function updatePmHash() {
+    if (!window.history || typeof window.history.replaceState !== 'function') return;
+    var sel = document.querySelector('.pm-group-btn[aria-selected="true"]');
+    var group = sel ? sel.getAttribute('data-pm-group') : 'shape';
+    var statusEl = document.querySelector('.pm-status-select');
+    var status = statusEl ? statusEl.value : 'all';
+    window.history.replaceState(null, '', '#tab=product-map&group=' + group + '&status=' + status);
+  }
+
+  function wireProductMap() {
+    var buttons = document.querySelectorAll('.pm-group-btn');
+    for (var i = 0; i < buttons.length; i += 1) {
+      buttons[i].addEventListener('click', function (ev) {
+        var name = ev.currentTarget.getAttribute('data-pm-group');
+        if (activatePmGroup(name)) updatePmHash();
+      });
+    }
+    var select = document.querySelector('.pm-status-select');
+    if (select) {
+      select.addEventListener('change', function () {
+        applyPmStatusFilter(select.value);
+        updatePmHash();
+      });
+    }
+  }
+
   function resolveHash(hash) {
     if (!hash) {
       activateTab('overview');
@@ -406,7 +509,16 @@ function inlineScript() {
     }
     var raw = hash.charAt(0) === '#' ? hash.slice(1) : hash;
     if (raw.indexOf('tab=') === 0) {
-      activateTab(raw.slice(4));
+      var afterTab = raw.slice(4);
+      var amp = afterTab.indexOf('&');
+      var tab = amp === -1 ? afterTab : afterTab.slice(0, amp);
+      var rest = amp === -1 ? '' : afterTab.slice(amp + 1);
+      activateTab(tab);
+      if (tab === 'product-map') {
+        var params = parseHashParams(rest);
+        if (params.group) activatePmGroup(params.group);
+        if (params.status) applyPmStatusFilter(params.status);
+      }
       return;
     }
     var target = findByDocId(raw);
@@ -446,6 +558,7 @@ function inlineScript() {
   function onReady() {
     initMermaid();
     wireTabs();
+    wireProductMap();
     resolveHash(window.location.hash);
     window.addEventListener('hashchange', function () {
       resolveHash(window.location.hash);

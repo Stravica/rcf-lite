@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T15:38:14.226Z",
-  "updatedAt": "2026-09-06T15:38:14.250Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "category": "functional",
   "domain": "application",
   "priority": "must",
@@ -65,5 +65,9 @@
         "match": "form"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }

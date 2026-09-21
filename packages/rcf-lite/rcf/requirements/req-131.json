@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T03:20:33.475Z",
-  "updatedAt": "2026-09-08T03:20:33.520Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "The applying project ships one tunnel manifest per named tunnel at cloudflare/tunnels/<name>.yaml. The schema requires: a tunnel id (uuid-shaped string), a credentials-file reference into security-secrets-management (secretRef, never a literal path or JSON body inline), and an ingress rules array mapping public hostname to internal service URL with a mandatory catch-all rule returning http_status 404. The manifest is the single source of truth for what the connector serves; cloudflared refuses to boot if it fails the shipped JSON-schema validation. Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
   "reqId": "REQ-131",
   "prdId": "PRD-001",
@@ -50,5 +50,10 @@
         "match": "schema"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:edge-security",
+    "capability:platform-integrations"
+  ]
 }

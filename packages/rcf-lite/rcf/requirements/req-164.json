@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:28:54Z",
-  "updatedAt": "2026-09-16T22:28:54Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "Referee-guarantees docs page states without qualification that a requirement counts as covered only when every acceptance criterion beneath it has a resolving Test Case, and that a stub or stale pointer fails the coverage gate exactly as a missing test does when the displayed command (`rcf audit coverage`) is run. The 0.27.0 shipped default is shallow-any, so the plain command does not enforce that; strict is per-AC-strict but is opt-in via `--strict`. This train flips the shipped default: strict is the default, `--mode shallow-any` is the explicit opt-out for author-time exploration (prints gaps, exits 0), and the legacy `--strict` flag stays as a no-op alias so existing CI, blueprints and dogfood scripts stay green. `--mode shallow-any --strict` is a usage refusal (exit 2) so a scripted invocation cannot silently disagree with itself. CHANGELOG carries a migration note under [Unreleased]. Repo's own CI dogfood invocation is updated to the shipped default. Closes referee-guarantees docs claims C-11 and C-14 (audit at reviews/2026-09-15-docs-claims-audit/how-it-works__what-the-referee-guarantees.json).",
   "category": "functional",
   "domain": "functional",
@@ -9,5 +9,8 @@
   "prdId": "PRD-001",
   "title": "Referee guarantee: `rcf audit coverage` is strict-by-default; `--mode shallow-any` is the explicit opt-out; `--strict` remains a no-op alias",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:verify"
+  ]
 }

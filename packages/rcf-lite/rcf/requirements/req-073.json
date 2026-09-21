@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:37.377Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-073",
   "prdId": "PRD-001",
   "title": "T-3 alarm surface fires alarm() exactly once per scheduled time and doAlarmFired carries objectName and scheduledTime",
@@ -14,5 +14,9 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T14:11:37.412Z"
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:platform-integrations"
+  ]
 }

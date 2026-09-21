@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "Deterministic CRUD is the foundational primitive everything else sits on. Hand-writing the tree in this phase surfaces exactly which operations the owner and the agent need.",
   "tags": [
+    "capability:requirements-authoring",
     "crud",
     "cli",
     "validation"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

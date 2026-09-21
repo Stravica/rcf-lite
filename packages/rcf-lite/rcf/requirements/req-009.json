@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "The packaging consolidation ruling (docs/2026-08-06_packaging-consolidation-proposal.md, ratified 2026-08-11) picks one install (`rcf-lite`) with one CLI verb space (`rcf`). Verify is a first-class part of the RCF chain (define, build, verify) and must sit inside that verb space, not beside it. Keeping `rcf verify` as an alias avoids a hard break for existing scripts across a transition window.",
   "tags": [
+    "capability:project-init",
     "packaging",
     "cli",
     "verify"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-08-11T00:00:00Z",
-  "updatedAt": "2026-08-11T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "A non-coder cannot catch a malformed document by eye. The tool must refuse to write invalid state and must explain why, so the owner can trust that what is on disk is always valid.",
   "tags": [
+    "capability:requirements-authoring",
     "validation",
     "quality",
     "schemas"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

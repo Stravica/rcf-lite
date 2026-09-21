@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T22:10:00.000Z",
-  "updatedAt": "2026-09-04T22:10:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-020",
   "prdId": "PRD-001",
   "title": "Application-dashboard v1.0.0 blueprint on the shelf with its packaged design-guidance asset, Playwright probe pack and sample-app fixture",
@@ -9,5 +9,9 @@
   "domain": "application",
   "priority": "must",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }

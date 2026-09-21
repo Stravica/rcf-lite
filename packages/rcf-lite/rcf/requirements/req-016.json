@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T16:21:15.850Z",
-  "updatedAt": "2026-09-04T16:22:11.909Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "rcf-schemas 0.6.0 lands the EVAL doc type and the AC-level determinism marker. rcf-lite consumes both: rcf audit eval coverage as a sibling of rcf audit coverage, EVAL-MISSING and EVAL-BELOW-THRESHOLD as per-AC verdicts on the verify report, finalise refusal with a mandatory-reason ship-without-eval opt-out, and a determinism flag on rcf define create ac plus the LLM-as-judge subprocess spawn wired to a runRecord entry on the EVAL doc. The eval-node discipline lives in the schema tier; rcf-lite is the first consumer to make it observable at every stage of the build cycle.",
   "reqId": "REQ-016",
   "prdId": "PRD-001",
@@ -33,5 +33,8 @@
         "match": "schema"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:requirements-authoring"
+  ]
 }

@@ -8,6 +8,7 @@
   "priority": "should",
   "rationale": "The harness is where the owner's AI tooling lives. A local stdio MCP surface gives that tooling the full RCF feature set while preserving filesystem access and the source-of-truth rule. Remote MCP is excluded because it cannot see the user's codebase.",
   "tags": [
+    "capability:mcp",
     "mcp",
     "harness",
     "stdio"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

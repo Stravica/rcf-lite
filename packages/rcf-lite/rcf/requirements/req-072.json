@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:37.164Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-072",
   "prdId": "PRD-001",
   "title": "T-3 storage API provides typed put/get/delete on the object with an elicited backend (SQL or KV)",
@@ -14,5 +14,9 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T14:11:37.197Z"
-  }
+  },
+  "tags": [
+    "capability:blueprints",
+    "capability:platform-integrations"
+  ]
 }

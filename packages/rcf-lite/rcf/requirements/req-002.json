@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "The owner cannot review code and will not read raw JSON. A visual surface is the only way they can see and steer what is being built in their name. It is delivered first (Phase 3) so every later phase has a review surface.",
   "tags": [
+    "capability:review-surface",
     "view",
     "diagram",
     "review"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

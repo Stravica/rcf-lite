@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-05T01:30:00.000Z",
-  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "reqId": "REQ-022",
   "prdId": "PRD-001",
   "title": "Capability-declaration mechanism (capabilities[], elicits[], apply-time discovery, refusal and custom-auth elicitation) and four auth-blueprint 1.1.0 minors adopting it",
@@ -9,5 +9,9 @@
   "domain": "application",
   "priority": "must",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:blueprints",
+    "capability:applications-shelf"
+  ]
 }
