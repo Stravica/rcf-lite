@@ -1,6 +1,3 @@
-[info] build: ui-classifier verdict=ui reason=keyword-scan (2 signal(s)) [not yet ratified]
-       Classified as UI-bearing. Ratify with: rcf define update FBS-001 --set uiBearing=true
-       Override with: rcf define update FBS-001 --set uiBearing=false (if the classifier is wrong).
 {
   "ok": true,
   "mode": "bundle",
