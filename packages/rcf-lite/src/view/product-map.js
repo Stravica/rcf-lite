@@ -126,6 +126,14 @@ export function groupByTraceCoverage(model) {
     'missing-tests': [],
     complete: [],
   };
+  // Build the reverse set of US ids that reach a REAL TAC. usByTacId is
+  // only populated when the tacId in us.tacIds resolves to a TAC on
+  // disk, so a dangling tacIds ref never appears here. Consistent with
+  // groupByComponent's reachedReqIds bookkeeping (P1-4 fix).
+  const usIdsReachingRealTac = new Set();
+  for (const usIds of model.usByTacId?.values() ?? []) {
+    for (const usId of usIds) usIdsReachingRealTac.add(usId);
+  }
   for (const req of model.requirements) {
     const stories = model.storiesByReqId.get(req.reqId) ?? [];
     if (stories.length === 0) {
@@ -141,9 +149,11 @@ export function groupByTraceCoverage(model) {
       buckets['missing-ac-scope'].push({ req, missing: `no ACs on ${acScopeGap}` });
       continue;
     }
-    const hasTac = stories.some((us) => Array.isArray(us.tacIds) && us.tacIds.length > 0);
+    // P1-4: a US that only carries dangling tacIds is not component-
+    // connected. Check resolution via usByTacId, not the raw string.
+    const hasTac = stories.some((us) => usIdsReachingRealTac.has(us.usId));
     if (!hasTac) {
-      buckets['missing-component'].push({ req, missing: 'no story links to a TAC (tacIds[] is empty on every US)' });
+      buckets['missing-component'].push({ req, missing: 'no story links to a real TAC (tacIds[] empty or dangling on every US)' });
       continue;
     }
     let missingTests = null;
@@ -294,15 +304,24 @@ function pmGroupLabel(g) {
   }[g] ?? g;
 }
 
-function renderReqDrilldown(model, req) {
+function renderReqDrilldown(model, req, prefix) {
+  // P2-1: every id/anchor a REQ card emits (article, US articles, AC li
+  // items, raw-JSON disclosures) is prefixed with the caller-supplied
+  // bucket-scoped `pm-<group>-<bucket>-` string so the same REQ can
+  // appear under multiple Product Map buckets without duplicating ids.
+  // Callers that do not care (there are none inside product-map.js)
+  // pass an empty prefix and the Requirements tab's anchors stay
+  // untouched.
+  const idPrefix = prefix ?? '';
   const reqBody = renderReq(req, {
     raw: model.rawById.get(req.reqId),
     errors: model.errorsById.get(req.reqId),
     subdiagram: undefined,
+    idPrefix,
   });
   const stories = model.storiesByReqId.get(req.reqId) ?? [];
   const usBlocks = stories.map((u) => detailsWrap({
-    id: `pm-${u.usId}`,
+    id: `${idPrefix}${u.usId}`,
     summary: `${u.usId} - ${u.title ?? ''}`,
     className: 'doc-us-wrap pm-us',
     status: u.status,
@@ -310,13 +329,14 @@ function renderReqDrilldown(model, req) {
       raw: model.rawById.get(u.usId),
       errors: model.errorsById.get(u.usId),
       fbsByAcId: model.fbsByAcId,
+      idPrefix,
     }),
   })).join('\n');
   const storiesSection = usBlocks
     ? `<section class="nested-details"><h4>User stories</h4>${usBlocks}</section>`
     : '<p><em>No user stories under this requirement.</em></p>';
   return detailsWrap({
-    id: `pm-${req.reqId}`,
+    id: `${idPrefix}${req.reqId}`,
     summary: `${req.reqId} - ${req.title ?? ''}`,
     className: 'doc-req-wrap pm-req',
     status: req.status,
@@ -324,11 +344,11 @@ function renderReqDrilldown(model, req) {
   });
 }
 
-function renderReqWrapper(model, req) {
+function renderReqWrapper(model, req, prefix) {
   // Adds the data-req-status attribute at the outer details level so the
   // client-side status filter can hide the whole REQ card (and its
   // stories/ACs beneath) with a single query.
-  const inner = renderReqDrilldown(model, req);
+  const inner = renderReqDrilldown(model, req, prefix);
   const status = req.status ?? '';
   // Splice data-req-status into the outer <details>.
   return inner.replace('<details class="doc-details doc-req-wrap pm-req"',
@@ -338,7 +358,8 @@ function renderReqWrapper(model, req) {
 function renderShapeSection(model, buckets) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
   return buckets.map((b) => {
-    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r)).join('\n');
+    const prefix = `pm-shape-${b.id}-`;
+    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
     return `
 <section class="pm-bucket" data-pm-bucket-id="${escapeHtml(b.id)}">
   <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(b.label)}</span> <span class="pm-bucket-count">(${b.reqs.length})</span></h4>
@@ -356,21 +377,27 @@ function renderComponentSection(model, { tacs, unmapped }) {
       ? `<p class="pm-tac-deps"><strong>Dependencies:</strong> ${t.dependencies.map((d) => escapeHtml(d)).join(', ')}</p>`
       : '<p class="pm-tac-deps"><em>No dependencies.</em></p>';
     const storyBlocks = t.stories.map(({ us, req }) => {
+      // AC-17003-1: TAC section, then user stories under that TAC, then
+      // their parent REQs (from us.reqId), then the ACs. The REQ card
+      // therefore lives INSIDE the US block, above the AC list that
+      // renderUserStory emits at the bottom of its body (P1-5 fix).
+      const reqLine = req
+        ? `<p class="pm-req-parent"><strong>Parent REQ:</strong> <a href="#pm-comp-${escapeHtml(t.tacId)}-${escapeHtml(req.reqId)}">${escapeHtml(req.reqId)} - ${escapeHtml(req.title ?? '')}</a> <span class="status ${escapeHtml(req.status ?? '')}">${escapeHtml(req.status ?? '')}</span></p>`
+        : '<p class="pm-req-parent"><em>Orphan story (no reqId).</em></p>';
+      const usBody = renderUserStory(us, {
+        raw: model.rawById.get(us.usId),
+        errors: model.errorsById.get(us.usId),
+        fbsByAcId: model.fbsByAcId,
+        idPrefix: `pm-comp-${t.tacId}-`,
+      });
       const usInner = detailsWrap({
-        id: `pm-comp-${us.usId}`,
+        id: `pm-comp-${t.tacId}-${us.usId}`,
         summary: `${us.usId} - ${us.title ?? ''}`,
         className: 'doc-us-wrap pm-us',
         status: us.status,
-        body: renderUserStory(us, {
-          raw: model.rawById.get(us.usId),
-          errors: model.errorsById.get(us.usId),
-          fbsByAcId: model.fbsByAcId,
-        }),
+        body: `${reqLine}${usBody}`,
       });
-      const reqLine = req
-        ? `<p class="pm-req-parent"><strong>Parent REQ:</strong> <a href="#${escapeHtml(req.reqId)}">${escapeHtml(req.reqId)} - ${escapeHtml(req.title ?? '')}</a> <span class="status ${escapeHtml(req.status ?? '')}">${escapeHtml(req.status ?? '')}</span></p>`
-        : '<p class="pm-req-parent"><em>Orphan story (no reqId).</em></p>';
-      return `<div class="pm-comp-story" data-req-status="${escapeHtml(req?.status ?? '')}">${reqLine}${usInner}</div>`;
+      return `<div class="pm-comp-story" data-req-status="${escapeHtml(req?.status ?? '')}">${usInner}</div>`;
     }).join('\n');
     return `
 <section class="pm-bucket" data-pm-bucket-id="${escapeHtml(t.tacId)}">
@@ -382,7 +409,7 @@ function renderComponentSection(model, { tacs, unmapped }) {
   const unmappedBlock = unmapped.length > 0
     ? `<section class="pm-bucket pm-bucket-unmapped" data-pm-bucket-id="unmapped">
   <h4 class="pm-bucket-heading"><span class="pm-bucket-label">Unmapped</span> <span class="pm-bucket-count">(${unmapped.length})</span></h4>
-  ${unmapped.map((r) => renderReqWrapper(model, r)).join('\n')}
+  ${unmapped.map((r) => renderReqWrapper(model, r, 'pm-comp-unmapped-')).join('\n')}
 </section>`
     : '';
   return `${tadHeading}${tacBlocks}${unmappedBlock}`.trim();
@@ -391,11 +418,12 @@ function renderComponentSection(model, { tacs, unmapped }) {
 function renderTraceSection(model, buckets) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
   return buckets.map((b) => {
+    const prefix = `pm-trace-${b.id}-`;
     const rows = b.entries.map(({ req, missing }) => {
       const missingLine = missing
         ? `<p class="pm-trace-missing"><strong>Missing:</strong> ${escapeHtml(missing)}</p>`
         : '<p class="pm-trace-missing"><em>Nothing missing.</em></p>';
-      const reqInner = renderReqWrapper(model, req);
+      const reqInner = renderReqWrapper(model, req, prefix);
       return `<div class="pm-trace-row" data-req-status="${escapeHtml(req.status ?? '')}">${missingLine}${reqInner}</div>`;
     }).join('\n');
     return `
@@ -409,8 +437,9 @@ function renderTraceSection(model, buckets) {
 function renderCapabilitySection(model, buckets) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
   return buckets.map((b) => {
-    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r)).join('\n');
     const idAttr = `capability-${b.id}`;
+    const prefix = `pm-${idAttr}-`;
+    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
     return `
 <section class="pm-bucket" data-pm-bucket-id="${escapeHtml(idAttr)}">
   <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(b.label)}</span> <span class="pm-bucket-count">(${b.reqs.length})</span></h4>

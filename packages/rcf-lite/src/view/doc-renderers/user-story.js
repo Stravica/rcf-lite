@@ -18,13 +18,18 @@ import {
  * @param {string|undefined} ctx.raw
  * @param {import('#core/errors').RcfError[]} [ctx.errors]
  * @param {Map<string, object[]>} [ctx.fbsByAcId]
+ * @param {string|undefined} [ctx.idPrefix] - prefix prepended to every emitted
+ *   id/anchor (article, AC li items, raw-JSON disclosure) so a US rendered
+ *   under multiple Product Map buckets does not collide with the canonical
+ *   Requirements-tab anchors. Empty from the Requirements tab.
  * @returns {string}
  */
 export function renderUserStory(us, ctx) {
   if (!us) return '';
-  const anchor = anchorIdFor(us.usId ?? 'US');
+  const prefix = ctx.idPrefix ?? '';
+  const anchor = `${prefix}${anchorIdFor(us.usId ?? 'US')}`;
   const broken = ctx.errors?.length ? brokenBanner(ctx.errors) : '';
-  const acItems = (us.acceptanceCriteria ?? []).map((ac) => renderAcItem(ac, ctx)).join('\n');
+  const acItems = (us.acceptanceCriteria ?? []).map((ac) => renderAcItem(ac, ctx, prefix)).join('\n');
   return `
 <article id="${anchor}" class="doc doc-us">
   <h3>${escapeHtml(us.usId ?? 'US')} - ${escapeHtml(us.title ?? '')}</h3>
@@ -40,13 +45,13 @@ export function renderUserStory(us, ctx) {
       ${acItems}
     </ul>
   </section>
-  ${rawJsonDisclosure(ctx.raw, us, us.usId)}
+  ${rawJsonDisclosure(ctx.raw, us, us.usId, prefix)}
 </article>`.trim();
 }
 
-function renderAcItem(ac, ctx) {
+function renderAcItem(ac, ctx, prefix) {
   const acId = ac.id ?? 'AC';
-  const acAnchor = anchorIdFor(acId);
+  const acAnchor = `${prefix ?? ''}${anchorIdFor(acId)}`;
   const fbsList = ctx.fbsByAcId?.get(acId) ?? [];
   const coveredBy = fbsList.length === 0
     ? '<em>not yet delivered by any FBS</em>'
