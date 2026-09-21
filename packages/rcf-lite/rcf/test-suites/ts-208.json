@@ -1,0 +1,22 @@
+{
+  "id": "TS-208",
+  "usId": "US-17005",
+  "title": "Product Map capability grouping",
+  "purpose": "Cover AC-17005-1: capability:<slug> tag consumption and Unclassified bucket.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17005-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-208-capability-buckets",
+      "acId": "AC-17005-1",
+      "description": "Capability grouping enumerates one bucket per distinct capability:<slug> tag; multi-tag REQs appear in each bucket; untagged REQs go to Unclassified.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map capability grouping enumerates one bucket per capability slug with Unclassified for untagged REQs"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

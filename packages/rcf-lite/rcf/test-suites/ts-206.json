@@ -1,0 +1,22 @@
+{
+  "id": "TS-206",
+  "usId": "US-17003",
+  "title": "Product Map component grouping",
+  "purpose": "Cover AC-17003-1: TAD-rooted TAC hierarchy with Unmapped bucket.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17003-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-206-component-tad-root",
+      "acId": "AC-17003-1",
+      "description": "Component grouping shows TAD -> TAC (with dependencies) -> US -> REQ -> AC, with an Unmapped bucket for REQs no component reaches.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map component grouping roots at TAD and lists TAC to US to REQ to AC with an Unmapped bucket"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

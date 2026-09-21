@@ -1,0 +1,43 @@
+{
+  "createdAt": "2026-09-21T16:52:37.436Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "description": "Requirements carry one or more capability slugs on their existing free-form tags array using the convention capability:<kebab-slug>. A capability taxonomy for the rcf-lite product itself is documented in the rcf-lite docs, alongside the rule for adding a new capability. This is a convention that rides on the shipped schema; no schema change. The Product Map by-capability grouping is the consumer that proves the convention works on real data.",
+  "reqId": "REQ-171",
+  "prdId": "PRD-001",
+  "title": "Capability tag convention on requirements",
+  "category": "functional",
+  "domain": "requirementsAuthoring",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-21T16:52:37.488Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      }
+    ]
+  },
+  "rationale": "Analysis d-019 established that the shipped schema has no capability or feature level between PRD and REQ. The trial answers whether a lightweight convention on the existing tags array carries a usable product taxonomy without a schema change. If the tags and the by-capability view earn their keep, the capability level is promoted to a proper schema field later; if not, nothing was spent.",
+  "tags": [
+    "capability:review-surface",
+    "capability-tags-trial"
+  ]
+}

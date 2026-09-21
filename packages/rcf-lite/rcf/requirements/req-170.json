@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-09-21T16:52:32.174Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "description": "The RCF review surface offers a Product Map tab in addition to Overview, Requirements, Architecture and Build sequence. The tab lets a product reader group requirements by shape, status, component (TAC), trace coverage or capability. Every grouping drills group -> requirement (with a status pill) -> its user stories -> acceptance criteria. Groupings and the status filter are hash-addressable so a URL of the form #tab=product-map&group=capability&status=approved is deep-linkable and shareable.",
+  "reqId": "REQ-170",
+  "prdId": "PRD-001",
+  "title": "Product Map tab on the review surface",
+  "category": "functional",
+  "domain": "reviewSurface",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-21T16:52:32.226Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "component"
+      }
+    ]
+  },
+  "rationale": "The Requirements tab is a flat REQ list ordered by id. A product reader (operator or reviewer) does not think in that shape - they think in surfaces, capabilities, states, and what has and has not been built yet. The Product Map tab re-buckets the same in-memory tree by the axes the data actually populates (shape 65%, status 100%) and by two derived axes (component-first via TAC, and trace coverage), plus a convention-driven capability grouping. No schema change; all work is a re-bucketing of the tree-model the view already builds.",
+  "tags": [
+    "capability:review-surface",
+    "product-map",
+    "view"
+  ]
+}

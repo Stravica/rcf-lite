@@ -1,0 +1,22 @@
+{
+  "id": "TS-207",
+  "usId": "US-17004",
+  "title": "Product Map trace coverage",
+  "purpose": "Cover AC-17004-1: each REQ bucketed by trace completeness with a plain-text \"what is missing\" line.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17004-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-207-trace-coverage-buckets",
+      "acId": "AC-17004-1",
+      "description": "Trace coverage grouping buckets each REQ into complete/missing-stories/missing-ac-scope/missing-component/missing-tests, and each REQ row states in plain text what is missing.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map trace coverage buckets REQs by completeness and names what is missing per REQ"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

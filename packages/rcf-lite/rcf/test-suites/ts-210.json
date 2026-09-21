@@ -1,0 +1,22 @@
+{
+  "id": "TS-210",
+  "usId": "US-17102",
+  "title": "Capability taxonomy documented",
+  "purpose": "Cover AC-17102-1: docs/capability-tags.md exists and is linked from docs/README.md.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17102-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-210-taxonomy-doc-present",
+      "acId": "AC-17102-1",
+      "description": "docs/capability-tags.md exists, lists every taxonomy slug with a one-line meaning, states the \"add a capability\" rule, and is linked from docs/README.md.",
+      "status": "passing",
+      "testPointer": "test/view/capability-tags.test.js::docs carry the capability taxonomy and link to it from the docs README"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

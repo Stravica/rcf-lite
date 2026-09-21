@@ -1,0 +1,22 @@
+{
+  "usId": "US-17002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: status filter",
+  "description": "User story under REQ-170. a reviewer preparing a sign-off pass a status filter (all, draft, review, needsRevision, approved, superseded) on the Product Map tab that applies to whichever grouping is active",
+  "asA": "a reviewer preparing a sign-off pass",
+  "iWant": "a status filter (all, draft, review, needsRevision, approved, superseded) on the Product Map tab that applies to whichever grouping is active",
+  "soThat": "I can narrow the tab to just the \"approved\" or just the \"needsRevision\" REQs without switching tabs or scanning by hand",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17002-1",
+      "description": "The Product Map tab carries a status filter control whose options are the five authoring statuses plus \"all\", and applies to every grouping on the tab. When \"approved\" is selected the tab renders only REQs whose status is approved, and empty buckets are collapsed with a \"0 requirements match this filter\" note rather than removed, so the shape of the map does not shift under the filter.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

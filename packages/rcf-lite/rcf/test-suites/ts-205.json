@@ -1,0 +1,22 @@
+{
+  "id": "TS-205",
+  "usId": "US-17002",
+  "title": "Product Map status filter",
+  "purpose": "Cover AC-17002-1: status filter control and empty-bucket collapse.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17002-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-205-status-filter-control",
+      "acId": "AC-17002-1",
+      "description": "The tab renders a status filter with six options and, on approved, only approved REQs remain across every grouping.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map status filter renders six options and hides non-matching REQs while collapsing empty buckets"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

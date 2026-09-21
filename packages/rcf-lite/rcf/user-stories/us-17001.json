@@ -1,0 +1,27 @@
+{
+  "usId": "US-17001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: shape grouping",
+  "description": "User story under REQ-170. a product reader reviewing the requirements chain the Product Map tab to bucket requirements by shapeClassification.shapes[], with an \"Unclassified\" bucket for REQs missing the classification and a \"Business rules\" bucket for the \"none\" shape",
+  "asA": "a product reader reviewing the requirements chain",
+  "iWant": "the Product Map tab to bucket requirements by shapeClassification.shapes[], with an \"Unclassified\" bucket for REQs missing the classification and a \"Business rules\" bucket for the \"none\" shape",
+  "soThat": "I can see at a glance which requirements sit in each surface area (webUi, httpApi, auth, persistence, notifications, business rules) without reading every REQ body",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17001-1",
+      "description": "The rendered review-surface HTML carries a \"product-map\" tab (data-tab=\"product-map\") in tab order after Build sequence, with a hidden tabpanel id \"tab-product-map\" containing a shape-grouping section whose bucket headings enumerate every shape the classified REQs use plus \"Unclassified\" and \"Business rules\". A REQ classified into two shapes appears in both buckets. Rendering does not require a schema change.",
+      "testable": true
+    },
+    {
+      "id": "AC-17001-2",
+      "description": "Selecting the shape grouping drills each bucket to its REQs (rendered with the same doc-details helper and status pill as the Requirements tab), each REQ to its user stories, and each user story to its acceptance criteria, so the reader can go from a shape bucket to an AC in the same tab.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

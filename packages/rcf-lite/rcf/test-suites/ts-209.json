@@ -1,0 +1,22 @@
+{
+  "id": "TS-209",
+  "usId": "US-17101",
+  "title": "Dogfood REQs carry capability tags",
+  "purpose": "Cover AC-17101-1: every REQ file carries at least one capability:<slug> tag drawn from the documented taxonomy.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17101-1"
+  ],
+  "testCases": [
+    {
+      "id": "TC-209-every-req-has-capability-tag",
+      "acId": "AC-17101-1",
+      "description": "Every requirement file under packages/rcf-lite/rcf/requirements/ carries at least one capability:<slug> tag, and each slug is listed in docs/capability-tags.md.",
+      "status": "passing",
+      "testPointer": "test/view/capability-tags.test.js::every dogfood REQ carries at least one capability tag mapped to a documented slug"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

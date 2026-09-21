@@ -1,0 +1,22 @@
+{
+  "usId": "US-17101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-171",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Dogfood chain carries capability tags on every requirement",
+  "description": "User story under REQ-171. the maintainer of the rcf-lite dogfood chain every REQ under rcf-lite/rcf to carry at least one capability:<slug> tag drawn from the documented taxonomy",
+  "asA": "the maintainer of the rcf-lite dogfood chain",
+  "iWant": "every REQ under rcf-lite/rcf to carry at least one capability:<slug> tag drawn from the documented taxonomy",
+  "soThat": "the by-capability Product Map view has something to bucket on, and the trial can be evaluated against real data rather than a fixture",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17101-1",
+      "description": "Every REQ under packages/rcf-lite/rcf/requirements/ carries at least one tag matching the regex ^capability:[a-z0-9]+(-[a-z0-9]+)*$, and every slug used maps to an entry in the documented capability taxonomy.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}
