@@ -42566,8 +42566,8 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
 </div>
 <div class="tc" id="TC-204-shape-drill-req-us-ac">
   <p><strong>TC-204-shape-drill-req-us-ac</strong> - covers <a href="#AC-17001-2">AC-17001-2</a> <span class="status passing">passing</span></p>
-  <p>The shape grouping drills bucket -&gt; REQ (status pill) -&gt; US -&gt; AC using the shared detailsWrap helper.</p>
-  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map shape grouping drills bucket to REQ to US to AC with status pill</code></p>
+  <p>The shape grouping drills bucket -&gt; REQ (status pill) -&gt; US -&gt; AC using the shared detailsWrap helper; every id inside the Product Map tab is bucket-scoped so the same REQ can appear under multiple buckets without duplicating ids.</p>
+  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map shape grouping drills bucket to REQ to US to AC with status pill, ids scoped to the bucket (P2-1)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;id&quot;: &quot;TS-204&quot;,
@@ -42590,14 +42590,14 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     {
       &quot;id&quot;: &quot;TC-204-shape-drill-req-us-ac&quot;,
       &quot;acId&quot;: &quot;AC-17001-2&quot;,
-      &quot;description&quot;: &quot;The shape grouping drills bucket -&gt; REQ (status pill) -&gt; US -&gt; AC using the shared detailsWrap helper.&quot;,
+      &quot;description&quot;: &quot;The shape grouping drills bucket -&gt; REQ (status pill) -&gt; US -&gt; AC using the shared detailsWrap helper; every id inside the Product Map tab is bucket-scoped so the same REQ can appear under multiple buckets without duplicating ids.&quot;,
       &quot;status&quot;: &quot;passing&quot;,
-      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map shape grouping drills bucket to REQ to US to AC with status pill&quot;
+      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map shape grouping drills bucket to REQ to US to AC with status pill, ids scoped to the bucket (P2-1)&quot;
     }
   ],
   &quot;status&quot;: &quot;approved&quot;,
   &quot;createdAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-21T18:02:10.540Z&quot;
 }
 </pre></details>
 </article>
@@ -42614,8 +42614,8 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Status:</strong> approved</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-205-status-filter-control">
   <p><strong>TC-205-status-filter-control</strong> - covers <a href="#AC-17002-1">AC-17002-1</a> <span class="status passing">passing</span></p>
-  <p>The tab renders a status filter with six options and, on approved, only approved REQs remain across every grouping.</p>
-  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map status filter renders six options and hides non-matching REQs while collapsing empty buckets</code></p>
+  <p>The tab renders a status filter with six options; server-rendered outer pm-req counts per status match a model-side prediction across every grouping (the same DOM the client-side applyPmStatusFilter reads).</p>
+  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map status filter markup + server-rendered per-bucket status counts match the model (P2-3 real assertion)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;id&quot;: &quot;TS-205&quot;,
@@ -42630,14 +42630,14 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     {
       &quot;id&quot;: &quot;TC-205-status-filter-control&quot;,
       &quot;acId&quot;: &quot;AC-17002-1&quot;,
-      &quot;description&quot;: &quot;The tab renders a status filter with six options and, on approved, only approved REQs remain across every grouping.&quot;,
+      &quot;description&quot;: &quot;The tab renders a status filter with six options; server-rendered outer pm-req counts per status match a model-side prediction across every grouping (the same DOM the client-side applyPmStatusFilter reads).&quot;,
       &quot;status&quot;: &quot;passing&quot;,
-      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map status filter renders six options and hides non-matching REQs while collapsing empty buckets&quot;
+      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map status filter markup + server-rendered per-bucket status counts match the model (P2-3 real assertion)&quot;
     }
   ],
   &quot;status&quot;: &quot;approved&quot;,
   &quot;createdAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-21T18:02:10.757Z&quot;
 }
 </pre></details>
 </article>
@@ -42694,8 +42694,8 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Status:</strong> approved</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-207-trace-coverage-buckets">
   <p><strong>TC-207-trace-coverage-buckets</strong> - covers <a href="#AC-17004-1">AC-17004-1</a> <span class="status passing">passing</span></p>
-  <p>Trace coverage grouping buckets each REQ into complete/missing-stories/missing-ac-scope/missing-component/missing-tests, and each REQ row states in plain text what is missing.</p>
-  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map trace coverage buckets REQs by completeness and names what is missing per REQ</code></p>
+  <p>Trace coverage grouping buckets each REQ into the FIRST bucket whose rule it meets (missing-stories, missing-ac-scope, missing-component, missing-tests, complete); a synthetic fixture asserts the classification per REQ id, including the P1-4 dangling-TAC case landing in missing-component.</p>
+  <p><em>Test pointer:</em> <code>test/view/product-map.test.js::product-map trace coverage places each REQ in the FIRST bucket whose condition it meets, on a synthetic fixture (P2-3)</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;id&quot;: &quot;TS-207&quot;,
@@ -42710,14 +42710,14 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     {
       &quot;id&quot;: &quot;TC-207-trace-coverage-buckets&quot;,
       &quot;acId&quot;: &quot;AC-17004-1&quot;,
-      &quot;description&quot;: &quot;Trace coverage grouping buckets each REQ into complete/missing-stories/missing-ac-scope/missing-component/missing-tests, and each REQ row states in plain text what is missing.&quot;,
+      &quot;description&quot;: &quot;Trace coverage grouping buckets each REQ into the FIRST bucket whose rule it meets (missing-stories, missing-ac-scope, missing-component, missing-tests, complete); a synthetic fixture asserts the classification per REQ id, including the P1-4 dangling-TAC case landing in missing-component.&quot;,
       &quot;status&quot;: &quot;passing&quot;,
-      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map trace coverage buckets REQs by completeness and names what is missing per REQ&quot;
+      &quot;testPointer&quot;: &quot;test/view/product-map.test.js::product-map trace coverage places each REQ in the FIRST bucket whose condition it meets, on a synthetic fixture (P2-3)&quot;
     }
   ],
   &quot;status&quot;: &quot;approved&quot;,
   &quot;createdAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-21T17:00:00.000Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-21T18:02:10.973Z&quot;
 }
 </pre></details>
 </article>
