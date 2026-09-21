@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-701",
+  "path": "scripts/apply-capability-tags.mjs",
+  "title": "Apply capability:<slug> tags to every dogfood REQ",
+  "description": "One authoritative REQ id -> slugs mapping applied to every requirement file under rcf/requirements/. Idempotent; overwrites existing capability:<slug> tags while preserving non-capability tags. Ships as the tool of record until a rcf discover req-capability-classify verb lands.",
+  "implementsAcIds": [
+    "AC-17101-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

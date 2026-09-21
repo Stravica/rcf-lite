@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-700",
+  "path": "src/view/product-map.js",
+  "title": "Product Map re-bucketing over the review-surface tree model",
+  "description": "Pure functions groupByShape, groupByComponent, groupByTraceCoverage, groupByCapability plus the panel renderer that composes them. No schema change; consumes shapeClassification.shapes[], usByTacId, tsByAcId/tcsByAcId and REQ.tags[] for capability:<slug> tags.",
+  "implementsAcIds": [
+    "AC-17001-1",
+    "AC-17001-2",
+    "AC-17002-1",
+    "AC-17003-1",
+    "AC-17004-1",
+    "AC-17005-1"
+  ],
+  "dependencies": [
+    "CN-017"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}
