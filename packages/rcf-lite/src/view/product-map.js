@@ -9,6 +9,19 @@
 //
 // Spec: projects/rcf-lite-wsd/docs/2026-09-21_product-map-proposal.md.
 // Chain: REQ-170 (tab) + REQ-171 (capability tag convention).
+//
+// Interaction model (AC-17006-1): every bucket is a <details class="pm-bucket">
+// collapsed by default, with a summary row carrying label + total count
+// + per-status mini pills. A jump-nav chip row lists every bucket in
+// the active grouping and clicking a chip opens + scrolls to it. Open-
+// bucket state is encoded in the hash and persisted through SSE swaps
+// via a stable per-bucket data-doc-id.
+//
+// Lazy render (AC-17007-1): the server emits only the DEFAULT grouping's
+// REQ cards fully. The other groupings emit only their bucket headings
+// (label + counts + status pills) with data-pm-lazy="true" on the
+// grouping section. The client fetches /product-map/<group> on first
+// activation and replaces the grouping's innerHTML in place.
 
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { renderReq, renderUserStory } from './doc-renderers/index.js';
@@ -17,6 +30,10 @@ export const GROUPINGS = ['shape', 'component', 'trace', 'capability'];
 export const STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
 export const DEFAULT_GROUPING = 'shape';
 export const DEFAULT_STATUS = 'all';
+// Status ids that get a mini pill in the bucket summary. "all" is the
+// select's default option, not a real status, so it is intentionally
+// absent here.
+export const STATUS_MINI = ['draft', 'review', 'needsRevision', 'approved', 'superseded'];
 
 const SHAPE_ORDER = ['webUi', 'httpApi', 'auth', 'persistence', 'notifications', 'none', 'unclassified'];
 const SHAPE_LABELS = {
@@ -29,24 +46,12 @@ const SHAPE_LABELS = {
   unclassified: 'Unclassified',
 };
 
-/**
- * Return the shape bucket ids each REQ belongs to. A REQ can appear
- * under more than one shape. REQs without a shapeClassification return
- * ['unclassified']. Classified REQs whose shapes[] is empty are
- * treated as unclassified.
- */
 export function shapesForReq(req) {
   const shapes = req?.shapeClassification?.shapes;
   if (!Array.isArray(shapes) || shapes.length === 0) return ['unclassified'];
   return [...shapes];
 }
 
-/**
- * Bucket the REQ set by shape.
- *
- * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {{ id: string, label: string, reqs: object[] }[]}
- */
 export function groupByShape(model) {
   const buckets = new Map();
   for (const shape of SHAPE_ORDER) buckets.set(shape, []);
@@ -65,18 +70,6 @@ export function groupByShape(model) {
     .filter((b) => b.reqs.length > 0);
 }
 
-/**
- * Bucket the REQ set by TAC (component). Level 1 = TACs, level 2 = US
- * stories under the TAC (usByTacId), level 3 = each story's parent REQ
- * (us.reqId), level 4 = ACs. REQs reachable by no TAC are collected in
- * an "unmapped" bucket.
- *
- * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {{
- *   tacs: { tacId: string, name: string, dependencies: string[], stories: { us: object, req: object|null }[] }[],
- *   unmapped: object[],
- * }}
- */
 export function groupByComponent(model) {
   const reachedReqIds = new Set();
   const tacRows = [];
@@ -104,20 +97,6 @@ export function groupByComponent(model) {
   return { tacs: tacRows, unmapped };
 }
 
-/**
- * Bucket the REQ set by trace-coverage completeness. Order matters: a
- * REQ is placed in the FIRST bucket whose condition it meets.
- *
- * Buckets (in order):
- *   missing-stories       - no US attached
- *   missing-ac-scope      - a US has no ACs
- *   missing-component     - no US carries a tacIds link to any TAC
- *   missing-tests         - some AC has no test suite / test case coverage
- *   complete              - none of the above
- *
- * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {{ id: string, label: string, entries: { req: object, missing: string }[] }[]}
- */
 export function groupByTraceCoverage(model) {
   const buckets = {
     'missing-stories': [],
@@ -126,10 +105,6 @@ export function groupByTraceCoverage(model) {
     'missing-tests': [],
     complete: [],
   };
-  // Build the reverse set of US ids that reach a REAL TAC. usByTacId is
-  // only populated when the tacId in us.tacIds resolves to a TAC on
-  // disk, so a dangling tacIds ref never appears here. Consistent with
-  // groupByComponent's reachedReqIds bookkeeping (P1-4 fix).
   const usIdsReachingRealTac = new Set();
   for (const usIds of model.usByTacId?.values() ?? []) {
     for (const usId of usIds) usIdsReachingRealTac.add(usId);
@@ -149,8 +124,6 @@ export function groupByTraceCoverage(model) {
       buckets['missing-ac-scope'].push({ req, missing: `no ACs on ${acScopeGap}` });
       continue;
     }
-    // P1-4: a US that only carries dangling tacIds is not component-
-    // connected. Check resolution via usByTacId, not the raw string.
     const hasTac = stories.some((us) => usIdsReachingRealTac.has(us.usId));
     if (!hasTac) {
       buckets['missing-component'].push({ req, missing: 'no story links to a real TAC (tacIds[] empty or dangling on every US)' });
@@ -187,11 +160,6 @@ export function groupByTraceCoverage(model) {
     .filter((b) => b.entries.length > 0);
 }
 
-/**
- * Extract every capability:<slug> tag on a REQ. Returns an array of
- * slug strings (without the `capability:` prefix). REQs without any
- * capability tag return [].
- */
 export function capabilitiesForReq(req) {
   const tags = Array.isArray(req?.tags) ? req.tags : [];
   return tags
@@ -200,14 +168,6 @@ export function capabilitiesForReq(req) {
     .filter(Boolean);
 }
 
-/**
- * Bucket the REQ set by capability tag. Multi-tag REQs appear under
- * every capability they carry. REQs with no capability tag land in
- * "unclassified".
- *
- * Buckets sorted by REQ count desc, then alphabetically. Unclassified
- * is always rendered last.
- */
 export function groupByCapability(model) {
   const bySlug = new Map();
   const unclassified = [];
@@ -236,25 +196,91 @@ export function groupByCapability(model) {
 }
 
 /**
- * Render the Product Map tab panel body. Server-side render includes
- * every grouping's DOM; the inline script's product-map wiring hides
- * all but the active grouping and applies the status filter. Every
- * REQ block carries a `data-req-status="<status>"` attribute so the
- * status filter is a client-side DOM query.
- *
- * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {string}
+ * Return per-status counts for a REQ list. Keys are the STATUS_MINI ids
+ * plus the total across all REQs (as `total`). REQs with an unknown or
+ * missing status count towards `total` only.
  */
-export function renderProductMapPanel(model) {
+function statusMiniCounts(reqs) {
+  const out = { total: reqs.length };
+  for (const s of STATUS_MINI) out[s] = 0;
+  for (const r of reqs) {
+    const s = r?.status ?? '';
+    if (Object.prototype.hasOwnProperty.call(out, s)) out[s] += 1;
+  }
+  return out;
+}
+
+function renderStatusMini(counts) {
+  const pills = STATUS_MINI
+    .filter((s) => (counts[s] ?? 0) > 0)
+    .map((s) => `<span class="pm-mini pm-mini-${escapeHtml(s)}" title="${escapeHtml(s)}: ${counts[s]}">${counts[s]}</span>`)
+    .join('');
+  return pills ? `<span class="pm-mini-row">${pills}</span>` : '';
+}
+
+/**
+ * Render the summary row for a pm-bucket <details>. `label` is the
+ * display name, `id` is the bucket key, `total` is the REQ count, and
+ * `mini` is the STATUS_MINI counts object.
+ */
+function bucketSummary({ label, id, total, mini }) {
+  return `<summary class="pm-bucket-heading">`
+    + `<span class="pm-bucket-label">${escapeHtml(label)}</span>`
+    + ` <span class="pm-bucket-count">(${total})</span>`
+    + ` ${renderStatusMini(mini)}`
+    + `<span class="pm-bucket-anchor" aria-hidden="true"> ${escapeHtml(id)}</span>`
+    + `</summary>`;
+}
+
+function bucketOpen(group, id, body, { statusCoveredBy } = {}) {
+  const dataDocId = `pm-bucket:${group}:${id}`;
+  const attr = statusCoveredBy
+    ? ` data-pm-bucket-statuses="${escapeHtml(statusCoveredBy.join(','))}"`
+    : '';
+  return `<details class="pm-bucket" data-pm-bucket-id="${escapeHtml(id)}" data-doc-id="${escapeHtml(dataDocId)}"${attr}>${body}</details>`;
+}
+
+/**
+ * Render the jump-nav chip row for a grouping. Each chip carries its
+ * bucket id + count. The client wires clicks to open + scroll.
+ */
+function renderJumpNav(group, entries) {
+  if (entries.length === 0) return '';
+  const chips = entries.map(({ id, label, total, mini }) => (
+    `<button type="button" class="pm-jump-chip" data-pm-jump="${escapeHtml(id)}" data-pm-jump-total="${total}">`
+      + `<span class="pm-jump-label">${escapeHtml(label)}</span>`
+      + `<span class="pm-jump-count">${total}</span>`
+    + `</button>`
+  )).join('');
+  return `<nav class="pm-jump-nav" aria-label="Buckets in this grouping" data-pm-jump-group="${escapeHtml(group)}">${chips}</nav>`;
+}
+
+/**
+ * Render the empty-buckets-under-filter placeholder. Empty buckets keep
+ * their <details> but pick up data-pm-empty-under-filter="true" on the
+ * client after a filter change; the client rolls them into a summary
+ * line above the grouping.
+ */
+function emptyPlaceholder() {
+  return `<div class="pm-empty-roll" hidden><button type="button" class="pm-empty-toggle">Show <span class="pm-empty-count">0</span> empty buckets</button></div>`;
+}
+
+export function renderProductMapPanel(model, opts = {}) {
+  // Lazy render (AC-17007-1): the initial page ships only bucket
+  // headings for every grouping. The client fetches the active
+  // grouping's REQ cards from /product-map/<name> when it activates.
+  // Callers that need a full render (tests, the partial endpoint pre-
+  // render on the server) pass `lazy: new Set()`.
+  const { lazy = new Set(['shape', 'component', 'trace', 'capability']) } = opts;
   const shape = groupByShape(model);
   const component = groupByComponent(model);
   const trace = groupByTraceCoverage(model);
   const capability = groupByCapability(model);
 
-  const shapeSection = renderShapeSection(model, shape);
-  const componentSection = renderComponentSection(model, component);
-  const traceSection = renderTraceSection(model, trace);
-  const capabilitySection = renderCapabilitySection(model, capability);
+  const shapeSection = renderShapeGrouping(model, shape, { lazy: lazy.has('shape') });
+  const componentSection = renderComponentGrouping(model, component, { lazy: lazy.has('component') });
+  const traceSection = renderTraceGrouping(model, trace, { lazy: lazy.has('trace') });
+  const capabilitySection = renderCapabilityGrouping(model, capability, { lazy: lazy.has('capability') });
 
   const groupButtons = GROUPINGS.map((g) => (
     `<button type="button" role="tab" class="pm-group-btn" data-pm-group="${g}"`
@@ -267,32 +293,52 @@ export function renderProductMapPanel(model) {
   )).join('');
 
   return `
-<div class="pm-controls">
+<div class="pm-controls" role="toolbar" aria-label="Product Map controls">
   <div class="pm-group-tabs" role="tablist" aria-label="Product Map grouping">
     ${groupButtons}
   </div>
   <label class="pm-status-filter">
-    <span>Status:</span>
+    <span>Status</span>
     <select class="pm-status-select" aria-label="Filter Product Map by REQ status">${statusOptions}</select>
   </label>
+  <div class="pm-bulk">
+    <button type="button" class="pm-bulk-btn" data-pm-bulk="expand" title="Expand every bucket in this grouping">Expand all</button>
+    <button type="button" class="pm-bulk-btn" data-pm-bulk="collapse" title="Collapse every bucket in this grouping">Collapse all</button>
+  </div>
 </div>
-<section id="pm-group-shape" class="pm-group" data-pm-group="shape" role="tabpanel">
+<section id="pm-group-shape" class="pm-group" data-pm-group="shape" role="tabpanel"${lazy.has('shape') ? ' data-pm-lazy="true"' : ''}>
   <h3 class="pm-group-heading">By shape</h3>
   ${shapeSection}
 </section>
-<section id="pm-group-component" class="pm-group" data-pm-group="component" role="tabpanel" hidden>
+<section id="pm-group-component" class="pm-group" data-pm-group="component" role="tabpanel" hidden${lazy.has('component') ? ' data-pm-lazy="true"' : ''}>
   <h3 class="pm-group-heading">By component</h3>
   ${componentSection}
 </section>
-<section id="pm-group-trace" class="pm-group" data-pm-group="trace" role="tabpanel" hidden>
+<section id="pm-group-trace" class="pm-group" data-pm-group="trace" role="tabpanel" hidden${lazy.has('trace') ? ' data-pm-lazy="true"' : ''}>
   <h3 class="pm-group-heading">By trace coverage</h3>
   ${traceSection}
 </section>
-<section id="pm-group-capability" class="pm-group" data-pm-group="capability" role="tabpanel" hidden>
+<section id="pm-group-capability" class="pm-group" data-pm-group="capability" role="tabpanel" hidden${lazy.has('capability') ? ' data-pm-lazy="true"' : ''}>
   <h3 class="pm-group-heading">By capability</h3>
   ${capabilitySection}
 </section>
 `.trim();
+}
+
+/**
+ * Render a single grouping section body (the innerHTML that goes into
+ * `<section id="pm-group-<name>">`). Used by the /product-map/<name>
+ * partial endpoint (AC-17007-1) for on-demand hydration. Full render
+ * with jump nav and REQ cards; never lazy.
+ */
+export function renderProductMapGrouping(model, group) {
+  switch (group) {
+    case 'shape': return renderShapeGrouping(model, groupByShape(model), { lazy: false });
+    case 'component': return renderComponentGrouping(model, groupByComponent(model), { lazy: false });
+    case 'trace': return renderTraceGrouping(model, groupByTraceCoverage(model), { lazy: false });
+    case 'capability': return renderCapabilityGrouping(model, groupByCapability(model), { lazy: false });
+    default: return '<p><em>Unknown grouping.</em></p>';
+  }
 }
 
 function pmGroupLabel(g) {
@@ -305,19 +351,13 @@ function pmGroupLabel(g) {
 }
 
 function renderReqDrilldown(model, req, prefix) {
-  // P2-1: every id/anchor a REQ card emits (article, US articles, AC li
-  // items, raw-JSON disclosures) is prefixed with the caller-supplied
-  // bucket-scoped `pm-<group>-<bucket>-` string so the same REQ can
-  // appear under multiple Product Map buckets without duplicating ids.
-  // Callers that do not care (there are none inside product-map.js)
-  // pass an empty prefix and the Requirements tab's anchors stay
-  // untouched.
   const idPrefix = prefix ?? '';
   const reqBody = renderReq(req, {
     raw: model.rawById.get(req.reqId),
     errors: model.errorsById.get(req.reqId),
     subdiagram: undefined,
     idPrefix,
+    suppressRawJson: true,
   });
   const stories = model.storiesByReqId.get(req.reqId) ?? [];
   const usBlocks = stories.map((u) => detailsWrap({
@@ -330,6 +370,7 @@ function renderReqDrilldown(model, req, prefix) {
       errors: model.errorsById.get(u.usId),
       fbsByAcId: model.fbsByAcId,
       idPrefix,
+      suppressRawJson: true,
     }),
   })).join('\n');
   const storiesSection = usBlocks
@@ -345,42 +386,69 @@ function renderReqDrilldown(model, req, prefix) {
 }
 
 function renderReqWrapper(model, req, prefix) {
-  // Adds the data-req-status attribute at the outer details level so the
-  // client-side status filter can hide the whole REQ card (and its
-  // stories/ACs beneath) with a single query.
   const inner = renderReqDrilldown(model, req, prefix);
   const status = req.status ?? '';
-  // Splice data-req-status into the outer <details>.
   return inner.replace('<details class="doc-details doc-req-wrap pm-req"',
     `<details class="doc-details doc-req-wrap pm-req" data-req-status="${escapeHtml(status)}"`);
 }
 
-function renderShapeSection(model, buckets) {
+function renderShapeGrouping(model, buckets, { lazy }) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
-  return buckets.map((b) => {
+  const jumpEntries = buckets.map((b) => ({
+    id: b.id,
+    label: b.label,
+    total: b.reqs.length,
+    mini: statusMiniCounts(b.reqs),
+  }));
+  const jump = renderJumpNav('shape', jumpEntries);
+  const empty = emptyPlaceholder();
+  const bucketsHtml = buckets.map((b) => {
     const prefix = `pm-shape-${b.id}-`;
-    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
-    return `
-<section class="pm-bucket" data-pm-bucket-id="${escapeHtml(b.id)}">
-  <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(b.label)}</span> <span class="pm-bucket-count">(${b.reqs.length})</span></h4>
-  ${reqBlocks || '<p class="pm-bucket-empty"><em>0 requirements match this filter.</em></p>'}
-</section>`.trim();
+    const mini = statusMiniCounts(b.reqs);
+    const body = lazy
+      ? ''
+      : b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
+    const summary = bucketSummary({ label: b.label, id: b.id, total: b.reqs.length, mini });
+    const contents = `${summary}<div class="pm-bucket-body">${body}</div>`;
+    return bucketOpen('shape', b.id, contents, { statusCoveredBy: statusesPresent(b.reqs) });
   }).join('\n');
+  return `${jump}${empty}${bucketsHtml}`;
 }
 
-function renderComponentSection(model, { tacs, unmapped }) {
+function statusesPresent(reqs) {
+  const s = new Set();
+  for (const r of reqs) if (r?.status) s.add(r.status);
+  return [...s];
+}
+
+function renderComponentGrouping(model, { tacs, unmapped }, { lazy }) {
   const tadHeading = model.tad
     ? `<div class="pm-tad-root"><h4>${escapeHtml(model.tad.tadId)} - ${escapeHtml(model.tad.title ?? model.tad.name ?? '')}</h4></div>`
     : '';
+  const componentReqs = (t) => t.stories.map((s) => s.req).filter(Boolean);
+  const jumpEntries = tacs.map((t) => ({
+    id: t.tacId,
+    label: `${t.tacId} - ${t.name}`,
+    total: t.stories.length,
+    mini: statusMiniCounts(componentReqs(t)),
+  }));
+  if (unmapped.length > 0) {
+    jumpEntries.push({
+      id: 'unmapped',
+      label: 'Unmapped',
+      total: unmapped.length,
+      mini: statusMiniCounts(unmapped),
+    });
+  }
+  const jump = renderJumpNav('component', jumpEntries);
+  const empty = emptyPlaceholder();
   const tacBlocks = tacs.map((t) => {
+    const mini = statusMiniCounts(componentReqs(t));
+    const summary = bucketSummary({ label: `${t.tacId} - ${t.name}`, id: t.tacId, total: t.stories.length, mini });
     const depsLine = t.dependencies.length > 0
       ? `<p class="pm-tac-deps"><strong>Dependencies:</strong> ${t.dependencies.map((d) => escapeHtml(d)).join(', ')}</p>`
       : '<p class="pm-tac-deps"><em>No dependencies.</em></p>';
-    const storyBlocks = t.stories.map(({ us, req }) => {
-      // AC-17003-1: TAC section, then user stories under that TAC, then
-      // their parent REQs (from us.reqId), then the ACs. The REQ card
-      // therefore lives INSIDE the US block, above the AC list that
-      // renderUserStory emits at the bottom of its body (P1-5 fix).
+    const storyBlocks = lazy ? '' : t.stories.map(({ us, req }) => {
       const reqLine = req
         ? `<p class="pm-req-parent"><strong>Parent REQ:</strong> <a href="#pm-comp-${escapeHtml(t.tacId)}-${escapeHtml(req.reqId)}">${escapeHtml(req.reqId)} - ${escapeHtml(req.title ?? '')}</a> <span class="status ${escapeHtml(req.status ?? '')}">${escapeHtml(req.status ?? '')}</span></p>`
         : '<p class="pm-req-parent"><em>Orphan story (no reqId).</em></p>';
@@ -389,6 +457,7 @@ function renderComponentSection(model, { tacs, unmapped }) {
         errors: model.errorsById.get(us.usId),
         fbsByAcId: model.fbsByAcId,
         idPrefix: `pm-comp-${t.tacId}-`,
+        suppressRawJson: true,
       });
       const usInner = detailsWrap({
         id: `pm-comp-${t.tacId}-${us.usId}`,
@@ -399,51 +468,63 @@ function renderComponentSection(model, { tacs, unmapped }) {
       });
       return `<div class="pm-comp-story" data-req-status="${escapeHtml(req?.status ?? '')}">${usInner}</div>`;
     }).join('\n');
-    return `
-<section class="pm-bucket" data-pm-bucket-id="${escapeHtml(t.tacId)}">
-  <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(t.tacId)} - ${escapeHtml(t.name)}</span> <span class="pm-bucket-count">(${t.stories.length})</span></h4>
-  ${depsLine}
-  ${storyBlocks || '<p class="pm-bucket-empty"><em>No stories linked to this component.</em></p>'}
-</section>`.trim();
+    const body = `${summary}<div class="pm-bucket-body">${depsLine}${storyBlocks || (lazy ? '' : '<p class="pm-bucket-empty"><em>No stories linked to this component.</em></p>')}</div>`;
+    return bucketOpen('component', t.tacId, body);
   }).join('\n');
   const unmappedBlock = unmapped.length > 0
-    ? `<section class="pm-bucket pm-bucket-unmapped" data-pm-bucket-id="unmapped">
-  <h4 class="pm-bucket-heading"><span class="pm-bucket-label">Unmapped</span> <span class="pm-bucket-count">(${unmapped.length})</span></h4>
-  ${unmapped.map((r) => renderReqWrapper(model, r, 'pm-comp-unmapped-')).join('\n')}
-</section>`
+    ? (() => {
+        const mini = statusMiniCounts(unmapped);
+        const summary = bucketSummary({ label: 'Unmapped', id: 'unmapped', total: unmapped.length, mini });
+        const body = lazy ? '' : unmapped.map((r) => renderReqWrapper(model, r, 'pm-comp-unmapped-')).join('\n');
+        return bucketOpen('component', 'unmapped', `${summary}<div class="pm-bucket-body">${body}</div>`);
+      })()
     : '';
-  return `${tadHeading}${tacBlocks}${unmappedBlock}`.trim();
+  return `${tadHeading}${jump}${empty}${tacBlocks}${unmappedBlock}`.trim();
 }
 
-function renderTraceSection(model, buckets) {
+function renderTraceGrouping(model, buckets, { lazy }) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
-  return buckets.map((b) => {
+  const jumpEntries = buckets.map((b) => ({
+    id: b.id,
+    label: b.label,
+    total: b.entries.length,
+    mini: statusMiniCounts(b.entries.map((e) => e.req)),
+  }));
+  const jump = renderJumpNav('trace', jumpEntries);
+  const empty = emptyPlaceholder();
+  const bucketsHtml = buckets.map((b) => {
     const prefix = `pm-trace-${b.id}-`;
-    const rows = b.entries.map(({ req, missing }) => {
+    const mini = statusMiniCounts(b.entries.map((e) => e.req));
+    const summary = bucketSummary({ label: b.label, id: b.id, total: b.entries.length, mini });
+    const rows = lazy ? '' : b.entries.map(({ req, missing }) => {
       const missingLine = missing
         ? `<p class="pm-trace-missing"><strong>Missing:</strong> ${escapeHtml(missing)}</p>`
         : '<p class="pm-trace-missing"><em>Nothing missing.</em></p>';
       const reqInner = renderReqWrapper(model, req, prefix);
       return `<div class="pm-trace-row" data-req-status="${escapeHtml(req.status ?? '')}">${missingLine}${reqInner}</div>`;
     }).join('\n');
-    return `
-<section class="pm-bucket" data-pm-bucket-id="${escapeHtml(b.id)}">
-  <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(b.label)}</span> <span class="pm-bucket-count">(${b.entries.length})</span></h4>
-  ${rows}
-</section>`.trim();
+    return bucketOpen('trace', b.id, `${summary}<div class="pm-bucket-body">${rows}</div>`);
   }).join('\n');
+  return `${jump}${empty}${bucketsHtml}`;
 }
 
-function renderCapabilitySection(model, buckets) {
+function renderCapabilityGrouping(model, buckets, { lazy }) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
-  return buckets.map((b) => {
+  const jumpEntries = buckets.map((b) => ({
+    id: `capability-${b.id}`,
+    label: b.label,
+    total: b.reqs.length,
+    mini: statusMiniCounts(b.reqs),
+  }));
+  const jump = renderJumpNav('capability', jumpEntries);
+  const empty = emptyPlaceholder();
+  const bucketsHtml = buckets.map((b) => {
     const idAttr = `capability-${b.id}`;
     const prefix = `pm-${idAttr}-`;
-    const reqBlocks = b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
-    return `
-<section class="pm-bucket" data-pm-bucket-id="${escapeHtml(idAttr)}">
-  <h4 class="pm-bucket-heading"><span class="pm-bucket-label">${escapeHtml(b.label)}</span> <span class="pm-bucket-count">(${b.reqs.length})</span></h4>
-  ${reqBlocks || '<p class="pm-bucket-empty"><em>0 requirements match this filter.</em></p>'}
-</section>`.trim();
+    const mini = statusMiniCounts(b.reqs);
+    const summary = bucketSummary({ label: b.label, id: idAttr, total: b.reqs.length, mini });
+    const body = lazy ? '' : b.reqs.map((r) => renderReqWrapper(model, r, prefix)).join('\n');
+    return bucketOpen('capability', idAttr, `${summary}<div class="pm-bucket-body">${body}</div>`);
   }).join('\n');
+  return `${jump}${empty}${bucketsHtml}`;
 }

@@ -330,13 +330,16 @@ function inlineScript() {
   var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
   var PM_GROUPS = ['shape', 'component', 'trace', 'capability'];
   var PM_STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
+  // Partial-render cache: grouping -> HTML string. First fetch fills it,
+  // subsequent switches use the cache.
+  var pmPartialCache = {};
+  // Track whether an SSE swap has invalidated the cache since the last
+  // successful hydration - the live-client sets window.__rcfPmDirty
+  // after each swap, and we clear the cache on the next activation.
+  function pmCacheKey(group) { return group; }
 
   function initMermaid() {
     if (typeof window.mermaid !== 'undefined') {
-      // startOnLoad: false. Mermaid can't lay out diagrams inside a
-      // display:none tabpanel (getBoundingClientRect is 0x0 -> NaN
-      // transforms). We run each tab's diagrams on activation instead;
-      // runMermaidIn is idempotent via the data-processed attribute.
       window.mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
     }
   }
@@ -347,16 +350,10 @@ function inlineScript() {
     if (pending.length === 0) return;
     try {
       window.mermaid.run({ nodes: Array.prototype.slice.call(pending) });
-    } catch (e) {
-      // Mermaid.run may throw on init errors; do not block the UI.
-    }
+    } catch (e) { /* swallow */ }
   }
 
   function tabButtons() {
-    // Scope to the top-level nav.tabs to avoid matching Product Map
-    // pm-group-btn nodes (they also carry role="tab" for a11y). Without
-    // this scope, a top-level tab click force-writes aria-selected on
-    // every pm-group-btn, breaking Product Map hash serialisation.
     return Array.prototype.slice.call(document.querySelectorAll('nav.tabs [role="tab"]'));
   }
 
@@ -426,7 +423,53 @@ function inlineScript() {
     return out;
   }
 
-  function activatePmGroup(name) {
+  function pmGroupPanel(name) {
+    return document.getElementById('pm-group-' + name);
+  }
+
+  function hydrateLazyGroup(name, cb) {
+    var panel = pmGroupPanel(name);
+    if (!panel) { if (cb) cb(false); return; }
+    if (panel.getAttribute('data-pm-lazy') !== 'true' && !pmPartialCache[pmCacheKey(name)]) {
+      if (cb) cb(true);
+      return;
+    }
+    if (window.__rcfPmDirty) {
+      pmPartialCache = {};
+      window.__rcfPmDirty = false;
+    }
+    var cached = pmPartialCache[pmCacheKey(name)];
+    var heading = panel.querySelector('.pm-group-heading');
+    var headingHtml = heading ? heading.outerHTML : '';
+    if (cached) {
+      panel.innerHTML = headingHtml + cached;
+      panel.removeAttribute('data-pm-lazy');
+      wireProductMapWithin(panel);
+      if (cb) cb(true);
+      return;
+    }
+    // Show a lightweight loading state.
+    panel.setAttribute('data-pm-loading', 'true');
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/product-map/' + name, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      panel.removeAttribute('data-pm-loading');
+      if (xhr.status >= 200 && xhr.status < 300) {
+        pmPartialCache[pmCacheKey(name)] = xhr.responseText;
+        panel.innerHTML = headingHtml + xhr.responseText;
+        panel.removeAttribute('data-pm-lazy');
+        wireProductMapWithin(panel);
+        if (cb) cb(true);
+      } else {
+        panel.setAttribute('data-pm-lazy', 'true');
+        if (cb) cb(false);
+      }
+    };
+    xhr.send();
+  }
+
+  function activatePmGroup(name, opts) {
     if (PM_GROUPS.indexOf(name) === -1) return false;
     var buttons = document.querySelectorAll('.pm-group-btn');
     for (var i = 0; i < buttons.length; i += 1) {
@@ -443,7 +486,40 @@ function inlineScript() {
         p.setAttribute('hidden', '');
       }
     }
+    var target = pmGroupPanel(name);
+    if (target && target.getAttribute('data-pm-lazy') === 'true') {
+      hydrateLazyGroup(name, function () {
+        if (opts && opts.after) opts.after();
+        applyPmStatusFilter(currentStatus());
+      });
+    } else {
+      if (opts && opts.after) opts.after();
+      applyPmStatusFilter(currentStatus());
+    }
     return true;
+  }
+
+  function currentGroup() {
+    var sel = document.querySelector('.pm-group-btn[aria-selected="true"]');
+    return sel ? sel.getAttribute('data-pm-group') : 'shape';
+  }
+
+  function currentStatus() {
+    var s = document.querySelector('.pm-status-select');
+    return s ? s.value : 'all';
+  }
+
+  function currentOpenBuckets() {
+    var group = currentGroup();
+    var panel = pmGroupPanel(group);
+    if (!panel) return [];
+    var nodes = panel.querySelectorAll('details.pm-bucket[open]');
+    var out = [];
+    for (var i = 0; i < nodes.length; i += 1) {
+      var id = nodes[i].getAttribute('data-pm-bucket-id');
+      if (id) out.push(id);
+    }
+    return out;
   }
 
   function applyPmStatusFilter(status) {
@@ -460,46 +536,151 @@ function inlineScript() {
         card.setAttribute('hidden', '');
       }
     }
-    // Empty-bucket collapse: keep the heading; add the empty note.
-    var buckets = document.querySelectorAll('#tab-product-map .pm-bucket');
+    // Per AC-17002-1: empty buckets under the filter are HIDDEN by
+    // default with a "N empty" summary line to reveal them. Also keep
+    // the legacy in-bucket note for tests / no-JS accessibility.
+    var buckets = document.querySelectorAll('#tab-product-map .pm-group:not([hidden]) details.pm-bucket');
+    var emptyCount = 0;
     for (var k = 0; k < buckets.length; k += 1) {
       var bk = buckets[k];
       var visible = bk.querySelectorAll('[data-req-status]:not([hidden])');
-      var emptyNote = bk.querySelector('.pm-bucket-empty-filter');
-      if (visible.length === 0) {
-        if (!emptyNote) {
+      var bodyEmpty = bk.querySelector('.pm-bucket-body') && bk.querySelector('.pm-bucket-body').children.length === 0;
+      var isEmpty = visible.length === 0 && !bodyEmpty; // lazy-empty buckets don't count
+      var body = bk.querySelector('.pm-bucket-body');
+      var emptyNote = body ? body.querySelector('.pm-bucket-empty-filter') : null;
+      if (isEmpty && status !== 'all') {
+        if (body && !emptyNote) {
           emptyNote = document.createElement('p');
           emptyNote.className = 'pm-bucket-empty pm-bucket-empty-filter';
           emptyNote.innerHTML = '<em>0 requirements match this filter.</em>';
-          bk.appendChild(emptyNote);
+          body.appendChild(emptyNote);
         }
-      } else if (emptyNote) {
-        emptyNote.parentNode.removeChild(emptyNote);
+        bk.setAttribute('data-pm-empty-under-filter', 'true');
+        emptyCount += 1;
+      } else {
+        if (emptyNote) emptyNote.parentNode.removeChild(emptyNote);
+        bk.removeAttribute('data-pm-empty-under-filter');
+      }
+    }
+    // Update the rollup summary.
+    var activePanel = document.querySelector('#tab-product-map .pm-group:not([hidden])');
+    if (activePanel) {
+      var roll = activePanel.querySelector('.pm-empty-roll');
+      if (roll) {
+        var showBtn = roll.querySelector('.pm-empty-count');
+        if (emptyCount > 0 && status !== 'all') {
+          if (showBtn) showBtn.textContent = String(emptyCount);
+          roll.removeAttribute('hidden');
+          activePanel.classList.add('pm-hide-empty');
+        } else {
+          roll.setAttribute('hidden', '');
+          activePanel.classList.remove('pm-hide-empty');
+        }
       }
     }
     return true;
   }
 
   function updatePmHash() {
-    // AC-17001-2: grouping button clicks and status filter changes push
-    // a new history entry so Back/Forward traverse them. Top-level tab
-    // clicks keep their replaceState behaviour (see onTabClick).
     if (!window.history || typeof window.history.pushState !== 'function') return;
-    var sel = document.querySelector('.pm-group-btn[aria-selected="true"]');
-    var group = sel ? sel.getAttribute('data-pm-group') : 'shape';
-    var statusEl = document.querySelector('.pm-status-select');
-    var status = statusEl ? statusEl.value : 'all';
+    var group = currentGroup();
+    var status = currentStatus();
+    var open = currentOpenBuckets();
     var next = '#tab=product-map&group=' + group + '&status=' + status;
-    // Avoid noisy duplicate entries when the same hash would land twice
-    // (e.g. a click that does not change the selection).
+    if (open.length > 0) next += '&open=' + encodeURIComponent(open.join(','));
     if (window.location.hash === next) return;
     window.history.pushState(null, '', next);
   }
 
+  function openPmBuckets(ids) {
+    if (!ids || ids.length === 0) return;
+    var group = currentGroup();
+    var panel = pmGroupPanel(group);
+    if (!panel) return;
+    for (var i = 0; i < ids.length; i += 1) {
+      var raw = ids[i];
+      if (!raw) continue;
+      var node = panel.querySelector('details.pm-bucket[data-pm-bucket-id="' + raw.replace(/"/g, '\\"') + '"]');
+      if (node) node.open = true;
+    }
+  }
+
+  function wireProductMapWithin(root) {
+    root = root || document;
+    // Bucket toggle -> push hash on user toggle. The 'toggle' event
+    // fires for both open and close, from user action and from our own
+    // scripting; guard against feedback via a dirty flag.
+    var buckets = root.querySelectorAll('details.pm-bucket');
+    for (var i = 0; i < buckets.length; i += 1) {
+      var bk = buckets[i];
+      if (bk.__rcfPmBucketWired) continue;
+      bk.__rcfPmBucketWired = true;
+      bk.addEventListener('toggle', function () {
+        if (window.__rcfPmSuppress) return;
+        updatePmHash();
+      });
+    }
+    // Jump chip -> open bucket + scroll.
+    var chips = root.querySelectorAll('.pm-jump-chip');
+    for (var j = 0; j < chips.length; j += 1) {
+      var chip = chips[j];
+      if (chip.__rcfPmChipWired) continue;
+      chip.__rcfPmChipWired = true;
+      chip.addEventListener('click', function (ev) {
+        var target = ev.currentTarget.getAttribute('data-pm-jump');
+        var groupAttr = ev.currentTarget.closest('.pm-jump-nav').getAttribute('data-pm-jump-group');
+        var panel = pmGroupPanel(groupAttr);
+        if (!panel) return;
+        var node = panel.querySelector('details.pm-bucket[data-pm-bucket-id="' + target.replace(/"/g, '\\"') + '"]');
+        if (!node) return;
+        node.open = true;
+        try { node.scrollIntoView({ block: 'start' }); } catch (e) { node.scrollIntoView(); }
+      });
+    }
+    // Bulk expand/collapse.
+    var bulk = root.querySelectorAll('.pm-bulk-btn');
+    for (var b = 0; b < bulk.length; b += 1) {
+      var btn = bulk[b];
+      if (btn.__rcfPmBulkWired) continue;
+      btn.__rcfPmBulkWired = true;
+      btn.addEventListener('click', function (ev) {
+        var action = ev.currentTarget.getAttribute('data-pm-bulk');
+        var panel = document.querySelector('#tab-product-map .pm-group:not([hidden])');
+        if (!panel) return;
+        var all = panel.querySelectorAll('details.pm-bucket');
+        window.__rcfPmSuppress = true;
+        for (var i = 0; i < all.length; i += 1) all[i].open = (action === 'expand');
+        window.__rcfPmSuppress = false;
+        updatePmHash();
+      });
+    }
+    // Empty-roll toggle: reveals hidden empty buckets under the filter.
+    var rolls = root.querySelectorAll('.pm-empty-toggle');
+    for (var r = 0; r < rolls.length; r += 1) {
+      var rt = rolls[r];
+      if (rt.__rcfPmEmptyWired) continue;
+      rt.__rcfPmEmptyWired = true;
+      rt.addEventListener('click', function (ev) {
+        var panel = ev.currentTarget.closest('.pm-group');
+        if (!panel) return;
+        if (panel.classList.contains('pm-hide-empty')) {
+          panel.classList.remove('pm-hide-empty');
+          ev.currentTarget.textContent = 'Hide empty buckets';
+        } else {
+          panel.classList.add('pm-hide-empty');
+          var span = document.createElement('span');
+          span.className = 'pm-empty-count';
+          span.textContent = String(panel.querySelectorAll('details.pm-bucket[data-pm-empty-under-filter="true"]').length);
+          ev.currentTarget.textContent = '';
+          ev.currentTarget.appendChild(document.createTextNode('Show '));
+          ev.currentTarget.appendChild(span);
+          ev.currentTarget.appendChild(document.createTextNode(' empty buckets'));
+        }
+      });
+    }
+  }
+
   function wireProductMap() {
-    // Idempotent: pm nodes live inside the SSE swap wrapper so their DOM
-    // is fresh after every swap - no guard needed on those. Guard here
-    // covers the same-render re-invocation path (init() called twice).
     var buttons = document.querySelectorAll('.pm-group-btn');
     for (var i = 0; i < buttons.length; i += 1) {
       if (buttons[i].__rcfPmWired) continue;
@@ -517,13 +698,11 @@ function inlineScript() {
         updatePmHash();
       });
     }
+    wireProductMapWithin(document);
   }
 
   function resolveHash(hash) {
-    if (!hash) {
-      activateTab('overview');
-      return;
-    }
+    if (!hash) { activateTab('overview'); return; }
     var raw = hash.charAt(0) === '#' ? hash.slice(1) : hash;
     if (raw.indexOf('tab=') === 0) {
       var afterTab = raw.slice(4);
@@ -533,27 +712,23 @@ function inlineScript() {
       activateTab(tab);
       if (tab === 'product-map') {
         var params = parseHashParams(rest);
-        if (params.group) activatePmGroup(params.group);
-        if (params.status) applyPmStatusFilter(params.status);
+        var openIds = params.open ? decodeURIComponent(params.open).split(',').filter(Boolean) : [];
+        activatePmGroup(params.group || 'shape', {
+          after: function () {
+            if (params.status) applyPmStatusFilter(params.status);
+            openPmBuckets(openIds);
+          },
+        });
       }
       return;
     }
     var target = findByDocId(raw);
-    if (!target) {
-      activateTab('overview');
-      return;
-    }
+    if (!target) { activateTab('overview'); return; }
     var tab = tabForNode(target);
     if (tab) activateTab(tab);
     openAncestorDetails(target);
-    if (target.tagName && target.tagName.toLowerCase() === 'details') {
-      target.open = true;
-    }
-    try {
-      target.scrollIntoView({ block: 'start' });
-    } catch (e) {
-      target.scrollIntoView();
-    }
+    if (target.tagName && target.tagName.toLowerCase() === 'details') target.open = true;
+    try { target.scrollIntoView({ block: 'start' }); } catch (e) { target.scrollIntoView(); }
   }
 
   function onTabClick(ev) {
@@ -561,15 +736,17 @@ function inlineScript() {
     var name = btn.getAttribute('data-tab');
     if (!name) return;
     activateTab(name);
+    if (name === 'product-map') {
+      // Hydrate whichever grouping was selected last (default: shape).
+      // No-op when the grouping is already inline.
+      activatePmGroup(currentGroup());
+    }
     if (window.history && typeof window.history.replaceState === 'function') {
       window.history.replaceState(null, '', '#tab=' + name);
     }
   }
 
   function wireTabs() {
-    // Idempotent: tab buttons live in the header outside the SSE swap
-    // wrapper, so their DOM nodes survive rcfPage.init() re-invocations.
-    // Guard against double-binding by tagging each node once.
     tabButtons().forEach(function (btn) {
       if (btn.__rcfTabWired) return;
       btn.__rcfTabWired = true;
@@ -591,11 +768,6 @@ function inlineScript() {
     }
   }
 
-  // Phase 3.8 promise: expose window.rcfPage.init() so the live client
-  // can re-invoke the tab + product-map wiring after every SSE
-  // innerHTML swap. Without this assignment, pm-group-btn and
-  // pm-status-select listeners die on the first swap and the panel
-  // silently freezes.
   window.rcfPage = window.rcfPage || {};
   window.rcfPage.init = onReady;
 

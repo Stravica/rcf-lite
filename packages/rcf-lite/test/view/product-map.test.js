@@ -71,12 +71,16 @@ test('product-map shape grouping renders one bucket per shape plus Unclassified 
 });
 
 test('product-map shape grouping drills bucket to REQ to US to AC with status pill, ids scoped to the bucket (P2-1)', async () => {
-  const { model, html } = await renderLive();
+  const { model } = await renderLive();
   const buckets = groupByShape(model);
   // Pick the smallest non-empty bucket to keep the search cheap.
   const bucket = [...buckets].sort((a, b) => a.reqs.length - b.reqs.length).find((b) => b.reqs.length > 0);
   assert.ok(bucket, 'expected at least one shape bucket on real data');
   const req = bucket.reqs[0];
+  // Lazy render (AC-17007-1): every grouping's REQ cards arrive via
+  // /product-map/<name>. For the drilldown-shape assertion below, render
+  // the panel non-lazy so the shape section carries its REQ cards.
+  const html = renderProductMapPanel(model, { lazy: new Set() });
   const shapeSectionStart = html.indexOf('id="pm-group-shape"');
   const shapeSectionEnd = html.indexOf('id="pm-group-component"', shapeSectionStart);
   const shapeSlice = html.slice(shapeSectionStart, shapeSectionEnd);
@@ -152,6 +156,12 @@ test('product-map status filter markup + server-rendered per-bucket status count
   const { model, html } = await renderLive();
   const tabStart = html.indexOf('id="tab-product-map"');
   const tabPanel = html.slice(tabStart);
+  // Lazy render (AC-17007-1) emits only the shape grouping's REQ cards
+  // inline; component/trace/capability arrive via /product-map/<name>.
+  // For this per-status count assertion we need the full server render
+  // across every grouping, so render the panel non-lazy and swap that
+  // slice into the assertion.
+  const fullPanel = renderProductMapPanel(model, { lazy: new Set() });
   // Select exists inside the tab.
   const selectStart = tabPanel.indexOf('class="pm-status-select"');
   assert.ok(selectStart > 0, 'status filter select is missing');
@@ -208,7 +218,7 @@ test('product-map status filter markup + server-rendered per-bucket status count
   const outerRe = /<details class="doc-details doc-req-wrap pm-req" data-req-status="([^"]*)"/g;
   const domCounts = new Map();
   let m;
-  while ((m = outerRe.exec(tabPanel)) !== null) {
+  while ((m = outerRe.exec(fullPanel)) !== null) {
     domCounts.set(m[1], (domCounts.get(m[1]) ?? 0) + 1);
   }
   const modelCounts = membershipsByStatus();
@@ -236,13 +246,19 @@ test('product-map status filter markup + server-rendered per-bucket status count
     );
   }
   // Every REQ card in the tab carries a data-req-status attribute so
-  // the client-side filter has something to read.
-  const reqCards = tabPanel.match(/data-req-status="/g) ?? [];
+  // the client-side filter has something to read. Measured against the
+  // full (non-lazy) render since AC-17007-1 lazily fetches REQ cards.
+  const reqCards = fullPanel.match(/data-req-status="/g) ?? [];
   assert.ok(reqCards.length > 100, `expected many REQ status attributes in the tab, saw ${reqCards.length}`);
 });
 
 test('product-map component grouping nests parent REQ INSIDE the US block (AC-17003-1, P1-5)', async () => {
-  const { html } = await renderLive();
+  const { model } = await renderLive();
+  // Lazy render (AC-17007-1): the story blocks live in the partial the
+  // client fetches for the component grouping, not in the initial page.
+  // Assert against the non-lazy panel render so this AC keeps testing
+  // the story-block shape.
+  const html = renderProductMapPanel(model, { lazy: new Set() });
   const compStart = html.indexOf('id="pm-group-component"');
   const compEnd = html.indexOf('id="pm-group-trace"', compStart);
   const compSlice = html.slice(compStart, compEnd);
@@ -366,7 +382,7 @@ test('product-map trace coverage places each REQ in the FIRST bucket whose condi
 });
 
 test('product-map trace coverage renders each bucket into the DOM on real data', async () => {
-  const { model, html } = await renderLive();
+  const { model } = await renderLive();
   const buckets = groupByTraceCoverage(model);
   const totalPlaced = buckets.reduce((n, b) => n + b.entries.length, 0);
   assert.equal(totalPlaced, model.requirements.length,
@@ -377,6 +393,10 @@ test('product-map trace coverage renders each bucket into the DOM on real data',
       `unknown bucket id ${b.id}`,
     );
   }
+  // Lazy render (AC-17007-1): the trace grouping's REQ rows live in the
+  // partial fetched via /product-map/trace, not in the initial page.
+  // Assert against the non-lazy panel render.
+  const html = renderProductMapPanel(model, { lazy: new Set() });
   const traceStart = html.indexOf('id="pm-group-trace"');
   const traceEnd = html.indexOf('id="pm-group-capability"', traceStart);
   const traceSlice = html.slice(traceStart, traceEnd);
@@ -477,4 +497,90 @@ test('product-map capability grouping: a multi-tag REQ appears under each capabi
   const expectedTotal = model.requirements
     .reduce((n, r) => n + capabilitiesForReq(r).length, 0);
   assert.equal(namedTotal, expectedTotal);
+});
+
+test('product-map buckets are <details class="pm-bucket"> collapsed by default with a per-status mini row (AC-17006-1)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  // Every bucket wraps its body in a <details class="pm-bucket"> with
+  // no `open` attribute (collapsed) and carries a stable data-doc-id.
+  const bucketRe = /<details class="pm-bucket"[^>]*data-pm-bucket-id="([^"]+)"[^>]*data-doc-id="pm-bucket:([^:]+):([^"]+)"[^>]*>/g;
+  const matches = [];
+  let m;
+  while ((m = bucketRe.exec(html)) !== null) matches.push({ bucket: m[1], group: m[2], docId: m[3] });
+  assert.ok(matches.length > 5, `expected many pm-bucket details, saw ${matches.length}`);
+  // No collapsed-by-default bucket carries an ` open` attribute.
+  const openCount = (html.match(/<details class="pm-bucket"[^>]* open\b/g) ?? []).length;
+  assert.equal(openCount, 0, 'pm-bucket details must be collapsed by default');
+  // Every bucket summary carries a pm-mini-row when the bucket has any
+  // classified statuses. At least one is present in the dogfood data.
+  assert.match(html, /<span class="pm-mini-row">/);
+  assert.match(html, /<span class="pm-mini pm-mini-/);
+});
+
+test('product-map ships a jump-nav chip row per grouping (AC-17006-1)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  // Four groupings, four jump-nav rails.
+  for (const g of ['shape', 'component', 'trace', 'capability']) {
+    assert.ok(
+      html.includes(`<nav class="pm-jump-nav" aria-label="Buckets in this grouping" data-pm-jump-group="${g}"`),
+      `missing jump-nav for grouping ${g}`,
+    );
+  }
+  // Chips carry a pm-jump target and a count element.
+  assert.match(html, /class="pm-jump-chip" data-pm-jump="[^"]+"/);
+  assert.match(html, /<span class="pm-jump-count">\d+<\/span>/);
+});
+
+test('product-map controls include Expand/Collapse-all bulk buttons and a status filter (AC-17006-1)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model);
+  assert.match(html, /class="pm-bulk-btn" data-pm-bulk="expand"/);
+  assert.match(html, /class="pm-bulk-btn" data-pm-bulk="collapse"/);
+  assert.match(html, /class="pm-status-select"/);
+});
+
+test('product-map hash schema and open-bucket restore are wired in the inline script (AC-17006-1)', async () => {
+  const { model } = await renderLive();
+  const page = renderPage(model);
+  // Hash schema includes &open=<id1>,<id2>.
+  assert.match(page, /'&open='\s*\+\s*encodeURIComponent/);
+  // openPmBuckets function name is present.
+  assert.match(page, /function openPmBuckets/);
+  // currentOpenBuckets reads the open pm-bucket details for the active group.
+  assert.match(page, /details\.pm-bucket\[open\]/);
+});
+
+test('product-map lazy render: initial contentHtml emits skeletons for every grouping (AC-17007-1)', async () => {
+  const { model } = await renderLive();
+  const page = renderPage(model);
+  // Every grouping section carries data-pm-lazy="true" in the default
+  // render, and its body does NOT contain any outer pm-req details.
+  const outerReqRe = /<details class="doc-details doc-req-wrap pm-req"/g;
+  for (const g of ['shape', 'component', 'trace', 'capability']) {
+    const sectionStart = page.indexOf(`id="pm-group-${g}"`);
+    const nextGroup = page.indexOf('<section id="pm-group-', sectionStart + 1);
+    const end = nextGroup > -1 ? nextGroup : page.indexOf('</main>', sectionStart);
+    const slice = page.slice(sectionStart, end);
+    assert.ok(
+      slice.includes('data-pm-lazy="true"'),
+      `grouping ${g} must carry data-pm-lazy="true" in the initial render`,
+    );
+    const nested = slice.match(outerReqRe) ?? [];
+    assert.equal(nested.length, 0, `grouping ${g} must not emit outer pm-req cards in the lazy skeleton`);
+  }
+  // But bucket headings ARE present (label + count + mini row).
+  assert.match(page, /class="pm-bucket-heading"/);
+});
+
+test('product-map lazy render: raw-JSON disclosures are suppressed inside pm-req cards (AC-17007-1)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  const tabSlice = html;
+  // No `<details class="raw-json"` should appear inside the Product Map
+  // panel; the disclosure lives on the Requirements tab only. The
+  // panel does still carry pm-* markup around raw-json ids, so match on
+  // the classname to catch the actual disclosure element.
+  assert.doesNotMatch(tabSlice, /<details class="raw-json"/);
 });

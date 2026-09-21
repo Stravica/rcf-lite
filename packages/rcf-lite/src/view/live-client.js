@@ -434,6 +434,12 @@
         host.innerHTML = payload.contentHtml;
       }
       currentVersion = payload.version;
+      // The Product Map panel keeps a client-side partial cache
+      // (window.__rcfPmPartialCache is opaque to us). A tree-update
+      // invalidates every partial: the next activatePmGroup on a lazy
+      // grouping refetches instead of using the stale cache. See
+      // hydrateLazyGroup in the inline script.
+      win.__rcfPmDirty = true;
       // Tab buttons live in the header (outside the swap wrapper) so
       // their click handlers survive. But the swap serves every panel
       // with the same `hidden` state Phase 3.6 renders (Overview

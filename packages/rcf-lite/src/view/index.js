@@ -10,6 +10,7 @@ import { stat } from 'node:fs/promises';
 
 import { walkTree } from '#core/store';
 import { renderContent, renderPage } from './html-page.js';
+import { renderProductMapGrouping } from './product-map.js';
 import { buildTreeModel } from './tree-model.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -59,5 +60,16 @@ export async function renderModelToPage({ projectRoot }) {
   const model = buildTreeModel({ tree, errors });
   const fullPageHtml = renderPage(model);
   const contentHtml = renderContent(model);
-  return { fullPageHtml, contentHtml, errors, tree };
+  // Pre-rendered partials for the /product-map/<group> endpoint
+  // (AC-17007-1). The full page ships only the shape grouping's REQ
+  // cards; the client fetches the other three on demand from these
+  // strings. Regenerated on every rewalk so the cache stays consistent
+  // with the tree on disk.
+  const pmPartials = {
+    shape: renderProductMapGrouping(model, 'shape'),
+    component: renderProductMapGrouping(model, 'component'),
+    trace: renderProductMapGrouping(model, 'trace'),
+    capability: renderProductMapGrouping(model, 'capability'),
+  };
+  return { fullPageHtml, contentHtml, errors, tree, pmPartials };
 }

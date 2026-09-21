@@ -45,7 +45,7 @@ export function renderUserStory(us, ctx) {
       ${acItems}
     </ul>
   </section>
-  ${rawJsonDisclosure(ctx.raw, us, us.usId, prefix)}
+  ${ctx.suppressRawJson ? '' : rawJsonDisclosure(ctx.raw, us, us.usId, prefix)}
 </article>`.trim();
 }
 
