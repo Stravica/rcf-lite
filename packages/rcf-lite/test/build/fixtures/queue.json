@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 81,
+    "items": 82,
     "notStarted": 46,
     "inProgress": 1,
-    "complete": 19,
+    "complete": 20,
     "verified": 15,
     "actionable": 36,
     "blocked": 10
@@ -63,7 +63,8 @@
         "FBS-188",
         "FBS-189",
         "FBS-180",
-        "FBS-190"
+        "FBS-190",
+        "FBS-192"
       ]
     },
     {
@@ -1063,6 +1064,16 @@
       "dependsOnFbsIds": [
         "FBS-190"
       ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-192",
+      "buildOrder": 192,
+      "tier": 0,
+      "title": "Product Map UX rescue pass",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
       "state": "complete",
       "blockedBy": []
     }

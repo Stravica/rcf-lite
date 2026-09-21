@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-703",
+  "path": "src/server/routes.js",
+  "implementsAcIds": [
+    "AC-17007-1"
+  ],
+  "dependencies": [
+    "CN-700"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-21T19:44:46.452Z",
+  "updatedAt": "2026-09-21T19:44:52.245Z",
+  "title": "Product Map partial-render endpoint",
+  "description": "Adds a /product-map/<group> HTTP route that serves the pre-rendered non-lazy panel body for the named grouping. Consumed by the inline scripts hydrateLazyGroup which fetches on first activation and caches the response in memory; the live-client invalidates the cache on every SSE tree-update swap."
+}

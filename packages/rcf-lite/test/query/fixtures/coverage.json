@@ -4252,6 +4252,22 @@
             "TC-208-capability-buckets"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17006-1",
+          "covered": true,
+          "testCases": [
+            "TC-211-interaction-model-buckets"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17007-1",
+          "covered": true,
+          "testCases": [
+            "TC-212-lazy-skeletons"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
