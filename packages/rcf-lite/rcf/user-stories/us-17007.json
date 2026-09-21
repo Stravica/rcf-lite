@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-21T18:36:34.519Z",
+  "updatedAt": "2026-09-21T18:36:52.512Z",
+  "description": "a reviewer opening the review surface on a slow link the initial HTML payload well under 3 MB by rendering only the active grouping fully; the other three groupings emit only their bucket headings (label + count) and hydrate the REQ list on demand when the reader switches grouping or opens a bucket, so first paint is fast and the tab stays interactive on 100+ REQ trees",
+  "usId": "US-17007",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: lazy first-load payload",
+  "asA": "a reviewer opening the review surface on a slow link",
+  "iWant": "an initial HTML payload well under 3 MB by rendering only the active grouping fully and hydrating the other groupings on demand from a partial endpoint",
+  "soThat": "first paint is fast and the tab stays interactive on 100-plus REQ trees",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17007-1",
+      "description": "The Product Map first-load payload target is well under 3 MB. The server emits the shape (default) grouping fully; the other three groupings emit only their bucket headings (label + total count + per-status mini counts) and each bucket carries a data-pm-lazy marker naming its grouping and bucket id. When the reader switches to a lazy grouping OR opens a lazy bucket, the client fetches that grouping fully once (from a partial endpoint the server exposes) and hydrates the bucket into the DOM; subsequent switches use the cached partial. The pass doc states the before/after first-load bytes.",
+      "testable": true
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-21T18:46:16.821Z",
+  "updatedAt": "2026-09-21T18:46:17.106Z",
+  "purpose": "Cover the initial-render skeletons and raw-JSON suppression the lazy render depends on for AC-17007-1.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17007-1"
+  ],
+  "id": "TS-212",
+  "usId": "US-17007",
+  "title": "Product Map lazy first-load payload",
+  "testCases": [
+    {
+      "id": "TC-212-lazy-skeletons",
+      "acId": "AC-17007-1",
+      "description": "Initial contentHtml emits data-pm-lazy=true skeletons for every grouping and never inlines a raw-JSON disclosure inside a pm-req card.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map lazy render: initial contentHtml emits skeletons for every grouping (AC-17007-1)"
+    }
+  ],
+  "status": "draft"
+}
