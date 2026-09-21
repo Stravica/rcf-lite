@@ -11,12 +11,12 @@
     {
       "id": "TC-205-status-filter-control",
       "acId": "AC-17002-1",
-      "description": "The tab renders a status filter with six options and, on approved, only approved REQs remain across every grouping.",
+      "description": "The tab renders a status filter with six options; server-rendered outer pm-req counts per status match a model-side prediction across every grouping (the same DOM the client-side applyPmStatusFilter reads).",
       "status": "passing",
-      "testPointer": "test/view/product-map.test.js::product-map status filter renders six options and hides non-matching REQs while collapsing empty buckets"
+      "testPointer": "test/view/product-map.test.js::product-map status filter markup + server-rendered per-bucket status counts match the model (P2-3 real assertion)"
     }
   ],
   "status": "approved",
   "createdAt": "2026-09-21T17:00:00.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-09-21T18:02:10.757Z"
 }
