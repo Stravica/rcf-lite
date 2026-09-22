@@ -21,7 +21,7 @@ import { parseArgs } from 'node:util';
 import process from 'node:process';
 
 import { rcfError, writeUnexpectedFailure } from '#core/errors';
-import { resolveTestPointers, validateDocument, walkTree } from '#core/store';
+import { resolveTestPointers, validateDocument, validateComposedRecord, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import {
@@ -170,6 +170,14 @@ export async function main(argv, deps = {}) {
   if (flags.json) stdout.write(`${JSON.stringify(record, null, 2)}\n`);
 
   if (flags['dry-run']) {
+    // 0.28.2 (folded into #230, per Barry ruling 2026-09-21):
+    // dry-run runs the same schema pass the writer runs so a preview
+    // reports the same validation error the write path would refuse.
+    const dryValidation = validateComposedRecord({ tree, record, verb: 'review' });
+    if (dryValidation) {
+      stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
+      return 3;
+    }
     if (!flags.quiet) {
       stdout.write(`[dry-run] review ${fbsId}: ${findings.length} finding(s); verdict=${record.verdict}\n`);
       for (const f of findings) {

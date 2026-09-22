@@ -18,3 +18,8 @@ export { checkCodeNodeResolution, splitCnPath } from './cn-resolve.js';
 // never counted as covering an AC.
 export { resolveTestPointers, splitTestPointer, testCaseKey } from './tp-resolve.js';
 export { nextIdForKind, createDocument, updateDocument, deleteDocument, deriveSlug } from './writer.js';
+// 0.28.2 (issues #230/#232 + review/ui-baseline init/browser-verify):
+// shared "compose then schema-validate without writing" helper the
+// dry-run branches of the five discover verbs run so a preview reports
+// the same schema error the writer would refuse on.
+export { validateComposedRecord, buildNextManifest } from './validate-composed-record.js';

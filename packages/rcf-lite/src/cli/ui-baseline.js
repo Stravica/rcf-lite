@@ -21,7 +21,7 @@ import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import process from 'node:process';
 
-import { walkTree } from '#core/store';
+import { walkTree, validateComposedRecord } from '#core/store';
 import { writeUnexpectedFailure, rcfError } from '#core/errors';
 
 import { findProjectRoot } from '../view/index.js';
@@ -250,6 +250,14 @@ async function runInit({ tree, projectRoot, stdin, stdout, stderr, flags, now })
   });
 
   if (flags['dry-run']) {
+    // 0.28.2 (folded into #230): dry-run runs the same schema pass
+    // the writer runs so a preview reports the same validation error
+    // the write path would refuse.
+    const dryValidation = validateComposedRecord({ tree, record, verb: 'uiBaselineInit' });
+    if (dryValidation) {
+      stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
+      return 3;
+    }
     stdout.write(`${JSON.stringify(record, null, 2)}\n`);
     if (!flags.quiet) stdout.write(`[dry-run] ui-baseline init: would write ${record.id} (${session.optOuts.length} opt-outs).\n`);
     return 0;
