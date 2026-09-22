@@ -320,3 +320,36 @@ test('F-slice-3-04: status text lists every unresolved library, not only the cou
   assert.match(status.stdout, /- acme:/, 'names the unresolved library, not just a count');
   assert.match(status.stdout, /ops@acme\.example/, 'shows the publisher contact');
 });
+
+// -- Issue #244 (0.28.3): status --json / text parity for destination `source` field ---
+
+test('Issue #244: rcf feedback status --json exposes destinations.table[].source (parity with the preview surface)', async () => {
+  const project = await scaffoldFeedbackProject('Issue244Status');
+  const lib = await scaffoldLibrary({
+    prefix: 'wsd',
+    blueprintSlug: 'std-error-envelope',
+    bands: { ac: { start: 50000, end: 59999 } },
+    contributions: [{ kind: 'req', id: 'REQ-50101', path: 'req.json' }],
+    issues: { repo: 'wsd-team-dev/rcf-lite-blueprints', visibility: 'private' },
+    publisher: { id: 'wsd', displayName: 'WSD', contact: 'engineering@wsd.example' },
+  });
+  const add = await runBin(project, ['define', 'blueprint', 'library', 'add', lib, '--no-review', '--i-have-reviewed']);
+  assert.equal(add.code, 0, add.stderr);
+  const bp = await runBin(project, ['define', 'blueprint', 'add', 'wsd:std-error-envelope']);
+  assert.equal(bp.code, 0, bp.stderr);
+
+  const statusJson = await runBin(project, ['feedback', 'status', '--json']);
+  assert.equal(statusJson.code, 0, statusJson.stderr);
+  const obj = JSON.parse(statusJson.stdout);
+  const rows = obj?.destinations?.table ?? [];
+  const row = rows.find((r) => r.ref === 'wsd:std-error-envelope' || r.ref === 'wsd:wsd-std-error-envelope');
+  assert.ok(row, `destination row for applied blueprint present; rows=${JSON.stringify(rows)}`);
+  assert.equal(row.source, 'library-manifest', 'source field is present and names the resolver path');
+  assert.equal(row.repo, 'wsd-team-dev/rcf-lite-blueprints');
+  assert.equal(row.visibility, 'private');
+
+  // Text surface should now print the source line too (parity per AC-15502-2).
+  const statusText = await runBin(project, ['feedback', 'status']);
+  assert.equal(statusText.code, 0, statusText.stderr);
+  assert.match(statusText.stdout, /source: library-manifest/);
+});

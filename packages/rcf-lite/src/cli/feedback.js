@@ -624,6 +624,14 @@ async function handleStatus(argv, ctx) {
       visibility: dest.visibility ?? 'unresolved',
       derived: !!dest.derived,
       reason: dest.reason ?? null,
+      // Issue #244 (0.28.3): the preview surface prints
+      // `source: <library-manifest|package-bugs-url|derived|...>` so
+      // the operator can see WHICH resolver path picked the destination.
+      // The --json surface must expose the same field for programmatic
+      // verifiers per AC-15502-2 (--json emits the same as text). The
+      // field is null when the resolver did not attach one (e.g. an
+      // unresolved library).
+      source: dest.source ?? null,
     });
   }
 
@@ -672,6 +680,12 @@ async function handleStatus(argv, ctx) {
         ? `${row.repo} (${row.visibility}${row.derived ? ', derived' : ''})`
         : `(unresolved${row.reason ? `: ${row.reason}` : ''})`;
       stdout.write(`  - ${row.ref} -> ${cell}\n`);
+      // Issue #244 (0.28.3): print the resolver source so text and
+      // --json carry the same disclosure. Preview already prints this;
+      // status now matches per AC-15502-2 parity.
+      if (row.source) {
+        stdout.write(`    source: ${row.source}\n`);
+      }
     }
   }
   return 0;
