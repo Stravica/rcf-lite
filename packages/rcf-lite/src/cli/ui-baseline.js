@@ -253,7 +253,12 @@ async function runInit({ tree, projectRoot, stdin, stdout, stderr, flags, now })
     // 0.28.2 (folded into #230): dry-run runs the same schema pass
     // the writer runs so a preview reports the same validation error
     // the write path would refuse.
-    const dryValidation = validateComposedRecord({ tree, record, verb: 'uiBaselineInit' });
+    const dryValidation = validateComposedRecord({
+      tree,
+      record,
+      verb: 'uiBaselineInit',
+      options: { reset: Boolean(flags.reset) },
+    });
     if (dryValidation) {
       stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
       return 3;

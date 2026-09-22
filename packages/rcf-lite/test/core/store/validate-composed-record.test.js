@@ -35,17 +35,29 @@ test('buildNextManifest(review) appends to reviewAudit', () => {
   assert.deepEqual(next.reviewAudit[next.reviewAudit.length - 1], record);
 });
 
-test('buildNextManifest(uiBaselineInit) moves prior into history and replaces uiBaseline', () => {
+test('buildNextManifest(uiBaselineInit): --reset moves prior into history; without --reset the prior is replaced', () => {
   const priorRecord = { id: 'uib-2026-09-01-001' };
   const record = { id: 'uib-2026-09-22-001' };
-  const next = buildNextManifest({
+  // --reset preserves prior into history (matches writeUiBaselineRecord's
+  // options.reset branch, 0.28.2 Codex review follow-up).
+  const withReset = buildNextManifest({
+    manifest: { ...cleanTree.manifest, uiBaseline: priorRecord },
+    record,
+    verb: 'uiBaselineInit',
+    options: { reset: true },
+  });
+  assert.deepEqual(withReset.uiBaseline, record);
+  assert.ok(Array.isArray(withReset.uiBaselineHistory));
+  assert.deepEqual(withReset.uiBaselineHistory[withReset.uiBaselineHistory.length - 1], priorRecord);
+  // Without --reset the prior is silently replaced (dry-run default,
+  // matching writer parity).
+  const withoutReset = buildNextManifest({
     manifest: { ...cleanTree.manifest, uiBaseline: priorRecord },
     record,
     verb: 'uiBaselineInit',
   });
-  assert.deepEqual(next.uiBaseline, record);
-  assert.ok(Array.isArray(next.uiBaselineHistory));
-  assert.deepEqual(next.uiBaselineHistory[next.uiBaselineHistory.length - 1], priorRecord);
+  assert.deepEqual(withoutReset.uiBaseline, record);
+  assert.equal(withoutReset.uiBaselineHistory, undefined);
 });
 
 test('buildNextManifest(browserVerify) appends to browserVerification', () => {

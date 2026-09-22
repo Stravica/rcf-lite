@@ -1728,6 +1728,10 @@ flowchart LR
   AC-15701-1 -.-> TC-188-render-fingerprint-twin-and-labels
   AC-15701-2["AC-15701-2"]
   REQ-157 --> AC-15701-2
+  TC-191-submit-anchor-mismatch-creates["TC-191-submit-anchor-mismatch-creates"]
+  AC-15701-2 -.-> TC-191-submit-anchor-mismatch-creates
+  TC-191-submit-fingerprint-mismatch-creates["TC-191-submit-fingerprint-mismatch-creates"]
+  AC-15701-2 -.-> TC-191-submit-fingerprint-mismatch-creates
   TC-191-submit-many-hit-comment-lowest["TC-191-submit-many-hit-comment-lowest"]
   AC-15701-2 -.-> TC-191-submit-many-hit-comment-lowest
   TC-191-submit-one-hit-comments["TC-191-submit-one-hit-comments"]
@@ -1964,8 +1968,6 @@ flowchart LR
   REQ-165 --> AC-16502-3
   TC-203-merge-state-refusal-and-opt-out["TC-203-merge-state-refusal-and-opt-out"]
   AC-16502-3 -.-> TC-203-merge-state-refusal-and-opt-out
-  class TC-191-submit-many-hit-comment-lowest broken;
-  class TC-191-submit-one-hit-comments broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -2878,6 +2880,8 @@ flowchart LR
   class TC-188-preview-fingerprint-folds-across-entries tc;
   class TC-188-render-fingerprint-twin-and-labels tc;
   class AC-15701-2 ac;
+  class TC-191-submit-anchor-mismatch-creates tc;
+  class TC-191-submit-fingerprint-mismatch-creates tc;
   class TC-191-submit-many-hit-comment-lowest tc;
   class TC-191-submit-one-hit-comments tc;
   class TC-191-submit-zero-hit-creates tc;

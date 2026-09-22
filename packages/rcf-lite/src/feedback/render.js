@@ -253,10 +253,20 @@ function renderEnvironmentTable(entry) {
       t.libraryPrefix ? `(library ${t.libraryPrefix}${t.libraryRef ? ` ${t.libraryRef}` : ''}${t.resolvedSha ? `, git ${String(t.resolvedSha).slice(0, 7)}` : t.tarballSha256 ? `, tarball ${String(t.tarballSha256).slice(0, 7)}` : ''})` : null,
     ].filter(Boolean).join(' ')
     : 'n/a';
+  // 0.28.2 (issue #234): a "target" row goes on the environment
+  // table for core entries too, so submit's fingerprint-verification
+  // step can compare the entry's verb path against a candidate's
+  // recorded target and refuse to fold across differing targets. For
+  // blueprint entries the blueprint cell already carries the target
+  // identity, so the target row is left as "-" to avoid duplication.
+  const targetCell = kind === 'blueprint'
+    ? '-'
+    : (typeof t.ref === 'string' && t.ref.length > 0 ? t.ref : '-');
   const rows = [
     ['field', 'value'],
     ['kind', kind],
     ['blueprint', blueprintCell],
+    ['target', targetCell],
     ['anchor', entry?.anchor ?? '-'],
     ['symptom class', entry?.symptomClass ?? '-'],
     ['severity', entry?.severity ?? '-'],

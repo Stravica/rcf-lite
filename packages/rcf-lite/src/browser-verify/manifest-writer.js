@@ -5,7 +5,7 @@ import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '#core/errors';
-import { validateDocument } from '#core/store';
+import { buildNextManifest, validateDocument } from '#core/store';
 
 /**
  * Compute the next `bv-<fbsId>-<n>` id: monotonic per FBS.
@@ -181,10 +181,14 @@ function stripSeverity(check) {
  * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeBrowserVerificationRecord({ projectRoot, tree, record, options = {} }) {
-  const manifest = tree.manifest ?? {};
-  const nextManifest = { ...manifest };
-  const existing = Array.isArray(nextManifest.browserVerification) ? nextManifest.browserVerification : [];
-  nextManifest.browserVerification = [...existing, record];
+  // 0.28.2 (Codex review follow-up on the shared helper): compose via
+  // the shared `buildNextManifest` helper so write and dry-run
+  // produce the same shape and the same schema pass runs on both.
+  const nextManifest = buildNextManifest({
+    manifest: tree.manifest ?? {},
+    record,
+    verb: 'browserVerify',
+  });
 
   const relPath = 'rcf/manifest.json';
   const validation = validateDocument({ doc: nextManifest, kind: 'manifest', filePath: relPath });

@@ -99,12 +99,6 @@ export async function runIntakePhases({ projectRoot, artefactPaths, kindHint = n
   // coalesces with a scanned duplicate (the operator's response is
   // preserved when it does).
   const inputFindings = Array.isArray(input?.validationFindings) ? input.validationFindings : [];
-  const inputResponses = new Map();
-  for (const f of inputFindings) {
-    if (typeof f?.detail === 'string' && typeof f?.operatorResponse === 'string') {
-      inputResponses.set(f.detail, f.operatorResponse);
-    }
-  }
 
   /** @type {Map<string, object>} */
   const foldedFindings = new Map();
@@ -119,11 +113,26 @@ export async function runIntakePhases({ projectRoot, artefactPaths, kindHint = n
     if (!foldedFindings.has(k)) foldedFindings.set(k, f);
   }
 
+  // 0.28.2 (Codex review follow-up on #229): the response lookup is
+  // keyed by (kind, detail) too, so resolving one finding never
+  // silently marks a different-kind finding with the same detail as
+  // resolved. Previously the lookup was `detail` only and an
+  // answered `impliedButNotStated` leaked its response onto an
+  // unanswered `contradiction` with the same detail string.
+  const inputResponses = new Map();
+  for (const f of inputFindings) {
+    if (typeof f?.kind === 'string'
+      && typeof f?.detail === 'string'
+      && typeof f?.operatorResponse === 'string') {
+      inputResponses.set(foldKey(f), f.operatorResponse);
+    }
+  }
+
   const isoNow = now.toISOString();
   const findingsWithTimestamps = Array.from(foldedFindings.values()).map((f) => {
     const entry = { kind: f.kind, detail: f.detail, raisedAt: f.raisedAt ?? isoNow };
     if (f.kindDescription) entry.kindDescription = f.kindDescription;
-    const response = f.operatorResponse ?? inputResponses.get(f.detail) ?? input?.operatorResponse;
+    const response = f.operatorResponse ?? inputResponses.get(foldKey(f)) ?? input?.operatorResponse;
     if (typeof response === 'string' && response.length > 0) {
       entry.operatorResponse = response;
       entry.resolvedAt = f.resolvedAt ?? isoNow;

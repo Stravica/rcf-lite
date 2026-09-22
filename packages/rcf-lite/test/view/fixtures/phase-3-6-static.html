@@ -40324,13 +40324,13 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
 </div>
 <div class="tc" id="TC-191-submit-one-hit-comments">
   <p><strong>TC-191-submit-one-hit-comments</strong> - covers <a href="#AC-15701-2">AC-15701-2</a> <span class="status pending">pending</span></p>
-  <p>Cover AC-15701-2 (one-hit arm) via the CLI test: with matches returning one issue, submit calls ghIssueComment on that number and no ghIssueCreate.</p>
-  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: one-hit search calls gh issue comment on that number</code></p>
+  <p>Cover AC-15701-2 (one-hit verified arm, 0.28.2 #234) via the CLI test: with the fake returning one search match whose body carries the same fingerprint line, submit calls ghIssueGetBody to verify, then ghIssueComment on that number with the full report; no ghIssueCreate.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: a verified fingerprint match folds via comment; comment body carries the full report; stdout names the matched title</code></p>
 </div>
 <div class="tc" id="TC-191-submit-many-hit-comment-lowest">
   <p><strong>TC-191-submit-many-hit-comment-lowest</strong> - covers <a href="#AC-15701-2">AC-15701-2</a> <span class="status pending">pending</span></p>
-  <p>Cover AC-15701-2 (many-hit arm) via the CLI test: with three matches returning numbers 30/12/47, submit comments on #12 (lowest) and the body mentions #30 and #47.</p>
-  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: many-hit search comments on the lowest number and names the others</code></p>
+  <p>Cover AC-15701-2 (many verified matches arm, 0.28.2 #234) via the CLI test: with three matches whose bodies all carry the entry&#39;s fingerprint line, submit comments on the lowest number and the comment body carries the full report + mentions of the other numbers.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: many verified fingerprint matches fold on the lowest number and mention the others</code></p>
 </div>
 <div class="tc" id="TC-191-submit-search-unchecked">
   <p><strong>TC-191-submit-search-unchecked</strong> - covers <a href="#AC-15701-3">AC-15701-3</a> <span class="status pending">pending</span></p>
@@ -40341,10 +40341,20 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-191-submit-closed-reference</strong> - covers <a href="#AC-15701-3">AC-15701-3</a> <span class="status pending">pending</span></p>
   <p>Cover AC-15701-3 (closed-hit arm) via the CLI test: with open search empty and closed search returning #88, submit creates a new issue whose body carries &#39;Previously reported and closed as #88&#39;.</p>
   <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-3: closed-state hit produces a create with previously reported reference</code></p>
+</div>
+<div class="tc" id="TC-191-submit-fingerprint-mismatch-creates">
+  <p><strong>TC-191-submit-fingerprint-mismatch-creates</strong> - covers <a href="#AC-15701-2">AC-15701-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15701-2 (fingerprint-verification arm, 0.28.2 #234) via the CLI test: a search hit whose body carries a DIFFERENT fingerprint line is a non-match; submit falls through to create rather than comment.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: a search hit whose body carries a DIFFERENT fingerprint is a non-match; submit creates rather than comments</code></p>
+</div>
+<div class="tc" id="TC-191-submit-anchor-mismatch-creates">
+  <p><strong>TC-191-submit-anchor-mismatch-creates</strong> - covers <a href="#AC-15701-2">AC-15701-2</a> <span class="status pending">pending</span></p>
+  <p>Cover AC-15701-2 (refuse fold across differing anchor/target arm, 0.28.2 #234) via the CLI test: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments.</p>
+  <p><em>Test pointer:</em> <code>test/cli/feedback-submit.test.js::AC-15701-2: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-16T17:23:12Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-16T17:23:12Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-09-22T00:00:00Z&quot;,
   &quot;purpose&quot;: &quot;Cover AC-15701-2 (submit calls gh search + create/comment per the zero/one/many hit table) and AC-15701-3 (search unavailable falls through to create with dedupe: unchecked; closed-state hit stamps a previously reported reference into the create body). Slice 4 arm of US-15701.&quot;,
   &quot;testLevel&quot;: &quot;integration&quot;,
   &quot;acIds&quot;: [
@@ -40365,16 +40375,16 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     {
       &quot;id&quot;: &quot;TC-191-submit-one-hit-comments&quot;,
       &quot;acId&quot;: &quot;AC-15701-2&quot;,
-      &quot;description&quot;: &quot;Cover AC-15701-2 (one-hit arm) via the CLI test: with matches returning one issue, submit calls ghIssueComment on that number and no ghIssueCreate.&quot;,
+      &quot;description&quot;: &quot;Cover AC-15701-2 (one-hit verified arm, 0.28.2 #234) via the CLI test: with the fake returning one search match whose body carries the same fingerprint line, submit calls ghIssueGetBody to verify, then ghIssueComment on that number with the full report; no ghIssueCreate.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: one-hit search calls gh issue comment on that number&quot;
+      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: a verified fingerprint match folds via comment; comment body carries the full report; stdout names the matched title&quot;
     },
     {
       &quot;id&quot;: &quot;TC-191-submit-many-hit-comment-lowest&quot;,
       &quot;acId&quot;: &quot;AC-15701-2&quot;,
-      &quot;description&quot;: &quot;Cover AC-15701-2 (many-hit arm) via the CLI test: with three matches returning numbers 30/12/47, submit comments on #12 (lowest) and the body mentions #30 and #47.&quot;,
+      &quot;description&quot;: &quot;Cover AC-15701-2 (many verified matches arm, 0.28.2 #234) via the CLI test: with three matches whose bodies all carry the entry&#39;s fingerprint line, submit comments on the lowest number and the comment body carries the full report + mentions of the other numbers.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
-      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: many-hit search comments on the lowest number and names the others&quot;
+      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: many verified fingerprint matches fold on the lowest number and mention the others&quot;
     },
     {
       &quot;id&quot;: &quot;TC-191-submit-search-unchecked&quot;,
@@ -40389,6 +40399,20 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;Cover AC-15701-3 (closed-hit arm) via the CLI test: with open search empty and closed search returning #88, submit creates a new issue whose body carries &#39;Previously reported and closed as #88&#39;.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-3: closed-state hit produces a create with previously reported reference&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-191-submit-fingerprint-mismatch-creates&quot;,
+      &quot;acId&quot;: &quot;AC-15701-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-15701-2 (fingerprint-verification arm, 0.28.2 #234) via the CLI test: a search hit whose body carries a DIFFERENT fingerprint line is a non-match; submit falls through to create rather than comment.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: a search hit whose body carries a DIFFERENT fingerprint is a non-match; submit creates rather than comments&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-191-submit-anchor-mismatch-creates&quot;,
+      &quot;acId&quot;: &quot;AC-15701-2&quot;,
+      &quot;description&quot;: &quot;Cover AC-15701-2 (refuse fold across differing anchor/target arm, 0.28.2 #234) via the CLI test: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/cli/feedback-submit.test.js::AC-15701-2: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;

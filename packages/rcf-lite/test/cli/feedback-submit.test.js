@@ -189,8 +189,8 @@ test('AC-15901-1: submit --yes with zero-hit search creates each entry, marks su
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id1} -> created #101 https://github\\.com/Stravica/rcf-lite/issues/101`));
-  assert.match(r.stdout, new RegExp(`${id2} -> created #102 https://github\\.com/Stravica/rcf-lite/issues/102`));
+  assert.match(r.stdout, new RegExp(`${id1} -> created #101 \\([^)]+\\) https://github\\.com/Stravica/rcf-lite/issues/101`));
+  assert.match(r.stdout, new RegExp(`${id2} -> created #102 \\([^)]+\\) https://github\\.com/Stravica/rcf-lite/issues/102`));
   const entries = await readEntries(tmp);
   const byId = Object.fromEntries(entries.map((e) => [e.id, e]));
   assert.equal(byId[id1].status, 'submitted');
@@ -275,11 +275,51 @@ test('AC-15701-2: a search hit whose body carries a DIFFERENT fingerprint is a n
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id} -> created #229 https://github\\.com/Stravica/rcf-lite/issues/229`));
+  assert.match(r.stdout, new RegExp(`${id} -> created #229 \\([^)]+\\) https://github\\.com/Stravica/rcf-lite/issues/229`));
   const log = await fake.log();
   assert.ok(log.find((l) => l.name === 'ghIssueGetBody' && l.args.number === 228), 'body verification called');
   assert.ok(log.find((l) => l.name === 'ghIssueCreate'), 'create called');
   assert.equal(log.find((l) => l.name === 'ghIssueComment'), undefined, 'no fold on unverified fingerprint');
+});
+
+test('AC-15701-2: a fingerprint match against a candidate whose CORE target disagrees is refused; submit creates rather than comments (0.28.2 Codex follow-up)', async () => {
+  const tmp = await scaffoldReady();
+  const id = await addOne(tmp, 'target mismatch', { target: 'discover intake' });
+  const fp = fingerprint({
+    kind: 'core',
+    target: { ref: 'discover intake' },
+    anchor: 'REQ-155',
+    symptomClass: 'docs-mismatch',
+  });
+  // Candidate carries a matching fingerprint and anchor but a
+  // different target (verb path).
+  const body = [
+    '## Report body',
+    '',
+    '**Environment**',
+    '',
+    '| field | value |',
+    '|---|---|',
+    '| kind | core |',
+    '| blueprint | n/a |',
+    '| target | discover preflight |',
+    '| anchor | REQ-155 |',
+    '| symptom class | docs-mismatch |',
+    '| severity | minor |',
+    '',
+    `rcf-feedback-fingerprint: ${fp}`,
+    '',
+  ].join('\n');
+  const fake = await withFake(tmp, {
+    search: { matches: [{ number: 601, url: 'https://github.com/Stravica/rcf-lite/issues/601' }] },
+    issueBodies: { 601: body },
+    create: { url: 'https://github.com/Stravica/rcf-lite/issues/602', number: 602 },
+  });
+  const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
+  assert.equal(r.code, 0, r.stderr);
+  const log = await fake.log();
+  assert.ok(log.find((l) => l.name === 'ghIssueCreate'), 'target mismatch must fall through to create');
+  assert.equal(log.find((l) => l.name === 'ghIssueComment'), undefined, 'no fold across differing core target');
 });
 
 test('AC-15701-2: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments', async () => {
@@ -300,7 +340,7 @@ test('AC-15701-2: a fingerprint match against a candidate whose anchor disagrees
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id} -> created #502 https://github\\.com/Stravica/rcf-lite/issues/502`));
+  assert.match(r.stdout, new RegExp(`${id} -> created #502 \\([^)]+\\) https://github\\.com/Stravica/rcf-lite/issues/502`));
   const log = await fake.log();
   assert.ok(log.find((l) => l.name === 'ghIssueCreate'), 'create called on anchor mismatch');
   assert.equal(log.find((l) => l.name === 'ghIssueComment'), undefined, 'no fold on anchor mismatch');
@@ -352,7 +392,7 @@ test('AC-15701-3: search error falls through to create with dedupe:unchecked', a
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id} -> created #200 \\(dedupe unchecked\\) https://github\\.com/Stravica/rcf-lite/issues/200`));
+  assert.match(r.stdout, new RegExp(`${id} -> created #200 \\([^)]+, dedupe unchecked\\) https://github\\.com/Stravica/rcf-lite/issues/200`));
   const entries = await readEntries(tmp);
   const e = entries.find((x) => x.id === id);
   assert.equal(e.dedupe, 'unchecked');

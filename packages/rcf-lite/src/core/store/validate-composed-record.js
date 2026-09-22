@@ -25,14 +25,15 @@ import { validateDocument } from './validator.js';
  * @param {object} args.tree                     the walked tree (carries `manifest`)
  * @param {object} args.record                   the composed record to be written
  * @param {DryRunVerb} args.verb                 which verb is composing
- * @param {object[]} [args.extraRecords]          preflight-only: the composed opt-outs
+ * @param {object[]} [args.extraRecords]         preflight-only: the composed opt-outs
+ * @param {object} [args.options]                per-verb write options (e.g. `{ reset }` for uiBaselineInit)
  * @returns {import('../errors/index.js').RcfError | null}
  *   Returns the same shape `validateDocument` returns, so the CLI can
  *   forward the error to stderr as it would on the write path.
  */
-export function validateComposedRecord({ tree, record, verb, extraRecords = [] }) {
+export function validateComposedRecord({ tree, record, verb, extraRecords = [], options = {} }) {
   const manifest = tree?.manifest ?? {};
-  const nextManifest = buildNextManifest({ manifest, record, verb, extraRecords });
+  const nextManifest = buildNextManifest({ manifest, record, verb, extraRecords, options });
   return validateDocument({ doc: nextManifest, kind: 'manifest', filePath: 'rcf/manifest.json' });
 }
 
@@ -47,9 +48,10 @@ export function validateComposedRecord({ tree, record, verb, extraRecords = [] }
  * @param {object} args.record
  * @param {DryRunVerb} args.verb
  * @param {object[]} [args.extraRecords]
+ * @param {object} [args.options]
  * @returns {object}
  */
-export function buildNextManifest({ manifest, record, verb, extraRecords = [] }) {
+export function buildNextManifest({ manifest, record, verb, extraRecords = [], options = {} }) {
   const base = { ...(manifest ?? {}) };
   switch (verb) {
     case 'intake': {
@@ -69,11 +71,14 @@ export function buildNextManifest({ manifest, record, verb, extraRecords = [] })
       return { ...base, reviewAudit: [...existing, record] };
     }
     case 'uiBaselineInit': {
-      // Mirror writeUiBaselineRecord: prior uiBaseline moves into
-      // uiBaselineHistory, and the record replaces the top slot.
+      // Mirror writeUiBaselineRecord: on `--reset` the prior
+      // uiBaseline moves into uiBaselineHistory. Without --reset the
+      // prior is replaced in place. The dry-run path calls this
+      // helper without options and matches the reset=false branch.
       const next = { ...base };
       const prior = next.uiBaseline ?? null;
-      if (prior && prior.id !== record.id) {
+      const reset = Boolean(options && options.reset);
+      if (prior && reset) {
         const history = Array.isArray(next.uiBaselineHistory) ? next.uiBaselineHistory : [];
         next.uiBaselineHistory = [...history, prior];
       }

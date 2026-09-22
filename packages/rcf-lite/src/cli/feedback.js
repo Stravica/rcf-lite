@@ -1033,10 +1033,20 @@ async function buildRedactionContext(projectRoot) {
   } catch { /* no git or no remotes is fine */ }
 
   let allowHostsExt = [];
+  let allowExtensionsExt = [];
   try {
     const settings = JSON.parse(await readFile(resolve(projectRoot, 'rcf', 'feedback-settings.json'), 'utf8'));
     if (Array.isArray(settings?.redaction?.allowHosts)) {
       allowHostsExt = settings.redaction.allowHosts;
+    }
+    // 0.28.2 (Codex review follow-up on #233): the operator's
+    // per-project extension shortlist must reach the redactor the
+    // same way `allowHosts` does. Previously the CLI dropped
+    // `settings.redaction.allowExtensions` on the floor, so an
+    // operator adding `xyz` to keep `file.xyz` intact saw the fold
+    // fire in preview and submit.
+    if (Array.isArray(settings?.redaction?.allowExtensions)) {
+      allowExtensionsExt = settings.redaction.allowExtensions;
     }
   } catch { /* absent is fine */ }
   // Assemble the extended allow-list once so downstream callers can
@@ -1059,6 +1069,7 @@ async function buildRedactionContext(projectRoot) {
     operatorName,
     gitRemote: [...remotes].filter((r) => typeof r === 'string' && r.length > 0),
     allowHosts: allowHostsExt,
+    allowExtensions: allowExtensionsExt,
   };
 }
 
@@ -1421,11 +1432,17 @@ async function handleSubmit(argv, ctx) {
       }
 
       if (flags['dry-run']) {
-        const plan = matches.length === 1
-          ? `commented on #${matches[0].number} (fingerprint match${matches[0].title ? `: ${matches[0].title}` : ''})`
-          : matches.length > 1
-            ? `commented on #${matches.slice().sort((a, b) => a.number - b.number)[0].number} (fingerprint match, ${matches.length} verified)`
-            : 'created';
+        let plan;
+        if (matches.length === 1) {
+          const t = matches[0].title;
+          plan = `commented on #${matches[0].number} (fingerprint match${t ? `: ${t}` : ''})`;
+        } else if (matches.length > 1) {
+          const sorted = matches.slice().sort((a, b) => a.number - b.number);
+          const t = sorted[0]?.title;
+          plan = `commented on #${sorted[0].number} (fingerprint match${t ? `: ${t}` : ''}, ${matches.length} verified)`;
+        } else {
+          plan = `created (title: ${built.rendered.title})`;
+        }
         stdout.write(`${e.id} -> dry-run ${plan} (${dedupe === 'unchecked' ? 'unchecked' : matches.length === 0 ? 'new' : 'comment'})\n`);
         continue;
       }
@@ -1500,7 +1517,9 @@ async function handleSubmit(argv, ctx) {
         });
         // 0.28.2 (issue #234): row shape names the outcome and the
         // matched issue's title so a wrong fold is visible on the
-        // same line a human already sees.
+        // same line a human already sees. The create path prints the
+        // title of the entry we just filed; the comment path prints
+        // the matched candidate's title.
         const number = extractIssueNumberFromUrl(result.url);
         const numberSuffix = number ? `#${number}` : '';
         if (dedupe === 'comment') {
@@ -1509,9 +1528,9 @@ async function handleSubmit(argv, ctx) {
           const foldTail = matchedTitle ? `: ${matchedTitle}` : '';
           stdout.write(`${e.id} -> commented on ${numberSuffix} (fingerprint match${foldTail}) ${result.url}\n`);
         } else if (dedupe === 'unchecked') {
-          stdout.write(`${e.id} -> created ${numberSuffix} (dedupe unchecked) ${result.url}\n`);
+          stdout.write(`${e.id} -> created ${numberSuffix} (${built.rendered.title}, dedupe unchecked) ${result.url}\n`);
         } else {
-          stdout.write(`${e.id} -> created ${numberSuffix} ${result.url}\n`);
+          stdout.write(`${e.id} -> created ${numberSuffix} (${built.rendered.title}) ${result.url}\n`);
         }
         summary.submitted += 1;
       } else {
@@ -1888,19 +1907,29 @@ function candidateMatchesEntry(body, entry) {
   const bodyAnchor = marker('anchor');
   const bodyKind = marker('kind');
   const bodyBlueprint = marker('blueprint');
+  const bodyTarget = marker('target');
   const entryAnchor = (entry?.anchor ?? '-').trim();
   const entryKind = (entry?.kind ?? 'core').trim();
+  const entryTargetRef = typeof entry?.target?.ref === 'string' ? entry.target.ref.trim() : '';
   const entryBlueprintSlug = entry?.kind === 'blueprint'
     ? String(entry?.target?.effectiveSlug ?? entry?.target?.ref ?? '').trim()
     : null;
   if (bodyAnchor !== null && bodyAnchor.toUpperCase() !== entryAnchor.toUpperCase()) return false;
   if (bodyKind !== null && bodyKind.toLowerCase() !== entryKind.toLowerCase()) return false;
-  if (entryBlueprintSlug && bodyBlueprint !== null) {
+  if (entryBlueprintSlug && bodyBlueprint !== null && bodyBlueprint !== '-') {
     // The blueprint cell carries the slug as its first whitespace-
     // separated token, followed by an optional version and library
     // trail. Compare only the head.
     const head = bodyBlueprint.split(/\s+/)[0];
     if (head && head !== entryBlueprintSlug) return false;
+  }
+  // 0.28.2 (Codex review follow-up on #234): core entries also carry
+  // a "target" line on the environment table. Refuse to fold across a
+  // differing target (verb path) even when kind and anchor agree,
+  // matching the amended AC-15701-2 anchor-and-target rule for both
+  // kinds.
+  if (entryKind.toLowerCase() === 'core' && entryTargetRef && bodyTarget !== null && bodyTarget !== '-') {
+    if (bodyTarget !== entryTargetRef) return false;
   }
   return true;
 }
