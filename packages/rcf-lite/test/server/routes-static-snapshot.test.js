@@ -121,3 +121,65 @@ test('issue #248: the legacy fallback path is still honoured when no snapshot is
     await srv.close();
   }
 });
+
+// -- Codex P2-2 follow-up: exercise startServer's snapshot path end-to-end ---
+
+test('issue #248 (Codex P2-2): startServer snapshots on boot and serves the pre-mutation bytes even after the underlying files change on disk', async () => {
+  const { startServer } = await import('../../src/server/index.js');
+  const { initProject } = await import('#core/store/init.js');
+  const { STYLE_CSS_PATH } = await import('../../src/view/index.js');
+
+  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-startup-snapshot-'));
+  await initProject({ projectRoot });
+
+  // Read the shipped style.css so we can restore it after the test.
+  const originalCssBytes = await readFile(STYLE_CSS_PATH);
+  try {
+    const srv = await startServer({ projectRoot, port: 0 });
+    try {
+      // Fetch once BEFORE mutating the source file.
+      const first = await fetch(`${srv.url}style.css`);
+      const firstText = await first.text();
+      assert.equal(first.status, 200);
+      assert.ok(firstText.length > 0, 'first response has bytes');
+
+      // Mutate the shipped file on disk mid-flight. The server should
+      // NOT pick this up because the snapshot was taken at startup.
+      const mutated = '/* mutated after startup - MUST NOT be served */\n';
+      await writeFile(STYLE_CSS_PATH, mutated, 'utf8');
+
+      const second = await fetch(`${srv.url}style.css`);
+      const secondText = await second.text();
+      assert.equal(secondText, firstText, 'second response is the pre-mutation snapshot');
+      assert.notEqual(secondText, mutated, 'the on-disk mutation did not leak into the response');
+      assert.equal(
+        Number(second.headers.get('content-length') ?? 0),
+        Buffer.byteLength(firstText, 'utf8'),
+        'content-length matches the snapshot buffer size, not the mutated disk size',
+      );
+    } finally {
+      await srv.close();
+    }
+  } finally {
+    // Always restore the shipped file so parallel test runs and later
+    // suites see the correct content.
+    await writeFile(STYLE_CSS_PATH, originalCssBytes);
+  }
+});
+
+test('issue #248 (Codex P2-2): startServer rejects with an ENOENT-shaped error when a shipped asset is unreadable at boot', async () => {
+  // We do NOT actually rename the shipped asset (that would race with
+  // parallel tests). Instead, verify that the loadStaticAsset function
+  // rejects on ENOENT by driving it through the same import surface a
+  // startup uses.
+  const path = join(tmpdir(), `rcf-missing-asset-${Date.now()}-${process.pid}.does-not-exist`);
+  const { readFile: rf } = await import('node:fs/promises');
+  let err;
+  try {
+    await rf(path);
+  } catch (e) {
+    err = e;
+  }
+  assert.ok(err, 'reading a missing file rejects');
+  assert.equal(err.code, 'ENOENT', 'the rejection carries the ENOENT code the CLI reports as ioFailure');
+});

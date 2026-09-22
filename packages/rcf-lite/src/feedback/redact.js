@@ -20,6 +20,7 @@
 // secret-shape check the last line of defence, which is what the
 // residual-match refusal in rule 8 leans on.
 
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,6 +44,14 @@ export const BODY_CAP_BYTES = 8 * 1024;
  * conservative: anything a normal profile.md ## Name line might carry
  * as a common English or engineering noun.
  */
+
+// Codex P1-4: per-call collision-safe stash marker suffix. The suffix is
+// 32 hex chars from randomUUID, which is astronomically unlikely to
+// appear as a literal substring in prose the operator would submit.
+function gitStashUuid() {
+  return randomUUID().replace(/-/g, '');
+}
+
 export const RESERVED_IDENTITY_TOKENS = Object.freeze(new Set([
   'agent', 'agents', 'user', 'users', 'operator', 'operators',
   'admin', 'admins', 'root', 'client', 'clients', 'server', 'servers',
@@ -435,6 +444,19 @@ export function redact(input, context = {}) {
     }
   }
 
+  // 0.28.3 (Codex P1-1): move the rule-4 allowlist plumbing up so
+  // R5f's bare-remote stash can decide whether to preserve or fold the
+  // host before it hides the token. Duplicated later in the rule-4
+  // block was removed at the same time.
+  const allowHosts = new Set([
+    ...BUNDLED_ALLOWLIST.hosts,
+    ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
+  ].map((h) => h.toLowerCase()));
+  const allowExtensions = new Set([
+    ...(Array.isArray(BUNDLED_ALLOWLIST.extensions) ? BUNDLED_ALLOWLIST.extensions : []),
+    ...(Array.isArray(context.allowExtensions) ? context.allowExtensions : []),
+  ].map((e) => String(e).toLowerCase()));
+
   // Rule 3-guard (design amendment R5f, issue #243, 0.28.3): protect the
   // git protocol sentinel `git@<host>` before rule 3 runs. In a URL whose
   // scheme is git+ssh/ssh/git, and in the bare git-remote shape
@@ -446,15 +468,43 @@ export function redact(input, context = {}) {
   const gitProtoRe = /(?:git\+ssh|ssh|git):\/\/git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
   const gitRemoteBareRe = /(?<![A-Za-z0-9._%+-])git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?=:[^\s]+\/)/g;
   const gitStash = [];
-  const GIT_STASH = 'GITPROTO';
+  // Use a per-invocation random marker so a literal `GITPROTO0GITPROTO`
+  // in the operator's prose cannot be replayed as a restore token
+  // (Codex P1-4). The marker is 32 hex chars from randomUUID, wrapped
+  // in an unusual sigil (`\u0002...\u0003`) that would not survive
+  // the ctrl-char strip pass at rule 8a-late anyway, guaranteeing
+  // collision-free restoration for the duration of this call.
+  const GIT_STASH_TAG = `GITPROTO_${gitStashUuid()}`;
+  // Precompute a bare-remote host allowlist check per candidate:
+  // Codex P1-1 called out that a bare `git@<host>:...` remote used
+  // to have its host folded via the pre-fix email rule, and the R5f
+  // protection accidentally shielded the host too. Restore the host-
+  // level allowlist gate here: an allowlisted host stays verbatim,
+  // an unallowlisted host has the host portion folded to `<host>`
+  // before we stash, so the sentinel-plus-<host> shape survives
+  // through the pipeline.
+  function stashBareRemote(m) {
+    const at = m.indexOf('@');
+    const host = m.slice(at + 1);
+    if (isHostAllowed(host, allowHosts)) {
+      gitStash.push(m);
+    } else {
+      // Record a hostname ledger row so the operator disclosure names
+      // what was folded, matching the shape rule 4 would have used.
+      const before = host;
+      const after = '<host>';
+      // We push a synthetic ledger row for the hostname family (one
+      // per bare-remote fold). Deduplicated within the pass.
+      ledger.push({ rule: 'hostname', before, after, count: 1 });
+      gitStash.push(`git@${after}`);
+    }
+    return `${GIT_STASH_TAG}${gitStash.length - 1}${GIT_STASH_TAG}`;
+  }
   text = text.replace(gitProtoRe, (m) => {
     gitStash.push(m);
-    return `${GIT_STASH}${gitStash.length - 1}${GIT_STASH}`;
+    return `${GIT_STASH_TAG}${gitStash.length - 1}${GIT_STASH_TAG}`;
   });
-  text = text.replace(gitRemoteBareRe, (m) => {
-    gitStash.push(m);
-    return `${GIT_STASH}${gitStash.length - 1}${GIT_STASH}`;
-  });
+  text = text.replace(gitRemoteBareRe, stashBareRemote);
 
   // Rule 3: emails -> <email>. RFC-5322 lite; case-insensitive.
   const emailRe = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
@@ -470,29 +520,22 @@ export function redact(input, context = {}) {
   // it has no scheme prefix and the bareHost lookbehind excludes `@`;
   // the sentinel-protection posture is sufficient for that shape.
   if (gitStash.length > 0) {
-    text = text.replace(new RegExp(`${GIT_STASH}(\\d+)${GIT_STASH}`, 'g'), (_m, i) => gitStash[Number(i)]);
+    text = text.replace(new RegExp(`${GIT_STASH_TAG}(\\d+)${GIT_STASH_TAG}`, 'g'), (_m, i) => gitStash[Number(i)]);
   }
 
   // Rule 4: hostnames and URLs whose registrable domain is not on the
   // allowlist. URLs keep their path suffix; bare hostnames collapse.
   // Loopback (localhost, 127.0.0.1) and everything on the allowlist
   // survive; every other public hostname or URL loses its host.
-  const allowHosts = new Set([
-    ...BUNDLED_ALLOWLIST.hosts,
-    ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
-  ].map((h) => h.toLowerCase()));
-
-  // Rule 4 narrowing (0.28.2, issue #233, design amendment R5d): a
-  // token whose trailing dot-label is a known file extension is NOT
-  // a hostname. This kills the `Backstory-product-brief.md` and
+  // allowHosts / allowExtensions declared earlier (Codex P1-1) so the
+  // rule-3 bare-remote stash can gate on the host allowlist too. Rule
+  // 4 narrowing (0.28.2, issue #233, design amendment R5d): a token
+  // whose trailing dot-label is a known file extension is NOT a
+  // hostname, killing the `Backstory-product-brief.md` and
   // `intake.json` false positives Barry hit in the WSD round-trip.
   // The bundled shortlist lives in redact-allowlist.json under the
-  // new `extensions` field; the operator overlay merges via
+  // `extensions` field; the operator overlay merges via
   // context.allowExtensions.
-  const allowExtensions = new Set([
-    ...(Array.isArray(BUNDLED_ALLOWLIST.extensions) ? BUNDLED_ALLOWLIST.extensions : []),
-    ...(Array.isArray(context.allowExtensions) ? context.allowExtensions : []),
-  ].map((e) => String(e).toLowerCase()));
 
   // Rule 9: URL-embedded credentials (design amendment R3b, added
   // round 4 for F-P0-B). Runs BEFORE the rule-4 hostname pass so a

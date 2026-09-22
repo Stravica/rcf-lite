@@ -1070,18 +1070,37 @@ async function buildRedactionContext(projectRoot) {
   let disabledReason = 'no-profile';
   try {
     const profile = await readFile(resolve(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
-    const m = profile.match(/^##\s+Name\s*\n([^\n]+)/m);
-    if (!m) {
+    // Codex P1-2: extract the Name-section body up to the next `## `
+    // heading or EOF, using ONLY horizontal whitespace on the heading
+    // line so an empty section (`## Name\n\n## Role\n...`) does not
+    // greedy-match into the next section's heading. Bind the search
+    // to the first `## Name` header only.
+    // JS regex has no `\Z`; use a lookahead for the next `## ` header
+    // OR end of string. `[\s\S]*?` is lazy so it stops at the first
+    // matching lookahead.
+    const nameSection = profile.match(/^##[ \t]+Name[ \t]*\n([\s\S]*?)(?=^##[ \t]+|$(?![\s\S]))/m);
+    if (!nameSection) {
       disabledReason = 'no-name-line';
     } else {
-      const n = m[1].trim();
-      if (!n) {
+      // The first non-empty non-comment line inside the Name section is
+      // the operator's identity. Strip whitespace and leading/trailing
+      // markdown emphasis so a shipped placeholder like
+      // `_(who you are; how you want the agent to address you)_` is
+      // seen as text, not folded as a name token.
+      const nonEmpty = nameSection[1].split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+      const first = nonEmpty[0];
+      if (!first) {
         disabledReason = 'blank-name';
-      } else if (/placeholder|todo|your name/i.test(n)) {
+      } else if (/^_\(.*\)_$/i.test(first) || /placeholder|todo|your name/i.test(first) || /^_.*(who you are|how you want).*_$/i.test(first)) {
+        // Codex P1-3: recognise the shipped seed placeholder shape
+        // `_(who you are; how you want the agent to address you)_`
+        // as a placeholder so the untouched generated profile emits
+        // the disabled-folding warning rather than folding the
+        // placeholder text as a name.
         disabledReason = 'placeholder';
       } else {
-        operatorName = n;
-        const rawTokens = n.split(/\s+/);
+        operatorName = first;
+        const rawTokens = first.split(/\s+/);
         const foldable = rawTokens.filter((t) => t.length > 3 && !RESERVED_IDENTITY_TOKENS.has(t.toLowerCase()));
         if (foldable.length === 0) {
           disabledReason = 'stopword-only';

@@ -135,7 +135,10 @@ test('AC-15601-6 R5f (issue #243): a real email in surrounding prose still folds
 test('AC-15601-6 R5f (issue #243): a git+ssh URL with a non-allowlisted host has its host folded by the bare-host rule after the sentinel is protected', () => {
   const body = 'clone ssh://git@example.internal/owner/repo.git for the private mirror';
   const { text } = redact(body, {});
-  // The git@ sentinel is preserved; the host is folded via rule 4 bare-host.
+  // The git@ sentinel is preserved by the R5f stash; the host is folded
+  // by the extended rule 4 URL matcher (which now covers ssh/git+ssh/git
+  // schemes with optional userinfo), not by the bare-host regex whose
+  // lookbehind excludes @-preceded tokens.
   assert.match(text, /git@<host>/, 'sentinel preserved and host folded');
   assert.doesNotMatch(text, /example\.internal/);
 });
@@ -465,3 +468,37 @@ test('F-slice-2-06: double-space and terminal spaced dirs fold cleanly', () => {
   assert.match(term, /end here/, 'trailing sentence must survive');
 });
 
+
+test('Codex P1-1 (issue #243 follow-up): a bare git remote with a non-allowlisted host folds the host to <host>', () => {
+  // Before the R5f protection, the email rule folded the whole
+  // `git@private.example` span, which happened to hide the host too.
+  // After R5f the sentinel is preserved and the host allowlist gates
+  // whether the host survives.
+  const { text, ledger } = redact('remote git@private.example:owner/repo.git added', {});
+  assert.match(text, /git@<host>:owner\/repo\.git/, 'sentinel preserved; host folded');
+  assert.doesNotMatch(text, /private\.example/);
+  const row = ledger.find((r) => r.rule === 'hostname');
+  assert.ok(row, 'hostname ledger row present');
+});
+
+test('Codex P1-1: a bare git remote with an allowlisted host survives verbatim', () => {
+  const { text, ledger } = redact('remote git@github.com:owner/repo.git added', {});
+  assert.match(text, /git@github\.com:owner\/repo\.git/);
+  const row = ledger.find((r) => r.rule === 'hostname');
+  assert.strictEqual(row, undefined);
+});
+
+test('Codex P1-4 (issue #243 follow-up): a literal GITPROTO marker in prose does not corrupt output on restore', () => {
+  // Before the collision-safe marker fix, a legitimate GITPROTO<n>GITPROTO
+  // token in prose was restored as `gitStash[n]` which was undefined,
+  // silently corrupting the output. The per-invocation randomUUID marker
+  // makes such a collision astronomically unlikely.
+  const body = 'benign token GITPROTO0GITPROTO in prose; and clone ssh://git@github.com/owner/repo.git';
+  const { text } = redact(body, {});
+  // The exact byte we care about: the input's GITPROTO0GITPROTO must
+  // survive unchanged (the secret-token rule might treat the whole
+  // "benign token GITPROTO..." run as a shape hit; that is fine and
+  // the assertion is only that the output is not the corrupt
+  // "undefined" string the old code produced).
+  assert.doesNotMatch(text, /undefined/, 'no undefined tokens in output');
+});

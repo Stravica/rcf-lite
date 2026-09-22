@@ -11,7 +11,7 @@
 // on top; the server itself does not `process.exit`.
 
 import { createServer } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { LIVE_CLIENT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
@@ -53,8 +53,13 @@ import { createSseHub } from './sse.js';
  * @param {string} contentType
  */
 async function loadStaticAsset(path, contentType) {
-  const [buffer, s] = await Promise.all([readFile(path), stat(path)]);
-  return { buffer, size: s.size, contentType };
+  // Codex P2-1: derive size from the actual captured buffer, not from
+  // a parallel stat that could snapshot a different revision if the
+  // file is being replaced concurrently. A wrong content-length header
+  // would cause truncation or mis-alignment for the entire server
+  // lifetime because we cache both values together.
+  const buffer = await readFile(path);
+  return { buffer, size: buffer.length, contentType };
 }
 
 export async function startServer(args) {

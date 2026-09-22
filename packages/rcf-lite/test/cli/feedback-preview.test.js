@@ -270,3 +270,45 @@ test('AC-15601-6 R5g (issue #246): blank ## Name line emits a visible stderr war
   assert.equal(res.code, 0);
   assert.match(res.stderr, /operator-identity: .* is empty/);
 });
+
+// -- Codex P1-2 (issue #246 follow-up): a blank Name followed by ## Role
+// must not silently promote "## Role" to the operator identity ---
+
+test('Codex P1-2 (issue #246): a blank ## Name followed by ## Role emits the disabled warning; does not treat the next heading as the identity', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  // The exact layout the identity-seed template ships (## Name empty,
+  // ## Role next). Before the fix, the Name capture crossed the blank
+  // line and pulled `## Role` in as the identity; now the extractor
+  // scopes to the Name section, so blank-Name emits its warning.
+  await writeFile(
+    join(root, 'rcf', '.identity', 'profile.md'),
+    '## Name\n\n## Role\n\nOperator lead\n',
+    'utf8',
+  );
+  await addCore(root, 'title', 'body about Role and Operator');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is empty/);
+  // Ensure the words "Role" and "Operator" are NOT folded by identity.
+  assert.match(res.stdout, /Role/);
+  assert.match(res.stdout, /Operator/);
+});
+
+// -- Codex P1-3 (issue #246 follow-up): the shipped identity-seed
+// placeholder must trip the disabled warning, not become the identity ---
+
+test('Codex P1-3 (issue #246): the shipped identity-seed placeholder is recognised as placeholder, not as a name', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  // Verbatim from src/setup/identity-seed.js line 48.
+  await writeFile(
+    join(root, 'rcf', '.identity', 'profile.md'),
+    '## Name\n\n_(who you are; how you want the agent to address you)_\n\n## Role\n',
+    'utf8',
+  );
+  await addCore(root, 'title', 'body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is a placeholder/);
+});
