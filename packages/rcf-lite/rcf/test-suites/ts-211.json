@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-09-21T18:46:16.398Z",
+  "updatedAt": "2026-09-21T18:46:16.604Z",
+  "purpose": "Cover the collapsed-by-default buckets, jump-nav rail, per-status mini counts, expand/collapse-all and open-bucket hash restore for AC-17006-1.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17006-1"
+  ],
+  "id": "TS-211",
+  "usId": "US-17006",
+  "title": "Product Map interaction model",
+  "testCases": [
+    {
+      "id": "TC-211-interaction-model-buckets",
+      "acId": "AC-17006-1",
+      "description": "Every bucket renders as a collapsed <details class=pm-bucket> with a per-status mini row and a jump-nav chip row per grouping.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map buckets are <details class=\"pm-bucket\"> collapsed by default with a per-status mini row (AC-17006-1)"
+    }
+  ],
+  "status": "draft"
+}

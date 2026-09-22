@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T15:38:14.226Z",
-  "updatedAt": "2026-09-06T15:38:14.250Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "category": "functional",
   "domain": "application",
   "priority": "must",
@@ -65,5 +65,8 @@
         "match": "form"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:applications-shelf"
+  ]
 }

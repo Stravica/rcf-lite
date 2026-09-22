@@ -21,9 +21,10 @@ async function renderLive() {
   return { model, html: renderPage(model) };
 }
 
-test('tab bar carries four buttons in the expected order (D2)', async () => {
+test('tab bar carries five buttons in the expected order (D2 + Product Map)', async () => {
   const { html } = await renderLive();
-  const order = ['overview', 'requirements', 'architecture', 'build'];
+  // Product Map (REQ-170, w-2026-09-21-dave-008, d-020) added the fifth tab.
+  const order = ['overview', 'product-map', 'requirements', 'architecture', 'build'];
   let lastIdx = -1;
   for (const name of order) {
     const idx = html.indexOf(`data-tab="${name}"`);
@@ -35,12 +36,13 @@ test('tab bar carries four buttons in the expected order (D2)', async () => {
 
 test('exactly one tabpanel is visible by default (Overview)', async () => {
   const { html } = await renderLive();
-  const panelMatches = [...html.matchAll(/<section id="tab-(\w+)" role="tabpanel"([^>]*)>/g)];
+  const panelMatches = [...html.matchAll(/<section id="tab-([\w-]+)" role="tabpanel"([^>]*)>/g)];
   const visible = panelMatches.filter((m) => !/hidden/.test(m[2]));
   const hidden = panelMatches.filter((m) => /hidden/.test(m[2]));
   assert.equal(visible.length, 1);
   assert.equal(visible[0][1], 'overview');
-  assert.equal(hidden.length, 3);
+  // 5 top-level tabpanels total; 4 hidden by default (product-map is one).
+  assert.equal(hidden.length, 4);
 });
 
 test('Requirements tab contains the REQ drill-down as doc-details', async () => {

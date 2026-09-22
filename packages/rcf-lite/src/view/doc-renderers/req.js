@@ -18,11 +18,19 @@ import {
  * @param {string|undefined} ctx.raw
  * @param {import('#core/errors').RcfError[]} [ctx.errors]
  * @param {string|undefined} [ctx.subdiagram]
+ * @param {string|undefined} [ctx.idPrefix] - prefix prepended to every emitted
+ *   id/anchor so the same REQ can be rendered under multiple Product Map
+ *   buckets without duplicating ids. Empty when rendered from the
+ *   Requirements tab so its anchors stay canonical.
+ * @param {boolean} [ctx.suppressRawJson] - when true, the raw-JSON disclosure
+ *   is not emitted (Product Map compact cards; the disclosure stays on
+ *   the Requirements tab). AC-17007-1 payload weight.
  * @returns {string}
  */
 export function renderReq(req, ctx) {
   if (!req) return '';
-  const anchor = anchorIdFor(req.reqId ?? 'REQ');
+  const prefix = ctx.idPrefix ?? '';
+  const anchor = `${prefix}${anchorIdFor(req.reqId ?? 'REQ')}`;
   const broken = ctx.errors?.length ? brokenBanner(ctx.errors) : '';
   const subdiagram = ctx.subdiagram
     ? `<section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">${escapeHtml(ctx.subdiagram)}</pre></section>`
@@ -38,6 +46,6 @@ export function renderReq(req, ctx) {
   ${fieldPara('Rationale', req.rationale)}
   ${fieldList('Tags', req.tags)}
   ${subdiagram}
-  ${rawJsonDisclosure(ctx.raw, req, req.reqId)}
+  ${ctx.suppressRawJson ? '' : rawJsonDisclosure(ctx.raw, req, req.reqId, prefix)}
 </article>`.trim();
 }

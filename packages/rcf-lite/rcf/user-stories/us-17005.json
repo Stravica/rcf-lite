@@ -1,0 +1,22 @@
+{
+  "usId": "US-17005",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: capability grouping",
+  "description": "User story under REQ-170. a product reader thinking in capabilities rather than technical shape a capability grouping that reads capability:<slug> entries from REQ.tags[] and buckets requirements per capability",
+  "asA": "a product reader thinking in capabilities rather than technical shape",
+  "iWant": "a capability grouping that reads capability:<slug> entries from REQ.tags[] and buckets requirements per capability",
+  "soThat": "I can see the product as a set of capabilities and drill into each capability's REQs, stories and ACs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17005-1",
+      "description": "The capability grouping enumerates one bucket per distinct capability:<slug> value present on any REQ across the tree. A REQ carrying multiple capability tags appears under each. REQs whose tags carry no capability:<slug> entry are collected under an \"Unclassified\" bucket. Slugs are rendered as their kebab form in the heading; named capability buckets are ordered by REQ count desc, then alphabetically, and the Unclassified bucket is always pinned last.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:43:06.511Z"
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T19:54:01.170Z",
-  "updatedAt": "2026-09-07T20:18:17.597Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "The applying project registers a token-required guard at every elicited surface. A submit whose payload lacks the Cf-Turnstile-Response field is rejected with 400 before any downstream handler runs. The refusal body carries a stable error-code, not the sitekey.",
   "reqId": "REQ-092",
   "prdId": "PRD-001",
@@ -28,5 +28,8 @@
         "match": "token"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:edge-security"
+  ]
 }

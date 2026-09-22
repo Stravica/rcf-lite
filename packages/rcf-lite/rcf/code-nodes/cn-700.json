@@ -1,0 +1,23 @@
+{
+  "cnId": "CN-700",
+  "path": "src/view/product-map.js",
+  "title": "Product Map re-bucketing over the review-surface tree model",
+  "description": "Pure functions groupByShape, groupByComponent, groupByTraceCoverage, groupByCapability, groupByBlueprint plus the panel renderer that composes them. No schema change; consumes shapeClassification.shapes[], usByTacId, tsByAcId/tcsByAcId, REQ.tags[] for capability:<slug> tags, and manifest.blueprints[].contributions[] for blueprint attribution (fallback: reqId kebab-slug prefix). Emits a pm-blueprint-badge on every REQ row an applied blueprint contributed.",
+  "implementsAcIds": [
+    "AC-17001-1",
+    "AC-17001-2",
+    "AC-17002-1",
+    "AC-17003-1",
+    "AC-17004-1",
+    "AC-17005-1",
+    "AC-17006-1",
+    "AC-17008-1"
+  ],
+  "dependencies": [
+    "CN-017"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T11:59:39Z"
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T16:49:12.954Z",
-  "updatedAt": "2026-09-07T17:14:20.211Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-086",
   "prdId": "PRD-001",
   "title": "T-4 application-admin-console v1.1.0 minor: consume zeroTrustGate optionally, replacing the local sign-in form with an Access-gated surface when the capability is applied",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T16:49:12.990Z"
-  }
+  },
+  "tags": [
+    "capability:edge-security"
+  ]
 }

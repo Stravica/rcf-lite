@@ -780,3 +780,381 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
   border-radius: 4px;
 }
 #rcf-scope-banner a { color: #b03a2e; text-decoration: underline; }
+
+/* --------------------------------------------------------------------
+ * Product Map tab (REQ-170, US-17001..17007)
+ *
+ * Controls, jump nav, bucket cards, status mini pills, empty rollup.
+ * Language is the viewer's existing indigo + rounded + soft-shadow
+ * tokens; no new palette entries, so light and dark stay coherent. The
+ * layout is single-column at the max page width the viewer uses
+ * elsewhere (80rem); mobile is not the target (never breaks at 1024px).
+ * -------------------------------------------------------------------- */
+
+.pm-controls {
+  position: sticky;
+  top: 3.25rem; /* below the sticky nav.tabs */
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.6rem 0.9rem;
+  margin: 0 0 1.1rem;
+  background: rgba(253, 253, 253, 0.9);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.pm-group-tabs {
+  display: inline-flex;
+  gap: 0.15rem;
+  padding: 0.2rem;
+  background: var(--colour-surface);
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-md);
+}
+
+.pm-group-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--colour-muted);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.pm-group-btn:hover {
+  color: var(--colour-heading);
+  background: var(--colour-bg);
+}
+
+.pm-group-btn[aria-selected="true"] {
+  background: var(--colour-bg);
+  color: var(--colour-heading);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--colour-border);
+}
+
+.pm-group-btn:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 2px;
+}
+
+.pm-status-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--colour-muted);
+  font-size: 0.85rem;
+}
+
+.pm-status-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-sm);
+  background: var(--colour-bg);
+  padding: 0.35rem 2rem 0.35rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--colour-heading);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'%3E%3Cpath fill='%236b7280' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.55rem center;
+}
+
+.pm-status-select:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 2px;
+}
+
+.pm-bulk {
+  display: inline-flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.pm-bulk-btn {
+  appearance: none;
+  border: 1px solid var(--colour-border);
+  background: var(--colour-bg);
+  color: var(--colour-muted);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.pm-bulk-btn:hover {
+  color: var(--colour-heading);
+  background: var(--colour-accent-subtle);
+  border-color: var(--colour-accent-subtle);
+}
+
+/* Grouping heading and jump nav */
+.pm-group-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--colour-muted);
+  margin: 0.5rem 0 0.75rem;
+}
+
+.pm-jump-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 1rem;
+  background: var(--colour-surface);
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-md);
+}
+
+.pm-jump-chip {
+  appearance: none;
+  border: 1px solid var(--colour-border);
+  background: var(--colour-bg);
+  color: var(--colour-heading);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  max-width: 22ch;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.pm-jump-chip:hover {
+  background: var(--colour-accent-subtle);
+  border-color: #c7d2fe;
+  color: var(--colour-accent-hover);
+}
+
+.pm-jump-chip .pm-jump-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pm-jump-chip .pm-jump-count {
+  color: var(--colour-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+}
+
+.pm-jump-chip:focus-visible {
+  outline: 2px solid var(--colour-accent);
+  outline-offset: 2px;
+}
+
+/* Buckets: <details class="pm-bucket"> */
+details.pm-bucket {
+  border: 1px solid var(--colour-border);
+  border-radius: var(--radius-md);
+  background: var(--colour-bg);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 0.6rem;
+  transition: box-shadow var(--t-med), border-color var(--t-med);
+}
+
+details.pm-bucket:hover { border-color: var(--colour-border-strong); }
+details.pm-bucket[open] { box-shadow: var(--shadow-md); }
+
+details.pm-bucket > summary.pm-bucket-heading {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.65rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: var(--radius-md);
+  color: var(--colour-heading);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+details.pm-bucket > summary.pm-bucket-heading::-webkit-details-marker { display: none; }
+
+/* Custom chevron matching the doc-details drilldowns */
+details.pm-bucket > summary.pm-bucket-heading::before {
+  content: '';
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 2px solid var(--colour-muted);
+  border-bottom: 2px solid var(--colour-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--t-fast);
+  flex-shrink: 0;
+}
+
+details.pm-bucket[open] > summary.pm-bucket-heading::before {
+  transform: rotate(45deg);
+}
+
+details.pm-bucket[open] > summary.pm-bucket-heading {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: 1px solid var(--colour-border);
+}
+
+.pm-bucket-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pm-bucket-count {
+  color: var(--colour-muted);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-bucket-anchor {
+  display: none;
+}
+
+.pm-mini-row {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.pm-mini {
+  display: inline-block;
+  min-width: 1.3rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--colour-muted);
+  background: var(--colour-surface-2);
+  border: 1px solid var(--colour-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.pm-mini-approved { color: #065f46; background: #d1fae5; border-color: #a7f3d0; }
+.pm-mini-review { color: #0c4a6e; background: #e0f2fe; border-color: #bae6fd; }
+.pm-mini-draft { color: var(--colour-muted); background: var(--colour-surface); border-color: var(--colour-border); }
+.pm-mini-needsRevision { color: var(--colour-broken-text); background: var(--colour-broken-bg); border-color: var(--colour-broken-border); }
+.pm-mini-superseded { color: var(--colour-subtle); background: var(--colour-surface); border-color: var(--colour-border); }
+
+.pm-bucket-body {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.pm-bucket-body .pm-tad-root { margin-bottom: 0.65rem; }
+
+.pm-bucket-empty {
+  color: var(--colour-muted);
+  font-size: 0.85rem;
+}
+
+/* Empty-under-filter rollup */
+.pm-empty-roll {
+  margin-bottom: 0.75rem;
+}
+.pm-empty-toggle {
+  appearance: none;
+  border: 1px dashed var(--colour-border-strong);
+  background: var(--colour-surface);
+  color: var(--colour-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pm-empty-toggle:hover {
+  color: var(--colour-heading);
+  background: var(--colour-accent-subtle);
+}
+
+/* When active grouping is in hide-empty mode, hide empty buckets */
+.pm-group.pm-hide-empty details.pm-bucket[data-pm-empty-under-filter="true"] {
+  display: none;
+}
+
+/* Loading state */
+.pm-group[data-pm-loading="true"] .pm-jump-nav::after {
+  content: 'Loading grouping...';
+  color: var(--colour-muted);
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+/* Compact spacing for nested pm-req cards inside a bucket body */
+.pm-bucket-body details.doc-req-wrap.pm-req { margin-bottom: 0.5rem; }
+.pm-bucket-body .pm-comp-story details.doc-us-wrap.pm-us { margin-bottom: 0.5rem; }
+
+/* Print: reveal every bucket */
+@media print {
+  details.pm-bucket { break-inside: avoid; box-shadow: none; }
+  details.pm-bucket[open] > summary.pm-bucket-heading { border-bottom: none; }
+  .pm-controls { position: static; box-shadow: none; }
+  .pm-jump-nav { display: none; }
+}
+
+/* Blueprint badge (AC-17008-1). Rendered inside every pm-req summary
+   whose REQ came from an applied blueprint, and inside pm-req-parent
+   lines. Compact, low-contrast pill so it reads as attribution rather
+   than status. */
+.pm-blueprint-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--colour-muted);
+  background: var(--colour-surface-2);
+  border: 1px solid var(--colour-border);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  vertical-align: baseline;
+  text-transform: none;
+}
+
+.pm-blueprint-cap {
+  margin: 0.85rem 0 0.25rem;
+}
+.pm-blueprint-cap-heading {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--colour-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.pm-blueprint-cap-count {
+  font-weight: 500;
+  color: var(--colour-subtle);
+  margin-left: 0.25rem;
+}
+.pm-blueprint-cap-body {
+  display: block;
+}

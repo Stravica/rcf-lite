@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T10:18:25.373Z",
-  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-051",
   "prdId": "PRD-001",
   "title": "T-1 typed put get delete list verbs with metadata field pattern realise the Workers KV binding shape behind the facade",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T10:18:25.402Z"
-  }
+  },
+  "tags": [
+    "capability:platform-integrations"
+  ]
 }

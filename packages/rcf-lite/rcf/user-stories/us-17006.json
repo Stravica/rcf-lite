@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-21T18:36:23.922Z",
+  "updatedAt": "2026-09-21T18:36:52.280Z",
+  "description": "a product reader who returns to the tab across sessions collapsed-by-default buckets, a jump-nav index across the top, per-bucket status mini-counts, hash-encoded open buckets so a bookmarked URL restores tab plus grouping plus filter plus open buckets, and compact REQ cards with drill-down (raw JSON stays on the Requirements tab), so the tab scans in under a minute and survives a live-refresh with open state intact",
+  "usId": "US-17006",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: usable interaction model",
+  "asA": "a product reader who returns to the Product Map across sessions",
+  "iWant": "collapsed-by-default buckets, a jump-nav index across the top, per-bucket status mini-counts, hash-encoded open-bucket state and compact REQ cards with drill-down (raw JSON stays on the Requirements tab)",
+  "soThat": "the tab scans in under a minute and a bookmarked URL restores tab, grouping, filter and the buckets I had open, and my open state survives a live refresh",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17006-1",
+      "description": "The Product Map tab renders every bucket collapsed by default, with a summary row carrying the bucket label, its total REQ count and a mini count per authoring status (draft / review / needsRevision / approved / superseded). A jump-nav rail across the top of the panel lists every bucket in the active grouping with its count; clicking a chip scrolls to that bucket and opens it. The hash schema `#tab=product-map&group=<g>&status=<s>&open=<id1>,<id2>` restores tab, grouping, status filter AND the set of open buckets on return, and every bucket-toggle pushes a new history entry so Back/Forward traverse them. Per-bucket <details> nodes carry a stable data-doc-id (\"pm-bucket:<group>:<id>\") so the live-client persists their open state across SSE refreshes.",
+      "testable": true
+    }
+  ]
+}

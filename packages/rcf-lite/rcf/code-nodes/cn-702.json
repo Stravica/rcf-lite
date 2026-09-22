@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-702",
+  "path": "docs/capability-tags.md",
+  "title": "Capability tag convention and taxonomy for the rcf-lite chain",
+  "description": "Documents the capability:<slug> convention, the initial twelve-slug taxonomy and the rule for adding a new capability. Linked from docs/README.md; consumed by the Product Map by-capability grouping.",
+  "implementsAcIds": [
+    "AC-17102-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

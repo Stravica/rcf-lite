@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T12:16:28.590Z",
-  "updatedAt": "2026-09-08T12:16:28.726Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z",
   "description": "The rcf-lite platform-cloudflare-durable-objects blueprint ships thirteen ACs (AC-33101-1..AC-33113-1); eight probes anchor AC-33101, 33102, 33103, 33104, 33105, 33107, 33112, 33113, leaving AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1 unbound. real-account-storage-smoke.mjs currently returns pass on credential readiness alone. This train replaces the credential-readiness pass-stub with a real storage round-trip driver: when CI_HAS_CLOUDFLARE_ACCOUNT is set with CF_ACCOUNT_ID, CF_DO_NAMESPACE_ID (or the binding config the driver needs) and CF_API_TOKEN, the probe drives an HTTP round trip against a deployed Worker route that opens the DO facade, writes a fixture key, reads it back, asserts the returned bytes equal the written value. Local proof against miniflare or wrangler dev via the existing wrangler-seam. Env-absent branch keeps the section 3.5 pass-with-skip shape; a pass must never again be reachable from credential presence alone. The five unbound ACs are bound as additional-result anchors on the existing wrangler-seam, storage-round-trip and concurrent-increment probes (or a new probe body inside existing capability if none carries the observable honestly).",
   "category": "functional",
   "domain": "functional",
@@ -81,5 +81,9 @@
         "match": "storage"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:verify",
+    "capability:platform-integrations"
+  ]
 }

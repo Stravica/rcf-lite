@@ -434,6 +434,12 @@
         host.innerHTML = payload.contentHtml;
       }
       currentVersion = payload.version;
+      // The Product Map panel keeps a client-side partial cache
+      // (window.__rcfPmPartialCache is opaque to us). A tree-update
+      // invalidates every partial: the next activatePmGroup on a lazy
+      // grouping refetches instead of using the stale cache. See
+      // hydrateLazyGroup in the inline script.
+      win.__rcfPmDirty = true;
       // Tab buttons live in the header (outside the swap wrapper) so
       // their click handlers survive. But the swap serves every panel
       // with the same `hidden` state Phase 3.6 renders (Overview
@@ -442,6 +448,13 @@
       // Mermaid inside the selected panel because .mermaid nodes in
       // the payload have no `data-processed` yet.
       resyncTabsAfterSwap(doc, win);
+      // Re-invoke the page init so pm-group-btn / pm-status-select
+      // listeners (which lived inside the swapped wrapper) are attached
+      // to the fresh DOM. onReady is idempotent for the header-scoped
+      // bindings that survive the swap.
+      if (win.rcfPage && typeof win.rcfPage.init === 'function') {
+        try { win.rcfPage.init(); } catch (e) { /* soft */ }
+      }
       restoreState(deps);
       applyScope();
       setState('connected');
@@ -484,8 +497,15 @@
   // the panels back in line with the aria-selected button and re-run
   // Mermaid in the visible one.
   function resyncTabsAfterSwap(doc, win) {
-    var TABS = ['overview', 'requirements', 'architecture', 'build'];
-    var selectedBtn = doc.querySelector('[role="tab"][aria-selected="true"]');
+    // Phase 3.8 tabs; Phase 3.9 added product-map. Product Map MUST be
+    // in this list so an SSE swap while it is the active tab keeps the
+    // panel visible; without it, resolveActiveTab falls back to
+    // overview and the freshly-swapped pm listeners have already been
+    // rewired by the rcfPage.init() call below.
+    var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
+    // Scope to the top-level nav.tabs to avoid matching pm-group-btn
+    // nodes (they also carry role="tab").
+    var selectedBtn = doc.querySelector('nav.tabs [role="tab"][aria-selected="true"]');
     var selected = selectedBtn && selectedBtn.getAttribute ? selectedBtn.getAttribute('data-tab') : null;
     if (!selected || TABS.indexOf(selected) === -1) selected = 'overview';
     for (var i = 0; i < TABS.length; i += 1) {

@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-22T11:59:39Z",
+  "updatedAt": "2026-09-22T15:00:00Z",
+  "acIds": [
+    "AC-17008-1"
+  ],
+  "fbsId": "FBS-193",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 193,
+  "executionStatus": "complete",
+  "title": "Product Map: blueprint badge and by-blueprint grouping",
+  "summary": "Add a sixth grouping to the Product Map tab: 'By blueprint', with one bucket per applied blueprint plus an Application bucket for the project's own (non-blueprint) requirements. Every REQ row contributed by an applied blueprint carries a compact blueprint badge in every grouping. The by-blueprint bucket's second level is capability, then the usual REQ->US->AC drill-down.",
+  "dependsOnFbsIds": [
+    "FBS-192"
+  ],
+  "approach": "Extend GROUPINGS with 'blueprint'. Read manifest.blueprints[].contributions[] via scope.contributionsForBlueprint as the source of truth for blueprint attribution; fall back to reqId's kebab-slug prefix only when no contributions record is present. Add renderBlueprintGrouping that emits jump-nav + one <details class=pm-bucket> per applied blueprint plus an Application bucket, each carrying a capability sub-heading before its REQ rows. Add a pm-blueprint-badge span into renderReqWrapper (or a wrapping helper) so every grouping's REQ rows render the badge when attributed. Extend inline script PM_GROUPS to include 'blueprint'; renderProductMapPanel adds a blueprint <section>; view/index.js adds a 'blueprint' partial to pmPartials.",
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "deliverables": [
+    "src/view/product-map.js: groupByBlueprint, blueprintForReq, renderBlueprintGrouping, badge in renderReqWrapper",
+    "src/view/html-page.js: PM_GROUPS extended, blueprint <section>, group label 'Blueprint'",
+    "src/view/index.js: pmPartials.blueprint",
+    "src/view/style.css: .pm-blueprint-badge token",
+    "test/view/fixtures/blueprint-applied/: fixture project with one applied blueprint (2 contributed REQs) + 2 project REQs",
+    "test/view/product-map.test.js: five tests covering AC-17008-1",
+    "test/view/fixtures/phase-3-6-static.html: regenerated baseline (blueprint grouping is a whitelisted additive delta)",
+    "docs/capability-tags.md, docs/how-it-works.md: short line about the by-blueprint grouping and badge"
+  ],
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "medium",
+  "estimatedHours": 5,
+  "notes": "No schema change. Uses manifest.blueprints[].contributions[] as truth (project-local); id-prefix fallback only when contributions absent. Dogfood tree applies no blueprints, so the by-blueprint tab shows one Application bucket - fixture proves the multi-bucket path."
+}

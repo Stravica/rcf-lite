@@ -95,6 +95,24 @@ export function createRouter(deps) {
       serveAsset(res, deps.liveClientAsset, deps.liveClientPath, MIME.js).catch((err) => fail(res, err));
       return;
     }
+    if (path.startsWith('/product-map/')) {
+      const state = deps.currentState();
+      if (!state || !state.pmPartials) {
+        res.writeHead(503, { 'content-type': MIME.txt });
+        res.end('view server initialising\n');
+        return;
+      }
+      const group = path.slice('/product-map/'.length);
+      const html = state.pmPartials[group];
+      if (typeof html !== 'string') {
+        res.writeHead(404, { 'content-type': MIME.txt });
+        res.end('unknown grouping\n');
+        return;
+      }
+      res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
+      res.end(html);
+      return;
+    }
     if (path === '/scope.json') {
       if (typeof deps.scope !== 'function') {
         res.writeHead(404, { 'content-type': MIME.txt });

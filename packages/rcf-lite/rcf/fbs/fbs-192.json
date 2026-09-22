@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-09-21T19:43:56.521Z",
+  "updatedAt": "2026-09-21T19:44:37.430Z",
+  "acIds": [
+    "AC-17006-1",
+    "AC-17007-1"
+  ],
+  "fbsId": "FBS-192",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 192,
+  "executionStatus": "complete",
+  "title": "Product Map UX rescue pass",
+  "summary": "Turn the Product Map from function-emitted to usable-every-day: sticky styled controls, collapsed-by-default buckets, jump-nav, per-status mini counts, hash-encoded open buckets, live-refresh persistence via stable data-doc-id, and a lazy first-load payload that ships only bucket-heading skeletons.",
+  "dependsOnFbsIds": [],
+  "approach": "Restyle pm-controls with the viewer indigo/rounded tokens. Wrap each bucket in <details class=\"pm-bucket\"> with a summary carrying label + count + per-status mini pills. Emit a pm-jump-nav chip row per grouping. Extend the hash schema to carry &open=<bucketIds>. Suppress raw-JSON disclosures inside pm-req cards via a suppressRawJson flag on renderReq/renderUserStory. Add a /product-map/<name> partial endpoint; the client fetches groupings on demand and invalidates the cache on every SSE swap."
+}

@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "Before this train, service blueprints named their companion suggestions in prose in each README and each guide, and the machine could not act on them: `rcf define blueprint add` could not print a suggestion, `rcf define blueprint list` could not annotate an outstanding one, the agent could not know which library provider to prefer, and the operator had no place to record a project-level choice that outlived any single apply. Baz on 2026-09-03 during the WSD blueprint round review ratified the mechanism in the same clause as the two new core blueprints: the mechanism surfaces the suggestion three ways from one resolution rule, the agent surfaces the resolved companions verbally, and the operator adopts explicitly. Suggestion by role (not by slug) is the load-bearing choice: a service blueprint ships once and works with every library that provides the role; the operator's opt-in to a library IS the choice the resolution rule records.",
   "tags": [
+    "capability:blueprint-library",
     "blueprints",
     "companions",
     "provides-roles",
@@ -18,5 +19,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-22T13:47:34.538Z"
 }

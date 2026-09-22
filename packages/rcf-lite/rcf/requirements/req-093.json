@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T19:54:01.402Z",
-  "updatedAt": "2026-09-07T20:18:17.783Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "When both security-auth-magic-link and edge-cloudflare-turnstile are applied, the magic-link mint surface reads through the Turnstile guard: a mint submit without a valid Turnstile response is refused with 400 before the mint fires. Composition uses the TAC-3603 hook on the shipped magic-link mint surface.",
   "reqId": "REQ-093",
   "prdId": "PRD-001",
@@ -48,5 +48,8 @@
         "match": "magic-link"
       }
     ]
-  }
+  },
+  "tags": [
+    "capability:edge-security"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T01:40:04.204Z",
-  "updatedAt": "2026-09-08T01:40:04.433Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "Every service that terminates HTTP declares a healthcheck block. The compose file refuses at docker compose config time when any HTTP-terminating service is missing the block. The healthcheck defaults per service kind are elicited (http default, tcp and command alternatives). The stack is not considered up until every declared service reaches healthy inside the elicited timeout. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
   "reqId": "REQ-122",
   "prdId": "PRD-001",
@@ -16,5 +16,8 @@
     ],
     "reason": "keyword-scan",
     "classifiedAt": "2026-09-08T01:40:04.247Z"
-  }
+  },
+  "tags": [
+    "capability:deploy"
+  ]
 }

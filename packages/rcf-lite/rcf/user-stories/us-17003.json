@@ -1,0 +1,22 @@
+{
+  "usId": "US-17003",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: component-first grouping",
+  "description": "User story under REQ-170. a technical reviewer wanting to see requirements from the architecture down a component grouping rooted at the TAD, showing each TAC (with its dependencies) at level 1, the user stories linked to that TAC at level 2, each story's parent REQ at level 3, and its ACs at level 4, plus an \"Unmapped\" bucket for REQs no component reaches",
+  "asA": "a technical reviewer wanting to see requirements from the architecture down",
+  "iWant": "a component grouping rooted at the TAD, showing each TAC (with its dependencies) at level 1, the user stories linked to that TAC at level 2, each story's parent REQ at level 3, and its ACs at level 4, plus an \"Unmapped\" bucket for REQs no component reaches",
+  "soThat": "I can pivot from a component to the requirements it delivers without leaving the tab",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17003-1",
+      "description": "When the Product Map is grouped by component, the tab renders the TAD as the root, one section per TAC (with a short dependencies[] list drawn from the TAC document), then the user stories under that TAC (from usByTacId), then their parent REQs (from us.reqId), then the ACs. REQs reachable by no TAC are collected under an \"Unmapped\" bucket with a count in its heading.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

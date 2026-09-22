@@ -128,9 +128,9 @@ export function fieldObjectTable(label, rows, columns) {
  * @param {string} parentDocId - the enclosing doc's display id (e.g. "REQ-002")
  * @returns {string}
  */
-export function rawJsonDisclosure(raw, doc, parentDocId) {
+export function rawJsonDisclosure(raw, doc, parentDocId, idPrefix) {
   const json = raw ?? JSON.stringify(doc, null, 2);
-  const rawId = `${parentDocId ?? 'doc'}::raw`;
+  const rawId = `${idPrefix ?? ''}${parentDocId ?? 'doc'}::raw`;
   return `<details class="raw-json" data-doc-id="${escapeHtml(rawId)}"><summary>Show raw JSON</summary><pre>${escapeHtml(json)}</pre></details>`;
 }
 

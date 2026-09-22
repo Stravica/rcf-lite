@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "Dex's WSD library composes on the WSD-001 through WSD-012 standards with clause-level trace tables under `docs/standards-trace.md`. Before this train, the trace lived in prose only, and a library blueprint's ADR could omit any standard reference without the loader noticing. Baz on 2026-09-03 during the WSD blueprint round review ratified the discipline as `really good idea` and made it the shelf standard for any future library or shipped blueprint that composes on named standards. Baz amendment A2 (2026-09-04T12:20:31Z) refined the MUST-to-kind mapping to admit choice-shaped MUSTs as ADRs so the WSD library's 41 MUSTs (27 to AC, 8 to ADR, 8 not-carried per Dex's tables) fit under the discipline without renumbering. The additive fields and load-time validation give machine-checkable adherence without changing any existing blueprint (zero shelf blueprints declare `standardsTrace[]` today).",
   "tags": [
+    "capability:blueprint-library",
     "blueprints",
     "authoring",
     "standards",
@@ -17,5 +18,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-22T13:47:34.538Z"
 }

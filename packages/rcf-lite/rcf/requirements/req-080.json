@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T16:49:01.509Z",
-  "updatedAt": "2026-09-07T17:14:19.059Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-080",
   "prdId": "PRD-001",
   "title": "T-4 edge-cloudflare-access v1.0.0 blueprint: the Access JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header and reduces principal onto request.auth",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T16:49:01.543Z"
-  }
+  },
+  "tags": [
+    "capability:edge-security"
+  ]
 }

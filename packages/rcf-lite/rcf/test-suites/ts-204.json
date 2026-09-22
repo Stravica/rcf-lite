@@ -1,0 +1,30 @@
+{
+  "id": "TS-204",
+  "usId": "US-17001",
+  "title": "Product Map shape grouping",
+  "purpose": "Cover the shape-grouping renderer and its drill-down for AC-17001-1 and AC-17001-2.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17001-1",
+    "AC-17001-2"
+  ],
+  "testCases": [
+    {
+      "id": "TC-204-shape-buckets-present",
+      "acId": "AC-17001-1",
+      "description": "Rendering the tree emits a product-map tab with shape buckets covering every classified shape plus Unclassified and Business rules.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map shape grouping renders one bucket per shape plus Unclassified and Business rules"
+    },
+    {
+      "id": "TC-204-shape-drill-req-us-ac",
+      "acId": "AC-17001-2",
+      "description": "The shape grouping drills bucket -> REQ (status pill) -> US -> AC using the shared detailsWrap helper; every id inside the Product Map tab is bucket-scoped so the same REQ can appear under multiple buckets without duplicating ids.",
+      "status": "passing",
+      "testPointer": "test/view/product-map.test.js::product-map shape grouping drills bucket to REQ to US to AC with status pill, ids scoped to the bucket (P2-1)"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T18:02:10.540Z"
+}

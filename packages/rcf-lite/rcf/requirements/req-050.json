@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T10:18:25.168Z",
-  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-050",
   "prdId": "PRD-001",
   "title": "T-1 platform-cloudflare-kv v1.0.0 blueprint: the KV facade module is the sole reader of the KV binding and opens on boot with facadeReady",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T10:18:25.198Z"
-  }
+  },
+  "tags": [
+    "capability:platform-integrations"
+  ]
 }

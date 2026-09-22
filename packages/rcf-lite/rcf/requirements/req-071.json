@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:36.953Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-071",
   "prdId": "PRD-001",
   "title": "T-3 single-cell shape exposes typed domain verbs and serialises concurrent invocations per instance",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T14:11:36.986Z"
-  }
+  },
+  "tags": [
+    "capability:platform-integrations"
+  ]
 }

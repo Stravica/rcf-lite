@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 79,
+    "items": 83,
     "notStarted": 46,
     "inProgress": 1,
-    "complete": 17,
+    "complete": 21,
     "verified": 15,
     "actionable": 36,
     "blocked": 10
@@ -62,7 +62,9 @@
         "FBS-187",
         "FBS-188",
         "FBS-189",
-        "FBS-180"
+        "FBS-180",
+        "FBS-190",
+        "FBS-192"
       ]
     },
     {
@@ -74,7 +76,9 @@
         "FBS-025",
         "FBS-042",
         "FBS-064",
-        "FBS-181"
+        "FBS-181",
+        "FBS-191",
+        "FBS-193"
       ]
     },
     {
@@ -1038,6 +1042,50 @@
       "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-184"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-190",
+      "buildOrder": 190,
+      "tier": 0,
+      "title": "Product Map tab on the review surface",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-191",
+      "buildOrder": 191,
+      "tier": 1,
+      "title": "Capability tag convention: taxonomy + dogfood application",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-190"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-192",
+      "buildOrder": 192,
+      "tier": 0,
+      "title": "Product Map UX rescue pass",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-193",
+      "buildOrder": 193,
+      "tier": 1,
+      "title": "Product Map: blueprint badge and by-blueprint grouping",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-192"
       ],
       "state": "complete",
       "blockedBy": []

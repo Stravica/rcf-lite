@@ -1,0 +1,22 @@
+{
+  "usId": "US-17004",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: trace-coverage grouping",
+  "description": "User story under REQ-170. a reviewer about to sign a chain off a trace-coverage grouping that buckets each REQ by chain completeness (complete, missing stories, missing AC scope or owner, missing component owner, missing tests)",
+  "asA": "a reviewer about to sign a chain off",
+  "iWant": "a trace-coverage grouping that buckets each REQ by chain completeness (complete, missing stories, missing AC scope or owner, missing component owner, missing tests)",
+  "soThat": "I can see which requirements are safe to sign off and which still need work",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17004-1",
+      "description": "The trace-coverage grouping buckets each REQ into one of complete | missing-stories | missing-ac-scope | missing-component | missing-tests, computed from the tree-model maps (storiesByReqId, acIdsByUsId, usByTacId, tsByAcId / tcsByAcId / fbsByAcId). Each REQ row states in plain text exactly what is missing, and links to its own doc anchor so the reader can jump to it.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

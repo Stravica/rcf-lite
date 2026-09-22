@@ -1,0 +1,37 @@
+{
+  "fbsId": "FBS-190",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 190,
+  "executionStatus": "complete",
+  "title": "Product Map tab on the review surface",
+  "summary": "Deliver REQ-170: a new \"Product Map\" tab with five groupings (shape, status filter, component-first, trace coverage, capability) drilling group -> REQ -> US -> AC, hash-addressable.",
+  "approach": "Add a product-map tab to src/view/html-page.js after Build sequence. Extend inline script TAB list. Write src/view/product-map.js: pure bucketing over the BuiltTreeModel, one function per grouping, returning {buckets, unclassifiedCount} shapes the renderer consumes. Reuse the existing detailsWrap/renderReq helpers so REQ blocks match the Requirements tab. Deep-link hash pattern #tab=product-map&group=<g>&status=<s> handled by extending resolveHash + status filter client-side.",
+  "acIds": [
+    "AC-17001-1",
+    "AC-17001-2",
+    "AC-17002-1",
+    "AC-17003-1",
+    "AC-17004-1",
+    "AC-17005-1"
+  ],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "deliverables": [
+    "src/view/product-map.js: pure bucketing (groupByShape, groupByComponent, groupByTraceCoverage, groupByCapability)",
+    "src/view/html-page.js: fifth tab wired, panel renderer, inline script TAB list extended, status filter handling",
+    "test/view/product-map.test.js: 5 grouping tests + status filter + hash routing shape",
+    "test/view/fixtures/phase-3-6-static.html: regenerated baseline (product-map tab is a whitelisted additive delta)",
+    "test/view/tabs.test.js: expect the fifth tab in order"
+  ],
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "medium",
+  "estimatedHours": 8,
+  "notes": "No schema changes. Capability grouping consumes REQ.tags[] convention (FBS-191 populates the data).",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

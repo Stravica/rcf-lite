@@ -1,0 +1,34 @@
+{
+  "fbsId": "FBS-191",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 191,
+  "executionStatus": "complete",
+  "title": "Capability tag convention: taxonomy + dogfood application",
+  "summary": "Deliver REQ-171: tag every dogfood REQ with at least one capability:<slug> tag, document the taxonomy and the rule for adding a new capability.",
+  "approach": "Author a compact taxonomy (10-12 slugs) derived from the actual REQ set, hand-map each of the 103 dogfood REQs (or via a small offline script commit-editing the tags[] arrays), and add a capability-tags.md doc linked from docs/README.md.",
+  "acIds": [
+    "AC-17101-1",
+    "AC-17102-1"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-190"
+  ],
+  "contextRequirements": {
+    "tacIds": [],
+    "adrIds": []
+  },
+  "deliverables": [
+    "packages/rcf-lite/rcf/requirements/*.json: every REQ has >= 1 capability:<slug> tag",
+    "packages/rcf-lite/docs/capability-tags.md: the taxonomy and the rule",
+    "packages/rcf-lite/docs/README.md: link to capability-tags.md",
+    "test/view/product-map.test.js: capability grouping assertion runs on real data"
+  ],
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "small",
+  "estimatedHours": 3,
+  "notes": "A classifier verb (rcf discover req-capability-classify) is a follow-up, not part of this PR.",
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}

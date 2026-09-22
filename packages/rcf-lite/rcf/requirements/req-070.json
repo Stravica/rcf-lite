@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:36.742Z",
-  "updatedAt": "2026-09-07T14:13:26.508Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-070",
   "prdId": "PRD-001",
   "title": "T-3 platform-cloudflare-durable-objects v1.0.0 blueprint: the DO facade is the sole reader of env.CELL and env.HUB and opens on boot with namespaceReady",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T14:11:36.775Z"
-  }
+  },
+  "tags": [
+    "capability:platform-integrations"
+  ]
 }

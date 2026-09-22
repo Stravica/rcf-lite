@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "The in-repository differentiator depends on RCF documents living beside the code. A predictable on-disk layout is the foundation every other capability reads from and writes to.",
   "tags": [
+    "capability:project-init",
     "structure",
     "manifest",
     "filesystem"
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-09-21T17:00:00.000Z"
 }

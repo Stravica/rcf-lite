@@ -40,7 +40,7 @@ What you got, in five lines: `manifest.json` declares the tree's three roots. `p
 rcf audit view
 ```
 
-This starts a local server (default `http://127.0.0.1:4373/`) and opens your browser on a rendered, tabbed review surface: overview, requirements, architecture, build sequence. Leave it running while you author - any change to a `*.json` file under `rcf/` streams to the open tab without a refresh. Ctrl-C shuts it down cleanly.
+This starts a local server (default `http://127.0.0.1:4373/`) and opens your browser on a rendered, tabbed review surface: overview, requirements, architecture, build sequence, and a Product Map that re-buckets the requirements by shape, component, trace coverage or capability (see [capability-tags.md](capability-tags.md) for the tag convention the last grouping consumes). Leave it running while you author - any change to a `*.json` file under `rcf/` streams to the open tab without a refresh. Ctrl-C shuts it down cleanly.
 
 The server binds `127.0.0.1` only and has no auth; it is for you, on your machine. Do not tunnel or proxy it anywhere. `rcf help view` covers ports, strict mode and exit codes.
 

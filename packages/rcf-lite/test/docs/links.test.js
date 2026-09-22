@@ -58,6 +58,9 @@ test('the docs set exists: README.md plus the docs/ files', async () => {
     'docs/blueprint-authoring-checklist.md',
     'docs/blueprint-authoring-walkthrough.md',
     'docs/blueprint-authoring.md',
+    // Product Map (REQ-171, w-2026-09-21-dave-008, d-020): capability
+    // tag convention on the requirements chain.
+    'docs/capability-tags.md',
     // Phase 10 (X2 CodeNode bridge, D19): in-repo docs for the CN layer.
     'docs/code-nodes.md',
     // FBS-180 (slice 1, feedback submission): local capture and store

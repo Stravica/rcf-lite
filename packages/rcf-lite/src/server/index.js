@@ -96,6 +96,7 @@ export async function startServer(args) {
           fullPageHtml: result.fullPageHtml,
           contentHtml: result.contentHtml,
           errors: result.errors,
+          pmPartials: result.pmPartials,
         };
         sse.broadcast('tree-update', { version, contentHtml: result.contentHtml });
         if (result.errors && result.errors.length > 0) {

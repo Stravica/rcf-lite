@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T23:59:00.000Z",
-  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-021",
   "prdId": "PRD-001",
   "title": "Application-notifications-in-app v1.0.0 blueprint on the shelf with its Playwright probe pack and sample-app fixture",
@@ -9,5 +9,8 @@
   "domain": "application",
   "priority": "must",
   "version": "0.1.0",
-  "status": "draft"
+  "status": "draft",
+  "tags": [
+    "capability:applications-shelf"
+  ]
 }

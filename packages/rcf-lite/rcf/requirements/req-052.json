@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T10:18:25.579Z",
-  "updatedAt": "2026-09-07T10:20:10.276Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-052",
   "prdId": "PRD-001",
   "title": "T-1 cache-aside helper reads local first falls back to origin and writes back with elicited TTL floor 1 second",
@@ -14,5 +14,8 @@
     "shapes": [],
     "reason": "content-pending",
     "classifiedAt": "2026-09-07T10:18:25.608Z"
-  }
+  },
+  "tags": [
+    "capability:platform-integrations"
+  ]
 }

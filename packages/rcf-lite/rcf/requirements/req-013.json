@@ -8,6 +8,7 @@
   "priority": "must",
   "rationale": "The core shelf carried no logging or error-handling blueprint before this train; every WSD-facing service blueprint (Dex's `wsd-api-rest`) stated its companion suggestions in prose only, with no core fallback for projects that had not registered the WSD library. Baz on 2026-09-03 during the WSD blueprint round review ratified two decisions in one clause: the core shelf carries a `logging` and an `error-handling` blueprint written to general enterprise practice (not to any one organisation's standards), and a companion-suggestion mechanism (REQ-014) surfaces them at apply time. Shipping the two blueprints as general-enterprise-practice siblings of the WSD library halves means every project falls back to a sensible logging and error-handling contract without adopting a library, and the WSD library becomes a specialisation (adds `standardsTrace[]`, adds WSD-specific ADR clauses) that the mechanism resolves in preference to the core when the library is registered.",
   "tags": [
+    "capability:blueprint-library",
     "blueprints",
     "observability",
     "logging",
@@ -18,5 +19,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-09-22T13:47:34.538Z"
 }

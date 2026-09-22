@@ -1,0 +1,22 @@
+{
+  "usId": "US-17102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-171",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Capability taxonomy is documented in the rcf-lite docs",
+  "description": "User story under REQ-171. a reader of the rcf-lite docs deciding whether to adopt the convention the capability:<slug> convention, the initial taxonomy and the rule for adding a new capability documented alongside the rest of the rcf-lite docs",
+  "asA": "a reader of the rcf-lite docs deciding whether to adopt the convention",
+  "iWant": "the capability:<slug> convention, the initial taxonomy and the rule for adding a new capability documented alongside the rest of the rcf-lite docs",
+  "soThat": "a new capability is added deliberately rather than by drift, and a reader can look up what each slug means",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17102-1",
+      "description": "packages/rcf-lite/docs contains a capability tags section listing every slug in the initial taxonomy with a one-line meaning, plus the rule for adding a new capability (single-word verb or noun, kebab-case, must map to a product surface). The section is linked from docs/README.md so it is reachable from the docs entry point.",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-21T17:00:00.000Z"
+}
