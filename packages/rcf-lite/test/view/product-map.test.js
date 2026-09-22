@@ -19,10 +19,13 @@ import {
   DEFAULT_STATUS,
   GROUPINGS,
   STATUSES,
+  buildBlueprintAttribution,
+  groupByBlueprint,
   groupByCapability,
   groupByComponent,
   groupByShape,
   groupByTraceCoverage,
+  renderProductMapGrouping,
   renderProductMapPanel,
   shapesForReq,
   capabilitiesForReq,
@@ -184,7 +187,7 @@ test('product-map status filter markup + server-rendered per-bucket status count
   assert.match(html, /applyPmStatusFilter/);
   assert.match(html, /pm-bucket-empty-filter/);
   // Groupings enumerated by the inline script include all four.
-  assert.match(html, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability'\]/);
+  assert.match(html, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
 
   // P2-3 (real filter behaviour): the server-rendered outer pm-req
   // <details> carries data-req-status on the same element the inline
@@ -203,6 +206,7 @@ test('product-map status filter markup + server-rendered per-bucket status count
   const { tacs: compTacs, unmapped: compUnmapped } = groupByComponent(model);
   const trace = groupByTraceCoverage(model);
   const capability = groupByCapability(model);
+  const blueprint = groupByBlueprint(model);
 
   function membershipsByStatus() {
     const out = new Map();
@@ -212,6 +216,10 @@ test('product-map status filter markup + server-rendered per-bucket status count
     for (const r of compUnmapped) add(r.status ?? '');
     for (const b of trace) for (const e of b.entries) add(e.req.status ?? '');
     for (const b of capability) for (const r of b.reqs) add(r.status ?? '');
+    for (const b of blueprint) {
+      const capsSub = groupByCapability({ requirements: b.reqs });
+      for (const cb of capsSub) for (const r of cb.reqs) add(r.status ?? '');
+    }
     return out;
   }
 
@@ -237,6 +245,13 @@ test('product-map status filter markup + server-rendered per-bucket status count
   for (const r of compUnmapped) addTo(expected, r.status ?? '');
   for (const b of trace) for (const e of b.entries) addTo(expected, e.req.status ?? '');
   for (const b of capability) for (const r of b.reqs) addTo(expected, r.status ?? '');
+  // Blueprint grouping (AC-17008-1) emits pm-req cards inside capability
+  // sub-buckets, so the count contribution is Σ_{bucket} Σ_{cap in
+  // groupByCapability(bucket.reqs)} cap.reqs.length.
+  for (const b of blueprint) {
+    const capsSub = groupByCapability({ requirements: b.reqs });
+    for (const cb of capsSub) for (const r of cb.reqs) addTo(expected, r.status ?? '');
+  }
   assert.deepEqual(
     Object.fromEntries([...domCounts.entries()].sort()),
     Object.fromEntries([...expected.entries()].sort()),
@@ -527,8 +542,8 @@ test('product-map buckets are <details class="pm-bucket"> collapsed by default w
 test('product-map ships a jump-nav chip row per grouping (AC-17006-1)', async () => {
   const { model } = await renderLive();
   const html = renderProductMapPanel(model, { lazy: new Set() });
-  // Four groupings, four jump-nav rails.
-  for (const g of ['shape', 'component', 'trace', 'capability']) {
+  // Five groupings, five jump-nav rails.
+  for (const g of ['shape', 'component', 'trace', 'capability', 'blueprint']) {
     assert.ok(
       html.includes(`<nav class="pm-jump-nav" aria-label="Buckets in this grouping" data-pm-jump-group="${g}"`),
       `missing jump-nav for grouping ${g}`,
@@ -564,7 +579,7 @@ test('product-map lazy render: initial contentHtml emits skeletons for every gro
   // Every grouping section carries data-pm-lazy="true" in the default
   // render, and its body does NOT contain any outer pm-req details.
   const outerReqRe = /<details class="doc-details doc-req-wrap pm-req"/g;
-  for (const g of ['shape', 'component', 'trace', 'capability']) {
+  for (const g of ['shape', 'component', 'trace', 'capability', 'blueprint']) {
     const sectionStart = page.indexOf(`id="pm-group-${g}"`);
     const nextGroup = page.indexOf('<section id="pm-group-', sectionStart + 1);
     const end = nextGroup > -1 ? nextGroup : page.indexOf('</main>', sectionStart);
@@ -629,4 +644,150 @@ test('product-map: single-status buckets suppress the redundant mini pill (Baz 2
   const unclassified = html.match(/<details class="pm-bucket" data-pm-bucket-id="unclassified" data-doc-id="pm-bucket:shape:unclassified"[^>]*>.*?<\/summary>/s);
   assert.ok(unclassified, 'expected the Unclassified shape bucket summary in the rendered panel');
   assert.match(unclassified[0], /pm-mini-row/, 'Unclassified is mixed-status; the mini row must remain');
+});
+
+// -----------------------------------------------------------------------
+// AC-17008-1: blueprint badge on every REQ row + by-blueprint grouping.
+// Chain: US-17008 / AC-17008-1 / TS-213.
+// Fixture: test/view/fixtures/blueprint-applied.mjs (one applied
+// blueprint contributing two namespaced REQs plus two project REQs).
+// -----------------------------------------------------------------------
+
+const blueprintFixture = await import('./fixtures/blueprint-applied.mjs');
+
+test('product-map: blueprint badge on every contributed REQ row across groupings (AC-17008-1)', () => {
+  const model = blueprintFixture.makeBlueprintAppliedModel();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  // Attribution map: two REQs from my-auth, two are project's own.
+  const attribution = buildBlueprintAttribution(model);
+  assert.equal(attribution.get('my-auth-REQ-001'), 'my-auth');
+  assert.equal(attribution.get('my-auth-REQ-002'), 'my-auth');
+  assert.equal(attribution.get('REQ-001'), undefined);
+  assert.equal(attribution.get('REQ-002'), undefined);
+  // Both contributed rows carry a pm-blueprint-badge in EVERY grouping
+  // (shape, capability, and by-blueprint). The badge names the slug.
+  const contributedIds = ['my-auth-REQ-001', 'my-auth-REQ-002'];
+  const projectIds = ['REQ-001', 'REQ-002'];
+  // Match by summary-label content so ids that overlap as suffixes (e.g.
+  // "REQ-001" is a suffix of "my-auth-REQ-001") do not co-select rows.
+  const rowFor = (id) => {
+    const rowRe = new RegExp(
+      `<details class="doc-details doc-req-wrap pm-req"[^>]*>\\s*<summary><span class="summary-label">${id} - [^<]*</span>[^<]*(?:<span[^>]*>[^<]*</span>)*</summary>`,
+      'g',
+    );
+    return [...html.matchAll(rowRe)];
+  };
+  for (const id of contributedIds) {
+    const matches = rowFor(id);
+    assert.ok(matches.length > 0, `expected at least one rendered row for ${id}`);
+    for (const m of matches) {
+      assert.match(
+        m[0],
+        /<span class="pm-blueprint-badge" data-pm-blueprint-slug="my-auth"/,
+        `row for ${id} must carry a pm-blueprint-badge naming my-auth`,
+      );
+    }
+  }
+  for (const id of projectIds) {
+    const matches = rowFor(id);
+    assert.ok(matches.length > 0, `expected at least one rendered row for ${id}`);
+    for (const m of matches) {
+      assert.doesNotMatch(
+        m[0],
+        /pm-blueprint-badge/,
+        `project row for ${id} must not carry a pm-blueprint-badge`,
+      );
+    }
+  }
+});
+
+test('product-map: by-blueprint grouping yields one bucket per applied blueprint plus a Project bucket (AC-17008-1)', () => {
+  const model = blueprintFixture.makeBlueprintAppliedModel();
+  const buckets = groupByBlueprint(model);
+  // Exactly two buckets: my-auth (2 contributed REQs) then Project (2).
+  assert.equal(buckets.length, 2, 'expected one blueprint bucket + one project bucket');
+  const [first, second] = buckets;
+  assert.equal(first.id, 'my-auth');
+  assert.equal(first.isProject, false);
+  assert.deepEqual(first.reqs.map((r) => r.reqId), ['my-auth-REQ-001', 'my-auth-REQ-002']);
+  assert.equal(second.id, 'project');
+  assert.equal(second.isProject, true);
+  assert.deepEqual(second.reqs.map((r) => r.reqId), ['REQ-001', 'REQ-002']);
+  // Rendered blueprint grouping carries both buckets with their counts.
+  const grouping = renderProductMapGrouping(model, 'blueprint');
+  assert.match(grouping, /data-pm-bucket-id="blueprint-my-auth"/);
+  assert.match(grouping, /data-pm-bucket-id="blueprint-project"/);
+  assert.match(grouping, /<span class="pm-bucket-label" title="my-auth">my-auth<\/span> <span class="pm-bucket-count">\(2\)<\/span>/);
+  assert.match(grouping, /<span class="pm-bucket-label" title="Project \(project&#39;s own\)">Project \(project&#39;s own\)<\/span> <span class="pm-bucket-count">\(2\)<\/span>/);
+});
+
+test('product-map: by-blueprint bucket second level is capability then REQ (AC-17008-1)', () => {
+  const model = blueprintFixture.makeBlueprintAppliedModel();
+  const grouping = renderProductMapGrouping(model, 'blueprint');
+  // The my-auth bucket has two REQs tagged capability:auth-flow (both) and
+  // capability:policy (my-auth-REQ-002). Second-level capability
+  // sub-buckets render as <section class="pm-blueprint-cap"> with an
+  // <h4> heading. auth-flow has count 2, policy has count 1.
+  const myAuthStart = grouping.indexOf('data-pm-bucket-id="blueprint-my-auth"');
+  const myAuthEnd = grouping.indexOf('data-pm-bucket-id="blueprint-project"');
+  assert.ok(myAuthStart > 0 && myAuthEnd > myAuthStart, 'my-auth bucket must come before Project');
+  const myAuthSlice = grouping.slice(myAuthStart, myAuthEnd);
+  assert.match(myAuthSlice, /<section class="pm-blueprint-cap" data-pm-blueprint-capability="auth-flow">/);
+  assert.match(myAuthSlice, /<h4 class="pm-blueprint-cap-heading">auth-flow <span class="pm-blueprint-cap-count">\(2\)<\/span><\/h4>/);
+  assert.match(myAuthSlice, /<section class="pm-blueprint-cap" data-pm-blueprint-capability="policy">/);
+  assert.match(myAuthSlice, /<h4 class="pm-blueprint-cap-heading">policy <span class="pm-blueprint-cap-count">\(1\)<\/span><\/h4>/);
+  // Inside each capability sub-section the REQ rows are the usual pm-req
+  // details, with a bucket + capability-scoped prefix so ids do not
+  // collide across capability sub-buckets in the same blueprint bucket.
+  assert.match(
+    myAuthSlice,
+    /<section class="pm-blueprint-cap" data-pm-blueprint-capability="auth-flow">[\s\S]*<details class="doc-details doc-req-wrap pm-req"[^>]*data-doc-id="pm-blueprint-my-auth-auth-flow-my-auth-REQ-001"/,
+    'auth-flow sub-section must contain the pm-req for my-auth-REQ-001',
+  );
+  assert.match(
+    myAuthSlice,
+    /<section class="pm-blueprint-cap" data-pm-blueprint-capability="policy">[\s\S]*<details class="doc-details doc-req-wrap pm-req"[^>]*data-doc-id="pm-blueprint-my-auth-policy-my-auth-REQ-002"/,
+    'policy sub-section must contain the pm-req for my-auth-REQ-002',
+  );
+});
+
+test('product-map: by-blueprint grouping wired into PM_GROUPS, pmPartials and renderProductMapGrouping (AC-17008-1)', async () => {
+  // Inline script's PM_GROUPS array carries 'blueprint' so client-side
+  // hash routing and grouping switch recognise it.
+  const { model } = await renderLive();
+  const page = renderPage(model);
+  assert.match(page, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
+  // GROUPINGS export lists the five groupings.
+  assert.deepEqual(GROUPINGS, ['shape', 'component', 'trace', 'capability', 'blueprint']);
+  // The panel renders a fifth section for the blueprint grouping.
+  assert.match(page, /<section id="pm-group-blueprint" class="pm-group" data-pm-group="blueprint"/);
+  // renderProductMapGrouping(model, 'blueprint') on the live tree
+  // returns a non-empty grouping body (no applied blueprints in the
+  // dogfood tree, so a single Project bucket).
+  const body = renderProductMapGrouping(model, 'blueprint');
+  assert.ok(body.length > 100, `expected a non-empty blueprint grouping body, got ${body.length} bytes`);
+  assert.match(body, /data-pm-bucket-id="blueprint-project"/);
+  // renderModelToPage.pmPartials.blueprint feeds the /product-map/blueprint
+  // partial endpoint the client fetches on lazy hydrate.
+  const { renderModelToPage } = await import('../../src/view/index.js');
+  const { pmPartials } = await renderModelToPage({ projectRoot: repoRoot });
+  assert.ok(typeof pmPartials.blueprint === 'string');
+  assert.ok(pmPartials.blueprint.length > 100);
+  assert.match(pmPartials.blueprint, /data-pm-bucket-id="blueprint-project"/);
+});
+
+test('product-map: by-blueprint grouping on a project with no applied blueprints renders a single Project bucket (AC-17008-1)', () => {
+  const model = blueprintFixture.makeNoBlueprintsAppliedModel();
+  const buckets = groupByBlueprint(model);
+  assert.equal(buckets.length, 1, 'no applied blueprints should render only the Project bucket');
+  assert.equal(buckets[0].id, 'project');
+  assert.equal(buckets[0].isProject, true);
+  assert.equal(buckets[0].reqs.length, 1);
+  const grouping = renderProductMapGrouping(model, 'blueprint');
+  // Single Project bucket, no error placeholder.
+  assert.match(grouping, /data-pm-bucket-id="blueprint-project"/);
+  assert.doesNotMatch(grouping, /<em>No requirements on disk\.<\/em>/);
+  // Attribution map is empty (nothing came from a blueprint).
+  const attribution = buildBlueprintAttribution(model);
+  assert.equal(attribution.size, 0);
 });

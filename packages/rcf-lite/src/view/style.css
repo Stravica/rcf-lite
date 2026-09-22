@@ -1118,3 +1118,43 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   .pm-controls { position: static; box-shadow: none; }
   .pm-jump-nav { display: none; }
 }
+
+/* Blueprint badge (AC-17008-1). Rendered inside every pm-req summary
+   whose REQ came from an applied blueprint, and inside pm-req-parent
+   lines. Compact, low-contrast pill so it reads as attribution rather
+   than status. */
+.pm-blueprint-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--colour-muted);
+  background: var(--colour-surface-2);
+  border: 1px solid var(--colour-border);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  vertical-align: baseline;
+  text-transform: none;
+}
+
+.pm-blueprint-cap {
+  margin: 0.85rem 0 0.25rem;
+}
+.pm-blueprint-cap-heading {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--colour-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.pm-blueprint-cap-count {
+  font-weight: 500;
+  color: var(--colour-subtle);
+  margin-left: 0.25rem;
+}
+.pm-blueprint-cap-body {
+  display: block;
+}

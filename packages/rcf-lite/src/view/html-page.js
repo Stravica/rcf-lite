@@ -328,7 +328,7 @@ function inlineScript() {
   return `
 (function () {
   var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
-  var PM_GROUPS = ['shape', 'component', 'trace', 'capability'];
+  var PM_GROUPS = ['shape', 'component', 'trace', 'capability', 'blueprint'];
   var PM_STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
   // Partial-render cache: grouping -> HTML string. First fetch fills it,
   // subsequent switches use the cache.

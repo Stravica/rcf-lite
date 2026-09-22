@@ -8,7 +8,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 193,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Product Map: blueprint badge and by-blueprint grouping",
   "summary": "Add a sixth grouping to the Product Map tab: 'By blueprint', with one bucket per applied blueprint plus a Project bucket for the project's own requirements. Every REQ row contributed by an applied blueprint carries a compact blueprint badge in every grouping. The by-blueprint bucket's second level is capability, then the usual REQ->US->AC drill-down.",
   "dependsOnFbsIds": [

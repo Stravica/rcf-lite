@@ -70,6 +70,7 @@ export async function renderModelToPage({ projectRoot }) {
     component: renderProductMapGrouping(model, 'component'),
     trace: renderProductMapGrouping(model, 'trace'),
     capability: renderProductMapGrouping(model, 'capability'),
+    blueprint: renderProductMapGrouping(model, 'blueprint'),
   };
   return { fullPageHtml, contentHtml, errors, tree, pmPartials };
 }

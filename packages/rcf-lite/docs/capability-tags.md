@@ -67,3 +67,16 @@ A test in the view suite verifies every REQ under
 `packages/rcf-lite/rcf/requirements/` carries at least one
 `capability:<slug>` tag, and that every slug used is listed in this
 document. That test is the operational contract behind the convention.
+
+## Blueprint attribution and the by-blueprint grouping
+
+The Product Map ships a sixth grouping, "By blueprint", alongside the
+capability grouping. It buckets requirements per contributing blueprint
+using `manifest.blueprints[].contributions[]` (parsed by
+`scope.contributionsForBlueprint`) as the source of truth, with a
+`Project` bucket for the project's own requirements. Inside each
+bucket the second level is the same capability convention documented
+above. Every REQ row an applied blueprint contributed also carries a
+compact blueprint badge (`.pm-blueprint-badge`) in the summary line
+across every grouping - shape, component, trace coverage, capability
+and the by-blueprint grouping itself.
