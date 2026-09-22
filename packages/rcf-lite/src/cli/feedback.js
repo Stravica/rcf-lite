@@ -54,7 +54,7 @@ import {
   emitSessionStart,
   shouldAsk,
 } from '../feedback/hook.js';
-import { redact, allowedHosts, findResidualSecrets } from '../feedback/redact.js';
+import { redact, allowedHosts, findResidualSecrets, RESERVED_IDENTITY_TOKENS } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
 import { renderIssue, renderComment, renderBundle } from '../feedback/render.js';
 import { resolve as resolveDestination, listUnresolvedLibraries, findBlueprintRecord } from '../feedback/destination.js';
@@ -1003,14 +1003,56 @@ async function handlePreview(argv, ctx) {
  */
 async function buildRedactionContext(projectRoot) {
   let operatorName;
+  // 0.28.3 (R5g, issue #246): track why identity folding might be
+  // disabled so we can emit exactly one visible stderr warning
+  // instead of leaving the operator to guess. `disabledReason` is
+  // one of 'no-profile' (rcf/.identity/profile.md is missing or
+  // unreadable), 'no-name-line' (present but no `## Name` heading),
+  // 'blank-name' (whitespace-only), 'placeholder' (matches the
+  // placeholder/todo regex), 'stopword-only' (Name contains only
+  // reserved-noun tokens), or null when a foldable identity was
+  // extracted.
+  let disabledReason = 'no-profile';
   try {
     const profile = await readFile(resolve(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
     const m = profile.match(/^##\s+Name\s*\n([^\n]+)/m);
-    if (m) {
+    if (!m) {
+      disabledReason = 'no-name-line';
+    } else {
       const n = m[1].trim();
-      if (n && !/placeholder|todo|your name/i.test(n)) operatorName = n;
+      if (!n) {
+        disabledReason = 'blank-name';
+      } else if (/placeholder|todo|your name/i.test(n)) {
+        disabledReason = 'placeholder';
+      } else {
+        operatorName = n;
+        const rawTokens = n.split(/\s+/);
+        const foldable = rawTokens.filter((t) => t.length > 3 && !RESERVED_IDENTITY_TOKENS.has(t.toLowerCase()));
+        if (foldable.length === 0) {
+          disabledReason = 'stopword-only';
+        } else {
+          disabledReason = null;
+        }
+      }
     }
   } catch { /* absent is fine */ }
+
+  // Emit the one-line warning once per context build. All disabled
+  // reasons carry the same fix pointer so the operator knows how to
+  // arm folding without having to read the source.
+  if (disabledReason) {
+    const path = 'rcf/.identity/profile.md';
+    const detail = {
+      'no-profile': `${path} is missing`,
+      'no-name-line': `${path} has no \`## Name\` heading`,
+      'blank-name': `${path} \`## Name\` line is empty`,
+      'placeholder': `${path} \`## Name\` line is a placeholder`,
+      'stopword-only': `${path} \`## Name\` line contains only reserved nouns`,
+    }[disabledReason] ?? path;
+    process.stderr.write(
+      `[warn] operator-identity: ${detail}; identity folding is disabled. Add a real \`## Name\` line to arm the redactor.\n`
+    );
+  }
 
   let projectName;
   const remotes = new Set();

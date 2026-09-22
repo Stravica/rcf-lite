@@ -229,3 +229,44 @@ test('preview refuses an unknown entry id with exit 2', async () => {
   assert.equal(res.code, 2);
   assert.match(res.stderr, /unknown pending entry id/);
 });
+
+// -- AC-15601-6 R5g (issue #246): stderr warning on identity-fold disabled
+
+test('AC-15601-6 R5g (issue #246): missing profile.md emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await addCore(root, 'title', 'body about the queue');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: rcf\/\.identity\/profile\.md is missing/);
+  assert.match(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): stopword-only Name line emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await seedIdentity(root, 'The Agent Operator');
+  await addCore(root, 'title', 'body naming the agent stopping');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: rcf\/\.identity\/profile\.md .* contains only reserved nouns/);
+  assert.match(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): a real Name emits no identity-folding warning', async () => {
+  const root = await scaffoldReady();
+  await seedIdentity(root, 'Alice Example');
+  await addCore(root, 'title', 'Alice reviewed this body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.doesNotMatch(res.stderr, /operator-identity/);
+  assert.doesNotMatch(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): blank ## Name line emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  await writeFile(join(root, 'rcf', '.identity', 'profile.md'), '## Name\n   \n', 'utf8');
+  await addCore(root, 'title', 'body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is empty/);
+});
