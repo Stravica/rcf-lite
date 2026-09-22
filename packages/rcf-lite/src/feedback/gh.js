@@ -5,8 +5,9 @@
 //   - ghLabelList({ repo })             list existing label names
 //   - ghRepoView({ repo })               visibility + viewerPermission + hasIssuesEnabled
 //   - ghIssueSearch({ repo, query, state, limit })   dedupe search
+//   - ghIssueGetBody({ repo, number })                re-read a candidate body for fingerprint verification (0.28.2 / #234)
 //   - ghIssueCreate({ repo, title, body, labels })   create one issue
-//   - ghIssueComment({ repo, number, body })         +1 comment
+//   - ghIssueComment({ repo, number, body })         fold comment (carries the full report; the "+1 from another reporter" payload retired in 0.28.2 per Barry's 2026-09-21 ruling on #234)
 //   - ghLabelCreate({ repo, name, description, color })  bootstrap only
 //
 // Every function returns a typed result. Errors are classified into
@@ -68,6 +69,7 @@ export async function loadGhAdapter(env = process.env) {
  * @property {(opts: { repo: string }) => Promise<GhResult>} ghLabelList
  * @property {(opts: { repo: string }) => Promise<GhResult>} ghRepoView
  * @property {(opts: { repo: string, query: string, state?: 'open' | 'closed', limit?: number }) => Promise<GhResult>} ghIssueSearch
+ * @property {(opts: { repo: string, number: number }) => Promise<GhResult>} ghIssueGetBody
  * @property {(opts: { repo: string, title: string, body: string, labels: string[] }) => Promise<GhResult>} ghIssueCreate
  * @property {(opts: { repo: string, number: number, body: string }) => Promise<GhResult>} ghIssueComment
  * @property {(opts: { repo: string, name: string, description?: string, color?: string }) => Promise<GhResult>} ghLabelCreate
@@ -186,6 +188,29 @@ export async function ghIssueSearch(opts) {
     return { ok: true, value: { matches } };
   } catch (err) {
     return { ok: false, kind: 'search-unavailable', message: `search parse failed: ${err.message}` };
+  }
+}
+
+/**
+ * `gh issue view <n> --repo <repo> --json body`. Re-reads the body of
+ * a candidate issue for the fingerprint-verification step introduced
+ * in 0.28.2 (issue #234): a search hit whose body does not carry the
+ * fingerprint line on its own line is a non-match and is discarded
+ * before the fold decision. Returns { body }.
+ *
+ * @param {{ repo: string, number: number }} opts
+ * @returns {Promise<GhResult>}
+ */
+export async function ghIssueGetBody(opts) {
+  const args = ['issue', 'view', String(opts.number), '--repo', opts.repo, '--json', 'body'];
+  const r = await runGh(args);
+  if (!r.ok) return r;
+  try {
+    const parsed = JSON.parse(r.value.stdout);
+    const body = typeof parsed?.body === 'string' ? parsed.body : '';
+    return { ok: true, value: { body } };
+  } catch (err) {
+    return { ok: false, kind: 'unknown', message: `issue-view parse failed: ${err.message}` };
   }
 }
 
@@ -370,6 +395,7 @@ export const DEFAULT_ADAPTER = Object.freeze({
   ghLabelList,
   ghRepoView,
   ghIssueSearch,
+  ghIssueGetBody,
   ghIssueCreate,
   ghIssueComment,
   ghLabelCreate,

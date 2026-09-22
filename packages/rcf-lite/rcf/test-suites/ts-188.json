@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T15:27:35Z",
-  "updatedAt": "2026-09-17T13:47:28Z",
+  "updatedAt": "2026-09-22T00:00:00Z",
   "purpose": "Cover AC-15601-1 (rcf feedback preview renders each pending entry as the title and body that would be filed, lists the destination, and prints the redaction ledger over the full eight-rule vocabulary), AC-15601-2 (preview marks residual-secret findings so the operator sees before consenting; the submit half of AC-15601-2 lands with slice 4), AC-15601-3 (preview never mutates the stored entries.jsonl), AC-15601-4 (a final whole-text residual-secret pass on the fully rendered and normalised issue body and each bundle refuses submit on any hit) and AC-15701-1 (a stable 12-hex fingerprint is attached per entry, folds across blueprint versions when the anchor+class match, and falls back to normalised-title tokens with a warning when the anchor is absent).",
   "testLevel": "integration",
   "acIds": [
@@ -9,7 +9,8 @@
     "AC-15601-3",
     "AC-15601-4",
     "AC-15701-1",
-    "AC-15601-5"
+    "AC-15601-5",
+    "AC-15601-6"
   ],
   "id": "TS-188",
   "usId": "US-15601",
@@ -168,6 +169,13 @@
       "description": "Cover AC-15601-5 via the unit test: redact runs over a body containing the docs URL 'https://stravica.ai/docs/rcf/how-the-agent-files-feedback', the prose 'when the agent stops the queue' and the personal name 'Alice reviewed this', with operatorName seeded as 'The Agent Alice'; the docs URL is emitted verbatim; the prose 'when the agent stops the queue' is emitted verbatim; 'Alice' folds to <operator>; no operator-identity ledger row names 'agent' or 'the'.",
       "status": "pending",
       "testPointer": "test/feedback/redact.test.js::AC-15601-5 operator-identity stopword guard: common nouns in the identity string are never folded; real given names still fold"
+    },
+    {
+      "id": "TC-188-redact-filename-extensions-allowlist",
+      "acId": "AC-15601-6",
+      "description": "Cover AC-15601-6 via the unit test: redact runs over a body containing 'Backstory-product-brief.md', 'intake.json', 'report.log', 'foo.example.com', 'foo.example.com/path', 'Backstory-example.com' and 'a.b.c'; the three filename tokens survive verbatim with no hostname ledger row; foo.example.com folds to <host>; foo.example.com/path folds via the URL rule; Backstory-example.com folds; a.b.c folds; extending redact-allowlist.json extensions with 'xyz' also lets 'file.xyz' survive.",
+      "status": "pending",
+      "testPointer": "test/feedback/redact.test.js::AC-15601-6 filename tokens carrying a known extension survive rule 4"
     }
   ],
   "status": "draft"

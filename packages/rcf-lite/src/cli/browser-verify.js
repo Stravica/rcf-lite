@@ -20,7 +20,7 @@ import { parseArgs } from 'node:util';
 import process from 'node:process';
 import { isAbsolute, resolve } from 'node:path';
 
-import { walkTree } from '#core/store';
+import { walkTree, validateComposedRecord } from '#core/store';
 import { writeUnexpectedFailure, rcfError } from '#core/errors';
 
 import { findProjectRoot } from '../view/index.js';
@@ -270,6 +270,14 @@ export async function main(argv, deps = {}) {
   if (flags.json) stdout.write(`${JSON.stringify(record, null, 2)}\n`);
 
   if (flags['dry-run']) {
+    // 0.28.2 (folded into #230): dry-run runs the same schema pass
+    // the writer runs so a preview reports the same validation error
+    // the write path would refuse.
+    const dryValidation = validateComposedRecord({ tree, record, verb: 'browserVerify' });
+    if (dryValidation) {
+      stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
+      return 3;
+    }
     if (!flags.quiet) {
       renderSummary({ stdout, record });
     }

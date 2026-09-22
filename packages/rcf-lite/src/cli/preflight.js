@@ -23,7 +23,7 @@ import { parseArgs } from 'node:util';
 import { createInterface } from 'node:readline/promises';
 import process from 'node:process';
 
-import { walkTree } from '#core/store';
+import { walkTree, validateComposedRecord } from '#core/store';
 import { writeUnexpectedFailure, rcfError } from '#core/errors';
 
 import { findProjectRoot } from '../view/index.js';
@@ -63,10 +63,17 @@ Options:
   --input <path>            Non-interactive: read pre-filled session
   --non-interactive         Force non-interactive mode (default when
                             not on a TTY or when piped)
-  --dry-run                 Print the composed record; do not write
+  --dry-run                 Print the composed record; do not write.
+                            The composed record is still run through
+                            the same manifest schema pass the write
+                            path runs (0.28.2 fix for #232), so a
+                            preview fails on the same schema misses.
   --json                    Emit the composed record as JSON to stdout
   --quiet                   Suppress non-error stdout
   --help                    Print this help
+
+Service id shape: ^[a-z][a-zA-Z0-9]*$ (camelCase, no hyphens; example:
+"stripeCheckout" is valid, "stripe-checkout" is not).
 
 Credentials NEVER enter the chain. The session prompts for env var
 NAMES only; values are read from the shell at test / finalise time.
@@ -77,7 +84,7 @@ Exit codes:
   0  success
   1  IO / unexpected runtime failure
   2  usage error (bad flags, unresolvable PRD id)
-  3  schema validation on the composed record
+  3  schema validation on the composed record (including --dry-run)
   4  operator cancelled the session at the confirm step
 `;
 
@@ -189,6 +196,20 @@ export async function main(argv, deps = {}) {
   });
 
   if (flags['dry-run']) {
+    // 0.28.2 (issue #232): dry-run now runs the same schema pass the
+    // writer runs. The service-id pattern `^[a-z][a-zA-Z0-9]*$` is
+    // enforced by the manifest schema on the write path; the preview
+    // is no longer allowed to lie about a kebab-case id.
+    const dryValidation = validateComposedRecord({
+      tree,
+      record,
+      verb: 'preflight',
+      extraRecords: optOuts,
+    });
+    if (dryValidation) {
+      stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
+      return 3;
+    }
     if (flags.json) stdout.write(`${JSON.stringify({ record, optOuts }, null, 2)}\n`);
     if (!flags.quiet) {
       stdout.write(`[dry-run] preflight would write record ${record.id} (${record.servicesInScope.length} services, ${record.designShapeAnswers?.length ?? 0} design-shape answers, ${optOuts.length} opt-outs)\n`);

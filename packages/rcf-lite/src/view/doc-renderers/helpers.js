@@ -78,6 +78,43 @@ export function fieldList(label, items) {
 }
 
 /**
+ * 0.28.2 (issue #235): render an array-of-object field as a HTML
+ * table with the schema-known columns. Empty columns are suppressed so
+ * schema-optional fields do not surface as blank columns. Every cell
+ * is escaped. Used by the TAD renderer for the three structured
+ * fields the TAD schema names (dataStores, coreEntities,
+ * externalSystems) so a review-surface reader sees a legible table
+ * instead of a single-line `JSON.stringify` dump.
+ *
+ * @param {string} label       section heading
+ * @param {object[]} rows       array of row objects (dropped when empty)
+ * @param {Array<{ key: string, label?: string }>} columns
+ * @returns {string}
+ */
+export function fieldObjectTable(label, rows, columns) {
+  if (!Array.isArray(rows) || rows.length === 0) return '';
+  if (!Array.isArray(columns) || columns.length === 0) return '';
+  // Drop columns that are empty across every row so a schema-optional
+  // field (`purpose`, `description`, `protocol`) does not surface as
+  // a blank column.
+  const usedColumns = columns.filter((col) => rows.some((r) => {
+    const v = r?.[col.key];
+    return v !== undefined && v !== null && String(v).length > 0;
+  }));
+  if (usedColumns.length === 0) return '';
+  const thead = usedColumns.map((c) => `<th>${escapeHtml(c.label ?? c.key)}</th>`).join('');
+  const tbody = rows.map((r) => {
+    const cells = usedColumns.map((c) => {
+      const v = r?.[c.key];
+      const text = v === undefined || v === null ? '' : String(v);
+      return `<td>${escapeHtml(text)}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+  return `<section class="field-list"><h4>${escapeHtml(label)}</h4><table class="field-table"><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></section>`;
+}
+
+/**
  * Render the "Show raw JSON" disclosure block for a document.
  *
  * Phase 3.8 D13b: the raw-JSON disclosure now carries a stable

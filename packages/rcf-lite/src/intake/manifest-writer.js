@@ -9,7 +9,7 @@ import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '#core/errors';
-import { validateDocument } from '#core/store';
+import { buildNextManifest, validateDocument } from '#core/store';
 
 const ID_RE = /^ic-\d{4}-\d{2}-\d{2}-(\d{3})$/;
 
@@ -73,8 +73,11 @@ export function composeIntakeRecord({ manifest, fidelity, artefacts, validationF
  * @returns {Promise<{ record: object } | import('#core/errors').RcfError>}
  */
 export async function writeIntakeRecord({ projectRoot, tree, record }) {
-  const manifest = tree?.manifest ?? {};
-  const nextManifest = { ...manifest, intakeClassification: record };
+  // 0.28.2 (Codex review follow-up on #230): the writer synthesises
+  // the next manifest via the same `buildNextManifest` helper the
+  // dry-run branch uses, so preview and write share one composition
+  // path. `validateDocument` then runs on the identical shape.
+  const nextManifest = buildNextManifest({ manifest: tree?.manifest ?? {}, record, verb: 'intake' });
   const validation = validateDocument({ doc: nextManifest, kind: 'manifest', filePath: 'rcf/manifest.json' });
   if (validation) return validation;
   const abs = join(projectRoot, 'rcf', 'manifest.json');

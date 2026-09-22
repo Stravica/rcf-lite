@@ -12,7 +12,8 @@
 import { readFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { walkTree } from '#core/store';
+import { walkTree, validateComposedRecord } from '#core/store';
+import { FIDELITY_LEVELS } from '../intake/fidelity.js';
 
 import { findProjectRoot } from '../view/index.js';
 import {
@@ -44,16 +45,25 @@ Options:
   --kind <kind>              Hint the artefact kind: napkin |
                              productBrief | prd | prdPlusTad | other
   --input <config.json>      Non-interactive mode: pre-filled artefacts
-                             + findings + acknowledgements
-  --dry-run                  Print the plan without writing the record
+                             + findings + acknowledgements. The
+                             fidelity in the input file must be one
+                             of the allowed values below.
+  --dry-run                  Print the plan without writing the record;
+                             the composed record is still run through
+                             the same manifest schema pass the write
+                             path runs (0.28.2 fix for #230), so a
+                             preview fails on the same schema misses.
   --json                     Emit the intakeClassification block as JSON
   --quiet                    Suppress non-error confirmations
   --help                     Print this help
 
+Fidelity enum (allowed values on --input.fidelity):
+  ${FIDELITY_LEVELS.join(', ')}
+
 Exit codes:
   0  success
   2  usage error (missing --artefact/--input, unreadable file)
-  3  validation failure on the written manifest
+  3  validation failure on the composed record (including --dry-run)
 `;
 
 /**
@@ -124,6 +134,17 @@ export async function main(argv, deps = {}) {
   }
 
   if (flags['dry-run']) {
+    // 0.28.2 (issue #230): run the same schema pass the writer runs so
+    // a preview no longer passes on a value the real run refuses.
+    const dryValidation = validateComposedRecord({
+      tree: walkResult.tree,
+      record: outcome.record,
+      verb: 'intake',
+    });
+    if (dryValidation) {
+      stderr.write(`[error] ${dryValidation.kind} ${dryValidation.message}\n`);
+      return 3;
+    }
     if (flags.json) {
       stdout.write(`${JSON.stringify(outcome.record, null, 2)}\n`);
     } else {

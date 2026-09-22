@@ -3746,6 +3746,14 @@
             "TC-188-redact-operator-identity-stopword-guard"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-6",
+          "covered": true,
+          "testCases": [
+            "TC-188-redact-filename-extensions-allowlist"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -3769,6 +3777,8 @@
           "id": "AC-15701-2",
           "covered": true,
           "testCases": [
+            "TC-191-submit-anchor-mismatch-creates",
+            "TC-191-submit-fingerprint-mismatch-creates",
             "TC-191-submit-many-hit-comment-lowest",
             "TC-191-submit-one-hit-comments",
             "TC-191-submit-zero-hit-creates"

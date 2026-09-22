@@ -448,6 +448,18 @@ export function redact(input, context = {}) {
     ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
   ].map((h) => h.toLowerCase()));
 
+  // Rule 4 narrowing (0.28.2, issue #233, design amendment R5d): a
+  // token whose trailing dot-label is a known file extension is NOT
+  // a hostname. This kills the `Backstory-product-brief.md` and
+  // `intake.json` false positives Barry hit in the WSD round-trip.
+  // The bundled shortlist lives in redact-allowlist.json under the
+  // new `extensions` field; the operator overlay merges via
+  // context.allowExtensions.
+  const allowExtensions = new Set([
+    ...(Array.isArray(BUNDLED_ALLOWLIST.extensions) ? BUNDLED_ALLOWLIST.extensions : []),
+    ...(Array.isArray(context.allowExtensions) ? context.allowExtensions : []),
+  ].map((e) => String(e).toLowerCase()));
+
   // Rule 9: URL-embedded credentials (design amendment R3b, added
   // round 4 for F-P0-B). Runs BEFORE the rule-4 hostname pass so a
   // Slack/Discord webhook URL whose path IS the credential has that
@@ -470,9 +482,26 @@ export function redact(input, context = {}) {
   // preceded by @ (already handled by rule 3), a slash or backslash
   // (path fragment; the winAbsRe substitution leaves `<path>\file.ext`
   // which must not fold to `<host>`), a digit-dot (IP handled by
-  // rule 5b), or another word character (a longer host suffix).
-  const bareHostRe = /(?<![@/\\\w.])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![\w.-])/g;
+  // rule 5b), a hyphen or another word character (a longer host
+  // suffix or a filename-internal segment). Adding `-` to the
+  // lookbehind is the 0.28.2 (issue #233) fix that stops
+  // `Backstory-product-brief.md` folding on its internal
+  // `product-brief.md` slice; the extension-refusal step below is the
+  // second layer.
+  const bareHostRe = /(?<![@/\\\w.\-])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![\w.-])/g;
   text = replaceRegex(text, bareHostRe, (host) => {
+    // 0.28.2 (issue #233, design amendment R5d): a candidate whose
+    // trailing dot-label is a known file extension is not a hostname;
+    // leave it intact and record no ledger row (we are not redacting,
+    // we are correctly leaving alone). This narrowing catches shapes
+    // like `report.log`, `intake.json` and `Backstory-example.md`
+    // that pass the lookbehind guard because they start after a
+    // whitespace or line boundary.
+    const lastDot = host.lastIndexOf('.');
+    if (lastDot > 0) {
+      const trailingLabel = host.slice(lastDot + 1).toLowerCase();
+      if (allowExtensions.has(trailingLabel)) return host;
+    }
     if (isHostAllowed(host, allowHosts)) return host;
     return '<host>';
   }, 'hostname', ledger);

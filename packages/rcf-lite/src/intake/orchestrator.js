@@ -82,23 +82,60 @@ export async function runIntakePhases({ projectRoot, artefactPaths, kindHint = n
 
   // Fold non-interactive input: extra findings, operator responses,
   // and elicitationScope hints all land here.
+  //
+  // 0.28.2 (issue #229): findings are material-scoped, not
+  // artefact-scoped. Two artefacts that both trip the same branch
+  // ("web UI but no sign-in surface named") emit the same finding
+  // twice with byte-identical detail text, and downstream that
+  // inflated `findings=2` on a record with one finding. Dedupe by
+  // `${kind}::${detail}` (first-wins) before timestamping so the
+  // material carries one finding, not N.
+  //
+  // Same commit fixes the second half of #229: operator-supplied
+  // `validationFindings` on --input were dropped unless the kind was
+  // `otherDeclared`. Fold every input finding into the same map so
+  // an operator-authored `impliedButNotStated`, `contradiction` or
+  // `missingLoadBearingConstraint` survives the round-trip and
+  // coalesces with a scanned duplicate (the operator's response is
+  // preserved when it does).
   const inputFindings = Array.isArray(input?.validationFindings) ? input.validationFindings : [];
+
+  /** @type {Map<string, object>} */
+  const foldedFindings = new Map();
+  const foldKey = (f) => `${String(f.kind ?? '')}::${String(f.detail ?? '')}`;
+  for (const f of allFindings) {
+    const k = foldKey(f);
+    if (!foldedFindings.has(k)) foldedFindings.set(k, f);
+  }
+  for (const f of inputFindings) {
+    if (typeof f?.kind !== 'string' || typeof f?.detail !== 'string') continue;
+    const k = foldKey(f);
+    if (!foldedFindings.has(k)) foldedFindings.set(k, f);
+  }
+
+  // 0.28.2 (Codex review follow-up on #229): the response lookup is
+  // keyed by (kind, detail) too, so resolving one finding never
+  // silently marks a different-kind finding with the same detail as
+  // resolved. Previously the lookup was `detail` only and an
+  // answered `impliedButNotStated` leaked its response onto an
+  // unanswered `contradiction` with the same detail string.
   const inputResponses = new Map();
   for (const f of inputFindings) {
-    if (typeof f?.detail === 'string' && typeof f?.operatorResponse === 'string') {
-      inputResponses.set(f.detail, f.operatorResponse);
+    if (typeof f?.kind === 'string'
+      && typeof f?.detail === 'string'
+      && typeof f?.operatorResponse === 'string') {
+      inputResponses.set(foldKey(f), f.operatorResponse);
     }
-    if (f?.kind === 'otherDeclared') allFindings.push(f);
   }
 
   const isoNow = now.toISOString();
-  const findingsWithTimestamps = allFindings.map((f) => {
-    const entry = { kind: f.kind, detail: f.detail, raisedAt: isoNow };
+  const findingsWithTimestamps = Array.from(foldedFindings.values()).map((f) => {
+    const entry = { kind: f.kind, detail: f.detail, raisedAt: f.raisedAt ?? isoNow };
     if (f.kindDescription) entry.kindDescription = f.kindDescription;
-    const response = inputResponses.get(f.detail) ?? input?.operatorResponse;
+    const response = f.operatorResponse ?? inputResponses.get(foldKey(f)) ?? input?.operatorResponse;
     if (typeof response === 'string' && response.length > 0) {
       entry.operatorResponse = response;
-      entry.resolvedAt = isoNow;
+      entry.resolvedAt = f.resolvedAt ?? isoNow;
     }
     return entry;
   });

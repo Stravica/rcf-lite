@@ -108,6 +108,19 @@ export async function ghIssueSearch(opts) {
   return out;
 }
 
+// 0.28.2 (issue #234): the fake now serves body lookups too so
+// fingerprint-verification tests can drive create vs comment. The
+// scenario carries an issueBodies map keyed by issue number; a missing
+// number returns an empty body (which fails the fingerprint check and
+// therefore falls through to create).
+export async function ghIssueGetBody(opts) {
+  const map = pick('issueBodies', {});
+  const body = map && typeof map === 'object' ? (map[String(opts.number)] ?? map[opts.number] ?? '') : '';
+  const out = { ok: true, value: { body } };
+  logCall('ghIssueGetBody', opts, out);
+  return out;
+}
+
 export async function ghIssueCreate(opts) {
   const raw = pick('create', { url: 'https://github.com/example/repo/issues/1', number: 1 });
   const out = toResult(raw);

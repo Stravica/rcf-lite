@@ -18,7 +18,7 @@ import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '#core/errors';
-import { validateDocument } from '#core/store';
+import { buildNextManifest, validateDocument } from '#core/store';
 
 import { composeDefaults, deepGet, deepSet } from './defaults.js';
 import { CATALOGUE_V1 } from '../preflight/design-shapes.js';
@@ -150,15 +150,16 @@ export function preflightSeamOverrides(manifest, catalogue = CATALOGUE_V1) {
 export async function writeUiBaselineRecord({
   projectRoot, tree, record, options = {},
 }) {
-  const manifest = tree.manifest ?? {};
-  const nextManifest = { ...manifest };
-  const priorBaseline = nextManifest.uiBaseline ?? null;
-
-  if (priorBaseline && options.reset) {
-    const history = Array.isArray(nextManifest.uiBaselineHistory) ? nextManifest.uiBaselineHistory : [];
-    nextManifest.uiBaselineHistory = [...history, priorBaseline];
-  }
-  nextManifest.uiBaseline = record;
+  // 0.28.2 (Codex review follow-up on the shared helper): compose via
+  // the shared `buildNextManifest` helper so write and dry-run
+  // produce the same shape. `options.reset` still drives the
+  // history-move branch inside the helper.
+  const nextManifest = buildNextManifest({
+    manifest: tree.manifest ?? {},
+    record,
+    verb: 'uiBaselineInit',
+    options: { reset: Boolean(options.reset) },
+  });
 
   const relPath = 'rcf/manifest.json';
   const validation = validateDocument({ doc: nextManifest, kind: 'manifest', filePath: relPath });

@@ -19,7 +19,7 @@ import { mkdir, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '#core/errors';
-import { validateDocument } from '#core/store';
+import { buildNextManifest, validateDocument } from '#core/store';
 
 /**
  * @typedef {object} PreflightServiceRuling
@@ -210,16 +210,16 @@ export function composeOptOutRecord({
 export async function writePreflightRecord({
   projectRoot, tree, record, optOuts = [], options = {},
 }) {
-  const manifest = tree.manifest ?? {};
-  const nextManifest = { ...manifest };
-
-  const existingPfc = Array.isArray(nextManifest.preFlightConfig) ? nextManifest.preFlightConfig : [];
-  nextManifest.preFlightConfig = [...existingPfc, record];
-
-  if (optOuts.length > 0) {
-    const existingOptOuts = Array.isArray(nextManifest.baselineAcOptOuts) ? nextManifest.baselineAcOptOuts : [];
-    nextManifest.baselineAcOptOuts = [...existingOptOuts, ...optOuts];
-  }
+  // 0.28.2 (Codex review follow-up on #232): compose the next
+  // manifest via the shared `buildNextManifest` helper so the write
+  // and dry-run branches produce byte-identical shapes; validation
+  // then runs on the same result.
+  const nextManifest = buildNextManifest({
+    manifest: tree.manifest ?? {},
+    record,
+    verb: 'preflight',
+    extraRecords: optOuts,
+  });
 
   const relPath = 'rcf/manifest.json';
   const validation = validateDocument({ doc: nextManifest, kind: 'manifest', filePath: relPath });

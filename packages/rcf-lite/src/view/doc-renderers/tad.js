@@ -9,9 +9,33 @@ import {
   docLinkList,
   escapeHtml,
   fieldList,
+  fieldObjectTable,
   fieldPara,
   rawJsonDisclosure,
 } from './helpers.js';
+
+// 0.28.2 (issue #235): structured fields the TAD schema explicitly
+// types as arrays of objects. Each entry maps a field-key to the
+// schema-documented column layout so `renderOptionalSections` can
+// pick a table renderer over the raw-JSON dump the pre-fix code
+// emitted. Columns follow @stravica-ai/rcf-schemas@0.6.3
+// schemas/tad.schema.json.
+const TAD_STRUCTURED_FIELDS = {
+  dataStores: [
+    { key: 'name', label: 'Name' },
+    { key: 'kind', label: 'Kind' },
+    { key: 'purpose', label: 'Purpose' },
+  ],
+  coreEntities: [
+    { key: 'name', label: 'Name' },
+    { key: 'description', label: 'Description' },
+  ],
+  externalSystems: [
+    { key: 'name', label: 'Name' },
+    { key: 'purpose', label: 'Purpose' },
+    { key: 'protocol', label: 'Protocol' },
+  ],
+};
 
 /**
  * @param {object} tad
@@ -63,12 +87,49 @@ function renderOptionalSections(tad) {
   for (const [key, label] of Object.entries(named)) {
     const section = tad[key];
     if (!section || typeof section !== 'object') continue;
-    const rows = Object.entries(section).map(([k, v]) => {
-      if (typeof v === 'string') return `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`;
-      if (Array.isArray(v)) return `<dt>${escapeHtml(k)}</dt><dd>${v.map((x) => `<code>${escapeHtml(typeof x === 'object' ? JSON.stringify(x) : x)}</code>`).join(', ')}</dd>`;
-      return `<dt>${escapeHtml(k)}</dt><dd><pre>${escapeHtml(JSON.stringify(v, null, 2))}</pre></dd>`;
-    }).join('\n');
-    out.push(`<section class="field-list"><h4>${escapeHtml(label)}</h4><dl>${rows}</dl></section>`);
+    // 0.28.2 (issue #235): pull the schema-known structured fields
+    // (dataStores, coreEntities, externalSystems) out of the generic
+    // dl loop and render them as tables. The remaining scalar and
+    // array-of-string fields keep their dl treatment.
+    const structuredBlocks = [];
+    const dlEntries = [];
+    for (const [k, v] of Object.entries(section)) {
+      if (TAD_STRUCTURED_FIELDS[k] && Array.isArray(v) && v.length > 0 && v.every((x) => x && typeof x === 'object')) {
+        const table = fieldObjectTable(prettyStructuredLabel(k), v, TAD_STRUCTURED_FIELDS[k]);
+        if (table) structuredBlocks.push(table);
+        continue;
+      }
+      if (typeof v === 'string') {
+        dlEntries.push(`<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`);
+        continue;
+      }
+      if (Array.isArray(v)) {
+        // Array-of-string keeps the existing inline shape. An
+        // unknown array-of-object surface falls through to a nested
+        // disclosure so it stays legible even when the schema grows
+        // a new field before this renderer knows about it.
+        if (v.every((x) => typeof x !== 'object' || x === null)) {
+          dlEntries.push(`<dt>${escapeHtml(k)}</dt><dd>${v.map((x) => `<code>${escapeHtml(typeof x === 'object' ? JSON.stringify(x) : x)}</code>`).join(', ')}</dd>`);
+        } else {
+          const items = v.map((x) => `<li><pre>${escapeHtml(JSON.stringify(x, null, 2))}</pre></li>`).join('');
+          dlEntries.push(`<dt>${escapeHtml(k)}</dt><dd><ul>${items}</ul></dd>`);
+        }
+        continue;
+      }
+      dlEntries.push(`<dt>${escapeHtml(k)}</dt><dd><pre>${escapeHtml(JSON.stringify(v, null, 2))}</pre></dd>`);
+    }
+    const dl = dlEntries.length > 0 ? `<dl>${dlEntries.join('\n')}</dl>` : '';
+    const structured = structuredBlocks.join('\n');
+    out.push(`<section class="field-list"><h4>${escapeHtml(label)}</h4>${dl}${structured}</section>`);
   }
   return out.join('\n');
+}
+
+function prettyStructuredLabel(key) {
+  const map = {
+    dataStores: 'Data stores',
+    coreEntities: 'Core entities',
+    externalSystems: 'External systems',
+  };
+  return map[key] ?? key;
 }

@@ -6,6 +6,105 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.28.2] - 2026-09-22
+
+Batched fix release for the seven defects Barry's WSD-lens dogfood on
+0.28.1 surfaced (issues #229-#235), plus the three unreported dry-run
+gaps Barry folded into the same release on 2026-09-21 (review,
+ui-baseline init, browser-verify). Ships two chain amendments (the fold
+rule on submit and a filename-token narrowing on the redactor's rule 4)
+and five build diffs behind them.
+
+### Fixed
+
+- **Submit no longer folds unrelated findings into one issue and no
+  longer replaces the report with a "+1" stub (#234).** Barry's
+  round-trip filed five distinct findings with four distinct
+  fingerprints; every one folded to a single pre-existing issue whose
+  fingerprint matched none of them, and every comment carried
+  `+1 from another reporter.` with no title, body or evidence. The
+  fix, per Barry's 2026-09-21 ruling on the fold rule: submit no
+  longer treats a `gh search issues` hit as a fold decision. For
+  every returned candidate it now re-reads the issue body via a new
+  `ghIssueGetBody` gh-adapter function and folds only when the body
+  carries `rcf-feedback-fingerprint: <fp>` on its own line AND the
+  anchor / kind / target markers agree with the entry's. The retired
+  `+1 from another reporter.` payload is gone: every fold comment
+  now carries the full report prefaced with "Apparent duplicate of
+  the issue subject; posting the full report so a human can judge."
+  Submit's stdout row names the outcome and the matched title so a
+  wrong fold is visible on the same line a human already sees
+  (`created #N <url>` vs `commented on #N (fingerprint match:
+  <title>) <url>`). Chain: US-15701 AC-15701-2 amended.
+
+- **Redactor no longer rewrites `.md` filenames as hostnames (#233).**
+  Barry's evidence pointer
+  `rcf discover intake --artefact rcf/knowledge/docs/brief/Backstory-product-brief.md,...`
+  was rendered as `Backstory-<host>`, destroying the exact evidence
+  the verb asks for. Rule 4 gets two narrowings per design amendment
+  R5d: the bare-hostname regex's negative lookbehind now includes
+  `-` (so `product-brief.md` can never start a match after the
+  hyphen), and a candidate hostname whose trailing dot-label is on a
+  bundled `extensions` shortlist in `src/feedback/redact-allowlist.json`
+  is left intact with no ledger row. Bundled list covers the file
+  types rcf-lite feedback sees as evidence (md, mdx, json, yml,
+  yaml, txt, js, mjs, cjs, ts, tsx, html, css, png, svg, sh, csv,
+  log, lock). Operator overlay merges via `allowExtensions` on the
+  redact context. Chain: US-15601 AC-15601-6 added; TAC-4103
+  responsibility updated.
+
+- **Dry-run and write now share one schema pass across the five
+  discover verbs (#230 and #232, folding review / ui-baseline init /
+  browser-verify per Barry's 2026-09-21 ruling).** Two direct
+  reproductions: `intake --input <file> --dry-run` accepted
+  `fidelity: briefRich` that the real run refused (#230); `preflight
+  --input <file> --dry-run` accepted a kebab-case service id that
+  the real run refused (#232). Same class in the three unreported
+  verbs. Fix: a shared `validateComposedRecord({ tree, record, verb
+  })` helper in `src/core/store/validate-composed-record.js`
+  synthesises the same nextManifest each writer builds, runs
+  `validateDocument`, and returns null or the same error the writer
+  would refuse on. Wired into every dry-run branch; exit code 3 on a
+  validation miss in every path. `intake --help` now advertises the
+  fidelity enum (`FIDELITY_LEVELS`); `preflight --help` names the
+  service id pattern (`^[a-z][a-zA-Z0-9]*$`).
+
+- **`discover intake` no longer emits the same finding once per
+  artefact (#229).** Two artefacts that both trip the same branch
+  (`impliedButNotStated` on a web UI with no sign-in surface) landed
+  as two byte-identical findings in the record. Findings are now
+  material-scoped (deduped by `<kind>::<detail>` before timestamping)
+  and operator-supplied `validationFindings` on `--input` survive
+  regardless of kind (previously only `otherDeclared` was folded,
+  silently dropping `impliedButNotStated` / `contradiction` /
+  `missingLoadBearingConstraint`). A scan hit and an operator-authored
+  finding of the same (kind, detail) coalesce with the operator's
+  response preserved. Build-only per the RCA.
+
+- **`req-baseline sweep --yes` no longer assigns duplicate AC ids
+  across a batch (#231).** Accepting two or more baseline candidates
+  for one user story in one sweep refused the write with
+  `Duplicate id AC-<usNum>-<N>`. Fix: extract the ordinal allocator
+  into `makeAcIdAllocator(usDoc)`; `applySweepDecisions` creates one
+  allocator per US and passes each allocated id into
+  `composeBaselineAc` via a new optional `idOverride` parameter.
+  `nextAcId` and the single-candidate call shape stay
+  backwards-compatible. Build-only per the RCA.
+
+- **TAD renderer no longer dumps `JSON.stringify(x)` for structured
+  fields (#235).** Barry's review surface showed 14 raw single-line
+  JSON blobs across `dataStores`, `coreEntities` and
+  `externalSystems`. A new `fieldObjectTable(label, rows, columns)`
+  helper renders each schema-known structured field as a table with
+  the columns the TAD schema documents. Empty columns are dropped so
+  schema-optional fields do not surface as blank columns; every cell
+  is escaped. `renderOptionalSections` picks the table renderer for
+  `dataArchitecture.dataStores`, `dataArchitecture.coreEntities`,
+  `integrationArchitecture.externalSystems`; everything else keeps
+  the scalar / array-of-string treatment. `style.css` gets a
+  lightweight `.field-list table.field-table` rule matching the
+  existing cadence. Build-only per the RCA.
+
 ## [0.28.1] - 2026-09-17
 
 Feedback defects surfaced by the first WSD-lens round-trip on 0.28.0. Fixes both a destination bug that silently misrouted library-owned findings to `Stravica/rcf-lite`, and a redactor over-fold that mangled the docs URL and any prose using the canonical noun `agent`. Includes a package-rename disclosure banner in the README so a colleague hitting `npm i -g @stravica-ai/rcf-build-lite` on the retired scoped name knows what to do.

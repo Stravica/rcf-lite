@@ -146,6 +146,78 @@ test('renderTad renders optional sections present in the document', () => {
   assert.match(html, /apiDesign/);
 });
 
+// 0.28.2 (issue #235): TAD renderer now emits a table for the three
+// structured fields the TAD schema names, instead of dropping raw
+// JSON.stringify blobs into a <code> element.
+test('renderTad renders dataArchitecture.dataStores as a table with schema-known columns (0.28.2 #235)', () => {
+  const html = renderTad(
+    {
+      tadId: 'TAD-001',
+      systemOverview: {
+        executiveSummary: 'x', systemPurpose: 'y', architecturalApproach: 'z', keyCapabilities: ['c'],
+      },
+      dataArchitecture: {
+        dataStores: [
+          { name: 'Local application store', kind: 'SQLite database in-process' },
+          { name: 'Object storage', kind: 'S3-compatible bucket', purpose: 'attachments' },
+        ],
+        coreEntities: [
+          { name: 'User', description: 'operator identity' },
+          { name: 'Session' },
+        ],
+      },
+    },
+    { raw: '{}', componentIds: [], architecturalDecisionIds: [] },
+  );
+  assert.match(html, /<table class="field-table">/);
+  assert.match(html, /Data stores/);
+  assert.match(html, /Core entities/);
+  // Row cell text.
+  assert.match(html, /Local application store/);
+  assert.match(html, /SQLite database in-process/);
+  // Empty columns are suppressed: Core entities' Description column
+  // stays (one row has one, one doesn't) but no <th>description</th>
+  // is emitted for a field where every row is empty. Here Data stores
+  // has one row without a purpose and one with, so the purpose column
+  // is kept.
+  assert.match(html, /<th>Purpose<\/th>/);
+  // The retired single-line JSON.stringify blob is gone.
+  assert.doesNotMatch(html, /<code>\{"name":"Local application store"/);
+});
+
+test('renderTad renders integrationArchitecture.externalSystems as a table (0.28.2 #235)', () => {
+  const html = renderTad(
+    {
+      tadId: 'TAD-001',
+      systemOverview: { executiveSummary: 'x', systemPurpose: 'y', architecturalApproach: 'z', keyCapabilities: [] },
+      integrationArchitecture: {
+        apiDesign: 'rest',
+        externalSystems: [
+          { name: 'Stripe', purpose: 'payments', protocol: 'https' },
+          { name: 'Postmark', protocol: 'smtp' },
+        ],
+      },
+    },
+    { raw: '{}', componentIds: [], architecturalDecisionIds: [] },
+  );
+  assert.match(html, /External systems/);
+  assert.match(html, /<td>Stripe<\/td>/);
+  assert.match(html, /<td>Postmark<\/td>/);
+  assert.match(html, /apiDesign/);
+});
+
+test('renderTad drops the retired JSON.stringify fallback for structured fields (0.28.2 #235 regression guard)', () => {
+  const html = renderTad(
+    {
+      tadId: 'TAD-001',
+      systemOverview: { executiveSummary: 'x', systemPurpose: 'y', architecturalApproach: 'z', keyCapabilities: [] },
+      dataArchitecture: { dataStores: [{ name: 'A', kind: 'B' }] },
+    },
+    { raw: '{}', componentIds: [], architecturalDecisionIds: [] },
+  );
+  assert.doesNotMatch(html, /\{"name"/, 'no raw JSON.stringify dump anywhere in the article');
+});
+
 test('renderTac emits responsibilities and interfaces', () => {
   const html = renderTac(
     {

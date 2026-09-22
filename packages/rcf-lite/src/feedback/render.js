@@ -110,26 +110,38 @@ function truncateToBytes(text, maxBytes) {
 }
 
 /**
- * Render the `+1 from another reporter` comment body used on the
- * dedupe path (slice 4). Kept in this module because triage sees one
- * shape from `create` and `comment`.
+ * Render the fold comment body used on the dedupe path (slice 4).
+ * 0.28.2 (issue #234, Barry ruling 2026-09-21): the retired
+ * "+1 from another reporter." payload is gone; the comment always
+ * carries the full report so a human can judge whether the fold is
+ * correct. The header line names the fold decision. The visible
+ * fingerprint line at the bottom stays so a later submit can still
+ * match on it.
  *
  * @param {object} entry
- * @param {{ body: string, ledger: Array<{ rule: string, count: number }> }} redacted
- * @param {{ fingerprint: string, includeBody?: boolean }} meta
+ * @param {{ title: string, body: string, evidence: Array<{ kind: string, value: string }>, ledger: Array<{ rule: string, count: number }> }} redacted
+ * @param {{ fingerprint: string, matchedTitle?: string }} meta
  * @returns {RenderedComment}
  */
 export function renderComment(entry, redacted, meta) {
   const lines = [];
-  lines.push('+1 from another reporter.');
+  lines.push('Apparent duplicate of the issue subject; posting the full report so a human can judge.');
   lines.push('');
-  lines.push(...renderEnvironmentTable(entry).split('\n'));
-  if (meta.includeBody) {
-    lines.push('');
-    lines.push('Report body:');
-    lines.push('');
-    lines.push(redacted.body);
+  lines.push(`## Report: ${renderTitle(entry, redacted.title)}`);
+  lines.push('');
+  lines.push(redacted.body);
+  lines.push('');
+  lines.push('---');
+  lines.push('**Evidence**');
+  if (Array.isArray(redacted.evidence) && redacted.evidence.length > 0) {
+    for (const ev of redacted.evidence) {
+      lines.push(`- \`${ev.value}\` (${ev.kind})`);
+    }
+  } else {
+    lines.push('- (none)');
   }
+  lines.push('');
+  lines.push(renderEnvironmentTable(entry));
   lines.push('');
   lines.push(`rcf-feedback-fingerprint: ${meta.fingerprint}`);
   return { body: `${lines.join('\n')}\n` };
@@ -241,10 +253,20 @@ function renderEnvironmentTable(entry) {
       t.libraryPrefix ? `(library ${t.libraryPrefix}${t.libraryRef ? ` ${t.libraryRef}` : ''}${t.resolvedSha ? `, git ${String(t.resolvedSha).slice(0, 7)}` : t.tarballSha256 ? `, tarball ${String(t.tarballSha256).slice(0, 7)}` : ''})` : null,
     ].filter(Boolean).join(' ')
     : 'n/a';
+  // 0.28.2 (issue #234): a "target" row goes on the environment
+  // table for core entries too, so submit's fingerprint-verification
+  // step can compare the entry's verb path against a candidate's
+  // recorded target and refuse to fold across differing targets. For
+  // blueprint entries the blueprint cell already carries the target
+  // identity, so the target row is left as "-" to avoid duplication.
+  const targetCell = kind === 'blueprint'
+    ? '-'
+    : (typeof t.ref === 'string' && t.ref.length > 0 ? t.ref : '-');
   const rows = [
     ['field', 'value'],
     ['kind', kind],
     ['blueprint', blueprintCell],
+    ['target', targetCell],
     ['anchor', entry?.anchor ?? '-'],
     ['symptom class', entry?.symptomClass ?? '-'],
     ['severity', entry?.severity ?? '-'],

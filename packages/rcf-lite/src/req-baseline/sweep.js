@@ -87,10 +87,20 @@ export async function applySweepDecisions({ projectRoot, tree, decisions, now = 
     const usDoc = tree.byId.get(usId);
     if (!usDoc) continue;
 
+    // 0.28.2 (issue #231): a per-US allocator seeded ONCE from the
+    // current maxN on `usDoc.acceptanceCriteria`, then handed to each
+    // `composeBaselineAc` for the run. `nextAcId` was stateless
+    // across iterations, so every candidate accepted for one US
+    // received the identical `AC-<usNum>-<maxN+1>` and the writer's
+    // post-write validation refused the tree with a duplicate-id
+    // breakage. Ordinal allocation is monotone within a batch and
+    // across batches (a later sweep on the same US resumes from the
+    // new maxN in the tree).
+    const allocator = makeAcIdAllocator(usDoc);
     const acsToAppend = [];
     for (const d of list) {
       if (d.action === 'accept') {
-        const ac = composeBaselineAc({ usDoc, candidate: d.candidate, now });
+        const ac = composeBaselineAc({ usDoc, candidate: d.candidate, now, idOverride: allocator() });
         acsToAppend.push(ac);
         writtenAcIds.push(ac.id);
         accepted += 1;
@@ -172,9 +182,9 @@ export async function applyPendingBaselinesForUs({ tree, usId }) {
  * @param {Date} args.now
  * @returns {object}
  */
-export function composeBaselineAc({ usDoc, candidate, now }) {
+export function composeBaselineAc({ usDoc, candidate, now, idOverride = null }) {
   const isoNow = now.toISOString();
-  const id = nextAcId(usDoc);
+  const id = typeof idOverride === 'string' && idOverride.length > 0 ? idOverride : nextAcId(usDoc);
   const canonicalText = candidate.canonicalText;
   const gwt = candidate.given || candidate.when || candidate.then
     ? { given: candidate.given ?? '', when: candidate.when ?? '', then: candidate.then ?? '' }
@@ -200,8 +210,22 @@ export function composeBaselineAc({ usDoc, candidate, now }) {
 const AC_HIER_ID_RE = /^AC-(\d{3,})-(\d+)$/;
 
 function nextAcId(usDoc) {
+  const alloc = makeAcIdAllocator(usDoc);
+  return alloc();
+}
+
+/**
+ * 0.28.2 (issue #231): return a monotone AC-id allocator seeded once
+ * from `usDoc.acceptanceCriteria`. Every subsequent call returns
+ * `AC-<usNum>-<n++>`; a caller that accepts N baseline candidates for
+ * one US in one sweep now gets N distinct ids, and the writer's
+ * duplicate-id refusal on `updateDocument` no longer bites.
+ *
+ * @param {object} usDoc
+ * @returns {() => string}
+ */
+export function makeAcIdAllocator(usDoc) {
   const acs = Array.isArray(usDoc.acceptanceCriteria) ? usDoc.acceptanceCriteria : [];
-  // Prefer hierarchical form matching the US id, e.g. US-201 → AC-201-1.
   const usNum = (usDoc.usId ?? '').match(/^US-(\d+)$/)?.[1];
   let maxN = 0;
   for (const ac of acs) {
@@ -212,7 +236,12 @@ function nextAcId(usDoc) {
     const n = Number.parseInt(tail, 10);
     if (Number.isFinite(n) && n > maxN) maxN = n;
   }
-  return usNum ? `AC-${usNum}-${maxN + 1}` : `AC-${(Math.floor(Math.random() * 999)).toString().padStart(3, '0')}-1`;
+  let counter = maxN;
+  return () => {
+    counter += 1;
+    if (!usNum) return `AC-${(Math.floor(Math.random() * 999)).toString().padStart(3, '0')}-${counter}`;
+    return `AC-${usNum}-${counter}`;
+  };
 }
 
 function extractGwt(text) {

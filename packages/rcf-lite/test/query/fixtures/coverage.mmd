@@ -1711,6 +1711,10 @@ flowchart LR
   REQ-156 --> AC-15601-5
   TC-188-redact-operator-identity-stopword-guard["TC-188-redact-operator-identity-stopword-guard"]
   AC-15601-5 -.-> TC-188-redact-operator-identity-stopword-guard
+  AC-15601-6["AC-15601-6"]
+  REQ-156 --> AC-15601-6
+  TC-188-redact-filename-extensions-allowlist["TC-188-redact-filename-extensions-allowlist"]
+  AC-15601-6 -.-> TC-188-redact-filename-extensions-allowlist
   REQ-157["REQ-157"]
   AC-15701-1["AC-15701-1"]
   REQ-157 --> AC-15701-1
@@ -1724,6 +1728,10 @@ flowchart LR
   AC-15701-1 -.-> TC-188-render-fingerprint-twin-and-labels
   AC-15701-2["AC-15701-2"]
   REQ-157 --> AC-15701-2
+  TC-191-submit-anchor-mismatch-creates["TC-191-submit-anchor-mismatch-creates"]
+  AC-15701-2 -.-> TC-191-submit-anchor-mismatch-creates
+  TC-191-submit-fingerprint-mismatch-creates["TC-191-submit-fingerprint-mismatch-creates"]
+  AC-15701-2 -.-> TC-191-submit-fingerprint-mismatch-creates
   TC-191-submit-many-hit-comment-lowest["TC-191-submit-many-hit-comment-lowest"]
   AC-15701-2 -.-> TC-191-submit-many-hit-comment-lowest
   TC-191-submit-one-hit-comments["TC-191-submit-one-hit-comments"]
@@ -2863,6 +2871,8 @@ flowchart LR
   class TC-188-safeguard-whole-text-residual tc;
   class AC-15601-5 ac;
   class TC-188-redact-operator-identity-stopword-guard tc;
+  class AC-15601-6 ac;
+  class TC-188-redact-filename-extensions-allowlist tc;
   class REQ-157 req;
   class AC-15701-1 ac;
   class TC-188-fingerprint-canonical-input tc;
@@ -2870,6 +2880,8 @@ flowchart LR
   class TC-188-preview-fingerprint-folds-across-entries tc;
   class TC-188-render-fingerprint-twin-and-labels tc;
   class AC-15701-2 ac;
+  class TC-191-submit-anchor-mismatch-creates tc;
+  class TC-191-submit-fingerprint-mismatch-creates tc;
   class TC-191-submit-many-hit-comment-lowest tc;
   class TC-191-submit-one-hit-comments tc;
   class TC-191-submit-zero-hit-creates tc;
