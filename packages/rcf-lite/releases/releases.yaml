@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.28.1"
+latest: "0.28.2"
 releases:
+  - version: "0.28.2"
+    date: "2026-09-22"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.28.2 is a batched fix release for the seven defects Barry's WSD-lens dogfood on 0.28.1 surfaced, plus three unreported dry-run gaps folded into the same release. Feedback submit no longer folds unrelated findings into one issue and no longer replaces the report with a +1 stub. Submit re-reads every candidate issue body and folds only on a verified fingerprint match, refusing to fold across differing anchor or target; every fold comment now carries the full report. The redactor also stops rewriting .md filenames as hostnames: a candidate whose trailing dot-label is on a bundled extensions shortlist in redact-allowlist.json is left intact."
+      - "The five discover verbs share one schema pass across --dry-run and the write path (intake, preflight, review, ui-baseline init, browser-verify). A preview now reports the same validation error the real run would refuse on, so intake --dry-run --input catches a fidelity enum miss and preflight --dry-run --input catches a kebab-case service id. intake and preflight --help advertise their allowed values."
+      - "Three more build defects ride along: discover intake dedupes findings before writing the record so a shared branch that fires on two artefacts lands as one finding, req-baseline sweep --yes now allocates distinct AC ids across a batch on one user story, and the TAD review surface renders dataStores, coreEntities and externalSystems as tables instead of raw JSON.stringify blobs."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.28.1"
     date: "2026-09-17"
     breaking: false
