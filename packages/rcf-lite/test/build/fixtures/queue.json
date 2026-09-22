@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 82,
+    "items": 83,
     "notStarted": 46,
     "inProgress": 1,
-    "complete": 20,
+    "complete": 21,
     "verified": 15,
     "actionable": 36,
     "blocked": 10
@@ -77,7 +77,8 @@
         "FBS-042",
         "FBS-064",
         "FBS-181",
-        "FBS-191"
+        "FBS-191",
+        "FBS-193"
       ]
     },
     {
@@ -1074,6 +1075,18 @@
       "title": "Product Map UX rescue pass",
       "executionStatus": "complete",
       "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-193",
+      "buildOrder": 193,
+      "tier": 1,
+      "title": "Product Map: blueprint badge and by-blueprint grouping",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-192"
+      ],
       "state": "complete",
       "blockedBy": []
     }
