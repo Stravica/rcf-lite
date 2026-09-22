@@ -75,10 +75,10 @@ export function renderPage(model) {
     <p class="subtitle">RCF review surface</p>
     <nav class="tabs" role="tablist" aria-label="Document sections">
       <button type="button" role="tab" data-tab="overview" aria-selected="true" aria-controls="tab-overview">Overview</button>
+      <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
       <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
       <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
       <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build sequence</button>
-      <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
     </nav>
   </header>
   <main>
@@ -132,6 +132,10 @@ export function renderContent(model) {
         ${prdSection}
       </div>
     </section>
+    <section id="tab-product-map" role="tabpanel" hidden>
+      <h2 class="tab-heading">Product Map</h2>
+      ${productMapPanel}
+    </section>
     <section id="tab-requirements" role="tabpanel" hidden>
       <h2 class="tab-heading">Requirements</h2>
       ${requirementsPanel}
@@ -143,10 +147,6 @@ export function renderContent(model) {
     <section id="tab-build" role="tabpanel" hidden>
       <h2 class="tab-heading">Build sequence</h2>
       ${buildPanel}
-    </section>
-    <section id="tab-product-map" role="tabpanel" hidden>
-      <h2 class="tab-heading">Product Map</h2>
-      ${productMapPanel}
     </section>`;
 }
 

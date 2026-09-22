@@ -24,7 +24,7 @@ async function renderLive() {
 test('tab bar carries five buttons in the expected order (D2 + Product Map)', async () => {
   const { html } = await renderLive();
   // Product Map (REQ-170, w-2026-09-21-dave-008, d-020) added the fifth tab.
-  const order = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
+  const order = ['overview', 'product-map', 'requirements', 'architecture', 'build'];
   let lastIdx = -1;
   for (const name of order) {
     const idx = html.indexOf(`data-tab="${name}"`);

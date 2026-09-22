@@ -94,9 +94,13 @@ test('product-map shape grouping drills bucket to REQ to US to AC with status pi
     `shape section missing bucket-scoped REQ card for ${prefix}${req.reqId}`,
   );
   // The bare (unprefixed) inner REQ article id must NOT appear inside
-  // the Product Map tab - that was the P2-1 collision.
+  // the Product Map tab - that was the P2-1 collision. Bound the slice
+  // at the next tabpanel start so tabs sitting after Product Map in
+  // the strip (Requirements/Architecture/Build after the 2026-09-22
+  // reorder) do not leak their bare REQ ids into this assertion.
   const pmTabStart = html.indexOf('id="tab-product-map"');
-  const pmTab = html.slice(pmTabStart);
+  const pmTabEnd = html.indexOf('<section id="tab-', pmTabStart + 1);
+  const pmTab = html.slice(pmTabStart, pmTabEnd === -1 ? undefined : pmTabEnd);
   const bareReqIdRe = new RegExp(`\\sid="${req.reqId}"`, 'g');
   assert.equal((pmTab.match(bareReqIdRe) ?? []).length, 0,
     `Product Map still emits a bare id="${req.reqId}" (P2-1 regression)`);
@@ -132,7 +136,8 @@ test('product-map: inner REQ/US/AC ids inside the Product Map tab are unique (P2
   const { html } = await renderLive();
   const pmTabStart = html.indexOf('id="tab-product-map"');
   assert.ok(pmTabStart > 0, 'Product Map tab must be present');
-  const pmTab = html.slice(pmTabStart);
+  const pmTabEnd = html.indexOf('<section id="tab-', pmTabStart + 1);
+  const pmTab = html.slice(pmTabStart, pmTabEnd === -1 ? undefined : pmTabEnd);
   // Collect every id="..." in the Product Map tab.
   const idRe = /\sid="([^"]+)"/g;
   const seen = new Map();
@@ -155,7 +160,8 @@ test('product-map: inner REQ/US/AC ids inside the Product Map tab are unique (P2
 test('product-map status filter markup + server-rendered per-bucket status counts match the model (P2-3 real assertion)', async () => {
   const { model, html } = await renderLive();
   const tabStart = html.indexOf('id="tab-product-map"');
-  const tabPanel = html.slice(tabStart);
+  const tabEnd = html.indexOf('<section id="tab-', tabStart + 1);
+  const tabPanel = html.slice(tabStart, tabEnd === -1 ? undefined : tabEnd);
   // Lazy render (AC-17007-1) emits only the shape grouping's REQ cards
   // inline; component/trace/capability arrive via /product-map/<name>.
   // For this per-status count assertion we need the full server render
