@@ -435,9 +435,42 @@ export function redact(input, context = {}) {
     }
   }
 
+  // Rule 3-guard (design amendment R5f, issue #243, 0.28.3): protect the
+  // git protocol sentinel `git@<host>` before rule 3 runs. In a URL whose
+  // scheme is git+ssh/ssh/git, and in the bare git-remote shape
+  // `git@<host>:<owner>/<repo>`, `git@<host>` is URI userinfo, not an
+  // email. Folding it destroys evidence pointers copied from git remotes
+  // and clone URLs. We stash the full matched span before the email regex
+  // runs and restore it before rule 4 so the host inside the span is
+  // still eligible for the URL / bare-host fold.
+  const gitProtoRe = /(?:git\+ssh|ssh|git):\/\/git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+  const gitRemoteBareRe = /(?<![A-Za-z0-9._%+-])git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?=:[^\s]+\/)/g;
+  const gitStash = [];
+  const GIT_STASH = 'GITPROTO';
+  text = text.replace(gitProtoRe, (m) => {
+    gitStash.push(m);
+    return `${GIT_STASH}${gitStash.length - 1}${GIT_STASH}`;
+  });
+  text = text.replace(gitRemoteBareRe, (m) => {
+    gitStash.push(m);
+    return `${GIT_STASH}${gitStash.length - 1}${GIT_STASH}`;
+  });
+
   // Rule 3: emails -> <email>. RFC-5322 lite; case-insensitive.
   const emailRe = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
   text = replaceRegex(text, emailRe, () => '<email>', 'email', ledger);
+
+  // R5f: restore git protocol sentinels. The stashed spans now re-enter
+  // the pipeline for rule 4 (URL / bare-host); rule 4's bareHostRe
+  // lookbehind excludes `@`, so the host in `git@<host>` inside the
+  // restored URL / remote survives unless the URL rule matches it (only
+  // http/https), which it will not for git+ssh/ssh/git. Non-allowlisted
+  // hosts inside a restored bare `git@<host>:` remote are still exposed;
+  // the AC's THEN accepts this because the shape's userinfo is the
+  // primary redaction target the operator asked us to protect.
+  if (gitStash.length > 0) {
+    text = text.replace(new RegExp(`${GIT_STASH}(\\d+)${GIT_STASH}`, 'g'), (_m, i) => gitStash[Number(i)]);
+  }
 
   // Rule 4: hostnames and URLs whose registrable domain is not on the
   // allowlist. URLs keep their path suffix; bare hostnames collapse.
@@ -471,11 +504,17 @@ export function redact(input, context = {}) {
   // `url-credential`; false positives are visible in the disclosure.
   text = redactUrlCredentials(text, ledger);
 
-  // URLs first (http/https), then bare hostnames.
-  const urlRe = /https?:\/\/([A-Za-z0-9.-]+)((?::[0-9]+)?(?:\/[^\s)]*)?)/g;
-  text = replaceRegex(text, urlRe, (_m, host, tail) => {
-    if (isHostAllowed(host, allowHosts)) return `https://${host}${tail}`;
-    return `<host>${tail}`;
+  // URLs first (http/https/git+ssh/ssh/git), then bare hostnames.
+  // 0.28.3 (R5f, issue #243): the URL rule accepts git+ssh/ssh/git
+  // schemes with an optional userinfo prefix so the host inside a git
+  // clone URL can be folded by the same code path that folds an https
+  // URL host. The rule-3 guard above has already protected the `git@`
+  // sentinel from the email rule; here the sentinel is preserved and
+  // only the host portion is folded.
+  const urlRe = /(https?|git\+ssh|ssh|git):\/\/((?:[A-Za-z0-9._%+-]+@)?)([A-Za-z0-9.-]+)((?::[0-9]+)?(?:\/[^\s)]*)?)/g;
+  text = replaceRegex(text, urlRe, (_m, scheme, userinfo, host, tail) => {
+    if (isHostAllowed(host, allowHosts)) return `${scheme}://${userinfo}${host}${tail}`;
+    return `${scheme}://${userinfo}<host>${tail}`;
   }, 'hostname', ledger);
   // Bare hostnames: a word that looks like a domain (has a dot,
   // ends with a 2+ letter TLD) and is not on the allowlist. Skip if
@@ -487,7 +526,10 @@ export function redact(input, context = {}) {
   // lookbehind is the 0.28.2 (issue #233) fix that stops
   // `Backstory-product-brief.md` folding on its internal
   // `product-brief.md` slice; the extension-refusal step below is the
-  // second layer.
+  // second layer. Design amendment R5e (0.28.3, issue #247): the
+  // `{2,}` trailing class also functions as the single-letter-TLD
+  // exclusion - a token like `a.b.c` has a one-letter tail and is
+  // treated as a filename fragment, not a hostname.
   const bareHostRe = /(?<![@/\\\w.\-])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![\w.-])/g;
   text = replaceRegex(text, bareHostRe, (host) => {
     // 0.28.2 (issue #233, design amendment R5d): a candidate whose
