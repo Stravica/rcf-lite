@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-09-22T11:59:39Z",
+  "updatedAt": "2026-09-22T11:59:39Z",
+  "purpose": "Cover the blueprint badge on every REQ row and the by-blueprint grouping (bucket per applied blueprint plus Project bucket, capability second level, hash round-trip, /product-map/blueprint partial endpoint) for AC-17008-1.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17008-1"
+  ],
+  "id": "TS-213",
+  "usId": "US-17008",
+  "title": "Product Map by-blueprint grouping and blueprint badge",
+  "testCases": [
+    {
+      "id": "TC-213-badge",
+      "acId": "AC-17008-1",
+      "description": "In the shape grouping rendered over a fixture project that applies one blueprint contributing two REQs, both contributed REQ rows carry a pm-blueprint-badge in their summary while the project's own REQ rows do not.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map: blueprint badge on every contributed REQ row across groupings (AC-17008-1)"
+    },
+    {
+      "id": "TC-213-buckets",
+      "acId": "AC-17008-1",
+      "description": "The by-blueprint grouping over a fixture with one applied blueprint (2 contributed REQs) and 2 project REQs renders exactly two buckets: a blueprint bucket with count 2 and a Project bucket with count 2.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping yields one bucket per applied blueprint plus a Project bucket (AC-17008-1)"
+    },
+    {
+      "id": "TC-213-capability-second-level",
+      "acId": "AC-17008-1",
+      "description": "Inside each by-blueprint bucket the second level is capability (existing capability:<slug> tags), then requirement rows, then the usual drill-down.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint bucket second level is capability then REQ (AC-17008-1)"
+    },
+    {
+      "id": "TC-213-hash-and-lazy-endpoint",
+      "acId": "AC-17008-1",
+      "description": "The inline script's PM_GROUPS constant lists 'blueprint', the lazy fetch endpoint /product-map/blueprint is exposed on the pre-rendered pmPartials, and renderProductMapGrouping(model, 'blueprint') returns a non-empty string.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping wired into PM_GROUPS, pmPartials and renderProductMapGrouping (AC-17008-1)"
+    },
+    {
+      "id": "TC-213-empty-blueprints",
+      "acId": "AC-17008-1",
+      "description": "A project with no applied blueprints (manifest.blueprints empty) renders the by-blueprint grouping with a single Project bucket and no error banner.",
+      "status": "pending",
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping on a project with no applied blueprints renders a single Project bucket (AC-17008-1)"
+    }
+  ],
+  "status": "draft"
+}

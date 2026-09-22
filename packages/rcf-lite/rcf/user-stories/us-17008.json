@@ -1,0 +1,22 @@
+{
+  "usId": "US-17008",
+  "prdId": "PRD-001",
+  "reqId": "REQ-170",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Product Map: blueprint badge and by-blueprint grouping",
+  "description": "User story under REQ-170. a product reader auditing what came from applied blueprints vs the project's own requirements a visible blueprint badge on every REQ row an applied blueprint contributed, plus a sixth grouping that buckets requirements by contributing blueprint (with a Project bucket for the project's own REQs) and a second-level capability split inside each bucket.",
+  "asA": "a product reader auditing what came from applied blueprints vs the project's own requirements",
+  "iWant": "a blueprint badge on every REQ row that was contributed by a blueprint plus a by-blueprint grouping (one bucket per applied blueprint plus a Project bucket) with capability as the second level inside each bucket",
+  "soThat": "I can see at a glance which parts of the tree ride on shared blueprints and which the project owns, and drill from a blueprint to the capabilities it contributed",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17008-1",
+      "description": "Every REQ row inside the Product Map tab that was contributed by an applied blueprint carries a compact blueprint badge (class pm-blueprint-badge) in its summary row, in every grouping (shape, component, trace coverage, capability, and the new by-blueprint grouping itself). The GROUPINGS list on the panel additionally includes 'blueprint'; the by-blueprint grouping enumerates one bucket per entry in manifest.blueprints[] (label: the blueprint's display name or slug, count: number of contributed REQs) plus a Project bucket for the project's own REQs (REQs with no blueprint attribution). Inside each blueprint or Project bucket, requirements are split by capability (existing capability:<slug> convention) as a second level, then the usual REQ->US->AC drill-down. The source of truth for blueprint attribution is manifest.blueprints[].contributions[] (parsed by scope.contributionsForBlueprint); the id-prefix fallback (kebab-slug prefix on reqId) is used only when the manifest carries no contributions record for a given blueprint. The hash schema round-trips as #tab=product-map&group=blueprint&status=<s>&open=<ids>, and the /product-map/blueprint partial endpoint serves the grouping body for the client's lazy-render fetch. A project with no applied blueprints renders a single Project bucket cleanly (not an error, not an empty tab).",
+      "testable": true
+    }
+  ],
+  "tags": [],
+  "createdAt": "2026-09-22T11:59:39Z",
+  "updatedAt": "2026-09-22T11:59:39Z"
+}
