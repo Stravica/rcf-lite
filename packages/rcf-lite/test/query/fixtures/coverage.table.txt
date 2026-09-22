@@ -434,5 +434,6 @@ REQ-170      yes      AC-17001-1  yes         TC-204-shape-buckets-present
                       AC-17005-1  yes         TC-208-capability-buckets
                       AC-17006-1  yes         TC-211-interaction-model-buckets
                       AC-17007-1  yes         TC-212-lazy-skeletons
+                      AC-17008-1  yes         TC-213-badge, TC-213-buckets, TC-213-capability-second-le...
 REQ-171      yes      AC-17101-1  yes         TC-209-every-req-has-capability-tag
                       AC-17102-1  yes         TC-210-taxonomy-doc-present

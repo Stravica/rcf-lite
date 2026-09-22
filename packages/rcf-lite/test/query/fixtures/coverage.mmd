@@ -2001,6 +2001,18 @@ flowchart LR
   REQ-170 --> AC-17007-1
   TC-212-lazy-skeletons["TC-212-lazy-skeletons"]
   AC-17007-1 -.-> TC-212-lazy-skeletons
+  AC-17008-1["AC-17008-1"]
+  REQ-170 --> AC-17008-1
+  TC-213-badge["TC-213-badge"]
+  AC-17008-1 -.-> TC-213-badge
+  TC-213-buckets["TC-213-buckets"]
+  AC-17008-1 -.-> TC-213-buckets
+  TC-213-capability-second-level["TC-213-capability-second-level"]
+  AC-17008-1 -.-> TC-213-capability-second-level
+  TC-213-empty-blueprints["TC-213-empty-blueprints"]
+  AC-17008-1 -.-> TC-213-empty-blueprints
+  TC-213-hash-and-lazy-endpoint["TC-213-hash-and-lazy-endpoint"]
+  AC-17008-1 -.-> TC-213-hash-and-lazy-endpoint
   REQ-171["REQ-171"]
   AC-17101-1["AC-17101-1"]
   REQ-171 --> AC-17101-1
@@ -3063,6 +3075,12 @@ flowchart LR
   class TC-211-interaction-model-buckets tc;
   class AC-17007-1 ac;
   class TC-212-lazy-skeletons tc;
+  class AC-17008-1 ac;
+  class TC-213-badge tc;
+  class TC-213-buckets tc;
+  class TC-213-capability-second-level tc;
+  class TC-213-empty-blueprints tc;
+  class TC-213-hash-and-lazy-endpoint tc;
   class REQ-171 req;
   class AC-17101-1 ac;
   class TC-209-every-req-has-capability-tag tc;

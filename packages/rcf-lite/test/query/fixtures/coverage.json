@@ -4268,6 +4268,18 @@
             "TC-212-lazy-skeletons"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17008-1",
+          "covered": true,
+          "testCases": [
+            "TC-213-badge",
+            "TC-213-buckets",
+            "TC-213-capability-second-level",
+            "TC-213-empty-blueprints",
+            "TC-213-hash-and-lazy-endpoint"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
