@@ -477,17 +477,58 @@ async function handleAdd(argv, ctx) {
 }
 
 /**
- * Classify an evidence pointer into `{ kind, value }`. A colon-separated
- * `path:line` pattern is 'file'; a bare identifier that looks like an
- * upper-cased id is 'id'; anything else is 'command'. The classification
- * is best-effort and does not gate the write.
+ * Classify an evidence pointer into `{ kind, value }`. The help text
+ * promises three shapes: command / path:line / id. The classifier
+ * distinguishes them by cheap shape rules:
+ *
+ * - `id`: a canonical uppercase-prefix RCF artefact id (`AC-15501-1`,
+ *   `REQ-155`, `FBS-181`, `US-15701`).
+ * - `file`: `path:line` (a non-space token ending in `:<digits>`) OR
+ *   a bare filesystem path shape - a slash-bearing, non-whitespace
+ *   token that ends in a known file extension. This is the shape a
+ *   `--evidence rcf/.blueprint-libraries/wsd/1.0.0/library.json`
+ *   argument carries (issue #245).
+ * - `command`: anything else. This is the fallback shape for a bare
+ *   verb invocation like `rcf feedback preview` or `pnpm --filter
+ *   rcf-lite test`.
+ *
+ * Classification is best-effort and never gates the write; the value
+ * itself is always preserved verbatim. The rendered preview label
+ * uses this kind so the operator sees which shape the pointer carries
+ * without having to re-run it.
  *
  * @param {string} value
  * @returns {{ kind: 'file' | 'id' | 'command', value: string }}
  */
+// 0.28.3 (issue #245): extension shortlist used by `classifyEvidence`
+// to recognise bare file-path evidence. Kept in lockstep with the
+// redactor's default extension allowlist so operators see the same
+// treatment on both sides. Duplicated deliberately (not imported) to
+// keep the CLI light on cross-module reads for a per-call classifier.
+const EVIDENCE_FILE_EXTENSIONS = new Set([
+  'md', 'mdx', 'json', 'yml', 'yaml', 'txt',
+  'js', 'mjs', 'cjs', 'ts', 'tsx',
+  'html', 'css', 'png', 'svg', 'sh', 'csv', 'log', 'lock',
+]);
+
 export function classifyEvidence(value) {
+  if (typeof value !== 'string' || value.length === 0) return { kind: 'command', value };
+  // Canonical RCF id shape: uppercase prefix, then digits (e.g. AC-15501-1).
   if (/^[A-Z]+-\d[\w-]*$/.test(value)) return { kind: 'id', value };
-  if (/^[^\s].*:\d+$/.test(value)) return { kind: 'file', value };
+  // path:line - a non-whitespace token ending in ":<digits>".
+  if (/^[^\s]+:\d+$/.test(value)) return { kind: 'file', value };
+  // Bare filesystem path or filename: no whitespace, ends in a known
+  // extension (issue #245). Whitespace anywhere disqualifies the
+  // candidate; that is almost certainly a shell command. A bare
+  // filename without a slash still counts because a --evidence
+  // pointer to README.md or CHANGELOG.md is common.
+  if (!/\s/.test(value)) {
+    const lastDot = value.lastIndexOf('.');
+    if (lastDot > 0 && lastDot < value.length - 1) {
+      const ext = value.slice(lastDot + 1).toLowerCase();
+      if (EVIDENCE_FILE_EXTENSIONS.has(ext)) return { kind: 'file', value };
+    }
+  }
   return { kind: 'command', value };
 }
 
