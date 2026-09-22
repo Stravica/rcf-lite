@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.28.2"
+latest: "0.28.3"
 releases:
+  - version: "0.28.3"
+    date: "2026-09-22"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.28.3 is a small batched fix release for the residuals Dex's 0.28.2 round-trip surfaced and one HQ-side viewer bug caught the same day. The feedback redactor no longer folds the git protocol sentinel git@<host> inside git+ssh, ssh or git URLs as an email, so an evidence pointer copied verbatim from a git remote or clone URL survives as evidence. Bare git remotes and single-letter trailing labels like a.b.c are also protected as URI userinfo and filename fragments; real emails in surrounding prose still fold."
+      - "The redactor emits a visible stderr warning when identity folding is disabled, so an operator whose rcf/.identity/profile.md is missing, empty, a placeholder, or contains only reserved nouns is no longer left thinking their identity is in force when it silently is not. Feedback status --json now exposes the destination source field the preview surface already prints, and --evidence pointers now render with the label matching their shape (command / path:line / id) rather than always (command)."
+      - "The live-view server snapshots its shipped static assets (style.css, mermaid.min.js, live-client.js) at startup instead of reading them from disk per request, so a checkout branch switch during the server's lifetime can no longer silently change the served CSS."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.28.2"
     date: "2026-09-22"
     breaking: false

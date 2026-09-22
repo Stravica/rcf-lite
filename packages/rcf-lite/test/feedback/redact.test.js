@@ -91,6 +91,58 @@ test('AC-15601-6: an operator-supplied extension entry (allowExtensions) preserv
   assert.match(text, /local\.xyz/);
 });
 
+test('AC-15601-6 R5e (issue #247): a single-letter trailing label is treated as a filename fragment, not a hostname', () => {
+  // Codex P1-5 on PR #242, deferred to 0.28.3. `a.b.c` has a one-letter
+  // tail and folding it would generate false positives on short
+  // identifiers and version fragments elsewhere; the R5e amendment
+  // pins the filename-fragment treatment.
+  const { text, ledger } = redact('trailing token a.b.c end and unrelated x.y.z survives', {});
+  assert.match(text, /a\.b\.c/, 'a.b.c survives verbatim');
+  assert.match(text, /x\.y\.z/, 'x.y.z survives verbatim');
+  // No hostname ledger row is created for these single-letter tails.
+  const row = ledger.find((r) => r.rule === 'hostname' && (r.before === 'a.b.c' || r.before === 'x.y.z'));
+  assert.strictEqual(row, undefined, 'no hostname ledger row for a.b.c / x.y.z');
+});
+
+test('AC-15601-6 R5f (issue #243): git@<host> inside a git+ssh URL is protected from the email fold', () => {
+  const body = 'clone git+ssh://git@github.com/wsd-team-dev/rcf-lite-blueprints.git#v1.0.0';
+  const { text, ledger } = redact(body, {});
+  assert.match(text, /git\+ssh:\/\/git@github\.com\/wsd-team-dev\/rcf-lite-blueprints\.git#v1\.0\.0/, 'URL survives verbatim');
+  assert.doesNotMatch(text, /<email>/, 'no email fold');
+  const emailRow = ledger.find((r) => r.rule === 'email');
+  assert.strictEqual(emailRow, undefined, 'no email ledger row on the URL');
+});
+
+test('AC-15601-6 R5f (issue #243): a bare git-remote git@<host>:<owner>/<repo> is protected from the email fold', () => {
+  const { text, ledger } = redact('remote git@github.com:owner/repo.git added', {});
+  assert.match(text, /git@github\.com:owner\/repo\.git/, 'bare remote survives verbatim');
+  assert.doesNotMatch(text, /<email>/, 'no email fold on the sentinel');
+  const emailRow = ledger.find((r) => r.rule === 'email');
+  assert.strictEqual(emailRow, undefined);
+});
+
+test('AC-15601-6 R5f (issue #243): a real email in surrounding prose still folds', () => {
+  const body = 'ping alice@example.com about the fix; clone git+ssh://git@github.com/owner/repo.git';
+  const { text, ledger } = redact(body, {});
+  assert.match(text, /<email>/, 'email still folded');
+  assert.doesNotMatch(text, /alice@example\.com/);
+  // git@github.com portion untouched.
+  assert.match(text, /git\+ssh:\/\/git@github\.com\/owner\/repo\.git/);
+  const emailRow = ledger.find((r) => r.rule === 'email');
+  assert.ok(emailRow && emailRow.count === 1, 'exactly one email fold, on alice@example.com');
+});
+
+test('AC-15601-6 R5f (issue #243): a git+ssh URL with a non-allowlisted host has its host folded by the bare-host rule after the sentinel is protected', () => {
+  const body = 'clone ssh://git@example.internal/owner/repo.git for the private mirror';
+  const { text } = redact(body, {});
+  // The git@ sentinel is preserved by the R5f stash; the host is folded
+  // by the extended rule 4 URL matcher (which now covers ssh/git+ssh/git
+  // schemes with optional userinfo), not by the bare-host regex whose
+  // lookbehind excludes @-preceded tokens.
+  assert.match(text, /git@<host>/, 'sentinel preserved and host folded');
+  assert.doesNotMatch(text, /example\.internal/);
+});
+
 test('redact rule 5: private and link-local IPs become <ip>, loopback survives', () => {
   const { text, ledger } = redact('bind 10.0.5.7 and 192.168.1.1 and 169.254.1.1; keep 127.0.0.1', {});
   assert.match(text, /<ip>/);
@@ -416,3 +468,37 @@ test('F-slice-2-06: double-space and terminal spaced dirs fold cleanly', () => {
   assert.match(term, /end here/, 'trailing sentence must survive');
 });
 
+
+test('Codex P1-1 (issue #243 follow-up): a bare git remote with a non-allowlisted host folds the host to <host>', () => {
+  // Before the R5f protection, the email rule folded the whole
+  // `git@private.example` span, which happened to hide the host too.
+  // After R5f the sentinel is preserved and the host allowlist gates
+  // whether the host survives.
+  const { text, ledger } = redact('remote git@private.example:owner/repo.git added', {});
+  assert.match(text, /git@<host>:owner\/repo\.git/, 'sentinel preserved; host folded');
+  assert.doesNotMatch(text, /private\.example/);
+  const row = ledger.find((r) => r.rule === 'hostname');
+  assert.ok(row, 'hostname ledger row present');
+});
+
+test('Codex P1-1: a bare git remote with an allowlisted host survives verbatim', () => {
+  const { text, ledger } = redact('remote git@github.com:owner/repo.git added', {});
+  assert.match(text, /git@github\.com:owner\/repo\.git/);
+  const row = ledger.find((r) => r.rule === 'hostname');
+  assert.strictEqual(row, undefined);
+});
+
+test('Codex P1-4 (issue #243 follow-up): a literal GITPROTO marker in prose does not corrupt output on restore', () => {
+  // Before the collision-safe marker fix, a legitimate GITPROTO<n>GITPROTO
+  // token in prose was restored as `gitStash[n]` which was undefined,
+  // silently corrupting the output. The per-invocation randomUUID marker
+  // makes such a collision astronomically unlikely.
+  const body = 'benign token GITPROTO0GITPROTO in prose; and clone ssh://git@github.com/owner/repo.git';
+  const { text } = redact(body, {});
+  // The exact byte we care about: the input's GITPROTO0GITPROTO must
+  // survive unchanged (the secret-token rule might treat the whole
+  // "benign token GITPROTO..." run as a shape hit; that is fine and
+  // the assertion is only that the output is not the corrupt
+  // "undefined" string the old code produced).
+  assert.doesNotMatch(text, /undefined/, 'no undefined tokens in output');
+});

@@ -54,7 +54,7 @@ import {
   emitSessionStart,
   shouldAsk,
 } from '../feedback/hook.js';
-import { redact, allowedHosts, findResidualSecrets } from '../feedback/redact.js';
+import { redact, allowedHosts, findResidualSecrets, RESERVED_IDENTITY_TOKENS } from '../feedback/redact.js';
 import { fingerprint } from '../feedback/fingerprint.js';
 import { renderIssue, renderComment, renderBundle } from '../feedback/render.js';
 import { resolve as resolveDestination, listUnresolvedLibraries, findBlueprintRecord } from '../feedback/destination.js';
@@ -477,17 +477,58 @@ async function handleAdd(argv, ctx) {
 }
 
 /**
- * Classify an evidence pointer into `{ kind, value }`. A colon-separated
- * `path:line` pattern is 'file'; a bare identifier that looks like an
- * upper-cased id is 'id'; anything else is 'command'. The classification
- * is best-effort and does not gate the write.
+ * Classify an evidence pointer into `{ kind, value }`. The help text
+ * promises three shapes: command / path:line / id. The classifier
+ * distinguishes them by cheap shape rules:
+ *
+ * - `id`: a canonical uppercase-prefix RCF artefact id (`AC-15501-1`,
+ *   `REQ-155`, `FBS-181`, `US-15701`).
+ * - `file`: `path:line` (a non-space token ending in `:<digits>`) OR
+ *   a bare filesystem path shape - a slash-bearing, non-whitespace
+ *   token that ends in a known file extension. This is the shape a
+ *   `--evidence rcf/.blueprint-libraries/wsd/1.0.0/library.json`
+ *   argument carries (issue #245).
+ * - `command`: anything else. This is the fallback shape for a bare
+ *   verb invocation like `rcf feedback preview` or `pnpm --filter
+ *   rcf-lite test`.
+ *
+ * Classification is best-effort and never gates the write; the value
+ * itself is always preserved verbatim. The rendered preview label
+ * uses this kind so the operator sees which shape the pointer carries
+ * without having to re-run it.
  *
  * @param {string} value
  * @returns {{ kind: 'file' | 'id' | 'command', value: string }}
  */
+// 0.28.3 (issue #245): extension shortlist used by `classifyEvidence`
+// to recognise bare file-path evidence. Kept in lockstep with the
+// redactor's default extension allowlist so operators see the same
+// treatment on both sides. Duplicated deliberately (not imported) to
+// keep the CLI light on cross-module reads for a per-call classifier.
+const EVIDENCE_FILE_EXTENSIONS = new Set([
+  'md', 'mdx', 'json', 'yml', 'yaml', 'txt',
+  'js', 'mjs', 'cjs', 'ts', 'tsx',
+  'html', 'css', 'png', 'svg', 'sh', 'csv', 'log', 'lock',
+]);
+
 export function classifyEvidence(value) {
+  if (typeof value !== 'string' || value.length === 0) return { kind: 'command', value };
+  // Canonical RCF id shape: uppercase prefix, then digits (e.g. AC-15501-1).
   if (/^[A-Z]+-\d[\w-]*$/.test(value)) return { kind: 'id', value };
-  if (/^[^\s].*:\d+$/.test(value)) return { kind: 'file', value };
+  // path:line - a non-whitespace token ending in ":<digits>".
+  if (/^[^\s]+:\d+$/.test(value)) return { kind: 'file', value };
+  // Bare filesystem path or filename: no whitespace, ends in a known
+  // extension (issue #245). Whitespace anywhere disqualifies the
+  // candidate; that is almost certainly a shell command. A bare
+  // filename without a slash still counts because a --evidence
+  // pointer to README.md or CHANGELOG.md is common.
+  if (!/\s/.test(value)) {
+    const lastDot = value.lastIndexOf('.');
+    if (lastDot > 0 && lastDot < value.length - 1) {
+      const ext = value.slice(lastDot + 1).toLowerCase();
+      if (EVIDENCE_FILE_EXTENSIONS.has(ext)) return { kind: 'file', value };
+    }
+  }
   return { kind: 'command', value };
 }
 
@@ -624,6 +665,14 @@ async function handleStatus(argv, ctx) {
       visibility: dest.visibility ?? 'unresolved',
       derived: !!dest.derived,
       reason: dest.reason ?? null,
+      // Issue #244 (0.28.3): the preview surface prints
+      // `source: <library-manifest|package-bugs-url|derived|...>` so
+      // the operator can see WHICH resolver path picked the destination.
+      // The --json surface must expose the same field for programmatic
+      // verifiers per AC-15502-2 (--json emits the same as text). The
+      // field is null when the resolver did not attach one (e.g. an
+      // unresolved library).
+      source: dest.source ?? null,
     });
   }
 
@@ -672,6 +721,12 @@ async function handleStatus(argv, ctx) {
         ? `${row.repo} (${row.visibility}${row.derived ? ', derived' : ''})`
         : `(unresolved${row.reason ? `: ${row.reason}` : ''})`;
       stdout.write(`  - ${row.ref} -> ${cell}\n`);
+      // Issue #244 (0.28.3): print the resolver source so text and
+      // --json carry the same disclosure. Preview already prints this;
+      // status now matches per AC-15502-2 parity.
+      if (row.source) {
+        stdout.write(`    source: ${row.source}\n`);
+      }
     }
   }
   return 0;
@@ -1003,14 +1058,75 @@ async function handlePreview(argv, ctx) {
  */
 async function buildRedactionContext(projectRoot) {
   let operatorName;
+  // 0.28.3 (R5g, issue #246): track why identity folding might be
+  // disabled so we can emit exactly one visible stderr warning
+  // instead of leaving the operator to guess. `disabledReason` is
+  // one of 'no-profile' (rcf/.identity/profile.md is missing or
+  // unreadable), 'no-name-line' (present but no `## Name` heading),
+  // 'blank-name' (whitespace-only), 'placeholder' (matches the
+  // placeholder/todo regex), 'stopword-only' (Name contains only
+  // reserved-noun tokens), or null when a foldable identity was
+  // extracted.
+  let disabledReason = 'no-profile';
   try {
     const profile = await readFile(resolve(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
-    const m = profile.match(/^##\s+Name\s*\n([^\n]+)/m);
-    if (m) {
-      const n = m[1].trim();
-      if (n && !/placeholder|todo|your name/i.test(n)) operatorName = n;
+    // Codex P1-2: extract the Name-section body up to the next `## `
+    // heading or EOF, using ONLY horizontal whitespace on the heading
+    // line so an empty section (`## Name\n\n## Role\n...`) does not
+    // greedy-match into the next section's heading. Bind the search
+    // to the first `## Name` header only.
+    // JS regex has no `\Z`; use a lookahead for the next `## ` header
+    // OR end of string. `[\s\S]*?` is lazy so it stops at the first
+    // matching lookahead.
+    const nameSection = profile.match(/^##[ \t]+Name[ \t]*\n([\s\S]*?)(?=^##[ \t]+|$(?![\s\S]))/m);
+    if (!nameSection) {
+      disabledReason = 'no-name-line';
+    } else {
+      // The first non-empty non-comment line inside the Name section is
+      // the operator's identity. Strip whitespace and leading/trailing
+      // markdown emphasis so a shipped placeholder like
+      // `_(who you are; how you want the agent to address you)_` is
+      // seen as text, not folded as a name token.
+      const nonEmpty = nameSection[1].split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+      const first = nonEmpty[0];
+      if (!first) {
+        disabledReason = 'blank-name';
+      } else if (/^_\(.*\)_$/i.test(first) || /placeholder|todo|your name/i.test(first) || /^_.*(who you are|how you want).*_$/i.test(first)) {
+        // Codex P1-3: recognise the shipped seed placeholder shape
+        // `_(who you are; how you want the agent to address you)_`
+        // as a placeholder so the untouched generated profile emits
+        // the disabled-folding warning rather than folding the
+        // placeholder text as a name.
+        disabledReason = 'placeholder';
+      } else {
+        operatorName = first;
+        const rawTokens = first.split(/\s+/);
+        const foldable = rawTokens.filter((t) => t.length > 3 && !RESERVED_IDENTITY_TOKENS.has(t.toLowerCase()));
+        if (foldable.length === 0) {
+          disabledReason = 'stopword-only';
+        } else {
+          disabledReason = null;
+        }
+      }
     }
   } catch { /* absent is fine */ }
+
+  // Emit the one-line warning once per context build. All disabled
+  // reasons carry the same fix pointer so the operator knows how to
+  // arm folding without having to read the source.
+  if (disabledReason) {
+    const path = 'rcf/.identity/profile.md';
+    const detail = {
+      'no-profile': `${path} is missing`,
+      'no-name-line': `${path} has no \`## Name\` heading`,
+      'blank-name': `${path} \`## Name\` line is empty`,
+      'placeholder': `${path} \`## Name\` line is a placeholder`,
+      'stopword-only': `${path} \`## Name\` line contains only reserved nouns`,
+    }[disabledReason] ?? path;
+    process.stderr.write(
+      `[warn] operator-identity: ${detail}; identity folding is disabled. Add a real \`## Name\` line to arm the redactor.\n`
+    );
+  }
 
   let projectName;
   const remotes = new Set();

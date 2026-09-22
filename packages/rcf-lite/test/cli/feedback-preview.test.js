@@ -229,3 +229,86 @@ test('preview refuses an unknown entry id with exit 2', async () => {
   assert.equal(res.code, 2);
   assert.match(res.stderr, /unknown pending entry id/);
 });
+
+// -- AC-15601-6 R5g (issue #246): stderr warning on identity-fold disabled
+
+test('AC-15601-6 R5g (issue #246): missing profile.md emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await addCore(root, 'title', 'body about the queue');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: rcf\/\.identity\/profile\.md is missing/);
+  assert.match(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): stopword-only Name line emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await seedIdentity(root, 'The Agent Operator');
+  await addCore(root, 'title', 'body naming the agent stopping');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: rcf\/\.identity\/profile\.md .* contains only reserved nouns/);
+  assert.match(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): a real Name emits no identity-folding warning', async () => {
+  const root = await scaffoldReady();
+  await seedIdentity(root, 'Alice Example');
+  await addCore(root, 'title', 'Alice reviewed this body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.doesNotMatch(res.stderr, /operator-identity/);
+  assert.doesNotMatch(res.stderr, /identity folding is disabled/);
+});
+
+test('AC-15601-6 R5g (issue #246): blank ## Name line emits a visible stderr warning', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  await writeFile(join(root, 'rcf', '.identity', 'profile.md'), '## Name\n   \n', 'utf8');
+  await addCore(root, 'title', 'body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is empty/);
+});
+
+// -- Codex P1-2 (issue #246 follow-up): a blank Name followed by ## Role
+// must not silently promote "## Role" to the operator identity ---
+
+test('Codex P1-2 (issue #246): a blank ## Name followed by ## Role emits the disabled warning; does not treat the next heading as the identity', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  // The exact layout the identity-seed template ships (## Name empty,
+  // ## Role next). Before the fix, the Name capture crossed the blank
+  // line and pulled `## Role` in as the identity; now the extractor
+  // scopes to the Name section, so blank-Name emits its warning.
+  await writeFile(
+    join(root, 'rcf', '.identity', 'profile.md'),
+    '## Name\n\n## Role\n\nOperator lead\n',
+    'utf8',
+  );
+  await addCore(root, 'title', 'body about Role and Operator');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is empty/);
+  // Ensure the words "Role" and "Operator" are NOT folded by identity.
+  assert.match(res.stdout, /Role/);
+  assert.match(res.stdout, /Operator/);
+});
+
+// -- Codex P1-3 (issue #246 follow-up): the shipped identity-seed
+// placeholder must trip the disabled warning, not become the identity ---
+
+test('Codex P1-3 (issue #246): the shipped identity-seed placeholder is recognised as placeholder, not as a name', async () => {
+  const root = await scaffoldReady();
+  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
+  // Verbatim from src/setup/identity-seed.js line 48.
+  await writeFile(
+    join(root, 'rcf', '.identity', 'profile.md'),
+    '## Name\n\n_(who you are; how you want the agent to address you)_\n\n## Role\n',
+    'utf8',
+  );
+  await addCore(root, 'title', 'body');
+  const res = await runBin(root, ['feedback', 'preview']);
+  assert.equal(res.code, 0);
+  assert.match(res.stderr, /operator-identity: .* is a placeholder/);
+});

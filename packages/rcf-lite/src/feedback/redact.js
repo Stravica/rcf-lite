@@ -20,6 +20,7 @@
 // secret-shape check the last line of defence, which is what the
 // residual-match refusal in rule 8 leans on.
 
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -43,6 +44,14 @@ export const BODY_CAP_BYTES = 8 * 1024;
  * conservative: anything a normal profile.md ## Name line might carry
  * as a common English or engineering noun.
  */
+
+// Codex P1-4: per-call collision-safe stash marker suffix. The suffix is
+// 32 hex chars from randomUUID, which is astronomically unlikely to
+// appear as a literal substring in prose the operator would submit.
+function gitStashUuid() {
+  return randomUUID().replace(/-/g, '');
+}
+
 export const RESERVED_IDENTITY_TOKENS = Object.freeze(new Set([
   'agent', 'agents', 'user', 'users', 'operator', 'operators',
   'admin', 'admins', 'root', 'client', 'clients', 'server', 'servers',
@@ -435,30 +444,98 @@ export function redact(input, context = {}) {
     }
   }
 
+  // 0.28.3 (Codex P1-1): move the rule-4 allowlist plumbing up so
+  // R5f's bare-remote stash can decide whether to preserve or fold the
+  // host before it hides the token. Duplicated later in the rule-4
+  // block was removed at the same time.
+  const allowHosts = new Set([
+    ...BUNDLED_ALLOWLIST.hosts,
+    ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
+  ].map((h) => h.toLowerCase()));
+  const allowExtensions = new Set([
+    ...(Array.isArray(BUNDLED_ALLOWLIST.extensions) ? BUNDLED_ALLOWLIST.extensions : []),
+    ...(Array.isArray(context.allowExtensions) ? context.allowExtensions : []),
+  ].map((e) => String(e).toLowerCase()));
+
+  // Rule 3-guard (design amendment R5f, issue #243, 0.28.3): protect the
+  // git protocol sentinel `git@<host>` before rule 3 runs. In a URL whose
+  // scheme is git+ssh/ssh/git, and in the bare git-remote shape
+  // `git@<host>:<owner>/<repo>`, `git@<host>` is URI userinfo, not an
+  // email. Folding it destroys evidence pointers copied from git remotes
+  // and clone URLs. We stash the full matched span before the email regex
+  // runs and restore it before rule 4 so the host inside the span is
+  // still eligible for the URL / bare-host fold.
+  const gitProtoRe = /(?:git\+ssh|ssh|git):\/\/git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+  const gitRemoteBareRe = /(?<![A-Za-z0-9._%+-])git@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?=:[^\s]+\/)/g;
+  const gitStash = [];
+  // Use a per-invocation random marker so a literal `GITPROTO0GITPROTO`
+  // in the operator's prose cannot be replayed as a restore token
+  // (Codex P1-4). The marker is 32 hex chars from randomUUID, wrapped
+  // in an unusual sigil (`\u0002...\u0003`) that would not survive
+  // the ctrl-char strip pass at rule 8a-late anyway, guaranteeing
+  // collision-free restoration for the duration of this call.
+  const GIT_STASH_TAG = `GITPROTO_${gitStashUuid()}`;
+  // Precompute a bare-remote host allowlist check per candidate:
+  // Codex P1-1 called out that a bare `git@<host>:...` remote used
+  // to have its host folded via the pre-fix email rule, and the R5f
+  // protection accidentally shielded the host too. Restore the host-
+  // level allowlist gate here: an allowlisted host stays verbatim,
+  // an unallowlisted host has the host portion folded to `<host>`
+  // before we stash, so the sentinel-plus-<host> shape survives
+  // through the pipeline.
+  function stashBareRemote(m) {
+    const at = m.indexOf('@');
+    const host = m.slice(at + 1);
+    if (isHostAllowed(host, allowHosts)) {
+      gitStash.push(m);
+    } else {
+      // Record a hostname ledger row so the operator disclosure names
+      // what was folded, matching the shape rule 4 would have used.
+      const before = host;
+      const after = '<host>';
+      // We push a synthetic ledger row for the hostname family (one
+      // per bare-remote fold). Deduplicated within the pass.
+      ledger.push({ rule: 'hostname', before, after, count: 1 });
+      gitStash.push(`git@${after}`);
+    }
+    return `${GIT_STASH_TAG}${gitStash.length - 1}${GIT_STASH_TAG}`;
+  }
+  text = text.replace(gitProtoRe, (m) => {
+    gitStash.push(m);
+    return `${GIT_STASH_TAG}${gitStash.length - 1}${GIT_STASH_TAG}`;
+  });
+  text = text.replace(gitRemoteBareRe, stashBareRemote);
+
   // Rule 3: emails -> <email>. RFC-5322 lite; case-insensitive.
   const emailRe = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
   text = replaceRegex(text, emailRe, () => '<email>', 'email', ledger);
+
+  // R5f: restore git protocol sentinels. The stashed spans now re-enter
+  // the pipeline for rule 4 (URL / bare-host). Rule 4's URL regex is
+  // extended below to match git+ssh/ssh/git schemes with optional
+  // userinfo, so a non-allowlisted host inside a restored clone URL
+  // (e.g. `ssh://git@example.internal/owner/repo.git`) folds via that
+  // path while the `git@` userinfo is preserved. A bare
+  // `git@<host>:<owner>/<repo>` remote is left as-is by rule 4 because
+  // it has no scheme prefix and the bareHost lookbehind excludes `@`;
+  // the sentinel-protection posture is sufficient for that shape.
+  if (gitStash.length > 0) {
+    text = text.replace(new RegExp(`${GIT_STASH_TAG}(\\d+)${GIT_STASH_TAG}`, 'g'), (_m, i) => gitStash[Number(i)]);
+  }
 
   // Rule 4: hostnames and URLs whose registrable domain is not on the
   // allowlist. URLs keep their path suffix; bare hostnames collapse.
   // Loopback (localhost, 127.0.0.1) and everything on the allowlist
   // survive; every other public hostname or URL loses its host.
-  const allowHosts = new Set([
-    ...BUNDLED_ALLOWLIST.hosts,
-    ...(Array.isArray(context.allowHosts) ? context.allowHosts : []),
-  ].map((h) => h.toLowerCase()));
-
-  // Rule 4 narrowing (0.28.2, issue #233, design amendment R5d): a
-  // token whose trailing dot-label is a known file extension is NOT
-  // a hostname. This kills the `Backstory-product-brief.md` and
+  // allowHosts / allowExtensions declared earlier (Codex P1-1) so the
+  // rule-3 bare-remote stash can gate on the host allowlist too. Rule
+  // 4 narrowing (0.28.2, issue #233, design amendment R5d): a token
+  // whose trailing dot-label is a known file extension is NOT a
+  // hostname, killing the `Backstory-product-brief.md` and
   // `intake.json` false positives Barry hit in the WSD round-trip.
   // The bundled shortlist lives in redact-allowlist.json under the
-  // new `extensions` field; the operator overlay merges via
+  // `extensions` field; the operator overlay merges via
   // context.allowExtensions.
-  const allowExtensions = new Set([
-    ...(Array.isArray(BUNDLED_ALLOWLIST.extensions) ? BUNDLED_ALLOWLIST.extensions : []),
-    ...(Array.isArray(context.allowExtensions) ? context.allowExtensions : []),
-  ].map((e) => String(e).toLowerCase()));
 
   // Rule 9: URL-embedded credentials (design amendment R3b, added
   // round 4 for F-P0-B). Runs BEFORE the rule-4 hostname pass so a
@@ -471,11 +548,17 @@ export function redact(input, context = {}) {
   // `url-credential`; false positives are visible in the disclosure.
   text = redactUrlCredentials(text, ledger);
 
-  // URLs first (http/https), then bare hostnames.
-  const urlRe = /https?:\/\/([A-Za-z0-9.-]+)((?::[0-9]+)?(?:\/[^\s)]*)?)/g;
-  text = replaceRegex(text, urlRe, (_m, host, tail) => {
-    if (isHostAllowed(host, allowHosts)) return `https://${host}${tail}`;
-    return `<host>${tail}`;
+  // URLs first (http/https/git+ssh/ssh/git), then bare hostnames.
+  // 0.28.3 (R5f, issue #243): the URL rule accepts git+ssh/ssh/git
+  // schemes with an optional userinfo prefix so the host inside a git
+  // clone URL can be folded by the same code path that folds an https
+  // URL host. The rule-3 guard above has already protected the `git@`
+  // sentinel from the email rule; here the sentinel is preserved and
+  // only the host portion is folded.
+  const urlRe = /(https?|git\+ssh|ssh|git):\/\/((?:[A-Za-z0-9._%+-]+@)?)([A-Za-z0-9.-]+)((?::[0-9]+)?(?:\/[^\s)]*)?)/g;
+  text = replaceRegex(text, urlRe, (_m, scheme, userinfo, host, tail) => {
+    if (isHostAllowed(host, allowHosts)) return `${scheme}://${userinfo}${host}${tail}`;
+    return `${scheme}://${userinfo}<host>${tail}`;
   }, 'hostname', ledger);
   // Bare hostnames: a word that looks like a domain (has a dot,
   // ends with a 2+ letter TLD) and is not on the allowlist. Skip if
@@ -487,7 +570,10 @@ export function redact(input, context = {}) {
   // lookbehind is the 0.28.2 (issue #233) fix that stops
   // `Backstory-product-brief.md` folding on its internal
   // `product-brief.md` slice; the extension-refusal step below is the
-  // second layer.
+  // second layer. Design amendment R5e (0.28.3, issue #247): the
+  // `{2,}` trailing class also functions as the single-letter-TLD
+  // exclusion - a token like `a.b.c` has a one-letter tail and is
+  // treated as a filename fragment, not a hostname.
   const bareHostRe = /(?<![@/\\\w.\-])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?![\w.-])/g;
   text = replaceRegex(text, bareHostRe, (host) => {
     // 0.28.2 (issue #233, design amendment R5d): a candidate whose

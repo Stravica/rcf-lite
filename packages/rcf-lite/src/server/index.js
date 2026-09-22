@@ -11,6 +11,7 @@
 // on top; the server itself does not `process.exit`.
 
 import { createServer } from 'node:http';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { LIVE_CLIENT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
@@ -42,6 +43,25 @@ import { createSseHub } from './sse.js';
  *   rewalk: () => Promise<void>,
  * }>}
  */
+
+/**
+ * Issue #248 (0.28.3): read a shipped static asset once and return
+ * `{ buffer, size, contentType }`. Any read failure surfaces here so
+ * `startServer` can fail fast with an ioFailure before it binds.
+ *
+ * @param {string} path
+ * @param {string} contentType
+ */
+async function loadStaticAsset(path, contentType) {
+  // Codex P2-1: derive size from the actual captured buffer, not from
+  // a parallel stat that could snapshot a different revision if the
+  // file is being replaced concurrently. A wrong content-length header
+  // would cause truncation or mis-alignment for the entire server
+  // lifetime because we cache both values together.
+  const buffer = await readFile(path);
+  return { buffer, size: buffer.length, contentType };
+}
+
 export async function startServer(args) {
   const projectRoot = args.projectRoot;
   const port = typeof args.port === 'number' ? args.port : 4373;
@@ -97,10 +117,26 @@ export async function startServer(args) {
   // and the first SSE connect gets a real payload.
   await rewalk();
 
+  // Issue #248 (0.28.3): snapshot the shipped static assets at startup
+  // so a checkout branch switch during the server's lifetime cannot
+  // change what gets served. The tree walker is the only path that
+  // re-reads disk on rcf/ change; every other asset is fixed at boot.
+  const [styleAsset, mermaidAsset, liveClientAsset] = await Promise.all([
+    loadStaticAsset(STYLE_CSS_PATH, 'text/css; charset=utf-8'),
+    loadStaticAsset(VENDORED_MERMAID_PATH, 'application/javascript; charset=utf-8'),
+    loadStaticAsset(LIVE_CLIENT_PATH, 'application/javascript; charset=utf-8'),
+  ]);
+
   const scopeHandler = createScopeHandler({ projectRoot });
   const router = createRouter({
     currentState: () => state,
     sse,
+    // Snapshotted assets take precedence; the legacy path props are
+    // still passed so tests that mount the router directly with a
+    // path (no asset load) keep working.
+    styleAsset,
+    mermaidAsset,
+    liveClientAsset,
     stylePath: STYLE_CSS_PATH,
     mermaidPath: VENDORED_MERMAID_PATH,
     liveClientPath: LIVE_CLIENT_PATH,

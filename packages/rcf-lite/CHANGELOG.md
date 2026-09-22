@@ -6,6 +6,82 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.28.3] - 2026-09-22
+
+Batched fix release for the residuals Dex's 0.28.2 round-trip surfaced
+and one HQ-side viewer bug caught the same day. Ships one chain
+amendment (three design amendments on the same redactor AC) and four
+build diffs behind it, plus one viewer-side snapshot fix.
+
+### Fixed
+
+- **Feedback redactor no longer folds the git protocol sentinel
+  `git@<host>` inside git+ssh, ssh or git URLs as an email (#243).**
+  A `--evidence` pointer copied verbatim from a git remote or a clone
+  URL survives verbatim, so the operator can re-run the exact command
+  they hit. The bare-remote shape `git@<host>:<owner>/<repo>` is
+  covered by the same guard. Real emails in surrounding prose still
+  fold to `<email>`. The URL rule 4 also now handles git+ssh, ssh and
+  git schemes with optional userinfo, so a non-allowlisted host inside
+  a clone URL still folds to `<host>` while the sentinel is preserved.
+- **Feedback redactor now treats single-letter trailing labels as
+  filename fragments, not hostnames (#247, Codex P1-5 deferred from
+  PR #242).** Tokens like `a.b.c` survive verbatim. Single-letter TLDs
+  are not registrable domains in normal prose; folding them yields
+  more false positives on short identifiers and abbreviated references
+  than legitimate redactions.
+- **Feedback redactor emits a visible stderr warning when identity
+  folding is disabled (#246).** When `rcf/.identity/profile.md` is
+  missing, has no `## Name` heading, has a blank or placeholder Name
+  line, or the Name contains only reserved-noun tokens, one line on
+  stderr names the file and states that folding is disabled. The
+  operator is no longer left thinking their identity is in force when
+  it silently is not. Folding still skips per AC-15601-5.
+- **`rcf feedback status --json` and text now expose the destination
+  resolution `source` field, matching preview (#244).** Programmatic
+  verifiers can now assert which resolver path picked the destination
+  (`library-manifest`, `package-bugs-url`, `derived`,
+  `sourceRef-derivation`, `library-slug-inference`) without parsing
+  preview text. The field is null when the resolver did not attach
+  one, e.g. for an unresolved library.
+- **`rcf feedback add --evidence` pointers now render with the label
+  matching their shape, not always `(command)` (#245).** The help
+  text promises three labels (`command / path:line / id`); the
+  classifier now recognises `path:line` and bare paths ending in a
+  known file extension as `file`, canonical RCF ids
+  (`AC-15601-6`, `REQ-155`, `FBS-181`, `US-15701`) as `id`, and
+  everything else as `command`. Whitespace anywhere in the pointer
+  is a hard signal for `command`.
+- **`rcf audit view` snapshots its shipped static assets at server
+  startup (#248).** The live-view server rendered the HTML body from
+  a tree walk captured at startup, but `/style.css`, `/mermaid.min.js`
+  and `/live-client.js` were `readFile`-d per request against the
+  on-disk file. A checkout branch switch during the server's lifetime
+  silently changed what got served; the 2026-09-22 Product Map
+  preview rendered unstyled for exactly this reason. All three
+  assets are now read once at startup into memory and served from
+  there. The tree walker remains the only path that re-reads disk on
+  `rcf/` change.
+
+### Chain
+
+- AC-15601-6 amended with design amendments R5e (single-letter TLDs
+  are filename fragments), R5f (git protocol sentinel protection on
+  rule 3, extended URL rule 4 for git+ssh/ssh/git schemes) and R5g
+  (visible stderr warning when identity folding is disabled). All
+  three land on the same story so operators see one AC that names
+  the redactor's full posture.
+- `rcf define validate`: clean. `rcf audit coverage --strict`: clean
+  (103 requirements, 0 uncovered).
+
+### Release mechanics
+
+- Version bumped: `packages/rcf-lite/package.json` 0.28.2 -> 0.28.3.
+- Changelog entry under `## [0.28.3]` (this section).
+- Feed entry added under `releases/releases.yaml`; `latest` set to
+  0.28.3.
+- Tag / publish: Dave (not this PR).
+
 ## [0.28.2] - 2026-09-22
 
 Batched fix release for the seven defects Barry's WSD-lens dogfood on
