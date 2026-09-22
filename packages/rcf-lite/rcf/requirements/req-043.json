@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T20:28:34.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "category": "functional",
   "domain": "application",
   "priority": "must",
@@ -37,7 +37,6 @@
     ]
   },
   "tags": [
-    "capability:blueprints",
     "capability:applications-shelf"
   ]
 }

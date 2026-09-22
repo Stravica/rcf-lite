@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T16:49:12.520Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-084",
   "prdId": "PRD-001",
   "title": "T-4 edge-cloudflare-access v1.0.0: break-glass posture with an elicited bypass-service-auth token pair for CI-signed automation",
@@ -16,7 +16,6 @@
     "classifiedAt": "2026-09-07T16:49:12.555Z"
   },
   "tags": [
-    "capability:blueprints",
     "capability:edge-security"
   ]
 }

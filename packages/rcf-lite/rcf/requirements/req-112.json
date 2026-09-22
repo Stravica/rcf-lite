@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T23:53:25.205Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "The cloud-init template shipped with the blueprint renders YAML that lands SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail and unattended-upgrades on every provisioned Hetzner server. A local render lint asserts the six baseline blocks are present in the rendered YAML before any provision runs. Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
   "reqId": "REQ-112",
   "prdId": "PRD-001",
@@ -40,7 +40,6 @@
     ]
   },
   "tags": [
-    "capability:blueprints",
     "capability:deploy"
   ]
 }

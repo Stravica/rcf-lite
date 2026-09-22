@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T23:53:25.903Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "The provisioner facade emits four lifecycle events: provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken and hetznerServerDestroyed. Payloads are metadata-only: id, primary IPv4, location, server-type, snapshot id, wall-clock time. An event-secrecy probe asserts no event body carries the API token, an ssh private key, or a plaintext secret; a mutation that leaks a token into an event body FAILS the probe with a defensive-fake finding. Chain: HQ round-7 T-1 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-1 track of hetzner-round-7-spec-2026-09-07 section 5.1.",
   "reqId": "REQ-115",
   "prdId": "PRD-001",
@@ -36,7 +36,6 @@
     ]
   },
   "tags": [
-    "capability:blueprints",
     "capability:deploy"
   ]
 }

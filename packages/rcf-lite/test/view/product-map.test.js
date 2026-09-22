@@ -658,7 +658,7 @@ const blueprintFixture = await import('./fixtures/blueprint-applied.mjs');
 test('product-map: blueprint badge on every contributed REQ row across groupings (AC-17008-1)', () => {
   const model = blueprintFixture.makeBlueprintAppliedModel();
   const html = renderProductMapPanel(model, { lazy: new Set() });
-  // Attribution map: two REQs from my-auth, two are project's own.
+  // Attribution map: two REQs from my-auth, two are the project's own (Application bucket).
   const attribution = buildBlueprintAttribution(model);
   assert.equal(attribution.get('my-auth-REQ-001'), 'my-auth');
   assert.equal(attribution.get('my-auth-REQ-002'), 'my-auth');
@@ -701,24 +701,24 @@ test('product-map: blueprint badge on every contributed REQ row across groupings
   }
 });
 
-test('product-map: by-blueprint grouping yields one bucket per applied blueprint plus a Project bucket (AC-17008-1)', () => {
+test('product-map: by-blueprint grouping yields one bucket per applied blueprint plus an Application bucket (AC-17008-1)', () => {
   const model = blueprintFixture.makeBlueprintAppliedModel();
   const buckets = groupByBlueprint(model);
-  // Exactly two buckets: my-auth (2 contributed REQs) then Project (2).
+  // Exactly two buckets: my-auth (2 contributed REQs) then Application (2).
   assert.equal(buckets.length, 2, 'expected one blueprint bucket + one project bucket');
   const [first, second] = buckets;
   assert.equal(first.id, 'my-auth');
   assert.equal(first.isProject, false);
   assert.deepEqual(first.reqs.map((r) => r.reqId), ['my-auth-REQ-001', 'my-auth-REQ-002']);
-  assert.equal(second.id, 'project');
+  assert.equal(second.id, 'application');
   assert.equal(second.isProject, true);
   assert.deepEqual(second.reqs.map((r) => r.reqId), ['REQ-001', 'REQ-002']);
   // Rendered blueprint grouping carries both buckets with their counts.
   const grouping = renderProductMapGrouping(model, 'blueprint');
   assert.match(grouping, /data-pm-bucket-id="blueprint-my-auth"/);
-  assert.match(grouping, /data-pm-bucket-id="blueprint-project"/);
+  assert.match(grouping, /data-pm-bucket-id="blueprint-application"/);
   assert.match(grouping, /<span class="pm-bucket-label" title="my-auth">my-auth<\/span> <span class="pm-bucket-count">\(2\)<\/span>/);
-  assert.match(grouping, /<span class="pm-bucket-label" title="Project \(project&#39;s own\)">Project \(project&#39;s own\)<\/span> <span class="pm-bucket-count">\(2\)<\/span>/);
+  assert.match(grouping, /<span class="pm-bucket-label" title="Application">Application<\/span> <span class="pm-bucket-count">\(2\)<\/span>/);
 });
 
 test('product-map: by-blueprint bucket second level is capability then REQ (AC-17008-1)', () => {
@@ -729,8 +729,8 @@ test('product-map: by-blueprint bucket second level is capability then REQ (AC-1
   // sub-buckets render as <section class="pm-blueprint-cap"> with an
   // <h4> heading. auth-flow has count 2, policy has count 1.
   const myAuthStart = grouping.indexOf('data-pm-bucket-id="blueprint-my-auth"');
-  const myAuthEnd = grouping.indexOf('data-pm-bucket-id="blueprint-project"');
-  assert.ok(myAuthStart > 0 && myAuthEnd > myAuthStart, 'my-auth bucket must come before Project');
+  const myAuthEnd = grouping.indexOf('data-pm-bucket-id="blueprint-application"');
+  assert.ok(myAuthStart > 0 && myAuthEnd > myAuthStart, 'my-auth bucket must come before Application');
   const myAuthSlice = grouping.slice(myAuthStart, myAuthEnd);
   assert.match(myAuthSlice, /<section class="pm-blueprint-cap" data-pm-blueprint-capability="auth-flow">/);
   assert.match(myAuthSlice, /<h4 class="pm-blueprint-cap-heading">auth-flow <span class="pm-blueprint-cap-count">\(2\)<\/span><\/h4>/);
@@ -766,26 +766,26 @@ test('product-map: by-blueprint grouping wired into PM_GROUPS, pmPartials and re
   // dogfood tree, so a single Project bucket).
   const body = renderProductMapGrouping(model, 'blueprint');
   assert.ok(body.length > 100, `expected a non-empty blueprint grouping body, got ${body.length} bytes`);
-  assert.match(body, /data-pm-bucket-id="blueprint-project"/);
+  assert.match(body, /data-pm-bucket-id="blueprint-application"/);
   // renderModelToPage.pmPartials.blueprint feeds the /product-map/blueprint
   // partial endpoint the client fetches on lazy hydrate.
   const { renderModelToPage } = await import('../../src/view/index.js');
   const { pmPartials } = await renderModelToPage({ projectRoot: repoRoot });
   assert.ok(typeof pmPartials.blueprint === 'string');
   assert.ok(pmPartials.blueprint.length > 100);
-  assert.match(pmPartials.blueprint, /data-pm-bucket-id="blueprint-project"/);
+  assert.match(pmPartials.blueprint, /data-pm-bucket-id="blueprint-application"/);
 });
 
-test('product-map: by-blueprint grouping on a project with no applied blueprints renders a single Project bucket (AC-17008-1)', () => {
+test('product-map: by-blueprint grouping on a project with no applied blueprints renders a single Application bucket (AC-17008-1)', () => {
   const model = blueprintFixture.makeNoBlueprintsAppliedModel();
   const buckets = groupByBlueprint(model);
-  assert.equal(buckets.length, 1, 'no applied blueprints should render only the Project bucket');
-  assert.equal(buckets[0].id, 'project');
+  assert.equal(buckets.length, 1, 'no applied blueprints should render only the Application bucket');
+  assert.equal(buckets[0].id, 'application');
   assert.equal(buckets[0].isProject, true);
   assert.equal(buckets[0].reqs.length, 1);
   const grouping = renderProductMapGrouping(model, 'blueprint');
   // Single Project bucket, no error placeholder.
-  assert.match(grouping, /data-pm-bucket-id="blueprint-project"/);
+  assert.match(grouping, /data-pm-bucket-id="blueprint-application"/);
   assert.doesNotMatch(grouping, /<em>No requirements on disk\.<\/em>/);
   // Attribution map is empty (nothing came from a blueprint).
   const attribution = buildBlueprintAttribution(model);

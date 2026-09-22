@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T01:40:04.619Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "Every service declares a restart policy. Long-running services declare restart: unless-stopped. Jobs (short-lived services that exit after completion) declare restart: on-failure. Any service that declares neither, or declares an unclassified value outside the two allowed policies, refuses at the compose-config-lint gate before docker compose up runs. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
   "reqId": "REQ-123",
   "prdId": "PRD-001",
@@ -40,7 +40,6 @@
     ]
   },
   "tags": [
-    "capability:blueprints",
     "capability:deploy"
   ]
 }

@@ -38,7 +38,7 @@ both.
 | `build-sequence` | The FBS queue, the five-stage build cycle, spec-first build guidance. |
 | `review-surface` | The read-only HTML review surface, its tabs, deep links, live streaming. |
 | `mcp` | The local MCP surface over the full feature set. |
-| `blueprints` | The blueprint mechanism itself — composition, standards, companion resolution, shelf discipline. |
+| `blueprint-library` | The blueprint library mechanism itself — composition, standards, companion resolution, shelf discipline. A blueprint is not a capability; a specific blueprint carries capabilities. This slug names the product's own blueprint mechanism (library, apply, shelf), not any concrete blueprint. |
 | `applications-shelf` | Application-level blueprints — datatable, charts, dashboard, forms, notifications, account settings, and their probe packs. |
 | `platform-integrations` | Cloudflare and other platform primitives — KV, cron, Durable Objects, tunnels, Hetzner. |
 | `edge-security` | Access, Turnstile, rate-limiting; anything that sits in front of the app. |
@@ -73,8 +73,8 @@ document. That test is the operational contract behind the convention.
 The Product Map ships a sixth grouping, "By blueprint", alongside the
 capability grouping. It buckets requirements per contributing blueprint
 using `manifest.blueprints[].contributions[]` (parsed by
-`scope.contributionsForBlueprint`) as the source of truth, with a
-`Project` bucket for the project's own requirements. Inside each
+`scope.contributionsForBlueprint`) as the source of truth, with an
+`Application` bucket for the project's own (non-blueprint) requirements. Inside each
 bucket the second level is the same capability convention documented
 above. Every REQ row an applied blueprint contributed also carries a
 compact blueprint badge (`.pm-blueprint-badge`) in the summary line

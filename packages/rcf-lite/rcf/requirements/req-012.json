@@ -8,7 +8,7 @@
   "priority": "must",
   "rationale": "The shipped shelf carried three literal probe-path opinions before this alignment (essentials /healthz + /readyz, probe-endpoints /live + /ready, api-rest /healthz/live + /healthz/ready + /healthz/startup). Composing any two of the three on one project either fired a designed-in `globalAdrTopic` conflict on healthProbes/readinessSemantics or silently shipped three disagreeing probe bindings. WSD-012 mandates /live and /ready, which is the probe-endpoints Kubernetes default; Dex's A4 wsd-service-anatomy binds those two paths as a parameter and required this item as its dependency. Aligning ownership to one blueprint (probe-endpoints) and making the other two defer is the smallest change that closes both the conflict-by-design surface and the silent-disagreement surface without inventing a new composer primitive. Ratified spec: `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` (sections 1 through 11).",
   "tags": [
-    "capability:blueprints",
+    "capability:blueprint-library",
     "blueprints",
     "observability",
     "probe-endpoints",
@@ -19,5 +19,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-04T00:00:00Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-09-22T13:47:34.538Z"
 }

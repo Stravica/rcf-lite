@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T03:20:34.180Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "The tunnel credentials file the cloudflared connector reads at boot MUST land on the host at mode 0o400 (owner read only), MUST be referenced from the tunnel manifest as a secretRef (never as a literal path to a committed file), MUST NOT be committed to the applying project's git tree (a grep across the working tree for the credentials-file body's uuid-shaped tunnel id and its account-tag literal refuses if either appears in a tracked file), and MUST NOT appear in any cloudflaredReady, tunnelConnectorUp or ingressRuleReloaded event body. A leaked credentials file gives an attacker lateral movement across every hostname the tunnel serves; the discipline is defensive against silent loss. Chain: HQ round-7 T-3 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-3 track of hetzner-round-7-spec-2026-09-07 section 5.3.",
   "reqId": "REQ-134",
   "prdId": "PRD-001",
@@ -40,7 +40,6 @@
     ]
   },
   "tags": [
-    "capability:blueprints",
     "capability:edge-security",
     "capability:platform-integrations"
   ]

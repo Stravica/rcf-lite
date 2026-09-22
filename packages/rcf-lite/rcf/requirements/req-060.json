@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T12:26:47.779Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "T-2 platform-cloudflare-cron-triggers v1.0.0: one scheduled() handler in the applied project source tree is the SOLE reader of the Cloudflare Workers Cron Trigger event (the event handler shape documented at https://developers.cloudflare.com/workers/configuration/cron-triggers/). The handler binds on boot, wires the dispatcher (REQ-061) and the event sink (per TAC-3303), and emits a cronReady lifecycle event on the injected sink with a metadata-only payload. Chain: HQ round-6 T-2 reserved-block per HQ chain-block ruling 2026-09-07T12:25Z.",
   "category": "functional",
   "domain": "platform",
@@ -18,7 +18,6 @@
     "classifiedAt": "2026-09-07T12:26:47.812Z"
   },
   "tags": [
-    "capability:blueprints",
     "capability:platform-integrations"
   ]
 }

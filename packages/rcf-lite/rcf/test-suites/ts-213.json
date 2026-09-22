@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-09-22T11:59:39Z",
-  "updatedAt": "2026-09-22T11:59:39Z",
-  "purpose": "Cover the blueprint badge on every REQ row and the by-blueprint grouping (bucket per applied blueprint plus Project bucket, capability second level, hash round-trip, /product-map/blueprint partial endpoint) for AC-17008-1.",
+  "updatedAt": "2026-09-22T15:00:00Z",
+  "purpose": "Cover the blueprint badge on every REQ row and the by-blueprint grouping (bucket per applied blueprint plus Application bucket, capability second level, hash round-trip, /product-map/blueprint partial endpoint) for AC-17008-1.",
   "testLevel": "integration",
   "acIds": [
     "AC-17008-1"
@@ -13,16 +13,16 @@
     {
       "id": "TC-213-badge",
       "acId": "AC-17008-1",
-      "description": "In the shape grouping rendered over a fixture project that applies one blueprint contributing two REQs, both contributed REQ rows carry a pm-blueprint-badge in their summary while the project's own REQ rows do not.",
+      "description": "In the shape grouping rendered over a fixture project that applies one blueprint contributing two REQs, both contributed REQ rows carry a pm-blueprint-badge in their summary while the non-blueprint (Application) REQ rows do not.",
       "status": "pending",
       "testPointer": "test/view/product-map.test.js::product-map: blueprint badge on every contributed REQ row across groupings (AC-17008-1)"
     },
     {
       "id": "TC-213-buckets",
       "acId": "AC-17008-1",
-      "description": "The by-blueprint grouping over a fixture with one applied blueprint (2 contributed REQs) and 2 project REQs renders exactly two buckets: a blueprint bucket with count 2 and a Project bucket with count 2.",
+      "description": "The by-blueprint grouping over a fixture with one applied blueprint (2 contributed REQs) and 2 non-blueprint REQs renders exactly two buckets: a blueprint bucket with count 2 and an Application bucket with count 2.",
       "status": "pending",
-      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping yields one bucket per applied blueprint plus a Project bucket (AC-17008-1)"
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping yields one bucket per applied blueprint plus an Application bucket (AC-17008-1)"
     },
     {
       "id": "TC-213-capability-second-level",
@@ -41,9 +41,9 @@
     {
       "id": "TC-213-empty-blueprints",
       "acId": "AC-17008-1",
-      "description": "A project with no applied blueprints (manifest.blueprints empty) renders the by-blueprint grouping with a single Project bucket and no error banner.",
+      "description": "A project with no applied blueprints (manifest.blueprints empty) renders the by-blueprint grouping with a single Application bucket and no error banner.",
       "status": "pending",
-      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping on a project with no applied blueprints renders a single Project bucket (AC-17008-1)"
+      "testPointer": "test/view/product-map.test.js::product-map: by-blueprint grouping on a project with no applied blueprints renders a single Application bucket (AC-17008-1)"
     }
   ],
   "status": "draft"

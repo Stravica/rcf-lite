@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-05T01:30:00.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-023",
   "prdId": "PRD-001",
   "title": "Application-admin-console v1.0.0 blueprint on the shelf with capability-gated surfaces, a Playwright probe pack and a sample-app fixture",
@@ -11,7 +11,6 @@
   "version": "0.1.0",
   "status": "draft",
   "tags": [
-    "capability:blueprints",
     "capability:applications-shelf"
   ]
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-08T01:40:03.788Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "description": "Every secret used by any compose service is injected as a file mount under the compose secrets top-level key. The compose file contains no plaintext secret literal on any service argument, environment variable, or command clause (grep-refuse). When security-secrets-management is applied, the secret is sourced through that facade; when it is not, the guide names a documented file-based fallback path. The mounted secret file lands at mode 0o400 inside the container. Chain: HQ round-7 T-2 reserved-block per HQ chain-block ruling 2026-09-07. Round-7 T-2 track of hetzner-round-7-spec-2026-09-07 section 5.2.",
   "reqId": "REQ-121",
   "prdId": "PRD-001",
@@ -18,7 +18,6 @@
     "classifiedAt": "2026-09-08T01:40:03.831Z"
   },
   "tags": [
-    "capability:blueprints",
     "capability:deploy"
   ]
 }

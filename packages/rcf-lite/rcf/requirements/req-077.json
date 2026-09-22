@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-07T14:11:38.243Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-077",
   "prdId": "PRD-001",
   "title": "T-3 migration-safe class exports: stable class names committed to wrangler with a paired [[migrations]] block",
@@ -16,7 +16,6 @@
     "classifiedAt": "2026-09-07T14:11:38.275Z"
   },
   "tags": [
-    "capability:blueprints",
     "capability:platform-integrations"
   ]
 }

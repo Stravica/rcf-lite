@@ -59,11 +59,11 @@ const SHAPE_LABELS = {
   unclassified: 'Unclassified',
 };
 
-// Bucket id used for the project's own REQs inside the by-blueprint
-// grouping. The label is "Project"; the id is stable so hashes and
-// data-doc-id anchors round-trip.
-const PROJECT_BUCKET_ID = 'project';
-const PROJECT_BUCKET_LABEL = 'Project';
+// Bucket id used for the project's own (non-blueprint) REQs inside the
+// by-blueprint grouping. The label is "Application" (Baz 2026-09-22);
+// the id is stable so hashes and data-doc-id anchors round-trip.
+const PROJECT_BUCKET_ID = 'application';
+const PROJECT_BUCKET_LABEL = 'Application';
 
 export function shapesForReq(req) {
   const shapes = req?.shapeClassification?.shapes;
@@ -269,7 +269,7 @@ export function buildBlueprintAttribution(model) {
 
 /**
  * Build the by-blueprint buckets. One bucket per entry in
- * manifest.blueprints[] plus a Project bucket for the project's own
+ * manifest.blueprints[] plus an Application bucket for the project's own (non-blueprint)
  * REQs (REQs with no attribution). Blueprint buckets are ordered by
  * REQ count desc then by slug alphabetically; Project is always last.
  * When the manifest has no applied blueprints, only the Project bucket
@@ -707,7 +707,7 @@ function renderBlueprintGrouping(model, buckets, { lazy, attribution }) {
   if (buckets.length === 0) return '<p><em>No requirements on disk.</em></p>';
   const jumpEntries = buckets.map((b) => ({
     id: `blueprint-${b.id}`,
-    label: b.isProject ? `${b.label} (project's own)` : b.label,
+    label: b.label,
     total: b.reqs.length,
     mini: statusMiniCounts(b.reqs),
   }));
@@ -718,7 +718,7 @@ function renderBlueprintGrouping(model, buckets, { lazy, attribution }) {
     const prefix = `pm-${idAttr}-`;
     const mini = statusMiniCounts(b.reqs);
     const summary = bucketSummary({
-      label: b.isProject ? `${b.label} (project's own)` : b.label,
+      label: b.label,
       id: idAttr,
       total: b.reqs.length,
       mini,

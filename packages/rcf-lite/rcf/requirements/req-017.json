@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T17:59:20.149Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-09-22T13:47:34.538Z",
   "reqId": "REQ-017",
   "prdId": "PRD-001",
   "title": "Blueprint-shipped browser-verify probe packs with FBS-scoped applicability",
@@ -17,6 +17,6 @@
   },
   "tags": [
     "capability:verify",
-    "capability:blueprints"
+    "capability:blueprint-library"
   ]
 }
