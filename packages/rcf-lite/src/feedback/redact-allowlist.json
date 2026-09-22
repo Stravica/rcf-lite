@@ -10,5 +10,12 @@
     "developer.mozilla.org",
     "localhost",
     "127.0.0.1"
+  ],
+  "extensions": [
+    "md", "mdx", "json", "yml", "yaml", "txt",
+    "js", "mjs", "cjs", "ts", "tsx",
+    "html", "css",
+    "png", "svg",
+    "sh", "csv", "log", "lock"
   ]
 }

@@ -53,6 +53,44 @@ test('redact rule 4c: project-scoped allowHosts extend the vendor list', () => {
   assert.match(text, /https:\/\/internal\.wsd\.example\/x/);
 });
 
+test('AC-15601-6 filename tokens carrying a known extension survive rule 4', () => {
+  // The exact command Barry hit in the WSD round-trip that surfaced
+  // the redactor overreach (issue #233). Filename tokens must survive
+  // verbatim; the evidence pointer is only useful if it is still
+  // re-runnable.
+  const body = [
+    'rcf discover intake --artefact rcf/knowledge/docs/brief/Backstory-product-brief.md,rcf/knowledge/docs/brief/Backstory-wireframes.html --kind productBrief --dry-run --json',
+    '',
+    'intake.json',
+    'report.log',
+    'foo.example.com and https://foo.example.com/path',
+    'Backstory-example.com',
+    'a.b.co',
+  ].join('\n');
+  const { text, ledger } = redact(body, {});
+  assert.match(text, /Backstory-product-brief\.md/, 'markdown filename survives');
+  assert.match(text, /Backstory-wireframes\.html/, 'html filename survives');
+  assert.match(text, /intake\.json/, 'json filename survives');
+  assert.match(text, /report\.log/, 'log filename survives');
+  // Real hostnames still fold.
+  assert.match(text, /<host>/);
+  // The public foo.example.com hostname on its own folds.
+  assert.doesNotMatch(text.split('\n').find((l) => l.startsWith('foo.example.com')) ?? '', /foo\.example\.com and https/);
+  // Backstory-example.com folds because .com is not in the extension
+  // shortlist; a.b.c folds because .c is not either.
+  assert.doesNotMatch(text, /Backstory-example\.com/);
+  assert.doesNotMatch(text, /\ba\.b\.co\b/);
+  // Only one ledger row (hostname), and its count reflects only the
+  // real hostname matches - never the filenames.
+  const row = ledger.find((r) => r.rule === 'hostname');
+  assert.ok(row, 'hostname rule fired for the real hostname');
+});
+
+test('AC-15601-6: an operator-supplied extension entry (allowExtensions) preserves matching filenames', () => {
+  const { text } = redact('local.xyz survives when extensions include xyz', { allowExtensions: ['xyz'] });
+  assert.match(text, /local\.xyz/);
+});
+
 test('redact rule 5: private and link-local IPs become <ip>, loopback survives', () => {
   const { text, ledger } = redact('bind 10.0.5.7 and 192.168.1.1 and 169.254.1.1; keep 127.0.0.1', {});
   assert.match(text, /<ip>/);
