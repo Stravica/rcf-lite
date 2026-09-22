@@ -382,8 +382,9 @@ REQ-156      yes      AC-15601-1  yes         TC-188-preview-renders-full-vocabu
                       AC-15601-3  yes         TC-188-preview-store-byte-invariant
                       AC-15601-4  yes         TC-188-dryrun-writes-nothing, TC-188-r4-residual-safeguar...
                       AC-15601-5  yes         TC-188-redact-operator-identity-stopword-guard
+                      AC-15601-6  yes         TC-188-redact-filename-extensions-allowlist
 REQ-157      yes      AC-15701-1  yes         TC-188-fingerprint-canonical-input, TC-188-preview-finger...
-                      AC-15701-2  yes         TC-191-submit-many-hit-comment-lowest, TC-191-submit-one-...
+                      AC-15701-2  yes         TC-191-submit-many-hit-comment-lowest[unresolved], TC-191...
                       AC-15701-3  yes         TC-191-submit-closed-reference, TC-191-submit-search-unch...
 REQ-158      yes      AC-15801-1  yes         TC-189-library-add-snapshots-issues-and-prints-review-line
                       AC-15801-2  yes         TC-189-resolver-four-fixture-walk
@@ -425,3 +426,7 @@ REQ-165      yes      AC-16501-1  yes         TC-202-ui-baseline-unmet-refusal
                       AC-16502-1  yes         TC-203-writer-refuses-manual-verified
                       AC-16502-2  yes         TC-203-writer-accepts-with-override
                       AC-16502-3  yes         TC-203-merge-state-refusal-and-opt-out
+
+Unresolved test pointers (never counted as coverage):
+  TC-191-submit-many-hit-comment-lowest (TS-191): test/cli/feedback-submit.test.js::AC-15701-2: many-hit search comments on the lowest number and names the others - test-missing
+  TC-191-submit-one-hit-comments (TS-191): test/cli/feedback-submit.test.js::AC-15701-2: one-hit search calls gh issue comment on that number - test-missing

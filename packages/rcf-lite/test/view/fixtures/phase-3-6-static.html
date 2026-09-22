@@ -19176,6 +19176,8 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-15601-5 -.-&gt;|implemented by| CN-602
   AC-15601-6[&quot;AC-15601-6&quot;]
   US-15601 --&gt; AC-15601-6
+  AC-15601-6 -.-&gt;|delivered by| FBS-181
+  AC-15601-6 -.-&gt;|implemented by| CN-602
   click REQ-156 &quot;#REQ-156&quot;;
   click US-15601 &quot;#US-15601&quot;;
   click AC-15601-1 &quot;#AC-15601-1&quot;;
@@ -19258,7 +19260,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
 <li id="AC-15601-6" class="ac-item"><strong>AC-15601-6</strong> - The rule-4 bare-hostname redactor treats filename tokens carrying a known file extension as NOT hostnames. A candidate hostname match whose trailing dot-label is in a bundled FILE_EXTENSIONS set (initially md, mdx, json, yml, yaml, txt, js, mjs, cjs, ts, tsx, html, css, png, svg, sh, csv, log, lock) is left intact and no ledger row is written for it (design amendment R5d). The negative lookbehind on the hostname regex additionally excludes &#39;-&#39; so that filename fragments embedded in a larger identifier (`Backstory-product-brief.md`) cannot start a match after a hyphen. The extension shortlist is merged at call time from an `extensions` array on src/feedback/redact-allowlist.json alongside the existing `hosts` field, so operators can extend it the same way they extend hosts.
 <div class="ac-gwt"><p><em>Given</em> a fixture project with a body containing the tokens &#39;Backstory-product-brief.md&#39;, &#39;intake.json&#39;, &#39;report.log&#39;, &#39;foo.example.com&#39;, &#39;foo.example.com/path&#39;, &#39;Backstory-example.com&#39;, and &#39;a.b.c&#39;</p><p><em>When</em> the redactor runs over the body with the default allowlist</p><p><em>Then</em> &#39;Backstory-product-brief.md&#39;, &#39;intake.json&#39; and &#39;report.log&#39; survive verbatim with no ledger row for a hostname substitution on their basename; &#39;foo.example.com&#39; folds to &lt;host&gt; via rule 4; &#39;foo.example.com/path&#39; folds via the URL rule; &#39;Backstory-example.com&#39; folds to &#39;&lt;host&gt;&#39; (the trailing label is not in the extension set); &#39;a.b.c&#39; folds to &lt;host&gt;. Extending the allowlist with `extensions: [&quot;xyz&quot;]` in redact-allowlist.json (or the operator overlay) makes &#39;file.xyz&#39; also survive.</p></div>
-<p class="ac-meta"><strong>Testable:</strong> true - <em>not yet delivered by any FBS</em></p></li>
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-181">FBS-181</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -30316,7 +30318,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   <p><strong>Summary:</strong> Deliver REQ-156 (Nothing leaves unredacted) and REQ-157 (One finding, one issue): rule-based redaction with disclosure ledger, deterministic 12-hex fingerprint, and the preview sub-verb the operator sees before consenting.</p>
   <p><strong>Approach:</strong> Write src/feedback/redact.js, src/feedback/redact-allowlist.json, src/feedback/fingerprint.js and src/feedback/render.js. Add preview to src/cli/feedback.js. Golden-file tests for the render templates; fixture corpus for redact.</p>
-  <div class="ac-pills"><a class="ac-pill" href="#AC-15601-1">AC-15601-1</a><a class="ac-pill" href="#AC-15601-2">AC-15601-2</a><a class="ac-pill" href="#AC-15601-3">AC-15601-3</a><a class="ac-pill" href="#AC-15601-4">AC-15601-4</a><a class="ac-pill" href="#AC-15601-5">AC-15601-5</a><a class="ac-pill" href="#AC-15701-1">AC-15701-1</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-15601-1">AC-15601-1</a><a class="ac-pill" href="#AC-15601-2">AC-15601-2</a><a class="ac-pill" href="#AC-15601-3">AC-15601-3</a><a class="ac-pill" href="#AC-15601-4">AC-15601-4</a><a class="ac-pill" href="#AC-15601-5">AC-15601-5</a><a class="ac-pill" href="#AC-15701-1">AC-15701-1</a><a class="ac-pill" href="#AC-15601-6">AC-15601-6</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-15601-1">AC-15601-1</a></strong> - rcf feedback preview renders each pending entry as the title and body that would be filed on GitHub (using src/feedback/render.js templates from section 4.3 of the design), lists the destination repo and its declared visibility (public, private, or unresolved), and prints the redaction ledger as diff-style lines (&quot;- before  + after&quot;) with the rule name. --json emits the same as a machine-readable object per entry. No network calls. The kv-secret rule (design section 5 rule 5) is driven by the shared SECRET_KEY_VOCABULARY constant exported from src/feedback/redact.js (design amendment R3a) so the first-pass redactor, the residual safeguard pass and the rule-9 URL-credential scanner cover exactly the same open vocabulary of key stems (secret, token, password, passwd, passphrase, pw, pwd, pass, key, apikey/api_key/api-key, privatekey/private_key/private-key, accesskey/access_key/access-key, clientsecret/client_secret/client-secret, bearer, credential/credentials/cred/creds, session, cookie, signature, sig, salt; hash carries a 16+-value length guard); the match is right-bounded at a word edge so `keyword` and `authors` do not fold but `dbpassword` still does. Design amendment R4 (round 5) extends the rule-5 pass so a vocabulary key labelling a value-shape token of 8+ chars with any separator (markdown table pipes, whitespace runs, tabs, hyphens, arrows, HTML numeric entities, or the prose bridges is / was / set to) also folds, with a mixed-classes gate on the value that keeps ordinary prose (`the password is required`, `the password field is required`) intact.</p>
   <p><em>Given</em> a fixture project with one entry whose body contains an absolute path, an email, a non-allowlisted hostname, a token-shaped string, a private IPv4 (10.0.5.7), an em-dash, an oversize body block, an operator name that matches a seeded rcf/.identity/profile.md ## Name line, AND at least one shortname-key secret (`pw=`), one URL-embedded credential (a Slack webhook path), one markdown-table row with a vocabulary key and a mixed-class value (`| password | Sup3rSecretV@lue!! |`) and one prose bridge (`the password Sup3rSecretV@lue1234 is bad`)</p>
@@ -30352,6 +30354,12 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><em>Given</em> a fixture corpus of five entries: same-defect different-version, same-defect different-anchor, same-defect different-class, missing-anchor pair (title-only fallback), and one clean</p>
   <p><em>When</em> fingerprint() is called on each entry</p>
   <p><em>Then</em> the versioned pair yields identical fingerprints; the anchor and class variants yield different fingerprints; the missing-anchor pair uses the &quot;&lt;kind&gt;|&lt;targetKey&gt;|&lt;symptomClass&gt;|&lt;normalisedTitle&gt;&quot; fallback (first eight tokens, punctuation and stop-words stripped, lower-case)</p>
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-15601-6">AC-15601-6</a></strong> - The rule-4 bare-hostname redactor treats filename tokens carrying a known file extension as NOT hostnames. A candidate hostname match whose trailing dot-label is in a bundled FILE_EXTENSIONS set (initially md, mdx, json, yml, yaml, txt, js, mjs, cjs, ts, tsx, html, css, png, svg, sh, csv, log, lock) is left intact and no ledger row is written for it (design amendment R5d). The negative lookbehind on the hostname regex additionally excludes &#39;-&#39; so that filename fragments embedded in a larger identifier (`Backstory-product-brief.md`) cannot start a match after a hyphen. The extension shortlist is merged at call time from an `extensions` array on src/feedback/redact-allowlist.json alongside the existing `hosts` field, so operators can extend it the same way they extend hosts.</p>
+  <p><em>Given</em> a fixture project with a body containing the tokens &#39;Backstory-product-brief.md&#39;, &#39;intake.json&#39;, &#39;report.log&#39;, &#39;foo.example.com&#39;, &#39;foo.example.com/path&#39;, &#39;Backstory-example.com&#39;, and &#39;a.b.c&#39;</p>
+  <p><em>When</em> the redactor runs over the body with the default allowlist</p>
+  <p><em>Then</em> &#39;Backstory-product-brief.md&#39;, &#39;intake.json&#39; and &#39;report.log&#39; survive verbatim with no ledger row for a hostname substitution on their basename; &#39;foo.example.com&#39; folds to &lt;host&gt; via rule 4; &#39;foo.example.com/path&#39; folds via the URL rule; &#39;Backstory-example.com&#39; folds to &#39;&lt;host&gt;&#39; (the trailing label is not in the extension set); &#39;a.b.c&#39; folds to &lt;host&gt;. Extending the allowlist with `extensions: [&quot;xyz&quot;]` in redact-allowlist.json (or the operator overlay) makes &#39;file.xyz&#39; also survive.</p>
 </div></section>
   <section class="field-list"><h4>Context requirements</h4><p><strong>TACs:</strong> <a href="#TAC-4103-feedback-redact">TAC-4103-feedback-redact</a>, <a href="#TAC-4104-feedback-fingerprint">TAC-4104-feedback-fingerprint</a>, <a href="#TAC-4105-feedback-render">TAC-4105-feedback-render</a></p>
 <p><strong>ADRs:</strong> <a href="#ADR-4102-fingerprint-and-labels">ADR-4102-fingerprint-and-labels</a>, <a href="#ADR-4103-redaction-rule-based">ADR-4103-redaction-rule-based</a></p></section>
@@ -30378,7 +30386,8 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-15601-3&quot;,
     &quot;AC-15601-4&quot;,
     &quot;AC-15601-5&quot;,
-    &quot;AC-15701-1&quot;
+    &quot;AC-15701-1&quot;,
+    &quot;AC-15601-6&quot;
   ],
   &quot;dependsOnFbsIds&quot;: [
     &quot;FBS-180&quot;
@@ -30407,7 +30416,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   &quot;estimatedHours&quot;: 16,
   &quot;notes&quot;: &quot;Fingerprint decision confined to this slice via ADR-4102; the labels half of that ADR pays off in slice 4.&quot;,
   &quot;createdAt&quot;: &quot;2026-09-16T13:45:23.000Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-17T14:14:56Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-09-22T00:00:00Z&quot;
 }
 </pre></details>
 </article>

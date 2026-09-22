@@ -3746,6 +3746,14 @@
             "TC-188-redact-operator-identity-stopword-guard"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-15601-6",
+          "covered": true,
+          "testCases": [
+            "TC-188-redact-filename-extensions-allowlist"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -3773,7 +3781,10 @@
             "TC-191-submit-one-hit-comments",
             "TC-191-submit-zero-hit-creates"
           ],
-          "unresolvedTestCases": []
+          "unresolvedTestCases": [
+            "TC-191-submit-many-hit-comment-lowest",
+            "TC-191-submit-one-hit-comments"
+          ]
         },
         {
           "id": "AC-15701-3",
@@ -4191,5 +4202,18 @@
       ]
     }
   ],
-  "unresolvedTestPointers": []
+  "unresolvedTestPointers": [
+    {
+      "tsId": "TS-191",
+      "tcId": "TC-191-submit-many-hit-comment-lowest",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-2: many-hit search comments on the lowest number and names the others",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-191",
+      "tcId": "TC-191-submit-one-hit-comments",
+      "testPointer": "test/cli/feedback-submit.test.js::AC-15701-2: one-hit search calls gh issue comment on that number",
+      "reason": "test-missing"
+    }
+  ]
 }
