@@ -97,20 +97,26 @@ test('renderIssue labels default to the six-label bootstrap subset', () => {
   for (const l of labels) assert.ok(LABEL_CATALOGUE.includes(l), `label ${l} in catalogue`);
 });
 
-test('renderComment carries the +1 line, environment table and fingerprint', () => {
+// 0.28.2 (issue #234): the retired "+1 from another reporter." payload
+// is gone; every fold comment carries the full report so a human can
+// judge whether the match is real.
+test('renderComment carries the Apparent-duplicate preamble, the full report, and the fingerprint (0.28.2)', () => {
   const meta = { fingerprint: 'cccccccccccc' };
-  const { body } = renderComment(blueprintEntry, { body: 'ignored', ledger: [] }, meta);
-  assert.match(body, /^\+1 from another reporter\.\n/);
+  const { body } = renderComment(blueprintEntry, redacted, meta);
+  assert.match(body, /^Apparent duplicate of the issue subject; posting the full report so a human can judge\./);
+  assert.doesNotMatch(body, /\+1 from another reporter\./);
+  assert.match(body, /## Report:/);
   assert.match(body, /\| harness \| codex \|/);
   assert.match(body, /rcf-feedback-fingerprint: cccccccccccc$/m);
-  // Body is not included unless includeBody is true.
-  assert.doesNotMatch(body, /Report body:/);
 });
 
-test('renderComment with includeBody appends the redacted body', () => {
-  const meta = { fingerprint: 'dddddddddddd', includeBody: true };
-  const { body } = renderComment(blueprintEntry, { body: 'more detail here', ledger: [] }, meta);
-  assert.match(body, /Report body:\n\nmore detail here/);
+test('renderComment includes the redacted body, evidence rows and title (0.28.2)', () => {
+  const meta = { fingerprint: 'dddddddddddd' };
+  const { body } = renderComment(blueprintEntry, redacted, meta);
+  // The full report shape: body -> evidence -> environment table -> fingerprint.
+  assert.match(body, redacted.body.length > 0 ? new RegExp(redacted.body.split('\n')[0].slice(0, 20)) : /## Report:/);
+  assert.match(body, /\*\*Evidence\*\*/);
+  assert.match(body, /rcf-feedback-fingerprint: dddddddddddd$/m);
 });
 
 test('renderBundle emits a header block and one section per entry', () => {

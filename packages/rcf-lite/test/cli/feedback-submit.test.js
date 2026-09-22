@@ -51,6 +51,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { fingerprint } from '../../src/feedback/fingerprint.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -188,8 +189,8 @@ test('AC-15901-1: submit --yes with zero-hit search creates each entry, marks su
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id1} -> https://github\\.com/Stravica/rcf-lite/issues/101 \\(new\\)`));
-  assert.match(r.stdout, new RegExp(`${id2} -> https://github\\.com/Stravica/rcf-lite/issues/102 \\(new\\)`));
+  assert.match(r.stdout, new RegExp(`${id1} -> created #101 https://github\\.com/Stravica/rcf-lite/issues/101`));
+  assert.match(r.stdout, new RegExp(`${id2} -> created #102 https://github\\.com/Stravica/rcf-lite/issues/102`));
   const entries = await readEntries(tmp);
   const byId = Object.fromEntries(entries.map((e) => [e.id, e]));
   assert.equal(byId[id1].status, 'submitted');
@@ -199,37 +200,131 @@ test('AC-15901-1: submit --yes with zero-hit search creates each entry, marks su
   assert.equal(byId[id2].dedupe, 'new');
 });
 
-// -- AC-15701-2 (one-hit -> comment) --------------------------------------
+// -- AC-15701-2 (verified fingerprint match -> fold comment with full report) -
 
-test('AC-15701-2: one-hit search calls gh issue comment on that number', async () => {
+// A candidate body shaped like a real feedback issue: the environment
+// table names the entry's anchor and kind, plus the exact fingerprint
+// line. Used by the ghIssueGetBody fake below (0.28.2, issue #234).
+function candidateBody({ anchor, kind, fingerprint: fp }) {
+  return [
+    '## Report body',
+    '',
+    'the earlier reporter said essentially the same thing',
+    '',
+    '**Environment**',
+    '',
+    '| field | value |',
+    '|---|---|',
+    `| kind | ${kind} |`,
+    '| blueprint | n/a |',
+    `| anchor | ${anchor} |`,
+    '| symptom class | docs-mismatch |',
+    '| severity | minor |',
+    '| rcf-lite | 0.28.1 |',
+    '| harness | claude-code |',
+    '| node / platform | 24.14.0 / darwin |',
+    '',
+    `rcf-feedback-fingerprint: ${fp}`,
+    '',
+  ].join('\n');
+}
+
+test('AC-15701-2: a verified fingerprint match folds via comment; comment body carries the full report; stdout names the matched title', async () => {
   const tmp = await scaffoldReady();
   const id = await addOne(tmp, 'dupe me');
+  // Compute the fingerprint the CLI will look for (same fields as
+  // addOne's defaults).
+  const fp = fingerprint({
+    kind: 'core',
+    target: { ref: 'define validate' },
+    anchor: 'REQ-155',
+    symptomClass: 'docs-mismatch',
+  });
   const fake = await withFake(tmp, {
-    search: { matches: [{ number: 42, url: 'https://github.com/Stravica/rcf-lite/issues/42', title: 'existing' }] },
+    search: { matches: [{ number: 42, url: 'https://github.com/Stravica/rcf-lite/issues/42', title: 'existing report' }] },
+    issueBodies: {
+      42: candidateBody({ anchor: 'REQ-155', kind: 'core', fingerprint: fp }),
+    },
     comment: { url: 'https://github.com/Stravica/rcf-lite/issues/42#issuecomment-9' },
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id} -> https://github\\.com/Stravica/rcf-lite/issues/42#issuecomment-9 \\(comment\\)`));
+  assert.match(r.stdout, new RegExp(`${id} -> commented on #42 \\(fingerprint match: existing report\\) https://github\\.com/Stravica/rcf-lite/issues/42#issuecomment-9`));
   const log = await fake.log();
   const comment = log.find((l) => l.name === 'ghIssueComment');
   assert.ok(comment);
   assert.equal(comment.args.number, 42);
+  // Fold comment carries the FULL report, not a "+1" stub.
+  assert.doesNotMatch(comment.args.body, /\+1 from another reporter\./);
+  assert.match(comment.args.body, /Apparent duplicate of the issue subject/);
+  assert.match(comment.args.body, /## Report:/);
+  assert.match(comment.args.body, /dupe me/);
   const create = log.find((l) => l.name === 'ghIssueCreate');
-  assert.equal(create, undefined, 'no create call on dedupe hit');
+  assert.equal(create, undefined, 'no create call on a verified dedupe hit');
 });
 
-// -- AC-15701-2 (many-hit -> comment on lowest, note others) --------------
+test('AC-15701-2: a search hit whose body carries a DIFFERENT fingerprint is a non-match; submit creates rather than comments', async () => {
+  const tmp = await scaffoldReady();
+  const id = await addOne(tmp, 'not really a dupe');
+  const fake = await withFake(tmp, {
+    search: { matches: [{ number: 228, url: 'https://github.com/Stravica/rcf-lite/issues/228', title: 'wsd-logging thing' }] },
+    issueBodies: {
+      228: candidateBody({ anchor: 'REQ-155', kind: 'core', fingerprint: 'd6ea3d721b5e' }),
+    },
+    create: { url: 'https://github.com/Stravica/rcf-lite/issues/229', number: 229 },
+  });
+  const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
+  assert.equal(r.code, 0, r.stderr);
+  assert.match(r.stdout, new RegExp(`${id} -> created #229 https://github\\.com/Stravica/rcf-lite/issues/229`));
+  const log = await fake.log();
+  assert.ok(log.find((l) => l.name === 'ghIssueGetBody' && l.args.number === 228), 'body verification called');
+  assert.ok(log.find((l) => l.name === 'ghIssueCreate'), 'create called');
+  assert.equal(log.find((l) => l.name === 'ghIssueComment'), undefined, 'no fold on unverified fingerprint');
+});
 
-test('AC-15701-2: many-hit search comments on the lowest number and names the others', async () => {
+test('AC-15701-2: a fingerprint match against a candidate whose anchor disagrees is refused; submit creates rather than comments', async () => {
+  const tmp = await scaffoldReady();
+  const id = await addOne(tmp, 'anchor mismatch');
+  const fp = fingerprint({
+    kind: 'core',
+    target: { ref: 'define validate' },
+    anchor: 'REQ-155',
+    symptomClass: 'docs-mismatch',
+  });
+  const fake = await withFake(tmp, {
+    search: { matches: [{ number: 501, url: 'https://github.com/Stravica/rcf-lite/issues/501' }] },
+    issueBodies: {
+      501: candidateBody({ anchor: 'REQ-999', kind: 'core', fingerprint: fp }),
+    },
+    create: { url: 'https://github.com/Stravica/rcf-lite/issues/502', number: 502 },
+  });
+  const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
+  assert.equal(r.code, 0, r.stderr);
+  assert.match(r.stdout, new RegExp(`${id} -> created #502 https://github\\.com/Stravica/rcf-lite/issues/502`));
+  const log = await fake.log();
+  assert.ok(log.find((l) => l.name === 'ghIssueCreate'), 'create called on anchor mismatch');
+  assert.equal(log.find((l) => l.name === 'ghIssueComment'), undefined, 'no fold on anchor mismatch');
+});
+
+// -- AC-15701-2 (many verified hits -> fold on lowest, mention others) ----
+
+test('AC-15701-2: many verified fingerprint matches fold on the lowest number and mention the others', async () => {
   const tmp = await scaffoldReady();
   await addOne(tmp, 'multi-dupe');
+  const fp = fingerprint({
+    kind: 'core',
+    target: { ref: 'define validate' },
+    anchor: 'REQ-155',
+    symptomClass: 'docs-mismatch',
+  });
+  const body = candidateBody({ anchor: 'REQ-155', kind: 'core', fingerprint: fp });
   const fake = await withFake(tmp, {
     search: { matches: [
-      { number: 30, url: 'https://github.com/Stravica/rcf-lite/issues/30' },
-      { number: 12, url: 'https://github.com/Stravica/rcf-lite/issues/12' },
-      { number: 47, url: 'https://github.com/Stravica/rcf-lite/issues/47' },
+      { number: 30, url: 'https://github.com/Stravica/rcf-lite/issues/30', title: 'thirty' },
+      { number: 12, url: 'https://github.com/Stravica/rcf-lite/issues/12', title: 'twelve' },
+      { number: 47, url: 'https://github.com/Stravica/rcf-lite/issues/47', title: 'forty-seven' },
     ] },
+    issueBodies: { 12: body, 30: body, 47: body },
     comment: { url: 'https://github.com/Stravica/rcf-lite/issues/12#issuecomment-1' },
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
@@ -237,10 +332,13 @@ test('AC-15701-2: many-hit search comments on the lowest number and names the ot
   const log = await fake.log();
   const comment = log.find((l) => l.name === 'ghIssueComment');
   assert.equal(comment.args.number, 12);
-  // The comment body must mention the two other numbers.
+  // The comment body still names the two other numbers and no longer
+  // carries the retired "+1 from another reporter" payload.
   const bodyPreview = comment.args.body;
   assert.match(bodyPreview, /#30/);
   assert.match(bodyPreview, /#47/);
+  assert.doesNotMatch(bodyPreview, /\+1 from another reporter\./);
+  assert.match(bodyPreview, /## Report:/);
 });
 
 // -- AC-15701-3 (search unavailable -> create + dedupe:unchecked) ---------
@@ -254,7 +352,7 @@ test('AC-15701-3: search error falls through to create with dedupe:unchecked', a
   });
   const r = await runBin(tmp, ['feedback', 'submit', '--yes'], fake.env);
   assert.equal(r.code, 0, r.stderr);
-  assert.match(r.stdout, new RegExp(`${id} -> https://github\\.com/Stravica/rcf-lite/issues/200 \\(unchecked\\)`));
+  assert.match(r.stdout, new RegExp(`${id} -> created #200 \\(dedupe unchecked\\) https://github\\.com/Stravica/rcf-lite/issues/200`));
   const entries = await readEntries(tmp);
   const e = entries.find((x) => x.id === id);
   assert.equal(e.dedupe, 'unchecked');

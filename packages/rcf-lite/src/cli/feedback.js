@@ -1215,11 +1215,21 @@ const SUBMIT_OPTIONS = /** @type {const} */ ({
  *
  * Dedupe (per entry passing preflight): gh search issues on the
  * destination for `rcf-feedback-fingerprint: <fp>` (open, in:body,
- * limit 5). Zero hits -> create. One hit -> +1 comment. Many hits ->
- * comment on the lowest number and mention the others. Search failure
- * -> create with dedupe:unchecked. Closed search runs only after a
- * zero-hit open search so the create body can reference the prior
- * number.
+ * limit 5). Every returned candidate is then re-read via
+ * ghIssueGetBody, and only candidates whose body carries
+ * `rcf-feedback-fingerprint: <fp>` on its own line AND whose anchor /
+ * kind / target markers do not disagree with the entry's are counted
+ * as verified matches (0.28.2, issue #234, Barry ruling 2026-09-21).
+ * A search hit that does not verify is a NON-MATCH and is dropped
+ * before the fold decision. Zero verified hits -> create; one -> fold
+ * comment on that number; many -> fold on the lowest and mention the
+ * others. The fold comment carries the full report (title, body,
+ * evidence, environment) prefaced with "Apparent duplicate of the
+ * issue subject; posting the full report so a human can judge." The
+ * retired "+1 from another reporter." payload is gone. Search
+ * failure -> create with dedupe:unchecked. Closed search runs only
+ * after a zero-hit open search so the create body can reference the
+ * prior number.
  *
  * Create/comment failure (network/4xx/5xx/ratelimit or unexpected
  * label rejection): retry once WITHOUT labels; still failing, bundle
@@ -1381,18 +1391,41 @@ async function handleSubmit(argv, ctx) {
       let dedupe = 'new';
       let closedRef = null;
       let matches = [];
+      let searchMatches = [];
       if (!searchOpen.ok) {
         dedupe = 'unchecked';
       } else {
-        matches = searchOpen.value?.matches ?? [];
+        searchMatches = searchOpen.value?.matches ?? [];
+      }
+
+      // 0.28.2 (issue #234, Barry ruling 2026-09-21): the search hit
+      // alone is not a fold decision. Re-read each candidate body via
+      // ghIssueGetBody and keep only those whose body carries
+      // `rcf-feedback-fingerprint: <fp>` on its own line AND whose
+      // anchor / kind / target markers do not disagree with the
+      // entry's. A search hit whose body does not verify is a
+      // NON-MATCH and is dropped before the fold decision.
+      if (searchMatches.length > 0 && typeof gh.ghIssueGetBody === 'function') {
+        const verified = [];
+        for (const m of searchMatches) {
+          const v = await gh.ghIssueGetBody({ repo: destination.repo, number: m.number });
+          if (!v.ok || typeof v.value?.body !== 'string') continue;
+          const body = v.value.body;
+          if (!hasFingerprintLine(body, built.fingerprint)) continue;
+          if (!candidateMatchesEntry(body, e)) continue;
+          verified.push({ ...m, title: m.title ?? extractTitle(body) ?? null });
+        }
+        matches = verified;
+      } else {
+        matches = searchMatches;
       }
 
       if (flags['dry-run']) {
         const plan = matches.length === 1
-          ? `comment on #${matches[0].number}`
+          ? `commented on #${matches[0].number} (fingerprint match${matches[0].title ? `: ${matches[0].title}` : ''})`
           : matches.length > 1
-            ? `comment on #${matches.sort((a, b) => a.number - b.number)[0].number} (${matches.length} matches)`
-            : 'create';
+            ? `commented on #${matches.slice().sort((a, b) => a.number - b.number)[0].number} (fingerprint match, ${matches.length} verified)`
+            : 'created';
         stdout.write(`${e.id} -> dry-run ${plan} (${dedupe === 'unchecked' ? 'unchecked' : matches.length === 0 ? 'new' : 'comment'})\n`);
         continue;
       }
@@ -1425,26 +1458,28 @@ async function handleSubmit(argv, ctx) {
           labels: usedLabels,
         });
       } else if (matches.length === 1) {
-        // Comment.
+        // Verified fingerprint match: comment. Comment carries the
+        // full report per Barry's 2026-09-21 ruling on #234.
         dedupe = 'comment';
-        const commentBody = renderComment(e, {
-          body: built.redacted.body,
-          ledger: built.redacted.ledger,
-        }, { fingerprint: built.fingerprint, includeBody: false }).body;
+        const commentBody = renderComment(e, built.redacted, {
+          fingerprint: built.fingerprint,
+          matchedTitle: matches[0].title ?? null,
+        }).body;
         result = await commentWithRetry(gh, {
           repo: destination.repo,
           number: matches[0].number,
           body: commentBody,
         });
       } else {
-        // Many: comment on lowest, mention the others.
+        // Many verified matches: comment on lowest, mention the
+        // others. The comment still carries the full report.
         dedupe = 'comment';
         const sorted = matches.slice().sort((a, b) => a.number - b.number);
         const others = sorted.slice(1).map((m) => `#${m.number}`).join(', ');
-        const base = renderComment(e, {
-          body: built.redacted.body,
-          ledger: built.redacted.ledger,
-        }, { fingerprint: built.fingerprint, includeBody: false }).body;
+        const base = renderComment(e, built.redacted, {
+          fingerprint: built.fingerprint,
+          matchedTitle: sorted[0].title ?? null,
+        }).body;
         const commentBody = `${base}\nalso see ${others}\n`;
         result = await commentWithRetry(gh, {
           repo: destination.repo,
@@ -1463,7 +1498,21 @@ async function handleSubmit(argv, ctx) {
           droppedLabels,
           sessionId,
         });
-        stdout.write(`${e.id} -> ${result.url} (${dedupe})\n`);
+        // 0.28.2 (issue #234): row shape names the outcome and the
+        // matched issue's title so a wrong fold is visible on the
+        // same line a human already sees.
+        const number = extractIssueNumberFromUrl(result.url);
+        const numberSuffix = number ? `#${number}` : '';
+        if (dedupe === 'comment') {
+          const sorted = matches.slice().sort((a, b) => a.number - b.number);
+          const matchedTitle = sorted[0]?.title ?? null;
+          const foldTail = matchedTitle ? `: ${matchedTitle}` : '';
+          stdout.write(`${e.id} -> commented on ${numberSuffix} (fingerprint match${foldTail}) ${result.url}\n`);
+        } else if (dedupe === 'unchecked') {
+          stdout.write(`${e.id} -> created ${numberSuffix} (dedupe unchecked) ${result.url}\n`);
+        } else {
+          stdout.write(`${e.id} -> created ${numberSuffix} ${result.url}\n`);
+        }
         summary.submitted += 1;
       } else {
         // Retry-without-labels failed too: bundle this one entry.
@@ -1791,6 +1840,96 @@ async function markResidual(projectRoot, id, atStamp, sessionId) {
 
 function at(now) {
   return now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
+// -- 0.28.2 (issue #234) fold-decision helpers ----------------------------
+//
+// A search hit alone is not a fold: submit re-reads the candidate
+// body and folds only when the fingerprint line is literally present
+// on its own line AND the anchor / kind / target markers do not
+// contradict the entry's. This is the code side of Barry's ruling on
+// #234 (2026-09-21) and of the amended AC-15701-2.
+
+/**
+ * True when `body` contains a line reading exactly
+ * `rcf-feedback-fingerprint: <fp>` (case-sensitive, own line).
+ *
+ * @param {string} body
+ * @param {string} fp
+ * @returns {boolean}
+ */
+function hasFingerprintLine(body, fp) {
+  if (typeof body !== 'string' || typeof fp !== 'string' || fp.length === 0) return false;
+  const target = `rcf-feedback-fingerprint: ${fp}`;
+  const lines = body.split(/\r?\n/);
+  for (const l of lines) {
+    if (l.trim() === target) return true;
+  }
+  return false;
+}
+
+/**
+ * Defence-in-depth: with a truncated fingerprint (12 hex chars) a
+ * collision is negligible but not zero. We refuse to fold when the
+ * candidate body's environment-table markers for anchor, kind or the
+ * blueprint slug disagree with the entry's own values.
+ *
+ * @param {string} body
+ * @param {object} entry
+ * @returns {boolean}
+ */
+function candidateMatchesEntry(body, entry) {
+  if (typeof body !== 'string') return false;
+  const marker = (label) => {
+    const re = new RegExp(`\\|\\s*${label}\\s*\\|\\s*([^|\\n]+?)\\s*\\|`, 'i');
+    const m = body.match(re);
+    return m ? m[1].trim() : null;
+  };
+  const bodyAnchor = marker('anchor');
+  const bodyKind = marker('kind');
+  const bodyBlueprint = marker('blueprint');
+  const entryAnchor = (entry?.anchor ?? '-').trim();
+  const entryKind = (entry?.kind ?? 'core').trim();
+  const entryBlueprintSlug = entry?.kind === 'blueprint'
+    ? String(entry?.target?.effectiveSlug ?? entry?.target?.ref ?? '').trim()
+    : null;
+  if (bodyAnchor !== null && bodyAnchor.toUpperCase() !== entryAnchor.toUpperCase()) return false;
+  if (bodyKind !== null && bodyKind.toLowerCase() !== entryKind.toLowerCase()) return false;
+  if (entryBlueprintSlug && bodyBlueprint !== null) {
+    // The blueprint cell carries the slug as its first whitespace-
+    // separated token, followed by an optional version and library
+    // trail. Compare only the head.
+    const head = bodyBlueprint.split(/\s+/)[0];
+    if (head && head !== entryBlueprintSlug) return false;
+  }
+  return true;
+}
+
+/**
+ * Pull the first `## Report: <title>` header from a candidate body,
+ * used to name the matched issue on the stdout row when the search
+ * response did not carry one.
+ *
+ * @param {string} body
+ * @returns {string | null}
+ */
+function extractTitle(body) {
+  if (typeof body !== 'string') return null;
+  const m = body.match(/^##\s+Report:\s+(.+)$/m);
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * Extract the numeric issue id from a github.com issue URL. Used only
+ * to shape the stdout row.
+ *
+ * @param {string | undefined} url
+ * @returns {number | null}
+ */
+function extractIssueNumberFromUrl(url) {
+  if (typeof url !== 'string') return null;
+  const m = url.match(/\/issues\/(\d+)/);
+  return m ? Number(m[1]) : null;
 }
 
 // -- opt-in / opt-out (slice 5, FBS-184) ----------------------------------
