@@ -590,3 +590,43 @@ test('product-map lazy render: raw-JSON disclosures are suppressed inside pm-req
   // the classname to catch the actual disclosure element.
   assert.doesNotMatch(tabSlice, /<details class="raw-json"/);
 });
+
+test('product-map: truncatable chips and bucket labels carry a full-text title attr (Baz 2026-09-22)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  // Component grouping produces the longest labels (`${tacId} - ${name}`);
+  // find one and assert both the jump chip and the bucket label carry
+  // a title equal to the full text.
+  const componentBuckets = groupByComponent(model).tacs;
+  const longest = componentBuckets
+    .map((t) => `${t.tacId} - ${t.name}`)
+    .sort((a, b) => b.length - a.length)[0];
+  assert.ok(longest && longest.length > 60, `expected a long component label, got ${JSON.stringify(longest)}`);
+  const esc = longest
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  assert.ok(
+    html.includes(`class="pm-jump-chip" data-pm-jump="${longest.split(' - ')[0]}" data-pm-jump-total="${componentBuckets.find((t) => `${t.tacId} - ${t.name}` === longest).stories.length}" title="${esc}"`),
+    'long jump-chip must carry title with the full label',
+  );
+  assert.ok(
+    html.includes(`<span class="pm-bucket-label" title="${esc}">${esc}</span>`),
+    'long pm-bucket-label must carry title with the full label',
+  );
+});
+
+test('product-map: single-status buckets suppress the redundant mini pill (Baz 2026-09-22)', async () => {
+  const { model } = await renderLive();
+  const html = renderProductMapPanel(model, { lazy: new Set() });
+  // The shape "webUi" bucket is all one status in the dogfood tree, so its
+  // summary must NOT carry a pm-mini-row; the total "(N)" alone shows the
+  // count. The Unclassified bucket has mixed statuses and MUST keep the row.
+  const webUi = html.match(/<details class="pm-bucket" data-pm-bucket-id="webUi"[^>]*>.*?<\/summary>/s);
+  assert.ok(webUi, 'expected the webUi bucket summary in the rendered panel');
+  assert.doesNotMatch(webUi[0], /pm-mini-row/, 'webUi is single-status; the mini row must be suppressed');
+  const unclassified = html.match(/<details class="pm-bucket" data-pm-bucket-id="unclassified" data-doc-id="pm-bucket:shape:unclassified"[^>]*>.*?<\/summary>/s);
+  assert.ok(unclassified, 'expected the Unclassified shape bucket summary in the rendered panel');
+  assert.match(unclassified[0], /pm-mini-row/, 'Unclassified is mixed-status; the mini row must remain');
+});

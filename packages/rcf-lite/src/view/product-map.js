@@ -211,8 +211,14 @@ function statusMiniCounts(reqs) {
 }
 
 function renderStatusMini(counts) {
-  const pills = STATUS_MINI
-    .filter((s) => (counts[s] ?? 0) > 0)
+  const nonZero = STATUS_MINI.filter((s) => (counts[s] ?? 0) > 0);
+  // Polish (Baz 2026-09-22): when a bucket has exactly one status
+  // represented and its count equals the total, the mini pill just
+  // repeats the "(n)" total on the summary row. Suppress it so
+  // "(21) 21" becomes "(21)"; buckets with a real split (e.g.
+  // Unclassified "52 / 7") still render the mini row.
+  if (nonZero.length === 1 && counts[nonZero[0]] === counts.total) return '';
+  const pills = nonZero
     .map((s) => `<span class="pm-mini pm-mini-${escapeHtml(s)}" title="${escapeHtml(s)}: ${counts[s]}">${counts[s]}</span>`)
     .join('');
   return pills ? `<span class="pm-mini-row">${pills}</span>` : '';
@@ -225,7 +231,7 @@ function renderStatusMini(counts) {
  */
 function bucketSummary({ label, id, total, mini }) {
   return `<summary class="pm-bucket-heading">`
-    + `<span class="pm-bucket-label">${escapeHtml(label)}</span>`
+    + `<span class="pm-bucket-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>`
     + ` <span class="pm-bucket-count">(${total})</span>`
     + ` ${renderStatusMini(mini)}`
     + `<span class="pm-bucket-anchor" aria-hidden="true"> ${escapeHtml(id)}</span>`
@@ -247,7 +253,7 @@ function bucketOpen(group, id, body, { statusCoveredBy } = {}) {
 function renderJumpNav(group, entries) {
   if (entries.length === 0) return '';
   const chips = entries.map(({ id, label, total, mini }) => (
-    `<button type="button" class="pm-jump-chip" data-pm-jump="${escapeHtml(id)}" data-pm-jump-total="${total}">`
+    `<button type="button" class="pm-jump-chip" data-pm-jump="${escapeHtml(id)}" data-pm-jump-total="${total}" title="${escapeHtml(label)}">`
       + `<span class="pm-jump-label">${escapeHtml(label)}</span>`
       + `<span class="pm-jump-count">${total}</span>`
     + `</button>`
