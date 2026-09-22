@@ -461,13 +461,14 @@ export function redact(input, context = {}) {
   text = replaceRegex(text, emailRe, () => '<email>', 'email', ledger);
 
   // R5f: restore git protocol sentinels. The stashed spans now re-enter
-  // the pipeline for rule 4 (URL / bare-host); rule 4's bareHostRe
-  // lookbehind excludes `@`, so the host in `git@<host>` inside the
-  // restored URL / remote survives unless the URL rule matches it (only
-  // http/https), which it will not for git+ssh/ssh/git. Non-allowlisted
-  // hosts inside a restored bare `git@<host>:` remote are still exposed;
-  // the AC's THEN accepts this because the shape's userinfo is the
-  // primary redaction target the operator asked us to protect.
+  // the pipeline for rule 4 (URL / bare-host). Rule 4's URL regex is
+  // extended below to match git+ssh/ssh/git schemes with optional
+  // userinfo, so a non-allowlisted host inside a restored clone URL
+  // (e.g. `ssh://git@example.internal/owner/repo.git`) folds via that
+  // path while the `git@` userinfo is preserved. A bare
+  // `git@<host>:<owner>/<repo>` remote is left as-is by rule 4 because
+  // it has no scheme prefix and the bareHost lookbehind excludes `@`;
+  // the sentinel-protection posture is sufficient for that shape.
   if (gitStash.length > 0) {
     text = text.replace(new RegExp(`${GIT_STASH}(\\d+)${GIT_STASH}`, 'g'), (_m, i) => gitStash[Number(i)]);
   }
