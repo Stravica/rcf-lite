@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-731",
+  "path": "test/cli/freeze.test.js",
+  "title": "CLI tests for rcf define freeze",
+  "description": "Covers AC-17601-1..6 and AC-17601-8: happy freeze, refusal on failing D1, --ack on D3/D5/D6 only, section 2.5 summary line, --status is read-only, admissibility refusal is informational, and the readiness CLI stage header + CHANGELOG line no longer use ' -- '.",
+  "implementsAcIds": [
+    "AC-17601-1",
+    "AC-17601-2",
+    "AC-17601-3",
+    "AC-17601-4",
+    "AC-17601-5",
+    "AC-17601-6",
+    "AC-17601-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z"
+}

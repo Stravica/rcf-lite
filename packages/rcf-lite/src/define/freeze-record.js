@@ -27,6 +27,13 @@
 //     override: null | { reason, by, at }                     // required (nullable)
 //   }
 //
+// `override` is required-nullable: the validator throws when the key
+// is missing; every writer stamps `override: null` on a fresh freeze.
+// The loader tolerates older records that lack the key by defaulting
+// to null on read, so a pre-slice-3 freeze.json survives a load
+// without a migration step (the next write converges the on-disk
+// shape).
+//
 // The record is EXTENSIBLE: later slices add fields (2 gates the freeze
 // verb wrote at freeze time, 4 the `bundle --next` refusal read at
 // override time). This slice validates the fields it consumes and
@@ -149,23 +156,22 @@ export function validateFreezeRecord(raw, filePath) {
     );
   }
 
-  if (Object.prototype.hasOwnProperty.call(body, 'override')) {
-    const override = body.override;
-    if (override !== null) {
-      if (override === undefined || typeof override !== 'object' || Array.isArray(override)) {
+  require('override');
+  const override = body.override;
+  if (override !== null) {
+    if (override === undefined || typeof override !== 'object' || Array.isArray(override)) {
+      throw new FreezeRecordError(
+        "Freeze record 'override' must be null or { reason, by, at }.",
+        { filePath, field: 'override' },
+      );
+    }
+    const o = /** @type {Record<string, unknown>} */ (override);
+    for (const f of ['reason', 'by', 'at']) {
+      if (typeof o[f] !== 'string' || o[f].length === 0) {
         throw new FreezeRecordError(
-          "Freeze record 'override' must be null or { reason, by, at }.",
-          { filePath, field: 'override' },
+          `Freeze record 'override.${f}' must be a non-empty string.`,
+          { filePath, field: `override.${f}` },
         );
-      }
-      const o = /** @type {Record<string, unknown>} */ (override);
-      for (const f of ['reason', 'by', 'at']) {
-        if (typeof o[f] !== 'string' || o[f].length === 0) {
-          throw new FreezeRecordError(
-            `Freeze record 'override.${f}' must be a non-empty string.`,
-            { filePath, field: `override.${f}` },
-          );
-        }
       }
     }
   }
@@ -203,6 +209,15 @@ export async function loadFreezeRecord({ projectRoot }) {
       `Freeze record parse failed: ${/** @type {Error} */ (err).message}`,
       { filePath: relPath, code: 'parseFailure' },
     );
+  }
+  // Back-compat: older freeze records were written before override
+  // became a required-nullable field. Fill in null on read so a
+  // pre-slice-3 record survives; the writer stamps override: null on
+  // every fresh freeze so the on-disk shape converges on the current
+  // schema without a migration step.
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+    && !Object.prototype.hasOwnProperty.call(parsed, 'override')) {
+    /** @type {Record<string, unknown>} */ (parsed).override = null;
   }
   return validateFreezeRecord(parsed, relPath);
 }

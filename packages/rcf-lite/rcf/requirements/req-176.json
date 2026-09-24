@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z",
+  "reqId": "REQ-176",
+  "prdId": "PRD-001",
+  "title": "rcf define freeze verb writes freeze.json and closes the change",
+  "description": "rcf-lite gains src/cli/freeze.js implementing 'rcf define freeze [--ack <gate> --reason <text>]... [--litmus-attested <D3,D6>] [--note <text>] [--status] [--json]'. The verb runs computeReadiness (REQ-175) once over the live tree, freeze record and four ledgers; refuses with exit 4 when any stage state is 'failing' after applying any --ack argument, printing the failing gates and their first failing ids; and, on success, writes rcf/define/freeze.json via saveFreezeRecord (REQ-172) with { frozenAt, treeHash, docHashes, briefStatements, gates, counts, litmus, versions, note, override } and prints the proposal section 2.5 one-line summary derived from the pre-freeze delta ('frozen at <short treeHash>: <n> REQ, <n> stories, <n> criteria, <n> interfaces added; <ids> amended; ...'; first freeze reports 'first freeze: <whole-tree counts>'). --ack is accepted only for the three warn-with-ack gates (define.shapes, define.crosscut, define.consistency; short names shapes / crosscut / consistency; readiness's stage aliases); ack on any other gate is a usage refusal (exit 2), ack without --reason is a usage refusal. An acked gate lands in freeze.gates as { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text> }, failing: [<id>, ...] }. --litmus-attested records the operator's per-decision attestation (Baz decision 7: default { attestedAt: [], readers: 0 }); the numbered --litmus <n> dispatch is NOT built (slice-6 seam). counts derives req/us/ac/tac/adr/fbs from tree.byId groupings, acByClass by parsing bracketed class markers on AC.description, and interfaces by kind from every TAC's interfaces[]. versions reads rcfLite from package.json, ruleset from src/ruleset/ruleset.json, and schemas from the installed @stravica-ai/rcf-schemas. --status prints the current freeze record (short hash, frozenAt, note, counts, acknowledged gates + reasons, litmus, versions, override) plus the live delta summary; --status --json emits the record and computeDelta object. The producer is wrapped with runWithAdmissibilityGate (ADR-4123: refusal is informational, the freeze still runs). Same slice: (a) src/define/freeze-record.js is corrected so the local schema requires override as a nullable field and every writer stamps override: null on a fresh freeze; loadFreezeRecord tolerates older records that lack the key by defaulting to null on load; (b) the ' -- ' double-dash in the readiness CLI stage header and the CHANGELOG regex line is replaced with a colon.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": ["persistence"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-24T16:33:15Z",
+    "signals": [
+      { "source": "description", "shape": "persistence", "match": "record" }
+    ]
+  },
+  "rationale": "Baz ruled on 2026-09-22 (proposal section 2.5) that closing a change is freezing again: the freeze verb is the only close verb, nothing is minted, and the one-line summary is what the operator signs off. Slice 3 is the smallest coherent seam between the pieces slices 1 and 2 built (delta, freeze-record writer, gates, computeReadiness) and the readers slices 4 and 5 will add (bundle --next, viewer Readiness tab). Warn-with-ack ack is accepted only on D3 / D5 / D6 per proposal section 9 decision 2 (Baz 2026-09-24) so the escape hatch matches the fold rule in gates.js. The freeze verb is also the only writer of freeze.gates and freeze.litmus, so writing them in the same slice that ships the writer keeps the record's schema surface single-sourced before slice 4 reads it. Bundling the slice-1 override-nullable P3 and the double-dash hygiene here is the same reasoning: the freeze verb is now the only writer of the record, so making override always-written is a one-touch change; the readiness CLI header's ' -- ' pattern is a small blast radius carried across the slice boundary.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

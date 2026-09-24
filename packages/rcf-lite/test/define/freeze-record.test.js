@@ -114,3 +114,51 @@ test('freeze-record: saveFreezeRecord refuses to write an invalid record', async
   const contents = await readFile(freezeRecordPath(root), 'utf8').catch(() => null);
   assert.equal(contents, null);
 });
+
+// AC-17601-7: override is a required-nullable field. The validator
+// throws when the key is missing; loadFreezeRecord defaults missing
+// keys to null so pre-slice-3 records survive; saveFreezeRecord
+// refuses to write a body that omits override.
+test('freeze-record: override is required (nullable) and the loader defaults missing keys to null', async () => {
+  // Validator: missing override key throws with field 'override'.
+  const { override: _omit, ...withoutOverride } = validRecord;
+  assert.throws(
+    () => validateFreezeRecord(withoutOverride),
+    (err) => err instanceof FreezeRecordError && err.field === 'override',
+  );
+
+  // Validator: override === null is legal (the fresh-freeze default).
+  const legal = validateFreezeRecord({ ...validRecord, override: null });
+  assert.equal(legal.override, null);
+
+  // Validator: override === { reason, by, at } is legal.
+  const withOverride = validateFreezeRecord({
+    ...validRecord,
+    override: { reason: 'Baz override for X', by: 'baz', at: '2026-09-24T10:00:00Z' },
+  });
+  assert.equal(withOverride.override.reason, 'Baz override for X');
+
+  // Loader: an older on-disk record without the key loads with override defaulted to null.
+  const root = await scratch();
+  await mkdir(join(root, 'rcf', 'define'), { recursive: true });
+  await writeFile(
+    freezeRecordPath(root),
+    `${JSON.stringify(withoutOverride, null, 2)}\n`,
+    'utf8',
+  );
+  const loaded = await loadFreezeRecord({ projectRoot: root });
+  assert.ok(loaded);
+  assert.equal(loaded.override, null);
+
+  // Writer: saving a body that omits override is refused before it lands on disk.
+  const root2 = await scratch();
+  await assert.rejects(
+    () => saveFreezeRecord({
+      projectRoot: root2,
+      record: /** @type {any} */ (withoutOverride),
+    }),
+    (err) => err instanceof FreezeRecordError && err.field === 'override',
+  );
+  const contents = await readFile(freezeRecordPath(root2), 'utf8').catch(() => null);
+  assert.equal(contents, null);
+});

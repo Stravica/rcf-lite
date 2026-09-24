@@ -8,6 +8,63 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- **DEFINE workflow: `rcf define freeze` CLI verb (REQ-176, slice 3 of
+  the 0.29.0 train).** New module `src/cli/freeze.js` is the only
+  writer of `rcf/define/freeze.json` in the shipped product. It runs
+  `computeReadiness` once (REQ-175) over the live tree, freeze record
+  and four ledgers; refuses (exit 4) on any stage state `failing`
+  after applying any `--ack` acknowledgements; and, on success, writes
+  the freeze record via `saveFreezeRecord` (REQ-172) plus the
+  proposal 2026-09-22 v3 §2.5 summary line the operator signs off.
+  `--ack <gate> --reason <text>` is accepted only for the three
+  warn-with-ack gates (`define.shapes` / D3 / shapes,
+  `define.crosscut` / D5 / crosscut, `define.consistency` / D6 /
+  consistency); `--ack` on any other gate is a usage refusal
+  (exit 2) with a stderr message naming the accepted set. Ack pairs
+  are folded in-memory at the current tree hash and the readiness
+  compute runs with a synthesised freeze context so D8's
+  `priorGates` check sees the acked stages as `acknowledged`. On
+  success the record carries `frozenAt` (ISO UTC now), `treeHash`
+  (from `computeDelta`), `docHashes`, `briefStatements`,
+  `gates` (per-stage envelope including acked entries),
+  `counts` (`req` / `us` / `ac` / `acByClass` / `tac` /
+  `interfaces` by kind / `adr` / `fbs`), `litmus`
+  (`{ attestedAt: [], readers: 0 }` default; `--litmus-attested
+  D3,D6` records the agent's attestation per proposal §9 decision
+  7), `versions` (`rcfLite` / `ruleset` / `schemas` read from
+  package.json, `src/ruleset/ruleset.json` and the installed
+  `@stravica-ai/rcf-schemas`), `note` and `override: null`. The
+  producer is wrapped with `runWithAdmissibilityGate` per ADR-4124;
+  refused admissibility is informational (a stderr `[warn]` line)
+  and never a freeze refusal (ADR-4123 carried). `--status` prints
+  the current record and the live delta summary without running any
+  gates and without writing; `--status --json` emits
+  `{ record, delta }`. `--json` on a freeze success emits
+  `{ record, summary, delta }`. The `--litmus <n>` real-dispatch
+  runner is a named 0.30 seam.
+
+### Changed
+
+- **Freeze record `override` is now a required-nullable field
+  (slice 3, resolves the slice-1 P3).** `validateFreezeRecord` in
+  `src/define/freeze-record.js` throws `FreezeRecordError` with
+  `field: 'override'` when the key is missing; `saveFreezeRecord`
+  refuses to write a body that omits override. `loadFreezeRecord`
+  defaults a missing key to `null` on read so pre-slice-3
+  freeze.json records survive without a migration step. Every
+  fresh freeze written by the new CLI stamps `override: null`, so
+  the on-disk shape converges on the current schema the next time
+  a project freezes.
+
+### Fixed
+
+- **DEFINE hygiene: the ` -- ` double-dash is gone from the
+  readiness CLI stage header and the CHANGELOG's TODO-regex line
+  (slice 3).** The readiness `rcf define readiness` stage block
+  now uses `: ` between the stage id / gate and the state label
+  (`D1 (define.brief): failing`); the CHANGELOG's `The regex is
+  now /\bTODO:/` line likewise uses a colon.
+
 - **Product Map tab on the review surface (#238).** Merged on `main` at
   `ab35dd7d`; grouped by shape, component, trace coverage, capability,
   blueprint. This entry backfills the changelog now that the following
@@ -115,7 +172,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   the whole-word `/\btodo\b/i`, which false-positived on prose
   mentioning the word ("no AC description contains the scaffold TODO
   placeholder" on US-17401 / AC-17401-4 tripped D4 against itself).
-  The regex is now `/\bTODO:/` -- case-sensitive uppercase `TODO`
+  The regex is now `/\bTODO:/`: case-sensitive uppercase `TODO`
   followed by a colon, matching every scaffold string
   `src/core/store/init.js` and `src/core/store/writer.js` write for a
   fresh `rcf init` / `rcf define create`. `src/cli/validate.js` keeps
