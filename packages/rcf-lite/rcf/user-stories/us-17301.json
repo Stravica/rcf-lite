@@ -1,0 +1,38 @@
+{
+  "usId": "US-17301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-173",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf define ledger reads and writes the four sidecars under rcf/define/",
+  "description": "User story under REQ-173. The operator-facing CLI for the four sidecar ledgers lands with add / resolve / list on every ledger name.",
+  "asA": "an operator staging or reviewing a DEFINE change",
+  "iWant": "rcf define ledger to author brief statements, decisions, concern dispositions and probe findings under rcf/define/ with numbered ids stable for the life of the project, and to leave every ledger invisible to the walker",
+  "soThat": "the freeze record's high-water mark, the D7 decisions list, D5 concern coverage and D6 probe findings all have a written record and every later DEFINE slice reads the same seam without discovering a second source of truth",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17301-1",
+      "description": "rcf define ledger brief add --kind <k> --text <t> appends a numbered statement to rcf/define/brief-ledger.json, mints the next id (highest current + 1), stamps status open and addedAt (ISO-8601), refuses an unknown kind with a usage-class error, and refuses --text combined with --from with a usage-class error.",
+      "testable": true
+    },
+    {
+      "id": "AC-17301-2",
+      "description": "rcf define ledger decisions list prints the numbered #241 format: one decision per item (id. question), options rendered as 'letter) text', the default letter labelled 'default:', and what it blocks labelled 'blocks:'. rcf define ledger <name> list --json emits the machine-readable envelope { ledger, <arrayKey>: [...] }.",
+      "testable": true
+    },
+    {
+      "id": "AC-17301-3",
+      "description": "rcf define ledger brief add --from <file> reads the file, splits it into one statement per non-empty line (stripping leading '- ', '* ' or '<n>. ' bullets), mints sequential ids for every statement, refuses if the file produced zero non-empty lines, and stamps the file path as source unless --source overrides it. The intake-scan-against-frozen-statements hook is a named seam in the writer, not called in this slice.",
+      "testable": true
+    },
+    {
+      "id": "AC-17301-4",
+      "description": "walkTree run over a project that carries rcf/define/freeze.json, all four ledger files, and a bug-bait file named req-999.json under rcf/define/ never surfaces any rcf/define/ file as a tree.byId document and reports no walker error naming a rcf/define/ path. The sidecar directory is invisible to every consumer of walkTree.",
+      "testable": true
+    }
+  ],
+  "tacIds": ["TAC-4121-define-ledgers"],
+  "tags": [],
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

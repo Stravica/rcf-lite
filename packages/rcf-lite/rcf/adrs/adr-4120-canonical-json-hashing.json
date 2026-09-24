@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "adrId": "ADR-4120-canonical-json-hashing",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Delta detection hashes the parsed document under canonical JSON, at standalone-document granularity",
+  "context": "The DEFINE workflow proposal (2026-09-22 v3, section 2.1) has to pick both a hashing scheme and a granularity for docHashes on the freeze record. Two choices matter and are named as residual (proposal section 2 penultimate paragraph): raw bytes versus the parsed canonical form, and criterion-level versus document-level. Raw bytes are the smallest amount of code (one hash per file read); the parsed form costs one canonicalise per document per read (milliseconds at 700 criteria). Criterion granularity gives a finer delta; document granularity keeps the model small and lets git supply the criterion-level diff. Both choices had to be recorded because the detection model is what every later slice (readiness, freeze, bundle, viewer) reads.",
+  "decision": "Hash the parsed document under canonical JSON: keys sorted recursively, no whitespace, JSON.stringify escaping. Compute the tree hash as SHA-256 over the sorted (id, docHash) pairs canonically encoded. The docHashes map has one entry per standalone document the walker exposes on tree.byId (PRD, TAD, BS, REQ, US, TAC, ADR, FBS, TS, CN, EVAL) plus one ledger:<name> entry per sidecar the caller passes; inline AC and TC ride inside their parent's hash. Granularity for the delta list is the standalone document.",
+  "consequences": "A hand reformat of a document (rewritten by rcf define update, opened in an editor and re-saved) does not surface as a change, which is what an operator expects. An edit to a criterion surfaces as its owning story changed; Readiness renders the criterion-level diff by reading the frozen story out of git (proposal section 2.2). The cost is one canonicalise per document per read; at the backstory scale of 700 criteria that is milliseconds and is only paid on readiness / freeze / bundle --next reads. If document granularity turns out too coarse in practice, ADR replacement or schemas 0.7's criterion-hash extension is the migration path; the change would not affect the wire shape of computeDelta because inline granularity would simply expand tree.byId, not the return shape.",
+  "alternativesConsidered": [
+    {
+      "name": "Hash the raw file bytes",
+      "summary": "SHA-256 over readFile output directly; skip canonical JSON entirely.",
+      "reasonNotChosen": "A CLI edit that rewrites the file (rcf define update reserialises the object every write) would report drift on a file it did not semantically touch. The operator would learn to ignore the delta list, which is the one signal the freeze exists to give."
+    },
+    {
+      "name": "Criterion granularity: one docHash per AC / TC on top of the document ones",
+      "summary": "Add inline-AC and inline-TC entries to docHashes so an edit to AC-207-4 shows in the delta at criterion granularity.",
+      "reasonNotChosen": "Doubles the size of docHashes for no readiness improvement: Readiness already renders the criterion-level diff by reading the frozen story from git. The size cost is real (a backstory tree has 700 criteria plus 40 stories); the render cost is not."
+    },
+    {
+      "name": "Hash the pretty-printed JSON body the writer produced",
+      "summary": "Hash JSON.stringify(doc, null, 2) plus a trailing newline; the same bytes the writer wrote.",
+      "reasonNotChosen": "Whitespace-only reformats (a hand edit that reorders keys or drops a trailing newline) then surface as changes. Canonical hashing is the same code with the whitespace stripped and the keys sorted; the operator sees fewer false-positive deltas."
+    }
+  ]
+}

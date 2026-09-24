@@ -1,0 +1,67 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "purpose": "Cover the four sidecar ledgers, the rcf define ledger CLI (add / resolve / list with --json) and the walker-invisibility invariant on rcf/define/ against AC-17301-1..4 on US-17301.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17301-1",
+    "AC-17301-2",
+    "AC-17301-3",
+    "AC-17301-4"
+  ],
+  "id": "TS-215",
+  "usId": "US-17301",
+  "title": "Sidecar ledgers, rcf define ledger and walker invisibility",
+  "testCases": [
+    {
+      "id": "TC-215-brief-add-text",
+      "acId": "AC-17301-1",
+      "description": "rcf define ledger brief add --text mints id 1 with status open, kind capability by default, and writes rcf/define/brief-ledger.json.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI: brief add --text appends a numbered statement"
+    },
+    {
+      "id": "TC-215-brief-refuse-mixed",
+      "acId": "AC-17301-1",
+      "description": "rcf define ledger brief add refuses conflicting --text and --from with a usage-class error (exit 2).",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI: brief add refuses conflicting --text and --from with a usage error"
+    },
+    {
+      "id": "TC-215-decisions-list-241",
+      "acId": "AC-17301-2",
+      "description": "rcf define ledger decisions list prints the numbered #241 format: question, options as 'letter) text', default and blocks labelled on their own lines.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI: decisions list prints the numbered #241 format"
+    },
+    {
+      "id": "TC-215-list-json",
+      "acId": "AC-17301-2",
+      "description": "rcf define ledger <name> list --json emits { ledger, <arrayKey>: [...] } with the same body loadLedger returns.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI: list --json emits the machine-readable envelope"
+    },
+    {
+      "id": "TC-215-brief-from-file",
+      "acId": "AC-17301-3",
+      "description": "rcf define ledger brief add --from <file> splits by non-empty lines, mints sequential ids and writes every statement with the resolved kind.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI: brief add --from <file> splits by non-empty line"
+    },
+    {
+      "id": "TC-215-parse-brief-bullets",
+      "acId": "AC-17301-3",
+      "description": "parseBriefFromFile strips leading '- ', '* ' and '<n>. ' bullets so drafts match the raw statement text.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::ledgers: parseBriefFromFile splits by non-empty lines and strips bullets"
+    },
+    {
+      "id": "TC-215-walker-invisible",
+      "acId": "AC-17301-4",
+      "description": "walkTree run over a project seeded with rcf/define/freeze.json, the four ledger files and a bug-bait req-999.json under rcf/define/ never surfaces any rcf/define/ path in errors or byId.",
+      "status": "pending",
+      "testPointer": "test/store/walker-invisible-define.test.js::walkTree never surfaces rcf/define/ files as documents in byId"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,21 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "tacId": "TAC-4120-define-delta-and-freeze",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "define delta compute and freeze record",
+  "purpose": "The detection-model primitives (hashDocument, computeTreeHash, computeDelta) live in a new pure module src/query/delta.js, exported from src/query/index.js alongside computeTrace, computeImpact and computeCoverage. The freeze record I/O sits in a new module src/define/freeze-record.js with a small local schema (until schemas 0.7 promotes it to manifest.freeze per ADR-4121). Both modules are pure per call: no filesystem I/O beyond the freeze reader / writer, no state, no time. Canonical JSON is defined on the parsed body, not the raw bytes: keys sorted recursively, no whitespace, JSON.stringify escaping. A whitespace-only reformat of a document produces the same hash; two objects that parse to the same value produce the same hash. Delta granularity is the standalone document: every id in tree.byId (PRD, TAD, BS, REQ, US, TAC, ADR, FBS, TS, CN, EVAL) contributes one docHash; inline AC / TC ride inside the parent's hash; the criterion-level diff is git's job (proposal section 2.2). Ledger docHashes are added under a ledger:<name> id per sidecar the caller passes in.",
+  "responsibilities": [
+    "src/query/delta.js: canonicaliseJson, hashDocument, computeTreeHash and computeDelta pure functions; JSDoc on computeDelta names the exact return shape AC-17201-1 pins.",
+    "src/query/index.js: re-export canonicaliseJson, hashDocument, computeTreeHash and computeDelta so every consumer imports through one seam.",
+    "src/define/freeze-record.js: FREEZE_RECORD_REL_PATH (rcf/define/freeze.json), FreezeRecordError, validateFreezeRecord, loadFreezeRecord (returns null on ENOENT, throws FreezeRecordError on parse or schema failure), saveFreezeRecord (validates then writes pretty JSON with trailing newline; creates rcf/define/ on demand).",
+    "Every hash is a 'sha256:<64-hex>' string; the record's docHashes values and treeHash are validated against that shape and rejected with a named field otherwise.",
+    "Extension fields (counts, litmus, versions, note, override, gates) survive a save / load round trip; the writer refuses to persist an invalid record so a bad in-memory value never lands on disk."
+  ],
+  "internalStructure": "canonicaliseJson recurses over parsed values: object keys sorted lexicographically, arrays kept in source order, JSON.stringify handles string / number / boolean escaping (non-finite numbers coerce to 'null' as JSON does), undefined is omitted from objects and arrays (matches JSON.stringify semantics). computeTreeHash normalises the input (Map or plain object) into sorted (id, docHash) pairs, canonically encodes the pair array, and hashes the resulting string; the tree hash is thereby order-independent by construction. computeDelta walks tree.byId once, hashes each doc, adds one ledger:<name> entry per non-nullish ledger the caller passes, then either returns the whole-tree 'added' shape (freeze absent) or classifies every id against freeze.docHashes; briefSince walks the brief ledger's statements[] and reports ids above freeze.briefStatements.",
+  "interfaces": [],
+  "notes": "Slice-2 hook: the readiness module will call computeDelta once per render, pass the result through computeImpact per changed id, and hand the union of changed + added + fan-out to every gate check. Slice 3 (the freeze verb) is the only caller of saveFreezeRecord in the shipped path; this slice ships the writer so the verb can be built without a second refactor."
+}

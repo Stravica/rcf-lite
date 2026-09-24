@@ -1,0 +1,74 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "purpose": "Cover the delta-detection primitives (hashDocument, computeTreeHash, computeDelta) and the freeze record I/O (load, save, validate) against AC-17201-1..4 on US-17201.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17201-1",
+    "AC-17201-2",
+    "AC-17201-3",
+    "AC-17201-4"
+  ],
+  "id": "TS-214",
+  "usId": "US-17201",
+  "title": "Delta detection and freeze record primitives",
+  "testCases": [
+    {
+      "id": "TC-214-delta-shape",
+      "acId": "AC-17201-1",
+      "description": "computeDelta returns the shape proposal section 2.2 pins: frozen / frozenAt / treeHash / currentTreeHash / changed / added / removed / briefSince / unchanged, and classifies changed / added / removed correctly against a divergent freeze record.",
+      "status": "pending",
+      "testPointer": "test/query/delta.test.js::delta: changed / added / removed classify against the freeze record"
+    },
+    {
+      "id": "TC-214-unchanged",
+      "acId": "AC-17201-1",
+      "description": "A tree that matches the freeze record produces empty changed / added / removed lists and unchanged equal to the docHashes count.",
+      "status": "pending",
+      "testPointer": "test/query/delta.test.js::delta: an unchanged tree against a matching freeze reports empty changed/added/removed"
+    },
+    {
+      "id": "TC-214-canonical",
+      "acId": "AC-17201-2",
+      "description": "hashDocument is invariant under a whitespace-only reformat: two documents that parse to the same object hash identically and produce zero changed entries in the delta.",
+      "status": "pending",
+      "testPointer": "test/query/delta.test.js::delta: a whitespace-only reformat of a document produces zero changed ids"
+    },
+    {
+      "id": "TC-214-hash-shape",
+      "acId": "AC-17201-2",
+      "description": "hashDocument returns a sha256:<64-hex> string over the canonical JSON form of the parsed document.",
+      "status": "pending",
+      "testPointer": "test/query/delta.test.js::delta: hashDocument returns a sha256:<64-hex> string over the canonical form"
+    },
+    {
+      "id": "TC-214-freeze-missing",
+      "acId": "AC-17201-3",
+      "description": "loadFreezeRecord returns null when rcf/define/freeze.json is absent; a malformed body raises FreezeRecordError with the parseFailure code.",
+      "status": "pending",
+      "testPointer": "test/define/freeze-record.test.js::freeze-record: a malformed JSON body raises FreezeRecordError with parseFailure code"
+    },
+    {
+      "id": "TC-214-freeze-schema",
+      "acId": "AC-17201-3",
+      "description": "A body with a non-sha256 docHashes value is refused with a FreezeRecordError naming the failing docHashes.<id> field.",
+      "status": "pending",
+      "testPointer": "test/define/freeze-record.test.js::freeze-record: docHashes with a non-sha256 value is refused"
+    },
+    {
+      "id": "TC-214-roundtrip",
+      "acId": "AC-17201-4",
+      "description": "saveFreezeRecord followed by loadFreezeRecord round-trips every field including unknown extension fields (counts, litmus, versions, note).",
+      "status": "pending",
+      "testPointer": "test/define/freeze-record.test.js::freeze-record: unknown top-level fields survive a save/load round trip"
+    },
+    {
+      "id": "TC-214-refuse-invalid-write",
+      "acId": "AC-17201-4",
+      "description": "saveFreezeRecord refuses an invalid record and writes nothing to disk.",
+      "status": "pending",
+      "testPointer": "test/define/freeze-record.test.js::freeze-record: saveFreezeRecord refuses to write an invalid record"
+    }
+  ],
+  "status": "draft"
+}

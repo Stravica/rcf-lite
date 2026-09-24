@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "acIds": [
+    "AC-17201-1",
+    "AC-17201-2",
+    "AC-17201-3",
+    "AC-17201-4"
+  ],
+  "fbsId": "FBS-194",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 194,
+  "executionStatus": "complete",
+  "title": "DEFINE slice 1: delta module and freeze record I/O",
+  "summary": "Ship src/query/delta.js (hashDocument, computeTreeHash, computeDelta) and src/define/freeze-record.js (load, save, validate). Export the delta primitives from src/query/index.js. Cover every AC with unit tests in test/query/delta.test.js and test/define/freeze-record.test.js.",
+  "dependsOnFbsIds": [],
+  "approach": "Pure module with SHA-256 over canonical JSON per proposal 2026-09-22 v3 section 2.1 / 2.2. Canonicalise recurses over the parsed value, sorting object keys and stripping whitespace. Tree hash is SHA-256 over the sorted (id, docHash) pairs. Delta enumerates tree.byId once and classifies each id against the freeze docHashes, appending ledger:<name> entries for the sidecars the caller passes. Freeze record I/O treats a missing file as null; a malformed body raises FreezeRecordError with a coded reason and a named field. The writer validates first so a bad in-memory record never lands on disk.",
+  "contextRequirements": {
+    "tacIds": ["TAC-4120-define-delta-and-freeze"],
+    "adrIds": ["ADR-4120-canonical-json-hashing"]
+  },
+  "deliverables": [
+    "src/query/delta.js: canonicaliseJson, hashDocument, computeTreeHash, computeDelta (§2.2 shape)",
+    "src/query/index.js: re-export the four delta primitives",
+    "src/define/freeze-record.js: FREEZE_RECORD_REL_PATH, FreezeRecordError, validateFreezeRecord, loadFreezeRecord, saveFreezeRecord",
+    "test/query/delta.test.js: eleven tests covering AC-17201-1 and AC-17201-2",
+    "test/define/freeze-record.test.js: nine tests covering AC-17201-3 and AC-17201-4"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "small",
+  "estimatedHours": 3,
+  "notes": "Pure module: no filesystem I/O beyond the freeze reader / writer. computeDelta signature and return shape are the contract every later slice reads."
+}

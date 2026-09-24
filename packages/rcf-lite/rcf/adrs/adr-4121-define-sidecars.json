@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "adrId": "ADR-4121-define-sidecars",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Ledgers as rcf-lite-owned sidecars under rcf/define/ with a local schema; promote to manifest records at schemas 0.7",
+  "context": "The DEFINE proposal (2026-09-22 v3, section 2.5 and decision 5) needs a place to put four things the workflow reads and writes but the shared schema does not yet know about: brief statements (D1), decisions (D7), (concern, REQ) dispositions (D5), probe findings (D6). @stravica-ai/rcf-schemas 0.6.3 has no manifest.ledgers[] shape and adding one is a schema-package bump; the train's non-goal (train-context: 'no schema change') is to ship the workflow without touching @stravica-ai/rcf-schemas. Precedent already exists in this codebase: .rcf/preflight-secrets.local.json is an rcf-lite-owned file outside the shared schema; the loader reads only its named collection directories, so a directory the walker was not told about is invisible.",
+  "decision": "Ledgers live under rcf/define/, one JSON file each (brief-ledger.json, decisions-ledger.json, concern-ledger.json, probe-ledger.json), validated by a local schema inside src/define/ledgers.js. The freeze record sits at rcf/define/freeze.json under the same directory. rcf-lite owns the shape until @stravica-ai/rcf-schemas 0.7, at which point the sidecars promote to a manifest.freeze and manifest.ledgers[] records and the local schema is retired. The walker never reads rcf/define/ (src/core/store/loader.js's subdirFor returns null for anything not in its child-kind list), and a walker-invisibility invariant test proves it stays that way.",
+  "consequences": "A DEFINE change lands with no @stravica-ai/rcf-schemas bump: the train ships as 0.29.0 against the shipped 0.6.3 schema. The sidecars are committed alongside the rest of the rcf tree (they carry durable state: the freeze hash, brief statement ids, resolved decisions), so git supplies the history the proposal section 2.1 relies on. Second source of truth is the honest downside: until schemas 0.7 there are two places the DEFINE workflow reads (the shared tree and rcf/define/); the promotion path documented in the proposal (section 5.3) is straightforward because the local shapes were designed to line up with the manifest.freeze and manifest.ledgers[] fields the schema promotion adds. If schemas 0.7 slips past the 0.30 train, the sidecars keep working: the local schema is the contract every DEFINE gate consumes.",
+  "alternativesConsidered": [
+    {
+      "name": "Land the manifest.freeze and manifest.ledgers[] records at schemas 0.6.4 now",
+      "summary": "Bump @stravica-ai/rcf-schemas to 0.6.4 as part of this train; add manifest.freeze and manifest.ledgers[] optional records; write to the manifest instead of a sidecar.",
+      "reasonNotChosen": "The train-context ('no schema change') is a deliberate constraint on this train, ratified 2026-09-22, so the workflow can ship without another WSD-side schema round trip. Schemas 0.7 is on the roadmap for the 0.30 train; landing the sidecar first proves the shape at zero schema cost, then the promotion carries the same fields."
+    },
+    {
+      "name": "One combined ledger file (rcf/define/ledger.json) with four sections",
+      "summary": "Collapse the four ledgers into one file with four top-level keys; the CLI still gates on the name.",
+      "reasonNotChosen": "The four ledgers grow independently (a probe-heavy pass writes ten probes with no decisions changed) and merge conflicts on a shared file would surface constantly. Four files with distinct id sequences is the cheaper long-term shape, and it lines up with the four manifest.ledgers[] records schemas 0.7 is expected to add."
+    },
+    {
+      "name": "Sidecars under .rcf/ (like preflight-secrets.local.json)",
+      "summary": "Put the four ledgers under .rcf/ so they inherit the preflight-secrets convention.",
+      "reasonNotChosen": "The preflight sidecar is gitignored on purpose (credential name-metadata). DEFINE ledgers hold durable state the workflow re-reads on every gate; they must be committed. rcf/define/ keeps them visible to the operator, alongside the tree they annotate."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-721",
+  "path": "src/define/freeze-record.js",
+  "title": "Freeze record I/O: load, save, validate",
+  "description": "Owns rcf/define/freeze.json. FREEZE_RECORD_REL_PATH, FreezeRecordError (coded parseFailure | schemaFailure | ioFailure with a named field), validateFreezeRecord, loadFreezeRecord (returns null on ENOENT), saveFreezeRecord (validates first; refuses to persist an invalid record; creates rcf/define/ on demand; writes pretty JSON with a trailing newline). The record's local schema is documented at the top of this file and covered by test/define/freeze-record.test.js.",
+  "implementsAcIds": [
+    "AC-17201-3",
+    "AC-17201-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

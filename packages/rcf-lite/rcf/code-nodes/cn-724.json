@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-724",
+  "path": "test/store/walker-invisible-define.test.js",
+  "title": "Invariant test: walker never surfaces rcf/define/ files",
+  "description": "One-scenario test that seeds a fresh project (initProject), writes rcf/define/freeze.json, the four ledger files and a bug-bait req-999.json under rcf/define/, then runs walkTree and asserts no error path starts with rcf/define/ and no such file lands in tree.byId. The invariant is what keeps the sidecars out of every existing tree consumer (proposal 2026-09-22 section 2.1).",
+  "implementsAcIds": [
+    "AC-17301-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "acIds": [
+    "AC-17301-1",
+    "AC-17301-2",
+    "AC-17301-3",
+    "AC-17301-4"
+  ],
+  "fbsId": "FBS-195",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 195,
+  "executionStatus": "complete",
+  "title": "DEFINE slice 1: four sidecar ledgers and rcf define ledger CLI",
+  "summary": "Ship src/define/ledgers.js (load, save, validate, addEntry, resolveEntry, parseBriefFromFile, loadAllLedgers), src/cli/ledger.js (add / resolve / list on every ledger name; renderDecisionsList prints the #241 format), and wire under define in bin/rcf.js and src/cli/help.js. Prove walker invisibility of rcf/define/ with a dedicated test.",
+  "dependsOnFbsIds": ["FBS-194"],
+  "approach": "One JSON file per ledger under rcf/define/ (brief-ledger.json, decisions-ledger.json, concern-ledger.json, probe-ledger.json). LEDGER_NAMES is the closed list of accepted names; per-ledger config maps to the filename and array key. Validation is local (no @stravica-ai/rcf-schemas change). loadLedger returns an empty ledger on ENOENT; a malformed file raises LedgerError with a coded reason. addEntry mints ids per ledger and validates the whole body before returning it. The CLI wraps parseArgs, prints per-verb usage from HELP so 'rcf help define ledger' and 'rcf define ledger --help' render the same block, and disposes of ledger-specific flags (--kind, --text, --from, --source, --question, --option, --default, --blocks, --req, --concern, --disposition, --reason, --answer, --finding, --severity). renderDecisionsList prints the numbered #241 format for decisions list. The walker never reads rcf/define/ because loader.subdirFor names its children by kind; a dedicated test seeds four ledger files plus a bug-bait req-999.json under rcf/define/ and asserts no walker error path starts with rcf/define/ and no matching id lands in tree.byId.",
+  "contextRequirements": {
+    "tacIds": ["TAC-4121-define-ledgers"],
+    "adrIds": ["ADR-4121-define-sidecars"]
+  },
+  "deliverables": [
+    "src/define/ledgers.js: LEDGER_NAMES, BRIEF_KINDS, LedgerError, emptyLedger, ledgerRelPath, ledgerPath, loadLedger, saveLedger, validateLedger, addEntry, resolveEntry, nextIdFor, parseBriefFromFile, loadAllLedgers",
+    "src/cli/ledger.js: main, HELP, renderDecisionsList, parseOptionFlags",
+    "bin/rcf.js: GROUPS.define.ledger registered",
+    "src/cli/help.js: HELP_MAP.define.ledger, DEFINE_HELP block extended, top-level listing extended",
+    "test/define/ledgers.test.js: fifteen tests covering AC-17301-1 and AC-17301-3 semantics on the pure module",
+    "test/cli/ledger.test.js: eight CLI tests covering AC-17301-1, AC-17301-2 and AC-17301-3",
+    "test/store/walker-invisible-define.test.js: one test proving AC-17301-4"
+  ],
+  "riskLevel": "low",
+  "domain": "defineLedgers",
+  "estimatedSize": "medium",
+  "estimatedHours": 5,
+  "notes": "Slice 1 leaves the intake-scan-against-frozen-statements hook on brief add --from as a named seam; slice 2's D1 gate is the intended consumer. No schema-package change."
+}

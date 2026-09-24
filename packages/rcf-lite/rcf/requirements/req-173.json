@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "reqId": "REQ-173",
+  "prdId": "PRD-001",
+  "title": "Sidecar ledgers under rcf/define/ and the rcf define ledger verb",
+  "description": "Four sidecars live under rcf/define/, each one JSON file, each with one numbered sequence for the life of the project (proposal 2026-09-22 v3 section 2.5, 3.2, 8.2). Names and shapes: brief-ledger.json (statements[] kinded from a closed set), decisions-ledger.json (decisions[] in the numbered #241 format), concern-ledger.json (concerns[] with disposition applied or waived), probe-ledger.json (probes[] with severity low, medium, high). A local schema in rcf-lite validates every write until schemas 0.7. Reading a missing ledger file returns an empty ledger so callers can compose without a per-file null check; a malformed file raises a clear error. The rcf define ledger name verb pattern (brief, decisions, concerns, probes; add, resolve, list) is the operator surface. brief add --from <file> splits statements one per non-empty line, mints sequential ids and writes; the intake-scan-against-frozen-statements hook is a named seam this slice leaves for a later one. decisions list prints the #241 numbered format (one decision per item, options with letters, the default, what it blocks). The walker never reads under rcf/define/ so the sidecars stay invisible to every existing tree consumer.",
+  "category": "functional",
+  "domain": "defineLedgers",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": ["persistence"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-24T12:00:00Z",
+    "signals": [
+      { "source": "description", "shape": "persistence", "match": "record" }
+    ]
+  },
+  "rationale": "The proposal (2026-09-22 v3, section 8.2) makes ledgers the seam every later DEFINE stage draws from: D1 reads the brief ledger, D5 the concern ledger, D6 the probe ledger, D7 the decisions ledger, and D2's greenfield resolution walks the brief statements. Building the sidecars and the CLI now, before any gate reads them, keeps slice 2 free of write-side surprises. Baz's ruling of 2026-09-22 (decision 5) fixed the ownership: sidecars in rcf-lite until schemas 0.7 promotes them to manifest records. Precedent: .rcf/preflight-secrets.local.json is an rcf-lite-owned file outside the shared schema; rcf/define/ follows the same shape.",
+  "tags": [
+    "capability:define-ledgers"
+  ]
+}
