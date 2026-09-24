@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z",
+  "tacId": "TAC-4124-define-freeze",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "rcf define freeze CLI verb",
+  "purpose": "src/cli/freeze.js is the only writer of rcf/define/freeze.json in the shipped product. It composes readiness (REQ-175) with the freeze-record writer (REQ-172): one call to computeReadiness, one conditional call to saveFreezeRecord, one section 2.5 summary line, one exit code. The verb is the visible contract slice 4's bundle --next and slice 5's viewer read against; no other verb writes the freeze record.",
+  "responsibilities": [
+    "src/cli/freeze.js: parseArgs contract with --ack (multiple), --reason (multiple), --note, --litmus-attested (comma-separated D-names), --status, --json, --help; exit codes 0 success / 2 usage / 4 refused-on-failing.",
+    "src/cli/freeze.js: --ack argument validation runs before any tree load and refuses unknown gates and mismatched --ack/--reason pair counts with exit 2 and a stderr message naming the accepted set (define.shapes | define.crosscut | define.consistency with their short-name aliases).",
+    "src/cli/freeze.js: build tree + freeze + ledgers + testPointers concurrently (Promise.all mirroring readiness), then runWithAdmissibilityGate around computeReadiness, then apply --ack acknowledgements into an in-memory freeze.gates map keyed by gate id and recompute state per WARN_WITH_ACK stage.",
+    "src/cli/freeze.js: on any remaining 'failing' stage after acks, print the failing-stage block on stderr and exit 4 without writing.",
+    "src/cli/freeze.js: on freezeable, assemble the record body: reuse delta.js currentHashes generator (recompute matching what computeDelta uses so treeHash and docHashes agree with computeReadiness's currentTreeHash), derive counts, write the record via saveFreezeRecord, and print the section 2.5 summary (or --json envelope).",
+    "src/cli/freeze.js: --status branch runs no gates and never writes; it loads the record and computeDelta (unfrozen path when record absent) and prints the summary block, or emits { record, delta } on --json.",
+    "src/define/freeze-record.js: validateFreezeRecord requires override as a nullable field (throws FreezeRecordError field 'override' when the key is missing); loadFreezeRecord defaults a missing key to null so older records load; saveFreezeRecord's own validate step catches a caller that forgets to write override.",
+    "src/cli/readiness.js and CHANGELOG.md: replace ' -- ' with a colon in the two spots the brief calls out.",
+    "bin/rcf.js and src/cli/help.js: register the freeze verb (GROUPS.define.freeze, HELP_MAP.define.freeze, DEFINE_HELP listing).",
+    "Version reading: rcfLite from packages/rcf-lite/package.json (read once, cached via ESM import), ruleset from src/ruleset/ruleset.json's rulesetVersion or the umbrella version depending on the ruleset shape, schemas from node_modules/@stravica-ai/rcf-schemas/package.json (fall back to the manifest.schemasVersion when the package cannot be read)."
+  ],
+  "internalStructure": "One CLI module, three top-level branches by flag: --help early exit; --status branch (readRecord, computeDelta, format); default freeze branch (loadEverything, runReadiness, applyAcks, decideExit, writeRecord, formatSummary). Ack parsing is a small helper that walks the multi-valued --ack and --reason arrays in parallel, matching each ack gate to the next reason; a mismatch is a UsageError the caller catches. Counts derivation reuses tree.kindById to bucket ids into { req, us, ac, tac, adr, fbs }; the AC bucket walks every US and every US's acceptanceCriteria[]; acByClass parses the leading '[<class>]' marker using gates.js parseAcClass; interfaces bucketing walks every TAC's interfaces[] and buckets by kind. The 'first freeze' path is decided by (loadFreezeRecord() === null) BEFORE the freeze runs; branch is not re-derived from delta shape.",
+  "interfaces": [
+    { "kind": "cliCommand", "name": "rcf define freeze", "description": "The freeze CLI verb; the single interface this TAC ships." }
+  ],
+  "notes": "Slice-4 hook (bundle --next): reads freeze.gates and freeze.frozenAt to decide the impacted-FBS printout; the impactedFbs field is not on the record yet (it is a computed shape). Slice-5 hook (viewer): renders the section-2.5 summary from the record + a fresh computeDelta call over the live tree. Litmus attestation seam (proposal section 9 decision 7): the --litmus-attested flag records the operator's per-decision attestation; the --litmus <n> real-dispatch runner is a named 0.30 seam (slice 6)."
+}

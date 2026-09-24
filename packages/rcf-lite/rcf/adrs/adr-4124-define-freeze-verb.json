@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z",
+  "adrId": "ADR-4124-define-freeze-verb",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "rcf define freeze refuses on any failing stage and only D3/D5/D6 accept an --ack override",
+  "context": "Proposal 2026-09-22 v3 section 2.5 defines the freeze verb as the only close verb: it runs readiness, refuses on any failing gate, accepts --ack <gate> --reason on the three warn-first gates, and writes the freeze record. Section 3.2 lists five blocking gates in 0.29.0 (D1, D2, D4 floors, D7, D8) and three warn-with-ack gates (D3, D5, D6). Baz ruling 2026-09-24 (Baz decision 2 in section 9): warn-with-ack ack is accepted only on D3 / D5 / D6, never on the blocking gates. Slice 3 has to pick (a) whether ack on a non-warn gate is a usage refusal or a runtime refusal; (b) whether the freeze verb re-runs readiness after ack (or applies acks in-memory); (c) whether admissibility refusal counts as a freeze refusal or a warning. Slice 1 shipped a freeze-record writer with override as an optional nullable field, and the P3 review note flagged the local-schema mismatch (JSDoc said required-nullable, validator said optional).",
+  "decision": "The freeze verb refuses (exit 4) on any stage state 'failing' after applying --ack acknowledgements in-memory. --ack is a compile-time contract: unknown gate names (anything outside define.shapes / define.crosscut / define.consistency and their aliases) are usage refusals (exit 2), and every --ack must be paired with a matching --reason (exit 2 on mismatched arities). Acknowledgements are applied to an in-memory freeze.gates map keyed by gate id, and each warn-with-ack stage's state is recomputed with the same fold gates.js foldState uses (WARN_WITH_ACK + at.hash === currentTreeHash). freeze then writes the freeze record with these acknowledgements persisted so slice 5's viewer and a future computeReadiness call render the stage as 'acknowledged' at that hash. Admissibility refusal is informational (ADR-4123 carried): the wrap runs first so the ruleset toolScope guard is honoured, and on refuse the CLI prints a stderr [warn] and the freeze compute continues. The freeze verb never exits 4 solely for a refused-admissibility verdict. Slice 3 also fixes the slice-1 P3 by making validateFreezeRecord require override as a nullable field, and by making saveFreezeRecord always stamp override: null on a fresh freeze so the schema surface is single-sourced before slice 4 reads it. Older records that omit the key are tolerated by loadFreezeRecord defaulting to null on read.",
+  "consequences": "One verb, one contract, one exit code path. Operators cannot silently ack a blocking gate: the ack fails at parseArgs time with a message naming the accepted set, which is easier to reason about than a runtime refusal deep in the compute. The in-memory ack recomputation keeps the write path a pure function of the tree + the acks: nothing partial is written if the compute later rejects. Persisted acks show up on the next readiness run because the freeze.gates entry stores { state: 'acknowledged', at: { hash, at, reason } } and gates.js folds against the current tree hash. Honest downside: an operator who acks a warn-with-ack gate and then edits the tree without re-freezing sees the ack disappear on the next readiness run (the hash changed, so foldState drops back to 'failing'). This matches proposal section 2.5 ('closing a change is freezing again') and is the same posture the readiness verb has today. Override-nullable-required means every existing freeze fixture (in tests, in dogfood chains) is expected to carry override: null; the loader tolerates a missing key on read (fills in null) so older records survive, but writing a record without override is a validator failure. The double-dash hygiene is a one-line change per file with a targeted golden-fixture update.",
+  "alternativesConsidered": [
+    {
+      "name": "Accept --ack on any gate; refuse at runtime with a message",
+      "summary": "Let --ack take any gate name; the freeze compute checks the ack list against the warn-with-ack set and exits 4 with an error when a blocking gate is acked.",
+      "reasonNotChosen": "Slower feedback (parseArgs is instant, the readiness compute takes seconds on a large tree), and it lets an ack land in the ack map that will never be honoured. A usage refusal at parseArgs time matches the rest of the CLI's contract (unknown --check gates are refused there too)."
+    },
+    {
+      "name": "Re-run computeReadiness after applying acks",
+      "summary": "Persist an intermediate freeze record with the acks, re-run computeReadiness against it, decide the exit code from the second run.",
+      "reasonNotChosen": "Two writes and two computes; the second compute reads the same tree so the only difference is the freeze.gates map. Folding in-memory with gates.js foldState is one function call and matches what a slice-5 viewer would render if it were doing the same thing."
+    },
+    {
+      "name": "Refuse the freeze on refused-admissibility",
+      "summary": "Treat a refused-admissibility verdict as a fatal freeze failure; exit 4 with the refusal envelope on stderr.",
+      "reasonNotChosen": "ADR-4123 already ruled that readiness is a diagnostic and refuses to hide the block. The freeze verb is the write half of the same object; refusing the freeze solely because admissibility refused means an operator with a valid freezeable tree cannot close the change until the admissibility rules unblock. The refusal is still surfaced as a [warn] on stderr so it is not silent."
+    }
+  ]
+}
