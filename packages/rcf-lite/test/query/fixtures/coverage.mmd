@@ -2022,6 +2022,54 @@ flowchart LR
   REQ-171 --> AC-17102-1
   TC-210-taxonomy-doc-present["TC-210-taxonomy-doc-present"]
   AC-17102-1 -.-> TC-210-taxonomy-doc-present
+  REQ-172["REQ-172"]
+  AC-17201-1["AC-17201-1"]
+  REQ-172 --> AC-17201-1
+  TC-214-delta-shape["TC-214-delta-shape"]
+  AC-17201-1 -.-> TC-214-delta-shape
+  TC-214-unchanged["TC-214-unchanged"]
+  AC-17201-1 -.-> TC-214-unchanged
+  AC-17201-2["AC-17201-2"]
+  REQ-172 --> AC-17201-2
+  TC-214-canonical["TC-214-canonical"]
+  AC-17201-2 -.-> TC-214-canonical
+  TC-214-hash-shape["TC-214-hash-shape"]
+  AC-17201-2 -.-> TC-214-hash-shape
+  AC-17201-3["AC-17201-3"]
+  REQ-172 --> AC-17201-3
+  TC-214-freeze-missing["TC-214-freeze-missing"]
+  AC-17201-3 -.-> TC-214-freeze-missing
+  TC-214-freeze-schema["TC-214-freeze-schema"]
+  AC-17201-3 -.-> TC-214-freeze-schema
+  AC-17201-4["AC-17201-4"]
+  REQ-172 --> AC-17201-4
+  TC-214-refuse-invalid-write["TC-214-refuse-invalid-write"]
+  AC-17201-4 -.-> TC-214-refuse-invalid-write
+  TC-214-roundtrip["TC-214-roundtrip"]
+  AC-17201-4 -.-> TC-214-roundtrip
+  REQ-173["REQ-173"]
+  AC-17301-1["AC-17301-1"]
+  REQ-173 --> AC-17301-1
+  TC-215-brief-add-text["TC-215-brief-add-text"]
+  AC-17301-1 -.-> TC-215-brief-add-text
+  TC-215-brief-refuse-mixed["TC-215-brief-refuse-mixed"]
+  AC-17301-1 -.-> TC-215-brief-refuse-mixed
+  AC-17301-2["AC-17301-2"]
+  REQ-173 --> AC-17301-2
+  TC-215-decisions-list-241["TC-215-decisions-list-241"]
+  AC-17301-2 -.-> TC-215-decisions-list-241
+  TC-215-list-json["TC-215-list-json"]
+  AC-17301-2 -.-> TC-215-list-json
+  AC-17301-3["AC-17301-3"]
+  REQ-173 --> AC-17301-3
+  TC-215-brief-from-file["TC-215-brief-from-file"]
+  AC-17301-3 -.-> TC-215-brief-from-file
+  TC-215-parse-brief-bullets["TC-215-parse-brief-bullets"]
+  AC-17301-3 -.-> TC-215-parse-brief-bullets
+  AC-17301-4["AC-17301-4"]
+  REQ-173 --> AC-17301-4
+  TC-215-walker-invisible["TC-215-walker-invisible"]
+  AC-17301-4 -.-> TC-215-walker-invisible
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -3086,6 +3134,31 @@ flowchart LR
   class TC-209-every-req-has-capability-tag tc;
   class AC-17102-1 ac;
   class TC-210-taxonomy-doc-present tc;
+  class REQ-172 req;
+  class AC-17201-1 ac;
+  class TC-214-delta-shape tc;
+  class TC-214-unchanged tc;
+  class AC-17201-2 ac;
+  class TC-214-canonical tc;
+  class TC-214-hash-shape tc;
+  class AC-17201-3 ac;
+  class TC-214-freeze-missing tc;
+  class TC-214-freeze-schema tc;
+  class AC-17201-4 ac;
+  class TC-214-refuse-invalid-write tc;
+  class TC-214-roundtrip tc;
+  class REQ-173 req;
+  class AC-17301-1 ac;
+  class TC-215-brief-add-text tc;
+  class TC-215-brief-refuse-mixed tc;
+  class AC-17301-2 ac;
+  class TC-215-decisions-list-241 tc;
+  class TC-215-list-json tc;
+  class AC-17301-3 ac;
+  class TC-215-brief-from-file tc;
+  class TC-215-parse-brief-bullets tc;
+  class AC-17301-4 ac;
+  class TC-215-walker-invisible tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 105  covered: 105  covered-unresolved: 0  uncovered: 0
+Requirements: 107  covered: 107  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -437,3 +437,11 @@ REQ-170      yes      AC-17001-1  yes         TC-204-shape-buckets-present
                       AC-17008-1  yes         TC-213-badge, TC-213-buckets, TC-213-capability-second-le...
 REQ-171      yes      AC-17101-1  yes         TC-209-every-req-has-capability-tag
                       AC-17102-1  yes         TC-210-taxonomy-doc-present
+REQ-172      yes      AC-17201-1  yes         TC-214-delta-shape, TC-214-unchanged
+                      AC-17201-2  yes         TC-214-canonical, TC-214-hash-shape
+                      AC-17201-3  yes         TC-214-freeze-missing, TC-214-freeze-schema
+                      AC-17201-4  yes         TC-214-refuse-invalid-write, TC-214-roundtrip
+REQ-173      yes      AC-17301-1  yes         TC-215-brief-add-text, TC-215-brief-refuse-mixed
+                      AC-17301-2  yes         TC-215-decisions-list-241, TC-215-list-json
+                      AC-17301-3  yes         TC-215-brief-from-file, TC-215-parse-brief-bullets
+                      AC-17301-4  yes         TC-215-walker-invisible

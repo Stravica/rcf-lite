@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 83,
+    "items": 85,
     "notStarted": 46,
     "inProgress": 1,
-    "complete": 21,
+    "complete": 23,
     "verified": 15,
     "actionable": 36,
     "blocked": 10
@@ -64,7 +64,8 @@
         "FBS-189",
         "FBS-180",
         "FBS-190",
-        "FBS-192"
+        "FBS-192",
+        "FBS-194"
       ]
     },
     {
@@ -78,7 +79,8 @@
         "FBS-064",
         "FBS-181",
         "FBS-191",
-        "FBS-193"
+        "FBS-193",
+        "FBS-195"
       ]
     },
     {
@@ -1086,6 +1088,28 @@
       "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-192"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-194",
+      "buildOrder": 194,
+      "tier": 0,
+      "title": "DEFINE slice 1: delta module and freeze record I/O",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-195",
+      "buildOrder": 195,
+      "tier": 1,
+      "title": "DEFINE slice 1: four sidecar ledgers and rcf define ledger CLI",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-194"
       ],
       "state": "complete",
       "blockedBy": []

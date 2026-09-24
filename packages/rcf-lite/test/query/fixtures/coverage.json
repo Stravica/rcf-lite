@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 105,
-    "covered": 105,
+    "requirements": 107,
+    "covered": 107,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4301,6 +4301,91 @@
           "covered": true,
           "testCases": [
             "TC-210-taxonomy-doc-present"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-172",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17201-1",
+          "covered": true,
+          "testCases": [
+            "TC-214-delta-shape",
+            "TC-214-unchanged"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17201-2",
+          "covered": true,
+          "testCases": [
+            "TC-214-canonical",
+            "TC-214-hash-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17201-3",
+          "covered": true,
+          "testCases": [
+            "TC-214-freeze-missing",
+            "TC-214-freeze-schema"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17201-4",
+          "covered": true,
+          "testCases": [
+            "TC-214-refuse-invalid-write",
+            "TC-214-roundtrip"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-173",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17301-1",
+          "covered": true,
+          "testCases": [
+            "TC-215-brief-add-text",
+            "TC-215-brief-refuse-mixed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17301-2",
+          "covered": true,
+          "testCases": [
+            "TC-215-decisions-list-241",
+            "TC-215-list-json"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17301-3",
+          "covered": true,
+          "testCases": [
+            "TC-215-brief-from-file",
+            "TC-215-parse-brief-bullets"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17301-4",
+          "covered": true,
+          "testCases": [
+            "TC-215-walker-invisible"
           ],
           "unresolvedTestCases": []
         }
