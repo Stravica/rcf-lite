@@ -12,6 +12,34 @@ export {
   computeTreeHash,
   computeDelta,
 } from './delta.js';
+// DEFINE stage gates (REQ-174; proposal §2.4, §3.2 v3). One check
+// function per stage; foldState + parseAcClass helpers.
+export {
+  STAGE_ORDER,
+  STAGE_GATES,
+  STAGE_SHORT_NAMES,
+  STAGE_ALIASES,
+  INTERFACE_KINDS,
+  stagePolicy,
+  parseAcClass,
+  foldState,
+  runStage,
+  checkD1Brief,
+  checkD2Skeleton,
+  checkD3Shapes,
+  checkD4Stories,
+  checkD5Crosscut,
+  checkD6Consistency,
+  checkD7Decisions,
+  checkD8Freeze,
+} from './gates.js';
+// Readiness composer (REQ-175; proposal §2.4, §6 v3).
+export {
+  computeReadiness,
+  deriveNextAction,
+  shortHash,
+  formatTreeLine,
+} from './readiness.js';
 export { formatTable } from './formatters/table.js';
 export { formatJson } from './formatters/json.js';
 export { formatMermaid } from './formatters/mermaid.js';

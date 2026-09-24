@@ -1,0 +1,58 @@
+{
+  "usId": "US-17401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Stage gates land as pure check functions with per-stage state",
+  "description": "User story under REQ-174. Eight stage-gate check functions land in src/query/gates.js with a stable per-stage return shape that computeReadiness and every later slice can consume unchanged.",
+  "asA": "a downstream consumer of DEFINE gates (readiness, freeze, viewer)",
+  "iWant": "gates.js to expose one pure check function per stage D1..D8, each returning a { stage, gate, state, checks[] } object with checks in the { name, ok, over: 'delta'|'tree', pass, total, failing: [{ id, why }] } shape",
+  "soThat": "computeReadiness composes the eight checks, the freeze verb refuses on any failing state, and the viewer's Readiness tab prints the same rows the CLI does with no schema translation",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17401-1",
+      "description": "src/query/gates.js exports one check function per stage D1..D8 (checkD1Brief, checkD2Skeleton, checkD3Shapes, checkD4Stories, checkD5Crosscut, checkD6Consistency, checkD7Decisions, checkD8Freeze), each taking (tree, { ledgers, profile, scope, freeze, delta, validateErrors, probeOpenCount, coverageTree }) and returning { stage, gate, state, checks[] }; every entry in checks is { name, ok, over: 'delta'|'tree', pass, total, failing: [{ id, why }] } (failing empty on ok).",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-2",
+      "description": "Blocking stages in 0.29.0 (D1, D2, D4, D7, D8) report state 'passed' when every check ok is true, 'failing' when any check ok is false; warn-with-ack stages (D3, D5, D6) report 'passed' when every check ok is true, 'failing' when any check ok is false and the freeze record does NOT acknowledge that gate at the current tree hash, and 'acknowledged' when the freeze.gates[<gate>] entry names state 'acknowledged' and at.hash === currentTreeHash and any check ok is false.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-3",
+      "description": "notApplicable is decided per stage per proposal section 3.2: D2 notApplicable when no statement of a resolving kind (capability, constraint, entity, actor, externalSystem, surface) is in the delta AND no REQ, PRD or TAD is in scope; D3 notApplicable when no TAC and no shaped REQ (httpApi/persistence/auth) is in scope; D5 notApplicable when no REQ is in scope; D7 notApplicable when no open decisions exist AND the profile sets skipReviewFor: singleDocument AND the delta holds exactly one document; D4 and D6 use their own rules; D1 and D8 never notApplicable.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-4",
+      "description": "checkD4Stories enforces the D4 floors: every REQ in scope has a US (fail: 'no owning user story'), every US in scope has a testable AC ('missing testable AC'), a failure AC (parsed by the bracketed [failure] prefix on AC description) or a reasoned opt-out per class (manifest.baselineAcOptOuts[] entry with baselineKey 'defineD4:failure' and matching scope), a must-not AC (parsed by [must-not] prefix) or a reasoned opt-out per class (baselineKey 'defineD4:mustNot'), tacIds non-empty and every named tac resolving to a real TAC, and no AC description contains the scaffold TODO placeholder.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-5",
+      "description": "checkD3Shapes runs only cheap data-backed checks in 0.29.0: every TAC in scope has at least one interface (fail: 'no interfaces authored'), and every interface's kind is in the closed vocabulary { recordShape, httpRoute, event, cliCommand, uiRoute, port, fileFormat, fixture, other } (fail: 'unknown interface kind <k>'). The template parser, entity-name join, ownerRef and path resolution are named seams (not called this slice) and D3 stays warn-with-ack.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-6",
+      "description": "checkD5Crosscut runs only cheap data-backed checks in 0.29.0: TAD.securityArchitecture non-empty when the tree carries any REQ whose shapeClassification.shapes includes 'auth' or 'httpApi'; TAD.operationalConcerns non-empty when any AC description carries the '[deployed]' marker (a cheap presence signal proposal section 3.2 D5 lists as 'deployed-scope AC'); concern-ledger entries in scope disposed as 'applied' or 'waived' (no dangling 'open' concerns on REQs in scope). The full catalogue and per-pair enumeration are named seams for 0.30.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-7",
+      "description": "checkD6Consistency runs only cheap data-backed checks in 0.29.0: validate is clean tree-wide (validateErrors is empty; the caller passes the walker + validator's error list), and probe-ledger holds zero 'open' probe entries. Contradiction-lite, unsatisfiable-lite, duplicates and orphan-interface scans, plus the probe runner, are named seams for 0.30.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-8",
+      "description": "checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker's fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is not null; validateErrors is empty. The stage is never notApplicable.",
+      "testable": true
+    }
+  ],
+  "tacIds": ["TAC-4122-define-gates"],
+  "tags": [],
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

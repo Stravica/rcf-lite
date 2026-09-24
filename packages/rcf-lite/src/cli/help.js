@@ -46,6 +46,7 @@ import { HELP as INTAKE_HELP } from './intake.js';
 import { HELP as BLUEPRINT_HELP } from './blueprint.js';
 import { HELP as STANDARDS_HELP } from './standards.js';
 import { HELP as LEDGER_HELP } from './ledger.js';
+import { HELP as READINESS_HELP } from './readiness.js';
 
 // Verify group members (from the verify-suite subtree).
 import { HELP as VERIFY_RUN_HELP } from '../verify/cli/run.js';
@@ -95,6 +96,7 @@ define       Author the RCF tree.
   blueprint <verb>         Compose blueprints onto the project.
   standards <verb>         Register standards packs against the project.
   ledger <name> <verb>     Sidecar-ledger CRUD under rcf/define/.
+  readiness                DEFINE stage-gate readiness view.
 
 build        Drive the FBS queue and the five-stage build cycle.
   queue                    Show the FBS build queue.
@@ -194,6 +196,8 @@ Verbs:
   ledger <name> <verb>     Sidecar-ledger CRUD under rcf/define/
                            (brief | decisions | concerns | probes;
                             verbs: add | resolve | list).
+  readiness                DEFINE stage-gate readiness view; twin of
+                           the viewer's Readiness tab (slice 5).
 
 Run 'rcf help define <verb>' for per-verb help.
 `;
@@ -290,6 +294,7 @@ export const HELP_MAP = {
     blueprint: BLUEPRINT_HELP,
     standards: STANDARDS_HELP,
     ledger: LEDGER_HELP,
+    readiness: READINESS_HELP,
   },
   build: {
     queue: BUILD_HELP,

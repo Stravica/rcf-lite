@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "purpose": "Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17401-1",
+    "AC-17401-2",
+    "AC-17401-3",
+    "AC-17401-4",
+    "AC-17401-5",
+    "AC-17401-6",
+    "AC-17401-7",
+    "AC-17401-8"
+  ],
+  "id": "TS-216",
+  "usId": "US-17401",
+  "title": "Stage gates D1..D8 check functions",
+  "testCases": [
+    {
+      "id": "TC-216-shape",
+      "acId": "AC-17401-1",
+      "description": "Every check function returns { stage, gate, state, checks[] } and every entry in checks[] is { name, ok, over: 'delta'|'tree', pass, total, failing }; failing is empty when ok is true.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: every check function returns the section 2.4 shape"
+    },
+    {
+      "id": "TC-216-blocking-vs-warn",
+      "acId": "AC-17401-2",
+      "description": "Blocking stages fold to failing on any check.ok false; warn-with-ack stages (D3, D5, D6) also fold to failing on any check.ok false unless freeze.gates[<gate>].state === 'acknowledged' AND at.hash === currentTreeHash.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: warn-with-ack fold honours freeze.gates acknowledgement at the current hash"
+    },
+    {
+      "id": "TC-216-not-applicable",
+      "acId": "AC-17401-3",
+      "description": "notApplicable is decided per stage per section 3.2: D2 with no statement of a resolving kind and no REQ/PRD/TAD in scope; D3 with no TAC and no shaped REQ in scope; D5 with no REQ in scope; D7 with no open decisions and profile.skipReviewFor 'singleDocument' and one-document delta.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: notApplicable decision per stage"
+    },
+    {
+      "id": "TC-216-d4-floors",
+      "acId": "AC-17401-4",
+      "description": "checkD4Stories enforces every REQ has US, every US has testable AC + failure AC (parsed by [failure] prefix or opt-out with baselineKey 'defineD4:failure') + must-not AC (or opt-out with 'defineD4:mustNot'), tacIds non-empty and resolving, no TODO placeholder in AC.description.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D4 floors and per-class opt-outs"
+    },
+    {
+      "id": "TC-216-d3-shapes",
+      "acId": "AC-17401-5",
+      "description": "checkD3Shapes runs only the cheap data-backed checks: every TAC in scope has at least one interface, and every interface kind is in the closed vocabulary. Unknown kinds show up in failing[].",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D3 interface presence and kind vocabulary"
+    },
+    {
+      "id": "TC-216-d5-crosscut",
+      "acId": "AC-17401-6",
+      "description": "checkD5Crosscut checks TAD.securityArchitecture presence when any REQ has shape 'auth' or 'httpApi'; TAD.operationalConcerns when any AC has '[deployed]' marker; no dangling 'open' concerns on in-scope REQs.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D5 crosscut cheap checks"
+    },
+    {
+      "id": "TC-216-d6-consistency",
+      "acId": "AC-17401-7",
+      "description": "checkD6Consistency asserts validateErrors is empty tree-wide and probeOpenCount is zero; the richer scans are named seams (0.30).",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D6 consistency validate + probe count"
+    },
+    {
+      "id": "TC-216-d8-freeze",
+      "acId": "AC-17401-8",
+      "description": "checkD8Freeze asserts prior stages passed/acknowledged, every AC owned by exactly one FBS, computeQueue nextActionable not null, validateErrors empty.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D8 tree-wide freeze checks"
+    }
+  ],
+  "status": "draft"
+}

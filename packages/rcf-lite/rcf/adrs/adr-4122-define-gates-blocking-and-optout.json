@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "adrId": "ADR-4122-define-gates-blocking-and-optout",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Blocking-vs-warn-with-ack per stage; D4 per-class opt-out reuses manifest.baselineAcOptOuts[]",
+  "context": "The DEFINE workflow proposal (2026-09-22 v3, section 3.2, decision 2) blocks where the data exists and warns-with-acknowledgement for D3, D5, D6 until the release that lands the 0.30 (renumbered from 0.31 per Baz 2026-09-24) contradiction-lite, unsatisfiable-lite, template parser and probe runner. Proposal section 3.2 also says D4's failure and must-not floors accept a 'reasoned opt-out per class, as the baseline ledger works (#239)'. The train has to decide whether the D4 opt-out reuses the existing manifest.baselineAcOptOuts[] machinery (nextOptOutId, composeOptOutRecord under src/req-baseline/opt-out.js, boo-YYYY-MM-DD-NNN ids) or gets a new sidecar under rcf/define/. Second decision that had to be recorded because slice 2's gates read it and slice 3's freeze verb writes it: how does the freeze record acknowledge a warn-with-ack gate?",
+  "decision": "Blocking in 0.29.0: D1 (define.brief), D2 (define.skeleton), D4 floors (define.stories), D7 (define.decisions), D8 (define.freeze). Warn-with-ack in 0.29.0: D3 (define.shapes), D5 (define.crosscut), D6 (define.consistency). Blocking-vs-warn-with-ack is a stage property, hard-coded in src/query/gates.js. The state fold: a stage is 'passed' when every check.ok is true; 'failing' otherwise. For D3/D5/D6 the fold flips to 'acknowledged' when the freeze record's gates[<gate>] entry names state 'acknowledged' AND at.hash === currentTreeHash. D4 per-class opt-outs reuse manifest.baselineAcOptOuts[]: baselineKey is 'defineD4:failure' or 'defineD4:mustNot'; scope is 'req' (opt-out applies to every US whose reqId matches the record's reqId) or 'project' (applies tree-wide). Slice-3 writes acknowledgements via the freeze verb; the write path is out of scope for slice 2. The opt-out records are authored by an operator through the existing req-baseline surface (or, in slice 3, an optional --optout flag on freeze); slice 2 only reads them.",
+  "consequences": "One place to author opt-outs (the existing baselineAcOptOuts array), one place to read them (the same array). No new sidecar until D4's class opt-outs mature (schemas 0.7 will move them if the shape stabilises). The freeze record's gates map becomes the single source of truth for acknowledgements, which is what slice-3's freeze verb writes and every consumer reads. The honest downside: the baselineKey field is loosely typed (free-string convention rather than an enum), so a typo lands silently (the D4 gate simply does not honour the opt-out). Mitigation: the checker prints a stderr [warn] when it sees a record with a baselineKey starting with 'defineD4:' but not matching the two known values, and the CLI docs (slice 3 / slice 6) list the accepted keys. If the shape ever needs to move, existing records can be migrated by rewriting the manifest under the same array without a schema change.",
+  "alternativesConsidered": [
+    {
+      "name": "New sidecar rcf/define/class-optout-ledger.json for D4 per-class opt-outs",
+      "summary": "Fifth sidecar under rcf/define/ with entries { id, scope, reqId?, usId?, class: 'failure'|'mustNot', reason, addedAt }; add --class flag to rcf define ledger.",
+      "reasonNotChosen": "Adds a fifth sidecar to a proposal (decision 5) that ratified four. Proposal section 3.2 D4 explicitly says 'as the baseline ledger works (#239)', pointing at the existing surface. A fifth ledger costs a schema, a CLI branch and a walker-invisibility test for zero gain over reusing the shape."
+    },
+    {
+      "name": "Block D3, D5, D6 in 0.29.0 (drop warn-with-ack)",
+      "summary": "Every stage blocks; --ack is not a thing until 0.30.",
+      "reasonNotChosen": "Baz's decision 2 ratifies warn-with-ack for D3/D5/D6 until the template parser, catalogue and scans land. Blocking on cheap presence-only checks (an unknown interface kind, or a probe finding still open) refuses freezes on tree state that 0.30's richer checks would tolerate; the acknowledgement channel is what lets an operator move without inventing the check they need is not there."
+    },
+    {
+      "name": "Encode blocking-vs-warn-with-ack on each check rather than on the stage",
+      "summary": "Every check[i] carries a policy tag; the fold reads the tags rather than the stage.",
+      "reasonNotChosen": "The proposal is stage-scoped, not check-scoped. Per-check policy tags land as future noise for zero present gain: today every check inside a stage shares a policy. If a stage grows a check with a different policy the fold moves back to per-stage anyway (a 'failing' check on any policy is still 'failing' in the current model)."
+    }
+  ]
+}

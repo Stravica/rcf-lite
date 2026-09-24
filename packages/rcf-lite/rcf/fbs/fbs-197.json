@@ -1,0 +1,41 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "acIds": [
+    "AC-17501-1",
+    "AC-17501-2",
+    "AC-17501-3",
+    "AC-17501-4",
+    "AC-17501-5",
+    "AC-17501-6"
+  ],
+  "fbsId": "FBS-197",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 197,
+  "executionStatus": "complete",
+  "title": "DEFINE slice 2: computeReadiness compose and rcf define readiness CLI",
+  "summary": "Ship src/query/readiness.js (computeReadiness composing delta + fan-out + gates + coverage + decisions into the section 2.4 object), src/cli/readiness.js (rcf define readiness [--json] [--check <stage>|all]), wire into bin/rcf.js and src/cli/help.js, resolve the slice-1 P3 by correcting loadAllLedgers to omit absent ledger files from the returned bundle.",
+  "dependsOnFbsIds": ["FBS-196"],
+  "approach": "Pure composer over TAC-4122's gates. computeImpact is called once per id in changed union added; impacted is the deduplicated union of every impact node id excluding pivots; impactedFbs is the subset { kind === 'fbs' AND actionNeeded === 're-execute' }. Coverage runs tree-wide (strict per-AC) plus once per REQ ancestor of the delta. nextAction picks the first failing stage in D1..D8 order and the first failing check inside it. freezeable is the AND of every stage state being passed / acknowledged / notApplicable. The CLI wraps its producer with runWithAdmissibilityGate; on refuse the wrapper's refusal envelope prints on stderr and the CLI exits 4. Text output follows section 6.2 (tree line, next action, chip line, delta list, failing items). --json emits JSON.stringify(result, null, 2). --check <stage> narrows the output and gates the exit code per AC-17501-5. loadAllLedgers is updated to stat each file first and omit missing ones (P3 resolution).",
+  "contextRequirements": {
+    "tacIds": ["TAC-4123-define-readiness"],
+    "adrIds": ["ADR-4123-readiness-single-object"]
+  },
+  "deliverables": [
+    "src/query/readiness.js: computeReadiness, computeScope, composeStages, deriveNextAction, deriveTreeSummary",
+    "src/cli/readiness.js: HELP, main; --json / --check / --help flags; runWithAdmissibilityGate wrap",
+    "src/define/ledgers.js: loadAllLedgers refactor to omit absent files (P3)",
+    "src/query/index.js: export computeReadiness + gates re-exports",
+    "bin/rcf.js: GROUPS.define.readiness registered",
+    "src/cli/help.js: HELP_MAP.define.readiness wired; DEFINE_HELP block extended; top-level DEFINE listing extended",
+    "test/query/readiness.test.js: tests covering AC-17501-1..4 and AC-17501-6",
+    "test/cli/readiness.test.js: CLI tests covering AC-17501-5",
+    "test/define/ledgers.test.js: extension test covering AC-17501-6 (loadAllLedgers omits missing files)"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "Depth-2 slice: no sub-agents. Chain first, code next, tests last. Every warn-with-ack check leaves a named seam for the 0.30 slice."
+}

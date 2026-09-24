@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "acIds": [
+    "AC-17401-1",
+    "AC-17401-2",
+    "AC-17401-3",
+    "AC-17401-4",
+    "AC-17401-5",
+    "AC-17401-6",
+    "AC-17401-7",
+    "AC-17401-8"
+  ],
+  "fbsId": "FBS-196",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 196,
+  "executionStatus": "complete",
+  "title": "DEFINE slice 2: stage gates D1..D8 pure check functions",
+  "summary": "Ship src/query/gates.js exposing one check function per stage D1..D8 with the section 2.4 shape { stage, gate, state, checks[] }. Blocking stages (D1, D2, D4, D7, D8) enforce the floors listed in proposal section 3.2; warn-with-ack stages (D3, D5, D6) run only the cheap data-backed checks and are acknowledgeable via freeze.gates[<gate>] at the current tree hash. AC class parses off the bracketed prefix on AC description (decision 6); D4 per-class opt-outs read manifest.baselineAcOptOuts[] with baselineKey 'defineD4:failure' or 'defineD4:mustNot' per ADR-4122.",
+  "dependsOnFbsIds": ["FBS-195"],
+  "approach": "One file, eight exported functions plus the STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES and INTERFACE_KINDS constants. Every function follows the same shape: decide notApplicable per section 3.2; assemble a checks[] list of { name, ok, over, pass, total, failing }; fold to state, honouring the warn-with-ack acknowledgement window when the stage is D3/D5/D6. Ledger reads use the emptyLedger fallback so an absent ledger contributes no findings. AC class parsing is a static regex over the description string (leading '[failure]' / '[must-not]' / '[happy]' / '[edge]' / '[non-functional]', case-sensitive). Profile parsing is a light presence check on rcf/.identity/profile.md (surface and register markers).",
+  "contextRequirements": {
+    "tacIds": ["TAC-4122-define-gates"],
+    "adrIds": ["ADR-4122-define-gates-blocking-and-optout"]
+  },
+  "deliverables": [
+    "src/query/gates.js: STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES, INTERFACE_KINDS, checkD1Brief..checkD8Freeze, plus foldState and parseAcClass helpers",
+    "src/query/index.js: re-export gate check functions + STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES so consumers import through one seam",
+    "test/query/gates.test.js: unit tests covering AC-17401-1 through AC-17401-8"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "Pure module: no filesystem I/O beyond what the caller supplies. Every warn-with-ack check leaves an explicit named seam for the 0.30 slice that will land the full template parser, catalogue and scans."
+}

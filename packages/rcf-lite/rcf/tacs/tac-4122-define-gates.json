@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T15:48:40Z",
+  "tacId": "TAC-4122-define-gates",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "define stage gates D1..D8",
+  "purpose": "src/query/gates.js lands as a new pure module beside delta.js. Every stage has one exported check function that takes (tree, context) and returns the { stage, gate, state, checks[] } shape section 2.4 pins. computeReadiness (TAC-4123) is the composer; every gate function is otherwise consumable in isolation for tests and for future viewers that render one stage. No I/O, no state, no time: the caller supplies ledgers, profile, freeze, delta, validate errors, probe count and coverage rollups.",
+  "responsibilities": [
+    "src/query/gates.js: STAGE_ORDER = ['D1','D2','D3','D4','D5','D6','D7','D8']; STAGE_GATES map (D1 -> 'define.brief' etc.); INTERFACE_KINDS closed set matching proposal section 5.2; STAGE_SHORT_NAMES map (D1 -> 'brief' etc.).",
+    "checkD1Brief: intake acknowledged (brief-ledger has at least one statement since the freeze high-water mark), every statement kinded from BRIEF_KINDS, every openQuestion statement resolved or promoted to a decisions-ledger entry, profile.md carries surface (viewer | runningApp | prDiff) and register (productOwner | engineer | unstated) markers.",
+    "checkD2Skeleton: every 'capability' and 'constraint' statement in scope resolves to a REQ (via a REQ id in the statement's resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD dataStores and coreEntities non-empty when any persistence REQ exists; exactly one deploy or deferral ADR tree-wide (title prefix 'Deploy target:' or 'Deploy deferral:').",
+    "checkD3Shapes: every TAC in scope has at least one interface; every interface's kind is in INTERFACE_KINDS. Template markers, entity join, ownerRef resolution and path resolution are seams (0.30).",
+    "checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey 'defineD4:failure', a must-not AC or an opt-out with baselineKey 'defineD4:mustNot', tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the scaffold TODO placeholder pattern (case-sensitive uppercase 'TODO:' with a colon -- the literal shape src/core/store/init.js writes; incidental prose mentioning 'todo' does NOT trip the gate, and the validate CLI's broader whole-word notice stays separate).",
+    "checkD5Crosscut: TAD.securityArchitecture non-empty when tree carries any REQ with shape 'auth' or 'httpApi'; TAD.operationalConcerns non-empty when any AC description carries the '[deployed]' marker; every concern-ledger entry on a REQ in scope has disposition applied or waived (no status 'open').",
+    "checkD6Consistency: caller-supplied validateErrors is empty (tree-wide); caller-supplied probeOpenCount is zero.",
+    "checkD7Decisions: no decisions-ledger entry with status 'open'.",
+    "checkD8Freeze: prior stages passed | acknowledged at the current tree hash; every AC id owned by exactly one FBS (walker.fbsByAcId length 1); computeQueue.nextActionable is not null (queue head actionable) and the head's title is not 'TODO' or empty; validateErrors empty."
+  ],
+  "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
+  "interfaces": [],
+  "notes": "Slice-3 hook (rcf define freeze): reads state to refuse on any 'failing'; --ack <gate> --reason <text> writes freeze.gates[<gate>] = { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text>, by: <id> } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end."
+}

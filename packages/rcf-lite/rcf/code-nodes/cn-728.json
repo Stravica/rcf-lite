@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-728",
+  "path": "test/query/gates.test.js",
+  "title": "Unit tests for stage gates D1..D8",
+  "description": "Covers AC-17401-1..8: return shape, blocking-vs-warn-with-ack fold, notApplicable rules, D4 floors + per-class opt-outs, D3 interface kind vocabulary, D5 cheap checks, D6 validate + probe count, D8 tree-wide freeze checks.",
+  "implementsAcIds": [
+    "AC-17401-1",
+    "AC-17401-2",
+    "AC-17401-3",
+    "AC-17401-4",
+    "AC-17401-5",
+    "AC-17401-6",
+    "AC-17401-7",
+    "AC-17401-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

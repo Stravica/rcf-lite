@@ -44,7 +44,7 @@
 // record. Every write goes through the writer, which validates the
 // full body first (a bad in-memory record never lands as JSON).
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 /**
@@ -475,10 +475,19 @@ export function parseBriefFromFile(content, opts = {}) {
 }
 
 /**
- * Load all four ledgers as a `LedgerBundle` for `computeDelta`. Every
- * present ledger contributes a `ledger:<name>` docHash entry; a
- * missing file contributes nothing. Callers that only need one
- * ledger use `loadLedger` directly.
+ * Load every ledger the project has actually authored, keyed by name.
+ *
+ * A project that has never authored a given ledger contributes no
+ * `<name>` entry to the returned bundle, so `computeDelta` does not
+ * record a `ledger:<name>` docHash for absent ledgers (slice-2 P3
+ * resolution: this loader agrees with the `LedgerBundle` typedef on
+ * `computeDelta` that "if a project has not authored any decisions,
+ * the caller passes no `decisions` key and the delta records no
+ * `ledger:decisions` docHash"). Absent-file detection is a `stat` on
+ * the ledger path; an ENOENT skips the ledger without loading. A
+ * present-but-empty file is still loaded (an operator can `rcf
+ * define ledger <name> list --json > <path>` a stub in place; empty
+ * ledgers are legal and DO contribute a hash).
  *
  * @param {object} args
  * @param {string} args.projectRoot
@@ -488,6 +497,15 @@ export async function loadAllLedgers({ projectRoot }) {
   /** @type {import('../query/delta.js').LedgerBundle} */
   const bundle = {};
   for (const name of LEDGER_NAMES) {
+    const filePath = ledgerPath(projectRoot, name);
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await stat(filePath);
+    } catch (err) {
+      if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') continue;
+      // Any other stat error (permission etc.) surfaces via loadLedger.
+    }
+    // eslint-disable-next-line no-await-in-loop
     const body = await loadLedger({ projectRoot, name });
     bundle[name] = body;
   }

@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "reqId": "REQ-174",
+  "prdId": "PRD-001",
+  "title": "DEFINE stage gates D1..D8 as pure check functions",
+  "description": "rcf-lite gains src/query/gates.js with one check function per stage D1..D8. Each function takes (tree, ledgers, profile, scope) and returns { stage, gate, state, checks[] } where every check is { name, ok, over: 'delta'|'tree', pass, total, failing: [{ id, why }] }. Stage state is 'passed' | 'failing' | 'acknowledged' (only for D3, D5, D6 and only when the freeze record acknowledges that gate at the current hash) | 'notApplicable' (the stage decides that itself from the scope per the proposal 2026-09-22 v3 section 3.2 rules and the summary table in section 2.7). Blocking in 0.29.0: D1 brief, D2 skeleton, D4 floors (every REQ in scope has a US; every US in scope has a testable AC, a failure AC and a must-not AC, or a reasoned opt-out per class; tacIds non-empty and resolving; no scaffold placeholder), D7 decisions, D8 freeze (prior gates passed or acknowledged at the current hash, every AC owned by exactly one FBS, queue head actionable and not a placeholder, validate clean; preflight and ui-baseline presence as the section 3.2 rules specify). Warn-with-ack in 0.29.0: D3, D5, D6 build only the cheap data-backed checks (D3: every TAC in scope has at least one interface and each interface kind is in the closed vocabulary of section 5.2; D5: TAD securityArchitecture present when any auth or httpApi REQ exists, operationalConcerns present when deployed-scope ACs exist, concern-ledger entries applied or waived where they exist; D6: validate clean tree-wide plus open probe-ledger count). The D3 template parser, entity join, D5 catalogue, D6 contradiction and unsatisfiable scans, and the probe runner are 0.30 and left as named seams. AC class is a bracketed prefix on AC description ('[failure] ...', '[must-not] ...', '[happy]', '[edge]', '[non-functional]', decision 6); opt-out per class reuses the existing manifest.baselineAcOptOuts[] array with a baselineKey of the shape 'defineD4:failure' or 'defineD4:mustNot' (recorded in ADR-4122). No storage state, no 'stale' state.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": ["persistence"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-24T14:30:00Z",
+    "signals": [
+      { "source": "description", "shape": "persistence", "match": "record" }
+    ]
+  },
+  "rationale": "Baz ruled on 2026-09-22 (proposal section 9, decision 2) that gates block where the data exists and warn-with-ack for D3, D5 and D6 until 0.31 (Baz ruled 2026-09-24 that 0.31 renumbers to 0.30, so this train ships D3/D5/D6 as warn-with-ack in 0.29.0). One check function per stage is the seam every later consumer reads: the readiness view (REQ-175) composes them, the freeze verb (slice 3) refuses on any failing stage, the viewer's Readiness tab (slice 5) prints the same checks[]. Building the check functions now, with cheap data-backed checks only, keeps 0.29.0 shippable while leaving named seams for 0.30's template parser, entity join, catalogue walk, probe runner and consistency scans.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

@@ -52,6 +52,7 @@ import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
 import { main as intakeMain } from '../src/cli/intake.js';
 import { main as evalMain } from '../src/cli/eval.js';
 import { main as ledgerMain } from '../src/cli/ledger.js';
+import { main as readinessMain } from '../src/cli/readiness.js';
 
 // Verify group members are handled by the verify-suite dispatch tree.
 import { main as verifyRunMain } from '../src/verify/cli/run.js';
@@ -97,6 +98,7 @@ export const GROUPS = {
     blueprint: blueprintMain,
     standards: standardsMain,
     ledger: ledgerMain,
+    readiness: readinessMain,
   },
   build: {
     // build sub-verbs are dispatched by build.js internally (queue |

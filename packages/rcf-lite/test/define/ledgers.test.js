@@ -198,3 +198,31 @@ test('ledgers: save / load round-trips every ledger', async () => {
   assert.deepEqual(bundle.concerns, bodies.concerns);
   assert.deepEqual(bundle.probes, bodies.probes);
 });
+
+// AC-17501-6: absent ledger files are omitted from the returned
+// bundle so `computeDelta` records no `ledger:<name>` docHash for a
+// project that never authored that ledger. Resolves slice-1 P3: the
+// `LedgerBundle` typedef on `computeDelta` said "absent ledgers add
+// no docHash" while the previous implementation always returned the
+// four empty bodies.
+test('ledgers: loadAllLedgers omits absent ledger files', async () => {
+  const root = await scratch();
+  // No files under rcf/define/ at all.
+  const empty = await loadAllLedgers({ projectRoot: root });
+  assert.deepEqual(Object.keys(empty), []);
+
+  // Author brief only; other three stay absent.
+  let brief = emptyLedger('brief');
+  ({ body: brief } = addEntry({
+    name: 'brief', body: brief,
+    entry: { kind: 'capability', text: 'ship X' },
+    now: '2026-09-24T10:00:00Z',
+  }));
+  await saveLedger({ projectRoot: root, name: 'brief', body: brief });
+  const partial = await loadAllLedgers({ projectRoot: root });
+  assert.deepEqual(Object.keys(partial).sort(), ['brief']);
+  assert.deepEqual(partial.brief, brief);
+  assert.equal(partial.decisions, undefined);
+  assert.equal(partial.concerns, undefined);
+  assert.equal(partial.probes, undefined);
+});

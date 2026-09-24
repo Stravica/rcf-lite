@@ -1,0 +1,48 @@
+{
+  "usId": "US-17501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-175",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "computeReadiness and rcf define readiness render the same object",
+  "description": "User story under REQ-175. computeReadiness lands as a pure module and rcf define readiness as its CLI twin. The viewer's Readiness tab (slice 5) will render the same object with no schema translation.",
+  "asA": "an operator asking 'can I build, and if not what is in the way'",
+  "iWant": "one pure compute that composes delta, fan-out, gates, coverage and decisions into a single object, and one CLI that prints it in a compact form or emits it as JSON",
+  "soThat": "the tree line, next action, stage chips, delta list and failing items are the same wherever they are shown, and slice 3's rcf define freeze refuses on the same freezeable flag the CLI reports",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17501-1",
+      "description": "computeReadiness(tree, { freeze, ledgers, profile, testPointers }) returns the exact section 2.4 shape: tree { frozen, frozenAt, treeHash, currentTreeHash, buildAt, fbsTotal }, delta { changed, added, removed, briefSince, impacted, impactedFbs }, stages [{ stage, gate, state, checks }], nextAction { stage, check, ids, command } or null, coverage { tree, delta }, decisions [...open in #241 format], freezeable boolean. freezeable is true when every stage state is 'passed', 'acknowledged' or 'notApplicable'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17501-2",
+      "description": "Fan-out is computed by calling computeImpact once per id in the union of changed and added; impacted is the union of every impact node id excluding the pivots; impactedFbs is the subset whose kind is 'fbs' and actionNeeded is 're-execute'. Gates run over scope = changed union added union impacted (with duplicates removed).",
+      "testable": true
+    },
+    {
+      "id": "AC-17501-3",
+      "description": "Coverage is tree-wide plus per REQ ancestor of the delta: coverage.tree is computeCoverage(tree, { testPointers, strict: true }) once over the whole tree; coverage.delta is an array with one CoverageResult per unique REQ id reachable by walking back from every delta id (changed union added) through parentByChild until the reqId is found, using scopeId per invocation. testPointers is the map the CLI produced with resolveTestPointers.",
+      "testable": true
+    },
+    {
+      "id": "AC-17501-4",
+      "description": "nextAction picks the first stage in D1..D8 order whose state is 'failing', then the first failing check in that stage's checks[] (or the check with the largest failing.length when tie); it names the stage id, the check name, the failing ids (deduped), and a command string like 'rcf define readiness --check <stage-short-name> after editing'. nextAction is null when every stage is passed / acknowledged / notApplicable.",
+      "testable": true
+    },
+    {
+      "id": "AC-17501-5",
+      "description": "rcf define readiness prints a text summary: the tree line ('Frozen at <shortHash> on <frozenAt>. N documents changed since, M impacted. Build at <fbsId> of <total>; K FBS impacted.' or 'Unfrozen. N documents; the whole tree is the delta.'), the next action line, a chip line 'D1:passed D2:failing D3:acknowledged D4:notApplicable ...', and the failing-items list per stage. --json emits the full computeReadiness object under `${JSON.stringify(result, null, 2)}\\n`. --check <stage> (D1..D8 or short name brief|skeleton|shapes|stories|crosscut|consistency|decisions|freeze) prints only that stage and exits 0 when its state is 'passed' or 'acknowledged' or 'notApplicable', exit 4 on 'failing' for blocking stages (D1, D2, D4, D7, D8), exit 0 with a visible '[warn]' line on 'failing' for warn-with-ack stages (D3, D5, D6). The verb wraps its producer with runWithAdmissibilityGate and, on admissibility refusal, prints the refusal on stderr and exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-17501-6",
+      "description": "loadAllLedgers({ projectRoot }) returns a LedgerBundle that OMITS a ledger key when the sidecar file does not exist (ENOENT), so computeDelta records no docHash for absent ledgers; the docstring on computeDelta (LedgerBundle typedef) and the loader implementation agree. A project that has authored a brief ledger and no others sees exactly one 'ledger:brief' entry in the delta docHashes; a project that has authored no ledgers sees zero 'ledger:*' entries.",
+      "testable": true
+    }
+  ],
+  "tacIds": ["TAC-4123-define-readiness"],
+  "tags": [],
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

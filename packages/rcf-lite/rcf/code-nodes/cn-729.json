@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-729",
+  "path": "test/query/readiness.test.js",
+  "title": "Unit tests for computeReadiness",
+  "description": "Covers AC-17501-1..4 and AC-17501-6: section 2.4 shape, fan-out impacted/impactedFbs, coverage tree + per-REQ, nextAction pick, loadAllLedgers-omits-absent.",
+  "implementsAcIds": [
+    "AC-17501-1",
+    "AC-17501-2",
+    "AC-17501-3",
+    "AC-17501-4",
+    "AC-17501-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

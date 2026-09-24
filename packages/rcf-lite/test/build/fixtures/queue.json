@@ -7,10 +7,10 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 85,
+    "items": 87,
     "notStarted": 46,
     "inProgress": 1,
-    "complete": 23,
+    "complete": 25,
     "verified": 15,
     "actionable": 36,
     "blocked": 10
@@ -92,7 +92,8 @@
         "FBS-008",
         "FBS-026",
         "FBS-043",
-        "FBS-182"
+        "FBS-182",
+        "FBS-196"
       ]
     },
     {
@@ -104,7 +105,8 @@
         "FBS-027",
         "FBS-060",
         "FBS-044",
-        "FBS-183"
+        "FBS-183",
+        "FBS-197"
       ]
     },
     {
@@ -1110,6 +1112,30 @@
       "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-194"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-196",
+      "buildOrder": 196,
+      "tier": 2,
+      "title": "DEFINE slice 2: stage gates D1..D8 pure check functions",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-195"
+      ],
+      "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-197",
+      "buildOrder": 197,
+      "tier": 3,
+      "title": "DEFINE slice 2: computeReadiness compose and rcf define readiness CLI",
+      "executionStatus": "complete",
+      "dependsOnFbsIds": [
+        "FBS-196"
       ],
       "state": "complete",
       "blockedBy": []
