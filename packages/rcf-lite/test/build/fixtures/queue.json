@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 87,
-    "notStarted": 46,
+    "items": 88,
+    "notStarted": 47,
     "inProgress": 1,
     "complete": 25,
     "verified": 15,
-    "actionable": 36,
+    "actionable": 37,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -117,7 +117,8 @@
         "FBS-012",
         "FBS-028",
         "FBS-045",
-        "FBS-184"
+        "FBS-184",
+        "FBS-198"
       ]
     },
     {
@@ -1138,6 +1139,18 @@
         "FBS-196"
       ],
       "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-198",
+      "buildOrder": 198,
+      "tier": 4,
+      "title": "DEFINE slice 3: rcf define freeze CLI + freeze-record override + hygiene",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-197"
+      ],
+      "state": "actionable",
       "blockedBy": []
     }
   ]
