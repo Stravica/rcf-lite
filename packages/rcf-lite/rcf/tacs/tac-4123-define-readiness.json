@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T15:48:40Z",
   "tacId": "TAC-4123-define-readiness",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -13,7 +13,7 @@
     "src/query/readiness.js: computeImpact is called once per id in changed union added; impacted is the deduplicated union of every impact node id excluding the pivots; impactedFbs is the subset with kind 'fbs' AND actionNeeded === 're-execute'.",
     "src/query/readiness.js: computeCoverage is called once tree-wide (strict per-AC, testPointers threaded through) for coverage.tree; coverage.delta is one CoverageResult per unique REQ ancestor of the delta ids (via tree.parentByChild walk to the reqId, or the doc's own reqId field).",
     "src/query/readiness.js: freezeable is true when every stage state in ['passed', 'acknowledged', 'notApplicable'] and false otherwise; nextAction is null when freezeable is true.",
-    "src/cli/readiness.js: parseArgs on --json, --check, --help; findProjectRoot; walkTree; loadFreezeRecord; loadAllLedgers; resolveTestPointers; runWithAdmissibilityGate wraps a producer that invokes computeReadiness; on refuse the CLI prints the refusal on stderr and exits 4; on ok the CLI renders text (default) or JSON.",
+    "src/cli/readiness.js: parseArgs on --json, --check, --help; findProjectRoot; walkTree; loadFreezeRecord; loadAllLedgers; resolveTestPointers; runWithAdmissibilityGate wraps a producer that invokes computeReadiness; on refuse the CLI prints an informational '[warn] readiness: chain admissibility refused (informational; the readiness compute still ran).' on stderr and STILL runs the compute so the diagnostic reports which stage blocks (readiness is a diagnostic, not a gate that hides its answer); the top-level exit stays 0 in that case and --check <stage> follows its normal per-stage exit rule; on ok the CLI renders text (default) or JSON.",
     "src/cli/readiness.js: text output = tree line, next-action line, chip line (D1..D8 with state color words), stage-by-stage failing items (checks with failing ids); --check exits 4 for a blocking stage that is failing, 0 with a stderr [warn] for a warn-with-ack stage that is failing but not acknowledged, 0 otherwise.",
     "src/define/ledgers.js (P3 resolution): loadAllLedgers checks each ledger file's existence with statPath and omits missing files from the returned bundle; loadLedger keeps returning an empty ledger on ENOENT so single-ledger callers retain the ergonomic default.",
     "bin/rcf.js: register GROUPS.define.readiness -> readinessMain; src/cli/help.js: import READINESS_HELP and wire into HELP_MAP.define.readiness + DEFINE_HELP + top-level DEFINE listing.",
