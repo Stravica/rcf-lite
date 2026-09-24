@@ -1,0 +1,38 @@
+{
+  "usId": "US-17201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-172",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Delta detection and freeze record land as reusable primitives",
+  "description": "User story under REQ-172. The detection-model foundation lands as pure, importable modules and one durable local record.",
+  "asA": "the maintainer of a rcf-lite tree",
+  "iWant": "hashDocument, computeTreeHash, computeDelta and the rcf/define/freeze.json reader/writer to land as pure modules exposed on the query surface, with a documented return shape that later DEFINE slices can call unchanged",
+  "soThat": "the gates, readiness view, freeze verb and bundle-side read all consume the same detection primitives, and a hand reformat of a document never surfaces as a change",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17201-1",
+      "description": "computeDelta(tree, freeze, ledgers) returns the exact object shape proposal 2026-09-22 v3 section 2.2 specifies (frozen, frozenAt, treeHash, currentTreeHash, changed, added, removed, briefSince, unchanged); given a matching freeze the delta reports empty changed / added / removed and unchanged equal to the number of docHashes; given divergent tree state changed / added / removed classify every id correctly against the freeze record.",
+      "testable": true
+    },
+    {
+      "id": "AC-17201-2",
+      "description": "hashDocument returns a sha256:<64-hex> string over the canonical JSON form of the parsed document (keys sorted recursively, no whitespace), and is invariant under a whitespace-only reformat or a key reorder: two documents that parse to the same object hash identically.",
+      "testable": true
+    },
+    {
+      "id": "AC-17201-3",
+      "description": "Loading rcf/define/freeze.json when the file is absent returns null; loading a malformed file (bad JSON, missing docHashes, non-sha256 hash value, negative briefStatements) raises FreezeRecordError with a code (parseFailure or schemaFailure) and a named field so a caller can log the exact failure.",
+      "testable": true
+    },
+    {
+      "id": "AC-17201-4",
+      "description": "Saving then loading a freeze record round-trips every documented field including extension fields the schema does not police (counts, litmus, versions, note), and saveFreezeRecord refuses to persist an invalid record: no file is written on validation failure.",
+      "testable": true
+    }
+  ],
+  "tacIds": ["TAC-4120-define-delta-and-freeze"],
+  "tags": [],
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

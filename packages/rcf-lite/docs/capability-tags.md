@@ -45,6 +45,8 @@ both.
 | `deploy` | Deploy targets and hosting — deploy-cloudflare-workers, deploy-hetzner-server, docker-compose host. |
 | `verify` | The independent verifier, browser-verify probes, referee guarantees, coverage strictness. |
 | `feedback-loop` | The local-capture-through-submit feedback pipeline. |
+| `define-detection` | The DEFINE detection model - freeze record, tree/document hashes, delta compute, gates and readiness. Names the "detect the change, do not configure it" seam Baz ruled on 2026-09-22. |
+| `define-ledgers` | The four `rcf/define/` sidecar ledgers (brief, decisions, concern, probe) and the `rcf define ledger` verb that keeps them numbered per project life. |
 
 ## Adding a new capability
 

@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-723",
+  "path": "src/cli/ledger.js",
+  "title": "rcf define ledger CLI verb",
+  "description": "Wraps src/define/ledgers.js with parseArgs and per-verb usage text. Dispatches ledger <name> <verb> where name is brief | decisions | concerns | probes and verb is add | resolve | list. renderDecisionsList prints the numbered #241 format (one decision per item, letter) options, default:, blocks:). list --json emits { ledger, <arrayKey>: [...] }. bin/rcf.js registers this under GROUPS.define.ledger; src/cli/help.js wires HELP into HELP_MAP.define.ledger and extends the DEFINE_HELP and top-level listing blocks so 'rcf help define ledger' and 'rcf define ledger --help' render the same text by construction.",
+  "implementsAcIds": [
+    "AC-17301-1",
+    "AC-17301-2",
+    "AC-17301-3"
+  ],
+  "dependencies": [
+    "CN-722"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

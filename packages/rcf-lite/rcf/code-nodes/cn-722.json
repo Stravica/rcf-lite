@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-722",
+  "path": "src/define/ledgers.js",
+  "title": "Four sidecar ledgers: load, save, validate, add, resolve",
+  "description": "Pure module. LEDGER_NAMES (brief, decisions, concerns, probes), BRIEF_KINDS closed vocabulary, LedgerError with coded reason and named field, ledgerRelPath / ledgerPath, emptyLedger, loadLedger (empty on ENOENT), saveLedger (validates first), validateLedger, addEntry (mints next id, stamps addedAt, defaults status open, validates the whole body), resolveEntry (flips status to resolved, stamps resolvedAt, refuses unknown id), parseBriefFromFile (splits by non-empty lines, strips '- ', '* ', '<n>. ' bullets), loadAllLedgers (returns a LedgerBundle for computeDelta).",
+  "implementsAcIds": [
+    "AC-17301-1",
+    "AC-17301-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

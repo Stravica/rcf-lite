@@ -1,0 +1,23 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "tacId": "TAC-4121-define-ledgers",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "define ledgers module and rcf define ledger CLI",
+  "purpose": "The four sidecar ledgers land under rcf/define/ as one JSON file each, with one numbered sequence per ledger for the life of the project. The pure module src/define/ledgers.js exposes LEDGER_NAMES (the four allowed values), BRIEF_KINDS, LedgerError, emptyLedger, ledgerRelPath, ledgerPath, loadLedger, saveLedger, validateLedger, addEntry, resolveEntry, nextIdFor, parseBriefFromFile and loadAllLedgers (returns a LedgerBundle for computeDelta). The CLI verb src/cli/ledger.js wraps the module with parseArgs, wires under bin/rcf.js's define group as GROUPS.define.ledger, and prints usage text also mounted in src/cli/help.js's HELP_MAP.define.ledger so `rcf help define ledger` and `rcf define ledger --help` render the same block by construction.",
+  "responsibilities": [
+    "src/define/ledgers.js: LEDGER_NAMES = ['brief','decisions','concerns','probes']; per-ledger config maps a name to its filename (brief-ledger.json, decisions-ledger.json, concern-ledger.json, probe-ledger.json) and its body array key (statements | decisions | concerns | probes).",
+    "loadLedger returns emptyLedger(name) on ENOENT; a malformed file raises LedgerError with a code ('parseFailure' | 'schemaFailure' | 'ioFailure' | 'usage') and a named field.",
+    "addEntry mints the next id (highest current + 1), stamps addedAt and defaults status open, validates the resulting body before returning it, refuses unknown BRIEF_KINDS at validation.",
+    "resolveEntry flips status to resolved, stamps resolvedAt, throws LedgerError code 'usage' when the id is unknown, is idempotent-ish (resolving twice refreshes resolvedAt).",
+    "parseBriefFromFile splits by non-empty lines, strips leading '- ', '* ' or '<n>. ' bullets, defaults kind to 'capability', and threads --source through to every draft.",
+    "src/cli/ledger.js: `rcf define ledger <name> <verb>` argv parsing; verbs add / resolve / list; ledger-specific flags for each; renderDecisionsList formats the #241 numbered layout; list --json emits { ledger, <arrayKey>: [...] }.",
+    "bin/rcf.js: register GROUPS.define.ledger; src/cli/help.js: import LEDGER_HELP and wire into HELP_MAP.define.ledger + DEFINE_HELP + top-level DEFINE listing so per-verb help stays single-sourced."
+  ],
+  "internalStructure": "The walker never reads under rcf/define/: subdirFor in src/core/store/loader.js returns null for anything that is not a known child kind (requirements, user-stories, tacs, adrs, fbs, test-suites, code-nodes, evals), so a ledger file sitting under rcf/define/ is never enumerated for schema validation. The walker-invisibility invariant is proved by a dedicated test that seeds the four ledger files plus a bug-bait req-shaped file under rcf/define/ and asserts zero walker error paths starting with rcf/define/ and no matching id in tree.byId. Validation is JSON-schema-shaped inline (no ajv, no @stravica-ai/rcf-schemas dependency) because the sidecars ride outside the shared schema until schemas 0.7 (ADR-4121).",
+  "interfaces": [],
+  "notes": "The intake-scan-against-frozen-statements hook on brief add --from is a named seam this slice leaves for a later one: 'rcf discover intake' is the intended caller in slice 2's D1 gate check, and this slice ensures the CLI has one place to inject that seam without a second refactor. `list --json` is a keep-alive for slice 5's viewer, which will render the same object over http."
+}

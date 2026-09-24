@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-720",
+  "path": "src/query/delta.js",
+  "title": "Delta detection: canonical-JSON hashing and computeDelta",
+  "description": "Pure module. canonicaliseJson (recursive key sort, no whitespace), hashDocument (sha256:<hex> over the canonical form of a parsed document), computeTreeHash (over sorted (id, docHash) pairs), and computeDelta (returns the proposal 2026-09-22 section 2.2 shape: frozen, frozenAt, treeHash, currentTreeHash, changed, added, removed, briefSince, unchanged). Ledger docHashes are added under ledger:<name> ids per sidecar the caller passes.",
+  "implementsAcIds": [
+    "AC-17201-1",
+    "AC-17201-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z"
+}

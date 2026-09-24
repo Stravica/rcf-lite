@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-09-24T12:00:00Z",
+  "reqId": "REQ-172",
+  "prdId": "PRD-001",
+  "title": "DEFINE delta detection and freeze record foundation",
+  "description": "rcf-lite gains three pure primitives and one durable record. hashDocument returns a sha256:<hex> hash over the canonical JSON of a parsed document (keys sorted recursively, no whitespace). computeTreeHash hashes the sorted (id, docHash) pairs. computeDelta(tree, freeze, ledgers) returns the whole change model of the proposal (2026-09-22 v3) section 2.2: frozen, frozenAt, treeHash, currentTreeHash, changed, added, removed, briefSince, unchanged. docHashes cover every standalone document the walker exposes on tree.byId (PRD, TAD, BS, REQ, US, TAC, ADR, FBS, TS, CN, EVAL) plus one ledger:<name> entry per sidecar the caller passes in. Before the first freeze the delta is the whole tree (frozen false, everything in added). The freeze record itself sits at rcf/define/freeze.json (owned by rcf-lite, outside the shared rcf-schemas package until 0.7) with a small local schema and a reader/writer module: reading a missing file returns null, a malformed file raises a clear error. No rcf define freeze verb yet; the writer the verb will call is exposed for slice 3.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": ["persistence"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-24T12:00:00Z",
+    "signals": [
+      { "source": "description", "shape": "persistence", "match": "record" }
+    ]
+  },
+  "rationale": "Barry's backstory dogfood found DEFINE generated too fast with no gates. Baz ruled 2026-09-22 that the fix is detection over configured change records: the freeze remembers what the tree looked like; anything that differs is the change. The delta.js primitives are what every later slice (gates, readiness, freeze verb, bundle read, viewer tab) consumes, so their return shape is a contract worth pinning early. Canonical-JSON hashing (over raw bytes) is the difference between a real change and a hand reformat; document granularity (over criterion granularity) keeps the model cheap while git supplies the criterion-level diff.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}
