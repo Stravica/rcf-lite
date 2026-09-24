@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "purpose": "Cover computeReadiness and the rcf define readiness CLI (AC-17501-1..6) with unit tests over fixture trees + a CLI spawn, plus a targeted test of the P3 loadAllLedgers fix.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17501-1",
+    "AC-17501-2",
+    "AC-17501-3",
+    "AC-17501-4",
+    "AC-17501-5",
+    "AC-17501-6"
+  ],
+  "id": "TS-217",
+  "usId": "US-17501",
+  "title": "computeReadiness and rcf define readiness CLI",
+  "testCases": [
+    {
+      "id": "TC-217-shape",
+      "acId": "AC-17501-1",
+      "description": "computeReadiness returns { tree, delta, stages, nextAction, coverage, decisions, freezeable } and freezeable is true when every stage state is in { passed, acknowledged, notApplicable }.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: returns the section 2.4 shape and freezeable folds correctly"
+    },
+    {
+      "id": "TC-217-fanout",
+      "acId": "AC-17501-2",
+      "description": "Fan-out: computeImpact runs once per id in changed union added; impacted is the deduplicated union; impactedFbs is the subset with kind 'fbs' AND actionNeeded 're-execute'.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: fan-out impacted / impactedFbs"
+    },
+    {
+      "id": "TC-217-coverage",
+      "acId": "AC-17501-3",
+      "description": "coverage.tree is a tree-wide CoverageResult; coverage.delta is one CoverageResult per unique REQ ancestor of the delta ids.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: coverage tree-wide and per REQ ancestor"
+    },
+    {
+      "id": "TC-217-next-action",
+      "acId": "AC-17501-4",
+      "description": "nextAction picks the first failing stage in D1..D8 order and the first failing check inside it, listing ids and a rcf define readiness --check <short-name> command; null when no stage is failing.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: nextAction picks first failing stage and check"
+    },
+    {
+      "id": "TC-217-cli",
+      "acId": "AC-17501-5",
+      "description": "The CLI prints text summary by default and JSON with --json; --check <stage> exits 4 on blocking failure, 0 with a [warn] on warn-with-ack unacknowledged failure, 0 otherwise; admissibility refusal exits 4.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: text output shape and --check exit codes"
+    },
+    {
+      "id": "TC-217-load-all-ledgers",
+      "acId": "AC-17501-6",
+      "description": "loadAllLedgers omits ledgers whose files are absent so computeDelta records no docHash for absent ledgers; a project with only brief-ledger.json sees exactly one ledger:brief docHash.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::ledgers: loadAllLedgers omits absent ledger files"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "reqId": "REQ-175",
+  "prdId": "PRD-001",
+  "title": "computeReadiness and the rcf define readiness CLI verb",
+  "description": "rcf-lite gains src/query/readiness.js with computeReadiness(tree, { freeze, ledgers, profile, testPointers }) returning the exact section 2.4 shape { tree, delta, stages, nextAction, coverage, decisions, freezeable }. computeReadiness composes computeDelta (slice 1), calls computeImpact once per id in changed union added (the union is the fan-out; impacted names every id, impactedFbs names the re-execute subset), runs the gates D1..D8 over scope = changed union added union impacted ids, calls computeCoverage tree-wide plus per REQ ancestor of the delta (using the testPointers map the CLI produces exactly as src/cli/coverage.js builds it), lists open decisions (in the #241 numbered format from the decisions ledger), derives a nextAction { stage, check, ids, command } from the first failing gate, and reports freezeable when every stage state is passed, acknowledged or notApplicable. rcf-lite also gains src/cli/readiness.js implementing rcf define readiness [--json] [--check <stage>|all] (stage accepts D1..D8 or the gate short name: brief, skeleton, shapes, stories, crosscut, consistency, decisions, freeze). Text output: tree line, next action, stage chips, delta list, failing items. --check exits 0 green, 4 red (matching coverage refusal exit); warn-with-ack stages failing but unacknowledged exit 0 with a visible warning. The producer is wrapped with runWithAdmissibilityGate as the ruleset toolScope requires. loadAllLedgers (src/define/ledgers.js) is corrected so a project that never authored a ledger does not get ledger:<name> hashes in the docHashes map (slice-1 P3 resolution: code and JSDoc agree that absent ledger files contribute no docHash).",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": ["persistence"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-09-24T14:30:00Z",
+    "signals": [
+      { "source": "description", "shape": "persistence", "match": "record" }
+    ]
+  },
+  "rationale": "Baz ruled on 2026-09-22 (proposal section 2.4, section 6, section 9 decision 4) that Readiness is one object rendered by two consumers (the CLI and the viewer tab) so the two cannot disagree. The Product Map precedent (PR #238) established the shape: one pure compute, one JSON envelope, two renderers. computeReadiness is the object; rcf define readiness is the CLI twin the viewer tab (REQ-180, slice 5) will render unchanged. Slice 3 (rcf define freeze) reads freezeable and the per-stage state and refuses on any failing stage; slice 4's bundle --next reads the same object; slice 6's guidance points at the CLI as the one 'am I ready to build' surface. Fixing the slice-1 P3 in the same slice as the reader that consumes it keeps the ledger docHash contract single-sourced before it stabilises across the fleet.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-726",
+  "path": "src/query/readiness.js",
+  "title": "computeReadiness composes delta + fan-out + gates + coverage + decisions",
+  "description": "Pure module. computeReadiness returns the section 2.4 object; internal composeStages calls TAC-4122's gate functions in D1..D8 order; deriveNextAction picks the first failing check; freezeable folds the eight stage states.",
+  "implementsAcIds": [
+    "AC-17501-1",
+    "AC-17501-2",
+    "AC-17501-3",
+    "AC-17501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

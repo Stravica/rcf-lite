@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-730",
+  "path": "test/cli/readiness.test.js",
+  "title": "CLI tests for rcf define readiness",
+  "description": "Covers AC-17501-5: text output, --json emission, --check exit codes (blocking 4, warn-with-ack 0 with [warn]), admissibility refusal path exit 4.",
+  "implementsAcIds": [
+    "AC-17501-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

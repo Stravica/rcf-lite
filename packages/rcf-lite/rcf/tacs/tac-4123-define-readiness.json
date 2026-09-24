@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "tacId": "TAC-4123-define-readiness",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "computeReadiness compute and rcf define readiness CLI",
+  "purpose": "src/query/readiness.js and src/cli/readiness.js land as a matched pair. The pure module composes computeDelta, computeImpact, the eight gate check functions from TAC-4122, computeCoverage, and the decisions ledger into the single-object contract section 2.4 pins; the CLI is its twin. Text output for readable status; --json for machine consumers and the viewer slice; --check <stage>|all for targeted inspection with the same 0-green / 4-red exit shape rcf audit coverage uses.",
+  "responsibilities": [
+    "src/query/readiness.js: computeReadiness(tree, { freeze, ledgers, profile, testPointers }) returns { tree, delta, stages, nextAction, coverage, decisions, freezeable } exactly as section 2.4 specifies; internal computeScope collects changed + added + impacted ids into a Set; internal composeStages calls each check function in D1..D8 order; internal computeNextAction picks the first failing stage and check; internal deriveTreeSummary shortens the tree hash to eight characters for the tree line.",
+    "src/query/readiness.js: computeImpact is called once per id in changed union added; impacted is the deduplicated union of every impact node id excluding the pivots; impactedFbs is the subset with kind 'fbs' AND actionNeeded === 're-execute'.",
+    "src/query/readiness.js: computeCoverage is called once tree-wide (strict per-AC, testPointers threaded through) for coverage.tree; coverage.delta is one CoverageResult per unique REQ ancestor of the delta ids (via tree.parentByChild walk to the reqId, or the doc's own reqId field).",
+    "src/query/readiness.js: freezeable is true when every stage state in ['passed', 'acknowledged', 'notApplicable'] and false otherwise; nextAction is null when freezeable is true.",
+    "src/cli/readiness.js: parseArgs on --json, --check, --help; findProjectRoot; walkTree; loadFreezeRecord; loadAllLedgers; resolveTestPointers; runWithAdmissibilityGate wraps a producer that invokes computeReadiness; on refuse the CLI prints the refusal on stderr and exits 4; on ok the CLI renders text (default) or JSON.",
+    "src/cli/readiness.js: text output = tree line, next-action line, chip line (D1..D8 with state color words), stage-by-stage failing items (checks with failing ids); --check exits 4 for a blocking stage that is failing, 0 with a stderr [warn] for a warn-with-ack stage that is failing but not acknowledged, 0 otherwise.",
+    "src/define/ledgers.js (P3 resolution): loadAllLedgers checks each ledger file's existence with statPath and omits missing files from the returned bundle; loadLedger keeps returning an empty ledger on ENOENT so single-ledger callers retain the ergonomic default.",
+    "bin/rcf.js: register GROUPS.define.readiness -> readinessMain; src/cli/help.js: import READINESS_HELP and wire into HELP_MAP.define.readiness + DEFINE_HELP + top-level DEFINE listing.",
+    "src/query/index.js: export computeReadiness (plus its subhelpers where useful for tests) so downstream consumers (slice 3 freeze, slice 5 viewer) import through the same seam every other query verb does."
+  ],
+  "internalStructure": "readiness.js is a linear composer: 1) compute delta and its docHashes; 2) fan-out impacted / impactedFbs; 3) build stage context (freeze, delta, scope, ledgers, profile, validateErrors, probeOpenCount, coverageTree); 4) call the eight check functions; 5) fold freezeable and nextAction. The CLI parses flags, loads the tree once, loads the four ledgers and the freeze record once, computes the readiness, then routes to the text or JSON emitter. --check maps its argument to the STAGE_SHORT_NAMES map (brief -> D1 ... freeze -> D8) or accepts D1..D8 directly. The runWithAdmissibilityGate wrap sits inside main so refusals ride the same exit path as coverage's admissibility refusals.",
+  "interfaces": [],
+  "notes": "Slice-3 hook (rcf define freeze) reads freezeable and stages[].state; --ack <gate> writes into freeze.gates[<gate>] and re-computes readiness. Slice-5 hook (viewer) fetches the same JSON object over the existing tab wire and renders the pill vocabulary + findings-list + diff components. Performance seam: computeImpact per id on a whole-tree delta (before freeze) may be quadratic on very large trees; the compute stays fast on the dogfood chain (~700 documents, sub-second) but the CLI notes the wall time in text mode so an operator can spot regression."
+}

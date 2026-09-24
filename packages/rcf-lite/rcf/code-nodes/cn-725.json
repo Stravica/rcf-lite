@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-725",
+  "path": "src/query/gates.js",
+  "title": "DEFINE stage gates D1..D8 pure check functions",
+  "description": "Pure module. One check function per stage D1..D8 (checkD1Brief..checkD8Freeze) plus STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES, INTERFACE_KINDS. Each takes (tree, context) and returns { stage, gate, state, checks[] } in the section 2.4 shape.",
+  "implementsAcIds": [
+    "AC-17401-1",
+    "AC-17401-2",
+    "AC-17401-3",
+    "AC-17401-4",
+    "AC-17401-5",
+    "AC-17401-6",
+    "AC-17401-7",
+    "AC-17401-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}

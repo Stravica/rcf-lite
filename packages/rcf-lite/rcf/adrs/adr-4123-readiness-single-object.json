@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z",
+  "adrId": "ADR-4123-readiness-single-object",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Readiness is one computed object; no stored stage state, no stored 'stale'",
+  "context": "The DEFINE workflow proposal (2026-09-22 v3, section 2.4, section 6, decision 4) is explicit that the CLI and the viewer tab render the same object so they cannot disagree, and that stage state is one of passed | failing | acknowledged | notApplicable with no 'stale' and no 'notStarted' because nothing is stored: every chip is the truth at the moment of the read. The Product Map (PR #238) precedent already ships this pattern for a related surface. Slice 2 has to pick both the computation shape (one pass or many; where the impact fan-out sits) and the storage shape (nothing stored, or a small cache in the freeze record).",
+  "decision": "computeReadiness returns one plain-data object per call over the tree, the freeze record and the four ledgers; nothing is stored between calls, and no per-stage 'stale' flag exists. The stage state is a pure fold over the checks[] of that stage: 'passed' when every check.ok is true, 'failing' otherwise, unless the stage is one of the three warn-with-ack stages and the freeze record's gates[<gate>] entry names 'acknowledged' at the current tree hash. The CLI (rcf define readiness) prints the object; slice-5's viewer renders the same JSON envelope over the existing tab wire (proposal section 6.3). runWithAdmissibilityGate wraps the CLI's producer, matching the ruleset toolScope { traceabilityAndQueryTools: true } switch; slice 2 records this decision because the wrap changes the shipping exit path.",
+  "consequences": "One shape, two renderers: whatever the CLI prints, the viewer prints. Absence of stored state means Readiness is stateless: git carries the history, the freeze record carries the acknowledgements, everything else is derived. The compute cost is one canonicalise per document per read (already ratified in ADR-4120) plus one computeImpact per delta id, which on the dogfood chain (~700 documents, ~30 delta ids on a small feature) is measured in single-digit seconds. If the compute ever costs too much, the mitigation is a per-render cache in the CLI or the viewer (not in the freeze record), so the shape stays the same. Honest downside: the whole-tree unfrozen case (no freeze record; every doc is 'added') computes computeImpact over every id, which on very large trees may be quadratic in fan-out size. Slice 2 mitigates by skipping the per-id fan-out when the delta is the whole tree (the delta IS the fan-out), and the CLI prints wall time so an operator can spot a regression before it becomes a defect.",
+  "alternativesConsidered": [
+    {
+      "name": "Cache the last stage[] under freeze.gates[]; only re-run gates whose delta touches their scope",
+      "summary": "Store per-stage checks + fold under freeze.gates[]; readiness reads the cache and only re-runs gates the delta invalidates.",
+      "reasonNotChosen": "Two sources of truth: the tree and the cache. Every operator correction to a story would have to invalidate the cache correctly, and any bug in the invalidation would show up as a false green. Proposal section 2.4 explicitly rules this out: 'no stale, no not-started'. Recompute is cheap enough not to earn the complexity."
+    },
+    {
+      "name": "Skip runWithAdmissibilityGate on the readiness verb",
+      "summary": "Readiness is a diagnostic; run it even when admissibility refuses so the operator can see what to fix.",
+      "reasonNotChosen": "The ruleset toolScope switch { traceabilityAndQueryTools: true } is a runtime-read guard (NV-BL-SR-03 addendum) and matches every other query verb's expected posture; skipping it would be an exception the checker cannot see. Slice 2 wraps the producer; a future train can add an explicit --show-anyway flag if the diagnostic case wins the argument, and record it as an ADR replacement."
+    },
+    {
+      "name": "Compute stages fully in parallel with Promise.all",
+      "summary": "Every stage check runs in parallel via Promise.all against a shared context.",
+      "reasonNotChosen": "The gate check functions are pure and CPU-bound (no I/O); Promise.all does not parallelise CPU on Node without workers, and worker-thread overhead is far larger than the compute cost. Sequential composition is honest about what the code does."
+    }
+  ]
+}

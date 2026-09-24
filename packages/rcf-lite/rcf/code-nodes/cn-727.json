@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-727",
+  "path": "src/cli/readiness.js",
+  "title": "rcf define readiness [--json] [--check <stage>|all]",
+  "description": "CLI handler. Parses --json / --check / --help; walks the tree; loads freeze + all four ledgers; resolves test pointers; wraps computeReadiness with runWithAdmissibilityGate; emits text or JSON; --check narrows and gates the exit code.",
+  "implementsAcIds": [
+    "AC-17501-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T14:30:00Z"
+}
