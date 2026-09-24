@@ -6,6 +6,53 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Product Map tab on the review surface (#238).** Merged on `main` at
+  `ab35dd7d`; grouped by shape, component, trace coverage, capability,
+  blueprint. This entry backfills the changelog now that the following
+  DEFINE-train slice rides on top of it.
+- **DEFINE workflow: delta detection foundation (REQ-172, slice 1 of
+  the 0.29.0 train).** New pure module `src/query/delta.js` exports
+  `hashDocument`, `computeTreeHash` and `computeDelta`. `hashDocument`
+  is SHA-256 over the canonical JSON of the parsed document (keys
+  sorted recursively, no whitespace), so a hand reformat is not a
+  change; the tree hash is over the sorted `(id, docHash)` pairs.
+  `computeDelta(tree, freeze, ledgers)` returns the exact
+  `frozen / frozenAt / treeHash / currentTreeHash / changed / added /
+  removed / briefSince / unchanged` shape proposal 2026-09-22 v3
+  section 2.2 pins. Before the first freeze the delta is the whole
+  tree (`frozen: false`, everything in `added`). Reused unchanged:
+  `computeImpact`, `computeTrace`, `computeCoverage`.
+- **DEFINE workflow: freeze record I/O (REQ-172, slice 1).** New
+  module `src/define/freeze-record.js` owns `rcf/define/freeze.json`
+  with a small local schema (until schemas 0.7 promotes it to
+  `manifest.freeze` per ADR-4121). `loadFreezeRecord` returns `null`
+  on a missing file; a malformed body raises `FreezeRecordError` with
+  a coded reason (`parseFailure | schemaFailure | ioFailure`) and a
+  named field. `saveFreezeRecord` validates first, so a bad
+  in-memory record never lands on disk; extension fields survive a
+  save / load round trip. The `rcf define freeze` verb is a
+  later-slice consumer; this slice ships the writer so the verb can
+  be built without a second refactor.
+- **DEFINE workflow: four sidecar ledgers and `rcf define ledger`
+  (REQ-173, slice 1).** Four ledgers live under `rcf/define/`, one
+  JSON file each, each with one numbered sequence per project:
+  `brief-ledger.json` (D1 statements, kinded from the closed set
+  `capability | constraint | actor | entity | externalSystem |
+  surface | outOfScope | openQuestion | amendment`),
+  `decisions-ledger.json` (D7, printed in the numbered #241 format),
+  `concern-ledger.json` (D5, `applied | waived`),
+  `probe-ledger.json` (D6, `low | medium | high`).
+  `rcf define ledger <name> <verb>` covers `add`, `resolve` and
+  `list`; `brief add --from <file>` splits statements one per
+  non-empty line and mints sequential ids (the
+  intake-scan-against-frozen-statements hook is a named seam this
+  slice leaves for slice 2). `decisions list` prints the #241
+  numbered format. `list --json` emits `{ ledger, <arrayKey>: [...] }`.
+  A dedicated test proves the walker never surfaces any `rcf/define/`
+  path in `walkTree` errors or `tree.byId`.
+
 ## [0.28.3] - 2026-09-22
 
 Batched fix release for the residuals Dex's 0.28.2 round-trip surfaced

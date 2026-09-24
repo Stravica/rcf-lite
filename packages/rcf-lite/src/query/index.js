@@ -4,6 +4,14 @@
 export { computeCoverage, classifyCoverageScope } from './coverage.js';
 export { computeTrace, kindOf } from './trace.js';
 export { computeImpact, labelFor } from './impact.js';
+// Detection model (REQ-172, proposal 2026-09-22 §2.2 v3). Pure hashes
+// over the parsed tree; every downstream DEFINE gate reads this delta.
+export {
+  canonicaliseJson,
+  hashDocument,
+  computeTreeHash,
+  computeDelta,
+} from './delta.js';
 export { formatTable } from './formatters/table.js';
 export { formatJson } from './formatters/json.js';
 export { formatMermaid } from './formatters/mermaid.js';
