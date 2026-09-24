@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 109  covered: 109  covered-unresolved: 0  uncovered: 0
+Requirements: 110  covered: 110  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -459,3 +459,11 @@ REQ-175      yes      AC-17501-1  yes         TC-217-shape
                       AC-17501-4  yes         TC-217-next-action
                       AC-17501-5  yes         TC-217-cli
                       AC-17501-6  yes         TC-217-load-all-ledgers
+REQ-176      yes      AC-17601-1  yes         TC-218-happy
+                      AC-17601-2  yes         TC-218-refuse
+                      AC-17601-3  yes         TC-218-ack
+                      AC-17601-4  yes         TC-218-summary
+                      AC-17601-5  yes         TC-218-status
+                      AC-17601-6  yes         TC-218-admissibility
+                      AC-17601-7  yes         TC-218-override
+                      AC-17601-8  yes         TC-218-hygiene

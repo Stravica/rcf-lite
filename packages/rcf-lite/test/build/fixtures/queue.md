@@ -91,15 +91,16 @@ Generation strategy: dependencyFirst
 | 195 | 1 | FBS-195 | DEFINE slice 1: four sidecar ledgers and rcf define ledger CLI | complete | complete |  |
 | 196 | 2 | FBS-196 | DEFINE slice 2: stage gates D1..D8 pure check functions | complete | complete |  |
 | 197 | 3 | FBS-197 | DEFINE slice 2: computeReadiness compose and rcf define readiness CLI | complete | complete |  |
+| 198 | 4 | FBS-198 | DEFINE slice 3: rcf define freeze CLI + freeze-record override + hygiene | notStarted | actionable |  |
 
-Totals: items 87 | notStarted 46 | inProgress 1 | complete 25 | verified 15 | actionable 36 | blocked 10
+Totals: items 88 | notStarted 47 | inProgress 1 | complete 25 | verified 15 | actionable 37 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197
-- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184
+- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198
 - tier 5: FBS-029, FBS-046, FBS-185
 - tier 6: FBS-030, FBS-047
 - tier 7: FBS-031
