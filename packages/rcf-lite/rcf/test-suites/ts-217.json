@@ -27,7 +27,7 @@
       "acId": "AC-17501-2",
       "description": "Fan-out: computeImpact runs once per id in changed union added; impacted is the deduplicated union; impactedFbs is the subset with kind 'fbs' AND actionNeeded 're-execute'.",
       "status": "pending",
-      "testPointer": "test/query/readiness.test.js::readiness: fan-out impacted / impactedFbs"
+      "testPointer": "test/query/readiness.test.js::readiness: fan-out impacted / impactedFbs (frozen delta)"
     },
     {
       "id": "TC-217-coverage",

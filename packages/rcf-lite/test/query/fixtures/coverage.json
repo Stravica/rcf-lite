@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 107,
-    "covered": 107,
+    "requirements": 109,
+    "covered": 109,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4386,6 +4386,132 @@
           "covered": true,
           "testCases": [
             "TC-215-walker-invisible"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-174",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17401-1",
+          "covered": true,
+          "testCases": [
+            "TC-216-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-2",
+          "covered": true,
+          "testCases": [
+            "TC-216-blocking-vs-warn"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-3",
+          "covered": true,
+          "testCases": [
+            "TC-216-not-applicable"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-4",
+          "covered": true,
+          "testCases": [
+            "TC-216-d4-floors"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-5",
+          "covered": true,
+          "testCases": [
+            "TC-216-d3-shapes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-6",
+          "covered": true,
+          "testCases": [
+            "TC-216-d5-crosscut"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-7",
+          "covered": true,
+          "testCases": [
+            "TC-216-d6-consistency"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-8",
+          "covered": true,
+          "testCases": [
+            "TC-216-d8-freeze"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-175",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17501-1",
+          "covered": true,
+          "testCases": [
+            "TC-217-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17501-2",
+          "covered": true,
+          "testCases": [
+            "TC-217-fanout"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17501-3",
+          "covered": true,
+          "testCases": [
+            "TC-217-coverage"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17501-4",
+          "covered": true,
+          "testCases": [
+            "TC-217-next-action"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17501-5",
+          "covered": true,
+          "testCases": [
+            "TC-217-cli"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17501-6",
+          "covered": true,
+          "testCases": [
+            "TC-217-load-all-ledgers"
           ],
           "unresolvedTestCases": []
         }

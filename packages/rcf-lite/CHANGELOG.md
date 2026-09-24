@@ -52,6 +52,64 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   numbered format. `list --json` emits `{ ledger, <arrayKey>: [...] }`.
   A dedicated test proves the walker never surfaces any `rcf/define/`
   path in `walkTree` errors or `tree.byId`.
+- **DEFINE workflow: stage gates D1..D8 (REQ-174, slice 2 of the
+  0.29.0 train).** New pure module `src/query/gates.js` exports one
+  check function per stage (`checkD1Brief`..`checkD8Freeze`) plus
+  the `STAGE_ORDER`, `STAGE_GATES`, `STAGE_SHORT_NAMES` and
+  `INTERFACE_KINDS` constants. Every function returns the exact
+  `{ stage, gate, state, checks[] }` shape proposal 2026-09-22 v3
+  section 2.4 specifies, with `checks[i]` in the `{ name, ok, over,
+  pass, total, failing }` form. Blocking in 0.29.0: D1 (define.brief),
+  D2 (define.skeleton), D4 floors (define.stories), D7
+  (define.decisions), D8 (define.freeze). Warn-with-ack in 0.29.0:
+  D3 (define.shapes), D5 (define.crosscut), D6 (define.consistency)
+  \- the state folds to `acknowledged` when the freeze record's
+  `gates[<gate>]` entry names `acknowledged` at the current tree
+  hash (ADR-4122). D4 per-class opt-outs reuse the existing
+  `manifest.baselineAcOptOuts[]` array with a baselineKey of
+  `'defineD4:failure'` or `'defineD4:mustNot'`; no new sidecar is
+  introduced. The template parser, entity join, D5 catalogue, D6
+  contradiction / unsatisfiable scans and probe runner remain as
+  named seams for 0.30.
+- **DEFINE workflow: readiness compute and `rcf define readiness`
+  CLI (REQ-175, slice 2).** New pure module `src/query/readiness.js`
+  exports `computeReadiness(tree, { freeze, ledgers, profile,
+  testPointers })` returning the section 2.4 object exactly:
+  `{ tree, delta, stages, nextAction, coverage, decisions,
+  freezeable }`. The composer runs `computeDelta` once, calls
+  `computeImpact` per id in the union of changed and added (skipping
+  the fan-out on the unfrozen whole-tree case where the delta IS the
+  tree), runs the eight gate check functions over
+  `scope = changed union added union impacted`, calls
+  `computeCoverage` tree-wide plus once per REQ ancestor of the
+  delta, lists open decisions, and folds to `freezeable` and
+  `nextAction`. New verb `rcf define readiness [--json] [--check
+  <stage>|all]` (stage accepts D1..D8 or the short names
+  `brief | skeleton | shapes | stories | crosscut | consistency |
+  decisions | freeze`); text output = tree line, next action, chip
+  line, delta list, failing items; `--check` exits 4 on a
+  blocking-stage failure, exits 0 with a visible `[warn]` line on an
+  unacknowledged warn-with-ack failure. The producer is wrapped with
+  `runWithAdmissibilityGate` per the NV-BL-SR-03 addendum; on
+  admissibility refusal the CLI prints a `[warn]` note and still
+  runs the compute, because readiness is a diagnostic and refusing
+  to render is the opposite of what it exists to say (ADR-4123).
+  Slice 3's `rcf define freeze` will read `freezeable` and refuse
+  on any failing stage.
+
+### Fixed
+
+- **Slice-1 P3: `loadAllLedgers` omits absent ledger files
+  (AC-17501-6).** The `LedgerBundle` typedef on `computeDelta` said
+  "if a project has not authored any decisions, the caller passes
+  no `decisions` key and the delta records no `ledger:decisions`
+  docHash"; the previous implementation always returned the four
+  empty bodies. `loadAllLedgers` now `stat`s each ledger file first
+  and omits the key on ENOENT, so a project with no ledgers gets
+  zero `ledger:<name>` docHashes in the delta and a project with
+  only a brief ledger gets exactly one. `loadLedger` still returns
+  an empty ledger on ENOENT so single-ledger callers keep the
+  ergonomic default.
 
 ## [0.28.3] - 2026-09-22
 

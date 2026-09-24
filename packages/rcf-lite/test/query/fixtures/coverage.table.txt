@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 107  covered: 107  covered-unresolved: 0  uncovered: 0
+Requirements: 109  covered: 109  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC          AC covered  Test cases
 -----------  -------  ----------  ----------  ------------------------------------------------------------
@@ -445,3 +445,17 @@ REQ-173      yes      AC-17301-1  yes         TC-215-brief-add-text, TC-215-brie
                       AC-17301-2  yes         TC-215-decisions-list-241, TC-215-list-json
                       AC-17301-3  yes         TC-215-brief-from-file, TC-215-parse-brief-bullets
                       AC-17301-4  yes         TC-215-walker-invisible
+REQ-174      yes      AC-17401-1  yes         TC-216-shape
+                      AC-17401-2  yes         TC-216-blocking-vs-warn
+                      AC-17401-3  yes         TC-216-not-applicable
+                      AC-17401-4  yes         TC-216-d4-floors
+                      AC-17401-5  yes         TC-216-d3-shapes
+                      AC-17401-6  yes         TC-216-d5-crosscut
+                      AC-17401-7  yes         TC-216-d6-consistency
+                      AC-17401-8  yes         TC-216-d8-freeze
+REQ-175      yes      AC-17501-1  yes         TC-217-shape
+                      AC-17501-2  yes         TC-217-fanout
+                      AC-17501-3  yes         TC-217-coverage
+                      AC-17501-4  yes         TC-217-next-action
+                      AC-17501-5  yes         TC-217-cli
+                      AC-17501-6  yes         TC-217-load-all-ledgers
