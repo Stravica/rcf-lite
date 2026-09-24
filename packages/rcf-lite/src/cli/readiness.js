@@ -219,7 +219,7 @@ function renderText(stdout, result, wallMs, checkStage) {
 
   for (const stage of result.stages) {
     if (checkStage && checkStage !== 'all' && stage.stage !== checkStage) continue;
-    stdout.write(`\n${stage.stage} (${stage.gate}) -- ${STATE_LABEL[stage.state] ?? stage.state}${stage.reason ? ` (${stage.reason})` : ''}\n`);
+    stdout.write(`\n${stage.stage} (${stage.gate}): ${STATE_LABEL[stage.state] ?? stage.state}${stage.reason ? ` (${stage.reason})` : ''}\n`);
     for (const c of stage.checks) {
       const mark = c.ok ? 'ok' : 'FAIL';
       stdout.write(`  [${mark}] ${c.name} (${c.over}): ${c.pass}/${c.total}\n`);
