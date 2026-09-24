@@ -285,11 +285,14 @@ test('gates: D4 floors and per-class opt-outs', () => {
   const floor2 = stage2.checks.find((c) => c.name === 'stories:usFloors');
   assert.equal(floor2.failing.filter((f) => f.id === 'US-1').length, 0);
 
-  // TODO placeholder in a description is a failure.
+  // Scaffold TODO placeholder in a description is a failure.
+  // The literal scaffold shape (init.js / writer.js) is "TODO:" with a
+  // colon; the check is case-sensitive so incidental prose like the
+  // word "todo" or "the TODO placeholder pattern" does NOT trip.
   const usTodo = {
     usId: 'US-3', reqId: 'REQ-1', tacIds: ['TAC-1'],
     acceptanceCriteria: [
-      { id: 'AC-9', testable: true, description: '[happy] TODO fill this in' },
+      { id: 'AC-9', testable: true, description: '[happy] TODO: describe the first acceptance criterion' },
       { id: 'AC-10', testable: true, description: '[failure] x' },
       { id: 'AC-11', testable: true, description: '[must-not] x' },
     ],
@@ -301,6 +304,24 @@ test('gates: D4 floors and per-class opt-outs', () => {
   });
   const floor3 = stage3.checks.find((c) => c.name === 'stories:usFloors');
   assert.ok(floor3.failing.some((f) => /TODO/.test(f.why)));
+
+  // Incidental prose that mentions "TODO" or "todo" without the
+  // scaffold colon shape does NOT trip the gate.
+  const usProse = {
+    usId: 'US-5', reqId: 'REQ-1', tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-15', testable: true, description: '[happy] no AC description contains the scaffold TODO placeholder' },
+      { id: 'AC-16', testable: true, description: '[failure] x' },
+      { id: 'AC-17', testable: true, description: '[must-not] x' },
+    ],
+  };
+  const tree5 = makeTree({ requirements: [req], userStories: [usProse], tacs: [tac] });
+  const stage5 = checkD4Stories({
+    tree: tree5, ledgers: emptyLedgers, scope: new Set(['REQ-1', 'US-5']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const floor5 = stage5.checks.find((c) => c.name === 'stories:usFloors');
+  assert.equal(floor5.failing.filter((f) => f.id === 'US-5' && /TODO/.test(f.why)).length, 0);
 
   // Unresolved tacId is a failure.
   const usBadTac = {
@@ -395,6 +416,32 @@ test('gates: D6 consistency validate + probe count', () => {
     validateErrors: [], currentTreeHash: 'sha256:aaa',
   });
   assert.equal(stage2.state, 'passed');
+
+  // Beyond-20 failures: the failing array is truncated to 20 items
+  // for display, but `pass` folds from the untruncated count so
+  // pass=0 (not total-20) and ok stays false.
+  const manyErrors = Array.from({ length: 25 }, (_, i) => ({ documentId: `DOC-${i + 1}`, message: 'validate error' }));
+  const stage3 = checkD6Consistency({
+    tree, ledgers: ledgersClean, scope: new Set(),
+    validateErrors: manyErrors, currentTreeHash: 'sha256:aaa',
+  });
+  const validateCheck = stage3.checks.find((c) => c.name === 'consistency:validateClean');
+  assert.equal(validateCheck.total, 25);
+  assert.equal(validateCheck.pass, 0);
+  assert.equal(validateCheck.ok, false);
+  assert.equal(validateCheck.failing.length, 20);
+
+  // Beyond-20 probes (bundle-scan path): same story.
+  const manyProbes = Array.from({ length: 30 }, (_, i) => ({ id: i + 1, reqId: `REQ-${i + 1}`, finding: 'x', severity: 'low', status: 'open', addedAt: '2026-09-24T10:00:00Z' }));
+  const stage4 = checkD6Consistency({
+    tree, ledgers: { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: manyProbes } }, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const probeCheck = stage4.checks.find((c) => c.name === 'consistency:probeCount');
+  assert.equal(probeCheck.total, 30);
+  assert.equal(probeCheck.pass, 0);
+  assert.equal(probeCheck.ok, false);
+  assert.equal(probeCheck.failing.length, 20);
 });
 
 // ---------------------------------------------------------------------------
@@ -440,4 +487,18 @@ test('gates: D8 tree-wide freeze checks', () => {
     priorStages: [],
   });
   assert.ok(stageHead.checks.some((c) => c.name === 'freeze:queueHead' && c.failing.length > 0));
+
+  // Beyond-20 validate errors: failing array truncated to 20 but
+  // `pass` folds from the untruncated count.
+  const manyErrors = Array.from({ length: 25 }, (_, i) => ({ documentId: `DOC-${i + 1}`, message: 'validate error' }));
+  const stageMany = checkD8Freeze({
+    tree: makeTree(), ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: manyErrors, currentTreeHash: 'sha256:aaa',
+    priorStages: [],
+  });
+  const validateCheck = stageMany.checks.find((c) => c.name === 'freeze:validateClean');
+  assert.equal(validateCheck.total, 25);
+  assert.equal(validateCheck.pass, 0);
+  assert.equal(validateCheck.ok, false);
+  assert.equal(validateCheck.failing.length, 20);
 });

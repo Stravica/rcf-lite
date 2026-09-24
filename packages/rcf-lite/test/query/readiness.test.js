@@ -107,47 +107,102 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   assert.equal(result.freezeable, false);
 });
 
-test('readiness: freezeable is true when every stage is passed / acknowledged / notApplicable', () => {
-  // Craft a tree where all gates pass or are notApplicable and D8 too.
-  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'i', kind: 'httpRoute' }] };
+test('readiness: freezeable is true on a well-formed tree (every stage passed / notApplicable)', () => {
+  // Craft a tree where every D1..D8 gate resolves to passed or
+  // notApplicable AND the D8 mechanical checks all pass, so
+  // freezeable === true and nextAction === null. The fixture is
+  // unfrozen (freeze=null); the delta is the whole tree, scope is
+  // every id, and no gate can collapse to notApplicable via an
+  // empty-scope route -- every check must actually pass.
+  const tac = {
+    tacId: 'TAC-1',
+    interfaces: [{ name: 'ship', kind: 'httpRoute' }],
+  };
   const req = {
-    reqId: 'REQ-1', title: 'req', description: 'live', domain: 'x',
+    reqId: 'REQ-1',
+    title: 'req',
+    description: 'a real requirement description',
+    domain: 'ops',
     shapeClassification: { shapes: ['httpApi'] },
+    resolvedBy: 'REQ-1',
   };
   const us = {
-    usId: 'US-1', reqId: 'REQ-1', tacIds: ['TAC-1'],
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
     acceptanceCriteria: [
-      { id: 'AC-1', testable: true, description: '[happy] ok' },
-      { id: 'AC-2', testable: true, description: '[failure] x' },
-      { id: 'AC-3', testable: true, description: '[must-not] x' },
+      { id: 'AC-1', testable: true, description: '[happy] user does the thing' },
+      { id: 'AC-2', testable: true, description: '[failure] server returns 500' },
+      { id: 'AC-3', testable: true, description: '[must-not] endpoint accepts unauth' },
     ],
   };
-  const fbs = { fbsId: 'FBS-1', acIds: ['AC-1', 'AC-2', 'AC-3'], executionStatus: 'notStarted', dependsOnFbsIds: [], title: 'ship', buildOrder: 1 };
-  const tad = { tadId: 'TAD-1', securityArchitecture: 'jwt bearer', operationalConcerns: 'runbook exists', coreEntities: [], dataStores: [] };
-  const adr = { adrId: 'ADR-1', title: 'Deploy target: Hetzner', status: 'accepted' };
+  const fbs = {
+    fbsId: 'FBS-1',
+    acIds: ['AC-1', 'AC-2', 'AC-3'],
+    executionStatus: 'notStarted',
+    dependsOnFbsIds: [],
+    title: 'ship the thing',
+    buildOrder: 1,
+  };
+  const tad = {
+    tadId: 'TAD-1',
+    securityArchitecture: 'jwt bearer with rotating refresh tokens',
+    operationalConcerns: 'runbook exists',
+    coreEntities: [],
+    dataStores: [],
+  };
+  const adr = {
+    adrId: 'ADR-1',
+    title: 'Deploy target: Hetzner',
+    status: 'accepted',
+  };
   const tree = makeTree({
-    tad, requirements: [req], userStories: [us], tacs: [tac], adrs: [adr], fbsItems: [fbs],
+    tad,
+    requirements: [req],
+    userStories: [us],
+    tacs: [tac],
+    adrs: [adr],
+    fbsItems: [fbs],
   });
-  // Feed a freeze that matches the current tree hash, plus a brief-ledger
-  // statement so D1 passes, plus a profile with markers.
-  // Use computeReadiness once to grab currentTreeHash, then re-compute with
-  // a matching freeze record.
-  const first = computeReadiness(tree, {
+
+  const result = computeReadiness(tree, {
     freeze: null,
     ledgers: {
-      brief: { statements: [{ id: 1, kind: 'capability', text: 'ship X', addedAt: '2026-09-24T10:00:00Z', status: 'open' }] },
-      decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] },
+      // One kinded, resolving brief statement satisfies D1 (statements
+      // present, kind in the closed vocabulary, no open questions) and
+      // D2 (capability statement carries resolvedBy).
+      brief: {
+        statements: [
+          {
+            id: 1,
+            kind: 'capability',
+            text: 'ship the thing',
+            resolvedBy: 'REQ-1',
+            status: 'open',
+            addedAt: '2026-09-24T10:00:00Z',
+          },
+        ],
+      },
+      decisions: { decisions: [] },
+      concerns: { concerns: [] },
+      probes: { probes: [] },
     },
+    // profile.md carries a review-surface marker (viewer) AND a
+    // register marker (productOwner) -- both required by D1.
     profileText: 'productOwner viewer',
+    validateErrors: [],
   });
-  // We assert composition succeeds and every stage carries the
-  // expected state ("failing" or "notApplicable" here because the
-  // fixture has no owning FBS with dependencies; the freezeable=true
-  // path is exercised end-to-end by the CLI test on a well-formed
-  // tree in a later slice). This test's job is the shape contract:
-  assert.ok(first);
-  assert.equal(typeof first.freezeable, 'boolean');
-  assert.deepEqual(first.stages.map((s) => s.stage), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+
+  // Every stage passes or is notApplicable, and freezeable=true.
+  const stageStates = Object.fromEntries(result.stages.map((s) => [s.stage, s.state]));
+  for (const stage of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
+    assert.ok(
+      stageStates[stage] === 'passed' || stageStates[stage] === 'notApplicable',
+      `expected ${stage} to be passed or notApplicable, got ${stageStates[stage]} -- checks: ${JSON.stringify(result.stages.find((s) => s.stage === stage).checks.filter((c) => !c.ok), null, 2)}`,
+    );
+  }
+  assert.equal(result.freezeable, true);
+  assert.equal(result.nextAction, null);
 });
 
 // ---------------------------------------------------------------------------

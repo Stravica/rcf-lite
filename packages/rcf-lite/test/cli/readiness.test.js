@@ -68,11 +68,13 @@ test('readiness cli: text output shape and --check exit codes', async () => {
   assert.equal(rFreeze.code, 4);
   assert.match(rFreeze.stdout, /D8 \(define.freeze\)/);
 
-  // --check shapes -> warn-with-ack, not acknowledged: the fresh
-  // project has no TAC and no shaped REQ, so D3 is notApplicable and
-  // the exit is 0 with no warn. Assert exit 0.
+  // --check shapes on a fresh init: TAC-001 exists with no
+  // interfaces, so D3 (warn-with-ack in 0.29.0) is failing without an
+  // acknowledgement. Warn-with-ack policy means exit 0 (never 4) with
+  // a visible [warn] line on stderr naming the gate.
   const rShapes = await run(['--check', 'shapes'], cwd);
   assert.equal(rShapes.code, 0);
+  assert.match(rShapes.stderr, /\[warn\] readiness: D3 \(define\.shapes\) is failing without an acknowledgement/);
 });
 
 test('readiness cli: --json emits the full readiness object', async () => {

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-09-24T15:48:40Z",
   "tacId": "TAC-4122-define-gates",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -13,7 +13,7 @@
     "checkD1Brief: intake acknowledged (brief-ledger has at least one statement since the freeze high-water mark), every statement kinded from BRIEF_KINDS, every openQuestion statement resolved or promoted to a decisions-ledger entry, profile.md carries surface (viewer | runningApp | prDiff) and register (productOwner | engineer | unstated) markers.",
     "checkD2Skeleton: every 'capability' and 'constraint' statement in scope resolves to a REQ (via a REQ id in the statement's resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD dataStores and coreEntities non-empty when any persistence REQ exists; exactly one deploy or deferral ADR tree-wide (title prefix 'Deploy target:' or 'Deploy deferral:').",
     "checkD3Shapes: every TAC in scope has at least one interface; every interface's kind is in INTERFACE_KINDS. Template markers, entity join, ownerRef resolution and path resolution are seams (0.30).",
-    "checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey 'defineD4:failure', a must-not AC or an opt-out with baselineKey 'defineD4:mustNot', tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the whole-word TODO placeholder.",
+    "checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey 'defineD4:failure', a must-not AC or an opt-out with baselineKey 'defineD4:mustNot', tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the scaffold TODO placeholder pattern (case-sensitive uppercase 'TODO:' with a colon -- the literal shape src/core/store/init.js writes; incidental prose mentioning 'todo' does NOT trip the gate, and the validate CLI's broader whole-word notice stays separate).",
     "checkD5Crosscut: TAD.securityArchitecture non-empty when tree carries any REQ with shape 'auth' or 'httpApi'; TAD.operationalConcerns non-empty when any AC description carries the '[deployed]' marker; every concern-ledger entry on a REQ in scope has disposition applied or waived (no status 'open').",
     "checkD6Consistency: caller-supplied validateErrors is empty (tree-wide); caller-supplied probeOpenCount is zero.",
     "checkD7Decisions: no decisions-ledger entry with status 'open'.",

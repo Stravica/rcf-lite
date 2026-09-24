@@ -108,8 +108,18 @@ export function stagePolicy(stage) {
   return WARN_WITH_ACK.has(stage) ? 'warnWithAck' : 'blocking';
 }
 
-/** Case-insensitive whole-word TODO marker used by validate.js. */
-const TODO_RE = /\btodo\b/i;
+/**
+ * Scaffold TODO placeholder marker: uppercase "TODO" followed by a
+ * colon, matching every scaffold string `rcf init` and `rcf define
+ * create` write (see src/core/store/init.js and src/core/store/writer.js:
+ * every scaffold field is 'TODO: <text>'). Word-bounded and
+ * case-sensitive so incidental prose like "the scaffold TODO
+ * placeholder" or "no TODO markers" does not trip the gate. The
+ * validate CLI (src/cli/validate.js) keeps its own broader
+ * `\btodo\b/i` matcher for the informational tree-wide notice, so
+ * incidental prose still surfaces there without failing D2 / D4.
+ */
+const TODO_RE = /\bTODO:/;
 
 /** Bracketed AC-class prefix (Baz decision 6, proposal §3.2 D4). */
 const AC_CLASS_RE = /^\[(happy|edge|failure|must-not|non-functional)\]/;
@@ -138,11 +148,20 @@ export function parseAcClass(ac) {
  * @param {'delta' | 'tree'} over
  * @param {number} total
  * @param {Array<{ id: string, why: string }>} failing
+ * @param {number} [totalFailingCount] Untruncated failing count. Defaults to
+ *   `failing.length`. Callers that truncate the failing array for display
+ *   (e.g. `.slice(0, 20)` on a large validate-error set) pass the full
+ *   count here so `pass = total - untruncatedFailing`; without this the
+ *   fold `pass = total - failing.length` over-counts passes beyond the
+ *   twentieth failure. `ok` is likewise derived from the untruncated
+ *   count. The section 2.4 shape stays intact -- `failing` remains the
+ *   display array; no new field is exported.
  * @returns {{ name: string, ok: boolean, over: 'delta'|'tree', pass: number, total: number, failing: Array<{ id: string, why: string }> }}
  */
-function makeCheck(name, over, total, failing) {
-  const pass = Math.max(0, total - failing.length);
-  return { name, ok: failing.length === 0, over, pass, total, failing: [...failing] };
+function makeCheck(name, over, total, failing, totalFailingCount) {
+  const nFailing = typeof totalFailingCount === 'number' ? totalFailingCount : failing.length;
+  const pass = Math.max(0, total - nFailing);
+  return { name, ok: nFailing === 0, over, pass, total, failing: [...failing] };
 }
 
 /**
@@ -632,12 +651,17 @@ export function checkD6Consistency(ctx) {
   checks.push(makeCheck(
     'consistency:validateClean',
     'tree',
-    // We track the "expected zero" as the total; failing.length == validateErrors.length.
+    // "Expected zero" pattern: total stays at Math.max(N, 1) so the
+    // reported ratio reads sensibly on a clean tree ("1/1") and on a
+    // dirty one ("0/N"). Truncate the failing array for display but
+    // fold `pass` from the untruncated count so beyond-20 failures do
+    // not turn into false passes.
     Math.max(validateErrors.length, 1),
     validateErrors.slice(0, 20).map((e, i) => ({
       id: /** @type {any} */ (e)?.documentId ?? `validate:${i}`,
       why: /** @type {any} */ (e)?.message ?? 'validate error',
     })),
+    validateErrors.length,
   ));
 
   const probeOpenCount = Number.isFinite(ctx.probeOpenCount) ? Number(ctx.probeOpenCount) : 0;
@@ -653,7 +677,11 @@ export function checkD6Consistency(ctx) {
       : openProbes.slice(0, 20).map((p) => ({ id: `probe:${p.id}`, why: `open probe on ${p.reqId}: ${p.finding}` }));
     failing.push(...list);
   }
-  checks.push(makeCheck('consistency:probeCount', 'tree', Math.max(effectiveOpen, 1), failing));
+  // Fold `pass` from the untruncated open-probe count so a 25-open-
+  // probes ledger reports 0/25, not 5/25. The failing array itself
+  // stays truncated to 20 for display; the caller-supplied count path
+  // uses a single representative entry regardless.
+  checks.push(makeCheck('consistency:probeCount', 'tree', Math.max(effectiveOpen, 1), failing, effectiveOpen));
 
   return foldState('D6', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
@@ -747,12 +775,14 @@ export function checkD8Freeze(ctx) {
   checks.push(makeCheck('freeze:queueHead', 'tree', 1, queueFail));
 
   // Check 4: validate clean tree-wide (same signal as D6 but blocking here).
+  // Truncate the failing array for display; fold `pass` from the
+  // untruncated count so beyond-20 failures do not turn into false passes.
   const validateErrors = Array.isArray(ctx.validateErrors) ? ctx.validateErrors : [];
   const validateFail = validateErrors.slice(0, 20).map((e, i) => ({
     id: /** @type {any} */ (e)?.documentId ?? `validate:${i}`,
     why: /** @type {any} */ (e)?.message ?? 'validate error',
   }));
-  checks.push(makeCheck('freeze:validateClean', 'tree', Math.max(validateErrors.length, 1), validateFail));
+  checks.push(makeCheck('freeze:validateClean', 'tree', Math.max(validateErrors.length, 1), validateFail, validateErrors.length));
 
   return foldState('D8', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,

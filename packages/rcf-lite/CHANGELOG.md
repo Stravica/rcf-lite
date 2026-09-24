@@ -110,6 +110,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   only a brief ledger gets exactly one. `loadLedger` still returns
   an empty ledger on ENOENT so single-ledger callers keep the
   ergonomic default.
+- **Slice-2 P3: D2 / D4 scaffold-TODO matcher narrowed to the literal
+  `TODO:` placeholder.** `src/query/gates.js`'s `TODO_RE` used to be
+  the whole-word `/\btodo\b/i`, which false-positived on prose
+  mentioning the word ("no AC description contains the scaffold TODO
+  placeholder" on US-17401 / AC-17401-4 tripped D4 against itself).
+  The regex is now `/\bTODO:/` -- case-sensitive uppercase `TODO`
+  followed by a colon, matching every scaffold string
+  `src/core/store/init.js` and `src/core/store/writer.js` write for a
+  fresh `rcf init` / `rcf define create`. `src/cli/validate.js` keeps
+  its broader `\btodo\b/i` matcher for the informational tree-wide
+  notice, so incidental prose still surfaces there without failing
+  the D2 / D4 gates.
 
 ## [0.28.3] - 2026-09-22
 
