@@ -99,6 +99,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- **US auto-mint extends flat legacy sequences instead of jumping to
+  the encoded slot (#256).** `nextIdForKind(tree, 'userStory', ...)`
+  in `src/core/store/writer.js` assumed every US id encodes
+  `US-<reqNum><localTwoDigit>`. On a legacy tree whose USes carry
+  flat sequential ids (`US-1`, ..., `US-163`, migrated in from a
+  WESPA v1 project) that decode failed and the allocator fell back
+  to `US-<reqNumLabel>01`, minting shapes like `US-5301` under
+  `REQ-053` next to the existing `US-163`. Classification now runs
+  before allocation: every US id is labelled ENCODED (id decomposes
+  as `<declaredReqNum><local in 01..99>`) or FLAT. An all-flat tree
+  extends past the tree-wide high-water mark (`US-164`), an
+  all-encoded tree preserves the historical rule, and a mixed tree
+  refuses with a message that names both example ids and asks the
+  operator to normalise one shape before retrying. AC auto-mint is
+  unchanged.
 - **Slice-1 P3: `loadAllLedgers` omits absent ledger files
   (AC-17501-6).** The `LedgerBundle` typedef on `computeDelta` said
   "if a project has not authored any decisions, the caller passes

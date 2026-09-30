@@ -200,18 +200,98 @@ export function nextIdForKind(tree, kind, opts = {}) {
       // one numbering group.
       const groupNum = Number(normaliseId(match[1]));
       const groupLabel = String(groupNum);
+      // Occupancy is every US id in the tree. Each id is classified as
+      // ENCODED (`US-<reqNum><localTwoDigit>` where the reqNum names an
+      // existing REQ and local is 01..99) or FLAT (a bare sequential
+      // number that carries no parent-encoded suffix, as produced by
+      // legacy trees migrated in from WESPA v1). Classification decides
+      // the allocation rule:
+      //   - all-encoded tree (or empty): the historical rule, extend
+      //     `US-<groupLabel><nextLocal>`.
+      //   - all-flat tree: extend the flat sequence past the highest
+      //     existing US number (issue #256 / w-2026-09-29-dave-005).
+      //   - mixed tree: refuse the mint with an explicit error naming
+      //     both schemes, so an operator normalises the tree before a
+      //     new id is issued (Dave disposition 2026-09-30).
+      // AC minting is unchanged; #256 was reproduced against USes only.
+      // Classification prefers the doc's declared reqId (unambiguous) over
+      // the id-only heuristic. Without that, a legacy US-163 filed under
+      // REQ-053 would decompose as parent=1/local=63 and look encoded
+      // whenever REQ-001 happened to exist, defeating the whole rule.
+      const usIds = occupiedIdsOfKind(tree, 'userStory');
+      const reqNums = new Set();
+      for (const rId of occupiedIdsOfKind(tree, 'req')) {
+        const rn = idNumber(rId, 'REQ');
+        if (rn !== null) reqNums.add(rn);
+      }
+      const encoded = [];
+      const flat = [];
+      const seenUsNums = new Set();
+      for (const usId of usIds) {
+        const num = idNumber(usId, 'US');
+        if (num === null) continue;
+        // occupiedIdsOfKind emits both the on-disk id and the doc's
+        // declared id field, so the same numeric id appears twice.
+        // Dedupe on the numeric value to avoid double-counting.
+        if (seenUsNums.has(num)) continue;
+        seenUsNums.add(num);
+        const localPart = num % 100;
+        const parentPart = Math.floor(num / 100);
+        const doc = tree.byId.get(usId);
+        let declaredReqNum = null;
+        if (doc && typeof doc.reqId === 'string') {
+          const mReq = /^REQ-(\d+)$/.exec(doc.reqId);
+          if (mReq) declaredReqNum = Number(normaliseId(mReq[1]));
+        }
+        let isEncoded;
+        if (declaredReqNum !== null) {
+          // Encoded iff the id decomposes as <declaredReqNum><two-digit
+          // local in 01..99>. Any other shape is flat.
+          isEncoded = (localPart >= 1 && localPart <= 99 && parentPart === declaredReqNum);
+        } else {
+          // Invalid / unloadable doc: fall back to the id-only heuristic
+          // (matches historical behaviour when the parent-part names an
+          // existing REQ).
+          isEncoded = (localPart >= 1 && localPart <= 99 && reqNums.has(parentPart));
+        }
+        if (isEncoded) {
+          encoded.push({ id: usId, num, parentPart, localPart });
+        } else {
+          flat.push({ id: usId, num });
+        }
+      }
+
+      if (encoded.length > 0 && flat.length > 0) {
+        const encodedExample = encoded[0].id;
+        const flatExample = flat[0].id;
+        throw new TypeError(
+          'nextIdForKind us: refusing to mint - the tree mixes '
+          + `encoded US ids (e.g. ${encodedExample}, shape US-<reqNum><localTwoDigit>) `
+          + `and flat US ids (e.g. ${flatExample}, shape US-<seq>). `
+          + 'Normalise every US id to one scheme (rename the outliers, '
+          + 'update every reference) and retry, or ask HQ for a bulk '
+          + 're-mint. Auto-mint intentionally refuses on ambiguous trees.',
+        );
+      }
+
+      if (flat.length > 0 && encoded.length === 0) {
+        let maxFlat = 0;
+        for (const f of flat) {
+          if (f.num > maxFlat) maxFlat = f.num;
+        }
+        return `US-${maxFlat + 1}`;
+      }
+
+      // All-encoded (or empty) tree: keep the historical behaviour.
       // Occupancy is every US id that numerically falls in this group,
       // whatever `reqId` string it names. Filtering on an exact reqId
       // string match was the bug: a US filed under `REQ-0001` was
       // invisible when allocating for `REQ-001`, so US-101 got re-issued
       // on top of the existing US-101.
-      const usIds = occupiedIdsOfKind(tree, 'userStory');
       let maxLocal = 0;
-      for (const usId of usIds) {
-        const num = idNumber(usId, 'US');
-        if (num === null) continue;
-        const local = num - groupNum * 100;
-        if (local >= 1 && local <= 99 && local > maxLocal) maxLocal = local;
+      for (const e of encoded) {
+        if (e.parentPart !== groupNum) continue;
+        if (e.localPart > maxLocal) maxLocal = e.localPart;
       }
       const nextLocal = maxLocal + 1;
       return `US-${groupLabel}${String(nextLocal).padStart(2, '0')}`;
