@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.28.3"
+latest: "0.28.4"
 releases:
+  - version: "0.28.4"
+    date: "2026-09-30"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.28.4 fixes user story minting on legacy trees that carry flat sequential ids. On a tree migrated in from a v1 project, minting a new user story under a requirement now extends the flat sequence (US-163 to US-164) instead of jumping to an encoded slot such as US-5301; a tree that mixes both id shapes is refused with a message naming one example of each so the operator can normalise it first. Acceptance criteria minting is unchanged."
+      - "The 0.28.3 fixes ship in this release, because 0.28.3 was written up on 22 September but never tagged or published. Those are the feedback redactor no longer folding git protocol sentinels as emails, a visible warning when identity folding is disabled, and the live-view server snapshotting its static assets at startup."
+      - "The DEFINE workflow foundations arrive ahead of the 0.29.0 train: delta detection, freeze records, four sidecar ledgers with rcf define ledger, stage gates D1 to D8, and rcf define readiness, plus the Product Map tab on the review surface."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.28.3"
     date: "2026-09-22"
     breaking: false
