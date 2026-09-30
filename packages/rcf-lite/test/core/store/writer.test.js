@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, stat, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -75,6 +75,164 @@ test('nextIdForKind throws on missing parentId for us/ac/tc', async () => {
   assert.throws(() => nextIdForKind(tree, 'us', {}), /parentId/);
   assert.throws(() => nextIdForKind(tree, 'ac', {}), /parentId/);
   assert.throws(() => nextIdForKind(tree, 'tc', {}), /parentId/);
+});
+
+// ---- nextIdForKind us: flat / encoded / mixed trees (issue #256) ---------
+
+/**
+ * Write a raw REQ file at `req-<n zero-padded>.json` without going
+ * through the writer, so tests can construct trees that carry legacy
+ * shapes the writer would never mint fresh.
+ */
+async function writeRawReq(projectRoot, n) {
+  const padded = String(n).padStart(3, '0');
+  const doc = {
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+    reqId: `REQ-${padded}`,
+    prdId: 'PRD-001',
+    title: `REQ ${padded}`,
+    description: 'legacy-shape probe REQ',
+    category: 'functional',
+    domain: 'application',
+    priority: 'must',
+    version: '0.1.0',
+    status: 'draft',
+  };
+  await writeFile(join(projectRoot, 'rcf/requirements', `req-${padded}.json`), JSON.stringify(doc, null, 2));
+}
+
+/**
+ * Write a raw US file with an arbitrary numeric id, declared reqId and
+ * one placeholder AC. Bypasses the writer so tests can model a flat
+ * legacy tree (US-161 filed under REQ-053 etc.).
+ */
+async function writeRawUs(projectRoot, num, reqId) {
+  const doc = {
+    usId: `US-${num}`,
+    prdId: 'PRD-001',
+    reqId,
+    version: '0.1.0',
+    status: 'draft',
+    title: `Legacy US ${num}`,
+    asA: 'operator',
+    iWant: 'a legacy-shape story',
+    soThat: 'the mint path is exercised on a flat tree',
+    acceptanceCriteria: [
+      { id: `AC-${num}-1`, description: 'legacy placeholder AC', testable: true },
+    ],
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf/user-stories', `us-${num}.json`), JSON.stringify(doc, null, 2));
+}
+
+test('nextIdForKind us on an all-flat tree extends the flat sequence (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  // Drop the scaffolded encoded US-101 so the tree carries only flat USes.
+  await unlink(join(projectRoot, 'rcf/user-stories/us-101.json'));
+  await writeRawReq(projectRoot, 53);
+  await writeRawUs(projectRoot, 161, 'REQ-053');
+  await writeRawUs(projectRoot, 162, 'REQ-053');
+  await writeRawUs(projectRoot, 163, 'REQ-053');
+  const { tree } = await reload(projectRoot);
+  // Before the fix this returned US-5301 (reqNum*100 + 01).
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-053' }), 'US-164');
+});
+
+test('nextIdForKind us on an all-flat tree extends past every REQ, not just the parent (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  await unlink(join(projectRoot, 'rcf/user-stories/us-101.json'));
+  await writeRawReq(projectRoot, 53);
+  await writeRawReq(projectRoot, 90);
+  await writeRawUs(projectRoot, 1, 'REQ-001');
+  await writeRawUs(projectRoot, 42, 'REQ-053');
+  await writeRawUs(projectRoot, 200, 'REQ-090');
+  const { tree } = await reload(projectRoot);
+  // The flat sequence spans the whole tree, so a mint under any REQ
+  // extends past the tree-wide high-water mark.
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-053' }), 'US-201');
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-090' }), 'US-201');
+});
+
+test('nextIdForKind us on a mixed tree refuses with a message naming both schemes (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  // Scaffold ships US-101 under REQ-001 (encoded). Add a flat US-500
+  // under REQ-001 (declared reqId REQ-001 but the id decomposes as
+  // parent=5/local=00, which is flat).
+  await writeRawUs(projectRoot, 500, 'REQ-001');
+  const { tree } = await reload(projectRoot);
+  assert.throws(
+    () => nextIdForKind(tree, 'us', { parentId: 'REQ-001' }),
+    (err) => (
+      err instanceof TypeError
+      && /refusing to mint/i.test(err.message)
+      && /encoded/i.test(err.message)
+      && /flat/i.test(err.message)
+      && err.message.includes('US-101')
+      && err.message.includes('US-500')
+    ),
+  );
+});
+
+test('nextIdForKind us on an all-encoded tree preserves today\'s behaviour (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  // Scaffold gives REQ-001 + US-101. Add a second REQ and a second US
+  // under REQ-001 via the writer so every id is encoded.
+  const t0 = await reload(projectRoot);
+  await createDocument({
+    projectRoot, tree: t0.tree, kind: 'req',
+    body: { title: 'Second REQ' }, options: { parentId: 'PRD-001' },
+  });
+  const t1 = await reload(projectRoot);
+  const secondUs = await createDocument({
+    projectRoot, tree: t1.tree, kind: 'us',
+    body: { title: 'Second US under REQ-001' },
+    options: { parentId: 'REQ-001' },
+  });
+  assert.equal(secondUs.id, 'US-102');
+  const { tree } = await reload(projectRoot);
+  // Under REQ-001 the next id is US-103; under REQ-002 the encoded scheme
+  // opens with US-201 - unchanged from the pre-fix contract.
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-001' }), 'US-103');
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-002' }), 'US-201');
+});
+
+test('nextIdForKind us on an empty US tree opens the encoded sequence (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  await unlink(join(projectRoot, 'rcf/user-stories/us-101.json'));
+  const { tree } = await reload(projectRoot);
+  // No USes on disk; encoded rule is the default, so REQ-001 opens
+  // with US-101 exactly as a fresh project would.
+  assert.equal(nextIdForKind(tree, 'us', { parentId: 'REQ-001' }), 'US-101');
+});
+
+test('nextIdForKind ac on a flat US tree is unaffected by the US-mint rule (#256)', async () => {
+  const { projectRoot } = await scaffold();
+  await unlink(join(projectRoot, 'rcf/user-stories/us-101.json'));
+  await writeRawReq(projectRoot, 53);
+  // A flat US-163 under REQ-053 with two ACs already on the story.
+  const doc = {
+    usId: 'US-163',
+    prdId: 'PRD-001',
+    reqId: 'REQ-053',
+    version: '0.1.0',
+    status: 'draft',
+    title: 'Legacy US 163',
+    asA: 'operator',
+    iWant: 'flat',
+    soThat: 'ac minting is exercised on the flat US',
+    acceptanceCriteria: [
+      { id: 'AC-163-1', description: 'first', testable: true },
+      { id: 'AC-163-2', description: 'second', testable: true },
+    ],
+    createdAt: '2026-01-01T00:00:00Z',
+    updatedAt: '2026-01-01T00:00:00Z',
+  };
+  await writeFile(join(projectRoot, 'rcf/user-stories/us-163.json'), JSON.stringify(doc, null, 2));
+  const { tree } = await reload(projectRoot);
+  // AC minting keeps the US suffix and increments the local counter.
+  assert.equal(nextIdForKind(tree, 'ac', { parentId: 'US-163' }), 'AC-163-3');
 });
 
 // ---- createDocument -------------------------------------------------------
