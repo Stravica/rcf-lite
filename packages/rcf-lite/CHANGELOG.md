@@ -11,8 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 Note: 0.28.3 (2026-09-22 below) was never tagged or published; its entries ship in 0.28.4 together with the ones here.
 ### Added
 
-- **DEFINE workflow: `rcf define freeze` CLI verb (REQ-176, slice 3 of
-  the 0.29.0 train).** New module `src/cli/freeze.js` is the only
+- **DEFINE workflow: `rcf define freeze` CLI verb (REQ-176, first slice of the 0.29.0 train; slices 1 and 2 shipped in 0.28.4 on 2026-09-30).** New module `src/cli/freeze.js` is the only
   writer of `rcf/define/freeze.json` in the shipped product. It runs
   `computeReadiness` once (REQ-175) over the live tree, freeze record
   and four ledgers; refuses (exit 4) on any stage state `failing`
