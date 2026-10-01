@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-01T14:13:27Z",
+  "updatedAt": "2026-10-01T16:00:00Z",
   "tacId": "TAC-4123-define-readiness",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -20,7 +20,9 @@
     "src/query/index.js: export computeReadiness (plus its subhelpers where useful for tests) so downstream consumers (slice 3 freeze, slice 5 viewer) import through the same seam every other query verb does.",
     "ADR-4126 (0.29.0): fold `levels` and `personas` from `stages[].checks[]` after the eight stage functions run. `levels.intentComplete.ok` is \"every productOwner check ok\" across every stage (stage state ignored); `levels.intentComplete.blockedBy` lists every failing PO check with ids capped at 20. `levels.readyToBuild.ok` equals freezeable; `levels.readyToBuild.blockedBy` lists every failing check in a stage whose state is `failing` (checks inside an `acknowledged` stage are not blockers). `personas.productOwner.blockers` deep-equals `levels.intentComplete.blockedBy`; `personas.engineer.blockers` is the failing engineer checks in failing stages. `levels.readyToBuild.nextAction` deep-equals the top-level `nextAction`.",
     "ADR-4126 (0.29.0): `deriveNextAction(stages, persona?)` gains an optional persona argument. With no persona it behaves exactly as 0.28.4. With a persona it picks the first stage in D1..D8 order holding a failing check of that persona, then the check with the largest failing list; the command carries `--level intent` on the productOwner variant. `formatVerdictLines(result)` builds the two strings (`Intent-complete: yes/no...` and `Ready-to-build: yes/no...`) shared by the CLI (PR B) and the Readiness tab (PR C) so they cannot disagree.",
-    "ADR-4126 (0.29.0): the levels and personas folds are additive; every 0.28.4 top-level field (tree, delta, stages, nextAction, coverage, decisions, freezeable) is present with its 0.28.4 type. No file under rcf/ is created or modified by any `rcf define readiness` invocation. The CLI flags (`--level`, `--persona`) and the viewer tab are PR B and PR C respectively; the compute lands first (PR A)."
+    "ADR-4126 (0.29.0): the levels and personas folds are additive; every 0.28.4 top-level field (tree, delta, stages, nextAction, coverage, decisions, freezeable) is present with its 0.28.4 type. No file under rcf/ is created or modified by any `rcf define readiness` invocation. The CLI flags (`--level`, `--persona`) and the viewer tab are PR B and PR C respectively; the compute lands first (PR A).",
+    "ADR-4126 PR B (0.29.0): src/cli/readiness.js owns the --level intent|build and --persona productOwner|engineer dispatch. --level drives the exit code against levels.<which>.ok per spec section 3.2 (stricter than --check all on warn-with-ack failures per decision 4); --persona is a display filter that never affects the exit code or JSON content. parseLevelFlag and parsePersonaFlag share the usage-line shape with --check. Unknown values exit 2 with a usage line naming the accepted set. The CLI passes the resolved level into computeReadiness via the readiness context so _meta.level reflects the invocation (null when the flag was absent).",
+    "ADR-4126 PR B (0.29.0): the text report prints both verdict lines (shared via formatVerdictLines) at the top; regroups blockers into one 'Product owner: N question(s)' and one 'Engineer: N check(s) blocking' section ordered by the profile register (productOwner-first or engineer-first; unstated and absent profile default to PO first); and renders the per-check line in the per-stage detail block with the persona inside the parenthesis after `over`. --persona X collapses the opposite-persona block to one 'hidden; run without --persona' line and restricts the per-stage detail to matching-persona checks."
   ],
   "internalStructure": "readiness.js is a linear composer: 1) compute delta and its docHashes; 2) fan-out impacted / impactedFbs; 3) build stage context (freeze, delta, scope, ledgers, profile, validateErrors, probeOpenCount, coverageTree); 4) call the eight check functions; 5) fold freezeable and nextAction. The CLI parses flags, loads the tree once, loads the four ledgers and the freeze record once, computes the readiness, then routes to the text or JSON emitter. --check maps its argument to the STAGE_SHORT_NAMES map (brief -> D1 ... freeze -> D8) or accepts D1..D8 directly. The runWithAdmissibilityGate wrap sits inside main so refusals ride the same exit path as coverage's admissibility refusals.",
   "interfaces": [
@@ -43,6 +45,16 @@
       "name": "formatVerdictLines",
       "kind": "other",
       "description": "[draft] Build the two verdict strings (Intent-complete and Ready-to-build) shared by the CLI and the Readiness tab so the two surfaces cannot disagree."
+    },
+    {
+      "name": "parseLevelFlag",
+      "kind": "other",
+      "description": "[draft] Validate --level against the closed value set (intent | build); return 'intent' | 'build' | null (flag absent) or throw a usage error for an unknown value (CLI maps the throw to exit 2 with a stderr usage line)."
+    },
+    {
+      "name": "parsePersonaFlag",
+      "kind": "other",
+      "description": "[draft] Validate --persona against the closed value set (productOwner | engineer); return the value or null (flag absent) or throw a usage error for an unknown value."
     }
   ],
   "notes": "Slice-3 hook (rcf define freeze) reads freezeable and stages[].state; --ack <gate> writes into freeze.gates[<gate>] and re-computes readiness. Slice-5 hook (viewer) fetches the same JSON object over the existing tab wire and renders the pill vocabulary + findings-list + diff components. Performance seam: computeImpact per id on a whole-tree delta (before freeze) may be quadratic on very large trees; the compute stays fast on the dogfood chain (~700 documents, sub-second) but the CLI notes the wall time in text mode so an operator can spot regression."

@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-01T16:00:00Z",
+  "updatedAt": "2026-10-01T16:00:00Z",
+  "acIds": [
+    "AC-17503-1",
+    "AC-17503-2",
+    "AC-17503-3",
+    "AC-17503-4",
+    "AC-17503-5",
+    "AC-17503-6",
+    "AC-17503-7",
+    "AC-17503-8",
+    "AC-17503-9"
+  ],
+  "fbsId": "FBS-200",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 200,
+  "executionStatus": "complete",
+  "title": "DEFINE step 2 (0.29.0) PR B: --level, --persona and persona-grouped text report on rcf define readiness (ADR-4126)",
+  "summary": "Add --level intent|build and --persona productOwner|engineer to rcf define readiness, print the two verdict lines at the top of the text report, regroup blockers into product-owner and engineer sections ordered by the profile.md register, carry _meta.level in the JSON envelope, and wire the exit matrix per spec section 3.2. --persona is a display filter only; --level drives the exit code and --level build is stricter than --check all on unacknowledged warn-with-ack failures. Chain-first: US-17503 and TS-222 land first; TAC-4123 gains the new interfaces and responsibility bump.",
+  "dependsOnFbsIds": ["FBS-199"],
+  "approach": "One pass through src/cli/readiness.js parses the two new flags via parseLevelFlag / parsePersonaFlag (shared usage-line shape with --check), passes the resolved level into the JSON envelope's _meta, prints the verdict pair (formatVerdictLines) at the top of the text report, renders a Product owner / Engineer blocker pair ordered by the profile register (PO first by default), and emits the per-stage detail with the persona inside the parenthesis after `over`. --persona X collapses the opposite-persona block to one 'hidden; run without --persona' line and restricts the per-stage detail to matching-persona checks. decideExitCode now folds the --check policy (unchanged), --level intent (4 iff levels.intentComplete.ok === false) and --level build (4 iff levels.readyToBuild.ok === false, with the warn-with-ack warn lines still emitted). src/cli/help.js is unchanged because the per-verb HELP is sourced directly from readiness.js.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4123-define-readiness"
+    ],
+    "adrIds": [
+      "ADR-4126-persona-tagged-blockers-two-levels"
+    ]
+  },
+  "deliverables": [
+    "src/cli/readiness.js: --level and --persona on OPTION_SPEC; parseLevelFlag / parsePersonaFlag calls; pickRegister from profile.md; renderText emits verdict pair, per-persona next actions, PO + engineer blocker blocks ordered by register, per-stage detail with persona in the parenthesis; decideExitCode folds --check and --level per spec section 3.2; HELP text updated",
+    "src/query/readiness.js: parseLevelFlag and parsePersonaFlag helpers exported for the CLI (and the Readiness tab's future test-shared harness)",
+    "test/cli/readiness.test.js: AC-17503-1 through AC-17503-9 cases, including the parameterised exit matrix",
+    "rcf/user-stories/us-17503.json, rcf/test-suites/ts-222.json: chain documents under REQ-175 / TAC-4123",
+    "rcf/tacs/tac-4123-define-readiness.json: responsibility bump for PR B's dispatch and text regrouping; interfaces[] gains parseLevelFlag / parsePersonaFlag as [draft] other-kind entries",
+    "rcf/fbs/fbs-200.json: this file, carrying AC-17503-* ownership",
+    "CHANGELOG [Unreleased] 0.29.0 PR B bullet"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "small",
+  "estimatedHours": 2,
+  "notes": "PR C (Readiness viewer tab) is the remaining 0.29.0 step-2 PR under REQ-180 / REQ-181. rcf define freeze is untouched; the no-mutation contract (TS-221 TC-no-write-on-invocation) still holds."
+}

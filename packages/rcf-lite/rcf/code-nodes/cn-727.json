@@ -1,14 +1,23 @@
 {
   "cnId": "CN-727",
   "path": "src/cli/readiness.js",
-  "title": "rcf define readiness [--json] [--check <stage>|all]",
-  "description": "CLI handler. Parses --json / --check / --help; walks the tree; loads freeze + all four ledgers; resolves test pointers; wraps computeReadiness with runWithAdmissibilityGate; emits text or JSON; --check narrows and gates the exit code.",
+  "title": "rcf define readiness [--json] [--check <stage>|all] [--level intent|build] [--persona productOwner|engineer]",
+  "description": "CLI handler. Parses --json / --check / --level / --persona / --help; walks the tree; loads freeze + all four ledgers; resolves test pointers; wraps computeReadiness with runWithAdmissibilityGate; emits text (with the two verdict lines + persona-grouped blocker sections ordered by the profile.md register) or JSON (with _meta.level carrying the invocation); the exit matrix in spec section 3.2 folds --check and --level per decision 4.",
   "implementsAcIds": [
-    "AC-17501-5"
+    "AC-17501-5",
+    "AC-17503-1",
+    "AC-17503-2",
+    "AC-17503-3",
+    "AC-17503-4",
+    "AC-17503-5",
+    "AC-17503-6",
+    "AC-17503-7",
+    "AC-17503-8",
+    "AC-17503-9"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z"
+  "updatedAt": "2026-10-01T16:00:00Z"
 }

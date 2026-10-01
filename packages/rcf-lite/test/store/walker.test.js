@@ -231,7 +231,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added US-17601 (182 -> 183).
   // DEFINE-train step 2 PR A added US-17402, US-17403 (REQ-174) and
   // US-17502 (REQ-175) under ADR-4126 (183 -> 186).
-  assert.equal(tree.userStories.length, 186);
+  // DEFINE-train step 2 PR B added US-17503 (level + persona flags
+  // under REQ-175) (186 -> 187).
+  assert.equal(tree.userStories.length, 187);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -340,7 +342,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added FBS-198 (87 -> 88).
   // DEFINE-train step 2 PR A added FBS-199 (compute layer for
   // ADR-4126 covering AC-17402-*, AC-17403-*, AC-17502-*) (88 -> 89).
-  assert.equal(tree.fbsItems.length, 89);
+  // DEFINE-train step 2 PR B added FBS-200 (CLI --level / --persona
+  // dispatch covering AC-17503-1..9) (89 -> 90).
+  assert.equal(tree.fbsItems.length, 90);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -437,7 +441,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added TS-218 (158 -> 159).
   // DEFINE-train step 2 PR A added TS-219 / TS-220 / TS-221 covering
   // US-17402 / US-17403 / US-17502 under ADR-4126 (159 -> 162).
-  assert.equal(tree.testSuites.length, 162);
+  assert.equal(tree.testSuites.length, 163);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

@@ -467,6 +467,35 @@ export function derivePersonas(stages, levels) {
 }
 
 /**
+ * Validate a `--level` flag value against the closed set
+ * `intent | build`. Returns the value, `null` when the flag was
+ * absent, or throws a usage error whose message is formatted exactly
+ * like the `--check` usage line so the CLI can forward it verbatim.
+ *
+ * @param {string | undefined} raw
+ * @returns {'intent' | 'build' | null}
+ */
+export function parseLevelFlag(raw) {
+  if (raw === undefined || raw === null) return null;
+  if (raw === 'intent' || raw === 'build') return raw;
+  throw new Error(`unknown --level ${raw} (expected intent | build)`);
+}
+
+/**
+ * Validate a `--persona` flag value against the closed set
+ * `productOwner | engineer`. Returns the value, `null` when the flag
+ * was absent, or throws a usage error with the same shape.
+ *
+ * @param {string | undefined} raw
+ * @returns {'productOwner' | 'engineer' | null}
+ */
+export function parsePersonaFlag(raw) {
+  if (raw === undefined || raw === null) return null;
+  if (raw === 'productOwner' || raw === 'engineer') return raw;
+  throw new Error(`unknown --persona ${raw} (expected productOwner | engineer)`);
+}
+
+/**
  * Format the two verdict lines shared by the CLI text report and
  * the Readiness tab (proposal section 2.3). The strings are built
  * from `levels` alone so the two surfaces cannot disagree.

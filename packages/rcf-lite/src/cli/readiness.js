@@ -1,13 +1,19 @@
 // `rcf define readiness` subcommand handler (REQ-175; proposal
-// 2026-09-22 §2.4, §6.2 v3).
+// 2026-09-22 §2.4, §6.2 v3; spec 2026-10-01 §2.3, §3, §4 for the
+// 0.29.0 PR B additions).
 //
-// Prints the readiness object (§2.4) or its JSON envelope. `--check
-// <stage>` narrows the output to one stage; blocking stages exit 4 on
-// failure (matching `coverage`'s per-AC refusal exit); warn-with-ack
-// stages exit 0 with a visible `[warn]` line on unacknowledged
-// failure. The producer is wrapped with `runWithAdmissibilityGate`
-// (NV-BL-SR-03 addendum) so a chain that refuses admissibility short-
-// circuits with the same refusal envelope every other query verb has.
+// Prints the readiness object (§2.4) or its JSON envelope. The 0.29.0
+// train added two verdict lines at the top of the text report (shared
+// with the Readiness tab via `formatVerdictLines`) and two new flags:
+// `--level intent|build` which drives the exit code against
+// `levels.<which>.ok` (stricter than `--check all` on warn-with-ack
+// failures, per spec section 3.2 decision 4; the `[warn]` line still
+// prints), and `--persona productOwner|engineer` which is a display
+// filter and never affects the exit code or JSON content. `--check`
+// behaviour is unchanged. The producer is wrapped with
+// `runWithAdmissibilityGate` (NV-BL-SR-03 addendum) so a chain that
+// refuses admissibility short-circuits with the same refusal envelope
+// every other query verb has.
 
 import { parseArgs } from 'node:util';
 import { readFile } from 'node:fs/promises';
@@ -25,12 +31,20 @@ import {
   STAGE_SHORT_NAMES,
   stagePolicy,
 } from '../query/gates.js';
-import { computeReadiness, formatTreeLine } from '../query/readiness.js';
+import {
+  computeReadiness,
+  formatTreeLine,
+  formatVerdictLines,
+  parseLevelFlag,
+  parsePersonaFlag,
+} from '../query/readiness.js';
 import { runWithAdmissibilityGate } from '../query/index.js';
 
 const OPTION_SPEC = {
   json: { type: 'boolean' },
   check: { type: 'string' },
+  level: { type: 'string' },
+  persona: { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -45,8 +59,15 @@ eight stage-gate checks (D1..D8), tree coverage and open decisions
 into one object. The viewer's Readiness tab (slice 5) will render the
 same object with no schema translation.
 
+The text report prints two verdict lines at the top (shared with the
+Readiness tab via formatVerdictLines): intent-complete (every
+product-owner question answered) and ready-to-build (equals
+freezeable). Blockers are grouped by persona, ordered by the
+profile.md register marker.
+
 Options:
   --json                    Emit the full readiness object as JSON.
+                            --persona is ignored under --json.
   --check <stage>           Narrow the output to one stage. Accepts a
                             stage id (D1..D8) or its short name:
                             brief | skeleton | shapes | stories |
@@ -57,6 +78,25 @@ Options:
                             unacknowledged warn-with-ack failure
                             (D3 / D5 / D6). Use --check all to print
                             every stage under this exit-code policy.
+  --level <intent|build>    Pick which verdict the exit code follows.
+                            --level intent exits 4 when
+                            levels.intentComplete.ok is false
+                            (any failing product-owner check); exits
+                            0 otherwise. --level build exits 4 when
+                            levels.readyToBuild.ok is false, which is
+                            stricter than --check all on unacked
+                            warn-with-ack failures (the [warn] line
+                            still prints). Combined with --check, the
+                            invocation exits 4 if either policy
+                            says 4. With neither flag the exit code
+                            stays 0.
+  --persona <po|engineer>   Display filter for the text report.
+                            Values: productOwner | engineer. Collapses
+                            the opposite-persona block to one line
+                            with its check count and restricts the
+                            per-stage detail to matching-persona
+                            checks. Never affects the exit code or
+                            the JSON content.
   --help                    Print this help.
 `;
 
@@ -84,6 +124,34 @@ async function readProfileText(projectRoot) {
     if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') return null;
     return null;
   }
+}
+
+/**
+ * Pick the profile register from the text, returning one of
+ * `productOwner` | `engineer` | `unstated`. The marker is a bare
+ * word match (same convention as `checkD1Brief`); the first marker
+ * found in the text wins. Absent or unrecognised yields `unstated`,
+ * which the text report orders as PO first (spec section 4).
+ *
+ * @param {string | null} text
+ * @returns {'productOwner' | 'engineer' | 'unstated'}
+ */
+function pickRegister(text) {
+  if (typeof text !== 'string' || text.length === 0) return 'unstated';
+  // Scan in file-order so the first marker in the document wins;
+  // this matches how a human reads `profile.md`.
+  const markers = ['productOwner', 'engineer', 'unstated'];
+  let best = null;
+  let bestIdx = Infinity;
+  for (const m of markers) {
+    const idx = text.indexOf(m);
+    if (idx === -1) continue;
+    if (idx < bestIdx) {
+      bestIdx = idx;
+      best = m;
+    }
+  }
+  return /** @type {any} */ (best) ?? 'unstated';
 }
 
 /**
@@ -121,6 +189,24 @@ export async function main(argv, deps = {}) {
       stderr.write(`[error] usage readiness: unknown --check ${checkArg} (expected D1..D8, one of ${Object.values(STAGE_SHORT_NAMES).join(' | ')}, or 'all')\n`);
       return 2;
     }
+  }
+
+  /** @type {'intent' | 'build' | null} */
+  let level;
+  try {
+    level = parseLevelFlag(flags.level);
+  } catch (err) {
+    stderr.write(`[error] usage readiness: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+
+  /** @type {'productOwner' | 'engineer' | null} */
+  let persona;
+  try {
+    persona = parsePersonaFlag(flags.persona);
+  } catch (err) {
+    stderr.write(`[error] usage readiness: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
   }
 
   const projectRoot = await findProjectRoot(cwd);
@@ -177,39 +263,53 @@ export async function main(argv, deps = {}) {
 
   if (flags.json) {
     // JSON emission carries the full object plus the wall-time hint
-    // as a stable side-band on `_meta` so consumers can spot
-    // regressions without changing shape.
-    const envelope = { ...result, _meta: { wallMs } };
+    // and the invocation level as a stable side-band on `_meta`.
+    // `_meta.level` is null when the flag was absent (spec section
+    // 3.3): consumers can tell "no --level given" from "--level
+    // build" explicitly, which matters for the ticket artefact.
+    const envelope = { ...result, _meta: { wallMs, level } };
     stdout.write(`${JSON.stringify(envelope, null, 2)}\n`);
-    return checkStage ? decideExitCode(result, checkStage, stderr) : 0;
+    return decideExitCode(result, checkStage, level, stderr);
   }
 
-  renderText(stdout, result, wallMs, checkStage);
-  if (checkStage) {
-    return decideExitCode(result, checkStage, stderr);
-  }
-  return 0;
+  renderText(stdout, stderr, result, wallMs, checkStage, level, persona, profileText);
+  return decideExitCode(result, checkStage, level, stderr);
 }
 
 /**
- * Emit the text summary: tree line, next action, chip line, then a
- * per-stage failing-items block. When `--check <stage>` names a
- * stage, only that stage's block is rendered.
+ * Emit the text summary (spec section 4):
+ *   1. Tree line.
+ *   2. Verdict pair (intent-complete, ready-to-build).
+ *   3. Next action, chip line, delta, coverage, decisions, freezeable
+ *      (today's lines; omitted when --check narrows to one stage).
+ *   4. Product-owner block and engineer block, ordered by the
+ *      profile.md register (PO first by default; engineer first when
+ *      the register is `engineer`; `unstated`/absent is PO first).
+ *      With --persona the opposite-persona block collapses to one
+ *      line; with --check <stage> the persona blocks are limited to
+ *      that stage.
+ *   5. Per-stage detail block (today's output; persona is now inside
+ *      the parenthesis after `over`). With --persona only the
+ *      matching-persona checks are rendered.
  *
  * @param {NodeJS.WritableStream} stdout
+ * @param {NodeJS.WritableStream} stderr
  * @param {import('../query/readiness.js').ReadinessResult} result
  * @param {number} wallMs
  * @param {string | null} checkStage
+ * @param {'intent' | 'build' | null} level
+ * @param {'productOwner' | 'engineer' | null} persona
+ * @param {string | null} profileText
  */
-function renderText(stdout, result, wallMs, checkStage) {
+function renderText(stdout, stderr, result, wallMs, checkStage, level, persona, profileText) {
   stdout.write(`${formatTreeLine(result)}\n`);
+
+  const verdicts = formatVerdictLines(result);
+  stdout.write(`${verdicts.intentComplete}\n`);
+  stdout.write(`${verdicts.readyToBuild}\n`);
+
   if (!checkStage || checkStage === 'all') {
-    if (result.nextAction) {
-      const ids = result.nextAction.ids.length > 0 ? `; ids: ${result.nextAction.ids.join(', ')}` : '';
-      stdout.write(`Next action: ${result.nextAction.stage} / ${result.nextAction.check}${ids}. Run \`${result.nextAction.command}\` after editing.\n`);
-    } else {
-      stdout.write('Next action: none; every gate passed, acknowledged or notApplicable. Freezeable.\n');
-    }
+    renderNextActions(stdout, result, level);
     stdout.write(`Chips: ${formatChipLine(result)}\n`);
     stdout.write(`Delta: changed ${result.delta.changed.length}, added ${result.delta.added.length}, removed ${result.delta.removed.length}, briefSince ${result.delta.briefSince.length}, impacted ${result.delta.impacted.length}, impactedFbs ${result.delta.impactedFbs.length}.\n`);
     stdout.write(`Coverage: tree ${result.coverage.tree.totals.covered}/${result.coverage.tree.totals.requirements} covered (strict), ${result.coverage.delta.length} REQ ancestor(s) scoped from the delta.\n`);
@@ -217,17 +317,98 @@ function renderText(stdout, result, wallMs, checkStage) {
     stdout.write(`Freezeable: ${result.freezeable ? 'yes' : 'no'}. Compute: ${wallMs} ms.\n`);
   }
 
+  const register = pickRegister(profileText);
+  renderPersonaBlocks(stdout, result, persona, register, checkStage);
+
   for (const stage of result.stages) {
     if (checkStage && checkStage !== 'all' && stage.stage !== checkStage) continue;
     stdout.write(`\n${stage.stage} (${stage.gate}): ${STATE_LABEL[stage.state] ?? stage.state}${stage.reason ? ` (${stage.reason})` : ''}\n`);
     for (const c of stage.checks) {
+      if (persona && c.persona !== persona) continue;
       const mark = c.ok ? 'ok' : 'FAIL';
-      stdout.write(`  [${mark}] ${c.name} (${c.over}): ${c.pass}/${c.total}\n`);
+      stdout.write(`  [${mark}] ${c.name} (${c.over}, ${c.persona}): ${c.pass}/${c.total}\n`);
       for (const f of c.failing.slice(0, 20)) {
         stdout.write(`      - ${f.id}: ${f.why}\n`);
       }
       if (c.failing.length > 20) {
         stdout.write(`      ... ${c.failing.length - 20} more suppressed\n`);
+      }
+    }
+  }
+}
+
+/**
+ * Render the per-persona next-action lines (spec section 4). When a
+ * `--level` is given the matching persona's line heads the pair; when
+ * no `--level` is given the pair follows the register order. Each
+ * line is `Next action (<persona>): <stage> / <check>; ids: ...`.
+ *
+ * @param {NodeJS.WritableStream} stdout
+ * @param {import('../query/readiness.js').ReadinessResult} result
+ * @param {'intent' | 'build' | null} level
+ */
+function renderNextActions(stdout, result, level) {
+  const po = result.personas.productOwner.nextAction;
+  const eng = result.personas.engineer.nextAction;
+  const writeAction = (label, action) => {
+    if (!action) {
+      stdout.write(`Next action (${label}): none.\n`);
+      return;
+    }
+    const ids = action.ids.length > 0 ? `; ids: ${action.ids.join(', ')}` : '';
+    stdout.write(`Next action (${label}): ${action.stage} / ${action.check}${ids}. Run \`${action.command}\` after editing.\n`);
+  };
+  writeAction('product owner', po);
+  writeAction('engineer', eng);
+}
+
+/**
+ * Render the two persona-grouped blocker blocks (spec section 4).
+ * `register` orders the pair; `persona` (the display filter) collapses
+ * the opposite block to one count line; `checkStage` (when not null
+ * or 'all') restricts both blocks to blockers in that stage.
+ *
+ * @param {NodeJS.WritableStream} stdout
+ * @param {import('../query/readiness.js').ReadinessResult} result
+ * @param {'productOwner' | 'engineer' | null} persona
+ * @param {'productOwner' | 'engineer' | 'unstated'} register
+ * @param {string | null} checkStage
+ */
+function renderPersonaBlocks(stdout, result, persona, register, checkStage) {
+  const stageFilter = (bs) => (checkStage && checkStage !== 'all'
+    ? bs.filter((b) => b.stage === checkStage)
+    : bs);
+  // L1 blockedBy for the PO list (ignores stage state); L2 blockedBy
+  // minus PO entries for the engineer list, matching
+  // `personas.engineer.blockers`.
+  const poBlockers = stageFilter(result.personas.productOwner.blockers);
+  const engineerBlockers = stageFilter(result.personas.engineer.blockers);
+
+  const order = register === 'engineer'
+    ? [['engineer', engineerBlockers], ['productOwner', poBlockers]]
+    : [['productOwner', poBlockers], ['engineer', engineerBlockers]];
+
+  for (const [p, blockers] of order) {
+    stdout.write('\n');
+    const headerLabel = p === 'productOwner' ? 'Product owner' : 'Engineer';
+    const noun = p === 'productOwner' ? 'question' : 'check blocking';
+    const nounPlural = p === 'productOwner' ? 'questions' : 'checks blocking';
+    if (persona && p !== persona) {
+      stdout.write(`${headerLabel}: ${blockers.length} ${blockers.length === 1 ? noun : nounPlural} (hidden; run without --persona)\n`);
+      continue;
+    }
+    if (blockers.length === 0) {
+      stdout.write(`${headerLabel}: 0 ${nounPlural}.\n`);
+      continue;
+    }
+    stdout.write(`${headerLabel}: ${blockers.length} ${blockers.length === 1 ? noun : nounPlural}\n`);
+    for (const b of blockers) {
+      stdout.write(`  ${b.stage} ${b.check}: ${b.question} ${b.failingCount}/${b.failingCount}\n`);
+      for (const id of b.ids.slice(0, 20)) {
+        stdout.write(`      - ${id}\n`);
+      }
+      if (b.failingCount > b.ids.length) {
+        stdout.write(`      ... ${b.failingCount - b.ids.length} more suppressed\n`);
       }
     }
   }
@@ -244,34 +425,71 @@ function formatChipLine(result) {
 }
 
 /**
- * Decide the exit code for a `--check <stage>` invocation:
- * - passed / acknowledged / notApplicable -> 0
- * - failing on a blocking stage (D1/D2/D4/D7/D8) -> 4
- * - failing on a warn-with-ack stage (D3/D5/D6) -> 0 with a stderr [warn]
+ * Decide the exit code for an invocation (spec section 3.2 matrix):
+ *   - No `--check` and no `--level`: always 0.
+ *   - `--check` alone: today's stage policy (4 on blocking failure,
+ *     0 with `[warn]` on warn-with-ack failure).
+ *   - `--level intent`: 4 iff `levels.intentComplete.ok === false`.
+ *   - `--level build`: 4 iff `levels.readyToBuild.ok === false`
+ *     (stricter than `--check all`; the warn line still prints).
+ *   - Both: 4 if either policy says 4.
  *
- * The 'all' target folds the individual codes: if any blocking stage
- * is failing, exit 4; otherwise 0 (warn lines print for each
- * warn-with-ack failure).
+ * Warn lines are emitted whenever a warn-with-ack stage is failing,
+ * independent of exit code, so an operator always sees why.
  *
  * @param {import('../query/readiness.js').ReadinessResult} result
- * @param {string} checkStage
+ * @param {string | null} checkStage
+ * @param {'intent' | 'build' | null} level
  * @param {NodeJS.WritableStream} stderr
  * @returns {number}
  */
-function decideExitCode(result, checkStage, stderr) {
-  const stages = checkStage === 'all'
-    ? result.stages
-    : result.stages.filter((s) => s.stage === checkStage);
+function decideExitCode(result, checkStage, level, stderr) {
   let exitCode = 0;
-  for (const s of stages) {
-    if (s.state !== 'failing') continue;
-    const policy = stagePolicy(s.stage);
-    if (policy === 'blocking') {
-      exitCode = 4;
-    } else {
-      stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);
+
+  // --check policy (unchanged from PR A).
+  if (checkStage) {
+    const stages = checkStage === 'all'
+      ? result.stages
+      : result.stages.filter((s) => s.stage === checkStage);
+    for (const s of stages) {
+      if (s.state !== 'failing') continue;
+      const policy = stagePolicy(s.stage);
+      if (policy === 'blocking') {
+        exitCode = 4;
+      } else {
+        stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);
+      }
     }
   }
+
+  // --level policy. When explicit, exit 4 if that level says "no".
+  // --level build is stricter than --check all: it exits 4 even on an
+  // unacknowledged warn-with-ack failure (spec decision 4). The warn
+  // lines are still emitted (above when --check all is also set, or
+  // here when --level build is given alone).
+  if (level === 'intent' && result.levels.intentComplete.ok === false) {
+    exitCode = 4;
+  } else if (level === 'build' && result.levels.readyToBuild.ok === false) {
+    exitCode = 4;
+    // When --level build is set without --check all, we have not yet
+    // emitted the per-stage warn lines. Emit them here so an operator
+    // still sees which warn-with-ack stage drove the "no".
+    if (!checkStage || checkStage !== 'all') {
+      const seen = new Set();
+      if (checkStage) {
+        // --level build + --check <stage>: the --check branch already
+        // emitted that stage's warn line (if any). Avoid duplicates.
+        seen.add(checkStage);
+      }
+      for (const s of result.stages) {
+        if (seen.has(s.stage)) continue;
+        if (s.state !== 'failing') continue;
+        if (stagePolicy(s.stage) === 'blocking') continue;
+        stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);
+      }
+    }
+  }
+
   return exitCode;
 }
 
