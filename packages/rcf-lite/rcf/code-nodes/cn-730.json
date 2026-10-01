@@ -2,13 +2,23 @@
   "cnId": "CN-730",
   "path": "test/cli/readiness.test.js",
   "title": "CLI tests for rcf define readiness",
-  "description": "Covers AC-17501-5: text output, --json emission, --check exit codes (blocking 4, warn-with-ack 0 with [warn]), admissibility refusal path exit 4.",
+  "description": "Covers AC-17501-5 (text output, --json emission, --check exit codes), AC-17502-7 (byte-stable rcf/ tree across a readiness run) and AC-17503-1..9 (default exits 0 + both verdict lines; --level intent exits 4 iff PO fails; --level build exits 4 iff readyToBuild is false, with warn lines emitted; --check all unchanged; --persona filters text and does not change exit; unknown values exit 2; --json --level intent carries _meta.level; text report groups PO before engineer with persona in detail lines; parameterised exit matrix).",
   "implementsAcIds": [
-    "AC-17501-5"
+    "AC-17501-5",
+    "AC-17502-7",
+    "AC-17503-1",
+    "AC-17503-2",
+    "AC-17503-3",
+    "AC-17503-4",
+    "AC-17503-5",
+    "AC-17503-6",
+    "AC-17503-7",
+    "AC-17503-8",
+    "AC-17503-9"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z"
+  "updatedAt": "2026-10-01T16:00:00Z"
 }

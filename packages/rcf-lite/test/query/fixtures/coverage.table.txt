@@ -484,6 +484,15 @@ REQ-175      yes      AC-17501-1   yes         TC-217-shape
                       AC-17502-6   yes         TC-221-persona-next-action-picks-first-failing-stage
                       AC-17502-7   yes         TC-221-no-write-on-invocation
                       AC-17502-8   yes         TC-221-backwards-compat-fields
+                      AC-17503-1   yes         TC-222-exit-matrix, TC-222-verdict-lines-four-strings
+                      AC-17503-2   yes         TC-222-level-intent-pass
+                      AC-17503-3   yes         TC-222-level-intent-fail
+                      AC-17503-4   yes         TC-222-level-build-strict-ack
+                      AC-17503-5   yes         TC-222-check-all-unchanged
+                      AC-17503-6   yes         TC-222-persona-collapses-other
+                      AC-17503-7   yes         TC-222-unknown-values-exit-2-level, TC-222-unknown-values...
+                      AC-17503-8   yes         TC-222-json-meta-level
+                      AC-17503-9   yes         TC-222-text-persona-grouping
 REQ-176      yes      AC-17601-1   yes         TC-218-happy
                       AC-17601-2   yes         TC-218-refuse
                       AC-17601-3   yes         TC-218-ack

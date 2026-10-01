@@ -2228,6 +2228,46 @@ flowchart LR
   REQ-175 --> AC-17502-8
   TC-221-backwards-compat-fields["TC-221-backwards-compat-fields"]
   AC-17502-8 -.-> TC-221-backwards-compat-fields
+  AC-17503-1["AC-17503-1"]
+  REQ-175 --> AC-17503-1
+  TC-222-exit-matrix["TC-222-exit-matrix"]
+  AC-17503-1 -.-> TC-222-exit-matrix
+  TC-222-verdict-lines-four-strings["TC-222-verdict-lines-four-strings"]
+  AC-17503-1 -.-> TC-222-verdict-lines-four-strings
+  AC-17503-2["AC-17503-2"]
+  REQ-175 --> AC-17503-2
+  TC-222-level-intent-pass["TC-222-level-intent-pass"]
+  AC-17503-2 -.-> TC-222-level-intent-pass
+  AC-17503-3["AC-17503-3"]
+  REQ-175 --> AC-17503-3
+  TC-222-level-intent-fail["TC-222-level-intent-fail"]
+  AC-17503-3 -.-> TC-222-level-intent-fail
+  AC-17503-4["AC-17503-4"]
+  REQ-175 --> AC-17503-4
+  TC-222-level-build-strict-ack["TC-222-level-build-strict-ack"]
+  AC-17503-4 -.-> TC-222-level-build-strict-ack
+  AC-17503-5["AC-17503-5"]
+  REQ-175 --> AC-17503-5
+  TC-222-check-all-unchanged["TC-222-check-all-unchanged"]
+  AC-17503-5 -.-> TC-222-check-all-unchanged
+  AC-17503-6["AC-17503-6"]
+  REQ-175 --> AC-17503-6
+  TC-222-persona-collapses-other["TC-222-persona-collapses-other"]
+  AC-17503-6 -.-> TC-222-persona-collapses-other
+  AC-17503-7["AC-17503-7"]
+  REQ-175 --> AC-17503-7
+  TC-222-unknown-values-exit-2-level["TC-222-unknown-values-exit-2-level"]
+  AC-17503-7 -.-> TC-222-unknown-values-exit-2-level
+  TC-222-unknown-values-exit-2-persona["TC-222-unknown-values-exit-2-persona"]
+  AC-17503-7 -.-> TC-222-unknown-values-exit-2-persona
+  AC-17503-8["AC-17503-8"]
+  REQ-175 --> AC-17503-8
+  TC-222-json-meta-level["TC-222-json-meta-level"]
+  AC-17503-8 -.-> TC-222-json-meta-level
+  AC-17503-9["AC-17503-9"]
+  REQ-175 --> AC-17503-9
+  TC-222-text-persona-grouping["TC-222-text-persona-grouping"]
+  AC-17503-9 -.-> TC-222-text-persona-grouping
   REQ-176["REQ-176"]
   AC-17601-1["AC-17601-1"]
   REQ-176 --> AC-17601-1
@@ -3430,6 +3470,26 @@ flowchart LR
   class TC-221-no-write-on-invocation tc;
   class AC-17502-8 ac;
   class TC-221-backwards-compat-fields tc;
+  class AC-17503-1 ac;
+  class TC-222-exit-matrix tc;
+  class TC-222-verdict-lines-four-strings tc;
+  class AC-17503-2 ac;
+  class TC-222-level-intent-pass tc;
+  class AC-17503-3 ac;
+  class TC-222-level-intent-fail tc;
+  class AC-17503-4 ac;
+  class TC-222-level-build-strict-ack tc;
+  class AC-17503-5 ac;
+  class TC-222-check-all-unchanged tc;
+  class AC-17503-6 ac;
+  class TC-222-persona-collapses-other tc;
+  class AC-17503-7 ac;
+  class TC-222-unknown-values-exit-2-level tc;
+  class TC-222-unknown-values-exit-2-persona tc;
+  class AC-17503-8 ac;
+  class TC-222-json-meta-level tc;
+  class AC-17503-9 ac;
+  class TC-222-text-persona-grouping tc;
   class REQ-176 req;
   class AC-17601-1 ac;
   class TC-218-happy tc;
