@@ -352,3 +352,129 @@ test('readiness tab: AC-18101-3 existing Product Map and Requirements tests reta
   assert.equal(pickRegister(''), 'unstated');
   assert.equal(pickRegister(null), 'unstated');
 });
+
+// ---- Fix-round P1: blocker findings list carries the `why` per id -----
+
+test('readiness tab: fix-round P1 blocker findingsList carries the why per id', () => {
+  const result = failingFixture();
+  const html = renderReadinessPanel(result, { profile: 'register: productOwner' });
+  // The PO blocker's single id `brief:ledger` has the matching
+  // `why: 'brief ledger holds no statements'` on stages[].checks[].failing[].
+  // Spec §5 block 5: the findings list carries id -> why pairs.
+  assert.match(
+    html,
+    /<a href="#brief:ledger">brief:ledger<\/a>: brief ledger holds no statements<\/li>/,
+    'PO blocker findings list is missing the matching why',
+  );
+  // Engineer blocker id -> why.
+  assert.match(
+    html,
+    /<a href="#TAD-001:security">TAD-001:security<\/a>: security architecture missing<\/li>/,
+    'engineer blocker findings list is missing the matching why',
+  );
+});
+
+// ---- Fix-round P1: renderDocDiff renders real hashes, not (absent) ----
+
+test('readiness tab: fix-round P1 document-level diff renders frozen and current short hashes', () => {
+  // Build a minimal readiness result with one changed and one added
+  // document in the delta, plus a freezeRecord that carries matching
+  // docHashes. The renderer must emit a diff component with the short
+  // hashes rather than the (absent)/(absent) placeholder.
+  const result = {
+    tree: {
+      frozen: true,
+      frozenAt: '2026-10-01T00:00:00.000Z',
+      treeHash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+      currentTreeHash: 'sha256:1111111111111111111111111111111111111111111111111111111111111111',
+      buildAt: null,
+      fbsTotal: 0,
+    },
+    delta: {
+      changed: ['REQ-001'],
+      added: ['REQ-002'],
+      removed: [],
+      briefSince: [],
+      impacted: [],
+      impactedFbs: [],
+      currentDocHashes: {
+        'REQ-001': 'sha256:abc1234000000000000000000000000000000000000000000000000000000000',
+        'REQ-002': 'sha256:deadbeef00000000000000000000000000000000000000000000000000000000',
+      },
+    },
+    stages: [],
+    nextAction: null,
+    coverage: { tree: { pass: 0, total: 0 }, delta: [] },
+    decisions: [],
+    freezeable: false,
+    levels: {
+      intentComplete: { ok: true, blockedBy: [], nextAction: null },
+      readyToBuild: { ok: true, blockedBy: [], nextAction: null },
+    },
+    personas: {
+      productOwner: { blockers: [], nextAction: null },
+      engineer: { blockers: [], nextAction: null },
+    },
+  };
+  const freezeRecord = {
+    frozenAt: '2026-10-01T00:00:00.000Z',
+    treeHash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+    docHashes: {
+      'REQ-001': 'sha256:0101010100000000000000000000000000000000000000000000000000000000',
+    },
+    briefStatements: 0,
+  };
+  const html = renderReadinessPanel(result, { profile: null, freezeRecord });
+  // The diff block renders for each changed/added entry.
+  const diffCount = (html.match(/class="rcf-diff"/g) || []).length;
+  assert.ok(diffCount >= 2, `expected at least 2 diff blocks, found ${diffCount}`);
+  // Changed REQ-001 shows both the frozen short hash and the current
+  // short hash — real content, not (absent)/(absent).
+  assert.ok(html.includes('sha256:0101010'), 'changed doc missing frozen short hash');
+  assert.ok(html.includes('sha256:abc1234'), 'changed doc missing current short hash');
+  // Added REQ-002 shows only the current short hash and a "not in the frozen tree" note.
+  assert.ok(html.includes('sha256:deadbee'), 'added doc missing current short hash');
+  assert.match(html, /not in the frozen tree/);
+  // Must not be the pre-fix placeholder (both sides absent).
+  const absentCount = (html.match(/\(absent\)/g) || []).length;
+  assert.equal(absentCount, 0, 'diff should not render (absent) when hashes are present');
+});
+
+// ---- Fix-round P2: delta coverage filters empty rows -------------------
+
+test('readiness tab: fix-round P2 delta coverage filters empty rows', () => {
+  const base = failingFixture();
+  // Replace delta coverage with a mix of empty and meaningful rows.
+  const result = {
+    ...base,
+    coverage: {
+      tree: { pass: 10, total: 10 },
+      delta: [
+        { reqId: 'REQ-001', pass: 2, total: 2 },  // meaningful
+        { reqId: null, scope: null, pass: null, total: null },  // empty
+        { reqId: '', pass: '', total: '' },  // empty
+      ],
+    },
+  };
+  const html = renderReadinessPanel(result, { profile: null });
+  // Meaningful row present.
+  assert.ok(html.includes('REQ-001: 2 / 2'), 'meaningful delta coverage row missing');
+  // Empty "delta: / " row suppressed.
+  assert.ok(!html.includes('delta: / '), 'empty delta coverage row leaked through');
+  assert.ok(!html.includes('<li>: </li>'), 'blank li should not render');
+
+  // When no meaningful row survives at all, fall back to the empty
+  // placeholder "No per-REQ delta coverage.".
+  const resultAllEmpty = {
+    ...base,
+    coverage: {
+      tree: { pass: 10, total: 10 },
+      delta: [
+        { reqId: null, pass: null, total: null },
+        { reqId: '', pass: null, total: null },
+      ],
+    },
+  };
+  const htmlAllEmpty = renderReadinessPanel(resultAllEmpty, { profile: null });
+  assert.match(htmlAllEmpty, /No per-REQ delta coverage\./);
+});

@@ -75,7 +75,7 @@ export function renderReadinessPanel(result, opts = {}) {
     renderNextActions(result, register),
     renderStageChips(result, freezeRecord),
     renderBlockersByPersona(result, register),
-    renderDelta(result),
+    renderDelta(result, freezeRecord),
     renderStageDetail(result),
     renderCoverage(result),
     renderDecisions(result),
@@ -181,16 +181,17 @@ function chipStateClass(state) {
 
 // --- Block 5: blockers by persona --------------------------------------
 
-function renderBlockersByPersona(result, register) {
+export function renderBlockersByPersona(result, register) {
   const po = result.personas.productOwner.blockers;
   const eng = result.personas.engineer.blockers;
-  const poBlock = renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'open');
-  const engBlock = renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'closed');
+  const stages = Array.isArray(result.stages) ? result.stages : [];
+  const poBlock = renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'open', stages);
+  const engBlock = renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'closed', stages);
   // When the register is engineer, the engineer group opens first and
   // the PO group collapses; `unstated` and `productOwner` keep PO open.
   const [first, second] = register === 'engineer'
-    ? [renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'open'),
-       renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'closed')]
+    ? [renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'open', stages),
+       renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'closed', stages)]
     : [poBlock, engBlock];
   return `<section class="rcf-readiness-blockers-by-persona" data-rcf-register="${register}">`
     + first + second
@@ -204,8 +205,11 @@ function renderBlockersByPersona(result, register) {
  * @param {Blocker[]} blockers
  * @param {'productOwner'|'engineer'|'unstated'} register
  * @param {'open'|'closed'} state
+ * @param {StageResult[]} stages - threaded so each blocker's ids can
+ *   carry the matching failing `why` from `stages[].checks[].failing[]`
+ *   (spec section 5 block 5).
  */
-function renderPersonaGroup(persona, heading, singular, blockers, register, state) {
+function renderPersonaGroup(persona, heading, singular, blockers, register, state, stages) {
   const plural = singular === 'question' ? 'questions' : 'checks blocking';
   const count = blockers.length;
   const noun = count === 1 ? singular : plural;
@@ -216,7 +220,7 @@ function renderPersonaGroup(persona, heading, singular, blockers, register, stat
       + `<summary><strong>${escapeHtml(heading)}:</strong> 0 ${plural}.</summary>`
       + `</details>`;
   }
-  const items = blockers.map((b) => renderBlockerCard(b)).join('');
+  const items = blockers.map((b) => renderBlockerCard(b, stages)).join('');
   return `<details class="rcf-readiness-persona rcf-readiness-persona--${persona}" data-rcf-persona-state="${state}"${openAttr}>`
     + `<summary><strong>${escapeHtml(summary)}</strong></summary>`
     + items
@@ -224,21 +228,44 @@ function renderPersonaGroup(persona, heading, singular, blockers, register, stat
 }
 
 /**
+ * Build an id→why map for a blocker by looking up the matching
+ * `stages[].checks[].failing[]` entries. Ids missing a `why` map to
+ * the empty string so the findings-list renders the id alone.
+ *
  * @param {Blocker} b
+ * @param {StageResult[]} stages
+ * @returns {Record<string, string>}
  */
-function renderBlockerCard(b) {
-  // Map ids to anchor items — each id is a document id and the hash
-  // routing in html-page.js resolves `#<id>` to the right tab.
+function buildIdWhyMap(b, stages) {
+  /** @type {Record<string, string>} */
+  const map = {};
+  const stage = Array.isArray(stages) ? stages.find((s) => s && s.stage === b.stage) : null;
+  if (!stage || !Array.isArray(stage.checks)) return map;
+  const check = stage.checks.find((c) => c && c.name === b.check);
+  if (!check || !Array.isArray(check.failing)) return map;
+  for (const f of check.failing) {
+    if (!f || typeof f !== 'object') continue;
+    const id = typeof f.id === 'string' ? f.id : null;
+    if (!id) continue;
+    map[id] = typeof f.why === 'string' ? f.why : '';
+  }
+  return map;
+}
+
+/**
+ * @param {Blocker} b
+ * @param {StageResult[]} stages
+ */
+function renderBlockerCard(b, stages) {
+  // Each id is a document id; the hash routing in html-page.js resolves
+  // `#<id>` to the right tab. The `why` per id lives on the matching
+  // `stages[].checks[].failing[]` entry — spec section 5 block 5.
+  const whyById = buildIdWhyMap(b, stages);
   const items = (b.ids ?? []).slice(0, 20).map((id) => ({
     id,
-    why: '',
+    why: whyById[id] ?? '',
     href: `#${id}`,
   }));
-  // The 'why' for each id lives on `stages[].checks[].failing[]` but
-  // we do not have that here; this is a design question we noted —
-  // the findings list carries the heading + id anchors, and the per-
-  // stage detail block (section 7) carries the id + why pairs. The
-  // readiness tab anchors to the per-check row for the fine detail.
   return `<div class="rcf-readiness-blocker" data-rcf-stage="${escapeHtml(b.stage)}" data-rcf-check="${escapeHtml(b.check)}" data-rcf-persona="${escapeHtml(b.persona)}">`
     + `<div class="rcf-readiness-blocker__meta">`
     + `<span class="rcf-readiness-blocker__stage">${escapeHtml(b.stage)}</span> `
@@ -252,10 +279,16 @@ function renderBlockerCard(b) {
 
 // --- Block 6: delta list -----------------------------------------------
 
-function renderDelta(result) {
+function renderDelta(result, freezeRecord) {
   const d = result.delta;
   const briefCount = Array.isArray(d.briefSince) ? d.briefSince.length : 0;
   const changedCount = (d.changed?.length ?? 0) + (d.added?.length ?? 0) + (d.removed?.length ?? 0);
+  const frozenHashes = (freezeRecord && typeof freezeRecord === 'object' && freezeRecord.docHashes && typeof freezeRecord.docHashes === 'object')
+    ? freezeRecord.docHashes
+    : {};
+  const currentHashes = (d && typeof d.currentDocHashes === 'object' && d.currentDocHashes !== null)
+    ? d.currentDocHashes
+    : {};
   const briefBlock = briefCount > 0
     ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--brief">`
       + `<h4>Brief statements since freeze <span class="rcf-readiness-delta__count">${briefCount}</span></h4>`
@@ -266,9 +299,9 @@ function renderDelta(result) {
     ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--documents">`
       + `<h4>Documents changed <span class="rcf-readiness-delta__count">${changedCount}</span></h4>`
       + `<ul>`
-      + (d.added ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>added</em></li>`).join('')
-      + (d.changed ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>changed</em>${renderDocDiff(id)}</li>`).join('')
-      + (d.removed ?? []).map((id) => `<li>${escapeHtml(id)} <em>removed</em></li>`).join('')
+      + (d.added ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>added</em>${renderDocDiff(id, frozenHashes, currentHashes, 'added')}</li>`).join('')
+      + (d.changed ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>changed</em>${renderDocDiff(id, frozenHashes, currentHashes, 'changed')}</li>`).join('')
+      + (d.removed ?? []).map((id) => `<li>${escapeHtml(id)} <em>removed</em>${renderDocDiff(id, frozenHashes, currentHashes, 'removed')}</li>`).join('')
       + `</ul>`
       + `</section>`
     : '';
@@ -278,11 +311,27 @@ function renderDelta(result) {
   return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}</section>`;
 }
 
-function renderDocDiff(_id) {
-  // Document-level diff is deferred to the delta loader; keep the
-  // component call-site here so the markup stays stable even when the
-  // frozen snapshot wiring lands. 0.29.0 ships a placeholder render.
-  return ` ${diff(null, null)}`;
+/**
+ * Document-level hash diff for one changed / added / removed id.
+ * Spec section 5 block 6 pins a real `diff` component here; section 10
+ * decision 1 scopes 0.29.0 to document-level only (criterion-level
+ * deferred). The freeze record does not persist document bodies in
+ * 0.29.0 (freeze-record.js schema: `docHashes` only — no `docs` /
+ * `snapshot` section), so this ships the hash-only variant: both
+ * columns show the short-hash subtitle and the frozen side carries
+ * a muted note stating the body was not captured. NOTES in the brief.
+ */
+function renderDocDiff(id, frozenHashes, currentHashes, kind) {
+  const frozenHash = typeof frozenHashes?.[id] === 'string' ? frozenHashes[id] : null;
+  const currentHash = typeof currentHashes?.[id] === 'string' ? currentHashes[id] : null;
+  const beforeNote = 'frozen body not captured in freeze record 0.29.0';
+  const before = kind === 'added'
+    ? { note: 'not in the frozen tree' }
+    : { hash: frozenHash ?? '', note: beforeNote };
+  const after = kind === 'removed'
+    ? { note: 'removed from the live tree' }
+    : { hash: currentHash ?? '', note: 'current body available on the document tab' };
+  return ` ${diff(before, after)}`;
 }
 
 // --- Block 7: per-stage check detail -----------------------------------
@@ -347,8 +396,12 @@ function renderCoverage(result) {
   const treeCol = t
     ? `<pre class="rcf-readiness-coverage__tree">pass ${escapeHtml(String(t.pass ?? ''))} / ${escapeHtml(String(t.total ?? ''))}</pre>`
     : `<p><em>No tree-wide coverage result.</em></p>`;
-  const deltaRows = d.length > 0
-    ? `<ul>${d.map((cv) => `<li>${escapeHtml(cv.reqId ?? cv.scope ?? 'delta')}: ${escapeHtml(String(cv.pass ?? ''))} / ${escapeHtml(String(cv.total ?? ''))}</li>`).join('')}</ul>`
+  // Filter rows where every meaningful field is nullish / empty — a
+  // coverage shim with no reqId/scope and no pass/total totals produces
+  // "delta: / " markup otherwise (P2 polish; spec §5 block 8).
+  const liveDelta = Array.isArray(d) ? d.filter(isMeaningfulCoverageRow) : [];
+  const deltaRows = liveDelta.length > 0
+    ? `<ul>${liveDelta.map((cv) => `<li>${escapeHtml(cv.reqId ?? cv.scope ?? 'delta')}: ${escapeHtml(String(cv.pass ?? ''))} / ${escapeHtml(String(cv.total ?? ''))}</li>`).join('')}</ul>`
     : `<p><em>No per-REQ delta coverage.</em></p>`;
   return `<section class="rcf-readiness-coverage">`
     + `<h3>Coverage</h3>`
@@ -360,6 +413,15 @@ function renderCoverage(result) {
     + `re-verify: ${impactedCount} &middot; re-execute: ${impactedFbsCount}`
     + `</p>`
     + `</section>`;
+}
+
+function isMeaningfulCoverageRow(cv) {
+  if (!cv || typeof cv !== 'object') return false;
+  const hasLabel = (typeof cv.reqId === 'string' && cv.reqId.length > 0)
+    || (typeof cv.scope === 'string' && cv.scope.length > 0);
+  const passSet = cv.pass !== null && cv.pass !== undefined && cv.pass !== '';
+  const totalSet = cv.total !== null && cv.total !== undefined && cv.total !== '';
+  return hasLabel || passSet || totalSet;
 }
 
 // --- Block 9: decisions outstanding ------------------------------------
