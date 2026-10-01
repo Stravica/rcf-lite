@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z",
+  "updatedAt": "2026-10-01T13:12:16Z",
   "purpose": "Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.",
   "testLevel": "unit",
   "acIds": [
@@ -11,7 +11,9 @@
     "AC-17401-5",
     "AC-17401-6",
     "AC-17401-7",
-    "AC-17401-8"
+    "AC-17401-8",
+    "AC-17401-9",
+    "AC-17401-10"
   ],
   "id": "TS-216",
   "usId": "US-17401",
@@ -72,6 +74,20 @@
       "description": "checkD8Freeze asserts prior stages passed/acknowledged, every AC owned by exactly one FBS, computeQueue nextActionable not null, validateErrors empty.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates: D8 tree-wide freeze checks"
+    },
+    {
+      "id": "TC-216-d2-data-architecture",
+      "acId": "AC-17401-9",
+      "description": "checkD2Skeleton reads tad.dataArchitecture.{dataStores,coreEntities} per rcf-schemas 0.6.3; a tree with populated dataArchitecture passes skeleton:tadPersistence and empty/missing/wrong-top-level trees fail with the schema-anchored ids.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D2 skeleton:tadPersistence reads tad.dataArchitecture.* per schema 0.6.3"
+    },
+    {
+      "id": "TC-216-identity-seed-surface",
+      "acId": "AC-17401-10",
+      "description": "IDENTITY_TEMPLATE carries a '## Surface' section between '## Register' and '## Project-scoped notes' naming viewer/runningApp/prDiff and seeded to 'prDiff'; writeIdentityTemplate on a fresh dir seeds a profile that satisfies checkD1Brief surface markers; an existing profile.md is left byte-identical (slice-1 'kept' contract).",
+      "status": "pending",
+      "testPointer": "test/setup/identity-register.test.js::IDENTITY_TEMPLATE carries a ## Surface heading between ## Register and ## Project-scoped notes"
     }
   ],
   "status": "draft"
