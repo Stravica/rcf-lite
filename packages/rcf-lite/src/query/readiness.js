@@ -52,12 +52,61 @@ import {
  */
 
 /**
+ * @typedef {object} CheckResult
+ * @property {string} name
+ * @property {boolean} ok
+ * @property {'delta'|'tree'} over
+ * @property {number} pass
+ * @property {number} total
+ * @property {Array<{ id: string, why: string }>} failing
+ * @property {'productOwner'|'engineer'} persona
+ * @property {string} question
+ */
+
+/**
  * @typedef {object} StageResult
  * @property {string} stage
  * @property {string} gate
  * @property {'passed'|'failing'|'acknowledged'|'notApplicable'} state
- * @property {Array<{ name: string, ok: boolean, over: 'delta'|'tree', pass: number, total: number, failing: Array<{ id: string, why: string }> }>} checks
+ * @property {CheckResult[]} checks
  * @property {string} [reason]
+ */
+
+/**
+ * @typedef {object} Blocker
+ * @property {string} stage
+ * @property {string} gate
+ * @property {string} check
+ * @property {'productOwner'|'engineer'} persona
+ * @property {'delta'|'tree'} over
+ * @property {number} failingCount
+ * @property {string[]} ids
+ * @property {string} question
+ */
+
+/**
+ * @typedef {object} LevelVerdict
+ * @property {boolean} ok
+ * @property {Blocker[]} blockedBy
+ * @property {NextAction | null} nextAction
+ */
+
+/**
+ * @typedef {object} ReadinessLevels
+ * @property {LevelVerdict} intentComplete
+ * @property {LevelVerdict} readyToBuild
+ */
+
+/**
+ * @typedef {object} PersonaGroup
+ * @property {Blocker[]} blockers
+ * @property {NextAction | null} nextAction
+ */
+
+/**
+ * @typedef {object} ReadinessPersonas
+ * @property {PersonaGroup} productOwner
+ * @property {PersonaGroup} engineer
  */
 
 /**
@@ -77,6 +126,8 @@ import {
  * @property {{ tree: import('./coverage.js').CoverageResult, delta: import('./coverage.js').CoverageResult[] }} coverage
  * @property {Array<Record<string, unknown>>} decisions
  * @property {boolean} freezeable
+ * @property {ReadinessLevels} levels
+ * @property {ReadinessPersonas} personas
  */
 
 /**
@@ -198,6 +249,14 @@ export function computeReadiness(tree, args = {}) {
   const freezeable = stages.every((s) => s.state === 'passed' || s.state === 'acknowledged' || s.state === 'notApplicable');
   const nextAction = freezeable ? null : deriveNextAction(stages);
 
+  // 7b. Fold `levels` and `personas` from stages[].checks[] alone
+  // (ADR-4126, proposal section 2.1). Nothing is written. L1
+  // intent-complete is "every productOwner check ok across every
+  // stage"; L2 ready-to-build equals freezeable with blockers over
+  // failing stages only.
+  const levels = deriveLevels(stages, freezeable, nextAction);
+  const personas = derivePersonas(stages, levels);
+
   // 8. Build the tree summary line inputs.
   const queue = computeQueue(tree);
   const fbsTotal = (tree.fbsItems ?? []).length;
@@ -225,6 +284,8 @@ export function computeReadiness(tree, args = {}) {
     coverage: { tree: coverageTree, delta: coverageDelta },
     decisions: openDecisions,
     freezeable,
+    levels,
+    personas,
   };
 }
 
@@ -266,31 +327,175 @@ function collectDeltaReqAncestors(tree, pivotIds) {
 
 /**
  * Pick the first failing stage in D1..D8 order and the first failing
- * check inside it, then compose a `NextAction`.
+ * check inside it, then compose a `NextAction`. With no `persona`
+ * passed, behaves exactly as 0.28.4 did (first failing stage, first
+ * failing check, largest failing list). With a `persona` ('productOwner'
+ * | 'engineer'), picks the first failing stage that holds a failing
+ * check of that persona, then the largest failing-list check among
+ * them; the command carries `--level intent` on the productOwner
+ * variant and no `--level` flag otherwise (proposal section 2.1).
+ *
+ * The productOwner next action is defined over every stage holding a
+ * failing PO check (not just stages with state `failing`), because
+ * `levels.intentComplete.blockedBy` ignores stage state. In practice
+ * PO checks live on blocking stages (D1, D2, D4, D7) so any failing
+ * PO check also makes its stage `failing`, but the compute does not
+ * rely on that coincidence.
  *
  * @param {StageResult[]} stages
+ * @param {'productOwner' | 'engineer'} [persona]
  * @returns {NextAction | null}
  */
-export function deriveNextAction(stages) {
+export function deriveNextAction(stages, persona) {
   const byStage = new Map(stages.map((s) => [s.stage, s]));
   for (const stageId of STAGE_ORDER) {
     const s = byStage.get(stageId);
-    if (!s || s.state !== 'failing') continue;
+    if (!s) continue;
+    // Without a persona filter: today's rule (stage must be
+    // `failing`; this skips `acknowledged` warn-with-ack stages).
+    // With a persona filter: scan any stage that holds a failing
+    // check of that persona. PO checks only live on blocking stages
+    // so this coincides with "stage failing" in practice, but it
+    // keeps the compute honest if that ever changes.
+    if (!persona && s.state !== 'failing') continue;
+    const failing = s.checks.filter((c) => !c.ok && (persona ? c.persona === persona : true));
+    if (failing.length === 0) continue;
     // First failing check; tie-break by the largest failing list so
     // the operator sees the most impactful gap first.
-    const failing = s.checks.filter((c) => !c.ok);
-    if (failing.length === 0) continue;
     const check = failing.reduce((a, b) => (b.failing.length > a.failing.length ? b : a), failing[0]);
     const ids = [...new Set(check.failing.map((f) => f.id))].slice(0, 20);
     const shortName = STAGE_SHORT_NAMES[stageId] ?? stageId;
+    const command = persona === 'productOwner'
+      ? `rcf define readiness --level intent --check ${shortName}`
+      : `rcf define readiness --check ${shortName}`;
     return {
       stage: stageId,
       check: check.name,
       ids,
-      command: `rcf define readiness --check ${shortName}`,
+      command,
     };
   }
   return null;
+}
+
+/**
+ * Build a `Blocker` row from a stage + check pair. `ids` are
+ * deduplicated and capped at 20 to match the display convention
+ * `nextAction.ids` uses (proposal section 2.1).
+ *
+ * @param {StageResult} stage
+ * @param {CheckResult} check
+ * @returns {Blocker}
+ */
+function makeBlocker(stage, check) {
+  return {
+    stage: stage.stage,
+    gate: stage.gate,
+    check: check.name,
+    persona: check.persona,
+    over: check.over,
+    failingCount: check.failing.length,
+    ids: [...new Set(check.failing.map((f) => f.id))].slice(0, 20),
+    question: check.question,
+  };
+}
+
+/**
+ * Fold the two levels from `stages[].checks[]` (ADR-4126, proposal
+ * section 2.1). L1 ignores stage state and lists every failing PO
+ * check; L2 lists every failing check in a stage whose state is
+ * `failing` (checks inside an `acknowledged` stage are not blockers).
+ *
+ * @param {StageResult[]} stages
+ * @param {boolean} freezeable
+ * @param {NextAction | null} nextAction
+ * @returns {ReadinessLevels}
+ */
+export function deriveLevels(stages, freezeable, nextAction) {
+  /** @type {Blocker[]} */
+  const poBlockers = [];
+  /** @type {Blocker[]} */
+  const buildBlockers = [];
+  for (const stage of stages) {
+    for (const check of stage.checks) {
+      if (check.ok) continue;
+      if (check.persona === 'productOwner') {
+        poBlockers.push(makeBlocker(stage, check));
+      }
+      if (stage.state === 'failing') {
+        buildBlockers.push(makeBlocker(stage, check));
+      }
+    }
+  }
+  const intentOk = poBlockers.length === 0;
+  return {
+    intentComplete: {
+      ok: intentOk,
+      blockedBy: poBlockers,
+      nextAction: intentOk ? null : deriveNextAction(stages, 'productOwner'),
+    },
+    readyToBuild: {
+      ok: freezeable,
+      blockedBy: buildBlockers,
+      nextAction,
+    },
+  };
+}
+
+/**
+ * Fold the `personas` block (ADR-4126, proposal section 3.3).
+ * `productOwner.blockers` deep-equals `levels.intentComplete.blockedBy`;
+ * `engineer.blockers` is the failing engineer checks in failing stages
+ * (the L2 blockedBy minus the PO entries).
+ *
+ * @param {StageResult[]} stages
+ * @param {ReadinessLevels} levels
+ * @returns {ReadinessPersonas}
+ */
+export function derivePersonas(stages, levels) {
+  const engineerBlockers = levels.readyToBuild.blockedBy.filter((b) => b.persona === 'engineer');
+  return {
+    productOwner: {
+      blockers: levels.intentComplete.blockedBy,
+      nextAction: levels.intentComplete.nextAction,
+    },
+    engineer: {
+      blockers: engineerBlockers,
+      nextAction: deriveNextAction(stages, 'engineer'),
+    },
+  };
+}
+
+/**
+ * Format the two verdict lines shared by the CLI text report and
+ * the Readiness tab (proposal section 2.3). The strings are built
+ * from `levels` alone so the two surfaces cannot disagree.
+ *
+ * @param {ReadinessResult} result
+ * @returns {{ intentComplete: string, readyToBuild: string }}
+ */
+export function formatVerdictLines(result) {
+  const l = result.levels;
+  const intentLine = l.intentComplete.ok
+    ? 'Intent-complete: yes. Every product-owner question is answered.'
+    : (() => {
+      const n = l.intentComplete.blockedBy.length;
+      const detail = l.intentComplete.blockedBy
+        .map((b) => `${b.stage}/${b.check}`)
+        .join(', ');
+      return `Intent-complete: no; ${n} question${n === 1 ? '' : 's'} for the product owner (${detail}).`;
+    })();
+  const buildLine = l.readyToBuild.ok
+    ? `Ready-to-build: yes. Freezeable at ${shortHash(result.tree.currentTreeHash)}.`
+    : (() => {
+      const blockers = l.readyToBuild.blockedBy;
+      const stages = [...new Set(blockers.map((b) => b.stage))].sort();
+      const total = blockers.length;
+      const p = blockers.filter((b) => b.persona === 'productOwner').length;
+      const e = blockers.filter((b) => b.persona === 'engineer').length;
+      return `Ready-to-build: no; blocked on ${stages.join(', ')} (${total} check${total === 1 ? '' : 's'}: ${p} product owner, ${e} engineer).`;
+    })();
+  return { intentComplete: intentLine, readyToBuild: buildLine };
 }
 
 /**

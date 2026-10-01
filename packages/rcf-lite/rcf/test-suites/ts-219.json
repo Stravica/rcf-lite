@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z",
+  "purpose": "Cover US-17402: every entry in stages[].checks[] carries persona (productOwner | engineer) and a non-empty question string; CHECK_PERSONA / CHECK_QUESTION / STAGE_FALLBACK_PERSONA maps are total; the notApplicable placeholder uses the stage fallback (ADR-4126).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17402-1",
+    "AC-17402-2",
+    "AC-17402-3",
+    "AC-17402-4",
+    "AC-17402-5",
+    "AC-17402-6",
+    "AC-17402-7"
+  ],
+  "id": "TS-219",
+  "usId": "US-17402",
+  "title": "Persona tag + question on every gate check",
+  "testCases": [
+    {
+      "id": "TC-219-every-check-has-persona-and-question",
+      "acId": "AC-17402-1",
+      "description": "For every stage function, every entry in checks[] carries persona (productOwner|engineer) and a non-empty question string.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17402-1): every check carries persona + question"
+    },
+    {
+      "id": "TC-219-d1-personas",
+      "acId": "AC-17402-2",
+      "description": "The four D1 check names (brief:sinceFreeze, brief:kinds, brief:openQuestions, brief:profile) carry persona 'productOwner' in CHECK_PERSONA.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name"
+    },
+    {
+      "id": "TC-219-d2-personas",
+      "acId": "AC-17402-3",
+      "description": "D2 personas: skeleton:resolvedBy + skeleton:reqIntent are productOwner; skeleton:reqShape, skeleton:tadPersistence, skeleton:deployAdr are engineer.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name"
+    },
+    {
+      "id": "TC-219-d4-d7-personas",
+      "acId": "AC-17402-4",
+      "description": "D4 personas: stories:reqHasUs productOwner, stories:usFloors engineer. D7 personas: decisions:wellFormed productOwner, decisions:allAnswered engineer.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name"
+    },
+    {
+      "id": "TC-219-engineer-stages",
+      "acId": "AC-17402-5",
+      "description": "D3 (shapes:*), D5 (crosscut:*), D6 (consistency:*) and D8 (freeze:*) checks are all engineer in CHECK_PERSONA.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name"
+    },
+    {
+      "id": "TC-219-persona-vocabulary-closed",
+      "acId": "AC-17402-6",
+      "description": "No check carries a persona value other than 'productOwner' or 'engineer', and no failing { id, why } entry carries its own persona field.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17402-1): every check carries persona + question"
+    },
+    {
+      "id": "TC-219-not-applicable-placeholder-persona",
+      "acId": "AC-17402-7",
+      "description": "A notApplicable stage emits one stage:<D>:scope placeholder check with ok true and persona equal to STAGE_FALLBACK_PERSONA[D].",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17402-7): notApplicable placeholder carries stage fallback persona and ok true"
+    }
+  ],
+  "status": "draft"
+}

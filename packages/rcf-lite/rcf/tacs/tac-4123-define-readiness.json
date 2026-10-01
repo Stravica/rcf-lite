@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T15:48:40Z",
+  "updatedAt": "2026-10-01T14:13:27Z",
   "tacId": "TAC-4123-define-readiness",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -17,9 +17,33 @@
     "src/cli/readiness.js: text output = tree line, next-action line, chip line (D1..D8 with state color words), stage-by-stage failing items (checks with failing ids); --check exits 4 for a blocking stage that is failing, 0 with a stderr [warn] for a warn-with-ack stage that is failing but not acknowledged, 0 otherwise.",
     "src/define/ledgers.js (P3 resolution): loadAllLedgers checks each ledger file's existence with statPath and omits missing files from the returned bundle; loadLedger keeps returning an empty ledger on ENOENT so single-ledger callers retain the ergonomic default.",
     "bin/rcf.js: register GROUPS.define.readiness -> readinessMain; src/cli/help.js: import READINESS_HELP and wire into HELP_MAP.define.readiness + DEFINE_HELP + top-level DEFINE listing.",
-    "src/query/index.js: export computeReadiness (plus its subhelpers where useful for tests) so downstream consumers (slice 3 freeze, slice 5 viewer) import through the same seam every other query verb does."
+    "src/query/index.js: export computeReadiness (plus its subhelpers where useful for tests) so downstream consumers (slice 3 freeze, slice 5 viewer) import through the same seam every other query verb does.",
+    "ADR-4126 (0.29.0): fold `levels` and `personas` from `stages[].checks[]` after the eight stage functions run. `levels.intentComplete.ok` is \"every productOwner check ok\" across every stage (stage state ignored); `levels.intentComplete.blockedBy` lists every failing PO check with ids capped at 20. `levels.readyToBuild.ok` equals freezeable; `levels.readyToBuild.blockedBy` lists every failing check in a stage whose state is `failing` (checks inside an `acknowledged` stage are not blockers). `personas.productOwner.blockers` deep-equals `levels.intentComplete.blockedBy`; `personas.engineer.blockers` is the failing engineer checks in failing stages. `levels.readyToBuild.nextAction` deep-equals the top-level `nextAction`.",
+    "ADR-4126 (0.29.0): `deriveNextAction(stages, persona?)` gains an optional persona argument. With no persona it behaves exactly as 0.28.4. With a persona it picks the first stage in D1..D8 order holding a failing check of that persona, then the check with the largest failing list; the command carries `--level intent` on the productOwner variant. `formatVerdictLines(result)` builds the two strings (`Intent-complete: yes/no...` and `Ready-to-build: yes/no...`) shared by the CLI (PR B) and the Readiness tab (PR C) so they cannot disagree.",
+    "ADR-4126 (0.29.0): the levels and personas folds are additive; every 0.28.4 top-level field (tree, delta, stages, nextAction, coverage, decisions, freezeable) is present with its 0.28.4 type. No file under rcf/ is created or modified by any `rcf define readiness` invocation. The CLI flags (`--level`, `--persona`) and the viewer tab are PR B and PR C respectively; the compute lands first (PR A)."
   ],
   "internalStructure": "readiness.js is a linear composer: 1) compute delta and its docHashes; 2) fan-out impacted / impactedFbs; 3) build stage context (freeze, delta, scope, ledgers, profile, validateErrors, probeOpenCount, coverageTree); 4) call the eight check functions; 5) fold freezeable and nextAction. The CLI parses flags, loads the tree once, loads the four ledgers and the freeze record once, computes the readiness, then routes to the text or JSON emitter. --check maps its argument to the STAGE_SHORT_NAMES map (brief -> D1 ... freeze -> D8) or accepts D1..D8 directly. The runWithAdmissibilityGate wrap sits inside main so refusals ride the same exit path as coverage's admissibility refusals.",
-  "interfaces": [],
+  "interfaces": [
+    {
+      "name": "deriveLevels",
+      "kind": "other",
+      "description": "[draft] Fold the two levels (intentComplete, readyToBuild) from `stages[].checks[]` (ADR-4126, proposal section 2.1)."
+    },
+    {
+      "name": "derivePersonas",
+      "kind": "other",
+      "description": "[draft] Fold the `personas` block; productOwner.blockers deep-equals levels.intentComplete.blockedBy; engineer.blockers is the failing engineer checks in failing stages."
+    },
+    {
+      "name": "deriveNextAction",
+      "kind": "other",
+      "description": "[draft] Pick the first failing stage (optionally persona-filtered); carries `--level intent` on the productOwner variant."
+    },
+    {
+      "name": "formatVerdictLines",
+      "kind": "other",
+      "description": "[draft] Build the two verdict strings (Intent-complete and Ready-to-build) shared by the CLI and the Readiness tab so the two surfaces cannot disagree."
+    }
+  ],
   "notes": "Slice-3 hook (rcf define freeze) reads freezeable and stages[].state; --ack <gate> writes into freeze.gates[<gate>] and re-computes readiness. Slice-5 hook (viewer) fetches the same JSON object over the existing tab wire and renders the pill vocabulary + findings-list + diff components. Performance seam: computeImpact per id on a whole-tree delta (before freeze) may be quadratic on very large trees; the compute stays fast on the dogfood chain (~700 documents, sub-second) but the CLI notes the wall time in text mode so an operator can spot regression."
 }

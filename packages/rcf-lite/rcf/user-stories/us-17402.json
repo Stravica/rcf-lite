@@ -1,0 +1,55 @@
+{
+  "usId": "US-17402",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Persona tag on every gate check",
+  "description": "User story under REQ-174. Every entry in stages[].checks[] carries an owning persona (productOwner | engineer) declared in code next to the check, so readiness consumers (the CLI, the viewer tab, delivery-stream artefacts) can route a failing check to whoever is actually blocked.",
+  "asA": "an engineer reading a readiness report",
+  "iWant": "every failing check to say whose question it is",
+  "soThat": "product-owner questions reach the product owner and engineering gaps stay with me",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17402-1",
+      "description": "[happy] Given any tree, when readiness is computed, then every entry in stages[].checks[] carries persona equal to 'productOwner' or 'engineer' and a non-empty question string.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-2",
+      "description": "[happy] Given the D1 checks, when readiness is computed, then brief:sinceFreeze, brief:kinds, brief:openQuestions and brief:profile carry persona 'productOwner'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-3",
+      "description": "[happy] Given the D2 checks, when readiness is computed, then skeleton:resolvedBy and skeleton:reqIntent carry persona 'productOwner' and skeleton:reqShape, skeleton:tadPersistence and skeleton:deployAdr carry persona 'engineer'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-4",
+      "description": "[happy] Given the D4 and D7 checks, when readiness is computed, then stories:reqHasUs and decisions:wellFormed carry persona 'productOwner' and stories:usFloors and decisions:allAnswered carry persona 'engineer'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-5",
+      "description": "[happy] Given the D3, D5, D6 and D8 checks, when readiness is computed, then every check carries persona 'engineer'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-6",
+      "description": "[must-not] Given any check, when readiness is computed, then no check carries a persona value other than 'productOwner' or 'engineer', and no failing item carries its own persona.",
+      "testable": true
+    },
+    {
+      "id": "AC-17402-7",
+      "description": "[failure] Given a notApplicable stage, when readiness is computed, then its stage:<D>:scope placeholder check carries the stage's STAGE_FALLBACK_PERSONA and ok true.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z"
+}

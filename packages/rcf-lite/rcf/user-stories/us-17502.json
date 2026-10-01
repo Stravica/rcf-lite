@@ -1,0 +1,60 @@
+{
+  "usId": "US-17502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-175",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Two levels folded on one readiness object",
+  "description": "User story under REQ-175. computeReadiness folds levels (intentComplete, readyToBuild) and personas (productOwner, engineer) from stages[].checks[] on every read; nothing new is written. The `rcf define readiness --level intent --json` output at a tree hash is the artefact a delivery stream picks up.",
+  "asA": "a delivery stream",
+  "iWant": "`rcf define readiness --level intent --json` at a tree hash to be the artefact that says the product owner's part is done",
+  "soThat": "I can pick a tree up without a hand-over meeting",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17502-1",
+      "description": "[happy] Given a tree where every productOwner check is ok and at least one engineer check fails, when readiness is computed, then levels.intentComplete.ok is true and levels.readyToBuild.ok is false.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-2",
+      "description": "[happy] Given a tree where freezeable is true, when readiness is computed, then levels.readyToBuild.ok is true and levels.intentComplete.ok is true.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-3",
+      "description": "[failure] Given a tree where brief:profile fails, when readiness is computed, then levels.intentComplete.ok is false and levels.intentComplete.blockedBy holds one blocker for D1 brief:profile with persona productOwner and ids profile:surface and profile:register.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-4",
+      "description": "[happy] Given a D3 stage acknowledged at the current hash with a failing engineer check, when readiness is computed, then that check is absent from levels.readyToBuild.blockedBy.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-5",
+      "description": "[happy] Given any tree, when readiness is computed, then personas.productOwner.blockers deep-equals levels.intentComplete.blockedBy and levels.readyToBuild.nextAction deep-equals nextAction.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-6",
+      "description": "[happy] Given failing engineer checks in D2 and D4 and a failing productOwner check in D4 only, when readiness is computed, then personas.productOwner.nextAction names D4 and personas.engineer.nextAction names D2.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-7",
+      "description": "[must-not] Given any invocation of `rcf define readiness`, when it completes, then no file under rcf/ has been created or modified.",
+      "testable": true
+    },
+    {
+      "id": "AC-17502-8",
+      "description": "[must-not] Given the 0.28.4 JSON consumer fields (tree, delta, stages, nextAction, coverage, decisions, freezeable), when readiness is emitted under 0.29.0, then every one of them is present with its 0.28.4 type.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4123-define-readiness"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z"
+}

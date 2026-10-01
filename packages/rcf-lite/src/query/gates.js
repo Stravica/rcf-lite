@@ -91,6 +91,153 @@ export const INTERFACE_KINDS = /** @type {const} */ ([
   'port', 'fileFormat', 'fixture', 'other',
 ]);
 
+/**
+ * Owning persona for every stage-gate check in 0.29.0 (ADR-4126).
+ *
+ * Two values: `productOwner` (the person who owns what the product
+ * must do) and `engineer` (the person who owns how it is built).
+ * There is no `either` / `shared` / `both`; a check that would need
+ * both is split, which is what happens to `skeleton:reqFields`
+ * (becomes `skeleton:reqIntent` + `skeleton:reqShape`) and
+ * `decisions:allAnswered` (becomes `decisions:wellFormed` +
+ * `decisions:allAnswered`). A failing item inherits its check's
+ * persona; there is no per-item override.
+ *
+ * The `notApplicable` placeholder (`stage:<D>:scope`) carries the
+ * per-stage fallback persona from `STAGE_FALLBACK_PERSONA` below.
+ * It is always ok so it never affects a level verdict.
+ */
+export const CHECK_PERSONA = /** @type {const} */ ({
+  // D1 Brief: every check is PO (the brief is the PO's statement of intent).
+  'brief:sinceFreeze': 'productOwner',
+  'brief:kinds': 'productOwner',
+  'brief:openQuestions': 'productOwner',
+  'brief:profile': 'productOwner',
+  // D2 Skeleton: resolvedBy + reqIntent are PO; reqShape, tadPersistence, deployAdr are engineer.
+  'skeleton:resolvedBy': 'productOwner',
+  'skeleton:reqIntent': 'productOwner',
+  'skeleton:reqShape': 'engineer',
+  'skeleton:tadPersistence': 'engineer',
+  'skeleton:deployAdr': 'engineer',
+  // D3 Shapes: every check is engineer (shapes are the engineer's first act after hand-over).
+  'shapes:tacHasInterface': 'engineer',
+  'shapes:kindVocabulary': 'engineer',
+  'shapes:draftSettled': 'engineer',
+  // D4 Stories: reqHasUs is PO ("what does someone do with this?"); the floors are engineer.
+  'stories:reqHasUs': 'productOwner',
+  'stories:usFloors': 'engineer',
+  // D5 Crosscut: TAD + concern-ledger content is engineering.
+  'crosscut:securityArchitecture': 'engineer',
+  'crosscut:operationalConcerns': 'engineer',
+  'crosscut:concernsResolved': 'engineer',
+  // D6 Consistency: schema validity and probes are engineer.
+  'consistency:validateClean': 'engineer',
+  'consistency:probeCount': 'engineer',
+  // D7 Decisions: enumeration is PO (the PO answers or lets the default stand);
+  // zero-open is the engineer's hand-over condition.
+  'decisions:wellFormed': 'productOwner',
+  'decisions:allAnswered': 'engineer',
+  // D8 Freeze: every check is mechanical / engineering.
+  'freeze:priorGates': 'engineer',
+  'freeze:acFbsOwnership': 'engineer',
+  'freeze:queueHead': 'engineer',
+  'freeze:validateClean': 'engineer',
+});
+
+/**
+ * Per-check heading question in the owning persona's register
+ * (ADR-4126, proposal section 1.1). The text report and the
+ * Readiness tab print the question as the heading of each check's
+ * findings list. Static per check in 0.29.0; per-item plain-English
+ * wording is step 3's guided elicitation.
+ */
+export const CHECK_QUESTION = /** @type {const} */ ({
+  'brief:sinceFreeze': 'What has changed, or what is this project for?',
+  'brief:kinds': 'Is this a capability, a constraint, an actor, or something else?',
+  'brief:openQuestions': 'Any open questions in the brief, resolved or promoted to a decision?',
+  'brief:profile': 'How do you want to review, and who are you writing for?',
+  'skeleton:resolvedBy': 'Does this statement become a requirement, an entity, or an omission?',
+  'skeleton:reqIntent': 'What does this requirement mean and where does it sit?',
+  'skeleton:reqShape': 'Every requirement in scope carries a shape classification.',
+  'skeleton:tadPersistence': 'TAD data architecture lists dataStores and coreEntities for persistence REQs.',
+  'skeleton:deployAdr': 'Exactly one Deploy target or Deploy deferral ADR exists.',
+  'shapes:tacHasInterface': 'Every TAC in scope has at least one interface.',
+  'shapes:kindVocabulary': 'Every interface kind is in the closed vocabulary.',
+  'shapes:draftSettled': 'Every draft interface has been settled (the [draft] marker is removed).',
+  'stories:reqHasUs': 'What does someone do with this requirement?',
+  'stories:usFloors': 'Every story in scope meets the class, tacIds and testability floors.',
+  'crosscut:securityArchitecture': 'TAD.securityArchitecture is present when an auth or httpApi REQ exists.',
+  'crosscut:operationalConcerns': 'TAD.operationalConcerns is present when a deployed-scope AC exists.',
+  'crosscut:concernsResolved': 'Every concern-ledger entry on a REQ in scope is applied or waived.',
+  'consistency:validateClean': 'Validate is clean tree-wide.',
+  'consistency:probeCount': 'Zero open probe-ledger entries.',
+  'decisions:wellFormed': 'Every decision is enumerated (question, two or more options, a default).',
+  'decisions:allAnswered': 'Zero decisions are open.',
+  'freeze:priorGates': 'Every prior stage passed or is acknowledged at the current hash.',
+  'freeze:acFbsOwnership': 'Every AC is owned by exactly one FBS.',
+  'freeze:queueHead': 'Queue head is actionable and not a placeholder.',
+  'freeze:validateClean': 'Validate is clean tree-wide.',
+});
+
+/**
+ * Per-stage fallback persona for the `stage:<D>:scope` placeholder
+ * check that `notApplicable` envelopes carry. The placeholder is
+ * always ok so this never affects a level, but keeps "every check
+ * has a persona" true for consumers and the table test (ADR-4126
+ * decision 10).
+ */
+export const STAGE_FALLBACK_PERSONA = /** @type {const} */ ({
+  D1: 'productOwner',
+  D2: 'productOwner',
+  D3: 'engineer',
+  D4: 'productOwner',
+  D5: 'engineer',
+  D6: 'engineer',
+  D7: 'productOwner',
+  D8: 'engineer',
+});
+
+/**
+ * Look up the question heading for a check name.
+ * @param {string} name
+ * @returns {string}
+ */
+export function checkQuestion(name) {
+  return /** @type {any} */ (CHECK_QUESTION)[name] ?? '';
+}
+
+/**
+ * Look up the owning persona for a check name.
+ * @param {string} name
+ * @returns {'productOwner' | 'engineer' | null}
+ */
+export function checkPersona(name) {
+  const v = /** @type {any} */ (CHECK_PERSONA)[name];
+  return v === 'productOwner' || v === 'engineer' ? v : null;
+}
+
+/**
+ * Draft interface marker (ADR-4126, proposal section 1.3). An
+ * interface description that starts with `[draft]` after optional
+ * leading whitespace is a draft pre-populated at L1; the engineer
+ * removes the marker when the interface is settled. Decision 6
+ * uses the same bracket-prefix convention for AC class.
+ */
+const INTERFACE_DRAFT_RE = /^\[draft\]/;
+
+/**
+ * True when an interface's `description` carries the leading
+ * `[draft]` marker (whitespace tolerated).
+ *
+ * @param {unknown} iface
+ * @returns {boolean}
+ */
+export function parseInterfaceDraft(iface) {
+  const desc = iface && typeof iface === 'object' ? /** @type {any} */ (iface).description : null;
+  if (typeof desc !== 'string') return false;
+  return INTERFACE_DRAFT_RE.test(desc.trimStart());
+}
+
 /** Warn-with-ack stages in 0.29.0 (ADR-4122). */
 const WARN_WITH_ACK = new Set(['D3', 'D5', 'D6']);
 
@@ -156,12 +303,26 @@ export function parseAcClass(ac) {
  *   twentieth failure. `ok` is likewise derived from the untruncated
  *   count. The section 2.4 shape stays intact -- `failing` remains the
  *   display array; no new field is exported.
- * @returns {{ name: string, ok: boolean, over: 'delta'|'tree', pass: number, total: number, failing: Array<{ id: string, why: string }> }}
+ * @returns {{ name: string, ok: boolean, over: 'delta'|'tree', pass: number, total: number, failing: Array<{ id: string, why: string }>, persona: 'productOwner'|'engineer', question: string }}
  */
 function makeCheck(name, over, total, failing, totalFailingCount) {
   const nFailing = typeof totalFailingCount === 'number' ? totalFailingCount : failing.length;
   const pass = Math.max(0, total - nFailing);
-  return { name, ok: nFailing === 0, over, pass, total, failing: [...failing] };
+  // Resolve persona + question for the check. For stage placeholders
+  // (`stage:<D>:scope`) the persona comes from STAGE_FALLBACK_PERSONA.
+  // Unknown names fall back to engineer with an empty question so
+  // consumers never see null; the table test catches any new check
+  // that forgets to register in CHECK_PERSONA / CHECK_QUESTION.
+  let persona = /** @type {any} */ (CHECK_PERSONA)[name];
+  if (!persona) {
+    const stageMatch = /^stage:(D[1-8]):scope$/.exec(name);
+    persona = stageMatch
+      ? /** @type {any} */ (STAGE_FALLBACK_PERSONA)[stageMatch[1]]
+      : 'engineer';
+  }
+  const question = /** @type {any} */ (CHECK_QUESTION)[name]
+    ?? (name.startsWith('stage:') ? 'No documents of this stage’s type are in scope.' : '');
+  return { name, ok: nFailing === 0, over, pass, total, failing: [...failing], persona, question };
 }
 
 /**
@@ -366,22 +527,27 @@ export function checkD2Skeleton(ctx) {
     unresolvedStmts.map((s) => ({ id: `brief:${s.id}`, why: `${s.kind} statement has no resolvedBy and no REQ-title hit` })),
   ));
 
-  // Check 2: every REQ in scope has description, shapeClassification, domain.
+  // Checks 2a / 2b: the former `skeleton:reqFields` split into two
+  // homogeneous checks (ADR-4126, proposal section 1.3). Each
+  // evaluates every REQ in scope independently so a REQ with a TODO
+  // description still has its shapes reported, and vice versa.
+  const reqIntentFail = [];
   const reqShapeFail = [];
   for (const req of reqInScope) {
+    // reqIntent (productOwner): description without a TODO + domain
+    // (what the requirement means and where it sits).
     if (typeof req.description !== 'string' || req.description.length === 0 || TODO_RE.test(req.description)) {
-      reqShapeFail.push({ id: req.reqId, why: 'description missing or contains TODO placeholder' });
-      continue;
+      reqIntentFail.push({ id: req.reqId, why: 'description missing or contains TODO placeholder' });
+    } else if (typeof req.domain !== 'string' || req.domain.length === 0) {
+      reqIntentFail.push({ id: req.reqId, why: 'domain missing' });
     }
+    // reqShape (engineer): shapeClassification.shapes classification.
     if (!req.shapeClassification || !Array.isArray(req.shapeClassification.shapes)) {
       reqShapeFail.push({ id: req.reqId, why: 'shapeClassification.shapes missing' });
-      continue;
-    }
-    if (typeof req.domain !== 'string' || req.domain.length === 0) {
-      reqShapeFail.push({ id: req.reqId, why: 'domain missing' });
     }
   }
-  checks.push(makeCheck('skeleton:reqFields', 'delta', reqInScope.length, reqShapeFail));
+  checks.push(makeCheck('skeleton:reqIntent', 'delta', reqInScope.length, reqIntentFail));
+  checks.push(makeCheck('skeleton:reqShape', 'delta', reqInScope.length, reqShapeFail));
 
   // Check 3: TAD.dataArchitecture.dataStores + coreEntities present when any
   // REQ exists tree-wide.
@@ -422,14 +588,16 @@ export function checkD2Skeleton(ctx) {
 const INTERFACE_KINDS_SET = new Set(INTERFACE_KINDS);
 
 /**
- * D3 -- Interface contracts and shapes. 0.29.0 runs only the cheap
- * presence + closed-vocabulary checks.
+ * D3 -- Interface contracts and shapes. 0.29.0 runs the cheap
+ * presence, closed-vocabulary and draft-marker checks
+ * (`shapes:draftSettled` per ADR-4126 scans the `[draft]` prefix on
+ * `TAC.interfaces[].description`).
  *
  * SEAM 0.30: template markers per kind (recordShape.fields:, httpRoute
  * method/path/request/response/errors, fixture.instances:); entity-name
- * join across TAD.coreEntities and TAC.interfaces[]; ownerRef and
- * `authoredAt` path resolution. Those add checks to this stage; the
- * fold shape stays the same.
+ * join across TAD.dataArchitecture.coreEntities and TAC.interfaces[];
+ * ownerRef and `authoredAt` path resolution. Those add checks to this
+ * stage; the fold shape stays the same.
  *
  * @param {StageContext} ctx
  */
@@ -460,8 +628,14 @@ export function checkD3Shapes(ctx) {
   ));
 
   // Check 2: every interface kind is in the closed vocabulary.
+  // Check 3: no interface description still carries the `[draft]`
+  // marker (ADR-4126, proposal section 1.3). A draft interface is
+  // entry material pre-populated at L1; the engineer removes the
+  // marker when the interface is settled. `tacHasInterface` and
+  // `kindVocabulary` apply equally to drafts.
   let totalInterfaces = 0;
   const badKinds = [];
+  const draftIfaces = [];
   for (const tac of tacsInScope) {
     for (const iface of tac.interfaces ?? []) {
       totalInterfaces += 1;
@@ -469,9 +643,13 @@ export function checkD3Shapes(ctx) {
       if (typeof kind !== 'string' || !INTERFACE_KINDS_SET.has(kind)) {
         badKinds.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: `unknown interface kind ${JSON.stringify(kind)}` });
       }
+      if (parseInterfaceDraft(iface)) {
+        draftIfaces.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: 'draft interface pre-populated at L1, not yet settled' });
+      }
     }
   }
   checks.push(makeCheck('shapes:kindVocabulary', 'delta', totalInterfaces, badKinds));
+  checks.push(makeCheck('shapes:draftSettled', 'delta', totalInterfaces, draftIfaces));
 
   return foldState('D3', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
@@ -714,6 +892,31 @@ export function checkD7Decisions(ctx) {
   }
 
   const checks = [];
+  // Check 1: `decisions:wellFormed` (productOwner, over tree) --
+  // every decision is enumerated (ADR-4126, proposal section 1.3):
+  // a non-empty question, at least two options, a default that
+  // names one of the option letters.
+  const wellFormedFail = [];
+  for (const d of decisionEntries) {
+    const why = 'decision is not enumerated (question, two or more options, a default)';
+    const id = `decision:${d?.id ?? '?'}`;
+    if (typeof d?.question !== 'string' || d.question.length === 0) {
+      wellFormedFail.push({ id, why });
+      continue;
+    }
+    if (!Array.isArray(d.options) || d.options.length < 2) {
+      wellFormedFail.push({ id, why });
+      continue;
+    }
+    const letters = new Set(d.options.map((o) => (o && typeof o === 'object') ? /** @type {any} */ (o).letter : undefined));
+    if (typeof d.default !== 'string' || !letters.has(d.default)) {
+      wellFormedFail.push({ id, why });
+    }
+  }
+  checks.push(makeCheck('decisions:wellFormed', 'tree', decisionEntries.length, wellFormedFail));
+
+  // Check 2: `decisions:allAnswered` (engineer, over tree) -- zero
+  // open decisions. The hand-over condition for build.
   checks.push(makeCheck(
     'decisions:allAnswered',
     'tree',

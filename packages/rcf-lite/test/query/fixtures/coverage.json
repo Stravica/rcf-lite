@@ -4475,6 +4475,126 @@
             "TC-216-identity-seed-surface"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-1",
+          "covered": true,
+          "testCases": [
+            "TC-219-every-check-has-persona-and-question"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-2",
+          "covered": true,
+          "testCases": [
+            "TC-219-d1-personas"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-3",
+          "covered": true,
+          "testCases": [
+            "TC-219-d2-personas"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-4",
+          "covered": true,
+          "testCases": [
+            "TC-219-d4-d7-personas"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-5",
+          "covered": true,
+          "testCases": [
+            "TC-219-engineer-stages"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-6",
+          "covered": true,
+          "testCases": [
+            "TC-219-persona-vocabulary-closed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-7",
+          "covered": true,
+          "testCases": [
+            "TC-219-not-applicable-placeholder-persona"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-1",
+          "covered": true,
+          "testCases": [
+            "TC-220-todo-no-shapes-fails-both"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-2",
+          "covered": true,
+          "testCases": [
+            "TC-220-shapes-no-domain-fails-req-intent-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-3",
+          "covered": true,
+          "testCases": [
+            "TC-220-draft-fails-draft-settled"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-4",
+          "covered": true,
+          "testCases": [
+            "TC-220-marker-removed-passes-draft-settled"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-5",
+          "covered": true,
+          "testCases": [
+            "TC-220-draft-kind-vocabulary-still-applies"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-6",
+          "covered": true,
+          "testCases": [
+            "TC-220-enumerated-passes-well-formed-fails-all-answered"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-7",
+          "covered": true,
+          "testCases": [
+            "TC-220-one-option-no-default-fails-well-formed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17403-8",
+          "covered": true,
+          "testCases": [
+            "TC-220-no-req-fields-emitted"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -4528,6 +4648,70 @@
           "covered": true,
           "testCases": [
             "TC-217-load-all-ledgers"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-1",
+          "covered": true,
+          "testCases": [
+            "TC-221-po-ok-engineer-failing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-2",
+          "covered": true,
+          "testCases": [
+            "TC-221-freezeable-implies-l1"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-3",
+          "covered": true,
+          "testCases": [
+            "TC-221-brief-profile-l1-blocker"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-4",
+          "covered": true,
+          "testCases": [
+            "TC-221-acknowledged-absent-from-l2"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-5",
+          "covered": true,
+          "testCases": [
+            "TC-221-personas-mirror-levels"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-6",
+          "covered": true,
+          "testCases": [
+            "TC-221-persona-next-action-picks-first-failing-stage"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-7",
+          "covered": true,
+          "testCases": [
+            "TC-221-no-write-on-invocation"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17502-8",
+          "covered": true,
+          "testCases": [
+            "TC-221-backwards-compat-fields"
           ],
           "unresolvedTestCases": []
         }
