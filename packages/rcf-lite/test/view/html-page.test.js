@@ -41,24 +41,34 @@ test('renderPage carries an anchor per document via data-doc-id or id', async ()
   }
 });
 
-test('renderPage emits a four-tab layout (D1, D2)', async () => {
+test('renderPage emits a six-tab layout with Readiness as tab 1 and Overview renamed PRD (AC-18001-1)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  for (const name of ['overview', 'requirements', 'architecture', 'build']) {
+  for (const name of ['readiness', 'overview', 'requirements', 'architecture', 'build']) {
     assert.match(html, new RegExp(`data-tab="${name}"`));
     assert.match(html, new RegExp(`id="tab-${name}"`));
   }
   assert.match(html, /role="tablist"/);
+  // Five single-word tab ids (product-map still escapes the `\w+` regex).
   const tabpanels = html.match(/<section id="tab-\w+" role="tabpanel"/g) ?? [];
-  assert.equal(tabpanels.length, 4);
+  assert.equal(tabpanels.length, 5);
+  // The former Overview label is now PRD (data-tab=overview preserved for
+  // hash-anchor backwards compatibility; the heading inside the panel is
+  // the former Overview content under the new label).
+  assert.match(html, /data-tab="overview"[^>]*>PRD</);
+  // Readiness button is the first tab button.
+  const firstBtn = html.match(/<button type="button" role="tab" data-tab="(\w+)"/);
+  assert.ok(firstBtn);
+  assert.equal(firstBtn[1], 'readiness');
 });
 
-test('renderPage marks non-Overview tabpanels hidden and Overview default (D12)', async () => {
+test('renderPage marks Readiness the default tabpanel and hides all other tabpanels (D12 + AC-18001-1)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  assert.match(html, /id="tab-overview"[^>]*role="tabpanel"(?![^>]*hidden)/);
+  assert.match(html, /id="tab-readiness"[^>]*role="tabpanel"(?![^>]*hidden)/);
+  assert.match(html, /id="tab-overview"[^>]*role="tabpanel"[^>]*hidden/);
   assert.match(html, /id="tab-requirements"[^>]*role="tabpanel"[^>]*hidden/);
   assert.match(html, /id="tab-architecture"[^>]*role="tabpanel"[^>]*hidden/);
   assert.match(html, /id="tab-build"[^>]*role="tabpanel"[^>]*hidden/);

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-738",
+  "path": "src/view/components/diff.js",
+  "title": "Shared document-level diff component",
+  "description": "diff(before, after) renders a two-column before-and-after of two document bodies for the Readiness delta list. 0.29.0 ships document-level only; criterion-level before-and-after is deferred per ADR-4127. Pure.",
+  "implementsAcIds": [
+    "AC-18101-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}

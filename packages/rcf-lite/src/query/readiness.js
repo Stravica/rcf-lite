@@ -49,6 +49,12 @@ import {
  * @property {number[]} briefSince
  * @property {import('./impact.js').ImpactNode[]} impacted
  * @property {string[]} impactedFbs
+ * @property {Record<string, string>} currentDocHashes
+ *   Live per-document hashes (ledgers keyed as `ledger:<name>`).
+ *   Threaded from `computeDelta` so the Readiness tab can render a
+ *   document-level hash diff for each changed / added id (spec §5
+ *   block 6; the frozen body is not persisted in the freeze record
+ *   in 0.29.0, so the diff is hash-only for now).
  */
 
 /**
@@ -278,6 +284,7 @@ export function computeReadiness(tree, args = {}) {
       briefSince: delta.briefSince,
       impacted: impactedNodes,
       impactedFbs,
+      currentDocHashes: delta.currentDocHashes ?? {},
     },
     stages,
     nextAction,

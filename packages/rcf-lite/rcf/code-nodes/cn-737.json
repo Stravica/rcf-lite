@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-737",
+  "path": "src/view/components/findings-list.js",
+  "title": "Shared findings-list component",
+  "description": "findingsList({ heading, count, items }) emits a heading plus an id-anchor list with per-id why strings; ids are capped at 20 and the tail becomes a `... N more suppressed` line. Pure.",
+  "implementsAcIds": [
+    "AC-18101-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}

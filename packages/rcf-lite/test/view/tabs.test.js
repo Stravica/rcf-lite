@@ -21,10 +21,11 @@ async function renderLive() {
   return { model, html: renderPage(model) };
 }
 
-test('tab bar carries five buttons in the expected order (D2 + Product Map)', async () => {
+test('tab bar carries six buttons in the expected order with Readiness first (AC-18001-1)', async () => {
   const { html } = await renderLive();
-  // Product Map (REQ-170, w-2026-09-21-dave-008, d-020) added the fifth tab.
-  const order = ['overview', 'product-map', 'requirements', 'architecture', 'build'];
+  // PR C (REQ-180, w-2026-10-01-dave-003) inserts Readiness as tab 1 and
+  // renames the Overview tab PRD (data-tab=overview preserved).
+  const order = ['readiness', 'overview', 'product-map', 'requirements', 'architecture', 'build'];
   let lastIdx = -1;
   for (const name of order) {
     const idx = html.indexOf(`data-tab="${name}"`);
@@ -34,15 +35,16 @@ test('tab bar carries five buttons in the expected order (D2 + Product Map)', as
   }
 });
 
-test('exactly one tabpanel is visible by default (Overview)', async () => {
+test('exactly one tabpanel is visible by default (Readiness) (AC-18001-1)', async () => {
   const { html } = await renderLive();
   const panelMatches = [...html.matchAll(/<section id="tab-([\w-]+)" role="tabpanel"([^>]*)>/g)];
   const visible = panelMatches.filter((m) => !/hidden/.test(m[2]));
   const hidden = panelMatches.filter((m) => /hidden/.test(m[2]));
   assert.equal(visible.length, 1);
-  assert.equal(visible[0][1], 'overview');
-  // 5 top-level tabpanels total; 4 hidden by default (product-map is one).
-  assert.equal(hidden.length, 4);
+  assert.equal(visible[0][1], 'readiness');
+  // 6 top-level tabpanels total; 5 hidden by default (readiness, overview,
+  // product-map, requirements, architecture, build).
+  assert.equal(hidden.length, 5);
 });
 
 test('Requirements tab contains the REQ drill-down as doc-details', async () => {

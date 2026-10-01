@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "tacId": "TAC-4127-readiness-view",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Readiness viewer tab and shared pill, findings-list and diff components",
+  "purpose": "Render the computeReadiness object as tab 1 of the HTML review surface so the viewer and `rcf define readiness --json` share one source of truth. Factor the three visual roles the tab needs (status pill, items list, before-after) into stable modules every tab can call. The tab is pure: it never recomputes readiness; the renderer takes the result object and the profile and emits one HTML string.",
+  "responsibilities": [
+    "src/view/readiness.js: renderReadinessPanel(result, { profile }) returns the eleven ordered blocks in spec section 5 as one HTML string: tree line (formatTreeLine), two verdict pills with formatVerdictLines strings as labels, two per-persona next-action lines, D1..D8 state chips with reason/acknowledgement text on hover, blockers grouped by persona (register orders the pair; non-register group collapses with count visible, never omitted), delta list grouped by REQ ancestor with document-level diff on changed items, per-stage check detail with persona pill and findings list when not ok, coverage tree-versus-delta with re-verify and re-execute counts, decisions outstanding in the #241 numbered format, a Freeze now control enabled iff levels.readyToBuild.ok, and the loaded freeze record.",
+    "src/view/readiness.js: deliberately imports nothing from src/query/ that is not already exported from src/query/index.js (formatVerdictLines, formatTreeLine, shortHash); the renderer never calls computeReadiness and never loads anything from disk.",
+    "src/view/components/pill.js: pill({ value, variant, title?, href? }) returns `<span class=\"rcf-pill rcf-pill--<variant> rcf-pill--<normalisedValue>\" title?>{value}</span>` or an anchor when href is set; the normalisedValue is lowercased and `/` or spaces are collapsed to `-`.",
+    "src/view/components/findings-list.js: findingsList({ heading, count, items }) returns `<div class=\"rcf-findings-list\"><h4>{heading} <span class=\"rcf-findings-list__count\">{count}</span></h4><ul>...<li><a href={anchor}>{id}</a>: {why}</li>...</ul></div>` with ids capped at 20 and a `... N more suppressed` line beyond.",
+    "src/view/components/diff.js: diff(before, after) returns a two-column rendering of two document bodies for the delta list; criterion-level before-and-after is deferred per ADR-4127.",
+    "src/view/html-page.js: Readiness button and tabpanel are the first entries; the former Overview button and panel are relabelled PRD; the data-tab=overview and id=tab-overview identifiers are preserved so existing hash anchors still resolve; the inline-script TABS array gains 'readiness' as the first entry (default active tab) and keeps the existing four entries in order.",
+    "src/view/index.js: renderModelToPage loads the freeze record, ledgers, test pointers and profile text once, invokes computeReadiness via the pure src/query/ seam, and threads the result into the model so renderPage and renderContent carry one computed object; the SSE tree-update broadcast rewalks and recomputes on every change under rcf/."
+  ],
+  "internalStructure": "readiness.js is a sequence of eleven small block builders calling the three shared components; each block consumes exactly one top-level field of the readiness result so a wire-level JSON diff ties to a visible block. The register ordering is picked once at the top via pickRegister (same helper the CLI uses) and threaded down. Hash anchors are built with the same `#<docId>` convention the existing tabs use so blocker-id links open the right tab and expand the right <details> through the existing resolveHash routine.",
+  "interfaces": [
+    {
+      "name": "renderReadinessPanel",
+      "kind": "other",
+      "description": "[draft] Build the Readiness tab inner HTML from the readiness result and the operator profile; pure, no I/O, no recompute."
+    },
+    {
+      "name": "pill",
+      "kind": "other",
+      "description": "[draft] Render one rcf-pill span (or anchor) with a vocabulary class per value."
+    },
+    {
+      "name": "findingsList",
+      "kind": "other",
+      "description": "[draft] Render a heading plus id-anchor list with per-id why strings; ids capped at 20."
+    },
+    {
+      "name": "diff",
+      "kind": "other",
+      "description": "[draft] Render two document bodies side by side; document-level only in 0.29.0."
+    },
+    {
+      "name": "pickRegister",
+      "kind": "other",
+      "description": "[draft] Decide persona ordering from profile.md text; same contract as the CLI helper (productOwner | engineer | unstated)."
+    }
+  ],
+  "notes": "The 0.29.0 scope keeps the diff component document-level only; criterion-level before-and-after is deferred to the UX review per ADR-4127. The pill component is additive and never changes the Product Map `pm-mini` or Requirements `status-chip` markup in this PR; those swaps are follow-ups once a mechanical mapping is established."
+}

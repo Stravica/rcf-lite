@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-735",
+  "path": "src/view/readiness.js",
+  "title": "Readiness tab panel renderer",
+  "description": "renderReadinessPanel(result, { profile, freezeRecord }) returns the eleven ordered blocks of spec section 5 for the Readiness tab: tree line, two verdict pills with formatVerdictLines labels, two per-persona next-action lines, D1..D8 state chips, blockers grouped by persona (register orders the pair; the non-register group collapses with its count visible, never omitted), delta list, per-stage check detail, coverage tree-vs-delta, decisions outstanding, Freeze now control (enabled iff levels.readyToBuild.ok), freeze record. Pure: no I/O, no recompute. pickRegister helper mirrors the CLI's contract.",
+  "implementsAcIds": [
+    "AC-18001-1",
+    "AC-18001-2",
+    "AC-18001-3",
+    "AC-18001-4",
+    "AC-18001-5",
+    "AC-18001-6",
+    "AC-18001-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}

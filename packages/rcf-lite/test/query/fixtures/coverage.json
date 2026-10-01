@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 110,
-    "covered": 110,
+    "requirements": 112,
+    "covered": 112,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4857,6 +4857,100 @@
           "covered": true,
           "testCases": [
             "TC-218-hygiene"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-180",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18001-1",
+          "covered": true,
+          "testCases": [
+            "TC-223-tab-order-and-rename"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-2",
+          "covered": true,
+          "testCases": [
+            "TC-223-verdict-pills-match-cli"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-3",
+          "covered": true,
+          "testCases": [
+            "TC-223-po-blockers-as-findings-list"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-4",
+          "covered": true,
+          "testCases": [
+            "TC-223-register-orders-persona-groups"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-5",
+          "covered": true,
+          "testCases": [
+            "TC-223-no-blocker-id-omitted"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-6",
+          "covered": true,
+          "testCases": [
+            "TC-223-freeze-now-disabled"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18001-7",
+          "covered": true,
+          "testCases": [
+            "TC-223-ids-on-tab-match-cli-json"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-181",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18101-1",
+          "covered": true,
+          "testCases": [
+            "TC-223-pill-vocabulary"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18101-2",
+          "covered": true,
+          "testCases": [
+            "TC-223-findings-list-markup"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18101-3",
+          "covered": true,
+          "testCases": [
+            "TC-223-no-existing-tab-tests-change"
           ],
           "unresolvedTestCases": []
         }

@@ -177,6 +177,10 @@ function standaloneIds(tree) {
  *   Ledger-brief statement ids above the freeze high-water mark.
  * @property {number} unchanged  count of ids present in both maps with
  *                               the same hash (excludes ledgers).
+ * @property {Record<string, string>} currentDocHashes
+ *   The live per-document hashes keyed by id (ledgers appear under
+ *   `ledger:<name>`). Exposed so the viewer can show a document-level
+ *   hash diff for every changed/added id (spec section 5 block 6).
  */
 
 /**
@@ -221,6 +225,7 @@ export function computeDelta(tree, freeze, ledgers) {
       removed: [],
       briefSince: [],
       unchanged: 0,
+      currentDocHashes: { ...currentHashes },
     };
   }
 
@@ -272,5 +277,6 @@ export function computeDelta(tree, freeze, ledgers) {
     removed,
     briefSince,
     unchanged,
+    currentDocHashes: { ...currentHashes },
   };
 }
