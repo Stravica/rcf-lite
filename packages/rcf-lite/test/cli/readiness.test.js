@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile as readFileAsync, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { Writable } from 'node:stream';
@@ -156,6 +156,49 @@ test('readiness cli: AC-17503-1 default (no --check, no --level) exits 0 and pri
   // Both verdict lines always print (spec section 2.3).
   assert.match(r.stdout, /^Intent-complete: no;/m);
   assert.match(r.stdout, /^Ready-to-build: no;/m);
+});
+
+test('readiness cli: AC-17503-2 --level intent exits 0 when PO is clean', async () => {
+  const cwd = await scratchProject();
+  // Seed a brief statement so brief:sinceFreeze and brief:kinds pass.
+  await mkdir(join(cwd, 'rcf', 'define'), { recursive: true });
+  const briefLedger = {
+    statements: [
+      {
+        id: 1,
+        kind: 'capability',
+        text: 'The system lists items.',
+        source: 'inline',
+        addedAt: '2026-10-01T00:00:00Z',
+        status: 'open',
+        // skeleton:resolvedBy is PO: a resolving statement must point
+        // at a REQ (or match a REQ title). REQ-001 below is edited to
+        // carry the matching title so the statement resolves.
+        resolvedBy: 'REQ-001',
+      },
+    ],
+  };
+  await writeFile(join(cwd, 'rcf', 'define', 'brief-ledger.json'), JSON.stringify(briefLedger, null, 2));
+  // Write profile.md with surface + register markers (brief:profile).
+  await mkdir(join(cwd, 'rcf', '.identity'), { recursive: true });
+  await writeFile(
+    join(cwd, 'rcf', '.identity', 'profile.md'),
+    '# Profile\n\nSurface: viewer\nRegister: productOwner\n',
+  );
+  // Fix REQ-001 so skeleton:reqIntent (PO) passes. shapeClassification
+  // is left absent on purpose: skeleton:reqShape is engineer and
+  // --level intent must not care about it (AC-17503-2's precondition
+  // is "only engineer checks fail").
+  const reqPath = join(cwd, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFileAsync(reqPath, 'utf8'));
+  req.title = 'List items';
+  req.description = 'The system lists items for the operator.';
+  req.domain = 'defineDetection';
+  await writeFile(reqPath, JSON.stringify(req, null, 2));
+  // Act: --level intent on this PO-clean tree.
+  const r = await run(['--level', 'intent'], cwd);
+  assert.equal(r.code, 0, `expected exit 0, got ${r.code}; stderr: ${r.stderr}`);
+  assert.match(r.stdout, /^Intent-complete: yes/m);
 });
 
 test('readiness cli: AC-17503-3 --level intent exits 4 when PO fails', async () => {

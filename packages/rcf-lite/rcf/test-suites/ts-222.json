@@ -23,7 +23,7 @@
       "acId": "AC-17503-1",
       "description": "Parameterised exit matrix across all rows of spec section 3.2 (no flag, --check <stage>, --check all, --level intent, --level build, --level + --check).",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-1 exit matrix (parameterised)"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations)"
     },
     {
       "id": "TC-222-level-intent-pass",
@@ -44,7 +44,7 @@
       "acId": "AC-17503-4",
       "description": "--level build exits 4 on an unacknowledged D3 failure even when every blocking stage passes; the [warn] line still prints.",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-4 --level build exits 4 on unacknowledged D3 failure"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-4 --level build exits 4 on a failing tree and prints warn lines for unacked warn-with-ack stages"
     },
     {
       "id": "TC-222-check-all-unchanged",
@@ -61,18 +61,25 @@
       "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-6 --persona filters text and does not change exit"
     },
     {
-      "id": "TC-222-unknown-values-exit-2",
+      "id": "TC-222-unknown-values-exit-2-level",
       "acId": "AC-17503-7",
-      "description": "--level ship exits 2 with the usage line naming intent|build; --persona architect exits 2 with the usage line naming productOwner|engineer.",
+      "description": "--level ship exits 2 with the usage line naming intent|build.",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-7 unknown --level or --persona exits 2"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-7 unknown --level exits 2 with usage line"
+    },
+    {
+      "id": "TC-222-unknown-values-exit-2-persona",
+      "acId": "AC-17503-7",
+      "description": "--persona architect exits 2 with the usage line naming productOwner|engineer.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-7 unknown --persona exits 2 with usage line"
     },
     {
       "id": "TC-222-json-meta-level",
       "acId": "AC-17503-8",
       "description": "--json --level intent emits _meta.level === 'intent' and carries levels and personas.",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-8 --json --level intent carries _meta.level"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-8 --json --level intent carries _meta.level and preserves levels + personas"
     },
     {
       "id": "TC-222-text-persona-grouping",
@@ -86,7 +93,7 @@
       "acId": "AC-17503-1",
       "description": "formatVerdictLines builds the four exact strings in spec section 2.3 (L1 ok, L1 not ok, L2 ok, L2 not ok) from crafted fixture results.",
       "status": "pending",
-      "testPointer": "test/query/readiness.test.js::readiness: AC-17503-* formatVerdictLines emits the spec 2.3 strings"
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126): formatVerdictLines returns the section 2.3 wording"
     }
   ],
   "status": "draft"
