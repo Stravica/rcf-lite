@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "acIds": [
+    "AC-18001-1",
+    "AC-18001-2",
+    "AC-18001-3",
+    "AC-18001-4",
+    "AC-18001-5",
+    "AC-18001-6",
+    "AC-18001-7",
+    "AC-18101-1",
+    "AC-18101-2",
+    "AC-18101-3"
+  ],
+  "fbsId": "FBS-201",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 201,
+  "executionStatus": "complete",
+  "title": "DEFINE step 2 (0.29.0) PR C: Readiness tab as tab 1, Overview-to-PRD rename, shared pill, findings-list and diff components (REQ-180, REQ-181, TAC-4127, ADR-4127)",
+  "summary": "Land src/view/readiness.js plus src/view/components/{pill,findings-list,diff}.js; wire Readiness as the first tab in html-page.js; rename the Overview button and panel to PRD with no content change; keep the data-tab=overview identifier so existing hash anchors still resolve. The tab renders the computeReadiness result passed in from renderModelToPage (which loads the freeze record, ledgers, test pointers and profile text once per rewalk). Document-level diff only; criterion-level before-and-after is deferred per ADR-4127. Product Map and Requirements markup is unchanged; the shared components are additive in 0.29.0.",
+  "dependsOnFbsIds": ["FBS-200"],
+  "approach": "html-page.js: insert the Readiness tab button as the first entry; relabel the Overview button and panel heading to PRD (identifiers preserved); add the inline-script TABS entry 'readiness' as the first value; renderContent receives the readiness result on the model and emits the Readiness tabpanel ahead of the PRD tabpanel. src/view/readiness.js: eleven block builders in spec-section-5 order calling the three shared components; register ordering picked once at the top; blocker ids rendered as hash anchors so the existing resolveHash routine opens the right document tab. src/view/components/*.js: three small, pure modules each exporting the one function the tab calls. src/view/index.js: renderModelToPage loads freeze, ledgers, testPointers and profileText once per walk and attaches the readiness result to the model so the SSE live-update path carries the recomputed object. Tests under test/view/readiness-tab.test.js cover AC-18001-1..7 and AC-18101-1..3; the layout-regression baseline is regenerated as a result of the new DOM.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4127-readiness-view"
+    ],
+    "adrIds": [
+      "ADR-4127-readiness-tab-order-and-register"
+    ]
+  },
+  "deliverables": [
+    "src/view/readiness.js: renderReadinessPanel(result, { profile }); eleven ordered blocks per spec section 5; pure, no I/O",
+    "src/view/components/pill.js, findings-list.js, diff.js: the three shared view components",
+    "src/view/html-page.js: Readiness tab as first entry; PRD rename (label-only); inline-script TABS array updated",
+    "src/view/index.js: renderModelToPage loads freeze, ledgers, testPointers and profileText; attaches the computed readiness result to the model",
+    "test/view/readiness-tab.test.js: AC-18001-1 through AC-18001-7 and AC-18101-1 through AC-18101-3",
+    "test/view/layout-regression.test.js: baseline regenerated to include the Readiness tabpanel",
+    "rcf/requirements/req-180.json, rcf/requirements/req-181.json, rcf/user-stories/us-18001.json, rcf/user-stories/us-18101.json, rcf/tacs/tac-4127-readiness-view.json, rcf/adrs/adr-4127-readiness-tab-order-and-register.json, rcf/test-suites/ts-223.json: the chain documents under PRD-001 / TAD-001 / BS-001",
+    "rcf/fbs/fbs-201.json: this file, carrying AC-18001-* and AC-18101-* ownership",
+    "CHANGELOG [Unreleased] 0.29.0 PR C bullet"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "`rcf define freeze` is untouched; the no-mutation contract (TS-221 TC-no-write-on-invocation) still holds. Product Map and Requirements rendering is unchanged in this PR; the shared components are additive and existing tab tests pass without edits."
+}

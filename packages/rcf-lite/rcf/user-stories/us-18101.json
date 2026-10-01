@@ -1,0 +1,35 @@
+{
+  "usId": "US-18101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-181",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Shared pill, findings-list and diff components",
+  "description": "User story under REQ-181. Three view modules land under src/view/components/: pill, findings-list, diff. Readiness is their first consumer; existing Product Map and Requirements rendering keeps its markup where the swap is not mechanical, and no existing test expectation changes in that case. See the DEFINE step 2 spec dated 2026-10-01 (section 5) for the component contract.",
+  "asA": "a maintainer of the viewer",
+  "iWant": "one pill, one findings list and one diff component",
+  "soThat": "gate state, persona, level verdict and AC class read the same on every tab",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18101-1",
+      "description": "[happy] Given the pill component, when rendered with a gate state, a level verdict, a persona or an AC class, then it emits the same markup shape with a vocabulary class per value.",
+      "testable": true
+    },
+    {
+      "id": "AC-18101-2",
+      "description": "[happy] Given the findings-list component, when called with the same inputs from the Readiness and Product Map callers, then the two call sites produce byte-identical markup.",
+      "testable": true
+    },
+    {
+      "id": "AC-18101-3",
+      "description": "[must-not] Given the shared components, when introduced, then no existing Product Map or Requirements test changes its expected output except where this PR explicitly re-points that tab.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4127-readiness-view"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}

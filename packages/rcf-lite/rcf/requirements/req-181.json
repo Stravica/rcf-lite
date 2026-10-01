@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "reqId": "REQ-181",
+  "prdId": "PRD-001",
+  "title": "Shared pill, findings-list and diff view components",
+  "description": "src/view/components/{pill,findings-list,diff}.js land as three stable modules every tab can call. pill({ value, variant, title?, href? }) returns a span (or anchor when href is set) with the vocabulary class `rcf-pill--<variant>` for the vocabulary family (gate state green/amber/red; level verdict yes/no; persona po/eng; AC class) and `rcf-pill--<normalisedValue>` for the specific value, so one call site renders one markup shape across every family. findingsList({ heading, count, items }) returns a heading plus an ordered id list, each item an anchor into the document tabs with a one-line `why` string, ids capped at 20 and a `... N more suppressed` tail beyond. diff(before, after) returns a two-column rendering of two document bodies for the delta list. Readiness is the first consumer in 0.29.0; Product Map and Requirements are re-pointed only where the swap is mechanical in this PR (otherwise their markup stays and the swap is a follow-up), so no existing Product Map or Requirements test expectation changes.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-01T18:00:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "render"
+      }
+    ]
+  },
+  "rationale": "Three tabs today each ship their own markup for the same visual roles (status pill, items list, before-after). The hand-rolled copies drift so a gate state on one tab reads differently from the same gate state on another. Factoring to three shared components makes gate state, persona, level verdict and AC class read the same everywhere and is the smallest surface the Readiness tab needs. The spec is explicit (section 5): one module each, same markup shape across callers; existing tab tests change only where the PR explicitly re-points.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

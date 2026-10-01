@@ -1,0 +1,55 @@
+{
+  "usId": "US-18001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-180",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Readiness as the first tab in the viewer",
+  "description": "User story under REQ-180. Opening the viewer puts Readiness first (default active tab), the former Overview tab is renamed PRD with its content preserved, the two level verdict pills carry the formatVerdictLines strings as labels, blockers group by persona ordered by the profile.md register (the non-register group collapses with its count visible, never omitted), and the Freeze now control is enabled iff levels.readyToBuild.ok. See the DEFINE step 2 spec dated 2026-10-01 (section 5) for the layout.",
+  "asA": "an operator opening the viewer",
+  "iWant": "Readiness as the first tab with the two verdict pills and persona-grouped blockers",
+  "soThat": "the first thing I see is whether I can build and whose questions stand in the way",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18001-1",
+      "description": "[happy] Given any project, when the viewer renders, then the first tab is Readiness and the second is PRD with the former Overview content unchanged.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-2",
+      "description": "[happy] Given a failing tree, when the Readiness tab renders, then it shows two verdict pills whose labels equal the formatVerdictLines strings for the same tree.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-3",
+      "description": "[happy] Given personas.productOwner.blockers non-empty, when the tab renders, then each blocker is a findings list headed by its question with its ids as anchor links into the document tabs.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-4",
+      "description": "[happy] Given a profile register of productOwner, when the tab renders, then the product-owner group is expanded first and the engineer group is collapsed with its count visible.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-5",
+      "description": "[must-not] Given any profile register, when the tab renders, then no blocker id of either persona is omitted from the DOM.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-6",
+      "description": "[failure] Given a tree where levels.readyToBuild.ok is false, when the tab renders, then the Freeze now control is disabled and names the failing gates from levels.readyToBuild.blockedBy.",
+      "testable": true
+    },
+    {
+      "id": "AC-18001-7",
+      "description": "[happy] Given the tab and the CLI --json output for the same tree hash, when compared, then every id rendered on the tab appears in the JSON for that hash.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4127-readiness-view"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}

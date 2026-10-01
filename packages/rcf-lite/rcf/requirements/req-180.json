@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "reqId": "REQ-180",
+  "prdId": "PRD-001",
+  "title": "Readiness tab as tab 1 and the Overview-to-PRD rename",
+  "description": "src/view/readiness.js lands and html-page.js wires it as the first tab. The former Overview tab becomes PRD (same panel content; the rename is label-only). The Readiness panel renders the computeReadiness object top-to-bottom in the layout the DEFINE step 2 spec section 5 pins: tree line (formatTreeLine), two verdict pills with formatVerdictLines strings as the labels and blockedBy.length as the count, two per-persona next-action lines anchored into the stage detail, D1..D8 state chips with reason/acknowledgement text on hover, blockers grouped by persona (profile register orders the pair; the non-register group collapses with its count visible, never omitted), delta list grouped by REQ ancestor with a document-level diff on changed items (criterion-level diff deferred to the UX review per ADR-4127), per-stage check detail with persona pill and findings list when not ok, coverage tree-versus-delta with re-verify and re-execute counts, decisions outstanding in the #241 numbered format, a Freeze now control enabled iff levels.readyToBuild.ok (showing the `rcf define freeze` command and what it will record; disabled it names the failing gates from levels.readyToBuild.blockedBy; no intent-complete button), and the loaded freeze record (hash, when, note, counts, acknowledged gates with reasons). The view is pure: it never recomputes readiness, so the tab and `rcf define readiness --json` cannot disagree on the same tree hash.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-01T18:00:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "tab"
+      }
+    ]
+  },
+  "rationale": "Baz ruling 2026-09-22 (DEFINE step 2 spec section 2.4, decision 2): one object, two renderers. The CLI (REQ-175, PR B) and the tab (REQ-180, PR C) read the same computeReadiness result so they cannot disagree. Readiness is where an operator starts, so it must be tab 1. The Overview panel is just the PRD body today (phase 3.6 dropped the diagram) so the rename is honest; keeping the hash-anchor `#tab-overview` preserves every existing link into the surface. The L1 pre-population posture (ADR-4126) requires the tab to visibly distinguish [draft] shapes from settled ones, which the shapes:draftSettled check row makes legible.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

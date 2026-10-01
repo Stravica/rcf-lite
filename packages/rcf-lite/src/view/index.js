@@ -6,9 +6,12 @@
 
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 
-import { walkTree } from '#core/store';
+import { resolveTestPointers, walkTree } from '#core/store';
+import { computeReadiness } from '../query/readiness.js';
+import { loadFreezeRecord } from '../define/freeze-record.js';
+import { loadAllLedgers } from '../define/ledgers.js';
 import { renderContent, renderPage } from './html-page.js';
 import { renderProductMapGrouping } from './product-map.js';
 import { buildTreeModel } from './tree-model.js';
@@ -57,7 +60,37 @@ export async function findProjectRoot(start) {
  */
 export async function renderModelToPage({ projectRoot }) {
   const { tree, errors } = await walkTree({ projectRoot });
+
+  // Load the readiness inputs once per rewalk; the viewer is pure
+  // (never recomputes readiness). Failures load as `null` so the tab
+  // still renders when a tree is partial.
+  const [freezeRecord, ledgers, testPointers, profileText] = await Promise.all([
+    loadFreezeRecord({ projectRoot }).catch(() => null),
+    loadAllLedgers({ projectRoot }).catch(() => ({})),
+    resolveTestPointers({ projectRoot, tree }).catch(() => undefined),
+    readProfileText(projectRoot),
+  ]);
+
+  let readiness = null;
+  try {
+    readiness = computeReadiness(tree, {
+      freeze: freezeRecord,
+      ledgers,
+      profile: undefined,
+      profileText,
+      testPointers,
+      validateErrors: errors,
+    });
+  } catch (err) {
+    // A malformed tree should not block the viewer; the Readiness tab
+    // renders its "could not be computed" placeholder in that case.
+    readiness = null;
+  }
+
   const model = buildTreeModel({ tree, errors });
+  model.readiness = readiness;
+  model.profileText = profileText;
+  model.freezeRecord = freezeRecord;
   const fullPageHtml = renderPage(model);
   const contentHtml = renderContent(model);
   // Pre-rendered partials for the /product-map/<group> endpoint
@@ -73,4 +106,20 @@ export async function renderModelToPage({ projectRoot }) {
     blueprint: renderProductMapGrouping(model, 'blueprint'),
   };
   return { fullPageHtml, contentHtml, errors, tree, pmPartials };
+}
+
+/**
+ * Read `rcf/.identity/profile.md` text or return null when the file
+ * is absent (the Readiness tab orders persona groups as PO-first in
+ * the absent case).
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<string | null>}
+ */
+async function readProfileText(projectRoot) {
+  try {
+    return await readFile(join(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
+  } catch (err) {
+    return null;
+  }
 }

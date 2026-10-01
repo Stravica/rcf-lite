@@ -28,6 +28,7 @@ import {
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 import { renderProductMapPanel } from './product-map.js';
+import { renderReadinessPanel } from './readiness.js';
 
 // Inline SVG favicon: the Stravica kit mark (deep-navy tile with the
 // ribbon symbol in Stravica blue), taken from the estate brand kit at
@@ -74,7 +75,8 @@ export function renderPage(model) {
     <h1>${escapeHtml(projectName)}</h1>
     <p class="subtitle">RCF review surface</p>
     <nav class="tabs" role="tablist" aria-label="Document sections">
-      <button type="button" role="tab" data-tab="overview" aria-selected="true" aria-controls="tab-overview">Overview</button>
+      <button type="button" role="tab" data-tab="readiness" aria-selected="true" aria-controls="tab-readiness">Readiness</button>
+      <button type="button" role="tab" data-tab="overview" aria-selected="false" aria-controls="tab-overview">PRD</button>
       <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
       <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
       <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
@@ -122,12 +124,20 @@ export function renderContent(model) {
   const architecturePanel = renderArchitecturePanel(model);
   const buildPanel = renderBuildPanel(model);
   const productMapPanel = renderProductMapPanel(model);
+  const readinessPanel = renderReadinessPanel(model.readiness ?? null, {
+    profile: model.profileText ?? null,
+    freezeRecord: model.freezeRecord ?? null,
+  });
 
   const errorBanner = renderErrorBanner(model.errors ?? []);
 
   return `${errorBanner}
-    <section id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-button">
-      <h2 class="tab-heading">Overview</h2>
+    <section id="tab-readiness" role="tabpanel" aria-labelledby="tab-readiness-button">
+      <h2 class="tab-heading">Readiness</h2>
+      ${readinessPanel}
+    </section>
+    <section id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-button" hidden>
+      <h2 class="tab-heading">PRD</h2>
       <div class="prd-body">
         ${prdSection}
       </div>
@@ -327,7 +337,7 @@ function renderErrorBanner(errors) {
 function inlineScript() {
   return `
 (function () {
-  var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
+  var TABS = ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'];
   var PM_GROUPS = ['shape', 'component', 'trace', 'capability', 'blueprint'];
   var PM_STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
   // Partial-render cache: grouping -> HTML string. First fetch fills it,
@@ -702,7 +712,7 @@ function inlineScript() {
   }
 
   function resolveHash(hash) {
-    if (!hash) { activateTab('overview'); return; }
+    if (!hash) { activateTab('readiness'); return; }
     var raw = hash.charAt(0) === '#' ? hash.slice(1) : hash;
     if (raw.indexOf('tab=') === 0) {
       var afterTab = raw.slice(4);
@@ -723,7 +733,7 @@ function inlineScript() {
       return;
     }
     var target = findByDocId(raw);
-    if (!target) { activateTab('overview'); return; }
+    if (!target) { activateTab('readiness'); return; }
     var tab = tabForNode(target);
     if (tab) activateTab(tab);
     openAncestorDetails(target);

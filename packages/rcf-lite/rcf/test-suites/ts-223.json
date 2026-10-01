@@ -1,0 +1,94 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "purpose": "Cover US-18001 (Readiness as tab 1 and the PRD rename) and US-18101 (shared pill, findings-list and diff components). Shares the readiness fixture builders with TS-222 so the tab and the CLI assertions ride the same shapes.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18001-1",
+    "AC-18001-2",
+    "AC-18001-3",
+    "AC-18001-4",
+    "AC-18001-5",
+    "AC-18001-6",
+    "AC-18001-7",
+    "AC-18101-1",
+    "AC-18101-2",
+    "AC-18101-3"
+  ],
+  "id": "TS-223",
+  "usId": "US-18001",
+  "title": "Readiness tab layout, PRD rename and shared pill, findings-list and diff components",
+  "testCases": [
+    {
+      "id": "TC-223-tab-order-and-rename",
+      "acId": "AC-18001-1",
+      "description": "First tab button is Readiness, second is PRD; the PRD panel contains the former Overview body unchanged.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-1 tab order and PRD rename"
+    },
+    {
+      "id": "TC-223-verdict-pills-match-cli",
+      "acId": "AC-18001-2",
+      "description": "The two verdict pills carry formatVerdictLines(result) strings as labels; variant pins the verdict family and the value class carries yes/no.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-2 verdict pill labels equal formatVerdictLines"
+    },
+    {
+      "id": "TC-223-po-blockers-as-findings-list",
+      "acId": "AC-18001-3",
+      "description": "Each PO blocker renders as a findings list headed by its question with its ids as anchor links into the document tabs.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-3 PO blockers render as findings lists with id anchors"
+    },
+    {
+      "id": "TC-223-register-orders-persona-groups",
+      "acId": "AC-18001-4",
+      "description": "With a profile register of productOwner, the PO group is expanded first and the engineer group collapses with its count visible.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-4 register orders the pair and collapses the opposite"
+    },
+    {
+      "id": "TC-223-no-blocker-id-omitted",
+      "acId": "AC-18001-5",
+      "description": "Under any register, every PO blocker id and every engineer blocker id appears somewhere in the DOM.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-5 no blocker id is omitted from the DOM"
+    },
+    {
+      "id": "TC-223-freeze-now-disabled",
+      "acId": "AC-18001-6",
+      "description": "When levels.readyToBuild.ok is false the Freeze now control is disabled and names the failing gates from levels.readyToBuild.blockedBy.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-6 Freeze now is disabled and names the failing gates"
+    },
+    {
+      "id": "TC-223-ids-on-tab-match-cli-json",
+      "acId": "AC-18001-7",
+      "description": "Walking the rendered anchors and matching against the --json for the same tree hash: every id on the tab is present in the JSON.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-7 every id on the tab appears in the CLI --json for the same tree"
+    },
+    {
+      "id": "TC-223-pill-vocabulary",
+      "acId": "AC-18101-1",
+      "description": "pill renders the same markup shape with a per-value vocabulary class for a gate state, a level verdict, a persona and an AC class.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18101-1 pill emits one shape with per-value vocabulary classes"
+    },
+    {
+      "id": "TC-223-findings-list-markup",
+      "acId": "AC-18101-2",
+      "description": "findingsList called with identical inputs from the Readiness and Product Map call paths returns byte-identical markup.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18101-2 findingsList is byte-identical across call sites"
+    },
+    {
+      "id": "TC-223-no-existing-tab-tests-change",
+      "acId": "AC-18101-3",
+      "description": "No existing Product Map or Requirements test expectation changes; only the Readiness-specific additions land.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18101-3 existing Product Map and Requirements tests retain their expectations"
+    }
+  ],
+  "status": "draft"
+}

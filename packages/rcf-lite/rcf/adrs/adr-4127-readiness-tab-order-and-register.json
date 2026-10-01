@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z",
+  "adrId": "ADR-4127-readiness-tab-order-and-register",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Readiness is tab 1 always and renders the same object as the CLI; the register orders persona groups and never hides one",
+  "context": "DEFINE step 2 (0.29.0) exposes two verdicts on the one readiness ladder. The CLI prints them (PR B); the viewer must carry the same object so the two surfaces cannot disagree. Overview today is just the PRD body (phase 3.6 dropped the diagram), so it never earns first-tab status, and operators asked for a landing surface that leads with 'can I build and whose questions stand in the way'. The persona register from profile.md orders the CLI text report; the tab must honour the same register without ever hiding the non-register group.",
+  "decision": "Readiness is tab 1 of the HTML review surface, always, and renders the computeReadiness result directly. The former Overview tab is renamed PRD with no content change; the data-tab=overview and id=tab-overview identifiers are preserved so every existing `#tab-overview` hash link still resolves. The viewer's renderer is pure: it reads the result object and the profile text and emits HTML; it never recomputes readiness or hits disk. The profile register from pickRegister orders the persona groups (productOwner-first by default; engineer-first when the register says engineer; unstated prints the pair in default order). The non-register group is always rendered with its count visible; collapsed by default, never omitted from the DOM. The Freeze now control is enabled iff levels.readyToBuild.ok; disabled, it names the failing gates from levels.readyToBuild.blockedBy. There is no intent-complete button at L1 (nothing to record; ADR-4126). The 0.29.0 diff component in the delta list is document-level only; criterion-level before-and-after is deferred to the UX review (open question 7 of the step 2 spec).",
+  "consequences": "One readiness object renders three ways (CLI text, CLI JSON, viewer tab) with no second register of truth; AC-18001-7 asserts the identity by walking the rendered anchors and matching them to the --json for the same tree hash. The Overview-to-PRD rename is cosmetic for hash routing and content; existing anchors keep working. Shared components land once, pay down the drift between tabs, and are additive on the Product Map and Requirements tabs in 0.29.0 (re-pointing is a follow-up where the swap is not mechanical). Deferring the criterion-level diff keeps PR C small and leaves the AC-class before-and-after question to the UX review it belongs to.",
+  "alternativesConsidered": [
+    {
+      "name": "Readiness as the fifth tab, Overview stays first",
+      "summary": "Keep Overview as the landing tab and add Readiness at the end.",
+      "reasonNotChosen": "Overview is one block today (the PRD body); it does not earn the landing. Making an operator click to see the verdict is friction for the thing the surface exists to answer."
+    },
+    {
+      "name": "Rename to data-tab=prd and migrate hash anchors",
+      "summary": "Rename both the label and the identifier so the surface reads consistently.",
+      "reasonNotChosen": "Every existing `#tab-overview` link in documents and in commit messages breaks. The label is for humans; the identifier is for links. Keeping the identifier is cheaper than migrating every link."
+    },
+    {
+      "name": "Hide the non-register persona group",
+      "summary": "When the register is productOwner, omit the engineer group from the DOM entirely (and vice versa).",
+      "reasonNotChosen": "AC-18001-5 is must-not for a reason: hiding a persona breaks the parity the CLI --json offers. The tab is a diagnostic, not a filter; the collapse-with-count-visible pattern honours the register without losing visibility."
+    },
+    {
+      "name": "Recompute readiness in the browser",
+      "summary": "Ship the raw tree to the client and compute readiness there.",
+      "reasonNotChosen": "Two implementations of the same compute are two chances to disagree. The server already walks the tree; piping the computed object into the HTML keeps the no-recompute invariant and makes the live-SSE path trivial."
+    },
+    {
+      "name": "Ship criterion-level diff in 0.29.0",
+      "summary": "Render AC-level before-and-after inside the delta list, with a per-AC collapsible pane.",
+      "reasonNotChosen": "Open question 7 of the step 2 spec parks the AC-class before-and-after question for a UX review. Shipping without that review risks a design the review would reject; document-level diff carries the signal 0.29.0 needs."
+    }
+  ]
+}
