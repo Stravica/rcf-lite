@@ -36,7 +36,7 @@ async function loadChromium() {
 
 async function main() {
   const binPath = resolve(projectRoot, 'bin/rcf.js');
-  const server = spawn('node', [binPath, 'audit', 'view', '--port', String(PORT), '--foreground'], {
+  const server = spawn('node', [binPath, 'audit', 'view', '--port', String(PORT), '--no-open'], {
     cwd: projectRoot,
     stdio: ['ignore', 'pipe', 'inherit'],
     env: { ...process.env },
