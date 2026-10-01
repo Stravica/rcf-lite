@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **DEFINE D2 skeleton gate reads TAD at the schema-authorised path (w-2026-09-25-dave-004 defect A, REQ-174 / US-17401 / TAC-4122).** `checkD2Skeleton` in `src/query/gates.js` now reads `tad.dataArchitecture.dataStores` and `tad.dataArchitecture.coreEntities` instead of the top-level `tad.dataStores` / `tad.coreEntities` that slice-2 drifted onto. The authority is rcf-schemas 0.6.3 (`tad.schema.json` requires both arrays under `dataArchitecture`), so the previous top-level reads failed `skeleton:tadPersistence` on every valid tree carrying a persistence REQ. The `failing` entry ids tracked the move to `TAD.dataArchitecture.dataStores` and `TAD.dataArchitecture.coreEntities`.
+- **DEFINE D1 brief gate: a fresh `rcf init` tree now satisfies the review-surface marker without operator edits (w-2026-09-25-dave-004 defect B, REQ-174 / US-17401 / TAC-4122).** `src/setup/identity-seed.js` IDENTITY_TEMPLATE now carries a `## Surface` section between `## Register` and `## Project-scoped notes`, mirroring the Register section's shape: a short italicised explanation, one bullet each for `viewer` / `runningApp` / `prDiff`, and a bare `prDiff` line as the default. `checkD1Brief`'s `profile:surface` check now passes on a clean post-init tree. The slice-1 idempotency contract (an existing profile.md is left byte-identical) is preserved.
+
+
 ## [0.28.4] - 2026-09-30
 
 Note: 0.28.3 (2026-09-22 below) was never tagged or published; its entries ship in 0.28.4 together with the ones here.

@@ -22679,6 +22679,18 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   AC-17401-8 -.-&gt;|delivered by| FBS-196
   AC-17401-8 -.-&gt;|implemented by| CN-725
   AC-17401-8 -.-&gt;|implemented by| CN-728
+  AC-17401-9[&quot;AC-17401-9&quot;]
+  US-17401 --&gt; AC-17401-9
+  AC-17401-9 -.-&gt;|delivered by| FBS-196
+  AC-17401-9 -.-&gt;|implemented by| CN-725
+  AC-17401-9 -.-&gt;|implemented by| CN-728
+  AC-17401-10[&quot;AC-17401-10&quot;]
+  US-17401 --&gt; AC-17401-10
+  AC-17401-10 -.-&gt;|delivered by| FBS-196
+  CN-733[&quot;CN-733&lt;br/&gt;Identity-seed template with the ## Surface se...&quot;]
+  AC-17401-10 -.-&gt;|implemented by| CN-733
+  CN-734[&quot;CN-734&lt;br/&gt;Identity-seed Surface section tests&quot;]
+  AC-17401-10 -.-&gt;|implemented by| CN-734
   click REQ-174 &quot;#REQ-174&quot;;
   click US-17401 &quot;#US-17401&quot;;
   click AC-17401-1 &quot;#AC-17401-1&quot;;
@@ -22692,6 +22704,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   click AC-17401-6 &quot;#AC-17401-6&quot;;
   click AC-17401-7 &quot;#AC-17401-7&quot;;
   click AC-17401-8 &quot;#AC-17401-8&quot;;
+  click AC-17401-9 &quot;#AC-17401-9&quot;;
+  click AC-17401-10 &quot;#AC-17401-10&quot;;
+  click CN-733 &quot;#CN-733&quot;;
+  click CN-734 &quot;#CN-734&quot;;
   class REQ-174 req;
   class US-17401 us;
   class AC-17401-1 ac;
@@ -22705,6 +22721,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   class AC-17401-6 ac;
   class AC-17401-7 ac;
   class AC-17401-8 ac;
+  class AC-17401-9 ac;
+  class AC-17401-10 ac;
+  class CN-733 cn;
+  class CN-734 cn;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
@@ -22774,6 +22794,10 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-196">FBS-196</a></p></li>
 <li id="AC-17401-8" class="ac-item"><strong>AC-17401-8</strong> - checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker&#39;s fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is not null; validateErrors is empty. The stage is never notApplicable.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-196">FBS-196</a></p></li>
+<li id="AC-17401-9" class="ac-item"><strong>AC-17401-9</strong> - checkD2Skeleton reads tad.dataArchitecture.dataStores and tad.dataArchitecture.coreEntities (not top-level) when evaluating skeleton:tadPersistence; a tree whose TAD places both arrays under dataArchitecture per rcf-schemas 0.6.3 passes the check and a tree with the arrays missing or empty under dataArchitecture fails with { id: &#39;TAD.dataArchitecture.dataStores&#39; } / { id: &#39;TAD.dataArchitecture.coreEntities&#39; }.
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-196">FBS-196</a></p></li>
+<li id="AC-17401-10" class="ac-item"><strong>AC-17401-10</strong> - src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a &#39;## Surface&#39; section containing one line that is one of &#39;viewer&#39; | &#39;runningApp&#39; | &#39;prDiff&#39; (default &#39;prDiff&#39; with explanatory text matching the Register section&#39;s style) so that a project immediately after &#39;rcf init&#39; passes checkD1Brief&#39;s profile:surface check without further operator action. The seed stays idempotent (an existing profile.md is left byte-identical, per the slice-1 &#39;kept&#39; contract).
+<p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-196">FBS-196</a></p></li>
     </ul>
   </section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
@@ -22827,12 +22851,24 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
       &quot;id&quot;: &quot;AC-17401-8&quot;,
       &quot;description&quot;: &quot;checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker&#39;s fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is not null; validateErrors is empty. The stage is never notApplicable.&quot;,
       &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-17401-9&quot;,
+      &quot;description&quot;: &quot;checkD2Skeleton reads tad.dataArchitecture.dataStores and tad.dataArchitecture.coreEntities (not top-level) when evaluating skeleton:tadPersistence; a tree whose TAD places both arrays under dataArchitecture per rcf-schemas 0.6.3 passes the check and a tree with the arrays missing or empty under dataArchitecture fails with { id: &#39;TAD.dataArchitecture.dataStores&#39; } / { id: &#39;TAD.dataArchitecture.coreEntities&#39; }.&quot;,
+      &quot;testable&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;AC-17401-10&quot;,
+      &quot;description&quot;: &quot;src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a &#39;## Surface&#39; section containing one line that is one of &#39;viewer&#39; | &#39;runningApp&#39; | &#39;prDiff&#39; (default &#39;prDiff&#39; with explanatory text matching the Register section&#39;s style) so that a project immediately after &#39;rcf init&#39; passes checkD1Brief&#39;s profile:surface check without further operator action. The seed stays idempotent (an existing profile.md is left byte-identical, per the slice-1 &#39;kept&#39; contract).&quot;,
+      &quot;testable&quot;: true
     }
   ],
-  &quot;tacIds&quot;: [&quot;TAC-4122-define-gates&quot;],
+  &quot;tacIds&quot;: [
+    &quot;TAC-4122-define-gates&quot;
+  ],
   &quot;tags&quot;: [],
   &quot;createdAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-24T14:30:00Z&quot;
+  &quot;updatedAt&quot;: &quot;2026-10-01T13:03:38Z&quot;
 }
 </pre></details>
 </article>
@@ -25339,7 +25375,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <h3>TAC-4122-define-gates - define stage gates D1..D8</h3>
   
   <p><strong>Purpose:</strong> src/query/gates.js lands as a new pure module beside delta.js. Every stage has one exported check function that takes (tree, context) and returns the { stage, gate, state, checks[] } shape section 2.4 pins. computeReadiness (TAC-4123) is the composer; every gate function is otherwise consumable in isolation for tests and for future viewers that render one stage. No I/O, no state, no time: the caller supplies ledgers, profile, freeze, delta, validate errors, probe count and coverage rollups.</p>
-  <section class="field-list"><h4>Responsibilities</h4><ul><li>src/query/gates.js: STAGE_ORDER = [&#39;D1&#39;,&#39;D2&#39;,&#39;D3&#39;,&#39;D4&#39;,&#39;D5&#39;,&#39;D6&#39;,&#39;D7&#39;,&#39;D8&#39;]; STAGE_GATES map (D1 -&gt; &#39;define.brief&#39; etc.); INTERFACE_KINDS closed set matching proposal section 5.2; STAGE_SHORT_NAMES map (D1 -&gt; &#39;brief&#39; etc.).</li><li>checkD1Brief: intake acknowledged (brief-ledger has at least one statement since the freeze high-water mark), every statement kinded from BRIEF_KINDS, every openQuestion statement resolved or promoted to a decisions-ledger entry, profile.md carries surface (viewer | runningApp | prDiff) and register (productOwner | engineer | unstated) markers.</li><li>checkD2Skeleton: every &#39;capability&#39; and &#39;constraint&#39; statement in scope resolves to a REQ (via a REQ id in the statement&#39;s resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD dataStores and coreEntities non-empty when any persistence REQ exists; exactly one deploy or deferral ADR tree-wide (title prefix &#39;Deploy target:&#39; or &#39;Deploy deferral:&#39;).</li><li>checkD3Shapes: every TAC in scope has at least one interface; every interface&#39;s kind is in INTERFACE_KINDS. Template markers, entity join, ownerRef resolution and path resolution are seams (0.30).</li><li>checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey &#39;defineD4:failure&#39;, a must-not AC or an opt-out with baselineKey &#39;defineD4:mustNot&#39;, tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the scaffold TODO placeholder pattern (case-sensitive uppercase &#39;TODO:&#39; with a colon -- the literal shape src/core/store/init.js writes; incidental prose mentioning &#39;todo&#39; does NOT trip the gate, and the validate CLI&#39;s broader whole-word notice stays separate).</li><li>checkD5Crosscut: TAD.securityArchitecture non-empty when tree carries any REQ with shape &#39;auth&#39; or &#39;httpApi&#39;; TAD.operationalConcerns non-empty when any AC description carries the &#39;[deployed]&#39; marker; every concern-ledger entry on a REQ in scope has disposition applied or waived (no status &#39;open&#39;).</li><li>checkD6Consistency: caller-supplied validateErrors is empty (tree-wide); caller-supplied probeOpenCount is zero.</li><li>checkD7Decisions: no decisions-ledger entry with status &#39;open&#39;.</li><li>checkD8Freeze: prior stages passed | acknowledged at the current tree hash; every AC id owned by exactly one FBS (walker.fbsByAcId length 1); computeQueue.nextActionable is not null (queue head actionable) and the head&#39;s title is not &#39;TODO&#39; or empty; validateErrors empty.</li></ul></section>
+  <section class="field-list"><h4>Responsibilities</h4><ul><li>src/query/gates.js: STAGE_ORDER = [&#39;D1&#39;,&#39;D2&#39;,&#39;D3&#39;,&#39;D4&#39;,&#39;D5&#39;,&#39;D6&#39;,&#39;D7&#39;,&#39;D8&#39;]; STAGE_GATES map (D1 -&gt; &#39;define.brief&#39; etc.); INTERFACE_KINDS closed set matching proposal section 5.2; STAGE_SHORT_NAMES map (D1 -&gt; &#39;brief&#39; etc.).</li><li>checkD1Brief: intake acknowledged (brief-ledger has at least one statement since the freeze high-water mark), every statement kinded from BRIEF_KINDS, every openQuestion statement resolved or promoted to a decisions-ledger entry, profile.md carries surface (viewer | runningApp | prDiff) and register (productOwner | engineer | unstated) markers.</li><li>checkD2Skeleton: every &#39;capability&#39; and &#39;constraint&#39; statement in scope resolves to a REQ (via a REQ id in the statement&#39;s resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD.dataArchitecture.dataStores and TAD.dataArchitecture.coreEntities non-empty when any persistence REQ exists (per rcf-schemas 0.6.3 tad.schema.json; the top-level path was a slice-2 drift corrected under w-2026-09-25-dave-004); exactly one deploy or deferral ADR tree-wide (title prefix &#39;Deploy target:&#39; or &#39;Deploy deferral:&#39;).</li><li>checkD3Shapes: every TAC in scope has at least one interface; every interface&#39;s kind is in INTERFACE_KINDS. Template markers, entity join, ownerRef resolution and path resolution are seams (0.30).</li><li>checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey &#39;defineD4:failure&#39;, a must-not AC or an opt-out with baselineKey &#39;defineD4:mustNot&#39;, tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the scaffold TODO placeholder pattern (case-sensitive uppercase &#39;TODO:&#39; with a colon -- the literal shape src/core/store/init.js writes; incidental prose mentioning &#39;todo&#39; does NOT trip the gate, and the validate CLI&#39;s broader whole-word notice stays separate).</li><li>checkD5Crosscut: TAD.securityArchitecture non-empty when tree carries any REQ with shape &#39;auth&#39; or &#39;httpApi&#39;; TAD.operationalConcerns non-empty when any AC description carries the &#39;[deployed]&#39; marker; every concern-ledger entry on a REQ in scope has disposition applied or waived (no status &#39;open&#39;).</li><li>checkD6Consistency: caller-supplied validateErrors is empty (tree-wide); caller-supplied probeOpenCount is zero.</li><li>checkD7Decisions: no decisions-ledger entry with status &#39;open&#39;.</li><li>checkD8Freeze: prior stages passed | acknowledged at the current tree hash; every AC id owned by exactly one FBS (walker.fbsByAcId length 1); computeQueue.nextActionable is not null (queue head actionable) and the head&#39;s title is not &#39;TODO&#39; or empty; validateErrors empty.</li><li>src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a &#39;## Surface&#39; section carrying one of &#39;viewer&#39; | &#39;runningApp&#39; | &#39;prDiff&#39; (default &#39;prDiff&#39;) so a fresh &#39;rcf init&#39; project satisfies checkD1Brief&#39;s profile:surface marker without the operator editing profile.md first.</li></ul></section>
   <p><strong>Internal structure:</strong> Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: &#39;notApplicable&#39; } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: &#39;passed&#39; if every ok is true; &#39;failing&#39; otherwise, unless the stage is D3/D5/D6 AND freeze.gates[&lt;gate&gt;].state === &#39;acknowledged&#39; AND freeze.gates[&lt;gate&gt;].at.hash === currentTreeHash, in which case state is &#39;acknowledged&#39;. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.</p>
   
   
@@ -25347,7 +25383,7 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   <p><strong>Notes:</strong> Slice-3 hook (rcf define freeze): reads state to refuse on any &#39;failing&#39;; --ack &lt;gate&gt; --reason &lt;text&gt; writes freeze.gates[&lt;gate&gt;] = { state: &#39;acknowledged&#39;, at: { hash: &lt;currentTreeHash&gt;, reason: &lt;text&gt;, by: &lt;id&gt; } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-24T15:48:40Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-01T13:03:28Z&quot;,
   &quot;tacId&quot;: &quot;TAC-4122-define-gates&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
   &quot;tadId&quot;: &quot;TAD-001&quot;,
@@ -25358,13 +25394,14 @@ classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   &quot;responsibilities&quot;: [
     &quot;src/query/gates.js: STAGE_ORDER = [&#39;D1&#39;,&#39;D2&#39;,&#39;D3&#39;,&#39;D4&#39;,&#39;D5&#39;,&#39;D6&#39;,&#39;D7&#39;,&#39;D8&#39;]; STAGE_GATES map (D1 -&gt; &#39;define.brief&#39; etc.); INTERFACE_KINDS closed set matching proposal section 5.2; STAGE_SHORT_NAMES map (D1 -&gt; &#39;brief&#39; etc.).&quot;,
     &quot;checkD1Brief: intake acknowledged (brief-ledger has at least one statement since the freeze high-water mark), every statement kinded from BRIEF_KINDS, every openQuestion statement resolved or promoted to a decisions-ledger entry, profile.md carries surface (viewer | runningApp | prDiff) and register (productOwner | engineer | unstated) markers.&quot;,
-    &quot;checkD2Skeleton: every &#39;capability&#39; and &#39;constraint&#39; statement in scope resolves to a REQ (via a REQ id in the statement&#39;s resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD dataStores and coreEntities non-empty when any persistence REQ exists; exactly one deploy or deferral ADR tree-wide (title prefix &#39;Deploy target:&#39; or &#39;Deploy deferral:&#39;).&quot;,
+    &quot;checkD2Skeleton: every &#39;capability&#39; and &#39;constraint&#39; statement in scope resolves to a REQ (via a REQ id in the statement&#39;s resolvedBy field OR by name-match against a REQ title, cheap check); every REQ in scope has non-TODO description, shapeClassification and domain; TAD.dataArchitecture.dataStores and TAD.dataArchitecture.coreEntities non-empty when any persistence REQ exists (per rcf-schemas 0.6.3 tad.schema.json; the top-level path was a slice-2 drift corrected under w-2026-09-25-dave-004); exactly one deploy or deferral ADR tree-wide (title prefix &#39;Deploy target:&#39; or &#39;Deploy deferral:&#39;).&quot;,
     &quot;checkD3Shapes: every TAC in scope has at least one interface; every interface&#39;s kind is in INTERFACE_KINDS. Template markers, entity join, ownerRef resolution and path resolution are seams (0.30).&quot;,
     &quot;checkD4Stories: every REQ in scope has at least one US (fbsByAcId inversion via reqByUs is enough); every US in scope has a testable AC (ac.testable !== false and description non-empty), a failure AC or a project-scoped or req-scoped opt-out with baselineKey &#39;defineD4:failure&#39;, a must-not AC or an opt-out with baselineKey &#39;defineD4:mustNot&#39;, tacIds non-empty and every id resolving to a walker-known TAC, and no AC description containing the scaffold TODO placeholder pattern (case-sensitive uppercase &#39;TODO:&#39; with a colon -- the literal shape src/core/store/init.js writes; incidental prose mentioning &#39;todo&#39; does NOT trip the gate, and the validate CLI&#39;s broader whole-word notice stays separate).&quot;,
     &quot;checkD5Crosscut: TAD.securityArchitecture non-empty when tree carries any REQ with shape &#39;auth&#39; or &#39;httpApi&#39;; TAD.operationalConcerns non-empty when any AC description carries the &#39;[deployed]&#39; marker; every concern-ledger entry on a REQ in scope has disposition applied or waived (no status &#39;open&#39;).&quot;,
     &quot;checkD6Consistency: caller-supplied validateErrors is empty (tree-wide); caller-supplied probeOpenCount is zero.&quot;,
     &quot;checkD7Decisions: no decisions-ledger entry with status &#39;open&#39;.&quot;,
-    &quot;checkD8Freeze: prior stages passed | acknowledged at the current tree hash; every AC id owned by exactly one FBS (walker.fbsByAcId length 1); computeQueue.nextActionable is not null (queue head actionable) and the head&#39;s title is not &#39;TODO&#39; or empty; validateErrors empty.&quot;
+    &quot;checkD8Freeze: prior stages passed | acknowledged at the current tree hash; every AC id owned by exactly one FBS (walker.fbsByAcId length 1); computeQueue.nextActionable is not null (queue head actionable) and the head&#39;s title is not &#39;TODO&#39; or empty; validateErrors empty.&quot;,
+    &quot;src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a &#39;## Surface&#39; section carrying one of &#39;viewer&#39; | &#39;runningApp&#39; | &#39;prDiff&#39; (default &#39;prDiff&#39;) so a fresh &#39;rcf init&#39; project satisfies checkD1Brief&#39;s profile:surface marker without the operator editing profile.md first.&quot;
   ],
   &quot;internalStructure&quot;: &quot;Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: &#39;notApplicable&#39; } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: &#39;passed&#39; if every ok is true; &#39;failing&#39; otherwise, unless the stage is D3/D5/D6 AND freeze.gates[&lt;gate&gt;].state === &#39;acknowledged&#39; AND freeze.gates[&lt;gate&gt;].at.hash === currentTreeHash, in which case state is &#39;acknowledged&#39;. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.&quot;,
   &quot;interfaces&quot;: [],
@@ -33966,7 +34003,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   <p><strong>Summary:</strong> Ship src/query/gates.js exposing one check function per stage D1..D8 with the section 2.4 shape { stage, gate, state, checks[] }. Blocking stages (D1, D2, D4, D7, D8) enforce the floors listed in proposal section 3.2; warn-with-ack stages (D3, D5, D6) run only the cheap data-backed checks and are acknowledgeable via freeze.gates[&lt;gate&gt;] at the current tree hash. AC class parses off the bracketed prefix on AC description (decision 6); D4 per-class opt-outs read manifest.baselineAcOptOuts[] with baselineKey &#39;defineD4:failure&#39; or &#39;defineD4:mustNot&#39; per ADR-4122.</p>
   <p><strong>Approach:</strong> One file, eight exported functions plus the STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES and INTERFACE_KINDS constants. Every function follows the same shape: decide notApplicable per section 3.2; assemble a checks[] list of { name, ok, over, pass, total, failing }; fold to state, honouring the warn-with-ack acknowledgement window when the stage is D3/D5/D6. Ledger reads use the emptyLedger fallback so an absent ledger contributes no findings. AC class parsing is a static regex over the description string (leading &#39;[failure]&#39; / &#39;[must-not]&#39; / &#39;[happy]&#39; / &#39;[edge]&#39; / &#39;[non-functional]&#39;, case-sensitive). Profile parsing is a light presence check on rcf/.identity/profile.md (surface and register markers).</p>
-  <div class="ac-pills"><a class="ac-pill" href="#AC-17401-1">AC-17401-1</a><a class="ac-pill" href="#AC-17401-2">AC-17401-2</a><a class="ac-pill" href="#AC-17401-3">AC-17401-3</a><a class="ac-pill" href="#AC-17401-4">AC-17401-4</a><a class="ac-pill" href="#AC-17401-5">AC-17401-5</a><a class="ac-pill" href="#AC-17401-6">AC-17401-6</a><a class="ac-pill" href="#AC-17401-7">AC-17401-7</a><a class="ac-pill" href="#AC-17401-8">AC-17401-8</a></div>
+  <div class="ac-pills"><a class="ac-pill" href="#AC-17401-1">AC-17401-1</a><a class="ac-pill" href="#AC-17401-2">AC-17401-2</a><a class="ac-pill" href="#AC-17401-3">AC-17401-3</a><a class="ac-pill" href="#AC-17401-4">AC-17401-4</a><a class="ac-pill" href="#AC-17401-5">AC-17401-5</a><a class="ac-pill" href="#AC-17401-6">AC-17401-6</a><a class="ac-pill" href="#AC-17401-7">AC-17401-7</a><a class="ac-pill" href="#AC-17401-8">AC-17401-8</a><a class="ac-pill" href="#AC-17401-9">AC-17401-9</a><a class="ac-pill" href="#AC-17401-10">AC-17401-10</a></div>
   <section class="field-list"><h4>Acceptance criteria delivered</h4><div class="ac-resolved">
   <p><strong><a href="#AC-17401-1">AC-17401-1</a></strong> - src/query/gates.js exports one check function per stage D1..D8 (checkD1Brief, checkD2Skeleton, checkD3Shapes, checkD4Stories, checkD5Crosscut, checkD6Consistency, checkD7Decisions, checkD8Freeze), each taking (tree, { ledgers, profile, scope, freeze, delta, validateErrors, probeOpenCount, coverageTree }) and returning { stage, gate, state, checks[] }; every entry in checks is { name, ok, over: &#39;delta&#39;|&#39;tree&#39;, pass, total, failing: [{ id, why }] } (failing empty on ok).</p>
   
@@ -34014,6 +34051,18 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   
   
   
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-17401-9">AC-17401-9</a></strong> - checkD2Skeleton reads tad.dataArchitecture.dataStores and tad.dataArchitecture.coreEntities (not top-level) when evaluating skeleton:tadPersistence; a tree whose TAD places both arrays under dataArchitecture per rcf-schemas 0.6.3 passes the check and a tree with the arrays missing or empty under dataArchitecture fails with { id: &#39;TAD.dataArchitecture.dataStores&#39; } / { id: &#39;TAD.dataArchitecture.coreEntities&#39; }.</p>
+  
+  
+  
+</div>
+<div class="ac-resolved">
+  <p><strong><a href="#AC-17401-10">AC-17401-10</a></strong> - src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a &#39;## Surface&#39; section containing one line that is one of &#39;viewer&#39; | &#39;runningApp&#39; | &#39;prDiff&#39; (default &#39;prDiff&#39; with explanatory text matching the Register section&#39;s style) so that a project immediately after &#39;rcf init&#39; passes checkD1Brief&#39;s profile:surface check without further operator action. The seed stays idempotent (an existing profile.md is left byte-identical, per the slice-1 &#39;kept&#39; contract).</p>
+  
+  
+  
 </div></section>
   <section class="field-list"><h4>Context requirements</h4><p><strong>TACs:</strong> <a href="#TAC-4122-define-gates">TAC-4122-define-gates</a></p>
 <p><strong>ADRs:</strong> <a href="#ADR-4122-define-gates-blocking-and-optout">ADR-4122-define-gates-blocking-and-optout</a></p></section>
@@ -34027,7 +34076,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Notes:</strong> Pure module: no filesystem I/O beyond what the caller supplies. Every warn-with-ack check leaves an explicit named seam for the 0.30 slice that will land the full template parser, catalogue and scans.</p>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-01T13:12:16Z&quot;,
   &quot;acIds&quot;: [
     &quot;AC-17401-1&quot;,
     &quot;AC-17401-2&quot;,
@@ -34036,7 +34085,9 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-17401-5&quot;,
     &quot;AC-17401-6&quot;,
     &quot;AC-17401-7&quot;,
-    &quot;AC-17401-8&quot;
+    &quot;AC-17401-8&quot;,
+    &quot;AC-17401-9&quot;,
+    &quot;AC-17401-10&quot;
   ],
   &quot;fbsId&quot;: &quot;FBS-196&quot;,
   &quot;prdId&quot;: &quot;PRD-001&quot;,
@@ -34045,11 +34096,17 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   &quot;executionStatus&quot;: &quot;complete&quot;,
   &quot;title&quot;: &quot;DEFINE slice 2: stage gates D1..D8 pure check functions&quot;,
   &quot;summary&quot;: &quot;Ship src/query/gates.js exposing one check function per stage D1..D8 with the section 2.4 shape { stage, gate, state, checks[] }. Blocking stages (D1, D2, D4, D7, D8) enforce the floors listed in proposal section 3.2; warn-with-ack stages (D3, D5, D6) run only the cheap data-backed checks and are acknowledgeable via freeze.gates[&lt;gate&gt;] at the current tree hash. AC class parses off the bracketed prefix on AC description (decision 6); D4 per-class opt-outs read manifest.baselineAcOptOuts[] with baselineKey &#39;defineD4:failure&#39; or &#39;defineD4:mustNot&#39; per ADR-4122.&quot;,
-  &quot;dependsOnFbsIds&quot;: [&quot;FBS-195&quot;],
+  &quot;dependsOnFbsIds&quot;: [
+    &quot;FBS-195&quot;
+  ],
   &quot;approach&quot;: &quot;One file, eight exported functions plus the STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES and INTERFACE_KINDS constants. Every function follows the same shape: decide notApplicable per section 3.2; assemble a checks[] list of { name, ok, over, pass, total, failing }; fold to state, honouring the warn-with-ack acknowledgement window when the stage is D3/D5/D6. Ledger reads use the emptyLedger fallback so an absent ledger contributes no findings. AC class parsing is a static regex over the description string (leading &#39;[failure]&#39; / &#39;[must-not]&#39; / &#39;[happy]&#39; / &#39;[edge]&#39; / &#39;[non-functional]&#39;, case-sensitive). Profile parsing is a light presence check on rcf/.identity/profile.md (surface and register markers).&quot;,
   &quot;contextRequirements&quot;: {
-    &quot;tacIds&quot;: [&quot;TAC-4122-define-gates&quot;],
-    &quot;adrIds&quot;: [&quot;ADR-4122-define-gates-blocking-and-optout&quot;]
+    &quot;tacIds&quot;: [
+      &quot;TAC-4122-define-gates&quot;
+    ],
+    &quot;adrIds&quot;: [
+      &quot;ADR-4122-define-gates-blocking-and-optout&quot;
+    ]
   },
   &quot;deliverables&quot;: [
     &quot;src/query/gates.js: STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES, INTERFACE_KINDS, checkD1Brief..checkD8Freeze, plus foldState and parseAcClass helpers&quot;,
@@ -45404,7 +45461,7 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>Verifies user story:</strong> <a href="#US-17401">US-17401</a></p>
   <p><strong>Purpose:</strong> Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.</p>
   <p><strong>Test level:</strong> unit</p>
-  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-17401-1">AC-17401-1</a>, <a href="#AC-17401-2">AC-17401-2</a>, <a href="#AC-17401-3">AC-17401-3</a>, <a href="#AC-17401-4">AC-17401-4</a>, <a href="#AC-17401-5">AC-17401-5</a>, <a href="#AC-17401-6">AC-17401-6</a>, <a href="#AC-17401-7">AC-17401-7</a>, <a href="#AC-17401-8">AC-17401-8</a></p></section>
+  <section class="field-list"><h4>Acceptance criteria verified</h4><p><a href="#AC-17401-1">AC-17401-1</a>, <a href="#AC-17401-2">AC-17401-2</a>, <a href="#AC-17401-3">AC-17401-3</a>, <a href="#AC-17401-4">AC-17401-4</a>, <a href="#AC-17401-5">AC-17401-5</a>, <a href="#AC-17401-6">AC-17401-6</a>, <a href="#AC-17401-7">AC-17401-7</a>, <a href="#AC-17401-8">AC-17401-8</a>, <a href="#AC-17401-9">AC-17401-9</a>, <a href="#AC-17401-10">AC-17401-10</a></p></section>
   <p><strong>Status:</strong> draft</p>
   <section class="field-list"><h4>Test cases</h4><div class="tc" id="TC-216-shape">
   <p><strong>TC-216-shape</strong> - covers <a href="#AC-17401-1">AC-17401-1</a> <span class="status pending">pending</span></p>
@@ -45445,10 +45502,20 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
   <p><strong>TC-216-d8-freeze</strong> - covers <a href="#AC-17401-8">AC-17401-8</a> <span class="status pending">pending</span></p>
   <p>checkD8Freeze asserts prior stages passed/acknowledged, every AC owned by exactly one FBS, computeQueue nextActionable not null, validateErrors empty.</p>
   <p><em>Test pointer:</em> <code>test/query/gates.test.js::gates: D8 tree-wide freeze checks</code></p>
+</div>
+<div class="tc" id="TC-216-d2-data-architecture">
+  <p><strong>TC-216-d2-data-architecture</strong> - covers <a href="#AC-17401-9">AC-17401-9</a> <span class="status pending">pending</span></p>
+  <p>checkD2Skeleton reads tad.dataArchitecture.{dataStores,coreEntities} per rcf-schemas 0.6.3; a tree with populated dataArchitecture passes skeleton:tadPersistence and empty/missing/wrong-top-level trees fail with the schema-anchored ids.</p>
+  <p><em>Test pointer:</em> <code>test/query/gates.test.js::gates: D2 skeleton:tadPersistence reads tad.dataArchitecture.* per schema 0.6.3</code></p>
+</div>
+<div class="tc" id="TC-216-identity-seed-surface">
+  <p><strong>TC-216-identity-seed-surface</strong> - covers <a href="#AC-17401-10">AC-17401-10</a> <span class="status pending">pending</span></p>
+  <p>IDENTITY_TEMPLATE carries a &#39;## Surface&#39; section between &#39;## Register&#39; and &#39;## Project-scoped notes&#39; naming viewer/runningApp/prDiff and seeded to &#39;prDiff&#39;; writeIdentityTemplate on a fresh dir seeds a profile that satisfies checkD1Brief surface markers; an existing profile.md is left byte-identical (slice-1 &#39;kept&#39; contract).</p>
+  <p><em>Test pointer:</em> <code>test/setup/identity-register.test.js::IDENTITY_TEMPLATE carries a ## Surface heading between ## Register and ## Project-scoped notes</code></p>
 </div></section>
   <details class="raw-json"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-09-24T14:30:00Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-01T13:12:16Z&quot;,
   &quot;purpose&quot;: &quot;Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.&quot;,
   &quot;testLevel&quot;: &quot;unit&quot;,
   &quot;acIds&quot;: [
@@ -45459,7 +45526,9 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
     &quot;AC-17401-5&quot;,
     &quot;AC-17401-6&quot;,
     &quot;AC-17401-7&quot;,
-    &quot;AC-17401-8&quot;
+    &quot;AC-17401-8&quot;,
+    &quot;AC-17401-9&quot;,
+    &quot;AC-17401-10&quot;
   ],
   &quot;id&quot;: &quot;TS-216&quot;,
   &quot;usId&quot;: &quot;US-17401&quot;,
@@ -45520,10 +45589,25 @@ Operator default (pending, adjustable): Fifteen-minute quiet gate with quietMinu
       &quot;description&quot;: &quot;checkD8Freeze asserts prior stages passed/acknowledged, every AC owned by exactly one FBS, computeQueue nextActionable not null, validateErrors empty.&quot;,
       &quot;status&quot;: &quot;pending&quot;,
       &quot;testPointer&quot;: &quot;test/query/gates.test.js::gates: D8 tree-wide freeze checks&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-216-d2-data-architecture&quot;,
+      &quot;acId&quot;: &quot;AC-17401-9&quot;,
+      &quot;description&quot;: &quot;checkD2Skeleton reads tad.dataArchitecture.{dataStores,coreEntities} per rcf-schemas 0.6.3; a tree with populated dataArchitecture passes skeleton:tadPersistence and empty/missing/wrong-top-level trees fail with the schema-anchored ids.&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/query/gates.test.js::gates: D2 skeleton:tadPersistence reads tad.dataArchitecture.* per schema 0.6.3&quot;
+    },
+    {
+      &quot;id&quot;: &quot;TC-216-identity-seed-surface&quot;,
+      &quot;acId&quot;: &quot;AC-17401-10&quot;,
+      &quot;description&quot;: &quot;IDENTITY_TEMPLATE carries a &#39;## Surface&#39; section between &#39;## Register&#39; and &#39;## Project-scoped notes&#39; naming viewer/runningApp/prDiff and seeded to &#39;prDiff&#39;; writeIdentityTemplate on a fresh dir seeds a profile that satisfies checkD1Brief surface markers; an existing profile.md is left byte-identical (slice-1 &#39;kept&#39; contract).&quot;,
+      &quot;status&quot;: &quot;pending&quot;,
+      &quot;testPointer&quot;: &quot;test/setup/identity-register.test.js::IDENTITY_TEMPLATE carries a ## Surface heading between ## Register and ## Project-scoped notes&quot;
     }
   ],
   &quot;status&quot;: &quot;draft&quot;
-}</pre></details>
+}
+</pre></details>
 </article>
 </details>
 <details class="doc-details doc-ts-wrap" data-doc-id="TS-217">

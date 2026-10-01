@@ -49,10 +49,22 @@
       "id": "AC-17401-8",
       "description": "checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker's fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is not null; validateErrors is empty. The stage is never notApplicable.",
       "testable": true
+    },
+    {
+      "id": "AC-17401-9",
+      "description": "checkD2Skeleton reads tad.dataArchitecture.dataStores and tad.dataArchitecture.coreEntities (not top-level) when evaluating skeleton:tadPersistence; a tree whose TAD places both arrays under dataArchitecture per rcf-schemas 0.6.3 passes the check and a tree with the arrays missing or empty under dataArchitecture fails with { id: 'TAD.dataArchitecture.dataStores' } / { id: 'TAD.dataArchitecture.coreEntities' }.",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-10",
+      "description": "src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a '## Surface' section containing one line that is one of 'viewer' | 'runningApp' | 'prDiff' (default 'prDiff' with explanatory text matching the Register section's style) so that a project immediately after 'rcf init' passes checkD1Brief's profile:surface check without further operator action. The seed stays idempotent (an existing profile.md is left byte-identical, per the slice-1 'kept' contract).",
+      "testable": true
     }
   ],
-  "tacIds": ["TAC-4122-define-gates"],
+  "tacIds": [
+    "TAC-4122-define-gates"
+  ],
   "tags": [],
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-09-24T14:30:00Z"
+  "updatedAt": "2026-10-01T13:03:38Z"
 }

@@ -383,16 +383,17 @@ export function checkD2Skeleton(ctx) {
   }
   checks.push(makeCheck('skeleton:reqFields', 'delta', reqInScope.length, reqShapeFail));
 
-  // Check 3: TAD.dataStores + coreEntities present when any persistence
+  // Check 3: TAD.dataArchitecture.dataStores + coreEntities present when any
   // REQ exists tree-wide.
   const persistenceReq = (tree.requirements ?? []).some((r) => Array.isArray(r?.shapeClassification?.shapes) && r.shapeClassification.shapes.includes('persistence'));
   const tadFail = [];
   if (persistenceReq) {
     const tad = tree.tad ?? {};
-    const dataStores = Array.isArray(tad.dataStores) ? tad.dataStores : [];
-    const coreEntities = Array.isArray(tad.coreEntities) ? tad.coreEntities : [];
-    if (dataStores.length === 0) tadFail.push({ id: 'TAD.dataStores', why: 'TAD.dataStores empty while persistence REQ exists' });
-    if (coreEntities.length === 0) tadFail.push({ id: 'TAD.coreEntities', why: 'TAD.coreEntities empty while persistence REQ exists' });
+    const dataArch = tad?.dataArchitecture ?? {};
+    const dataStores = Array.isArray(dataArch.dataStores) ? dataArch.dataStores : [];
+    const coreEntities = Array.isArray(dataArch.coreEntities) ? dataArch.coreEntities : [];
+    if (dataStores.length === 0) tadFail.push({ id: 'TAD.dataArchitecture.dataStores', why: 'TAD.dataArchitecture.dataStores empty while persistence REQ exists' });
+    if (coreEntities.length === 0) tadFail.push({ id: 'TAD.dataArchitecture.coreEntities', why: 'TAD.dataArchitecture.coreEntities empty while persistence REQ exists' });
   }
   checks.push(makeCheck('skeleton:tadPersistence', 'tree', persistenceReq ? 2 : 0, tadFail));
 

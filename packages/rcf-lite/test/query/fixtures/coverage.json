@@ -4459,6 +4459,22 @@
             "TC-216-d8-freeze"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-9",
+          "covered": true,
+          "testCases": [
+            "TC-216-d2-data-architecture"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-10",
+          "covered": true,
+          "testCases": [
+            "TC-216-identity-seed-surface"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
