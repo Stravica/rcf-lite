@@ -3,9 +3,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { Writable } from 'node:stream';
 
 import { initProject } from '#core/store/init.js';
@@ -97,4 +99,40 @@ test('readiness cli: no project root exits 2 with usage error', async () => {
   const r = await run([], cwd);
   assert.equal(r.code, 2);
   assert.match(r.stderr, /no project root found/);
+});
+
+/**
+ * Byte-level fingerprint of every file under `rcf/`.
+ * Keys are repo-root-relative paths; values are a sha256 of the
+ * file's bytes. Sorted iteration + JSON serialisation lets the test
+ * assert equality with a single `assert.equal` on the whole map.
+ */
+function fingerprintRcfTree(projectRoot) {
+  const root = join(projectRoot, 'rcf');
+  /** @type {Map<string, string>} */
+  const out = new Map();
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(full);
+      } else if (entry.isFile()) {
+        const hash = createHash('sha256').update(readFileSync(full)).digest('hex');
+        out.set(relative(projectRoot, full), hash);
+      }
+    }
+  };
+  walk(root);
+  // Stable serialisation: a sorted array of [path, hash] tuples.
+  const tuples = [...out.entries()].sort(([a], [b]) => a.localeCompare(b));
+  return JSON.stringify(tuples);
+}
+
+test('readiness cli: AC-17502-7 rcf/ tree is byte-stable across a readiness run (no mutation)', async () => {
+  const cwd = await scratchProject('readiness-mutguard-');
+  const before = fingerprintRcfTree(cwd);
+  const r = await run(['--json'], cwd);
+  assert.equal(r.code, 0);
+  const after = fingerprintRcfTree(cwd);
+  assert.equal(after, before, 'rcf/ tree changed under a readiness compute (AC-17502-7)');
 });

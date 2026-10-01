@@ -24,6 +24,37 @@
     "ADR-4126 (0.29.0): new D3 check `shapes:draftSettled` fails any interface whose `description` starts with `[draft]` (whitespace tolerated), id `<tacId>:<name>`, over delta, total = interfaces on TACs in scope; `tacHasInterface` counts a draft as present; `kindVocabulary` applies to drafts."
   ],
   "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
-  "interfaces": [],
+  "interfaces": [
+    {
+      "name": "CHECK_PERSONA",
+      "kind": "other",
+      "description": "[draft] Owning persona map (productOwner | engineer) for every stage-gate check in 0.29.0 (ADR-4126)."
+    },
+    {
+      "name": "CHECK_QUESTION",
+      "kind": "other",
+      "description": "[draft] Per-check heading question in the owning persona's register; the report and the Readiness tab print it as the heading of each check's findings list."
+    },
+    {
+      "name": "STAGE_FALLBACK_PERSONA",
+      "kind": "other",
+      "description": "[draft] Per-stage fallback persona for the `stage:<D>:scope` placeholder check that `notApplicable` envelopes carry."
+    },
+    {
+      "name": "checkPersona",
+      "kind": "other",
+      "description": "[draft] Look up the owning persona for a check name; returns 'productOwner' | 'engineer' | null."
+    },
+    {
+      "name": "checkQuestion",
+      "kind": "other",
+      "description": "[draft] Look up the question heading for a check name; returns the empty string when no question is registered."
+    },
+    {
+      "name": "parseInterfaceDraft",
+      "kind": "other",
+      "description": "[draft] True when an interface's `description` carries the leading `[draft]` marker (whitespace tolerated)."
+    }
+  ],
   "notes": "Slice-3 hook (rcf define freeze): reads state to refuse on any 'failing'; --ack <gate> --reason <text> writes freeze.gates[<gate>] = { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text>, by: <id> } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end."
 }

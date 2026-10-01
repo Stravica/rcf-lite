@@ -588,8 +588,10 @@ export function checkD2Skeleton(ctx) {
 const INTERFACE_KINDS_SET = new Set(INTERFACE_KINDS);
 
 /**
- * D3 -- Interface contracts and shapes. 0.29.0 runs only the cheap
- * presence + closed-vocabulary checks.
+ * D3 -- Interface contracts and shapes. 0.29.0 runs the cheap
+ * presence, closed-vocabulary and draft-marker checks
+ * (`shapes:draftSettled` per ADR-4126 scans the `[draft]` prefix on
+ * `TAC.interfaces[].description`).
  *
  * SEAM 0.30: template markers per kind (recordShape.fields:, httpRoute
  * method/path/request/response/errors, fixture.instances:); entity-name

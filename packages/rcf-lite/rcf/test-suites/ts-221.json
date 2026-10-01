@@ -64,7 +64,7 @@
       "acId": "AC-17502-7",
       "description": "readiness cli (text and --json) does not create or modify any file under rcf/; the existing readiness cli test suite TS-217 continues to pass unchanged.",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: --json emits the full readiness object"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17502-7 rcf/ tree is byte-stable across a readiness run (no mutation)"
     },
     {
       "id": "TC-221-backwards-compat-fields",

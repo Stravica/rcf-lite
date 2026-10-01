@@ -203,6 +203,13 @@ test('readiness: freezeable is true on a well-formed tree (every stage passed / 
   }
   assert.equal(result.freezeable, true);
   assert.equal(result.nextAction, null);
+  // AC-17502-2 invariant: L2 (readyToBuild) implying L1
+  // (intentComplete) is a derived guarantee of the levels fold, not
+  // an input. Pin it on the well-formed tree so a future refactor
+  // that lets a failing PO check hide behind a passing L2 trips the
+  // suite.
+  assert.equal(result.levels.intentComplete.ok, true);
+  assert.equal(result.levels.readyToBuild.ok, true);
 });
 
 // ---------------------------------------------------------------------------

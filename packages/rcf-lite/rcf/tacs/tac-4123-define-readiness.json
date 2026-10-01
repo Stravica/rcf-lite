@@ -23,6 +23,27 @@
     "ADR-4126 (0.29.0): the levels and personas folds are additive; every 0.28.4 top-level field (tree, delta, stages, nextAction, coverage, decisions, freezeable) is present with its 0.28.4 type. No file under rcf/ is created or modified by any `rcf define readiness` invocation. The CLI flags (`--level`, `--persona`) and the viewer tab are PR B and PR C respectively; the compute lands first (PR A)."
   ],
   "internalStructure": "readiness.js is a linear composer: 1) compute delta and its docHashes; 2) fan-out impacted / impactedFbs; 3) build stage context (freeze, delta, scope, ledgers, profile, validateErrors, probeOpenCount, coverageTree); 4) call the eight check functions; 5) fold freezeable and nextAction. The CLI parses flags, loads the tree once, loads the four ledgers and the freeze record once, computes the readiness, then routes to the text or JSON emitter. --check maps its argument to the STAGE_SHORT_NAMES map (brief -> D1 ... freeze -> D8) or accepts D1..D8 directly. The runWithAdmissibilityGate wrap sits inside main so refusals ride the same exit path as coverage's admissibility refusals.",
-  "interfaces": [],
+  "interfaces": [
+    {
+      "name": "deriveLevels",
+      "kind": "other",
+      "description": "[draft] Fold the two levels (intentComplete, readyToBuild) from `stages[].checks[]` (ADR-4126, proposal section 2.1)."
+    },
+    {
+      "name": "derivePersonas",
+      "kind": "other",
+      "description": "[draft] Fold the `personas` block; productOwner.blockers deep-equals levels.intentComplete.blockedBy; engineer.blockers is the failing engineer checks in failing stages."
+    },
+    {
+      "name": "deriveNextAction",
+      "kind": "other",
+      "description": "[draft] Pick the first failing stage (optionally persona-filtered); carries `--level intent` on the productOwner variant."
+    },
+    {
+      "name": "formatVerdictLines",
+      "kind": "other",
+      "description": "[draft] Build the two verdict strings (Intent-complete and Ready-to-build) shared by the CLI and the Readiness tab so the two surfaces cannot disagree."
+    }
+  ],
   "notes": "Slice-3 hook (rcf define freeze) reads freezeable and stages[].state; --ack <gate> writes into freeze.gates[<gate>] and re-computes readiness. Slice-5 hook (viewer) fetches the same JSON object over the existing tab wire and renders the pill vocabulary + findings-list + diff components. Performance seam: computeImpact per id on a whole-tree delta (before freeze) may be quadratic on very large trees; the compute stays fast on the dogfood chain (~700 documents, sub-second) but the CLI notes the wall time in text mode so an operator can spot regression."
 }
