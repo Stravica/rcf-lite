@@ -1,0 +1,59 @@
+{
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z",
+  "acIds": [
+    "AC-17402-1",
+    "AC-17402-2",
+    "AC-17402-3",
+    "AC-17402-4",
+    "AC-17402-5",
+    "AC-17402-6",
+    "AC-17402-7",
+    "AC-17403-1",
+    "AC-17403-2",
+    "AC-17403-3",
+    "AC-17403-4",
+    "AC-17403-5",
+    "AC-17403-6",
+    "AC-17403-7",
+    "AC-17403-8",
+    "AC-17502-1",
+    "AC-17502-2",
+    "AC-17502-3",
+    "AC-17502-4",
+    "AC-17502-5",
+    "AC-17502-6",
+    "AC-17502-7",
+    "AC-17502-8"
+  ],
+  "fbsId": "FBS-199",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 199,
+  "executionStatus": "complete",
+  "title": "DEFINE step 2 (0.29.0) PR A: persona tags on every gate check and two readiness levels (ADR-4126)",
+  "summary": "Ship the compute layer for ADR-4126: CHECK_PERSONA / CHECK_QUESTION maps and persona + question on every stages[].checks[] entry; split skeleton:reqFields into skeleton:reqIntent + skeleton:reqShape and decisions:allAnswered into decisions:wellFormed + decisions:allAnswered; add the new D3 shapes:draftSettled check and the parseInterfaceDraft helper; fold levels (intentComplete, readyToBuild) and personas (productOwner, engineer) on the computeReadiness result; extend deriveNextAction with an optional persona filter; add formatVerdictLines shared by the CLI (PR B) and the Readiness tab (PR C). All additions are strictly additive; the 0.28.4 top-level shape is preserved and rcf define readiness default behaviour / exit codes are unchanged.",
+  "dependsOnFbsIds": ["FBS-197"],
+  "approach": "One pass through src/query/gates.js adds the persona + question maps and plumbs them through makeCheck; the two splits are per-REQ / per-entry loops that evaluate every item independently so one failure never masks another; the shapes:draftSettled check parses the leading bracket marker on interface descriptions (whitespace tolerated). src/query/readiness.js folds levels + personas from stages[].checks[] after the eight stage functions run; deriveNextAction gains an optional persona argument; formatVerdictLines builds the two shared verdict strings. The CLI flags (--level, --persona) and the viewer tab land in PRs B and C of the same train and are out of scope here.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4122-define-gates",
+      "TAC-4123-define-readiness"
+    ],
+    "adrIds": [
+      "ADR-4126-persona-tagged-blockers-two-levels"
+    ]
+  },
+  "deliverables": [
+    "src/query/gates.js: CHECK_PERSONA + CHECK_QUESTION + STAGE_FALLBACK_PERSONA maps; checkPersona / checkQuestion / parseInterfaceDraft helpers; split skeleton:reqIntent / skeleton:reqShape; new shapes:draftSettled; split decisions:wellFormed / decisions:allAnswered; makeCheck adds persona + question on every emitted check; D3 doc comment fix for TAD.dataArchitecture.coreEntities",
+    "src/query/readiness.js: levels (intentComplete, readyToBuild) and personas (productOwner, engineer) fold; deriveNextAction gains an optional persona argument; formatVerdictLines builds the two shared verdict strings",
+    "src/query/index.js: re-export the new helpers (CHECK_PERSONA / CHECK_QUESTION / STAGE_FALLBACK_PERSONA / parseInterfaceDraft / deriveLevels / derivePersonas / formatVerdictLines)",
+    "test/query/gates.test.js and test/query/readiness.test.js: new cases covering AC-17402-*, AC-17403-* and AC-17502-*",
+    "CHANGELOG [Unreleased] entry describing the additive compute changes"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "PR B (CLI --level / --persona + text report) and PR C (Readiness viewer tab) are the remaining 0.29.0 step-2 PRs under REQ-175 / REQ-180 / REQ-181. No file under rcf/ is created or modified by any rcf define readiness invocation; the levels and personas folds are read-only derivations over stages[].checks[]."
+}

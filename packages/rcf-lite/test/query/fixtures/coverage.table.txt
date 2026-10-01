@@ -455,12 +455,35 @@ REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17401-8   yes         TC-216-d8-freeze
                       AC-17401-9   yes         TC-216-d2-data-architecture
                       AC-17401-10  yes         TC-216-identity-seed-surface
+                      AC-17402-1   yes         TC-219-every-check-has-persona-and-question
+                      AC-17402-2   yes         TC-219-d1-personas
+                      AC-17402-3   yes         TC-219-d2-personas
+                      AC-17402-4   yes         TC-219-d4-d7-personas
+                      AC-17402-5   yes         TC-219-engineer-stages
+                      AC-17402-6   yes         TC-219-persona-vocabulary-closed
+                      AC-17402-7   yes         TC-219-not-applicable-placeholder-persona
+                      AC-17403-1   yes         TC-220-todo-no-shapes-fails-both
+                      AC-17403-2   yes         TC-220-shapes-no-domain-fails-req-intent-only
+                      AC-17403-3   yes         TC-220-draft-fails-draft-settled
+                      AC-17403-4   yes         TC-220-marker-removed-passes-draft-settled
+                      AC-17403-5   yes         TC-220-draft-kind-vocabulary-still-applies
+                      AC-17403-6   yes         TC-220-enumerated-passes-well-formed-fails-all-answered
+                      AC-17403-7   yes         TC-220-one-option-no-default-fails-well-formed
+                      AC-17403-8   yes         TC-220-no-req-fields-emitted
 REQ-175      yes      AC-17501-1   yes         TC-217-shape
                       AC-17501-2   yes         TC-217-fanout
                       AC-17501-3   yes         TC-217-coverage
                       AC-17501-4   yes         TC-217-next-action
                       AC-17501-5   yes         TC-217-cli
                       AC-17501-6   yes         TC-217-load-all-ledgers
+                      AC-17502-1   yes         TC-221-po-ok-engineer-failing
+                      AC-17502-2   yes         TC-221-freezeable-implies-l1
+                      AC-17502-3   yes         TC-221-brief-profile-l1-blocker
+                      AC-17502-4   yes         TC-221-acknowledged-absent-from-l2
+                      AC-17502-5   yes         TC-221-personas-mirror-levels
+                      AC-17502-6   yes         TC-221-persona-next-action-picks-first-failing-stage
+                      AC-17502-7   yes         TC-221-no-write-on-invocation
+                      AC-17502-8   yes         TC-221-backwards-compat-fields
 REQ-176      yes      AC-17601-1   yes         TC-218-happy
                       AC-17601-2   yes         TC-218-refuse
                       AC-17601-3   yes         TC-218-ack
