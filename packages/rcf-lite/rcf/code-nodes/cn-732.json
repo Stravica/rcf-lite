@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-732",
+  "path": "test/define/freeze-record.test.js",
+  "title": "Extension tests for freeze-record override-nullable-required contract",
+  "description": "Covers AC-17601-7: validateFreezeRecord requires override (nullable), loadFreezeRecord defaults a missing override key to null, saveFreezeRecord refuses to write a body without override.",
+  "implementsAcIds": [
+    "AC-17601-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z"
+}

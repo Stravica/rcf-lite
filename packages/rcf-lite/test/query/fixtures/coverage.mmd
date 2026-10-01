@@ -2128,6 +2128,39 @@ flowchart LR
   REQ-175 --> AC-17501-6
   TC-217-load-all-ledgers["TC-217-load-all-ledgers"]
   AC-17501-6 -.-> TC-217-load-all-ledgers
+  REQ-176["REQ-176"]
+  AC-17601-1["AC-17601-1"]
+  REQ-176 --> AC-17601-1
+  TC-218-happy["TC-218-happy"]
+  AC-17601-1 -.-> TC-218-happy
+  AC-17601-2["AC-17601-2"]
+  REQ-176 --> AC-17601-2
+  TC-218-refuse["TC-218-refuse"]
+  AC-17601-2 -.-> TC-218-refuse
+  AC-17601-3["AC-17601-3"]
+  REQ-176 --> AC-17601-3
+  TC-218-ack["TC-218-ack"]
+  AC-17601-3 -.-> TC-218-ack
+  AC-17601-4["AC-17601-4"]
+  REQ-176 --> AC-17601-4
+  TC-218-summary["TC-218-summary"]
+  AC-17601-4 -.-> TC-218-summary
+  AC-17601-5["AC-17601-5"]
+  REQ-176 --> AC-17601-5
+  TC-218-status["TC-218-status"]
+  AC-17601-5 -.-> TC-218-status
+  AC-17601-6["AC-17601-6"]
+  REQ-176 --> AC-17601-6
+  TC-218-admissibility["TC-218-admissibility"]
+  AC-17601-6 -.-> TC-218-admissibility
+  AC-17601-7["AC-17601-7"]
+  REQ-176 --> AC-17601-7
+  TC-218-override["TC-218-override"]
+  AC-17601-7 -.-> TC-218-override
+  AC-17601-8["AC-17601-8"]
+  REQ-176 --> AC-17601-8
+  TC-218-hygiene["TC-218-hygiene"]
+  AC-17601-8 -.-> TC-218-hygiene
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -3247,6 +3280,23 @@ flowchart LR
   class TC-217-cli tc;
   class AC-17501-6 ac;
   class TC-217-load-all-ledgers tc;
+  class REQ-176 req;
+  class AC-17601-1 ac;
+  class TC-218-happy tc;
+  class AC-17601-2 ac;
+  class TC-218-refuse tc;
+  class AC-17601-3 ac;
+  class TC-218-ack tc;
+  class AC-17601-4 ac;
+  class TC-218-summary tc;
+  class AC-17601-5 ac;
+  class TC-218-status tc;
+  class AC-17601-6 ac;
+  class TC-218-admissibility tc;
+  class AC-17601-7 ac;
+  class TC-218-override tc;
+  class AC-17601-8 ac;
+  class TC-218-hygiene tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

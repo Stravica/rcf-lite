@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 109,
-    "covered": 109,
+    "requirements": 110,
+    "covered": 110,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4512,6 +4512,77 @@
           "covered": true,
           "testCases": [
             "TC-217-load-all-ledgers"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-176",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17601-1",
+          "covered": true,
+          "testCases": [
+            "TC-218-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-2",
+          "covered": true,
+          "testCases": [
+            "TC-218-refuse"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-3",
+          "covered": true,
+          "testCases": [
+            "TC-218-ack"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-4",
+          "covered": true,
+          "testCases": [
+            "TC-218-summary"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-5",
+          "covered": true,
+          "testCases": [
+            "TC-218-status"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-6",
+          "covered": true,
+          "testCases": [
+            "TC-218-admissibility"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-7",
+          "covered": true,
+          "testCases": [
+            "TC-218-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17601-8",
+          "covered": true,
+          "testCases": [
+            "TC-218-hygiene"
           ],
           "unresolvedTestCases": []
         }

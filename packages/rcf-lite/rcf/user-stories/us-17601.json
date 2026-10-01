@@ -1,0 +1,58 @@
+{
+  "usId": "US-17601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-176",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf define freeze runs readiness, refuses on failing, writes freeze.json and prints the section 2.5 summary",
+  "description": "User story under REQ-176. The freeze verb is the only close verb: no change-object is minted, nothing else changes state. It reads the live tree via computeReadiness, refuses on any failing stage (accepting acks only on the three warn-with-ack gates), and writes the freeze record slice 4's bundle --next and slice 5's viewer will read.",
+  "asA": "an operator wrapping up a change on the tree",
+  "iWant": "one command that says 'yes freezeable and I have written the record' or 'no here is the gate that blocks and its first failing ids', accepts --ack on the three warn-first gates with a mandatory reason, and prints a summary line I can paste into a commit message",
+  "soThat": "the freeze record is authoritative for slice 4's bundle --next and slice 5's viewer, and the same rules that gate readiness also gate the freeze",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17601-1",
+      "description": "[happy] rcf define freeze runs computeReadiness once over walkTree(projectRoot) plus loadFreezeRecord and loadAllLedgers. When result.freezeable is true, it writes rcf/define/freeze.json via saveFreezeRecord with these fields: frozenAt (ISO UTC now), treeHash (result.tree.currentTreeHash), docHashes (delta.js currentHashes over the live tree plus 'ledger:<name>' for each ledger present), briefStatements (the count of statements in the brief ledger, ledgers.brief.statements.length or 0), gates (one entry per stage-gate with { state, at: { hash, at, reason?, by? } | null, failing: [{ id, why }] } from the live readiness plus any --ack entries), counts { req, us, ac, acByClass: { happy, edge, failure, mustNot, nonFunctional, unclassified }, tac, interfaces: { <kind>: n, ... }, adr, fbs }, litmus { attestedAt, readers: 0 }, versions { rcfLite, ruleset, schemas } read from package.json, src/ruleset/ruleset.json and node_modules/@stravica-ai/rcf-schemas/package.json, note (--note argument or null), override (always null on a fresh freeze). The verb exits 0. Immediately after the write, calling computeDelta over the live tree + the new freeze reports every list empty (changed / added / removed / briefSince).",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-2",
+      "description": "[failure] When result.freezeable is false and no --ack argument covers the failing stage, the verb exits 4 without writing the freeze record. It prints the failing gates (one per line: '<stage> (<gate>): failing (<first check name>); failing ids: <id1>, <id2>, ...' capped at 20 ids per gate) to stderr, followed by the exact rcf define readiness --check <shortName> command that will re-print the same block for each failing stage. The file at rcf/define/freeze.json is not created or modified (a pre-existing file is byte-identical after the refusal).",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-3",
+      "description": "[failure] --ack <gate> --reason <text> is accepted only for the three warn-with-ack gates: define.shapes / D3 / shapes, define.crosscut / D5 / crosscut, define.consistency / D6 / consistency (the same STAGE_ALIASES readiness accepts). --ack on any other gate name is a usage refusal (exit 2) with a stderr message naming the accepted set. --ack without a matching --reason argument is a usage refusal (exit 2). Multiple --ack / --reason pairs may be passed together (parseArgs multiple: true) as long as the count matches; a mismatch is a usage refusal. An acked gate lands in the written freeze.gates entry as { state: 'acknowledged', at: { hash: <currentTreeHash>, at: <frozenAt>, reason: <text>, by: <freezerId or null> }, failing: [<id>, ...] } and its acknowledgement carries into the next computeReadiness run (which reports the stage state as 'acknowledged').",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-4",
+      "description": "[happy] The stdout summary derived from the delta BEFORE the freeze matches proposal section 2.5: 'frozen at <shortHash>: <n> REQ, <n> stories, <n> criteria, <n> interfaces added; <ids> amended; <impactedFbs> re-execute.' Counts of added come from delta.added grouped by tree.kindById; amended is delta.changed (US ids in the amended list per the proposal's example wording); impactedFbs is delta.impactedFbs. On the first freeze (freeze record absent before the run), the summary is 'first freeze at <shortHash>: <req> REQ, <us> stories, <ac> criteria, <interfaces> interfaces, <tac> TAC, <adr> ADR, <fbs> FBS.' --json emits { record, summary, delta } where record is the just-written freeze record body and delta is the pre-freeze DeltaResult.",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-5",
+      "description": "[happy] --status prints the current record and the live delta summary, exit 0. Text: 'Frozen at <short> on <frozenAt>. Note: <note|(none)>. Counts: <req> REQ / <us> US / <ac> AC / <tac> TAC / <adr> ADR / <fbs> FBS. Acknowledged: <gate1> (\"<reason>\"); <gate2> ...(none). Litmus: attestedAt [<D3>, <D6>], readers <n>. Versions: rcfLite <v> / ruleset <v> / schemas <v>. Override: <null|<reason by at>>.' followed by the live delta summary line: '<changed> changed, <added> added, <removed> removed, <impacted> impacted, <impactedFbs> FBS re-execute.' --status --json emits { record: <freeze body>, delta: <computeDelta output> }. --status when no record exists prints 'never frozen' and exits 0 (--json: { record: null, delta: <computeDelta output over unfrozen tree> }). --status never runs the gates and never writes anything.",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-6",
+      "description": "[happy] The freeze producer is wrapped with runWithAdmissibilityGate the same way readiness is (ADR-4124 carrying ADR-4123): the wrap runs first so the ruleset toolScope guard is honoured, and on a refused-admissibility verdict the CLI prints the refusal envelope to stderr as a [warn] line and the freeze compute still runs and writes if freezeable. The verb never exits 4 solely because of a refused-admissibility verdict.",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-7",
+      "description": "[must-not] src/define/freeze-record.js is updated so validateFreezeRecord REQUIRES the override key (nullable): a body without override throws FreezeRecordError with field 'override'. loadFreezeRecord tolerates older records that lack the key by defaulting to null (never fails on ENOKEY). saveFreezeRecord validates first and refuses to write a body that omits override. Every existing test fixture that omits override still loads (either the loader default fills it in, or a targeted fixture update writes override: null; no legacy fixture becomes unreadable).",
+      "testable": true
+    },
+    {
+      "id": "AC-17601-8",
+      "description": "[non-functional] The src/cli/readiness.js stage header line no longer contains a double-dash: it uses a colon between the stage id and the state label ('D1 (define.brief): failing'). The CHANGELOG.md line 'The regex is now `/\\bTODO:/` -- case-sensitive uppercase `TODO`' is likewise rewritten to a colon. Any golden fixture that captured the old header text is updated. `grep -R ' -- ' src/ test/ CHANGELOG.md` returns no matches under text this slice added or edited (the grep is scoped to added lines; unrelated pre-existing occurrences elsewhere in the tree stay out of scope of the AC).",
+      "testable": true
+    }
+  ],
+  "tacIds": ["TAC-4124-define-freeze"],
+  "tags": [],
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z"
+}

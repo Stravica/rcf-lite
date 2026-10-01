@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z",
+  "purpose": "Cover rcf define freeze (AC-17601-1..8) with CLI spawn tests over an initProject scratch tree; add a targeted test for the freeze-record override-nullable-required contract; add a targeted test that CHANGELOG.md and the readiness CLI stage header no longer carry the ' -- ' double-dash pattern this slice replaces.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17601-1",
+    "AC-17601-2",
+    "AC-17601-3",
+    "AC-17601-4",
+    "AC-17601-5",
+    "AC-17601-6",
+    "AC-17601-7",
+    "AC-17601-8"
+  ],
+  "id": "TS-218",
+  "usId": "US-17601",
+  "title": "rcf define freeze CLI + freeze-record override + hygiene",
+  "testCases": [
+    {
+      "id": "TC-218-happy",
+      "acId": "AC-17601-1",
+      "description": "On a scratch project seeded so computeReadiness returns freezeable=true (initProject + a minimal brief statement + profile markers + one deploy ADR + one REQ with US, AC classes and TAC + one FBS at the queue head), rcf define freeze exits 0, writes rcf/define/freeze.json with the required shape, and a follow-up computeDelta over the live tree + new record reports every list empty.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: happy path writes freeze.json and produces an empty delta"
+    },
+    {
+      "id": "TC-218-refuse",
+      "acId": "AC-17601-2",
+      "description": "On a scratch project that fails D1 (no brief statement), rcf define freeze exits 4, writes no freeze.json, and prints the failing-stage block + rcf define readiness --check brief hint on stderr.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: refuses with exit 4 on any failing stage and writes nothing"
+    },
+    {
+      "id": "TC-218-ack",
+      "acId": "AC-17601-3",
+      "description": "--ack define.shapes --reason 'templates deferred' is accepted, --ack define.brief --reason 'x' is a usage refusal (exit 2 with a message naming the accepted set), --ack without --reason is a usage refusal, and an acked D3 lands in freeze.gates as { state: 'acknowledged', at.hash: <currentTreeHash>, at.reason: 'templates deferred', failing: [...] } which the next readiness run reports as 'acknowledged'.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: --ack only accepts D3/D5/D6 and persists as acknowledged at hash"
+    },
+    {
+      "id": "TC-218-summary",
+      "acId": "AC-17601-4",
+      "description": "First-freeze summary matches 'first freeze at <shortHash>: <req> REQ, <us> stories, <ac> criteria, <interfaces> interfaces, <tac> TAC, <adr> ADR, <fbs> FBS.'; incremental-freeze summary (a second freeze after editing one US) matches 'frozen at <shortHash>: 0 REQ, 0 stories, 0 criteria, 0 interfaces added; <US-id> amended; 0 re-execute.'; --json emits { record, summary, delta }.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: summary line follows section 2.5 for first and incremental freezes"
+    },
+    {
+      "id": "TC-218-status",
+      "acId": "AC-17601-5",
+      "description": "--status on a never-frozen project prints 'never frozen' and exits 0 (--json: record null, delta unfrozen); --status on a frozen project prints the record block + delta summary line; --status runs no gates and never writes the record (mtime unchanged after --status).",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: --status is read-only and reports the record + live delta"
+    },
+    {
+      "id": "TC-218-admissibility",
+      "acId": "AC-17601-6",
+      "description": "When runWithAdmissibilityGate returns 'refused-admissibility' (simulated by a chain-rulesetVersion mismatch or a construct-time refusal fixture), the CLI still runs the freeze compute and writes the record on freezeable=true; the refusal is a stderr [warn] line and never sets exit 4 on its own.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: admissibility refusal is informational, never a freeze refusal"
+    },
+    {
+      "id": "TC-218-override",
+      "acId": "AC-17601-7",
+      "description": "validateFreezeRecord({ ...validRecord, override: undefined }) throws FreezeRecordError with field 'override'; loadFreezeRecord defaults a missing override key to null on read; saveFreezeRecord refuses to write a body that omits override.",
+      "status": "pending",
+      "testPointer": "test/define/freeze-record.test.js::freeze-record: override is required (nullable) and the loader defaults missing keys to null"
+    },
+    {
+      "id": "TC-218-hygiene",
+      "acId": "AC-17601-8",
+      "description": "The readiness CLI stage header line uses a colon between stage id and state ('D1 (define.brief): failing') and never a ' -- ' double-dash; the CHANGELOG.md line for the TODO regex is likewise colon-punctuated; a grep for ' -- ' in the two touched files scoped to the slice-added lines returns no matches.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli: readiness stage header and CHANGELOG no longer use ' -- '"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-09-24T16:33:15Z",
+  "updatedAt": "2026-09-24T16:33:15Z",
+  "acIds": [
+    "AC-17601-1",
+    "AC-17601-2",
+    "AC-17601-3",
+    "AC-17601-4",
+    "AC-17601-5",
+    "AC-17601-6",
+    "AC-17601-7",
+    "AC-17601-8"
+  ],
+  "fbsId": "FBS-198",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 198,
+  "executionStatus": "notStarted",
+  "title": "DEFINE slice 3: rcf define freeze CLI + freeze-record override + hygiene",
+  "summary": "Ship src/cli/freeze.js implementing 'rcf define freeze' as the only freeze-record writer, wire it into bin/rcf.js and src/cli/help.js, update src/define/freeze-record.js so override is a nullable-required field (loader defaults missing keys to null; validator refuses a body without the key), and replace the ' -- ' double-dash in the readiness CLI stage header and the CHANGELOG TODO-regex line with a colon.",
+  "dependsOnFbsIds": ["FBS-197"],
+  "approach": "One CLI module composing computeReadiness (REQ-175) and saveFreezeRecord (REQ-172). Ack parsing is a small helper walking --ack and --reason multi-valued arrays in parallel. Ack folding uses the same WARN_WITH_ACK rules gates.js applies at the current tree hash. Counts derivation reuses tree.kindById and parseAcClass; interface counts walk each TAC's interfaces[]. Version reading loads packages/rcf-lite/package.json, src/ruleset/ruleset.json and node_modules/@stravica-ai/rcf-schemas/package.json. --status is a read-only branch that never runs gates. Admissibility refusal is informational per ADR-4124. The freeze-record schema fix requires an override field (nullable): validator throws on missing key, loader defaults missing keys to null on read for backward compatibility, saveFreezeRecord's own validate step catches a caller that forgets to write override.",
+  "contextRequirements": {
+    "tacIds": ["TAC-4124-define-freeze"],
+    "adrIds": ["ADR-4124-define-freeze-verb"]
+  },
+  "deliverables": [
+    "src/cli/freeze.js: HELP, main; --ack (multiple) / --reason (multiple) / --note / --litmus-attested / --status / --json / --help flags; runWithAdmissibilityGate wrap; section 2.5 summary line and --json envelope; counts derivation",
+    "src/define/freeze-record.js: validateFreezeRecord requires override (nullable); loadFreezeRecord defaults missing override to null; saveFreezeRecord unchanged (still validates first, which now catches missing override)",
+    "src/cli/readiness.js: stage header line uses ': ' between stage / gate / state (no ' -- ')",
+    "CHANGELOG.md: TODO regex line rewritten to use ': ' instead of ' -- ', plus slice-3 entries under [Unreleased]",
+    "bin/rcf.js: GROUPS.define.freeze wired to freezeMain",
+    "src/cli/help.js: HELP as FREEZE_HELP imported; HELP_MAP.define.freeze wired; DEFINE_HELP listing extended",
+    "test/cli/freeze.test.js: CLI tests covering AC-17601-1..6 and AC-17601-8",
+    "test/define/freeze-record.test.js: extension test covering AC-17601-7 (override required, loader defaults)"
+  ],
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "Depth-2 slice: no sub-agents. Chain first, code next, tests last. Dogfood is NOT frozen in the repo (a committed freeze.json would be a product decision); prove the verb on scratch trees and run --status on the dogfood chain as evidence."
+}
