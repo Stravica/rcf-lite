@@ -38,12 +38,14 @@ async function run(argv, cwd) {
   return { code, stdout: stdout.text, stderr: stderr.text };
 }
 
-test('readiness cli: --help prints the usage block', async () => {
+test('readiness cli: --help prints the usage block (AC-17503-* help carries --level and --persona)', async () => {
   const cwd = await scratchProject();
   const r = await run(['--help'], cwd);
   assert.equal(r.code, 0);
   assert.match(r.stdout, /Usage: rcf define readiness/);
   assert.match(r.stdout, /--check <stage>/);
+  assert.match(r.stdout, /--level <intent\|build>/);
+  assert.match(r.stdout, /--persona <po\|engineer>/);
 });
 
 test('readiness cli: unknown --check name exits 2 with usage error', async () => {
@@ -61,7 +63,13 @@ test('readiness cli: text output shape and --check exit codes', async () => {
   const rDefault = await run([], cwd);
   assert.equal(rDefault.code, 0);
   assert.match(rDefault.stdout, /Unfrozen\./);
-  assert.match(rDefault.stdout, /Next action:/);
+  // Verdict pair (spec section 2.3) prints at the top of every
+  // readiness run.
+  assert.match(rDefault.stdout, /^Intent-complete: /m);
+  assert.match(rDefault.stdout, /^Ready-to-build: /m);
+  // Per-persona next-action lines (spec section 4).
+  assert.match(rDefault.stdout, /Next action \(product owner\):/);
+  assert.match(rDefault.stdout, /Next action \(engineer\):/);
   assert.match(rDefault.stdout, /Chips: D1:/);
   assert.match(rDefault.stdout, /Freezeable: (yes|no)\./);
 
@@ -135,4 +143,130 @@ test('readiness cli: AC-17502-7 rcf/ tree is byte-stable across a readiness run 
   assert.equal(r.code, 0);
   const after = fingerprintRcfTree(cwd);
   assert.equal(after, before, 'rcf/ tree changed under a readiness compute (AC-17502-7)');
+});
+
+// ---------------------------------------------------------------------------
+// US-17503: --level and --persona flags, exit matrix, verdict wording.
+// ---------------------------------------------------------------------------
+
+test('readiness cli: AC-17503-1 default (no --check, no --level) exits 0 and prints both verdict lines', async () => {
+  const cwd = await scratchProject();
+  const r = await run([], cwd);
+  assert.equal(r.code, 0);
+  // Both verdict lines always print (spec section 2.3).
+  assert.match(r.stdout, /^Intent-complete: no;/m);
+  assert.match(r.stdout, /^Ready-to-build: no;/m);
+});
+
+test('readiness cli: AC-17503-3 --level intent exits 4 when PO fails', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--level', 'intent'], cwd);
+  assert.equal(r.code, 4);
+  assert.match(r.stdout, /^Intent-complete: no;/m);
+});
+
+test('readiness cli: AC-17503-4 --level build exits 4 on a failing tree and prints warn lines for unacked warn-with-ack stages', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--level', 'build'], cwd);
+  assert.equal(r.code, 4);
+  assert.match(r.stdout, /^Ready-to-build: no;/m);
+  // D3 is warn-with-ack and failing on a fresh init (TAC-001 has no
+  // interfaces). --level build is stricter than --check all: it
+  // exits 4 and prints the warn line.
+  assert.match(r.stderr, /\[warn\] readiness: D3 \(define\.shapes\) is failing without an acknowledgement/);
+});
+
+test('readiness cli: AC-17503-5 --check all unchanged on warn-with-ack', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--check', 'all'], cwd);
+  // Fresh init has D1/D2/D4/D8 blocking failing, so --check all
+  // exits 4. The important assertion is that warn-with-ack behaviour
+  // in --check all is unchanged from PR A: a warn line is emitted
+  // for D3's unacked failure.
+  assert.equal(r.code, 4);
+  assert.match(r.stderr, /\[warn\] readiness: D3 \(define\.shapes\)/);
+});
+
+test('readiness cli: AC-17503-6 --persona filters text and does not change exit', async () => {
+  const cwd = await scratchProject();
+  const rPlain = await run([], cwd);
+  const rPo = await run(['--persona', 'productOwner'], cwd);
+  const rEng = await run(['--persona', 'engineer'], cwd);
+  assert.equal(rPo.code, rPlain.code);
+  assert.equal(rEng.code, rPlain.code);
+  // With --persona productOwner, the engineer block collapses.
+  assert.match(rPo.stdout, /^Engineer: \d+ (check|checks) blocking \(hidden; run without --persona\)$/m);
+  // The PO block prints its blockers in full.
+  assert.match(rPo.stdout, /^Product owner: \d+ /m);
+  // Mirror check for engineer.
+  assert.match(rEng.stdout, /^Product owner: \d+ (question|questions) \(hidden; run without --persona\)$/m);
+  assert.match(rEng.stdout, /^Engineer: \d+ /m);
+});
+
+test('readiness cli: AC-17503-7 unknown --level exits 2 with usage line', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--level', 'ship'], cwd);
+  assert.equal(r.code, 2);
+  assert.match(r.stderr, /unknown --level ship \(expected intent \| build\)/);
+});
+
+test('readiness cli: AC-17503-7 unknown --persona exits 2 with usage line', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--persona', 'architect'], cwd);
+  assert.equal(r.code, 2);
+  assert.match(r.stderr, /unknown --persona architect \(expected productOwner \| engineer\)/);
+});
+
+test('readiness cli: AC-17503-8 --json --level intent carries _meta.level and preserves levels + personas', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--json', '--level', 'intent'], cwd);
+  // Exit 4 iff intentComplete is false; on a fresh init PO fails so
+  // we expect 4.
+  assert.equal(r.code, 4);
+  const parsed = JSON.parse(r.stdout);
+  assert.equal(parsed._meta.level, 'intent');
+  assert.ok(parsed.levels && parsed.levels.intentComplete);
+  assert.ok(parsed.personas && parsed.personas.productOwner);
+});
+
+test('readiness cli: AC-17503-8 --json without --level emits _meta.level null', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['--json'], cwd);
+  assert.equal(r.code, 0);
+  const parsed = JSON.parse(r.stdout);
+  assert.equal(parsed._meta.level, null);
+});
+
+test('readiness cli: AC-17503-9 text report groups PO before engineer with persona in detail lines', async () => {
+  const cwd = await scratchProject();
+  const r = await run([], cwd);
+  const idxPo = r.stdout.indexOf('Product owner:');
+  const idxEng = r.stdout.indexOf('Engineer:');
+  assert.ok(idxPo >= 0, 'Product owner block present');
+  assert.ok(idxEng > idxPo, 'Engineer block follows Product owner block');
+  // Every per-stage detail check line carries persona inside the
+  // parenthesis after `over` (spec section 4):
+  //   [FAIL] brief:sinceFreeze (delta, productOwner): 0/1
+  assert.match(r.stdout, /\[FAIL\] brief:sinceFreeze \(delta, productOwner\):/);
+  assert.match(r.stdout, /\[FAIL\] skeleton:reqShape \(delta, engineer\):/);
+});
+
+test('readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations)', async () => {
+  const cwd = await scratchProject();
+  // Each row = { argv, expected exit }. The fresh-init tree has
+  // blocking D1/D2/D4/D8 failing and warn-with-ack D3 failing.
+  const rows = [
+    { argv: [], exit: 0 },
+    { argv: ['--check', 'freeze'], exit: 4 },       // D8 blocking
+    { argv: ['--check', 'shapes'], exit: 0 },       // D3 warn-with-ack
+    { argv: ['--check', 'all'], exit: 4 },          // blocking failures present
+    { argv: ['--level', 'intent'], exit: 4 },       // PO fails
+    { argv: ['--level', 'build'], exit: 4 },        // not freezeable
+    { argv: ['--check', 'shapes', '--level', 'build'], exit: 4 },   // level says 4
+    { argv: ['--check', 'freeze', '--level', 'intent'], exit: 4 },  // both say 4
+  ];
+  for (const row of rows) {
+    const r = await run(row.argv, cwd);
+    assert.equal(r.code, row.exit, `argv ${JSON.stringify(row.argv)} expected ${row.exit}, got ${r.code}`);
+  }
 });

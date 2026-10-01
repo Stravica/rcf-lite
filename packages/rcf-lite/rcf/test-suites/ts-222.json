@@ -1,0 +1,93 @@
+{
+  "createdAt": "2026-10-01T16:00:00Z",
+  "updatedAt": "2026-10-01T16:00:00Z",
+  "purpose": "Cover US-17503: --level and --persona flags, the exit matrix (section 3.2), the two verdict lines (section 2.3) and the persona-grouped text report (section 4) of the DEFINE step 2 persona-levels spec. Shares `formatVerdictLines` with the Readiness tab (PR C).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17503-1",
+    "AC-17503-2",
+    "AC-17503-3",
+    "AC-17503-4",
+    "AC-17503-5",
+    "AC-17503-6",
+    "AC-17503-7",
+    "AC-17503-8",
+    "AC-17503-9"
+  ],
+  "id": "TS-222",
+  "usId": "US-17503",
+  "title": "rcf define readiness --level / --persona flags, exit matrix and verdict wording",
+  "testCases": [
+    {
+      "id": "TC-222-exit-matrix",
+      "acId": "AC-17503-1",
+      "description": "Parameterised exit matrix across all rows of spec section 3.2 (no flag, --check <stage>, --check all, --level intent, --level build, --level + --check).",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-1 exit matrix (parameterised)"
+    },
+    {
+      "id": "TC-222-level-intent-pass",
+      "acId": "AC-17503-2",
+      "description": "--level intent exits 0 on a tree where every PO check passes.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-2 --level intent exits 0 when PO is clean"
+    },
+    {
+      "id": "TC-222-level-intent-fail",
+      "acId": "AC-17503-3",
+      "description": "--level intent exits 4 when any PO check fails.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-3 --level intent exits 4 when PO fails"
+    },
+    {
+      "id": "TC-222-level-build-strict-ack",
+      "acId": "AC-17503-4",
+      "description": "--level build exits 4 on an unacknowledged D3 failure even when every blocking stage passes; the [warn] line still prints.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-4 --level build exits 4 on unacknowledged D3 failure"
+    },
+    {
+      "id": "TC-222-check-all-unchanged",
+      "acId": "AC-17503-5",
+      "description": "--check all exit behaviour unchanged on a warn-with-ack-only failure: 0 with a stderr [warn] line.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-5 --check all unchanged on warn-with-ack"
+    },
+    {
+      "id": "TC-222-persona-collapses-other",
+      "acId": "AC-17503-6",
+      "description": "--persona productOwner collapses the engineer block to one line and leaves the exit code identical to the no-flag invocation; same for engineer and the PO block.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-6 --persona filters text and does not change exit"
+    },
+    {
+      "id": "TC-222-unknown-values-exit-2",
+      "acId": "AC-17503-7",
+      "description": "--level ship exits 2 with the usage line naming intent|build; --persona architect exits 2 with the usage line naming productOwner|engineer.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-7 unknown --level or --persona exits 2"
+    },
+    {
+      "id": "TC-222-json-meta-level",
+      "acId": "AC-17503-8",
+      "description": "--json --level intent emits _meta.level === 'intent' and carries levels and personas.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-8 --json --level intent carries _meta.level"
+    },
+    {
+      "id": "TC-222-text-persona-grouping",
+      "acId": "AC-17503-9",
+      "description": "On a failing tree the text report puts the product-owner block before the engineer block and every per-check line carries the persona inside the parenthesis after over.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-9 text report groups PO before engineer with persona in detail lines"
+    },
+    {
+      "id": "TC-222-verdict-lines-four-strings",
+      "acId": "AC-17503-1",
+      "description": "formatVerdictLines builds the four exact strings in spec section 2.3 (L1 ok, L1 not ok, L2 ok, L2 not ok) from crafted fixture results.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: AC-17503-* formatVerdictLines emits the spec 2.3 strings"
+    }
+  ],
+  "status": "draft"
+}

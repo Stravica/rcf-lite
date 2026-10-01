@@ -1,0 +1,65 @@
+{
+  "usId": "US-17503",
+  "prdId": "PRD-001",
+  "reqId": "REQ-175",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Level and persona flags on rcf define readiness",
+  "description": "User story under REQ-175. The verb exposes the two levels folded in US-17502 through --level intent|build and groups the text report by persona via --persona productOwner|engineer. --level drives the exit code against levels.<which>.ok (stricter than --check all on warn-with-ack failures per ADR-4126 and decision 4 of the step 2 spec); --persona is a display filter and never affects the exit code or JSON content. The JSON gains a _meta.level marker when --level is set; both verdict lines always print at the top of the text report. See the DEFINE step 2 persona-levels spec dated 2026-10-01 (section 3) for the full flag table and exit matrix.",
+  "asA": "an operator",
+  "iWant": "--level intent|build and --persona on rcf define readiness",
+  "soThat": "a script exits on the verdict it cares about and a person sees their own questions first",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17503-1",
+      "description": "[happy] Given no --level and no --check, when the verb runs on a failing tree, then it prints both verdict lines and exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-2",
+      "description": "[happy] Given --level intent on a tree where only engineer checks fail, when the verb runs, then it prints 'Intent-complete: yes.' and exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-3",
+      "description": "[failure] Given --level intent on a tree where a productOwner check fails, when the verb runs, then it exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-4",
+      "description": "[failure] Given --level build on a tree with an unacknowledged D3 failure and every blocking stage passed, when the verb runs, then it prints the [warn] line and exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-5",
+      "description": "[happy] Given --check all on the same tree, when the verb runs, then it exits 0, unchanged from 0.28.4.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-6",
+      "description": "[happy] Given --persona productOwner, when the verb runs in text mode, then the engineer block is one line with its check count and the exit code is the same as without the flag.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-7",
+      "description": "[failure] Given --level ship or --persona architect, when the verb runs, then it exits 2 with a usage line naming the accepted values.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-8",
+      "description": "[happy] Given --json --level intent, when the verb runs, then _meta.level is 'intent' and the object carries levels and personas.",
+      "testable": true
+    },
+    {
+      "id": "AC-17503-9",
+      "description": "[happy] Given the text report on a failing tree, when it renders, then the product-owner block precedes the engineer block and each failing check line carries its persona inside the parenthesis after over.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4123-define-readiness"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T16:00:00Z",
+  "updatedAt": "2026-10-01T16:00:00Z"
+}
