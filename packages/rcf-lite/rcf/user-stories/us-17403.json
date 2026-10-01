@@ -1,0 +1,60 @@
+{
+  "usId": "US-17403",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Split heterogeneous checks and detect the D3 draft marker",
+  "description": "User story under REQ-174. skeleton:reqFields and decisions:allAnswered split into homogeneous checks (per persona), and a new D3 shapes:draftSettled flags any interface whose description still carries the leading [draft] marker. L1 pre-populated shapes stay distinguishable from engineer-settled ones.",
+  "asA": "an engineer",
+  "iWant": "the mixed checks split and a draft interface distinguishable from a settled one",
+  "soThat": "a shape the L1 agent pre-populated never reads as my finished work",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17403-1",
+      "description": "[happy] Given a REQ in scope with a TODO description and no shapeClassification, when D2 runs, then skeleton:reqIntent fails the REQ for the description and skeleton:reqShape fails the same REQ for the missing shapes.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-2",
+      "description": "[happy] Given a REQ in scope with a description and shapes but no domain, when D2 runs, then skeleton:reqIntent fails the REQ with 'domain missing' and skeleton:reqShape passes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-3",
+      "description": "[happy] Given a TAC in scope whose only interface description starts with [draft], when D3 runs, then shapes:tacHasInterface passes the TAC and shapes:draftSettled fails <tacId>:<name> with 'draft interface pre-populated at L1, not yet settled'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-4",
+      "description": "[happy] Given the same TAC after the [draft] marker is removed, when D3 runs, then shapes:draftSettled passes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-5",
+      "description": "[failure] Given a [draft] interface whose kind is not in INTERFACE_KINDS, when D3 runs, then shapes:kindVocabulary fails it exactly as it would a settled interface.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-6",
+      "description": "[happy] Given a decisions ledger with one open entry that has a question, two options and a default, when D7 runs, then decisions:wellFormed passes and decisions:allAnswered fails the entry.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-7",
+      "description": "[failure] Given a decisions ledger entry with one option and no default, when D7 runs, then decisions:wellFormed fails it with 'decision is not enumerated (question, two or more options, a default)'.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-8",
+      "description": "[must-not] Given any tree, when D2 or D7 runs, then no check named skeleton:reqFields is emitted and the stage envelope shape (stage, gate, state, checks) is unchanged.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z"
+}

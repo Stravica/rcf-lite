@@ -577,3 +577,279 @@ test('gates: D2 skeleton:tadPersistence reads tad.dataArchitecture.* per schema 
   const persistenceCheckDrift = stageDrift.checks.find((c) => c.name === 'skeleton:tadPersistence');
   assert.equal(persistenceCheckDrift.ok, false, 'top-level dataStores/coreEntities must not satisfy the schema-anchored check');
 });
+
+// ---------------------------------------------------------------------------
+// ADR-4126 (US-17402): every check carries persona + question.
+// ---------------------------------------------------------------------------
+
+import {
+  CHECK_PERSONA,
+  CHECK_QUESTION,
+  STAGE_FALLBACK_PERSONA,
+  checkPersona,
+  checkQuestion,
+  parseInterfaceDraft,
+} from '../../src/query/gates.js';
+
+/** The 24 ADR-4126 check names (0.29.0). */
+const EXPECTED_CHECK_NAMES = [
+  'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
+  'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
+  'skeleton:tadPersistence', 'skeleton:deployAdr',
+  'shapes:tacHasInterface', 'shapes:kindVocabulary', 'shapes:draftSettled',
+  'stories:reqHasUs', 'stories:usFloors',
+  'crosscut:securityArchitecture', 'crosscut:operationalConcerns', 'crosscut:concernsResolved',
+  'consistency:validateClean', 'consistency:probeCount',
+  'decisions:wellFormed', 'decisions:allAnswered',
+  'freeze:priorGates', 'freeze:acFbsOwnership', 'freeze:queueHead', 'freeze:validateClean',
+];
+
+test('gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name', () => {
+  assert.deepEqual(Object.keys(CHECK_PERSONA).sort(), [...EXPECTED_CHECK_NAMES].sort());
+  assert.deepEqual(Object.keys(CHECK_QUESTION).sort(), [...EXPECTED_CHECK_NAMES].sort());
+  for (const name of EXPECTED_CHECK_NAMES) {
+    const persona = CHECK_PERSONA[name];
+    assert.ok(persona === 'productOwner' || persona === 'engineer', `${name}: persona ${persona}`);
+    assert.equal(typeof CHECK_QUESTION[name], 'string');
+    assert.ok(CHECK_QUESTION[name].length > 0, `${name}: question`);
+  }
+});
+
+test('gates (ADR-4126): checkPersona / checkQuestion helpers mirror the maps', () => {
+  for (const name of EXPECTED_CHECK_NAMES) {
+    assert.equal(checkPersona(name), CHECK_PERSONA[name]);
+    assert.equal(checkQuestion(name), CHECK_QUESTION[name]);
+  }
+  assert.equal(checkPersona('bogus:name'), null);
+  assert.equal(checkQuestion('bogus:name'), '');
+});
+
+test('gates (ADR-4126): STAGE_FALLBACK_PERSONA covers every stage', () => {
+  for (const stage of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
+    const v = STAGE_FALLBACK_PERSONA[stage];
+    assert.ok(v === 'productOwner' || v === 'engineer', `${stage}: ${v}`);
+  }
+});
+
+test('gates (ADR-4126, AC-17402-1): every check carries persona + question', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree();
+  const ctx = {
+    tree,
+    ledgers: emptyLedgers,
+    delta: { frozen: false, changed: [], added: [], removed: [], briefSince: [], unchanged: 0, currentTreeHash: 'sha256:aaaa', frozenAt: null, treeHash: null },
+    freeze: null,
+    scope: new Set(),
+    validateErrors: [],
+    profileText: 'productOwner viewer',
+    profile: undefined,
+    currentTreeHash: 'sha256:aaaa',
+    priorStages: [],
+  };
+  for (const fn of [checkD1Brief, checkD2Skeleton, checkD3Shapes, checkD4Stories, checkD5Crosscut, checkD6Consistency, checkD7Decisions, checkD8Freeze]) {
+    const stage = fn(ctx);
+    for (const c of stage.checks) {
+      assert.ok(c.persona === 'productOwner' || c.persona === 'engineer',
+        `${stage.stage}/${c.name}: persona ${c.persona}`);
+      assert.equal(typeof c.question, 'string');
+      assert.ok(c.question.length > 0, `${stage.stage}/${c.name}: question`);
+    }
+  }
+});
+
+test('gates (ADR-4126, AC-17402-7): notApplicable placeholder carries stage fallback persona and ok true', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree();
+  // D2 goes notApplicable with no resolving statements and no REQ/PRD/TAD in scope.
+  const stage = checkD2Skeleton({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    delta: { frozen: false, changed: [], added: [], removed: [], briefSince: [] },
+    freeze: null, validateErrors: [], profileText: '', currentTreeHash: 'sha256:aaa',
+  });
+  assert.equal(stage.state, 'notApplicable');
+  assert.equal(stage.checks.length, 1);
+  const placeholder = stage.checks[0];
+  assert.equal(placeholder.name, 'stage:D2:scope');
+  assert.equal(placeholder.ok, true);
+  assert.equal(placeholder.persona, STAGE_FALLBACK_PERSONA.D2);
+  assert.equal(typeof placeholder.question, 'string');
+});
+
+// ---------------------------------------------------------------------------
+// ADR-4126 (US-17403, AC-17403-1 / 2 / 8): skeleton:reqFields split.
+// ---------------------------------------------------------------------------
+
+test('gates (ADR-4126, AC-17403-1): TODO description + missing shapes fails BOTH reqIntent AND reqShape on same REQ', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const req = {
+    reqId: 'REQ-TODO', title: 'x',
+    description: 'TODO: write me', domain: 'x',
+    // No shapeClassification.
+  };
+  const deployAdr = { adrId: 'ADR-D', title: 'Deploy target: fly.io' };
+  const tree = makeTree({ requirements: [req], adrs: [deployAdr] });
+  const stage = checkD2Skeleton({
+    tree, ledgers: emptyLedgers, scope: new Set(['REQ-TODO']),
+    delta: { frozen: false, changed: [], added: ['REQ-TODO'], removed: [], briefSince: [] },
+    freeze: null, validateErrors: [], profileText: 'productOwner viewer', currentTreeHash: 'sha256:aaa',
+  });
+  const intent = stage.checks.find((c) => c.name === 'skeleton:reqIntent');
+  const shape = stage.checks.find((c) => c.name === 'skeleton:reqShape');
+  assert.ok(intent, 'skeleton:reqIntent should exist');
+  assert.ok(shape, 'skeleton:reqShape should exist');
+  assert.ok(intent.failing.some((f) => f.id === 'REQ-TODO' && /description/.test(f.why)));
+  assert.ok(shape.failing.some((f) => f.id === 'REQ-TODO' && /shapeClassification/.test(f.why)));
+  assert.equal(intent.persona, 'productOwner');
+  assert.equal(shape.persona, 'engineer');
+});
+
+test('gates (ADR-4126, AC-17403-2): shapes present + no domain fails reqIntent only', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const req = {
+    reqId: 'REQ-NODOM', title: 'x',
+    description: 'a real description',
+    shapeClassification: { shapes: ['httpApi'] },
+    // No domain.
+  };
+  const deployAdr = { adrId: 'ADR-D', title: 'Deploy target: fly.io' };
+  const tree = makeTree({ requirements: [req], adrs: [deployAdr] });
+  const stage = checkD2Skeleton({
+    tree, ledgers: emptyLedgers, scope: new Set(['REQ-NODOM']),
+    delta: { frozen: false, changed: [], added: ['REQ-NODOM'], removed: [], briefSince: [] },
+    freeze: null, validateErrors: [], profileText: 'productOwner viewer', currentTreeHash: 'sha256:aaa',
+  });
+  const intent = stage.checks.find((c) => c.name === 'skeleton:reqIntent');
+  const shape = stage.checks.find((c) => c.name === 'skeleton:reqShape');
+  assert.ok(intent.failing.some((f) => f.id === 'REQ-NODOM' && /domain missing/.test(f.why)));
+  assert.equal(shape.failing.filter((f) => f.id === 'REQ-NODOM').length, 0);
+});
+
+test('gates (ADR-4126, AC-17403-8): no check named skeleton:reqFields is emitted', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const req = { reqId: 'REQ-1', title: 'x', description: 'live', domain: 'x', shapeClassification: { shapes: [] } };
+  const deployAdr = { adrId: 'ADR-D', title: 'Deploy target: fly.io' };
+  const tree = makeTree({ requirements: [req], adrs: [deployAdr] });
+  const stage = checkD2Skeleton({
+    tree, ledgers: emptyLedgers, scope: new Set(['REQ-1']),
+    delta: { frozen: false, changed: [], added: ['REQ-1'], removed: [], briefSince: [] },
+    freeze: null, validateErrors: [], profileText: 'productOwner viewer', currentTreeHash: 'sha256:aaa',
+  });
+  assert.equal(stage.checks.filter((c) => c.name === 'skeleton:reqFields').length, 0);
+});
+
+// ---------------------------------------------------------------------------
+// ADR-4126 (US-17403, AC-17403-3 / 4 / 5): shapes:draftSettled.
+// ---------------------------------------------------------------------------
+
+test('gates (ADR-4126): parseInterfaceDraft respects leading whitespace', () => {
+  assert.equal(parseInterfaceDraft({ description: '[draft] a route' }), true);
+  assert.equal(parseInterfaceDraft({ description: '   [draft] a route' }), true);
+  assert.equal(parseInterfaceDraft({ description: 'a bare one' }), false);
+  assert.equal(parseInterfaceDraft({ description: '[happy] not a draft marker' }), false);
+  assert.equal(parseInterfaceDraft({}), false);
+  assert.equal(parseInterfaceDraft(null), false);
+});
+
+test('gates (ADR-4126, AC-17403-3 / 4): draft interface fails draftSettled, passes tacHasInterface', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tacDraft = {
+    tacId: 'TAC-D',
+    interfaces: [{ name: 'ship', kind: 'httpRoute', description: '[draft] placeholder' }],
+  };
+  const tree = makeTree({ tacs: [tacDraft] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-D']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const iface = stage.checks.find((c) => c.name === 'shapes:tacHasInterface');
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  assert.ok(iface.ok, 'tacHasInterface should pass a draft-only TAC');
+  assert.equal(draft.failing.length, 1);
+  assert.equal(draft.failing[0].id, 'TAC-D:ship');
+  assert.match(draft.failing[0].why, /draft interface pre-populated/);
+
+  // After the marker is removed, draftSettled passes.
+  const tacSettled = {
+    tacId: 'TAC-D',
+    interfaces: [{ name: 'ship', kind: 'httpRoute', description: 'placeholder' }],
+  };
+  const tree2 = makeTree({ tacs: [tacSettled] });
+  const stage2 = checkD3Shapes({
+    tree: tree2, ledgers: emptyLedgers, scope: new Set(['TAC-D']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  assert.ok(stage2.checks.find((c) => c.name === 'shapes:draftSettled').ok);
+});
+
+test('gates (ADR-4126, AC-17403-5): kindVocabulary applies to drafts just like settled interfaces', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tacDraftBadKind = {
+    tacId: 'TAC-DK',
+    interfaces: [{ name: 'ship', kind: 'notAVocab', description: '[draft] placeholder' }],
+  };
+  const tree = makeTree({ tacs: [tacDraftBadKind] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-DK']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const kind = stage.checks.find((c) => c.name === 'shapes:kindVocabulary');
+  assert.ok(kind.failing.some((f) => f.id === 'TAC-DK:ship'));
+});
+
+// ---------------------------------------------------------------------------
+// ADR-4126 (US-17403, AC-17403-6 / 7): decisions:wellFormed vs allAnswered.
+// ---------------------------------------------------------------------------
+
+test('gates (ADR-4126, AC-17403-6): enumerated open decision passes wellFormed, fails allAnswered', () => {
+  const ledgers = {
+    brief: { statements: [] },
+    decisions: {
+      decisions: [{
+        id: 1, status: 'open',
+        question: 'Pick a store',
+        options: [{ letter: 'A', text: 'postgres' }, { letter: 'B', text: 'sqlite' }],
+        default: 'A',
+      }],
+    },
+    concerns: { concerns: [] },
+    probes: { probes: [] },
+  };
+  const tree = makeTree();
+  const stage = checkD7Decisions({
+    tree, ledgers, scope: new Set(),
+    delta: { changed: [], added: [] },
+    freeze: null, validateErrors: [], profileText: '',
+    profile: {}, currentTreeHash: 'sha256:aaa',
+  });
+  const wf = stage.checks.find((c) => c.name === 'decisions:wellFormed');
+  const aa = stage.checks.find((c) => c.name === 'decisions:allAnswered');
+  assert.ok(wf.ok, 'wellFormed should pass');
+  assert.ok(!aa.ok, 'allAnswered should fail');
+  assert.ok(aa.failing.some((f) => f.id === 'decision:1'));
+});
+
+test('gates (ADR-4126, AC-17403-7): one option, no default fails wellFormed', () => {
+  const ledgers = {
+    brief: { statements: [] },
+    decisions: {
+      decisions: [{
+        id: 2, status: 'open',
+        question: 'Pick a store',
+        options: [{ letter: 'A', text: 'postgres' }],
+        default: null,
+      }],
+    },
+    concerns: { concerns: [] },
+    probes: { probes: [] },
+  };
+  const tree = makeTree();
+  const stage = checkD7Decisions({
+    tree, ledgers, scope: new Set(),
+    delta: { changed: [], added: [] },
+    freeze: null, validateErrors: [], profileText: '',
+    profile: {}, currentTreeHash: 'sha256:aaa',
+  });
+  const wf = stage.checks.find((c) => c.name === 'decisions:wellFormed');
+  assert.ok(!wf.ok);
+  assert.ok(wf.failing.some((f) => f.id === 'decision:2' && /enumerated/.test(f.why)));
+});

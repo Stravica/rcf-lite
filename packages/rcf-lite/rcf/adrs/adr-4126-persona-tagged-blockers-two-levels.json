@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z",
+  "adrId": "ADR-4126-persona-tagged-blockers-two-levels",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Intent-complete is a persona cut, computed, never recorded",
+  "context": "WSD needs a product-owner exit from DEFINE that a delivery stream can pick up without a hand-over meeting. Dex proposed early-stage gates; the design-spec review (2026-10-01) walked a middle path. D2 and D4 each hold both PO and engineer checks today; a single-persona tag per check would misread both. Operators also need a way to pre-populate shapes at L1 without those shapes reading as the engineer's finished work. The gate table has 20 checks in 0.29.0; two are heterogeneous and one is missing. The train is 4.5 days across three PRs; PR A owns the compute.",
+  "decision": "Every gate check in src/query/gates.js declares an owning persona (productOwner | engineer) via a code-side CHECK_PERSONA map and a one-sentence CHECK_QUESTION heading in the persona's register. The two heterogeneous checks are split: skeleton:reqFields becomes skeleton:reqIntent (productOwner: description + domain) + skeleton:reqShape (engineer: shapeClassification.shapes); decisions:allAnswered becomes decisions:wellFormed (productOwner: enumerated per #241 format) + decisions:allAnswered (engineer: zero open). A new D3 check shapes:draftSettled fails every interface whose description still carries the leading [draft] marker, so an L1-pre-populated interface is distinguishable from a settled one; shapes:tacHasInterface counts a draft as present, and shapes:kindVocabulary applies to drafts. L1 intent-complete is 'every productOwner check ok across every stage', computed by computeReadiness and folded into readiness.levels.intentComplete alongside the existing freezeable-equivalent readiness.levels.readyToBuild. Nothing is written; both levels fall out of stages[].checks[] on every read. The notApplicable placeholder (stage:<D>:scope) carries a per-stage fallback persona (STAGE_FALLBACK_PERSONA map) so every check has a persona for the table test and downstream renderers; the placeholder is always ok so it never affects a level. There is no either / shared / both persona; a check that would need both is split instead. Per-item persona override is not introduced; a failing item inherits its check's persona. Open decisions do not block L1 in 0.29.0: an enumerated decision with a default is enough for an engineer to proceed (Baz direction doc, open question 1 answered Dave-recommended). The [draft] marker lives on TAC.interfaces[].description only in 0.29.0, mirroring decision 6's AC-class bracket convention; rcf-schemas 0.6.3 is untouched and the marker migrates with AC.kind to a structured field at schemas 0.7.",
+  "consequences": "One ladder, two verdicts. Intent-complete is the ticket artefact a delivery stream reads from `rcf define readiness --level intent --json`; it is not recorded, so no second register of truth and nothing to invalidate on tree change. The persona split in gates.js is one map plus two straightforward loops (reqIntent / reqShape each evaluates every REQ independently; wellFormed / allAnswered each loop decisionEntries); every existing test except the two renamed checks keeps passing unchanged, and the dogfood tree reports two extra findings on reqIntent that were previously masked by the first-failure continue (true findings, not regressions). The notApplicable placeholder carrying a persona is a small schema surface addition that keeps the per-check vocabulary total true. The [draft] marker as a text convention is the same posture AC class carries today (decision 6); the migration cost at schemas 0.7 is one more lift. L1 pre-population is explicit: the L1 agent writes [draft] interfaces as it learns entities and routes from the brief, which makes shapes:tacHasInterface pass earlier for the engineer and leaves shapes:draftSettled as the honest list of what the engineer has yet to own. L2 draft handling is unchanged: a failing shapes:draftSettled keeps D3 failing unless acknowledged at the current hash through the existing --ack define.shapes path (0.29.0 warn-with-ack posture; step 4 makes D3 bite). The levels object cannot disagree with the CLI or the Readiness tab because all three render from the same computeReadiness output. The CLI flags that expose levels (--level, --persona) and the viewer tab land in PRs B and C respectively; this ADR only covers the compute.",
+  "alternativesConsidered": [
+    {
+      "name": "Stage-prefix persona (every check on D1/D2/D4/D7 is productOwner; D3/D5/D6/D8 is engineer)",
+      "summary": "Pin persona by stage, skip the per-check tag; no splits.",
+      "reasonNotChosen": "Blocks the PO on skeleton:tadPersistence (data stores) and skeleton:deployAdr (which hosting), both engineering decisions. Also passes with unresolved brief statements under an engineer-only D5 even though resolution is a PO question. The per-check map is the source of truth because the owner is a property of the rule, not of the stage."
+    },
+    {
+      "name": "Recorded L1 (freeze-at-intent)",
+      "summary": "Write an intent-complete freeze record parallel to the build freeze, with its own hash and ledger.",
+      "reasonNotChosen": "Reintroduces stored state the detection model (REQ-172) removed. Two freeze records on one tree are two chances for them to disagree, and the delivery stream's artefact is already the --json output at a tree hash. L1 is a verdict, not a commit."
+    },
+    {
+      "name": "either / shared / both persona value",
+      "summary": "Allow a check to be owned by both personas when it reads both ways.",
+      "reasonNotChosen": "Hides whose question it is, which was the point of the tag. A heterogeneous check is almost always two checks under one name; splitting is clearer and cheap."
+    },
+    {
+      "name": "[draft] on a new TAC.interfaces[].status field instead of description",
+      "summary": "Introduce a structured status enum on the interface shape.",
+      "reasonNotChosen": "Schema change for one piece of 0.29.0 metadata; AC class already lives on description as a bracket prefix (decision 6); the two migrate together at schemas 0.7. The 0.29.0 cost is one regex."
+    },
+    {
+      "name": "Per-item persona override on failing[]",
+      "summary": "Let a failing { id, why } carry its own persona so one check can fail into both personas.",
+      "reasonNotChosen": "A failing item carries no new information its check does not already carry; the operator reads the question heading, not the item. Keeps the API surface narrower and avoids forcing every consumer to fold two persona fields."
+    }
+  ]
+}

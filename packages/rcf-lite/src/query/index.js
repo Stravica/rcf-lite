@@ -13,15 +13,22 @@ export {
   computeDelta,
 } from './delta.js';
 // DEFINE stage gates (REQ-174; proposal §2.4, §3.2 v3). One check
-// function per stage; foldState + parseAcClass helpers.
+// function per stage; foldState + parseAcClass helpers. Persona /
+// question / draft-marker helpers added for ADR-4126 (0.29.0).
 export {
   STAGE_ORDER,
   STAGE_GATES,
   STAGE_SHORT_NAMES,
   STAGE_ALIASES,
   INTERFACE_KINDS,
+  CHECK_PERSONA,
+  CHECK_QUESTION,
+  STAGE_FALLBACK_PERSONA,
   stagePolicy,
   parseAcClass,
+  parseInterfaceDraft,
+  checkPersona,
+  checkQuestion,
   foldState,
   runStage,
   checkD1Brief,
@@ -33,10 +40,14 @@ export {
   checkD7Decisions,
   checkD8Freeze,
 } from './gates.js';
-// Readiness composer (REQ-175; proposal §2.4, §6 v3).
+// Readiness composer (REQ-175; proposal §2.4, §6 v3). Levels /
+// personas / verdict-line helpers added for ADR-4126 (0.29.0).
 export {
   computeReadiness,
   deriveNextAction,
+  deriveLevels,
+  derivePersonas,
+  formatVerdictLines,
   shortHash,
   formatTreeLine,
 } from './readiness.js';

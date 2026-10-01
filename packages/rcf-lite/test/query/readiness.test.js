@@ -354,3 +354,182 @@ test('readiness: absent-ledger contract is honoured by the readiness composer', 
   assert.ok(d.added.some((id) => id === 'ledger:brief'));
   assert.equal(d.added.filter((id) => id.startsWith('ledger:')).length, 1);
 });
+
+// ---------------------------------------------------------------------------
+// ADR-4126: levels + personas fold.
+// ---------------------------------------------------------------------------
+
+import {
+  deriveLevels,
+  derivePersonas,
+  formatVerdictLines,
+} from '../../src/query/readiness.js';
+
+test('readiness (ADR-4126, AC-17502-3): brief:profile failing yields L1 blocker and PO next action', () => {
+  const tree = makeTree();
+  const result = computeReadiness(tree, {
+    freeze: null,
+    ledgers: EMPTY_LEDGERS,
+    profileText: null,
+  });
+  assert.ok(result.levels, 'levels should exist');
+  assert.equal(result.levels.intentComplete.ok, false);
+  assert.ok(result.levels.intentComplete.blockedBy.length > 0);
+  const profileBlocker = result.levels.intentComplete.blockedBy.find((b) => b.check === 'brief:profile');
+  assert.ok(profileBlocker, 'brief:profile should be a PO blocker');
+  assert.equal(profileBlocker.persona, 'productOwner');
+  assert.equal(profileBlocker.stage, 'D1');
+  assert.deepEqual([...profileBlocker.ids].sort(), ['profile:register', 'profile:surface']);
+  // L1 nextAction command carries --level intent.
+  assert.ok(result.levels.intentComplete.nextAction);
+  assert.match(result.levels.intentComplete.nextAction.command, /--level intent/);
+});
+
+test('readiness (ADR-4126, AC-17502-5): personas.productOwner.blockers deep-equals L1 blockedBy; readyToBuild.nextAction equals nextAction', () => {
+  const tree = makeTree();
+  const result = computeReadiness(tree, {
+    freeze: null,
+    ledgers: EMPTY_LEDGERS,
+    profileText: null,
+  });
+  assert.deepEqual(result.personas.productOwner.blockers, result.levels.intentComplete.blockedBy);
+  assert.deepEqual(result.levels.readyToBuild.nextAction, result.nextAction);
+});
+
+test('readiness (ADR-4126, AC-17502-8): 0.28.4 fields present with their types', () => {
+  const tree = makeTree();
+  const result = computeReadiness(tree, {
+    freeze: null,
+    ledgers: EMPTY_LEDGERS,
+    profileText: 'productOwner viewer',
+  });
+  assert.equal(typeof result.tree, 'object');
+  assert.equal(typeof result.delta, 'object');
+  assert.ok(Array.isArray(result.stages));
+  assert.ok(result.nextAction === null || typeof result.nextAction === 'object');
+  assert.ok(result.coverage && typeof result.coverage === 'object');
+  assert.ok(Array.isArray(result.decisions));
+  assert.equal(typeof result.freezeable, 'boolean');
+});
+
+test('readiness (ADR-4126, AC-17502-6): PO-nextAction prefers first PO-failing stage; engineer-nextAction prefers first engineer-failing stage', () => {
+  // Build stages[] directly: D2 has engineer failures only; D4 has
+  // both engineer and PO failing checks. PO nextAction should name
+  // D4; engineer nextAction should name D2.
+  const stages = [
+    {
+      stage: 'D1', gate: 'define.brief', state: 'passed', checks: [
+        { name: 'brief:sinceFreeze', ok: true, over: 'delta', pass: 1, total: 1, failing: [], persona: 'productOwner', question: 'q' },
+      ],
+    },
+    {
+      stage: 'D2', gate: 'define.skeleton', state: 'failing', checks: [
+        { name: 'skeleton:reqShape', ok: false, over: 'delta', pass: 0, total: 1, failing: [{ id: 'REQ-1', why: 'x' }], persona: 'engineer', question: 'q' },
+      ],
+    },
+    {
+      stage: 'D3', gate: 'define.shapes', state: 'passed', checks: [],
+    },
+    {
+      stage: 'D4', gate: 'define.stories', state: 'failing', checks: [
+        { name: 'stories:reqHasUs', ok: false, over: 'delta', pass: 0, total: 1, failing: [{ id: 'REQ-1', why: 'no US' }], persona: 'productOwner', question: 'q' },
+        { name: 'stories:usFloors', ok: false, over: 'delta', pass: 0, total: 1, failing: [{ id: 'US-1', why: 'x' }], persona: 'engineer', question: 'q' },
+      ],
+    },
+    { stage: 'D5', gate: 'define.crosscut', state: 'passed', checks: [] },
+    { stage: 'D6', gate: 'define.consistency', state: 'passed', checks: [] },
+    { stage: 'D7', gate: 'define.decisions', state: 'passed', checks: [] },
+    { stage: 'D8', gate: 'define.freeze', state: 'passed', checks: [] },
+  ];
+  const nextAction = deriveNextAction(stages);
+  assert.equal(nextAction.stage, 'D2'); // first failing stage, no persona filter
+  const levels = deriveLevels(stages, false, nextAction);
+  assert.equal(levels.intentComplete.nextAction.stage, 'D4');
+  const personas = derivePersonas(stages, levels);
+  assert.equal(personas.productOwner.nextAction.stage, 'D4');
+  assert.equal(personas.engineer.nextAction.stage, 'D2');
+});
+
+test('readiness (ADR-4126, AC-17502-4): acknowledged D3 engineer failure is absent from readyToBuild.blockedBy', () => {
+  const stages = [
+    { stage: 'D1', gate: 'define.brief', state: 'passed', checks: [] },
+    { stage: 'D2', gate: 'define.skeleton', state: 'passed', checks: [] },
+    {
+      stage: 'D3', gate: 'define.shapes', state: 'acknowledged', checks: [
+        { name: 'shapes:draftSettled', ok: false, over: 'delta', pass: 0, total: 2, failing: [{ id: 'TAC-1:i', why: 'draft' }], persona: 'engineer', question: 'q' },
+      ],
+    },
+    { stage: 'D4', gate: 'define.stories', state: 'passed', checks: [] },
+    { stage: 'D5', gate: 'define.crosscut', state: 'passed', checks: [] },
+    { stage: 'D6', gate: 'define.consistency', state: 'passed', checks: [] },
+    { stage: 'D7', gate: 'define.decisions', state: 'passed', checks: [] },
+    { stage: 'D8', gate: 'define.freeze', state: 'passed', checks: [] },
+  ];
+  const levels = deriveLevels(stages, true, null);
+  assert.equal(levels.readyToBuild.ok, true);
+  assert.equal(levels.readyToBuild.blockedBy.length, 0);
+  // L1 unaffected: PO blockers unchanged.
+  assert.equal(levels.intentComplete.ok, true);
+  assert.equal(levels.intentComplete.blockedBy.length, 0);
+});
+
+test('readiness (ADR-4126, AC-17502-1): PO ok + engineer failing => L1 ok, L2 not ok', () => {
+  const stages = [
+    { stage: 'D1', gate: 'define.brief', state: 'passed', checks: [] },
+    {
+      stage: 'D2', gate: 'define.skeleton', state: 'failing', checks: [
+        { name: 'skeleton:reqShape', ok: false, over: 'delta', pass: 0, total: 1, failing: [{ id: 'REQ-1', why: 'x' }], persona: 'engineer', question: 'q' },
+      ],
+    },
+    { stage: 'D3', gate: 'define.shapes', state: 'passed', checks: [] },
+    { stage: 'D4', gate: 'define.stories', state: 'passed', checks: [] },
+    { stage: 'D5', gate: 'define.crosscut', state: 'passed', checks: [] },
+    { stage: 'D6', gate: 'define.consistency', state: 'passed', checks: [] },
+    { stage: 'D7', gate: 'define.decisions', state: 'passed', checks: [] },
+    { stage: 'D8', gate: 'define.freeze', state: 'passed', checks: [] },
+  ];
+  const nextAction = deriveNextAction(stages);
+  const levels = deriveLevels(stages, false, nextAction);
+  assert.equal(levels.intentComplete.ok, true);
+  assert.equal(levels.readyToBuild.ok, false);
+  assert.ok(levels.readyToBuild.blockedBy.length > 0);
+});
+
+test('readiness (ADR-4126): formatVerdictLines returns the section 2.3 wording', () => {
+  // All ok case.
+  const okResult = {
+    tree: { currentTreeHash: 'sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' },
+    levels: {
+      intentComplete: { ok: true, blockedBy: [], nextAction: null },
+      readyToBuild: { ok: true, blockedBy: [], nextAction: null },
+    },
+  };
+  const okLines = formatVerdictLines(okResult);
+  assert.match(okLines.intentComplete, /Intent-complete: yes/);
+  assert.match(okLines.readyToBuild, /Ready-to-build: yes\. Freezeable at 01234567\./);
+
+  // Not-ok case: both PO and engineer blockers across D1 and D2.
+  const notOkResult = {
+    tree: { currentTreeHash: 'sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' },
+    levels: {
+      intentComplete: {
+        ok: false,
+        blockedBy: [
+          { stage: 'D1', check: 'brief:profile', persona: 'productOwner' },
+        ],
+        nextAction: null,
+      },
+      readyToBuild: {
+        ok: false,
+        blockedBy: [
+          { stage: 'D1', check: 'brief:profile', persona: 'productOwner' },
+          { stage: 'D2', check: 'skeleton:reqShape', persona: 'engineer' },
+        ],
+        nextAction: null,
+      },
+    },
+  };
+  const notOkLines = formatVerdictLines(notOkResult);
+  assert.match(notOkLines.intentComplete, /Intent-complete: no; 1 question for the product owner \(D1\/brief:profile\)\./);
+  assert.match(notOkLines.readyToBuild, /Ready-to-build: no; blocked on D1, D2 \(2 checks: 1 product owner, 1 engineer\)\./);
+});
