@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z",
+  "purpose": "Cover US-17403: the skeleton:reqFields split into reqIntent + reqShape, the decisions:allAnswered split into wellFormed + allAnswered, and the new D3 shapes:draftSettled check for interface descriptions carrying the [draft] marker (ADR-4126).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17403-1",
+    "AC-17403-2",
+    "AC-17403-3",
+    "AC-17403-4",
+    "AC-17403-5",
+    "AC-17403-6",
+    "AC-17403-7",
+    "AC-17403-8"
+  ],
+  "id": "TS-220",
+  "usId": "US-17403",
+  "title": "Split checks and the D3 draft marker",
+  "testCases": [
+    {
+      "id": "TC-220-todo-no-shapes-fails-both",
+      "acId": "AC-17403-1",
+      "description": "A REQ with a TODO description and no shapeClassification fails skeleton:reqIntent for the description AND skeleton:reqShape for the missing shapes.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-1): TODO description + missing shapes fails BOTH reqIntent AND reqShape on same REQ"
+    },
+    {
+      "id": "TC-220-shapes-no-domain-fails-req-intent-only",
+      "acId": "AC-17403-2",
+      "description": "A REQ with description and shapes but no domain fails skeleton:reqIntent (domain missing) and passes skeleton:reqShape.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-2): shapes present + no domain fails reqIntent only"
+    },
+    {
+      "id": "TC-220-draft-fails-draft-settled",
+      "acId": "AC-17403-3",
+      "description": "A TAC whose only interface description starts with [draft] passes shapes:tacHasInterface and fails shapes:draftSettled with id <tacId>:<name>.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-3 / 4): draft interface fails draftSettled, passes tacHasInterface"
+    },
+    {
+      "id": "TC-220-marker-removed-passes-draft-settled",
+      "acId": "AC-17403-4",
+      "description": "After the [draft] marker is removed from the interface description, shapes:draftSettled passes it.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-3 / 4): draft interface fails draftSettled, passes tacHasInterface"
+    },
+    {
+      "id": "TC-220-draft-kind-vocabulary-still-applies",
+      "acId": "AC-17403-5",
+      "description": "A [draft] interface whose kind is not in INTERFACE_KINDS fails shapes:kindVocabulary exactly as a settled interface would.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-5): kindVocabulary applies to drafts just like settled interfaces"
+    },
+    {
+      "id": "TC-220-enumerated-passes-well-formed-fails-all-answered",
+      "acId": "AC-17403-6",
+      "description": "An open decision with a question, two options and a default naming one of them passes decisions:wellFormed and fails decisions:allAnswered.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-6): enumerated open decision passes wellFormed, fails allAnswered"
+    },
+    {
+      "id": "TC-220-one-option-no-default-fails-well-formed",
+      "acId": "AC-17403-7",
+      "description": "A decisions-ledger entry with one option and no default fails decisions:wellFormed with 'decision is not enumerated (question, two or more options, a default)'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-7): one option, no default fails wellFormed"
+    },
+    {
+      "id": "TC-220-no-req-fields-emitted",
+      "acId": "AC-17403-8",
+      "description": "No check named skeleton:reqFields is emitted; the stage envelope shape (stage, gate, state, checks) is unchanged.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-8): no check named skeleton:reqFields is emitted"
+    }
+  ],
+  "status": "draft"
+}

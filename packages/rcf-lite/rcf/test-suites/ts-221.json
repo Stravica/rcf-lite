@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-01T14:30:00Z",
+  "purpose": "Cover US-17502: computeReadiness folds levels.intentComplete and levels.readyToBuild plus personas.productOwner and personas.engineer from stages[].checks[]; the folds are additive and no file under rcf/ is written (ADR-4126).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17502-1",
+    "AC-17502-2",
+    "AC-17502-3",
+    "AC-17502-4",
+    "AC-17502-5",
+    "AC-17502-6",
+    "AC-17502-7",
+    "AC-17502-8"
+  ],
+  "id": "TS-221",
+  "usId": "US-17502",
+  "title": "Two readiness levels folded on one object",
+  "testCases": [
+    {
+      "id": "TC-221-po-ok-engineer-failing",
+      "acId": "AC-17502-1",
+      "description": "A tree where every productOwner check is ok and at least one engineer check fails has levels.intentComplete.ok true and levels.readyToBuild.ok false.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-1): PO ok + engineer failing => L1 ok, L2 not ok"
+    },
+    {
+      "id": "TC-221-freezeable-implies-l1",
+      "acId": "AC-17502-2",
+      "description": "A tree where freezeable is true has levels.readyToBuild.ok true and levels.intentComplete.ok true.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness: freezeable is true on a well-formed tree (every stage passed / notApplicable)"
+    },
+    {
+      "id": "TC-221-brief-profile-l1-blocker",
+      "acId": "AC-17502-3",
+      "description": "A tree where brief:profile fails has levels.intentComplete.ok false and a single blocker for D1 brief:profile with persona productOwner and ids profile:surface and profile:register.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-3): brief:profile failing yields L1 blocker and PO next action"
+    },
+    {
+      "id": "TC-221-acknowledged-absent-from-l2",
+      "acId": "AC-17502-4",
+      "description": "An engineer failure inside a D3 stage acknowledged at the current hash is absent from levels.readyToBuild.blockedBy.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-4): acknowledged D3 engineer failure is absent from readyToBuild.blockedBy"
+    },
+    {
+      "id": "TC-221-personas-mirror-levels",
+      "acId": "AC-17502-5",
+      "description": "personas.productOwner.blockers deep-equals levels.intentComplete.blockedBy and levels.readyToBuild.nextAction deep-equals nextAction.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-5): personas.productOwner.blockers deep-equals L1 blockedBy; readyToBuild.nextAction equals nextAction"
+    },
+    {
+      "id": "TC-221-persona-next-action-picks-first-failing-stage",
+      "acId": "AC-17502-6",
+      "description": "With engineer failures in D2 and D4 and a PO failure in D4 only, personas.productOwner.nextAction names D4 and personas.engineer.nextAction names D2.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-6): PO-nextAction prefers first PO-failing stage; engineer-nextAction prefers first engineer-failing stage"
+    },
+    {
+      "id": "TC-221-no-write-on-invocation",
+      "acId": "AC-17502-7",
+      "description": "readiness cli (text and --json) does not create or modify any file under rcf/; the existing readiness cli test suite TS-217 continues to pass unchanged.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: --json emits the full readiness object"
+    },
+    {
+      "id": "TC-221-backwards-compat-fields",
+      "acId": "AC-17502-8",
+      "description": "Every 0.28.4 top-level field (tree, delta, stages, nextAction, coverage, decisions, freezeable) is present on the 0.29.0 result with its 0.28.4 type.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (ADR-4126, AC-17502-8): 0.28.4 fields present with their types"
+    }
+  ],
+  "status": "draft"
+}
