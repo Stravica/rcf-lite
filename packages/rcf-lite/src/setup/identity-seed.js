@@ -75,6 +75,23 @@ escalation.)_
 
 unstated
 
+## Surface
+
+_(how the agent frames its review-ready output when a slice closes.
+One of the three values below on a single line; the seeded default is
+\`prDiff\` and a hand-edit is one word away.)_
+
+- \`viewer\`: the slice is reviewed in a rendered viewer surface (an
+  HTML preview, a Readiness tab, a dashboard). The agent lands on a
+  URL the operator opens.
+- \`runningApp\`: the slice is reviewed by running the app and
+  observing behaviour. The agent lands on a one-line reproduction
+  recipe.
+- \`prDiff\`: the slice is reviewed as a pull-request diff on the
+  shared repo. The agent lands on a PR link with the chain IDs listed.
+
+prDiff
+
 ## Project-scoped notes
 
 _(anything specific to this project that would be useful for the agent

@@ -502,3 +502,78 @@ test('gates: D8 tree-wide freeze checks', () => {
   assert.equal(validateCheck.ok, false);
   assert.equal(validateCheck.failing.length, 20);
 });
+
+// ---------------------------------------------------------------------------
+// AC-17401-9: checkD2Skeleton reads tad.dataArchitecture.{dataStores,coreEntities}
+// (not top-level) per rcf-schemas 0.6.3. w-2026-09-25-dave-004 defect A.
+// ---------------------------------------------------------------------------
+
+test('gates: D2 skeleton:tadPersistence reads tad.dataArchitecture.* per schema 0.6.3', () => {
+  const emptyLedgers = {
+    brief: { statements: [] },
+    decisions: { decisions: [] },
+    concerns: { concerns: [] },
+    probes: { probes: [] },
+  };
+  const persistenceReq = {
+    reqId: 'REQ-P',
+    title: 'persistence',
+    description: 'x',
+    domain: 'd',
+    shapeClassification: { shapes: ['persistence'] },
+  };
+  const deployAdr = { adrId: 'ADR-D', title: 'Deploy target: fly.io' };
+  const baseCtx = {
+    ledgers: emptyLedgers,
+    delta: { frozen: true, changed: [], added: ['REQ-P'], removed: [], briefSince: [], unchanged: 0, currentTreeHash: 'sha256:bbb', frozenAt: null, treeHash: null },
+    freeze: { briefStatements: 0 },
+    scope: new Set(['REQ-P']),
+    validateErrors: [],
+    profileText: 'productOwner viewer',
+    currentTreeHash: 'sha256:bbb',
+  };
+
+  // Case 1: dataArchitecture populated correctly → tadPersistence passes.
+  const tadGood = {
+    dataArchitecture: {
+      dataStores: [{ name: 'main', kind: 'relational' }],
+      coreEntities: [{ name: 'Thing' }],
+    },
+  };
+  const treeGood = makeTree({ requirements: [persistenceReq], tad: tadGood, adrs: [deployAdr] });
+  const stageGood = checkD2Skeleton({ ...baseCtx, tree: treeGood });
+  const persistenceCheckGood = stageGood.checks.find((c) => c.name === 'skeleton:tadPersistence');
+  assert.ok(persistenceCheckGood, 'skeleton:tadPersistence check missing');
+  assert.equal(persistenceCheckGood.ok, true, `expected tadPersistence ok, got failing=${JSON.stringify(persistenceCheckGood.failing)}`);
+  assert.equal(persistenceCheckGood.failing.length, 0);
+
+  // Case 2: dataArchitecture present but arrays empty → fails with the
+  // new schema-anchored ids.
+  const tadEmpty = { dataArchitecture: { dataStores: [], coreEntities: [] } };
+  const treeEmpty = makeTree({ requirements: [persistenceReq], tad: tadEmpty, adrs: [deployAdr] });
+  const stageEmpty = checkD2Skeleton({ ...baseCtx, tree: treeEmpty });
+  const persistenceCheckEmpty = stageEmpty.checks.find((c) => c.name === 'skeleton:tadPersistence');
+  assert.equal(persistenceCheckEmpty.ok, false);
+  const idsEmpty = persistenceCheckEmpty.failing.map((f) => f.id).sort();
+  assert.deepEqual(idsEmpty, ['TAD.dataArchitecture.coreEntities', 'TAD.dataArchitecture.dataStores']);
+
+  // Case 3: no dataArchitecture at all → both ids fail.
+  const treeNone = makeTree({ requirements: [persistenceReq], tad: {}, adrs: [deployAdr] });
+  const stageNone = checkD2Skeleton({ ...baseCtx, tree: treeNone });
+  const persistenceCheckNone = stageNone.checks.find((c) => c.name === 'skeleton:tadPersistence');
+  assert.equal(persistenceCheckNone.ok, false);
+  const idsNone = persistenceCheckNone.failing.map((f) => f.id).sort();
+  assert.deepEqual(idsNone, ['TAD.dataArchitecture.coreEntities', 'TAD.dataArchitecture.dataStores']);
+
+  // Guard: a TAD with the (wrong) top-level dataStores+coreEntities
+  // but no dataArchitecture must FAIL — the schema path is the only
+  // one honoured.
+  const tadDrift = {
+    dataStores: [{ name: 'top-level', kind: 'relational' }],
+    coreEntities: [{ name: 'DriftThing' }],
+  };
+  const treeDrift = makeTree({ requirements: [persistenceReq], tad: tadDrift, adrs: [deployAdr] });
+  const stageDrift = checkD2Skeleton({ ...baseCtx, tree: treeDrift });
+  const persistenceCheckDrift = stageDrift.checks.find((c) => c.name === 'skeleton:tadPersistence');
+  assert.equal(persistenceCheckDrift.ok, false, 'top-level dataStores/coreEntities must not satisfy the schema-anchored check');
+});
