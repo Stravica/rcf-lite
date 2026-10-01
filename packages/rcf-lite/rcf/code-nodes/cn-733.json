@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-733",
+  "path": "src/setup/identity-seed.js",
+  "title": "Identity-seed template with the ## Surface section",
+  "description": "IDENTITY_TEMPLATE carries a ## Surface section between ## Register and ## Project-scoped notes naming viewer / runningApp / prDiff, seeded to prDiff so a fresh rcf init project satisfies checkD1Brief profile:surface marker without operator edit. writeIdentityTemplate keeps the slice-1 kept contract: an existing profile.md is left byte-identical.",
+  "implementsAcIds": [
+    "AC-17401-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T13:22:37Z",
+  "updatedAt": "2026-10-01T13:22:37Z"
+}

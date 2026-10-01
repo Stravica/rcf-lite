@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-734",
+  "path": "test/setup/identity-register.test.js",
+  "title": "Identity-seed Surface section tests",
+  "description": "Covers AC-17401-10: ## Surface heading placement; three value names + prDiff default; writeIdentityTemplate on a fresh dir seeds a profile that satisfies checkD1Brief surfaceMarkers; existing profile.md with no ## Surface is left byte-identical.",
+  "implementsAcIds": [
+    "AC-17401-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T13:22:37Z",
+  "updatedAt": "2026-10-01T13:22:37Z"
+}
