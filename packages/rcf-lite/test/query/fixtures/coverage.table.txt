@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 110  covered: 110  covered-unresolved: 0  uncovered: 0
+Requirements: 112  covered: 112  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -501,3 +501,13 @@ REQ-176      yes      AC-17601-1   yes         TC-218-happy
                       AC-17601-6   yes         TC-218-admissibility
                       AC-17601-7   yes         TC-218-override
                       AC-17601-8   yes         TC-218-hygiene
+REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
+                      AC-18001-2   yes         TC-223-verdict-pills-match-cli
+                      AC-18001-3   yes         TC-223-po-blockers-as-findings-list
+                      AC-18001-4   yes         TC-223-register-orders-persona-groups
+                      AC-18001-5   yes         TC-223-no-blocker-id-omitted
+                      AC-18001-6   yes         TC-223-freeze-now-disabled
+                      AC-18001-7   yes         TC-223-ids-on-tab-match-cli-json
+REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
+                      AC-18101-2   yes         TC-223-findings-list-markup
+                      AC-18101-3   yes         TC-223-no-existing-tab-tests-change

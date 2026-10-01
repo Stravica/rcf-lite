@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-736",
+  "path": "src/view/components/pill.js",
+  "title": "Shared pill component",
+  "description": "pill({ value, variant, title?, href? }) emits one markup shape across every vocabulary family (gate state, level verdict, persona, AC class) with class suffixes derived from a normalised value. Pure.",
+  "implementsAcIds": [
+    "AC-18101-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-01T18:00:00Z"
+}
