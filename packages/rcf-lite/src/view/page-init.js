@@ -1817,10 +1817,15 @@
     if (results.length === 0) {
       list.innerHTML = '';
       list.hidden = true;
-      if (empty) empty.hidden = false;
+      var hasQuery = (lookupLastQuery || '').trim().length > 0;
+      if (empty) empty.hidden = !lookupLoadError && !hasQuery;
       if (emptyMsg) emptyMsg.textContent = lookupLoadError ? 'The index could not be loaded.' : 'No matches.';
       if (reload) reload.hidden = !lookupLoadError;
-      if (status) status.textContent = lookupLoadError ? 'Index failed to load.' : 'No matches.';
+      if (status) {
+        if (lookupLoadError) status.textContent = 'Index failed to load.';
+        else if (hasQuery) status.textContent = 'No matches.';
+        else status.textContent = (lookupRows ? 'Type an id or a few words.' : 'Loading index...');
+      }
       return;
     }
     if (empty) empty.hidden = true;

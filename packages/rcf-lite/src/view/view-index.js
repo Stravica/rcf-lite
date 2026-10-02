@@ -199,6 +199,69 @@ export function serialiseViewIndex(model) {
 }
 
 /**
+ * Pure ranking helper mirrored into page-init.js's wireLookup. Kept
+ * here so the server-side tests can exercise the exact ranking rules
+ * the browser applies. Design doc section 6 rules:
+ *   - A single-character query searches ids only; the title / snippet
+ *     word-match pass is skipped.
+ *   - Otherwise ids rank first (exact > prefix > contains).
+ *   - Then every query word must match title or snippet, title above
+ *     snippet.
+ *   - 20 results max; stable by id on ties.
+ *
+ * @param {string} query
+ * @param {IndexRow[]} rows
+ * @returns {Array<{ row: IndexRow, score: number, needles: string[] }>}
+ */
+export function rankLookupRows(query, rows) {
+  if (!query || !Array.isArray(rows)) return [];
+  const q = String(query).trim().toLowerCase();
+  if (!q) return [];
+  const scored = [];
+  if (q.length === 1) {
+    for (const r of rows) {
+      const idLow = (r.id || '').toLowerCase();
+      if (idLow.indexOf(q) === -1) continue;
+      let score = 100;
+      if (idLow === q) score = 1000;
+      else if (idLow.indexOf(q) === 0) score = 500;
+      scored.push({ row: r, score, needles: [q] });
+    }
+  } else {
+    const words = q.split(/\s+/).filter(Boolean);
+    for (const r of rows) {
+      const idLow = (r.id || '').toLowerCase();
+      const titleLow = (r.title || '').toLowerCase();
+      const snipLow = (r.snippet || '').toLowerCase();
+      let score = 0;
+      if (idLow === q) score = 10000;
+      else if (idLow.indexOf(q) === 0) score = 5000;
+      else if (idLow.indexOf(q) !== -1) score = 2500;
+      else {
+        let titleHits = 0;
+        let snipHits = 0;
+        let allHit = true;
+        for (const w of words) {
+          const inTitle = titleLow.indexOf(w) !== -1;
+          const inSnip = snipLow.indexOf(w) !== -1;
+          if (inTitle) titleHits += 1;
+          else if (inSnip) snipHits += 1;
+          else { allHit = false; break; }
+        }
+        if (!allHit) continue;
+        score = 1000 + titleHits * 50 + snipHits * 10;
+      }
+      if (score > 0) scored.push({ row: r, score, needles: words });
+    }
+  }
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return (a.row.id || '').localeCompare(b.row.id || '');
+  });
+  return scored.slice(0, 20);
+}
+
+/**
  * The LookupModal shell HTML. Rendered once at the top of the shell
  * (outside #rcf-live-content so the SSE innerHTML swap cannot blow it
  * away). The modal is hidden by default; wireLookup toggles it. The
