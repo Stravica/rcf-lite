@@ -703,12 +703,41 @@
     if (state.priority) parts.push('priority=' + encodeURIComponent(state.priority));
     if (state.status) parts.push('status=' + encodeURIComponent(state.status));
     if (state.needswork) parts.push('needswork=1');
+    if (state.entity) parts.push('entity=' + encodeURIComponent(state.entity));
+    // Decision 11: preserve unknown hash params through filter writes.
+    if (state.extraParts) parts = parts.concat(state.extraParts);
     return '#' + parts.join('&');
+  }
+
+  function currentRequirementsHashExtras() {
+    // Read the live hash, keep every param not owned by the Requirements
+    // FilterBar so filter writes preserve the selected entity and any
+    // other extension (decision 11 preservation contract).
+    var raw = window.location.hash || '';
+    if (raw[0] === '#') raw = raw.slice(1);
+    if (!raw) return { entity: '', extraParts: [] };
+    var pairs = raw.split('&');
+    var entity = '';
+    var extras = [];
+    var owned = { tab: true, q: true, domain: true, priority: true, status: true, needswork: true, entity: true };
+    for (var i = 0; i < pairs.length; i += 1) {
+      var p = pairs[i];
+      if (!p) continue;
+      var eq = p.indexOf('=');
+      var k = eq === -1 ? p : p.slice(0, eq);
+      if (k === 'entity' && eq !== -1) { entity = decodeURIComponent(p.slice(eq + 1)); continue; }
+      if (owned[k]) continue;
+      extras.push(p);
+    }
+    return { entity: entity, extraParts: extras };
   }
 
   function writeRequirementsHash() {
     var state = readRequirementsFilterState();
     if (!state) return;
+    var extras = currentRequirementsHashExtras();
+    state.entity = extras.entity;
+    state.extraParts = extras.extraParts;
     writeHash(requirementsHashFragment(state), true);
   }
 
@@ -781,9 +810,11 @@
   // ---- EntitySelector (viewer UI refresh PR 3, decision 4) -----
 
   function parseEntitySelectorPayload(root) {
-    var dataNode = root.querySelector('script.rcf-entity-selector-data');
-    if (!dataNode) return [];
-    try { return JSON.parse(dataNode.textContent || '[]'); }
+    // Payload rides on the container as a `data-items` attribute so
+    // the shell carries no inline <script> body (PR 1 contract).
+    var raw = root.getAttribute('data-items');
+    if (!raw) return [];
+    try { return JSON.parse(raw); }
     catch (e) { return []; }
   }
 

@@ -28,8 +28,10 @@
 //   </div>
 //
 // The payload (every entity's id, title, facet value) is serialised
-// into a `<script type="application/json" class="rcf-entity-selector-data">`
-// sibling so the jump input can filter without a network call.
+// onto the root `<div>` as a `data-items` attribute (JSON, HTML-escaped)
+// so the jump input can filter without a network call. The container
+// carries all state so the shell page has no inline `<script>` body
+// (PR 1 contract, decision 10).
 // Decision 11 names `#entity=<id>` as the deep link target so a jump
 // writes `#tab=<targetTab>&entity=<id>` (preserving the host query via
 // the existing urlWithHash helper).
@@ -92,15 +94,13 @@ export function renderEntitySelector({
     title: it.title ?? '',
     facet: it.facet ?? '',
   })));
-  // JSON embedded inside a <script type="application/json"> block:
-  // encode </ to the escape sequence \u003c/ so an interior </script>
-  // in a title can never close the host script tag. HTML comment
-  // openers get the same treatment.
-  const encodedPayload = payload
-    .replace(/<\//g, '\\u003c/')
-    .replace(/<!--/g, '\\u003c!--');
+  // The payload rides on the container as a `data-items` attribute.
+  // escapeHtml encodes `&`, `<`, `>`, `"` and `'` so the attribute
+  // boundary cannot be broken by any id, title or facet value, and
+  // no `<script>` element is emitted (PR 1 "no inline script body").
+  const itemsAttr = escapeHtml(payload);
 
-  return `<div class="rcf-entity-selector" data-rcf-entity-selector="${escapeHtml(hashKey)}" data-target-tab="${escapeHtml(targetTab)}" data-facet-key="${escapeHtml(facetKey)}">
+  return `<div class="rcf-entity-selector" data-rcf-entity-selector="${escapeHtml(hashKey)}" data-target-tab="${escapeHtml(targetTab)}" data-facet-key="${escapeHtml(facetKey)}" data-items="${itemsAttr}">
       <div class="rcf-entity-selector-head">
         <span class="rcf-entity-selector-total">${escapeHtml(total)}</span>
       </div>
@@ -112,7 +112,6 @@ export function renderEntitySelector({
       <div class="rcf-entity-selector-facets" aria-label="Areas">
         ${chipBlocks}
       </div>
-      <script type="application/json" class="rcf-entity-selector-data">${encodedPayload}</script>
     </div>`;
 }
 

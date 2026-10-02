@@ -157,12 +157,22 @@ test('PRD EntitySelector exposes a type-ahead jump input with autocomplete off',
   assert.match(prd, /<input class="rcf-entity-selector-input" type="search" placeholder="[^"]*REQ-040[^"]*"[^>]* autocomplete="off"/);
 });
 
-test('PRD EntitySelector carries the full REQ catalogue as a JSON data payload', async () => {
+test('PRD EntitySelector carries the full REQ catalogue in a data-items attribute (no inline <script> body)', async () => {
   const { html, model } = await renderLive();
   const prd = slicePrdTab(html);
-  const m = prd.match(/<script type="application\/json" class="rcf-entity-selector-data">([\s\S]*?)<\/script>/);
-  assert.ok(m, 'entity-selector payload present');
-  const items = JSON.parse(m[1]);
+  // Container must not emit an inline <script> body; payload is an
+  // attribute (PR 1 contract).
+  const container = prd.match(/<div class="rcf-entity-selector"[^>]*>/);
+  assert.ok(container, 'entity-selector container present');
+  const m = container[0].match(/data-items="([^"]*)"/);
+  assert.ok(m, 'data-items attribute present');
+  const decoded = m[1]
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+  const items = JSON.parse(decoded);
   assert.equal(items.length, model.requirements.length);
   assert.ok(items.every((it) => typeof it.id === 'string' && it.id.startsWith('REQ-')));
 });
@@ -201,4 +211,18 @@ test('page-init.js resolveHash handles bare #entity=<id> without a tab key (deci
   // The handler branches on `tab=` being absent but `entity=` being
   // present, then resolves the target and activates the owning tab.
   assert.match(pageInit, /raw\.indexOf\('tab='\) === -1[\s\S]*?kv\.entity/);
+});
+
+test('page-init.js writes preserve entity= and unknown hash params through filter changes (decision 11)', async () => {
+  // Decision 11: `embed`, `theme`, `entity` and other extensions
+  // survive every in-viewer navigation. A filter change must not
+  // drop the selected entity or any unknown param.
+  const pageInit = await (await import('node:fs/promises')).readFile(
+    resolve(repoRoot, 'src', 'view', 'page-init.js'), 'utf8',
+  );
+  // The fragment writer threads entity + extraParts; the writer
+  // reads the current hash to carry them.
+  assert.match(pageInit, /requirementsHashFragment[\s\S]*?state\.entity/);
+  assert.match(pageInit, /requirementsHashFragment[\s\S]*?extraParts/);
+  assert.match(pageInit, /currentRequirementsHashExtras/);
 });

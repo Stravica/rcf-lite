@@ -80,27 +80,40 @@ test('EntitySelector: results pane starts hidden', () => {
   assert.match(html, /class="rcf-entity-selector-results" hidden/);
 });
 
-test('EntitySelector: payload is a <script type="application/json"> with item data', () => {
+test('EntitySelector: payload rides on the container as a data-items attribute (no inline <script> body)', () => {
   const html = renderEntitySelector({
     hashKey: 'reqs', targetTab: 'requirements', facetKey: 'domain', items: SAMPLE,
   });
-  const m = html.match(/<script type="application\/json" class="rcf-entity-selector-data">([\s\S]*?)<\/script>/);
-  assert.ok(m, 'payload script present');
-  const parsed = JSON.parse(m[1]);
+  // The shell contract (PR 1): no <script> element without a src.
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)/);
+  const m = html.match(/data-items="([^"]*)"/);
+  assert.ok(m, 'data-items attribute present');
+  // HTML entities decode before JSON.parse (escapeHtml replaces
+  // &, <, >, ", ' with their entities).
+  const decoded = m[1]
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
+  const parsed = JSON.parse(decoded);
   assert.equal(parsed.length, SAMPLE.length);
   assert.equal(parsed[0].id, 'REQ-001');
   assert.equal(parsed[0].facet, 'projectStructure');
 });
 
-test('EntitySelector: closes </script> in a title cannot escape the host script tag', () => {
+test('EntitySelector: a </script> or quote in a title cannot break out of the data-items attribute', () => {
   const html = renderEntitySelector({
     hashKey: 'reqs',
     targetTab: 'requirements',
     facetKey: 'domain',
-    items: [{ id: 'REQ-001', title: 'Hack </script><script>alert(1)</script>', facet: 'x' }],
+    items: [{ id: 'REQ-001', title: 'Hack "</script><script>alert(1)</script>', facet: 'x' }],
   });
-  // Only one </script> can appear (the real closing tag). Any payload
-  // interior "</" is encoded as </.
-  const closes = (html.match(/<\/script>/g) ?? []).length;
-  assert.equal(closes, 1);
+  // No bare <script> tag (payload is an attribute now).
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)/);
+  // The attribute boundary stays intact: the double-quote in the title
+  // escapes to &quot; inside the attribute.
+  const m = html.match(/data-items="([^"]*)"/);
+  assert.ok(m, 'data-items attribute closes cleanly');
+  assert.ok(m[1].indexOf('&quot;') !== -1);
 });
