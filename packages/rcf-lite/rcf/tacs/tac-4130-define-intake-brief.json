@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z",
+  "tacId": "TAC-4130-define-intake-brief",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "document intake into the brief ledger",
+  "purpose": "marker parser, scan wiring, `--findings` to open-question statements for `brief add --from`.",
+  "responsibilities": [
+    "src/define/ledgers.js parseBriefFromFile parses a leading `[kind]` marker and a trailing `(source: ...)` marker on each non-empty line; a line without `[kind]` takes `--kind` (default `capability`); a line without `(source: ...)` takes `--source` or the file path; `?`-, `TBC`-, `TBD`-, `Open:`- and `Question:`-leading lines kind `openQuestion` unless a marker says otherwise; an unknown `[kind]` raises LedgerError code 'usage' before any write; a 0.29.0 line-per-statement file parses unchanged.",
+    "src/cli/ledger.js `brief add` wires `--scan` / `--no-scan` (default on with `--from`, off with `--text`); runs the mechanical scans in src/intake/orchestrator.js over new statements against existing ones; `--findings <path>` accepts the shape `rcf discover intake --input` takes and makes one `openQuestion` statement per finding with `source: scan:<name>:<ids>`; `--dry-run` prints added + findings and writes nothing; `--json` emits `{ added: [...], findings: [...] }`; `--no-scan` together with `--findings` exits 2.",
+    "On a frozen tree the comparison set is every existing statement. Two statement files added in sequence scan the second against the first and the finding's `scan:` source names ids from both."
+  ],
+  "internalStructure": "parseBriefFromFile returns drafts { text, kind, source } one per non-empty line. The CLI mints statements through addEntry; when scans are on it calls runIntakeScansOnDelta(newStatements, existingStatements) over the just-minted ids and the pre-existing body, then appends one openQuestion per finding whose source names the scan and the involved ids. `--findings` reads a JSON object with a `validationFindings[]` array (the same shape `rcf discover intake --input` accepts) and converts each entry to an openQuestion statement whose text is `detail` and whose source is `scan:<kind>`. `--dry-run` composes the full plan with every finding already converted and writes nothing.",
+  "interfaces": [
+    {
+      "name": "parseStatementFile",
+      "kind": "other",
+      "description": "[draft] Parse a statement file into drafts { text, kind, source } one per non-empty line, honouring the leading [kind] and trailing (source: ...) markers and the kind defaults the caller supplies."
+    },
+    {
+      "name": "runIntakeScansOnDelta",
+      "kind": "other",
+      "description": "[draft] Run the mechanical intake scans over the newly minted statements against every existing statement and return a flat findings array."
+    },
+    {
+      "name": "rcf define ledger brief add --from --scan --no-scan --findings --dry-run --json",
+      "kind": "cliCommand",
+      "description": "Add brief statements from a statement file, optionally running the intake scans and converting operator-supplied findings into openQuestion statements."
+    }
+  ],
+  "notes": "This TAC covers the writer-side intake wiring only. The question-computation surface and the Register-prompt replacement land in PR 2 and are not covered here."
+}

@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z",
+  "reqId": "REQ-187",
+  "prdId": "PRD-001",
+  "title": "document intake into brief statements",
+  "description": "A submitted document reaches the brief ledger as kinded statements with source spans through `brief add --from`, the intake scans run over the new statements against the existing ones, and every finding becomes an open question the loop asks.",
+  "category": "functional",
+  "domain": "define",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-02T16:40:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "ledger"
+      }
+    ]
+  },
+  "rationale": "Spec 2026-10-01 (DEFINE step 3) section 2.1 splits intake into two halves. The harness writes a statement file beside each source and the operator corrects it. rcf-lite mints the statements, runs the intake scans over the new statements against the existing ones, and appends one openQuestion statement per finding. This is the seam decision 4 pins down: scan findings become brief statements so the loop reads one check (brief:openQuestions) and the owner answers in one place.",
+  "tags": [
+    "capability:define-intake"
+  ]
+}
