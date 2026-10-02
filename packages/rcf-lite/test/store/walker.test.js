@@ -247,7 +247,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // US-18602 and US-18603 under REQ-186 (193 -> 196).
   // Viewer UI refresh PR 7 added US-205 under REQ-002 for the ID lookup
   // (./index.json, LookupModal, Cmd/Ctrl+F) chain amendments (196 -> 197).
-  assert.equal(tree.userStories.length, 197);
+  // Viewer UI refresh PR 8 added US-18002 under REQ-180 for the Readiness
+  // PO layer question cards grouped by source span (197 -> 198).
+  assert.equal(tree.userStories.length, 198);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -272,7 +274,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 2 (w-2026-10-02-dave-050) added TAC-4128 and TAC-4129 (50 -> 52).
   // Viewer UI refresh PR 7 added TAC-4132 for the ID lookup
   // (./index.json route + LookupModal + Cmd/Ctrl+F) (52 -> 53).
-  assert.equal(tree.tacs.length, 53);
+  // Viewer UI refresh PR 8 added TAC-4133 for the Readiness PO layer
+  // (53 -> 54).
+  assert.equal(tree.tacs.length, 54);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -300,7 +304,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 2 (w-2026-10-02-dave-050) added ADR-4129 and ADR-4130 (53 -> 55).
   // Viewer UI refresh PR 7 added ADR-4134 (./index.json route built
   // once per rewalk; lazy fetch) (55 -> 56).
-  assert.equal(tree.adrs.length, 56);
+  // Viewer UI refresh PR 8 added ADR-4135 (readiness PO register and
+  // adapter) (56 -> 57).
+  assert.equal(tree.adrs.length, 57);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
