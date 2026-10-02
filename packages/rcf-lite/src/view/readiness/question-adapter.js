@@ -168,11 +168,11 @@ function fromBlockers(readiness) {
     const checkId = typeof b.check === 'string' ? b.check : '';
     const ids = Array.isArray(b.ids) ? b.ids : [];
     const whyById = buildWhyById(stages, stage, checkId);
-    const pb = phrasebookEntry(checkId, ids[0]);
     const items = ids.length > 0 ? ids : [null];
     for (const idRaw of items) {
       const itemId = typeof idRaw === 'string' ? idRaw : undefined;
       const why = itemId && whyById[itemId] ? whyById[itemId] : '';
+      const pb = phrasebookEntry(checkId, itemId);
       const label = labelForBlocker({ stage, check: checkId }, itemId);
       const optional = Boolean(pb.optional);
       const item = {

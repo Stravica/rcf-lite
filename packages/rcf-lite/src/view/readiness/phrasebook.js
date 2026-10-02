@@ -81,16 +81,29 @@ export const PHRASEBOOK = {
 };
 
 /**
- * Look up a phrasebook entry for a check id. Returns a conservative
- * fallback that names the check id when nothing is on file, so a new
- * check added since the design doc still renders a question (the
- * viewer never omits a blocker from the DOM).
+ * Look up a phrasebook entry for a check id. Prefers a sub-check keyed
+ * by `checkId:itemId` (so `brief:profile` + item `profile:surface`
+ * resolves to the surface-specific entry) and falls back to the plain
+ * check id. Returns a conservative fallback that names the check id
+ * when nothing is on file, so a new check added since the design doc
+ * still renders a question (the viewer never omits a blocker from the
+ * DOM).
  *
  * @param {string} checkId
- * @param {string} [itemId]   id of the failing item (for the fallback)
+ * @param {string} [itemId]   id of the failing item (for sub-check keys and the fallback)
  * @returns {PhrasebookEntry}
  */
 export function phrasebookEntry(checkId, itemId) {
+  if (typeof itemId === 'string' && itemId.length > 0) {
+    const subKey = `${checkId}:${itemId}`;
+    if (PHRASEBOOK[subKey]) return PHRASEBOOK[subKey];
+    // Also try the itemId as its own key (brief:profile has items
+    // `profile:surface` and `profile:register`; the phrasebook stores
+    // them as `brief:profile:surface` and `brief:profile:register`,
+    // which is a superset of the item id itself).
+    const compoundKey = `${checkId}:${itemId.split(':').pop()}`;
+    if (PHRASEBOOK[compoundKey]) return PHRASEBOOK[compoundKey];
+  }
   const entry = PHRASEBOOK[checkId];
   if (entry) return entry;
   const subject = itemId ? ` for ${itemId}` : '';
