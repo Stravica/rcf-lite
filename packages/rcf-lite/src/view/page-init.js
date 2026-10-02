@@ -1097,6 +1097,30 @@
     if (countEl) countEl.textContent = String(visible) + ' of ' + String(rows.length) + ' visible';
   }
 
+  function currentBuildHashExtras() {
+    // Read the live hash, keep every param not owned by the Build
+    // FilterBar + SubTabStrip so sub-tab / filter writes preserve the
+    // selected entity and any other extension (decision 11 preservation
+    // contract; same shape as currentRequirementsHashExtras).
+    var raw = window.location.hash || '';
+    if (raw[0] === '#') raw = raw.slice(1);
+    if (!raw) return { entity: '', extraParts: [] };
+    var pairs = raw.split('&');
+    var entity = '';
+    var extras = [];
+    var owned = { tab: true, sub: true, q: true, status: true, domain: true, size: true, buildable: true, entity: true };
+    for (var i = 0; i < pairs.length; i += 1) {
+      var p = pairs[i];
+      if (!p) continue;
+      var eq = p.indexOf('=');
+      var k = eq === -1 ? p : p.slice(0, eq);
+      if (k === 'entity' && eq !== -1) { entity = decodeURIComponent(p.slice(eq + 1)); continue; }
+      if (owned[k]) continue;
+      extras.push(p);
+    }
+    return { entity: entity, extraParts: extras };
+  }
+
   function buildHashFragment() {
     var parts = ['tab=build'];
     var sub = currentBuildSub();
@@ -1109,6 +1133,10 @@
       if (state.size) parts.push('size=' + encodeURIComponent(state.size));
       if (state.buildable) parts.push('buildable=1');
     }
+    var extras = currentBuildHashExtras();
+    if (extras.entity) parts.push('entity=' + encodeURIComponent(extras.entity));
+    // Decision 11: preserve unknown hash params through filter writes.
+    if (extras.extraParts && extras.extraParts.length > 0) parts = parts.concat(extras.extraParts);
     return '#' + parts.join('&');
   }
 
