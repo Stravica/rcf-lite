@@ -185,7 +185,10 @@
   function fetchScope(slug, fetchImpl) {
     var f = typeof fetchImpl === 'function' ? fetchImpl : (typeof fetch === 'function' ? fetch : null);
     if (!f) return Promise.reject(new Error('no fetch available'));
-    var url = '/scope.json?blueprint=' + encodeURIComponent(slug);
+    // Dex / wespa 2026-10-02 (#263, PR 1): asset references are relative
+    // so the viewer works under the proxy mount (/rcf-viewer/) without
+    // path rewrites.
+    var url = './scope.json?blueprint=' + encodeURIComponent(slug);
     return Promise.resolve(f(url)).then(function (resp) {
       if (!resp) throw new Error('scope: no response');
       var okFlag = resp.ok !== undefined ? resp.ok : (resp.status >= 200 && resp.status < 300);
@@ -410,7 +413,9 @@
       setState('disconnected');
       return;
     }
-    var source = new EventSourceCtor('/events');
+    // Dex / wespa 2026-10-02 (#263, PR 1): relative so the stream
+    // works under the proxy mount without a rewrite rule.
+    var source = new EventSourceCtor('./events');
 
     source.onopen = function () {
       lastEventAt = Date.now();
@@ -535,8 +540,25 @@
     };
   }
 
+  // Connection pill: the shell footer renders #rcf-conn-pill (viewer UI
+   // refresh PR 1 follow-up: pill moved from a floating top-right dot
+   // into the footer). If the pill is missing (older shell, embedded
+   // snippet, no-shell contexts), fall back to injecting a floating dot
+   // so the live-status signal is never silently dropped.
+  function pillLabelFor(state) {
+    if (state === 'connected') return 'Live updates on';
+    if (state === 'reconnecting') return 'Reconnecting…';
+    return 'Disconnected';
+  }
+
+  function pillTitleFor(state) {
+    if (state === 'connected') return 'Connected - live updates on';
+    if (state === 'reconnecting') return 'Reconnecting to view server...';
+    return 'Disconnected from view server';
+  }
+
   function injectConnectionDot(doc) {
-    if (doc.getElementById('rcf-conn-dot')) return;
+    if (doc.getElementById('rcf-conn-pill') || doc.getElementById('rcf-conn-dot')) return;
     var style = doc.createElement('style');
     style.textContent = [
       '#rcf-conn-dot {',
@@ -560,12 +582,18 @@
   }
 
   function updateDot(doc, state) {
+    var pill = doc.getElementById('rcf-conn-pill');
+    if (pill) {
+      pill.className = 'live ' + state;
+      pill.title = pillTitleFor(state);
+      var label = pill.querySelector('.label');
+      if (label) label.textContent = pillLabelFor(state);
+      return;
+    }
     var dot = doc.getElementById('rcf-conn-dot');
     if (!dot) return;
     dot.className = state;
-    if (state === 'connected') dot.title = 'Connected - live updates on';
-    else if (state === 'reconnecting') dot.title = 'Reconnecting to view server...';
-    else dot.title = 'Disconnected from view server';
+    dot.title = pillTitleFor(state);
   }
 
   // ---- module exports (for node:vm tests) --------------------------------

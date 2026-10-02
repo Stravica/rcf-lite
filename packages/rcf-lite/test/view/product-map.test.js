@@ -8,6 +8,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,6 +34,14 @@ import {
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
+const pageInitPath = resolve(repoRoot, 'src', 'view', 'page-init.js');
+
+async function readPageInit() {
+  // Viewer UI refresh PR 1 (Dex / wespa 2026-10-02 #263) moved the
+  // former inline script to the ./page-init.js asset. Assertions that
+  // used to check the inline script source look here instead.
+  return readFile(pageInitPath, 'utf8');
+}
 
 async function renderLive() {
   const result = await walkTree({ projectRoot: repoRoot });
@@ -183,11 +192,13 @@ test('product-map status filter markup + server-rendered per-bucket status count
   // Default select value is "all".
   assert.equal(DEFAULT_STATUS, 'all');
   assert.match(tabPanel, /<option value="all" selected>/);
-  // The inline script defines the filter + empty-bucket collapse.
-  assert.match(html, /applyPmStatusFilter/);
-  assert.match(html, /pm-bucket-empty-filter/);
-  // Groupings enumerated by the inline script include all four.
-  assert.match(html, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
+  // page-init.js (viewer UI refresh PR 1) carries the filter + empty-
+  // bucket collapse that the former inline script used to.
+  const pageInit = await readPageInit();
+  assert.match(pageInit, /applyPmStatusFilter/);
+  assert.match(pageInit, /pm-bucket-empty-filter/);
+  // Groupings enumerated by page-init.js include all four.
+  assert.match(pageInit, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
 
   // P2-3 (real filter behaviour): the server-rendered outer pm-req
   // <details> carries data-req-status on the same element the inline
@@ -562,15 +573,13 @@ test('product-map controls include Expand/Collapse-all bulk buttons and a status
   assert.match(html, /class="pm-status-select"/);
 });
 
-test('product-map hash schema and open-bucket restore are wired in the inline script (AC-17006-1)', async () => {
-  const { model } = await renderLive();
-  const page = renderPage(model);
-  // Hash schema includes &open=<id1>,<id2>.
-  assert.match(page, /'&open='\s*\+\s*encodeURIComponent/);
-  // openPmBuckets function name is present.
-  assert.match(page, /function openPmBuckets/);
-  // currentOpenBuckets reads the open pm-bucket details for the active group.
-  assert.match(page, /details\.pm-bucket\[open\]/);
+test('product-map hash schema and open-bucket restore are wired in page-init.js (AC-17006-1; viewer UI refresh PR 1)', async () => {
+  // Viewer UI refresh PR 1 moved the inline script to ./page-init.js;
+  // the hash schema + open-bucket restore assertions follow it there.
+  const pageInit = await readPageInit();
+  assert.match(pageInit, /'&open='\s*\+\s*encodeURIComponent/);
+  assert.match(pageInit, /function openPmBuckets/);
+  assert.match(pageInit, /details\.pm-bucket\[open\]/);
 });
 
 test('product-map lazy render: initial contentHtml emits skeletons for every grouping (AC-17007-1)', async () => {
@@ -752,11 +761,13 @@ test('product-map: by-blueprint bucket second level is capability then REQ (AC-1
 });
 
 test('product-map: by-blueprint grouping wired into PM_GROUPS, pmPartials and renderProductMapGrouping (AC-17008-1)', async () => {
-  // Inline script's PM_GROUPS array carries 'blueprint' so client-side
-  // hash routing and grouping switch recognise it.
+  // page-init.js's PM_GROUPS array carries 'blueprint' so client-side
+  // hash routing and grouping switch recognise it (viewer UI refresh
+  // PR 1 moved it out of the inline script).
   const { model } = await renderLive();
   const page = renderPage(model);
-  assert.match(page, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
+  const pageInit = await readPageInit();
+  assert.match(pageInit, /PM_GROUPS\s*=\s*\['shape',\s*'component',\s*'trace',\s*'capability',\s*'blueprint'\]/);
   // GROUPINGS export lists the five groupings.
   assert.deepEqual(GROUPINGS, ['shape', 'component', 'trace', 'capability', 'blueprint']);
   // The panel renders a fifth section for the blueprint grouping.

@@ -4,6 +4,9 @@
 // GET /style.css     -> shipped stylesheet
 // GET /mermaid.min.js-> vendored mermaid runtime
 // GET /live-client.js-> phase 3.8 live client script
+// GET /page-init.js  -> viewer UI refresh PR 1 shell / router script
+//                      (Dex / wespa 2026-10-02 #263; release-noted so
+//                      the proxy's route allow-list is extended).
 // GET /scope.json    -> deep-link scope resolver (w-2026-08-30-dave-020)
 // Everything else -> 404 text/plain.
 //
@@ -93,6 +96,10 @@ export function createRouter(deps) {
     }
     if (path === '/live-client.js') {
       serveAsset(res, deps.liveClientAsset, deps.liveClientPath, MIME.js).catch((err) => fail(res, err));
+      return;
+    }
+    if (path === '/page-init.js') {
+      serveAsset(res, deps.pageInitAsset, deps.pageInitPath, MIME.js).catch((err) => fail(res, err));
       return;
     }
     if (path.startsWith('/product-map/')) {

@@ -1,37 +1,52 @@
 /*
- * RCF view stylesheet. Vanilla CSS, no preprocessor, no framework.
- * Document-type colour tokens match the Mermaid classDef palette in
- * mermaid-diagram.js so the diagram and the page agree visually.
+ * RCF view stylesheet.
  *
- * Phase 3.3 polish: warmer surface palette, subtle card shadows + hover,
- * sticky tab bar with backdrop-blur, indigo accent, wider spacing rhythm,
- * refined typography stack. Same information density; nicer to look at.
+ * Viewer UI refresh PR 1 (w-2026-10-02-dave-010, Dex / wespa relay
+ * f0384046 on 2026-10-02): replaces the earlier single-theme indigo
+ * palette with the Stravica brand kit tokens (--sv-* cobalt / ink /
+ * paper) in a light + dark pair. theme=light|dark on the root page
+ * wins; theme=auto (and absent) falls through to prefers-color-scheme,
+ * with absent defaulting to light per Dex's wespa requirements.
+ *
+ * The viewer fills the viewport height and owns its scrolling (the
+ * host is a fixed box in wespa, 56px header plus a sidebar); nothing
+ * scrolls horizontally at narrow widths; the tab nav stays sticky
+ * while content scrolls. embed=1 stamps data-embed on <html>, which
+ * hides the brand block and the footer but keeps the tabstrip.
+ *
+ * Legacy --colour-* names are kept as aliases that map to the new
+ * tokens, so every doc-renderer / mermaid / product-map rule written
+ * against the old palette still works and gets dark theme for free.
  */
 
-:root {
+:root,
+:root[data-theme="light"] {
   color-scheme: light;
 
-  /* Neutrals - slightly warmer than pure greys */
-  --colour-text: #0f172a;
-  --colour-heading: #0b1220;
-  --colour-muted: #6b7280;
-  --colour-subtle: #94a3b8;
-  --colour-bg: #fdfdfd;
-  --colour-surface: #f7f8fa;
-  --colour-surface-2: #eef1f6;
-  --colour-border: #e4e7ec;
-  --colour-border-strong: #cbd5e1;
+  /* Stravica brand kit, light. */
+  --sv-canvas: #F6F8FC;
+  --sv-surface: #FFFFFF;
+  --sv-raised: #EEF2F8;
+  --sv-ink: #111927;
+  --sv-muted: #536176;
+  --sv-border: #D8DFEA;
+  --sv-control: #738198;
+  --sv-link: #2447EB;
+  --sv-hover: #1737C7;
+  --sv-active: #E9EEFF;
+  --sv-button: #2447EB;
+  --sv-onbutton: #FFFFFF;
+  --sv-code: #EEF2F8;
+  --sv-success: #116B4D;
+  --sv-successbg: #E7F4ED;
+  --sv-warning: #895000;
+  --sv-warningbg: #FFF3DC;
+  --sv-danger: #B4233B;
+  --sv-dangerbg: #FDECF0;
+  --sv-focus: #2447EB;
 
-  /* Accent - indigo. Distinctive but professional. */
-  --colour-accent: #4f46e5;
-  --colour-accent-hover: #4338ca;
-  --colour-accent-subtle: #eef2ff;
-  --colour-link: var(--colour-accent);
-
-  /* Error / broken states */
-  --colour-broken-bg: #fee2e2;
-  --colour-broken-text: #7f1d1d;
-  --colour-broken-border: #dc2626;
+  --sv-font: Arial, Helvetica, sans-serif;
+  --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 
   /* Doc-type palette - kept in sync with mermaid classDef */
   --colour-prd: #fde68a;
@@ -46,152 +61,262 @@
   --colour-ts:  #99f6e4;
   --colour-tc:  #d9f99d;
 
-  /* Elevation */
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.03);
   --shadow-md: 0 4px 10px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.04);
   --shadow-lg: 0 12px 28px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
 
-  /* Radii */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
 
-  /* Transitions */
   --t-fast: 120ms ease;
   --t-med:  180ms ease;
+
+  /* Legacy --colour-* aliases over --sv-* so pre-existing rules keep
+     their meaning and inherit dark theme automatically. */
+  --colour-text: var(--sv-ink);
+  --colour-heading: var(--sv-ink);
+  --colour-muted: var(--sv-muted);
+  --colour-subtle: var(--sv-control);
+  --colour-bg: var(--sv-surface);
+  --colour-surface: var(--sv-raised);
+  --colour-surface-2: var(--sv-raised);
+  --colour-border: var(--sv-border);
+  --colour-border-strong: var(--sv-control);
+  --colour-accent: var(--sv-link);
+  --colour-accent-hover: var(--sv-hover);
+  --colour-accent-subtle: var(--sv-active);
+  --colour-link: var(--sv-link);
+  --colour-broken-bg: var(--sv-dangerbg);
+  --colour-broken-text: var(--sv-danger);
+  --colour-broken-border: var(--sv-danger);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --sv-canvas: #0B111B;
+  --sv-surface: #101925;
+  --sv-raised: #182334;
+  --sv-ink: #EDF2FA;
+  --sv-muted: #AAB7CA;
+  --sv-border: #2C3A4F;
+  --sv-control: #75859D;
+  --sv-link: #A3B5FF;
+  --sv-hover: #C0CDFF;
+  --sv-active: #1D2C50;
+  --sv-button: #A3B5FF;
+  --sv-onbutton: #0B111B;
+  --sv-code: #0D1521;
+  --sv-success: #80D9B1;
+  --sv-successbg: #102D24;
+  --sv-warning: #F1CA7A;
+  --sv-warningbg: #322712;
+  --sv-danger: #FFA3B3;
+  --sv-dangerbg: #361C28;
+  --sv-focus: #A3B5FF;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
+
+    --sv-canvas: #0B111B;
+    --sv-surface: #101925;
+    --sv-raised: #182334;
+    --sv-ink: #EDF2FA;
+    --sv-muted: #AAB7CA;
+    --sv-border: #2C3A4F;
+    --sv-control: #75859D;
+    --sv-link: #A3B5FF;
+    --sv-hover: #C0CDFF;
+    --sv-active: #1D2C50;
+    --sv-button: #A3B5FF;
+    --sv-onbutton: #0B111B;
+    --sv-code: #0D1521;
+    --sv-success: #80D9B1;
+    --sv-successbg: #102D24;
+    --sv-warning: #F1CA7A;
+    --sv-warningbg: #322712;
+    --sv-danger: #FFA3B3;
+    --sv-dangerbg: #361C28;
+    --sv-focus: #A3B5FF;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
 }
 
 * { box-sizing: border-box; }
 
 html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+/* Viewport-height scroll box: the viewer owns scrolling inside the
+   host iframe. The host sizes the frame; we fill it, reflow on resize,
+   and never produce a horizontal page scroll (lists wrap, the DAG and
+   mermaid svgs scroll inside their own panels). */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+  font-family: var(--sv-font);
   line-height: 1.55;
-  color: var(--colour-text);
-  background: var(--colour-bg);
-  max-width: 80rem;
-  margin: 0 auto;
-  padding: 0 2rem 3rem;
+  color: var(--sv-ink);
+  background: var(--sv-canvas);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 /* --------------------------------------------------------------------
- * Header
+ * App shell: compact header with brand, sticky tabstrip, tools well.
  * -------------------------------------------------------------------- */
 
-header {
-  padding: 2rem 0 1rem;
-  margin-bottom: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+header.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--sv-surface);
+  border-bottom: 1px solid var(--sv-border);
 }
 
-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--colour-heading);
+header.app-header .bar {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-/* Stravica kit mark alongside the project name, shared identity with
- * the marketing site (stravica.ai). SVG is inlined as a data URL so no
- * separate asset has to ship. */
-header h1::before {
-  content: '';
+/* D17: icon mark only; the tool name is NOT shown as text. The stack
+   under review (project name) is the prominent text in .product, with
+   a muted "review surface" sub-label; no technology chip. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--sv-muted);
+  white-space: nowrap;
+}
+
+.brand .mark {
+  /* Inline SVG of the Stravica kit mark from
+     stravica.ai/public/brand/assets/icons/favicon.svg (same paths and
+     colours as the favicon above). The SVG carries its own ink tile
+     and radius so no background styling is needed here. */
+  width: 18px;
+  height: 18px;
   display: inline-block;
-  width: 2rem;
-  height: 2rem;
   flex-shrink: 0;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 136 180' width='136' height='180' role='img'%3E%3Ctitle%3EStravica ribbon symbol%3C/title%3E%3Cdesc%3E%3C/desc%3E%3Cdefs%3E%3ClinearGradient id='ma' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23174CFF'/%3E%3Cstop offset='1' stop-color='%23263BFF'/%3E%3C/linearGradient%3E%3ClinearGradient id='mb' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%231674FF'/%3E%3Cstop offset='1' stop-color='%232854FF'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(0 0) scale(1.0)'%3E%3Cpath fill='url(%23ma)' d='M86 4 L10 48 Q4 51 4 58 L4 81 Q4 87 10 84 L80 45 Q86 42 86 35 Z'/%3E%3Cpath fill='url(%23ma)' d='M88 108 L129 125 L47 172 Q41 176 41 170 L41 142 Q41 136 47 133 Z'/%3E%3Cpath fill='url(%23mb)' d='M41 84 L74 65 Q78 63 83 66 L124 88 Q130 91 130 98 L130 121 Q130 126 124 123 Z'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
 }
 
-.subtitle {
-  color: var(--colour-muted);
-  margin: 0;
-  font-size: 0.95rem;
+.product {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  min-width: 0;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--sv-border);
 }
 
-/* --------------------------------------------------------------------
- * Tab bar (sticky, blurred backdrop)
- * -------------------------------------------------------------------- */
+.product .name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--sv-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product .sub {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--sv-muted);
+}
 
 nav.tabs {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.25rem;
-  padding: 0.5rem 0.5rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: rgba(253, 253, 253, 0.85);
-  backdrop-filter: saturate(180%) blur(12px);
-  -webkit-backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--colour-border);
-  margin: 0 -0.5rem;
+  margin-left: 1rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 nav.tabs button {
   appearance: none;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border: none;
   background: transparent;
-  color: var(--colour-muted);
-  padding: 0.6rem 1.1rem;
+  color: var(--sv-muted);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 0.85rem;
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  font-family: inherit;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  font-family: inherit;
   transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
-  margin-bottom: -1px;
-  position: relative;
 }
 
 nav.tabs button:hover {
-  background: var(--colour-accent-subtle);
-  color: var(--colour-accent-hover);
+  color: var(--sv-ink);
+  background: var(--sv-raised);
 }
 
 nav.tabs button[aria-selected="true"] {
-  background: var(--colour-bg);
-  color: var(--colour-heading);
-  font-weight: 600;
-  border-color: var(--colour-border);
-  border-bottom-color: var(--colour-bg);
-}
-
-nav.tabs button[aria-selected="true"]::after {
-  content: '';
-  position: absolute;
-  left: 0.9rem;
-  right: 0.9rem;
-  bottom: -1px;
-  height: 2px;
-  background: var(--colour-accent);
-  border-radius: 2px;
+  color: var(--sv-ink);
+  font-weight: 700;
+  border-bottom-color: var(--sv-link);
 }
 
 nav.tabs button:focus-visible {
-  outline: 2px solid var(--colour-accent);
-  outline-offset: 2px;
+  outline: 3px solid var(--sv-focus);
+  outline-offset: -3px;
 }
 
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Embed contract (D10): data-embed="1" suppresses the footer and
+   left-aligns the tab nav; the icon mark and project name stay (D17
+   keeps the stack under review named even under embed). */
+html[data-embed="1"] .app-footer { display: none; }
+html[data-embed="1"] nav.tabs { margin-left: 0; }
+
 /* --------------------------------------------------------------------
- * Panels + section headings
+ * Main content area
  * -------------------------------------------------------------------- */
 
+main {
+  flex: 1 1 auto;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+  overflow-x: hidden;
+}
+
 section[role="tabpanel"] {
-  padding-top: 2rem;
+  padding-top: 1rem;
 }
 
 section[role="tabpanel"][hidden] {
@@ -202,50 +327,33 @@ h2.tab-heading {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: -0.015em;
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   margin: 0 0 1.25rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--colour-border);
-  position: relative;
-}
-
-h2.tab-heading::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 3rem;
-  height: 2px;
-  background: var(--colour-accent);
-  border-radius: 2px;
+  border-bottom: 1px solid var(--sv-border);
 }
 
 .group-heading {
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   margin-top: 2.25rem;
   margin-bottom: 1rem;
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.8rem;
 }
-
-/* --------------------------------------------------------------------
- * Overview diagram
- * -------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------
  * Doc article - the rendered doc body inside a card
  * -------------------------------------------------------------------- */
 
 article.doc {
-  border: 1px solid var(--colour-border);
+  border: 1px solid var(--sv-border);
   border-left-width: 5px;
   padding: 1.25rem 1.5rem;
   border-radius: var(--radius-md);
   margin-bottom: 1.5rem;
-  background: var(--colour-bg);
+  background: var(--sv-surface);
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--t-med), transform var(--t-med);
 }
@@ -254,15 +362,10 @@ article.doc h3 {
   margin: 0 0 0.85rem;
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   letter-spacing: -0.01em;
 }
 
-/* When the article is embedded inside a doc-details wrapper, the parent
- * details already carries the border + shadow + radius + background +
- * coloured left accent. Strip the article's own card treatment so we
- * don't render a card inside a card. Also hide the article's own h3 -
- * the summary line already carries the title. */
 details.doc-details > article.doc {
   border: none;
   border-radius: 0;
@@ -286,18 +389,17 @@ article.doc-fbs { border-left-color: var(--colour-fbs); }
 article.doc-ts  { border-left-color: var(--colour-ts); }
 
 article.doc p { margin: 0.45rem 0; }
-article.doc h4 { margin: 1.1rem 0 0.45rem; font-size: 1rem; font-weight: 600; color: var(--colour-heading); }
-article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600; color: var(--colour-heading); }
+article.doc h4 { margin: 1.1rem 0 0.45rem; font-size: 1rem; font-weight: 600; color: var(--sv-ink); }
+article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600; color: var(--sv-ink); }
 
 .field-list { margin: 0.85rem 0; }
 .field-list ul { margin: 0.3rem 0; padding-left: 1.5rem; }
 .field-list ul li { margin: 0.2rem 0; }
-.field-list dl dt { font-weight: 600; margin-top: 0.5rem; color: var(--colour-heading); }
+.field-list dl dt { font-weight: 600; margin-top: 0.5rem; color: var(--sv-ink); }
 .field-list dl dd { margin-left: 0; margin-bottom: 0.35rem; }
-/* 0.28.2 (issue #235): structured TAD fields render as a table. */
 .field-list table.field-table { border-collapse: collapse; width: 100%; margin: 0.35rem 0 0.85rem; font-size: 0.95em; }
-.field-list table.field-table th, .field-list table.field-table td { text-align: left; padding: 0.35rem 0.55rem; border-bottom: 1px solid var(--colour-rule, rgba(0,0,0,0.12)); vertical-align: top; }
-.field-list table.field-table th { font-weight: 600; color: var(--colour-heading); background: var(--colour-tint, rgba(0,0,0,0.03)); }
+.field-list table.field-table th, .field-list table.field-table td { text-align: left; padding: 0.35rem 0.55rem; border-bottom: 1px solid var(--sv-border); vertical-align: top; }
+.field-list table.field-table th { font-weight: 600; color: var(--sv-ink); background: var(--sv-raised); }
 .field-list table.field-table tr:last-child td { border-bottom: 0; }
 
 /* --------------------------------------------------------------------
@@ -316,15 +418,11 @@ article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600;
   box-shadow: none;
 }
 
-.ac-list .ac-item:last-child {
-  margin-bottom: 0;
-}
-
+.ac-list .ac-item:last-child { margin-bottom: 0; }
 .ac-list .ac-item p { margin: 0.3rem 0; }
 .ac-list .ac-gwt p { margin: 0.2rem 0; }
-.ac-meta { color: var(--colour-muted); font-size: 0.875rem; }
+.ac-meta { color: var(--sv-muted); font-size: 0.875rem; }
 
-/* AC pills (used in FBS -> AC nav on the Build tab) */
 .ac-pills {
   display: flex;
   flex-wrap: wrap;
@@ -337,16 +435,16 @@ article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600;
   padding: 0.22rem 0.7rem;
   border-radius: 999px;
   background: var(--colour-ac);
-  color: #3730a3;
+  color: var(--sv-link);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 500;
-  border: 1px solid #c7d2fe;
+  border: 1px solid var(--sv-border);
   transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
 }
 
 .ac-pills .ac-pill:hover {
-  background: #c7d2fe;
+  background: var(--sv-active);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
@@ -361,8 +459,8 @@ article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600;
 }
 
 .ac-resolved.broken {
-  border-left-color: var(--colour-broken-border);
-  background: var(--colour-broken-bg);
+  border-left-color: var(--sv-danger);
+  background: var(--sv-dangerbg);
 }
 
 .tc {
@@ -381,9 +479,10 @@ article.doc h5 { margin: 0.6rem 0 0.3rem; font-size: 0.925rem; font-weight: 600;
 .subdiagram {
   margin: 1.25rem 0;
   padding: 0.85rem;
-  background: var(--colour-surface);
-  border: 1px solid var(--colour-border);
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
+  overflow-x: auto;
 }
 
 pre.mermaid {
@@ -401,28 +500,26 @@ pre.mermaid {
  * -------------------------------------------------------------------- */
 
 details.doc-details {
-  border: 1px solid var(--colour-border);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
   margin-bottom: 0.85rem;
-  background: var(--colour-bg);
+  background: var(--sv-surface);
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--t-med), border-color var(--t-med);
 }
 
 details.doc-details:hover {
   box-shadow: var(--shadow-md);
-  border-color: var(--colour-border-strong);
+  border-color: var(--sv-control);
 }
 
-details.doc-details[open] {
-  box-shadow: var(--shadow-md);
-}
+details.doc-details[open] { box-shadow: var(--shadow-md); }
 
 details.doc-details > summary {
   cursor: pointer;
   padding: 0.75rem 1rem;
   font-weight: 500;
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   list-style: none;
   display: flex;
   align-items: center;
@@ -444,33 +541,28 @@ details.doc-details > summary > .status {
   margin-left: auto;
 }
 
-details.doc-details > summary:hover {
-  background: var(--colour-surface);
-}
+details.doc-details > summary:hover { background: var(--sv-raised); }
 
 details.doc-details > summary::-webkit-details-marker { display: none; }
 
-/* Custom chevron */
 details.doc-details > summary::before {
   content: '';
   display: inline-block;
   width: 0.6rem;
   height: 0.6rem;
-  border-right: 2px solid var(--colour-muted);
-  border-bottom: 2px solid var(--colour-muted);
+  border-right: 2px solid var(--sv-control);
+  border-bottom: 2px solid var(--sv-control);
   transform: rotate(-45deg);
   transition: transform var(--t-fast);
   flex-shrink: 0;
   margin-right: 0.15rem;
 }
 
-details.doc-details[open] > summary::before {
-  transform: rotate(45deg);
-}
+details.doc-details[open] > summary::before { transform: rotate(45deg); }
 
 details.doc-details[open] > summary {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
-  border-bottom: 1px solid var(--colour-border);
+  border-bottom: 1px solid var(--sv-border);
 }
 
 details.doc-details > article,
@@ -487,25 +579,21 @@ details.doc-details.doc-adr-wrap { border-left: 4px solid var(--colour-adr); }
 details.doc-details.doc-fbs-wrap { border-left: 4px solid var(--colour-fbs); }
 details.doc-details.doc-ts-wrap  { border-left: 4px solid var(--colour-ts); }
 
-.nested-details {
-  margin: 0 1rem 1rem;
-}
+.nested-details { margin: 0 1rem 1rem; }
 
 .nested-details > h4 {
   margin: 0.75rem 0 0.6rem;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-/* --------------------------------------------------------------------
- * Nested details: strip the outer-card treatment so a REQ card
- * expanded to show its US children doesn't render "card inside card
- * inside card". Keep the coloured left accent so hierarchy is still
- * visible, drop border/radius/shadow/background on the other sides.
- * -------------------------------------------------------------------- */
+/* Nested details: strip the outer-card treatment so a REQ card
+   expanded to show its US children doesn't render "card inside card
+   inside card". Keep the coloured left accent so hierarchy is still
+   visible, drop border/radius/shadow/background on the other sides. */
 
 details.doc-details details.doc-details {
   border-top-color: transparent;
@@ -518,9 +606,7 @@ details.doc-details details.doc-details {
 }
 
 details.doc-details details.doc-details:hover,
-details.doc-details details.doc-details[open] {
-  box-shadow: none;
-}
+details.doc-details details.doc-details[open] { box-shadow: none; }
 
 details.doc-details details.doc-details:hover {
   border-top-color: transparent;
@@ -533,12 +619,10 @@ details.doc-details details.doc-details > summary {
   border-radius: 0;
 }
 
-details.doc-details details.doc-details > summary:hover {
-  background: var(--colour-surface);
-}
+details.doc-details details.doc-details > summary:hover { background: var(--sv-raised); }
 
 details.doc-details details.doc-details[open] > summary {
-  border-bottom: 1px dashed var(--colour-border);
+  border-bottom: 1px dashed var(--sv-border);
   border-radius: 0;
 }
 
@@ -552,26 +636,26 @@ details.doc-details details.doc-details > .us-body {
 /* Raw-JSON disclosure (dev-facing, quiet) */
 details.raw-json {
   margin-top: 1rem;
-  border-top: 1px dashed var(--colour-border);
+  border-top: 1px dashed var(--sv-border);
   padding-top: 0.75rem;
 }
 
 details.raw-json summary {
   cursor: pointer;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-size: 0.8125rem;
   padding: 0.15rem 0;
 }
 
-details.raw-json summary:hover { color: var(--colour-accent); }
+details.raw-json summary:hover { color: var(--sv-link); }
 
 details.raw-json pre {
-  background: var(--colour-surface-2);
+  background: var(--sv-raised);
   padding: 0.85rem 1rem;
   border-radius: var(--radius-sm);
   overflow-x: auto;
   font-size: 0.8rem;
-  border: 1px solid var(--colour-border);
+  border: 1px solid var(--sv-border);
   margin-top: 0.5rem;
 }
 
@@ -580,27 +664,31 @@ details.raw-json pre {
  * -------------------------------------------------------------------- */
 
 a {
-  color: var(--colour-link);
+  color: var(--sv-link);
   text-decoration: none;
   transition: color var(--t-fast);
 }
 
 a:hover {
-  color: var(--colour-accent-hover);
+  color: var(--sv-hover);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
+:where(a, button, input, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: 2px;
+}
+
 code {
-  background: var(--colour-surface-2);
+  background: var(--sv-code);
   padding: 0.12rem 0.35rem;
   border-radius: 4px;
   font-size: 0.875em;
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  color: #3730a3;
+  font-family: var(--sv-mono);
+  color: var(--sv-link);
 }
 
-/* Status pill (compact, coloured by status) */
 .status {
   display: inline-block;
   padding: 0.15rem 0.6rem;
@@ -613,33 +701,33 @@ code {
 }
 
 .status.notStarted {
-  color: var(--colour-muted);
-  background: var(--colour-surface-2);
-  border-color: var(--colour-border);
+  color: var(--sv-muted);
+  background: var(--sv-raised);
+  border-color: var(--sv-border);
 }
 
 .status.inProgress {
-  color: #0c4a6e;
-  background: #e0f2fe;
-  border-color: #bae6fd;
+  color: var(--sv-link);
+  background: var(--sv-active);
+  border-color: var(--sv-link);
 }
 
 .status.complete {
-  color: #065f46;
-  background: #d1fae5;
-  border-color: #a7f3d0;
+  color: var(--sv-success);
+  background: var(--sv-successbg);
+  border-color: var(--sv-success);
 }
 
 .status.verified {
-  color: #14532d;
-  background: #bbf7d0;
-  border-color: #86efac;
+  color: var(--sv-success);
+  background: var(--sv-successbg);
+  border-color: var(--sv-success);
 }
 
 .status.blocked {
-  color: var(--colour-broken-text);
-  background: var(--colour-broken-bg);
-  border-color: var(--colour-broken-border);
+  color: var(--sv-danger);
+  background: var(--sv-dangerbg);
+  border-color: var(--sv-danger);
 }
 
 .status.draft,
@@ -650,38 +738,33 @@ code {
 .status.deprecated,
 .status.proposed,
 .status.accepted {
-  color: var(--colour-muted);
-  background: var(--colour-surface-2);
-  border-color: var(--colour-border);
+  color: var(--sv-muted);
+  background: var(--sv-raised);
+  border-color: var(--sv-border);
 }
 
 .status.approved,
-.status.accepted { color: #065f46; background: #d1fae5; border-color: #a7f3d0; }
+.status.accepted { color: var(--sv-success); background: var(--sv-successbg); border-color: var(--sv-success); }
 .status.deprecated,
-.status.superseded { color: var(--colour-muted); background: var(--colour-surface); border-color: var(--colour-border); }
+.status.superseded { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 
-/* Broken doc / tree error banner */
 .broken {
-  background: var(--colour-broken-bg);
-  border: 1px solid var(--colour-broken-border);
-  color: var(--colour-broken-text);
+  background: var(--sv-dangerbg);
+  border: 1px solid var(--sv-danger);
+  color: var(--sv-danger);
   padding: 0.65rem 0.9rem;
   border-radius: var(--radius-sm);
   margin-bottom: 0.85rem;
 }
 
-.broken ul {
-  margin: 0.3rem 0 0 1.35rem;
-}
+.broken ul { margin: 0.3rem 0 0 1.35rem; }
 
-.broken-doc {
-  border-left-color: var(--colour-broken-border);
-}
+.broken-doc { border-left-color: var(--sv-danger); }
 
 .tree-errors {
-  background: var(--colour-broken-bg);
-  border: 1px solid var(--colour-broken-border);
-  color: var(--colour-broken-text);
+  background: var(--sv-dangerbg);
+  border: 1px solid var(--sv-danger);
+  color: var(--sv-danger);
   padding: 1.1rem 1.35rem;
   border-radius: var(--radius-md);
   margin-bottom: 2rem;
@@ -692,7 +775,7 @@ code {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--colour-broken-text);
+  color: var(--sv-danger);
   border: none;
   padding: 0;
 }
@@ -701,27 +784,72 @@ code {
  * Footer
  * -------------------------------------------------------------------- */
 
-footer {
-  border-top: 1px solid var(--colour-border);
-  padding-top: 1.25rem;
-  margin-top: 3rem;
-  color: var(--colour-muted);
-  font-size: 0.85rem;
+/* Shell footer: one compact muted line - version, GitHub, docs
+   links (new tab, rel="noopener", never target="_top") and the
+   live-update pill as the current viewer's connection dot. Hidden
+   under data-embed="1" per the Dex / wespa contract. */
+footer.app-footer {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.55rem 1rem;
+  border-top: 1px solid var(--sv-border);
+  color: var(--sv-muted);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
+
+footer.app-footer a {
+  color: var(--sv-link);
+  text-decoration: none;
+}
+
+footer.app-footer a:hover { text-decoration: underline; }
+
+footer.app-footer .sep { color: var(--sv-control); }
+
+footer.app-footer .live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--sv-control);
+  border-radius: 999px;
+  background: var(--sv-raised);
+  white-space: nowrap;
+  color: var(--sv-muted);
+}
+
+footer.app-footer .live .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4c9a2a;
+  display: inline-block;
+}
+
+footer.app-footer .live.reconnecting .dot { background: #d68f00; }
+footer.app-footer .live.disconnected .dot { background: #b03a2e; }
 
 /* --------------------------------------------------------------------
  * Print
  * -------------------------------------------------------------------- */
 
 @media print {
-  body { max-width: none; padding: 0; }
+  html, body { height: auto; }
+  body { max-width: none; padding: 0; display: block; }
+  header.app-header { position: static; border: none; }
   nav.tabs { display: none; }
   section[role="tabpanel"][hidden] { display: block !important; }
   pre.mermaid { page-break-inside: avoid; }
   article.doc { page-break-inside: avoid; box-shadow: none; }
   details.doc-details { break-inside: avoid; box-shadow: none; }
   details.doc-details[open] > summary { border: none; }
-  header h1::before { display: none; }
 }
 
 /* --------------------------------------------------------------------
@@ -729,9 +857,13 @@ footer {
  * -------------------------------------------------------------------- */
 
 @media (max-width: 720px) {
-  body { padding: 0 1rem 2rem; }
-  header h1 { font-size: 1.55rem; }
-  nav.tabs button { padding: 0.5rem 0.8rem; font-size: 0.9rem; }
+  header.app-header .bar { flex-wrap: wrap; gap: 0.75rem; padding: 0.5rem 0.75rem 0; }
+  .product { flex: 1; }
+  .product .sub { display: none; }
+  /* Narrow: tabs wrap beneath the bar as their own full-width row. */
+  nav.tabs { order: 3; flex: 1 1 100%; margin-left: 0; }
+  nav.tabs button { padding: 0 0.65rem; font-size: 0.9rem; }
+  main { padding: 1rem 0.75rem 2rem; }
   article.doc { padding: 1rem 1.15rem; }
   details.doc-details > article,
   details.doc-details > section,
@@ -741,19 +873,6 @@ footer {
 
 /* --------------------------------------------------------------------
  * Deep-link scope overlay (w-2026-08-30-dave-020)
- *
- * When body.rcf-scoped is present the client has applied a URL-driven
- * scope (blueprint / node). Everything inside #rcf-live-content is
- * dimmed except:
- *   - .rcf-in-scope         a doc that IS in the scope set
- *   - .rcf-scope-ancestor   an ancestor of an in-scope doc (kept full
- *                           strength so the drill-down chain is legible)
- *   - .rcf-customised       an in-scope doc whose bytes differ from
- *                           the shipping blueprint source (a project
- *                           customisation over the applied contribution)
- *
- * Left visible-but-dimmed rather than hidden so the reader can see
- * where in the tree the scoped set sits.
  * -------------------------------------------------------------------- */
 
 body.rcf-scoped #rcf-live-content [data-doc-id]:not(.rcf-in-scope):not(.rcf-scope-ancestor) {
@@ -762,38 +881,32 @@ body.rcf-scoped #rcf-live-content [data-doc-id]:not(.rcf-in-scope):not(.rcf-scop
 }
 body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope {
   opacity: 1;
-  outline: 2px solid #4c9a2a;
+  outline: 2px solid var(--sv-success);
   outline-offset: 2px;
 }
 body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
-  outline-color: #d68f00;
-  box-shadow: 0 0 0 3px rgba(214, 143, 0, 0.18);
+  outline-color: var(--sv-warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sv-warning) 20%, transparent);
 }
 
 #rcf-scope-banner {
   margin: 0 0 1rem;
   padding: 0.5rem 0.8rem;
-  border: 1px solid #d68f00;
-  background: #fff7e6;
-  color: #6b4300;
+  border: 1px solid var(--sv-warning);
+  background: var(--sv-warningbg);
+  color: var(--sv-warning);
   font-size: 0.9rem;
   border-radius: 4px;
 }
-#rcf-scope-banner a { color: #b03a2e; text-decoration: underline; }
+#rcf-scope-banner a { color: var(--sv-danger); text-decoration: underline; }
 
 /* --------------------------------------------------------------------
  * Product Map tab (REQ-170, US-17001..17007)
- *
- * Controls, jump nav, bucket cards, status mini pills, empty rollup.
- * Language is the viewer's existing indigo + rounded + soft-shadow
- * tokens; no new palette entries, so light and dark stay coherent. The
- * layout is single-column at the max page width the viewer uses
- * elsewhere (80rem); mobile is not the target (never breaks at 1024px).
  * -------------------------------------------------------------------- */
 
 .pm-controls {
   position: sticky;
-  top: 3.25rem; /* below the sticky nav.tabs */
+  top: 3rem;
   z-index: 5;
   display: flex;
   flex-wrap: wrap;
@@ -801,20 +914,20 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
   gap: 0.75rem 1rem;
   padding: 0.6rem 0.9rem;
   margin: 0 0 1.1rem;
-  background: rgba(253, 253, 253, 0.9);
-  backdrop-filter: saturate(180%) blur(8px);
-  -webkit-backdrop-filter: saturate(180%) blur(8px);
-  border: 1px solid var(--colour-border);
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
+
+html[data-embed="1"] .pm-controls { top: 3rem; }
 
 .pm-group-tabs {
   display: inline-flex;
   gap: 0.15rem;
   padding: 0.2rem;
-  background: var(--colour-surface);
-  border: 1px solid var(--colour-border);
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
 }
 
@@ -822,7 +935,7 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
   appearance: none;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 500;
@@ -833,50 +946,40 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
 }
 
 .pm-group-btn:hover {
-  color: var(--colour-heading);
-  background: var(--colour-bg);
+  color: var(--sv-ink);
+  background: var(--sv-surface);
 }
 
 .pm-group-btn[aria-selected="true"] {
-  background: var(--colour-bg);
-  color: var(--colour-heading);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  border-color: var(--colour-border);
-}
-
-.pm-group-btn:focus-visible {
-  outline: 2px solid var(--colour-accent);
-  outline-offset: 2px;
+  border-color: var(--sv-border);
 }
 
 .pm-status-filter {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-size: 0.85rem;
 }
 
 .pm-status-select {
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid var(--colour-border);
+  border: 1px solid var(--sv-control);
   border-radius: var(--radius-sm);
-  background: var(--colour-bg);
+  background: var(--sv-surface);
   padding: 0.35rem 2rem 0.35rem 0.75rem;
   font-family: inherit;
   font-size: 0.9rem;
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'%3E%3Cpath fill='%236b7280' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12'%3E%3Cpath fill='%23738198' d='M2 4l4 4 4-4z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.55rem center;
-}
-
-.pm-status-select:focus-visible {
-  outline: 2px solid var(--colour-accent);
-  outline-offset: 2px;
 }
 
 .pm-bulk {
@@ -887,9 +990,9 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
 
 .pm-bulk-btn {
   appearance: none;
-  border: 1px solid var(--colour-border);
-  background: var(--colour-bg);
-  color: var(--colour-muted);
+  border: 1px solid var(--sv-border);
+  background: var(--sv-surface);
+  color: var(--sv-muted);
   font-family: inherit;
   font-size: 0.8rem;
   font-weight: 500;
@@ -900,18 +1003,17 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
 }
 
 .pm-bulk-btn:hover {
-  color: var(--colour-heading);
-  background: var(--colour-accent-subtle);
-  border-color: var(--colour-accent-subtle);
+  color: var(--sv-ink);
+  background: var(--sv-active);
+  border-color: var(--sv-link);
 }
 
-/* Grouping heading and jump nav */
 .pm-group-heading {
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   margin: 0.5rem 0 0.75rem;
 }
 
@@ -921,16 +1023,16 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
   gap: 0.35rem;
   padding: 0.55rem 0.7rem;
   margin-bottom: 1rem;
-  background: var(--colour-surface);
-  border: 1px solid var(--colour-border);
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
 }
 
 .pm-jump-chip {
   appearance: none;
-  border: 1px solid var(--colour-border);
-  background: var(--colour-bg);
-  color: var(--colour-heading);
+  border: 1px solid var(--sv-border);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
   font-family: inherit;
@@ -945,9 +1047,9 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
 }
 
 .pm-jump-chip:hover {
-  background: var(--colour-accent-subtle);
-  border-color: #c7d2fe;
-  color: var(--colour-accent-hover);
+  background: var(--sv-active);
+  border-color: var(--sv-link);
+  color: var(--sv-hover);
 }
 
 .pm-jump-chip .pm-jump-label {
@@ -957,27 +1059,21 @@ body.rcf-scoped #rcf-live-content [data-doc-id].rcf-in-scope.rcf-customised {
 }
 
 .pm-jump-chip .pm-jump-count {
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-variant-numeric: tabular-nums;
   font-size: 0.75rem;
 }
 
-.pm-jump-chip:focus-visible {
-  outline: 2px solid var(--colour-accent);
-  outline-offset: 2px;
-}
-
-/* Buckets: <details class="pm-bucket"> */
 details.pm-bucket {
-  border: 1px solid var(--colour-border);
+  border: 1px solid var(--sv-border);
   border-radius: var(--radius-md);
-  background: var(--colour-bg);
+  background: var(--sv-surface);
   box-shadow: var(--shadow-sm);
   margin-bottom: 0.6rem;
   transition: box-shadow var(--t-med), border-color var(--t-med);
 }
 
-details.pm-bucket:hover { border-color: var(--colour-border-strong); }
+details.pm-bucket:hover { border-color: var(--sv-control); }
 details.pm-bucket[open] { box-shadow: var(--shadow-md); }
 
 details.pm-bucket > summary.pm-bucket-heading {
@@ -988,33 +1084,30 @@ details.pm-bucket > summary.pm-bucket-heading {
   align-items: center;
   gap: 0.65rem;
   border-radius: var(--radius-md);
-  color: var(--colour-heading);
+  color: var(--sv-ink);
   font-weight: 600;
   font-size: 0.95rem;
 }
 
 details.pm-bucket > summary.pm-bucket-heading::-webkit-details-marker { display: none; }
 
-/* Custom chevron matching the doc-details drilldowns */
 details.pm-bucket > summary.pm-bucket-heading::before {
   content: '';
   display: inline-block;
   width: 0.6rem;
   height: 0.6rem;
-  border-right: 2px solid var(--colour-muted);
-  border-bottom: 2px solid var(--colour-muted);
+  border-right: 2px solid var(--sv-control);
+  border-bottom: 2px solid var(--sv-control);
   transform: rotate(-45deg);
   transition: transform var(--t-fast);
   flex-shrink: 0;
 }
 
-details.pm-bucket[open] > summary.pm-bucket-heading::before {
-  transform: rotate(45deg);
-}
+details.pm-bucket[open] > summary.pm-bucket-heading::before { transform: rotate(45deg); }
 
 details.pm-bucket[open] > summary.pm-bucket-heading {
   border-radius: var(--radius-md) var(--radius-md) 0 0;
-  border-bottom: 1px solid var(--colour-border);
+  border-bottom: 1px solid var(--sv-border);
 }
 
 .pm-bucket-label {
@@ -1026,14 +1119,12 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 }
 
 .pm-bucket-count {
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-.pm-bucket-anchor {
-  display: none;
-}
+.pm-bucket-anchor { display: none; }
 
 .pm-mini-row {
   display: inline-flex;
@@ -1050,38 +1141,32 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   font-size: 0.72rem;
   font-weight: 600;
   text-align: center;
-  color: var(--colour-muted);
-  background: var(--colour-surface-2);
-  border: 1px solid var(--colour-border);
+  color: var(--sv-muted);
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
   font-variant-numeric: tabular-nums;
 }
 
-.pm-mini-approved { color: #065f46; background: #d1fae5; border-color: #a7f3d0; }
-.pm-mini-review { color: #0c4a6e; background: #e0f2fe; border-color: #bae6fd; }
-.pm-mini-draft { color: var(--colour-muted); background: var(--colour-surface); border-color: var(--colour-border); }
-.pm-mini-needsRevision { color: var(--colour-broken-text); background: var(--colour-broken-bg); border-color: var(--colour-broken-border); }
-.pm-mini-superseded { color: var(--colour-subtle); background: var(--colour-surface); border-color: var(--colour-border); }
+.pm-mini-approved { color: var(--sv-success); background: var(--sv-successbg); border-color: var(--sv-success); }
+.pm-mini-review { color: var(--sv-link); background: var(--sv-active); border-color: var(--sv-link); }
+.pm-mini-draft { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
+.pm-mini-needsRevision { color: var(--sv-danger); background: var(--sv-dangerbg); border-color: var(--sv-danger); }
+.pm-mini-superseded { color: var(--sv-control); background: var(--sv-raised); border-color: var(--sv-border); }
 
-.pm-bucket-body {
-  padding: 0.75rem 1rem 1rem;
-}
-
+.pm-bucket-body { padding: 0.75rem 1rem 1rem; }
 .pm-bucket-body .pm-tad-root { margin-bottom: 0.65rem; }
 
 .pm-bucket-empty {
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-size: 0.85rem;
 }
 
-/* Empty-under-filter rollup */
-.pm-empty-roll {
-  margin-bottom: 0.75rem;
-}
+.pm-empty-roll { margin-bottom: 0.75rem; }
 .pm-empty-toggle {
   appearance: none;
-  border: 1px dashed var(--colour-border-strong);
-  background: var(--colour-surface);
-  color: var(--colour-muted);
+  border: 1px dashed var(--sv-control);
+  background: var(--sv-raised);
+  color: var(--sv-muted);
   padding: 0.4rem 0.8rem;
   border-radius: var(--radius-sm);
   font-family: inherit;
@@ -1090,28 +1175,22 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   cursor: pointer;
 }
 .pm-empty-toggle:hover {
-  color: var(--colour-heading);
-  background: var(--colour-accent-subtle);
+  color: var(--sv-ink);
+  background: var(--sv-active);
 }
 
-/* When active grouping is in hide-empty mode, hide empty buckets */
-.pm-group.pm-hide-empty details.pm-bucket[data-pm-empty-under-filter="true"] {
-  display: none;
-}
+.pm-group.pm-hide-empty details.pm-bucket[data-pm-empty-under-filter="true"] { display: none; }
 
-/* Loading state */
 .pm-group[data-pm-loading="true"] .pm-jump-nav::after {
   content: 'Loading grouping...';
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   font-size: 0.8rem;
   margin-left: 0.5rem;
 }
 
-/* Compact spacing for nested pm-req cards inside a bucket body */
 .pm-bucket-body details.doc-req-wrap.pm-req { margin-bottom: 0.5rem; }
 .pm-bucket-body .pm-comp-story details.doc-us-wrap.pm-us { margin-bottom: 0.5rem; }
 
-/* Print: reveal every bucket */
 @media print {
   details.pm-bucket { break-inside: avoid; box-shadow: none; }
   details.pm-bucket[open] > summary.pm-bucket-heading { border-bottom: none; }
@@ -1119,10 +1198,6 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   .pm-jump-nav { display: none; }
 }
 
-/* Blueprint badge (AC-17008-1). Rendered inside every pm-req summary
-   whose REQ came from an applied blueprint, and inside pm-req-parent
-   lines. Compact, low-contrast pill so it reads as attribution rather
-   than status. */
 .pm-blueprint-badge {
   display: inline-block;
   margin-left: 0.4rem;
@@ -1130,31 +1205,27 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 600;
-  color: var(--colour-muted);
-  background: var(--colour-surface-2);
-  border: 1px solid var(--colour-border);
+  color: var(--sv-muted);
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
   vertical-align: baseline;
   text-transform: none;
 }
 
-.pm-blueprint-cap {
-  margin: 0.85rem 0 0.25rem;
-}
+.pm-blueprint-cap { margin: 0.85rem 0 0.25rem; }
 .pm-blueprint-cap-heading {
   margin: 0 0 0.35rem;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--colour-muted);
+  color: var(--sv-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 .pm-blueprint-cap-count {
   font-weight: 500;
-  color: var(--colour-subtle);
+  color: var(--sv-control);
   margin-left: 0.25rem;
 }
-.pm-blueprint-cap-body {
-  display: block;
-}
+.pm-blueprint-cap-body { display: block; }
