@@ -1,0 +1,59 @@
+{
+  "usId": "US-204",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "An engineer sees the FBS DAG",
+  "description": "The Build tab's DAG sub-tab lays FBS out by dependency depth from `dependsOnFbsIds` with click-to-highlight closure, a dependency inspector, status/area/Buildable-now/Critical-path/Show-unconnected filters, a hidden unconnected lane with a count, and `#tab=build&sub=dag&entity=<id>` deep links so a node is a link. The canvas scrolls inside its own box and the viewer never scrolls horizontally. See viewer UI refresh design doc section 7.",
+  "asA": "an engineer looking at the build sequence",
+  "iWant": "a dependency DAG of the FBS with click-to-highlight closure, an inspector and filters",
+  "soThat": "I can see what feeds what, pick the next buildable work and spot the critical path without reading JSON",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-204-1",
+      "description": "[happy] Given the Build tab's DAG sub-tab, when it renders, then every connected FBS sits in a column whose index equals its longest dependency depth from `dependsOnFbsIds` (0 for no dependency) and rows inside a column are ordered by `buildOrder` ascending.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-2",
+      "description": "[happy] Given the DAG canvas, when a node is clicked, then it is selected, its upstream closure outlines in the link colour and its downstream closure outlines in the warning colour; a second click on the same node clears the selection.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-3",
+      "description": "[happy] Given a selected FBS, when the inspector renders, then it lists status, area, AC count, size, build order, a buildable-now flag, direct and transitive needs, direct and transitive waits-on and an \"Open in Specs\" link that moves to `#tab=build&sub=specs&entity=<id>`.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-4",
+      "description": "[happy] Given a selection, when it is set or cleared, then the hash becomes `#tab=build&sub=dag&entity=<id>` (or drops the entity key when cleared) and a reload with that hash restores the selection and scrolls the node into view.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-5",
+      "description": "[happy] Given the DAG toolbar, when the Status, Area, Buildable-now, Critical-path or Show-unconnected filter changes, then the visible nodes update and the current selection is kept.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-6",
+      "description": "[failure] Given a `dependsOnFbsIds` cycle on disk, when the DAG renders, then the cycle is reported as a finding in the toolbar area and the remaining non-cycle FBS still render.",
+      "testable": true
+    },
+    {
+      "id": "AC-204-7",
+      "description": "[must-not] Given the DAG canvas, when a node is clicked, filtered or inspected, then no `postMessage` is sent to the parent window and no outbound network request is made.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4131-build-dag-view"
+  ],
+  "tags": [
+    "view",
+    "build",
+    "dag"
+  ],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}
