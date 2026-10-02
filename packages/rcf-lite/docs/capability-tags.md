@@ -47,6 +47,7 @@ both.
 | `feedback-loop` | The local-capture-through-submit feedback pipeline. |
 | `define-detection` | The DEFINE detection model - freeze record, tree/document hashes, delta compute, gates and readiness. Names the "detect the change, do not configure it" seam Baz ruled on 2026-09-22. |
 | `define-ledgers` | The four `rcf/define/` sidecar ledgers (brief, decisions, concern, probe) and the `rcf define ledger` verb that keeps them numbered per project life. |
+| `define-intake` | Document intake into the brief ledger: `brief add --from` parses `[kind]` and `(source: ...)` markers, mints statements, runs the mechanical scans against existing statements and appends one `openQuestion` per finding. |
 
 ## Adding a new capability
 
