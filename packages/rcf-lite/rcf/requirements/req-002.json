@@ -2,7 +2,7 @@
   "reqId": "REQ-002",
   "prdId": "PRD-001",
   "title": "Visual review surface",
-  "description": "Build Lite renders the whole RCF tree as a diagram and as a browsable static page, so a non-coding owner can see the documents and their links without reading any JSON. The view is read-only and generated from the on-disk tree on demand. Build/DAG sub-tab lays FBS by `dependsOnFbsIds` depth with click-to-highlight closure, dependency inspector, filters, unconnected lane and `#tab=build&sub=dag&entity=` deep links, per viewer UI refresh design section 7. ID lookup over a server-built `./index.json` of every document id and AC, opened by the SearchButton or Cmd/Ctrl+F, navigates to `#tab=<tab>&entity=<id>` preserving `embed` and `theme`, per viewer UI refresh design section 6.",
+  "description": "Build Lite renders the whole RCF tree as a diagram and as a browsable static page, so a non-coding owner can see the documents and their links without reading any JSON. The view is read-only and generated from the on-disk tree on demand. Build/DAG sub-tab lays FBS by `dependsOnFbsIds` depth with click-to-highlight closure, dependency inspector, filters, unconnected lane and `#tab=build&sub=dag&entity=` deep links, per viewer UI refresh design section 7. ID lookup over a server-built `./index.json` of every document id and AC, opened by the SearchButton or Cmd/Ctrl+F, navigates to `#tab=<tab>&entity=<id>` preserving `embed` and `theme`, per viewer UI refresh design section 6. Embedding proof: a same-origin test-host fixture mounts the viewer with `embed=1` and `theme=` and the three lints keep framing headers, `target='_top'` and localStorage namespace in place, per viewer UI refresh design section 9 and Dex's wespa requirements of 2026-10-02.",
   "category": "functional",
   "domain": "view",
   "priority": "must",
@@ -16,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-10-02T19:00:00.000Z"
+  "updatedAt": "2026-10-02T20:00:00.000Z"
 }
