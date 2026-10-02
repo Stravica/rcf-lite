@@ -1133,13 +1133,19 @@
     var parts = ['tab=build'];
     var sub = currentBuildSub();
     if (sub && sub !== 'specs') parts.push('sub=' + encodeURIComponent(sub));
-    var state = readBuildFilterState();
-    if (state) {
-      if (state.q) parts.push('q=' + encodeURIComponent(state.q));
-      if (state.status) parts.push('status=' + encodeURIComponent(state.status));
-      if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
-      if (state.size) parts.push('size=' + encodeURIComponent(state.size));
-      if (state.buildable) parts.push('buildable=1');
+    if (sub === 'dag') {
+      var canvas = dagCanvas();
+      var sel = canvas && canvas.getAttribute('data-rcf-dag-sel');
+      if (sel) parts.push('entity=' + encodeURIComponent(sel));
+    } else {
+      var state = readBuildFilterState();
+      if (state) {
+        if (state.q) parts.push('q=' + encodeURIComponent(state.q));
+        if (state.status) parts.push('status=' + encodeURIComponent(state.status));
+        if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
+        if (state.size) parts.push('size=' + encodeURIComponent(state.size));
+        if (state.buildable) parts.push('buildable=1');
+      }
     }
     var extras = currentBuildHashExtras();
     if (extras.entity) parts.push('entity=' + encodeURIComponent(extras.entity));
@@ -1155,6 +1161,21 @@
   function applyBuildHash(params) {
     var sub = params.sub ? decodeURIComponent(params.sub) : 'specs';
     activateBuildSub(sub);
+    if (sub === 'dag') {
+      var canvas = dagCanvas();
+      var entity = params.entity ? decodeURIComponent(params.entity) : '';
+      if (canvas) {
+        if (entity) canvas.setAttribute('data-rcf-dag-sel', entity);
+        else canvas.removeAttribute('data-rcf-dag-sel');
+        applyDagFilters();
+        renderDagInspector();
+        if (entity) {
+          var el = canvas.querySelector('.rcf-dag-node[data-fbs-id="' + entity + '"]');
+          if (el) { try { el.scrollIntoView({ block: 'center', inline: 'center' }); } catch (e) { el.scrollIntoView(); } }
+        }
+      }
+      return;
+    }
     var state = {
       q: params.q ? decodeURIComponent(params.q) : '',
       status: params.status ? decodeURIComponent(params.status) : '',
@@ -1233,6 +1254,10 @@
         var sub = ev.currentTarget.getAttribute('data-sub');
         if (!sub) return;
         activateBuildSub(sub);
+        if (sub === 'dag' && dagCanvas()) {
+          applyDagFilters();
+          renderDagInspector();
+        }
         writeBuildHash();
       });
     }
@@ -1241,6 +1266,276 @@
   function wireBuildTab() {
     wireBuildSubTabStrip();
     wireBuildFilterBar();
+    wireBuildDag();
+  }
+
+  // ---- Build / DAG (viewer UI refresh PR 6, TAC-4131, ADR-4133) --------
+  //
+  // Client-side wiring for the Build/DAG sub-tab. The server emits the
+  // layout (toolbar, canvas with HTML nodes + SVG edges, inspector shell,
+  // unconnected lane) plus an inline <script type="application/json"
+  // data-rcf-dag-inspector-data> payload keyed by fbsId. The client:
+  //   - toggles filters (status chips, area, Buildable-now, Critical-path,
+  //     Show-unconnected) by setting data attributes on nodes and edges;
+  //   - handles click-to-highlight: selects a node, writes
+  //     `#tab=build&sub=dag&entity=<id>` through writeHash, outlines its
+  //     upstream closure in link colour and downstream in warning;
+  //   - fills the inspector from the inline payload (no outbound fetch,
+  //     no postMessage), with Open-in-Specs linking to
+  //     `#tab=build&sub=specs&entity=<id>` (REQ-002 / US-204 AC-204-7).
+
+  function dagRoot() { return document.querySelector('[data-rcf-dag="build"]'); }
+  function dagCanvas() { return document.querySelector('[data-rcf-dag-canvas]'); }
+  function dagToolbar() { return document.querySelector('[data-rcf-dag-toolbar]'); }
+  function dagInspectorBody() { return document.querySelector('[data-rcf-dag-inspector-body]'); }
+
+  function parseDagInspectorPayload() {
+    var dataNode = document.querySelector('[data-rcf-dag-inspector-data]');
+    if (!dataNode) return {};
+    try { return JSON.parse(dataNode.textContent || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function dagEscape(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function readDagState() {
+    var state = {
+      statuses: { notStarted: true, inProgress: true, complete: true, verified: true },
+      domain: '',
+      buildable: false,
+      critical: false,
+      unconnected: false,
+      sel: null,
+    };
+    var bar = dagToolbar();
+    if (bar) {
+      var statusChips = bar.querySelectorAll('[data-rcf-dag-status]');
+      for (var i = 0; i < statusChips.length; i += 1) {
+        var k = statusChips[i].getAttribute('data-rcf-dag-status');
+        state.statuses[k] = statusChips[i].getAttribute('aria-pressed') === 'true';
+      }
+      var dom = bar.querySelector('[data-rcf-dag-domain]');
+      if (dom) state.domain = dom.value || '';
+      var tbuild = bar.querySelector('[data-rcf-dag-toggle="buildable"]');
+      if (tbuild) state.buildable = tbuild.getAttribute('aria-pressed') === 'true';
+      var tcrit = bar.querySelector('[data-rcf-dag-toggle="critical"]');
+      if (tcrit) state.critical = tcrit.getAttribute('aria-pressed') === 'true';
+      var tunc = bar.querySelector('[data-rcf-dag-toggle="unconnected"]');
+      if (tunc) state.unconnected = tunc.getAttribute('aria-pressed') === 'true';
+    }
+    var canvas = dagCanvas();
+    if (canvas) state.sel = canvas.getAttribute('data-rcf-dag-sel') || null;
+    return state;
+  }
+
+  function dagClosure(payload, startId, dir) {
+    var out = {};
+    if (!payload[startId]) return out;
+    var stack = (dir === 'up' ? payload[startId].needs : payload[startId].waits).slice();
+    while (stack.length > 0) {
+      var cur = stack.pop();
+      if (out[cur]) continue;
+      out[cur] = true;
+      var p = payload[cur];
+      if (!p) continue;
+      var next = dir === 'up' ? p.needs : p.waits;
+      for (var i = 0; i < next.length; i += 1) stack.push(next[i]);
+    }
+    return out;
+  }
+
+  function applyDagFilters() {
+    var canvas = dagCanvas();
+    if (!canvas) return;
+    var payload = parseDagInspectorPayload();
+    var state = readDagState();
+    if (state.unconnected) canvas.removeAttribute('data-rcf-dag-unconnected-hidden');
+    else canvas.setAttribute('data-rcf-dag-unconnected-hidden', '1');
+
+    var ups = {};
+    var downs = {};
+    if (state.sel && payload[state.sel]) {
+      ups = dagClosure(payload, state.sel, 'up');
+      downs = dagClosure(payload, state.sel, 'down');
+    }
+    if (state.sel) canvas.setAttribute('data-rcf-dag-sel', state.sel);
+    else canvas.removeAttribute('data-rcf-dag-sel');
+
+    var nodes = canvas.querySelectorAll('.rcf-dag-node');
+    for (var i = 0; i < nodes.length; i += 1) {
+      var el = nodes[i];
+      var id = el.getAttribute('data-fbs-id');
+      var status = el.getAttribute('data-status') || '';
+      var domain = el.getAttribute('data-domain') || '';
+      var buildable = el.getAttribute('data-buildable') === '1';
+      var critical = el.getAttribute('data-critical') === '1';
+      var unconnected = el.getAttribute('data-unconnected') === '1';
+      var hide = false;
+      if (state.statuses[status] === false) hide = true;
+      if (!hide && state.domain && domain !== state.domain) hide = true;
+      if (!hide && state.buildable && !buildable) hide = true;
+      if (!hide && state.critical && !critical) hide = true;
+      if (unconnected && !state.unconnected) hide = true;
+      if (hide) el.setAttribute('data-rcf-dag-hidden', '1');
+      else el.removeAttribute('data-rcf-dag-hidden');
+      var role = '';
+      if (state.sel) {
+        if (id === state.sel) role = 'sel';
+        else if (ups[id]) role = 'up';
+        else if (downs[id]) role = 'down';
+      }
+      if (role) el.setAttribute('data-rcf-dag-role', role);
+      else el.removeAttribute('data-rcf-dag-role');
+      if (state.critical && critical) el.setAttribute('data-rcf-dag-critical', 'on');
+      else el.removeAttribute('data-rcf-dag-critical');
+    }
+
+    var edges = canvas.querySelectorAll('[data-rcf-dag-edge]');
+    for (var j = 0; j < edges.length; j += 1) {
+      var ed = edges[j];
+      var from = ed.getAttribute('data-from');
+      var to = ed.getAttribute('data-to');
+      var fromNode = canvas.querySelector('.rcf-dag-node[data-fbs-id="' + from + '"]');
+      var toNode = canvas.querySelector('.rcf-dag-node[data-fbs-id="' + to + '"]');
+      var filtered = (fromNode && fromNode.getAttribute('data-rcf-dag-hidden') === '1')
+        || (toNode && toNode.getAttribute('data-rcf-dag-hidden') === '1');
+      if (filtered) ed.setAttribute('data-rcf-dag-hidden', '1');
+      else ed.removeAttribute('data-rcf-dag-hidden');
+      var erole = '';
+      if (state.sel) {
+        var fromUp = from === state.sel || ups[from];
+        var toUp = to === state.sel || ups[to];
+        var fromDown = from === state.sel || downs[from];
+        var toDown = to === state.sel || downs[to];
+        if (fromUp && toUp) erole = 'up';
+        else if (fromDown && toDown) erole = 'down';
+      }
+      if (erole) ed.setAttribute('data-rcf-dag-edge-role', erole);
+      else ed.removeAttribute('data-rcf-dag-edge-role');
+    }
+  }
+
+  function renderDagInspector() {
+    var body = dagInspectorBody();
+    if (!body) return;
+    var payload = parseDagInspectorPayload();
+    var state = readDagState();
+    if (!state.sel || !payload[state.sel]) {
+      body.innerHTML = '<div class="muted small">Select a build spec to see what it needs and what waits on it.</div>';
+      return;
+    }
+    var f = payload[state.sel];
+    var meta = '<div class="rcf-dag-inspector-meta">'
+      + '<span class="rcf-pill rcf-pill--doc-status rcf-pill--' + dagEscape((f.status || '').toLowerCase()) + '">' + dagEscape(f.status || 'unknown') + '</span>'
+      + (f.domain ? '<span class="rcf-badge rcf-badge--facet">' + dagEscape(f.domain) + '</span>' : '')
+      + '<span class="rcf-badge rcf-badge--count">AC ' + (f.acCount || 0) + '</span>'
+      + (f.size ? '<span class="rcf-badge rcf-badge--facet">' + dagEscape(f.size) + '</span>' : '')
+      + '<span class="rcf-badge rcf-badge--count">order ' + (f.buildOrder != null ? f.buildOrder : '') + '</span>'
+      + (f.buildable ? '<span class="rcf-pill rcf-pill--build-queue">buildable now</span>' : '')
+      + (f.critical ? '<span class="rcf-pill rcf-pill--doc-status">critical path</span>' : '')
+      + '</div>';
+    var needsItems = (f.needsMeta || []).map(function (m) {
+      return '<li><a class="mono" href="#" data-rcf-dag-go="' + dagEscape(m.id) + '">' + dagEscape(m.id) + '</a> <span>' + dagEscape(m.title) + '</span> <span class="rcf-pill rcf-pill--doc-status rcf-pill--' + dagEscape((m.status || '').toLowerCase()) + '">' + dagEscape(m.status || '?') + '</span></li>';
+    }).join('');
+    var needsBlock = '<h4>Needs first (' + (f.needs ? f.needs.length : 0) + ' direct, ' + (f.needsTotal || 0) + ' in total)</h4>'
+      + (needsItems ? '<ul class="rcf-dag-inspector-list">' + needsItems + '</ul>' : '<div class="muted small">Nothing.</div>');
+    var waitsItems = (f.waitsMeta || []).map(function (m) {
+      return '<li><a class="mono" href="#" data-rcf-dag-go="' + dagEscape(m.id) + '">' + dagEscape(m.id) + '</a> <span>' + dagEscape(m.title) + '</span></li>';
+    }).join('');
+    var waitsBlock = '<h4>Waits on this (' + (f.waits ? f.waits.length : 0) + ' direct, ' + (f.waitsTotal || 0) + ' in total)</h4>'
+      + (waitsItems ? '<ul class="rcf-dag-inspector-list">' + waitsItems + '</ul>' : '<div class="muted small">Nothing.</div>');
+    var footer = '<p class="small" style="margin-top:0.8rem"><a href="#tab=build&sub=specs&entity=' + dagEscape(f.id) + '" data-rcf-dag-open-specs>Open in Specs</a> &middot; <a href="#" data-rcf-dag-go="" class="muted">Clear selection</a></p>';
+    body.innerHTML = '<div class="mono small" style="color:var(--sv-link)">' + dagEscape(f.id) + '</div>'
+      + '<h3>' + dagEscape(f.title) + '</h3>'
+      + meta
+      + needsBlock
+      + waitsBlock
+      + footer;
+
+    var goLinks = body.querySelectorAll('[data-rcf-dag-go]');
+    for (var i = 0; i < goLinks.length; i += 1) {
+      goLinks[i].addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var next = ev.currentTarget.getAttribute('data-rcf-dag-go');
+        if (!next) selectDagNode(null);
+        else selectDagNode(next);
+      });
+    }
+    var specsLink = body.querySelector('[data-rcf-dag-open-specs]');
+    if (specsLink) {
+      specsLink.addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var href = ev.currentTarget.getAttribute('href') || '';
+        writeHash(href, false);
+        resolveHash(window.location.hash);
+      });
+    }
+  }
+
+  function selectDagNode(id) {
+    var canvas = dagCanvas();
+    if (!canvas) return;
+    var cur = canvas.getAttribute('data-rcf-dag-sel') || null;
+    var payload = parseDagInspectorPayload();
+    var next = id === cur ? null : id;
+    if (next && !payload[next]) next = null;
+    if (next) canvas.setAttribute('data-rcf-dag-sel', next);
+    else canvas.removeAttribute('data-rcf-dag-sel');
+    if (next && payload[next] && payload[next].unconnected) {
+      var tunc = document.querySelector('[data-rcf-dag-toggle="unconnected"]');
+      if (tunc && tunc.getAttribute('aria-pressed') !== 'true') tunc.setAttribute('aria-pressed', 'true');
+    }
+    applyDagFilters();
+    renderDagInspector();
+    writeBuildHash();
+    if (next) {
+      var el = canvas.querySelector('.rcf-dag-node[data-fbs-id="' + next + '"]');
+      if (el) { try { el.scrollIntoView({ block: 'center', inline: 'center' }); } catch (e) { el.scrollIntoView(); } }
+    }
+  }
+
+  function wireBuildDag() {
+    var root = dagRoot();
+    if (!root || root.__rcfBuildDagWired) return;
+    root.__rcfBuildDagWired = true;
+    var canvas = dagCanvas();
+    if (canvas) {
+      var nodes = canvas.querySelectorAll('.rcf-dag-node');
+      for (var i = 0; i < nodes.length; i += 1) {
+        nodes[i].addEventListener('click', function (ev) {
+          ev.preventDefault && ev.preventDefault();
+          var id = ev.currentTarget.getAttribute('data-fbs-id');
+          if (id) selectDagNode(id);
+        });
+      }
+    }
+    var bar = dagToolbar();
+    if (bar) {
+      var statusChips = bar.querySelectorAll('[data-rcf-dag-status]');
+      for (var j = 0; j < statusChips.length; j += 1) {
+        statusChips[j].addEventListener('click', function (ev) {
+          var btn = ev.currentTarget;
+          btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+          applyDagFilters();
+        });
+      }
+      var dom = bar.querySelector('[data-rcf-dag-domain]');
+      if (dom) dom.addEventListener('change', function () { applyDagFilters(); });
+      var toggles = bar.querySelectorAll('[data-rcf-dag-toggle]');
+      for (var k = 0; k < toggles.length; k += 1) {
+        toggles[k].addEventListener('click', function (ev) {
+          var btn = ev.currentTarget;
+          btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+          applyDagFilters();
+        });
+      }
+    }
+    applyDagFilters();
+    renderDagInspector();
   }
 
   // ---- EntitySelector (viewer UI refresh PR 3, decision 4) -----

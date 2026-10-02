@@ -14,6 +14,7 @@ import { renderPage } from '../../src/view/html-page.js';
 import { buildTreeModel } from '../../src/view/tree-model.js';
 import { computeQueue } from '../../src/build/queue.js';
 import { renderBuildStats, renderSpecBody } from '../../src/view/doc-renderers/build.js';
+import { buildDagLayout, buildDagInspectorPayload, renderBuildDag } from '../../src/view/build-dag.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -106,11 +107,15 @@ test('Build tab mounts the SubTabStrip with Specs and DAG items', async () => {
   assert.match(slice, /data-sub="dag" aria-controls="build-sub-dag" aria-selected="false"/);
 });
 
-test('Build DAG sub-panel is an empty state naming PR 6', async () => {
+test('Build DAG sub-panel renders the DAG (toolbar, canvas, inspector shell)', async () => {
   const { html } = await renderLive();
   const slice = sliceBuildTab(html);
   assert.match(slice, /id="build-sub-dag"[^>]*data-rcf-subpanel="dag"[^>]*hidden/);
-  assert.match(slice, /DAG lands in viewer UI refresh PR 6/);
+  assert.match(slice, /data-rcf-dag="build"/);
+  assert.match(slice, /data-rcf-dag-toolbar/);
+  assert.match(slice, /data-rcf-dag-canvas/);
+  assert.match(slice, /data-rcf-dag-inspector/);
+  assert.match(slice, /data-rcf-dag-inspector-data/);
 });
 
 // ---------------------------------------------------------------------
@@ -237,6 +242,181 @@ test('page-init.js carries the Build FilterBar + SubTab wiring', () => {
   ]) {
     assert.match(pageInit, new RegExp(marker.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')));
   }
+});
+
+// ---------------------------------------------------------------------
+// DAG sub-tab (viewer UI refresh PR 6; US-204, TAC-4131, ADR-4133)
+// ---------------------------------------------------------------------
+
+test('buildDagLayout: columns are dependency-depth tiers from dependsOnFbsIds (AC-204-1)', () => {
+  const fbsItems = [
+    { fbsId: 'FBS-001', buildOrder: 1, executionStatus: 'complete', dependsOnFbsIds: [] },
+    { fbsId: 'FBS-002', buildOrder: 2, executionStatus: 'complete', dependsOnFbsIds: ['FBS-001'] },
+    { fbsId: 'FBS-003', buildOrder: 3, executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-002'] },
+    { fbsId: 'FBS-004', buildOrder: 4, executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-001', 'FBS-002'] },
+  ];
+  const layout = buildDagLayout(fbsItems, new Set(['FBS-003', 'FBS-004']));
+  assert.equal(layout.columns.length, 3);
+  assert.deepEqual(layout.columns[0], ['FBS-001']);
+  assert.deepEqual(layout.columns[1], ['FBS-002']);
+  assert.deepEqual(layout.columns[2].sort(), ['FBS-003', 'FBS-004']);
+  assert.equal(layout.nodes.get('FBS-001').depth, 0);
+  assert.equal(layout.nodes.get('FBS-002').depth, 1);
+  assert.equal(layout.nodes.get('FBS-003').depth, 2);
+  assert.equal(layout.nodes.get('FBS-004').depth, 2);
+});
+
+test('buildDagLayout: unconnected lane holds FBS with no incoming and no outgoing edge', () => {
+  const fbsItems = [
+    { fbsId: 'FBS-001', buildOrder: 1, executionStatus: 'complete', dependsOnFbsIds: [] },
+    { fbsId: 'FBS-002', buildOrder: 2, executionStatus: 'complete', dependsOnFbsIds: ['FBS-001'] },
+    { fbsId: 'FBS-010', buildOrder: 10, executionStatus: 'notStarted', dependsOnFbsIds: [] },
+    { fbsId: 'FBS-011', buildOrder: 11, executionStatus: 'notStarted', dependsOnFbsIds: [] },
+  ];
+  const layout = buildDagLayout(fbsItems, new Set());
+  assert.deepEqual(layout.unconnectedIds.sort(), ['FBS-010', 'FBS-011']);
+  assert.equal(layout.nodes.get('FBS-010').unconnected, true);
+  assert.equal(layout.nodes.get('FBS-001').unconnected, false);
+});
+
+test('buildDagLayout: closures carry upstream and downstream transitively (AC-204-2 / AC-204-3)', () => {
+  const fbsItems = [
+    { fbsId: 'FBS-001', buildOrder: 1, dependsOnFbsIds: [] },
+    { fbsId: 'FBS-002', buildOrder: 2, dependsOnFbsIds: ['FBS-001'] },
+    { fbsId: 'FBS-003', buildOrder: 3, dependsOnFbsIds: ['FBS-002'] },
+    { fbsId: 'FBS-004', buildOrder: 4, dependsOnFbsIds: ['FBS-003'] },
+  ];
+  const layout = buildDagLayout(fbsItems, new Set());
+  assert.deepEqual(layout.nodes.get('FBS-003').upstream.sort(), ['FBS-001', 'FBS-002']);
+  assert.deepEqual(layout.nodes.get('FBS-002').downstream.sort(), ['FBS-003', 'FBS-004']);
+});
+
+test('buildDagLayout: critical path is the longest chain by node count (ADR-4133)', () => {
+  const fbsItems = [
+    { fbsId: 'FBS-001', buildOrder: 1, dependsOnFbsIds: [] },
+    { fbsId: 'FBS-002', buildOrder: 2, dependsOnFbsIds: ['FBS-001'] },
+    { fbsId: 'FBS-003', buildOrder: 3, dependsOnFbsIds: ['FBS-002'] },
+    { fbsId: 'FBS-004', buildOrder: 4, dependsOnFbsIds: ['FBS-003'] },
+    { fbsId: 'FBS-010', buildOrder: 10, dependsOnFbsIds: ['FBS-001'] },
+  ];
+  const layout = buildDagLayout(fbsItems, new Set());
+  assert.deepEqual(layout.criticalPathIds, ['FBS-001', 'FBS-002', 'FBS-003', 'FBS-004']);
+  assert.equal(layout.nodes.get('FBS-002').critical, true);
+  assert.equal(layout.nodes.get('FBS-010').critical, false);
+});
+
+test('buildDagLayout: cycles are surfaced as cycleIds and excluded from depth layout (AC-204-6)', () => {
+  const fbsItems = [
+    { fbsId: 'FBS-001', buildOrder: 1, dependsOnFbsIds: [] },
+    { fbsId: 'FBS-002', buildOrder: 2, dependsOnFbsIds: ['FBS-001'] },
+    { fbsId: 'FBS-010', buildOrder: 10, dependsOnFbsIds: ['FBS-011'] },
+    { fbsId: 'FBS-011', buildOrder: 11, dependsOnFbsIds: ['FBS-010'] },
+  ];
+  const layout = buildDagLayout(fbsItems, new Set());
+  assert.deepEqual(layout.cycleIds.sort(), ['FBS-010', 'FBS-011']);
+  // The two cycle members are excluded from the depth columns; the two
+  // non-cycle FBS still render.
+  const connected = layout.columns.flat();
+  assert.ok(connected.includes('FBS-001'));
+  assert.ok(connected.includes('FBS-002'));
+  assert.ok(!connected.includes('FBS-010'));
+  assert.ok(!connected.includes('FBS-011'));
+});
+
+test('renderBuildDag: toolbar renders status chips, area select, three toggles and the unconnected count', async () => {
+  const { model } = await renderLive();
+  const queue = computeQueue({ fbsItems: model.fbsItems });
+  const buildableIds = new Set(queue.items.filter((i) => i.state === 'actionable').map((i) => i.fbsId));
+  const layout = buildDagLayout(model.fbsItems, buildableIds);
+  const html = renderBuildDag({ layout });
+  assert.match(html, /data-rcf-dag-status="notStarted"/);
+  assert.match(html, /data-rcf-dag-status="inProgress"/);
+  assert.match(html, /data-rcf-dag-status="complete"/);
+  assert.match(html, /data-rcf-dag-status="verified"/);
+  assert.match(html, /data-rcf-dag-domain/);
+  assert.match(html, /data-rcf-dag-toggle="buildable"/);
+  assert.match(html, /data-rcf-dag-toggle="critical"/);
+  assert.match(html, /data-rcf-dag-toggle="unconnected"/);
+  assert.match(html, new RegExp(`data-rcf-dag-toggle="unconnected"[^>]*>Show unconnected <span class="rcf-badge rcf-badge--count">${layout.unconnectedIds.length}</span>`));
+});
+
+test('renderBuildDag: canvas carries one node per FBS with data-fbs-id, data-status and data-depth', async () => {
+  const { model } = await renderLive();
+  const layout = buildDagLayout(model.fbsItems, new Set());
+  const html = renderBuildDag({ layout });
+  for (const f of model.fbsItems) {
+    assert.match(html, new RegExp(`data-fbs-id="${f.fbsId}"`));
+  }
+  assert.match(html, /data-depth="0"/);
+});
+
+test('renderBuildDag: edge paths carry data-from and data-to for client role toggling', async () => {
+  const { model } = await renderLive();
+  const layout = buildDagLayout(model.fbsItems, new Set());
+  const html = renderBuildDag({ layout });
+  // FBS-002 depends on FBS-001 in the dogfood tree.
+  assert.match(html, /data-from="FBS-001" data-to="FBS-002"/);
+});
+
+test('buildDagInspectorPayload: carries status/area/order/AC/buildable + needs and waits (AC-204-3)', async () => {
+  const { model } = await renderLive();
+  const queue = computeQueue({ fbsItems: model.fbsItems });
+  const buildableIds = new Set(queue.items.filter((i) => i.state === 'actionable').map((i) => i.fbsId));
+  const layout = buildDagLayout(model.fbsItems, buildableIds);
+  const payload = buildDagInspectorPayload(layout);
+  // FBS-008 (the design evidence pick): has needs and waits.
+  const p = payload['FBS-008'];
+  assert.ok(p, 'inspector payload has FBS-008');
+  assert.equal(typeof p.status, 'string');
+  assert.ok(Array.isArray(p.needs));
+  assert.ok(Array.isArray(p.waits));
+  assert.ok(Array.isArray(p.upstream));
+  assert.ok(Array.isArray(p.downstream));
+  assert.equal(typeof p.buildable, 'boolean');
+  assert.ok('needsMeta' in p);
+  assert.ok('waitsMeta' in p);
+});
+
+test('Build DAG unconnected-lane count matches the no-in-no-out FBS set on the dogfood tree', async () => {
+  const { model } = await renderLive();
+  const layout = buildDagLayout(model.fbsItems, new Set());
+  // Independently compute the count the design doc gap (b) names.
+  const byId = new Set();
+  for (const f of model.fbsItems) byId.add(f.fbsId);
+  const inDeg = new Map();
+  const outDeg = new Map();
+  for (const f of model.fbsItems) {
+    const d = Array.isArray(f.dependsOnFbsIds) ? f.dependsOnFbsIds.filter((x) => byId.has(x)) : [];
+    outDeg.set(f.fbsId, d.length);
+    for (const dep of d) inDeg.set(dep, (inDeg.get(dep) ?? 0) + 1);
+  }
+  const expected = model.fbsItems.filter((f) => (outDeg.get(f.fbsId) ?? 0) === 0 && (inDeg.get(f.fbsId) ?? 0) === 0).length;
+  assert.equal(layout.unconnectedIds.length, expected);
+});
+
+test('page-init.js carries the Build/DAG wiring (click-to-highlight, hash round-trip, filters)', () => {
+  const pageInit = readFileSync(resolve(repoRoot, 'src', 'view', 'page-init.js'), 'utf8');
+  for (const marker of [
+    'wireBuildDag',
+    'selectDagNode',
+    'applyDagFilters',
+    'renderDagInspector',
+    'data-rcf-dag-sel',
+    'data-rcf-dag-toggle',
+    "#tab=build&sub=specs&entity=",
+  ]) {
+    assert.match(pageInit, new RegExp(marker.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')));
+  }
+});
+
+test('Build/DAG renderer never emits window.postMessage (AC-204-7, no outbound postMessage)', async () => {
+  const { html } = await renderLive();
+  // The DAG canvas itself must not generate a postMessage call anywhere
+  // in the rendered page. The guard is on the renderer and the inspector
+  // payload (the inline JSON script); the shared live-client/page-init
+  // scripts are the only JS surfaces and neither posts out from the DAG.
+  const slice = sliceBuildTab(html);
+  assert.doesNotMatch(slice, /postMessage\s*\(/);
 });
 
 // ---------------------------------------------------------------------

@@ -17,8 +17,9 @@ test('buildTreeModel produces storiesByReqId for the live tree', async () => {
   const model = buildTreeModel(result);
   const req2Stories = model.storiesByReqId.get('REQ-002');
   assert.ok(req2Stories);
-  assert.equal(req2Stories.length, 3);
-  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203']);
+  // US-204 landed under REQ-002 in viewer UI refresh PR 6 (DAG amendments).
+  assert.equal(req2Stories.length, 4);
+  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203', 'US-204']);
 });
 
 test('buildTreeModel produces fbsByAcId pointing to delivering FBSs', async () => {

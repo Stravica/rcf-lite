@@ -57,6 +57,7 @@ import { pill } from './components/pill.js';
 import { renderEmptyState } from './components/empty-state.js';
 import { renderEntitySelector } from './components/entity-selector.js';
 import { renderSubTabStrip } from './components/sub-tab-strip.js';
+import { buildDagLayout, buildDagInspectorPayload, renderBuildDag, renderDagInspectorData } from './build-dag.js';
 import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
@@ -664,8 +665,11 @@ function buildAdrFilterText(adr) {
  *      complete, inProgress, notStarted, buildable now). "Buildable now"
  *      equals `queue.totals.actionable` - the authoritative state the
  *      queue computes from `dependsOnFbsIds` and `executionStatus`.
- *   2. SubTabStrip Specs | DAG; DAG renders a placeholder empty state
- *      naming PR 6 (decision 6 + decision 12).
+ *   2. SubTabStrip Specs | DAG (decision 6 + decision 12). The DAG
+ *      sub-panel (PR 6) lays FBS by `dependsOnFbsIds` depth with
+ *      click-to-highlight closure, an inspector and the unconnected
+ *      lane; `renderBuildDag` emits the full panel HTML string from
+ *      `buildDagLayout(fbsItems, buildableIds)`.
  *   3. Specs sub-tab: FilterBar (text, status, area, size, Buildable-now
  *      toggle) over a shared DocRow list; row meta carries order, AC
  *      count, deps count, size, buildable pill, status.
@@ -711,7 +715,9 @@ function renderBuildPanel(model) {
   });
 
   const specsPanel = renderBuildSpecsPanel(model, fbsItems, buildableIds);
-  const dagPanel = renderBuildDagPlaceholder();
+  const dagLayout = buildDagLayout(fbsItems, buildableIds);
+  const dagPanel = renderBuildDag({ layout: dagLayout })
+    + renderDagInspectorData(buildDagInspectorPayload(dagLayout));
   // Hidden anchor so #BS-001 / #entity=BS-001 still resolve to this tab.
   const bsAnchor = model.bs
     ? `<span class="rcf-build-anchor" data-doc-id="${escapeHtml(model.bs.bsId)}" aria-hidden="true"></span>`
@@ -767,13 +773,6 @@ function renderBuildSpecsPanel(model, fbsItems, buildableIds) {
 <div class="rcf-build-specs-list" data-rcf-list="build-specs">
 ${rows}
 </div>`;
-}
-
-function renderBuildDagPlaceholder() {
-  return renderEmptyState({
-    title: 'DAG lands in viewer UI refresh PR 6',
-    hint: 'The dependency graph (layered by depth from dependsOnFbsIds, inspector, unconnected lane) sits here when PR 6 lands. Specs are reachable in the Specs sub-tab.',
-  });
 }
 
 function renderSpecRow(fbs, model, buildableIds) {
