@@ -1760,3 +1760,116 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
 }
 .rcf-entity-selector-chip .rcf-badge { background: transparent; }
 .rcf-entity-selector-chip:hover .rcf-badge-value { color: var(--sv-link); }
+
+/* ---- Architecture tab (viewer UI refresh PR 4) --------------------- */
+
+.rcf-architecture-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem 0;
+  padding: 0.3rem 0;
+  flex-wrap: wrap;
+}
+.rcf-architecture-head-id {
+  font-weight: 600;
+  color: var(--sv-ink);
+}
+.rcf-architecture-head-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.rcf-tad-group-heading,
+.rcf-architecture-components > .group-heading,
+.rcf-architecture-decisions > .group-heading {
+  margin: 1.1rem 0 0.5rem 0;
+}
+
+.rcf-tad-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.rcf-tad-section > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.rcf-tad-section > summary::before {
+  flex: 0 0 auto;
+}
+.rcf-tad-section-title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.rcf-tad-section-title > strong {
+  color: var(--sv-ink);
+}
+.rcf-tad-preview {
+  color: var(--sv-muted);
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(60ch, 70vw);
+}
+.rcf-tad-section--empty .rcf-tad-preview {
+  font-style: italic;
+}
+.rcf-tad-empty {
+  color: var(--sv-muted);
+  margin: 0;
+}
+.rcf-tad-empty-command {
+  background: var(--sv-code);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--r);
+  font-family: var(--sv-mono);
+  font-size: 0.85em;
+  word-break: break-all;
+}
+.rcf-tad-raw {
+  margin: 0.6rem 0 1rem 0;
+}
+.rcf-tad-raw > summary {
+  cursor: pointer;
+  color: var(--sv-muted);
+}
+.rcf-tad-raw > pre {
+  background: var(--sv-code);
+  padding: 0.5rem;
+  overflow: auto;
+  max-height: 24rem;
+  border-radius: var(--r);
+}
+.rcf-tad-anchor {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+.rcf-arch-row > summary .id {
+  font-family: var(--sv-mono);
+  font-size: 0.85em;
+  color: var(--sv-muted);
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rcf-tac-list,
+.rcf-adr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.rcf-architecture-components,
+.rcf-architecture-decisions {
+  margin-top: 0.5rem;
+}
