@@ -540,8 +540,25 @@
     };
   }
 
+  // Connection pill: the shell footer renders #rcf-conn-pill (viewer UI
+   // refresh PR 1 follow-up: pill moved from a floating top-right dot
+   // into the footer). If the pill is missing (older shell, embedded
+   // snippet, no-shell contexts), fall back to injecting a floating dot
+   // so the live-status signal is never silently dropped.
+  function pillLabelFor(state) {
+    if (state === 'connected') return 'Live updates on';
+    if (state === 'reconnecting') return 'Reconnecting…';
+    return 'Disconnected';
+  }
+
+  function pillTitleFor(state) {
+    if (state === 'connected') return 'Connected - live updates on';
+    if (state === 'reconnecting') return 'Reconnecting to view server...';
+    return 'Disconnected from view server';
+  }
+
   function injectConnectionDot(doc) {
-    if (doc.getElementById('rcf-conn-dot')) return;
+    if (doc.getElementById('rcf-conn-pill') || doc.getElementById('rcf-conn-dot')) return;
     var style = doc.createElement('style');
     style.textContent = [
       '#rcf-conn-dot {',
@@ -565,12 +582,18 @@
   }
 
   function updateDot(doc, state) {
+    var pill = doc.getElementById('rcf-conn-pill');
+    if (pill) {
+      pill.className = 'live ' + state;
+      pill.title = pillTitleFor(state);
+      var label = pill.querySelector('.label');
+      if (label) label.textContent = pillLabelFor(state);
+      return;
+    }
     var dot = doc.getElementById('rcf-conn-dot');
     if (!dot) return;
     dot.className = state;
-    if (state === 'connected') dot.title = 'Connected - live updates on';
-    else if (state === 'reconnecting') dot.title = 'Reconnecting to view server...';
-    else dot.title = 'Disconnected from view server';
+    dot.title = pillTitleFor(state);
   }
 
   // ---- module exports (for node:vm tests) --------------------------------

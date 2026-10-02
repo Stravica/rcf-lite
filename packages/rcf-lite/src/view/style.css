@@ -198,19 +198,21 @@ header.app-header .bar {
   gap: 1rem;
 }
 
+/* D17: icon mark only; the tool name is NOT shown as text. The stack
+   under review (project name) is the prominent text in .product, with
+   a muted "review surface" sub-label; no technology chip. */
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-weight: 700;
+  gap: 0.4rem;
+  color: var(--sv-muted);
   white-space: nowrap;
-  color: var(--sv-ink);
 }
 
 .brand .mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
   background: var(--sv-ink);
   display: inline-block;
   position: relative;
@@ -220,18 +222,34 @@ header.app-header .bar {
 .brand .mark::after {
   content: '';
   position: absolute;
-  inset: 5px 7px;
-  border-left: 3px solid var(--sv-link);
-  border-bottom: 3px solid var(--sv-link);
+  inset: 4px 6px;
+  border-left: 2.5px solid var(--sv-link);
+  border-bottom: 2.5px solid var(--sv-link);
   transform: skewX(-12deg);
 }
 
-.brand .brand-name { font-weight: 700; }
-.brand .brand-sub {
-  font-weight: 400;
+.product {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  min-width: 0;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--sv-border);
+}
+
+.product .name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--sv-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product .sub {
+  font-size: 0.72rem;
+  font-weight: 500;
   color: var(--sv-muted);
-  font-size: 0.85rem;
-  margin-left: 0.15rem;
 }
 
 nav.tabs {
@@ -286,9 +304,9 @@ nav.tabs button:focus-visible {
   flex-shrink: 0;
 }
 
-/* Embed contract: data-embed="1" hides the brand block and the footer
-   but keeps the tabstrip (and its sticky positioning) in place. */
-html[data-embed="1"] .brand { display: none; }
+/* Embed contract (D10): data-embed="1" suppresses the footer and
+   left-aligns the tab nav; the icon mark and project name stay (D17
+   keeps the stack under review named even under embed). */
 html[data-embed="1"] .app-footer { display: none; }
 html[data-embed="1"] nav.tabs { margin-left: 0; }
 
@@ -774,16 +792,57 @@ code {
  * Footer
  * -------------------------------------------------------------------- */
 
+/* Shell footer: one compact muted line - version, GitHub, docs
+   links (new tab, rel="noopener", never target="_top") and the
+   live-update pill as the current viewer's connection dot. Hidden
+   under data-embed="1" per the Dex / wespa contract. */
 footer.app-footer {
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.55rem 1rem;
   border-top: 1px solid var(--sv-border);
   color: var(--sv-muted);
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
+
+footer.app-footer a {
+  color: var(--sv-link);
+  text-decoration: none;
+}
+
+footer.app-footer a:hover { text-decoration: underline; }
+
+footer.app-footer .sep { color: var(--sv-control); }
+
+footer.app-footer .live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--sv-control);
+  border-radius: 999px;
+  background: var(--sv-raised);
+  white-space: nowrap;
+  color: var(--sv-muted);
+}
+
+footer.app-footer .live .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4c9a2a;
+  display: inline-block;
+}
+
+footer.app-footer .live.reconnecting .dot { background: #d68f00; }
+footer.app-footer .live.disconnected .dot { background: #b03a2e; }
 
 /* --------------------------------------------------------------------
  * Print
@@ -806,8 +865,11 @@ footer.app-footer {
  * -------------------------------------------------------------------- */
 
 @media (max-width: 720px) {
-  header.app-header .bar { flex-wrap: wrap; padding: 0.5rem 0.75rem 0; }
-  nav.tabs { order: 3; width: 100%; margin-left: 0; }
+  header.app-header .bar { flex-wrap: wrap; gap: 0.75rem; padding: 0.5rem 0.75rem 0; }
+  .product { flex: 1; }
+  .product .sub { display: none; }
+  /* Narrow: tabs wrap beneath the bar as their own full-width row. */
+  nav.tabs { order: 3; flex: 1 1 100%; margin-left: 0; }
   nav.tabs button { padding: 0 0.65rem; font-size: 0.9rem; }
   main { padding: 1rem 0.75rem 2rem; }
   article.doc { padding: 1rem 1.15rem; }

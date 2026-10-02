@@ -29,6 +29,10 @@
 //     the Router (#tab=&sub=&entity=, bare #REQ-002, host query
 //     preserved on every write).
 
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import {
   renderAdr,
   renderBuildSequence,
@@ -44,6 +48,12 @@ import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 import { renderProductMapPanel } from './product-map.js';
 import { renderReadinessPanel } from './readiness.js';
+
+// Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
+// Used by the shell footer so the muted "RCF Lite X.Y.Z" line tracks the
+// installed package without a build step.
+const pkgJsonPath = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json');
+const RCF_LITE_VERSION = JSON.parse(readFileSync(pkgJsonPath, 'utf8')).version;
 
 // Inline SVG favicon: the Stravica kit mark (deep-navy tile with the
 // ribbon symbol in Stravica blue), taken from the estate brand kit at
@@ -87,10 +97,12 @@ export function renderPage(model) {
 <body>
   <header class="app-header">
     <div class="bar">
-      <div class="brand">
+      <div class="brand" title="Review surface">
         <span class="mark" aria-hidden="true"></span>
-        <span class="brand-name">${escapeHtml(projectName)}</span>
-        <span class="brand-sub">RCF review surface</span>
+      </div>
+      <div class="product">
+        <span class="name">${escapeHtml(projectName)}</span>
+        <span class="sub">review surface</span>
       </div>
       <nav class="tabs" role="tablist" aria-label="Document sections">
         <button type="button" role="tab" data-tab="readiness" aria-selected="true" aria-controls="tab-readiness">Readiness</button>
@@ -109,8 +121,17 @@ export function renderPage(model) {
     ${LIVE_WRAPPER_CLOSE}
   </main>
   <footer class="app-footer">
-    <p>Generated from the on-disk RCF tree at <code>rcf/</code>. Read-only; changes on disk stream to this tab automatically.</p>
-    <p>Learn more about the Requirements Confidence Framework at <a href="https://stravica.ai/rcf-methodology" target="_blank" rel="noopener">stravica.ai/rcf-methodology</a>.</p>
+    <span class="ver">RCF Lite ${escapeHtml(RCF_LITE_VERSION)}</span>
+    <span class="sep" aria-hidden="true">&middot;</span>
+    <a href="https://github.com/Stravica/rcf-lite" target="_blank" rel="noopener">rcf-lite on GitHub</a>
+    <span class="sep" aria-hidden="true">&middot;</span>
+    <a href="https://stravica.ai/docs/rcf/" target="_blank" rel="noopener">RCF Lite docs</a>
+    <span class="sep" aria-hidden="true">&middot;</span>
+    <a href="https://stravica.ai/rcf-methodology/" target="_blank" rel="noopener">RCF method docs</a>
+    <span id="rcf-conn-pill" class="live reconnecting" role="status" aria-live="polite" title="Connecting to view server...">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="label">Connecting&hellip;</span>
+    </span>
   </footer>
   <script src="./mermaid.min.js"></script>
   <script src="./page-init.js" defer></script>

@@ -204,12 +204,21 @@ test('renderPage carries raw-json data-doc-id for every main doc (Phase 3.8 D13b
   }
 });
 
-test('renderPage footer refers to live streaming rather than manual regenerate (Phase 3.8)', async () => {
+test('renderPage footer carries the shell live-update pill rather than manual regenerate (viewer UI refresh PR 1 follow-up)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  assert.match(html, /stream to this tab automatically/);
+  // The shell footer is one muted line: version, rcf-lite on GitHub,
+  // RCF Lite docs, RCF method docs, live-update pill. The pre-PR-1
+  // Phase 3.8 "stream to this tab automatically" paragraph is retired
+  // in favour of the pill (connected / reconnecting / disconnected),
+  // which live-client.js keeps in step with the EventSource state.
+  assert.match(html, /<span id="rcf-conn-pill" class="live reconnecting"/);
+  assert.match(html, /rcf-lite on GitHub/);
+  assert.match(html, /RCF Lite docs/);
+  assert.match(html, /RCF method docs/);
   assert.doesNotMatch(html, /regenerate with/);
+  assert.doesNotMatch(html, /stream to this tab automatically/);
 });
 
 test('page-init.js wires the rcfPage.init entry and idempotence markers (viewer UI refresh PR 1)', async () => {
