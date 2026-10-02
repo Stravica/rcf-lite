@@ -19,6 +19,113 @@ import { scanArtefactForFindings } from './validate.js';
 import { composeIntakeRecord } from './manifest-writer.js';
 
 /**
+ * Run the mechanical intake scans over newly minted brief statements
+ * against every pre-existing brief statement. The scans operate on
+ * the raw text of the statements; a finding is attributed to the
+ * ids of every statement whose text the scan matched (an
+ * `impliedButNotStated` cue in one new statement with the matching
+ * negated-login phrase elsewhere attributes to both). On a frozen
+ * tree the caller passes every pre-existing statement as `existing`;
+ * the comparison set is `existing` by definition.
+ *
+ * Each returned finding carries:
+ *   { kind, detail, scanName, ids: number[] }
+ * where `kind` is one of the three mechanical kinds from
+ * `scanArtefactForFindings`, `ids` lists the involved statement ids
+ * from `newStatements` first and then `existing` (duplicates
+ * removed), and `scanName` is `kind` for the DEFINE PR 1 wiring.
+ *
+ * @param {Array<{ id: number, text?: string }>} newStatements
+ * @param {Array<{ id: number, text?: string }>} existing
+ * @returns {Array<{ kind: string, detail: string, scanName: string, ids: number[] }>}
+ */
+export function runIntakeScansOnDelta(newStatements, existing) {
+  const safeNew = Array.isArray(newStatements) ? newStatements : [];
+  const safeExisting = Array.isArray(existing) ? existing : [];
+  if (safeNew.length === 0) return [];
+
+  const combined = [...safeNew, ...safeExisting];
+  const combinedText = combined.map((s) => (typeof s?.text === 'string' ? s.text : '')).join('\n');
+  const rawFindings = scanArtefactForFindings(combinedText);
+  if (rawFindings.length === 0) return [];
+
+  // A finding only counts when at least one of the newStatements
+  // participates. We attribute by re-running the scan over the
+  // `newStatements` alone (if that yields the same kind of finding,
+  // the new side is sufficient) OR by running the scan over any
+  // (new, existing) pair that contains at least one new statement:
+  // the second case detects a contradiction between a new and an
+  // existing statement.
+  /** @type {Array<{ kind: string, detail: string, scanName: string, ids: number[] }>} */
+  const out = [];
+  const seen = new Set();
+  for (const f of rawFindings) {
+    const key = `${f.kind}::${f.detail}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const ids = attributeFinding(f, safeNew, safeExisting);
+    if (ids.length === 0) continue;
+    out.push({ kind: f.kind, detail: f.detail, scanName: f.kind, ids });
+  }
+  return out;
+}
+
+/**
+ * @param {{ kind: string, detail: string }} finding
+ * @param {Array<{ id: number, text?: string }>} newStatements
+ * @param {Array<{ id: number, text?: string }>} existing
+ * @returns {number[]}
+ */
+function attributeFinding(finding, newStatements, existing) {
+  /** @type {number[]} */
+  const ids = [];
+  for (const s of newStatements) {
+    if (statementParticipates(finding, s, [...newStatements, ...existing])) {
+      ids.push(Number(s.id));
+    }
+  }
+  if (ids.length === 0) return ids;
+  // Also attribute an existing statement that participates on the other side.
+  for (const s of existing) {
+    if (statementParticipates(finding, s, [...newStatements, ...existing])) {
+      if (!ids.includes(Number(s.id))) ids.push(Number(s.id));
+    }
+  }
+  return ids;
+}
+
+/**
+ * Decide whether `statement.text` contributes to `finding`. The scan
+ * is pattern-based and finds the same finding kind on the text in
+ * isolation if the statement itself carries the full pattern; for
+ * cross-statement findings (a contradiction between two statements)
+ * the statement contributes when it carries at least one half of the
+ * pattern and the other half appears somewhere in the combined set.
+ *
+ * @param {{ kind: string, detail: string }} finding
+ * @param {{ id: number, text?: string }} statement
+ * @param {Array<{ id: number, text?: string }>} combined
+ */
+function statementParticipates(finding, statement, combined) {
+  const text = typeof statement?.text === 'string' ? statement.text : '';
+  if (!text) return false;
+  const soloFindings = scanArtefactForFindings(text).map((f) => f.kind);
+  if (soloFindings.includes(finding.kind)) return true;
+  // Cross-statement: pair this statement's text with every other
+  // combined text and see whether the pair raises the same finding.
+  for (const other of combined) {
+    if (other === statement) continue;
+    const otherText = typeof other?.text === 'string' ? other.text : '';
+    if (!otherText) continue;
+    const pairFindings = scanArtefactForFindings(`${text}\n${otherText}`).map((f) => f.kind);
+    if (pairFindings.includes(finding.kind) && !soloFindings.includes(finding.kind)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * @typedef {'napkin'|'productBrief'|'prd'|'tad'|'other'} ArtefactKind
  */
 

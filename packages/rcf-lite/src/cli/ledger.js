@@ -16,11 +16,14 @@ import {
   LEDGER_NAMES,
   LedgerError,
   addEntry,
+  isResolvedByGrammar,
   loadLedger,
   parseBriefFromFile,
   resolveEntry,
   saveLedger,
+  updateEntry,
 } from '../define/ledgers.js';
+import { runIntakeScansOnDelta } from '../intake/orchestrator.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
@@ -39,6 +42,11 @@ const OPTION_SPEC = {
   disposition: { type: 'string' },
   finding: { type: 'string' },
   severity: { type: 'string' },
+  scan: { type: 'boolean' },
+  'no-scan': { type: 'boolean' },
+  findings: { type: 'string' },
+  'dry-run': { type: 'boolean' },
+  'resolved-by': { type: 'string' },
   json: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -57,6 +65,7 @@ Ledger names:
 
 Verbs:
   add                       Append a new entry, next id
+  update <id>               Patch named fields on an existing entry
   resolve <id>              Flip status to resolved, stamp resolvedAt
   list                      Print every entry (JSON with --json)
 
@@ -68,8 +77,18 @@ brief add flags:
   --kind <${BRIEF_KINDS.join('|')}>
                             Statement kind (default: capability)
   --text <text>             The statement text (mutually exclusive with --from)
-  --from <path>             Read one statement per non-empty line from a file
-  --source <span>           Optional source span label (file:line, URL, note)
+  --from <path>             Read one statement per non-empty line from a file;
+                            each line may carry [kind] and (source: ...) markers
+  --source <span>           Default source span when a line has no marker
+  --scan                    Run the intake scans over new statements against
+                            existing ones (default on with --from, off with --text)
+  --no-scan                 Skip scans
+  --findings <path>         Harness-supplied findings JSON (same shape
+                            rcf discover intake --input accepts). Each finding
+                            becomes an openQuestion statement
+  --dry-run                 Print the statements and findings that would be
+                            minted; write nothing
+  --json                    Emit { added[], findings[] } for scripting
 
 decisions add flags:
   --question <text>         The decision question (required)
@@ -92,6 +111,15 @@ probes add flags:
 resolve flags:
   --answer <text>           On decisions: the answer chosen (a letter, or free text)
   --reason <text>           On probes / concerns: the resolution note
+
+update flags (any subset; validation runs as on add):
+  brief:        --kind --text --source --resolved-by --blocks
+  decisions:    --question --option --default --blocks
+  concerns:     --concern --req --disposition --reason
+  probes:       --req --finding --severity --reason
+  --resolved-by must match the closed grammar:
+    REQ-nnn | TAD.entity:<name> | PRD.user:<name>
+    | TAD.system:<name> | TAC-nnnn | omitted:<reason>
 
 Notes:
   - Every ledger file lives under rcf/define/. The loader treats missing
@@ -124,8 +152,8 @@ export async function main(argv, deps = {}) {
     stderr.write(`[error] usage ledger: unknown name '${name}' (expected: ${LEDGER_NAMES.join(', ')})\n`);
     return 2;
   }
-  if (!verb || !['add', 'resolve', 'list'].includes(verb)) {
-    stderr.write("[error] usage ledger: expected verb 'add', 'resolve' or 'list'\n");
+  if (!verb || !['add', 'update', 'resolve', 'list'].includes(verb)) {
+    stderr.write("[error] usage ledger: expected verb 'add', 'update', 'resolve' or 'list'\n");
     return 2;
   }
 
@@ -154,6 +182,9 @@ export async function main(argv, deps = {}) {
     }
     if (verb === 'add') {
       return await runAdd({ projectRoot, name, flags, stdout, stderr });
+    }
+    if (verb === 'update') {
+      return await runUpdate({ projectRoot, name, positionals, flags, stdout, stderr });
     }
     return await runResolve({ projectRoot, name, positionals, flags, stdout, stderr });
   } catch (err) {
@@ -264,10 +295,30 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       stderr.write('[error] usage ledger: brief add requires --text <text> or --from <path>\n');
       return 2;
     }
+    if (flags['no-scan'] && flags.findings) {
+      stderr.write('[error] usage ledger: brief add --no-scan and --findings cannot be combined\n');
+      return 2;
+    }
+    // Scans default on with --from and off with --text (spec 2.2).
+    const scansOn = flags['no-scan']
+      ? false
+      : (flags.scan ? true : Boolean(flags.from));
+
     let drafts;
     if (flags.from) {
       const raw = await readFile(String(flags.from), 'utf8');
-      drafts = parseBriefFromFile(raw, { kind, source: flags.source ? String(flags.source) : String(flags.from) });
+      try {
+        drafts = parseBriefFromFile(raw, {
+          kind,
+          source: flags.source ? String(flags.source) : String(flags.from),
+        });
+      } catch (err) {
+        if (err instanceof LedgerError && err.code === 'usage') {
+          stderr.write(`[error] usage ledger: ${err.message}\n`);
+          return 2;
+        }
+        throw err;
+      }
       if (drafts.length === 0) {
         stderr.write(`[error] usage ledger: brief --from ${flags.from} produced no non-empty lines\n`);
         return 2;
@@ -277,9 +328,8 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       if (flags.source) entry.source = String(flags.source);
       drafts = [entry];
     }
-    // The intake-scan-against-frozen-statements seam: a later slice
-    // calls the intake scans over drafts + the currently-frozen ledger
-    // here. This slice mints ids and writes.
+
+    // Compute what WOULD be minted (for both the real path and dry-run).
     let cur = body;
     const added = [];
     for (const d of drafts) {
@@ -287,8 +337,74 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       cur = step.body;
       added.push(step.entry);
     }
+
+    // Convert operator-supplied --findings into openQuestion statements.
+    /** @type {Array<{ kind: string, text: string, source: string }>} */
+    const findingStatements = [];
+    if (flags.findings) {
+      let findingsFile;
+      try {
+        findingsFile = JSON.parse(await readFile(String(flags.findings), 'utf8'));
+      } catch (err) {
+        stderr.write(`[error] usage ledger: brief add --findings: cannot read file: ${/** @type {Error} */ (err).message}\n`);
+        return 2;
+      }
+      const findings = Array.isArray(findingsFile?.validationFindings)
+        ? findingsFile.validationFindings
+        : [];
+      for (const f of findings) {
+        if (typeof f?.kind !== 'string' || typeof f?.detail !== 'string') continue;
+        findingStatements.push({
+          kind: 'openQuestion',
+          text: f.detail,
+          source: `scan:${f.kind}`,
+        });
+      }
+    }
+
+    // Run mechanical scans (new against existing).
+    if (scansOn) {
+      const existing = /** @type {any[]} */ (body.statements ?? []);
+      const scanResults = runIntakeScansOnDelta(added, existing);
+      for (const r of scanResults) {
+        findingStatements.push({
+          kind: 'openQuestion',
+          text: r.detail,
+          source: `scan:${r.scanName}:${r.ids.join(',')}`,
+        });
+      }
+    }
+
+    // Mint the finding statements onto `cur` so they share the id space.
+    const findingEntries = [];
+    for (const fs of findingStatements) {
+      const step = addEntry({ name: 'brief', body: cur, entry: fs, now });
+      cur = step.body;
+      findingEntries.push(step.entry);
+    }
+
+    if (flags['dry-run']) {
+      if (flags.json) {
+        stdout.write(`${JSON.stringify({ added, findings: findingEntries }, null, 2)}\n`);
+      } else {
+        stdout.write(`[dry-run] brief-ledger: would add ${added.length} statement(s), ids ${added.map((e) => e.id).join(', ') || '(none)'}\n`);
+        if (findingEntries.length > 0) {
+          stdout.write(`[dry-run] brief-ledger: would add ${findingEntries.length} openQuestion from findings, ids ${findingEntries.map((e) => e.id).join(', ')}\n`);
+        }
+      }
+      return 0;
+    }
+
     await saveLedger({ projectRoot, name: 'brief', body: cur });
-    stdout.write(`brief-ledger: added ${added.length} statement(s), ids ${added.map((e) => e.id).join(', ')}\n`);
+    if (flags.json) {
+      stdout.write(`${JSON.stringify({ added, findings: findingEntries }, null, 2)}\n`);
+    } else {
+      stdout.write(`brief-ledger: added ${added.length} statement(s), ids ${added.map((e) => e.id).join(', ')}`);
+      if (findingEntries.length > 0) {
+        stdout.write(`; added ${findingEntries.length} openQuestion from findings, ids ${findingEntries.map((e) => e.id).join(', ')}`);
+      }
+      stdout.write('\n');
+    }
     return 0;
   }
 
@@ -348,6 +464,102 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
   const step = addEntry({ name: 'probes', body, entry, now });
   await saveLedger({ projectRoot, name: 'probes', body: step.body });
   stdout.write(`probe-ledger: added probe ${step.entry.id}\n`);
+  return 0;
+}
+
+/**
+ * `rcf define ledger <name> update <id>` subverb (REQ-173 amended,
+ * US-17302). Field patches honour the same `add`-side validation.
+ * `--resolved-by` on brief must match the closed pointer grammar; a
+ * pointer outside the grammar refuses the write (exit 2).
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {import('../define/ledgers.js').LedgerName} args.name
+ * @param {string[]} args.positionals
+ * @param {Record<string, unknown>} args.flags
+ * @param {NodeJS.WriteStream} args.stdout
+ * @param {NodeJS.WriteStream} args.stderr
+ * @returns {Promise<number>}
+ */
+async function runUpdate({ projectRoot, name, positionals, flags, stdout, stderr }) {
+  if (positionals.length !== 1) {
+    stderr.write('[error] usage ledger: update expects exactly one <id>\n');
+    return 2;
+  }
+  const id = Number(positionals[0]);
+  if (!Number.isInteger(id) || id < 1) {
+    stderr.write(`[error] usage ledger: update id must be a positive integer, got '${positionals[0]}'\n`);
+    return 2;
+  }
+
+  // --resolved-by only lands on brief statements; the pointer grammar
+  // is validated here (shape-only) BEFORE loading the ledger, so a
+  // bad pointer never touches the file.
+  if (flags['resolved-by'] !== undefined) {
+    if (name !== 'brief') {
+      stderr.write(`[error] usage ledger: --resolved-by applies to brief statements only\n`);
+      return 2;
+    }
+    if (!isResolvedByGrammar(String(flags['resolved-by']))) {
+      stderr.write(
+        '[error] usage ledger: --resolved-by outside grammar (REQ-nnn | TAD.entity:<name> | PRD.user:<name> | TAD.system:<name> | TAC-nnnn | omitted:<reason>)\n',
+      );
+      return 2;
+    }
+  }
+
+  const body = await loadLedger({ projectRoot, name });
+
+  /** @type {Record<string, unknown>} */
+  const patch = {};
+
+  if (name === 'brief') {
+    if (flags.kind !== undefined) {
+      const kind = String(flags.kind);
+      if (!BRIEF_KINDS.includes(/** @type {any} */ (kind))) {
+        stderr.write(`[error] usage ledger: brief --kind must be one of: ${BRIEF_KINDS.join(', ')}\n`);
+        return 2;
+      }
+      patch.kind = kind;
+    }
+    if (flags.text !== undefined) patch.text = String(flags.text);
+    if (flags.source !== undefined) patch.source = String(flags.source);
+    if (flags['resolved-by'] !== undefined) patch.resolvedBy = String(flags['resolved-by']);
+    if (flags.blocks !== undefined) patch.blocks = String(flags.blocks);
+  } else if (name === 'decisions') {
+    if (flags.question !== undefined) patch.question = String(flags.question);
+    if (flags.option !== undefined) {
+      const parsedOpts = parseOptionFlags(flags.option);
+      if (parsedOpts.error) {
+        stderr.write(`[error] usage ledger: ${parsedOpts.error}\n`);
+        return 2;
+      }
+      patch.options = parsedOpts.value;
+    }
+    if (flags.default !== undefined) patch.default = String(flags.default);
+    if (flags.blocks !== undefined) patch.blocks = String(flags.blocks);
+  } else if (name === 'concerns') {
+    if (flags.concern !== undefined) patch.concern = String(flags.concern);
+    if (flags.req !== undefined) patch.reqId = String(flags.req);
+    if (flags.disposition !== undefined) patch.disposition = String(flags.disposition);
+    if (flags.reason !== undefined) patch.reason = String(flags.reason);
+  } else {
+    // probes
+    if (flags.req !== undefined) patch.reqId = String(flags.req);
+    if (flags.finding !== undefined) patch.finding = String(flags.finding);
+    if (flags.severity !== undefined) patch.severity = String(flags.severity);
+    if (flags.reason !== undefined) patch.reason = String(flags.reason);
+  }
+
+  if (Object.keys(patch).length === 0) {
+    stderr.write('[error] usage ledger: update needs at least one field flag to patch\n');
+    return 2;
+  }
+
+  const step = updateEntry({ name, body, id, patch });
+  await saveLedger({ projectRoot, name, body: step.body });
+  stdout.write(`${name}-ledger: updated ${id}\n`);
   return 0;
 }
 

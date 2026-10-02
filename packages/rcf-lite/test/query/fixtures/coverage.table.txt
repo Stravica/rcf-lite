@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 112  covered: 112  covered-unresolved: 0  uncovered: 0
+Requirements: 113  covered: 113  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -445,6 +445,12 @@ REQ-173      yes      AC-17301-1   yes         TC-215-brief-add-text, TC-215-bri
                       AC-17301-2   yes         TC-215-decisions-list-241, TC-215-list-json
                       AC-17301-3   yes         TC-215-brief-from-file, TC-215-parse-brief-bullets
                       AC-17301-4   yes         TC-215-walker-invisible
+                      AC-17302-1   yes         TC-215-brief-update-fields-and-preserve-id
+                      AC-17302-2   yes         TC-215-decisions-update-wellformed
+                      AC-17302-3   yes         TC-215-resolvedby-grammar-each-form
+                      AC-17302-4   yes         TC-215-update-refuses-nongrammar
+                      AC-17302-5   yes         TC-215-d2-dangling-pointer-fails
+                      AC-17302-6   yes         TC-215-d2-title-hit-dropped
 REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17401-2   yes         TC-216-blocking-vs-warn
                       AC-17401-3   yes         TC-216-not-applicable
@@ -511,3 +517,15 @@ REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
 REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
                       AC-18101-2   yes         TC-223-findings-list-markup
                       AC-18101-3   yes         TC-223-no-existing-tab-tests-change
+REQ-187      yes      AC-18701-1   yes         TC-215-markers-kind-and-source
+                      AC-18701-2   yes         TC-215-defaults-from-flags
+                      AC-18701-3   yes         TC-215-question-heuristic
+                      AC-18701-4   yes         TC-215-029-line-per-statement-unchanged
+                      AC-18701-5   yes         TC-215-unknown-kind-exits-2
+                      AC-18701-6   yes         TC-215-dry-run-no-write
+                      AC-18702-1   yes         TC-215-scan-mints-openquestion
+                      AC-18702-2   yes         TC-215-findings-mints-openquestions
+                      AC-18702-3   yes         TC-215-scans-compare-every-existing
+                      AC-18702-4   yes         TC-215-json-emits-added-and-findings
+                      AC-18702-5   yes         TC-215-no-scan-plus-findings-exits-2
+                      AC-18702-6   yes         TC-215-text-runs-no-scan

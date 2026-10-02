@@ -39,3 +39,52 @@ test('scanArtefactForFindings returns an empty array on a clean brief', () => {
   const findings = scanArtefactForFindings(text);
   assert.deepEqual(findings, []);
 });
+
+// ---------------------------------------------------------------------------
+// REQ-187 (US-18702): runIntakeScansOnDelta over new vs existing statements.
+// ---------------------------------------------------------------------------
+
+import { runIntakeScansOnDelta } from '../../src/intake/orchestrator.js';
+
+test('runIntakeScansOnDelta (AC-18702-1): a contradiction between a new and existing statement names both ids', () => {
+  const existing = [
+    { id: 1, text: 'No login is required for the public page.' },
+  ];
+  const newStatements = [
+    { id: 2, text: 'The admin dashboard shows every monitor.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, existing);
+  const contradiction = findings.find((f) => f.kind === 'contradiction');
+  assert.ok(contradiction, `expected contradiction, got ${JSON.stringify(findings)}`);
+  assert.ok(contradiction.ids.includes(1));
+  assert.ok(contradiction.ids.includes(2));
+});
+
+test('runIntakeScansOnDelta: a scan on new statements alone surfaces inside the new side', () => {
+  const newStatements = [
+    { id: 1, text: 'No login is required for the public page. The admin dashboard shows every monitor.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, []);
+  assert.ok(findings.some((f) => f.kind === 'contradiction'));
+});
+
+test('runIntakeScansOnDelta: zero new statements returns an empty array', () => {
+  const findings = runIntakeScansOnDelta([], [{ id: 1, text: 'x' }]);
+  assert.deepEqual(findings, []);
+});
+
+test('runIntakeScansOnDelta (AC-18702-3): on a frozen set the comparison set is every existing statement', () => {
+  const frozen = [
+    { id: 1, text: 'No login is required.' },
+    { id: 2, text: 'The admin dashboard lists tenants.' },
+  ];
+  const newStatements = [{ id: 3, text: 'Also an admin panel exists.' }];
+  const findings = runIntakeScansOnDelta(newStatements, frozen);
+  // A contradiction already present among frozen is attributed with
+  // a new id when the new side participates. The new statement
+  // mentions "admin panel", which is a HAS_ADMIN_UI token, so a
+  // contradiction with id 1's "no login required" surfaces.
+  const contradiction = findings.find((f) => f.kind === 'contradiction');
+  assert.ok(contradiction);
+  assert.ok(contradiction.ids.includes(3));
+});
