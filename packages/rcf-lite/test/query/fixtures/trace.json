@@ -28,6 +28,12 @@
       "title": "View reflects current on-disk state"
     },
     {
+      "id": "US-204",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "An engineer sees the FBS DAG"
+    },
+    {
       "id": "TS-003",
       "kind": "testSuite",
       "depth": 2,
@@ -92,6 +98,54 @@
       "kind": "ac",
       "depth": 2,
       "title": "The view is produced fresh from the on-disk tree and carries no cached prior state"
+    },
+    {
+      "id": "TS-224",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "Build/DAG sub-tab: layout, closure, inspector, deep links, filters, cycles, no outbound postMessage"
+    },
+    {
+      "id": "AC-204-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the Build tab's DAG sub-tab, when it renders, then every connected FBS sits in a column whose index equals its longest dependency depth from `dependsOnFbsIds` (0 for no dependency) and rows inside a column are ordered by `buildOrder` ascending."
+    },
+    {
+      "id": "AC-204-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the DAG canvas, when a node is clicked, then it is selected, its upstream closure outlines in the link colour and its downstream closure outlines in the warning colour; a second click on the same node clears the selection."
+    },
+    {
+      "id": "AC-204-3",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a selected FBS, when the inspector renders, then it lists status, area, AC count, size, build order, a buildable-now flag, direct and transitive needs, direct and transitive waits-on and an \"Open in Specs\" link that moves to `#tab=build&sub=specs&entity=<id>`."
+    },
+    {
+      "id": "AC-204-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a selection, when it is set or cleared, then the hash becomes `#tab=build&sub=dag&entity=<id>` (or drops the entity key when cleared) and a reload with that hash restores the selection and scrolls the node into view."
+    },
+    {
+      "id": "AC-204-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the DAG toolbar, when the Status, Area, Buildable-now, Critical-path or Show-unconnected filter changes, then the visible nodes update and the current selection is kept."
+    },
+    {
+      "id": "AC-204-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given a `dependsOnFbsIds` cycle on disk, when the DAG renders, then the cycle is reported as a finding in the toolbar area and the remaining non-cycle FBS still render."
+    },
+    {
+      "id": "AC-204-7",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the DAG canvas, when a node is clicked, filtered or inspected, then no `postMessage` is sent to the parent window and no outbound network request is made."
     },
     {
       "id": "TC-003-diagram-emitted-as-source",
@@ -164,6 +218,54 @@
       "kind": "tc",
       "depth": 3,
       "title": "regeneration re-walks the tree fresh and drops all prior-state content"
+    },
+    {
+      "id": "TC-224-depth-columns",
+      "kind": "tc",
+      "depth": 3,
+      "title": "buildDagLayout places every connected FBS in a column whose index equals its longest dependency depth from dependsOnFbsIds; rows inside a column are ordered by buildOrder ascending."
+    },
+    {
+      "id": "TC-224-closures-upstream-downstream",
+      "kind": "tc",
+      "depth": 3,
+      "title": "buildDagLayout carries upstream and downstream closures transitively per node; renderBuildDag outlines upstream in link colour and downstream in warning (checked via data-rcf-dag-role on nodes and edges in the client wiring markers)."
+    },
+    {
+      "id": "TC-224-inspector-payload",
+      "kind": "tc",
+      "depth": 3,
+      "title": "buildDagInspectorPayload emits status, area, buildOrder, acCount, buildable, needs and waits (direct + transitive totals) plus needsMeta/waitsMeta for every node, so the client inspector lists them without recomputing the layout."
+    },
+    {
+      "id": "TC-224-hash-round-trip",
+      "kind": "tc",
+      "depth": 3,
+      "title": "page-init.js carries the Build/DAG wiring: click-to-highlight writes #tab=build&sub=dag&entity=<id>, applyBuildHash restores the selection and scrolls the node into view (auto-pressing Show-unconnected when the restored node sits in the unconnected lane)."
+    },
+    {
+      "id": "TC-224-filters-keep-selection",
+      "kind": "tc",
+      "depth": 3,
+      "title": "DAG filter chips (status, area, Buildable-now, Critical-path, Show-unconnected) in the DagToolbar; applyDagFilters keeps the current selection intact across toggles; renderBuildDag emits the toolbar with the six filter controls and the unconnected count."
+    },
+    {
+      "id": "TC-224-cycle-handling",
+      "kind": "tc",
+      "depth": 3,
+      "title": "buildDagLayout surfaces cycle members as cycleIds and excludes them from the depth layout; non-cycle FBS still render."
+    },
+    {
+      "id": "TC-224-no-outbound-postmessage",
+      "kind": "tc",
+      "depth": 3,
+      "title": "The rendered Build tab slice (DAG panel) does not contain any postMessage( call site; the inspector payload rides on a data-rcf-dag-inspector-data attribute, not a function call."
+    },
+    {
+      "id": "FBS-203",
+      "kind": "fbs",
+      "depth": 3,
+      "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)"
     }
   ],
   "edges": [
@@ -180,6 +282,11 @@
     {
       "from": "REQ-002",
       "to": "US-203",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-204",
       "kind": "parentChild"
     },
     {
@@ -238,6 +345,46 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-204",
+      "to": "TS-224",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-6",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-204",
+      "to": "AC-204-7",
+      "kind": "parentChild"
+    },
+    {
       "from": "TS-003",
       "to": "TC-003-diagram-emitted-as-source",
       "kind": "parentChild"
@@ -400,6 +547,146 @@
     {
       "from": "AC-203-2",
       "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-depth-columns",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-closures-upstream-downstream",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-inspector-payload",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-hash-round-trip",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-filters-keep-selection",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-cycle-handling",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-224",
+      "to": "TC-224-no-outbound-postmessage",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-204-1",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-1",
+      "to": "TC-224-depth-columns",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-1",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-2",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-2",
+      "to": "TC-224-closures-upstream-downstream",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-2",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-3",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-3",
+      "to": "TC-224-inspector-payload",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-3",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-4",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-4",
+      "to": "TC-224-hash-round-trip",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-4",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-5",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-5",
+      "to": "TC-224-filters-keep-selection",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-5",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-6",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-6",
+      "to": "TC-224-cycle-handling",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-6",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-7",
+      "to": "TS-224",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-7",
+      "to": "TC-224-no-outbound-postmessage",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-204-7",
+      "to": "FBS-203",
       "kind": "crossLink"
     }
   ]

@@ -61,6 +61,34 @@ flowchart LR
   REQ-002 --> AC-203-2
   TC-005-no-cached-prior-state["TC-005-no-cached-prior-state"]
   AC-203-2 -.-> TC-005-no-cached-prior-state
+  AC-204-1["AC-204-1"]
+  REQ-002 --> AC-204-1
+  TC-224-depth-columns["TC-224-depth-columns"]
+  AC-204-1 -.-> TC-224-depth-columns
+  AC-204-2["AC-204-2"]
+  REQ-002 --> AC-204-2
+  TC-224-closures-upstream-downstream["TC-224-closures-upstream-downstream"]
+  AC-204-2 -.-> TC-224-closures-upstream-downstream
+  AC-204-3["AC-204-3"]
+  REQ-002 --> AC-204-3
+  TC-224-inspector-payload["TC-224-inspector-payload"]
+  AC-204-3 -.-> TC-224-inspector-payload
+  AC-204-4["AC-204-4"]
+  REQ-002 --> AC-204-4
+  TC-224-hash-round-trip["TC-224-hash-round-trip"]
+  AC-204-4 -.-> TC-224-hash-round-trip
+  AC-204-5["AC-204-5"]
+  REQ-002 --> AC-204-5
+  TC-224-filters-keep-selection["TC-224-filters-keep-selection"]
+  AC-204-5 -.-> TC-224-filters-keep-selection
+  AC-204-6["AC-204-6"]
+  REQ-002 --> AC-204-6
+  TC-224-cycle-handling["TC-224-cycle-handling"]
+  AC-204-6 -.-> TC-224-cycle-handling
+  AC-204-7["AC-204-7"]
+  REQ-002 --> AC-204-7
+  TC-224-no-outbound-postmessage["TC-224-no-outbound-postmessage"]
+  AC-204-7 -.-> TC-224-no-outbound-postmessage
   REQ-003["REQ-003"]
   AC-301-1["AC-301-1"]
   REQ-003 --> AC-301-1
@@ -2448,6 +2476,20 @@ flowchart LR
   class TC-005-edit-present-after-regenerate tc;
   class AC-203-2 ac;
   class TC-005-no-cached-prior-state tc;
+  class AC-204-1 ac;
+  class TC-224-depth-columns tc;
+  class AC-204-2 ac;
+  class TC-224-closures-upstream-downstream tc;
+  class AC-204-3 ac;
+  class TC-224-inspector-payload tc;
+  class AC-204-4 ac;
+  class TC-224-hash-round-trip tc;
+  class AC-204-5 ac;
+  class TC-224-filters-keep-selection tc;
+  class AC-204-6 ac;
+  class TC-224-cycle-handling tc;
+  class AC-204-7 ac;
+  class TC-224-no-outbound-postmessage tc;
   class REQ-003 req;
   class AC-301-1 ac;
   class TC-006-read-reports-valid tc;

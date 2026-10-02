@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z",
+  "purpose": "Cover US-204 (engineer sees the FBS DAG): depth columns from dependsOnFbsIds, click-to-highlight closure, inspector with needs/waits links and Open-in-Specs, deep links on #tab=build&sub=dag&entity=<id>, filters that keep the selection, cycle handling and the no-outbound-postMessage guard. Points at the twelve new DAG unit tests under test/view/build-tab.test.js.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-204-1",
+    "AC-204-2",
+    "AC-204-3",
+    "AC-204-4",
+    "AC-204-5",
+    "AC-204-6",
+    "AC-204-7"
+  ],
+  "id": "TS-224",
+  "usId": "US-204",
+  "title": "Build/DAG sub-tab: layout, closure, inspector, deep links, filters, cycles, no outbound postMessage",
+  "testCases": [
+    {
+      "id": "TC-224-depth-columns",
+      "acId": "AC-204-1",
+      "description": "buildDagLayout places every connected FBS in a column whose index equals its longest dependency depth from dependsOnFbsIds; rows inside a column are ordered by buildOrder ascending.",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::buildDagLayout: columns are dependency-depth tiers from dependsOnFbsIds (AC-204-1)"
+    },
+    {
+      "id": "TC-224-closures-upstream-downstream",
+      "acId": "AC-204-2",
+      "description": "buildDagLayout carries upstream and downstream closures transitively per node; renderBuildDag outlines upstream in link colour and downstream in warning (checked via data-rcf-dag-role on nodes and edges in the client wiring markers).",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::buildDagLayout: closures carry upstream and downstream transitively (AC-204-2 / AC-204-3)"
+    },
+    {
+      "id": "TC-224-inspector-payload",
+      "acId": "AC-204-3",
+      "description": "buildDagInspectorPayload emits status, area, buildOrder, acCount, buildable, needs and waits (direct + transitive totals) plus needsMeta/waitsMeta for every node, so the client inspector lists them without recomputing the layout.",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::buildDagInspectorPayload: carries status/area/order/AC/buildable + needs and waits (AC-204-3)"
+    },
+    {
+      "id": "TC-224-hash-round-trip",
+      "acId": "AC-204-4",
+      "description": "page-init.js carries the Build/DAG wiring: click-to-highlight writes #tab=build&sub=dag&entity=<id>, applyBuildHash restores the selection and scrolls the node into view (auto-pressing Show-unconnected when the restored node sits in the unconnected lane).",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::page-init.js carries the Build/DAG wiring (click-to-highlight, hash round-trip, filters)"
+    },
+    {
+      "id": "TC-224-filters-keep-selection",
+      "acId": "AC-204-5",
+      "description": "DAG filter chips (status, area, Buildable-now, Critical-path, Show-unconnected) in the DagToolbar; applyDagFilters keeps the current selection intact across toggles; renderBuildDag emits the toolbar with the six filter controls and the unconnected count.",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::renderBuildDag: toolbar renders status chips, area select, three toggles and the unconnected count"
+    },
+    {
+      "id": "TC-224-cycle-handling",
+      "acId": "AC-204-6",
+      "description": "buildDagLayout surfaces cycle members as cycleIds and excludes them from the depth layout; non-cycle FBS still render.",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::buildDagLayout: cycles are surfaced as cycleIds and excluded from depth layout (AC-204-6)"
+    },
+    {
+      "id": "TC-224-no-outbound-postmessage",
+      "acId": "AC-204-7",
+      "description": "The rendered Build tab slice (DAG panel) does not contain any postMessage( call site; the inspector payload rides on a data-rcf-dag-inspector-data attribute, not a function call.",
+      "status": "pending",
+      "testPointer": "test/view/build-tab.test.js::Build/DAG renderer never emits window.postMessage (AC-204-7, no outbound postMessage)"
+    }
+  ],
+  "status": "draft"
+}
