@@ -98,7 +98,7 @@ export function renderPage(model) {
   <header class="app-header">
     <div class="bar">
       <div class="brand" title="Review surface">
-        <span class="mark" aria-hidden="true"></span>
+        <svg class="mark" aria-hidden="true" viewBox="0 0 64 64" width="18" height="18"><rect x="0" y="0" width="64" height="64" rx="14" fill="#080F19"/><g fill="#7295FF"><path d="M38 9L17 21V32L38 20Z"/><path d="M30 27L46 36V46L30 37L23 33Z"/><path d="M46 46L25 58V47L37 40Z"/></g></svg>
       </div>
       <div class="product">
         <span class="name">${escapeHtml(projectName)}</span>

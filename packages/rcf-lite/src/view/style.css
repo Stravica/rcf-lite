@@ -210,22 +210,14 @@ header.app-header .bar {
 }
 
 .brand .mark {
+  /* Inline SVG of the Stravica kit mark from
+     stravica.ai/public/brand/assets/icons/favicon.svg (same paths and
+     colours as the favicon above). The SVG carries its own ink tile
+     and radius so no background styling is needed here. */
   width: 18px;
   height: 18px;
-  border-radius: 5px;
-  background: var(--sv-ink);
   display: inline-block;
-  position: relative;
   flex-shrink: 0;
-}
-
-.brand .mark::after {
-  content: '';
-  position: absolute;
-  inset: 4px 6px;
-  border-left: 2.5px solid var(--sv-link);
-  border-bottom: 2.5px solid var(--sv-link);
-  transform: skewX(-12deg);
 }
 
 .product {
