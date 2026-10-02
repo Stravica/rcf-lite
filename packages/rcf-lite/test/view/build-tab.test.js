@@ -413,8 +413,9 @@ test('Build/DAG renderer never emits window.postMessage (AC-204-7, no outbound p
   const { html } = await renderLive();
   // The DAG canvas itself must not generate a postMessage call anywhere
   // in the rendered page. The guard is on the renderer and the inspector
-  // payload (the inline JSON script); the shared live-client/page-init
-  // scripts are the only JS surfaces and neither posts out from the DAG.
+  // payload (the `data-rcf-dag-inspector-data` attribute on the inspector
+  // shell); the shared live-client / page-init scripts are the only JS
+  // surfaces and neither posts out from the DAG.
   const slice = sliceBuildTab(html);
   assert.doesNotMatch(slice, /postMessage\s*\(/);
 });

@@ -1129,6 +1129,29 @@
     return { entity: entity, extraParts: extras };
   }
 
+  function currentDagHashExtras() {
+    // On the DAG sub-tab, the Specs filter params (q/status/domain/size/
+    // buildable) are UNKNOWN - the DAG does not own them. Preserve them
+    // through DAG writes per the decision 11 preservation contract so
+    // deep links like `#tab=build&sub=dag&entity=FBS-012&status=notStarted`
+    // survive filter and selection changes.
+    var raw = window.location.hash || '';
+    if (raw[0] === '#') raw = raw.slice(1);
+    if (!raw) return [];
+    var pairs = raw.split('&');
+    var extras = [];
+    var owned = { tab: true, sub: true, entity: true };
+    for (var i = 0; i < pairs.length; i += 1) {
+      var p = pairs[i];
+      if (!p) continue;
+      var eq = p.indexOf('=');
+      var k = eq === -1 ? p : p.slice(0, eq);
+      if (owned[k]) continue;
+      extras.push(p);
+    }
+    return extras;
+  }
+
   function buildHashFragment() {
     var parts = ['tab=build'];
     var sub = currentBuildSub();
@@ -1137,15 +1160,20 @@
       var canvas = dagCanvas();
       var sel = canvas && canvas.getAttribute('data-rcf-dag-sel');
       if (sel) parts.push('entity=' + encodeURIComponent(sel));
-    } else {
-      var state = readBuildFilterState();
-      if (state) {
-        if (state.q) parts.push('q=' + encodeURIComponent(state.q));
-        if (state.status) parts.push('status=' + encodeURIComponent(state.status));
-        if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
-        if (state.size) parts.push('size=' + encodeURIComponent(state.size));
-        if (state.buildable) parts.push('buildable=1');
-      }
+      // Preserve any non-DAG-owned params (Specs filter keys etc.)
+      // through DAG writes. Entity is already written above from the
+      // live selection; do NOT re-append extras.entity.
+      var dagExtras = currentDagHashExtras();
+      if (dagExtras.length > 0) parts = parts.concat(dagExtras);
+      return '#' + parts.join('&');
+    }
+    var state = readBuildFilterState();
+    if (state) {
+      if (state.q) parts.push('q=' + encodeURIComponent(state.q));
+      if (state.status) parts.push('status=' + encodeURIComponent(state.status));
+      if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
+      if (state.size) parts.push('size=' + encodeURIComponent(state.size));
+      if (state.buildable) parts.push('buildable=1');
     }
     var extras = currentBuildHashExtras();
     if (extras.entity) parts.push('entity=' + encodeURIComponent(extras.entity));
@@ -1165,8 +1193,19 @@
       var canvas = dagCanvas();
       var entity = params.entity ? decodeURIComponent(params.entity) : '';
       if (canvas) {
-        if (entity) canvas.setAttribute('data-rcf-dag-sel', entity);
-        else canvas.removeAttribute('data-rcf-dag-sel');
+        if (entity) {
+          canvas.setAttribute('data-rcf-dag-sel', entity);
+          // AC-204-4: a deep link to an unconnected FBS must land visibly.
+          // Auto-press Show-unconnected so the lane renders and the node
+          // is not display:none when applyDagFilters runs below.
+          var payload = parseDagInspectorPayload();
+          if (payload[entity] && payload[entity].unconnected) {
+            var tunc = document.querySelector('[data-rcf-dag-toggle="unconnected"]');
+            if (tunc && tunc.getAttribute('aria-pressed') !== 'true') tunc.setAttribute('aria-pressed', 'true');
+          }
+        } else {
+          canvas.removeAttribute('data-rcf-dag-sel');
+        }
         applyDagFilters();
         renderDagInspector();
         if (entity) {
@@ -1290,9 +1329,14 @@
   function dagInspectorBody() { return document.querySelector('[data-rcf-dag-inspector-body]'); }
 
   function parseDagInspectorPayload() {
-    var dataNode = document.querySelector('[data-rcf-dag-inspector-data]');
-    if (!dataNode) return {};
-    try { return JSON.parse(dataNode.textContent || '{}'); }
+    // PR 1 contract (standing criterion): payload rides on the inspector
+    // shell as a `data-rcf-dag-inspector-data` attribute, not an inline
+    // `<script>` body.
+    var shell = document.querySelector('[data-rcf-dag-inspector-body]');
+    if (!shell) return {};
+    var raw = shell.getAttribute('data-rcf-dag-inspector-data');
+    if (!raw) return {};
+    try { return JSON.parse(raw); }
     catch (e) { return {}; }
   }
 

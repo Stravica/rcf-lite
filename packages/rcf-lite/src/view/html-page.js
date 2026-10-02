@@ -57,7 +57,7 @@ import { pill } from './components/pill.js';
 import { renderEmptyState } from './components/empty-state.js';
 import { renderEntitySelector } from './components/entity-selector.js';
 import { renderSubTabStrip } from './components/sub-tab-strip.js';
-import { buildDagLayout, buildDagInspectorPayload, renderBuildDag, renderDagInspectorData } from './build-dag.js';
+import { buildDagLayout, buildDagInspectorPayload, renderBuildDag } from './build-dag.js';
 import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
@@ -716,8 +716,7 @@ function renderBuildPanel(model) {
 
   const specsPanel = renderBuildSpecsPanel(model, fbsItems, buildableIds);
   const dagLayout = buildDagLayout(fbsItems, buildableIds);
-  const dagPanel = renderBuildDag({ layout: dagLayout })
-    + renderDagInspectorData(buildDagInspectorPayload(dagLayout));
+  const dagPanel = renderBuildDag({ layout: dagLayout, inspectorPayload: buildDagInspectorPayload(dagLayout) });
   // Hidden anchor so #BS-001 / #entity=BS-001 still resolve to this tab.
   const bsAnchor = model.bs
     ? `<span class="rcf-build-anchor" data-doc-id="${escapeHtml(model.bs.bsId)}" aria-hidden="true"></span>`

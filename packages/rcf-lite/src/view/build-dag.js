@@ -295,12 +295,16 @@ const LANE_HEAD_H = 44;
 /**
  * @param {object} args
  * @param {DagLayout} args.layout
+ * @param {Record<string, object>} [args.inspectorPayload] - rides on a
+ *   `data-rcf-dag-inspector-data` attribute on the inspector shell (PR 1
+ *   contract: component payload data on a `data-*` attribute, never an
+ *   inline `<script>` body).
  * @returns {string}
  */
-export function renderBuildDag({ layout }) {
+export function renderBuildDag({ layout, inspectorPayload }) {
   const toolbar = renderDagToolbar(layout);
   const canvas = renderDagCanvas(layout);
-  const inspector = renderDagInspector(layout);
+  const inspector = renderDagInspector(inspectorPayload);
   const legend = renderDagLegend();
   return `<div class="rcf-dag" data-rcf-dag="build">
 ${toolbar}
@@ -489,8 +493,14 @@ function statusDot(status) {
   return 'rcf-dag-node-dot--none';
 }
 
-function renderDagInspector() {
-  return `<div class="rcf-dag-inspector-body" data-rcf-dag-inspector-body>
+function renderDagInspector(payload) {
+  // PR 1 contract (standing criterion): component payload rides on a
+  // `data-*` attribute on this shell, never an inline `<script>` body.
+  // The client in page-init.js reads `data-rcf-dag-inspector-data`
+  // directly off this element. No outbound postMessage, no fetch.
+  const safeJson = JSON.stringify(payload || {}).replace(/</g, '\\u003c');
+  const attr = safeJson.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  return `<div class="rcf-dag-inspector-body" data-rcf-dag-inspector-body data-rcf-dag-inspector-data="${attr}">
     <div class="muted small">Select a build spec to see what it needs and what waits on it.</div>
   </div>`;
 }
@@ -551,15 +561,3 @@ function inspectorMeta(layout, id) {
   };
 }
 
-/**
- * Inline <script type="application/json"> tag the client reads to fill
- * the inspector on select. Keeps the DAG SSR-driven and the client
- * single-sourced; no outbound postMessage, no second data path.
- *
- * @param {Record<string, object>} payload
- * @returns {string}
- */
-export function renderDagInspectorData(payload) {
-  const safeJson = JSON.stringify(payload).replace(/</g, '\\u003c');
-  return `<script type="application/json" data-rcf-dag-inspector-data>${safeJson}</script>`;
-}
