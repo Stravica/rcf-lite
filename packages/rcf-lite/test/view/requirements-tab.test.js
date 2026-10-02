@@ -191,3 +191,14 @@ test('page-init.js resolveHash honours the requirements filter slots (q/domain/p
   );
   assert.match(pageInit, /applyRequirementsHash/);
 });
+
+test('page-init.js resolveHash handles bare #entity=<id> without a tab key (decision 11)', async () => {
+  // Decision 11: `#entity=US-304` opens REQ-003 and US-304 - PR 3
+  // makes this work without having to type `#tab=requirements&entity=...`.
+  const pageInit = await (await import('node:fs/promises')).readFile(
+    resolve(repoRoot, 'src', 'view', 'page-init.js'), 'utf8',
+  );
+  // The handler branches on `tab=` being absent but `entity=` being
+  // present, then resolves the target and activates the owning tab.
+  assert.match(pageInit, /raw\.indexOf\('tab='\) === -1[\s\S]*?kv\.entity/);
+});

@@ -14,7 +14,7 @@ import { componentSections, renderComponentsFixturePage } from '../../src/view/c
 test('componentSections exposes every shared component by id', () => {
   const sections = componentSections();
   const ids = sections.map((s) => s.id);
-  assert.deepEqual(ids, ['doc-row', 'filter-bar', 'badge', 'empty-state', 'toast', 'sub-tab-strip']);
+  assert.deepEqual(ids, ['doc-row', 'filter-bar', 'badge', 'empty-state', 'toast', 'sub-tab-strip', 'entity-selector']);
   for (const s of sections) {
     assert.ok(typeof s.title === 'string' && s.title.length > 0, `${s.id} missing title`);
     assert.ok(typeof s.intent === 'string' && s.intent.length > 0, `${s.id} missing intent`);
@@ -33,7 +33,7 @@ test('renderComponentsFixturePage: self-contained HTML5 document with the produc
 
 test('renderComponentsFixturePage: each component renders in its own section', () => {
   const html = renderComponentsFixturePage();
-  for (const slug of ['doc-row', 'filter-bar', 'badge', 'empty-state', 'toast', 'sub-tab-strip']) {
+  for (const slug of ['doc-row', 'filter-bar', 'badge', 'empty-state', 'toast', 'sub-tab-strip', 'entity-selector']) {
     assert.match(
       html,
       new RegExp(`<section id="${slug}" class="rcf-fixture-section">`),

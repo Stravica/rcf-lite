@@ -481,6 +481,22 @@
   function resolveHash(hash) {
     if (!hash) { activateTab('readiness'); return; }
     var raw = hash.charAt(0) === '#' ? hash.slice(1) : hash;
+    // Decision 11 (PR 3): `#entity=<id>` without a tab key still
+    // resolves - we find the target, activate its tab and open ancestors.
+    if (raw.indexOf('=') !== -1 && raw.indexOf('tab=') === -1) {
+      var kv = parseHashParams(raw);
+      if (kv.entity) {
+        var entTarget = findByDocId(kv.entity);
+        if (entTarget) {
+          var entTab = tabForNode(entTarget);
+          if (entTab) activateTab(entTab);
+          openAncestorDetails(entTarget);
+          if (entTarget.tagName && entTarget.tagName.toLowerCase() === 'details') entTarget.open = true;
+          try { entTarget.scrollIntoView({ block: 'start' }); } catch (e) { entTarget.scrollIntoView(); }
+          return;
+        }
+      }
+    }
     if (raw.indexOf('tab=') === 0 || raw.indexOf('tab=') > 0) {
       // Fast path: tab is the first key.
       var params = parseHashParams(raw);
