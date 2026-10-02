@@ -189,6 +189,11 @@ function validateEntry(name, entry, filePath, where = 'entry') {
         filePath, field: `${where}.source`,
       });
     }
+    if (e.resolvedBy !== undefined && typeof e.resolvedBy !== 'string') {
+      throw new LedgerError(`brief ${where}.resolvedBy must be a string when present.`, {
+        filePath, field: `${where}.resolvedBy`,
+      });
+    }
   } else if (name === 'decisions') {
     if (typeof e.question !== 'string' || e.question.length === 0) {
       throw new LedgerError(`decisions ${where}.question must be non-empty.`, {
@@ -443,35 +448,211 @@ export function resolveEntry({ name, body, id, patch = {}, now }) {
   return { body: nextBody, entry: updated };
 }
 
+const RESOLVED_BY_GRAMMAR_RE = /^(REQ-\d+|TAD\.entity:.+|PRD\.user:.+|TAD\.system:.+|TAC-\d+(?:-[A-Za-z0-9-]+)?|omitted:.+)$/;
+
+/**
+ * True when `pointer` matches the closed grammar for a `resolvedBy`
+ * value. Shape-only; does NOT verify that the pointed-to id or name
+ * resolves against a tree (that is D2's `skeleton:resolvedBy` check).
+ *
+ * @param {string} pointer
+ * @returns {boolean}
+ */
+export function isResolvedByGrammar(pointer) {
+  if (typeof pointer !== 'string') return false;
+  return RESOLVED_BY_GRAMMAR_RE.test(pointer.trim());
+}
+
+const KIND_MARKER_RE = /^\[([^\]]+)\]\s*/;
+const SOURCE_MARKER_RE = /\s*\(source:\s*([^)]+)\)\s*$/;
+const QUESTION_PREFIX_RE = /^(TBC|TBD|Open|Question)\b[:.]?\s*/i;
+
 /**
  * Parse `--from <file>` content into brief-statement drafts: one entry
- * per non-empty line, stripping a leading `- `, `* ` or `<n>. ` bullet.
- * The caller supplies the `kind` (or `capability` as the default). All
- * statements land as `status: 'open'` at the same `addedAt`; the CLI
- * assigns sequential ids.
+ * per non-empty line. Each line optionally carries a leading `[kind]`
+ * marker and a trailing `(source: ...)` marker. A line without
+ * `[kind]` takes `opts.kind` (default `capability`); a line without
+ * `(source: ...)` takes `opts.source` or no source. Heuristics kind a
+ * line `openQuestion` when it ends with `?` or begins with `TBC`,
+ * `TBD`, `Open:` or `Question:`, unless a `[kind]` marker says
+ * otherwise. Unknown `[kind]` values raise `LedgerError` (code
+ * `usage`) before any write.
  *
  * @param {string} content
  * @param {object} [opts]
- * @param {string} [opts.kind] default kind for every extracted line
- * @param {string} [opts.source] optional source-span label per entry
+ * @param {string} [opts.kind] default kind for every unmarked line
+ * @param {string} [opts.source] default source for every unmarked line
  * @returns {Array<{ text: string, kind: string, source?: string }>}
  */
 export function parseBriefFromFile(content, opts = {}) {
-  const kind = opts.kind ?? 'capability';
+  const defaultKind = opts.kind ?? 'capability';
   /** @type {Array<{ text: string, kind: string, source?: string }>} */
   const drafts = [];
   for (const raw of content.split(/\r?\n/)) {
     const trimmed = raw.trim();
     if (!trimmed) continue;
-    const stripped = trimmed
+    let line = trimmed
       .replace(/^[-*]\s+/, '')
       .replace(/^\d+[.)]\s+/, '');
-    if (!stripped) continue;
-    const entry = { text: stripped, kind };
-    if (opts.source) entry.source = opts.source;
+    if (!line) continue;
+
+    // Trailing (source: ...) marker.
+    let source = opts.source;
+    const srcMatch = line.match(SOURCE_MARKER_RE);
+    if (srcMatch) {
+      source = srcMatch[1].trim();
+      line = line.slice(0, srcMatch.index).trimEnd();
+    }
+
+    // Leading [kind] marker.
+    let kind = null;
+    const kindMatch = line.match(KIND_MARKER_RE);
+    if (kindMatch) {
+      kind = kindMatch[1].trim();
+      line = line.slice(kindMatch[0].length).trim();
+      if (!BRIEF_KINDS.includes(/** @type {any} */ (kind))) {
+        throw new LedgerError(
+          `brief --from: unknown kind '${kind}' (expected one of: ${BRIEF_KINDS.join(', ')})`,
+          { field: 'kind', code: 'usage' },
+        );
+      }
+    }
+
+    if (!line) continue;
+
+    // Heuristics for openQuestion when no [kind] marker was given.
+    if (!kind) {
+      if (line.endsWith('?') || QUESTION_PREFIX_RE.test(line)) {
+        kind = 'openQuestion';
+      } else {
+        kind = defaultKind;
+      }
+    }
+
+    const entry = { text: line, kind };
+    if (source) entry.source = source;
     drafts.push(entry);
   }
   return drafts;
+}
+
+/**
+ * Parse a `resolvedBy` pointer against the walker tree. The six
+ * accepted forms are `REQ-nnn`, `TAD.entity:<name>`, `PRD.user:<name>`,
+ * `TAD.system:<name>`, `TAC-nnnn`, and `omitted:<reason>`. Resolution
+ * checks the pointed-to id or name actually exists in the tree
+ * (except for `omitted:`, which always passes once the reason is
+ * non-empty).
+ *
+ * @param {string} pointer
+ * @param {object} tree  walker tree (TreeModel-like)
+ * @returns {{ ok: true, kind: string, target: string } | { ok: false, why: string }}
+ */
+export function parseResolvedBy(pointer, tree) {
+  if (typeof pointer !== 'string' || pointer.length === 0) {
+    return { ok: false, why: 'pointer must be a non-empty string' };
+  }
+  const p = pointer.trim();
+
+  // omitted:<reason>
+  const omittedMatch = p.match(/^omitted:(.+)$/);
+  if (omittedMatch) {
+    const reason = omittedMatch[1].trim();
+    if (!reason) return { ok: false, why: 'omitted: pointer needs a reason' };
+    return { ok: true, kind: 'omitted', target: reason };
+  }
+
+  // REQ-nnn
+  if (/^REQ-\d+$/.test(p)) {
+    const found = (tree?.requirements ?? []).some((r) => r?.reqId === p);
+    if (!found) return { ok: false, why: 'pointer does not resolve' };
+    return { ok: true, kind: 'req', target: p };
+  }
+
+  // TAC-nnnn (allow the walker's longer `TAC-nnnn-slug` convention too).
+  if (/^TAC-\d+/.test(p)) {
+    const tacs = tree?.tacs ?? [];
+    const found = tacs.some((t) => t?.tacId === p || t?.tacId?.split('-').slice(0, 2).join('-') === p.split('-').slice(0, 2).join('-'));
+    if (!found) return { ok: false, why: 'pointer does not resolve' };
+    return { ok: true, kind: 'tac', target: p };
+  }
+
+  // TAD.entity:<name>
+  const entityMatch = p.match(/^TAD\.entity:(.+)$/);
+  if (entityMatch) {
+    const name = entityMatch[1].trim();
+    if (!name) return { ok: false, why: 'TAD.entity: pointer needs a name' };
+    const entities = tree?.tad?.dataArchitecture?.coreEntities ?? [];
+    const found = Array.isArray(entities)
+      && entities.some((e) => (typeof e === 'string' ? e : e?.name) === name);
+    if (!found) return { ok: false, why: 'pointer does not resolve' };
+    return { ok: true, kind: 'tadEntity', target: name };
+  }
+
+  // PRD.user:<name>
+  const userMatch = p.match(/^PRD\.user:(.+)$/);
+  if (userMatch) {
+    const name = userMatch[1].trim();
+    if (!name) return { ok: false, why: 'PRD.user: pointer needs a name' };
+    const users = tree?.prd?.users ?? [];
+    const found = Array.isArray(users)
+      && users.some((u) => (typeof u === 'string' ? u : u?.name) === name);
+    if (!found) return { ok: false, why: 'pointer does not resolve' };
+    return { ok: true, kind: 'prdUser', target: name };
+  }
+
+  // TAD.system:<name>
+  const systemMatch = p.match(/^TAD\.system:(.+)$/);
+  if (systemMatch) {
+    const name = systemMatch[1].trim();
+    if (!name) return { ok: false, why: 'TAD.system: pointer needs a name' };
+    const systems = tree?.tad?.externalSystems ?? [];
+    const found = Array.isArray(systems)
+      && systems.some((s) => (typeof s === 'string' ? s : s?.name) === name);
+    if (!found) return { ok: false, why: 'pointer does not resolve' };
+    return { ok: true, kind: 'tadSystem', target: name };
+  }
+
+  return { ok: false, why: 'pointer outside grammar (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>)' };
+}
+
+/**
+ * Patch a ledger entry in place. Field patches honour `add`-side
+ * validation by re-running `validateLedger` on the resulting body.
+ * Throws `LedgerError` (code `usage`) when the id is unknown. The
+ * entry's `id` and `addedAt` are never touched; `status`, `addedAt`
+ * and `resolvedAt` are passed through from the current entry unless
+ * explicitly patched.
+ *
+ * @param {object} args
+ * @param {LedgerName} args.name
+ * @param {Record<string, unknown[]>} args.body
+ * @param {number} args.id
+ * @param {Record<string, unknown>} args.patch
+ * @returns {{ body: Record<string, unknown[]>, entry: Record<string, unknown> }}
+ */
+export function updateEntry({ name, body, id, patch }) {
+  const cfg = LEDGER_CONFIG[name];
+  if (!cfg) throw new LedgerError(`Unknown ledger '${name}'.`, { code: 'usage' });
+  const list = /** @type {any[]} */ (body[cfg.arrayKey] ?? []);
+  const idx = list.findIndex((e) => Number(e?.id) === Number(id));
+  if (idx < 0) {
+    throw new LedgerError(`${name} ledger has no entry with id ${id}.`, {
+      filePath: ledgerRelPath(name), field: `id ${id}`, code: 'usage',
+    });
+  }
+  const current = list[idx];
+  const next = { ...current };
+  for (const [key, value] of Object.entries(patch)) {
+    if (value === undefined) continue;
+    if (key === 'id' || key === 'addedAt') continue;
+    next[key] = value;
+  }
+  const nextList = [...list];
+  nextList[idx] = next;
+  const nextBody = { ...body, [cfg.arrayKey]: nextList };
+  validateLedger(name, nextBody, ledgerRelPath(name));
+  return { body: nextBody, entry: next };
 }
 
 /**

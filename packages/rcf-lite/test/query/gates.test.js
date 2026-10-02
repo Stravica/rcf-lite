@@ -853,3 +853,96 @@ test('gates (ADR-4126, AC-17403-7): one option, no default fails wellFormed', ()
   assert.ok(!wf.ok);
   assert.ok(wf.failing.some((f) => f.id === 'decision:2' && /enumerated/.test(f.why)));
 });
+
+// ---------------------------------------------------------------------------
+// REQ-173 amendment (US-17302): skeleton:resolvedBy with the closed pointer
+// grammar; the title-hit fallback is dropped in 0.30.0.
+// ---------------------------------------------------------------------------
+
+function resolvedByFixtureTree(extraReqs = []) {
+  const req3 = { reqId: 'REQ-003', title: 'Loan hold', description: 'live', domain: 'd', shapeClassification: { shapes: [] } };
+  return makeTree({
+    requirements: [req3, ...extraReqs],
+    tacs: [{ tacId: 'TAC-4130-define-intake-brief', interfaces: [{ name: 'x', kind: 'other', description: 'live' }] }],
+    tad: {
+      tadId: 'TAD-001',
+      dataArchitecture: {
+        dataStores: [{ name: 's' }],
+        coreEntities: [{ name: 'Loan' }, { name: 'Officer' }],
+      },
+      externalSystems: [{ name: 'CoreBanking' }],
+    },
+    prd: { prdId: 'PRD-001', users: [{ name: 'LoanOfficer' }] },
+    adrs: [{ adrId: 'ADR-D', title: 'Deploy target: fly.io' }],
+  });
+}
+
+function resolvedByCtx(tree, statements) {
+  return {
+    tree,
+    ledgers: {
+      brief: { statements },
+      decisions: { decisions: [] },
+      concerns: { concerns: [] },
+      probes: { probes: [] },
+    },
+    scope: new Set(),
+    delta: { frozen: false, changed: [], added: [], removed: [], briefSince: [] },
+    freeze: null,
+    validateErrors: [],
+    profileText: 'productOwner viewer',
+    currentTreeHash: 'sha256:aaa',
+  };
+}
+
+test('gates (REQ-173, AC-17302-3): each pointer form resolves on the fixture', () => {
+  const tree = resolvedByFixtureTree();
+  const statements = [
+    { id: 1, kind: 'capability', text: 'req', resolvedBy: 'REQ-003', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+    { id: 2, kind: 'capability', text: 'ent', resolvedBy: 'TAD.entity:Loan', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+    { id: 3, kind: 'capability', text: 'usr', resolvedBy: 'PRD.user:LoanOfficer', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+    { id: 4, kind: 'capability', text: 'sys', resolvedBy: 'TAD.system:CoreBanking', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+    { id: 5, kind: 'capability', text: 'tac', resolvedBy: 'TAC-4130', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+    { id: 6, kind: 'capability', text: 'omit', resolvedBy: 'omitted:out of scope', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+  ];
+  const stage = checkD2Skeleton(resolvedByCtx(tree, statements));
+  const check = stage.checks.find((c) => c.name === 'skeleton:resolvedBy');
+  assert.ok(check, 'skeleton:resolvedBy should exist');
+  assert.ok(check.ok, `expected pass, failing=${JSON.stringify(check.failing)}`);
+});
+
+test('gates (REQ-173, AC-17302-5): REQ-999 fails with "pointer does not resolve"', () => {
+  const tree = resolvedByFixtureTree();
+  const statements = [
+    { id: 1, kind: 'capability', text: 'dangling', resolvedBy: 'REQ-999', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+  ];
+  const stage = checkD2Skeleton(resolvedByCtx(tree, statements));
+  const check = stage.checks.find((c) => c.name === 'skeleton:resolvedBy');
+  assert.ok(!check.ok);
+  assert.ok(check.failing.some((f) => f.id === 'brief:1' && /pointer does not resolve/.test(f.why)));
+});
+
+test('gates (REQ-173, AC-17302-6): a text-title hit alone does NOT pass in 0.30.0', () => {
+  // REQ-003's title is "Loan hold"; the statement text embeds the title
+  // but carries NO resolvedBy. In 0.29.0 this passed on the title hit;
+  // in 0.30.0 skeleton:resolvedBy must fail it.
+  const tree = resolvedByFixtureTree();
+  const statements = [
+    { id: 1, kind: 'capability', text: 'The system supports Loan hold handling.', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+  ];
+  const stage = checkD2Skeleton(resolvedByCtx(tree, statements));
+  const check = stage.checks.find((c) => c.name === 'skeleton:resolvedBy');
+  assert.ok(!check.ok, 'title hit must not pass in 0.30.0');
+  assert.ok(check.failing.some((f) => f.id === 'brief:1'));
+});
+
+test('gates (REQ-173): a resolvedBy outside the grammar fails with "pointer does not resolve"', () => {
+  const tree = resolvedByFixtureTree();
+  const statements = [
+    { id: 1, kind: 'capability', text: 'free text', resolvedBy: 'loan thing', addedAt: '2026-10-02T10:00:00Z', status: 'open' },
+  ];
+  const stage = checkD2Skeleton(resolvedByCtx(tree, statements));
+  const check = stage.checks.find((c) => c.name === 'skeleton:resolvedBy');
+  assert.ok(!check.ok);
+  assert.ok(check.failing.some((f) => f.id === 'brief:1' && /pointer does not resolve/.test(f.why)));
+});

@@ -1,17 +1,35 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-09-24T12:00:00Z",
-  "purpose": "Cover the four sidecar ledgers, the rcf define ledger CLI (add / resolve / list with --json) and the walker-invisibility invariant on rcf/define/ against AC-17301-1..4 on US-17301.",
+  "updatedAt": "2026-10-02T16:40:00Z",
+  "purpose": "Cover the four sidecar ledgers, the rcf define ledger CLI (add / resolve / list with --json) and the walker-invisibility invariant on rcf/define/ (AC-17301-1..4 on US-17301), the update subverb and the closed resolvedBy pointer grammar (AC-17302-1..6 on US-17302), the statement-file markers (AC-18701-1..6 on US-18701) and the scan wiring (AC-18702-1..6 on US-18702).",
   "testLevel": "integration",
   "acIds": [
     "AC-17301-1",
     "AC-17301-2",
     "AC-17301-3",
-    "AC-17301-4"
+    "AC-17301-4",
+    "AC-17302-1",
+    "AC-17302-2",
+    "AC-17302-3",
+    "AC-17302-4",
+    "AC-17302-5",
+    "AC-17302-6",
+    "AC-18701-1",
+    "AC-18701-2",
+    "AC-18701-3",
+    "AC-18701-4",
+    "AC-18701-5",
+    "AC-18701-6",
+    "AC-18702-1",
+    "AC-18702-2",
+    "AC-18702-3",
+    "AC-18702-4",
+    "AC-18702-5",
+    "AC-18702-6"
   ],
   "id": "TS-215",
   "usId": "US-17301",
-  "title": "Sidecar ledgers, rcf define ledger and walker invisibility",
+  "title": "Sidecar ledgers, rcf define ledger and walker invisibility (extended for update + intake markers + scans)",
   "testCases": [
     {
       "id": "TC-215-brief-add-text",
@@ -61,6 +79,132 @@
       "description": "walkTree run over a project seeded with rcf/define/freeze.json, the four ledger files and a bug-bait req-999.json under rcf/define/ never surfaces any rcf/define/ path in errors or byId.",
       "status": "pending",
       "testPointer": "test/store/walker-invisible-define.test.js::walkTree never surfaces rcf/define/ files as documents in byId"
+    },
+    {
+      "id": "TC-215-brief-update-fields-and-preserve-id",
+      "acId": "AC-17302-1",
+      "description": "updateEntry patches brief fields (kind, resolvedBy) and preserves id and addedAt; the CLI brief update subverb returns 0 and the write lands on the ledger with the patched fields.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::updateEntry (AC-17302-1): patches brief fields and preserves id / addedAt"
+    },
+    {
+      "id": "TC-215-decisions-update-wellformed",
+      "acId": "AC-17302-2",
+      "description": "decisions update patches options and default so decisions:wellFormed shape passes (two options + a default).",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::updateEntry (AC-17302-2): decisions update patches options and default and passes wellFormed shape"
+    },
+    {
+      "id": "TC-215-resolvedby-grammar-each-form",
+      "acId": "AC-17302-3",
+      "description": "Each resolvedBy pointer form (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>) resolves on the fixture and D2's skeleton:resolvedBy passes it.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-173, AC-17302-3): each pointer form resolves on the fixture"
+    },
+    {
+      "id": "TC-215-update-refuses-nongrammar",
+      "acId": "AC-17302-4",
+      "description": "brief update --resolved-by with a free-text pointer exits 2 naming the grammar and the ledger is unchanged.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-17302-4): brief update --resolved-by outside the grammar exits 2 and writes nothing"
+    },
+    {
+      "id": "TC-215-d2-dangling-pointer-fails",
+      "acId": "AC-17302-5",
+      "description": "A statement with resolvedBy REQ-999 on a tree with no REQ-999 fails skeleton:resolvedBy with 'pointer does not resolve'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-173, AC-17302-5): REQ-999 fails with \"pointer does not resolve\""
+    },
+    {
+      "id": "TC-215-d2-title-hit-dropped",
+      "acId": "AC-17302-6",
+      "description": "In 0.30.0 skeleton:resolvedBy no longer passes a statement on a REQ-title text hit alone; a resolvedBy pointer is required.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-173, AC-17302-6): a text-title hit alone does NOT pass in 0.30.0"
+    },
+    {
+      "id": "TC-215-markers-kind-and-source",
+      "acId": "AC-18701-1",
+      "description": "parseBriefFromFile parses a leading [kind] and a trailing (source: ...) marker; the CLI brief add --from mints a statement with that kind, text and source.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::parseBriefFromFile (AC-18701-1): leading [kind] and trailing (source: ...) markers mint one statement"
+    },
+    {
+      "id": "TC-215-defaults-from-flags",
+      "acId": "AC-18701-2",
+      "description": "A line without markers inherits --kind and --source from CLI flags.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::parseBriefFromFile (AC-18701-2): a line without markers inherits --kind and --source"
+    },
+    {
+      "id": "TC-215-question-heuristic",
+      "acId": "AC-18701-3",
+      "description": "A trailing '?' or a TBC/TBD/Open:/Question: prefix with no [kind] marker kinds the statement openQuestion.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::parseBriefFromFile (AC-18701-3): a question-mark trailing line is kinded openQuestion"
+    },
+    {
+      "id": "TC-215-029-line-per-statement-unchanged",
+      "acId": "AC-18701-4",
+      "description": "A 0.29.0 line-per-statement file (no markers) parses to the same drafts as the 0.29.0 code path produced.",
+      "status": "pending",
+      "testPointer": "test/define/ledgers.test.js::parseBriefFromFile (AC-18701-4): a 0.29.0 line-per-statement file parses unchanged"
+    },
+    {
+      "id": "TC-215-unknown-kind-exits-2",
+      "acId": "AC-18701-5",
+      "description": "A line with an unknown [kind] exits 2 naming the accepted kinds and writes nothing to the ledger.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18701-5): brief add --from with an unknown [kind] exits 2 before writing"
+    },
+    {
+      "id": "TC-215-dry-run-no-write",
+      "acId": "AC-18701-6",
+      "description": "brief add --from --dry-run never creates or modifies rcf/define/brief-ledger.json.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18701-6, --dry-run): writes nothing"
+    },
+    {
+      "id": "TC-215-scan-mints-openquestion",
+      "acId": "AC-18702-1",
+      "description": "A new statement that the contradiction scan flags against an existing statement adds one openQuestion statement with source scan:contradiction:<id>,<id>.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-1): mechanical scan on brief add mints an openQuestion with scan: source"
+    },
+    {
+      "id": "TC-215-findings-mints-openquestions",
+      "acId": "AC-18702-2",
+      "description": "--findings <path> accepts rcf discover intake --input shape and mints one openQuestion per finding with source scan:<name>.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-2): --findings file mints one openQuestion per finding with scan: source"
+    },
+    {
+      "id": "TC-215-scans-compare-every-existing",
+      "acId": "AC-18702-3",
+      "description": "runIntakeScansOnDelta compares every new statement against every existing statement (the frozen set is every statement).",
+      "status": "pending",
+      "testPointer": "test/intake/validate.test.js::runIntakeScansOnDelta (AC-18702-3): on a frozen set the comparison set is every existing statement"
+    },
+    {
+      "id": "TC-215-json-emits-added-and-findings",
+      "acId": "AC-18702-4",
+      "description": "brief add --json emits { added: [...], findings: [...] } on stdout.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-4, --json): emits { added, findings }"
+    },
+    {
+      "id": "TC-215-no-scan-plus-findings-exits-2",
+      "acId": "AC-18702-5",
+      "description": "--no-scan combined with --findings exits 2 naming the conflict.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-5): --no-scan with --findings exits 2"
+    },
+    {
+      "id": "TC-215-text-runs-no-scan",
+      "acId": "AC-18702-6",
+      "description": "brief add --text runs no scan and appends no openQuestion statement.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-6): --text runs no scan and appends no openQuestion"
     }
   ],
   "status": "draft"

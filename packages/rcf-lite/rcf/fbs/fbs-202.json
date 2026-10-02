@@ -1,0 +1,60 @@
+{
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z",
+  "acIds": [
+    "AC-17302-1",
+    "AC-17302-2",
+    "AC-17302-3",
+    "AC-17302-4",
+    "AC-17302-5",
+    "AC-17302-6",
+    "AC-18701-1",
+    "AC-18701-2",
+    "AC-18701-3",
+    "AC-18701-4",
+    "AC-18701-5",
+    "AC-18701-6",
+    "AC-18702-1",
+    "AC-18702-2",
+    "AC-18702-3",
+    "AC-18702-4",
+    "AC-18702-5",
+    "AC-18702-6"
+  ],
+  "fbsId": "FBS-202",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 202,
+  "executionStatus": "notStarted",
+  "title": "DEFINE step 3 PR 1: document intake, statement-file markers, ledger update, resolvedBy grammar (REQ-187, REQ-173 amendment)",
+  "summary": "Carry the ACs for PR 1 of the DEFINE step 3 spec (2026-10-01): statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). Chain-first commit (REQ-187 new, REQ-173 amended, US-18701/18702/17302, TAC-4121 amended, TAC-4130 new) landed before the code. Tests ride TS-215 (extended acIds).",
+  "dependsOnFbsIds": [
+    "FBS-195",
+    "FBS-201"
+  ],
+  "approach": "parseBriefFromFile parses a leading [kind] and a trailing (source: ...) marker; unknown kind raises LedgerError code 'usage' before any write. updateEntry patches named fields and re-runs validateLedger. parseResolvedBy / isResolvedByGrammar implement the closed pointer grammar. runIntakeScansOnDelta composes the three mechanical scans in src/intake/validate.js over new-plus-existing statements, attributing findings to the statement ids that participate. The CLI brief add wires --scan / --no-scan / --findings / --dry-run / --json; the update subverb lives beside add in src/cli/ledger.js. D2's skeleton:resolvedBy drops the title-hit fallback and refuses a pointer outside the grammar with 'pointer does not resolve'.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4121-define-ledgers",
+      "TAC-4130-define-intake-brief"
+    ],
+    "adrIds": []
+  },
+  "deliverables": [
+    "src/define/ledgers.js: parseBriefFromFile with markers; updateEntry; parseResolvedBy; isResolvedByGrammar; brief resolvedBy field in validateEntry",
+    "src/intake/orchestrator.js: runIntakeScansOnDelta",
+    "src/intake/index.js: re-export runIntakeScansOnDelta",
+    "src/cli/ledger.js: brief add scan wiring, --findings, --dry-run, --json; update subverb",
+    "src/query/gates.js: D2 skeleton:resolvedBy validates the closed pointer grammar; title-hit fallback dropped",
+    "test/define/ledgers.test.js: AC-17302-1..5, AC-18701-1..5 unit cases",
+    "test/intake/validate.test.js: runIntakeScansOnDelta unit cases",
+    "test/query/gates.test.js: AC-17302-3/5/6 D2 cases",
+    "test/cli/ledger.test.js: AC-17302-1/4, AC-18701-1/5/6, AC-18702-1/2/4/5/6 CLI cases",
+    "rcf/requirements/req-187.json, rcf/requirements/req-173.json (amended), rcf/user-stories/us-18701.json, us-18702.json, us-17302.json, rcf/tacs/tac-4121-define-ledgers.json (amended), tac-4130-define-intake-brief.json, rcf/test-suites/ts-215.json (extended), rcf/fbs/fbs-202.json: this file"
+  ],
+  "riskLevel": "low",
+  "domain": "defineLedgers",
+  "estimatedSize": "medium",
+  "estimatedHours": 4,
+  "notes": "FBS-202 was reserved as 'next free' in the dispatch brief and allocated here to keep the dogfood no-orphan-AC invariant. executionStatus is 'notStarted' so the CN axis stays legitimately deferred for this PR (test additions ride existing test suites, no new CN per brief). Later DEFINE PRs promote this FBS to inProgress / complete as their deliveries land."
+}
