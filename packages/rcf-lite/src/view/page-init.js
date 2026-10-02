@@ -2021,6 +2021,43 @@
     lookupRun();
   }
 
+  // Readiness StageLegend (viewer UI refresh PR 8). Any element carrying
+  // `data-rcf-stage-ref="Dn"` opens the stage legend dialog focused on
+  // that row. The dialog is server-rendered (readiness/stage-legend.js);
+  // this wiring is purely a click + <dialog>.showModal() delegation.
+  var stageLegendWired = false;
+  function wireStageLegend() {
+    if (stageLegendWired) return;
+    stageLegendWired = true;
+    document.addEventListener('click', function (ev) {
+      var el = ev.target;
+      while (el && el !== document.body) {
+        if (el.getAttribute && el.getAttribute('data-rcf-stage-ref') !== null) {
+          var stage = el.getAttribute('data-rcf-stage-ref');
+          var dialog = document.getElementById('rcf-stage-legend');
+          if (!dialog) return;
+          var rows = dialog.querySelectorAll('tr[data-stage]');
+          for (var i = 0; i < rows.length; i += 1) {
+            if (rows[i].getAttribute('data-stage') === stage) {
+              rows[i].classList.add('rcf-stage-legend__highlighted');
+            } else {
+              rows[i].classList.remove('rcf-stage-legend__highlighted');
+            }
+          }
+          if (typeof dialog.showModal === 'function' && !dialog.open) {
+            ev.preventDefault && ev.preventDefault();
+            dialog.showModal();
+          } else if (!dialog.open) {
+            ev.preventDefault && ev.preventDefault();
+            dialog.setAttribute('open', '');
+          }
+          return;
+        }
+        el = el.parentNode;
+      }
+    });
+  }
+
   function wireLookup() {
     var modal = lookupModal();
     if (modal && !modal.__rcfLookupWired) {
@@ -2129,6 +2166,7 @@
     wireEntitySelectors();
     wireFixturePage();
     wireLookup();
+    wireStageLegend();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
       hashchangeWired = true;
