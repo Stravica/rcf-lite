@@ -48,6 +48,7 @@ import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 import { renderProductMapPanel } from './product-map.js';
 import { renderReadinessPanel } from './readiness.js';
+import { renderToastContainer } from './components/toast.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
 // Used by the shell footer so the muted "RCF Lite X.Y.Z" line tracks the
@@ -73,7 +74,8 @@ const LIVE_WRAPPER_CLOSE = '</div>';
  * @returns {string}
  */
 export function renderPage(model) {
-  const projectName = model.manifest?.projectName ?? model.prd?.productName ?? 'RCF project';
+  const header = resolveProductHeader(model);
+  const projectName = header.projectName ?? 'RCF project';
   const contentHtml = renderContent(model);
 
   return `<!DOCTYPE html>
@@ -100,10 +102,7 @@ export function renderPage(model) {
       <div class="brand" title="Review surface">
         <svg class="mark" aria-hidden="true" viewBox="0 0 64 64" width="18" height="18"><rect x="0" y="0" width="64" height="64" rx="14" fill="#080F19"/><g fill="#7295FF"><path d="M38 9L17 21V32L38 20Z"/><path d="M30 27L46 36V46L30 37L23 33Z"/><path d="M46 46L25 58V47L37 40Z"/></g></svg>
       </div>
-      <div class="product">
-        <span class="name">${escapeHtml(projectName)}</span>
-        <span class="sub">review surface</span>
-      </div>
+      ${renderProductBlock(header)}
       <nav class="tabs" role="tablist" aria-label="Document sections">
         <button type="button" role="tab" data-tab="readiness" aria-selected="true" aria-controls="tab-readiness">Readiness</button>
         <button type="button" role="tab" data-tab="overview" aria-selected="false" aria-controls="tab-overview">PRD</button>
@@ -133,6 +132,7 @@ export function renderPage(model) {
       <span class="label">Connecting&hellip;</span>
     </span>
   </footer>
+  ${renderToastContainer()}
   <script src="./mermaid.min.js"></script>
   <script src="./page-init.js" defer></script>
   <script src="./live-client.js" defer></script>
@@ -350,6 +350,53 @@ ${bsSection}
 ${fbsBlocks || '<p><em>No FBS items on disk.</em></p>'}
 ${tsSection}
 `;
+}
+
+/**
+ * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02): the one-bar
+ * header carries the stack under review by name (decision 17) plus
+ * the stack label when the TAD names one. The project name is sourced
+ * from `manifest.projectName`, then `prd.productName`, then
+ * `prd.productTitle` (the PRD title the brief names). The stack is
+ * `tad.stack` if present or, defensively, the TAD's
+ * `systemOverview.stack` key - today's TAD schema names neither, so
+ * the stack line renders only on trees that carry it. When the tree
+ * exposes neither a project name nor a stack, the whole product block
+ * collapses and the brand icon is on its own (empty state is silent;
+ * CSS `.product:empty { display:none; }`).
+ *
+ * @param {import('./tree-model.js').BuiltTreeModel} model
+ * @returns {{ projectName: string | null, stack: string | null }}
+ */
+export function resolveProductHeader(model) {
+  const projectName = model.manifest?.projectName
+    ?? model.prd?.productName
+    ?? model.prd?.productTitle
+    ?? null;
+  const stack = typeof model.tad?.stack === 'string' && model.tad.stack.length > 0
+    ? model.tad.stack
+    : typeof model.tad?.systemOverview?.stack === 'string' && model.tad.systemOverview.stack.length > 0
+      ? model.tad.systemOverview.stack
+      : null;
+  return { projectName, stack };
+}
+
+function renderProductBlock(header) {
+  const parts = [];
+  if (header.projectName) {
+    parts.push(`<span class="name">${escapeHtml(header.projectName)}</span>`);
+    parts.push('<span class="sub">review surface</span>');
+  }
+  if (header.stack) {
+    parts.push(`<span class="stack" title="Stack under review">${escapeHtml(header.stack)}</span>`);
+  }
+  if (parts.length === 0) {
+    // No project name and no stack: collapse. The empty .product block
+    // is hidden by CSS so the brand icon stands on its own and PR 2's
+    // "silent empty state" (brief) survives screen-reader output too.
+    return '<div class="product"></div>';
+  }
+  return `<div class="product">${parts.join('\n        ')}</div>`;
 }
 
 function renderErrorBanner(errors) {
