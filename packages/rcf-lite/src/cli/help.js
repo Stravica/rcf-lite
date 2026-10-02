@@ -47,6 +47,7 @@ import { HELP as BLUEPRINT_HELP } from './blueprint.js';
 import { HELP as STANDARDS_HELP } from './standards.js';
 import { HELP as LEDGER_HELP } from './ledger.js';
 import { HELP as READINESS_HELP } from './readiness.js';
+import { HELP as QUESTIONS_HELP } from './questions.js';
 import { HELP as FREEZE_HELP } from './freeze.js';
 
 // Verify group members (from the verify-suite subtree).
@@ -98,6 +99,7 @@ define       Author the RCF tree.
   standards <verb>         Register standards packs against the project.
   ledger <name> <verb>     Sidecar-ledger CRUD under rcf/define/.
   readiness                DEFINE stage-gate readiness view.
+  questions                Persona question set for the intent-complete loop.
 
 build        Drive the FBS queue and the five-stage build cycle.
   queue                    Show the FBS build queue.
@@ -199,6 +201,9 @@ Verbs:
                             verbs: add | resolve | list).
   readiness                DEFINE stage-gate readiness view; twin of
                            the viewer's Readiness tab (slice 5).
+  questions                Persona question set for the intent-complete
+                           loop: one plain question per failing
+                           product-owner item carrying its write-back.
   freeze                   Close a change: run readiness, refuse on any
                            failing stage, write rcf/define/freeze.json
                            and print the section 2.5 summary. --status
@@ -300,6 +305,7 @@ export const HELP_MAP = {
     standards: STANDARDS_HELP,
     ledger: LEDGER_HELP,
     readiness: READINESS_HELP,
+    questions: QUESTIONS_HELP,
     freeze: FREEZE_HELP,
   },
   build: {
