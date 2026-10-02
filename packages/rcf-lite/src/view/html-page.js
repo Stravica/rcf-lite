@@ -59,6 +59,7 @@ import { renderEntitySelector } from './components/entity-selector.js';
 import { renderSubTabStrip } from './components/sub-tab-strip.js';
 import { buildDagLayout, buildDagInspectorPayload, renderBuildDag } from './build-dag.js';
 import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
+import { renderLookupModal, renderSearchButton } from './view-index.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
 // Used by the shell footer so the muted "RCF Lite X.Y.Z" line tracks the
@@ -121,7 +122,9 @@ export function renderPage(model) {
         <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
         <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build</button>
       </nav>
-      <div class="tools" aria-label="Viewer tools"></div>
+      <div class="tools" aria-label="Viewer tools">
+        ${renderSearchButton()}
+      </div>
     </div>
   </header>
   <main>
@@ -143,6 +146,7 @@ export function renderPage(model) {
     </span>
   </footer>
   ${renderToastContainer()}
+  ${renderLookupModal()}
   <script src="./mermaid.min.js"></script>
   <script src="./page-init.js" defer></script>
   <script src="./live-client.js" defer></script>

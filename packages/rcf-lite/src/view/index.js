@@ -15,6 +15,7 @@ import { loadAllLedgers } from '../define/ledgers.js';
 import { renderContent, renderPage } from './html-page.js';
 import { renderProductMapGrouping } from './product-map.js';
 import { buildTreeModel } from './tree-model.js';
+import { serialiseViewIndex } from './view-index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const VENDORED_MERMAID_PATH = resolve(here, 'vendored', 'mermaid.min.js');
@@ -110,7 +111,13 @@ export async function renderModelToPage({ projectRoot }) {
     capability: renderProductMapGrouping(model, 'capability'),
     blueprint: renderProductMapGrouping(model, 'blueprint'),
   };
-  return { fullPageHtml, contentHtml, errors, tree, pmPartials };
+  // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup index
+  // is built on every rewalk from BuiltTreeModel and served from the
+  // new `./index.json` route (release-noted so wespa's proxy allow-
+  // list is extended before the version pin bump). One row per doc id
+  // plus one row per AC under each US.
+  const indexJson = serialiseViewIndex(model);
+  return { fullPageHtml, contentHtml, errors, tree, pmPartials, indexJson };
 }
 
 /**
