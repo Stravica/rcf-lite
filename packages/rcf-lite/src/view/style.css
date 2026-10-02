@@ -1553,3 +1553,210 @@ html[data-embed="1"] .rcf-filterbar { top: 2.75rem; }
 /* Decision 17: when the tree carries no project name, the .product
    block collapses to nothing and the brand icon is on its own. */
 .product:empty { display: none; }
+
+/* -----------------------------------------------------------------
+   Viewer UI refresh PR 3: Requirements tab and PRD EntitySelector
+   ----------------------------------------------------------------- */
+
+/* The Requirements list column: tighter spacing than the generic
+   doc-details so a long list stays scannable. */
+.rcf-requirements-list { display: block; }
+.rcf-requirements-list > details.rcf-row { margin-bottom: 0.4rem; }
+
+/* "Needs work" marker on a REQ row: accent border on the left so it
+   stands out in the long list without screaming. */
+details.rcf-row.needs-work { border-left: 3px solid var(--sv-warning); }
+details.rcf-row.needs-work > summary .rcf-badge--accent { color: var(--sv-warning); border-color: var(--sv-warning); }
+
+.rcf-req-description { margin-top: 0.4rem; }
+.rcf-req-rationale { font-size: 0.9rem; }
+.rcf-req-tags { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0.5rem 0; }
+.rcf-req-needswork {
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--sv-warning);
+  background: var(--sv-warningbg);
+  color: var(--sv-warning);
+  border-radius: var(--radius-sm);
+  margin: 0.4rem 0 0.6rem;
+  font-size: 0.9rem;
+}
+
+.rcf-req-stories { margin-top: 0.9rem; }
+.rcf-req-stories > h4 {
+  margin: 0 0 0.4rem;
+  color: var(--sv-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Inner rows (user stories nested under a REQ): slightly recessed. */
+details.rcf-row.rcf-row--inner {
+  background: var(--sv-canvas);
+  border-color: var(--sv-border);
+  margin-bottom: 0.3rem;
+}
+details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
+
+/* Collapsed slice diagram and raw JSON disclosures on a REQ row. */
+.rcf-req-slice, .rcf-req-raw {
+  margin: 0.6rem 0 0;
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-sm);
+  background: var(--sv-canvas);
+}
+.rcf-req-slice > summary, .rcf-req-raw > summary {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  color: var(--sv-muted);
+  font-size: 0.85rem;
+}
+.rcf-req-slice-body { padding: 0.5rem 0.75rem 0.75rem; }
+.rcf-req-raw > pre { padding: 0.6rem 0.75rem; margin: 0; overflow: auto; }
+
+/* PRD tab (viewer UI refresh PR 3): the five lists collapsed, each
+   with a count badge; EntitySelector sits below the article. */
+.rcf-prd-list {
+  margin: 0.4rem 0;
+  padding: 0;
+  background: var(--sv-canvas);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-sm);
+}
+.rcf-prd-list > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+.rcf-prd-list > summary::-webkit-details-marker { display: none; }
+.rcf-prd-list > summary::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 2px solid var(--sv-control);
+  border-bottom: 2px solid var(--sv-control);
+  transform: rotate(-45deg);
+  transition: transform 0.12s;
+  flex: none;
+}
+.rcf-prd-list[open] > summary::before { transform: rotate(45deg); }
+.rcf-prd-list > summary:hover { background: var(--sv-raised); }
+.rcf-prd-list-body { padding: 0.25rem 1.25rem 0.75rem; }
+.rcf-prd-list-body ul { margin: 0.3rem 0; padding-left: 1.1rem; }
+
+.rcf-prd-requirements {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-md);
+}
+.rcf-prd-requirements-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+.rcf-prd-requirements-head h3 { margin: 0; }
+.rcf-prd-requirements-open {
+  margin-left: auto;
+  color: var(--sv-link);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.rcf-prd-requirements-open:hover { text-decoration: underline; }
+
+/* EntitySelector itself: total line, type-ahead input + results pane,
+   chip row of area facets. */
+.rcf-entity-selector {
+  display: block;
+  margin-top: 0.25rem;
+}
+.rcf-entity-selector-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--sv-muted);
+  font-size: 0.9rem;
+}
+.rcf-entity-selector-total { color: var(--sv-ink); font-weight: 600; }
+.rcf-entity-selector-jump {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+.rcf-entity-selector-input {
+  width: 100%;
+  min-height: 2.3rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--sv-control);
+  border-radius: var(--radius-sm);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  font: inherit;
+}
+.rcf-entity-selector-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  margin-top: 0.25rem;
+  padding: 0.25rem;
+  max-height: 20rem;
+  overflow: auto;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+}
+.rcf-entity-selector-result {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  text-decoration: none;
+  color: var(--sv-ink);
+  border-radius: var(--radius-sm);
+}
+.rcf-entity-selector-result:hover { background: var(--sv-raised); }
+.rcf-entity-selector-result-id {
+  color: var(--sv-link);
+  font-family: var(--sv-mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+  flex: none;
+}
+.rcf-entity-selector-result-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rcf-entity-selector-result-facet {
+  color: var(--sv-muted);
+  font-size: 0.8rem;
+}
+.rcf-entity-selector-empty { padding: 0.5rem 0.75rem; }
+.rcf-entity-selector-facets-lead { margin-bottom: 0.35rem; }
+.rcf-entity-selector-facets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.rcf-entity-selector-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--sv-control);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+.rcf-entity-selector-chip:hover {
+  background: var(--sv-active);
+  border-color: var(--sv-link);
+  color: var(--sv-link);
+}
+.rcf-entity-selector-chip .rcf-badge { background: transparent; }
+.rcf-entity-selector-chip:hover .rcf-badge-value { color: var(--sv-link); }

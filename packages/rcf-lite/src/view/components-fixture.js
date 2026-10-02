@@ -18,6 +18,7 @@ import {
   renderEmptyState,
   renderToastContainer,
   renderSubTabStrip,
+  renderEntitySelector,
 } from './components/index.js';
 
 /**
@@ -132,6 +133,22 @@ export function componentSections() {
     <p class="rcf-fixture-note">Marks one item active via <code>aria-selected</code>; the shared
     page-init.js router will later own the hash write.</p>`;
 
+  const entitySelector = renderEntitySelector({
+    hashKey: 'requirements',
+    targetTab: 'requirements',
+    facetKey: 'domain',
+    items: [
+      { id: 'REQ-001', title: 'On-disk RCF project structure', facet: 'projectStructure' },
+      { id: 'REQ-002', title: 'Visual review surface', facet: 'view' },
+      { id: 'REQ-003', title: 'Deterministic CRUD over RCF documents', facet: 'crud' },
+      { id: 'REQ-010', title: 'Blueprint library mechanism', facet: 'cli' },
+      { id: 'REQ-011', title: 'E2E verification contract', facet: 'verify' },
+      { id: 'REQ-012', title: 'Core shelf: probe-path binding', facet: 'blueprints' },
+    ],
+    totalLabel: '6 sample requirements in 6 areas (demo data)',
+    placeholder: `Jump to a requirement by id or title (e.g. REQ-010 or 'review')`,
+  });
+
   return [
     {
       id: 'doc-row',
@@ -168,6 +185,12 @@ export function componentSections() {
       title: 'SubTabStrip',
       intent: 'The chip strip inside a tab panel (Build Specs | DAG in PRs 5-6).',
       html: subTabStrip,
+    },
+    {
+      id: 'entity-selector',
+      title: 'EntitySelector',
+      intent: 'Total line + type-ahead jump + area chips with counts. The PRD tab mounts one of these to replace the 109 inline requirement links (PR 3, decision 4).',
+      html: entitySelector,
     },
   ];
 }
