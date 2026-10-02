@@ -1,0 +1,39 @@
+{
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z",
+  "tacId": "TAC-4131-build-dag-view",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Build/DAG sub-tab: DagToolbar, DagCanvas, DagInspector and the unconnected lane",
+  "purpose": "Render the Build tab's DAG sub-tab as the dependency-depth layout the design doc section 7 names: a toolbar with Status / Area / Buildable-now / Critical-path / Show-unconnected filters, a scrollable canvas with HTML nodes and inline SVG edges laid by `dependsOnFbsIds` depth and `buildOrder` rows, an inspector with needs and waits-on links, and a toggled unconnected lane. The renderer is pure: it takes the built tree model, emits one HTML string, mounts no inline script and reads from no provider other than the model.",
+  "responsibilities": [
+    "src/view/doc-renderers/build.js (or an adjacent src/view/build-dag.js shared from it): renderBuildDag(model, { buildableIds, cycleIds }) returns the full DAG sub-panel HTML string - toolbar + grid + inspector shell + hidden unconnected lane - with every FBS node carrying `data-fbs-id`, `data-status`, `data-domain`, `data-depth`, `data-buildable`, `data-critical`, `data-unconnected` so the client wiring can filter and highlight without re-rendering.",
+    "Layout: columns are 0..maxDepth; depth is the longest chain length from `dependsOnFbsIds` to the root (0 for no dependency). Rows inside a column are `buildOrder` ascending with `fbsId` lexicographic tie-break. Nodes are fixed-width buttons; edges are cubic SVG paths with arrowheads from dependency to dependant. Cycle members are excluded from the depth layout and surfaced as a finding; non-cycle FBS still render.",
+    "Unconnected lane: FBS with no incoming and no outgoing dependency. Hidden by default; the toggle's count equals that set's size.",
+    "Critical path: longest chain by node count across the DAG (because `estimatedHours` is sparse per the gap in design doc section 7); members get `data-critical=1`.",
+    "src/view/page-init.js: wireBuildDag() mounts click-to-highlight (upstream outlines link, downstream outlines warning, rest dim), writes `#tab=build&sub=dag&entity=<id>` through the existing writeHash on select, reads `entity=` on load to restore the selection and auto-opens the unconnected lane when the selected id is unconnected; filter toggles mirror the toolbar state onto node data attrs and keep the current selection.",
+    "html-page.js: renderBuildPanel swaps the PR 5 placeholder for `renderBuildDag(model, ...)`; the Build/Specs sub-tab is unchanged, the SubTabStrip wiring from PR 5 is unchanged, the Build tab's BuildStats and page head stay in place.",
+    "style.css: adds `.rcf-dag-*` tokens (toolbar, grid, canvas, node, edge, inspector, unconnected lane) sized against the shared Stravica tokens so both light and dark themes work; the canvas owns its own vertical and horizontal overflow so the viewer never scrolls horizontally."
+  ],
+  "internalStructure": "Three composition seams. (1) a pure graph helper (buildDagLayout(fbsItems)) returns `{ nodes: [{ id, title, status, domain, depth, buildOrder, acCount, size, buildable, direct: { needs, waits }, closure: { upstream, downstream }, critical, unconnected }], edges: [{ from, to }], cycles: string[], unconnectedIds: string[], criticalPathIds: string[], maxDepth }`; (2) renderDagToolbar / renderDagCanvas / renderDagInspector compose one HTML string from the layout; (3) page-init.js's wireBuildDag reads from the DOM only (data attrs on nodes, aria-pressed on toggles) and never recomputes the layout. Needs and waits-on in the inspector resolve from the same closure sets the layout carries, so the two surfaces cannot disagree.",
+  "interfaces": [
+    {
+      "name": "renderBuildDag",
+      "kind": "other",
+      "description": "[draft] Build the Build/DAG sub-tab HTML - toolbar, canvas, inspector shell, unconnected lane - from the built tree model and the pre-computed buildable set."
+    },
+    {
+      "name": "buildDagLayout",
+      "kind": "other",
+      "description": "[draft] Pure projection of `fbsItems[].dependsOnFbsIds` into DAG nodes, edges, depth columns, closures, critical path and unconnected ids; cycles surface as a `cycles` list and their members are excluded from the depth layout."
+    },
+    {
+      "name": "wireBuildDag",
+      "kind": "other",
+      "description": "[draft] Client-side wiring for the DAG canvas: click-to-highlight, filters, `#tab=build&sub=dag&entity=` round-trip, hash-driven selection restore, Open-in-Specs navigation. Reads from the DOM; sends no outbound postMessage."
+    }
+  ],
+  "notes": "The v1 rcf-tools DAG is the reference: keep its tiers, click-to-highlight, filters and stats; fix its dark-only palette, missing inspector, orphan pile-up, missing deep links and two-direction scrolling. No new TS, FBS or CN entry is minted - viewer-code PRs do not grow the build-step graph. The pill component (REQ-181) renders every status pill in the inspector; the shared `findings-list` module reports the cycle finding so the toolbar carries the same vocabulary as the rest of the tabs."
+}

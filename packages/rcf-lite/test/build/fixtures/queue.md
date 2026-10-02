@@ -96,11 +96,12 @@ Generation strategy: dependencyFirst
 | 200 | 5 | FBS-200 | DEFINE step 2 (0.29.0) PR B: --level, --persona and persona-grouped text report on rcf define readiness (ADR-4126) | complete | complete |  |
 | 201 | 6 | FBS-201 | DEFINE step 2 (0.29.0) PR C: Readiness tab as tab 1, Overview-to-PRD rename, shared pill, findings-list and diff components (REQ-180, REQ-181, TAC-4127, ADR-4127) | complete | complete |  |
 | 202 | 7 | FBS-202 | DEFINE step 3 PR 1: document intake, statement-file markers, ledger update, resolvedBy grammar (REQ-187, REQ-173 amendment) | notStarted | actionable |  |
+| 203 | 0 | FBS-203 | Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs) | inProgress | inProgress |  |
 
-Totals: items 92 | notStarted 48 | inProgress 1 | complete 28 | verified 15 | actionable 38 | blocked 10
+Totals: items 93 | notStarted 48 | inProgress 2 | complete 28 | verified 15 | actionable 38 | blocked 10
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197

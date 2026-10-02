@@ -2,7 +2,7 @@
   "reqId": "REQ-002",
   "prdId": "PRD-001",
   "title": "Visual review surface",
-  "description": "Build Lite renders the whole RCF tree as a diagram and as a browsable static page, so a non-coding owner can see the documents and their links without reading any JSON. The view is read-only and generated from the on-disk tree on demand.",
+  "description": "Build Lite renders the whole RCF tree as a diagram and as a browsable static page, so a non-coding owner can see the documents and their links without reading any JSON. The view is read-only and generated from the on-disk tree on demand. Build/DAG sub-tab lays FBS by `dependsOnFbsIds` depth with click-to-highlight closure, dependency inspector, filters, unconnected lane and `#tab=build&sub=dag&entity=` deep links, per viewer UI refresh design section 7.",
   "category": "functional",
   "domain": "view",
   "priority": "must",
@@ -16,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-10-02T18:00:00.000Z"
 }

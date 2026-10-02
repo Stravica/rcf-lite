@@ -133,6 +133,62 @@
             "TC-005-no-cached-prior-state"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-1",
+          "covered": true,
+          "testCases": [
+            "TC-224-depth-columns"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-2",
+          "covered": true,
+          "testCases": [
+            "TC-224-closures-upstream-downstream"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-3",
+          "covered": true,
+          "testCases": [
+            "TC-224-inspector-payload"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-4",
+          "covered": true,
+          "testCases": [
+            "TC-224-hash-round-trip"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-5",
+          "covered": true,
+          "testCases": [
+            "TC-224-filters-keep-selection"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-6",
+          "covered": true,
+          "testCases": [
+            "TC-224-cycle-handling"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-204-7",
+          "covered": true,
+          "testCases": [
+            "TC-224-no-outbound-postmessage"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

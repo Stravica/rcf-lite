@@ -17,6 +17,13 @@ REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC
                       AC-202-3     yes         TC-004-doc-links-navigate-to-sections
                       AC-203-1     yes         TC-005-edit-present-after-regenerate
                       AC-203-2     yes         TC-005-no-cached-prior-state
+                      AC-204-1     yes         TC-224-depth-columns
+                      AC-204-2     yes         TC-224-closures-upstream-downstream
+                      AC-204-3     yes         TC-224-inspector-payload
+                      AC-204-4     yes         TC-224-hash-round-trip
+                      AC-204-5     yes         TC-224-filters-keep-selection
+                      AC-204-6     yes         TC-224-cycle-handling
+                      AC-204-7     yes         TC-224-no-outbound-postmessage
 REQ-003      yes      AC-301-1     yes         TC-006-read-reports-valid
                       AC-301-2     yes         TC-006-read-unknown-id-not-found
                       AC-301-3     yes         TC-006-read-invalid-content-plus-errors

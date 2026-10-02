@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z",
+  "acIds": [
+    "AC-204-1",
+    "AC-204-2",
+    "AC-204-3",
+    "AC-204-4",
+    "AC-204-5",
+    "AC-204-6",
+    "AC-204-7"
+  ],
+  "fbsId": "FBS-203",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 203,
+  "executionStatus": "inProgress",
+  "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)",
+  "summary": "Single FBS owning the Build/DAG sub-tab acceptance criteria (AC-204-1..7, US-204) that land as the viewer UI refresh PR 6, plus the successor acceptance criteria the same build stream picks up in PRs 7 to 9 (AC-205-*, AC-206-*, AC-18002-*). The stream delivers one chain-first tab delta per PR: DAG (PR 6), tests/traces (PR 7), evaluations (PR 8) and the shared chrome and release prep (PR 9). This FBS stays `inProgress` for the length of the stream so the AC-ownership check on origin/main is green between PRs; successor PRs extend the `acIds` list under this file as their new USs land.",
+  "dependsOnFbsIds": [],
+  "approach": "Build the DAG sub-tab (PR 6) under src/view/build-dag.js with buildDagLayout, renderBuildDag, renderDagInspector and buildDagInspectorPayload; wire html-page.js's renderBuildPanel to call the new renderer in place of the PR 5 placeholder; add wireBuildDag in page-init.js for click-to-highlight, filters, inspector fill from the data-* attribute payload and `#tab=build&sub=dag&entity=` deep links. Inspector payload rides on a `data-rcf-dag-inspector-data` attribute on the inspector shell per the PR 1 contract (no inline <script> body). `currentDagHashExtras` keeps Specs filter keys unknown on the DAG sub-tab so the decision 11 preservation contract holds. applyBuildHash auto-presses Show-unconnected on restoring an unconnected FBS. PR 7 to PR 9 extend the renderer, add their own sub-tab, filter and inspector pieces and append the new ACs to this FBS's `acIds` array; this file is the single owner of the AC coverage for the whole stream so the dogfood tree's `every AC covered by at least one FBS` check stays green at every merge.",
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4131-build-dag-view"
+    ],
+    "adrIds": [
+      "ADR-4133-dag-dependency-depth-layout"
+    ]
+  },
+  "deliverables": [
+    "packages/rcf-lite/src/view/build-dag.js: buildDagLayout, renderBuildDag, renderDagInspector, buildDagInspectorPayload (pure HTML string + data-attr payload shell)",
+    "packages/rcf-lite/src/view/html-page.js: renderBuildPanel calls renderBuildDag with the inspector payload argument (PR 5 placeholder removed)",
+    "packages/rcf-lite/src/view/page-init.js: wireBuildDag (click-to-highlight, filters, inspector fill, hash round-trip, auto-press show-unconnected on restore); currentDagHashExtras preserves non-DAG hash params",
+    "packages/rcf-lite/src/view/style.css: `.rcf-dag-*` tokens aligned with the Stravica brand palette, both themes",
+    "packages/rcf-lite/test/view/build-tab.test.js: twelve new unit tests for buildDagLayout (depth columns, closures, critical path, cycle, unconnected lane), renderBuildDag (toolbar, canvas, edges), buildDagInspectorPayload, page-init DAG wiring markers and the AC-204-7 postMessage guard",
+    "packages/rcf-lite/test/view/fixtures/phase-3-6-static.html: baseline regenerated to include the DAG panel with the data-attr inspector payload shell",
+    "packages/rcf-lite/rcf/requirements/req-002.json: description amended with the DAG sub-tab coverage",
+    "packages/rcf-lite/rcf/user-stories/us-204.json: US-204 with AC-204-1..7",
+    "packages/rcf-lite/rcf/tacs/tac-4131-build-dag-view.json, packages/rcf-lite/rcf/adrs/adr-4133-dag-dependency-depth-layout.json: chain docs"
+  ],
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "large",
+  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extend the `acIds` list under this file as AC-205-*, AC-206-* and AC-18002-* arrive. Flip `executionStatus` to `verified` after PR 9 lands and the full suite is green. Code-node (CN) binding deferred to the follow-up tally; the AC-ownership check that this FBS clears is the AC-side invariant, and the CN side is tracked separately in build/."
+}

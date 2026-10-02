@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z",
+  "adrId": "ADR-4133-dag-dependency-depth-layout",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The Build/DAG canvas lays FBS by dependency depth, orders rows by buildOrder, measures the critical path by node count and parks unconnected FBS in a hidden lane with a count",
+  "context": "The viewer UI refresh (design doc section 7) names a DAG for the Build tab's second sub-tab. The dogfood tree has 87 FBS: 46 declare no dependency, 36 are unconnected both ways, 1 is in progress and `estimatedHours` is sparse. A force-directed layout is unstable across reloads (the review surface is a diff-worthy artefact; identical trees must render identical pages), and grouping purely by `domain` hides the thing the DAG exists to show (which FBS feeds which). The v1 rcf-tools DAG proved the tiered layout works for the engineer audience the Build tab serves (decision 14); its gaps - dark-only palette, no inspector, orphan pile-up swamping the graph, no deep links, horizontal page scroll - are the ones this PR fixes.",
+  "decision": "Columns in the DAG are dependency-depth tiers computed from `dependsOnFbsIds` (0 for an FBS that declares no dependency; max over `depth(dep) + 1` otherwise). Rows inside a column are `buildOrder` ascending with `fbsId` lexicographic tie-break. Critical path is the longest chain by node count across the DAG, because `estimatedHours` is sparse on the dogfood tree (section 7 gap b); the critical-path chip highlights every member of that longest chain. Unconnected FBS - no incoming and no outgoing `dependsOnFbsIds` edge - sit in a lane below the main graph, hidden by default, with the count on the toggle. Cycle members (should any appear) are excluded from the depth layout and surfaced as a shared `findings-list` finding on the toolbar; non-cycle FBS still render so one bad edge never blocks the view (AC-204-6). The selection round-trips `#tab=build&sub=dag&entity=<id>` through the existing writeHash so a node is a link (decision 11, extended).",
+  "consequences": "The DAG is deterministic across reloads: same tree, same page. The depth tiers reflect what actually gates work, so the leftmost column is the \"start here\" set and buildable-now items concentrate on its right edge. Hiding unconnected FBS by default stops the 36-row pile-up swamping the dogfood tree - the toggle count makes them discoverable. Choosing node count for the critical path means the chip stays meaningful on the dogfood tree today and will only sharpen when `estimatedHours` fills in; the ADR explicitly leaves the hours-weighted critical path to a later change. Deep-link parity with Specs (`#tab=build&sub=specs&entity=<id>`) lets the inspector's Open-in-Specs link move cleanly across the two sub-tabs.",
+  "alternativesConsidered": [
+    {
+      "name": "Force-directed layout",
+      "summary": "Lay nodes with a physics simulation and let the dependency edges settle.",
+      "reasonNotChosen": "Position jitters across reloads so screenshots and visual diffs are noisy; the review surface is diff-worthy by contract, and a layout that is not deterministic cannot be screenshotted into design evidence or compared across runs."
+    },
+    {
+      "name": "Group by domain only",
+      "summary": "Columns are areas (view, cli, build, ...) and rows are FBS in each area.",
+      "reasonNotChosen": "Hides the dependency structure that the DAG exists to show. Area is already a FilterBar facet on the Specs sub-tab and a badge on each node; adding a second encoding of it costs the dependency axis."
+    },
+    {
+      "name": "Hours-weighted critical path",
+      "summary": "Measure critical path by sum of `estimatedHours` along a chain.",
+      "reasonNotChosen": "`estimatedHours` is sparse on the dogfood tree (section 7 gap b); a weight that is missing on most nodes would silently bias the chip toward whichever subtree happens to have estimates. Node count is the honest signal today; the hours-weighted path becomes an opt-in once estimates are populated across the tree."
+    },
+    {
+      "name": "Render unconnected FBS inline (no lane)",
+      "summary": "Lay unconnected FBS as a 36-row column 0 alongside the connected tier 0.",
+      "reasonNotChosen": "Doubles the visual height of the leftmost column with nodes that have no edges, swamping the dependency graph the DAG exists to show. The toggled lane with the count keeps them one click away without the pile-up."
+    },
+    {
+      "name": "Block the DAG on any cycle",
+      "summary": "If the tree carries a `dependsOnFbsIds` cycle, refuse to render the DAG and show an error.",
+      "reasonNotChosen": "A bad edge on a 90-node graph should not take the view down; the `rcf validate` CLI is the enforcement surface. The DAG reports the cycle as a shared finding and renders the rest so the engineer can see what still composes."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-739",
+  "path": "src/view/build-dag.js",
+  "title": "Build/DAG sub-tab pure renderer",
+  "description": "Pure HTML-string renderer for the Build tab's DAG sub-tab: `buildDagLayout(fbsItems, buildableIds)` projects `dependsOnFbsIds` into depth columns, `buildOrder` row ordering, upstream/downstream closures, longest-chain critical path and the no-in-no-out unconnected lane; `renderBuildDag({ layout, inspectorPayload })` emits the toolbar, canvas (HTML button nodes + inline SVG edges with cubic paths and arrowheads) and inspector shell. `buildDagInspectorPayload(layout)` builds the one-row-per-FBS payload (status, area, size, order, AC count, direct and transitive needs/waits, meta) that rides on the inspector shell as `data-rcf-dag-inspector-data` per the PR 1 contract. Cycles are excluded from the depth layout and surfaced as `cycleIds` for the toolbar finding (AC-204-6); the renderer never emits a `postMessage` call (AC-204-7).",
+  "implementsAcIds": [
+    "AC-204-1",
+    "AC-204-2",
+    "AC-204-3",
+    "AC-204-6",
+    "AC-204-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z"
+}

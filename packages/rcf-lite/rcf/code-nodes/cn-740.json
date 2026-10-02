@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-740",
+  "path": "src/view/page-init.js",
+  "title": "Build/DAG client wiring (page-init DAG seam)",
+  "description": "`wireBuildDag` and its helpers wire the Build/DAG sub-tab in the browser: `parseDagInspectorPayload` reads the `data-rcf-dag-inspector-data` attribute off the inspector shell (never an inline <script>), click handlers on `.rcf-dag-node` run `selectDagNode` which sets `data-rcf-dag-sel`, auto-presses Show-unconnected when the node is unconnected, outlines upstream/downstream closures via `data-rcf-dag-role` attributes and renders the inspector body from the payload. Filter chips (status, area, Buildable-now, Critical-path, Show-unconnected) run `applyDagFilters` which keeps the current selection intact (AC-204-5). `buildHashFragment` writes `#tab=build&sub=dag&entity=<id>` and `currentDagHashExtras` preserves non-DAG hash params through DAG writes; `applyBuildHash` restores the selection, auto-presses Show-unconnected when the restored node is unconnected and scrolls the node into view (AC-204-4). `renderDagInspector` lists status, area, AC count, size, buildOrder, buildable-now, Needs (direct and transitive total) and Waits (direct and transitive total) with an Open-in-Specs link that moves to `#tab=build&sub=specs&entity=<id>` (AC-204-3).",
+  "implementsAcIds": [
+    "AC-204-2",
+    "AC-204-3",
+    "AC-204-4",
+    "AC-204-5"
+  ],
+  "dependencies": [
+    "CN-739"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z"
+}
