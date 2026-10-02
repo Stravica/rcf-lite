@@ -11,3 +11,4 @@ export { renderAdr } from './adr.js';
 export { renderBuildSequence } from './build-sequence.js';
 export { renderFbs } from './fbs.js';
 export { renderTestSuite } from './test-suite.js';
+export { renderBuildStats, renderBuildPageHead, renderSpecBody } from './build.js';

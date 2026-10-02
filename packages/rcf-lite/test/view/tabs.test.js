@@ -86,13 +86,15 @@ test('Architecture tab wraps TACs and ADRs as doc-details', async () => {
   for (const a of model.adrs) assert.match(html, new RegExp(`data-doc-id="${a.adrId}"`));
 });
 
-test('Build tab wraps FBSs as doc-details and renders AC pills (D8)', async () => {
+test('Build tab wraps each FBS as a DocRow and renders AC entity links (PR 5)', async () => {
   const { html, model } = await renderLive();
   for (const f of model.fbsItems) assert.match(html, new RegExp(`data-doc-id="${f.fbsId}"`));
-  // Pick one FBS with a known AC.
+  // Pick one FBS with a known AC. The old `ac-pill` chip is gone with
+  // the old FBS renderer; the new Spec body renders AC links as mono
+  // anchors into the Requirements tab (#tab=requirements&entity=AC-xxx).
   const fbs003 = model.fbsItems.find((f) => f.fbsId === 'FBS-003');
   assert.ok(fbs003, 'expected FBS-003 in the live tree');
-  assert.match(html, /class="ac-pill" href="#AC-201-1"/);
+  assert.match(html, /href="#tab=requirements&amp;entity=AC-201-1"/);
 });
 
 test('page-init.js contains tab switching and hash routing logic (D5; viewer UI refresh PR 1)', async () => {

@@ -524,6 +524,11 @@
         if (tab === 'architecture' && (archBar('architecture-components') || archBar('architecture-decisions'))) {
           applyArchitectureHash(params);
         }
+        // Build tab (PR 5): activate the right sub-tab and push the
+        // Specs FilterBar state so the first paint reflects the URL.
+        if (tab === 'build') {
+          applyBuildHash(params);
+        }
         // #tab=requirements&entity=REQ-002 opens the entity in place.
         if (params.entity) {
           var ent = findByDocId(params.entity);
@@ -981,6 +986,227 @@
     wireArchitectureFilterBar('architecture-decisions');
   }
 
+  // ---- Build tab (viewer UI refresh PR 5) ------------------------------
+  //
+  // The Build tab carries a SubTabStrip (Specs | DAG; DAG is a PR 6
+  // placeholder) and the Specs sub-tab mounts a FilterBar
+  // (text, status, area, size, Buildable-now). Filter + sub-tab state
+  // live in the hash so a filtered view is a link. Hash slots read /
+  // written here:
+  //   #tab=build[&sub=specs|dag][&q=...][&status=...][&domain=...][&size=...][&buildable=1]
+
+  var BUILD_SUB = ['specs', 'dag'];
+
+  function buildBar() {
+    return document.querySelector('[data-rcf-filterbar="build-specs"]');
+  }
+
+  function buildListNode() {
+    return document.querySelector('[data-rcf-list="build-specs"]');
+  }
+
+  function buildSubTabStrip() {
+    return document.querySelector('[data-rcf-subtabstrip="build"]');
+  }
+
+  function buildSubPanel(sub) {
+    return document.querySelector('[data-rcf-subpanel="' + sub + '"]');
+  }
+
+  function activateBuildSub(sub) {
+    if (BUILD_SUB.indexOf(sub) === -1) sub = 'specs';
+    var strip = buildSubTabStrip();
+    if (strip) {
+      var btns = strip.querySelectorAll('[role="tab"]');
+      for (var i = 0; i < btns.length; i += 1) {
+        var isTarget = btns[i].getAttribute('data-sub') === sub;
+        btns[i].setAttribute('aria-selected', isTarget ? 'true' : 'false');
+      }
+    }
+    for (var j = 0; j < BUILD_SUB.length; j += 1) {
+      var p = buildSubPanel(BUILD_SUB[j]);
+      if (!p) continue;
+      if (BUILD_SUB[j] === sub) p.removeAttribute('hidden');
+      else p.setAttribute('hidden', '');
+    }
+    return sub;
+  }
+
+  function currentBuildSub() {
+    var strip = buildSubTabStrip();
+    if (!strip) return 'specs';
+    var active = strip.querySelector('[role="tab"][aria-selected="true"]');
+    return (active && active.getAttribute('data-sub')) || 'specs';
+  }
+
+  function readBuildFilterState() {
+    var bar = buildBar();
+    if (!bar) return null;
+    var text = bar.querySelector('.rcf-filter-text');
+    var state = { q: text ? text.value.trim() : '', buildable: false };
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      state[selects[i].getAttribute('data-filter-key') || 'select'] = selects[i].value;
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      state[toggles[j].getAttribute('data-filter-key') || 'toggle'] = toggles[j].checked;
+    }
+    return state;
+  }
+
+  function writeBuildFilterState(state) {
+    var bar = buildBar();
+    if (!bar) return;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) text.value = state.q || '';
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      var key = selects[i].getAttribute('data-filter-key') || '';
+      selects[i].value = state[key] != null ? String(state[key]) : '';
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      var tkey = toggles[j].getAttribute('data-filter-key') || '';
+      toggles[j].checked = state[tkey] === true || state[tkey] === 'true' || state[tkey] === '1';
+    }
+  }
+
+  function applyBuildFilter() {
+    var list = buildListNode();
+    if (!list) return;
+    var state = readBuildFilterState() || { q: '', status: '', domain: '', size: '', buildable: false };
+    var qLower = (state.q || '').toLowerCase();
+    var rows = list.querySelectorAll(':scope > details.rcf-row');
+    var visible = 0;
+    for (var i = 0; i < rows.length; i += 1) {
+      var row = rows[i];
+      var hide = false;
+      if (state.status && row.getAttribute('data-status') !== state.status) hide = true;
+      if (!hide && state.domain && row.getAttribute('data-domain') !== state.domain) hide = true;
+      if (!hide && state.size && row.getAttribute('data-size') !== state.size) hide = true;
+      if (!hide && state.buildable && row.getAttribute('data-buildable') !== '1') hide = true;
+      if (!hide && qLower) {
+        var hay = row.getAttribute('data-text') || '';
+        if (hay.indexOf(qLower) === -1) hide = true;
+      }
+      if (hide) row.setAttribute('hidden', '');
+      else { row.removeAttribute('hidden'); visible += 1; }
+    }
+    var countEl = document.querySelector('[data-rcf-filterbar="build-specs"] .rcf-filter-count');
+    if (countEl) countEl.textContent = String(visible) + ' of ' + String(rows.length) + ' visible';
+  }
+
+  function buildHashFragment() {
+    var parts = ['tab=build'];
+    var sub = currentBuildSub();
+    if (sub && sub !== 'specs') parts.push('sub=' + encodeURIComponent(sub));
+    var state = readBuildFilterState();
+    if (state) {
+      if (state.q) parts.push('q=' + encodeURIComponent(state.q));
+      if (state.status) parts.push('status=' + encodeURIComponent(state.status));
+      if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
+      if (state.size) parts.push('size=' + encodeURIComponent(state.size));
+      if (state.buildable) parts.push('buildable=1');
+    }
+    return '#' + parts.join('&');
+  }
+
+  function writeBuildHash() {
+    writeHash(buildHashFragment(), true);
+  }
+
+  function applyBuildHash(params) {
+    var sub = params.sub ? decodeURIComponent(params.sub) : 'specs';
+    activateBuildSub(sub);
+    var state = {
+      q: params.q ? decodeURIComponent(params.q) : '',
+      status: params.status ? decodeURIComponent(params.status) : '',
+      domain: params.domain ? decodeURIComponent(params.domain) : '',
+      size: params.size ? decodeURIComponent(params.size) : '',
+      buildable: params.buildable === '1' || params.buildable === 'true',
+    };
+    if (buildBar()) {
+      writeBuildFilterState(state);
+      applyBuildFilter();
+    }
+  }
+
+  function expandAllBuildSpecs(open) {
+    var list = buildListNode();
+    if (!list) return;
+    var rows = list.querySelectorAll(':scope > details.rcf-row');
+    for (var i = 0; i < rows.length; i += 1) {
+      if (rows[i].hasAttribute('hidden')) continue;
+      rows[i].open = !!open;
+    }
+    var btn = document.querySelector('[data-rcf-filterbar="build-specs"] .rcf-filter-expand');
+    if (btn) {
+      btn.textContent = open ? 'Collapse all' : 'Expand all';
+      btn.setAttribute('data-expand-state', open ? 'expanded' : 'collapsed');
+    }
+  }
+
+  function wireBuildFilterBar() {
+    var bar = buildBar();
+    if (!bar || bar.__rcfBuildFilterWired) return;
+    bar.__rcfBuildFilterWired = true;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) {
+      var debounceTimer = null;
+      text.addEventListener('input', function () {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          applyBuildFilter();
+          writeBuildHash();
+        }, 150);
+      });
+    }
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      selects[i].addEventListener('change', function () {
+        applyBuildFilter();
+        writeBuildHash();
+      });
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      toggles[j].addEventListener('change', function () {
+        applyBuildFilter();
+        writeBuildHash();
+      });
+    }
+    var expandBtn = bar.querySelector('.rcf-filter-expand');
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var isCollapsed = expandBtn.getAttribute('data-expand-state') !== 'expanded';
+        expandAllBuildSpecs(isCollapsed);
+      });
+    }
+  }
+
+  function wireBuildSubTabStrip() {
+    var strip = buildSubTabStrip();
+    if (!strip || strip.__rcfBuildSubWired) return;
+    strip.__rcfBuildSubWired = true;
+    var btns = strip.querySelectorAll('[role="tab"]');
+    for (var i = 0; i < btns.length; i += 1) {
+      btns[i].addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var sub = ev.currentTarget.getAttribute('data-sub');
+        if (!sub) return;
+        activateBuildSub(sub);
+        writeBuildHash();
+      });
+    }
+  }
+
+  function wireBuildTab() {
+    wireBuildSubTabStrip();
+    wireBuildFilterBar();
+  }
+
   // ---- EntitySelector (viewer UI refresh PR 3, decision 4) -----
 
   function parseEntitySelectorPayload(root) {
@@ -1073,6 +1299,7 @@
     wireProductMap();
     wireRequirementsFilterBar();
     wireArchitectureFilterBars();
+    wireBuildTab();
     wireEntitySelectors();
     wireFixturePage();
     resolveHash(window.location.hash);

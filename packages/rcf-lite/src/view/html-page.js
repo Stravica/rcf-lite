@@ -35,16 +35,17 @@ import { fileURLToPath } from 'node:url';
 
 import {
   renderAdr,
-  renderBuildSequence,
-  renderFbs,
+  renderBuildPageHead,
+  renderBuildStats,
   renderPrd,
+  renderSpecBody,
   renderTac,
   renderTadSections,
-  renderTestSuite,
   renderUserStory,
   shortenDocId,
 } from './doc-renderers/index.js';
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
+import { computeQueue } from '../build/queue.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 import { renderProductMapPanel } from './product-map.js';
 import { renderReadinessPanel } from './readiness.js';
@@ -55,6 +56,7 @@ import { renderBadge } from './components/badge.js';
 import { pill } from './components/pill.js';
 import { renderEmptyState } from './components/empty-state.js';
 import { renderEntitySelector } from './components/entity-selector.js';
+import { renderSubTabStrip } from './components/sub-tab-strip.js';
 import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
@@ -116,7 +118,7 @@ export function renderPage(model) {
         <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
         <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
         <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
-        <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build sequence</button>
+        <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build</button>
       </nav>
       <div class="tools" aria-label="Viewer tools"></div>
     </div>
@@ -208,7 +210,7 @@ export function renderContent(model) {
       ${architecturePanel}
     </section>
     <section id="tab-build" role="tabpanel" hidden>
-      <h2 class="tab-heading">Build sequence</h2>
+      <h2 class="tab-heading">Build</h2>
       ${buildPanel}
     </section>`;
 }
@@ -654,59 +656,176 @@ function buildAdrFilterText(adr) {
   return parts.filter((v) => typeof v === 'string' && v.length > 0).join(' ').toLowerCase();
 }
 
+/**
+ * Viewer UI refresh PR 5 (w-2026-10-02-dave-010 decisions 2, 3, 6, 12,
+ * 14; design doc section 5.6). The Build tab renders:
+ *
+ *   1. BuildStats card: totals from `computeQueue` (items, verified,
+ *      complete, inProgress, notStarted, buildable now). "Buildable now"
+ *      equals `queue.totals.actionable` - the authoritative state the
+ *      queue computes from `dependsOnFbsIds` and `executionStatus`.
+ *   2. SubTabStrip Specs | DAG; DAG renders a placeholder empty state
+ *      naming PR 6 (decision 6 + decision 12).
+ *   3. Specs sub-tab: FilterBar (text, status, area, size, Buildable-now
+ *      toggle) over a shared DocRow list; row meta carries order, AC
+ *      count, deps count, size, buildable pill, status.
+ *   4. Expanded Spec row body: summary, approach, AC and dep links,
+ *      deliverables, context links, Show in the DAG.
+ *
+ * Dropped from the old Build sequence tab: the FBS slots block (the
+ * 87-row list was repetition of the specs below) and the Test suites
+ * section (suites stay reachable through AC links and PR 7's ID
+ * lookup).
+ *
+ * @param {import('./tree-model.js').BuiltTreeModel} model
+ */
 function renderBuildPanel(model) {
-  const bsSlots = model.bs
-    ? [...model.fbsItems]
-      .filter((f) => f.bsId === model.bs.bsId)
-      .sort((a, b) => (a.buildOrder ?? 0) - (b.buildOrder ?? 0))
-      .map((f) => ({
-        fbsId: f.fbsId,
-        buildOrder: f.buildOrder,
-        executionStatus: f.executionStatus,
-        title: f.title,
-      }))
-    : [];
-  const bsSection = model.bs
-    ? renderBuildSequence(model.bs, {
-      raw: model.rawById.get(model.bs.bsId),
-      errors: model.errorsById.get(model.bs.bsId),
-      slots: bsSlots,
-    })
-    : '<p><em>No build sequence on disk.</em></p>';
+  const fbsItems = Array.isArray(model.fbsItems) ? model.fbsItems : [];
+  if (fbsItems.length === 0 && !model.bs) {
+    return renderEmptyState({
+      title: 'No build specifications on disk',
+      hint: 'Add rcf/fbs/<file>.json entries and the viewer picks them up on the next walk.',
+    });
+  }
+  const queue = computeQueue({ fbsItems });
+  const buildableIds = new Set(
+    queue.items.filter((i) => i.state === 'actionable').map((i) => i.fbsId),
+  );
+  const stats = {
+    items: queue.totals.items,
+    verified: queue.totals.verified,
+    complete: queue.totals.complete,
+    inProgress: queue.totals.inProgress,
+    notStarted: queue.totals.notStarted,
+    buildableNow: queue.totals.actionable,
+  };
+  const buildStats = renderBuildStats(stats);
+  const pageHead = renderBuildPageHead(model.bs);
 
-  const fbsBlocks = model.fbsItems.map((f) => detailsWrap({
-    id: f.fbsId,
-    summary: `${f.fbsId} - ${f.title ?? ''}`,
-    className: 'doc-fbs-wrap',
-    status: f.executionStatus,
-    body: renderFbs(f, {
-      raw: model.rawById.get(f.fbsId),
-      errors: model.errorsById.get(f.fbsId),
-      usByAcId: model.usByAcId,
-    }),
-  })).join('\n');
+  const subTabs = renderSubTabStrip({
+    hashKey: 'build',
+    items: [
+      { key: 'specs', label: 'Specs', controls: 'build-sub-specs' },
+      { key: 'dag', label: 'DAG', controls: 'build-sub-dag' },
+    ],
+  });
 
-  const tsBlocks = model.testSuites.map((ts) => detailsWrap({
-    id: ts.id,
-    summary: `${ts.id} - ${ts.title ?? 'test suite'}`,
-    className: 'doc-ts-wrap',
-    status: ts.status,
-    body: renderTestSuite(ts, {
-      raw: model.rawById.get(ts.id),
-      errors: model.errorsById.get(ts.id),
-    }),
-  })).join('\n');
-
-  const tsSection = tsBlocks
-    ? `<h3 class="group-heading">Test suites</h3>${tsBlocks}`
+  const specsPanel = renderBuildSpecsPanel(model, fbsItems, buildableIds);
+  const dagPanel = renderBuildDagPlaceholder();
+  // Hidden anchor so #BS-001 / #entity=BS-001 still resolve to this tab.
+  const bsAnchor = model.bs
+    ? `<span class="rcf-build-anchor" data-doc-id="${escapeHtml(model.bs.bsId)}" aria-hidden="true"></span>`
     : '';
 
-  return `
-${bsSection}
-<h3 class="group-heading">Functional Build Specifications</h3>
-${fbsBlocks || '<p><em>No FBS items on disk.</em></p>'}
-${tsSection}
-`;
+  return `${bsAnchor}
+${pageHead}
+${buildStats}
+${subTabs}
+<section id="build-sub-specs" class="rcf-build-subpanel" data-rcf-subpanel="specs">
+${specsPanel}
+</section>
+<section id="build-sub-dag" class="rcf-build-subpanel" data-rcf-subpanel="dag" hidden>
+${dagPanel}
+</section>`;
+}
+
+function renderBuildSpecsPanel(model, fbsItems, buildableIds) {
+  const sorted = [...fbsItems].sort((a, b) => (a.buildOrder ?? 0) - (b.buildOrder ?? 0));
+  const statusCounts = countBy(sorted, (f) => normaliseFacet(f.executionStatus));
+  const areaCounts = countBy(sorted, (f) => normaliseFacet(f.domain));
+  const sizeCounts = countBy(sorted, (f) => normaliseFacet(f.estimatedSize));
+
+  const filterBar = renderFilterBar({
+    hashKey: 'build-specs',
+    placeholder: 'Filter specs by id or title',
+    selects: [
+      {
+        key: 'status',
+        label: 'Status',
+        options: [{ value: '', label: 'Any status' }, ...facetOptions(statusCounts)],
+      },
+      {
+        key: 'domain',
+        label: 'Area',
+        options: [{ value: '', label: 'All areas' }, ...facetOptions(areaCounts)],
+      },
+      {
+        key: 'size',
+        label: 'Size',
+        options: [{ value: '', label: 'Any size' }, ...facetOptions(sizeCounts)],
+      },
+    ],
+    toggles: [
+      { key: 'buildable', label: `Buildable now (${buildableIds.size})` },
+    ],
+    count: { visible: sorted.length, total: sorted.length },
+    showExpandAll: true,
+  });
+
+  const rows = sorted.map((f) => renderSpecRow(f, model, buildableIds)).join('\n');
+  return `${filterBar}
+<div class="rcf-build-specs-list" data-rcf-list="build-specs">
+${rows}
+</div>`;
+}
+
+function renderBuildDagPlaceholder() {
+  return renderEmptyState({
+    title: 'DAG lands in viewer UI refresh PR 6',
+    hint: 'The dependency graph (layered by depth from dependsOnFbsIds, inspector, unconnected lane) sits here when PR 6 lands. Specs are reachable in the Specs sub-tab.',
+  });
+}
+
+function renderSpecRow(fbs, model, buildableIds) {
+  const id = fbs.fbsId ?? 'FBS';
+  const title = fbs.title ?? '';
+  const order = typeof fbs.buildOrder === 'number' ? fbs.buildOrder : '';
+  const acCount = Array.isArray(fbs.acIds) ? fbs.acIds.length : 0;
+  const depCount = Array.isArray(fbs.dependsOnFbsIds) ? fbs.dependsOnFbsIds.length : 0;
+  const depTitle = Array.isArray(fbs.dependsOnFbsIds) ? fbs.dependsOnFbsIds.join(', ') : '';
+  const area = normaliseFacet(fbs.domain);
+  const size = normaliseFacet(fbs.estimatedSize);
+  const status = normaliseFacet(fbs.executionStatus);
+  const buildable = buildableIds.has(id);
+
+  const metaParts = [];
+  if (area) metaParts.push(renderBadge({ value: area, variant: 'facet', title: 'Area' }));
+  metaParts.push(renderBadge({ value: acCount, label: 'AC', variant: 'count', title: 'Acceptance criteria' }));
+  if (depCount > 0) {
+    metaParts.push(renderBadge({ value: depCount, label: 'deps', variant: 'count', title: depTitle || 'Dependency count' }));
+  }
+  if (size) metaParts.push(renderBadge({ value: size, variant: 'facet', title: 'Estimated size' }));
+  if (buildable) metaParts.push(pill({ value: 'buildable', variant: 'build-queue', title: 'No unmet dependencies' }));
+  if (status) metaParts.push(pill({ value: status, variant: 'doc-status' }));
+  const meta = metaParts.join(' ');
+
+  const idPrefix = order !== '' ? `<span class="rcf-spec-order mono muted small" title="Build order">${escapeHtml(String(order))}</span>` : '';
+  const displayIdHtml = `${idPrefix}<span class="rcf-spec-id mono">${escapeHtml(id)}</span>`;
+
+  const body = renderSpecBody(fbs, model, model.rawById?.get(id));
+  // DocRow HTML-escapes the id arg; a sentinel string lets us swap in
+  // live markup (order chip beside the mono id) after the row renders.
+  const sentinel = '__RCF_SPEC_ID__';
+  const row = renderDocRow({
+    id: sentinel,
+    title,
+    body,
+    meta,
+    className: 'doc-fbs-wrap rcf-build-row',
+    dataDocId: id,
+  });
+  const dataAttrs = ` data-status="${escapeHtml(status)}" data-domain="${escapeHtml(area)}" data-size="${escapeHtml(size)}" data-buildable="${buildable ? '1' : '0'}" data-text="${escapeHtml(buildSpecFilterText(fbs))}" title="${escapeHtml(id)}"`;
+  return row
+    .replace(/^<details /, `<details${dataAttrs} `)
+    .replace(sentinel, displayIdHtml);
+}
+
+function buildSpecFilterText(fbs) {
+  const parts = [fbs.fbsId, fbs.title, fbs.summary, fbs.approach, fbs.domain, fbs.estimatedSize, fbs.executionStatus];
+  if (Array.isArray(fbs.deliverables)) parts.push(fbs.deliverables.join(' '));
+  if (Array.isArray(fbs.acIds)) parts.push(fbs.acIds.join(' '));
+  if (Array.isArray(fbs.dependsOnFbsIds)) parts.push(fbs.dependsOnFbsIds.join(' '));
+  return parts.filter((v) => typeof v === 'string' && v.length > 0).join(' ').toLowerCase();
 }
 
 /**
