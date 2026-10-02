@@ -257,15 +257,19 @@ test('renderContent is the substring the wrapper contains, character for charact
   assert.ok(page.includes(content), 'renderContent output must appear verbatim inside renderPage');
 });
 
-test('renderPage renders the build panel with buildOrder-sorted FBS slots (D15)', async () => {
+test('renderPage renders the Build / Specs sub-tab with buildOrder-sorted FBS rows (PR 5)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  // The dogfood tree has FBS-001..FBS-012 in buildOrder 1..12.
+  // The dogfood tree has FBS-001..FBS-012 in buildOrder 1..12. PR 5
+  // dropped the old FBS-slots ordered list; the Build / Specs sub-tab
+  // renders every spec as a DocRow with `data-doc-id="FBS-xxx"`, so
+  // row order on the page is the authoritative order check.
   const buildTabIdx = html.indexOf('id="tab-build"');
+  assert.ok(buildTabIdx > 0, 'tab-build panel must be in the output');
   const slice = html.slice(buildTabIdx);
-  const fbs001Idx = slice.indexOf('href="#FBS-001"');
-  const fbs002Idx = slice.indexOf('href="#FBS-002"');
+  const fbs001Idx = slice.indexOf('data-doc-id="FBS-001"');
+  const fbs002Idx = slice.indexOf('data-doc-id="FBS-002"');
   assert.ok(fbs001Idx > 0);
   assert.ok(fbs002Idx > 0);
   assert.ok(fbs001Idx < fbs002Idx);

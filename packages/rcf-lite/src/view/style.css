@@ -1873,3 +1873,125 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
 .rcf-architecture-decisions {
   margin-top: 0.5rem;
 }
+
+/* ---- Build tab (viewer UI refresh PR 5) --------------------------- */
+
+.rcf-build-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem 0;
+}
+.rcf-build-head-id {
+  font-weight: 600;
+  color: var(--sv-ink);
+}
+
+.rcf-build-stats {
+  margin: 0 0 1rem 0;
+}
+.rcf-build-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.rcf-build-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.rcf-build-stat-n {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--sv-ink);
+}
+.rcf-build-stat-l {
+  color: var(--sv-muted);
+  font-size: 0.8rem;
+}
+.rcf-build-progress {
+  margin-top: 0.6rem;
+  height: 0.5rem;
+  background: var(--sv-raised);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+}
+.rcf-build-progress-seg {
+  display: block;
+  height: 100%;
+}
+.rcf-build-progress-seg--verified { background: var(--sv-success); }
+.rcf-build-progress-seg--complete { background: var(--sv-success); opacity: 0.6; }
+.rcf-build-progress-seg--inprogress { background: var(--sv-warning); }
+
+.rcf-build-anchor {
+  display: inline-block;
+  width: 0;
+  height: 0;
+}
+
+.rcf-build-subpanel {
+  margin-top: 0.2rem;
+}
+.rcf-build-subpanel[hidden] {
+  display: none;
+}
+
+.rcf-build-specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.rcf-build-row > summary .id {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex: none;
+}
+.rcf-spec-order {
+  min-width: 1.6rem;
+  text-align: right;
+  color: var(--sv-muted);
+}
+.rcf-spec-id {
+  color: var(--sv-link);
+}
+
+.rcf-pill--build-queue {
+  background: var(--sv-active);
+  color: var(--sv-link);
+  border-color: transparent;
+}
+
+.rcf-spec-summary { margin: 0.4rem 0 0.6rem; }
+.rcf-spec-block { margin: 0.6rem 0 0; }
+.rcf-spec-block > h4 {
+  margin: 0 0 0.3rem;
+  color: var(--sv-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.rcf-spec-block > p,
+.rcf-spec-block > ul { margin: 0.2rem 0; }
+.rcf-spec-link-row {
+  font-size: 0.9rem;
+}
+.rcf-spec-deliverables,
+.rcf-spec-deps {
+  margin: 0.3rem 0 0.3rem 1.2rem;
+  padding: 0;
+  font-size: 0.9rem;
+}
+.rcf-spec-deliverables > li,
+.rcf-spec-deps > li {
+  margin: 0.1rem 0;
+}
+.rcf-spec-dag {
+  margin: 0.8rem 0 0.2rem;
+  font-size: 0.9rem;
+}
