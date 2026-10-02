@@ -14,7 +14,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { LIVE_CLIENT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
+import { LIVE_CLIENT_PATH, PAGE_INIT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
 import { watch as defaultWatch } from '../watch/index.js';
 import { createRouter } from './routes.js';
 import { createScopeHandler } from './scope-endpoint.js';
@@ -122,10 +122,11 @@ export async function startServer(args) {
   // so a checkout branch switch during the server's lifetime cannot
   // change what gets served. The tree walker is the only path that
   // re-reads disk on rcf/ change; every other asset is fixed at boot.
-  const [styleAsset, mermaidAsset, liveClientAsset] = await Promise.all([
+  const [styleAsset, mermaidAsset, liveClientAsset, pageInitAsset] = await Promise.all([
     loadStaticAsset(STYLE_CSS_PATH, 'text/css; charset=utf-8'),
     loadStaticAsset(VENDORED_MERMAID_PATH, 'application/javascript; charset=utf-8'),
     loadStaticAsset(LIVE_CLIENT_PATH, 'application/javascript; charset=utf-8'),
+    loadStaticAsset(PAGE_INIT_PATH, 'application/javascript; charset=utf-8'),
   ]);
 
   const scopeHandler = createScopeHandler({ projectRoot });
@@ -138,9 +139,11 @@ export async function startServer(args) {
     styleAsset,
     mermaidAsset,
     liveClientAsset,
+    pageInitAsset,
     stylePath: STYLE_CSS_PATH,
     mermaidPath: VENDORED_MERMAID_PATH,
     liveClientPath: LIVE_CLIENT_PATH,
+    pageInitPath: PAGE_INIT_PATH,
     scope: scopeHandler,
   });
 

@@ -95,25 +95,33 @@ test('Build tab wraps FBSs as doc-details and renders AC pills (D8)', async () =
   assert.match(html, /class="ac-pill" href="#AC-201-1"/);
 });
 
-test('inline script contains tab switching and hash routing logic (D5)', async () => {
+test('page-init.js contains tab switching and hash routing logic (D5; viewer UI refresh PR 1)', async () => {
+  // Viewer UI refresh PR 1 (Dex / wespa 2026-10-02 #263) moved the
+  // single former inline script to ./page-init.js. Check the external
+  // asset for the same markers the inline script used to carry.
   const { html } = await renderLive();
-  assert.match(html, /activateTab/);
-  assert.match(html, /hashchange/);
-  assert.match(html, /openAncestorDetails/);
   assert.match(html, /aria-selected/);
+  const { readFile } = await import('node:fs/promises');
+  const pageInitPath = resolve(repoRoot, 'src', 'view', 'page-init.js');
+  const pageInit = await readFile(pageInitPath, 'utf8');
+  assert.match(pageInit, /activateTab/);
+  assert.match(pageInit, /hashchange/);
+  assert.match(pageInit, /openAncestorDetails/);
 });
 
-test('inline script lazy-renders Mermaid on tab activation (D3, hidden-tab NaN fix)', async () => {
+test('page-init.js lazy-renders Mermaid on tab activation (D3, hidden-tab NaN fix; viewer UI refresh PR 1)', async () => {
   // Mermaid cannot lay out diagrams inside display:none tabpanels
   // (getBoundingClientRect returns 0x0, which produces
   // "translate(undefined, NaN)" warnings in vendored Mermaid 11.6.0).
-  // The inline script must therefore initialise Mermaid with
-  // startOnLoad:false and run each tab's diagrams on activation.
-  const { html } = await renderLive();
-  assert.match(html, /startOnLoad:\s*false/);
-  assert.match(html, /function runMermaidIn/);
-  assert.match(html, /data-processed/);
-  assert.match(html, /window\.mermaid\.run\(\{ nodes:/);
+  // The script must therefore initialise Mermaid with startOnLoad:false
+  // and run each tab's diagrams on activation.
+  const { readFile } = await import('node:fs/promises');
+  const pageInitPath = resolve(repoRoot, 'src', 'view', 'page-init.js');
+  const pageInit = await readFile(pageInitPath, 'utf8');
+  assert.match(pageInit, /startOnLoad:\s*false/);
+  assert.match(pageInit, /function runMermaidIn/);
+  assert.match(pageInit, /data-processed/);
+  assert.match(pageInit, /window\.mermaid\.run\(\{ nodes:/);
 });
 
 test('per-REQ subdiagrams carry click bindings whose hrefs use raw doc ids', async () => {

@@ -4,15 +4,30 @@
 // drill-down under Requirements. Phase 3.6 dropped the top-of-overview
 // diagram - it was redundant with the PRD body's requirementIds list
 // and unwieldy past ~15 REQs. Overview tab now renders the PRD body
-// only. Client-side tabs + hash routing are wired by an inline script
-// at the end of `<body>`; if JS is unavailable, every tabpanel is
-// visible in DOM order (D12).
+// only. If JS is unavailable, every tabpanel is visible in DOM order (D12).
 //
 // Phase 3.8 wraps the swappable tree content in a stable
 // `<div id="rcf-live-content">` (D13a) and always injects the live
-// client script `<script src="/live-client.js" defer>` before `</body>`.
-// The tab init routine is exposed as `window.rcfPage.init()` so the
-// live client can re-invoke it after every SSE innerHTML swap.
+// client script before `</body>`. The tab init routine is exposed as
+// `window.rcfPage.init()` so the live client can re-invoke it after
+// every SSE innerHTML swap.
+//
+// Viewer UI refresh PR 1 (w-2026-10-02-dave-010, Dex / wespa relay
+// f0384046 on 2026-10-02):
+//   - compact Stravica-brand shell: data-theme light|dark|auto on
+//     <html>, data-embed=1 suppresses the brand block and the footer
+//     and keeps the tab nav sticky, viewport-height scroll box owned
+//     by <main>, never scrolls horizontally.
+//   - asset and SSE references are RELATIVE (./live-client.js,
+//     ./page-init.js, ./style.css, ./mermaid.min.js, ./product-map/,
+//     ./events, ./scope.json) so the wespa reverse-proxy mount under
+//     /rcf-viewer/ keeps working without rewrites (issue #263).
+//   - the single former inline script lives at ./page-init.js;
+//     wespa's CSP pins inline scripts by hash and we no longer have
+//     any. page-init.js carries the theme/embed boot, origin-checked
+//     postMessage listener for { type:"rcf-view-theme", theme } and
+//     the Router (#tab=&sub=&entity=, bare #REQ-002, host query
+//     preserved on every write).
 
 import {
   renderAdr,
@@ -50,7 +65,6 @@ const LIVE_WRAPPER_CLOSE = '</div>';
 export function renderPage(model) {
   const projectName = model.manifest?.projectName ?? model.prd?.productName ?? 'RCF project';
   const contentHtml = renderContent(model);
-  const script = inlineScript();
 
   return `<!DOCTYPE html>
 <html lang="en-GB">
@@ -59,7 +73,7 @@ export function renderPage(model) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(projectName)} - RCF review surface</title>
   <link rel="icon" type="image/svg+xml" href="${FAVICON_HREF}">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
   <noscript>
     <style>
       /* Progressive enhancement per D12: no JS -> every tabpanel is
@@ -71,30 +85,36 @@ export function renderPage(model) {
   </noscript>
 </head>
 <body>
-  <header>
-    <h1>${escapeHtml(projectName)}</h1>
-    <p class="subtitle">RCF review surface</p>
-    <nav class="tabs" role="tablist" aria-label="Document sections">
-      <button type="button" role="tab" data-tab="readiness" aria-selected="true" aria-controls="tab-readiness">Readiness</button>
-      <button type="button" role="tab" data-tab="overview" aria-selected="false" aria-controls="tab-overview">PRD</button>
-      <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
-      <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
-      <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
-      <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build sequence</button>
-    </nav>
+  <header class="app-header">
+    <div class="bar">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"></span>
+        <span class="brand-name">${escapeHtml(projectName)}</span>
+        <span class="brand-sub">RCF review surface</span>
+      </div>
+      <nav class="tabs" role="tablist" aria-label="Document sections">
+        <button type="button" role="tab" data-tab="readiness" aria-selected="true" aria-controls="tab-readiness">Readiness</button>
+        <button type="button" role="tab" data-tab="overview" aria-selected="false" aria-controls="tab-overview">PRD</button>
+        <button type="button" role="tab" data-tab="product-map" aria-selected="false" aria-controls="tab-product-map">Product Map</button>
+        <button type="button" role="tab" data-tab="requirements" aria-selected="false" aria-controls="tab-requirements">Requirements</button>
+        <button type="button" role="tab" data-tab="architecture" aria-selected="false" aria-controls="tab-architecture">Architecture</button>
+        <button type="button" role="tab" data-tab="build" aria-selected="false" aria-controls="tab-build">Build sequence</button>
+      </nav>
+      <div class="tools" aria-label="Viewer tools"></div>
+    </div>
   </header>
   <main>
     ${LIVE_WRAPPER_OPEN}
     ${contentHtml}
     ${LIVE_WRAPPER_CLOSE}
   </main>
-  <footer>
+  <footer class="app-footer">
     <p>Generated from the on-disk RCF tree at <code>rcf/</code>. Read-only; changes on disk stream to this tab automatically.</p>
     <p>Learn more about the Requirements Confidence Framework at <a href="https://stravica.ai/rcf-methodology" target="_blank" rel="noopener">stravica.ai/rcf-methodology</a>.</p>
   </footer>
-  <script src="mermaid.min.js"></script>
-  <script>${script}</script>
-  <script src="/live-client.js" defer></script>
+  <script src="./mermaid.min.js"></script>
+  <script src="./page-init.js" defer></script>
+  <script src="./live-client.js" defer></script>
 </body>
 </html>
 `;
@@ -325,467 +345,4 @@ function renderErrorBanner(errors) {
   <ul>${items}</ul>
   ${more}
 </aside>`;
-}
-
-// Inline client-side script: initialises Mermaid, wires tab switching,
-// resolves hash routes to a tab + opens any ancestor `<details>` on the
-// target. Vanilla; no dependencies beyond the vendored Mermaid loaded above.
-// Phase 3.8 note: this script is byte-identical to the Phase 3.6 shape
-// (the layout-regression test guards it). Live-swap recovery lives
-// entirely in `src/view/live-client.js`, which reads state from the DOM
-// after each SSE innerHTML swap - it does not call into this IIFE.
-function inlineScript() {
-  return `
-(function () {
-  var TABS = ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'];
-  var PM_GROUPS = ['shape', 'component', 'trace', 'capability', 'blueprint'];
-  var PM_STATUSES = ['all', 'draft', 'review', 'needsRevision', 'approved', 'superseded'];
-  // Partial-render cache: grouping -> HTML string. First fetch fills it,
-  // subsequent switches use the cache.
-  var pmPartialCache = {};
-  // Track whether an SSE swap has invalidated the cache since the last
-  // successful hydration - the live-client sets window.__rcfPmDirty
-  // after each swap, and we clear the cache on the next activation.
-  function pmCacheKey(group) { return group; }
-
-  function initMermaid() {
-    if (typeof window.mermaid !== 'undefined') {
-      window.mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
-    }
-  }
-
-  function runMermaidIn(container) {
-    if (!container || typeof window.mermaid === 'undefined') return;
-    var pending = container.querySelectorAll('.mermaid:not([data-processed="true"])');
-    if (pending.length === 0) return;
-    try {
-      window.mermaid.run({ nodes: Array.prototype.slice.call(pending) });
-    } catch (e) { /* swallow */ }
-  }
-
-  function tabButtons() {
-    return Array.prototype.slice.call(document.querySelectorAll('nav.tabs [role="tab"]'));
-  }
-
-  function panelFor(name) {
-    return document.getElementById('tab-' + name);
-  }
-
-  function activateTab(name) {
-    if (TABS.indexOf(name) === -1) return false;
-    tabButtons().forEach(function (btn) {
-      var isTarget = btn.getAttribute('data-tab') === name;
-      btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
-    });
-    TABS.forEach(function (t) {
-      var p = panelFor(t);
-      if (!p) return;
-      if (t === name) {
-        p.removeAttribute('hidden');
-        runMermaidIn(p);
-      } else {
-        p.setAttribute('hidden', '');
-      }
-    });
-    return true;
-  }
-
-  function tabForNode(node) {
-    var cur = node;
-    while (cur && cur !== document.body) {
-      if (cur.getAttribute && cur.getAttribute('role') === 'tabpanel') {
-        var id = cur.id || '';
-        if (id.indexOf('tab-') === 0) return id.slice(4);
-      }
-      cur = cur.parentNode;
-    }
-    return null;
-  }
-
-  function openAncestorDetails(node) {
-    var cur = node.parentNode;
-    while (cur && cur !== document.body) {
-      if (cur.tagName && cur.tagName.toLowerCase() === 'details') {
-        cur.open = true;
-      }
-      cur = cur.parentNode;
-    }
-  }
-
-  function findByDocId(id) {
-    if (!id) return null;
-    var byId = document.getElementById(id);
-    if (byId) return byId;
-    return document.querySelector('[data-doc-id="' + id.replace(/"/g, '\\\\"') + '"]');
-  }
-
-  function parseHashParams(raw) {
-    var out = {};
-    if (!raw) return out;
-    var parts = raw.split('&');
-    for (var i = 0; i < parts.length; i += 1) {
-      var eq = parts[i].indexOf('=');
-      if (eq === -1) continue;
-      var k = parts[i].slice(0, eq);
-      var v = parts[i].slice(eq + 1);
-      if (k) out[k] = v;
-    }
-    return out;
-  }
-
-  function pmGroupPanel(name) {
-    return document.getElementById('pm-group-' + name);
-  }
-
-  function hydrateLazyGroup(name, cb) {
-    var panel = pmGroupPanel(name);
-    if (!panel) { if (cb) cb(false); return; }
-    if (panel.getAttribute('data-pm-lazy') !== 'true' && !pmPartialCache[pmCacheKey(name)]) {
-      if (cb) cb(true);
-      return;
-    }
-    if (window.__rcfPmDirty) {
-      pmPartialCache = {};
-      window.__rcfPmDirty = false;
-    }
-    var cached = pmPartialCache[pmCacheKey(name)];
-    var heading = panel.querySelector('.pm-group-heading');
-    var headingHtml = heading ? heading.outerHTML : '';
-    if (cached) {
-      panel.innerHTML = headingHtml + cached;
-      panel.removeAttribute('data-pm-lazy');
-      wireProductMapWithin(panel);
-      if (cb) cb(true);
-      return;
-    }
-    // Show a lightweight loading state.
-    panel.setAttribute('data-pm-loading', 'true');
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/product-map/' + name, true);
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
-      panel.removeAttribute('data-pm-loading');
-      if (xhr.status >= 200 && xhr.status < 300) {
-        pmPartialCache[pmCacheKey(name)] = xhr.responseText;
-        panel.innerHTML = headingHtml + xhr.responseText;
-        panel.removeAttribute('data-pm-lazy');
-        wireProductMapWithin(panel);
-        if (cb) cb(true);
-      } else {
-        panel.setAttribute('data-pm-lazy', 'true');
-        if (cb) cb(false);
-      }
-    };
-    xhr.send();
-  }
-
-  function activatePmGroup(name, opts) {
-    if (PM_GROUPS.indexOf(name) === -1) return false;
-    var buttons = document.querySelectorAll('.pm-group-btn');
-    for (var i = 0; i < buttons.length; i += 1) {
-      var btn = buttons[i];
-      var isTarget = btn.getAttribute('data-pm-group') === name;
-      btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
-    }
-    var panels = document.querySelectorAll('.pm-group');
-    for (var j = 0; j < panels.length; j += 1) {
-      var p = panels[j];
-      if (p.getAttribute('data-pm-group') === name) {
-        p.removeAttribute('hidden');
-      } else {
-        p.setAttribute('hidden', '');
-      }
-    }
-    var target = pmGroupPanel(name);
-    if (target && target.getAttribute('data-pm-lazy') === 'true') {
-      hydrateLazyGroup(name, function () {
-        if (opts && opts.after) opts.after();
-        applyPmStatusFilter(currentStatus());
-      });
-    } else {
-      if (opts && opts.after) opts.after();
-      applyPmStatusFilter(currentStatus());
-    }
-    return true;
-  }
-
-  function currentGroup() {
-    var sel = document.querySelector('.pm-group-btn[aria-selected="true"]');
-    return sel ? sel.getAttribute('data-pm-group') : 'shape';
-  }
-
-  function currentStatus() {
-    var s = document.querySelector('.pm-status-select');
-    return s ? s.value : 'all';
-  }
-
-  function currentOpenBuckets() {
-    var group = currentGroup();
-    var panel = pmGroupPanel(group);
-    if (!panel) return [];
-    var nodes = panel.querySelectorAll('details.pm-bucket[open]');
-    var out = [];
-    for (var i = 0; i < nodes.length; i += 1) {
-      var id = nodes[i].getAttribute('data-pm-bucket-id');
-      if (id) out.push(id);
-    }
-    return out;
-  }
-
-  function applyPmStatusFilter(status) {
-    if (PM_STATUSES.indexOf(status) === -1) return false;
-    var select = document.querySelector('.pm-status-select');
-    if (select) select.value = status;
-    var reqCards = document.querySelectorAll('#tab-product-map [data-req-status]');
-    for (var i = 0; i < reqCards.length; i += 1) {
-      var card = reqCards[i];
-      var s = card.getAttribute('data-req-status') || '';
-      if (status === 'all' || s === status) {
-        card.removeAttribute('hidden');
-      } else {
-        card.setAttribute('hidden', '');
-      }
-    }
-    // Per AC-17002-1: empty buckets under the filter are HIDDEN by
-    // default with a "N empty" summary line to reveal them. Also keep
-    // the legacy in-bucket note for tests / no-JS accessibility.
-    var buckets = document.querySelectorAll('#tab-product-map .pm-group:not([hidden]) details.pm-bucket');
-    var emptyCount = 0;
-    for (var k = 0; k < buckets.length; k += 1) {
-      var bk = buckets[k];
-      var visible = bk.querySelectorAll('[data-req-status]:not([hidden])');
-      var bodyEmpty = bk.querySelector('.pm-bucket-body') && bk.querySelector('.pm-bucket-body').children.length === 0;
-      var isEmpty = visible.length === 0 && !bodyEmpty; // lazy-empty buckets don't count
-      var body = bk.querySelector('.pm-bucket-body');
-      var emptyNote = body ? body.querySelector('.pm-bucket-empty-filter') : null;
-      if (isEmpty && status !== 'all') {
-        if (body && !emptyNote) {
-          emptyNote = document.createElement('p');
-          emptyNote.className = 'pm-bucket-empty pm-bucket-empty-filter';
-          emptyNote.innerHTML = '<em>0 requirements match this filter.</em>';
-          body.appendChild(emptyNote);
-        }
-        bk.setAttribute('data-pm-empty-under-filter', 'true');
-        emptyCount += 1;
-      } else {
-        if (emptyNote) emptyNote.parentNode.removeChild(emptyNote);
-        bk.removeAttribute('data-pm-empty-under-filter');
-      }
-    }
-    // Update the rollup summary.
-    var activePanel = document.querySelector('#tab-product-map .pm-group:not([hidden])');
-    if (activePanel) {
-      var roll = activePanel.querySelector('.pm-empty-roll');
-      if (roll) {
-        var showBtn = roll.querySelector('.pm-empty-count');
-        if (emptyCount > 0 && status !== 'all') {
-          if (showBtn) showBtn.textContent = String(emptyCount);
-          roll.removeAttribute('hidden');
-          activePanel.classList.add('pm-hide-empty');
-        } else {
-          roll.setAttribute('hidden', '');
-          activePanel.classList.remove('pm-hide-empty');
-        }
-      }
-    }
-    return true;
-  }
-
-  function updatePmHash() {
-    if (!window.history || typeof window.history.pushState !== 'function') return;
-    var group = currentGroup();
-    var status = currentStatus();
-    var open = currentOpenBuckets();
-    var next = '#tab=product-map&group=' + group + '&status=' + status;
-    if (open.length > 0) next += '&open=' + encodeURIComponent(open.join(','));
-    if (window.location.hash === next) return;
-    window.history.pushState(null, '', next);
-  }
-
-  function openPmBuckets(ids) {
-    if (!ids || ids.length === 0) return;
-    var group = currentGroup();
-    var panel = pmGroupPanel(group);
-    if (!panel) return;
-    for (var i = 0; i < ids.length; i += 1) {
-      var raw = ids[i];
-      if (!raw) continue;
-      var node = panel.querySelector('details.pm-bucket[data-pm-bucket-id="' + raw.replace(/"/g, '\\"') + '"]');
-      if (node) node.open = true;
-    }
-  }
-
-  function wireProductMapWithin(root) {
-    root = root || document;
-    // Bucket toggle -> push hash on user toggle. The 'toggle' event
-    // fires for both open and close, from user action and from our own
-    // scripting; guard against feedback via a dirty flag.
-    var buckets = root.querySelectorAll('details.pm-bucket');
-    for (var i = 0; i < buckets.length; i += 1) {
-      var bk = buckets[i];
-      if (bk.__rcfPmBucketWired) continue;
-      bk.__rcfPmBucketWired = true;
-      bk.addEventListener('toggle', function () {
-        if (window.__rcfPmSuppress) return;
-        updatePmHash();
-      });
-    }
-    // Jump chip -> open bucket + scroll.
-    var chips = root.querySelectorAll('.pm-jump-chip');
-    for (var j = 0; j < chips.length; j += 1) {
-      var chip = chips[j];
-      if (chip.__rcfPmChipWired) continue;
-      chip.__rcfPmChipWired = true;
-      chip.addEventListener('click', function (ev) {
-        var target = ev.currentTarget.getAttribute('data-pm-jump');
-        var groupAttr = ev.currentTarget.closest('.pm-jump-nav').getAttribute('data-pm-jump-group');
-        var panel = pmGroupPanel(groupAttr);
-        if (!panel) return;
-        var node = panel.querySelector('details.pm-bucket[data-pm-bucket-id="' + target.replace(/"/g, '\\"') + '"]');
-        if (!node) return;
-        node.open = true;
-        try { node.scrollIntoView({ block: 'start' }); } catch (e) { node.scrollIntoView(); }
-      });
-    }
-    // Bulk expand/collapse.
-    var bulk = root.querySelectorAll('.pm-bulk-btn');
-    for (var b = 0; b < bulk.length; b += 1) {
-      var btn = bulk[b];
-      if (btn.__rcfPmBulkWired) continue;
-      btn.__rcfPmBulkWired = true;
-      btn.addEventListener('click', function (ev) {
-        var action = ev.currentTarget.getAttribute('data-pm-bulk');
-        var panel = document.querySelector('#tab-product-map .pm-group:not([hidden])');
-        if (!panel) return;
-        var all = panel.querySelectorAll('details.pm-bucket');
-        window.__rcfPmSuppress = true;
-        for (var i = 0; i < all.length; i += 1) all[i].open = (action === 'expand');
-        window.__rcfPmSuppress = false;
-        updatePmHash();
-      });
-    }
-    // Empty-roll toggle: reveals hidden empty buckets under the filter.
-    var rolls = root.querySelectorAll('.pm-empty-toggle');
-    for (var r = 0; r < rolls.length; r += 1) {
-      var rt = rolls[r];
-      if (rt.__rcfPmEmptyWired) continue;
-      rt.__rcfPmEmptyWired = true;
-      rt.addEventListener('click', function (ev) {
-        var panel = ev.currentTarget.closest('.pm-group');
-        if (!panel) return;
-        if (panel.classList.contains('pm-hide-empty')) {
-          panel.classList.remove('pm-hide-empty');
-          ev.currentTarget.textContent = 'Hide empty buckets';
-        } else {
-          panel.classList.add('pm-hide-empty');
-          var span = document.createElement('span');
-          span.className = 'pm-empty-count';
-          span.textContent = String(panel.querySelectorAll('details.pm-bucket[data-pm-empty-under-filter="true"]').length);
-          ev.currentTarget.textContent = '';
-          ev.currentTarget.appendChild(document.createTextNode('Show '));
-          ev.currentTarget.appendChild(span);
-          ev.currentTarget.appendChild(document.createTextNode(' empty buckets'));
-        }
-      });
-    }
-  }
-
-  function wireProductMap() {
-    var buttons = document.querySelectorAll('.pm-group-btn');
-    for (var i = 0; i < buttons.length; i += 1) {
-      if (buttons[i].__rcfPmWired) continue;
-      buttons[i].__rcfPmWired = true;
-      buttons[i].addEventListener('click', function (ev) {
-        var name = ev.currentTarget.getAttribute('data-pm-group');
-        if (activatePmGroup(name)) updatePmHash();
-      });
-    }
-    var select = document.querySelector('.pm-status-select');
-    if (select && !select.__rcfPmWired) {
-      select.__rcfPmWired = true;
-      select.addEventListener('change', function () {
-        applyPmStatusFilter(select.value);
-        updatePmHash();
-      });
-    }
-    wireProductMapWithin(document);
-  }
-
-  function resolveHash(hash) {
-    if (!hash) { activateTab('readiness'); return; }
-    var raw = hash.charAt(0) === '#' ? hash.slice(1) : hash;
-    if (raw.indexOf('tab=') === 0) {
-      var afterTab = raw.slice(4);
-      var amp = afterTab.indexOf('&');
-      var tab = amp === -1 ? afterTab : afterTab.slice(0, amp);
-      var rest = amp === -1 ? '' : afterTab.slice(amp + 1);
-      activateTab(tab);
-      if (tab === 'product-map') {
-        var params = parseHashParams(rest);
-        var openIds = params.open ? decodeURIComponent(params.open).split(',').filter(Boolean) : [];
-        activatePmGroup(params.group || 'shape', {
-          after: function () {
-            if (params.status) applyPmStatusFilter(params.status);
-            openPmBuckets(openIds);
-          },
-        });
-      }
-      return;
-    }
-    var target = findByDocId(raw);
-    if (!target) { activateTab('readiness'); return; }
-    var tab = tabForNode(target);
-    if (tab) activateTab(tab);
-    openAncestorDetails(target);
-    if (target.tagName && target.tagName.toLowerCase() === 'details') target.open = true;
-    try { target.scrollIntoView({ block: 'start' }); } catch (e) { target.scrollIntoView(); }
-  }
-
-  function onTabClick(ev) {
-    var btn = ev.currentTarget;
-    var name = btn.getAttribute('data-tab');
-    if (!name) return;
-    activateTab(name);
-    if (name === 'product-map') {
-      // Hydrate whichever grouping was selected last (default: shape).
-      // No-op when the grouping is already inline.
-      activatePmGroup(currentGroup());
-    }
-    if (window.history && typeof window.history.replaceState === 'function') {
-      window.history.replaceState(null, '', '#tab=' + name);
-    }
-  }
-
-  function wireTabs() {
-    tabButtons().forEach(function (btn) {
-      if (btn.__rcfTabWired) return;
-      btn.__rcfTabWired = true;
-      btn.addEventListener('click', onTabClick);
-    });
-  }
-
-  var hashchangeWired = false;
-  function onReady() {
-    initMermaid();
-    wireTabs();
-    wireProductMap();
-    resolveHash(window.location.hash);
-    if (!hashchangeWired) {
-      hashchangeWired = true;
-      window.addEventListener('hashchange', function () {
-        resolveHash(window.location.hash);
-      });
-    }
-  }
-
-  window.rcfPage = window.rcfPage || {};
-  window.rcfPage.init = onReady;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', onReady);
-  } else {
-    onReady();
-  }
-})();
-`.trim();
 }

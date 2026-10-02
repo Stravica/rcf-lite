@@ -185,7 +185,10 @@
   function fetchScope(slug, fetchImpl) {
     var f = typeof fetchImpl === 'function' ? fetchImpl : (typeof fetch === 'function' ? fetch : null);
     if (!f) return Promise.reject(new Error('no fetch available'));
-    var url = '/scope.json?blueprint=' + encodeURIComponent(slug);
+    // Dex / wespa 2026-10-02 (#263, PR 1): asset references are relative
+    // so the viewer works under the proxy mount (/rcf-viewer/) without
+    // path rewrites.
+    var url = './scope.json?blueprint=' + encodeURIComponent(slug);
     return Promise.resolve(f(url)).then(function (resp) {
       if (!resp) throw new Error('scope: no response');
       var okFlag = resp.ok !== undefined ? resp.ok : (resp.status >= 200 && resp.status < 300);
@@ -410,7 +413,9 @@
       setState('disconnected');
       return;
     }
-    var source = new EventSourceCtor('/events');
+    // Dex / wespa 2026-10-02 (#263, PR 1): relative so the stream
+    // works under the proxy mount without a rewrite rule.
+    var source = new EventSourceCtor('./events');
 
     source.onopen = function () {
       lastEventAt = Date.now();

@@ -57,7 +57,10 @@ test('renderPage emits a six-tab layout with Readiness as tab 1 and Overview ren
   // hash-anchor backwards compatibility; the heading inside the panel is
   // the former Overview content under the new label).
   assert.match(html, /data-tab="overview"[^>]*>PRD</);
-  // Readiness button is the first tab button.
+  // Readiness button is the first tab button. The viewer UI refresh
+  // PR 1 shell inserts tab buttons at a 6-space indent inside the
+  // compact header; match the exact shape rather than the pre-PR-1
+  // zero-indent form.
   const firstBtn = html.match(/<button type="button" role="tab" data-tab="(\w+)"/);
   assert.ok(firstBtn);
   assert.equal(firstBtn[1], 'readiness');
@@ -78,16 +81,26 @@ test('renderPage references mermaid.min.js as a relative script tag (AC-202-1)',
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  assert.match(html, /<script src="mermaid.min.js"/);
+  // Viewer UI refresh PR 1 (Dex / wespa 2026-10-02 #263): relative so
+  // the viewer works under the proxy mount at /rcf-viewer/.
+  assert.match(html, /<script src="\.\/mermaid\.min\.js"/);
 });
 
-test('renderPage emits an inline client-side script with tabs and hashchange (D5)', async () => {
+test('renderPage links external page-init.js and defers it (viewer UI refresh PR 1)', async () => {
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  assert.match(html, /hashchange/);
-  assert.match(html, /role="tab"/);
-  assert.match(html, /mermaid\.initialize/);
+  // The single former inline <script> block moved to the ./page-init.js
+  // asset: wespa's CSP pins inline scripts by hash and the viewer no
+  // longer serves any. page-init.js carries the hashchange, role=tab
+  // and mermaid.initialize wiring that the inline script used to.
+  assert.match(html, /<script src="\.\/page-init\.js" defer><\/script>/);
+  assert.doesNotMatch(html, /<script>\(function/);
+  const pageInitPath = resolve(repoRoot, 'src', 'view', 'page-init.js');
+  const pageInit = await (await import('node:fs/promises')).readFile(pageInitPath, 'utf8');
+  assert.match(pageInit, /hashchange/);
+  assert.match(pageInit, /role="tab"/);
+  assert.match(pageInit, /mermaid\.initialize/);
 });
 
 test('renderPage embeds an inline SVG favicon (D11)', async () => {
@@ -164,7 +177,8 @@ test('renderPage wraps the tabpanels in <div id="rcf-live-content"> (Phase 3.8 D
   const wrapperIdx = html.indexOf('<div id="rcf-live-content">');
   const overviewIdx = html.indexOf('id="tab-overview"');
   const wrapperCloseIdx = html.lastIndexOf('</div>');
-  const footerIdx = html.indexOf('<footer>');
+  // Viewer UI refresh PR 1 renamed the footer to <footer class="app-footer">.
+  const footerIdx = html.indexOf('<footer');
   assert.ok(wrapperIdx > 0 && wrapperIdx < overviewIdx, 'wrapper opens before tabpanels');
   assert.ok(wrapperCloseIdx > overviewIdx && wrapperCloseIdx < footerIdx, 'wrapper closes before footer');
 });
@@ -173,7 +187,8 @@ test('renderPage always injects the live-client script tag (Phase 3.8 D13a)', as
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  assert.match(html, /<script src="\/live-client\.js" defer><\/script>/);
+  // Viewer UI refresh PR 1: relative path (Dex / wespa 2026-10-02 #263).
+  assert.match(html, /<script src="\.\/live-client\.js" defer><\/script>/);
 });
 
 test('renderPage carries raw-json data-doc-id for every main doc (Phase 3.8 D13b)', async () => {
@@ -197,19 +212,20 @@ test('renderPage footer refers to live streaming rather than manual regenerate (
   assert.doesNotMatch(html, /regenerate with/);
 });
 
-test('renderPage inline script wires the Phase-3.8 rcfPage.init entry and idempotence markers', async () => {
-  const result = await walkTree({ projectRoot: repoRoot });
-  const model = buildTreeModel(result);
-  const html = renderPage(model);
+test('page-init.js wires the rcfPage.init entry and idempotence markers (viewer UI refresh PR 1)', async () => {
   // Phase 3.9 wired the promise the header comment made: window.rcfPage
   // exposes init() so the live client can re-invoke the tab and product
-  // map wiring after every SSE innerHTML swap (P1-1). Idempotence
-  // markers keep re-invocation cheap.
-  assert.match(html, /window\.rcfPage\s*=\s*window\.rcfPage\s*\|\|\s*\{\}/);
-  assert.match(html, /window\.rcfPage\.init\s*=\s*onReady/);
-  assert.match(html, /__rcfTabWired/);
-  assert.match(html, /__rcfPmWired/);
-  assert.match(html, /function wireTabs\(\) \{[\s\S]*?btn\.addEventListener\('click', onTabClick\);[\s\S]*?\}/);
+  // map wiring after every SSE innerHTML swap (P1-1). Viewer UI refresh
+  // PR 1 moved the single inline script to ./page-init.js (Dex /
+  // wespa 2026-10-02 #263; wespa pins inline scripts by CSP hash); we
+  // check the same markers in the external asset.
+  const pageInitPath = resolve(repoRoot, 'src', 'view', 'page-init.js');
+  const pageInit = await (await import('node:fs/promises')).readFile(pageInitPath, 'utf8');
+  assert.match(pageInit, /window\.rcfPage\s*=\s*window\.rcfPage\s*\|\|\s*\{\}/);
+  assert.match(pageInit, /window\.rcfPage\.init\s*=\s*onReady/);
+  assert.match(pageInit, /__rcfTabWired/);
+  assert.match(pageInit, /__rcfPmWired/);
+  assert.match(pageInit, /function wireTabs\(\) \{[\s\S]*?btn\.addEventListener\('click', onTabClick\);[\s\S]*?\}/);
 });
 
 test('renderContent returns the innerHTML of the swap wrapper (no <div id="rcf-live-content"> tag)', async () => {

@@ -64,12 +64,25 @@ test('renderModelToPage always wraps content in <div id="rcf-live-content"> (D13
   await initProject({ projectRoot: root });
   const result = await renderModelToPage({ projectRoot: root });
   assert.match(result.fullPageHtml, /<div id="rcf-live-content">/);
-  assert.match(result.fullPageHtml, /<script src="\/live-client\.js" defer><\/script>/);
+  // Viewer UI refresh PR 1 (Dex / wespa 2026-10-02 #263): the script
+  // reference is relative so the page works under the proxy mount.
+  assert.match(result.fullPageHtml, /<script src="\.\/live-client\.js" defer><\/script>/);
 });
 
 test('renderModelToPage always emits the live-client script tag (D13a)', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-script-'));
   await initProject({ projectRoot: root });
   const result = await renderModelToPage({ projectRoot: root });
-  assert.match(result.fullPageHtml, /<script src="\/live-client\.js" defer>/);
+  assert.match(result.fullPageHtml, /<script src="\.\/live-client\.js" defer>/);
+});
+
+test('renderModelToPage emits the external page-init script and no inline script (viewer UI refresh PR 1)', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'rcf-render-page-init-'));
+  await initProject({ projectRoot: root });
+  const result = await renderModelToPage({ projectRoot: root });
+  assert.match(result.fullPageHtml, /<script src="\.\/page-init\.js" defer>/);
+  // No <script> tag that opens without a src attribute (i.e. no inline
+  // body); wespa's CSP pins inline scripts by hash and the single
+  // former inline block now lives at ./page-init.js.
+  assert.doesNotMatch(result.fullPageHtml, /<script>\(function/);
 });
