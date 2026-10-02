@@ -1229,3 +1229,327 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
   margin-left: 0.25rem;
 }
 .pm-blueprint-cap-body { display: block; }
+
+/* --------------------------------------------------------------------
+ * Viewer UI refresh PR 2 (w-2026-10-02-dave-010): shared component
+ * stylesheet. Mounted alongside the pre-existing selectors so each
+ * component (DocRow, FilterBar, Badge, EmptyState, Toast, SubTabStrip)
+ * can be mounted by later tabs without touching the base rules.
+ * Compact density is a requirement, not a default - the paddings here
+ * are deliberately tighter than the pre-PR-1 shell (decision 13).
+ * -------------------------------------------------------------------- */
+
+/* DocRow (replaces details.doc-details under the new component model;
+   old and new coexist until each tab is cut over, PRs 3-6). */
+details.rcf-row {
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.4rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-med), border-color var(--t-med);
+}
+
+details.rcf-row:hover { border-color: var(--sv-control); }
+details.rcf-row[open] { box-shadow: var(--shadow-md); }
+details.rcf-row[hidden] { display: none; }
+
+details.rcf-row > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: var(--radius-md);
+  color: var(--sv-ink);
+  font-weight: 500;
+  transition: background var(--t-fast);
+}
+
+details.rcf-row > summary::-webkit-details-marker { display: none; }
+
+details.rcf-row > summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--sv-control);
+  border-bottom: 2px solid var(--sv-control);
+  transform: rotate(-45deg);
+  transition: transform var(--t-fast);
+  flex-shrink: 0;
+}
+
+details.rcf-row[open] > summary::before { transform: rotate(45deg); }
+
+details.rcf-row > summary:hover { background: var(--sv-raised); }
+
+details.rcf-row > summary .id {
+  font-family: var(--sv-mono);
+  font-size: 0.85rem;
+  color: var(--sv-link);
+  flex-shrink: 0;
+}
+
+details.rcf-row > summary .title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+details.rcf-row > summary .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+details.rcf-row[open] > summary {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: 1px solid var(--sv-border);
+}
+
+details.rcf-row > .rcf-row-body {
+  padding: 0.65rem 0.9rem 0.85rem 1.95rem;
+}
+
+details.rcf-row > .rcf-row-body > p:first-child { margin-top: 0; }
+details.rcf-row > .rcf-row-body > p:last-child { margin-bottom: 0; }
+
+/* Badge: count / facet / accent variants. */
+.rcf-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0 0.5rem;
+  min-height: 1.1rem;
+  border-radius: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid var(--sv-border);
+  background: var(--sv-raised);
+  color: var(--sv-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+
+.rcf-badge .rcf-badge-label {
+  color: var(--sv-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.65rem;
+}
+
+.rcf-badge .rcf-badge-value {
+  color: var(--sv-ink);
+}
+
+.rcf-badge--facet {
+  background: var(--sv-raised);
+  color: var(--sv-ink);
+  border-color: var(--sv-border);
+}
+
+.rcf-badge--facet .rcf-badge-value {
+  color: var(--sv-ink);
+  font-weight: 600;
+}
+
+.rcf-badge--accent {
+  background: var(--sv-active);
+  border-color: var(--sv-link);
+  color: var(--sv-link);
+}
+
+.rcf-badge--accent .rcf-badge-label { color: var(--sv-link); }
+.rcf-badge--accent .rcf-badge-value { color: var(--sv-link); }
+
+/* FilterBar: sticky under the tabstrip, inline controls with a right-
+   hand live count and an Expand all affordance. */
+.rcf-filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  margin: 0 0 0.75rem;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: var(--radius-md);
+  position: sticky;
+  top: 3rem;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.rcf-filterbar .rcf-filter-text {
+  flex: 1 1 16rem;
+  min-width: 10rem;
+  min-height: 2.1rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--sv-control);
+  border-radius: var(--radius-sm);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  font: inherit;
+}
+
+.rcf-filterbar .rcf-filter-label {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  color: var(--sv-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.rcf-filterbar .rcf-filter-select {
+  min-height: 2.1rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--sv-control);
+  border-radius: var(--radius-sm);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  font: inherit;
+}
+
+.rcf-filterbar .rcf-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--sv-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.rcf-filterbar .rcf-filter-toggle input {
+  margin: 0;
+  accent-color: var(--sv-link);
+}
+
+.rcf-filterbar .rcf-filter-count {
+  margin-left: auto;
+  color: var(--sv-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rcf-filterbar .rcf-filter-expand {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--sv-link);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rcf-filterbar .rcf-filter-expand:hover { color: var(--sv-hover); }
+
+html[data-embed="1"] .rcf-filterbar { top: 2.75rem; }
+
+/* EmptyState: dashed outline, centred muted text. */
+.rcf-empty-state {
+  padding: 1rem;
+  border: 1px dashed var(--sv-control);
+  border-radius: var(--radius-md);
+  color: var(--sv-muted);
+  text-align: center;
+  background: var(--sv-raised);
+}
+
+.rcf-empty-state .rcf-empty-state-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--sv-ink);
+}
+
+.rcf-empty-state .rcf-empty-state-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+}
+
+.rcf-empty-state .rcf-empty-state-action {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--sv-ink);
+}
+
+.rcf-empty-state .rcf-empty-state-action code {
+  background: var(--sv-surface);
+}
+
+/* Toast: shell-mounted container, bottom-centre, opacity-fades. */
+.rcf-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  background: var(--sv-ink);
+  color: var(--sv-canvas);
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  max-width: 90vw;
+  z-index: 50;
+}
+
+.rcf-toast.show { opacity: 1; }
+
+/* SubTabStrip: chip-like row under a tab heading. */
+.rcf-subtabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--sv-border);
+  margin: 0 0 1rem;
+}
+
+.rcf-subtabs button {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0.45rem 0.9rem;
+  color: var(--sv-muted);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+
+.rcf-subtabs button:hover {
+  color: var(--sv-ink);
+  background: var(--sv-raised);
+}
+
+.rcf-subtabs button[aria-selected="true"] {
+  color: var(--sv-ink);
+  font-weight: 700;
+  border-bottom-color: var(--sv-link);
+}
+
+.rcf-subtabs button:focus-visible {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: -3px;
+}
+
+/* Decision 17: when the tree carries no project name, the .product
+   block collapses to nothing and the brand icon is on its own. */
+.product:empty { display: none; }
