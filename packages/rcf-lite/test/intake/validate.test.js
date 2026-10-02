@@ -39,3 +39,74 @@ test('scanArtefactForFindings returns an empty array on a clean brief', () => {
   const findings = scanArtefactForFindings(text);
   assert.deepEqual(findings, []);
 });
+
+// ---------------------------------------------------------------------------
+// REQ-187 (US-18702): runIntakeScansOnDelta over new vs existing statements.
+// ---------------------------------------------------------------------------
+
+import { runIntakeScansOnDelta } from '../../src/intake/orchestrator.js';
+
+test('runIntakeScansOnDelta (AC-18702-1): a contradiction between a new and existing statement names both ids', () => {
+  const existing = [
+    { id: 1, text: 'No login is required for the public page.' },
+  ];
+  const newStatements = [
+    { id: 2, text: 'The admin dashboard shows every monitor.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, existing);
+  const contradiction = findings.find((f) => f.kind === 'contradiction');
+  assert.ok(contradiction, `expected contradiction, got ${JSON.stringify(findings)}`);
+  assert.ok(contradiction.ids.includes(1));
+  assert.ok(contradiction.ids.includes(2));
+});
+
+test('runIntakeScansOnDelta: a scan on new statements alone surfaces inside the new side', () => {
+  const newStatements = [
+    { id: 1, text: 'No login is required for the public page. The admin dashboard shows every monitor.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, []);
+  assert.ok(findings.some((f) => f.kind === 'contradiction'));
+});
+
+test('runIntakeScansOnDelta: zero new statements returns an empty array', () => {
+  const findings = runIntakeScansOnDelta([], [{ id: 1, text: 'x' }]);
+  assert.deepEqual(findings, []);
+});
+
+test('runIntakeScansOnDelta (AC-18702-3): on a frozen set the comparison set is every existing statement', () => {
+  const frozen = [
+    { id: 1, text: 'No login is required.' },
+    { id: 2, text: 'The admin dashboard lists tenants.' },
+  ];
+  const newStatements = [{ id: 3, text: 'Also an admin panel exists.' }];
+  const findings = runIntakeScansOnDelta(newStatements, frozen);
+  // A contradiction already present among frozen is attributed with
+  // a new id when the new side participates. The new statement
+  // mentions "admin panel", which is a HAS_ADMIN_UI token, so a
+  // contradiction with id 1's "no login required" surfaces.
+  const contradiction = findings.find((f) => f.kind === 'contradiction');
+  assert.ok(contradiction);
+  assert.ok(contradiction.ids.includes(3));
+});
+
+// ---------------------------------------------------------------------------
+// Codex review fix 2026-10-02 (PR 267 landing): a self-contained finding
+// in a frozen statement must not be re-attributed to an unrelated new
+// statement by pairwise concatenation.
+// ---------------------------------------------------------------------------
+
+test('runIntakeScansOnDelta: a self-contradictory existing statement is NOT re-attributed to an unrelated new statement', () => {
+  const existing = [
+    // One existing statement that alone raises the contradiction
+    // kind (both halves of the pattern inside one text).
+    { id: 1, text: 'No login is required for the public page. The admin dashboard shows every monitor.' },
+  ];
+  const newStatements = [
+    { id: 2, text: 'The sky is blue today.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, existing);
+  // The new side does not participate; the orchestrator must drop
+  // the finding rather than attribute an existing-only contradiction
+  // to the unrelated new statement.
+  assert.equal(findings.some((f) => f.kind === 'contradiction' && f.ids.includes(2)), false, JSON.stringify(findings));
+});

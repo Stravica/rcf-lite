@@ -2070,6 +2070,30 @@ flowchart LR
   REQ-173 --> AC-17301-4
   TC-215-walker-invisible["TC-215-walker-invisible"]
   AC-17301-4 -.-> TC-215-walker-invisible
+  AC-17302-1["AC-17302-1"]
+  REQ-173 --> AC-17302-1
+  TC-215-brief-update-fields-and-preserve-id["TC-215-brief-update-fields-and-preserve-id"]
+  AC-17302-1 -.-> TC-215-brief-update-fields-and-preserve-id
+  AC-17302-2["AC-17302-2"]
+  REQ-173 --> AC-17302-2
+  TC-215-decisions-update-wellformed["TC-215-decisions-update-wellformed"]
+  AC-17302-2 -.-> TC-215-decisions-update-wellformed
+  AC-17302-3["AC-17302-3"]
+  REQ-173 --> AC-17302-3
+  TC-215-resolvedby-grammar-each-form["TC-215-resolvedby-grammar-each-form"]
+  AC-17302-3 -.-> TC-215-resolvedby-grammar-each-form
+  AC-17302-4["AC-17302-4"]
+  REQ-173 --> AC-17302-4
+  TC-215-update-refuses-nongrammar["TC-215-update-refuses-nongrammar"]
+  AC-17302-4 -.-> TC-215-update-refuses-nongrammar
+  AC-17302-5["AC-17302-5"]
+  REQ-173 --> AC-17302-5
+  TC-215-d2-dangling-pointer-fails["TC-215-d2-dangling-pointer-fails"]
+  AC-17302-5 -.-> TC-215-d2-dangling-pointer-fails
+  AC-17302-6["AC-17302-6"]
+  REQ-173 --> AC-17302-6
+  TC-215-d2-title-hit-dropped["TC-215-d2-title-hit-dropped"]
+  AC-17302-6 -.-> TC-215-d2-title-hit-dropped
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -2343,6 +2367,55 @@ flowchart LR
   REQ-181 --> AC-18101-3
   TC-223-no-existing-tab-tests-change["TC-223-no-existing-tab-tests-change"]
   AC-18101-3 -.-> TC-223-no-existing-tab-tests-change
+  REQ-187["REQ-187"]
+  AC-18701-1["AC-18701-1"]
+  REQ-187 --> AC-18701-1
+  TC-215-markers-kind-and-source["TC-215-markers-kind-and-source"]
+  AC-18701-1 -.-> TC-215-markers-kind-and-source
+  AC-18701-2["AC-18701-2"]
+  REQ-187 --> AC-18701-2
+  TC-215-defaults-from-flags["TC-215-defaults-from-flags"]
+  AC-18701-2 -.-> TC-215-defaults-from-flags
+  AC-18701-3["AC-18701-3"]
+  REQ-187 --> AC-18701-3
+  TC-215-question-heuristic["TC-215-question-heuristic"]
+  AC-18701-3 -.-> TC-215-question-heuristic
+  AC-18701-4["AC-18701-4"]
+  REQ-187 --> AC-18701-4
+  TC-215-029-line-per-statement-unchanged["TC-215-029-line-per-statement-unchanged"]
+  AC-18701-4 -.-> TC-215-029-line-per-statement-unchanged
+  AC-18701-5["AC-18701-5"]
+  REQ-187 --> AC-18701-5
+  TC-215-unknown-kind-exits-2["TC-215-unknown-kind-exits-2"]
+  AC-18701-5 -.-> TC-215-unknown-kind-exits-2
+  AC-18701-6["AC-18701-6"]
+  REQ-187 --> AC-18701-6
+  TC-215-dry-run-no-write["TC-215-dry-run-no-write"]
+  AC-18701-6 -.-> TC-215-dry-run-no-write
+  AC-18702-1["AC-18702-1"]
+  REQ-187 --> AC-18702-1
+  TC-215-scan-mints-openquestion["TC-215-scan-mints-openquestion"]
+  AC-18702-1 -.-> TC-215-scan-mints-openquestion
+  AC-18702-2["AC-18702-2"]
+  REQ-187 --> AC-18702-2
+  TC-215-findings-mints-openquestions["TC-215-findings-mints-openquestions"]
+  AC-18702-2 -.-> TC-215-findings-mints-openquestions
+  AC-18702-3["AC-18702-3"]
+  REQ-187 --> AC-18702-3
+  TC-215-scans-compare-every-existing["TC-215-scans-compare-every-existing"]
+  AC-18702-3 -.-> TC-215-scans-compare-every-existing
+  AC-18702-4["AC-18702-4"]
+  REQ-187 --> AC-18702-4
+  TC-215-json-emits-added-and-findings["TC-215-json-emits-added-and-findings"]
+  AC-18702-4 -.-> TC-215-json-emits-added-and-findings
+  AC-18702-5["AC-18702-5"]
+  REQ-187 --> AC-18702-5
+  TC-215-no-scan-plus-findings-exits-2["TC-215-no-scan-plus-findings-exits-2"]
+  AC-18702-5 -.-> TC-215-no-scan-plus-findings-exits-2
+  AC-18702-6["AC-18702-6"]
+  REQ-187 --> AC-18702-6
+  TC-215-text-runs-no-scan["TC-215-text-runs-no-scan"]
+  AC-18702-6 -.-> TC-215-text-runs-no-scan
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -3432,6 +3505,18 @@ flowchart LR
   class TC-215-parse-brief-bullets tc;
   class AC-17301-4 ac;
   class TC-215-walker-invisible tc;
+  class AC-17302-1 ac;
+  class TC-215-brief-update-fields-and-preserve-id tc;
+  class AC-17302-2 ac;
+  class TC-215-decisions-update-wellformed tc;
+  class AC-17302-3 ac;
+  class TC-215-resolvedby-grammar-each-form tc;
+  class AC-17302-4 ac;
+  class TC-215-update-refuses-nongrammar tc;
+  class AC-17302-5 ac;
+  class TC-215-d2-dangling-pointer-fails tc;
+  class AC-17302-6 ac;
+  class TC-215-d2-title-hit-dropped tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;
@@ -3571,6 +3656,31 @@ flowchart LR
   class TC-223-findings-list-markup tc;
   class AC-18101-3 ac;
   class TC-223-no-existing-tab-tests-change tc;
+  class REQ-187 req;
+  class AC-18701-1 ac;
+  class TC-215-markers-kind-and-source tc;
+  class AC-18701-2 ac;
+  class TC-215-defaults-from-flags tc;
+  class AC-18701-3 ac;
+  class TC-215-question-heuristic tc;
+  class AC-18701-4 ac;
+  class TC-215-029-line-per-statement-unchanged tc;
+  class AC-18701-5 ac;
+  class TC-215-unknown-kind-exits-2 tc;
+  class AC-18701-6 ac;
+  class TC-215-dry-run-no-write tc;
+  class AC-18702-1 ac;
+  class TC-215-scan-mints-openquestion tc;
+  class AC-18702-2 ac;
+  class TC-215-findings-mints-openquestions tc;
+  class AC-18702-3 ac;
+  class TC-215-scans-compare-every-existing tc;
+  class AC-18702-4 ac;
+  class TC-215-json-emits-added-and-findings tc;
+  class AC-18702-5 ac;
+  class TC-215-no-scan-plus-findings-exits-2 tc;
+  class AC-18702-6 ac;
+  class TC-215-text-runs-no-scan tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

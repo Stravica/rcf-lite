@@ -13,13 +13,16 @@ import {
   LedgerError,
   addEntry,
   emptyLedger,
+  isResolvedByGrammar,
   ledgerRelPath,
   loadAllLedgers,
   loadLedger,
   nextIdFor,
   parseBriefFromFile,
+  parseResolvedBy,
   resolveEntry,
   saveLedger,
+  updateEntry,
   validateLedger,
 } from '../../src/define/ledgers.js';
 
@@ -205,6 +208,264 @@ test('ledgers: save / load round-trips every ledger', async () => {
 // `LedgerBundle` typedef on `computeDelta` said "absent ledgers add
 // no docHash" while the previous implementation always returned the
 // four empty bodies.
+// ---------------------------------------------------------------------------
+// AC-18701-1 / 2 / 3 / 4 / 5: parseBriefFromFile marker parsing (REQ-187).
+// ---------------------------------------------------------------------------
+
+test('parseBriefFromFile (AC-18701-1): leading [kind] and trailing (source: ...) markers mint one statement', () => {
+  const line = '- [constraint] A loan on hold must not accrue late fees. (source: briefs/x.md:15)';
+  const drafts = parseBriefFromFile(line, { kind: 'capability' });
+  assert.equal(drafts.length, 1);
+  assert.equal(drafts[0].kind, 'constraint');
+  assert.equal(drafts[0].text, 'A loan on hold must not accrue late fees.');
+  assert.equal(drafts[0].source, 'briefs/x.md:15');
+});
+
+test('parseBriefFromFile (AC-18701-2): a line without markers inherits --kind and --source', () => {
+  const line = 'Loan officer.';
+  const drafts = parseBriefFromFile(line, { kind: 'actor', source: 'doc.md' });
+  assert.equal(drafts.length, 1);
+  assert.equal(drafts[0].kind, 'actor');
+  assert.equal(drafts[0].source, 'doc.md');
+  assert.equal(drafts[0].text, 'Loan officer.');
+});
+
+test('parseBriefFromFile (AC-18701-3): a question-mark trailing line is kinded openQuestion', () => {
+  const line = 'Does a hold need a second approver?';
+  const drafts = parseBriefFromFile(line, { kind: 'capability' });
+  assert.equal(drafts.length, 1);
+  assert.equal(drafts[0].kind, 'openQuestion');
+});
+
+test('parseBriefFromFile (AC-18701-3): a TBC/TBD/Open/Question-leading line is kinded openQuestion', () => {
+  const content = 'TBC: hold policy\nOpen: whether a second approver is required\nQuestion: does X apply\nTBD: approval chain';
+  const drafts = parseBriefFromFile(content, { kind: 'capability' });
+  assert.equal(drafts.length, 4);
+  for (const d of drafts) assert.equal(d.kind, 'openQuestion');
+});
+
+test('parseBriefFromFile (AC-18701-3 override): a [kind] marker wins over the question heuristic', () => {
+  const drafts = parseBriefFromFile('[capability] Why does this exist?', {});
+  assert.equal(drafts.length, 1);
+  assert.equal(drafts[0].kind, 'capability');
+});
+
+test('parseBriefFromFile (AC-18701-4): a 0.29.0 line-per-statement file parses unchanged', () => {
+  const content = `
+- First statement
+* Second statement
+3. Third statement
+Not a bullet
+`;
+  const drafts = parseBriefFromFile(content, { kind: 'capability', source: 'briefs/x.md' });
+  assert.deepEqual(drafts.map((d) => d.text), [
+    'First statement',
+    'Second statement',
+    'Third statement',
+    'Not a bullet',
+  ]);
+  for (const d of drafts) {
+    assert.equal(d.kind, 'capability');
+    assert.equal(d.source, 'briefs/x.md');
+  }
+});
+
+test('parseBriefFromFile (AC-18701-5): a [gadget] line raises LedgerError code usage before writing', () => {
+  assert.throws(
+    () => parseBriefFromFile('[gadget] text', {}),
+    (err) => err instanceof LedgerError && err.code === 'usage' && err.message.includes('gadget'),
+  );
+});
+
+// ---------------------------------------------------------------------------
+// AC-17302-1 / 4: updateEntry (REQ-173 amendment).
+// ---------------------------------------------------------------------------
+
+test('updateEntry (AC-17302-1): patches brief fields and preserves id / addedAt', () => {
+  let body = emptyLedger('brief');
+  for (let i = 0; i < 7; i += 1) {
+    ({ body } = addEntry({
+      name: 'brief',
+      body,
+      entry: { kind: 'capability', text: `s${i}` },
+      now: '2026-10-02T10:00:00Z',
+    }));
+  }
+  const before = body.statements[6];
+  const step = updateEntry({
+    name: 'brief',
+    body,
+    id: 7,
+    patch: { kind: 'constraint', resolvedBy: 'REQ-003' },
+  });
+  assert.equal(step.entry.id, 7);
+  assert.equal(step.entry.addedAt, before.addedAt);
+  assert.equal(step.entry.kind, 'constraint');
+  assert.equal(step.entry.resolvedBy, 'REQ-003');
+});
+
+test('updateEntry (AC-17302-4 shape-only): updateEntry re-runs full-body validation', () => {
+  let body = emptyLedger('brief');
+  ({ body } = addEntry({
+    name: 'brief', body, entry: { kind: 'capability', text: 'x' }, now: '2026-10-02T10:00:00Z',
+  }));
+  assert.throws(
+    () => updateEntry({ name: 'brief', body, id: 1, patch: { kind: 'bogus' } }),
+    (err) => err instanceof LedgerError && err.field?.includes('kind'),
+  );
+});
+
+test('updateEntry (AC-17302-2): decisions update patches options and default and passes wellFormed shape', () => {
+  let body = emptyLedger('decisions');
+  ({ body } = addEntry({
+    name: 'decisions',
+    body,
+    entry: {
+      question: 'Which option?',
+      options: [{ letter: 'a', text: 'first' }],
+      default: null,
+    },
+    now: '2026-10-02T10:00:00Z',
+  }));
+  const step = updateEntry({
+    name: 'decisions',
+    body,
+    id: 1,
+    patch: {
+      options: [{ letter: 'a', text: 'x' }, { letter: 'b', text: 'y' }],
+      default: 'a',
+    },
+  });
+  assert.equal(step.entry.options.length, 2);
+  assert.equal(step.entry.default, 'a');
+});
+
+test('updateEntry: unknown id raises LedgerError code usage', () => {
+  assert.throws(
+    () => updateEntry({ name: 'brief', body: emptyLedger('brief'), id: 99, patch: { text: 'z' } }),
+    (err) => err instanceof LedgerError && err.code === 'usage',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// AC-17302-3: parseResolvedBy and the closed pointer grammar.
+// ---------------------------------------------------------------------------
+
+function treeFixture() {
+  return {
+    requirements: [{ reqId: 'REQ-003', title: 'Loan hold' }, { reqId: 'REQ-004', title: 'X' }],
+    tacs: [{ tacId: 'TAC-4130-define-intake-brief' }],
+    tad: {
+      dataArchitecture: { coreEntities: [{ name: 'Loan' }, { name: 'Officer' }] },
+      externalSystems: [{ name: 'CoreBanking' }],
+    },
+    prd: { users: [{ name: 'LoanOfficer' }] },
+  };
+}
+
+test('parseResolvedBy (AC-17302-3): REQ-nnn resolves on the fixture', () => {
+  const r = parseResolvedBy('REQ-003', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'req');
+});
+
+test('parseResolvedBy (AC-17302-3): TAD.entity:<name> resolves on the fixture', () => {
+  const r = parseResolvedBy('TAD.entity:Loan', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tadEntity');
+});
+
+test('parseResolvedBy (AC-17302-3): PRD.user:<name> resolves on the fixture', () => {
+  const r = parseResolvedBy('PRD.user:LoanOfficer', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'prdUser');
+});
+
+test('parseResolvedBy (AC-17302-3): TAD.system:<name> resolves on the fixture', () => {
+  const r = parseResolvedBy('TAD.system:CoreBanking', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tadSystem');
+});
+
+test('parseResolvedBy (AC-17302-3): TAC-nnnn resolves on the fixture', () => {
+  const r = parseResolvedBy('TAC-4130', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tac');
+});
+
+test('parseResolvedBy (AC-17302-3): omitted:<reason> passes without a tree lookup', () => {
+  const r = parseResolvedBy('omitted:out of scope', treeFixture());
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'omitted');
+});
+
+test('parseResolvedBy (AC-17302-5): REQ-999 fails with "pointer does not resolve"', () => {
+  const r = parseResolvedBy('REQ-999', treeFixture());
+  assert.equal(r.ok, false);
+  assert.equal(r.why, 'pointer does not resolve');
+});
+
+test('parseResolvedBy (AC-17302-4): a free-text pointer is outside the grammar', () => {
+  const r = parseResolvedBy('loan thing', treeFixture());
+  assert.equal(r.ok, false);
+  assert.ok(r.why.includes('outside grammar') || r.why.includes('does not resolve'));
+});
+
+test('isResolvedByGrammar (AC-17302-4): accepts the six forms and refuses prose', () => {
+  for (const p of ['REQ-003', 'TAD.entity:Loan', 'PRD.user:x', 'TAD.system:y', 'TAC-4130', 'omitted:scope']) {
+    assert.equal(isResolvedByGrammar(p), true, p);
+  }
+  assert.equal(isResolvedByGrammar('loan thing'), false);
+  assert.equal(isResolvedByGrammar(''), false);
+});
+
+// ---------------------------------------------------------------------------
+// Codex review fixes 2026-10-02 (PR 267 landing): the pointer resolver
+// honours the production PRD and TAD schema shapes, and the TAC branch
+// refuses an arbitrary suffix that masquerades as a known TAC.
+// ---------------------------------------------------------------------------
+
+test('parseResolvedBy: PRD.user resolves against prd.targetUsers (production shape)', () => {
+  const tree = { prd: { targetUsers: [{ name: 'LoanOfficer' }] } };
+  const r = parseResolvedBy('PRD.user:LoanOfficer', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'prdUser');
+});
+
+test('parseResolvedBy: TAD.system resolves against tad.integrationArchitecture.externalSystems (production shape)', () => {
+  const tree = {
+    tad: {
+      integrationArchitecture: {
+        externalSystems: [{ name: 'CoreBanking' }],
+      },
+    },
+  };
+  const r = parseResolvedBy('TAD.system:CoreBanking', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tadSystem');
+});
+
+test('parseResolvedBy: TAC with an unknown suffix refuses to resolve by numeric-prefix match', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130-made-up', tree);
+  assert.equal(r.ok, false);
+  assert.equal(r.why, 'pointer does not resolve');
+});
+
+test('parseResolvedBy: TAC-nnnn short form still resolves to the single matching slug (test fixture compat)', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tac');
+});
+
+test('parseResolvedBy: TAC long form matches an exact tacId', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130-define-intake-brief', tree);
+  assert.equal(r.ok, true);
+});
+
+
 test('ledgers: loadAllLedgers omits absent ledger files', async () => {
   const root = await scratch();
   // No files under rcf/define/ at all.

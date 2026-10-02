@@ -1,0 +1,50 @@
+{
+  "usId": "US-17302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-173",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "update and the pointer grammar",
+  "description": "User story under REQ-173. Every ledger supports `update <id>` with field patches validated as `add` validates; `resolvedBy` on a brief statement is a closed pointer grammar validated by D2.",
+  "asA": "harness",
+  "iWant": "to patch a statement's kind, text or resolution",
+  "soThat": "a correction does not mint a duplicate",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17302-1",
+      "description": "[happy] given statement 7, when rcf define ledger brief update 7 --kind constraint --resolved-by REQ-003 runs, then the statement carries kind constraint and resolvedBy REQ-003 and its id and addedAt are unchanged.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-2",
+      "description": "[happy] given decision 2 with one option, when rcf define ledger decisions update 2 --option a:x --option b:y --default a runs, then decisions:wellFormed passes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-3",
+      "description": "[happy] given each pointer form REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn and omitted:<reason> resolving on the fixture, when D2 runs, then skeleton:resolvedBy passes the statement.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-4",
+      "description": "[failure] given --resolved-by \"loan thing\", when update runs, then it exits 2 naming the grammar and writes nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-5",
+      "description": "[failure] given --resolved-by REQ-999 on a tree with no REQ-999, when D2 runs, then skeleton:resolvedBy fails the statement with \"pointer does not resolve\".",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-6",
+      "description": "[must-not] given a statement whose text contains an existing REQ title and no resolvedBy, when D2 runs in 0.30.0, then skeleton:resolvedBy does not pass it on the title hit.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4121-define-ledgers"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z"
+}

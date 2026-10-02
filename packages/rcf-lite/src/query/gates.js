@@ -45,7 +45,7 @@
 
 import { computeQueue } from '../build/queue.js';
 import { isOptedOut } from '../req-baseline/opt-out.js';
-import { BRIEF_KINDS } from '../define/ledgers.js';
+import { BRIEF_KINDS, parseResolvedBy } from '../define/ledgers.js';
 
 /** Canonical stage order (proposal §3.2). */
 export const STAGE_ORDER = /** @type {const} */ (['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
@@ -503,28 +503,33 @@ export function checkD2Skeleton(ctx) {
 
   const checks = [];
 
-  // Check 1: every capability/constraint/entity/... statement resolves
-  // (the statement carries `resolvedBy` naming a REQ / TAD entity / TAC
-  // / recorded omission id, OR its text matches an existing REQ title).
-  // Cheap check: a `resolvedBy` string or a name-hit on titles.
-  const resolvedByStmt = (s) => {
+  // Check 1 (0.30.0): every capability/constraint/entity/... statement
+  // resolves to a closed-grammar pointer in `resolvedBy`:
+  //   REQ-nnn | TAD.entity:<name> | PRD.user:<name>
+  //   | TAD.system:<name> | TAC-nnnn | omitted:<reason>
+  // The 0.29.0 REQ-title fallback is dropped (decision 3; a title hit
+  // becomes a suggestion the PR 2 computeQuestions surface returns).
+  // A statement with no `resolvedBy` fails; a statement with a
+  // `resolvedBy` outside the grammar fails with 'pointer does not
+  // resolve'.
+  /** @type {Array<{ id: string, why: string }>} */
+  const unresolvedFailing = [];
+  for (const s of resolvingStmts) {
     const rb = s?.resolvedBy;
-    if (typeof rb === 'string' && rb.length > 0) return true;
-    if (rb && typeof rb === 'object' && Object.keys(rb).length > 0) return true;
-    const text = typeof s?.text === 'string' ? s.text.trim().toLowerCase() : '';
-    if (!text) return false;
-    for (const req of tree.requirements ?? []) {
-      const title = typeof req?.title === 'string' ? req.title.toLowerCase() : '';
-      if (title && text.includes(title)) return true;
+    if (typeof rb !== 'string' || rb.length === 0) {
+      unresolvedFailing.push({ id: `brief:${s.id}`, why: `${s.kind} statement has no resolvedBy` });
+      continue;
     }
-    return false;
-  };
-  const unresolvedStmts = resolvingStmts.filter((s) => !resolvedByStmt(s));
+    const parsed = parseResolvedBy(rb, tree);
+    if (!parsed.ok) {
+      unresolvedFailing.push({ id: `brief:${s.id}`, why: 'pointer does not resolve' });
+    }
+  }
   checks.push(makeCheck(
     'skeleton:resolvedBy',
     'delta',
     resolvingStmts.length,
-    unresolvedStmts.map((s) => ({ id: `brief:${s.id}`, why: `${s.kind} statement has no resolvedBy and no REQ-title hit` })),
+    unresolvedFailing,
   ));
 
   // Checks 2a / 2b: the former `skeleton:reqFields` split into two

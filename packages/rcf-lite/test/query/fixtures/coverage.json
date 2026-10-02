@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 112,
-    "covered": 112,
+    "requirements": 113,
+    "covered": 113,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -4388,6 +4388,54 @@
             "TC-215-walker-invisible"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-1",
+          "covered": true,
+          "testCases": [
+            "TC-215-brief-update-fields-and-preserve-id"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-2",
+          "covered": true,
+          "testCases": [
+            "TC-215-decisions-update-wellformed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-3",
+          "covered": true,
+          "testCases": [
+            "TC-215-resolvedby-grammar-each-form"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-4",
+          "covered": true,
+          "testCases": [
+            "TC-215-update-refuses-nongrammar"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-5",
+          "covered": true,
+          "testCases": [
+            "TC-215-d2-dangling-pointer-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-6",
+          "covered": true,
+          "testCases": [
+            "TC-215-d2-title-hit-dropped"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -4951,6 +4999,109 @@
           "covered": true,
           "testCases": [
             "TC-223-no-existing-tab-tests-change"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-187",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18701-1",
+          "covered": true,
+          "testCases": [
+            "TC-215-markers-kind-and-source"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18701-2",
+          "covered": true,
+          "testCases": [
+            "TC-215-defaults-from-flags"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18701-3",
+          "covered": true,
+          "testCases": [
+            "TC-215-question-heuristic"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18701-4",
+          "covered": true,
+          "testCases": [
+            "TC-215-029-line-per-statement-unchanged"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18701-5",
+          "covered": true,
+          "testCases": [
+            "TC-215-unknown-kind-exits-2"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18701-6",
+          "covered": true,
+          "testCases": [
+            "TC-215-dry-run-no-write"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-1",
+          "covered": true,
+          "testCases": [
+            "TC-215-scan-mints-openquestion"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-2",
+          "covered": true,
+          "testCases": [
+            "TC-215-findings-mints-openquestions"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-3",
+          "covered": true,
+          "testCases": [
+            "TC-215-scans-compare-every-existing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-4",
+          "covered": true,
+          "testCases": [
+            "TC-215-json-emits-added-and-findings"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-5",
+          "covered": true,
+          "testCases": [
+            "TC-215-no-scan-plus-findings-exits-2"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18702-6",
+          "covered": true,
+          "testCases": [
+            "TC-215-text-runs-no-scan"
           ],
           "unresolvedTestCases": []
         }

@@ -1,0 +1,50 @@
+{
+  "usId": "US-18702",
+  "prdId": "PRD-001",
+  "reqId": "REQ-187",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "scans into open questions",
+  "description": "User story under REQ-187. The intake scans run inside `brief add --from` over the new statements against every existing statement, and every finding becomes an openQuestion statement with source `scan:<name>:<ids>`.",
+  "asA": "product owner",
+  "iWant": "contradictions and gaps the tool can see to reach me as questions",
+  "soThat": "the first readiness run tells me what is still mine",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18702-1",
+      "description": "[happy] given two new statements the contradiction scan flags, when brief add --from runs with scans on, then one openQuestion statement is appended with source scan:contradiction:<id>,<id> and brief:openQuestions fails it.",
+      "testable": true
+    },
+    {
+      "id": "AC-18702-2",
+      "description": "[happy] given a --findings file with two findings, when brief add --from runs, then two openQuestion statements are appended with source scan:<name>.",
+      "testable": true
+    },
+    {
+      "id": "AC-18702-3",
+      "description": "[happy] given a frozen tree, when brief add --from runs, then the scans compare the new statements against every existing statement.",
+      "testable": true
+    },
+    {
+      "id": "AC-18702-4",
+      "description": "[happy] given --json, when brief add --from runs, then stdout holds added[] and findings[].",
+      "testable": true
+    },
+    {
+      "id": "AC-18702-5",
+      "description": "[failure] given --no-scan together with --findings, when brief add runs, then it exits 2.",
+      "testable": true
+    },
+    {
+      "id": "AC-18702-6",
+      "description": "[must-not] given --text, when brief add runs, then no scan runs and no openQuestion statement is appended.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4130-define-intake-brief"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z"
+}

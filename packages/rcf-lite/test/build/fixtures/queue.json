@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 91,
-    "notStarted": 47,
+    "items": 92,
+    "notStarted": 48,
     "inProgress": 1,
     "complete": 28,
     "verified": 15,
-    "actionable": 37,
+    "actionable": 38,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -142,7 +142,8 @@
     {
       "tier": 7,
       "fbsIds": [
-        "FBS-031"
+        "FBS-031",
+        "FBS-202"
       ]
     },
     {
@@ -1190,6 +1191,19 @@
         "FBS-200"
       ],
       "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-202",
+      "buildOrder": 202,
+      "tier": 7,
+      "title": "DEFINE step 3 PR 1: document intake, statement-file markers, ledger update, resolvedBy grammar (REQ-187, REQ-173 amendment)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-195",
+        "FBS-201"
+      ],
+      "state": "actionable",
       "blockedBy": []
     }
   ]
