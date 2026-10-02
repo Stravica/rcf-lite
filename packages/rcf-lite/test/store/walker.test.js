@@ -239,7 +239,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (update subverb + resolvedBy pointer grammar on REQ-173),
   // US-18701 (statement file markers) and US-18702 (scans into
   // open questions) under REQ-187 (189 -> 192).
-  assert.equal(tree.userStories.length, 193);
+  // Viewer UI refresh PR 6 added US-204 under REQ-002 for the Build/DAG
+  // sub-tab chain amendments (192 -> 193).
+  // Viewer UI refresh PR 7 added US-205 under REQ-002 for the ID lookup
+  // (./index.json, LookupModal, Cmd/Ctrl+F) chain amendments (193 -> 194).
+  assert.equal(tree.userStories.length, 194);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -259,7 +263,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added TAC-4124 (46 -> 47).
   // DEFINE step 3 PR 1 (w-2026-10-02-dave-042) added TAC-4130
   // (document intake into the brief ledger) (48 -> 49).
-  assert.equal(tree.tacs.length, 50);
+  // Viewer UI refresh PR 6 added TAC-4131 for the Build/DAG renderer
+  // (49 -> 50).
+  // Viewer UI refresh PR 7 added TAC-4132 for the ID lookup
+  // (./index.json route + LookupModal + Cmd/Ctrl+F) (50 -> 51).
+  assert.equal(tree.tacs.length, 51);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -282,7 +290,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added ADR-4124 (49 -> 50).
   // DEFINE-train step 2 PR A added ADR-4126 (persona-tagged blockers
   // and two readiness levels) (50 -> 51).
-  assert.equal(tree.adrs.length, 53);
+  // Viewer UI refresh PR 6 added ADR-4133 (DAG dependency-depth layout)
+  // (52 -> 53).
+  // Viewer UI refresh PR 7 added ADR-4134 (./index.json route built
+  // once per rewalk; lazy fetch) (53 -> 54).
+  assert.equal(tree.adrs.length, 54);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core

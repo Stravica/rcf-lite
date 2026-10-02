@@ -1,0 +1,64 @@
+{
+  "usId": "US-205",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "An engineer jumps to any document or AC by id",
+  "description": "A SearchButton to the right of the tabstrip and the Cmd/Ctrl+F keyboard binding open a LookupModal with type-ahead over a server-built `./index.json` carrying every document id and every AC. Id matches rank first (exact, prefix, contains), then every query word must match title or snippet, title above snippet; a single character searches ids only; 20 results. A pick sets `#tab=<tab>&entity=<id>`; the Router activates the tab, opens every ancestor DocRow and flashes the target. `embed` and `theme` survive every hash write. See viewer UI refresh design doc section 6.",
+  "asA": "an engineer looking at any tab of the review surface",
+  "iWant": "a modal that lets me jump to any document or AC by typing part of its id or title",
+  "soThat": "I can navigate the tree by id without hunting through the tabs",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-205-1",
+      "description": "[happy] Given the review surface, when the SearchButton is pressed or Cmd/Ctrl+F is typed from any tab, then the LookupModal opens; typing an exact id (`REQ-002`) or a prefix (`REQ-00`) ranks that id first and the first result row is pre-highlighted.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-2",
+      "description": "[happy] Given the LookupModal, when a word query matches a document's title and another document's snippet, then the title match ranks above the snippet match.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-3",
+      "description": "[happy] Given the LookupModal, when a query of exactly one character is typed, then only ids whose identifier contains that character rank, and the title / snippet word-match pass is skipped.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-4",
+      "description": "[happy] Given a pre-highlighted result for `US-304`, when Enter is pressed, then the hash becomes `#tab=requirements&entity=US-304`, the Router activates the Requirements tab, opens the REQ-003 ancestor DocRow and the US-304 row, scrolls the target into view and flashes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-5",
+      "description": "[happy] Given a mount URL `?tab=requirements&entity=US-304`, when the shell first paints, then the Router lands on the same position: Requirements tab active, REQ-003 and US-304 DocRows open, US-304 scrolled into view.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-6",
+      "description": "[happy] Given `?embed=1&theme=dark` on the viewer URL, when a result is picked from the LookupModal, then the resulting URL still carries `embed=1` and `theme=dark` in the query string and the hash is `#tab=<tab>&entity=<id>`.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-7",
+      "description": "[failure] Given a `./index.json` fetch that returns a non-2xx status or a malformed body, when the LookupModal is opened, then an empty state renders with a reload affordance that re-fetches the index, and no result rows show.",
+      "testable": true
+    },
+    {
+      "id": "AC-205-8",
+      "description": "[must-not] Given the LookupModal, when the user types a query, picks a result or closes the modal, then no `postMessage` is sent to the parent window, no outbound network request beyond the `./index.json` fetch is made, and no search term is written to `localStorage` / `sessionStorage` / cookies.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4132-id-lookup"
+  ],
+  "tags": [
+    "view",
+    "lookup",
+    "navigation"
+  ],
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z"
+}
