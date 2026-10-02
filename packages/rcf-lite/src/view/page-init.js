@@ -560,6 +560,14 @@
     if (name === 'product-map') {
       activatePmGroup(currentGroup());
     }
+    // The Build tab carries a SubTabStrip + FilterBar state the URL
+    // mirrors; re-emit the current fragment so #tab=build / UI stay in
+    // step (fixes the DAG-sticky case: previously `#tab=build` was
+    // written while DAG remained visible).
+    if (name === 'build' && buildSubTabStrip()) {
+      writeHash(buildHashFragment(), true);
+      return;
+    }
     // Hash write preserves ?embed=/?theme=/... (Dex contract, PR 1).
     writeHash('#tab=' + name, true);
   }
