@@ -1,0 +1,50 @@
+{
+  "usId": "US-18701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-187",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the statement file",
+  "description": "User story under REQ-187. The harness writes a statement file beside each source with a leading bracketed kind and a trailing (source: ...) marker; `brief add --from` parses the markers and mints the statements.",
+  "asA": "harness",
+  "iWant": "a line grammar for kind and source",
+  "soThat": "the split I propose to the owner is what gets minted",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18701-1",
+      "description": "[happy] given a line \"- [constraint] A loan on hold must not accrue late fees. (source: briefs/x.md:15)\", when brief add --from runs, then one statement is minted with kind constraint, that text and that source.",
+      "testable": true
+    },
+    {
+      "id": "AC-18701-2",
+      "description": "[happy] given a line with no markers under --kind actor --source doc.md, when brief add --from runs, then the statement has kind actor and source doc.md.",
+      "testable": true
+    },
+    {
+      "id": "AC-18701-3",
+      "description": "[happy] given a line ending with \"?\" and no kind marker, when brief add --from runs, then the statement has kind openQuestion.",
+      "testable": true
+    },
+    {
+      "id": "AC-18701-4",
+      "description": "[happy] given a 0.29.0 line-per-statement file, when brief add --from runs, then the minted statements equal the 0.29.0 output.",
+      "testable": true
+    },
+    {
+      "id": "AC-18701-5",
+      "description": "[failure] given a line \"[gadget] text\", when brief add --from runs, then it exits 2 naming the accepted kinds and writes nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-18701-6",
+      "description": "[must-not] given --dry-run, when brief add --from runs, then rcf/define/brief-ledger.json is not created or modified.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4130-define-intake-brief"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T16:40:00Z"
+}
