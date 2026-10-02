@@ -539,6 +539,65 @@
     });
   }
 
+  // ---- shared toast helper (viewer UI refresh PR 2) --------------------
+  //
+  // The shell renders exactly one <div class="rcf-toast" data-toast> and
+  // keeps it outside #rcf-live-content so the SSE innerHTML swap does
+  // not blow it away. showToast() is idempotent across repeat calls:
+  // the latest message replaces whatever is showing, the fade-out
+  // timer resets, and the element clears when the fade completes.
+  var toastHideTimer = null;
+  function showToast(message, opts) {
+    var el = document.querySelector('[data-toast]');
+    if (!el) return;
+    var text = message == null ? '' : String(message);
+    el.textContent = text;
+    el.classList.add('show');
+    if (toastHideTimer) { clearTimeout(toastHideTimer); toastHideTimer = null; }
+    var durationMs = opts && typeof opts.durationMs === 'number' ? opts.durationMs : 2200;
+    toastHideTimer = setTimeout(function () {
+      el.classList.remove('show');
+      // Clear the text one fade-out later so a reader does not re-announce it.
+      toastHideTimer = setTimeout(function () {
+        if (!el.classList.contains('show')) el.textContent = '';
+      }, 200);
+    }, durationMs);
+  }
+
+  // ---- component fixture page wiring (viewer UI refresh PR 2) ----------
+  //
+  // The /_fixtures/components page carries a theme toggle and a demo
+  // button that fires showToast() so a reviewer can confirm the Toast
+  // round-trips end-to-end. Both guards against null elements so the
+  // helpers no-op on every other page.
+  function wireFixturePage() {
+    var themeBtns = document.querySelectorAll('[data-rcf-fixture-theme]');
+    for (var i = 0; i < themeBtns.length; i += 1) {
+      var btn = themeBtns[i];
+      if (btn.__rcfFixtureThemeWired) continue;
+      btn.__rcfFixtureThemeWired = true;
+      btn.addEventListener('click', function (ev) {
+        var mode = ev.currentTarget.getAttribute('data-rcf-fixture-theme');
+        applyTheme(mode === 'auto' ? null : mode);
+        var buttons = document.querySelectorAll('[data-rcf-fixture-theme]');
+        for (var j = 0; j < buttons.length; j += 1) {
+          var b = buttons[j];
+          var isTarget = b.getAttribute('data-rcf-fixture-theme') === mode;
+          b.setAttribute('aria-pressed', isTarget ? 'true' : 'false');
+        }
+      });
+    }
+    var toastBtns = document.querySelectorAll('[data-rcf-fixture-toast]');
+    for (var k = 0; k < toastBtns.length; k += 1) {
+      var tb = toastBtns[k];
+      if (tb.__rcfFixtureToastWired) continue;
+      tb.__rcfFixtureToastWired = true;
+      tb.addEventListener('click', function () {
+        showToast('Saved. (demo of the shared Toast helper)');
+      });
+    }
+  }
+
   var hashchangeWired = false;
   function onReady() {
     initShellFromQuery();
@@ -546,6 +605,7 @@
     initMermaid();
     wireTabs();
     wireProductMap();
+    wireFixturePage();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
       hashchangeWired = true;
@@ -557,6 +617,12 @@
 
   window.rcfPage = window.rcfPage || {};
   window.rcfPage.init = onReady;
+  // Shared helpers available for later tabs to call. The toast helper
+  // is the one the fixture page demos; later PRs reuse it for the
+  // ID-lookup copy-id confirmation and the DAG inspector "linked"
+  // acknowledgement.
+  window.rcfView = window.rcfView || {};
+  window.rcfView.showToast = showToast;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onReady);

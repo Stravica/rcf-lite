@@ -8,12 +8,18 @@
 //                      (Dex / wespa 2026-10-02 #263; release-noted so
 //                      the proxy's route allow-list is extended).
 // GET /scope.json    -> deep-link scope resolver (w-2026-08-30-dave-020)
+// GET /_fixtures/components -> viewer UI refresh PR 2 component
+//                      fixture page (release-noted). Static page, no
+//                      live-walk coupling, so it is always available
+//                      even before the first rewalk completes.
 // Everything else -> 404 text/plain.
 //
 // No CORS headers, no cache headers on static assets beyond what the
 // browser derives from same-origin/localhost trust (D5, D11).
 
 import { readFile, stat } from 'node:fs/promises';
+
+import { renderComponentsFixturePage } from '../view/components-fixture.js';
 
 // Issue #248 (0.28.3): the shipped static assets (style.css,
 // mermaid.min.js, live-client.js) MUST be resolved once at server
@@ -118,6 +124,11 @@ export function createRouter(deps) {
       }
       res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
       res.end(html);
+      return;
+    }
+    if (path === '/_fixtures/components') {
+      res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
+      res.end(renderComponentsFixturePage());
       return;
     }
     if (path === '/scope.json') {
