@@ -1550,25 +1550,6 @@ html[data-embed="1"] .rcf-filterbar { top: 2.75rem; }
   outline-offset: -3px;
 }
 
-/* Decision 13 refinement (compact density) + decision 17 stack name:
-   the product block now carries an optional .stack chip beside the
-   project name. Keep the brand small; the project name is the
-   prominent text and the stack chip is muted + capitalised. */
-.product .stack {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--sv-border);
-  background: var(--sv-raised);
-  color: var(--sv-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-
-/* When the tree carries neither a project name nor a stack, the
-   .product block collapses to nothing and the brand is on its own. */
+/* Decision 17: when the tree carries no project name, the .product
+   block collapses to nothing and the brand icon is on its own. */
 .product:empty { display: none; }

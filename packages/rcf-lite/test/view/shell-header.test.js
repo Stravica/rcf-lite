@@ -1,7 +1,7 @@
 // Shell header polish (viewer UI refresh PR 2, decision 17 + Baz
-// 2026-10-02 brief): project name sourced from manifest.projectName,
-// then prd.productName, then prd.productTitle; optional stack chip
-// from tad.stack or tad.systemOverview.stack. When neither is set the
+// 2026-10-02 ruling): project name sourced from manifest.projectName,
+// then prd.productName, then prd.productTitle. Project name only -
+// no technology chip (decision 17 verbatim). When no name is set the
 // product block collapses silently (CSS .product:empty { display:none }).
 
 import { test } from 'node:test';
@@ -71,26 +71,11 @@ test('resolveProductHeader: prd.productTitle is the last fallback', () => {
 test('resolveProductHeader: nothing set returns null, not an empty string', () => {
   const header = resolveProductHeader(emptyModel());
   assert.equal(header.projectName, null);
-  assert.equal(header.stack, null);
 });
 
-test('resolveProductHeader: tad.stack renders as the stack chip', () => {
+test('resolveProductHeader: no stack field is emitted (decision 17, no technology chip)', () => {
   const header = resolveProductHeader(emptyModel({ tad: { stack: 'Node 24 ESM' } }));
-  assert.equal(header.stack, 'Node 24 ESM');
-});
-
-test('resolveProductHeader: tad.systemOverview.stack is the fallback stack source', () => {
-  const header = resolveProductHeader(emptyModel({
-    tad: { systemOverview: { stack: 'Rust + wasm' } },
-  }));
-  assert.equal(header.stack, 'Rust + wasm');
-});
-
-test('resolveProductHeader: empty-string stack is treated as no stack', () => {
-  const header = resolveProductHeader(emptyModel({
-    tad: { stack: '', systemOverview: { stack: '' } },
-  }));
-  assert.equal(header.stack, null);
+  assert.equal(header.stack, undefined);
 });
 
 // ---------------------------------------------------------------------
@@ -105,38 +90,28 @@ test('renderPage: project name is the prominent text, review surface muted besid
   );
 });
 
-test('renderPage: optional stack chip renders beside the project name when the TAD names one', () => {
+test('renderPage: no stack chip is rendered even when the TAD names a stack (decision 17)', () => {
   const html = renderPage(emptyModel({
     manifest: { projectName: 'WESPA' },
     tad: { stack: 'Node 24 ESM' },
   }));
   assert.match(html, /<span class="name">WESPA<\/span>/);
-  assert.match(html, /<span class="stack" title="Stack under review">Node 24 ESM<\/span>/);
-  // Order: name first, stack after.
-  const nameIdx = html.indexOf('class="name"');
-  const stackIdx = html.indexOf('class="stack"');
-  assert.ok(nameIdx > 0 && stackIdx > nameIdx, 'stack chip should render after the project name');
+  // No chip of any shape in the header; the raw-JSON dump on the
+  // Architecture tab will still echo tad.stack as data, which is fine.
+  assert.doesNotMatch(html, /class="stack"/);
+  const productIdx = html.indexOf('<div class="product">');
+  const navIdx = html.indexOf('<nav class="tabs"');
+  const headerSlice = html.slice(productIdx, navIdx);
+  assert.doesNotMatch(headerSlice, /Node 24 ESM/);
 });
 
-test('renderPage: product block collapses to an empty div when there is no name and no stack', () => {
+test('renderPage: product block collapses to an empty div when there is no project name', () => {
   const html = renderPage(emptyModel());
-  // Neither name, sub, nor stack chip rendered.
+  // Neither name nor sub rendered.
   assert.doesNotMatch(html, /<span class="name">/);
   assert.doesNotMatch(html, /<span class="sub">/);
-  assert.doesNotMatch(html, /<span class="stack"/);
   // CSS targets .product:empty for the silent collapse.
   assert.match(html, /<div class="product"><\/div>/);
-});
-
-test('renderPage: stack chip survives embed=1 (handled on the client, no page-level change)', () => {
-  // The header always renders the stack chip when the TAD names one;
-  // the Dex / wespa embed contract keeps the project name under
-  // data-embed="1" and so keeps the stack with it.
-  const html = renderPage(emptyModel({
-    manifest: { projectName: 'WESPA' },
-    tad: { stack: 'Node' },
-  }));
-  assert.match(html, /class="stack"/);
 });
 
 test('renderPage: project name is HTML-escaped', () => {

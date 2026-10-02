@@ -353,50 +353,35 @@ ${tsSection}
 }
 
 /**
- * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02): the one-bar
- * header carries the stack under review by name (decision 17) plus
- * the stack label when the TAD names one. The project name is sourced
- * from `manifest.projectName`, then `prd.productName`, then
- * `prd.productTitle` (the PRD title the brief names). The stack is
- * `tad.stack` if present or, defensively, the TAD's
- * `systemOverview.stack` key - today's TAD schema names neither, so
- * the stack line renders only on trees that carry it. When the tree
- * exposes neither a project name nor a stack, the whole product block
- * collapses and the brand icon is on its own (empty state is silent;
- * CSS `.product:empty { display:none; }`).
+ * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02; decision 17):
+ * the one-bar header carries the project name only. The project name
+ * is sourced from `manifest.projectName`, then `prd.productName`,
+ * then `prd.productTitle` (the PRD title the brief names). Decision 17
+ * is explicit: project name prominent after the icon mark, tool name
+ * out of the bar, no technology chip. When the tree exposes no
+ * project name, the whole product block collapses and the brand icon
+ * stands on its own (silent empty state; CSS `.product:empty { display:none; }`).
  *
  * @param {import('./tree-model.js').BuiltTreeModel} model
- * @returns {{ projectName: string | null, stack: string | null }}
+ * @returns {{ projectName: string | null }}
  */
 export function resolveProductHeader(model) {
   const projectName = model.manifest?.projectName
     ?? model.prd?.productName
     ?? model.prd?.productTitle
     ?? null;
-  const stack = typeof model.tad?.stack === 'string' && model.tad.stack.length > 0
-    ? model.tad.stack
-    : typeof model.tad?.systemOverview?.stack === 'string' && model.tad.systemOverview.stack.length > 0
-      ? model.tad.systemOverview.stack
-      : null;
-  return { projectName, stack };
+  return { projectName };
 }
 
 function renderProductBlock(header) {
-  const parts = [];
-  if (header.projectName) {
-    parts.push(`<span class="name">${escapeHtml(header.projectName)}</span>`);
-    parts.push('<span class="sub">review surface</span>');
-  }
-  if (header.stack) {
-    parts.push(`<span class="stack" title="Stack under review">${escapeHtml(header.stack)}</span>`);
-  }
-  if (parts.length === 0) {
-    // No project name and no stack: collapse. The empty .product block
-    // is hidden by CSS so the brand icon stands on its own and PR 2's
-    // "silent empty state" (brief) survives screen-reader output too.
+  if (!header.projectName) {
+    // No project name: collapse. The empty .product block is hidden
+    // by CSS so the brand icon stands on its own and PR 2's silent
+    // empty state (brief) survives screen-reader output too.
     return '<div class="product"></div>';
   }
-  return `<div class="product">${parts.join('\n        ')}</div>`;
+  return `<div class="product"><span class="name">${escapeHtml(header.projectName)}</span>
+        <span class="sub">review surface</span></div>`;
 }
 
 function renderErrorBanner(errors) {
