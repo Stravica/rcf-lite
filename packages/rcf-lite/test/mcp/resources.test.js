@@ -132,6 +132,10 @@ test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-
     'managed/agent-instructions-block',
     // Track C+D §10 shipped the persona-programme guidance file.
     'persona-programme',
+    // REQ-186 (DEFINE step 3 PR 2) shipped define-intent and
+    // define-intake (spec 2026-10-01 §6).
+    'define-intent',
+    'define-intake',
   ]);
   for (const doc of manifest.docs) {
     const result = await registry.read(`rcf://docs/${doc.slug}`);
