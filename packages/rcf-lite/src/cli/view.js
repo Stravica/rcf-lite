@@ -92,6 +92,13 @@ Options:
                     and CI is unset).
   --verbose         Log each watch event and each SSE broadcast to
                     stderr.
+  --test-host       Mount the wespa host fixture at /test-host.html
+                    plus its client script at /test-host.js. Off by
+                    default; the fixture is a test-suite proof that
+                    the viewer honours Dex's embedding contract (viewer
+                    UI refresh PR 9; TAC-4134, ADR-4136), not a shipped
+                    UI, so wespa's reverse-proxy allow-list is
+                    unaffected. Can also be set via RCF_VIEW_TEST_HOST=1.
   --help            Print this help and exit.
 
 Security posture:
@@ -130,6 +137,7 @@ export function parseArgs(argv) {
     help: false,
     noOpen: false,
     port: null,
+    testHost: false,
   };
   const errors = [];
   for (let i = 0; i < argv.length; i += 1) {
@@ -147,6 +155,13 @@ export function parseArgs(argv) {
       case '--help':
       case '-h':
         opts.help = true;
+        break;
+      case '--test-host':
+        // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): mount the wespa
+        // host fixture at /test-host.html plus its client at
+        // /test-host.js. Off by default; the fixture is a test-suite
+        // proof, not a shipped UI.
+        opts.testHost = true;
         break;
       case '--port': {
         const next = argv[i + 1];
@@ -168,6 +183,19 @@ export function parseArgs(argv) {
     }
   }
   return { opts, errors };
+}
+
+/**
+ * Resolve the testHost gate: `--test-host` beats `RCF_VIEW_TEST_HOST=1`
+ * env beats default (false). Viewer UI refresh PR 9 (TAC-4134).
+ *
+ * @param {boolean} flagTestHost
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {boolean}
+ */
+export function resolveTestHost(flagTestHost, env) {
+  if (flagTestHost === true) return true;
+  return env.RCF_VIEW_TEST_HOST === '1';
 }
 
 /**
@@ -294,6 +322,7 @@ export async function main(argv, deps = {}) {
       projectRoot,
       port: resolvedPort,
       log: logSink,
+      testHost: resolveTestHost(opts.testHost, env),
     });
   } catch (err) {
     if (/** @type {NodeJS.ErrnoException} */ (err).code === 'EADDRINUSE') {

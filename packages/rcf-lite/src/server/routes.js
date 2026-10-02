@@ -16,6 +16,16 @@
 //                      fixture page (release-noted). Static page, no
 //                      live-walk coupling, so it is always available
 //                      even before the first rewalk completes.
+// GET /test-host.html -> viewer UI refresh PR 9 wespa host fixture
+//                      page (TAC-4134, ADR-4136). Only served when
+//                      `deps.testHost === true`; 404 otherwise so
+//                      wespa's reverse-proxy allow-list is unaffected.
+//                      Mimics the wespa shell (56px header, resizable
+//                      sidebar) and iframes the viewer at `./?embed=1
+//                      &theme=light`. Test-suite proof only; not a
+//                      shipped UI.
+// GET /test-host.js  -> viewer UI refresh PR 9 wespa host fixture
+//                      client script. Same testHost gate as the HTML.
 // Everything else -> 404 text/plain.
 //
 // No CORS headers, no cache headers on static assets beyond what the
@@ -24,6 +34,7 @@
 import { readFile, stat } from 'node:fs/promises';
 
 import { renderComponentsFixturePage } from '../view/components-fixture.js';
+import { renderTestHostPage } from '../view/test-host/fixture.js';
 
 // Issue #248 (0.28.3): the shipped static assets (style.css,
 // mermaid.min.js, live-client.js) MUST be resolved once at server
@@ -134,6 +145,19 @@ export function createRouter(deps) {
     if (path === '/_fixtures/components') {
       res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
       res.end(renderComponentsFixturePage());
+      return;
+    }
+    if (path === '/test-host.html' && deps.testHost) {
+      // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): the wespa host
+      // fixture is only mounted when the server was started with
+      // testHost: true. No X-Frame-Options, no CSP; the viewer's
+      // framing lint asserts the same on GET /.
+      res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
+      res.end(renderTestHostPage());
+      return;
+    }
+    if (path === '/test-host.js' && deps.testHost) {
+      serveAsset(res, deps.testHostClientAsset, deps.testHostClientPath, MIME.js).catch((err) => fail(res, err));
       return;
     }
     if (path === '/index.json') {

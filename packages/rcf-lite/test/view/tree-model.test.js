@@ -19,8 +19,10 @@ test('buildTreeModel produces storiesByReqId for the live tree', async () => {
   assert.ok(req2Stories);
   // US-204 landed under REQ-002 in viewer UI refresh PR 6 (DAG amendments).
   // US-205 landed under REQ-002 in viewer UI refresh PR 7 (ID lookup amendments).
-  assert.equal(req2Stories.length, 5);
-  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203', 'US-204', 'US-205']);
+  // US-206 landed under REQ-002 in viewer UI refresh PR 9 (wespa host fixture
+  // + three embedding lints).
+  assert.equal(req2Stories.length, 6);
+  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203', 'US-204', 'US-205', 'US-206']);
 });
 
 test('buildTreeModel produces fbsByAcId pointing to delivering FBSs', async () => {

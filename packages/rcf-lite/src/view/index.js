@@ -27,6 +27,12 @@ export const LIVE_CLIENT_PATH = resolve(here, 'live-client.js');
 // is served over the new /page-init.js route. Release notes name it so
 // wespa's proxy allow-list is extended before any version pin bump.
 export const PAGE_INIT_PATH = resolve(here, 'page-init.js');
+// Viewer UI refresh PR 9 (TAC-4134, ADR-4136): wespa host fixture
+// client script. Served over /test-host.js only when the server is
+// started with testHost: true (CLI --test-host or RCF_VIEW_TEST_HOST=1).
+// Off the default route surface so wespa's proxy allow-list is
+// unaffected.
+export const TEST_HOST_CLIENT_PATH = resolve(here, 'test-host', 'embed-client.js');
 
 /**
  * Walk up from `start` looking for an ancestor directory containing a
