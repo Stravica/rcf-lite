@@ -419,6 +419,53 @@ test('isResolvedByGrammar (AC-17302-4): accepts the six forms and refuses prose'
   assert.equal(isResolvedByGrammar(''), false);
 });
 
+// ---------------------------------------------------------------------------
+// Codex review fixes 2026-10-02 (PR 267 landing): the pointer resolver
+// honours the production PRD and TAD schema shapes, and the TAC branch
+// refuses an arbitrary suffix that masquerades as a known TAC.
+// ---------------------------------------------------------------------------
+
+test('parseResolvedBy: PRD.user resolves against prd.targetUsers (production shape)', () => {
+  const tree = { prd: { targetUsers: [{ name: 'LoanOfficer' }] } };
+  const r = parseResolvedBy('PRD.user:LoanOfficer', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'prdUser');
+});
+
+test('parseResolvedBy: TAD.system resolves against tad.integrationArchitecture.externalSystems (production shape)', () => {
+  const tree = {
+    tad: {
+      integrationArchitecture: {
+        externalSystems: [{ name: 'CoreBanking' }],
+      },
+    },
+  };
+  const r = parseResolvedBy('TAD.system:CoreBanking', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tadSystem');
+});
+
+test('parseResolvedBy: TAC with an unknown suffix refuses to resolve by numeric-prefix match', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130-made-up', tree);
+  assert.equal(r.ok, false);
+  assert.equal(r.why, 'pointer does not resolve');
+});
+
+test('parseResolvedBy: TAC-nnnn short form still resolves to the single matching slug (test fixture compat)', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130', tree);
+  assert.equal(r.ok, true);
+  assert.equal(r.kind, 'tac');
+});
+
+test('parseResolvedBy: TAC long form matches an exact tacId', () => {
+  const tree = { tacs: [{ tacId: 'TAC-4130-define-intake-brief' }] };
+  const r = parseResolvedBy('TAC-4130-define-intake-brief', tree);
+  assert.equal(r.ok, true);
+});
+
+
 test('ledgers: loadAllLedgers omits absent ledger files', async () => {
   const root = await scratch();
   // No files under rcf/define/ at all.

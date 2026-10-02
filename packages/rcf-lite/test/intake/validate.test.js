@@ -88,3 +88,25 @@ test('runIntakeScansOnDelta (AC-18702-3): on a frozen set the comparison set is 
   assert.ok(contradiction);
   assert.ok(contradiction.ids.includes(3));
 });
+
+// ---------------------------------------------------------------------------
+// Codex review fix 2026-10-02 (PR 267 landing): a self-contained finding
+// in a frozen statement must not be re-attributed to an unrelated new
+// statement by pairwise concatenation.
+// ---------------------------------------------------------------------------
+
+test('runIntakeScansOnDelta: a self-contradictory existing statement is NOT re-attributed to an unrelated new statement', () => {
+  const existing = [
+    // One existing statement that alone raises the contradiction
+    // kind (both halves of the pattern inside one text).
+    { id: 1, text: 'No login is required for the public page. The admin dashboard shows every monitor.' },
+  ];
+  const newStatements = [
+    { id: 2, text: 'The sky is blue today.' },
+  ];
+  const findings = runIntakeScansOnDelta(newStatements, existing);
+  // The new side does not participate; the orchestrator must drop
+  // the finding rather than attribute an existing-only contradiction
+  // to the unrelated new statement.
+  assert.equal(findings.some((f) => f.kind === 'contradiction' && f.ids.includes(2)), false, JSON.stringify(findings));
+});

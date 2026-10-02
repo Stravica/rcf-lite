@@ -124,9 +124,13 @@ update flags (any subset; validation runs as on add):
 Notes:
   - Every ledger file lives under rcf/define/. The loader treats missing
     files as empty ledgers; a malformed file is a hard error.
-  - The 'brief add --from <path>' seam for running rcf discover intake
-    against the frozen statements is wired in a later slice; this slice
-    only splits by non-empty lines and mints ids.
+  - 'brief add --from <path>' parses one statement per line, supports
+    the leading '[kind]' and trailing '(source: ...)' markers, mints
+    statements, and (unless --no-scan) runs the mechanical intake scans
+    over the new statements against existing ones, appending one
+    openQuestion statement per finding with source 'scan:<kind>:<ids>'.
+    See '--findings' for attested findings and '--dry-run' to preview
+    without writing.
   - 'decisions list' prints the numbered format from #241: one decision
     per item; options with letters; the default; what it blocks.
 `;

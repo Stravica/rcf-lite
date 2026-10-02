@@ -569,10 +569,22 @@ export function parseResolvedBy(pointer, tree) {
     return { ok: true, kind: 'req', target: p };
   }
 
-  // TAC-nnnn (allow the walker's longer `TAC-nnnn-slug` convention too).
-  if (/^TAC-\d+/.test(p)) {
+  // TAC-nnnn (short form, resolves to a tree TAC whose id starts
+  // with that prefix) or TAC-nnnn-<slug> (exact-match long form).
+  // Codex review 2026-10-02: an unanchored /^TAC-\d+/ let arbitrary
+  // suffixes (TAC-4130-made-up) pass as long as the numeric prefix
+  // matched an existing TAC; anchor the regex and gate the prefix
+  // fallback to the short form only.
+  const tacMatch = p.match(/^TAC-\d+(?:-[A-Za-z0-9-]+)?$/);
+  if (tacMatch) {
     const tacs = tree?.tacs ?? [];
-    const found = tacs.some((t) => t?.tacId === p || t?.tacId?.split('-').slice(0, 2).join('-') === p.split('-').slice(0, 2).join('-'));
+    const isShortForm = /^TAC-\d+$/.test(p);
+    const found = tacs.some((t) => {
+      if (!t?.tacId) return false;
+      if (t.tacId === p) return true;
+      if (!isShortForm) return false;
+      return t.tacId.split('-').slice(0, 2).join('-') === p;
+    });
     if (!found) return { ok: false, why: 'pointer does not resolve' };
     return { ok: true, kind: 'tac', target: p };
   }
@@ -594,7 +606,10 @@ export function parseResolvedBy(pointer, tree) {
   if (userMatch) {
     const name = userMatch[1].trim();
     if (!name) return { ok: false, why: 'PRD.user: pointer needs a name' };
-    const users = tree?.prd?.users ?? [];
+    // Codex review 2026-10-02: the production PRD schema uses
+    // `targetUsers`; keep `users` as a fallback for the test
+    // fixtures but prefer the real path.
+    const users = tree?.prd?.targetUsers ?? tree?.prd?.users ?? [];
     const found = Array.isArray(users)
       && users.some((u) => (typeof u === 'string' ? u : u?.name) === name);
     if (!found) return { ok: false, why: 'pointer does not resolve' };
@@ -606,7 +621,10 @@ export function parseResolvedBy(pointer, tree) {
   if (systemMatch) {
     const name = systemMatch[1].trim();
     if (!name) return { ok: false, why: 'TAD.system: pointer needs a name' };
-    const systems = tree?.tad?.externalSystems ?? [];
+    // Codex review 2026-10-02: the production TAD schema puts
+    // externalSystems inside integrationArchitecture; keep the
+    // top-level path as a fallback for the test fixtures.
+    const systems = tree?.tad?.integrationArchitecture?.externalSystems ?? tree?.tad?.externalSystems ?? [];
     const found = Array.isArray(systems)
       && systems.some((s) => (typeof s === 'string' ? s : s?.name) === name);
     if (!found) return { ok: false, why: 'pointer does not resolve' };

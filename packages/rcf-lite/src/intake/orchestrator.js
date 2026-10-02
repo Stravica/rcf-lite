@@ -118,7 +118,17 @@ function statementParticipates(finding, statement, combined) {
     const otherText = typeof other?.text === 'string' ? other.text : '';
     if (!otherText) continue;
     const pairFindings = scanArtefactForFindings(`${text}\n${otherText}`).map((f) => f.kind);
-    if (pairFindings.includes(finding.kind) && !soloFindings.includes(finding.kind)) {
+    // Codex review 2026-10-02: a pre-existing finding already
+    // raised by `other` alone must not be re-attributed to an
+    // unrelated `statement` merely because concatenation leaves
+    // the pattern intact. Require the pair to raise the finding
+    // that neither side raises alone.
+    const otherSolo = scanArtefactForFindings(otherText).map((f) => f.kind);
+    if (
+      pairFindings.includes(finding.kind)
+      && !soloFindings.includes(finding.kind)
+      && !otherSolo.includes(finding.kind)
+    ) {
       return true;
     }
   }
