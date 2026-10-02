@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z",
+  "reqId": "REQ-186",
+  "prdId": "PRD-001",
+  "title": "guided product-owner elicitation",
+  "description": "rcf-lite computes, from the readiness object, the ordered set of questions one persona can answer, each with the write-back that answers it, so that a harness can conduct the intent-complete loop without an engineer. Nothing is stored; the loop ends when `levels.intentComplete.ok` is true.",
+  "category": "functional",
+  "domain": "define",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-02T18:00:00Z",
+    "signals": []
+  },
+  "rationale": "Spec 2026-10-01 (DEFINE step 3) section 1 pins the loop as harness-driven. rcf-lite supplies the questions, the write-backs and the verdict; the harness holds the conversation. One new read verb `rcf define questions` turns every failing product-owner check into a per-item plain-sentence question carrying its exact write-back; `levels.intentComplete.ok === true` terminates the loop. The engineer register rides the same mechanism with `--persona engineer`.",
+  "tags": [
+    "capability:define-intent"
+  ]
+}

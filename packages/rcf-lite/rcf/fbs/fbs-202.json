@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z",
   "acIds": [
     "AC-17302-1",
     "AC-17302-2",
@@ -19,26 +19,49 @@
     "AC-18702-3",
     "AC-18702-4",
     "AC-18702-5",
-    "AC-18702-6"
+    "AC-18702-6",
+    "AC-18601-1",
+    "AC-18601-2",
+    "AC-18601-3",
+    "AC-18601-4",
+    "AC-18601-5",
+    "AC-18601-6",
+    "AC-18601-7",
+    "AC-18602-1",
+    "AC-18602-2",
+    "AC-18602-3",
+    "AC-18602-4",
+    "AC-18602-5",
+    "AC-18602-6",
+    "AC-18603-1",
+    "AC-18603-2",
+    "AC-18603-3",
+    "AC-18603-4",
+    "AC-18603-5"
   ],
   "fbsId": "FBS-202",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 202,
-  "executionStatus": "notStarted",
-  "title": "DEFINE step 3 PR 1: document intake, statement-file markers, ledger update, resolvedBy grammar (REQ-187, REQ-173 amendment)",
-  "summary": "Carry the ACs for PR 1 of the DEFINE step 3 spec (2026-10-01): statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). Chain-first commit (REQ-187 new, REQ-173 amended, US-18701/18702/17302, TAC-4121 amended, TAC-4130 new) landed before the code. Tests ride TS-215 (extended acIds).",
+  "executionStatus": "inProgress",
+  "title": "DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2)",
+  "summary": "Carry the ACs for PRs 1 and 2 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. Chain-first commits landed before the code in each PR. PR 1 tests ride TS-215; PR 2 tests ride TS-224.",
   "dependsOnFbsIds": [
     "FBS-195",
     "FBS-201"
   ],
-  "approach": "parseBriefFromFile parses a leading [kind] and a trailing (source: ...) marker; unknown kind raises LedgerError code 'usage' before any write. updateEntry patches named fields and re-runs validateLedger. parseResolvedBy / isResolvedByGrammar implement the closed pointer grammar. runIntakeScansOnDelta composes the three mechanical scans in src/intake/validate.js over new-plus-existing statements, attributing findings to the statement ids that participate. The CLI brief add wires --scan / --no-scan / --findings / --dry-run / --json; the update subverb lives beside add in src/cli/ledger.js. D2's skeleton:resolvedBy drops the title-hit fallback and refuses a pointer outside the grammar with 'pointer does not resolve'.",
+  "approach": "PR 1: parseBriefFromFile parses a leading [kind] and a trailing (source: ...) marker; unknown kind raises LedgerError code 'usage' before any write. updateEntry patches named fields and re-runs validateLedger. parseResolvedBy / isResolvedByGrammar implement the closed pointer grammar. runIntakeScansOnDelta composes the three mechanical scans in src/intake/validate.js over new-plus-existing statements, attributing findings to the statement ids that participate. The CLI brief add wires --scan / --no-scan / --findings / --dry-run / --json; the update subverb lives beside add in src/cli/ledger.js. D2's skeleton:resolvedBy drops the title-hit fallback and refuses a pointer outside the grammar with 'pointer does not resolve'. PR 2: src/query/questions.js exports computeQuestions(readiness, { tree, ledgers, profileText, persona }) folding readiness blockers into questions through a per-check template; src/cli/questions.js registers `rcf define questions` with --json, --persona, --stage, --limit; src/mcp/tools.js adds rcf_define_questions, rcf_define_readiness and rcf_define_ledger (thin wrapper over the ledger handler); guidance/define-intent.md and guidance/elicitation-playbook.md ship the loop content; guidance/manifest.json registers the new slug and the two argument-free prompts rcf_define_intent and rcf_define_intake; guidance/managed/agent-instructions-block.md adds the two new rules.",
   "contextRequirements": {
     "tacIds": [
       "TAC-4121-define-ledgers",
-      "TAC-4130-define-intake-brief"
+      "TAC-4130-define-intake-brief",
+      "TAC-4129-define-questions",
+      "TAC-4128-define-guidance"
     ],
-    "adrIds": []
+    "adrIds": [
+      "ADR-4129-questions-harness-driven-loop",
+      "ADR-4130-intake-harness-split-tool-scanned"
+    ]
   },
   "deliverables": [
     "src/define/ledgers.js: parseBriefFromFile with markers; updateEntry; parseResolvedBy; isResolvedByGrammar; brief resolvedBy field in validateEntry",
@@ -46,11 +69,22 @@
     "src/intake/index.js: re-export runIntakeScansOnDelta",
     "src/cli/ledger.js: brief add scan wiring, --findings, --dry-run, --json; update subverb",
     "src/query/gates.js: D2 skeleton:resolvedBy validates the closed pointer grammar; title-hit fallback dropped",
+    "src/query/questions.js: computeQuestions over readiness per persona (PR 2)",
+    "src/cli/questions.js: rcf define questions verb (PR 2)",
+    "src/mcp/tools.js: rcf_define_questions, rcf_define_readiness, rcf_define_ledger tools (PR 2)",
+    "guidance/define-intent.md, guidance/define-intake.md and guidance/elicitation-playbook.md (restructured): the PO loop and intake prose (PR 2)",
+    "guidance/managed/agent-instructions-block.md: two new rules (PR 2)",
+    "guidance/manifest.json: define-intent slug and the two new prompts (PR 2)",
     "test/define/ledgers.test.js: AC-17302-1..5, AC-18701-1..5 unit cases",
     "test/intake/validate.test.js: runIntakeScansOnDelta unit cases",
     "test/query/gates.test.js: AC-17302-3/5/6 D2 cases",
     "test/cli/ledger.test.js: AC-17302-1/4, AC-18701-1/5/6, AC-18702-1/2/4/5/6 CLI cases",
-    "rcf/requirements/req-187.json, rcf/requirements/req-173.json (amended), rcf/user-stories/us-18701.json, us-18702.json, us-17302.json, rcf/tacs/tac-4121-define-ledgers.json (amended), tac-4130-define-intake-brief.json, rcf/test-suites/ts-215.json (extended), rcf/fbs/fbs-202.json: this file"
+    "test/query/questions.test.js: AC-18601-1..7 unit cases (PR 2)",
+    "test/cli/questions.test.js: AC-18602-1..6 CLI cases (PR 2)",
+    "test/mcp/define-questions.test.js: AC-18602-4 MCP parity (PR 2)",
+    "test/query/questions-loop.test.js: AC-18603-1..5 scripted loop cases (PR 2)",
+    "rcf/requirements/req-187.json, rcf/requirements/req-173.json (amended), rcf/user-stories/us-18701.json, us-18702.json, us-17302.json, rcf/tacs/tac-4121-define-ledgers.json (amended), tac-4130-define-intake-brief.json, rcf/test-suites/ts-215.json (extended), rcf/fbs/fbs-202.json: this file",
+    "rcf/requirements/req-186.json, rcf/user-stories/us-18601.json, us-18602.json, us-18603.json, rcf/tacs/tac-4129-define-questions.json, tac-4128-define-guidance.json, rcf/adrs/adr-4129-questions-harness-driven-loop.json, adr-4130-intake-harness-split-tool-scanned.json, rcf/test-suites/ts-224.json (PR 2 chain)"
   ],
   "riskLevel": "low",
   "domain": "defineLedgers",

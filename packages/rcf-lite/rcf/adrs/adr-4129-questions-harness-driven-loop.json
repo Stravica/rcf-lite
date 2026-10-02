@@ -1,0 +1,25 @@
+{
+  "adrId": "ADR-4129-questions-harness-driven-loop",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The intent-complete loop is harness-driven; rcf-lite computes questions with write-backs and never holds conversation state",
+  "context": "DEFINE step 3 (spec 2026-10-01, section 1.1) requires a product owner to reach `levels.intentComplete.ok === true` without an engineer. The question is whether rcf-lite should hold a conversation state (a stored loop file, a conversation engine) or stay stateless and let the harness (Claude Code or any MCP-wired agent) drive.",
+  "decision": "the loop is harness-driven; rcf-lite computes questions with write-backs and never holds conversation state. computeQuestions is a pure function of (readiness, tree, ledgers, profileText, persona); the harness runs the write-back a question carries, calls readiness again and asks the next question.",
+  "consequences": "The loop is monotone (each answer removes its item), the compute is testable in isolation, and the harness can be swapped without changing rcf-lite. The cost is that the harness must run readiness and questions each turn, which is a cheap pure call.",
+  "alternativesConsidered": [
+    {
+      "name": "A conversation engine in rcf-lite",
+      "summary": "Hold an LLM-driven loop inside rcf-lite that elicits the PO directly.",
+      "reasonNotChosen": "An LLM dependency inside rcf-lite reverses the method's shape: rcf-lite is the referee the harness consults, not an agent of its own. It also forces a model and provider choice that the harness has already made."
+    },
+    {
+      "name": "A stored loop file",
+      "summary": "Keep a loop state file under rcf/define/ that tracks which question was asked last.",
+      "reasonNotChosen": "The stale state the detection model removed. A loop file would drift from the tree the moment any writer edits a ledger outside the loop, and would need its own validate pass; the four ledgers plus the profile already carry every state the loop needs."
+    }
+  ],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}
