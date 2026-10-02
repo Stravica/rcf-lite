@@ -39,9 +39,10 @@ import {
   renderFbs,
   renderPrd,
   renderTac,
-  renderTad,
+  renderTadSections,
   renderTestSuite,
   renderUserStory,
+  shortenDocId,
 } from './doc-renderers/index.js';
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { allRequirementSubdiagrams } from './mermaid-diagram.js';
@@ -444,48 +445,213 @@ function renderPrdRequirementSelector(model) {
   </section>`;
 }
 
+/**
+ * Viewer UI refresh PR 4 (w-2026-10-02-dave-010 decisions 5 and 14,
+ * design doc section 5.5). The Architecture tab renders:
+ *   1. A compact page-head carrying the TAD id, its status pill and
+ *      the TAC / ADR tallies.
+ *   2. The TAD as six collapsed sections with one-line previews; an
+ *      absent section reads "Nothing written yet" and names the
+ *      `rcf define update TAD-001 --set <section>.<field>="..."` call
+ *      that authors it (decision 5).
+ *   3. Components (TAC) as a FilterBar + a shared DocRow list; rows
+ *      carry interface and dependency counts and a status pill. Long
+ *      ids are shortened on the summary; the full id stays on
+ *      data-doc-id and the title.
+ *   4. Architectural decisions (ADR) as a FilterBar + a shared DocRow
+ *      list; rows carry a status pill. Long ids shortened the same way.
+ *
+ * The tab never points at Readiness (amendment 12.4) - absence of
+ * content is handled inside this tab's own register.
+ */
 function renderArchitecturePanel(model) {
-  const tadChildren = model.tad ? (model.childrenByParent.get(model.tad.tadId) ?? []) : [];
-  const componentIds = tadChildren.filter((id) => id.startsWith('TAC-'));
-  const architecturalDecisionIds = tadChildren.filter((id) => id.startsWith('ADR-'));
+  const pageHead = renderArchitecturePageHead(model);
   const tadSection = model.tad
-    ? renderTad(model.tad, {
-      raw: model.rawById.get(model.tad.tadId),
-      errors: model.errorsById.get(model.tad.tadId),
-      componentIds,
-      architecturalDecisionIds,
-    })
-    : '<p><em>No TAD on disk.</em></p>';
+    ? renderTadSections(model.tad)
+    : renderEmptyState({
+      title: 'No TAD on disk',
+      hint: 'Add rcf/tad.json and the viewer picks it up on the next walk.',
+    });
 
-  const tacBlocks = model.tacs.map((t) => detailsWrap({
-    id: t.tacId,
-    summary: `${t.tacId} - ${t.name ?? ''}`,
-    className: 'doc-tac-wrap',
-    status: t.status,
-    body: renderTac(t, {
-      raw: model.rawById.get(t.tacId),
-      errors: model.errorsById.get(t.tacId),
-    }),
-  })).join('\n');
+  const tacPanel = renderComponentsPanel(model);
+  const adrPanel = renderDecisionsPanel(model);
 
-  const adrBlocks = model.adrs.map((a) => detailsWrap({
-    id: a.adrId,
-    summary: `${a.adrId} - ${a.title ?? ''}`,
-    className: 'doc-adr-wrap',
-    status: a.status,
-    body: renderAdr(a, {
-      raw: model.rawById.get(a.adrId),
-      errors: model.errorsById.get(a.adrId),
-    }),
-  })).join('\n');
+  // Raw JSON for the whole TAD stays reachable but out of the first
+  // paint - the design doc deliberately drops "the long prose dump".
+  const rawTadDisclosure = model.tad
+    ? `<details class="rcf-tad-raw" data-doc-id="${escapeHtml(model.tad.tadId)}::raw"><summary class="muted small">Raw TAD JSON</summary><pre>${escapeHtml(model.rawById.get(model.tad.tadId) ?? JSON.stringify(model.tad, null, 2))}</pre></details>`
+    : '';
+
+  // Hidden anchors so #TAD-001 / #entity=TAD-001 still land on this tab.
+  const tadAnchor = model.tad
+    ? `<span class="rcf-tad-anchor" data-doc-id="${escapeHtml(model.tad.tadId)}" aria-hidden="true"></span>`
+    : '';
 
   return `
-${tadSection}
-<h3 class="group-heading">Components</h3>
-${tacBlocks || '<p><em>No TAC components on disk.</em></p>'}
-<h3 class="group-heading">Architectural decisions</h3>
-${adrBlocks || '<p><em>No ADRs on disk.</em></p>'}
+${tadAnchor}
+${pageHead}
+<section class="rcf-architecture-tad" aria-labelledby="arch-tad-heading">
+  <h3 id="arch-tad-heading" class="group-heading rcf-tad-group-heading">Technical architecture (TAD)</h3>
+  ${tadSection}
+  ${rawTadDisclosure}
+</section>
+${tacPanel}
+${adrPanel}
 `;
+}
+
+function renderArchitecturePageHead(model) {
+  if (!model.tad) {
+    return `<div class="rcf-architecture-head"><h3 class="rcf-architecture-head-title">Architecture</h3></div>`;
+  }
+  const status = normaliseFacet(model.tad.status);
+  const statusPill = status ? pill({ value: status, variant: 'doc-status' }) : '';
+  const tacCount = (model.tacs ?? []).length;
+  const adrCount = (model.adrs ?? []).length;
+  return `<div class="rcf-architecture-head">
+    <span class="rcf-architecture-head-id mono">${escapeHtml(model.tad.tadId)}</span>
+    ${statusPill}
+    <span class="muted small">${tacCount} component${tacCount === 1 ? '' : 's'} - ${adrCount} decision${adrCount === 1 ? '' : 's'}</span>
+  </div>`;
+}
+
+function renderComponentsPanel(model) {
+  const tacs = model.tacs ?? [];
+  const statusCounts = countBy(tacs, (t) => normaliseFacet(t.status));
+  const filterBar = renderFilterBar({
+    hashKey: 'architecture-components',
+    placeholder: 'Filter components by id or text',
+    selects: [
+      {
+        key: 'status',
+        label: 'Status',
+        options: [{ value: '', label: 'Any status' }, ...facetOptions(statusCounts)],
+      },
+    ],
+    count: { visible: tacs.length, total: tacs.length },
+    showExpandAll: true,
+  });
+
+  const rows = tacs.map((t) => renderTacRow(t, model)).join('\n');
+  const emptyMessage = tacs.length === 0
+    ? renderEmptyState({ title: 'No TAC components on disk', hint: 'Add rcf/tacs/<file>.json files and the viewer picks them up.' })
+    : '';
+
+  return `<section class="rcf-architecture-components" aria-labelledby="arch-tac-heading">
+  <h3 id="arch-tac-heading" class="group-heading">Components</h3>
+  ${filterBar}
+  <div class="rcf-tac-list" data-rcf-list="architecture-components">
+    ${rows}
+  </div>
+  ${emptyMessage}
+</section>`;
+}
+
+function renderDecisionsPanel(model) {
+  const adrs = model.adrs ?? [];
+  const statusCounts = countBy(adrs, (a) => normaliseFacet(a.status));
+  const filterBar = renderFilterBar({
+    hashKey: 'architecture-decisions',
+    placeholder: 'Filter decisions by id or text',
+    selects: [
+      {
+        key: 'status',
+        label: 'Status',
+        options: [{ value: '', label: 'Any status' }, ...facetOptions(statusCounts)],
+      },
+    ],
+    count: { visible: adrs.length, total: adrs.length },
+    showExpandAll: true,
+  });
+
+  const rows = adrs.map((a) => renderAdrRow(a, model)).join('\n');
+  const emptyMessage = adrs.length === 0
+    ? renderEmptyState({ title: 'No architectural decisions on disk', hint: 'Add rcf/adrs/<file>.json files and the viewer picks them up.' })
+    : '';
+
+  return `<section class="rcf-architecture-decisions" aria-labelledby="arch-adr-heading">
+  <h3 id="arch-adr-heading" class="group-heading">Architectural decisions</h3>
+  ${filterBar}
+  <div class="rcf-adr-list" data-rcf-list="architecture-decisions">
+    ${rows}
+  </div>
+  ${emptyMessage}
+</section>`;
+}
+
+function renderTacRow(tac, model) {
+  const id = tac.tacId ?? 'TAC';
+  const displayId = shortenDocId(id);
+  const title = tac.name ?? '';
+  const interfaceCount = Array.isArray(tac.interfaces) ? tac.interfaces.length : 0;
+  const depCount = Array.isArray(tac.dependencies) ? tac.dependencies.length : 0;
+  const status = normaliseFacet(tac.status);
+  const metaParts = [
+    renderBadge({ value: interfaceCount, label: 'interfaces', variant: 'count', title: 'Interface count' }),
+    renderBadge({ value: depCount, label: 'deps', variant: 'count', title: 'Dependency count' }),
+  ];
+  if (status) metaParts.push(pill({ value: status, variant: 'doc-status' }));
+  const meta = metaParts.join(' ');
+
+  const body = renderTac(tac, {
+    raw: model.rawById.get(id),
+    errors: model.errorsById.get(id),
+  });
+  const row = renderDocRow({
+    id: displayId,
+    title,
+    body,
+    meta,
+    className: 'doc-tac-wrap rcf-arch-row',
+    dataDocId: id,
+  });
+  const dataAttrs = ` data-status="${escapeHtml(status)}" data-text="${escapeHtml(buildTacFilterText(tac))}" title="${escapeHtml(id)}"`;
+  return row.replace(/^<details /, `<details${dataAttrs} `);
+}
+
+function renderAdrRow(adr, model) {
+  const id = adr.adrId ?? 'ADR';
+  const displayId = shortenDocId(id);
+  const title = adr.title ?? '';
+  const status = normaliseFacet(adr.status);
+  const metaParts = [];
+  if (status) metaParts.push(pill({ value: status, variant: 'doc-status' }));
+  const meta = metaParts.join(' ');
+
+  const body = renderAdr(adr, {
+    raw: model.rawById.get(id),
+    errors: model.errorsById.get(id),
+  });
+  const row = renderDocRow({
+    id: displayId,
+    title,
+    body,
+    meta,
+    className: 'doc-adr-wrap rcf-arch-row',
+    dataDocId: id,
+  });
+  const dataAttrs = ` data-status="${escapeHtml(status)}" data-text="${escapeHtml(buildAdrFilterText(adr))}" title="${escapeHtml(id)}"`;
+  return row.replace(/^<details /, `<details${dataAttrs} `);
+}
+
+function buildTacFilterText(tac) {
+  const parts = [tac.tacId, tac.name, tac.purpose, tac.internalStructure, tac.notes, tac.tradeoffs];
+  if (Array.isArray(tac.responsibilities)) parts.push(tac.responsibilities.join(' '));
+  if (Array.isArray(tac.interfaces)) {
+    for (const i of tac.interfaces) parts.push(i?.name, i?.description);
+  }
+  if (Array.isArray(tac.dependencies)) {
+    for (const d of tac.dependencies) parts.push(d?.name, d?.description);
+  }
+  return parts.filter((v) => typeof v === 'string' && v.length > 0).join(' ').toLowerCase();
+}
+
+function buildAdrFilterText(adr) {
+  const parts = [adr.adrId, adr.title, adr.status, adr.context, adr.decision, adr.consequences];
+  if (Array.isArray(adr.alternativesConsidered)) {
+    for (const a of adr.alternativesConsidered) parts.push(a?.name, a?.summary, a?.reasonNotChosen);
+  }
+  return parts.filter((v) => typeof v === 'string' && v.length > 0).join(' ').toLowerCase();
 }
 
 function renderBuildPanel(model) {

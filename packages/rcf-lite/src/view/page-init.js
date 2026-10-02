@@ -518,6 +518,12 @@
         if (tab === 'requirements' && requirementsFilterBar()) {
           applyRequirementsHash(params);
         }
+        // Architecture tab: push the two FilterBar states + any
+        // `open=<tad-section>,<tad-section>...` deep-link so the first
+        // paint reflects the URL (PR 4, decisions 3 and 5).
+        if (tab === 'architecture' && (archBar('architecture-components') || archBar('architecture-decisions'))) {
+          applyArchitectureHash(params);
+        }
         // #tab=requirements&entity=REQ-002 opens the entity in place.
         if (params.entity) {
           var ent = findByDocId(params.entity);
@@ -807,6 +813,174 @@
     }
   }
 
+  // ---- Architecture FilterBars (viewer UI refresh PR 4) ----------------
+  //
+  // The Architecture tab mounts two FilterBars: Components
+  // (architecture-components) and Decisions (architecture-decisions).
+  // Each is text + Status facet; state lives in the hash under the
+  // owning tab so the view is a link. Hash slots this reads/writes:
+  //   #tab=architecture[&cq=...][&cstatus=...][&dq=...][&dstatus=...]
+  //     [&open=components|decisions|<tad-section-key>]
+  // The `open=` key is a comma-separated set so a review link can
+  // deep-open one TAD section (e.g. open=integrationArchitecture).
+
+  var ARCH_HASH_KEYS = {
+    'architecture-components': { q: 'cq', status: 'cstatus' },
+    'architecture-decisions': { q: 'dq', status: 'dstatus' },
+  };
+
+  function archBar(hashKey) {
+    return document.querySelector('[data-rcf-filterbar="' + hashKey + '"]');
+  }
+
+  function archList(hashKey) {
+    return document.querySelector('[data-rcf-list="' + hashKey + '"]');
+  }
+
+  function readArchitectureFilterState(hashKey) {
+    var bar = archBar(hashKey);
+    if (!bar) return null;
+    var text = bar.querySelector('.rcf-filter-text');
+    var state = { q: text ? text.value.trim() : '' };
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      state[selects[i].getAttribute('data-filter-key') || 'select'] = selects[i].value;
+    }
+    return state;
+  }
+
+  function writeArchitectureFilterState(hashKey, state) {
+    var bar = archBar(hashKey);
+    if (!bar) return;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) text.value = state.q || '';
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      var key = selects[i].getAttribute('data-filter-key') || '';
+      selects[i].value = state[key] != null ? String(state[key]) : '';
+    }
+  }
+
+  function applyArchitectureFilter(hashKey) {
+    var list = archList(hashKey);
+    if (!list) return;
+    var state = readArchitectureFilterState(hashKey) || { q: '', status: '' };
+    var qLower = (state.q || '').toLowerCase();
+    var rows = list.querySelectorAll(':scope > details.rcf-row');
+    var visible = 0;
+    for (var i = 0; i < rows.length; i += 1) {
+      var row = rows[i];
+      var hide = false;
+      if (state.status && row.getAttribute('data-status') !== state.status) hide = true;
+      if (!hide && qLower) {
+        var hay = row.getAttribute('data-text') || '';
+        if (hay.indexOf(qLower) === -1) hide = true;
+      }
+      if (hide) row.setAttribute('hidden', '');
+      else { row.removeAttribute('hidden'); visible += 1; }
+    }
+    var countEl = document.querySelector('[data-rcf-filterbar="' + hashKey + '"] .rcf-filter-count');
+    if (countEl) countEl.textContent = String(visible) + ' of ' + String(rows.length) + ' visible';
+  }
+
+  function architectureHashFragment() {
+    var parts = ['tab=architecture'];
+    for (var hk in ARCH_HASH_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(ARCH_HASH_KEYS, hk)) continue;
+      var state = readArchitectureFilterState(hk);
+      var map = ARCH_HASH_KEYS[hk];
+      if (!state) continue;
+      if (state.q) parts.push(map.q + '=' + encodeURIComponent(state.q));
+      if (state.status) parts.push(map.status + '=' + encodeURIComponent(state.status));
+    }
+    return '#' + parts.join('&');
+  }
+
+  function writeArchitectureHash() {
+    writeHash(architectureHashFragment(), true);
+  }
+
+  function applyArchitectureHash(params) {
+    var statesByBar = {
+      'architecture-components': {
+        q: params.cq ? decodeURIComponent(params.cq) : '',
+        status: params.cstatus ? decodeURIComponent(params.cstatus) : '',
+      },
+      'architecture-decisions': {
+        q: params.dq ? decodeURIComponent(params.dq) : '',
+        status: params.dstatus ? decodeURIComponent(params.dstatus) : '',
+      },
+    };
+    for (var hk in statesByBar) {
+      if (!Object.prototype.hasOwnProperty.call(statesByBar, hk)) continue;
+      writeArchitectureFilterState(hk, statesByBar[hk]);
+      applyArchitectureFilter(hk);
+    }
+    if (params.open) {
+      var openSet = decodeURIComponent(params.open).split(',').filter(Boolean);
+      openArchitectureSections(openSet);
+    }
+  }
+
+  function openArchitectureSections(keys) {
+    for (var i = 0; i < keys.length; i += 1) {
+      var el = document.querySelector('[data-rcf-tad-section="' + keys[i] + '"]');
+      if (el && el.tagName && el.tagName.toLowerCase() === 'details') el.open = true;
+    }
+  }
+
+  function expandAllArchitecture(hashKey, open) {
+    var list = archList(hashKey);
+    if (!list) return;
+    var rows = list.querySelectorAll(':scope > details.rcf-row');
+    for (var i = 0; i < rows.length; i += 1) {
+      if (rows[i].hasAttribute('hidden')) continue;
+      rows[i].open = !!open;
+    }
+    var btn = document.querySelector('[data-rcf-filterbar="' + hashKey + '"] .rcf-filter-expand');
+    if (btn) {
+      btn.textContent = open ? 'Collapse all' : 'Expand all';
+      btn.setAttribute('data-expand-state', open ? 'expanded' : 'collapsed');
+    }
+  }
+
+  function wireArchitectureFilterBar(hashKey) {
+    var bar = archBar(hashKey);
+    if (!bar || bar.__rcfArchFilterWired) return;
+    bar.__rcfArchFilterWired = true;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) {
+      var debounceTimer = null;
+      text.addEventListener('input', function () {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          applyArchitectureFilter(hashKey);
+          writeArchitectureHash();
+        }, 150);
+      });
+    }
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      selects[i].addEventListener('change', function () {
+        applyArchitectureFilter(hashKey);
+        writeArchitectureHash();
+      });
+    }
+    var expandBtn = bar.querySelector('.rcf-filter-expand');
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var isCollapsed = expandBtn.getAttribute('data-expand-state') !== 'expanded';
+        expandAllArchitecture(hashKey, isCollapsed);
+      });
+    }
+  }
+
+  function wireArchitectureFilterBars() {
+    wireArchitectureFilterBar('architecture-components');
+    wireArchitectureFilterBar('architecture-decisions');
+  }
+
   // ---- EntitySelector (viewer UI refresh PR 3, decision 4) -----
 
   function parseEntitySelectorPayload(root) {
@@ -898,6 +1072,7 @@
     wireTabs();
     wireProductMap();
     wireRequirementsFilterBar();
+    wireArchitectureFilterBars();
     wireEntitySelectors();
     wireFixturePage();
     resolveHash(window.location.hash);
