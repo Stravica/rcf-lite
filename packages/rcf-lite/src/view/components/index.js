@@ -9,3 +9,4 @@ export { renderFilterBar } from './filter-bar.js';
 export { renderEmptyState } from './empty-state.js';
 export { renderToastContainer } from './toast.js';
 export { renderSubTabStrip } from './sub-tab-strip.js';
+export { renderEntitySelector } from './entity-selector.js';

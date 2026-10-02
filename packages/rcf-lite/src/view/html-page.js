@@ -38,7 +38,6 @@ import {
   renderBuildSequence,
   renderFbs,
   renderPrd,
-  renderReq,
   renderTac,
   renderTad,
   renderTestSuite,
@@ -49,6 +48,13 @@ import { allRequirementSubdiagrams } from './mermaid-diagram.js';
 import { renderProductMapPanel } from './product-map.js';
 import { renderReadinessPanel } from './readiness.js';
 import { renderToastContainer } from './components/toast.js';
+import { renderDocRow } from './components/doc-row.js';
+import { renderFilterBar } from './components/filter-bar.js';
+import { renderBadge } from './components/badge.js';
+import { pill } from './components/pill.js';
+import { renderEmptyState } from './components/empty-state.js';
+import { renderEntitySelector } from './components/entity-selector.js';
+import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
 // Used by the shell footer so the muted "RCF Lite X.Y.Z" line tracks the
@@ -152,16 +158,20 @@ export function renderPage(model) {
  */
 export function renderContent(model) {
   const subdiagrams = allRequirementSubdiagrams(model);
+  const needsWorkIds = computeReqNeedsWorkIds(model.readiness);
 
   const prdSection = model.prd
     ? renderPrd(model.prd, {
       raw: model.rawById.get(model.prd.prdId),
       errors: model.errorsById.get(model.prd.prdId),
       requirementIds: model.childrenByParent.get(model.prd.prdId) ?? [],
+      suppressRequirementList: true,
+      collapsibleLists: true,
     })
     : '<p><em>No PRD on disk.</em></p>';
 
-  const requirementsPanel = renderRequirementsPanel(model, subdiagrams);
+  const prdSelector = renderPrdRequirementSelector(model);
+  const requirementsPanel = renderRequirementsPanel(model, subdiagrams, needsWorkIds);
   const architecturePanel = renderArchitecturePanel(model);
   const buildPanel = renderBuildPanel(model);
   const productMapPanel = renderProductMapPanel(model);
@@ -181,6 +191,7 @@ export function renderContent(model) {
       <h2 class="tab-heading">PRD</h2>
       <div class="prd-body">
         ${prdSection}
+        ${prdSelector}
       </div>
     </section>
     <section id="tab-product-map" role="tabpanel" hidden>
@@ -201,43 +212,68 @@ export function renderContent(model) {
     </section>`;
 }
 
-function renderRequirementsPanel(model, subdiagrams) {
+/**
+ * Viewer UI refresh PR 3 (decision 2, decision 3, decision 14): the
+ * Requirements tab renders every REQ as a shared DocRow carrying
+ * area / US count / AC count badges and a status pill. The FilterBar
+ * above drives text / area / priority / status / Needs-work filtering;
+ * state is wired to the URL hash in page-init.js so a filtered view
+ * is a link. Each row stays closed by default; when opened it shows
+ * the renderReq body (description, rationale, tags), a nested row of
+ * user stories (with AC counts), and the slice diagram + raw JSON as
+ * their own collapsed inner details so the first-paint stays cheap.
+ *
+ * `#entity=US-304` resolves to REQ-003 and US-304: the hash router
+ * opens every ancestor <details> and the US row's data-doc-id anchor
+ * is the one the current router already walks (decision 11, PR 1).
+ *
+ * @param {import('./tree-model.js').BuiltTreeModel} model
+ * @param {Map<string, string>} subdiagrams - REQ id -> Mermaid source
+ * @param {Set<string>} needsWorkIds - REQ ids still needing PO work
+ */
+function renderRequirementsPanel(model, subdiagrams, needsWorkIds) {
   if (model.requirements.length === 0 && model.userStories.length === 0) {
-    return '<p><em>No requirements on disk.</em></p>';
+    return renderEmptyState({
+      title: 'No requirements on disk',
+      hint: 'Add requirements under rcf/requirements/ and the viewer picks them up on the next walk.',
+    });
   }
-  const reqBlocks = model.requirements.map((r) => {
-    const reqBody = renderReq(r, {
-      raw: model.rawById.get(r.reqId),
-      errors: model.errorsById.get(r.reqId),
-      subdiagram: subdiagrams.get(r.reqId),
-    });
-    const stories = model.storiesByReqId.get(r.reqId) ?? [];
-    const usBlocks = stories.map((u) => detailsWrap({
-      id: u.usId,
-      summary: `${u.usId} - ${u.title ?? ''}`,
-      className: 'doc-us-wrap',
-      status: u.status,
-      body: renderUserStory(u, {
-        raw: model.rawById.get(u.usId),
-        errors: model.errorsById.get(u.usId),
-        fbsByAcId: model.fbsByAcId,
-      }),
-    })).join('\n');
-    const storiesSection = usBlocks
-      ? `<section class="nested-details"><h4>User stories</h4>${usBlocks}</section>`
-      : '<p><em>No user stories under this requirement.</em></p>';
-    return detailsWrap({
-      id: r.reqId,
-      summary: `${r.reqId} - ${r.title ?? ''}`,
-      className: 'doc-req-wrap',
-      status: r.status,
-      body: `${reqBody}\n${storiesSection}`,
-    });
-  }).join('\n');
+  const areaCounts = countBy(model.requirements, (r) => normaliseFacet(r.domain));
+  const priorityCounts = countBy(model.requirements, (r) => normaliseFacet(r.priority));
+  const statusCounts = countBy(model.requirements, (r) => normaliseFacet(r.status));
+
+  const filterBar = renderFilterBar({
+    hashKey: 'requirements',
+    placeholder: 'Filter by id, title or text',
+    selects: [
+      {
+        key: 'domain',
+        label: 'Area',
+        options: [{ value: '', label: 'All areas' }, ...facetOptions(areaCounts)],
+      },
+      {
+        key: 'priority',
+        label: 'Priority',
+        options: [{ value: '', label: 'Any priority' }, ...facetOptions(priorityCounts)],
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        options: [{ value: '', label: 'Any status' }, ...facetOptions(statusCounts)],
+      },
+    ],
+    toggles: [
+      { key: 'needswork', label: `Needs work (${needsWorkIds.size})` },
+    ],
+    count: { visible: model.requirements.length, total: model.requirements.length },
+    showExpandAll: true,
+  });
+
+  const reqRows = model.requirements.map((r) => renderRequirementRow(r, model, subdiagrams, needsWorkIds)).join('\n');
 
   const orphanUs = model.userStories.filter((u) => !u.reqId || !model.requirements.some((r) => r.reqId === u.reqId));
   const orphanBlock = orphanUs.length > 0
-    ? `<section class="orphan-us"><h3>Orphan user stories</h3>${orphanUs.map((u) => detailsWrap({
+    ? `<section class="orphan-us"><h3 class="group-heading">Orphan user stories</h3>${orphanUs.map((u) => detailsWrap({
       id: u.usId,
       summary: `${u.usId} - ${u.title ?? ''}`,
       className: 'doc-us-wrap',
@@ -250,7 +286,162 @@ function renderRequirementsPanel(model, subdiagrams) {
     })).join('\n')}</section>`
     : '';
 
-  return `${reqBlocks}\n${orphanBlock}`;
+  return `${filterBar}
+<div class="rcf-requirements-list" data-rcf-list="requirements">
+${reqRows}
+</div>
+${orphanBlock}`;
+}
+
+function renderRequirementRow(req, model, subdiagrams, needsWorkIds) {
+  const stories = model.storiesByReqId.get(req.reqId) ?? [];
+  const acCount = stories.reduce((n, u) => n + (u.acceptanceCriteria?.length ?? 0), 0);
+  const area = normaliseFacet(req.domain);
+  const priority = normaliseFacet(req.priority);
+  const status = normaliseFacet(req.status);
+  const needsWork = needsWorkIds.has(req.reqId);
+  const needsWorkReason = needsWork ? (needsWorkReasonFor(model.readiness, req.reqId) ?? 'needs engineer-ready detail') : '';
+
+  const metaParts = [];
+  if (area) metaParts.push(renderBadge({ value: area, variant: 'facet', title: 'Area' }));
+  metaParts.push(renderBadge({ value: stories.length, label: 'US', variant: 'count', title: 'User stories' }));
+  metaParts.push(renderBadge({ value: acCount, label: 'AC', variant: 'count', title: 'Acceptance criteria' }));
+  if (status) metaParts.push(pill({ value: status, variant: 'doc-status' }));
+  if (needsWork) metaParts.push(renderBadge({ value: 'needs work', variant: 'accent', title: needsWorkReason }));
+  const meta = metaParts.join(' ');
+
+  const usRows = stories.map((u) => renderUserStoryInnerRow(u, model)).join('\n');
+  const storiesBlock = stories.length > 0
+    ? `<section class="rcf-req-stories"><h4>User stories (${stories.length})</h4>${usRows}</section>`
+    : '<p class="muted"><em>No user stories under this requirement yet.</em></p>';
+
+  const description = typeof req.description === 'string' && req.description.length > 0
+    ? `<p class="rcf-req-description">${escapeHtml(req.description)}</p>`
+    : '';
+  const rationale = typeof req.rationale === 'string' && req.rationale.length > 0
+    ? `<p class="rcf-req-rationale muted"><strong>Why:</strong> ${escapeHtml(req.rationale)}</p>`
+    : '';
+  const tags = Array.isArray(req.tags) && req.tags.length > 0
+    ? `<div class="rcf-req-tags">${req.tags.map((t) => renderBadge({ value: t, variant: 'facet' })).join(' ')}</div>`
+    : '';
+  const needsWorkLine = needsWork
+    ? `<p class="rcf-req-needswork"><strong>Needs work:</strong> ${escapeHtml(needsWorkReason)}</p>`
+    : '';
+
+  const subdiagram = subdiagrams.get(req.reqId);
+  const sliceDetails = subdiagram
+    ? `<details class="rcf-req-slice"><summary>Slice diagram <span class="muted small">(REQ, stories, criteria and the FBS that deliver them)</span></summary><div class="rcf-req-slice-body"><pre class="mermaid">${escapeHtml(subdiagram)}</pre></div></details>`
+    : '';
+
+  const rawJson = model.rawById.get(req.reqId) ?? JSON.stringify(req, null, 2);
+  const rawDetails = `<details class="rcf-req-raw raw-json" data-doc-id="${escapeHtml(req.reqId)}::raw"><summary class="muted small">Raw JSON</summary><pre>${escapeHtml(rawJson)}</pre></details>`;
+
+  const body = `${needsWorkLine}${description}${rationale}${tags}${storiesBlock}${sliceDetails}${rawDetails}`;
+
+  const extraClasses = ['doc-req-wrap'];
+  if (needsWork) extraClasses.push('needs-work');
+  const row = renderDocRow({
+    id: req.reqId,
+    title: req.title ?? '',
+    body,
+    meta,
+    className: extraClasses.join(' '),
+  });
+
+  // Attach the filter-facet data attributes to the <details> opening
+  // tag so page-init.js can hide / show rows without touching the body.
+  const dataAttrs = ` data-domain="${escapeHtml(area)}" data-priority="${escapeHtml(priority)}" data-status="${escapeHtml(status)}" data-needswork="${needsWork ? '1' : '0'}" data-text="${escapeHtml(buildFilterText(req, stories))}"`;
+  return row.replace(/^<details /, `<details${dataAttrs} `);
+}
+
+function renderUserStoryInnerRow(us, model) {
+  const acCount = us.acceptanceCriteria?.length ?? 0;
+  const status = normaliseFacet(us.status);
+  const metaParts = [renderBadge({ value: acCount, label: 'AC', variant: 'count', title: 'Acceptance criteria' })];
+  if (status) metaParts.push(pill({ value: status, variant: 'doc-status' }));
+  const body = renderUserStory(us, {
+    raw: model.rawById.get(us.usId),
+    errors: model.errorsById.get(us.usId),
+    fbsByAcId: model.fbsByAcId,
+  });
+  return renderDocRow({
+    id: us.usId,
+    title: us.title ?? '',
+    body,
+    meta: metaParts.join(' '),
+    className: 'doc-us-wrap rcf-row--inner',
+  });
+}
+
+function buildFilterText(req, stories) {
+  const parts = [req.reqId, req.title, req.description, req.rationale, req.domain, req.priority, req.status];
+  if (Array.isArray(req.tags)) parts.push(req.tags.join(' '));
+  for (const u of stories) {
+    parts.push(u.usId, u.title, u.asA, u.iWant, u.soThat);
+  }
+  return parts.filter((v) => typeof v === 'string' && v.length > 0).join(' ').toLowerCase();
+}
+
+function normaliseFacet(v) {
+  if (typeof v !== 'string') return '';
+  return v.trim();
+}
+
+function countBy(items, keyFn) {
+  const out = new Map();
+  for (const it of items) {
+    const k = keyFn(it);
+    if (!k) continue;
+    out.set(k, (out.get(k) ?? 0) + 1);
+  }
+  return out;
+}
+
+function facetOptions(counts) {
+  const entries = [...counts.entries()];
+  entries.sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]));
+  return entries.map(([value, count]) => ({ value, label: `${value} (${count})` }));
+}
+
+/**
+ * Viewer UI refresh PR 3 (decision 4): the PRD tab replaces the 109
+ * inline requirement links with an EntitySelector. Area chips deep-link
+ * into the Requirements tab filtered by domain. The jump input picks
+ * one REQ by id or title and writes `#tab=requirements&entity=<id>`.
+ *
+ * @param {import('./tree-model.js').BuiltTreeModel} model
+ */
+function renderPrdRequirementSelector(model) {
+  const reqs = model.requirements ?? [];
+  if (reqs.length === 0) return '';
+  const items = reqs.map((r) => ({
+    id: r.reqId,
+    title: r.title ?? '',
+    facet: normaliseFacet(r.domain),
+  }));
+  const areaCounts = countBy(reqs, (r) => normaliseFacet(r.domain));
+  const facets = [...areaCounts.entries()]
+    .sort((a, b) => (b[1] - a[1]) || a[0].localeCompare(b[0]))
+    .map(([value, count]) => ({ value, count }));
+  const acTotal = (model.userStories ?? []).reduce((n, u) => n + (u.acceptanceCriteria?.length ?? 0), 0);
+  const totalLabel = `${reqs.length} requirements in ${facets.length} area${facets.length === 1 ? '' : 's'}, ${model.userStories.length} stories, ${acTotal} acceptance criteria`;
+  const selector = renderEntitySelector({
+    hashKey: 'requirements',
+    targetTab: 'requirements',
+    facetKey: 'domain',
+    items,
+    facets,
+    totalLabel,
+    placeholder: `Jump to a requirement by id or title (e.g. REQ-040 or 'readiness')`,
+    chipsLabel: 'By area (click to open the Requirements tab filtered):',
+  });
+  return `<section class="rcf-prd-requirements" id="prd-requirements">
+    <div class="rcf-prd-requirements-head">
+      <h3>Requirements</h3>
+      <a class="rcf-prd-requirements-open" href="#tab=requirements">Open the Requirements tab</a>
+    </div>
+    ${selector}
+  </section>`;
 }
 
 function renderArchitecturePanel(model) {

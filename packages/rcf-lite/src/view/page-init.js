@@ -496,6 +496,12 @@
             },
           });
         }
+        // Requirements tab: push the hash filter slots into the
+        // FilterBar inputs and re-run the row filter so the first paint
+        // reflects the URL exactly. #entity=... below opens the entity.
+        if (tab === 'requirements' && requirementsFilterBar()) {
+          applyRequirementsHash(params);
+        }
         // #tab=requirements&entity=REQ-002 opens the entity in place.
         if (params.entity) {
           var ent = findByDocId(params.entity);
@@ -598,6 +604,245 @@
     }
   }
 
+  // ---- Requirements FilterBar + EntitySelector (viewer UI refresh PR 3) --
+  //
+  // The Requirements tab mounts a FilterBar (text, area, priority, status,
+  // Needs-work) and the PRD tab mounts an EntitySelector (type-ahead jump
+  // + area chips). Filter state lives in the hash so a filtered view is a
+  // link (decision 3). The hash slots this reads/writes:
+  //   #tab=requirements[&q=...][&domain=...][&priority=...][&status=...][&needswork=1]
+  // Area chips in the PRD selector write #tab=requirements&domain=...;
+  // the type-ahead jump writes #tab=requirements&entity=<id>.
+
+  function requirementsListNode() {
+    return document.querySelector('[data-rcf-list="requirements"]');
+  }
+
+  function requirementsFilterBar() {
+    return document.querySelector('[data-rcf-filterbar="requirements"]');
+  }
+
+  function readRequirementsFilterState() {
+    var bar = requirementsFilterBar();
+    if (!bar) return null;
+    var text = bar.querySelector('.rcf-filter-text');
+    var state = { q: text ? text.value.trim() : '', needswork: false };
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      state[selects[i].getAttribute('data-filter-key') || 'select'] = selects[i].value;
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      state[toggles[j].getAttribute('data-filter-key') || 'toggle'] = toggles[j].checked;
+    }
+    return state;
+  }
+
+  function writeRequirementsFilterState(state) {
+    var bar = requirementsFilterBar();
+    if (!bar) return;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) text.value = state.q || '';
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      var key = selects[i].getAttribute('data-filter-key') || '';
+      selects[i].value = state[key] != null ? String(state[key]) : '';
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      var tkey = toggles[j].getAttribute('data-filter-key') || '';
+      toggles[j].checked = state[tkey] === true || state[tkey] === 'true' || state[tkey] === '1';
+    }
+  }
+
+  function applyRequirementsFilter() {
+    var list = requirementsListNode();
+    if (!list) return;
+    var state = readRequirementsFilterState() || { q: '', domain: '', priority: '', status: '', needswork: false };
+    var qLower = (state.q || '').toLowerCase();
+    var rows = list.querySelectorAll(':scope > details.rcf-row[data-doc-id^="REQ-"]');
+    var visible = 0;
+    for (var i = 0; i < rows.length; i += 1) {
+      var row = rows[i];
+      var hide = false;
+      if (state.domain && row.getAttribute('data-domain') !== state.domain) hide = true;
+      if (!hide && state.priority && row.getAttribute('data-priority') !== state.priority) hide = true;
+      if (!hide && state.status && row.getAttribute('data-status') !== state.status) hide = true;
+      if (!hide && state.needswork && row.getAttribute('data-needswork') !== '1') hide = true;
+      if (!hide && qLower) {
+        var hay = row.getAttribute('data-text') || '';
+        if (hay.indexOf(qLower) === -1) hide = true;
+      }
+      if (hide) row.setAttribute('hidden', '');
+      else { row.removeAttribute('hidden'); visible += 1; }
+    }
+    var countEl = document.querySelector('[data-rcf-filterbar="requirements"] .rcf-filter-count');
+    if (countEl) countEl.textContent = String(visible) + ' of ' + String(rows.length) + ' visible';
+  }
+
+  function requirementsHashFragment(state) {
+    var parts = ['tab=requirements'];
+    if (state.q) parts.push('q=' + encodeURIComponent(state.q));
+    if (state.domain) parts.push('domain=' + encodeURIComponent(state.domain));
+    if (state.priority) parts.push('priority=' + encodeURIComponent(state.priority));
+    if (state.status) parts.push('status=' + encodeURIComponent(state.status));
+    if (state.needswork) parts.push('needswork=1');
+    return '#' + parts.join('&');
+  }
+
+  function writeRequirementsHash() {
+    var state = readRequirementsFilterState();
+    if (!state) return;
+    writeHash(requirementsHashFragment(state), true);
+  }
+
+  function applyRequirementsHash(params) {
+    var state = {
+      q: params.q ? decodeURIComponent(params.q) : '',
+      domain: params.domain ? decodeURIComponent(params.domain) : '',
+      priority: params.priority ? decodeURIComponent(params.priority) : '',
+      status: params.status ? decodeURIComponent(params.status) : '',
+      needswork: params.needswork === '1' || params.needswork === 'true',
+    };
+    writeRequirementsFilterState(state);
+    applyRequirementsFilter();
+  }
+
+  function expandAllRequirements(open) {
+    var list = requirementsListNode();
+    if (!list) return;
+    var rows = list.querySelectorAll(':scope > details.rcf-row');
+    for (var i = 0; i < rows.length; i += 1) {
+      if (rows[i].hasAttribute('hidden')) continue;
+      rows[i].open = !!open;
+    }
+    var btn = document.querySelector('[data-rcf-filterbar="requirements"] .rcf-filter-expand');
+    if (btn) {
+      btn.textContent = open ? 'Collapse all' : 'Expand all';
+      btn.setAttribute('data-expand-state', open ? 'expanded' : 'collapsed');
+    }
+  }
+
+  function wireRequirementsFilterBar() {
+    var bar = requirementsFilterBar();
+    if (!bar || bar.__rcfReqFilterWired) return;
+    bar.__rcfReqFilterWired = true;
+    var text = bar.querySelector('.rcf-filter-text');
+    if (text) {
+      var debounceTimer = null;
+      text.addEventListener('input', function () {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function () {
+          applyRequirementsFilter();
+          writeRequirementsHash();
+        }, 150);
+      });
+    }
+    var selects = bar.querySelectorAll('.rcf-filter-select');
+    for (var i = 0; i < selects.length; i += 1) {
+      selects[i].addEventListener('change', function () {
+        applyRequirementsFilter();
+        writeRequirementsHash();
+      });
+    }
+    var toggles = bar.querySelectorAll('.rcf-filter-toggle input[type="checkbox"]');
+    for (var j = 0; j < toggles.length; j += 1) {
+      toggles[j].addEventListener('change', function () {
+        applyRequirementsFilter();
+        writeRequirementsHash();
+      });
+    }
+    var expandBtn = bar.querySelector('.rcf-filter-expand');
+    if (expandBtn) {
+      expandBtn.addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var isCollapsed = expandBtn.getAttribute('data-expand-state') !== 'expanded';
+        expandAllRequirements(isCollapsed);
+      });
+    }
+  }
+
+  // ---- EntitySelector (viewer UI refresh PR 3, decision 4) -----
+
+  function parseEntitySelectorPayload(root) {
+    var dataNode = root.querySelector('script.rcf-entity-selector-data');
+    if (!dataNode) return [];
+    try { return JSON.parse(dataNode.textContent || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function wireEntitySelector(root) {
+    if (!root || root.__rcfEntitySelectorWired) return;
+    root.__rcfEntitySelectorWired = true;
+    var input = root.querySelector('.rcf-entity-selector-input');
+    var results = root.querySelector('.rcf-entity-selector-results');
+    var targetTab = root.getAttribute('data-target-tab') || 'requirements';
+    var items = parseEntitySelectorPayload(root);
+    if (!input || !results || items.length === 0) return;
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function render(matches) {
+      if (matches.length === 0) {
+        results.innerHTML = '<div class="rcf-entity-selector-empty muted small">No match.</div>';
+        results.removeAttribute('hidden');
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < matches.length; i += 1) {
+        var m = matches[i];
+        var hash = '#tab=' + encodeURIComponent(targetTab) + '&entity=' + encodeURIComponent(m.id);
+        html += '<a class="rcf-entity-selector-result" href="' + escapeHtml(hash) + '" role="option" data-entity-id="' + escapeHtml(m.id) + '">'
+          + '<span class="rcf-entity-selector-result-id">' + escapeHtml(m.id) + '</span>'
+          + '<span class="rcf-entity-selector-result-title">' + escapeHtml(m.title) + '</span>'
+          + (m.facet ? '<span class="rcf-entity-selector-result-facet">' + escapeHtml(m.facet) + '</span>' : '')
+          + '</a>';
+      }
+      results.innerHTML = html;
+      results.removeAttribute('hidden');
+    }
+
+    function run() {
+      var q = (input.value || '').trim().toLowerCase();
+      if (!q) { results.innerHTML = ''; results.setAttribute('hidden', ''); return; }
+      var out = [];
+      for (var i = 0; i < items.length && out.length < 12; i += 1) {
+        var it = items[i];
+        var idL = (it.id || '').toLowerCase();
+        var tL = (it.title || '').toLowerCase();
+        if (idL.indexOf(q) === 0 || tL.indexOf(q) !== -1) out.push(it);
+      }
+      render(out);
+    }
+
+    input.addEventListener('input', run);
+    input.addEventListener('focus', function () { if (input.value.trim()) run(); });
+    input.addEventListener('blur', function () {
+      setTimeout(function () { results.setAttribute('hidden', ''); }, 150);
+    });
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter') return;
+      var first = results.querySelector('.rcf-entity-selector-result');
+      if (!first) return;
+      ev.preventDefault && ev.preventDefault();
+      // Navigate via the Router: writes to hash so #entity=... resolves.
+      var href = first.getAttribute('href');
+      if (href) {
+        writeHash(href, false);
+        resolveHash(window.location.hash);
+      }
+    });
+  }
+
+  function wireEntitySelectors() {
+    var selectors = document.querySelectorAll('[data-rcf-entity-selector]');
+    for (var i = 0; i < selectors.length; i += 1) wireEntitySelector(selectors[i]);
+  }
+
   var hashchangeWired = false;
   function onReady() {
     initShellFromQuery();
@@ -605,6 +850,8 @@
     initMermaid();
     wireTabs();
     wireProductMap();
+    wireRequirementsFilterBar();
+    wireEntitySelectors();
     wireFixturePage();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
