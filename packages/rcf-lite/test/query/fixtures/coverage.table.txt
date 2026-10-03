@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 114  covered: 114  covered-unresolved: 0  uncovered: 0
+Requirements: 116  covered: 116  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -535,6 +535,10 @@ REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
 REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
                       AC-18101-2   yes         TC-223-findings-list-markup
                       AC-18101-3   yes         TC-223-no-existing-tab-tests-change
+REQ-182      yes      AC-18202-1   yes         TC-227-guidance-prints
+                      AC-18202-2   yes         TC-227-manifest-prompts
+                      AC-18202-3   yes         TC-227-register-scan-em-dash
+                      AC-18202-4   yes         TC-227-managed-block-preserves-rules
 REQ-186      yes      AC-18601-1   yes         TC-226-q-shape
                       AC-18601-2   yes         TC-226-q-deterministic
                       AC-18601-3   yes         TC-226-q-optional-decisions
@@ -565,3 +569,8 @@ REQ-187      yes      AC-18701-1   yes         TC-215-markers-kind-and-source
                       AC-18702-4   yes         TC-215-json-emits-added-and-findings
                       AC-18702-5   yes         TC-215-no-scan-plus-findings-exits-2
                       AC-18702-6   yes         TC-215-text-runs-no-scan
+REQ-188      yes      AC-18801-1   yes         TC-227-draft-coreentity
+                      AC-18801-2   yes         TC-227-draft-tac-purpose
+                      AC-18801-3   yes         TC-227-draft-cleared
+                      AC-18801-4   yes         TC-227-draft-template-markers
+                      AC-18801-5   yes         TC-227-draft-no-po-read

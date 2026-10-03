@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 114,
-    "covered": 114,
+    "requirements": 116,
+    "covered": 116,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -5149,6 +5149,45 @@
       ]
     },
     {
+      "id": "REQ-182",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18202-1",
+          "covered": true,
+          "testCases": [
+            "TC-227-guidance-prints"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18202-2",
+          "covered": true,
+          "testCases": [
+            "TC-227-manifest-prompts"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18202-3",
+          "covered": true,
+          "testCases": [
+            "TC-227-register-scan-em-dash"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18202-4",
+          "covered": true,
+          "testCases": [
+            "TC-227-managed-block-preserves-rules"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
       "id": "REQ-186",
       "covered": true,
       "coverageClass": "covered",
@@ -5397,6 +5436,53 @@
           "covered": true,
           "testCases": [
             "TC-215-text-runs-no-scan"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-188",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18801-1",
+          "covered": true,
+          "testCases": [
+            "TC-227-draft-coreentity"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18801-2",
+          "covered": true,
+          "testCases": [
+            "TC-227-draft-tac-purpose"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18801-3",
+          "covered": true,
+          "testCases": [
+            "TC-227-draft-cleared"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18801-4",
+          "covered": true,
+          "testCases": [
+            "TC-227-draft-template-markers"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18801-5",
+          "covered": true,
+          "testCases": [
+            "TC-227-draft-no-po-read"
           ],
           "unresolvedTestCases": []
         }

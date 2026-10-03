@@ -217,25 +217,67 @@ export function checkPersona(name) {
 }
 
 /**
- * Draft interface marker (ADR-4126, proposal section 1.3). An
- * interface description that starts with `[draft]` after optional
- * leading whitespace is a draft pre-populated at L1; the engineer
- * removes the marker when the interface is settled. Decision 6
+ * Draft marker (ADR-4126 for `TAC.interfaces[].description` in 0.29.0;
+ * REQ-188 extends it to `TAC.purpose` and `coreEntities[].description`
+ * in 0.30.0). A description that starts with `[draft]` after optional
+ * leading whitespace is pre-populated engineer entry material; the
+ * engineer removes the marker when the shape is settled. Decision 6
  * uses the same bracket-prefix convention for AC class.
  */
 const INTERFACE_DRAFT_RE = /^\[draft\]/;
 
 /**
+ * True when a string carries the leading `[draft]` marker
+ * (whitespace tolerated). Pure string test used by every draft-home
+ * reader below.
+ *
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export function hasDraftMarker(value) {
+  if (typeof value !== 'string') return false;
+  return INTERFACE_DRAFT_RE.test(value.trimStart());
+}
+
+/**
  * True when an interface's `description` carries the leading
- * `[draft]` marker (whitespace tolerated).
+ * `[draft]` marker (whitespace tolerated). Thin wrapper over
+ * `hasDraftMarker` kept for ADR-4126 call sites; REQ-188 adds
+ * `parseTacPurposeDraft` and `parseCoreEntityDraft` for the two new
+ * homes.
  *
  * @param {unknown} iface
  * @returns {boolean}
  */
 export function parseInterfaceDraft(iface) {
-  const desc = iface && typeof iface === 'object' ? /** @type {any} */ (iface).description : null;
-  if (typeof desc !== 'string') return false;
-  return INTERFACE_DRAFT_RE.test(desc.trimStart());
+  if (!iface || typeof iface !== 'object') return false;
+  return hasDraftMarker(/** @type {any} */ (iface).description);
+}
+
+/**
+ * True when a TAC's `purpose` carries the leading `[draft]` marker
+ * (whitespace tolerated). REQ-188 draft home; the engineer removes
+ * the marker when the TAC's purpose is owned.
+ *
+ * @param {unknown} tac
+ * @returns {boolean}
+ */
+export function parseTacPurposeDraft(tac) {
+  if (!tac || typeof tac !== 'object') return false;
+  return hasDraftMarker(/** @type {any} */ (tac).purpose);
+}
+
+/**
+ * True when a coreEntities entry's `description` carries the
+ * leading `[draft]` marker (whitespace tolerated). REQ-188 draft
+ * home; the engineer removes the marker when the entity is owned.
+ *
+ * @param {unknown} entity
+ * @returns {boolean}
+ */
+export function parseCoreEntityDraft(entity) {
+  if (!entity || typeof entity !== 'object') return false;
+  return hasDraftMarker(/** @type {any} */ (entity).description);
 }
 
 /** Warn-with-ack stages in 0.29.0 (ADR-4122). */
@@ -595,8 +637,12 @@ const INTERFACE_KINDS_SET = new Set(INTERFACE_KINDS);
 /**
  * D3 -- Interface contracts and shapes. 0.29.0 runs the cheap
  * presence, closed-vocabulary and draft-marker checks
- * (`shapes:draftSettled` per ADR-4126 scans the `[draft]` prefix on
- * `TAC.interfaces[].description`).
+ * (`shapes:draftSettled` per ADR-4126 scans the `[draft]` prefix).
+ * REQ-188 (0.30.0): the draft marker extends to `TAC.purpose` and
+ * `TAD.dataArchitecture.coreEntities[].description`; `shapes:draftSettled`
+ * enumerates all three homes with ids `<tacId>:<name>`, `<tacId>`
+ * and `TAD.entity:<name>` respectively. `tacHasInterface` and
+ * `kindVocabulary` apply to drafts unchanged.
  *
  * SEAM 0.30: template markers per kind (recordShape.fields:, httpRoute
  * method/path/request/response/errors, fixture.instances:); entity-name
@@ -617,8 +663,17 @@ export function checkD3Shapes(ctx) {
     return shapes.includes('httpApi') || shapes.includes('persistence') || shapes.includes('auth');
   });
 
-  if (tacsInScope.length === 0 && shapedReqInScope.length === 0) {
-    return notApplicable('D3', gate, 'no TAC and no shaped REQ (httpApi/persistence/auth) in scope');
+  // Core entities on TAD.dataArchitecture come from the whole tree,
+  // not the scope: an entity's draft marker is a tree-wide draft home
+  // (the engineer owns every entity in one place) and reporting it
+  // under D3 does not depend on which TAC a change touched.
+  const coreEntities = Array.isArray(tree.tad?.dataArchitecture?.coreEntities)
+    ? /** @type {any[]} */ (tree.tad.dataArchitecture.coreEntities)
+    : [];
+  const draftEntities = coreEntities.filter(parseCoreEntityDraft);
+
+  if (tacsInScope.length === 0 && shapedReqInScope.length === 0 && draftEntities.length === 0) {
+    return notApplicable('D3', gate, 'no TAC, no shaped REQ (httpApi/persistence/auth) and no [draft] core entity in scope');
   }
 
   const checks = [];
@@ -633,15 +688,18 @@ export function checkD3Shapes(ctx) {
   ));
 
   // Check 2: every interface kind is in the closed vocabulary.
-  // Check 3: no interface description still carries the `[draft]`
-  // marker (ADR-4126, proposal section 1.3). A draft interface is
-  // entry material pre-populated at L1; the engineer removes the
-  // marker when the interface is settled. `tacHasInterface` and
+  // Check 3: no description across the three draft homes still
+  // carries the `[draft]` marker. A draft shape is entry material
+  // the agent pre-populates after L1; the engineer removes the
+  // marker when the shape is settled. `tacHasInterface` and
   // `kindVocabulary` apply equally to drafts.
   let totalInterfaces = 0;
   const badKinds = [];
-  const draftIfaces = [];
+  const draftFindings = [];
   for (const tac of tacsInScope) {
+    if (parseTacPurposeDraft(tac)) {
+      draftFindings.push({ id: tac.tacId, why: 'draft TAC purpose pre-populated at L1, not yet settled' });
+    }
     for (const iface of tac.interfaces ?? []) {
       totalInterfaces += 1;
       const kind = iface?.kind;
@@ -649,12 +707,20 @@ export function checkD3Shapes(ctx) {
         badKinds.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: `unknown interface kind ${JSON.stringify(kind)}` });
       }
       if (parseInterfaceDraft(iface)) {
-        draftIfaces.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: 'draft interface pre-populated at L1, not yet settled' });
+        draftFindings.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: 'draft interface pre-populated at L1, not yet settled' });
       }
     }
   }
+  for (const entity of draftEntities) {
+    draftFindings.push({ id: `TAD.entity:${entity?.name ?? '(unnamed)'}`, why: 'draft core entity pre-populated at L1, not yet settled' });
+  }
+  // Total for the draft check is every draft home that could carry
+  // the marker on an in-scope TAC plus every core entity (tree-wide):
+  // the TAC itself (its purpose) + every interface on it, plus the
+  // coreEntities list.
+  const totalDraftHomes = tacsInScope.length + totalInterfaces + coreEntities.length;
   checks.push(makeCheck('shapes:kindVocabulary', 'delta', totalInterfaces, badKinds));
-  checks.push(makeCheck('shapes:draftSettled', 'delta', totalInterfaces, draftIfaces));
+  checks.push(makeCheck('shapes:draftSettled', 'delta', totalDraftHomes, draftFindings));
 
   return foldState('D3', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
