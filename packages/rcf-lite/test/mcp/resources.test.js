@@ -136,6 +136,9 @@ test('rcf://docs/<slug>: every methodology doc in the pack manifest serves byte-
     // define-intake (spec 2026-10-01 §6).
     'define-intent',
     'define-intake',
+    // REQ-188 (DEFINE step 3 PR 3) shipped discovery-prototypes
+    // (spec 2026-10-01 §5).
+    'discovery-prototypes',
   ]);
   for (const doc of manifest.docs) {
     const result = await registry.read(`rcf://docs/${doc.slug}`);

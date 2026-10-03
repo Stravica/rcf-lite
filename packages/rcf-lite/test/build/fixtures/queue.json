@@ -1198,7 +1198,7 @@
       "fbsId": "FBS-202",
       "buildOrder": 202,
       "tier": 7,
-      "title": "DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2)",
+      "title": "DEFINE step 3 PRs 1-3: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3)",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [
         "FBS-195",

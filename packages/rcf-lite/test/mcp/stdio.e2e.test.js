@@ -180,7 +180,9 @@ test('e2e: resources and prompts served over real pipes', async () => {
   assert.equal(JSON.parse(tree.result.contents[0].text).project, 'McpE2eTest');
   const prompts = await server.request('prompts/list', {});
   // REQ-186 added two more argument-free prompts (spec 2026-10-01 §6).
-  assert.equal(prompts.result.prompts.length, 4);
+  // REQ-188 (DEFINE step 3 PR 3) added two more argument-free prompts:
+  // rcf_define_draft_shapes and rcf_discover_prototype (spec §3, §5).
+  assert.equal(prompts.result.prompts.length, 6);
   const playbook = await server.request('prompts/get', { name: 'rcf_execute_build_cycle' });
   assert.equal(playbook.result.messages[0].role, 'user');
   assert.ok(playbook.result.messages[0].content.text.length > 100);
