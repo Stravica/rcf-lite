@@ -5090,6 +5090,30 @@
             "TC-223-ids-on-tab-match-cli-json"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18002-1",
+          "covered": true,
+          "testCases": [
+            "TC-227-groups-and-asks"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18002-2",
+          "covered": true,
+          "testCases": [
+            "TC-227-empty-questions-verdict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18002-3",
+          "covered": true,
+          "testCases": [
+            "TC-227-engineer-dom-preserved"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

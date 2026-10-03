@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-02T19:30:00Z",
+  "updatedAt": "2026-10-02T19:30:00Z",
+  "adrId": "ADR-4135-readiness-po-register-and-adapter",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The Readiness tab fixes its two-audience split by the profile register and uses a feature-detected adapter seam for the PO question block",
+  "context": "The viewer UI refresh (design doc section 1 decision 1 and section 8) splits the Readiness tab into a product-owner-first layer and a For-engineers DocRow at the foot. The chain's DEFINE step 3 PR 2 reserves a new `readiness.questions[]` shape built by `computeQuestions`; until that lands the viewer still has to render the PO question block from today's `personas.productOwner.blockers`. The design doc section 11 recommendation 4 asks for the phrasebook now so the pilot does not wait on DEFINE step 3. Baz's amendment 12 of 2026-10-02T13:40Z requires both VerdictCards to render at equal height with the chain term muted beside the plain label on both cards (`intent-complete`, `ready-to-build`).",
+  "decision": "The Readiness tab fixes its two-audience split by the `profile.register`: `productOwner` or absent / unstated opens the four PO blocks and keeps the For-engineers DocRow closed; `engineer` opens the For-engineers DocRow at the foot. No tab changes shape or wording by where the tree sits in DEFINE (decision 14). The phrasebook ships now (one entry per row of design doc section 8's PO question table, keyed by check id) and the adapter seam `toQuestions(readiness)` is a pure module exported from src/view/readiness/question-adapter.js: it reads blockers today and switches to `readiness.questions` when the shape is present (feature-detected via `preferReadinessQuestions(readiness)`); the call site in the tab reads only the adapter output. The engineer DOM is never removed, only collapsed under the DocRow (AC-18002-3). The CLI verdict strings keep rendering inside the For-engineers DocRow verbatim.",
+  "consequences": "The pilot can land PR 8 ahead of DEFINE step 3 PR 2 without a second rewrite when the questions shape arrives; the switch is one feature-detect line and the shape is drop-in. The two-audience split is deterministic (the register alone decides opening state) so the Remi pilot never sees a tab that reshapes under its feet as the tree moves through DEFINE. The engineer DOM invariant guards parity with `rcf define readiness --json`: every id the CLI prints is still in the viewer's DOM, just one level down. Equal-height VerdictCards and the muted chain term land once, from CSS, so no scripted measurement is needed.",
+  "alternativesConsidered": [
+    {
+      "name": "Wait for DEFINE step 3 PR 2 to land `readiness.questions` before shipping PR 8",
+      "summary": "Postpone PR 8 until the questions compute is in place so the viewer never reads blockers directly.",
+      "reasonNotChosen": "Blocks the Remi pilot and the hand-over for a chain PR whose timing is not in this surface's control. The adapter seam is the smallest possible layer that lets both sources flow through one shape, so the extra module today is a one-day cost that buys weeks of parallel progress."
+    },
+    {
+      "name": "Re-render the tab by DEFINE progression state (open For-engineers once the PO blocks pass)",
+      "summary": "Have the Readiness tab change shape based on where the tree sits in DEFINE (so the engineer view only appears when the PO view is empty).",
+      "reasonNotChosen": "Contradicts decision 14 (`two audiences, fixed by tab, never by progression state`). An engineer looking at the tab mid-DEFINE loses the engineer view they rely on, and a product owner who reaches intent-complete suddenly sees a block that was never there before. The register is the audience; the state is not."
+    },
+    {
+      "name": "Remove the engineer blockers from the DOM in the productOwner register",
+      "summary": "Hide the engineer-level findings entirely when `profile.register === 'productOwner'` so the page is quieter.",
+      "reasonNotChosen": "AC-18002-3 is must-not for a reason: hiding a persona breaks parity with `rcf define readiness --json`. A collapsed DocRow carries the signal the diagnostic needs without crowding the PO view."
+    },
+    {
+      "name": "Script equal-height cards with ResizeObserver",
+      "summary": "Measure both VerdictCards after render and copy the taller height onto the shorter one.",
+      "reasonNotChosen": "The relative-script policy (PR 1) keeps the shell free of inline script and keeps the DOM a server render that the SSE path can swap wholesale. CSS grid or flex with `align-items: stretch` on a shared parent gives equal height for free and survives theme swaps."
+    }
+  ]
+}

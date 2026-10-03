@@ -96,7 +96,7 @@ Generation strategy: dependencyFirst
 | 200 | 5 | FBS-200 | DEFINE step 2 (0.29.0) PR B: --level, --persona and persona-grouped text report on rcf define readiness (ADR-4126) | complete | complete |  |
 | 201 | 6 | FBS-201 | DEFINE step 2 (0.29.0) PR C: Readiness tab as tab 1, Overview-to-PRD rename, shared pill, findings-list and diff components (REQ-180, REQ-181, TAC-4127, ADR-4127) | complete | complete |  |
 | 202 | 7 | FBS-202 | DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2) | notStarted | actionable |  |
-| 203 | 0 | FBS-203 | Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs) | inProgress | inProgress |  |
+| 203 | 0 | FBS-203 | Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204, US-205, US-18002 and successor USs) | inProgress | inProgress |  |
 
 Totals: items 93 | notStarted 48 | inProgress 2 | complete 28 | verified 15 | actionable 38 | blocked 10
 

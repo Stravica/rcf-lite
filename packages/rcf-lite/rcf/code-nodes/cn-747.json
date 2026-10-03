@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-747",
+  "path": "src/view/readiness/po-layer.js",
+  "title": "Readiness PO layer: VerdictCards, QuestionCards grouped by source span, intent-complete empty state, For-engineers DocRow",
+  "description": "`renderReadinessPO(readiness, { persona, engineerBody })` emits the PO layer HTML: two equal-height VerdictCards (intent-complete and ready-to-build) with the chain term muted beside each plain label; one QuestionCard group per source span sourced from `toQuestions(readiness)`; a `data-rcf-empty=\"yes\"` block that renders the verbatim `formatVerdictLines(readiness).intentComplete` string when `questions[]` is empty and both levels are ok (AC-18002-2); the Requirements-that-still-need-work table; and the For-engineers DocRow that wraps the engineer rendering, closed under productOwner / unstated and open under engineer, with the data preserved in the DOM in every register (AC-18002-3). Stamps `data-rcf-source=\"readiness.questions\"` on the questions block when the real compute shape is live (AC-18002-1).",
+  "implementsAcIds": [
+    "AC-18002-1",
+    "AC-18002-2",
+    "AC-18002-3"
+  ],
+  "dependencies": [
+    "CN-746"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z"
+}

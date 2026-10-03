@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-10-02T19:30:00Z",
+  "updatedAt": "2026-10-02T19:30:00Z",
+  "tacId": "TAC-4133-readiness-po-layer",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Readiness tab PO layer: VerdictCard, QuestionCard, NextStep, ReqWorkTable, StageLegend, phrasebook, For-engineers DocRow",
+  "purpose": "Render the Readiness tab PO layer: VerdictCard, QuestionCard, NextStep, ReqWorkTable, StageLegend, phrasebook, and the For-engineers DocRow. Four blocks for the product owner (two VerdictCards at equal height with the chain term muted beside the plain label; QuestionCards grouped by source span; a what-happens-next paragraph; a Requirements that still need work table) plus one DocRow at the foot that collapses the full engineer view inside without removing anything from the DOM. The adapter seam `toQuestions(readiness)` is a pure module that reads blockers and the phrasebook today and switches to `readiness.questions` when DEFINE step 3 PR 2 ships `computeQuestions`.",
+  "responsibilities": [
+    "src/view/readiness/phrasebook.js: a plain data module keyed by check id; every row of design doc section 8's PO question table has an entry carrying `{ heading, ask, hint }` and an `optional` flag for decisions-with-a-default. The strings are the PO wording verbatim; no em-dashes. The phrasebook never duplicates the stage-gate meanings those live in STAGE_GATES (section 4 of the design).",
+    "src/view/readiness/question-adapter.js: `toQuestions(readiness)` is a pure function that returns `{ groups: Array<{ label, items: Array<{ heading, ask, hint, detail, checkId }> }> }`. When `readiness.questions` exists (DEFINE step 3 PR 2 feature-detected via `preferReadinessQuestions(readiness)`), it reads from there; otherwise it reads `personas.productOwner.blockers`, groups by source span (`brief:<n>` for brief checks; the REQ id for stories/skeleton checks; otherwise the stage), and fills asks from the phrasebook. Decisions-with-a-default land in an optional group that never holds up the hand-over.",
+    "src/view/readiness/po-layer.js: `renderReadinessPO(readiness, { persona, phrasebook })` emits the four PO blocks plus the For-engineers DocRow. Two VerdictCards share a `rcf-po-verdicts` grid so the browser lays them out at equal height; each card carries the plain label and the chain term (`intent-complete`, `ready-to-build`) muted beside it. The For-engineers DocRow is closed when `persona === 'productOwner'` (and `unstated`); open when `persona === 'engineer'`.",
+    "src/view/readiness/stage-legend.js: `renderStageLegend(stages)` emits the StageLegend dialog with D1..D8 by name, one-line meaning and posture, read from STAGE_GATES and the readiness stages[].state. Every D-chip and D-prefixed check name carries a hover title and opens the legend on click; wiring in page-init.js.",
+    "src/view/readiness.js: `renderReadinessPanel` keeps its signature but now returns the PO layer followed by the For-engineers DocRow (whose body is the former engineer rendering structurally identical). The CLI verdict strings (`formatVerdictLines`) still render inside For-engineers so parity with `rcf define readiness --json` is unchanged (AC-18002-3)."
+  ],
+  "internalStructure": "Five composition seams. (1) phrasebook.js is a static data module. (2) question-adapter.js is a pure function: `(readiness) => { groups }`; `preferReadinessQuestions(readiness)` is the feature detect that flips the source when DEFINE step 3 lands. (3) po-layer.js is a server-rendered HTML string builder; no inline script added to the page. (4) stage-legend.js is a server-rendered dialog whose client wiring lives in page-init.js (`wireStageLegend`). (5) readiness.js wraps the engineer rendering in a `<details id=\"rcf-readiness-engineer\" class=\"rcf-po-engineer\">` that opens by default when the register is engineer; the body carries the full existing engineer view unchanged.",
+  "interfaces": [
+    {
+      "name": "renderReadinessPO",
+      "kind": "other",
+      "description": "[draft] renderReadinessPO(readiness, { persona, phrasebook }) returns the four PO blocks plus the For-engineers DocRow as one HTML string."
+    },
+    {
+      "name": "toQuestions",
+      "kind": "other",
+      "description": "[draft] toQuestions(readiness) is a pure function that returns `{ groups: Array<{ label, items: Array<{ heading, ask, hint, detail, checkId }> }> }` built from the phrasebook over blockers today and from readiness.questions tomorrow (feature-detected via preferReadinessQuestions)."
+    },
+    {
+      "name": "renderStageLegend",
+      "kind": "other",
+      "description": "[draft] renderStageLegend(stages) returns the StageLegend dialog HTML (D1..D8 by name, one-line meaning, posture)."
+    }
+  ],
+  "notes": "Depends on PR 2's DocRow component, PR 1's AppShell and relative-script policy, and PR 2's SubTabStrip (not used here but shared vocabulary). Amends TAC-4127-readiness-view: the old engineer rendering is kept but is now the body of the For-engineers DocRow at the foot of the panel; nothing is removed from the engineer-level DOM (AC-18002-3). The phrasebook ships now (design doc section 11 recommendation 4); when DEFINE step 3 PR 2 lands `readiness.questions`, the adapter switches source with a one-line feature detect and the call site is unchanged. No em-dash is ever written in the phrasebook strings."
+}

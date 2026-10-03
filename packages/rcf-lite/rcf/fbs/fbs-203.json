@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T19:00:00Z",
-  "updatedAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z",
   "acIds": [
     "AC-204-1",
     "AC-204-2",
@@ -16,15 +16,18 @@
     "AC-205-5",
     "AC-205-6",
     "AC-205-7",
-    "AC-205-8"
+    "AC-205-8",
+    "AC-18002-1",
+    "AC-18002-2",
+    "AC-18002-3"
   ],
   "fbsId": "FBS-203",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 203,
   "executionStatus": "inProgress",
-  "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)",
-  "summary": "Single FBS owning the Build/DAG sub-tab acceptance criteria (AC-204-1..7, US-204) that land as the viewer UI refresh PR 6, plus the successor acceptance criteria the same build stream picks up in PRs 7 to 9 (AC-205-*, AC-206-*, AC-18002-*). The stream delivers one chain-first tab delta per PR: DAG (PR 6), tests/traces (PR 7), evaluations (PR 8) and the shared chrome and release prep (PR 9). This FBS stays `inProgress` for the length of the stream so the AC-ownership check on origin/main is green between PRs; successor PRs extend the `acIds` list under this file as their new USs land.",
+  "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204, US-205, US-18002 and successor USs)",
+  "summary": "Single FBS owning the Build/DAG sub-tab acceptance criteria (AC-204-1..7, US-204) that land as the viewer UI refresh PR 6, the ID lookup acceptance criteria (AC-205-1..8, US-205) that land as PR 7, the Readiness PO redesign acceptance criteria (AC-18002-1..3, US-18002) that land as PR 8, plus the successor acceptance criteria the same build stream picks up in PR 9. The stream delivers one chain-first tab delta per PR: DAG (PR 6), ID lookup (PR 7), Readiness PO redesign (PR 8), and the shared chrome and release prep (PR 9). This FBS stays `inProgress` for the length of the stream so the AC-ownership check on origin/main is green between PRs; successor PRs extend the `acIds` list under this file as their new USs land.",
   "dependsOnFbsIds": [],
   "approach": "Build the DAG sub-tab (PR 6) under src/view/build-dag.js with buildDagLayout, renderBuildDag, renderDagInspector and buildDagInspectorPayload; wire html-page.js's renderBuildPanel to call the new renderer in place of the PR 5 placeholder; add wireBuildDag in page-init.js for click-to-highlight, filters, inspector fill from the data-* attribute payload and `#tab=build&sub=dag&entity=` deep links. Inspector payload rides on a `data-rcf-dag-inspector-data` attribute on the inspector shell per the PR 1 contract (no inline <script> body). `currentDagHashExtras` keeps Specs filter keys unknown on the DAG sub-tab so the decision 11 preservation contract holds. applyBuildHash auto-presses Show-unconnected on restoring an unconnected FBS. PR 7 to PR 9 extend the renderer, add their own sub-tab, filter and inspector pieces and append the new ACs to this FBS's `acIds` array; this file is the single owner of the AC coverage for the whole stream so the dogfood tree's `every AC covered by at least one FBS` check stays green at every merge.",
   "contextRequirements": {
@@ -55,10 +58,25 @@
     "packages/rcf-lite/test/view/id-lookup.test.js: 22 unit tests for ID lookup (PR 7)",
     "packages/rcf-lite/rcf/user-stories/us-205.json, packages/rcf-lite/rcf/tacs/tac-4132-id-lookup.json, packages/rcf-lite/rcf/adrs/adr-4134-index-json-route.json: PR 7 chain docs",
     "packages/rcf-lite/rcf/test-suites/ts-225.json: TS-225 covering AC-205-1..8 (PR 7)",
-    "packages/rcf-lite/rcf/code-nodes/cn-741..cn-745.json: CN entries mapping PR 7 code files to AC-205-* (PR 7)"
+    "packages/rcf-lite/rcf/code-nodes/cn-741..cn-745.json: CN entries mapping PR 7 code files to AC-205-* (PR 7)",
+    "packages/rcf-lite/src/view/readiness/po-layer.js: renderReadinessPO building two VerdictCards, QuestionCards grouped by source span, the Requirements-that-still-need-work table and the For-engineers DocRow shell (PR 8)",
+    "packages/rcf-lite/src/view/readiness/question-adapter.js: toQuestions + preferReadinessQuestions, feature-detected on readiness.questions[], consuming the computeQuestions shape with phrasebook fallback (PR 8)",
+    "packages/rcf-lite/src/view/readiness/phrasebook.js: PO ask / heading / hint entries keyed by checkId:itemId with a plain-checkId fallback (PR 8)",
+    "packages/rcf-lite/src/view/readiness/stage-legend.js: renderStageLegend + stageTitle for D1..D8 chips and the dialog (PR 8)",
+    "packages/rcf-lite/src/view/readiness.js: renderReadinessPanel wraps the PO layer around the engineer body and threads the register from profile.md (PR 8)",
+    "packages/rcf-lite/src/view/index.js: attaches computeQuestions output onto model.readiness so the adapter feature-detects the real shape (PR 8 landing fix)",
+    "packages/rcf-lite/src/view/page-init.js: StageLegend <dialog> wiring on D-chip click (PR 8)",
+    "packages/rcf-lite/src/view/style.css: `.rcf-po-*`, `.rcf-pill--*`, `.rcf-stage-legend*`, `.rcf-chain-term` tokens, both themes (PR 8)",
+    "packages/rcf-lite/test/view/readiness-po-layer.test.js: 14 unit tests covering the adapter branches, PO blocks, equal-height card markup, For-engineers register wiring, StageLegend shape, D-chip hover-title/data-rcf-stage-ref, phrasebook em-dash guard, Reqwork empty + populated, and AC-18002-1/2/3 (PR 8)",
+    "packages/rcf-lite/rcf/requirements/req-180.json: description amended with the question-cards grouped-by-source-span rendering (PR 8)",
+    "packages/rcf-lite/rcf/user-stories/us-18002.json: US-18002 with AC-18002-1..3 (PR 8)",
+    "packages/rcf-lite/rcf/tacs/tac-4133-readiness-po-layer.json: TAC-4133 for the Readiness PO layer (PR 8)",
+    "packages/rcf-lite/rcf/adrs/adr-4135-readiness-po-register-and-adapter.json: ADR-4135 for the two-audience split by register and the adapter seam (PR 8)",
+    "packages/rcf-lite/rcf/test-suites/ts-227.json: TS-227 covering AC-18002-1..3 (PR 8)",
+    "packages/rcf-lite/rcf/code-nodes/cn-746..cn-749.json: CN entries mapping PR 8 code files to AC-18002-* (PR 8)"
   ],
   "riskLevel": "low",
   "domain": "reviewSurface",
   "estimatedSize": "large",
-  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extend the `acIds` list under this file as AC-205-*, AC-206-* and AC-18002-* arrive. Flip `executionStatus` to `verified` after PR 9 lands and the full suite is green. Code-node (CN) binding deferred to the follow-up tally; the AC-ownership check that this FBS clears is the AC-side invariant, and the CN side is tracked separately in build/."
+  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extend the `acIds` list under this file as AC-205-*, AC-18002-* and AC-206-* arrive. Flip `executionStatus` to `verified` after PR 9 lands and the full suite is green."
 }

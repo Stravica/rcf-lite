@@ -325,7 +325,7 @@
       "id": "FBS-203",
       "kind": "fbs",
       "depth": 3,
-      "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)"
+      "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204, US-205, US-18002 and successor USs)"
     },
     {
       "id": "TC-225-id-exact-prefix-first",

@@ -1211,7 +1211,7 @@
       "fbsId": "FBS-203",
       "buildOrder": 203,
       "tier": 0,
-      "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)",
+      "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204, US-205, US-18002 and successor USs)",
       "executionStatus": "inProgress",
       "dependsOnFbsIds": [],
       "state": "inProgress",

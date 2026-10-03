@@ -1,0 +1,35 @@
+{
+  "usId": "US-18002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-180",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the Readiness tab renders question cards grouped by source span",
+  "description": "User story under REQ-180, reserved by DEFINE step 3 spec section 11.8 and authored here by the viewer UI refresh PR 8. The Readiness tab leads with the product owner's three questions in plain words: two VerdictCards from `levels` (Ready for engineers, Ready to build, each with its chain term `intent-complete` or `ready-to-build` muted beside the plain label; both cards rendered at equal height), QuestionCards grouped by source span (one group per blocker; one card per failing item, phrasebook-sourced today, swapping to `readiness.questions[]` when DEFINE step 3 PR 2 ships `computeQuestions`), a what-happens-next paragraph, and a Requirements that still need work table. Every engineer-level finding stays on the page one level down in one collapsed `For engineers` DocRow (closed in the productOwner register, open in engineer; never removed from the DOM). The adapter seam `toQuestions(readiness)` is a pure module reading blockers today and feature-detecting `readiness.questions` tomorrow.",
+  "asA": "a product owner opening the Readiness tab",
+  "iWant": "the questions waiting on me in plain words, grouped by their source span, without ids or stage codes",
+  "soThat": "I can answer them in my own session and see the hand-over state update as I go",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18002-1",
+      "description": "[happy] given questions[] non-empty, when the tab renders, then the block lists each group with its asks and every id is in the JSON.",
+      "testable": true
+    },
+    {
+      "id": "AC-18002-2",
+      "description": "[failure] given questions[] empty, when the tab renders, then the block shows the intent-complete verdict line.",
+      "testable": true
+    },
+    {
+      "id": "AC-18002-3",
+      "description": "[must-not] given any register, when the tab renders, then the engineer blockers are not removed from the DOM.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4133-readiness-po-layer"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T19:30:00Z",
+  "updatedAt": "2026-10-02T19:30:00Z"
+}

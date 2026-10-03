@@ -17,6 +17,8 @@ import { formatTreeLine, formatVerdictLines, shortHash } from '../query/readines
 import { pill } from './components/pill.js';
 import { findingsList } from './components/findings-list.js';
 import { diff } from './components/diff.js';
+import { renderReadinessPO } from './readiness/po-layer.js';
+import { renderStageLegend, stageTitle } from './readiness/stage-legend.js';
 
 /**
  * @typedef {import('../query/readiness.js').ReadinessResult} ReadinessResult
@@ -69,7 +71,7 @@ export function renderReadinessPanel(result, opts = {}) {
   const freezeRecord = opts.freezeRecord ?? null;
   const verdictLines = formatVerdictLines(result);
 
-  return [
+  const engineerBody = [
     renderTreeLine(result),
     renderVerdicts(result, verdictLines),
     renderNextActions(result, register),
@@ -82,6 +84,10 @@ export function renderReadinessPanel(result, opts = {}) {
     renderFreezeNow(result),
     renderFreezeRecord(freezeRecord),
   ].join('\n');
+
+  const poLayer = renderReadinessPO(result, { persona: register, engineerBody });
+  const legend = renderStageLegend();
+  return `${poLayer}\n${legend}`;
 }
 
 // --- Block 1: tree line ------------------------------------------------
@@ -148,7 +154,9 @@ function renderNextActionLine(label, action, persona) {
 function renderStageChips(result, freezeRecord) {
   const chips = result.stages.map((s) => {
     const stateClass = chipStateClass(s.state);
+    const legendTitle = stageTitle(s.stage);
     let title = `${s.stage} ${s.gate}: ${s.state}`;
+    if (legendTitle && legendTitle !== s.stage) title = `${legendTitle} (${s.state})`;
     if (s.state === 'notApplicable' && s.reason) title = `${title} - ${s.reason}`;
     if (s.state === 'acknowledged' && freezeRecord && freezeRecord.gates && freezeRecord.gates[s.gate]) {
       const ack = freezeRecord.gates[s.gate];
@@ -157,7 +165,7 @@ function renderStageChips(result, freezeRecord) {
       }
     }
     const label = `${s.stage}: ${s.state}`;
-    return `<li class="rcf-readiness-chip rcf-readiness-chip--${stateClass}">`
+    return `<li class="rcf-readiness-chip rcf-readiness-chip--${stateClass}" data-rcf-stage-ref="${s.stage}">`
       + pill({ value: label, variant: 'gate-state', title })
       + `</li>`;
   }).join('');

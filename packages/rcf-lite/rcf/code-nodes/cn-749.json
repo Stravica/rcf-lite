@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-749",
+  "path": "src/view/index.js",
+  "title": "View bootstrap attaches computeQuestions output to readiness so the adapter feature-detects the real shape",
+  "description": "After `computeReadiness` returns, the view bootstrap calls `computeQuestions(readiness, { tree, ledgers, profileText, persona: 'productOwner' })` and merges the result's `questions`, `groups`, `optional` and `engineer` fields onto the readiness object before it reaches `renderPage`. `preferReadinessQuestions` then returns true and `fromReadinessQuestions` reads the real `computeQuestions` output rather than falling back to the blockers path (AC-18002-1). The phrasebook stays available as the per-field fallback when a question carries no `ask` / `hint` of its own.",
+  "implementsAcIds": [
+    "AC-18002-1"
+  ],
+  "dependencies": [
+    "CN-746"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z"
+}
