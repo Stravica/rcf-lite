@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z",
   "acIds": [
     "AC-17302-1",
     "AC-17302-2",
@@ -46,15 +46,21 @@
     "AC-18202-1",
     "AC-18202-2",
     "AC-18202-3",
-    "AC-18202-4"
+    "AC-18202-4",
+    "AC-17404-1",
+    "AC-17404-2",
+    "AC-17404-3",
+    "AC-17404-4",
+    "AC-17404-5",
+    "AC-17404-6"
   ],
   "fbsId": "FBS-202",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 202,
   "executionStatus": "notStarted",
-  "title": "DEFINE step 3 PRs 1-3: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3)",
-  "summary": "Carry the ACs for PRs 1, 2 and 3 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. PR 3: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description, shapes:draftSettled reports all three id forms (<tacId>:<name>, <tacId>, TAD.entity:<name>); the two new argument-free prompts rcf_define_draft_shapes and rcf_discover_prototype plus guidance/discovery-prototypes.md (REQ-188 + REQ-182 amended, ADR-4132). Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the ACs across the PRs. PR 1 tests ride TS-215; PR 2 tests ride TS-226; PR 3 tests ride TS-228 (renumbered from the cloud build's TS-227 after viewer PR 8 claimed TS-227 for US-18002).",
+  "title": "DEFINE step 3 PRs 1-3 and PR 5: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5)",
+  "summary": "Carry the ACs for PRs 1, 2, 3 and 5 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. PR 3: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description, shapes:draftSettled reports all three id forms (<tacId>:<name>, <tacId>, TAD.entity:<name>); the two new argument-free prompts rcf_define_draft_shapes and rcf_discover_prototype plus guidance/discovery-prototypes.md (REQ-188 + REQ-182 amended, ADR-4132). PR 5: the three D3 bite checks shapes:templateMarkers, shapes:entityJoin and shapes:pathsResolve on src/query/gates.js (parseInterfaceTemplate exported for validate); ackable(stage) companion to stagePolicy returning true for D3, D5, D6; readiness CLI --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash; cli-readiness.js resolves candidate paths on disk and passes resolvedPaths in the stage context so gates stay pure (REQ-174 amended, US-17404, TAC-4122 and TAC-4123 amended, ADR-4131). Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the ACs across the PRs. PR 1 tests ride TS-215; PR 2 tests ride TS-226; PR 3 tests ride TS-228 (renumbered from the cloud build's TS-227 after viewer PR 8 claimed TS-227 for US-18002); PR 5 tests ride TS-230 (next free when expecting the viewer PR 9 to land TS-229; brief predicted TS-230).",
   "dependsOnFbsIds": [
     "FBS-195",
     "FBS-201"
@@ -71,7 +77,8 @@
     "adrIds": [
       "ADR-4129-questions-harness-driven-loop",
       "ADR-4130-intake-harness-split-tool-scanned",
-      "ADR-4132-prototypes-in-discovery-as-evidence"
+      "ADR-4132-prototypes-in-discovery-as-evidence",
+      "ADR-4131-gates-bite-ack-recorded-override"
     ]
   },
   "deliverables": [
@@ -100,7 +107,12 @@
     "src/query/gates.js: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description; checkD3Shapes shapes:draftSettled enumerates all three homes (PR 3)",
     "guidance/define-draft-shapes.md, guidance/discover-prototype.md, guidance/discovery-prototypes.md and guidance/manifest.json entries for the two prompts and the two slugs (PR 3)",
     "guidance/managed/agent-instructions-block.md: the prototype rule from ADR-4132 (PR 3)",
-    "test/query/gates.test.js: extended for the three draft homes; test/guidance/manifest.test.js and test/guidance/register-scan.test.js: new slugs and five prompts, em-dash scan (PR 3)"
+    "test/query/gates.test.js: extended for the three draft homes; test/guidance/manifest.test.js and test/guidance/register-scan.test.js: new slugs and five prompts, em-dash scan (PR 3)",
+    "rcf/requirements/req-174.json (amended), rcf/user-stories/us-17404.json, rcf/tacs/tac-4122-define-gates.json (amended with the three D3 bite responsibilities, parseInterfaceTemplate and ackable interfaces), rcf/tacs/tac-4123-define-readiness.json (amended with the resolvedPaths context seam and the --check shapes exit 4 policy), rcf/adrs/adr-4131-gates-bite-ack-recorded-override.json, rcf/test-suites/ts-230.json (PR 5 chain)",
+    "src/query/gates.js: parseInterfaceTemplate(iface) exported; shapes:templateMarkers, shapes:entityJoin, shapes:pathsResolve added to checkD3Shapes; ackable(stage) exported (PR 5)",
+    "src/query/readiness.js: resolvedPaths threaded through the stage context when the caller supplies it (PR 5)",
+    "src/cli/readiness.js: resolve candidate paths on disk before computeReadiness and pass resolvedPaths in; --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash (PR 5)",
+    "test/query/gates.test.js: AC-17404-1..4 D3 bite cases; test/cli/readiness.test.js: AC-17404-5 exit 4/0 cases; test/cli/freeze.test.js: AC-17404-6 --ack-on-D1/D2/D4/D7/D8 exit 2 case (PR 5)"
   ],
   "riskLevel": "low",
   "domain": "defineLedgers",
