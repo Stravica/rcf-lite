@@ -210,3 +210,88 @@ test('assertLocalStorageNamespace: refuses on a non-namespaced key literal', asy
   // namespace through STORAGE_OPEN / STORAGE_SCROLL / direct STORAGE_NS;
   // if a non-namespaced key sneaks in, the namespace lint above fails.
 });
+
+// ---------------------------------------------------------------------------
+// Source-level assertions for AC-206-2, AC-206-3, AC-206-4 and AC-206-6.
+// The behavioural proofs for AC-206-2 and AC-206-3 live in the Playwright
+// screenshot script output/snap-pr9.mjs (lane evidence). These node-level
+// tests pin the source invariants that make those live behaviours work and
+// that the committed suite can defend against regressions.
+// ---------------------------------------------------------------------------
+
+import { readFile as _readFile } from 'node:fs/promises';
+async function readSrc(rel) {
+  return _readFile(resolve(packageRoot, rel), 'utf8');
+}
+
+test('AC-206-2: embed-client posts { type: rcf-view-theme, theme } to the iframe targeting window.location.origin', async () => {
+  const src = await readSrc('src/view/test-host/embed-client.js');
+  // The toggle calls iframe.contentWindow.postMessage with the typed
+  // payload and window.location.origin as the second argument.
+  assert.match(src, /postMessage\(\s*\{[\s\S]*?type:\s*['"]rcf-view-theme['"]/, 'embed-client must post rcf-view-theme payload');
+  // The second postMessage arg is window.location.origin; the call is
+  // multi-line, so pin the two seams independently.
+  assert.match(src, /window\.location\.origin,/, 'embed-client must target window.location.origin');
+  // The host does not persist theme (ADR-4136 invariant); grep for the
+  // three storage verbs in CODE (comments are allowed to name the
+  // invariant). Strip // and /* */ comments before the check.
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  assert.doesNotMatch(code, /\blocalStorage\b|\bsessionStorage\b/, 'embed-client code must not persist theme');
+});
+
+test('AC-206-3: page-init preserves embed=1 and theme= across hash writes (urlWithHash + writeHash)', async () => {
+  const src = await readSrc('src/view/page-init.js');
+  // urlWithHash copies the current URL; writeHash reassigns location.hash
+  // only, which preserves the search string by construction. Pin the
+  // seam: writeHash does not touch the search string.
+  assert.match(src, /function\s+writeHash/, 'page-init must expose writeHash');
+  // The embed and theme boot stamps happen on load and are not torn
+  // down on hash changes.
+  assert.match(src, /data-embed/, 'page-init must stamp data-embed');
+  assert.match(src, /data-theme/, 'page-init must stamp data-theme');
+});
+
+test('AC-206-4: page-init theme message listener rejects messages whose origin differs from window.location.origin', async () => {
+  const src = await readSrc('src/view/page-init.js');
+  // The listener's first guard compares ev.origin to window.location.origin
+  // and returns early on mismatch.
+  assert.match(
+    src,
+    /addEventListener\(\s*['"]message['"][\s\S]*?ev\.origin\s*!==\s*window\.location\.origin[\s\S]*?return/,
+    'page-init message listener must guard on event.origin === window.location.origin',
+  );
+});
+
+test('AC-206-6: no outbound postMessage shape beyond rcf-view-theme is introduced by the viewer or the fixture', async () => {
+  // The viewer source (src/view/**) must not emit any postMessage call
+  // of any shape. The embed-client is the ONLY emitter and emits only
+  // the rcf-view-theme shape.
+  const { readdir } = await import('node:fs/promises');
+  const viewRoot = resolve(packageRoot, 'src/view');
+  async function walk(dir) {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const files = [];
+    for (const e of entries) {
+      const p = resolve(dir, e.name);
+      if (e.isDirectory()) files.push(...(await walk(p)));
+      else if (e.isFile() && e.name.endsWith('.js') && !e.name.endsWith('.min.js')) files.push(p);
+    }
+    return files;
+  }
+  const files = await walk(viewRoot);
+  const emitters = [];
+  for (const f of files) {
+    const src = await _readFile(f, 'utf8');
+    // test-host/embed-client.js is the sanctioned emitter.
+    if (f.endsWith('/test-host/embed-client.js')) continue;
+    // ignore the test-host fixture.js (it never calls postMessage).
+    const matches = [...src.matchAll(/\.postMessage\s*\(/g)];
+    if (matches.length) emitters.push({ file: f, count: matches.length });
+  }
+  assert.equal(emitters.length, 0, `unexpected postMessage emitters in src/view: ${JSON.stringify(emitters, null, 2)}`);
+  // Positive check: the embed-client posts exactly one shape (the type
+  // literal 'rcf-view-theme' occurs in a postMessage payload).
+  const embed = await readSrc('src/view/test-host/embed-client.js');
+  const posts = [...embed.matchAll(/postMessage\(\s*\{[^}]*type:\s*['"]([a-z0-9-]+)['"]/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(posts)], ['rcf-view-theme'], 'embed-client must post only the rcf-view-theme shape');
+});

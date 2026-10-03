@@ -5,6 +5,7 @@ flowchart LR
   US-203["US-203"]
   US-204["US-204"]
   US-205["US-205"]
+  US-206["US-206"]
   TS-003["TS-003"]
   AC-201-1["AC-201-1"]
   AC-201-2["AC-201-2"]
@@ -33,6 +34,13 @@ flowchart LR
   AC-205-6["AC-205-6"]
   AC-205-7["AC-205-7"]
   AC-205-8["AC-205-8"]
+  TS-229["TS-229"]
+  AC-206-1["AC-206-1"]
+  AC-206-2["AC-206-2"]
+  AC-206-3["AC-206-3"]
+  AC-206-4["AC-206-4"]
+  AC-206-5["AC-206-5"]
+  AC-206-6["AC-206-6"]
   TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
   TC-003-per-req-subdiagram-chain-edges["TC-003-per-req-subdiagram-chain-edges"]
   TC-003-one-subdiagram-per-req["TC-003-one-subdiagram-per-req"]
@@ -61,11 +69,21 @@ flowchart LR
   TC-225-embed-theme-preserved["TC-225-embed-theme-preserved"]
   TC-225-empty-state-on-fetch-failure["TC-225-empty-state-on-fetch-failure"]
   TC-225-no-outbound-side-effects["TC-225-no-outbound-side-effects"]
+  TC-229-fixture-shell["TC-229-fixture-shell"]
+  TC-229-test-host-http-roundtrip["TC-229-test-host-http-roundtrip"]
+  TC-229-theme-postmessage-source["TC-229-theme-postmessage-source"]
+  TC-229-hash-nav-embed-preserved["TC-229-hash-nav-embed-preserved"]
+  TC-229-cross-origin-ignored["TC-229-cross-origin-ignored"]
+  TC-229-lint-framing["TC-229-lint-framing"]
+  TC-229-lint-no-target-top["TC-229-lint-no-target-top"]
+  TC-229-lint-localstorage-namespace["TC-229-lint-localstorage-namespace"]
+  TC-229-no-new-outbound-postmessage-shape["TC-229-no-new-outbound-postmessage-shape"]
   REQ-002 --> US-201
   REQ-002 --> US-202
   REQ-002 --> US-203
   REQ-002 --> US-204
   REQ-002 --> US-205
+  REQ-002 --> US-206
   US-201 --> TS-003
   US-201 --> AC-201-1
   US-201 --> AC-201-2
@@ -94,6 +112,13 @@ flowchart LR
   US-205 --> AC-205-6
   US-205 --> AC-205-7
   US-205 --> AC-205-8
+  US-206 --> TS-229
+  US-206 --> AC-206-1
+  US-206 --> AC-206-2
+  US-206 --> AC-206-3
+  US-206 --> AC-206-4
+  US-206 --> AC-206-5
+  US-206 --> AC-206-6
   TS-003 --> TC-003-diagram-emitted-as-source
   TS-003 --> TC-003-per-req-subdiagram-chain-edges
   TS-003 --> TC-003-one-subdiagram-per-req
@@ -187,12 +212,43 @@ flowchart LR
   AC-205-8 -.-> TS-225
   AC-205-8 -.-> TC-225-no-outbound-side-effects
   AC-205-8 -.-> FBS-203
+  TS-229 --> TC-229-fixture-shell
+  TS-229 --> TC-229-test-host-http-roundtrip
+  TS-229 --> TC-229-theme-postmessage-source
+  TS-229 --> TC-229-hash-nav-embed-preserved
+  TS-229 --> TC-229-cross-origin-ignored
+  TS-229 --> TC-229-lint-framing
+  TS-229 --> TC-229-lint-no-target-top
+  TS-229 --> TC-229-lint-localstorage-namespace
+  TS-229 --> TC-229-no-new-outbound-postmessage-shape
+  AC-206-1 -.-> TS-229
+  AC-206-1 -.-> TC-229-fixture-shell
+  AC-206-1 -.-> TC-229-test-host-http-roundtrip
+  AC-206-1 -.-> FBS-203
+  AC-206-2 -.-> TS-229
+  AC-206-2 -.-> TC-229-theme-postmessage-source
+  AC-206-2 -.-> FBS-203
+  AC-206-3 -.-> TS-229
+  AC-206-3 -.-> TC-229-hash-nav-embed-preserved
+  AC-206-3 -.-> FBS-203
+  AC-206-4 -.-> TS-229
+  AC-206-4 -.-> TC-229-cross-origin-ignored
+  AC-206-4 -.-> FBS-203
+  AC-206-5 -.-> TS-229
+  AC-206-5 -.-> TC-229-lint-framing
+  AC-206-5 -.-> TC-229-lint-no-target-top
+  AC-206-5 -.-> TC-229-lint-localstorage-namespace
+  AC-206-5 -.-> FBS-203
+  AC-206-6 -.-> TS-229
+  AC-206-6 -.-> TC-229-no-new-outbound-postmessage-shape
+  AC-206-6 -.-> FBS-203
   class REQ-002 req;
   class US-201 us;
   class US-202 us;
   class US-203 us;
   class US-204 us;
   class US-205 us;
+  class US-206 us;
   class TS-003 ts;
   class AC-201-1 ac;
   class AC-201-2 ac;
@@ -221,6 +277,13 @@ flowchart LR
   class AC-205-6 ac;
   class AC-205-7 ac;
   class AC-205-8 ac;
+  class TS-229 ts;
+  class AC-206-1 ac;
+  class AC-206-2 ac;
+  class AC-206-3 ac;
+  class AC-206-4 ac;
+  class AC-206-5 ac;
+  class AC-206-6 ac;
   class TC-003-diagram-emitted-as-source tc;
   class TC-003-per-req-subdiagram-chain-edges tc;
   class TC-003-one-subdiagram-per-req tc;
@@ -249,6 +312,15 @@ flowchart LR
   class TC-225-embed-theme-preserved tc;
   class TC-225-empty-state-on-fetch-failure tc;
   class TC-225-no-outbound-side-effects tc;
+  class TC-229-fixture-shell tc;
+  class TC-229-test-host-http-roundtrip tc;
+  class TC-229-theme-postmessage-source tc;
+  class TC-229-hash-nav-embed-preserved tc;
+  class TC-229-cross-origin-ignored tc;
+  class TC-229-lint-framing tc;
+  class TC-229-lint-no-target-top tc;
+  class TC-229-lint-localstorage-namespace tc;
+  class TC-229-no-new-outbound-postmessage-shape tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

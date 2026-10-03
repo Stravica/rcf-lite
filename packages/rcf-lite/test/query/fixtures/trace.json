@@ -40,6 +40,12 @@
       "title": "An engineer jumps to any document or AC by id"
     },
     {
+      "id": "US-206",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "wespa's embedding contract is proved by a CI host fixture"
+    },
+    {
       "id": "TS-003",
       "kind": "testSuite",
       "depth": 2,
@@ -208,6 +214,48 @@
       "title": "[must-not] Given the LookupModal, when the user types a query, picks a result or closes the modal, then no `postMessage` is sent to the parent window, no outbound network request beyond the `./index.json` fetch is made, and no search term is written to `localStorage` / `sessionStorage` / cookies."
     },
     {
+      "id": "TS-229",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "Wespa host fixture: iframe shell, theme postMessage, hash-nav embed preservation, cross-origin refusal, three lints, no new outbound postMessage shape"
+    },
+    {
+      "id": "AC-206-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the test-host fixture at `/test-host.html`, when the page loads with the viewer served from the same origin, then the iframe `src` is `./?embed=1&theme=light`, the title block and footer of the iframed viewer are hidden (`<html data-embed=\"1\">`), the tab nav is visible and the host's 56px header plus the resizable sidebar render around it."
+    },
+    {
+      "id": "AC-206-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the test-host fixture with the iframe loaded, when the host's theme toggle posts `{ type: \"rcf-view-theme\", theme: \"dark\" }` to the iframe's `contentWindow`, then the iframe's `<html data-theme>` flips to `dark` without a reload and the content repaints in the dark token set."
+    },
+    {
+      "id": "AC-206-3",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the test-host fixture with the iframe loaded at `./?embed=1&theme=dark`, when a hash-only navigation inside the iframe writes `#tab=requirements&entity=REQ-002`, then the iframe's query still carries `embed=1` and `theme=dark` and the viewer's inner `<html data-embed=\"1\" data-theme=\"dark\">` is preserved."
+    },
+    {
+      "id": "AC-206-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given the viewer page listening for `rcf-view-theme` postMessages, when a message with `event.origin` different from `window.location.origin` is delivered, then the message is ignored and `<html data-theme>` is not changed."
+    },
+    {
+      "id": "AC-206-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the viewer's `GET /` response, when the three lints run in the test suite, then (a) no `X-Frame-Options` header is set and no CSP `frame-ancestors` directive forbids same-origin framing, (b) `target=\"_top\"` appears zero times in the rendered HTML across every tab, (c) every `localStorage.{setItem,getItem,removeItem}` and shared `storage.*` call site under `src/view/**` uses a key starting with `rcf-view:v1:`."
+    },
+    {
+      "id": "AC-206-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the test-host fixture and the viewer page, when either is loaded, then neither posts any outbound message beyond the host's `rcf-view-theme`; the viewer sends no `postMessage` of any shape, and the test-host adds no new postMessage shape."
+    },
+    {
       "id": "TC-003-diagram-emitted-as-source",
       "kind": "tc",
       "depth": 3,
@@ -374,6 +422,60 @@
       "kind": "tc",
       "depth": 3,
       "title": "wireLookup never calls window.postMessage, never writes to localStorage / sessionStorage / document.cookie, and makes no outbound fetch other than `./index.json`; asserted by a source-level scan of page-init.js (no postMessage, no storage, no cookie writes in wireLookup)."
+    },
+    {
+      "id": "TC-229-fixture-shell",
+      "kind": "tc",
+      "depth": 3,
+      "title": "renderTestHostPage returns an HTML5 document with a 56px wespa-header, data-rcf-host-sidebar + data-rcf-host-sidebar-drag markers, data-rcf-host-theme light/dark toggles, an iframe whose src is literally './?embed=1&theme=light' (HTML-entity encoded), a '<script src=./test-host.js defer>' line and zero inline <script> blocks."
+    },
+    {
+      "id": "TC-229-test-host-http-roundtrip",
+      "kind": "tc",
+      "depth": 3,
+      "title": "The router serves /test-host.html with the fixture body (iframe src + script tag) and /test-host.js with application/javascript when testHost: true; both routes return 404 by default so wespa's reverse-proxy allow-list is unaffected."
+    },
+    {
+      "id": "TC-229-theme-postmessage-source",
+      "kind": "tc",
+      "depth": 3,
+      "title": "src/view/test-host/embed-client.js posts { type: 'rcf-view-theme', theme } to iframe.contentWindow targeting window.location.origin, and its code (comments stripped) contains no localStorage/sessionStorage write (ADR-4136 does-not-persist invariant). The live postMessage round-trip is captured in Playwright evidence (agents/dave/remote-lane/inbox/r-20261002-161325-e2a2/output/evidence/test-host-dark-iframe-flipped.png)."
+    },
+    {
+      "id": "TC-229-hash-nav-embed-preserved",
+      "kind": "tc",
+      "depth": 3,
+      "title": "src/view/page-init.js exposes writeHash (reassigns location.hash only, preserving the search string by construction) and stamps data-embed + data-theme on load. Live hash-nav proof lives in Playwright evidence (hash-nav-proof.txt + test-host-iframe-hash-nav-embed-preserved.png)."
+    },
+    {
+      "id": "TC-229-cross-origin-ignored",
+      "kind": "tc",
+      "depth": 3,
+      "title": "src/view/page-init.js registers an addEventListener('message', ...) whose first guard returns early when ev.origin !== window.location.origin; cross-origin messages never reach the applyTheme path and <html data-theme> is unchanged."
+    },
+    {
+      "id": "TC-229-lint-framing",
+      "kind": "tc",
+      "depth": 3,
+      "title": "assertFramingHeaders over GET / returns ok: true (no X-Frame-Options; no CSP frame-ancestors forbidding same-origin). Positive + negative unit cases also pass (refuses on X-Frame-Options present, refuses on frame-ancestors 'none', accepts frame-ancestors 'self')."
+    },
+    {
+      "id": "TC-229-lint-no-target-top",
+      "kind": "tc",
+      "depth": 3,
+      "title": "assertNoTargetTop returns count: 0 across every rendered page (renderPage shell, renderComponentsFixturePage, renderTestHostPage). Positive + negative unit cases cover target=\"_top\" / target='_top' / target=_top."
+    },
+    {
+      "id": "TC-229-lint-localstorage-namespace",
+      "kind": "tc",
+      "depth": 3,
+      "title": "assertLocalStorageNamespace over the src/view tree returns ok: true; every localStorage/sessionStorage call site resolves to a key starting with 'rcf-view:v1:'."
+    },
+    {
+      "id": "TC-229-no-new-outbound-postmessage-shape",
+      "kind": "tc",
+      "depth": 3,
+      "title": "A grep over src/view/** (excluding test-host/embed-client.js, the sanctioned emitter) finds zero .postMessage( call sites; the embed-client itself posts exactly one shape, 'rcf-view-theme'."
     }
   ],
   "edges": [
@@ -400,6 +502,11 @@
     {
       "from": "REQ-002",
       "to": "US-205",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-206",
       "kind": "parentChild"
     },
     {
@@ -543,6 +650,41 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-206",
+      "to": "TS-229",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-6",
+      "kind": "parentChild"
+    },
+    {
       "from": "TS-003",
       "to": "TC-003-diagram-emitted-as-source",
       "kind": "parentChild"
@@ -1004,6 +1146,156 @@
     },
     {
       "from": "AC-205-8",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-fixture-shell",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-test-host-http-roundtrip",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-theme-postmessage-source",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-hash-nav-embed-preserved",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-cross-origin-ignored",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-lint-framing",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-lint-no-target-top",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-lint-localstorage-namespace",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-no-new-outbound-postmessage-shape",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-206-1",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-1",
+      "to": "TC-229-fixture-shell",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-1",
+      "to": "TC-229-test-host-http-roundtrip",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-1",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-2",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-2",
+      "to": "TC-229-theme-postmessage-source",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-2",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-3",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-3",
+      "to": "TC-229-hash-nav-embed-preserved",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-3",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-4",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-4",
+      "to": "TC-229-cross-origin-ignored",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-4",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-5",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-5",
+      "to": "TC-229-lint-framing",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-5",
+      "to": "TC-229-lint-no-target-top",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-5",
+      "to": "TC-229-lint-localstorage-namespace",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-5",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-6",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-6",
+      "to": "TC-229-no-new-outbound-postmessage-shape",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-6",
       "to": "FBS-203",
       "kind": "crossLink"
     }

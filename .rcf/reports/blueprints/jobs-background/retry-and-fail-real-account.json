@@ -1,0 +1,168 @@
+{
+  "slug": "jobs-background",
+  "probeName": "retry-and-fail-real-account",
+  "runAt": "2026-09-11T13:21:07.557Z",
+  "engine": {
+    "kind": "queue",
+    "vendor": "cloudflare-queues",
+    "observed": "per-request on results"
+  },
+  "results": [
+    {
+      "anchorAcId": "AC-jobs-retryOnHandlerFailure",
+      "verdict": "pass",
+      "detail": "provisioned scratch queue qa-e-jobs-h66g3m (id=d742d06a867f476381b9941587a09fd4) with DLQ qa-e-jobs-dlq-h66g3m (id=f37caec2afd54046818b7b372d445d74), both with http_pull consumers, max_retries=3",
+      "evidence": {
+        "queueName": "qa-e-jobs-h66g3m",
+        "dlqName": "qa-e-jobs-dlq-h66g3m",
+        "primaryConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "f726d30788b74be3bc09616b83bb8e4c",
+          "queue_name": "qa-e-jobs-h66g3m",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 2000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "qa-e-jobs-dlq-h66g3m",
+          "created_on": "2026-09-11T13:20:40.938356Z"
+        },
+        "dlqConsumerResponseMetadata": {
+          "type": "http_pull",
+          "consumer_id": "ea90890190e144f9a606291ceae19d67",
+          "queue_name": "qa-e-jobs-dlq-h66g3m",
+          "settings": {
+            "batch_size": 10,
+            "max_retries": 3,
+            "visibility_timeout_ms": 10000,
+            "retry_delay": 0
+          },
+          "dead_letter_queue": "",
+          "created_on": "2026-09-11T13:20:38.236027Z"
+        }
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-retryOnHandlerFailure",
+      "verdict": "pass",
+      "detail": "Cloudflare Queues incremented the attempts counter across pulls: observed attempts values [0,1,2,3]",
+      "evidence": {
+        "attemptsObserved": [
+          {
+            "pulled": 1,
+            "attempts": 0,
+            "id": "05c2e169ded324fa01c2e985ed14d0f8"
+          },
+          {
+            "pulled": 1,
+            "attempts": 1,
+            "id": "05c2e169ded324fa01c2e985ed14d0f8"
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 0
+          },
+          {
+            "pulled": 1,
+            "attempts": 2,
+            "id": "05c2e169ded324fa01c2e985ed14d0f8"
+          },
+          {
+            "pulled": 1,
+            "attempts": 3,
+            "id": "05c2e169ded324fa01c2e985ed14d0f8"
+          }
+        ],
+        "uniqueAttempts": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "messageId": "05c2e169ded324fa01c2e985ed14d0f8",
+        "queueName": "qa-e-jobs-h66g3m"
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-retryOnHandlerFailure",
+      "verdict": "pass",
+      "detail": "after 8 primary pulls and 3 DLQ polls the message landed on the DLQ qa-e-jobs-dlq-h66g3m (backlog=1, id-match=false)",
+      "evidence": {
+        "dlqName": "qa-e-jobs-dlq-h66g3m",
+        "dlqId": "f37caec2afd54046818b7b372d445d74",
+        "dlqBacklog": 1,
+        "dlqMessageIds": [
+          "fd3d4d69b7b4c3aaaab16b2e47472c35"
+        ],
+        "expectedMessageId": "05c2e169ded324fa01c2e985ed14d0f8",
+        "dlqPollAttempts": 3
+      }
+    },
+    {
+      "anchorAcId": "AC-jobs-retryOnHandlerFailure",
+      "verdict": "pass",
+      "detail": "scratch queues qa-e-jobs-h66g3m and qa-e-jobs-dlq-h66g3m deleted and confirmed absent from post-run account queue listing",
+      "evidence": {
+        "teardown": {
+          "deletePrimary": {
+            "queueId": "d742d06a867f476381b9941587a09fd4",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "deleteDlq": {
+            "queueId": "f37caec2afd54046818b7b372d445d74",
+            "ok": true,
+            "httpStatus": 200
+          },
+          "primaryAbsent": {
+            "ok": true,
+            "listedCount": 1
+          },
+          "dlqAbsent": {
+            "ok": true,
+            "listedCount": 1
+          }
+        }
+      }
+    }
+  ],
+  "aggregateVerdict": "pass",
+  "extra": {
+    "envDeclared": [
+      "CI_HAS_CLOUDFLARE_ACCOUNT",
+      "CF_ACCOUNT_ID",
+      "CF_API_TOKEN"
+    ],
+    "queueName": "qa-e-jobs-h66g3m",
+    "dlqName": "qa-e-jobs-dlq-h66g3m",
+    "teardown": {
+      "deletePrimary": {
+        "queueId": "d742d06a867f476381b9941587a09fd4",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "deleteDlq": {
+        "queueId": "f37caec2afd54046818b7b372d445d74",
+        "ok": true,
+        "httpStatus": 200
+      },
+      "primaryAbsent": {
+        "ok": true,
+        "listedCount": 1
+      },
+      "dlqAbsent": {
+        "ok": true,
+        "listedCount": 1
+      }
+    }
+  }
+}
