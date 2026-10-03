@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "createRedactionBoundary",
-      "kind": "factory",
-      "description": "createRedactionBoundary({ categories: string[] }) -> { redact(payload: object): object }. Called once at boot from the logger factory; the factory holds the returned redact function and applies it on every emission."
+      "kind": "other",
+      "description": "createRedactionBoundary({ categories: string[] }) -> { redact(payload: object): object }. Called once at boot from the logger factory; the factory holds the returned redact function and applies it on every emission. (legacy kind: factory)"
     }
   ],
   "dependencies": [],

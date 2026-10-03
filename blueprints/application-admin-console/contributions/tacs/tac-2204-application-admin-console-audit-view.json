@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "renderAuditView",
-      "kind": "factory",
-      "description": "renderAuditView({ eventStream, columns, retentionWindow }) -> { mount(rootElement), unmount() }."
+      "kind": "other",
+      "description": "renderAuditView({ eventStream, columns, retentionWindow }) -> { mount(rootElement), unmount() }. (legacy kind: factory)"
     }
   ],
   "dependencies": [

@@ -16,18 +16,18 @@
   "interfaces": [
     {
       "name": "boundaryFor",
-      "kind": "factory",
-      "description": "boundaryFor({ loggerFactory, transportWriter }) -> { handle(err, context) }. The factory constructs the framework-level boundary; the framework calls handle on every caught exception. Tests substitute stub loggerFactory and transportWriter."
+      "kind": "other",
+      "description": "boundaryFor({ loggerFactory, transportWriter }) -> { handle(err, context) }. The factory constructs the framework-level boundary; the framework calls handle on every caught exception. Tests substitute stub loggerFactory and transportWriter. (legacy kind: factory)"
     },
     {
       "name": "registerProcess",
-      "kind": "hook",
-      "description": "registerProcess({ loggerFactory }): void. Called once at boot; wires the process-level uncaughtException / unhandledRejection handlers to route through the same record factory."
+      "kind": "other",
+      "description": "registerProcess({ loggerFactory }): void. Called once at boot; wires the process-level uncaughtException / unhandledRejection handlers to route through the same record factory. (legacy kind: hook)"
     },
     {
       "name": "transportWriter",
-      "kind": "interface",
-      "description": "The framework-supplied writer that turns a record + wire envelope into the on-the-wire response. Substitutable per transport blueprint (REST envelope, gRPC status, message-consumer nack)."
+      "kind": "other",
+      "description": "The framework-supplied writer that turns a record + wire envelope into the on-the-wire response. Substitutable per transport blueprint (REST envelope, gRPC status, message-consumer nack). (legacy kind: interface)"
     }
   ],
   "dependencies": [

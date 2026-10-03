@@ -39,7 +39,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2902-object-storage-s3-multipart-uploader",
-        "field": "interfaces.putMultipart"
+        "field": "interfaces[putMultipart]"
       },
       "disposition": "fixed"
     }

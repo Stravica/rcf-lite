@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "resolve",
-      "kind": "function",
-      "description": "Given an entry and the manifest+registry, return the destination shape."
+      "kind": "other",
+      "description": "Given an entry and the manifest+registry, return the destination shape. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "CORE_REPO",
-      "kind": "constant",
-      "description": "The Stravica/rcf-lite constant; pinned to package.json:bugs.url in a test."
+      "kind": "other",
+      "description": "The Stravica/rcf-lite constant; pinned to package.json:bugs.url in a test. [legacy kind: constant; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -36,5 +36,5 @@
   "tradeoffs": "A declared destination on library.json requires library owners to author one field; the cost is a one-time PR per library, in exchange for correctness on every consuming project.",
   "notes": "A library mirrored from a fork would have derivation pointing at the fork; the declared issues field is why derivation is only a fallback.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-17T13:46:24.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

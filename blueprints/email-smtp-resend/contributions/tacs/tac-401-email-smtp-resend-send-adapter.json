@@ -21,23 +21,23 @@
   "interfaces": [
     {
       "name": "send",
-      "kind": "async-method",
-      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole auth-facing surface, shape-compatible with TAC-504-security-auth-magic-link-email-delivery-adapter."
+      "kind": "other",
+      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole auth-facing surface, shape-compatible with TAC-504-security-auth-magic-link-email-delivery-adapter. (legacy kind: async-method)"
     },
     {
       "name": "smtpClient",
-      "kind": "read-write-api",
-      "description": "Project-supplied SMTP client library binding the adapter dials the Resend SMTP endpoint through; injected at boot, imported by no other module of the application."
+      "kind": "other",
+      "description": "Project-supplied SMTP client library binding the adapter dials the Resend SMTP endpoint through; injected at boot, imported by no other module of the application. (legacy kind: read-write-api)"
     },
     {
       "name": "secretResolver",
-      "kind": "read-api",
-      "description": "Project-supplied resolver returning the value for a configured reference name; the adapter calls it at boot for `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS`."
+      "kind": "other",
+      "description": "Project-supplied resolver returning the value for a configured reference name; the adapter calls it at boot for `RESEND_SMTP_USER`, `RESEND_SMTP_PASSWORD`, and `RESEND_FROM_ADDRESS`. (legacy kind: read-api)"
     },
     {
       "name": "retryClock",
-      "kind": "callback",
-      "description": "Project-supplied clock and jitter source the retry loop consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test."
+      "kind": "other",
+      "description": "Project-supplied clock and jitter source the retry loop consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test. (legacy kind: callback)"
     }
   ],
   "dependencies": [

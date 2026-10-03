@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "createStore",
-      "kind": "factory",
-      "description": "createStore({ connectionUrl, onEvent, poolConfig, advisoryLockHelper }) -> Store. The sole entry point every consumer calls. Opens a pg.Pool against connectionUrl; wires the sink; hands back a Store whose methods are the named CRUD verbs plus withTransaction and (optionally) withAdvisoryLock."
+      "kind": "other",
+      "description": "createStore({ connectionUrl, onEvent, poolConfig, advisoryLockHelper }) -> Store. The sole entry point every consumer calls. Opens a pg.Pool against connectionUrl; wires the sink; hands back a Store whose methods are the named CRUD verbs plus withTransaction and (optionally) withAdvisoryLock. (legacy kind: factory)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, migrationsApplied, transactionRolledBack, backupExported, recoveryDrillPassed, queryFailed events. Never invoked with domain-row values."
+      "kind": "other",
+      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, migrationsApplied, transactionRolledBack, backupExported, recoveryDrillPassed, queryFailed events. Never invoked with domain-row values. (legacy kind: callback)"
     },
     {
       "name": "store.verbs",
-      "kind": "read-write-api",
-      "description": "The named domain CRUD verbs the facade exposes. Each verb has typed parameters; no verb accepts a raw SQL string or a general query object from consumer code."
+      "kind": "other",
+      "description": "The named domain CRUD verbs the facade exposes. Each verb has typed parameters; no verb accepts a raw SQL string or a general query object from consumer code. (legacy kind: read-write-api)"
     }
   ],
   "dependencies": [

@@ -20,28 +20,28 @@
   "interfaces": [
     {
       "name": "sessionRecordStore",
-      "kind": "read-write-api",
-      "description": "Project-supplied store exposing `put(handle, record)`, `get(handle) -> record | absent`, `delete(handle)`, and `purgeExpired(now)`. In-memory is the reference default; a persistence-data-sqlite-composed project points this at a table."
+      "kind": "other",
+      "description": "Project-supplied store exposing `put(handle, record)`, `get(handle) -> record | absent`, `delete(handle)`, and `purgeExpired(now)`. In-memory is the reference default; a persistence-data-sqlite-composed project points this at a table. (legacy kind: read-write-api)"
     },
     {
       "name": "refreshTokenStore",
-      "kind": "read-write-api",
-      "description": "Shared with the flow controller: exposes `put(handle, refreshToken)`, `clearChain(chainRoot)`."
+      "kind": "other",
+      "description": "Shared with the flow controller: exposes `put(handle, refreshToken)`, `clearChain(chainRoot)`. (legacy kind: read-write-api)"
     },
     {
       "name": "randomBytes",
-      "kind": "read-api",
-      "description": "Cryptographic random-byte source used to mint session handles; a 128-bit-or-more entropy budget is expected."
+      "kind": "other",
+      "description": "Cryptographic random-byte source used to mint session handles; a 128-bit-or-more entropy budget is expected. (legacy kind: read-api)"
     },
     {
       "name": "clock",
-      "kind": "read-api",
-      "description": "Injected time source; the same clock the flow controller uses."
+      "kind": "other",
+      "description": "Injected time source; the same clock the flow controller uses. (legacy kind: read-api)"
     },
     {
       "name": "enrichPrincipal",
-      "kind": "callback",
-      "description": "Optional project-authored hook called on the reduced Principal to add `roles` and `organisationIds` from project-side sources. A no-op default is applied when the config does not declare one."
+      "kind": "other",
+      "description": "Optional project-authored hook called on the reduced Principal to add `roles` and `organisationIds` from project-side sources. A no-op default is applied when the config does not declare one. (legacy kind: callback)"
     }
   ],
   "dependencies": [

@@ -37,7 +37,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2403-application-file-upload-progress-announcer",
-        "field": "interfaces.announcementInterval"
+        "field": "interfaces[announcementInterval]"
       }
     }
   ],

@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "createQueryAdapter",
-      "kind": "factory",
-      "description": "createQueryAdapter({ mode: 'serverSide' | 'clientSide', endpoint?, rows?, initialState? }) -> { query({ sort?, q?, page, pageSize }): Promise<{ rows, total, page, pageSize, sort, q }> }"
+      "kind": "other",
+      "description": "createQueryAdapter({ mode: 'serverSide' | 'clientSide', endpoint?, rows?, initialState? }) -> { query({ sort?, q?, page, pageSize }): Promise<{ rows, total, page, pageSize, sort, q }> } (legacy kind: factory)"
     },
     {
       "name": "queryEnvelope",
-      "kind": "shape",
-      "description": "The response envelope the shell renders: `{ rows: Row[], total: number, page: number, pageSize: number, sort: string | null, q: string | null }`."
+      "kind": "other",
+      "description": "The response envelope the shell renders: `{ rows: Row[], total: number, page: number, pageSize: number, sort: string | null, q: string | null }`. (legacy kind: shape)"
     }
   ],
   "dependencies": [

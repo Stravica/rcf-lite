@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     },
     {
@@ -72,7 +72,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     },
     {
@@ -86,7 +86,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     },
     {
@@ -100,7 +100,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3703-edge-cloudflare-rate-limiting-drift-audit-runner",
-        "field": "interfaces.createDriftAuditRunner"
+        "field": "interfaces[createDriftAuditRunner]"
       }
     }
   ],

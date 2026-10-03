@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
-        "field": "interfaces.createDoFacade"
+        "field": "interfaces[createDoFacade]"
       },
       "disposition": "fixed"
     },

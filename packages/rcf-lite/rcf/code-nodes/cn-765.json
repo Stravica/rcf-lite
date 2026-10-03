@@ -1,0 +1,23 @@
+{
+  "cnId": "CN-765",
+  "path": "src/cli/build.js",
+  "title": "DEFINE step 3 PR 8: rcf build bundle --next freeze gate, --override write and impacted-FBS skip",
+  "description": "src/cli/build.js grows the `--override <reason>` flag, the pre-emit freeze gate (`enforceBundleNextFreezeGate`) that loads the freeze record and the computed delta, writes `freeze.override { reason, by, at }` through `applyOverrideToFreezeRecord` when a non-empty reason is supplied, refuses with exit 4 naming `rcf define readiness` and the override channel when no freeze record exists and no override is given, and passes `impactedFbsIds` into `selectNext`. The next-item path reports every skipped FBS on stderr; when every actionable FBS is impacted and no override is given, the verb refuses with exit 4 and the same message.",
+  "implementsAcIds": [
+    "AC-17702-1",
+    "AC-17702-2",
+    "AC-17702-3",
+    "AC-17702-4",
+    "AC-17702-5",
+    "AC-17902-2",
+    "AC-17902-3"
+  ],
+  "dependencies": [
+    "CN-720",
+    "CN-721"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

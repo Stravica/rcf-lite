@@ -16,18 +16,18 @@
   "interfaces": [
     {
       "name": "createScheduler",
-      "kind": "factory",
-      "description": "createScheduler({ mode, clock, publisher, onEvent }) -> Scheduler; mode is one of inProcess, workerCron, external."
+      "kind": "other",
+      "description": "createScheduler({ mode, clock, publisher, onEvent }) -> Scheduler; mode is one of inProcess, workerCron, external. (legacy kind: factory)"
     },
     {
       "name": "scheduler.schedule",
-      "kind": "method",
-      "description": "schedule({ jobName, cron?: string, fireAt?: string, delayMs?: number, body?: any }): enqueues per the cron or delayed shape."
+      "kind": "other",
+      "description": "schedule({ jobName, cron?: string, fireAt?: string, delayMs?: number, body?: any }): enqueues per the cron or delayed shape. (legacy kind: method)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with jobScheduled records: { event, jobId, jobName, attempts: 0, timestamp }."
+      "kind": "other",
+      "description": "Structured-event sink invoked with jobScheduled records: { event, jobId, jobName, attempts: 0, timestamp }. (legacy kind: callback)"
     }
   ],
   "dependencies": [

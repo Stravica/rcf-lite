@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
-        "field": "interfaces.Logger"
+        "field": "interfaces[Logger]"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
-        "field": "interfaces.Logger"
+        "field": "interfaces[Logger]"
       }
     },
     {
@@ -76,7 +76,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
-        "field": "interfaces.createLoggerFactory"
+        "field": "interfaces[createLoggerFactory]"
       }
     }
   ],

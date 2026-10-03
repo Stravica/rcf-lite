@@ -15,18 +15,18 @@
   "interfaces": [
     {
       "name": "ghIssueCreate",
-      "kind": "function",
-      "description": "Create one issue on a repo with title, body and labels; return { url, number }."
+      "kind": "other",
+      "description": "Create one issue on a repo with title, body and labels; return { url, number }. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "ghIssueSearch",
-      "kind": "function",
-      "description": "Search issues on a repo by body query; return matches."
+      "kind": "other",
+      "description": "Search issues on a repo by body query; return matches. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "ghIssueComment",
-      "kind": "function",
-      "description": "Comment on an issue; return { url }."
+      "kind": "other",
+      "description": "Comment on an issue; return { url }. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -39,5 +39,5 @@
   "tradeoffs": "gh is a dependency the reporter chooses to install; the cost is a fallback bundle path when gh is missing, which the design considers a feature rather than a bug.",
   "notes": "A future MCP-only harness would call the CLI too; a native gh-lib port is not planned for v1.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

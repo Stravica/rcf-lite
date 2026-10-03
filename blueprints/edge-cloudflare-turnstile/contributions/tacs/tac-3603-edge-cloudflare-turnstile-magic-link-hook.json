@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "composeWithMagicLink",
-      "kind": "function",
-      "summary": "Register the magic-link mint route under the Turnstile guard."
+      "kind": "other",
+      "summary": "Register the magic-link mint route under the Turnstile guard.",
+      "description": "(legacy kind: function)"
     }
   ],
   "dependencies": [],

@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "runRelease",
-      "kind": "factory",
-      "description": "runRelease({ releaseMode, deployTarget, artefactStep }) -> Promise<{ verdict, versionId, releaseReportPath }>; the sole callable the release workflow file invokes."
+      "kind": "other",
+      "description": "runRelease({ releaseMode, deployTarget, artefactStep }) -> Promise<{ verdict, versionId, releaseReportPath }>; the sole callable the release workflow file invokes. (legacy kind: factory)"
     },
     {
       "name": "release-mode",
-      "kind": "value",
-      "description": "One of `tagOnly`, `tagPlusArtefact`, `deployHandoff:<slug>`. The `none` mode never reaches the orchestrator because the release workflow itself is not materialised."
+      "kind": "other",
+      "description": "One of `tagOnly`, `tagPlusArtefact`, `deployHandoff:<slug>`. The `none` mode never reaches the orchestrator because the release workflow itself is not materialised. (legacy kind: value)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath> --mode <releaseMode>` with the release mode as required argv. Exit code is 0 on `verdict: passed` and non-zero on `verdict: failed`."
+      "kind": "other",
+      "description": "`node <entryPointPath> --mode <releaseMode>` with the release mode as required argv. Exit code is 0 on `verdict: passed` and non-zero on `verdict: failed`. (legacy kind: cli)"
     }
   ],
   "dependencies": [

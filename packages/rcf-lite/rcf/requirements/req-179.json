@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "reqId": "REQ-179",
+  "prdId": "PRD-001",
+  "title": "NV-DL-ADM-01..05 refuse by default with overrideChannel recordedInChain",
+  "description": "The rcf-lite ruleset (`packages/rcf-lite/src/ruleset/ruleset.json`) gains five admissibility rules in the NV-DL (DefineLite) namespace: NV-DL-ADM-01 (bundle refuses without a freeze), NV-DL-ADM-02 (D4 stories floor is a finding), NV-DL-ADM-03 (D3 shapes bite is a finding), NV-DL-ADM-04 (validate finding set is a finding), and NV-DL-ADM-05 (bundle skips impacted FBS). All five carry `refuseByDefault: true` and `overrideChannel: recordedInChain`. 0.30.0 PR 8 (DEFINE step 3 spec section 4 NV-DL row, section 11.7 US-17902 appended paragraph): NV-DL-ADM-01..05 flip to `refuseByDefault`; ADM-01 and ADM-05 are the bundle refusal and skip; ADM-02..04 are D4 and D3 findings surfaced through the admissibility wrap; `overrideChannel: recordedInChain` is satisfied by `freeze.override` or an `--ack` reason. The admissibility wrap (`src/query/refuse-on-admissibility.js` plus the admissibility enforcer the chain-admissibility layer reads) surfaces ADM-02..04 as D4 and D3 findings; ADM-01 and ADM-05 are the bundle refusal and skip. readiness compute still runs and prints under refusal (0.29.0 informational posture unchanged for the compute).",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-03T18:30:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "record"
+      }
+    ]
+  },
+  "rationale": "Spec section 4 pins the NV-DL row to the ratified pattern of ruling-sheet item 1: an admissibility rule refuses by default and the override is recorded in the chain. 0.29.0 shipped the DEFINE compute and the CLI in an informational posture while PRs 5 to 7 built the biting checks; PR 8 flips the ruleset so the gate matches the checks' intent. The two override channels are the already-shipped `freeze.override` object (bundle --override) and the already-shipped `--ack` reasons recorded in freeze.gates (readiness / freeze), both of which land in the chain as part of the freeze record. Keeping readiness compute unchanged under refusal (AC-17902-4) matches ADR-4123 (refusal is informational on the compute; the gate surfaces it).",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

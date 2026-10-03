@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "rcf/blueprints/edge-cloudflare-access.applied.json",
-      "kind": "artifact",
-      "summary": "The apply-time sidecar carrying the elicited declaration."
+      "kind": "fileFormat",
+      "summary": "The apply-time sidecar carrying the elicited declaration.",
+      "description": "(legacy kind: artifact)"
     }
   ],
   "dependencies": [

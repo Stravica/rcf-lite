@@ -15,13 +15,13 @@
   "interfaces": [
     {
       "name": "ciStep.migrationsApply",
-      "kind": "ci-step",
-      "description": "The CI job step that runs `wrangler d1 migrations apply <database> --env <target>`; declared as a prerequisite for the deploy step."
+      "kind": "other",
+      "description": "The CI job step that runs `wrangler d1 migrations apply <database> --env <target>`; declared as a prerequisite for the deploy step. (legacy kind: ci-step)"
     },
     {
       "name": "ciStep.deploy",
-      "kind": "ci-step",
-      "description": "The CI job step that runs `wrangler deploy --env <target>`; declares the migrations-apply step as its prerequisite (needs, depends-on, or sequential ordering per the CI tool)."
+      "kind": "other",
+      "description": "The CI job step that runs `wrangler deploy --env <target>`; declares the migrations-apply step as its prerequisite (needs, depends-on, or sequential ordering per the CI tool). (legacy kind: ci-step)"
     }
   ],
   "dependencies": [

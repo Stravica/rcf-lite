@@ -18,33 +18,33 @@
   "interfaces": [
     {
       "name": "createReadinessHandler",
-      "kind": "factory",
-      "description": "createReadinessHandler({ path, registry, budgetMs, now }) -> { path, handler }. Returns the configured readiness path and a handler that reads only from the evaluator snapshot(); never blocks on a network call. `path` is a REQUIRED configuration input with no shipped default; when it is missing the caller refuses boot with PROBE_INTERFACE_PATHS_MISSING."
+      "kind": "other",
+      "description": "createReadinessHandler({ path, registry, budgetMs, now }) -> { path, handler }. Returns the configured readiness path and a handler that reads only from the evaluator snapshot(); never blocks on a network call. `path` is a REQUIRED configuration input with no shipped default; when it is missing the caller refuses boot with PROBE_INTERFACE_PATHS_MISSING. (legacy kind: factory)"
     },
     {
       "name": "createEvaluator",
-      "kind": "factory",
-      "description": "createEvaluator({ registry, cadenceMs, checkFor, now }) -> { start, stop, snapshot }. The background evaluator; start() and stop() control the loop, snapshot() exposes the last-known state to the handler."
+      "kind": "other",
+      "description": "createEvaluator({ registry, cadenceMs, checkFor, now }) -> { start, stop, snapshot }. The background evaluator; start() and stop() control the loop, snapshot() exposes the last-known state to the handler. (legacy kind: factory)"
     },
     {
       "name": "dependencyRegistry",
-      "kind": "config",
-      "description": "Declared readiness dependency set loaded at boot: a list of { name, evaluateBudgetMs? } entries. The names are the probe response checks-object keys."
+      "kind": "other",
+      "description": "Declared readiness dependency set loaded at boot: a list of { name, evaluateBudgetMs? } entries. The names are the probe response checks-object keys. (legacy kind: config)"
     },
     {
       "name": "readinessPath",
-      "kind": "config",
-      "description": "Configured readiness HTTP path supplied by the project under probeInterface.paths.readiness. There is no shipped default in essentials v2.0.0. When observability-probe-endpoints is composed, the resolved profile readiness path substitutes for this configuration entry automatically; essentials-alone projects supply it explicitly at boot."
+      "kind": "other",
+      "description": "Configured readiness HTTP path supplied by the project under probeInterface.paths.readiness. There is no shipped default in essentials v2.0.0. When observability-probe-endpoints is composed, the resolved profile readiness path substitutes for this configuration entry automatically; essentials-alone projects supply it explicitly at boot. (legacy kind: config)"
     },
     {
       "name": "checkFor",
-      "kind": "callback",
-      "description": "Project-supplied per-dependency probe: (name) -> Promise<{ state: pass or fail, checkedAt: <ISO-8601> }>. Called by the evaluator, not by the handler."
+      "kind": "other",
+      "description": "Project-supplied per-dependency probe: (name) -> Promise<{ state: pass or fail, checkedAt: <ISO-8601> }>. Called by the evaluator, not by the handler. (legacy kind: callback)"
     },
     {
       "name": "probeBodyShapeCompatibility",
-      "kind": "compatibility-contract",
-      "description": "Cross-probe response body shape compatibility. Owns the release-time check that compares a candidate release's /live and /ready response bodies against the checked-in v2 baseline snapshot at blueprints/observability-essentials/assets/probe-samples/probe-response-baseline.v2.json. A field name or JSON type present on the baseline that a candidate renames or removes is refused with the stable error code PROBE_BODY_SHAPE_DRIFT naming the offending field; a candidate that adds fields without renaming or removing any passes. TAC-802 hosts the contract because the readiness body is the richer of the two shapes; TAC-801's liveness body is jointly covered by the same contract."
+      "kind": "other",
+      "description": "Cross-probe response body shape compatibility. Owns the release-time check that compares a candidate release's /live and /ready response bodies against the checked-in v2 baseline snapshot at blueprints/observability-essentials/assets/probe-samples/probe-response-baseline.v2.json. A field name or JSON type present on the baseline that a candidate renames or removes is refused with the stable error code PROBE_BODY_SHAPE_DRIFT naming the offending field; a candidate that adds fields without renaming or removing any passes. TAC-802 hosts the contract because the readiness body is the richer of the two shapes; TAC-801's liveness body is jointly covered by the same contract. (legacy kind: compatibility-contract)"
     }
   ],
   "dependencies": [],

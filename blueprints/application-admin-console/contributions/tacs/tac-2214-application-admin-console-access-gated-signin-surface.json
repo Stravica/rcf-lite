@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "GET /admin/sign-in",
-      "kind": "route",
-      "summary": "Sign-in surface route the admin-console shell renders per applied-capability set."
+      "kind": "other",
+      "summary": "Sign-in surface route the admin-console shell renders per applied-capability set.",
+      "description": "(legacy kind: route)"
     }
   ],
   "dependencies": [

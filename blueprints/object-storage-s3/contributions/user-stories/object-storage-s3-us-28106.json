@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2901-object-storage-s3-facade",
-        "field": "interfaces.createObjectStore"
+        "field": "interfaces[createObjectStore]"
       }
     },
     {

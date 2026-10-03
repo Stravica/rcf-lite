@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
-        "field": "interfaces.deployAdapter"
+        "field": "interfaces[deployAdapter]"
       },
       "disposition": "fixed",
       "vendorCitation": {
@@ -47,7 +47,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
-        "field": "interfaces.deployAdapter"
+        "field": "interfaces[deployAdapter]"
       },
       "disposition": "fixed",
       "vendorCitation": {

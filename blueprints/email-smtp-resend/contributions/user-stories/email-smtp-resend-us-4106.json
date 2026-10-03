@@ -30,7 +30,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-401-email-smtp-resend-send-adapter",
-        "field": "interfaces.secretResolver"
+        "field": "interfaces[secretResolver]"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
-        "field": "interfaces.secretResolver"
+        "field": "interfaces[secretResolver]"
       }
     }
   ],

@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "createObjectStore",
-      "kind": "factory",
-      "description": "createObjectStore({ endpointUrl, bucket, credentialsRef, adapter, multipartThresholdBytes, defaultPresignTtlSeconds, onEvent }) -> ObjectStore. The sole entry point every consumer calls. Opens the S3 client against endpointUrl and bucket; wires the sink; hands back an ObjectStore whose methods are the named domain verbs."
+      "kind": "other",
+      "description": "createObjectStore({ endpointUrl, bucket, credentialsRef, adapter, multipartThresholdBytes, defaultPresignTtlSeconds, onEvent }) -> ObjectStore. The sole entry point every consumer calls. Opens the S3 client against endpointUrl and bucket; wires the sink; hands back an ObjectStore whose methods are the named domain verbs. (legacy kind: factory)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, objectPut, objectDeleted, presignedIssued events. Never invoked with object body values or credential material."
+      "kind": "other",
+      "description": "Structured-event sink invoked with { event, ts, ... } for facadeReady, objectPut, objectDeleted, presignedIssued events. Never invoked with object body values or credential material. (legacy kind: callback)"
     },
     {
       "name": "store.verbs",
-      "kind": "read-write-api",
-      "description": "The named domain verbs the facade exposes: putObject(key, contentType, body), getObject(key), deleteObject(key), listObjects(prefix, continuationToken), presignGetUrl(key, ttlSeconds)."
+      "kind": "other",
+      "description": "The named domain verbs the facade exposes: putObject(key, contentType, body), getObject(key), deleteObject(key), listObjects(prefix, continuationToken), presignGetUrl(key, ttlSeconds). (legacy kind: read-write-api)"
     }
   ],
   "dependencies": [

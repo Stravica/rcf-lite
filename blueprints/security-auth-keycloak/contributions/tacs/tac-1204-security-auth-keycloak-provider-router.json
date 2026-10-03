@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "routeFn",
-      "kind": "callback",
-      "description": "Pure function `(request) -> { realmSlug, verificationMode } | 'notThisIssuer'`. Project-authored; the blueprint's reference wiring provides a constant-realm default for single-realm projects."
+      "kind": "other",
+      "description": "Pure function `(request) -> { realmSlug, verificationMode } | 'notThisIssuer'`. Project-authored; the blueprint's reference wiring provides a constant-realm default for single-realm projects. (legacy kind: callback)"
     },
     {
       "name": "realmConfig",
-      "kind": "read-api",
-      "description": "Same source TAC-1201 reads: the project-authored realm-config module."
+      "kind": "other",
+      "description": "Same source TAC-1201 reads: the project-authored realm-config module. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink; never carries request content."
+      "kind": "other",
+      "description": "Structured-event sink; never carries request content. (legacy kind: callback)"
     }
   ],
   "dependencies": [],

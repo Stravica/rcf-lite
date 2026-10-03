@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2904-object-storage-s3-hetzner-endpoint-helper",
-        "field": "interfaces.composeHetznerEndpoint"
+        "field": "interfaces[composeHetznerEndpoint]"
       },
       "disposition": "template"
     }

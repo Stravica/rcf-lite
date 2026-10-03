@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
-        "field": "interfaces.runGates"
+        "field": "interfaces[runGates]"
       }
     }
   ],

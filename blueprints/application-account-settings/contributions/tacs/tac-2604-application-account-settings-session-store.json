@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "renderSessionsSurface",
-      "kind": "factory",
-      "description": "renderSessionsSurface({ inventoryAdapter, terminateAdapter }) -> { mount(root), unmount() }. The project supplies the two adapters against the applied provider."
+      "kind": "other",
+      "description": "renderSessionsSurface({ inventoryAdapter, terminateAdapter }) -> { mount(root), unmount() }. The project supplies the two adapters against the applied provider. (legacy kind: factory)"
     },
     {
       "name": "sessionRecord",
-      "kind": "shape",
-      "description": "Shape owned by `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` (or the equivalent session-inventory TAC on the applied auth blueprint). The consumer reads that shape without restating it; the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action."
+      "kind": "other",
+      "description": "Shape owned by `TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory` (or the equivalent session-inventory TAC on the applied auth blueprint). The consumer reads that shape without restating it; the pack asserts the surface renders every session, the terminate control is present on every non-current row, and the current row (data-current-session=\"true\") does not carry the terminate action. (legacy kind: shape)"
     },
     {
       "name": "sessionInventoryConsumer",
-      "kind": "consumer",
-      "description": "Consumer contract on top of the applied auth providers sessionInventory (owner TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory or the equivalent TAC on another auth blueprint). Reads list()/revoke()/revokeAllExceptCurrent() and never restates the row shape."
+      "kind": "other",
+      "description": "Consumer contract on top of the applied auth providers sessionInventory (owner TAC-1003-security-auth-clerk-session-verifier.interfaces.sessionInventory or the equivalent TAC on another auth blueprint). Reads list()/revoke()/revokeAllExceptCurrent() and never restates the row shape. (legacy kind: consumer)"
     }
   ],
   "dependencies": [

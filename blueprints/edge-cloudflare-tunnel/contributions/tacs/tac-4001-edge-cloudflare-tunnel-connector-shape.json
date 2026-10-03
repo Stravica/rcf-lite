@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "default export",
-      "kind": "facade",
-      "summary": "Connector shape discovery facade exported from the applied fixture module."
+      "kind": "other",
+      "summary": "Connector shape discovery facade exported from the applied fixture module.",
+      "description": "(legacy kind: facade)"
     }
   ],
   "dependencies": [],

@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "createSinkAdapter",
-      "kind": "factory",
-      "description": "createSinkAdapter({ onEvent }) -> (record) => void. Filters record fields to the whitelist and passes the filtered record to the caller-supplied onEvent."
+      "kind": "other",
+      "description": "createSinkAdapter({ onEvent }) -> (record) => void. Filters record fields to the whitelist and passes the filtered record to the caller-supplied onEvent. (legacy kind: factory)"
     }
   ],
   "dependencies": [

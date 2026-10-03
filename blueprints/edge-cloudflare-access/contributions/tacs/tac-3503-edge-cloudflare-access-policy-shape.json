@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "access-policy-shape elicit",
-      "kind": "enum",
-      "summary": "email-domain | service-token-only | service-token-plus-email-domain | group-membership."
+      "kind": "other",
+      "summary": "email-domain | service-token-only | service-token-plus-email-domain | group-membership.",
+      "description": "(legacy kind: enum)"
     }
   ],
   "dependencies": [],

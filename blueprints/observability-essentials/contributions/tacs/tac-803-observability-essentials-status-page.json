@@ -16,18 +16,18 @@
   "interfaces": [
     {
       "name": "createStatusPageHandler",
-      "kind": "factory",
-      "description": "createStatusPageHandler({ path, componentRegistry, noticeReader, now }) -> { path, handler }. Returns the configured status path and a handler that renders the declared components and the notices reader's current notices."
+      "kind": "other",
+      "description": "createStatusPageHandler({ path, componentRegistry, noticeReader, now }) -> { path, handler }. Returns the configured status path and a handler that renders the declared components and the notices reader's current notices. (legacy kind: factory)"
     },
     {
       "name": "componentRegistry",
-      "kind": "config",
-      "description": "Declared component list loaded at boot: an ordered list of { name, currentState? } entries. currentState may be static (operator-updated via a project-authored side channel) or read via a per-component reader function the project supplies."
+      "kind": "other",
+      "description": "Declared component list loaded at boot: an ordered list of { name, currentState? } entries. currentState may be static (operator-updated via a project-authored side channel) or read via a per-component reader function the project supplies. (legacy kind: config)"
     },
     {
       "name": "noticeReader",
-      "kind": "callback",
-      "description": "Project-supplied async () -> Notice[] returning the current active notice list. Each Notice has { title, body, severity, startedAt, componentIds? } fields."
+      "kind": "other",
+      "description": "Project-supplied async () -> Notice[] returning the current active notice list. Each Notice has { title, body, severity, startedAt, componentIds? } fields. (legacy kind: callback)"
     }
   ],
   "dependencies": [],

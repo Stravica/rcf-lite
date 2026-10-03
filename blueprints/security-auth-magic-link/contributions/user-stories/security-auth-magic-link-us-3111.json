@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-505-security-auth-magic-link-principal-registry",
-        "field": "interfaces.isRegistered.name"
+        "field": "interfaces[isRegistered.name]"
       },
       "disposition": "fixed"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-505-security-auth-magic-link-principal-registry",
-        "field": "interfaces.isRegistered.name"
+        "field": "interfaces[isRegistered.name]"
       },
       "disposition": "fixed"
     }

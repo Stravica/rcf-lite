@@ -19,13 +19,13 @@
   "interfaces": [
     {
       "name": "renderState",
-      "kind": "factory",
-      "description": "renderState({ statusCode, responseBody, route, onLine, caughtException }) -> { stateName, recoveryShape, regionProps }. The project supplies the runtime signals; the machine returns the state name, the recovery shape the router will realise, and the region props (role, aria-live level, accessible name)."
+      "kind": "other",
+      "description": "renderState({ statusCode, responseBody, route, onLine, caughtException }) -> { stateName, recoveryShape, regionProps }. The project supplies the runtime signals; the machine returns the state name, the recovery shape the router will realise, and the region props (role, aria-live level, accessible name). (legacy kind: factory)"
     },
     {
       "name": "statesEnum",
-      "kind": "shape",
-      "description": "The eight named states are the closed enum { not-found, forbidden, server-error, offline, permission-denied, empty-list, no-search-results, error-boundary }. A ninth state is a blueprint minor bump (see CHANGELOG)."
+      "kind": "other",
+      "description": "The eight named states are the closed enum { not-found, forbidden, server-error, offline, permission-denied, empty-list, no-search-results, error-boundary }. A ninth state is a blueprint minor bump (see CHANGELOG). (legacy kind: shape)"
     }
   ],
   "dependencies": [

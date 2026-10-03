@@ -34,7 +34,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-208-application-spa-icon-adherence-probe",
-        "field": "interfaces.runIconAdherenceProbe"
+        "field": "interfaces[runIconAdherenceProbe]"
       }
     }
   ],

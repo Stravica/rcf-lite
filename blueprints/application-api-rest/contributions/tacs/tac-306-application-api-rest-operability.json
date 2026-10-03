@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "readiness check registry",
-      "kind": "configuration",
-      "description": "Declared named checks (database, cache, queues) with their timeout budgets; the set the ready probe reports on."
+      "kind": "other",
+      "description": "Declared named checks (database, cache, queues) with their timeout budgets; the set the ready probe reports on. (legacy kind: configuration)"
     },
     {
       "name": "probe endpoints",
-      "kind": "http",
-      "description": "The three probe surfaces (liveness, readiness, startup) at their resolved paths, and /v1/_meta, with their specified response schemas. The path resolution is delegated to observability-probe-endpoints or to project-level probeInterface.paths configuration; this TAC binds NO literal path strings for the probe surfaces from v2.0.0."
+      "kind": "other",
+      "description": "The three probe surfaces (liveness, readiness, startup) at their resolved paths, and /v1/_meta, with their specified response schemas. The path resolution is delegated to observability-probe-endpoints or to project-level probeInterface.paths configuration; this TAC binds NO literal path strings for the probe surfaces from v2.0.0. (legacy kind: http)"
     }
   ],
   "dependencies": [

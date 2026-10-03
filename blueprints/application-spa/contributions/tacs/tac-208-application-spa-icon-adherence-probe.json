@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "runIconAdherenceProbe",
-      "kind": "factory",
-      "description": "runIconAdherenceProbe({ registryPath, componentGlob, reportDir }) -> Promise<{ verdict, reportPath, violations }>; the sole callable the entry point invokes. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code."
+      "kind": "other",
+      "description": "runIconAdherenceProbe({ registryPath, componentGlob, reportDir }) -> Promise<{ verdict, reportPath, violations }>; the sole callable the entry point invokes. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath>` with optional flags `--registry <path>`, `--component-glob <glob>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`."
+      "kind": "other",
+      "description": "`node <entryPointPath>` with optional flags `--registry <path>`, `--component-glob <glob>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`. (legacy kind: cli)"
     },
     {
       "name": "icon-adherence report",
-      "kind": "external",
-      "description": "`reports/icon-adherence.json` under the configured report directory. Shape: `{ verdict, registryFile, componentsScanned: string[], inlineSvgViolations: [{ file, line, snippet }], unknownAliasViolations: [{ file, line, name }], generatedAt }`."
+      "kind": "other",
+      "description": "`reports/icon-adherence.json` under the configured report directory. Shape: `{ verdict, registryFile, componentsScanned: string[], inlineSvgViolations: [{ file, line, snippet }], unknownAliasViolations: [{ file, line, name }], generatedAt }`. (legacy kind: external)"
     }
   ],
   "dependencies": [

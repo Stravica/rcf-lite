@@ -20,13 +20,13 @@
   "interfaces": [
     {
       "name": "renderShell",
-      "kind": "factory",
-      "description": "renderShell({ queryAdapter, selectionModel, columns, initialState }) -> { mount(rootElement), unmount() }. The project supplies the queryAdapter (TAC-1802) and the selectionModel (TAC-1803); the shell owns the DOM plumbing, the accessibility patterns, and the four-state render."
+      "kind": "other",
+      "description": "renderShell({ queryAdapter, selectionModel, columns, initialState }) -> { mount(rootElement), unmount() }. The project supplies the queryAdapter (TAC-1802) and the selectionModel (TAC-1803); the shell owns the DOM plumbing, the accessibility patterns, and the four-state render. (legacy kind: factory)"
     },
     {
       "name": "columnsSpec",
-      "kind": "shape",
-      "description": "Every column declares `{ key, headerLabel, sortable?, filterable?, filterKind?, visibilityToggleable?, reorderable?, resizable? }`; the shell reads the spec to decide which controls render per column."
+      "kind": "other",
+      "description": "Every column declares `{ key, headerLabel, sortable?, filterable?, filterKind?, visibilityToggleable?, reorderable?, resizable? }`; the shell reads the spec to decide which controls render per column. (legacy kind: shape)"
     }
   ],
   "dependencies": [

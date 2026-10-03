@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "bindTraversal",
-      "kind": "function",
-      "description": "bindTraversal({ chartRoot, dataPoints, unit, announcerFactory }) -> { unbind() }. The shell calls it on interactive-chart mount; the traversal handler installs the listeners and returns an unbind for teardown."
+      "kind": "other",
+      "description": "bindTraversal({ chartRoot, dataPoints, unit, announcerFactory }) -> { unbind() }. The shell calls it on interactive-chart mount; the traversal handler installs the listeners and returns an unbind for teardown. (legacy kind: function)"
     },
     {
       "name": "announcerFormat",
-      "kind": "shape",
-      "description": "The announced-string contract: `<seriesName>, <xValue>, <yValue> <unit>`, comma-separated, unit is the operator-configured string or `unitless`. Overriding the format is a project-side decision that supersedes AC-18104-1 in its own realisation and names the residual."
+      "kind": "other",
+      "description": "The announced-string contract: `<seriesName>, <xValue>, <yValue> <unit>`, comma-separated, unit is the operator-configured string or `unitless`. Overriding the format is a project-side decision that supersedes AC-18104-1 in its own realisation and names the residual. (legacy kind: shape)"
     }
   ],
   "dependencies": [

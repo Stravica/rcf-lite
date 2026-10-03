@@ -14,8 +14,9 @@
   "interfaces": [
     {
       "name": "eventSink",
-      "kind": "contract",
-      "summary": "One-arg record-write callback shared by facade and DO classes."
+      "kind": "other",
+      "summary": "One-arg record-write callback shared by facade and DO classes.",
+      "description": "(legacy kind: contract)"
     }
   ],
   "dependencies": [],

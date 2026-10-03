@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "redact",
-      "kind": "function",
-      "description": "Redact one string with the eight rules; return the redacted text and the ledger."
+      "kind": "other",
+      "description": "Redact one string with the eight rules; return the redacted text and the ledger. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "RedactionContext",
-      "kind": "type",
-      "description": "projectRoot, projectName, operatorName, gitRemote, allowHosts."
+      "kind": "recordShape",
+      "description": "projectRoot, projectName, operatorName, gitRemote, allowHosts. [legacy kind: type; mapped to recordShape per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -36,5 +36,5 @@
   "tradeoffs": "Rule-based redaction is testable with a fixture corpus and deterministic under review; the cost is that it will occasionally over-redact (a benign name that matches an entropy rule), which is what the disclosure ledger exists to catch.",
   "notes": "The stored entry is never mutated by redaction; the rendered output is what leaves.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-22T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

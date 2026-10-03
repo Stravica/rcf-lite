@@ -18,28 +18,28 @@
   "interfaces": [
     {
       "name": "verify",
-      "kind": "async-method",
-      "description": "verify({ headers, rawBody }) -> Promise<{ ok, status, event, refusal }>; returns `ok: true` with the parsed event on a passing request, `ok: false` with the HTTP status and a refusal class on any refused request."
+      "kind": "other",
+      "description": "verify({ headers, rawBody }) -> Promise<{ ok, status, event, refusal }>; returns `ok: true` with the parsed event on a passing request, `ok: false` with the HTTP status and a refusal class on any refused request. (legacy kind: async-method)"
     },
     {
       "name": "eventIdStore",
-      "kind": "read-write-api",
-      "description": "Project-supplied bounded store implementing `putIfAbsentWithExpiry(id, ttlSeconds) -> Promise<{ inserted }>`; returns `inserted: false` for a duplicate id inside the window and `inserted: true` for a fresh id."
+      "kind": "other",
+      "description": "Project-supplied bounded store implementing `putIfAbsentWithExpiry(id, ttlSeconds) -> Promise<{ inserted }>`; returns `inserted: false` for a duplicate id inside the window and `inserted: true` for a fresh id. (legacy kind: read-write-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with `{ event, at, principal }` for `webhookVerificationFailed`, `webhookReplayStale`, and `webhookReplayDuplicate`; never invoked with the signing secret."
+      "kind": "other",
+      "description": "Structured-event sink invoked with `{ event, at, principal }` for `webhookVerificationFailed`, `webhookReplayStale`, and `webhookReplayDuplicate`; never invoked with the signing secret. (legacy kind: callback)"
     },
     {
       "name": "verifierClock",
-      "kind": "read-api",
-      "description": "Project-supplied clock the tolerance check consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test."
+      "kind": "other",
+      "description": "Project-supplied clock the tolerance check consults; a real clock in production, a test double in unit tests. Injected at boot; deterministic under test. (legacy kind: read-api)"
     },
     {
       "name": "secretResolver",
-      "kind": "read-api",
-      "description": "Project-supplied secret-reference resolver. The verifier reads the webhook signing secret (`RESEND_WEBHOOK_SIGNING_SECRET`), the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window through it at boot; carries no literal for the signing secret in verifier source (AC-4106-3). The resolver shape matches the resolver TAC-401 consumes for the SMTP secrets, so a project realises one resolver for both TACs."
+      "kind": "other",
+      "description": "Project-supplied secret-reference resolver. The verifier reads the webhook signing secret (`RESEND_WEBHOOK_SIGNING_SECRET`), the signature header name, the timestamp header name, the signing algorithm identifier, and the tolerance window through it at boot; carries no literal for the signing secret in verifier source (AC-4106-3). The resolver shape matches the resolver TAC-401 consumes for the SMTP secrets, so a project realises one resolver for both TACs. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

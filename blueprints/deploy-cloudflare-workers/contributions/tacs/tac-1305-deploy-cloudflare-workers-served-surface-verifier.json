@@ -18,23 +18,23 @@
   "interfaces": [
     {
       "name": "probeConfig",
-      "kind": "read-api",
-      "description": "Project-supplied probe declaration: an array of `{ path, method?: 'GET'|'HEAD', successStatus: number[], expectShape?: object }`. At least one probe must be declared; the health probe is the mandatory one."
+      "kind": "other",
+      "description": "Project-supplied probe declaration: an array of `{ path, method?: 'GET'|'HEAD', successStatus: number[], expectShape?: object }`. At least one probe must be declared; the health probe is the mandatory one. (legacy kind: read-api)"
     },
     {
       "name": "urlTarget",
-      "kind": "read-api",
-      "description": "The URL the verifier hits. Sourced from the Preview URL Resolver's `probeUrl('production', null)` for a promote verify, or `probeUrl('alias', <alias>)` for a preview-only verify."
+      "kind": "other",
+      "description": "The URL the verifier hits. Sourced from the Preview URL Resolver's `probeUrl('production', null)` for a promote verify, or `probeUrl('alias', <alias>)` for a preview-only verify. (legacy kind: read-api)"
     },
     {
       "name": "httpClient",
-      "kind": "read-api",
-      "description": "The HTTP client the verifier drives (Node.js `fetch` in the default form; project-supplied for a project running under a different runtime)."
+      "kind": "other",
+      "description": "The HTTP client the verifier drives (Node.js `fetch` in the default form; project-supplied for a project running under a different runtime). (legacy kind: read-api)"
     },
     {
       "name": "resultSink",
-      "kind": "callback",
-      "description": "Structured-record sink invoked with each probe attempt's outcome `{ probePath, status, elapsedMs, outcome, versionShaSeen }`."
+      "kind": "other",
+      "description": "Structured-record sink invoked with each probe attempt's outcome `{ probePath, status, elapsedMs, outcome, versionShaSeen }`. (legacy kind: callback)"
     }
   ],
   "dependencies": [

@@ -14,13 +14,15 @@
   "interfaces": [
     {
       "name": "SingleCellObject.setAlarm",
-      "kind": "method",
-      "summary": "Schedule an alarm for now+offsetMs; persists via storage.setAlarm."
+      "kind": "other",
+      "summary": "Schedule an alarm for now+offsetMs; persists via storage.setAlarm.",
+      "description": "(legacy kind: method)"
     },
     {
       "name": "SingleCellObject.alarm",
-      "kind": "method",
-      "summary": "Alarm handler; drains the persisted alarm and emits doAlarmFired."
+      "kind": "other",
+      "summary": "Alarm handler; drains the persisted alarm and emits doAlarmFired.",
+      "description": "(legacy kind: method)"
     }
   ],
   "dependencies": [],

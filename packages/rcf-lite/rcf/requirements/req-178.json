@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "reqId": "REQ-178",
+  "prdId": "PRD-001",
+  "title": "rcf define validate reports findings for interface kind, AC class prefix, tacIds and ownerRef or deliveredBy",
+  "description": "`rcf define validate` (`src/cli/validate.js`) grows four new findings over the walker's existing schema and broken-reference pass: an interface kind outside the closed vocabulary (`INTERFACE_KINDS` in `src/query/gates.js`), a bracketed AC prefix on an AC `description` outside the known classes (`[happy]`, `[edge]`, `[failure]`, `[must-not]`, `[non-functional]`), a `tacIds` naming a non-TAC, and an unresolving `ownerRef` or `deliveredBy`. 0.30.0 PR 8 (DEFINE step 3 spec section 4 validate row, section 11.7 US-17802 appended paragraph): `rcf define validate` reports findings for an interface kind outside the vocabulary, a bracketed AC prefix outside the known classes, a `tacIds` naming a non-TAC, and an unresolving `ownerRef` or `deliveredBy`; absence of a class marker on an AC is NOT a validate finding (that is D4's floor). Each finding exits non-zero (3) alongside the existing schema/broken-reference exit path.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-03T18:30:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "record"
+      }
+    ]
+  },
+  "rationale": "Spec section 4 pins the validate row's bite: notices on the four categories named here become findings because every legacy and dogfood tree can comply (the vocabularies are closed and small; the resolutions are mechanical). Decision 10 keeps absence of an AC class marker off validate because the dogfood tree and every legacy tree would fail CI on day one: an absence is already D4's finding and D4 is where the ladder for an AC-shape surfaces the gap. Routing bracketed-prefix misuse through validate lets the engineer and the author see the same signal without needing to re-run readiness; the four kinds all share one implementation path (walker already loaded the tree, finding emission is additive).",
+  "tags": [
+    "capability:define-detection"
+  ]
+}

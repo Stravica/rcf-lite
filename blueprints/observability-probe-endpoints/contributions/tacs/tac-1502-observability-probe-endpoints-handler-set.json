@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "buildHandlerSet",
-      "kind": "factory",
-      "description": "buildHandlerSet({ profile, readinessPredicate, now }) -> { handlers }. `profile` is the frozen object from TAC-1501. `readinessPredicate` is a project-supplied `() -> 'pass' | 'fail'` function (default: strict-any-fail over declared dependency cached state). `now` is a `() -> Date` for test isolation. Returns a map of resolved path to stateless async handler. Called once at boot."
+      "kind": "other",
+      "description": "buildHandlerSet({ profile, readinessPredicate, now }) -> { handlers }. `profile` is the frozen object from TAC-1501. `readinessPredicate` is a project-supplied `() -> 'pass' | 'fail'` function (default: strict-any-fail over declared dependency cached state). `now` is a `() -> Date` for test isolation. Returns a map of resolved path to stateless async handler. Called once at boot. (legacy kind: factory)"
     },
     {
       "name": "readinessPredicate",
-      "kind": "read-api",
-      "description": "Project-supplied synchronous function returning the current readiness state as `'pass'` or `'fail'`. The handler set never reads dependency state directly; the predicate boundary is where per-project logic lives."
+      "kind": "other",
+      "description": "Project-supplied synchronous function returning the current readiness state as `'pass'` or `'fail'`. The handler set never reads dependency state directly; the predicate boundary is where per-project logic lives. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
-        "field": "interfaces.createLoggerFactory"
+        "field": "interfaces[createLoggerFactory]"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1601-observability-logging-logger-factory",
-        "field": "interfaces.createLoggerFactory"
+        "field": "interfaces[createLoggerFactory]"
       }
     }
   ],

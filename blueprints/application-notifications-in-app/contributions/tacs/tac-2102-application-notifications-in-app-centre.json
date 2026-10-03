@@ -19,23 +19,23 @@
   "interfaces": [
     {
       "name": "renderCentre",
-      "kind": "factory",
-      "description": "renderCentre({ rootElement, retentionDays, deliveryLogUrl }) -> Promise<void>. Reads the delivery log filtered to the retention window and mounts one wrapper per row into `rootElement`. Idempotent on the same log state."
+      "kind": "other",
+      "description": "renderCentre({ rootElement, retentionDays, deliveryLogUrl }) -> Promise<void>. Reads the delivery log filtered to the retention window and mounts one wrapper per row into `rootElement`. Idempotent on the same log state. (legacy kind: factory)"
     },
     {
       "name": "writeDeliveryRow",
-      "kind": "factory",
-      "description": "writeDeliveryRow(row) -> Promise<void>. Writes one row through the applied `logging` companion's record factory, where `row` conforms to `interfaces.deliveryRowShape`. Called from TAC-2101's toast factory on a toast surface event and from this TAC's centre-item activation on an acknowledge event."
+      "kind": "other",
+      "description": "writeDeliveryRow(row) -> Promise<void>. Writes one row through the applied `logging` companion's record factory, where `row` conforms to `interfaces.deliveryRowShape`. Called from TAC-2101's toast factory on a toast surface event and from this TAC's centre-item activation on an acknowledge event. (legacy kind: factory)"
     },
     {
       "name": "acknowledgeRoundTrip",
-      "kind": "function",
-      "description": "acknowledgeRoundTrip({ notificationId }) -> Promise<{ ok: boolean }>. POSTs `POST /api/notifications/acknowledge` and returns the parsed server response. A 2xx flips `data-acknowledged` on the item; a non-2xx surfaces an error toast through TAC-2101."
+      "kind": "other",
+      "description": "acknowledgeRoundTrip({ notificationId }) -> Promise<{ ok: boolean }>. POSTs `POST /api/notifications/acknowledge` and returns the parsed server response. A 2xx flips `data-acknowledged` on the item; a non-2xx surfaces an error toast through TAC-2101. (legacy kind: function)"
     },
     {
       "name": "deliveryRowShape",
-      "kind": "shape",
-      "description": "Delivery-log row schema owned by TAC-2102: { deliveryTs (ISO-8601 timestamp of the surface event), priority (\"info\" | \"error\"), category (string), outcome (\"delivered\" | \"dismissed\" | \"acknowledged\" | \"expired\"), correlationId (string) }. Every row the toast factory and the centre factory write goes through writeDeliveryRow honouring this shape."
+      "kind": "other",
+      "description": "Delivery-log row schema owned by TAC-2102: { deliveryTs (ISO-8601 timestamp of the surface event), priority (\"info\" | \"error\"), category (string), outcome (\"delivered\" | \"dismissed\" | \"acknowledged\" | \"expired\"), correlationId (string) }. Every row the toast factory and the centre factory write goes through writeDeliveryRow honouring this shape. (legacy kind: shape)"
     }
   ],
   "dependencies": [

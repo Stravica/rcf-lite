@@ -78,7 +78,7 @@ const SEQUENCE = {
     ['define', 'update', 'FBS-002', '--set', 'dependsOnFbsIds=["FBS-001"]', '--json'],
   ],
   s7Build: ['build', 'queue'],
-  s7BuildNextOut: ['build', 'bundle', '--next', '--out', 'fbs-001-bundle.md'],
+  s7BuildNextOut: ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--out', 'fbs-001-bundle.md'],
   s7MarkInProgress: ['build', 'mark', 'FBS-001', 'inProgress'],
   s7MarkComplete: ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes'],
   s7MarkBackward: ['build', 'mark', 'FBS-001', 'inProgress'],

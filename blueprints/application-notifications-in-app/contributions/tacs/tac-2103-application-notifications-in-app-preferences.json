@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "renderPreferences",
-      "kind": "factory",
-      "description": "renderPreferences({ rootElement, categories, appliedSiblings }) -> void. Mounts the category-silence sections and the sibling-channel sections. `appliedSiblings` is the list of applied `application-notifications-*` blueprint slugs the applying project passes in from its manifest reader; today the list is empty and every sibling section renders disabled."
+      "kind": "other",
+      "description": "renderPreferences({ rootElement, categories, appliedSiblings }) -> void. Mounts the category-silence sections and the sibling-channel sections. `appliedSiblings` is the list of applied `application-notifications-*` blueprint slugs the applying project passes in from its manifest reader; today the list is empty and every sibling section renders disabled. (legacy kind: factory)"
     },
     {
       "name": "readPreference",
-      "kind": "function",
-      "description": "readPreference({ category }) -> Promise<{ silenced: boolean }>. Reads the current preference state for a category so the surface can render the initial toggle state. Called at first render; the returned state drives the initial `data-silenced` attribute value."
+      "kind": "other",
+      "description": "readPreference({ category }) -> Promise<{ silenced: boolean }>. Reads the current preference state for a category so the surface can render the initial toggle state. Called at first render; the returned state drives the initial `data-silenced` attribute value. (legacy kind: function)"
     }
   ],
   "dependencies": [

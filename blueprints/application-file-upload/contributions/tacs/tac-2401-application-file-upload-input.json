@@ -19,18 +19,18 @@
   "interfaces": [
     {
       "name": "collectFiles",
-      "kind": "factory",
-      "description": "collectFiles({ inputEvent | dropEvent | pickerClick }) -> FileSelection. Every input path routes through this factory."
+      "kind": "other",
+      "description": "collectFiles({ inputEvent | dropEvent | pickerClick }) -> FileSelection. Every input path routes through this factory. (legacy kind: factory)"
     },
     {
       "name": "renderRefusal",
-      "kind": "factory",
-      "description": "renderRefusal({ fileRow, reason }) -> void. Binds the error region to the row via aria-describedby, sets [data-refusal-reason], focuses the [data-recovery=\"retry\"] control."
+      "kind": "other",
+      "description": "renderRefusal({ fileRow, reason }) -> void. Binds the error region to the row via aria-describedby, sets [data-refusal-reason], focuses the [data-recovery=\"retry\"] control. (legacy kind: factory)"
     },
     {
       "name": "affordancesEnum",
-      "kind": "shape",
-      "description": "The three input affordances (input, drop-zone, keyboard-opener) are the closed enum {file-input, drop-zone, keyboard-opener}. Removing one is a v2.0.0 major bump."
+      "kind": "other",
+      "description": "The three input affordances (input, drop-zone, keyboard-opener) are the closed enum {file-input, drop-zone, keyboard-opener}. Removing one is a v2.0.0 major bump. (legacy kind: shape)"
     }
   ],
   "dependencies": [

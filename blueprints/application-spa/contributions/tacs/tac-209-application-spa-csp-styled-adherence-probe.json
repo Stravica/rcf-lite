@@ -23,18 +23,18 @@
   "interfaces": [
     {
       "name": "runCspStyledAdherenceProbe",
-      "kind": "factory",
-      "description": "runCspStyledAdherenceProbe({ bootServer, routes, stylesheetUrl, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. `bootServer` is a factory returning `{ url, close }` for a server booted through the production entry-point path. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code."
+      "kind": "other",
+      "description": "runCspStyledAdherenceProbe({ bootServer, routes, stylesheetUrl, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. `bootServer` is a factory returning `{ url, close }` for a server booted through the production entry-point path. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath>` with optional flags `--boot <module>`, `--routes <comma-list>`, `--stylesheet <url>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`."
+      "kind": "other",
+      "description": "`node <entryPointPath>` with optional flags `--boot <module>`, `--routes <comma-list>`, `--stylesheet <url>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`. (legacy kind: cli)"
     },
     {
       "name": "reports/csp-styled-adherence.json",
-      "kind": "artefact",
-      "description": "`reports/csp-styled-adherence.json` under the configured report directory. Shape: `{ verdict, stylesheetUrl, stylesheetResponse: { status, contentType }, routes: [{ route, landedPath, csp, inlineStyleDetected, computed: { backgroundColor, fontFamily }, refusals }], generatedAt }`. `landedPath` is the pathname the browser's final URL resolved to after any redirect chain; when it does not equal `route`, the entry's `refusals` includes a `pathMismatch` class naming both paths and the run verdict is `fail`."
+      "kind": "fileFormat",
+      "description": "`reports/csp-styled-adherence.json` under the configured report directory. Shape: `{ verdict, stylesheetUrl, stylesheetResponse: { status, contentType }, routes: [{ route, landedPath, csp, inlineStyleDetected, computed: { backgroundColor, fontFamily }, refusals }], generatedAt }`. `landedPath` is the pathname the browser's final URL resolved to after any redirect chain; when it does not equal `route`, the entry's `refusals` includes a `pathMismatch` class naming both paths and the run verdict is `fail`. (legacy kind: artefact)"
     }
   ],
   "dependencies": [

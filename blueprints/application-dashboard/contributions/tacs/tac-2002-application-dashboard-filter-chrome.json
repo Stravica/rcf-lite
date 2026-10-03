@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "onTimeframeChange",
-      "kind": "function",
-      "description": "onTimeframeChange({ preset, from, to }) -> Promise<void>. Called by the preset picker on activation; issues the fan-out and updates the shell's data-as-of."
+      "kind": "other",
+      "description": "onTimeframeChange({ preset, from, to }) -> Promise<void>. Called by the preset picker on activation; issues the fan-out and updates the shell's data-as-of. (legacy kind: function)"
     },
     {
       "name": "onFilterChange",
-      "kind": "function",
-      "description": "onFilterChange({ filters }) -> Promise<void>. Called by the filter chrome on activation; issues the fan-out with the current boundary and updates the shell's data-active-filters and data-as-of."
+      "kind": "other",
+      "description": "onFilterChange({ filters }) -> Promise<void>. Called by the filter chrome on activation; issues the fan-out with the current boundary and updates the shell's data-active-filters and data-as-of. (legacy kind: function)"
     }
   ],
   "dependencies": [

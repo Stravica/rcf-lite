@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "eventSink",
-      "kind": "callback",
-      "summary": "A function accepting one audit record per validator outcome."
+      "kind": "other",
+      "summary": "A function accepting one audit record per validator outcome.",
+      "description": "(legacy kind: callback)"
     }
   ],
   "dependencies": [],

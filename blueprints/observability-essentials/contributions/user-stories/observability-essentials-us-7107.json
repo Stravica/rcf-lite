@@ -40,7 +40,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-802-observability-essentials-readiness-probe",
-        "field": "interfaces.probeBodyShapeCompatibility"
+        "field": "interfaces[probeBodyShapeCompatibility]"
       }
     }
   ],

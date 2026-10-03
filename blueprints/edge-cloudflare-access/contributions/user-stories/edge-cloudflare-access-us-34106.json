@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       }
     }
   ],

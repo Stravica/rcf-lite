@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "completionStore",
-      "kind": "shape",
-      "description": "{ read(principalId): CompletionRecord | null, write(principalId, record), clear(principalId) }. CompletionRecord = { completedAt: ISO string, blueprintSetVersion: string, stepIds: string[] }. The blueprintSetVersion is the versioned identifier of the applied blueprint set so a dismiss-until-next-major or dismiss-until-next-minor policy can re-open the tour on the right bump."
+      "kind": "other",
+      "description": "{ read(principalId): CompletionRecord | null, write(principalId, record), clear(principalId) }. CompletionRecord = { completedAt: ISO string, blueprintSetVersion: string, stepIds: string[] }. The blueprintSetVersion is the versioned identifier of the applied blueprint set so a dismiss-until-next-major or dismiss-until-next-minor policy can re-open the tour on the right bump. (legacy kind: shape)"
     }
   ],
   "dependencies": [

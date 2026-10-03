@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-401-email-smtp-resend-send-adapter",
-        "field": "interfaces.send"
+        "field": "interfaces[send]"
       }
     },
     {

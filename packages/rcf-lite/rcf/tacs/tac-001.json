@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "loadDocument",
-      "kind": "function",
-      "description": "Resolve an id to a path, parse and validate, return the document or a structured error."
+      "kind": "other",
+      "description": "Resolve an id to a path, parse and validate, return the document or a structured error. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "saveDocument",
-      "kind": "function",
-      "description": "Validate then persist a document; refuse to write if validation fails."
+      "kind": "other",
+      "description": "Validate then persist a document; refuse to write if validation fails. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "walkTree",
-      "kind": "function",
-      "description": "From the manifest roots, resolve every child by id and return the full tree."
+      "kind": "other",
+      "description": "From the manifest roots, resolve every child by id and return the full tree. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -41,5 +41,5 @@
   "tradeoffs": "Centralising all filesystem access in one component costs a small amount of indirection but guarantees that no consumer can write an unvalidated document or bypass the source-of-truth rule.",
   "notes": "The store is intentionally synchronous where possible; a local CLI does not benefit from streaming and synchronous code is easier for contributors to follow.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

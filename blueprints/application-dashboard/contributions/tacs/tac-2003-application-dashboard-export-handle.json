@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "onExportRequest",
-      "kind": "function",
-      "description": "onExportRequest({ format, chartId? }) -> Promise<{ blobRef, filename }>. Called by the format list on activation; for `png-chart` the shell resolves through the application-charts render shell."
+      "kind": "other",
+      "description": "onExportRequest({ format, chartId? }) -> Promise<{ blobRef, filename }>. Called by the format list on activation; for `png-chart` the shell resolves through the application-charts render shell. (legacy kind: function)"
     }
   ],
   "dependencies": [

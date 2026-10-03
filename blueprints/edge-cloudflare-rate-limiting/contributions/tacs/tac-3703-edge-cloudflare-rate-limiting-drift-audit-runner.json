@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "createDriftAuditRunner",
-      "kind": "factory",
-      "summary": "Drift-audit runner factory over env, eventSink, fetch, clock and the elicited cadence."
+      "kind": "other",
+      "summary": "Drift-audit runner factory over env, eventSink, fetch, clock and the elicited cadence.",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

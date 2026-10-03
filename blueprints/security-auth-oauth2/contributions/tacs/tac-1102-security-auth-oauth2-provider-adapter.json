@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "providerConfig",
-      "kind": "read-api",
-      "description": "The project-authored provider-config module exposing `list() -> record[]`. Each record is a plain object with the fields declared in REQ-002 and REQ-008. Server-tier records carry `clientSecret`; client-tier records carry a redacted placeholder."
+      "kind": "other",
+      "description": "The project-authored provider-config module exposing `list() -> record[]`. Each record is a plain object with the fields declared in REQ-002 and REQ-008. Server-tier records carry `clientSecret`; client-tier records carry a redacted placeholder. (legacy kind: read-api)"
     },
     {
       "name": "httpFetch",
-      "kind": "read-api",
-      "description": "The process's HTTP-fetch port used for JWKS fetch; injected so the test harness can substitute an in-process mock that returns the mock provider's JWKS."
+      "kind": "other",
+      "description": "The process's HTTP-fetch port used for JWKS fetch; injected so the test harness can substitute an in-process mock that returns the mock provider's JWKS. (legacy kind: read-api)"
     }
   ],
   "dependencies": [],

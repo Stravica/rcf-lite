@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2201-application-admin-console-shell",
-        "field": "interfaces.capabilitiesSidecar"
+        "field": "interfaces[capabilitiesSidecar]"
       }
     },
     {
@@ -31,7 +31,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2201-application-admin-console-shell",
-        "field": "interfaces.capabilitiesSidecar"
+        "field": "interfaces[capabilitiesSidecar]"
       }
     }
   ],

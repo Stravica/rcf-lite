@@ -39,7 +39,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
-        "field": "interfaces.producer.verbs"
+        "field": "interfaces[producer.verbs]"
       },
       "disposition": "template"
     }

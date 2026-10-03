@@ -18,8 +18,8 @@
   "interfaces": [
     {
       "name": "putMultipart",
-      "kind": "function",
-      "description": "putMultipart({ client, bucket, key, contentType, body, partSizeBytes }) -> Promise<{size, etag}>. Throws on any part-upload failure after AbortMultipartUpload attempts to clean up."
+      "kind": "other",
+      "description": "putMultipart({ client, bucket, key, contentType, body, partSizeBytes }) -> Promise<{size, etag}>. Throws on any part-upload failure after AbortMultipartUpload attempts to clean up. (legacy kind: function)"
     }
   ],
   "dependencies": [

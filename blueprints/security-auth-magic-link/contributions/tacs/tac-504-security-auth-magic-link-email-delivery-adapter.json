@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "send",
-      "kind": "async-method",
-      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole method the auth code calls on the adapter."
+      "kind": "other",
+      "description": "send({ to, subject, textBody, htmlBody }) -> Promise<{ ok, providerStatus, providerMessageId, error }>; the sole method the auth code calls on the adapter. (legacy kind: async-method)"
     }
   ],
   "dependencies": [],

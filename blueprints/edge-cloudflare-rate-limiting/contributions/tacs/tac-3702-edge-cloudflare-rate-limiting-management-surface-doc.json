@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "guide/edge-cloudflare-rate-limiting.md",
-      "kind": "documentation",
-      "summary": "Operator-facing management surface guide with both wrangler and dashboard flows plus the composition example."
+      "kind": "other",
+      "summary": "Operator-facing management surface guide with both wrangler and dashboard flows plus the composition example.",
+      "description": "(legacy kind: documentation)"
     }
   ],
   "dependencies": [],

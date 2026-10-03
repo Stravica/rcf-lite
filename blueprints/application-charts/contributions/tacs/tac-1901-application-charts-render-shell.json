@@ -19,13 +19,13 @@
   "interfaces": [
     {
       "name": "renderChart",
-      "kind": "factory",
-      "description": "renderChart({ form, data, palette, accessibleName, textAlternative, interactive }) -> { mount(rootElement), unmount() }. The project supplies the chart declaration; the shell owns the DOM plumbing, the palette hook, the text-alternative slot and the reduced-motion CSS attachment."
+      "kind": "other",
+      "description": "renderChart({ form, data, palette, accessibleName, textAlternative, interactive }) -> { mount(rootElement), unmount() }. The project supplies the chart declaration; the shell owns the DOM plumbing, the palette hook, the text-alternative slot and the reduced-motion CSS attachment. (legacy kind: factory)"
     },
     {
       "name": "paletteAccessor",
-      "kind": "shape",
-      "description": "`palette.get(seriesIndex, { role? })` returns a colour token with a non-colour cue (`{ colour, pattern, marker }`); the shell composes the three cues into the rendered series. Operator overrides pass through the same accessor."
+      "kind": "other",
+      "description": "`palette.get(seriesIndex, { role? })` returns a colour token with a non-colour cue (`{ colour, pattern, marker }`); the shell composes the three cues into the rendered series. Operator overrides pass through the same accessor. (legacy kind: shape)"
     }
   ],
   "dependencies": [

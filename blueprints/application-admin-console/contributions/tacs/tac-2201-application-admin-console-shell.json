@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "renderShell",
-      "kind": "factory",
-      "description": "renderShell({ capsSidecarUrl, surfaceRegistry, accessGuard }) -> { mount(rootElement), unmount() }. The project supplies the capsSidecarUrl (where the sidecar is served from), the surfaceRegistry (maps a capability string to a surface component), and the accessGuard (returns whether the current principal has admin scope)."
+      "kind": "other",
+      "description": "renderShell({ capsSidecarUrl, surfaceRegistry, accessGuard }) -> { mount(rootElement), unmount() }. The project supplies the capsSidecarUrl (where the sidecar is served from), the surfaceRegistry (maps a capability string to a surface component), and the accessGuard (returns whether the current principal has admin scope). (legacy kind: factory)"
     },
     {
       "name": "capabilitiesSidecar",
-      "kind": "shape",
-      "description": "{ slug, version, appliedAt, appliedCapabilities: string[], appliedElicitations: {}, skippedSources: Array<{ sourceId, reason }>, allowNoAuthYet?: boolean, notes?: string }. Written by apply, read by the shell."
+      "kind": "other",
+      "description": "{ slug, version, appliedAt, appliedCapabilities: string[], appliedElicitations: {}, skippedSources: Array<{ sourceId, reason }>, allowNoAuthYet?: boolean, notes?: string }. Written by apply, read by the shell. (legacy kind: shape)"
     }
   ],
   "dependencies": [

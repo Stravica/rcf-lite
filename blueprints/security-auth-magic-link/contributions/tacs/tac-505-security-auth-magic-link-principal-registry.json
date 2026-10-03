@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "isRegistered",
-      "kind": "async-method",
-      "description": "isRegistered(email) -> Promise<boolean>; the sole method the auth code calls on the registry."
+      "kind": "other",
+      "description": "isRegistered(email) -> Promise<boolean>; the sole method the auth code calls on the registry. (legacy kind: async-method)"
     }
   ],
   "dependencies": [],

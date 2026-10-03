@@ -17,28 +17,28 @@
   "interfaces": [
     {
       "name": "tick",
-      "kind": "factory",
-      "description": "tick({ fileRowId, bytesAcknowledged, totalBytes }) -> void. Transport calls this on every acknowledgement."
+      "kind": "other",
+      "description": "tick({ fileRowId, bytesAcknowledged, totalBytes }) -> void. Transport calls this on every acknowledgement. (legacy kind: factory)"
     },
     {
       "name": "complete",
-      "kind": "factory",
-      "description": "complete({ successCount }) -> void. Transport calls this exactly once per set."
+      "kind": "other",
+      "description": "complete({ successCount }) -> void. Transport calls this exactly once per set. (legacy kind: factory)"
     },
     {
       "name": "announcementFormatsEnum",
-      "kind": "shape",
-      "description": "The polite format is fixed: /^\\d+ of \\d+ files, \\d{1,3} percent$/; the assertive format is fixed: /^\\d+ files uploaded successfully$/. Localisation is a v1.1.0 minor bump extending the enum with a lookup table."
+      "kind": "other",
+      "description": "The polite format is fixed: /^\\d+ of \\d+ files, \\d{1,3} percent$/; the assertive format is fixed: /^\\d+ files uploaded successfully$/. Localisation is a v1.1.0 minor bump extending the enum with a lookup table. (legacy kind: shape)"
     },
     {
       "name": "tickInterval",
-      "kind": "shape",
-      "description": "Internal progress polling cadence in milliseconds (default 250). Internal only, not user-observable; drives the byte-progress reader that feeds the announcer."
+      "kind": "other",
+      "description": "Internal progress polling cadence in milliseconds (default 250). Internal only, not user-observable; drives the byte-progress reader that feeds the announcer. (legacy kind: shape)"
     },
     {
       "name": "announcementInterval",
-      "kind": "shape",
-      "description": "Announcement cadence in seconds (default 2). Caps the polite live-region announcement frequency the user hears; independent of the internal tickInterval."
+      "kind": "other",
+      "description": "Announcement cadence in seconds (default 2). Caps the polite live-region announcement frequency the user hears; independent of the internal tickInterval. (legacy kind: shape)"
     }
   ],
   "dependencies": [

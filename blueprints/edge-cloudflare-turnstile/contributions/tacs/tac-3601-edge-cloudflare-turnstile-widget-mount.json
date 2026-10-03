@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "mountTurnstile",
-      "kind": "function",
-      "summary": "Mount the Turnstile widget onto a target element with the elicited sitekey and widget mode."
+      "kind": "other",
+      "summary": "Mount the Turnstile widget onto a target element with the elicited sitekey and widget mode.",
+      "description": "(legacy kind: function)"
     }
   ],
   "dependencies": [],

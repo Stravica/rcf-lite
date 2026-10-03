@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "design tokens",
-      "kind": "asset",
-      "description": "assets/tokens/design-tokens.json, the canonical token values for both themes."
+      "kind": "other",
+      "description": "assets/tokens/design-tokens.json, the canonical token values for both themes. (legacy kind: asset)"
     },
     {
       "name": "theme attribute",
-      "kind": "dom-contract",
-      "description": "data-theme attribute on the document root; components style exclusively via tokens that respond to it."
+      "kind": "other",
+      "description": "data-theme attribute on the document root; components style exclusively via tokens that respond to it. (legacy kind: dom-contract)"
     }
   ],
   "tradeoffs": "Semantic tokens over raw palette references cost one indirection and buy theme parity, contrast checkability, and re-skinning without component edits.",

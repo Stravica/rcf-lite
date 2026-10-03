@@ -17,8 +17,8 @@
   "interfaces": [
     {
       "name": "withTransaction",
-      "kind": "read-write-api",
-      "description": "await store.withTransaction(async (tx) => { await tx.query(...); await tx.query(...); }). The helper acquires a pg.PoolClient from the pool and issues the transaction-control primitives around the callback: `client.query('BEGIN')` before the first wrapped-client query, `client.query('COMMIT')` on the callback's successful return, and `client.query('ROLLBACK')` on any thrown error before releasing the client. On rollback the helper fires transactionRolledBack on the injected event sink with { statementIndex, code } and re-throws the underlying pg error."
+      "kind": "other",
+      "description": "await store.withTransaction(async (tx) => { await tx.query(...); await tx.query(...); }). The helper acquires a pg.PoolClient from the pool and issues the transaction-control primitives around the callback: `client.query('BEGIN')` before the first wrapped-client query, `client.query('COMMIT')` on the callback's successful return, and `client.query('ROLLBACK')` on any thrown error before releasing the client. On rollback the helper fires transactionRolledBack on the injected event sink with { statementIndex, code } and re-throws the underlying pg error. (legacy kind: read-write-api)"
     }
   ],
   "dependencies": [

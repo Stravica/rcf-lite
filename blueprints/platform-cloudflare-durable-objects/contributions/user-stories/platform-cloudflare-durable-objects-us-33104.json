@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces.alarm"
+        "field": "interfaces[alarm]"
       },
       "disposition": "fixed"
     },
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces.SingleCellObject.setAlarm"
+        "field": "interfaces[SingleCellObject.setAlarm]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/durable-objects/api/alarms/",
@@ -52,7 +52,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces.SingleCellObject.setAlarm"
+        "field": "interfaces[SingleCellObject.setAlarm]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/durable-objects/api/alarms/",
@@ -70,7 +70,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces.SingleCellObject.alarm"
+        "field": "interfaces[SingleCellObject.alarm]"
       }
     },
     {
@@ -84,7 +84,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces.SingleCellObject.setAlarm"
+        "field": "interfaces[SingleCellObject.setAlarm]"
       }
     }
   ],

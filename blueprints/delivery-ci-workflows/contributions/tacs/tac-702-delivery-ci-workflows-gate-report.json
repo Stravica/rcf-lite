@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "writeGateReport",
-      "kind": "write-api",
-      "description": "writeGateReport({ reportDir, gate, command, toolVersion, startedAt, endedAt, exitCode, stdout, stderr }) -> Promise<string>. Writes the per-gate JSON report atomically and resolves with the written file's absolute path."
+      "kind": "other",
+      "description": "writeGateReport({ reportDir, gate, command, toolVersion, startedAt, endedAt, exitCode, stdout, stderr }) -> Promise<string>. Writes the per-gate JSON report atomically and resolves with the written file's absolute path. (legacy kind: write-api)"
     },
     {
       "name": "gate-report-schema",
-      "kind": "schema",
-      "description": "Top-level keys exactly: `gate` (string), `command` (string[]), `toolVersion` (string), `startedAt` (ISO-8601 string), `endedAt` (ISO-8601 string), `durationMs` (integer), `exitCode` (integer), `outcome` (enum `passed` | `failed`), `stdout` (string), `stderr` (string). No other keys are written at v1.0.0."
+      "kind": "other",
+      "description": "Top-level keys exactly: `gate` (string), `command` (string[]), `toolVersion` (string), `startedAt` (ISO-8601 string), `endedAt` (ISO-8601 string), `durationMs` (integer), `exitCode` (integer), `outcome` (enum `passed` | `failed`), `stdout` (string), `stderr` (string). No other keys are written at v1.0.0. (legacy kind: schema)"
     }
   ],
   "dependencies": [],

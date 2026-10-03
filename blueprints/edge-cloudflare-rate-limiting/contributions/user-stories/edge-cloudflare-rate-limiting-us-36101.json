@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
-        "field": "interfaces.rate-limits"
+        "field": "interfaces[rate-limits]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/waf/rate-limiting-rules/",
@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
-        "field": "interfaces.rate-limits"
+        "field": "interfaces[rate-limits]"
       }
     }
   ],

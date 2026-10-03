@@ -19,8 +19,9 @@
   "interfaces": [
     {
       "name": "resolveZoneAndExpandHostnames",
-      "kind": "facade",
-      "summary": "Apply-time facade returning the resolved zone secretRef and the array of concrete hostname expansions per ingress rule."
+      "kind": "other",
+      "summary": "Apply-time facade returning the resolved zone secretRef and the array of concrete hostname expansions per ingress rule.",
+      "description": "(legacy kind: facade)"
     }
   ],
   "dependencies": [],

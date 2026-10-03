@@ -16,23 +16,23 @@
   "interfaces": [
     {
       "name": "RcfError",
-      "kind": "type",
-      "description": "The structured error type used throughout the tool."
+      "kind": "recordShape",
+      "description": "The structured error type used throughout the tool. [legacy kind: type; mapped to recordShape per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderForTerminal",
-      "kind": "function",
-      "description": "Render an RcfError as human-readable terminal output."
+      "kind": "other",
+      "description": "Render an RcfError as human-readable terminal output. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderForMcp",
-      "kind": "function",
-      "description": "Serialise an RcfError as a structured object for an MCP client."
+      "kind": "other",
+      "description": "Serialise an RcfError as a structured object for an MCP client. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [],
   "tradeoffs": "A single error type across surfaces costs a small loss of surface-specific detail but guarantees that error reporting does not drift between CLI and MCP.",
   "notes": "Validation failures aggregate; the renderers preserve the full list, not just the first.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

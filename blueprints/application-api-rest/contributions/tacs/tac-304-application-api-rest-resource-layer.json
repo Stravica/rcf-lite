@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "resource registration",
-      "kind": "configuration",
-      "description": "Each resource declares its routes, representation schema, filters, sortable fields, and auth classes in one registration record."
+      "kind": "other",
+      "description": "Each resource declares its routes, representation schema, filters, sortable fields, and auth classes in one registration record. (legacy kind: configuration)"
     },
     {
       "name": "collection envelope",
-      "kind": "wire-format",
-      "description": "The pagination envelope (items, next, prev, optional total) every collection response uses."
+      "kind": "other",
+      "description": "The pagination envelope (items, next, prev, optional total) every collection response uses. (legacy kind: wire-format)"
     }
   ],
   "dependencies": [

@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
-        "field": "interfaces.applicationDeclaration"
+        "field": "interfaces[applicationDeclaration]"
       }
     },
     {

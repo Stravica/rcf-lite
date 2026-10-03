@@ -7,7 +7,52 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 
-## [0.29.0] - 2026-10-03
+## Unreleased (0.30.0)
+
+0.30.0 lands the DEFINE step 3 gates bite and the Remi-path pilot cover (see spec section 10). The Remi path (PRs 1 to 3) landed in 0.29.0; this release carries the gates bite (PRs 5 to 7) and the bundle refuse / override / skip, validate findings and NV-DL ruleset flip (PR 8). Dave cuts 0.30.0 through the release runbook after PR 8 merges; this section is the running record.
+
+### Added
+
+- **DEFINE step 3 PR 5: D3 bite (template markers, entity join, resolved paths, ackable, --check exit 4 policy; #282).** `shapes:templateMarkers` enforces per-kind marker presence on `interfaces[].description` (recordShape needs `fields:`, httpRoute needs method/path/request/response/errors, fixture needs `instances:`, event needs `payload:`, cliCommand needs `usage:`, uiRoute needs `path`, port needs `protocol`, fileFormat needs `format:`, other needs a note); drafts included. `shapes:entityJoin` fails every `coreEntities[].name` not named by exactly one `recordShape` tree-wide. `shapes:pathsResolve` fails any `path:`-like token on an interface description that does not resolve on disk (readiness collects candidates; the CLI and tab pass `resolvedPaths` in the stage context). `ackable(stage)` returns true for D3/D5/D6 and false otherwise; `--check` exits 4 unacked and 0 at the current hash. ADR-4131, US-17404.
+- **DEFINE step 3 PR 6: D4 closed sets and ownerRef as findings, D5 concern catalogue, standards citation (#284).** `stories:closedSets` fails an AC whose description carries an enumeration cue ("one of", "any of", "the following", "types of", "status is") without an inline bracketed list or an `ownerRef`. `stories:ownerRefResolves` fails every `ownerRef { tacId, field }` that does not resolve to `interfaces[<name>]` on that TAC. `src/define/concern-catalogue.js` ships the eight-concern catalogue keyed by REQ shape; `crosscut:catalogue` enumerates every applicable pair per in-scope REQ against the concern ledger (applied or waived). `skeleton:standardsCited` fails every registered standards pack neither cited in a REQ `rationale` or an ADR nor waived by a concern-ledger entry with key `standards:<pack>`. D5 is ackable through the --check crosscut fold. US-17405.
+- **DEFINE step 3 PR 7: D6 consistency scans, probe seam, --litmus and rcf_define_litmus (#286).** Four D6 scans: `consistency:contradictions` (two ACs on one story sharing a `when` clause with a negated `then`), `consistency:unsatisfiable` (a `then` naming a field no `recordShape` `fields:` defines; a field in a `[draft]` recordShape counts as defined), `consistency:duplicates` (identical AC descriptions across stories), `consistency:orphanInterfaces` (no AC `ownerRef` and no REQ `deliveredBy` reaches an interface). `computeReadiness(tree, { probeRunner })` accepts an injectable runner; findings land as probe-ledger entries. `--litmus <n>` on readiness and freeze requires n distinct readers to have recorded a litmus reading at the current litmus hash (`tree.litmusHash`, the tree hash computed with the probes ledger excluded per R9 amendment 2026-10-03); `readiness --json` prints the litmus hash. The `rcf_define_litmus` prompt tells the harness to spawn n fresh-context readers and land their readings. US-17406, US-17504.
+- **DEFINE step 3 PR 8: bundle refuse / override / skip, validate findings, NV-DL enforced (this release).** `rcf build bundle --next` refuses on an unfrozen tree with exit 4 (message pointing at `rcf define readiness` and the `--override "<reason>"` channel), accepts `--override "<reason>"` writing `freeze.override { reason, by, at }` through `applyOverrideToFreezeRecord` and proceeds, skips re-execute FBS impacted by the delta with the reason on stderr and hands out the next unimpacted FBS; when every actionable FBS is impacted and no override is given the verb exits 4 (NV-DL-ADM-01, NV-DL-ADM-05). `rcf define validate` grows four findings: an interface kind outside the closed vocabulary (`INTERFACE_KINDS`), a bracketed AC class prefix outside the five known classes, a `tacIds` naming a non-TAC, and an unresolving `ownerRef` or `deliveredBy`; absence of a class marker is NOT a validate finding (decision 10 kept; D4 reports absence as the floor). `packages/rcf-lite/src/ruleset/ruleset.json` gains NV-DL-ADM-01..05 with `refuseByDefault: true` and `overrideChannel: recordedInChain`. The readiness compute still runs and prints under NV-DL refusal (ADR-4123, informational posture on the compute unchanged). REQ-177 / US-17702, REQ-178 / US-17802, REQ-179 / US-17902 under TAC-4125 and TAC-4126. No new ADR (spec section 11.9).
+
+### Changed
+
+- **Dogfood: 18 TAC files remapped off legacy interface kinds (DEFINE step 3 PR 8).** 64 interfaces across TAC-001..008, TAC-4101..4108, TAC-4129 and TAC-4134 carried pre-DEFINE-era kind labels (`function`, `command`, `mcpTool`, `type`, `prompt`, `artifact`, `constant`, `moduleApi`, `interface`) that pre-date the DEFINE spec section 5.2 closed vocabulary. The mapping (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` -> `fileFormat`) is applied mechanically and the legacy label is preserved in the interface description for provenance. `rcf define validate` is now clean on the dogfood tree (AC-17802-3).
+
+- **Blueprints: 284 shipped contribution files remapped off legacy interface kinds and dotted ownerRef grammar (DEFINE step 3 PR 8).** 40 blueprints under `blueprints/` carried pre-DEFINE-era interface kinds (47 distinct labels across 330 interfaces) and 252 ownerRefs written in the `interfaces.<name>` form. The dogfood mapping table extends to this corpus (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` / `artefact` -> `fileFormat`; everything else -> `other`); dotted ownerRefs rewrite to `interfaces[<name>]`; the legacy label is kept in the interface description. `rcf define validate` is now clean on the application-onboarding-tour blueprint applied to a fresh project (TC-057 passes without a skip).
+
+### Known gaps and parked rulings
+
+- **Parked rulings not resolved in PR 8** (named in the PR 8 report.md KNOWN GAPS section): write-back idempotency of the add/create verbs; D3 draft scope tree-wide vs delta; the stagePolicy label drift, D3 notApplicable ordering and Dockerfile-token path findings from the PR 5 review; `skeleton:standardsCited` inside the D2 scope early-return and a `standards:<pack>` ledger entry with disposition applied counting as a waiver from the PR 6 review; anything PR 7's review parked (R9 litmus-hash amendment landed; other PR 7 parked rulings carried forward).
+- **Decision 9 and decision 10 are binding:** `--ack` remains the recorded override for D3/D5/D6; validate reports no finding for a missing AC class marker (D4's floor).
+- **Node 24 re-gate:** Dave re-gates PR 8 on Node 24 before merge. The sandbox default Node version is below the repo floor; this PR was built and tested on Node 24 via nvm in the cloud session.
+
+### Migrating existing trees
+
+Consumers (WSD among them) will see one new failure class on upgrade. On a fresh project with an existing tree, `rcf define validate` now exits 3 under PR 8 for any of:
+
+1. **Interface kind outside the closed vocabulary** `recordShape`, `httpRoute`, `event`, `cliCommand`, `uiRoute`, `port`, `fileFormat`, `fixture`, `other`. Mechanical remap table (safe conservative default):
+
+   | Legacy kind                                                | Remap to      |
+   |------------------------------------------------------------|---------------|
+   | `function`, `mcpTool`, `prompt`, `constant`, `moduleApi`, `interface` | `other`       |
+   | `command`                                                  | `cliCommand`  |
+   | `type`                                                     | `recordShape` |
+   | `artifact`, `artefact`                                     | `fileFormat`  |
+   | anything else                                              | `other`       |
+
+   Keep the original kind in the interface `description` so the migration stays auditable (`"(legacy kind: factory)"` is the convention this release used across the shipped blueprint corpus).
+
+2. **AC `ownerRef.field` grammar.** The only accepted form is `interfaces[<name>]`. Rewrite `interfaces.<name>` to `interfaces[<name>]`. Any ownerRef whose anchor is not an interface (`responsibilities.X`, `responsibilities[N]`, `purpose`, `internalStructure`, etc.) now fails validate; the mechanical remedy is to point the ownerRef at a real interface on the TAC, or to drop the ownerRef entirely if no interface fits (the walker treats ownerRef as optional). A spec change to broaden the accepted grammar is possible later; the 0.30.0 rule is strict.
+
+3. **Interface name on `ownerRef`.** `interfaces[<name>]` must resolve to an interface actually declared on the referenced TAC. Rename or add the interface before the AC is reconnected.
+
+The AC class prefix check (`[happy]`, `[edge]`, `[failure]`, `[must-not]`, `[non-functional]`) and the `tacIds` / `deliveredBy` resolution rules are also enforced. Absence of a class prefix is NOT a finding (decision 10 kept; D4 reports absence as the floor).
+
+The shipped blueprints under `blueprints/` are already migrated for 1 and 2 above; 295 blueprint ownerRefs still carry the `responsibilities.X` / `purpose` grammar from before the vocabulary closed and will fail validate on a project they are applied to (no shipped test exercises that path today). They are listed in `w-2026-10-03-dave-012`'s progress entry as a follow-up for PR 9 / a dedicated migration.
 
 0.29.0 lands the viewer UI refresh train (nine PRs that rebuild the shell, add shared components, redesign the Requirements, Architecture, Build and Readiness tabs, ship a Build DAG sub-tab, add fast ID lookup, and prove the embedding contract with a same-origin test-host fixture), the DEFINE readiness persona split (two readiness levels, `--level` and `--persona` on `rcf define readiness`, a Readiness tab as tab 1), and the first three DEFINE step 3 PRs (document intake into the brief ledger with the closed `resolvedBy` grammar, a `rcf define questions` verb with three new MCP tools and two argument-free prompts for the harness loop, and the `[draft]` shapes gate across TAC purpose, interface and core-entity homes with a DISCOVERY prototypes doctrine). The brief said 0.29.0 was never tagged; it is tagged here, and the spec sections that referred to those D2 behaviours as "0.30.0" now read 0.29.0.
 

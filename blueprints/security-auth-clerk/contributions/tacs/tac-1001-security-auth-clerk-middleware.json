@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "sessionVerifier",
-      "kind": "read-api",
-      "description": "The session verifier (TAC-1003) exposing `verifySessionCookie(cookieValue) -> { valid, claims?, revokedAt? }`. The middleware calls this on the `__session` cookie value and treats a non-valid return as unauthenticated."
+      "kind": "other",
+      "description": "The session verifier (TAC-1003) exposing `verifySessionCookie(cookieValue) -> { valid, claims?, revokedAt? }`. The middleware calls this on the `__session` cookie value and treats a non-valid return as unauthenticated. (legacy kind: read-api)"
     },
     {
       "name": "claimsMapper",
-      "kind": "read-api",
-      "description": "The claims mapper (TAC-1004) exposing `reduceClaims(rawClaims) -> Principal`. The middleware calls this on a valid session's claims to produce the `Principal` it attaches to `request.auth`."
+      "kind": "other",
+      "description": "The claims mapper (TAC-1004) exposing `reduceClaims(rawClaims) -> Principal`. The middleware calls this on a valid session's claims to produce the `Principal` it attaches to `request.auth`. (legacy kind: read-api)"
     },
     {
       "name": "config",
-      "kind": "read-api",
-      "description": "The project's config module exposing `signInStrategy: { primary, alternates }`. The middleware reads it once at construction; a re-read is a boot-time concern."
+      "kind": "other",
+      "description": "The project's config module exposing `signInStrategy: { primary, alternates }`. The middleware reads it once at construction; a re-read is a boot-time concern. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

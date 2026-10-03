@@ -1,0 +1,53 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "purpose": "Cover US-17802 (validate findings): the four new findings on an interface kind outside the vocabulary, a bracketed AC prefix outside the known classes, a tacIds naming a non-TAC and an unresolving ownerRef or deliveredBy; the dogfood tree is clean; and absence of a class marker is NOT a finding (decision 10, kept).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17802-1",
+    "AC-17802-2",
+    "AC-17802-3",
+    "AC-17802-4"
+  ],
+  "id": "TS-234",
+  "usId": "US-17802",
+  "title": "DEFINE step 3 PR 8: rcf define validate findings",
+  "testCases": [
+    {
+      "id": "TC-234-validate-interface-kind-finding",
+      "acId": "AC-17802-1",
+      "description": "A TAC with an interface { kind: 'widget' } fails rcf define validate with a defineValidate:interfaceKind finding naming the TAC id, the interface name and the unknown kind; the exit code is 3.",
+      "status": "pending",
+      "testPointer": "test/define/validate-findings.test.js::validate findings (PR 8, AC-17802-1): interface kind outside the vocabulary is a finding"
+    },
+    {
+      "id": "TC-234-validate-ac-class-prefix-finding",
+      "acId": "AC-17802-2",
+      "description": "An AC with description '[sometimes] ...' fails rcf define validate with a defineValidate:acClassPrefix finding naming the US id, the AC id and the unknown prefix.",
+      "status": "pending",
+      "testPointer": "test/define/validate-findings.test.js::validate findings (PR 8, AC-17802-2): bracketed AC prefix outside the known classes is a finding"
+    },
+    {
+      "id": "TC-234-validate-tacids-and-ownerref-findings",
+      "acId": "AC-17802-1",
+      "description": "A US with tacIds naming a non-TAC fires defineValidate:tacIdsResolves; an AC with ownerRef { tacId, field } that does not resolve fires defineValidate:ownerRefResolves; a REQ with deliveredBy pointing at a dangling id fires defineValidate:deliveredByResolves. Each exits 3.",
+      "status": "pending",
+      "testPointer": "test/define/validate-findings.test.js::validate findings (PR 8): tacIds, ownerRef and deliveredBy each produce a finding"
+    },
+    {
+      "id": "TC-234-validate-dogfood-clean",
+      "acId": "AC-17802-3",
+      "description": "rcf define validate on the rcf-lite dogfood tree exits 0 (no new findings; no legacy finding is widened).",
+      "status": "pending",
+      "testPointer": "test/define/validate-dogfood.test.js::validate (PR 8, AC-17802-3): dogfood tree is clean"
+    },
+    {
+      "id": "TC-234-validate-no-finding-for-missing-class",
+      "acId": "AC-17802-4",
+      "description": "An AC description with no leading bracketed prefix fires no defineValidate:acClassPrefix finding (decision 10, kept); the exit code depends on other errors only.",
+      "status": "pending",
+      "testPointer": "test/define/validate-findings.test.js::validate findings (PR 8, AC-17802-4): absence of class marker is NOT a finding"
+    }
+  ],
+  "status": "draft"
+}

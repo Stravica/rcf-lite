@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "renderSummary",
-      "kind": "factory",
-      "description": "renderSummary({ errors, headingId }) -> void. Renders the summary region and wires focus."
+      "kind": "other",
+      "description": "renderSummary({ errors, headingId }) -> void. Renders the summary region and wires focus. (legacy kind: factory)"
     },
     {
       "name": "bindField",
-      "kind": "factory",
-      "description": "bindField({ field, message }) -> void. Sets aria-invalid and aria-describedby."
+      "kind": "other",
+      "description": "bindField({ field, message }) -> void. Sets aria-invalid and aria-describedby. (legacy kind: factory)"
     }
   ],
   "dependencies": [

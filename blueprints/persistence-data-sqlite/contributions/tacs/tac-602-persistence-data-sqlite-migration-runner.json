@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "migrate",
-      "kind": "function",
-      "description": "migrate(engineHandle, catalog) -> { from, to, applied }; the sole entry point the store facade calls at open. Throws refuse-newer or migration-failed errors with stable codes on the failure paths."
+      "kind": "other",
+      "description": "migrate(engineHandle, catalog) -> { from, to, applied }; the sole entry point the store facade calls at open. Throws refuse-newer or migration-failed errors with stable codes on the failure paths. (legacy kind: function)"
     }
   ],
   "dependencies": [

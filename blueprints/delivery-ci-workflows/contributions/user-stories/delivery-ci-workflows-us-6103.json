@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-702-delivery-ci-workflows-gate-report",
-        "field": "interfaces.writeGateReport"
+        "field": "interfaces[writeGateReport]"
       }
     }
   ],

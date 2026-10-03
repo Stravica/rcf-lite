@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "resolveTransport",
-      "kind": "factory",
-      "description": "resolveTransport({ elicit }) -> { read, write, list, remove }. Returns the transport bound to the elicited branch."
+      "kind": "other",
+      "description": "resolveTransport({ elicit }) -> { read, write, list, remove }. Returns the transport bound to the elicited branch. (legacy kind: factory)"
     },
     {
       "name": "transportsEnum",
-      "kind": "shape",
-      "description": "The transport branches are the closed enum {server-draft-table, client-local-buffer}. A third branch is a v1.1.0 minor bump."
+      "kind": "other",
+      "description": "The transport branches are the closed enum {server-draft-table, client-local-buffer}. A third branch is a v1.1.0 minor bump. (legacy kind: shape)"
     }
   ],
   "dependencies": [

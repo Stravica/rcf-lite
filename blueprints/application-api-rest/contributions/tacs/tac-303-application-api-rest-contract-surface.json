@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "generated spec",
-      "kind": "artefact",
-      "description": "The OpenAPI 3.1 document, emitted at build time and served at runtime; the single contract clients and the conformance driver both consume."
+      "kind": "fileFormat",
+      "description": "The OpenAPI 3.1 document, emitted at build time and served at runtime; the single contract clients and the conformance driver both consume. (legacy kind: artefact)"
     },
     {
       "name": "documentation endpoints",
-      "kind": "http",
-      "description": "/openapi.json, /openapi.yaml, and /docs, exposure-policy controlled."
+      "kind": "other",
+      "description": "/openapi.json, /openapi.yaml, and /docs, exposure-policy controlled. (legacy kind: http)"
     }
   ],
   "dependencies": [

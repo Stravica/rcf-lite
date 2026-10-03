@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 116  covered: 116  covered-unresolved: 0  uncovered: 0
+Requirements: 119  covered: 119  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -551,6 +551,19 @@ REQ-176      yes      AC-17601-1   yes         TC-218-happy
                       AC-17601-6   yes         TC-218-admissibility
                       AC-17601-7   yes         TC-218-override
                       AC-17601-8   yes         TC-218-hygiene
+REQ-177      yes      AC-17702-1   yes         TC-233-bundle-refuses-without-freeze
+                      AC-17702-2   yes         TC-233-bundle-override-writes-freeze-override
+                      AC-17702-3   yes         TC-233-bundle-skips-impacted-fbs
+                      AC-17702-4   yes         TC-233-bundle-all-impacted-refuses
+                      AC-17702-5   yes         TC-233-bundle-empty-delta-unchanged
+REQ-178      yes      AC-17802-1   yes         TC-234-validate-interface-kind-finding, TC-234-validate-t...
+                      AC-17802-2   yes         TC-234-validate-ac-class-prefix-finding
+                      AC-17802-3   yes         TC-234-validate-dogfood-clean
+                      AC-17802-4   yes         TC-234-validate-no-finding-for-missing-class
+REQ-179      yes      AC-17902-1   yes         TC-235-ruleset-nvdl-shape
+                      AC-17902-2   yes         TC-235-admissibility-wrap-refuses-on-unfrozen-tree
+                      AC-17902-3   yes         TC-235-admissibility-wrap-accepts-with-override
+                      AC-17902-4   yes         TC-235-readiness-compute-unchanged-under-refusal
 REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
                       AC-18001-2   yes         TC-223-verdict-pills-match-cli
                       AC-18001-3   yes         TC-223-po-blockers-as-findings-list

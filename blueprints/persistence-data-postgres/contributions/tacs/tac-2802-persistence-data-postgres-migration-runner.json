@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "run",
-      "kind": "cli",
-      "description": "node migrate.mjs applies every un-applied file in order; exits 0 on success, non-zero on any failure with the failing filename in stderr."
+      "kind": "other",
+      "description": "node migrate.mjs applies every un-applied file in order; exits 0 on success, non-zero on any failure with the failing filename in stderr. (legacy kind: cli)"
     },
     {
       "name": "applyAll",
-      "kind": "read-write-api",
-      "description": "applyAll({ connectionUrl, migrationsDir, bookkeepingTable, onEvent }) -> Promise<{ applied: string[] }>. Library entry point the facade may call in atBoot mode."
+      "kind": "other",
+      "description": "applyAll({ connectionUrl, migrationsDir, bookkeepingTable, onEvent }) -> Promise<{ applied: string[] }>. Library entry point the facade may call in atBoot mode. (legacy kind: read-write-api)"
     }
   ],
   "dependencies": [

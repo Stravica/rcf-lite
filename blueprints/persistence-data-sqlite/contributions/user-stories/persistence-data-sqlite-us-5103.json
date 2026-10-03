@@ -39,7 +39,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-601-persistence-data-sqlite-store",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       },
       "disposition": "fixed"
     }

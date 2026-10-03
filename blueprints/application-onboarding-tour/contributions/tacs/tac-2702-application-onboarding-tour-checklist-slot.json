@@ -17,8 +17,8 @@
   "interfaces": [
     {
       "name": "renderChecklist",
-      "kind": "factory",
-      "description": "renderChecklist({ anchor, appliedSet, items }) -> { mount(rootElement), unmount() }. The project supplies the anchor (one of dashboard-top, settings-page, custom-anchor with a selector), the appliedSet (from the applied-blueprint list) and the items (from the manifest walk)."
+      "kind": "other",
+      "description": "renderChecklist({ anchor, appliedSet, items }) -> { mount(rootElement), unmount() }. The project supplies the anchor (one of dashboard-top, settings-page, custom-anchor with a selector), the appliedSet (from the applied-blueprint list) and the items (from the manifest walk). (legacy kind: factory)"
     }
   ],
   "dependencies": [

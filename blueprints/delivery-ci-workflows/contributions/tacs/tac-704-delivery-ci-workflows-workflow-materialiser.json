@@ -22,18 +22,18 @@
   "interfaces": [
     {
       "name": "materialise",
-      "kind": "factory",
-      "description": "materialise({ configPath, providerAssetDir, workflowOutDir }) -> Promise<{ workflowsWritten: string[], summary: object }>; the sole callable the entry point invokes. Reads the config, runs the boot-check, computes the matrix, writes the workflows."
+      "kind": "other",
+      "description": "materialise({ configPath, providerAssetDir, workflowOutDir }) -> Promise<{ workflowsWritten: string[], summary: object }>; the sole callable the entry point invokes. Reads the config, runs the boot-check, computes the matrix, writes the workflows. (legacy kind: factory)"
     },
     {
       "name": "workflow-shape",
-      "kind": "value",
-      "description": "The parsed and composed `workflowShape`: `{ branchModel, checkSet, releaseMode, providerHint, scheduledAudit, trunkPullRequests, defaultBranch, trunkBranch, packageManager }` with alias expansion applied, `releaseMode` defaulted to `none` when absent, `defaultBranch` and `trunkBranch` defaulted to `main` when absent, and `packageManager` defaulted to `pnpm` when absent."
+      "kind": "other",
+      "description": "The parsed and composed `workflowShape`: `{ branchModel, checkSet, releaseMode, providerHint, scheduledAudit, trunkPullRequests, defaultBranch, trunkBranch, packageManager }` with alias expansion applied, `releaseMode` defaulted to `none` when absent, `defaultBranch` and `trunkBranch` defaulted to `main` when absent, and `packageManager` defaulted to `pnpm` when absent. (legacy kind: value)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath>` with no required argv. Optional flag `--config <path>` overrides the default config path; `--out <path>` overrides the default workflow output directory. Exit code is 0 on success and non-zero (with the boot-check error code) on any refused input."
+      "kind": "other",
+      "description": "`node <entryPointPath>` with no required argv. Optional flag `--config <path>` overrides the default config path; `--out <path>` overrides the default workflow output directory. Exit code is 0 on success and non-zero (with the boot-check error code) on any refused input. (legacy kind: cli)"
     }
   ],
   "dependencies": [

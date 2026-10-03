@@ -60,7 +60,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-801-observability-essentials-liveness-probe",
-        "field": "interfaces.createLivenessHandler"
+        "field": "interfaces[createLivenessHandler]"
       }
     }
   ],

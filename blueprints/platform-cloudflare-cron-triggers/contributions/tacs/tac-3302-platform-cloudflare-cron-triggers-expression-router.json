@@ -14,9 +14,16 @@
   ],
   "internalStructure": "One module exporting createDispatcher({ routes, eventSink, skewToleranceMs, softBudgetMs, clock? }) returning { dispatch }. The dispatcher keeps a private clock (Date.now by default) so a fake clock injects for tests. The soft-budget observer schedules a setTimeout at softBudgetMs relative to the handler start; if the handler settles before the timeout, the timeout is cleared and only cronFired fires; if the timeout fires first, cronStalled emits and the handler continues to settlement, at which point cronFired follows.",
   "interfaces": [
-    { "name": "default export", "kind": "factory", "summary": "Platform-cloudflare-cron-triggers dispatcher factory exported from the applied fixture module." }
+    {
+      "name": "default export",
+      "kind": "other",
+      "summary": "Platform-cloudflare-cron-triggers dispatcher factory exported from the applied fixture module.",
+      "description": "(legacy kind: factory)"
+    }
   ],
-  "dependencies": ["TAC-3303-platform-cloudflare-cron-triggers-event-sink"],
+  "dependencies": [
+    "TAC-3303-platform-cloudflare-cron-triggers-event-sink"
+  ],
   "createdAt": "2026-09-07T12:35:00.000Z",
   "updatedAt": "2026-09-07T12:35:00.000Z"
 }

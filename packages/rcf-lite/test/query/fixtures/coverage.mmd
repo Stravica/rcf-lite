@@ -2521,6 +2521,63 @@ flowchart LR
   REQ-176 --> AC-17601-8
   TC-218-hygiene["TC-218-hygiene"]
   AC-17601-8 -.-> TC-218-hygiene
+  REQ-177["REQ-177"]
+  AC-17702-1["AC-17702-1"]
+  REQ-177 --> AC-17702-1
+  TC-233-bundle-refuses-without-freeze["TC-233-bundle-refuses-without-freeze"]
+  AC-17702-1 -.-> TC-233-bundle-refuses-without-freeze
+  AC-17702-2["AC-17702-2"]
+  REQ-177 --> AC-17702-2
+  TC-233-bundle-override-writes-freeze-override["TC-233-bundle-override-writes-freeze-override"]
+  AC-17702-2 -.-> TC-233-bundle-override-writes-freeze-override
+  AC-17702-3["AC-17702-3"]
+  REQ-177 --> AC-17702-3
+  TC-233-bundle-skips-impacted-fbs["TC-233-bundle-skips-impacted-fbs"]
+  AC-17702-3 -.-> TC-233-bundle-skips-impacted-fbs
+  AC-17702-4["AC-17702-4"]
+  REQ-177 --> AC-17702-4
+  TC-233-bundle-all-impacted-refuses["TC-233-bundle-all-impacted-refuses"]
+  AC-17702-4 -.-> TC-233-bundle-all-impacted-refuses
+  AC-17702-5["AC-17702-5"]
+  REQ-177 --> AC-17702-5
+  TC-233-bundle-empty-delta-unchanged["TC-233-bundle-empty-delta-unchanged"]
+  AC-17702-5 -.-> TC-233-bundle-empty-delta-unchanged
+  REQ-178["REQ-178"]
+  AC-17802-1["AC-17802-1"]
+  REQ-178 --> AC-17802-1
+  TC-234-validate-interface-kind-finding["TC-234-validate-interface-kind-finding"]
+  AC-17802-1 -.-> TC-234-validate-interface-kind-finding
+  TC-234-validate-tacids-and-ownerref-findings["TC-234-validate-tacids-and-ownerref-findings"]
+  AC-17802-1 -.-> TC-234-validate-tacids-and-ownerref-findings
+  AC-17802-2["AC-17802-2"]
+  REQ-178 --> AC-17802-2
+  TC-234-validate-ac-class-prefix-finding["TC-234-validate-ac-class-prefix-finding"]
+  AC-17802-2 -.-> TC-234-validate-ac-class-prefix-finding
+  AC-17802-3["AC-17802-3"]
+  REQ-178 --> AC-17802-3
+  TC-234-validate-dogfood-clean["TC-234-validate-dogfood-clean"]
+  AC-17802-3 -.-> TC-234-validate-dogfood-clean
+  AC-17802-4["AC-17802-4"]
+  REQ-178 --> AC-17802-4
+  TC-234-validate-no-finding-for-missing-class["TC-234-validate-no-finding-for-missing-class"]
+  AC-17802-4 -.-> TC-234-validate-no-finding-for-missing-class
+  REQ-179["REQ-179"]
+  AC-17902-1["AC-17902-1"]
+  REQ-179 --> AC-17902-1
+  TC-235-ruleset-nvdl-shape["TC-235-ruleset-nvdl-shape"]
+  AC-17902-1 -.-> TC-235-ruleset-nvdl-shape
+  AC-17902-2["AC-17902-2"]
+  REQ-179 --> AC-17902-2
+  TC-235-admissibility-wrap-refuses-on-unfrozen-tree["TC-235-admissibility-wrap-refuses-on-unfrozen-tree"]
+  AC-17902-2 -.-> TC-235-admissibility-wrap-refuses-on-unfrozen-tree
+  AC-17902-3["AC-17902-3"]
+  REQ-179 --> AC-17902-3
+  TC-235-admissibility-wrap-accepts-with-override["TC-235-admissibility-wrap-accepts-with-override"]
+  AC-17902-3 -.-> TC-235-admissibility-wrap-accepts-with-override
+  AC-17902-4["AC-17902-4"]
+  REQ-179 --> AC-17902-4
+  TC-235-readiness-compute-unchanged-under-refusal["TC-235-readiness-compute-unchanged-under-refusal"]
+  AC-17902-4 -.-> TC-235-readiness-compute-unchanged-under-refusal
   REQ-180["REQ-180"]
   AC-18001-1["AC-18001-1"]
   REQ-180 --> AC-18001-1
@@ -4051,6 +4108,36 @@ flowchart LR
   class TC-218-override tc;
   class AC-17601-8 ac;
   class TC-218-hygiene tc;
+  class REQ-177 req;
+  class AC-17702-1 ac;
+  class TC-233-bundle-refuses-without-freeze tc;
+  class AC-17702-2 ac;
+  class TC-233-bundle-override-writes-freeze-override tc;
+  class AC-17702-3 ac;
+  class TC-233-bundle-skips-impacted-fbs tc;
+  class AC-17702-4 ac;
+  class TC-233-bundle-all-impacted-refuses tc;
+  class AC-17702-5 ac;
+  class TC-233-bundle-empty-delta-unchanged tc;
+  class REQ-178 req;
+  class AC-17802-1 ac;
+  class TC-234-validate-interface-kind-finding tc;
+  class TC-234-validate-tacids-and-ownerref-findings tc;
+  class AC-17802-2 ac;
+  class TC-234-validate-ac-class-prefix-finding tc;
+  class AC-17802-3 ac;
+  class TC-234-validate-dogfood-clean tc;
+  class AC-17802-4 ac;
+  class TC-234-validate-no-finding-for-missing-class tc;
+  class REQ-179 req;
+  class AC-17902-1 ac;
+  class TC-235-ruleset-nvdl-shape tc;
+  class AC-17902-2 ac;
+  class TC-235-admissibility-wrap-refuses-on-unfrozen-tree tc;
+  class AC-17902-3 ac;
+  class TC-235-admissibility-wrap-accepts-with-override tc;
+  class AC-17902-4 ac;
+  class TC-235-readiness-compute-unchanged-under-refusal tc;
   class REQ-180 req;
   class AC-18001-1 ac;
   class TC-223-tab-order-and-rename tc;

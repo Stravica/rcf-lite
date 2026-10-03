@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-767",
+  "path": "src/define/validate-findings.js",
+  "title": "DEFINE step 3 PR 8: collectDefineValidateFindings module",
+  "description": "src/define/validate-findings.js exports `collectDefineValidateFindings(tree)`: a pure walker-tree function returning walker-shaped error entries for an interface kind outside INTERFACE_KINDS, an AC description's leading bracketed prefix outside the five known classes, a `tacIds` naming a non-TAC, and an unresolving `ownerRef` or `deliveredBy`. Reuses INTERFACE_KINDS and parseAcClass from src/query/gates.js so the vocabularies cannot diverge. Absence of a bracketed prefix is not a finding (decision 10, kept).",
+  "implementsAcIds": [
+    "AC-17802-1",
+    "AC-17802-2",
+    "AC-17802-3",
+    "AC-17802-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

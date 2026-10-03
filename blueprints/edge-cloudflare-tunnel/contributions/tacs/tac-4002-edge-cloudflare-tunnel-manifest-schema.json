@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "default export",
-      "kind": "facade",
-      "summary": "Manifest schema-validate facade exported from the blueprint probe module."
+      "kind": "other",
+      "summary": "Manifest schema-validate facade exported from the blueprint probe module.",
+      "description": "(legacy kind: facade)"
     }
   ],
   "dependencies": [],

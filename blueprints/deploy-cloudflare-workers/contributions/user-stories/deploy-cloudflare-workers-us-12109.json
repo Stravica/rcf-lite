@@ -19,7 +19,7 @@
       "scope": "deployed",
       "ownerRef": {
         "tacId": "TAC-1304-deploy-cloudflare-workers-promote-gate",
-        "field": "interfaces.deployAdapter"
+        "field": "interfaces[deployAdapter]"
       },
       "disposition": "template"
     },

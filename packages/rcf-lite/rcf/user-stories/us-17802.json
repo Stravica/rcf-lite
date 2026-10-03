@@ -1,0 +1,40 @@
+{
+  "usId": "US-17802",
+  "prdId": "PRD-001",
+  "reqId": "REQ-178",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "validate findings",
+  "description": "User story under REQ-178 for DEFINE step 3 PR 8 (spec section 4 validate row, section 11.7 US-17802). `rcf define validate` reports a finding and exits non-zero for an interface kind outside the closed vocabulary, a bracketed AC prefix outside the known classes, a `tacIds` naming a non-TAC and an unresolving `ownerRef` or `deliveredBy`. Absence of an AC class marker is NOT a validate finding (decision 10): the dogfood tree and every legacy tree would otherwise fail CI; D4 reports absence as the floor.",
+  "asA": "an author of chain documents",
+  "iWant": "validate to catch misuse of the four closed vocabularies (interface kind, AC class, tacIds, ownerRef / deliveredBy) at the one surface everyone runs today",
+  "soThat": "a typo or a wrong vocabulary value fails fast and is not left to the gates",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17802-1",
+      "description": "[failure] given an interface kind \"widget\", when validate runs, then it reports a finding and exits non-zero.",
+      "testable": true
+    },
+    {
+      "id": "AC-17802-2",
+      "description": "[failure] given an AC description starting \"[sometimes]\", when validate runs, then it reports a finding.",
+      "testable": true
+    },
+    {
+      "id": "AC-17802-3",
+      "description": "[happy] given the rcf-lite dogfood tree, when validate runs, then it is clean.",
+      "testable": true
+    },
+    {
+      "id": "AC-17802-4",
+      "description": "[must-not] given an AC with no bracketed prefix, when validate runs, then no finding is raised.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4126-define-validate-findings"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

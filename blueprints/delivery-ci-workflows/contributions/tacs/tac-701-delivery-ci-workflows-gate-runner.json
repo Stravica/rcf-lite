@@ -20,18 +20,18 @@
   "interfaces": [
     {
       "name": "runGates",
-      "kind": "factory",
-      "description": "runGates({ reportDir, gates, cwd }) -> Promise<{ verdict, exitCode, aggregateReportPath }>; the sole callable the entry point invokes. Runs every gate in `gates` order, delegates each report write, resolves with the final verdict."
+      "kind": "other",
+      "description": "runGates({ reportDir, gates, cwd }) -> Promise<{ verdict, exitCode, aggregateReportPath }>; the sole callable the entry point invokes. Runs every gate in `gates` order, delegates each report write, resolves with the final verdict. (legacy kind: factory)"
     },
     {
       "name": "gate-descriptor",
-      "kind": "value",
-      "description": "{ name: string, command: string[] } where `command[0]` is the executable (typically `rcf`) and the rest are argv. The rcf CLI groups verbs by RCF stage; the mandatory tier for v1.0.0 uses the grouped forms this TAC's responsibilities section names: `[{ name: 'validate', command: ['rcf', 'define', 'validate'] }, { name: 'coverage-strict', command: ['rcf', 'audit', 'coverage', '--strict'] }]`. A descriptor whose `command` array omits the group (`['rcf', 'validate']`, `['rcf', 'coverage', '--strict']`) does not resolve on any shipped rcf CLI and refuses at gate spawn; the gate-runner does not paper over the difference."
+      "kind": "other",
+      "description": "{ name: string, command: string[] } where `command[0]` is the executable (typically `rcf`) and the rest are argv. The rcf CLI groups verbs by RCF stage; the mandatory tier for v1.0.0 uses the grouped forms this TAC's responsibilities section names: `[{ name: 'validate', command: ['rcf', 'define', 'validate'] }, { name: 'coverage-strict', command: ['rcf', 'audit', 'coverage', '--strict'] }]`. A descriptor whose `command` array omits the group (`['rcf', 'validate']`, `['rcf', 'coverage', '--strict']`) does not resolve on any shipped rcf CLI and refuses at gate spawn; the gate-runner does not paper over the difference. (legacy kind: value)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath>` with no required argv. Optional flag `--report-dir <path>` overrides the default report directory. Exit code is the aggregate exit code."
+      "kind": "other",
+      "description": "`node <entryPointPath>` with no required argv. Optional flag `--report-dir <path>` overrides the default report directory. Exit code is the aggregate exit code. (legacy kind: cli)"
     }
   ],
   "dependencies": [

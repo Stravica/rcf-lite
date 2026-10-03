@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "createLivenessHandler",
-      "kind": "factory",
-      "description": "createLivenessHandler({ path, now }) -> { path, handler }. Returns the configured probe path and a stateless async handler for it. Called once at boot; the returned handler is bound at the HTTP router. `path` is a REQUIRED configuration input with no shipped default; when it is missing the caller refuses boot with PROBE_INTERFACE_PATHS_MISSING."
+      "kind": "other",
+      "description": "createLivenessHandler({ path, now }) -> { path, handler }. Returns the configured probe path and a stateless async handler for it. Called once at boot; the returned handler is bound at the HTTP router. `path` is a REQUIRED configuration input with no shipped default; when it is missing the caller refuses boot with PROBE_INTERFACE_PATHS_MISSING. (legacy kind: factory)"
     },
     {
       "name": "livenessPath",
-      "kind": "config",
-      "description": "Configured liveness HTTP path supplied by the project under probeInterface.paths.liveness. There is no shipped default in essentials v2.0.0. When observability-probe-endpoints is composed, the resolved profile liveness path substitutes for this configuration entry automatically; essentials-alone projects supply it explicitly at boot."
+      "kind": "other",
+      "description": "Configured liveness HTTP path supplied by the project under probeInterface.paths.liveness. There is no shipped default in essentials v2.0.0. When observability-probe-endpoints is composed, the resolved profile liveness path substitutes for this configuration entry automatically; essentials-alone projects supply it explicitly at boot. (legacy kind: config)"
     }
   ],
   "dependencies": [],

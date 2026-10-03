@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     },
     {
@@ -72,7 +72,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     }
   ],

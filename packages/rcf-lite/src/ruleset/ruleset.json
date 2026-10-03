@@ -53,6 +53,41 @@
       "refuseByDefault": true,
       "overrideChannel": "recordedInChain",
       "notes": "At build start, build-lite compares the ruleset version the chain declares it was authored against with the version the shipping lint enforces. Behaviour-changing drift refuses; additive-only drift warns. Ratified 2026-08-11 ruling-sheet item 7: define-stage drift is a warning-with-acknowledgement; build-stage drift is a refusal."
+    },
+    {
+      "id": "NV-DL-ADM-01",
+      "title": "rcf build bundle --next refuses without a freeze record",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "0.30.0 PR 8 (REQ-177, spec section 4 bundle row). The verb exits 4 and names rcf define readiness; --override \"<reason>\" writes freeze.override { reason, by, at } and proceeds. The override is the recordedInChain channel for this rule."
+    },
+    {
+      "id": "NV-DL-ADM-02",
+      "title": "D4 stories floor failing items are findings (closed sets, ownerRef)",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "0.30.0 PR 8 (REQ-179, spec section 4 NV-DL row). Surfaced through the admissibility wrap as a D4 finding; the override channel is the --ack reason recorded on freeze.gates for the owning stage."
+    },
+    {
+      "id": "NV-DL-ADM-03",
+      "title": "D3 shapes bite failing items are findings (template markers, entity join, paths)",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "0.30.0 PR 8 (REQ-179, spec section 4 NV-DL row). Surfaced through the admissibility wrap as a D3 finding; the override channel is the --ack reason on freeze.gates (D3 is ackable)."
+    },
+    {
+      "id": "NV-DL-ADM-04",
+      "title": "rcf define validate finding set refuses with exit 3",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "0.30.0 PR 8 (REQ-178, spec section 4 validate row). The four findings (interface kind outside the vocabulary, bracketed AC class prefix outside the known classes, tacIds naming a non-TAC, unresolving ownerRef or deliveredBy) exit 3; the override is a chain-document correction recorded in git history."
+    },
+    {
+      "id": "NV-DL-ADM-05",
+      "title": "rcf build bundle --next skips FBS impacted by a non-empty delta",
+      "refuseByDefault": true,
+      "overrideChannel": "recordedInChain",
+      "notes": "0.30.0 PR 8 (REQ-177, spec section 4 bundle row). On a non-empty delta the next-item selection filters re-execute FBS impacted by the delta out of the actionable queue with a stderr reason; when every actionable FBS is impacted and no override is given the verb exits 4. --override \"<reason>\" writes freeze.override and lets the verb proceed."
     }
   ],
   "gateRules": [

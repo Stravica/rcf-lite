@@ -16,7 +16,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
-        "field": "interfaces.hetzner-server.schema.json"
+        "field": "interfaces[hetzner-server.schema.json]"
       },
       "disposition": "template"
     },
@@ -30,7 +30,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
-        "field": "interfaces.hetzner-server.schema.json"
+        "field": "interfaces[hetzner-server.schema.json]"
       },
       "disposition": "template"
     },
@@ -44,7 +44,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
-        "field": "interfaces.firewallRules"
+        "field": "interfaces[firewallRules]"
       },
       "disposition": "fixed"
     }

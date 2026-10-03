@@ -56,7 +56,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
-        "field": "interfaces.mountTurnstile"
+        "field": "interfaces[mountTurnstile]"
       }
     }
   ],

@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
-        "field": "interfaces.exportDatabase"
+        "field": "interfaces[exportDatabase]"
       },
       "disposition": "template"
     },

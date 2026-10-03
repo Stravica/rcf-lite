@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "telemetry context",
-      "kind": "request-context",
-      "description": "Request id, trace context, auth class, path template, and timing, shared by all three emitters."
+      "kind": "other",
+      "description": "Request id, trace context, auth class, path template, and timing, shared by all three emitters. (legacy kind: request-context)"
     },
     {
       "name": "signal exporters",
-      "kind": "configuration",
-      "description": "Where logs, metrics, and traces go is deployment configuration; the shapes emitted are contract."
+      "kind": "other",
+      "description": "Where logs, metrics, and traces go is deployment configuration; the shapes emitted are contract. (legacy kind: configuration)"
     }
   ],
   "dependencies": [

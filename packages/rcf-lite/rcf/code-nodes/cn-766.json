@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-766",
+  "path": "src/define/freeze-record.js",
+  "title": "DEFINE step 3 PR 8: applyOverrideToFreezeRecord writer",
+  "description": "src/define/freeze-record.js grows `applyOverrideToFreezeRecord({ projectRoot, reason, by, at })` which loads or creates a freeze record (stamped `frozenAt=now`, `treeHash=currentTreeHash` of the live tree, `docHashes` empty when no prior freeze), sets `override: { reason, by, at }` and writes through saveFreezeRecord. Reuses the existing SHA256 schema and canonical-JSON contract so the output is identical in shape to a freeze-verb write.",
+  "implementsAcIds": [
+    "AC-17702-2",
+    "AC-17902-3"
+  ],
+  "dependencies": [
+    "CN-721"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

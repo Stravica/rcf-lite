@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
-        "field": "interfaces.GET /admin/sign-in"
+        "field": "interfaces[GET /admin/sign-in]"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2214-application-admin-console-access-gated-signin-surface",
-        "field": "interfaces.GET /admin/sign-in"
+        "field": "interfaces[GET /admin/sign-in]"
       }
     }
   ],

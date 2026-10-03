@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "hetzner-server.schema.json",
-      "kind": "jsonSchema",
-      "summary": "draft-07 JSON Schema for the Hetzner server manifest."
+      "kind": "other",
+      "summary": "draft-07 JSON Schema for the Hetzner server manifest.",
+      "description": "(legacy kind: jsonSchema)"
     }
   ],
   "dependencies": [],

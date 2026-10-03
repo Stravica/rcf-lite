@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "resolveProbeProfile",
-      "kind": "factory",
-      "description": "resolveProbeProfile({ config, profileLoader, contractValidator }) -> { profile, getExemptPathSet }. Called once at boot; the returned profile drives the handler-set binder (TAC-1502), the listener-topology binder (TAC-1503), and the non-HTTP adapter selector (TAC-1504)."
+      "kind": "other",
+      "description": "resolveProbeProfile({ config, profileLoader, contractValidator }) -> { profile, getExemptPathSet }. Called once at boot; the returned profile drives the handler-set binder (TAC-1502), the listener-topology binder (TAC-1503), and the non-HTTP adapter selector (TAC-1504). (legacy kind: factory)"
     },
     {
       "name": "profileLoader",
-      "kind": "read-api",
-      "description": "Function that resolves a profile name to the profile module. Shipped profiles resolve to the blueprint's own modules; a `custom:<name>` value resolves to the project's `profiles/custom/<name>` slot. Injected so the project supplies its module discovery."
+      "kind": "other",
+      "description": "Function that resolves a profile name to the profile module. Shipped profiles resolve to the blueprint's own modules; a `custom:<name>` value resolves to the project's `profiles/custom/<name>` slot. Injected so the project supplies its module discovery. (legacy kind: read-api)"
     },
     {
       "name": "contractValidator",
-      "kind": "read-api",
-      "description": "Schema-check function against the profile contract. Returns a validated frozen profile object on success and a typed error naming the missing or extraneous field on refusal."
+      "kind": "other",
+      "description": "Schema-check function against the profile contract. Returns a validated frozen profile object on success and a typed error naming the missing or extraneous field on refusal. (legacy kind: read-api)"
     }
   ],
   "dependencies": [],

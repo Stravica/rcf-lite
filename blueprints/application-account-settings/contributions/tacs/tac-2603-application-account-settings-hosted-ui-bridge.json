@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "renderSecuritySurface",
-      "kind": "factory",
-      "description": "renderSecuritySurface({ appliedCapabilities, appliedElicitations }) -> { mount(root), unmount() }. Reads security-surface-shape and hosted-identity-url from appliedElicitations."
+      "kind": "other",
+      "description": "renderSecuritySurface({ appliedCapabilities, appliedElicitations }) -> { mount(root), unmount() }. Reads security-surface-shape and hosted-identity-url from appliedElicitations. (legacy kind: factory)"
     }
   ],
   "dependencies": [

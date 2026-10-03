@@ -50,7 +50,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
-        "field": "interfaces.notifyImplementation"
+        "field": "interfaces[notifyImplementation]"
       }
     },
     {
@@ -64,7 +64,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
-        "field": "interfaces.selectAdapter"
+        "field": "interfaces[selectAdapter]"
       }
     },
     {
@@ -78,7 +78,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1504-observability-probe-endpoints-non-http-adapters",
-        "field": "interfaces.selectAdapter"
+        "field": "interfaces[selectAdapter]"
       }
     }
   ],

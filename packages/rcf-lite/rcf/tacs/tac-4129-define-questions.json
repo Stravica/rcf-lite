@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T18:00:00Z",
-  "updatedAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
   "tacId": "TAC-4129-define-questions",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -17,8 +17,8 @@
   "interfaces": [
     {
       "name": "computeQuestions",
-      "kind": "moduleApi",
-      "description": "Compute the persona question set from a readiness result, a tree, the four ledgers and the profile text. Returns an object with treeHash, persona, level, ok, remaining, groups[], questions[], optional[] and engineer (collapsed count on the PO return)."
+      "kind": "other",
+      "description": "Compute the persona question set from a readiness result, a tree, the four ledgers and the profile text. Returns an object with treeHash, persona, level, ok, remaining, groups[], questions[], optional[] and engineer (collapsed count on the PO return). [legacy kind: moduleApi; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf define questions",

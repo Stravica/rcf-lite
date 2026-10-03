@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "shouldAsk",
-      "kind": "function",
-      "description": "Pure decision on the quiet rule; unit-tested across the full table."
+      "kind": "other",
+      "description": "Pure decision on the quiet rule; unit-tested across the full table. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "emit",
-      "kind": "function",
-      "description": "Per-harness output; exit code and shape."
+      "kind": "other",
+      "description": "Per-harness output; exit code and shape. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "installHooks",
-      "kind": "function",
-      "description": "Merge the hook entries into the two harness config files."
+      "kind": "other",
+      "description": "Merge the hook entries into the two harness config files. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -42,5 +42,5 @@
   "tradeoffs": "Two harness config files to maintain and one handler; the cost is small (one merge pattern per file) and the benefit is one implementation of the quiet rule for both harnesses.",
   "notes": "The asked record is appended before the emit path, so a crash between emit and reply cannot cause a second ask.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

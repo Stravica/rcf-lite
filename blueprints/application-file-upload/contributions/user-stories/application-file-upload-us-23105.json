@@ -37,7 +37,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2402-application-file-upload-transport",
-        "field": "interfaces.removeFile"
+        "field": "interfaces[removeFile]"
       }
     },
     {

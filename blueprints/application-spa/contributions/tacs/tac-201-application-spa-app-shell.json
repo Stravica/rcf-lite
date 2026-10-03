@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "route inventory",
-      "kind": "configuration",
-      "description": "Declared route table consumed to render navigation and breadcrumbs."
+      "kind": "other",
+      "description": "Declared route table consumed to render navigation and breadcrumbs. (legacy kind: configuration)"
     },
     {
       "name": "toast region",
-      "kind": "ui-slot",
-      "description": "Imperative enqueue API for transient notifications, rendered in one landmark-safe region."
+      "kind": "other",
+      "description": "Imperative enqueue API for transient notifications, rendered in one landmark-safe region. (legacy kind: ui-slot)"
     }
   ],
   "dependencies": [

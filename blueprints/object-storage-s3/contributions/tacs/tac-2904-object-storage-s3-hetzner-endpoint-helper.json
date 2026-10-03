@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "composeHetznerEndpoint",
-      "kind": "factory",
-      "description": "composeHetznerEndpoint({ bucket, location }) -> string. Returns https://<bucket>.<location>.your-objectstorage.com when bucket is a non-empty string and location is one of fsn1, hel1, nbg1; throws a named Error naming the invalid field otherwise."
+      "kind": "other",
+      "description": "composeHetznerEndpoint({ bucket, location }) -> string. Returns https://<bucket>.<location>.your-objectstorage.com when bucket is a non-empty string and location is one of fsn1, hel1, nbg1; throws a named Error naming the invalid field otherwise. (legacy kind: factory)"
     }
   ],
   "dependencies": [

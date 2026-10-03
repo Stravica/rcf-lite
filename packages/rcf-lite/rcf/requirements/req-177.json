@@ -1,0 +1,31 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "reqId": "REQ-177",
+  "prdId": "PRD-001",
+  "title": "rcf build bundle --next refuses without a freeze and skips impacted FBS",
+  "description": "rcf-lite's build dispatcher (`src/cli/build.js` with freeze-record support in `src/define/freeze-record.js`) tightens `rcf build bundle --next` against the detection-model freeze record: without a freeze record the verb refuses, with `--override` it writes an override and proceeds, and on a non-empty delta it skips impacted FBS. 0.30.0 PR 8 (DEFINE step 3 spec section 4 bundle row, section 11.7 US-17702 appended paragraph): `rcf build bundle --next` refuses without a freeze record and exits 4; `--override \"<reason>\"` writes `freeze.override { reason, by, at }` and proceeds; impacted FBS are skipped with the reason and the next unimpacted FBS is handed out; every impacted and no override is a refusal.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-03T18:30:00Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "record"
+      }
+    ]
+  },
+  "rationale": "Spec section 4 pins the gates-bite surface for `rcf build bundle --next`: the detection-model freeze record is the one source of truth that a change is closed; an unfrozen tree is the one condition under which the next-item compute cannot be answered without an operator decision, so the verb refuses rather than guessing. The override channel keeps the verb usable under a hotfix with a recorded reason, by whom and when, satisfying NV-DL-ADM-01's `recordedInChain` and leaving an audit trail; the impacted-skip is the mechanical consequence of the delta model (an FBS whose ACs changed cannot be bundled from the pre-change tree without a re-freeze). The verb's 0.29.0 shape on a frozen tree with an empty delta is unchanged (AC-17702-5), so operators whose work does not touch an impacted FBS see no regression.",
+  "tags": [
+    "capability:define-detection"
+  ]
+}
