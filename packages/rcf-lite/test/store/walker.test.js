@@ -464,7 +464,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-train slice 3 added TS-218 (158 -> 159).
   // DEFINE-train step 2 PR A added TS-219 / TS-220 / TS-221 covering
   // US-17402 / US-17403 / US-17502 under ADR-4126 (159 -> 162).
-  assert.equal(tree.testSuites.length, 165);
+  // Viewer UI refresh PR 7 added TS-225 (US-205 ID lookup, 8 TCs on
+  // test/view/id-lookup.test.js) (165 -> 166).
+  assert.equal(tree.testSuites.length, 166);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

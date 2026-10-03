@@ -24,6 +24,14 @@ REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC
                       AC-204-5     yes         TC-224-filters-keep-selection
                       AC-204-6     yes         TC-224-cycle-handling
                       AC-204-7     yes         TC-224-no-outbound-postmessage
+                      AC-205-1     yes         TC-225-id-exact-prefix-first
+                      AC-205-2     yes         TC-225-word-title-above-snippet
+                      AC-205-3     yes         TC-225-single-char-ids-only
+                      AC-205-4     yes         TC-225-pick-writes-hash
+                      AC-205-5     yes         TC-225-mount-url-round-trip
+                      AC-205-6     yes         TC-225-embed-theme-preserved
+                      AC-205-7     yes         TC-225-empty-state-on-fetch-failure
+                      AC-205-8     yes         TC-225-no-outbound-side-effects
 REQ-003      yes      AC-301-1     yes         TC-006-read-reports-valid
                       AC-301-2     yes         TC-006-read-unknown-id-not-found
                       AC-301-3     yes         TC-006-read-invalid-content-plus-errors

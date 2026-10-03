@@ -89,6 +89,38 @@ flowchart LR
   REQ-002 --> AC-204-7
   TC-224-no-outbound-postmessage["TC-224-no-outbound-postmessage"]
   AC-204-7 -.-> TC-224-no-outbound-postmessage
+  AC-205-1["AC-205-1"]
+  REQ-002 --> AC-205-1
+  TC-225-id-exact-prefix-first["TC-225-id-exact-prefix-first"]
+  AC-205-1 -.-> TC-225-id-exact-prefix-first
+  AC-205-2["AC-205-2"]
+  REQ-002 --> AC-205-2
+  TC-225-word-title-above-snippet["TC-225-word-title-above-snippet"]
+  AC-205-2 -.-> TC-225-word-title-above-snippet
+  AC-205-3["AC-205-3"]
+  REQ-002 --> AC-205-3
+  TC-225-single-char-ids-only["TC-225-single-char-ids-only"]
+  AC-205-3 -.-> TC-225-single-char-ids-only
+  AC-205-4["AC-205-4"]
+  REQ-002 --> AC-205-4
+  TC-225-pick-writes-hash["TC-225-pick-writes-hash"]
+  AC-205-4 -.-> TC-225-pick-writes-hash
+  AC-205-5["AC-205-5"]
+  REQ-002 --> AC-205-5
+  TC-225-mount-url-round-trip["TC-225-mount-url-round-trip"]
+  AC-205-5 -.-> TC-225-mount-url-round-trip
+  AC-205-6["AC-205-6"]
+  REQ-002 --> AC-205-6
+  TC-225-embed-theme-preserved["TC-225-embed-theme-preserved"]
+  AC-205-6 -.-> TC-225-embed-theme-preserved
+  AC-205-7["AC-205-7"]
+  REQ-002 --> AC-205-7
+  TC-225-empty-state-on-fetch-failure["TC-225-empty-state-on-fetch-failure"]
+  AC-205-7 -.-> TC-225-empty-state-on-fetch-failure
+  AC-205-8["AC-205-8"]
+  REQ-002 --> AC-205-8
+  TC-225-no-outbound-side-effects["TC-225-no-outbound-side-effects"]
+  AC-205-8 -.-> TC-225-no-outbound-side-effects
   REQ-003["REQ-003"]
   AC-301-1["AC-301-1"]
   REQ-003 --> AC-301-1
@@ -2490,6 +2522,22 @@ flowchart LR
   class TC-224-cycle-handling tc;
   class AC-204-7 ac;
   class TC-224-no-outbound-postmessage tc;
+  class AC-205-1 ac;
+  class TC-225-id-exact-prefix-first tc;
+  class AC-205-2 ac;
+  class TC-225-word-title-above-snippet tc;
+  class AC-205-3 ac;
+  class TC-225-single-char-ids-only tc;
+  class AC-205-4 ac;
+  class TC-225-pick-writes-hash tc;
+  class AC-205-5 ac;
+  class TC-225-mount-url-round-trip tc;
+  class AC-205-6 ac;
+  class TC-225-embed-theme-preserved tc;
+  class AC-205-7 ac;
+  class TC-225-empty-state-on-fetch-failure tc;
+  class AC-205-8 ac;
+  class TC-225-no-outbound-side-effects tc;
   class REQ-003 req;
   class AC-301-1 ac;
   class TC-006-read-reports-valid tc;

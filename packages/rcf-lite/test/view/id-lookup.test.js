@@ -331,3 +331,36 @@ test('CHANGELOG release-notes the new ./index.json route (ADR-4134)', async () =
   assert.match(text, /\.\/index\.json/);
   assert.match(text, /viewer route is `\.\/index\.json`/);
 });
+
+test('page-init.js urlWithHash preserves ?tab=&entity= + any other query at mount (AC-205-5)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  // urlWithHash concatenates location.pathname + location.search before the hash,
+  // so a mount URL like /?tab=requirements&entity=US-304 keeps its query untouched
+  // through every hash write and the Router honours the current hash on first paint.
+  assert.match(script, /function urlWithHash/);
+  assert.match(script, /window\.location\.pathname \+ window\.location\.search/);
+  // resolveHash runs on mount so an initial hash (set from query by the host or
+  // by the server-rendered page) opens the right tab + entity.
+  assert.match(script, /function resolveHash/);
+});
+
+test('page-init.js writeHash preserves ?embed= and ?theme= through every pick (AC-205-6)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  // writeHash goes through urlWithHash which carries location.search verbatim;
+  // Dex contract on PR 1. The LookupModal pick uses writeHash, so ?embed=1&theme=dark
+  // survives the hash change.
+  assert.match(script, /function writeHash/);
+  // urlWithHash explicitly preserves location.search (where ?embed= / ?theme= live).
+  const uw = script.indexOf('function urlWithHash');
+  const uwEnd = script.indexOf('\n  }', uw);
+  const uwBody = script.slice(uw, uwEnd);
+  assert.match(uwBody, /window\.location\.search/);
+});
+
+test('renderLookupModal carries the empty-state + reload affordance markers (AC-205-7)', () => {
+  const html = renderLookupModal();
+  // The empty state and the reload button are both present in the shell so
+  // wireLookup can show them when ./index.json 404s or returns malformed JSON.
+  assert.match(html, /data-rcf-lookup-empty/);
+  assert.match(html, /data-rcf-lookup-reload/);
+});

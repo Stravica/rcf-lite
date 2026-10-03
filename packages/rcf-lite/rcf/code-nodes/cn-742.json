@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-742",
+  "path": "src/server/routes.js",
+  "title": "GET /index.json route for the viewer ID lookup",
+  "description": "`GET /index.json` returns the server-side ID index as `application/json; charset=utf-8` with `cache-control: no-store`. The handler reads `state.indexJson` (snapshotted per rewalk from `renderModelToPage().indexJson` so bytes match Content-Length) and never touches disk; before the first walk it 503s with `view server initialising`. The route is release-noted (PR 1 relative-script policy, wespa reverse-proxy allow-list adds it before the version pin bump) and is the fourth release-noted viewer route after `./page-init.js` (AC-205-1).",
+  "implementsAcIds": [
+    "AC-205-1"
+  ],
+  "dependencies": [
+    "CN-741"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}
