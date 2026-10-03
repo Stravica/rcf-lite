@@ -305,12 +305,15 @@ test('readiness cli: AC-17404-5 --check shapes exits 4 unacked and 0 acked at cu
   const rUnacked = await run(['--check', 'shapes'], cwd);
   assert.equal(rUnacked.code, 4, `stderr: ${rUnacked.stderr}`);
   assert.match(rUnacked.stdout, /D3 \(define\.shapes\)/);
-  // Write the acknowledgement directly into the freeze record at the
-  // current tree hash so the --check shapes branch sees it. Using the
-  // freeze CLI here would also refuse because other blocking stages
-  // are failing on a fresh init; AC-17404-5 is about the readiness
-  // CLI's exit code honouring an acknowledgement at the current hash,
-  // not about the freeze verb's own happy path.
+  // The freeze record carries the acknowledgement at the current tree
+  // hash so the --check shapes branch honours it. The record's own
+  // `treeHash` and `docHashes` are deliberately a prior-state baseline
+  // (empty `docHashes`, placeholder `treeHash`) so computeDelta sees
+  // every document as changed, D3 is in scope with a real failing
+  // check (tacHasInterface on TAC-001) rather than notApplicable, and
+  // the exit-0 claim is attributable to the ack path alone, not to an
+  // empty delta that would make D3 notApplicable and exit 0 for the
+  // wrong reason (ADR-4131 masking fix landing with PR 5).
   const { walkTree } = await import('#core/store');
   const { computeDelta } = await import('../../src/query/delta.js');
   const { saveFreezeRecord } = await import('../../src/define/freeze-record.js');
@@ -319,8 +322,8 @@ test('readiness cli: AC-17404-5 --check shapes exits 4 unacked and 0 acked at cu
   const currentHash = delta.currentTreeHash;
   const record = {
     frozenAt: '2026-10-03T10:50:00Z',
-    treeHash: currentHash,
-    docHashes: delta.currentDocHashes ?? {},
+    treeHash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+    docHashes: {},
     briefStatements: 0,
     override: null,
     gates: {
@@ -331,8 +334,19 @@ test('readiness cli: AC-17404-5 --check shapes exits 4 unacked and 0 acked at cu
     },
   };
   await saveFreezeRecord({ projectRoot: cwd, record });
+  // Re-walk and re-compute delta against the stored freeze so we can
+  // assert the fixture now exercises the ack path: delta is non-empty,
+  // D3 is failing (not notApplicable), and only the gate ack takes it
+  // to exit 0.
+  const { tree: tree2 } = await walkTree({ projectRoot: cwd });
+  const delta2 = computeDelta(tree2, { treeHash: record.treeHash, docHashes: record.docHashes }, {});
+  assert.ok(
+    delta2.changed.length + delta2.added.length > 0,
+    'fixture must produce a non-empty delta so D3 scope is non-empty and the ack path is really exercised',
+  );
   const rAcked = await run(['--check', 'shapes'], cwd);
   assert.equal(rAcked.code, 0, `expected exit 0 after ack at hash, got ${rAcked.code}; stderr: ${rAcked.stderr}`);
+  assert.match(rAcked.stdout, /D3 \(define\.shapes\): acknowledged/);
 });
 
 test('readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations; ADR-4131 D3 bite)', async () => {

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T16:00:00Z",
-  "updatedAt": "2026-10-01T16:00:00Z",
+  "updatedAt": "2026-10-03T12:10:00Z",
   "purpose": "Cover US-17503: --level and --persona flags, the exit matrix (section 3.2), the two verdict lines (section 2.3) and the persona-grouped text report (section 4) of the DEFINE step 2 persona-levels spec. Shares `formatVerdictLines` with the Readiness tab (PR C).",
   "testLevel": "unit",
   "acIds": [
@@ -49,7 +49,7 @@
     {
       "id": "TC-222-check-all-unchanged",
       "acId": "AC-17503-5",
-      "description": "--check all exits 4 on blocking failures; ADR-4131 (0.30.0 PR 5) makes D3 bite under --check so --check all no longer emits a stderr [warn] line for D3.",
+      "description": "--check all exits 4 on an unacknowledged D3 bite failure under ADR-4131 (0.30.0 PR 5 amends AC-17503-5 for this bite); warn-with-ack posture on D5/D6 preserved until PRs 6 and 7.",
       "status": "pending",
       "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-5 --check all exits 4 on blocking failures (D3 bites in PR 5)"
     },

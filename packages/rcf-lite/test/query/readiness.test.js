@@ -116,7 +116,14 @@ test('readiness: freezeable is true on a well-formed tree (every stage passed / 
   // empty-scope route -- every check must actually pass.
   const tac = {
     tacId: 'TAC-1',
-    interfaces: [{ name: 'ship', kind: 'httpRoute' }],
+    // Interface description carries every per-kind marker ADR-4131 /
+    // AC-17404-1 requires on an httpRoute so shapes:templateMarkers
+    // passes alongside the other D3 checks on this well-formed fixture.
+    interfaces: [{
+      name: 'ship',
+      kind: 'httpRoute',
+      description: 'method: POST\npath: /widgets\nrequest: { widget }\nresponse: { id }\nerrors: [422]',
+    }],
   };
   const req = {
     reqId: 'REQ-1',

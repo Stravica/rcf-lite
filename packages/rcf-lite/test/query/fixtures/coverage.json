@@ -4814,6 +4814,56 @@
             "TC-220-no-req-fields-emitted"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-1",
+          "covered": true,
+          "testCases": [
+            "TC-230-templatemarkers-draft-recordshape",
+            "TC-230-templatemarkers-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-2",
+          "covered": true,
+          "testCases": [
+            "TC-230-templatemarkers-missing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-3",
+          "covered": true,
+          "testCases": [
+            "TC-230-entityjoin-ok-and-twice"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-4",
+          "covered": true,
+          "testCases": [
+            "TC-230-pathsresolve-resolved-and-authored"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-5",
+          "covered": true,
+          "testCases": [
+            "TC-230-ackable-exactly-d3-d5-d6",
+            "TC-230-cli-check-shapes-exit-matrix"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-6",
+          "covered": true,
+          "testCases": [
+            "TC-230-freeze-ack-blocking-stages-exit-2"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

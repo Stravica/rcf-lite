@@ -2285,6 +2285,34 @@ flowchart LR
   REQ-174 --> AC-17403-8
   TC-220-no-req-fields-emitted["TC-220-no-req-fields-emitted"]
   AC-17403-8 -.-> TC-220-no-req-fields-emitted
+  AC-17404-1["AC-17404-1"]
+  REQ-174 --> AC-17404-1
+  TC-230-templatemarkers-draft-recordshape["TC-230-templatemarkers-draft-recordshape"]
+  AC-17404-1 -.-> TC-230-templatemarkers-draft-recordshape
+  TC-230-templatemarkers-happy["TC-230-templatemarkers-happy"]
+  AC-17404-1 -.-> TC-230-templatemarkers-happy
+  AC-17404-2["AC-17404-2"]
+  REQ-174 --> AC-17404-2
+  TC-230-templatemarkers-missing["TC-230-templatemarkers-missing"]
+  AC-17404-2 -.-> TC-230-templatemarkers-missing
+  AC-17404-3["AC-17404-3"]
+  REQ-174 --> AC-17404-3
+  TC-230-entityjoin-ok-and-twice["TC-230-entityjoin-ok-and-twice"]
+  AC-17404-3 -.-> TC-230-entityjoin-ok-and-twice
+  AC-17404-4["AC-17404-4"]
+  REQ-174 --> AC-17404-4
+  TC-230-pathsresolve-resolved-and-authored["TC-230-pathsresolve-resolved-and-authored"]
+  AC-17404-4 -.-> TC-230-pathsresolve-resolved-and-authored
+  AC-17404-5["AC-17404-5"]
+  REQ-174 --> AC-17404-5
+  TC-230-ackable-exactly-d3-d5-d6["TC-230-ackable-exactly-d3-d5-d6"]
+  AC-17404-5 -.-> TC-230-ackable-exactly-d3-d5-d6
+  TC-230-cli-check-shapes-exit-matrix["TC-230-cli-check-shapes-exit-matrix"]
+  AC-17404-5 -.-> TC-230-cli-check-shapes-exit-matrix
+  AC-17404-6["AC-17404-6"]
+  REQ-174 --> AC-17404-6
+  TC-230-freeze-ack-blocking-stages-exit-2["TC-230-freeze-ack-blocking-stages-exit-2"]
+  AC-17404-6 -.-> TC-230-freeze-ack-blocking-stages-exit-2
   REQ-175["REQ-175"]
   AC-17501-1["AC-17501-1"]
   REQ-175 --> AC-17501-1
@@ -3826,6 +3854,20 @@ flowchart LR
   class TC-220-one-option-no-default-fails-well-formed tc;
   class AC-17403-8 ac;
   class TC-220-no-req-fields-emitted tc;
+  class AC-17404-1 ac;
+  class TC-230-templatemarkers-draft-recordshape tc;
+  class TC-230-templatemarkers-happy tc;
+  class AC-17404-2 ac;
+  class TC-230-templatemarkers-missing tc;
+  class AC-17404-3 ac;
+  class TC-230-entityjoin-ok-and-twice tc;
+  class AC-17404-4 ac;
+  class TC-230-pathsresolve-resolved-and-authored tc;
+  class AC-17404-5 ac;
+  class TC-230-ackable-exactly-d3-d5-d6 tc;
+  class TC-230-cli-check-shapes-exit-matrix tc;
+  class AC-17404-6 ac;
+  class TC-230-freeze-ack-blocking-stages-exit-2 tc;
   class REQ-175 req;
   class AC-17501-1 ac;
   class TC-217-shape tc;

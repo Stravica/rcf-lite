@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-17503-5",
-      "description": "[happy] Given --check all on the same tree, when the verb runs, then it exits 0, unchanged from 0.28.4.",
+      "description": "[happy] Given --check all on a tree with an unacknowledged D3 bite failure, when the verb runs, then it exits 4 (ADR-4131 bite); given --check all on a tree where only D5 or D6 fail without an ack, then it exits 0 with a stderr [warn] line (warn-with-ack posture preserved until PRs 6 and 7). (Amended by DEFINE step 3 PR 5 under ADR-4131; superseded prior wording: 'exits 0, unchanged from 0.28.4'.)",
       "testable": true
     },
     {
@@ -61,5 +61,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T16:00:00Z",
-  "updatedAt": "2026-10-01T16:00:00Z"
+  "updatedAt": "2026-10-03T12:10:00Z"
 }
