@@ -471,6 +471,12 @@ const CLOSED_SET_CUES = Object.freeze([
   'types of',
   'status is',
 ]);
+// Word-boundary matchers for each cue so a longer word that happens
+// to contain the cue as a substring (e.g. "status issue" containing
+// "status is") does not trip the gate.
+const CLOSED_SET_CUE_RES = Object.freeze(
+  CLOSED_SET_CUES.map((cue) => new RegExp(`\\b${cue.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\b`, 'i')),
+);
 
 /**
  * Inline bracketed list regex for the closed-sets check: a square-
@@ -523,25 +529,25 @@ function failsClosedSets(ac) {
   if (acHasOwnerRef(ac)) return false;
   const descNoClass = descRaw.replace(AC_CLASS_RE, '').trim();
   if (INLINE_LIST_RE.test(descNoClass)) return false;
-  const descForCues = stripQuotedSubstrings(descNoClass).toLowerCase();
-  for (const cue of CLOSED_SET_CUES) {
-    if (descForCues.includes(cue)) return true;
+  const descForCues = stripQuotedSubstrings(descNoClass);
+  for (const re of CLOSED_SET_CUE_RES) {
+    if (re.test(descForCues)) return true;
   }
   return false;
 }
 
 /**
  * Parse an `interfaces[<name>]` field pointer into its interface
- * name. Accepts an identifier (letters, digits, underscores and
- * hyphens) between the brackets; returns null for an unparseable
- * pointer.
+ * name. Accepts any non-empty name between the brackets (interface
+ * names routinely carry dots, slashes and spaces); returns null for
+ * an unparseable pointer.
  *
  * @param {unknown} field
  * @returns {string | null}
  */
 function parseOwnerRefInterfaceField(field) {
   if (typeof field !== 'string') return null;
-  const m = field.match(/^interfaces\[([A-Za-z0-9_\-]+)\]$/);
+  const m = field.match(/^interfaces\[([^\]\n]+)\]$/);
   return m ? m[1] : null;
 }
 

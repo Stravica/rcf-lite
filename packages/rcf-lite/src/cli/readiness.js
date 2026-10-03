@@ -76,12 +76,13 @@ Options:
                             crosscut | consistency | decisions |
                             freeze. Exits 4 on a blocking-stage
                             failure (D1 / D2 / D4 / D7 / D8) and on
-                            an unacknowledged D3 bite failure
-                            (ADR-4131, 0.30.0 PR 5); exits 0 when D3
-                            is acknowledged at the current tree hash;
-                            exits 0 with a visible '[warn]' line on an
-                            unacknowledged warn-with-ack failure
-                            (D5 / D6 until PRs 6 and 7 bite them). Use
+                            an unacknowledged D3 or D5 bite failure
+                            (ADR-4131, 0.30.0 PR 5 and PR 6); exits 0
+                            when D3 or D5 is acknowledged at the
+                            current tree hash; exits 0 with a visible
+                            '[warn]' line on an unacknowledged warn-
+                            with-ack failure (D6 until PR 7 bites it).
+                            Use
                             --check all to print every stage under
                             this exit-code policy.
   --level <intent|build>    Pick which verdict the exit code follows.

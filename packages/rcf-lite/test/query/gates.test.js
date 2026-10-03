@@ -1334,6 +1334,33 @@ test('gates (PR 6, AC-17405-1): closedSets honours the quoted-cue guard shared w
   assert.equal(closed.ok, true, `quoted cue should not fire; got ${JSON.stringify(closed.failing)}`);
 });
 
+test('gates (PR 6, AC-17405-1): closedSets uses word boundaries so substrings of cues do not trip', () => {
+  // Sabotage proof: a substring match of 'status is' on 'status issue'
+  // or of 'one of' on 'clone off' used to fire the gate; the
+  // word-boundary matchers added in the PR 6 landing fix should keep
+  // these ACs passing.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-SUB-1', testable: true, description: '[happy] a status issue is logged when the request fails' },
+      { id: 'AC-SUB-2', testable: true, description: '[happy] the clone offers no mutating writes' },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['httpApi'] } };
+  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'x', kind: 'other', description: 'note' }] };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const closed = stage.checks.find((c) => c.name === 'stories:closedSets');
+  assert.ok(closed);
+  assert.equal(closed.ok, true, `substring matches should not fire; got ${JSON.stringify(closed.failing)}`);
+});
+
 test('gates (PR 6, AC-17405-2): ownerRefResolves passes a resolving pointer and fails a missing one', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const tac = {
@@ -1362,6 +1389,43 @@ test('gates (PR 6, AC-17405-2): ownerRefResolves passes a resolving pointer and 
   assert.equal(check.failing.length, 1, `got ${JSON.stringify(check.failing)}`);
   assert.equal(check.failing[0].id, 'AC-FAIL:interfaces[missing]');
   assert.equal(check.failing[0].why, 'ownerRef does not resolve');
+});
+
+test('gates (PR 6, AC-17405-2): ownerRefResolves accepts interface names with dots, slashes and spaces', () => {
+  // Sabotage proof: a tight [A-Za-z0-9_-] regex rejected real interface
+  // names such as 'rcf.read', 'GET /index.json' and 'Access policy
+  // shape' as unparseable, forcing a 'ownerRef does not resolve'
+  // finding even when the pointer did resolve. The PR 6 landing fix
+  // broadens the parser to accept any non-empty name between the
+  // brackets.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-1',
+    interfaces: [
+      { name: 'rcf.read', kind: 'cliCommand', description: 'rcf read sub-verb' },
+      { name: 'GET /index.json', kind: 'httpRoute', description: 'index JSON' },
+      { name: 'Access policy shape', kind: 'recordShape', description: 'fields: id, name' },
+    ],
+  };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-DOT', testable: true, description: '[happy] the dotted name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[rcf.read]' } },
+      { id: 'AC-SLASH', testable: true, description: '[happy] the route name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[GET /index.json]' } },
+      { id: 'AC-SPACE', testable: true, description: '[happy] the spaced name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[Access policy shape]' } },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['persistence'] } };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const check = stage.checks.find((c) => c.name === 'stories:ownerRefResolves');
+  assert.ok(check);
+  assert.equal(check.failing.length, 0, `all three names should resolve; got ${JSON.stringify(check.failing)}`);
 });
 
 test('gates (PR 6, AC-17405-3): crosscut:catalogue passes a persistence REQ with retention applied and timeAndTimezone waived', () => {
