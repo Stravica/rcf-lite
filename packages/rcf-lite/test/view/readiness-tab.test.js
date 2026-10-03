@@ -288,8 +288,21 @@ test('readiness tab: AC-18001-7 every id on the tab appears in the CLI --json fo
   const html = renderReadinessPanel(result, { profile: null, freezeRecord: envelope.freezeRecord ?? null });
   // Collect every anchor id from the Readiness tab (hrefs that start with `#`).
   const anchors = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
-  // Decode each (findings-list uses encodeURIComponent for stage:check anchors).
-  const ids = anchors.map((a) => a.startsWith('rcf-readiness-') ? a : decodeURIComponent(a));
+  // Decode each. The viewer anchor pipeline is HTML-escape (findings-list)
+  // or encodeURIComponent (next-action and stage:check anchors), so a raw
+  // href may carry HTML entities (&lt; &gt; &amp;) or URL percent escapes.
+  // DEFINE step 3 PR 5 (ADR-4131) is the first slice whose findings ids
+  // contain `<` and `>` (the dogfood tree's cliCommand interface names
+  // like `rcf define ledger <name> update <id>`); HTML-decode before the
+  // URL-decode so the parity comparison sees the raw tree id, which is
+  // what the --json haystack carries.
+  const htmlDecode = (s) => s
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&');
+  const ids = anchors.map((a) => a.startsWith('rcf-readiness-') ? a : decodeURIComponent(htmlDecode(a)));
   // Flatten the JSON into a stringified haystack; every id must appear.
   const haystack = JSON.stringify(result);
   for (const id of ids) {

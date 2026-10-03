@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-755",
+  "path": "src/cli/freeze.js",
+  "title": "DEFINE step 3 PR 5: freeze --ack on D1, D2, D4, D7 or D8 keeps exiting 2",
+  "description": "src/cli/freeze.js already refuses --ack on any gate outside D3, D5 and D6 with exit 2 and the usage line ADR-4124 pins. PR 5 confirms the invariant with AC-17404-6: ackable(stage) in gates.js is the single source of truth for the three ackable gates (freeze reads ACKABLE_GATES = STAGE_GATES.D3 | D5 | D6, which lines up with ackable()). No code change in this PR; this CN anchors the AC against the file that enforces the invariant so a future refactor cannot drop the exit-2 behaviour without flagging the AC.",
+  "implementsAcIds": [
+    "AC-17404-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z"
+}

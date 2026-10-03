@@ -112,7 +112,11 @@ async function seedFreezeableTree(root) {
     purpose: 'Ships the widget over http.',
     responsibilities: ['Accept a POST', 'Return 201 with the widget id'],
     interfaces: [
-      { name: 'ship', kind: 'httpRoute', description: 'POST /widgets' },
+      {
+        name: 'ship',
+        kind: 'httpRoute',
+        description: 'method: POST\npath: /widgets\nrequest: { widget }\nresponse: { id }\nerrors: [422]',
+      },
     ],
     createdAt: '2026-09-24T16:00:00Z',
     updatedAt: '2026-09-24T16:00:00Z',
@@ -374,6 +378,30 @@ test('freeze cli: admissibility refusal is informational, never a freeze refusal
   // When the wrap refused, the CLI prints a [warn] and continues.
   if (r.stderr.includes('[warn]')) {
     assert.match(r.stderr, /chain admissibility refused/);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// ADR-4131 (US-17404, AC-17404-6): --ack on D1, D2, D4, D7 or D8 keeps
+// exiting 2 unchanged from 0.29.0. ackable(stage) is the single source of
+// truth for the three gates that accept a recorded override.
+// ---------------------------------------------------------------------------
+
+test('freeze cli: AC-17404-6 --ack on D1, D2, D4, D7 or D8 exits 2 unchanged', async () => {
+  const cwd = await scratchProject();
+  const blocking = [
+    { stage: 'D1', aliases: ['define.brief', 'brief', 'D1'] },
+    { stage: 'D2', aliases: ['define.skeleton', 'skeleton', 'D2'] },
+    { stage: 'D4', aliases: ['define.stories', 'stories', 'D4'] },
+    { stage: 'D7', aliases: ['define.decisions', 'decisions', 'D7'] },
+    { stage: 'D8', aliases: ['define.freeze', 'freeze', 'D8'] },
+  ];
+  for (const row of blocking) {
+    for (const alias of row.aliases) {
+      const r = await run(['--ack', alias, '--reason', `${row.stage} ack must refuse`], cwd);
+      assert.equal(r.code, 2, `--ack ${alias} (${row.stage}): expected exit 2, got ${r.code}; stderr=${r.stderr}`);
+      assert.match(r.stderr, /not an ackable gate/);
+    }
   }
 });
 

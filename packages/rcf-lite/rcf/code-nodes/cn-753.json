@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-753",
+  "path": "src/query/gates.js",
+  "title": "DEFINE step 3 PR 5: D3 bite checks, parseInterfaceTemplate and ackable on the gates module",
+  "description": "src/query/gates.js grows the three D3 bite checks (shapes:templateMarkers over delta with per-kind marker presence on interfaces[].description; shapes:entityJoin over tree asserting every coreEntities[].name is named by exactly one recordShape with ids TAD.entity:<name>; shapes:pathsResolve over delta asserting any path:-like token resolves against the resolvedPaths map in the stage context or carries authoredAt: D3), the parseInterfaceTemplate(iface) helper that computes per-kind marker presence (exported for validate's step 6 notice), and the ackable(stage) helper that returns true for D3, D5 and D6. The CHECK_PERSONA, CHECK_QUESTION and STAGE_FALLBACK_PERSONA maps grow in step so every new check carries a persona and a question. Drafts are included in templateMarkers. The gate functions stay pure: readiness.js threads the resolvedPaths map through the stage context; the CLI resolves candidate paths on disk.",
+  "implementsAcIds": [
+    "AC-17404-1",
+    "AC-17404-2",
+    "AC-17404-3",
+    "AC-17404-4"
+  ],
+  "dependencies": [
+    "CN-725"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z"
+}

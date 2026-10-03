@@ -257,7 +257,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE-stage guidance pack) (198 -> 200).
   // Viewer UI refresh PR 9 added US-206 under REQ-002 for the wespa
   // host fixture + three embedding lints chain amendments (200 -> 201).
-  assert.equal(tree.userStories.length, 201);
+  // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added US-17404 under
+  // REQ-174 (D3 bites: shapes:templateMarkers, shapes:entityJoin,
+  // shapes:pathsResolve, ackable(stage), --check shapes exit 4) (201 -> 202).
+  assert.equal(tree.userStories.length, 202);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -321,7 +324,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // re-derivation) (57 -> 58).
   // Viewer UI refresh PR 9 added ADR-4136-embedding-host-fixture (CI
   // host fixture + three lints; fixture does not persist theme) (58 -> 59).
-  assert.equal(tree.adrs.length, 59);
+  // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added ADR-4131
+  // (the gates bite with --ack as the recorded override for D3, D5, D6)
+  // (59 -> 60).
+  assert.equal(tree.adrs.length, 60);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -502,7 +508,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Viewer UI refresh PR 9 added TS-229 (US-206 wespa host fixture +
   // three lints, 6 TCs on test/view/wespa-host-fixture.test.js and
   // the Playwright evidence script in the lane return) (169 -> 170).
-  assert.equal(tree.testSuites.length, 170);
+  // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added TS-230 (US-17404
+  // D3 bites: 8 TCs on test/query/gates.test.js, test/cli/readiness.test.js
+  // and test/cli/freeze.test.js) (170 -> 171).
+  assert.equal(tree.testSuites.length, 171);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T16:00:00Z",
-  "updatedAt": "2026-10-01T16:00:00Z",
+  "updatedAt": "2026-10-03T12:10:00Z",
   "purpose": "Cover US-17503: --level and --persona flags, the exit matrix (section 3.2), the two verdict lines (section 2.3) and the persona-grouped text report (section 4) of the DEFINE step 2 persona-levels spec. Shares `formatVerdictLines` with the Readiness tab (PR C).",
   "testLevel": "unit",
   "acIds": [
@@ -23,7 +23,7 @@
       "acId": "AC-17503-1",
       "description": "Parameterised exit matrix across all rows of spec section 3.2 (no flag, --check <stage>, --check all, --level intent, --level build, --level + --check).",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations)"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations; ADR-4131 D3 bite)"
     },
     {
       "id": "TC-222-level-intent-pass",
@@ -49,9 +49,9 @@
     {
       "id": "TC-222-check-all-unchanged",
       "acId": "AC-17503-5",
-      "description": "--check all exit behaviour unchanged on a warn-with-ack-only failure: 0 with a stderr [warn] line.",
+      "description": "--check all exits 4 on an unacknowledged D3 bite failure under ADR-4131 (0.30.0 PR 5 amends AC-17503-5 for this bite); warn-with-ack posture on D5/D6 preserved until PRs 6 and 7.",
       "status": "pending",
-      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-5 --check all unchanged on warn-with-ack"
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17503-5 --check all exits 4 on blocking failures (D3 bites in PR 5)"
     },
     {
       "id": "TC-222-persona-collapses-other",
