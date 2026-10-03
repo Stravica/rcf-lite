@@ -7,13 +7,16 @@
     {"slug": "managed/agent-instructions-block", "file": "managed/agent-instructions-block.md", "title": "The rcf doctor managed CLAUDE.md/AGENTS.md block (0.6.0 canonical text)"},
     {"slug": "persona-programme", "file": "persona-programme.md", "title": "Persona programme: tail-interview template"},
     {"slug": "define-intent", "file": "define-intent.md", "title": "The product-owner intent loop (DEFINE step 3)"},
-    {"slug": "define-intake", "file": "define-intake.md", "title": "Document intake into the brief ledger (DEFINE step 3)"}
+    {"slug": "define-intake", "file": "define-intake.md", "title": "Document intake into the brief ledger (DEFINE step 3)"},
+    {"slug": "discovery-prototypes", "file": "discovery-prototypes.md", "title": "DISCOVERY home for prototypes (DEFINE step 3)"}
   ],
   "prompts": [
     {"name": "rcf_execute_build_cycle", "file": "build-cycle-playbook.md", "description": "How to execute the RCF 5-stage build cycle well: per-stage guidance, referee commands, failure modes, escalation rules. Fetch once per session, then drive rcf build bundle --next."},
     {"name": "rcf_elicit_requirements", "file": "elicitation-playbook.md", "description": "How to draw a valid RCF tree out of a conversation: question frames for PRD / REQ / US / AC, the testable-AC quality bar, TAC / ADR capture, FBS queue construction, and when to stop."},
     {"name": "rcf_define_intent", "file": "define-intent.md", "description": "Drive the product-owner intent-complete loop with rcf_define_questions, write-backs through existing verbs, and the readiness verdict. Argument-free; starts with --persona productOwner and ends at levels.intentComplete.ok."},
-    {"name": "rcf_define_intake", "file": "define-intake.md", "description": "Walk a document folder brief-first, write one statement file per source with [kind] and (source: ...) markers, run brief add --from once per source, and report the scan findings as open questions. Argument-free."}
+    {"name": "rcf_define_intake", "file": "define-intake.md", "description": "Walk a document folder brief-first, write one statement file per source with [kind] and (source: ...) markers, run brief add --from once per source, and report the scan findings as open questions. Argument-free."},
+    {"name": "rcf_define_draft_shapes", "file": "define-draft-shapes.md", "description": "Run the draft pass after L1 is green: pre-populate [draft] core entities per entity statement, [draft] TAC stubs per surface or externalSystem cluster, [draft] interfaces with real kinds inside each stub, and rcf discover req-classify over every REQ created in the loop. Argument-free."},
+    {"name": "rcf_discover_prototype", "file": "discover-prototype.md", "description": "Record a prototype in DISCOVERY as evidence: classification, brief statements with prototype:<name>:<observation> source spans, the burn statement, and the salvage-by-re-derivation path. Argument-free."}
   ],
   "platformInvariants": [
     {
