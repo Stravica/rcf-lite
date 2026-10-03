@@ -19,6 +19,8 @@ const EXPECTED_NAMES = [
   'rcf_validate', 'rcf_coverage', 'rcf_trace', 'rcf_impact', 'rcf_read',
   'rcf_create', 'rcf_update', 'rcf_delete', 'rcf_link', 'rcf_unlink',
   'rcf_build',
+  // REQ-186 (DEFINE step 3 PR 2) added three tools (spec 2026-10-01 §6).
+  'rcf_define_questions', 'rcf_define_readiness', 'rcf_define_ledger',
 ];
 
 async function scaffold() {
@@ -42,7 +44,7 @@ async function breakTree(tmp) {
 // Registry shape (D5-D7, D17)
 // ---------------------------------------------------------------------------
 
-test('registry: exactly the eleven specced tools, in order', async () => {
+test('registry: exactly the fourteen specced tools, in order', async () => {
   const registry = registryFor(await scaffold());
   assert.deepEqual(registry.definitions.map((d) => d.name), EXPECTED_NAMES);
 });

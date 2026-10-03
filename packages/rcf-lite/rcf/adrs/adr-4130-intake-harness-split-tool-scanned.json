@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4130-intake-harness-split-tool-scanned",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Intake is harness-split and tool-scanned; findings become open-question statements",
+  "context": "DEFINE step 3 (spec 2026-10-01, section 2.1) requires a document intake path where a product owner hands over a folder and reaches `Intent-complete: yes` without an engineer driving. Splitting a source into kinded statements is the agent's job (the harness writes one statement file per source, operator corrects); the mechanical scans and the follow-up questions are rcf-lite's. The question is how finding-level signals (duplicates, contradictions, ambiguities) reach the loop.",
+  "decision": "intake is harness-split and tool-scanned; findings become open-question statements. The harness writes `<source>.statements.md` beside each source; `brief add --from` mints the statements and `runIntakeScansOnDelta` runs over the new ids against the existing body; every finding is appended as one `openQuestion` statement whose source names the scan and the ids involved. The loop then reads one check (`brief:openQuestions`) and the owner answers in one place.",
+  "consequences": "The owner sees findings as questions, not a separate list. One place carries intent (the brief ledger) and one check reads it. The harness can be swapped: any agent that writes the statement file shape and runs `brief add --from` reaches the same loop. The cost is that a finding's full detail lives inside the openQuestion text and its `scan:` source marker; a reviewer who wants a flat findings list builds it from `kind === 'openQuestion' && source startsWith 'scan:'`.",
+  "alternativesConsidered": [
+    {
+      "name": "A separate findings list on the manifest",
+      "summary": "Keep an array of findings on rcf/manifest.json alongside the ledgers, read by the loop as a parallel surface.",
+      "reasonNotChosen": "A second place the loop would have to read, and a second place that could drift from the brief ledger. Making findings statements collapses two surfaces into the one the loop already needs."
+    }
+  ],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}

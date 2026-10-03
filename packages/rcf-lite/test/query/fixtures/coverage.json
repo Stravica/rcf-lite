@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 113,
-    "covered": 113,
+    "requirements": 114,
+    "covered": 114,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -5119,6 +5119,157 @@
           "covered": true,
           "testCases": [
             "TC-223-no-existing-tab-tests-change"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-186",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18601-1",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-2",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-deterministic"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-3",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-optional-decisions"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-4",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-empty-when-ok"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-5",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-engineer-persona"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-6",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-usage-error"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18601-7",
+          "covered": true,
+          "testCases": [
+            "TC-226-q-writes-nothing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-1",
+          "covered": true,
+          "testCases": [
+            "TC-226-cli-json"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-2",
+          "covered": true,
+          "testCases": [
+            "TC-226-cli-persona-default"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-3",
+          "covered": true,
+          "testCases": [
+            "TC-226-cli-stage-limit"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-4",
+          "covered": true,
+          "testCases": [
+            "TC-226-mcp-parity"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-5",
+          "covered": true,
+          "testCases": [
+            "TC-226-cli-usage-persona"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18602-6",
+          "covered": true,
+          "testCases": [
+            "TC-226-cli-writes-nothing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18603-1",
+          "covered": true,
+          "testCases": [
+            "TC-226-loop-convergence"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18603-2",
+          "covered": true,
+          "testCases": [
+            "TC-226-loop-new-req"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18603-3",
+          "covered": true,
+          "testCases": [
+            "TC-226-loop-l1-draft-stable"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18603-4",
+          "covered": true,
+          "testCases": [
+            "TC-226-loop-decision-wellformed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18603-5",
+          "covered": true,
+          "testCases": [
+            "TC-226-loop-engineer-isolation"
           ],
           "unresolvedTestCases": []
         }

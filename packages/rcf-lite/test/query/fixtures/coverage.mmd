@@ -2427,6 +2427,79 @@ flowchart LR
   REQ-181 --> AC-18101-3
   TC-223-no-existing-tab-tests-change["TC-223-no-existing-tab-tests-change"]
   AC-18101-3 -.-> TC-223-no-existing-tab-tests-change
+  REQ-186["REQ-186"]
+  AC-18601-1["AC-18601-1"]
+  REQ-186 --> AC-18601-1
+  TC-226-q-shape["TC-226-q-shape"]
+  AC-18601-1 -.-> TC-226-q-shape
+  AC-18601-2["AC-18601-2"]
+  REQ-186 --> AC-18601-2
+  TC-226-q-deterministic["TC-226-q-deterministic"]
+  AC-18601-2 -.-> TC-226-q-deterministic
+  AC-18601-3["AC-18601-3"]
+  REQ-186 --> AC-18601-3
+  TC-226-q-optional-decisions["TC-226-q-optional-decisions"]
+  AC-18601-3 -.-> TC-226-q-optional-decisions
+  AC-18601-4["AC-18601-4"]
+  REQ-186 --> AC-18601-4
+  TC-226-q-empty-when-ok["TC-226-q-empty-when-ok"]
+  AC-18601-4 -.-> TC-226-q-empty-when-ok
+  AC-18601-5["AC-18601-5"]
+  REQ-186 --> AC-18601-5
+  TC-226-q-engineer-persona["TC-226-q-engineer-persona"]
+  AC-18601-5 -.-> TC-226-q-engineer-persona
+  AC-18601-6["AC-18601-6"]
+  REQ-186 --> AC-18601-6
+  TC-226-q-usage-error["TC-226-q-usage-error"]
+  AC-18601-6 -.-> TC-226-q-usage-error
+  AC-18601-7["AC-18601-7"]
+  REQ-186 --> AC-18601-7
+  TC-226-q-writes-nothing["TC-226-q-writes-nothing"]
+  AC-18601-7 -.-> TC-226-q-writes-nothing
+  AC-18602-1["AC-18602-1"]
+  REQ-186 --> AC-18602-1
+  TC-226-cli-json["TC-226-cli-json"]
+  AC-18602-1 -.-> TC-226-cli-json
+  AC-18602-2["AC-18602-2"]
+  REQ-186 --> AC-18602-2
+  TC-226-cli-persona-default["TC-226-cli-persona-default"]
+  AC-18602-2 -.-> TC-226-cli-persona-default
+  AC-18602-3["AC-18602-3"]
+  REQ-186 --> AC-18602-3
+  TC-226-cli-stage-limit["TC-226-cli-stage-limit"]
+  AC-18602-3 -.-> TC-226-cli-stage-limit
+  AC-18602-4["AC-18602-4"]
+  REQ-186 --> AC-18602-4
+  TC-226-mcp-parity["TC-226-mcp-parity"]
+  AC-18602-4 -.-> TC-226-mcp-parity
+  AC-18602-5["AC-18602-5"]
+  REQ-186 --> AC-18602-5
+  TC-226-cli-usage-persona["TC-226-cli-usage-persona"]
+  AC-18602-5 -.-> TC-226-cli-usage-persona
+  AC-18602-6["AC-18602-6"]
+  REQ-186 --> AC-18602-6
+  TC-226-cli-writes-nothing["TC-226-cli-writes-nothing"]
+  AC-18602-6 -.-> TC-226-cli-writes-nothing
+  AC-18603-1["AC-18603-1"]
+  REQ-186 --> AC-18603-1
+  TC-226-loop-convergence["TC-226-loop-convergence"]
+  AC-18603-1 -.-> TC-226-loop-convergence
+  AC-18603-2["AC-18603-2"]
+  REQ-186 --> AC-18603-2
+  TC-226-loop-new-req["TC-226-loop-new-req"]
+  AC-18603-2 -.-> TC-226-loop-new-req
+  AC-18603-3["AC-18603-3"]
+  REQ-186 --> AC-18603-3
+  TC-226-loop-l1-draft-stable["TC-226-loop-l1-draft-stable"]
+  AC-18603-3 -.-> TC-226-loop-l1-draft-stable
+  AC-18603-4["AC-18603-4"]
+  REQ-186 --> AC-18603-4
+  TC-226-loop-decision-wellformed["TC-226-loop-decision-wellformed"]
+  AC-18603-4 -.-> TC-226-loop-decision-wellformed
+  AC-18603-5["AC-18603-5"]
+  REQ-186 --> AC-18603-5
+  TC-226-loop-engineer-isolation["TC-226-loop-engineer-isolation"]
+  AC-18603-5 -.-> TC-226-loop-engineer-isolation
   REQ-187["REQ-187"]
   AC-18701-1["AC-18701-1"]
   REQ-187 --> AC-18701-1
@@ -3746,6 +3819,43 @@ flowchart LR
   class TC-223-findings-list-markup tc;
   class AC-18101-3 ac;
   class TC-223-no-existing-tab-tests-change tc;
+  class REQ-186 req;
+  class AC-18601-1 ac;
+  class TC-226-q-shape tc;
+  class AC-18601-2 ac;
+  class TC-226-q-deterministic tc;
+  class AC-18601-3 ac;
+  class TC-226-q-optional-decisions tc;
+  class AC-18601-4 ac;
+  class TC-226-q-empty-when-ok tc;
+  class AC-18601-5 ac;
+  class TC-226-q-engineer-persona tc;
+  class AC-18601-6 ac;
+  class TC-226-q-usage-error tc;
+  class AC-18601-7 ac;
+  class TC-226-q-writes-nothing tc;
+  class AC-18602-1 ac;
+  class TC-226-cli-json tc;
+  class AC-18602-2 ac;
+  class TC-226-cli-persona-default tc;
+  class AC-18602-3 ac;
+  class TC-226-cli-stage-limit tc;
+  class AC-18602-4 ac;
+  class TC-226-mcp-parity tc;
+  class AC-18602-5 ac;
+  class TC-226-cli-usage-persona tc;
+  class AC-18602-6 ac;
+  class TC-226-cli-writes-nothing tc;
+  class AC-18603-1 ac;
+  class TC-226-loop-convergence tc;
+  class AC-18603-2 ac;
+  class TC-226-loop-new-req tc;
+  class AC-18603-3 ac;
+  class TC-226-loop-l1-draft-stable tc;
+  class AC-18603-4 ac;
+  class TC-226-loop-decision-wellformed tc;
+  class AC-18603-5 ac;
+  class TC-226-loop-engineer-isolation tc;
   class REQ-187 req;
   class AC-18701-1 ac;
   class TC-215-markers-kind-and-source tc;

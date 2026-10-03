@@ -1,0 +1,45 @@
+{
+  "usId": "US-18603",
+  "prdId": "PRD-001",
+  "reqId": "REQ-186",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "write-back and termination",
+  "description": "User story under REQ-186. Every answer lands through a verb and the loop ends at the computed verdict, so nothing about intent lives only in a chat.",
+  "asA": "product owner",
+  "iWant": "every answer to land through a verb and the loop to end at the computed verdict",
+  "soThat": "nothing about my intent lives only in a chat",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18603-1",
+      "description": "[happy] given the scripted loop fixture, when every writeBack the question set returns is applied and readiness recomputed each turn, then the question count strictly decreases every turn and reaches zero.",
+      "testable": true
+    },
+    {
+      "id": "AC-18603-2",
+      "description": "[happy] given a statement resolved to a newly created REQ carrying description and domain, when readiness recomputes, then skeleton:reqIntent passes that REQ and stories:reqHasUs asks for it once.",
+      "testable": true
+    },
+    {
+      "id": "AC-18603-3",
+      "description": "[happy] given a tree at L1, when [draft] entities, TAC stubs and interfaces are added, then levels.intentComplete.ok stays true and the product-owner question set stays empty.",
+      "testable": true
+    },
+    {
+      "id": "AC-18603-4",
+      "description": "[failure] given an openQuestion promoted to a decision with one option and no default, when readiness recomputes, then decisions:wellFormed asks once and brief:openQuestions does not.",
+      "testable": true
+    },
+    {
+      "id": "AC-18603-5",
+      "description": "[must-not] given any product-owner check, when readiness recomputes after an engineer-only edit, then no product-owner check changes from ok to failing.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4129-define-questions"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}

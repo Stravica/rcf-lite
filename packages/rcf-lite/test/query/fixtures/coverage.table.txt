@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 113  covered: 113  covered-unresolved: 0  uncovered: 0
+Requirements: 114  covered: 114  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -532,6 +532,24 @@ REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
 REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
                       AC-18101-2   yes         TC-223-findings-list-markup
                       AC-18101-3   yes         TC-223-no-existing-tab-tests-change
+REQ-186      yes      AC-18601-1   yes         TC-226-q-shape
+                      AC-18601-2   yes         TC-226-q-deterministic
+                      AC-18601-3   yes         TC-226-q-optional-decisions
+                      AC-18601-4   yes         TC-226-q-empty-when-ok
+                      AC-18601-5   yes         TC-226-q-engineer-persona
+                      AC-18601-6   yes         TC-226-q-usage-error
+                      AC-18601-7   yes         TC-226-q-writes-nothing
+                      AC-18602-1   yes         TC-226-cli-json
+                      AC-18602-2   yes         TC-226-cli-persona-default
+                      AC-18602-3   yes         TC-226-cli-stage-limit
+                      AC-18602-4   yes         TC-226-mcp-parity
+                      AC-18602-5   yes         TC-226-cli-usage-persona
+                      AC-18602-6   yes         TC-226-cli-writes-nothing
+                      AC-18603-1   yes         TC-226-loop-convergence
+                      AC-18603-2   yes         TC-226-loop-new-req
+                      AC-18603-3   yes         TC-226-loop-l1-draft-stable
+                      AC-18603-4   yes         TC-226-loop-decision-wellformed
+                      AC-18603-5   yes         TC-226-loop-engineer-isolation
 REQ-187      yes      AC-18701-1   yes         TC-215-markers-kind-and-source
                       AC-18701-2   yes         TC-215-defaults-from-flags
                       AC-18701-3   yes         TC-215-question-heuristic
