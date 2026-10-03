@@ -434,21 +434,27 @@ async function enforceBundleNextFreezeGate({ tree, projectRoot, overrideReason }
   }
   // Compute impacted FBS set when the tree is frozen (unfrozen trees
   // have no base to compare against; AC-17702-5 governs that path).
+  // "Impacted" means an FBS that must be re-executed because its own
+  // definition changed OR because it fans out from a changed/added
+  // pivot (REQ, US, AC, TAC, ADR) via expandFbsDependents.
   const impactedFbsIds = new Set();
   if (delta.frozen) {
     const pivotIds = [
       ...delta.changed.filter((id) => !id.startsWith('ledger:')),
       ...delta.added.filter((id) => !id.startsWith('ledger:')),
     ];
+    // A changed/added FBS is itself impacted.
+    for (const id of pivotIds) {
+      if (typeof id === 'string' && id.startsWith('FBS-')) impactedFbsIds.add(id);
+    }
     const seen = new Set();
     for (const id of pivotIds) {
       const impact = computeImpact(tree, { id });
       if (!impact.found || !Array.isArray(impact.nodes)) continue;
       for (const node of impact.nodes) {
-        if (node.role === 'pivot') continue;
         if (seen.has(node.id)) continue;
         seen.add(node.id);
-        if (node.kind === 'fbs' && node.actionNeeded === 're-execute') {
+        if (node.kind === 'fbs' && node.role !== 'pivot' && node.actionNeeded === 're-execute') {
           impactedFbsIds.add(node.id);
         }
       }
