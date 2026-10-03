@@ -103,7 +103,7 @@ test('US id exits 2 with the rcf trace pointer (D1)', async () => {
 test('--next selects the lowest-order actionable item and emits its bundle', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.mode, 'next');
@@ -116,7 +116,7 @@ test('--next on an exhausted queue exits 0 with queueEmpty: true (OQ-P6-2)', asy
   // or a --no-code-nodes declaration - this fixture has no source tree.
   const first = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
   assert.equal(first.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.queueEmpty, true);
@@ -127,7 +127,7 @@ test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
   await addDependentFbs(tmp);
   const mark = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(mark.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.queueEmpty, false);
@@ -152,7 +152,7 @@ test('--next warns when the selected FBS names dependsOnServices with no preFlig
     acIds: ['AC-101-1'],
   }];
   await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold']);
   assert.equal(code, 0, `warn only, should not fail: stderr=${stderr}`);
   assert.match(stderr, /\[warn\] build bundle --next: FBS-001 touches services not covered by any preFlightConfig \(resend\); run 'rcf discover preflight' before Stage 4\./);
 });
@@ -180,7 +180,7 @@ test('--next stays silent when preFlightConfig covers every dependsOnServices en
     operatorAckAt: '2026-07-31T10:02:00Z',
   }];
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold']);
   assert.equal(code, 0);
   assert.doesNotMatch(stderr, /touches services not covered/);
 });

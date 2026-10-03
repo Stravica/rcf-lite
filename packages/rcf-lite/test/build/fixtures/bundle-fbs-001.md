@@ -90,9 +90,9 @@ Responsibilities:
 
 Interfaces:
 
-- loadDocument (function): Resolve an id to a path, parse and validate, return the document or a structured error.
-- saveDocument (function): Validate then persist a document; refuse to write if validation fails.
-- walkTree (function): From the manifest roots, resolve every child by id and return the full tree.
+- loadDocument (other): Resolve an id to a path, parse and validate, return the document or a structured error. [legacy kind: function; mapped to other per DEFINE spec §5.2 closed vocabulary, 0.30.0 PR 8]
+- saveDocument (other): Validate then persist a document; refuse to write if validation fails. [legacy kind: function; mapped to other per DEFINE spec §5.2 closed vocabulary, 0.30.0 PR 8]
+- walkTree (other): From the manifest roots, resolve every child by id and return the full tree. [legacy kind: function; mapped to other per DEFINE spec §5.2 closed vocabulary, 0.30.0 PR 8]
 
 Dependencies:
 

@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 116,
-    "covered": 116,
+    "requirements": 119,
+    "covered": 119,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -5267,6 +5267,132 @@
           "covered": true,
           "testCases": [
             "TC-218-hygiene"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-177",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17702-1",
+          "covered": true,
+          "testCases": [
+            "TC-233-bundle-refuses-without-freeze"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17702-2",
+          "covered": true,
+          "testCases": [
+            "TC-233-bundle-override-writes-freeze-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17702-3",
+          "covered": true,
+          "testCases": [
+            "TC-233-bundle-skips-impacted-fbs"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17702-4",
+          "covered": true,
+          "testCases": [
+            "TC-233-bundle-all-impacted-refuses"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17702-5",
+          "covered": true,
+          "testCases": [
+            "TC-233-bundle-empty-delta-unchanged"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-178",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17802-1",
+          "covered": true,
+          "testCases": [
+            "TC-234-validate-interface-kind-finding",
+            "TC-234-validate-tacids-and-ownerref-findings"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17802-2",
+          "covered": true,
+          "testCases": [
+            "TC-234-validate-ac-class-prefix-finding"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17802-3",
+          "covered": true,
+          "testCases": [
+            "TC-234-validate-dogfood-clean"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17802-4",
+          "covered": true,
+          "testCases": [
+            "TC-234-validate-no-finding-for-missing-class"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-179",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-17902-1",
+          "covered": true,
+          "testCases": [
+            "TC-235-ruleset-nvdl-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17902-2",
+          "covered": true,
+          "testCases": [
+            "TC-235-admissibility-wrap-refuses-on-unfrozen-tree"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17902-3",
+          "covered": true,
+          "testCases": [
+            "TC-235-admissibility-wrap-accepts-with-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17902-4",
+          "covered": true,
+          "testCases": [
+            "TC-235-readiness-compute-unchanged-under-refusal"
           ],
           "unresolvedTestCases": []
         }
