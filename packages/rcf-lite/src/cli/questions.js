@@ -84,13 +84,30 @@ async function readProfileText(projectRoot) {
  */
 function pickRegister(text) {
   if (typeof text !== 'string' || text.length === 0) return 'unstated';
+  // The canonical register template (src/setup/identity-seed.js) names
+  // all three markers in its explanation ("- `productOwner`: ..."),
+  // then places the chosen value as a bare word on a line of its own
+  // ("engineer\n", "unstated\n", etc.). Ad-hoc profiles also use
+  // "Register: engineer" on one line. In both shapes the ACTIVE value
+  // sits AFTER the explanation, so pick the LAST marker occurrence
+  // in the text; a line matching nothing but a marker word takes
+  // precedence over an in-prose occurrence at the same position.
   const markers = ['productOwner', 'engineer', 'unstated'];
+  // Pass 1: prefer a bare-line marker (canonical template shape).
+  const lines = text.split(/\r?\n/);
+  let bareLine = null;
+  for (const raw of lines) {
+    const trimmed = raw.trim();
+    if (markers.includes(trimmed)) bareLine = trimmed;
+  }
+  if (bareLine) return /** @type {any} */ (bareLine);
+  // Pass 2: fallback - last occurrence anywhere (handles
+  // "Register: engineer" and other operator-prose shapes).
+  let bestIdx = -1;
   let best = null;
-  let bestIdx = Infinity;
   for (const m of markers) {
-    const idx = text.indexOf(m);
-    if (idx === -1) continue;
-    if (idx < bestIdx) { bestIdx = idx; best = m; }
+    const idx = text.lastIndexOf(m);
+    if (idx > bestIdx) { bestIdx = idx; best = m; }
   }
   return /** @type {any} */ (best) ?? 'unstated';
 }

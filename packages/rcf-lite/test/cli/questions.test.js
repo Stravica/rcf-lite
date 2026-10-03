@@ -146,3 +146,31 @@ test('text mode under --stage with zero remaining in that stage but overall-fail
   assert.equal(r.code, 0);
   assert.doesNotMatch(r.stdout, /Intent-complete: yes/i, `false-positive verdict under --stage: ${r.stdout}`);
 });
+
+// --- Register-parse regression (code-review ruling 2026-10-03): the
+// canonical identity template carries all three register markers in
+// its explanation ("- `productOwner`: ...", "- `engineer`: ...",
+// "- `unstated`: ..."). AC-18602-2 says the persona default follows
+// the ACTIVE value, which the template places as a bare word on a
+// line of its own after the explanation. pickRegister must pick that
+// bare-line value, not the first marker occurrence in the prose.
+test('AC-18602-2 regression: profile register follows the active bare-line value, not the first marker in the explanation', async () => {
+  const cwd = await scratchProject();
+  // Overwrite profile.md with the canonical shape, choosing `engineer`.
+  const profile = [
+    '## Register',
+    '',
+    '- `productOwner`: escalations arrive as one plain-English sentence',
+    '- `engineer`: escalations name the AC id and quote the conflict',
+    '- `unstated`: the agent asks on the first exchange',
+    '',
+    'engineer',
+    '',
+  ].join('\n');
+  await mkdir(join(cwd, 'rcf', '.identity'), { recursive: true });
+  await writeFile(join(cwd, 'rcf', '.identity', 'profile.md'), profile, 'utf8');
+  const r = await run(['--json'], cwd);
+  assert.equal(r.code, 0, r.stderr);
+  const env = JSON.parse(r.stdout);
+  assert.equal(env.persona, 'engineer', `register=engineer chose persona=${env.persona} (full stdout:\n${r.stdout})`);
+});

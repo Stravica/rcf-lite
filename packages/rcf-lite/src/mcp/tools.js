@@ -1025,17 +1025,27 @@ async function readProfileTextForMcp(projectRoot) {
 }
 
 /**
- * Pick the first register marker that appears in the profile text.
+ * Pick the ACTIVE register marker from the profile text. The template
+ * mentions all three marker words in its explanation; the chosen
+ * value is the bare word on a line of its own. The last such line
+ * wins; a "Register: engineer" prose line is honoured via the
+ * last-occurrence fallback. Matches the CLI's pickRegister.
  */
 function pickRegisterForMcp(text) {
   if (typeof text !== 'string' || text.length === 0) return 'unstated';
   const markers = ['productOwner', 'engineer', 'unstated'];
+  const lines = text.split(/\r?\n/);
+  let bareLine = null;
+  for (const raw of lines) {
+    const trimmed = raw.trim();
+    if (markers.includes(trimmed)) bareLine = trimmed;
+  }
+  if (bareLine) return /** @type {any} */ (bareLine);
+  let bestIdx = -1;
   let best = null;
-  let bestIdx = Infinity;
   for (const m of markers) {
-    const idx = text.indexOf(m);
-    if (idx === -1) continue;
-    if (idx < bestIdx) { bestIdx = idx; best = m; }
+    const idx = text.lastIndexOf(m);
+    if (idx > bestIdx) { bestIdx = idx; best = m; }
   }
   return /** @type {any} */ (best) ?? 'unstated';
 }
