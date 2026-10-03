@@ -529,6 +529,9 @@ REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
                       AC-18001-5   yes         TC-223-no-blocker-id-omitted
                       AC-18001-6   yes         TC-223-freeze-now-disabled
                       AC-18001-7   yes         TC-223-ids-on-tab-match-cli-json
+                      AC-18002-1   yes         TC-227-groups-and-asks
+                      AC-18002-2   yes         TC-227-empty-questions-verdict
+                      AC-18002-3   yes         TC-227-engineer-dom-preserved
 REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
                       AC-18101-2   yes         TC-223-findings-list-markup
                       AC-18101-3   yes         TC-223-no-existing-tab-tests-change
