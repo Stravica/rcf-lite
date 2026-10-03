@@ -123,6 +123,9 @@ export const CHECK_PERSONA = /** @type {const} */ ({
   'shapes:tacHasInterface': 'engineer',
   'shapes:kindVocabulary': 'engineer',
   'shapes:draftSettled': 'engineer',
+  'shapes:templateMarkers': 'engineer',
+  'shapes:entityJoin': 'engineer',
+  'shapes:pathsResolve': 'engineer',
   // D4 Stories: reqHasUs is PO ("what does someone do with this?"); the floors are engineer.
   'stories:reqHasUs': 'productOwner',
   'stories:usFloors': 'engineer',
@@ -164,6 +167,9 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'shapes:tacHasInterface': 'Every TAC in scope has at least one interface.',
   'shapes:kindVocabulary': 'Every interface kind is in the closed vocabulary.',
   'shapes:draftSettled': 'Every draft interface has been settled (the [draft] marker is removed).',
+  'shapes:templateMarkers': 'Every interface description carries the per-kind markers (recordShape fields:, httpRoute method/path/request/response/errors, and so on).',
+  'shapes:entityJoin': 'Every core entity is named by exactly one recordShape.',
+  'shapes:pathsResolve': 'Every path: token in an interface description resolves on disk or the description is authoredAt D3.',
   'stories:reqHasUs': 'What does someone do with this requirement?',
   'stories:usFloors': 'Every story in scope meets the class, tacIds and testability floors.',
   'crosscut:securityArchitecture': 'TAD.securityArchitecture is present when an auth or httpApi REQ exists.',
@@ -280,6 +286,118 @@ export function parseCoreEntityDraft(entity) {
   return hasDraftMarker(/** @type {any} */ (entity).description);
 }
 
+/**
+ * Per-kind required marker tokens on `interfaces[].description` for
+ * the `shapes:templateMarkers` D3 bite check (ADR-4131, spec section 4
+ * row "D3 template parser"). A marker is "present" when a line of the
+ * description matches the marker's own regex: a `<name>:` prefix for
+ * `fields:`, `instances:`, `payload:`, `usage:` and `format:`; a
+ * `method`, `path`, `request`, `response`, `errors` or `protocol`
+ * token on an httpRoute, uiRoute or port (word-bounded, case-sensitive,
+ * tolerating a trailing colon or whitespace); `other` requires a
+ * non-empty description after the optional `[draft]` prefix (its
+ * "note"). The regexes are deliberately permissive so a plain
+ * `method: POST` and a bullet list `- method: POST` both qualify, and
+ * so a `[draft]` prefix never masks the marker scan.
+ */
+const INTERFACE_TEMPLATE_MARKERS = /** @type {const} */ ({
+  recordShape: [{ name: 'fields', re: /(^|\n)\s*(?:[-*]\s*)?fields\s*:/ }],
+  httpRoute: [
+    { name: 'method', re: /(^|\n|\s)method\s*[:=]/ },
+    { name: 'path', re: /(^|\n|\s)path\s*[:=]/ },
+    { name: 'request', re: /(^|\n|\s)request\s*[:=]/ },
+    { name: 'response', re: /(^|\n|\s)response\s*[:=]/ },
+    { name: 'errors', re: /(^|\n|\s)errors\s*[:=]/ },
+  ],
+  fixture: [{ name: 'instances', re: /(^|\n)\s*(?:[-*]\s*)?instances\s*:/ }],
+  event: [{ name: 'payload', re: /(^|\n)\s*(?:[-*]\s*)?payload\s*:/ }],
+  cliCommand: [{ name: 'usage', re: /(^|\n)\s*(?:[-*]\s*)?usage\s*:/ }],
+  uiRoute: [{ name: 'path', re: /(^|\n|\s)path\s*[:=]/ }],
+  port: [{ name: 'protocol', re: /(^|\n|\s)protocol\s*[:=]/ }],
+  fileFormat: [{ name: 'format', re: /(^|\n)\s*(?:[-*]\s*)?format\s*:/ }],
+  other: [],
+});
+
+/**
+ * Strip a leading `[draft]` marker from a description so the marker
+ * scan sees the real text underneath. Pure.
+ *
+ * @param {string} desc
+ * @returns {string}
+ */
+function stripDraftPrefix(desc) {
+  return desc.replace(/^\s*\[draft\]\s*/, '');
+}
+
+/**
+ * ADR-4131 (0.30.0 PR 5): per-kind marker presence on an interface.
+ * Returns `{ kind, missing: string[] }` naming the markers that are
+ * absent from `iface.description`. For `other` the "note" is any
+ * non-empty description after the optional `[draft]` prefix. For an
+ * interface whose kind is outside INTERFACE_KINDS the function returns
+ * `{ kind, missing: [] }` so the caller can treat vocabulary errors
+ * through `shapes:kindVocabulary` alone.
+ *
+ * @param {unknown} iface
+ * @returns {{ kind: string|null, missing: string[] }}
+ */
+export function parseInterfaceTemplate(iface) {
+  if (!iface || typeof iface !== 'object') return { kind: null, missing: [] };
+  const kind = typeof (/** @type {any} */ (iface).kind) === 'string' ? /** @type {any} */ (iface).kind : null;
+  const descRaw = typeof (/** @type {any} */ (iface).description) === 'string'
+    ? /** @type {any} */ (iface).description
+    : '';
+  const desc = stripDraftPrefix(descRaw);
+  if (kind === 'other') {
+    const note = desc.trim();
+    return { kind, missing: note.length === 0 ? ['note'] : [] };
+  }
+  const markers = /** @type {any} */ (INTERFACE_TEMPLATE_MARKERS)[kind];
+  if (!Array.isArray(markers)) return { kind, missing: [] };
+  const missing = [];
+  for (const marker of markers) {
+    if (!marker.re.test(desc)) missing.push(marker.name);
+  }
+  return { kind, missing };
+}
+
+/**
+ * Rough `path:` token scanner for an interface description. Returns
+ * every candidate path token the description names so the CLI can
+ * resolve them on disk and the gate can decide `shapes:pathsResolve`
+ * against the resolved map (ADR-4131). A candidate is any text that
+ * follows a `path:` or `path =` marker and looks like a repo-relative
+ * path (contains a `/` or ends with a file extension, no scheme). The
+ * scanner is deliberately conservative: an http URL, a bare word, a
+ * glob or a template placeholder is not a candidate. Exported for the
+ * CLI's resolve-on-disk pass.
+ *
+ * @param {string} description
+ * @returns {string[]}
+ */
+export function extractInterfacePathTokens(description) {
+  if (typeof description !== 'string' || description.length === 0) return [];
+  const text = stripDraftPrefix(description);
+  const out = [];
+  const re = /\bpath\s*[:=]\s*["'`]?([^\s"'`,;)\]]+)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const token = m[1];
+    if (!token) continue;
+    if (/^[a-z]+:\/\//i.test(token)) continue;
+    if (token.startsWith('{') || token.startsWith('<') || token.includes('*')) continue;
+    // Skip HTTP / UI route-ish tokens: a leading slash with no file
+    // extension is a route path (an httpRoute or uiRoute's `path:`
+    // marker), not a repo path. A legitimate file path lands as
+    // `src/x.js` or `packages/rcf-lite/CHANGELOG.md`; those don't
+    // start with `/`.
+    if (token.startsWith('/') && !/\.[a-zA-Z0-9]+$/.test(token)) continue;
+    if (!/\//.test(token) && !/\.[a-zA-Z0-9]+$/.test(token)) continue;
+    out.push(token);
+  }
+  return out;
+}
+
 /** Warn-with-ack stages in 0.29.0 (ADR-4122). */
 const WARN_WITH_ACK = new Set(['D3', 'D5', 'D6']);
 
@@ -295,6 +413,21 @@ const BLOCKING = new Set(['D1', 'D2', 'D4', 'D7', 'D8']);
  */
 export function stagePolicy(stage) {
   return WARN_WITH_ACK.has(stage) ? 'warnWithAck' : 'blocking';
+}
+
+/**
+ * ADR-4131 (0.30.0 PR 5): the three gates that accept a recorded
+ * `--ack` override. `stagePolicy` keeps returning `blocking` for every
+ * stage so the readyToBuild fold stays untouched; `ackable(stage)` is
+ * the companion signal the readiness and freeze CLIs read to decide
+ * whether a failing stage honours an acknowledgement at the current
+ * hash. True for D3, D5 and D6; false for everything else.
+ *
+ * @param {string} stage
+ * @returns {boolean}
+ */
+export function ackable(stage) {
+  return WARN_WITH_ACK.has(stage);
 }
 
 /**
@@ -435,6 +568,11 @@ function asSet(scope) {
  * @property {{ skipReviewFor?: string } | undefined} profile  parsed profile switches (light shape)
  * @property {string | null | undefined} currentTreeHash  for warn-with-ack acknowledgement match
  * @property {Array<{ state: string }> | undefined} priorStages  D8 reads earlier stage states from this
+ * @property {Set<string> | undefined} resolvedPaths  ADR-4131 (0.30.0 PR 5): set of repo-relative paths the CLI
+ *   already resolved on disk; `shapes:pathsResolve` reads this to decide
+ *   whether a `path:` token on an interface description resolves. Empty or
+ *   undefined means no path is known-resolved, so every candidate token
+ *   fails unless the interface description carries `authoredAt: D3`.
  */
 
 /**
@@ -721,6 +859,106 @@ export function checkD3Shapes(ctx) {
   const totalDraftHomes = tacsInScope.length + totalInterfaces + coreEntities.length;
   checks.push(makeCheck('shapes:kindVocabulary', 'delta', totalInterfaces, badKinds));
   checks.push(makeCheck('shapes:draftSettled', 'delta', totalDraftHomes, draftFindings));
+
+  // ADR-4131 (0.30.0 PR 5): three D3 bite checks follow.
+  // Check 4: shapes:templateMarkers (engineer, over delta). For every
+  // interface on an in-scope TAC, parseInterfaceTemplate reports which
+  // per-kind markers are missing from the description; a draft marker
+  // is stripped before the scan so a [draft] recordShape without
+  // `fields:` fails exactly as a settled one. An interface whose kind
+  // is outside INTERFACE_KINDS is left to shapes:kindVocabulary (the
+  // marker map returns `{missing: []}` for an unknown kind so this
+  // check does not double-report the vocabulary miss).
+  /** @type {Array<{ id: string, why: string }>} */
+  const templateFindings = [];
+  for (const tac of tacsInScope) {
+    for (const iface of tac.interfaces ?? []) {
+      const result = parseInterfaceTemplate(iface);
+      if (!result.kind) continue;
+      for (const marker of result.missing) {
+        templateFindings.push({
+          id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`,
+          why: `missing marker ${marker}`,
+        });
+      }
+    }
+  }
+  checks.push(makeCheck('shapes:templateMarkers', 'delta', totalInterfaces, templateFindings));
+
+  // Check 5: shapes:entityJoin (engineer, over tree). Every entry in
+  // TAD.dataArchitecture.coreEntities must be named by exactly one
+  // recordShape across the whole tree (not just the delta scope),
+  // matching on the recordShape's `name` field or on an `entity:` line
+  // in its description. A `[draft]` prefix is stripped before the
+  // entity-line scan so a draft recordShape still joins.
+  /** @type {Array<{ id: string, why: string }>} */
+  const joinFindings = [];
+  const treeTacs = tree.tacs ?? [];
+  const recordShapesByEntity = new Map();
+  for (const tac of treeTacs) {
+    for (const iface of tac.interfaces ?? []) {
+      if (iface?.kind !== 'recordShape') continue;
+      const ownerLabel = `${tac.tacId}:${iface?.name ?? '(unnamed)'}`;
+      const names = new Set();
+      if (typeof iface?.name === 'string') names.add(iface.name);
+      const desc = typeof iface?.description === 'string' ? stripDraftPrefix(iface.description) : '';
+      const entityRe = /(^|\n)\s*(?:[-*]\s*)?entity\s*[:=]\s*["'`]?([A-Za-z_][A-Za-z0-9_]*)/g;
+      let em;
+      while ((em = entityRe.exec(desc)) !== null) {
+        if (em[2]) names.add(em[2]);
+      }
+      for (const name of names) {
+        const owners = recordShapesByEntity.get(name) ?? [];
+        owners.push(ownerLabel);
+        recordShapesByEntity.set(name, owners);
+      }
+    }
+  }
+  for (const entity of coreEntities) {
+    const name = typeof entity?.name === 'string' ? entity.name : null;
+    if (!name) continue;
+    const owners = recordShapesByEntity.get(name) ?? [];
+    if (owners.length === 0) {
+      joinFindings.push({ id: `TAD.entity:${name}`, why: 'no record shape' });
+    } else if (owners.length > 1) {
+      joinFindings.push({ id: `TAD.entity:${name}`, why: `${owners.length} record shapes` });
+    }
+  }
+  checks.push(makeCheck('shapes:entityJoin', 'tree', coreEntities.length, joinFindings));
+
+  // Check 6: shapes:pathsResolve (engineer, over delta). Any path:
+  // token on an in-scope interface description must either resolve
+  // against `resolvedPaths` (the CLI's on-disk pass) or the
+  // description must carry an `authoredAt: D3` marker (the engineer
+  // owns the path even when the file is yet to land). The marker is
+  // a token in the description text (`authoredAt: D3` or
+  // `authoredAt = D3`), not a separate schema field; the TAC schema
+  // keeps interfaces to { name, kind, description }. Over delta,
+  // one failing entry per unresolved (tacId:name, path) pair.
+  const resolvedPaths = ctx.resolvedPaths instanceof Set ? ctx.resolvedPaths : new Set();
+  /** @type {Array<{ id: string, why: string }>} */
+  const pathFindings = [];
+  let totalPathChecks = 0;
+  for (const tac of tacsInScope) {
+    for (const iface of tac.interfaces ?? []) {
+      const desc = typeof iface?.description === 'string' ? iface.description : '';
+      const tokens = extractInterfacePathTokens(desc);
+      if (tokens.length === 0) continue;
+      const authoredAtD3 = /\bauthoredAt\s*[:=]\s*["'`]?D3\b/.test(stripDraftPrefix(desc));
+      for (const token of tokens) {
+        totalPathChecks += 1;
+        if (authoredAtD3) continue;
+        if (resolvedPaths.has(token)) continue;
+        pathFindings.push({
+          id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`,
+          why: `path does not resolve: ${token}`,
+        });
+      }
+    }
+  }
+  // Keep total >= 1 so the chip prints a sensible ratio when no
+  // interface in scope names a path.
+  checks.push(makeCheck('shapes:pathsResolve', 'delta', Math.max(totalPathChecks, 1), pathFindings));
 
   return foldState('D3', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,

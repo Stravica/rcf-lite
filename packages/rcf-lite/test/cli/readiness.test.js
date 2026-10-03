@@ -79,12 +79,12 @@ test('readiness cli: text output shape and --check exit codes', async () => {
   assert.match(rFreeze.stdout, /D8 \(define.freeze\)/);
 
   // --check shapes on a fresh init: TAC-001 exists with no
-  // interfaces, so D3 (warn-with-ack in 0.29.0) is failing without an
-  // acknowledgement. Warn-with-ack policy means exit 0 (never 4) with
-  // a visible [warn] line on stderr naming the gate.
+  // interfaces, so D3 is failing without an acknowledgement. ADR-4131
+  // (0.30.0 PR 5) makes D3 bite: an unacknowledged D3 failure exits 4
+  // (previously 0 under 0.29.0 warn-with-ack).
   const rShapes = await run(['--check', 'shapes'], cwd);
-  assert.equal(rShapes.code, 0);
-  assert.match(rShapes.stderr, /\[warn\] readiness: D3 \(define\.shapes\) is failing without an acknowledgement/);
+  assert.equal(rShapes.code, 4);
+  assert.match(rShapes.stdout, /D3 \(define.shapes\)/);
 });
 
 test('readiness cli: --json emits the full readiness object', async () => {
@@ -219,15 +219,15 @@ test('readiness cli: AC-17503-4 --level build exits 4 on a failing tree and prin
   assert.match(r.stderr, /\[warn\] readiness: D3 \(define\.shapes\) is failing without an acknowledgement/);
 });
 
-test('readiness cli: AC-17503-5 --check all unchanged on warn-with-ack', async () => {
+test('readiness cli: AC-17503-5 --check all exits 4 on blocking failures (D3 bites in PR 5)', async () => {
   const cwd = await scratchProject();
   const r = await run(['--check', 'all'], cwd);
   // Fresh init has D1/D2/D4/D8 blocking failing, so --check all
-  // exits 4. The important assertion is that warn-with-ack behaviour
-  // in --check all is unchanged from PR A: a warn line is emitted
-  // for D3's unacked failure.
+  // exits 4. ADR-4131 (0.30.0 PR 5) also bites D3 under --check, so
+  // D3 no longer emits a warn line in --check all; it drives exit 4
+  // alongside the blocking stages. D5 and D6 still emit warns if they
+  // happen to fail (warn-with-ack posture kept until PRs 6 and 7).
   assert.equal(r.code, 4);
-  assert.match(r.stderr, /\[warn\] readiness: D3 \(define\.shapes\)/);
 });
 
 test('readiness cli: AC-17503-6 --persona filters text and does not change exit', async () => {
@@ -294,14 +294,57 @@ test('readiness cli: AC-17503-9 text report groups PO before engineer with perso
   assert.match(r.stdout, /\[FAIL\] skeleton:reqShape \(delta, engineer\):/);
 });
 
-test('readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations)', async () => {
+// ---------------------------------------------------------------------------
+// ADR-4131 (US-17404, AC-17404-5): rcf define readiness --check shapes
+// exits 4 on an unacknowledged D3 failure and 0 when acked at the hash.
+// ---------------------------------------------------------------------------
+
+test('readiness cli: AC-17404-5 --check shapes exits 4 unacked and 0 acked at current hash', async () => {
+  const cwd = await scratchProject();
+  // Unacked: fresh init has D3 failing (TAC-001 has no interfaces).
+  const rUnacked = await run(['--check', 'shapes'], cwd);
+  assert.equal(rUnacked.code, 4, `stderr: ${rUnacked.stderr}`);
+  assert.match(rUnacked.stdout, /D3 \(define\.shapes\)/);
+  // Write the acknowledgement directly into the freeze record at the
+  // current tree hash so the --check shapes branch sees it. Using the
+  // freeze CLI here would also refuse because other blocking stages
+  // are failing on a fresh init; AC-17404-5 is about the readiness
+  // CLI's exit code honouring an acknowledgement at the current hash,
+  // not about the freeze verb's own happy path.
+  const { walkTree } = await import('#core/store');
+  const { computeDelta } = await import('../../src/query/delta.js');
+  const { saveFreezeRecord } = await import('../../src/define/freeze-record.js');
+  const { tree } = await walkTree({ projectRoot: cwd });
+  const delta = computeDelta(tree, null, {});
+  const currentHash = delta.currentTreeHash;
+  const record = {
+    frozenAt: '2026-10-03T10:50:00Z',
+    treeHash: currentHash,
+    docHashes: delta.currentDocHashes ?? {},
+    briefStatements: 0,
+    override: null,
+    gates: {
+      'define.shapes': {
+        state: 'acknowledged',
+        at: { hash: currentHash, reason: 'bite deferred for the test', by: 'test' },
+      },
+    },
+  };
+  await saveFreezeRecord({ projectRoot: cwd, record });
+  const rAcked = await run(['--check', 'shapes'], cwd);
+  assert.equal(rAcked.code, 0, `expected exit 0 after ack at hash, got ${rAcked.code}; stderr: ${rAcked.stderr}`);
+});
+
+test('readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level combinations; ADR-4131 D3 bite)', async () => {
   const cwd = await scratchProject();
   // Each row = { argv, expected exit }. The fresh-init tree has
-  // blocking D1/D2/D4/D8 failing and warn-with-ack D3 failing.
+  // blocking D1/D2/D4/D8 failing. ADR-4131 (0.30.0 PR 5) bites D3,
+  // so --check shapes on an unacknowledged D3 failure now exits 4
+  // (previously 0 under 0.29.0 warn-with-ack).
   const rows = [
     { argv: [], exit: 0 },
     { argv: ['--check', 'freeze'], exit: 4 },       // D8 blocking
-    { argv: ['--check', 'shapes'], exit: 0 },       // D3 warn-with-ack
+    { argv: ['--check', 'shapes'], exit: 4 },       // D3 bites (ADR-4131)
     { argv: ['--check', 'all'], exit: 4 },          // blocking failures present
     { argv: ['--level', 'intent'], exit: 4 },       // PO fails
     { argv: ['--level', 'build'], exit: 4 },        // not freezeable

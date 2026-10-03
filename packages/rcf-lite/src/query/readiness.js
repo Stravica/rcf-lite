@@ -151,6 +151,10 @@ import {
  * @param {string | null | undefined} [args.profileText]  rcf/.identity/profile.md contents
  * @param {Map<string, unknown> | undefined} [args.testPointers]
  * @param {Array<unknown> | undefined} [args.validateErrors]  tree-wide validate + walker errors
+ * @param {Set<string> | undefined} [args.resolvedPaths]  ADR-4131 (0.30.0 PR 5): set of repo-relative paths the
+ *   caller already resolved on disk; threaded into the stage context so
+ *   `shapes:pathsResolve` can decide the D3 bite without I/O. Undefined
+ *   means no paths are known-resolved.
  * @returns {ReadinessResult}
  */
 export function computeReadiness(tree, args = {}) {
@@ -161,6 +165,7 @@ export function computeReadiness(tree, args = {}) {
     profileText = null,
     testPointers = undefined,
     validateErrors = [],
+    resolvedPaths = undefined,
   } = args;
 
   // 1. Delta.
@@ -236,6 +241,7 @@ export function computeReadiness(tree, args = {}) {
     profile,
     currentTreeHash,
     priorStages: undefined,
+    resolvedPaths,
   };
   stages.push(checkD1Brief(ctx));
   stages.push(checkD2Skeleton(ctx));
