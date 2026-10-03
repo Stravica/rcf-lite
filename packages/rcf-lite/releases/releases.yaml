@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.28.4"
+latest: "0.29.0"
 releases:
+  - version: "0.29.0"
+    date: "2026-10-03"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.29.0 lands the viewer UI refresh train in one release: a rebuilt shell with the Stravica brand tokens, light and dark theme and an embed contract; shared components across Requirements, Architecture, Build and Readiness; a Build DAG sub-tab with click-to-highlight closure, dependency inspector and an unconnected lane; fast ID lookup over a new ./index.json served from the viewer root (Cmd/Ctrl+F from any tab); the Readiness tab Product Owner redesign; and a same-origin test-host fixture that pins the embedding contract with three in-suite guards. For wespa embedders, the reverse-proxy allow-list for /rcf-viewer/* MUST add /page-init.js and /index.json before the version pin bump; /test-host.html and /test-host.js stay 404 by default so the allow-list is unchanged by the embedding-proof fixture."
+      - "The DEFINE readiness persona split arrives too: every gate check carries a persona (product owner or engineer), two readiness levels (intent-complete, ready-to-build), the Readiness tab moves to tab one, and rcf define readiness gains --level and --persona flags with a persona-grouped text report."
+      - "The first three DEFINE step 3 PRs ship: document intake into the brief ledger via a statement file parser and the mechanical intake scans; a new rcf define ledger <name> update <id> subverb with a closed resolvedBy pointer grammar (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>) and the D2 skeleton:resolvedBy title-hit fallback dropped; a rcf define questions verb with three new MCP tools and two argument-free prompts for the harness-driven loop; and the [draft] shapes gate across TAC purpose, interface and core-entity homes with a DISCOVERY prototypes doctrine."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.28.4"
     date: "2026-09-30"
     breaking: false
