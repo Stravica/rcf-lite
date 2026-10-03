@@ -1,0 +1,86 @@
+{
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "purpose": "Cover US-18801 (the draft homes) and US-18202 (the DEFINE-stage guidance pack): parseInterfaceDraft and shapes:draftSettled extended to TAC.purpose, coreEntities[].description and TAC.interfaces[].description with the three id forms; a draft-only tree is L1-neutral; the guidance manifest advertises the two new slugs and five prompts; the register scan rejects an em-dash in any new guidance file; the managed block regeneration keeps every existing rule.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18801-1",
+    "AC-18801-2",
+    "AC-18801-3",
+    "AC-18801-4",
+    "AC-18801-5",
+    "AC-18202-1",
+    "AC-18202-2",
+    "AC-18202-3",
+    "AC-18202-4"
+  ],
+  "id": "TS-227",
+  "usId": "US-18801",
+  "title": "DEFINE step 3 PR 3: draft marker extension, DISCOVERY prototypes guidance and prompts",
+  "testCases": [
+    {
+      "id": "TC-227-draft-coreentity",
+      "acId": "AC-18801-1",
+      "description": "A coreEntities entry whose description starts with [draft] fails shapes:draftSettled with id TAD.entity:<name>.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-1): draft on coreEntity description fails draftSettled with TAD.entity:<name>"
+    },
+    {
+      "id": "TC-227-draft-tac-purpose",
+      "acId": "AC-18801-2",
+      "description": "A TAC whose purpose starts with [draft] fails shapes:draftSettled with id <tacId>; shapes:tacHasInterface counts the TAC as present.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-2): draft on TAC.purpose fails draftSettled with <tacId>, tacHasInterface counts it present"
+    },
+    {
+      "id": "TC-227-draft-cleared",
+      "acId": "AC-18801-3",
+      "description": "When every [draft] marker across the three homes is cleared, shapes:draftSettled passes.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-3): three draft homes cleared, draftSettled passes"
+    },
+    {
+      "id": "TC-227-draft-template-markers",
+      "acId": "AC-18801-4",
+      "description": "A [draft] recordShape without fields: fails shapes:templateMarkers exactly as a settled one. (shapes:templateMarkers lands in PR 5; this TC is pending PR 5.)",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-4 pending PR 5): draft recordShape without fields fails templateMarkers"
+    },
+    {
+      "id": "TC-227-draft-no-po-read",
+      "acId": "AC-18801-5",
+      "description": "No productOwner check reads any [draft] content: every productOwner check on a draft-only tree is ok (L1-neutral).",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-5): draft-only tree keeps every productOwner check ok (L1-neutral)"
+    },
+    {
+      "id": "TC-227-guidance-prints",
+      "acId": "AC-18202-1",
+      "description": "rcf guidance define-intent and rcf guidance discovery-prototypes each print their file byte-faithfully.",
+      "status": "pending",
+      "testPointer": "test/guidance/verbs.test.js::guidance (REQ-182, AC-18202-1): rcf guidance define-intent and discovery-prototypes each print their file"
+    },
+    {
+      "id": "TC-227-manifest-prompts",
+      "acId": "AC-18202-2",
+      "description": "The manifest lists rcf_define_intent, rcf_define_intake, rcf_define_draft_shapes and rcf_discover_prototype as argument-free; rcf_define_litmus is recorded as pending PR 7.",
+      "status": "pending",
+      "testPointer": "test/guidance/inventory.test.js::guidance (REQ-182, AC-18202-2): four argument-free DEFINE prompts present, litmus pending PR 7"
+    },
+    {
+      "id": "TC-227-register-scan-em-dash",
+      "acId": "AC-18202-3",
+      "description": "A new guidance file containing an em-dash fails the register scan.",
+      "status": "pending",
+      "testPointer": "test/guidance/canonical-text-lint.test.js::guidance (REQ-182, AC-18202-3): em-dash in a new guidance file fails the register scan"
+    },
+    {
+      "id": "TC-227-managed-block-preserves-rules",
+      "acId": "AC-18202-4",
+      "description": "The managed block regeneration keeps every existing rule: regenerating never removes a line.",
+      "status": "pending",
+      "testPointer": "test/guidance/fragment.test.js::guidance (REQ-182, AC-18202-4): managed-block regeneration keeps every existing rule"
+    }
+  ],
+  "status": "draft"
+}

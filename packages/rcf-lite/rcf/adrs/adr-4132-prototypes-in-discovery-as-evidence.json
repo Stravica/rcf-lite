@@ -1,0 +1,20 @@
+{
+  "adrId": "ADR-4132-prototypes-in-discovery-as-evidence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Prototypes live in DISCOVERY as evidence; code is burned; salvage is re-derivation",
+  "context": "DEFINE step 3 (spec 2026-10-01, section 5) asks where a learning prototype belongs. A prototype is useful for the questions it provokes; its code is a product of exploration under a different set of rules than the project proper, so promoting it would smuggle unowned decisions past the chain.",
+  "decision": "prototypes live in DISCOVERY as evidence; code is burned; salvage is re-derivation. The prototype is recorded in the intake classification as an artefact of kind `other`; its outputs are brief statements with source spans `prototype:<name>:<observation>`; the burn is a single `constraint` statement naming the prototype, its commit sha and burn date. The only middle path is salvage by re-derivation: extract requirements from the prototype as evidence, run them through intake and the PO loop like any document, rebuild from the tree.",
+  "consequences": "Provenance stays whole: every shape in the tree has a chain back to a PO-sanctioned statement, not a prototype's incidental choices. The cost is one managed-block rule the harness picks up, one guidance file (`guidance/discovery-prototypes.md`) and the honest message that a prototype's code is reference only; nothing in the build consumes a prototype directly.",
+  "alternativesConsidered": [
+    {
+      "name": "A prototype mode or promotion path (inverts provenance)",
+      "summary": "Keep the prototype as a privileged tree that can be promoted into the project tree, or run a prototype mode that bypasses parts of the chain while the prototype is live.",
+      "reasonNotChosen": "Promotion inverts provenance: a shape would reach the project tree without the PO loop that owns every settled shape. The method's whole worth is that every requirement, story, AC and shape has a known origin; a promotion path would let an incidental prototype choice bypass that trace, and no amount of auditing after the fact can restore the owner."
+    }
+  ],
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}
