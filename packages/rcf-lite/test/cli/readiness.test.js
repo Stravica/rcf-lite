@@ -378,3 +378,68 @@ test('readiness cli: AC-17503-1 exit matrix (parameterised: --check + --level co
     assert.equal(r.code, row.exit, `argv ${JSON.stringify(row.argv)} expected ${row.exit}, got ${r.code}`);
   }
 });
+
+// ---------------------------------------------------------------------------
+// PR 6 (US-17405, AC-17405-3): rcf define readiness --check crosscut
+// rides the same --ack fold as --check shapes. An unacknowledged D5
+// failure exits 4; a D5 failure acknowledged at the current tree hash
+// exits 0.
+// ---------------------------------------------------------------------------
+
+test('readiness cli: AC-17405 --check crosscut exits 4 unacked and 0 acked at current hash', async () => {
+  const cwd = await scratchProject();
+  // Seed REQ-001 with shape httpApi so crosscut:catalogue enumerates
+  // its applicable concerns (auth, errorEnvelope, loggingAudit,
+  // performance, concurrencyIdempotency) and fails every one with no
+  // concern-ledger entry; D5 is failing without an acknowledgement.
+  // The fresh init REQ carries no shapeClassification, so without this
+  // seed crosscut:catalogue would pass 1/1 (no pairs) and the test
+  // would not exercise the ack path.
+  const reqPath = join(cwd, 'rcf', 'requirements', 'req-001.json');
+  const req = JSON.parse(await readFileAsync(reqPath, 'utf8'));
+  req.shapeClassification = {
+    shapes: ['httpApi'],
+    reason: 'keyword-scan',
+    classifiedAt: '2026-10-03T13:30:00Z',
+  };
+  await writeFile(reqPath, `${JSON.stringify(req, null, 2)}\n`, 'utf8');
+
+  const rUnacked = await run(['--check', 'crosscut'], cwd);
+  assert.equal(rUnacked.code, 4, `stderr: ${rUnacked.stderr}; stdout: ${rUnacked.stdout}`);
+  assert.match(rUnacked.stdout, /D5 \(define\.crosscut\)/);
+
+  // Acknowledge define.crosscut at the current tree hash so the
+  // --check crosscut branch honours it. The record's own treeHash /
+  // docHashes are a prior-state baseline so computeDelta sees every
+  // document as changed, D5 is in scope with a real failing check,
+  // and exit 0 is attributable to the ack path alone.
+  const { walkTree } = await import('#core/store');
+  const { computeDelta } = await import('../../src/query/delta.js');
+  const { saveFreezeRecord } = await import('../../src/define/freeze-record.js');
+  const { tree } = await walkTree({ projectRoot: cwd });
+  const delta = computeDelta(tree, null, {});
+  const currentHash = delta.currentTreeHash;
+  const record = {
+    frozenAt: '2026-10-03T13:30:00Z',
+    treeHash: 'sha256:0000000000000000000000000000000000000000000000000000000000000000',
+    docHashes: {},
+    briefStatements: 0,
+    override: null,
+    gates: {
+      'define.crosscut': {
+        state: 'acknowledged',
+        at: { hash: currentHash, reason: 'catalogue deferred for the test', by: 'test' },
+      },
+    },
+  };
+  await saveFreezeRecord({ projectRoot: cwd, record });
+  const { tree: tree2 } = await walkTree({ projectRoot: cwd });
+  const delta2 = computeDelta(tree2, { treeHash: record.treeHash, docHashes: record.docHashes }, {});
+  assert.ok(
+    delta2.changed.length + delta2.added.length > 0,
+    'fixture must produce a non-empty delta so D5 scope is non-empty',
+  );
+  const rAcked = await run(['--check', 'crosscut'], cwd);
+  assert.equal(rAcked.code, 0, `expected exit 0 after ack at hash, got ${rAcked.code}; stderr: ${rAcked.stderr}`);
+  assert.match(rAcked.stdout, /D5 \(define\.crosscut\): acknowledged/);
+});

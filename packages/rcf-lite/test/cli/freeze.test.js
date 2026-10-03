@@ -187,6 +187,22 @@ async function seedFreezeableTree(root) {
       },
     ],
   });
+
+  // crosscut:catalogue (PR 6): REQ-001 carries shape httpApi, so the
+  // applicable concerns are auth, errorEnvelope, loggingAudit,
+  // performance and concurrencyIdempotency. Mark each waived with a
+  // reason on the concern ledger so D5 passes on this well-formed
+  // fixture.
+  await writeJson(join(root, 'rcf', 'define', 'concern-ledger.json'), {
+    ledger: 'concerns',
+    concerns: [
+      { id: 1, reqId: 'REQ-001', concern: 'auth', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T16:00:00Z', resolvedAt: '2026-09-24T16:00:00Z' },
+      { id: 2, reqId: 'REQ-001', concern: 'errorEnvelope', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T16:00:00Z', resolvedAt: '2026-09-24T16:00:00Z' },
+      { id: 3, reqId: 'REQ-001', concern: 'loggingAudit', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T16:00:00Z', resolvedAt: '2026-09-24T16:00:00Z' },
+      { id: 4, reqId: 'REQ-001', concern: 'performance', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T16:00:00Z', resolvedAt: '2026-09-24T16:00:00Z' },
+      { id: 5, reqId: 'REQ-001', concern: 'concurrencyIdempotency', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T16:00:00Z', resolvedAt: '2026-09-24T16:00:00Z' },
+    ],
+  });
 }
 
 // AC-17601-1

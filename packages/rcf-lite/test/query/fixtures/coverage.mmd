@@ -2313,6 +2313,38 @@ flowchart LR
   REQ-174 --> AC-17404-6
   TC-230-freeze-ack-blocking-stages-exit-2["TC-230-freeze-ack-blocking-stages-exit-2"]
   AC-17404-6 -.-> TC-230-freeze-ack-blocking-stages-exit-2
+  AC-17405-1["AC-17405-1"]
+  REQ-174 --> AC-17405-1
+  TC-231-closedsets-cue-without-list["TC-231-closedsets-cue-without-list"]
+  AC-17405-1 -.-> TC-231-closedsets-cue-without-list
+  TC-231-closedsets-quoted-cue-guard["TC-231-closedsets-quoted-cue-guard"]
+  AC-17405-1 -.-> TC-231-closedsets-quoted-cue-guard
+  TC-231-loop-convergence-engineer-no-po["TC-231-loop-convergence-engineer-no-po"]
+  AC-17405-1 -.-> TC-231-loop-convergence-engineer-no-po
+  AC-17405-2["AC-17405-2"]
+  REQ-174 --> AC-17405-2
+  TC-231-ownerref-resolves-and-missing["TC-231-ownerref-resolves-and-missing"]
+  AC-17405-2 -.-> TC-231-ownerref-resolves-and-missing
+  AC-17405-3["AC-17405-3"]
+  REQ-174 --> AC-17405-3
+  TC-231-cli-check-crosscut-exit-matrix["TC-231-cli-check-crosscut-exit-matrix"]
+  AC-17405-3 -.-> TC-231-cli-check-crosscut-exit-matrix
+  TC-231-concern-catalogue-table["TC-231-concern-catalogue-table"]
+  AC-17405-3 -.-> TC-231-concern-catalogue-table
+  TC-231-crosscut-catalogue-applied-and-waived["TC-231-crosscut-catalogue-applied-and-waived"]
+  AC-17405-3 -.-> TC-231-crosscut-catalogue-applied-and-waived
+  AC-17405-4["AC-17405-4"]
+  REQ-174 --> AC-17405-4
+  TC-231-crosscut-catalogue-missing-pair["TC-231-crosscut-catalogue-missing-pair"]
+  AC-17405-4 -.-> TC-231-crosscut-catalogue-missing-pair
+  AC-17405-5["AC-17405-5"]
+  REQ-174 --> AC-17405-5
+  TC-231-standards-cited-and-waived["TC-231-standards-cited-and-waived"]
+  AC-17405-5 -.-> TC-231-standards-cited-and-waived
+  AC-17405-6["AC-17405-6"]
+  REQ-174 --> AC-17405-6
+  TC-231-validate-no-missing-marker-finding["TC-231-validate-no-missing-marker-finding"]
+  AC-17405-6 -.-> TC-231-validate-no-missing-marker-finding
   REQ-175["REQ-175"]
   AC-17501-1["AC-17501-1"]
   REQ-175 --> AC-17501-1
@@ -3868,6 +3900,22 @@ flowchart LR
   class TC-230-cli-check-shapes-exit-matrix tc;
   class AC-17404-6 ac;
   class TC-230-freeze-ack-blocking-stages-exit-2 tc;
+  class AC-17405-1 ac;
+  class TC-231-closedsets-cue-without-list tc;
+  class TC-231-closedsets-quoted-cue-guard tc;
+  class TC-231-loop-convergence-engineer-no-po tc;
+  class AC-17405-2 ac;
+  class TC-231-ownerref-resolves-and-missing tc;
+  class AC-17405-3 ac;
+  class TC-231-cli-check-crosscut-exit-matrix tc;
+  class TC-231-concern-catalogue-table tc;
+  class TC-231-crosscut-catalogue-applied-and-waived tc;
+  class AC-17405-4 ac;
+  class TC-231-crosscut-catalogue-missing-pair tc;
+  class AC-17405-5 ac;
+  class TC-231-standards-cited-and-waived tc;
+  class AC-17405-6 ac;
+  class TC-231-validate-no-missing-marker-finding tc;
   class REQ-175 req;
   class AC-17501-1 ac;
   class TC-217-shape tc;
