@@ -22,11 +22,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - **Dogfood: 18 TAC files remapped off legacy interface kinds (DEFINE step 3 PR 8).** 64 interfaces across TAC-001..008, TAC-4101..4108, TAC-4129 and TAC-4134 carried pre-DEFINE-era kind labels (`function`, `command`, `mcpTool`, `type`, `prompt`, `artifact`, `constant`, `moduleApi`, `interface`) that pre-date the DEFINE spec section 5.2 closed vocabulary. The mapping (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` -> `fileFormat`) is applied mechanically and the legacy label is preserved in the interface description for provenance. `rcf define validate` is now clean on the dogfood tree (AC-17802-3).
 
+- **Blueprints: 284 shipped contribution files remapped off legacy interface kinds and dotted ownerRef grammar (DEFINE step 3 PR 8).** 40 blueprints under `blueprints/` carried pre-DEFINE-era interface kinds (47 distinct labels across 330 interfaces) and 252 ownerRefs written in the `interfaces.<name>` form. The dogfood mapping table extends to this corpus (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` / `artefact` -> `fileFormat`; everything else -> `other`); dotted ownerRefs rewrite to `interfaces[<name>]`; the legacy label is kept in the interface description. `rcf define validate` is now clean on the application-onboarding-tour blueprint applied to a fresh project (TC-057 passes without a skip).
+
 ### Known gaps and parked rulings
 
 - **Parked rulings not resolved in PR 8** (named in the PR 8 report.md KNOWN GAPS section): write-back idempotency of the add/create verbs; D3 draft scope tree-wide vs delta; the stagePolicy label drift, D3 notApplicable ordering and Dockerfile-token path findings from the PR 5 review; `skeleton:standardsCited` inside the D2 scope early-return and a `standards:<pack>` ledger entry with disposition applied counting as a waiver from the PR 6 review; anything PR 7's review parked (R9 litmus-hash amendment landed; other PR 7 parked rulings carried forward).
 - **Decision 9 and decision 10 are binding:** `--ack` remains the recorded override for D3/D5/D6; validate reports no finding for a missing AC class marker (D4's floor).
 - **Node 24 re-gate:** Dave re-gates PR 8 on Node 24 before merge. The sandbox default Node version is below the repo floor; this PR was built and tested on Node 24 via nvm in the cloud session.
+
+### Migrating existing trees
+
+Consumers (WSD among them) will see one new failure class on upgrade. On a fresh project with an existing tree, `rcf define validate` now exits 3 under PR 8 for any of:
+
+1. **Interface kind outside the closed vocabulary** `recordShape`, `httpRoute`, `event`, `cliCommand`, `uiRoute`, `port`, `fileFormat`, `fixture`, `other`. Mechanical remap table (safe conservative default):
+
+   | Legacy kind                                                | Remap to      |
+   |------------------------------------------------------------|---------------|
+   | `function`, `mcpTool`, `prompt`, `constant`, `moduleApi`, `interface` | `other`       |
+   | `command`                                                  | `cliCommand`  |
+   | `type`                                                     | `recordShape` |
+   | `artifact`, `artefact`                                     | `fileFormat`  |
+   | anything else                                              | `other`       |
+
+   Keep the original kind in the interface `description` so the migration stays auditable (`"(legacy kind: factory)"` is the convention this release used across the shipped blueprint corpus).
+
+2. **AC `ownerRef.field` grammar.** The only accepted form is `interfaces[<name>]`. Rewrite `interfaces.<name>` to `interfaces[<name>]`. Any ownerRef whose anchor is not an interface (`responsibilities.X`, `responsibilities[N]`, `purpose`, `internalStructure`, etc.) now fails validate; the mechanical remedy is to point the ownerRef at a real interface on the TAC, or to drop the ownerRef entirely if no interface fits (the walker treats ownerRef as optional). A spec change to broaden the accepted grammar is possible later; the 0.30.0 rule is strict.
+
+3. **Interface name on `ownerRef`.** `interfaces[<name>]` must resolve to an interface actually declared on the referenced TAC. Rename or add the interface before the AC is reconnected.
+
+The AC class prefix check (`[happy]`, `[edge]`, `[failure]`, `[must-not]`, `[non-functional]`) and the `tacIds` / `deliveredBy` resolution rules are also enforced. Absence of a class prefix is NOT a finding (decision 10 kept; D4 reports absence as the floor).
+
+The shipped blueprints under `blueprints/` are already migrated for 1 and 2 above; 295 blueprint ownerRefs still carry the `responsibilities.X` / `purpose` grammar from before the vocabulary closed and will fail validate on a project they are applied to (no shipped test exercises that path today). They are listed in `w-2026-10-03-dave-012`'s progress entry as a follow-up for PR 9 / a dedicated migration.
 
 0.29.0 lands the viewer UI refresh train (nine PRs that rebuild the shell, add shared components, redesign the Requirements, Architecture, Build and Readiness tabs, ship a Build DAG sub-tab, add fast ID lookup, and prove the embedding contract with a same-origin test-host fixture), the DEFINE readiness persona split (two readiness levels, `--level` and `--persona` on `rcf define readiness`, a Readiness tab as tab 1), and the first three DEFINE step 3 PRs (document intake into the brief ledger with the closed `resolvedBy` grammar, a `rcf define questions` verb with three new MCP tools and two argument-free prompts for the harness loop, and the `[draft]` shapes gate across TAC purpose, interface and core-entity homes with a DISCOVERY prototypes doctrine). The brief said 0.29.0 was never tagged; it is tagged here, and the spec sections that referred to those D2 behaviours as "0.30.0" now read 0.29.0.
 
