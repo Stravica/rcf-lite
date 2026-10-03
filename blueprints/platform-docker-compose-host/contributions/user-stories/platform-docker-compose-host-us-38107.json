@@ -27,7 +27,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
-        "field": "responsibilities.validate"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://doc.traefik.io/traefik/",
@@ -45,7 +45,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
-        "field": "responsibilities.noneTopology"
+        "field": "responsibilities"
       }
     },
     {
@@ -59,7 +59,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
-        "field": "responsibilities.readOnlyMount"
+        "field": "responsibilities"
       }
     }
   ],

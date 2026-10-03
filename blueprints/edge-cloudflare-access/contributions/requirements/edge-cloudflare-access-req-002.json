@@ -16,6 +16,6 @@
   "updatedAt": "2026-09-09T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
-    "field": "responsibilities.applicationDeclaration"
+    "field": "responsibilities"
   }
 }

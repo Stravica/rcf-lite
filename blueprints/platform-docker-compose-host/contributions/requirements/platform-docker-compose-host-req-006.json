@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T20:00:00.000Z",
   "deliveredBy": {
     "adrId": "ADR-3904-platform-docker-compose-host-log-driver",
-    "field": "decision.logDriver"
+    "field": "decision"
   }
 }

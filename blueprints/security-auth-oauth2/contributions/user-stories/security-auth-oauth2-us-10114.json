@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "responsibilities.sessionInventory"
+        "field": "responsibilities"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "responsibilities.sessionInventory"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "responsibilities.sessionInventory"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "responsibilities.sessionInventory"
+        "field": "responsibilities"
       }
     },
     {
@@ -76,7 +76,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "responsibilities.sessionInventory"
+        "field": "responsibilities"
       }
     }
   ],

@@ -5,7 +5,7 @@
   "description": "The application realises an admin-console surface whose navigation, on load, reads the applied blueprints capability declarations (via source read-back on manifest.blueprints[]) and renders links only for the surfaces the applied capabilities enable. A surface whose gating capability is not applied is neither linked nor reachable from the shell. The shell is the base surface REQ-002 to REQ-006 elaborate on.",
   "deliveredBy": {
     "tacId": "TAC-2201-application-admin-console-shell",
-    "field": "responsibilities.renderShell"
+    "field": "responsibilities"
   },
   "category": "functional",
   "domain": "application",

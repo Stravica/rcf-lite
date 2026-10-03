@@ -5,7 +5,7 @@
   "description": "The applying project renders a notification-centre route (default `/notifications-centre`, operator-elicited) whose inbox surface lists the notifications delivered in the last N days per the ADR-2103 retention window (default thirty days, elicited). Each notification carries a stable `data-notification-id` attribute the pack enumerates by (never by a role attribute alone, per the gate discipline), and each carries a keyboard-reachable acknowledge control (`[data-action=\"acknowledge\"]`) plus a mark-read control (`[data-action=\"mark-read\"]`); the surface offers one mark-all-read control (`[data-action=\"mark-all-read\"]`) reachable in reading order. Activating the acknowledge control POSTs an acknowledge request to the applying project's server, the server responds, and the DOM updates in response: the notification's `data-acknowledged` reads `true` after the round-trip. Every item is Tab-reachable from the start of the surface without a mouse.",
   "deliveredBy": {
     "tacId": "TAC-2102-application-notifications-in-app-centre",
-    "field": "interfaces.acknowledgeRoundTrip"
+    "field": "interfaces[acknowledgeRoundTrip]"
   },
   "category": "functional",
   "domain": "application",

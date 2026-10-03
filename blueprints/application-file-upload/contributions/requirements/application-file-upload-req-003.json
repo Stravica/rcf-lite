@@ -5,7 +5,7 @@
   "description": "The upload surface refuses a file that fails the MIME-type gate, exceeds the per-file size cap, or matches the virus-scan hit. Every refusal renders a per-file error message inside a region bound to the file row via aria-describedby, moves keyboard focus to the row's retry control, and refuses to send the file to the server. The refusal reason is one of the closed strings mime-refused, size-refused, virus-refused so a project's log pipeline can classify without prose parsing.",
   "deliveredBy": {
     "tacId": "TAC-2401-application-file-upload-input",
-    "field": "interfaces.renderRefusal"
+    "field": "interfaces[renderRefusal]"
   },
   "category": "functional",
   "domain": "application",

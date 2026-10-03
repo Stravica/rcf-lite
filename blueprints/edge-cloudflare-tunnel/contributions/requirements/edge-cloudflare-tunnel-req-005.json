@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-    "field": "responsibilities.credentialsDiscipline"
+    "field": "responsibilities"
   }
 }

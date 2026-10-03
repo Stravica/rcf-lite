@@ -5,7 +5,7 @@
   "description": "The completion store honours the elicited dismissal-policy with a runtime clause per option. `dismiss-permanently` writes a terminal completion record and refuses re-surfacing regardless of any subsequent version bump: a principal who dismisses the tour never sees it again until the restart-tour control fires. `dismiss-until-next-major` writes a completion record carrying the current tour version and compares stored and current versions on the major segment on principal load: the tour re-surfaces when the majors differ, otherwise it stays dismissed. `dismiss-until-next-minor` writes a completion record carrying the current tour version and re-surfaces the tour when either the major or the minor segment differs on principal load. The record shape is identical across the three policies; only the comparison on load differs.",
   "deliveredBy": {
     "tacId": "TAC-2703-application-onboarding-tour-completion-store",
-    "field": "interfaces.completionStore"
+    "field": "interfaces[completionStore]"
   },
   "category": "functional",
   "domain": "onboarding",

@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "responsibilities.cronReady"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/workers/runtime-apis/handlers/scheduled/",
@@ -66,7 +66,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "responsibilities.cronReady"
+        "field": "responsibilities"
       }
     },
     {
@@ -80,7 +80,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "responsibilities.solereader"
+        "field": "responsibilities"
       }
     },
     {
@@ -94,7 +94,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "responsibilities.cronReady"
+        "field": "responsibilities"
       }
     }
   ],

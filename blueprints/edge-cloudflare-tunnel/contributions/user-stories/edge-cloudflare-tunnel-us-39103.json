@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "interfaces[schema]"
+        "field": "interfaces"
       },
       "given": "the canonical fixture manifest with the three required-shape invariants (uuid tunnel id, credentialsFile.secretRef reference, terminal catch-all)",
       "when": "manifest-schema-validate runs against the canonical fixture",
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "interfaces[schema]"
+        "field": "interfaces"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.credentialsSecretRef"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "interfaces[schema]"
+        "field": "interfaces"
       }
     }
   ],

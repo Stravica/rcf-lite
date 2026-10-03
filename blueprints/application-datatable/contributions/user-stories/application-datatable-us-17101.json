@@ -50,7 +50,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1802-application-datatable-query-adapter",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       }
     }
   ],

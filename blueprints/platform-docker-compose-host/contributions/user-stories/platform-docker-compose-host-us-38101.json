@@ -27,7 +27,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.namedNetworks"
+        "field": "responsibilities"
       }
     },
     {
@@ -41,7 +41,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.namedVolumes"
+        "field": "responsibilities"
       }
     },
     {
@@ -55,7 +55,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.servicePerContainer"
+        "field": "responsibilities"
       }
     },
     {
@@ -69,7 +69,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.dotenv"
+        "field": "responsibilities"
       }
     },
     {
@@ -83,7 +83,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.composeFileLocation"
+        "field": "responsibilities"
       }
     }
   ],

@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-2901-object-storage-s3-facade",
-    "field": "responsibilities.credential"
+    "field": "responsibilities"
   }
 }

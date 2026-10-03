@@ -100,7 +100,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-306-application-api-rest-operability",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       }
     }
   ],

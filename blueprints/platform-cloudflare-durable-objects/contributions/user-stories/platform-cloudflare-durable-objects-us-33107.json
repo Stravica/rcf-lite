@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
-        "field": "responsibilities.solereader"
+        "field": "responsibilities"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
-        "field": "responsibilities.solereader"
+        "field": "responsibilities"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3401-platform-cloudflare-durable-objects-namespace-facade",
-        "field": "responsibilities.solereader"
+        "field": "responsibilities"
       }
     }
   ],

@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1701-application-error-handling-boundary",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1701-application-error-handling-boundary",
-        "field": "interfaces[0]"
+        "field": "interfaces"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1701-application-error-handling-boundary",
-        "field": "interfaces[0]"
+        "field": "interfaces"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1701-application-error-handling-boundary",
-        "field": "interfaces[0]"
+        "field": "interfaces"
       }
     }
   ],

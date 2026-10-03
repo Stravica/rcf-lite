@@ -27,11 +27,7 @@
       "then": "the action refuses with REAUTH_REQUIRED, a reauth prompt renders and the action proceeds only after the reauth prompt returns success",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     },
     {
       "id": "AC-25111-3",
@@ -41,11 +37,7 @@
       "then": "the action refuses with REAUTH_REQUIRED and a reauth prompt renders; below the threshold no reauth prompt renders",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     },
     {
       "id": "AC-25111-4",
@@ -65,11 +57,7 @@
       "then": "the action refuses with REAUTH_WINDOW_UNKNOWN, a retry control renders keyboard-reachable and no client clock is used",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

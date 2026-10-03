@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-208-application-spa-icon-adherence-probe",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-208-application-spa-icon-adherence-probe",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-208-application-spa-icon-adherence-probe",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-208-application-spa-icon-adherence-probe",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       }
     }
   ],

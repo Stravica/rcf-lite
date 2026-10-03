@@ -47,7 +47,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "responsibilities.respectMaxAttemptsCeiling"
+        "field": "responsibilities"
       },
       "disposition": "template"
     }

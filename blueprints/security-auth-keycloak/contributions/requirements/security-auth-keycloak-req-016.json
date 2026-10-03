@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
-    "field": "responsibilities.jwtAudit"
+    "field": "responsibilities"
   }
 }

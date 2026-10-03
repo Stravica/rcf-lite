@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-21T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-505-security-auth-magic-link-principal-registry",
-    "field": "responsibilities.isRegistered"
+    "field": "responsibilities"
   }
 }

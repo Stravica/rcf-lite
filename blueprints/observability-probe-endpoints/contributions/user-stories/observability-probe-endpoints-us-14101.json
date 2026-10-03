@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "adrId": "ADR-1503-observability-probe-endpoints-kubernetes-default",
-        "field": "decision.kubernetesDefault"
+        "field": "decision"
       }
     },
     {

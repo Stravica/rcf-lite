@@ -5,7 +5,7 @@
   "description": "Every file in the upload set carries a per-file percent that advances monotonically from 0 to 100. The surface also carries an aggregate percent that reflects the mean weighted by byte size. A polite live-region wrapper (aria-live polite) receives a text tick per the elicited announcement cap (default 2 seconds, owned by `TAC-2403.interfaces.announcementInterval`) with the string format \"<uploaded> of <total> files, <PP> percent\". Internal progress polling runs at the internal cadence owned by `TAC-2403.interfaces.tickInterval` (default 250 ms, internal only, not user-observable); the polite wrapper is preseeded at render time so a screen reader adopts it before the first announcement fires.",
   "deliveredBy": {
     "tacId": "TAC-2403-application-file-upload-progress-announcer",
-    "field": "interfaces.tick"
+    "field": "interfaces[tick]"
   },
   "category": "functional",
   "domain": "application",

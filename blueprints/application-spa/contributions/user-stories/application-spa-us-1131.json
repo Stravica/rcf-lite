@@ -59,7 +59,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-209-application-spa-csp-styled-adherence-probe",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },

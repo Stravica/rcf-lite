@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-10T00:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-    "field": "responsibilities.cloudflaredReady"
+    "field": "responsibilities"
   }
 }

@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-2801-persistence-data-postgres-facade",
-    "field": "responsibilities.pool"
+    "field": "responsibilities"
   }
 }

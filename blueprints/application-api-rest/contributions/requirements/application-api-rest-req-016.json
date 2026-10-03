@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-19T10:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-301-application-api-rest-request-pipeline",
-    "field": "interfaces.per-endpoint"
+    "field": "interfaces"
   }
 }

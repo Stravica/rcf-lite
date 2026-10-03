@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T20:00:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-    "field": "responsibilities.secrets"
+    "field": "responsibilities"
   }
 }

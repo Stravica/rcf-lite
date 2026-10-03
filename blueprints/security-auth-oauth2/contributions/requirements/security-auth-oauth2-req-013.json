@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-    "field": "responsibilities.sessionInventory"
+    "field": "responsibilities"
   }
 }

@@ -49,7 +49,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1403-persistence-data-d1-deploy-gate",
-        "field": "responsibilities.gate"
+        "field": "responsibilities"
       },
       "disposition": "template",
       "vendorCitation": {

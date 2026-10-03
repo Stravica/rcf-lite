@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "interfaces[schema]"
+        "field": "interfaces"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/configuration-file/",
@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "interfaces[schema]"
+        "field": "interfaces"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/local-management/configuration-file/",

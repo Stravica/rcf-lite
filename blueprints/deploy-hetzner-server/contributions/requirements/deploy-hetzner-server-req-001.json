@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
-    "field": "responsibilities.provisionerReady"
+    "field": "responsibilities"
   }
 }

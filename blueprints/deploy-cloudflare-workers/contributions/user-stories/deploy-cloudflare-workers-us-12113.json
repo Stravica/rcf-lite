@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
-        "field": "responsibilities.assets"
+        "field": "responsibilities"
       },
       "disposition": "template"
     },
@@ -57,7 +57,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
-        "field": "responsibilities.runWorkerFirstArrayForm"
+        "field": "responsibilities"
       },
       "disposition": "template",
       "vendorCitation": {

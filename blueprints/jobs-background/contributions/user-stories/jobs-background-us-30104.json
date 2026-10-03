@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "responsibilities.retry"
+        "field": "responsibilities"
       },
       "disposition": "template"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "responsibilities.backoffExponential"
+        "field": "responsibilities"
       },
       "disposition": "template"
     },
@@ -57,7 +57,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "responsibilities.backoffConstant"
+        "field": "responsibilities"
       },
       "disposition": "template"
     },
@@ -71,7 +71,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "responsibilities.backoffLinear"
+        "field": "responsibilities"
       },
       "disposition": "template"
     }

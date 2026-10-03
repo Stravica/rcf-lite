@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3603-edge-cloudflare-turnstile-magic-link-hook",
-        "field": "responsibilities.guardMint"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/turnstile/get-started/server-side-validation/",

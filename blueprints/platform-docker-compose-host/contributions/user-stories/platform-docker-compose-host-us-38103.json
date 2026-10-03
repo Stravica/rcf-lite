@@ -27,7 +27,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.mountMode"
+        "field": "responsibilities"
       }
     },
     {
@@ -41,7 +41,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.serviceReference"
+        "field": "responsibilities"
       }
     },
     {
@@ -55,7 +55,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.grepRefuse"
+        "field": "responsibilities"
       }
     },
     {
@@ -69,7 +69,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.grepRefuse"
+        "field": "responsibilities"
       }
     }
   ],

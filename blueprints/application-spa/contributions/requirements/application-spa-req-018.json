@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-19T09:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-209-application-spa-csp-styled-adherence-probe",
-    "field": "responsibilities.content-security-policy"
+    "field": "responsibilities"
   }
 }

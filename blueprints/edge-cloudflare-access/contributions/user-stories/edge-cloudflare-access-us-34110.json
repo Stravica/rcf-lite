@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3503-edge-cloudflare-access-policy-shape",
-        "field": "responsibilities.policyIssueGuide"
+        "field": "responsibilities"
       }
     }
   ],

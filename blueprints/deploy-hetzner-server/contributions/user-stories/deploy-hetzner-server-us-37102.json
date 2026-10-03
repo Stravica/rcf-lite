@@ -44,7 +44,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3804-deploy-hetzner-server-firewall-shape",
-        "field": "interfaces[firewallRules]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     }

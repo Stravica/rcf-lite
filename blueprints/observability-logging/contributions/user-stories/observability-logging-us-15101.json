@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "adrId": "ADR-1605-observability-logging-serialisation-refusal",
-        "field": "decision.bigIntFold"
+        "field": "decision"
       }
     },
     {

@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-303-application-api-rest-contract-surface",
-        "field": "interfaces[1].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },

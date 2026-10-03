@@ -24,7 +24,7 @@
       "description": "The applied blueprint's guide names GitLab CI, CircleCI, Buildkite, and Jenkins as equally supported providers, states the mapping (job trigger, Node setup, single-line entry-point invocation, artefact upload) applied to each workflow in the matrix, and states that the blueprint does not ship provider-specific configuration for those runners in v2.0.0. Template values the applying agent sets: The applying agent sets the elicited providerHint; the AC substitutes the project's provider assets for the illustrative GitHub-Actions asset set.",
       "ownerRef": {
         "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
-        "field": "interfaces[2].name"
+        "field": "interfaces"
       },
       "given": "an rcf-lite project that has applied this blueprint",
       "when": "the operator opens `guide/delivery-ci-workflows.md` from the blueprint's source path",

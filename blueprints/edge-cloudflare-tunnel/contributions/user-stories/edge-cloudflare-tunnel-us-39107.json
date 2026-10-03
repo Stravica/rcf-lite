@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
-        "field": "responsibilities.audAttach"
+        "field": "responsibilities"
       },
       "given": "the gated fixture sidecar with one ingress rule missing the originRequest.access block (SIMULATE_AUD_DROP=true)",
       "when": "aud-presence-check runs on the mutated gated sidecar",
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4003-edge-cloudflare-tunnel-access-binding",
-        "field": "responsibilities.audAttach"
+        "field": "responsibilities"
       }
     }
   ],

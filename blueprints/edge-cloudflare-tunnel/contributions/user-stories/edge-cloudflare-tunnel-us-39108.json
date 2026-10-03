@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.credentialsSecretRef"
+        "field": "responsibilities"
       }
     },
     {
@@ -31,7 +31,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.credentialsDiscipline"
+        "field": "responsibilities"
       }
     },
     {
@@ -45,7 +45,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.credentialsDiscipline"
+        "field": "responsibilities"
       }
     }
   ],

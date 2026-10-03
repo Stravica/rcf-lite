@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-        "field": "responsibilities.cloudflaredReady"
+        "field": "responsibilities"
       }
     },
     {
@@ -31,7 +31,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-        "field": "responsibilities.cloudflaredReady"
+        "field": "responsibilities"
       }
     }
   ],

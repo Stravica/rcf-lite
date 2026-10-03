@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-19T09:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-203-application-spa-component-library",
-    "field": "responsibilities.hard-coded"
+    "field": "responsibilities"
   }
 }

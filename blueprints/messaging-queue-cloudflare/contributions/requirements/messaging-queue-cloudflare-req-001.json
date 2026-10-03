@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
-    "field": "responsibilities.producerReady"
+    "field": "responsibilities"
   }
 }

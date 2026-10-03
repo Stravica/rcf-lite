@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     },
     {
@@ -75,7 +75,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -90,7 +90,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-210-application-spa-external-dependency-provisioning-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     }
   ],

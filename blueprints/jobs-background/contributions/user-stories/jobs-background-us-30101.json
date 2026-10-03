@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "adrId": "ADR-3103-jobs-background-requires-applied-capabilities",
-        "field": "decision.allowSkipFlag"
+        "field": "decision"
       },
       "disposition": "fixed"
     }

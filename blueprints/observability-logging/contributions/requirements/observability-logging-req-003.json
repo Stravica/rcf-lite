@@ -5,7 +5,7 @@
   "description": "The logger factory exposes a redaction contract (ADR-1603 recommended-default categories: credential, pii.email, pii.name, pii.address, token, bearer; elicited additions per project). A field named or path-labelled with a category is replaced with the string [REDACTED:<category>] before the line is serialised, whether the log call site remembered to redact or not. Redaction happens at the emission boundary (TAC-1602): a rogue field name in a caller-supplied object is redacted by rule, not by hope. The redaction pass never mutates the caller's original object; the emission pipeline copies the object first.",
   "deliveredBy": {
     "tacId": "TAC-1602-observability-logging-redaction-boundary",
-    "field": "interfaces.createRedactionBoundary"
+    "field": "interfaces[createRedactionBoundary]"
   },
   "category": "nonFunctional",
   "domain": "observability",
