@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T20:00:00Z",
-  "updatedAt": "2026-10-02T20:00:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
   "tacId": "TAC-4134-wespa-host-fixture",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -31,23 +31,23 @@
     },
     {
       "name": "assertFramingHeaders",
-      "kind": "moduleApi",
-      "description": "[draft] `assertFramingHeaders(response)` on a `GET /` response. Refuses if `X-Frame-Options` is present, if a CSP `frame-ancestors` directive forbids `self`, or if `X-Content-Type-Options: nosniff` is set in a way that breaks the fixture (today it does not; the lint still records absence). Returns `{ ok: true }` or throws with the first failure."
+      "kind": "other",
+      "description": "[draft] `assertFramingHeaders(response)` on a `GET /` response. Refuses if `X-Frame-Options` is present, if a CSP `frame-ancestors` directive forbids `self`, or if `X-Content-Type-Options: nosniff` is set in a way that breaks the fixture (today it does not; the lint still records absence). Returns `{ ok: true }` or throws with the first failure. [legacy kind: moduleApi; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "assertNoTargetTop",
-      "kind": "moduleApi",
-      "description": "[draft] `assertNoTargetTop(renderedHtml)` greps the server-rendered HTML for `target=\"_top\"` and `target='_top'` and refuses on any match. Returns `{ ok: true, count: 0 }` or `{ ok: false, count: n, matches: [...] }`."
+      "kind": "other",
+      "description": "[draft] `assertNoTargetTop(renderedHtml)` greps the server-rendered HTML for `target=\"_top\"` and `target='_top'` and refuses on any match. Returns `{ ok: true, count: 0 }` or `{ ok: false, count: n, matches: [...] }`. [legacy kind: moduleApi; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "assertLocalStorageNamespace",
-      "kind": "moduleApi",
-      "description": "[draft] `assertLocalStorageNamespace(sourceTreeRoot)` walks every `.js` file under `src/view/**` (excluding vendored and `.min.js`), finds every `localStorage.(setItem|getItem|removeItem)(KEY)` and `storage.(setItem|getItem|removeItem)(KEY)` call site, and asserts that the key literal starts with `rcf-view:v1:` (or references `STORAGE_NS` which equals `rcf-view:v1:`). Returns `{ ok: true, scanned: n }` or `{ ok: false, violations: [...] }`."
+      "kind": "other",
+      "description": "[draft] `assertLocalStorageNamespace(sourceTreeRoot)` walks every `.js` file under `src/view/**` (excluding vendored and `.min.js`), finds every `localStorage.(setItem|getItem|removeItem)(KEY)` and `storage.(setItem|getItem|removeItem)(KEY)` call site, and asserts that the key literal starts with `rcf-view:v1:` (or references `STORAGE_NS` which equals `rcf-view:v1:`). Returns `{ ok: true, scanned: n }` or `{ ok: false, violations: [...] }`. [legacy kind: moduleApi; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderTestHostPage",
-      "kind": "moduleApi",
-      "description": "[draft] Pure function that emits the fixture HTML (56px header, resizable 64/200-400px sidebar, iframe content pane). No inline script; references `./test-host.js` as the single client-side JS."
+      "kind": "other",
+      "description": "[draft] Pure function that emits the fixture HTML (56px header, resizable 64/200-400px sidebar, iframe content pane). No inline script; references `./test-host.js` as the single client-side JS. [legacy kind: moduleApi; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "notes": "Depends on PR 1's `embed` and `theme` contract (page-init.js stamping `<html data-embed=\"1\">` and `<html data-theme>`, origin-checked `rcf-view-theme` listener, hash navigation preserving the host query string), on PR 1's relative-script policy (no inline script, no leading-slash references) and on live-client.js's existing `STORAGE_NS = 'rcf-view:v1:'` namespace. The test-host route surface is behind `--test-host` / `RCF_VIEW_TEST_HOST=1`; the release notes mark it as a test-suite fixture, not a shipped UI, so wespa's proxy allow-list is unaffected. The three lints are called from the viewer's test suite; wespa smoke on the live wespa shell is Dex's side."

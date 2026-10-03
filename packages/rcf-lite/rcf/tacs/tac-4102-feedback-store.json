@@ -17,23 +17,23 @@
   "interfaces": [
     {
       "name": "readEntries",
-      "kind": "function",
-      "description": "Load and fold the JSONL log to current-state entries."
+      "kind": "other",
+      "description": "Load and fold the JSONL log to current-state entries. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "appendEntry",
-      "kind": "function",
-      "description": "Append one entry object as a JSONL line."
+      "kind": "other",
+      "description": "Append one entry object as a JSONL line. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "appendState",
-      "kind": "function",
-      "description": "Append one state-transition line for an existing id."
+      "kind": "other",
+      "description": "Append one state-transition line for an existing id. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "feedbackGitignoreEntry",
-      "kind": "constant",
-      "description": "Managed-gitignore contribution consumed by src/setup/managed-gitignore.js."
+      "kind": "other",
+      "description": "Managed-gitignore contribution consumed by src/setup/managed-gitignore.js. [legacy kind: constant; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -46,5 +46,5 @@
   "tradeoffs": "Append-only JSONL is trivial to write correctly and to inspect by eye; the cost is a fold on every read, which is negligible at the entry counts a single project will ever see.",
   "notes": "Gitignored, not committed. Raw entries can hold what redaction removes; committing them would leak on the next push for a public project.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

@@ -75,16 +75,21 @@ test('getRuleset artefact keys are camelCase per estate convention (NV-BL-SR-01)
   assert.deepEqual(bad, [], `non-camelCase keys: ${bad.join(', ')}`);
 });
 
-test('ruleset v1 lists every NV-BL-ADM rule (NV-BL-SR-03)', async () => {
+test('ruleset v1 lists every NV-BL-ADM rule plus the NV-DL-ADM rules (NV-BL-SR-03; 0.30.0 PR 8 appended NV-DL-ADM-01..05)', async () => {
   const ruleset = await getRuleset({ fresh: true });
   const admIds = ruleset.admissibilityRules.map((r) => r.id);
   assert.deepEqual(
     admIds,
-    ['NV-BL-ADM-01', 'NV-BL-ADM-02', 'NV-BL-ADM-03', 'NV-BL-ADM-04', 'NV-BL-ADM-05', 'NV-BL-ADM-06'],
+    [
+      'NV-BL-ADM-01', 'NV-BL-ADM-02', 'NV-BL-ADM-03', 'NV-BL-ADM-04', 'NV-BL-ADM-05', 'NV-BL-ADM-06',
+      'NV-DL-ADM-01', 'NV-DL-ADM-02', 'NV-DL-ADM-03', 'NV-DL-ADM-04', 'NV-DL-ADM-05',
+    ],
   );
   // NV-BL-ADM-05's refuse-first, override-recorded posture is load-bearing
   // for the whole gate. Item 1 ratified REFUSE by default; assert it here
-  // so a future edit that flips this to false trips the test.
+  // so a future edit that flips this to false trips the test. The
+  // 0.30.0 PR 8 NV-DL rows add the same posture for DEFINE
+  // admissibility (REQ-179 / AC-17902-1).
   for (const rule of ruleset.admissibilityRules) {
     assert.equal(rule.refuseByDefault, true, `${rule.id} must refuse by default (ruling-sheet item 1)`);
   }

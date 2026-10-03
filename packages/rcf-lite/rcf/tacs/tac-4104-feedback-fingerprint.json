@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "fingerprint",
-      "kind": "function",
-      "description": "Compute the entry fingerprint from its canonical input."
+      "kind": "other",
+      "description": "Compute the entry fingerprint from its canonical input. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -29,5 +29,5 @@
   "tradeoffs": "A tiny fingerprint (12 hex = 48 bits) risks a collision at very large corpuses; at the scale of a single blueprint tracker it is safe, and issues carry the full-anchor context in the body so a maintainer resolves a rare collision by hand.",
   "notes": "The fingerprint appears twice in the body (visible line and HTML comment) so maintainer edits do not lose it.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

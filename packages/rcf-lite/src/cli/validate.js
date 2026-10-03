@@ -8,6 +8,8 @@ import { formatErrors } from '#core/errors';
 import { checkCodeNodeResolution, walkTree } from '#core/store';
 import { validateCompanionPinsResolvable } from '../blueprint/companions.js';
 import { findProjectRoot } from '../view/index.js';
+// 0.30.0 PR 8 (REQ-178 / TAC-4126): define-validate findings.
+import { collectDefineValidateFindings } from '../define/validate-findings.js';
 
 const OPTION_SPEC = {
   quiet: { type: 'boolean' },
@@ -133,6 +135,12 @@ export async function main(argv, deps = {}) {
   // a pin that names no known provider is exit 3.
   const companionsErrors = await validateCompanionPinsResolvable({ projectRoot, tree });
   errors.push(...companionsErrors);
+  // 0.30.0 PR 8 (REQ-178, TAC-4126): interface kind outside vocabulary,
+  // bracketed AC class prefix outside the known classes, tacIds naming
+  // a non-TAC, and an unresolving ownerRef or deliveredBy. Absence of
+  // a class marker is NOT a finding (decision 10 kept).
+  const defineValidateFindings = collectDefineValidateFindings(tree);
+  errors.push(...defineValidateFindings);
   if (flags.json) {
     const issues = errors.map((e) => ({
       id: e.documentId ?? null,

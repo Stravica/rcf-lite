@@ -12,15 +12,15 @@
   "status": "draft",
   "shapeClassification": {
     "shapes": [
-      "cliCommand"
+      "persistence"
     ],
     "reason": "keyword-scan",
     "classifiedAt": "2026-10-03T18:30:00Z",
     "signals": [
       {
         "source": "description",
-        "shape": "cliCommand",
-        "match": "rcf build bundle"
+        "shape": "persistence",
+        "match": "record"
       }
     ]
   },

@@ -16,18 +16,18 @@
   "interfaces": [
     {
       "name": "renderIssue",
-      "kind": "function",
-      "description": "Return { title, body, labels[] } for a create call."
+      "kind": "other",
+      "description": "Return { title, body, labels[] } for a create call. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderComment",
-      "kind": "function",
-      "description": "Return the comment body for a +1 add."
+      "kind": "other",
+      "description": "Return the comment body for a +1 add. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderBundle",
-      "kind": "function",
-      "description": "Return the markdown bundle string for outbox files."
+      "kind": "other",
+      "description": "Return the markdown bundle string for outbox files. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -41,5 +41,5 @@
   "tradeoffs": "Static templates keep the shape reviewable by eye and byte-comparable in tests; the cost is that template drift requires golden updates, which is exactly the discipline the tests exist for.",
   "notes": "The docs-site \"submit a blueprint idea\" form reuses these templates verbatim so triage sees one shape from both producers.",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

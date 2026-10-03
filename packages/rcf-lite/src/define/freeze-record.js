@@ -44,6 +44,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
+import { computeTreeHash } from '../query/delta.js';
+
 /**
  * Relative path (under the project root) of the freeze record. Used by
  * the walker-invisibility invariant test and by every caller that
@@ -244,4 +246,76 @@ export async function saveFreezeRecord({ projectRoot, record }) {
   await mkdir(dirname(filePath), { recursive: true });
   await writeFile(filePath, `${JSON.stringify(validated, null, 2)}\n`, 'utf8');
   return { filePath };
+}
+
+/**
+ * Apply `freeze.override { reason, by, at }` to the project's freeze
+ * record and persist it (0.30.0 PR 8, REQ-177 / TAC-4125). When no
+ * freeze record exists, a minimal placeholder is created so the
+ * override has a home: `frozenAt = at`, `treeHash` from the live tree
+ * via computeTreeHash on the supplied `docHashes` (passed by the
+ * caller so this module stays pure of walker I/O), `briefStatements`
+ * from the caller (defaults to 0 when the brief ledger is absent).
+ * On an existing record the override is set in place and every other
+ * field is preserved.
+ *
+ * The writer validates through saveFreezeRecord so the on-disk schema
+ * stays canonical. A missing-non-empty reason throws before any write.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {string} args.reason - operator-supplied non-empty reason string.
+ * @param {string} args.by - author identity recorded on the override.
+ * @param {string} args.at - ISO-8601 timestamp.
+ * @param {Record<string, string>} [args.docHashes] - the live tree's docHashes map; used only when no prior record exists so a minimal record can be stamped.
+ * @param {string} [args.treeHash] - the live tree hash; used only when no prior record exists.
+ * @param {number} [args.briefStatements] - brief ledger high-water mark; used only when no prior record exists.
+ * @returns {Promise<{ filePath: string, record: import('../query/delta.js').FreezeRecord & Record<string, unknown> }>}
+ */
+export async function applyOverrideToFreezeRecord({
+  projectRoot,
+  reason,
+  by,
+  at,
+  docHashes = {},
+  treeHash = null,
+  briefStatements = 0,
+}) {
+  if (typeof reason !== 'string' || reason.length === 0) {
+    throw new FreezeRecordError(
+      "applyOverrideToFreezeRecord: 'reason' must be a non-empty string.",
+      { filePath: FREEZE_RECORD_REL_PATH, field: 'override.reason' },
+    );
+  }
+  if (typeof by !== 'string' || by.length === 0) {
+    throw new FreezeRecordError(
+      "applyOverrideToFreezeRecord: 'by' must be a non-empty string.",
+      { filePath: FREEZE_RECORD_REL_PATH, field: 'override.by' },
+    );
+  }
+  if (typeof at !== 'string' || at.length === 0) {
+    throw new FreezeRecordError(
+      "applyOverrideToFreezeRecord: 'at' must be a non-empty string.",
+      { filePath: FREEZE_RECORD_REL_PATH, field: 'override.at' },
+    );
+  }
+  const existing = await loadFreezeRecord({ projectRoot });
+  // On an unfrozen tree, mint a minimal record whose treeHash is the
+  // live tree hash computed from the caller-supplied docHashes map,
+  // so the override is attached to a verifiable snapshot rather than a
+  // placeholder. Callers (the build CLI) pass computeDelta's
+  // currentDocHashes so the hash agrees with the delta model.
+  const computedTreeHash = treeHash ?? computeTreeHash(docHashes);
+  /** @type {import('../query/delta.js').FreezeRecord & Record<string, unknown>} */
+  const record = existing
+    ? { ...existing, override: { reason, by, at } }
+    : {
+      frozenAt: at,
+      treeHash: computedTreeHash,
+      docHashes: { ...docHashes },
+      briefStatements,
+      override: { reason, by, at },
+    };
+  const { filePath } = await saveFreezeRecord({ projectRoot, record });
+  return { filePath, record };
 }
