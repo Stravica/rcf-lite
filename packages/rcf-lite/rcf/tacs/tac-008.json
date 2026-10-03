@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-07-20T17:01:52.768Z",
-  "updatedAt": "2026-07-20T17:01:52.768Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
   "purpose": "Ship the agent-facing method layer - the elicitation and build-cycle playbooks, the reference docs and the harness fragment - that teaches an AI agent how to run the RCF method well, served over MCP as resources and prompts and readable in place under guidance/.",
   "responsibilities": [
     "Carry the elicitation method (question frames, AC-depth bar, deploy-target elicitation, hosting-choice guidance) the eliciting agent runs with a human",
@@ -12,18 +12,18 @@
   "interfaces": [
     {
       "name": "rcf_elicit_requirements",
-      "kind": "prompt",
-      "description": "The elicitation playbook, served as an MCP prompt to the eliciting agent."
+      "kind": "other",
+      "description": "The elicitation playbook, served as an MCP prompt to the eliciting agent. [legacy kind: prompt; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf_execute_build_cycle",
-      "kind": "prompt",
-      "description": "The build-cycle playbook, served as an MCP prompt to the operating agent."
+      "kind": "other",
+      "description": "The build-cycle playbook, served as an MCP prompt to the operating agent. [legacy kind: prompt; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "harness fragment",
-      "kind": "artifact",
-      "description": "The RULE-bearing block rcf init writes into CLAUDE.md and AGENTS.md."
+      "kind": "fileFormat",
+      "description": "The RULE-bearing block rcf init writes into CLAUDE.md and AGENTS.md. [legacy kind: artifact; mapped to fileFormat per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [

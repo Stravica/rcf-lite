@@ -17,23 +17,23 @@
   "interfaces": [
     {
       "name": "coverage",
-      "kind": "function",
-      "description": "Report coverage gaps across the tree."
+      "kind": "other",
+      "description": "Report coverage gaps across the tree. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "traceForward",
-      "kind": "function",
-      "description": "Trace from a document to its descendants along the intent chain."
+      "kind": "other",
+      "description": "Trace from a document to its descendants along the intent chain. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "traceBack",
-      "kind": "function",
-      "description": "Trace from a document back to its ancestors along the intent chain."
+      "kind": "other",
+      "description": "Trace from a document back to its ancestors along the intent chain. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "impact",
-      "kind": "function",
-      "description": "Compute the impact set of a change to a given document."
+      "kind": "other",
+      "description": "Compute the impact set of a change to a given document. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -47,5 +47,5 @@
   "tradeoffs": "A general graph engine would be more expressive but the intent chain is small and a hand-rolled walker is easier to reason about and to keep correct.",
   "notes": "Keeping the FBS out of intent traces is a load-bearing design rule, not an optimisation.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

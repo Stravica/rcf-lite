@@ -41,6 +41,14 @@ import { firstBaselineDisagreement } from '../design/index.js';
 import { writeBrowserVerificationAck } from '../browser-verify/index.js';
 // Track C+D §5.4 Stage-1 refusal gate.
 import { fbsRefusalForOpenSweep } from '../req-baseline/gate.js';
+// 0.30.0 PR 8 (REQ-177 / TAC-4125): bundle --next freeze gate.
+import { computeDelta } from '../query/delta.js';
+import { computeImpact } from '../query/impact.js';
+import { loadAllLedgers } from '../define/ledgers.js';
+import {
+  applyOverrideToFreezeRecord,
+  loadFreezeRecord,
+} from '../define/freeze-record.js';
 
 const OPTION_SPEC = {
   next: { type: 'boolean' },
@@ -60,6 +68,12 @@ const OPTION_SPEC = {
   // browserVerification record.
   'accept-block': { type: 'boolean' },
   reason: { type: 'string' },
+  // 0.30.0 PR 8 (REQ-177, AC-17702-2 / AC-17702-4). Bundle --next with
+  // --override "<reason>" writes freeze.override { reason, by, at } and
+  // proceeds; without --override the verb refuses on an unfrozen tree
+  // (AC-17702-1) and when every actionable FBS is impacted by the
+  // delta (AC-17702-4).
+  override: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf build <verb> [options]
@@ -96,6 +110,11 @@ Options (bundle):
   --strict                  Refuse (exit 4) a bundle for a blocked item;
                             no effect with --next (it never selects
                             blocked items)
+  --override "<reason>"     With --next: proceed on an unfrozen tree or
+                            an all-impacted delta, recording
+                            freeze.override { reason, by, at } (REQ-177,
+                            0.30.0 PR 8). The reason must be a
+                            non-empty string.
 
 Options (queue):
   --format <format>         md (default) | json
@@ -292,7 +311,10 @@ export async function main(argv, deps = {}) {
     return 0;
   }
   if (mode === 'next') {
-    return await emitNext({ tree, format, io });
+    return await emitNext({
+      tree, projectRoot, format, io,
+      overrideReason: typeof flags.override === 'string' ? flags.override : null,
+    });
   }
   return await emitBundle({
     tree, fbsId: positional, format, strict: Boolean(flags.strict), io,
@@ -356,9 +378,125 @@ async function emitBundle({ tree, fbsId, format, strict, io }) {
   return await emitToSink(output, io);
 }
 
-async function emitNext({ tree, format, io }) {
+/**
+ * 0.30.0 PR 8 (REQ-177, TAC-4125): freeze gate for `bundle --next`.
+ * Loads the freeze record and the computed delta, writes
+ * freeze.override when --override "<reason>" is given, computes the
+ * set of re-execute FBS impacted by the delta, and returns a refusal
+ * when the tree is unfrozen and no override is given.
+ *
+ * Pure of CLI I/O: it writes freeze.override through the freeze-record
+ * module (which is the normal write path) but prints no output; the
+ * caller surfaces the refusal and the override line.
+ *
+ * @param {object} args
+ * @param {object} args.tree - walker tree.
+ * @param {string} args.projectRoot
+ * @param {string|null} args.overrideReason - the --override flag value, or null when absent.
+ * @returns {Promise<{ ok: true, impactedFbsIds: Set<string>, override: {reason:string, by:string, at:string}|null } | { ok: false, exitCode: 2|4, message: string }>}
+ */
+async function enforceBundleNextFreezeGate({ tree, projectRoot, overrideReason }) {
+  if (overrideReason !== null && (typeof overrideReason !== 'string' || overrideReason.length === 0)) {
+    return {
+      ok: false,
+      exitCode: 2,
+      message: 'build bundle --next: --override requires a non-empty reason (e.g. --override "hotfix")',
+    };
+  }
+  const [freeze, ledgers] = await Promise.all([
+    loadFreezeRecord({ projectRoot }),
+    loadAllLedgers({ projectRoot }),
+  ]);
+  const delta = computeDelta(tree, freeze, ledgers);
+  if (!delta.frozen && overrideReason === null) {
+    return {
+      ok: false,
+      exitCode: 4,
+      message:
+        'build bundle --next: refused on an unfrozen tree. Run `rcf define readiness` and close the change with `rcf define freeze`, '
+        + 'or re-run with --override "<reason>" to record `freeze.override { reason, by, at }` and proceed (NV-DL-ADM-01).',
+    };
+  }
+  let appliedOverride = null;
+  if (overrideReason !== null) {
+    const at = new Date().toISOString();
+    const by = process.env.USER || process.env.USERNAME || 'operator';
+    const { record } = await applyOverrideToFreezeRecord({
+      projectRoot,
+      reason: overrideReason,
+      by,
+      at,
+      docHashes: delta.currentDocHashes ?? {},
+      treeHash: delta.currentTreeHash,
+      briefStatements: ledgers?.brief?.statements?.length ?? 0,
+    });
+    appliedOverride = record.override;
+  }
+  // Compute impacted FBS set when the tree is frozen (unfrozen trees
+  // have no base to compare against; AC-17702-5 governs that path).
+  const impactedFbsIds = new Set();
+  if (delta.frozen) {
+    const pivotIds = [
+      ...delta.changed.filter((id) => !id.startsWith('ledger:')),
+      ...delta.added.filter((id) => !id.startsWith('ledger:')),
+    ];
+    const seen = new Set();
+    for (const id of pivotIds) {
+      const impact = computeImpact(tree, { id });
+      if (!impact.found || !Array.isArray(impact.nodes)) continue;
+      for (const node of impact.nodes) {
+        if (node.role === 'pivot') continue;
+        if (seen.has(node.id)) continue;
+        seen.add(node.id);
+        if (node.kind === 'fbs' && node.actionNeeded === 're-execute') {
+          impactedFbsIds.add(node.id);
+        }
+      }
+    }
+  }
+  return { ok: true, impactedFbsIds, override: appliedOverride };
+}
+
+async function emitNext({ tree, projectRoot, format, io, overrideReason = null }) {
+  // 0.30.0 PR 8 (REQ-177 / TAC-4125): refuse without a freeze record,
+  // write freeze.override on --override "<reason>" and proceed, skip
+  // impacted FBS from the next-item selection.
+  const gate = await enforceBundleNextFreezeGate({
+    tree, projectRoot, overrideReason,
+  });
+  if (!gate.ok) {
+    io.stderr.write(`[error] ${gate.message}\n`);
+    return gate.exitCode;
+  }
+  if (gate.override) {
+    const o = gate.override;
+    io.stderr.write(`[info] build bundle --next: freeze.override recorded (reason=${JSON.stringify(o.reason)}, by=${o.by}, at=${o.at}).\n`);
+  }
+  // Skip FBS impacted by a non-empty delta; the next-item compute
+  // walks the queue from the top and the first unimpacted actionable
+  // FBS wins. Every skipped FBS is named on stderr with the reason.
   const queue = computeQueue(tree);
-  const next = selectNext(queue);
+  let next = null;
+  if (gate.impactedFbsIds.size === 0) {
+    next = selectNext(queue);
+  } else {
+    for (const item of queue.items) {
+      if (item.state !== 'actionable') continue;
+      if (gate.impactedFbsIds.has(item.fbsId)) {
+        io.stderr.write(`[info] build bundle --next: skipping ${item.fbsId} (impacted by the delta; re-freeze or re-execute first).\n`);
+        continue;
+      }
+      next = { fbsId: item.fbsId };
+      break;
+    }
+  }
+  if (!next && gate.impactedFbsIds.size > 0 && overrideReason === null) {
+    io.stderr.write(
+      '[error] build bundle --next: refused because every actionable FBS is impacted by the delta. '
+      + 'Re-run with --override "<reason>" to record `freeze.override { reason, by, at }` and proceed (NV-DL-ADM-05).\n',
+    );
+    return 4;
+  }
   if (next) {
     // Track C+D §5.4: Stage-1 (Define) refuses to enter Build for any
     // FBS binding an AC on a US that still has open baseline sweep

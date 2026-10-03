@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "assemblePrompt",
-      "kind": "function",
-      "description": "Assemble the implementation prompt for a named FBS."
+      "kind": "other",
+      "description": "Assemble the implementation prompt for a named FBS. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "buildOrder",
-      "kind": "function",
-      "description": "Compute the dependency-respecting order and parallel-safe groups."
+      "kind": "other",
+      "description": "Compute the dependency-respecting order and parallel-safe groups. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "markDone",
-      "kind": "function",
-      "description": "Advance the FBS and slot status when a slice is finished."
+      "kind": "other",
+      "description": "Advance the FBS and slot status when a slice is finished. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -48,5 +48,5 @@
   "tradeoffs": "The prompt is assembled as a single markdown document for simplicity and portability; a richer structured payload would be more flexible but would lock the consumer to a non-portable shape.",
   "notes": "Mark-done is an explicit command so the tool stays offline and harness-agnostic; no PR-watching daemon is required.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

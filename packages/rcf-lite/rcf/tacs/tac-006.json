@@ -16,53 +16,53 @@
   "interfaces": [
     {
       "name": "rcf.read",
-      "kind": "mcpTool",
-      "description": "Read any RCF document by id over MCP."
+      "kind": "other",
+      "description": "Read any RCF document by id over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.create",
-      "kind": "mcpTool",
-      "description": "Create a document with parent linkage over MCP."
+      "kind": "other",
+      "description": "Create a document with parent linkage over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.update",
-      "kind": "mcpTool",
-      "description": "Update fields on a document over MCP."
+      "kind": "other",
+      "description": "Update fields on a document over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.delete",
-      "kind": "mcpTool",
-      "description": "Delete a document with reference safety over MCP."
+      "kind": "other",
+      "description": "Delete a document with reference safety over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.coverage",
-      "kind": "mcpTool",
-      "description": "Report coverage gaps over MCP."
+      "kind": "other",
+      "description": "Report coverage gaps over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.trace",
-      "kind": "mcpTool",
-      "description": "Trace forward or back over MCP."
+      "kind": "other",
+      "description": "Trace forward or back over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.impact",
-      "kind": "mcpTool",
-      "description": "Report impact over MCP."
+      "kind": "other",
+      "description": "Report impact over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.view",
-      "kind": "mcpTool",
-      "description": "Generate the diagram and the static page over MCP."
+      "kind": "other",
+      "description": "Generate the diagram and the static page over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.build.assemble",
-      "kind": "mcpTool",
-      "description": "Assemble a build prompt over MCP."
+      "kind": "other",
+      "description": "Assemble a build prompt over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "rcf.build.markDone",
-      "kind": "mcpTool",
-      "description": "Mark a slice done over MCP."
+      "kind": "other",
+      "description": "Mark a slice done over MCP. [legacy kind: mcpTool; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -100,5 +100,5 @@
   "tradeoffs": "Local stdio sacrifices the convenience of a hosted MCP but is the only transport that preserves filesystem access; the trade is locked by the differentiator.",
   "notes": "The MCP surface mirrors the CLI verb set so behaviour is identical across surfaces.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

@@ -16,6 +16,8 @@
 // through unchanged.
 
 import { enforceAdmissibility, getRulesetToolScope } from '#admissibility';
+// 0.30.0 PR 8 (REQ-179 / TAC-4125): NV-DL admissibility.
+import { loadFreezeRecord } from '../define/freeze-record.js';
 
 /**
  * @typedef {import('../admissibility/enforce.js').AdmissibilityVerdict} AdmissibilityVerdict
@@ -70,4 +72,36 @@ export async function runWithAdmissibilityGate({
   }
   const payload = await Promise.resolve(produce());
   return { status: 'ok', admissibility: verdict, payload };
+}
+
+/**
+ * 0.30.0 PR 8 (REQ-179, TAC-4125; AC-17902-2 / AC-17902-3). Evaluate
+ * NV-DL-ADM-01 against the project's freeze record: an unfrozen tree
+ * without `freeze.override` set is a refusal; `freeze.override`
+ * present satisfies the recordedInChain channel so the caller may
+ * proceed and name the override.
+ *
+ * Pure of walker I/O: it reads the freeze record only. Callers wrap
+ * their own tool / verb refusal path around the returned verdict.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @returns {Promise<{ verdict: 'ok' | 'refuse-nv-dl-adm-01', rule?: 'NV-DL-ADM-01', override?: {reason:string, by:string, at:string}|null, message?: string }>}
+ */
+export async function evaluateDefineAdmissibility({ projectRoot }) {
+  const freeze = await loadFreezeRecord({ projectRoot });
+  if (freeze && typeof freeze === 'object' && freeze.override) {
+    const o = freeze.override;
+    return { verdict: 'ok', override: { reason: o.reason, by: o.by, at: o.at } };
+  }
+  if (freeze && typeof freeze === 'object' && freeze.docHashes) {
+    return { verdict: 'ok', override: null };
+  }
+  return {
+    verdict: 'refuse-nv-dl-adm-01',
+    rule: 'NV-DL-ADM-01',
+    message:
+      'NV-DL-ADM-01: refused on an unfrozen tree. Close the change with `rcf define readiness` and `rcf define freeze`, '
+      + 'or record `freeze.override { reason, by, at }` via `rcf build bundle --next --override "<reason>"`.',
+  };
 }

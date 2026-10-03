@@ -16,58 +16,58 @@
   "interfaces": [
     {
       "name": "init",
-      "kind": "command",
-      "description": "Initialise a new RCF project on disk."
+      "kind": "cliCommand",
+      "description": "Initialise a new RCF project on disk. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "view",
-      "kind": "command",
-      "description": "Generate the diagram and the static page."
+      "kind": "cliCommand",
+      "description": "Generate the diagram and the static page. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "read",
-      "kind": "command",
-      "description": "Read a document by id."
+      "kind": "cliCommand",
+      "description": "Read a document by id. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "create",
-      "kind": "command",
-      "description": "Create a document with parent linkage."
+      "kind": "cliCommand",
+      "description": "Create a document with parent linkage. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "update",
-      "kind": "command",
-      "description": "Update fields on a document."
+      "kind": "cliCommand",
+      "description": "Update fields on a document. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "delete",
-      "kind": "command",
-      "description": "Delete a document with reference safety."
+      "kind": "cliCommand",
+      "description": "Delete a document with reference safety. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "coverage",
-      "kind": "command",
-      "description": "Report coverage gaps across the tree."
+      "kind": "cliCommand",
+      "description": "Report coverage gaps across the tree. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "trace",
-      "kind": "command",
-      "description": "Trace forward or back along the intent chain."
+      "kind": "cliCommand",
+      "description": "Trace forward or back along the intent chain. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "impact",
-      "kind": "command",
-      "description": "Report what is affected by a document change."
+      "kind": "cliCommand",
+      "description": "Report what is affected by a document change. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "build",
-      "kind": "command",
-      "description": "Assemble a build prompt or mark a slice done."
+      "kind": "cliCommand",
+      "description": "Assemble a build prompt or mark a slice done. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "validate",
-      "kind": "command",
-      "description": "Validate every document and list broken references."
+      "kind": "cliCommand",
+      "description": "Validate every document and list broken references. [legacy kind: command; mapped to cliCommand per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -105,5 +105,5 @@
   "tradeoffs": "A single binary keeps the install and discovery story simple; a fragmented set of binaries would be more orthogonal but is overkill for a single project.",
   "notes": "Verbs are kept close to the spoken vocabulary of the method so a non-coder can guess the command from the document type.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }

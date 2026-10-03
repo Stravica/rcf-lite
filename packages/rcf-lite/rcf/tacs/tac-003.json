@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "renderDiagram",
-      "kind": "function",
-      "description": "Emit the diagram source for the whole tree."
+      "kind": "other",
+      "description": "Emit the diagram source for the whole tree. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     },
     {
       "name": "renderPage",
-      "kind": "function",
-      "description": "Write the static browsable page to the view output directory."
+      "kind": "other",
+      "description": "Write the static browsable page to the view output directory. [legacy kind: function; mapped to other per DEFINE spec \u00a75.2 closed vocabulary, 0.30.0 PR 8]"
     }
   ],
   "dependencies": [
@@ -36,5 +36,5 @@
   "tradeoffs": "Mermaid is locked as the diagram format because it renders without a runtime and ships everywhere; a pluggable renderer would add an interface for a benefit the product does not yet need.",
   "notes": "The fixed output directory keeps the configuration surface zero and the output discoverable.",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-06-25T00:00:00Z"
+  "updatedAt": "2026-10-03T18:30:00Z"
 }
