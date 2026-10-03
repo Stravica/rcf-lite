@@ -83,11 +83,16 @@ The Readiness tab URL is the artefact a delivery stream attaches.
 
 ## The engineer register
 
-The same mechanism runs with `--persona engineer`. The questions set
-is the engineer blockers in failing stages, and the write-backs are
-the engineer verbs (`rcf define create tac`, `rcf define update tac
---interface`, and so on). The engineer loop does not need a product
-owner; its exit is `levels.readyToBuild.ok`.
+The same compute runs with `--persona engineer`: the question set is
+the engineer blockers in failing stages, and its exit is
+`levels.readyToBuild.ok`. Per-check question templates and per-check
+write-backs for the engineer register are NOT part of DEFINE step 3
+PR 2 (spec §1.1: "The engineer register is the same mechanism with
+`--persona engineer`; it is not designed here beyond that flag and
+is what step 4 inherits."). Until step 4 lands, the engineer-persona
+questions return the shared compute shape with empty `writeBack` and
+`answerKinds`; the harness reads the raw blocker and runs the
+engineer verb that matches the check by hand.
 
 ## What the loop does NOT do
 
