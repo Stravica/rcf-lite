@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2003-application-dashboard-export-handle",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       }
     },
     {

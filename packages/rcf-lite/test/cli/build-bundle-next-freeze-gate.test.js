@@ -53,6 +53,23 @@ async function readFreeze(root) {
   return JSON.parse(raw);
 }
 
+// A frozen tree whose hashes match the live tree exactly (empty
+// delta); used by multiple tests to assert the stable-shape and
+// golden-match invariants.
+async function writeMatchingFreeze(tmp) {
+  const { walkTree } = await import('../../src/core/store/walker.js');
+  const { computeDelta } = await import('../../src/query/delta.js');
+  const { tree } = await walkTree({ projectRoot: tmp });
+  const delta = computeDelta(tree, null);
+  await writeFreeze(tmp, {
+    frozenAt: '2026-10-03T00:00:00Z',
+    treeHash: delta.currentTreeHash,
+    docHashes: delta.currentDocHashes,
+    briefStatements: 0,
+    override: null,
+  });
+}
+
 test('bundle --next (PR 8, AC-17702-1): refuses without a freeze record naming rcf define readiness', async () => {
   const tmp = await scaffold();
   const r = await runBin(tmp, ['build', 'bundle', '--next']);
@@ -82,11 +99,12 @@ test('bundle --next (PR 8): --override "" exits 2 as a usage refusal', async () 
   assert.match(r.stderr, /non-empty reason/);
 });
 
-test('bundle --next (PR 8, AC-17702-5): empty delta on a frozen tree is unchanged', async () => {
+test('bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the 0.29.0 golden bundle byte-for-byte', async () => {
   const tmp = await scaffold();
   // Produce a freeze that matches the current tree perfectly, so the
-  // computed delta is empty. We compute the tree hash from the live
-  // tree's docHashes to keep the writer honest.
+  // computed delta is empty. The current bundle must then equal the
+  // captured 0.29.0 bundle (fixtures/bundle-next-029-golden.md,
+  // captured from origin/main at 9860aab3, the pre-PR-8 tree).
   const { walkTree } = await import('../../src/core/store/walker.js');
   const { computeDelta } = await import('../../src/query/delta.js');
   const { tree } = await walkTree({ projectRoot: tmp });
@@ -100,20 +118,32 @@ test('bundle --next (PR 8, AC-17702-5): empty delta on a frozen tree is unchange
   });
   const first = await runBin(tmp, ['build', 'bundle', '--next']);
   assert.equal(first.code, 0, `expected exit 0, got ${first.code}. stderr=${first.stderr}`);
-  // No info-line about freeze.override, no skip line: the freeze gate
-  // passes transparently (0.29.0 shape).
   assert.ok(!/freeze\.override recorded/.test(first.stderr));
   assert.ok(!/skipping/.test(first.stderr));
-  // Running the verb a second time against the same freeze yields the
-  // identical stdout.
+  const goldenPath = resolve(here, 'fixtures', 'bundle-next-029-golden.md');
+  const golden = await readFile(goldenPath, 'utf8');
+  assert.equal(first.stdout, golden, 'bundle --next on a frozen tree with an empty delta must match the captured 0.29.0 golden byte-for-byte');
+  // Re-running the verb yields identical stdout: the empty-delta
+  // posture is idempotent.
   const second = await runBin(tmp, ['build', 'bundle', '--next']);
-  assert.equal(second.stdout, first.stdout, 'bundle --next stdout must be stable across re-runs on an empty delta');
+  assert.equal(second.stdout, first.stdout);
 });
 
-test('bundle --next (PR 8, AC-17702-3): skips impacted FBS and hands out the next unimpacted', async () => {
+test('bundle --next (PR 9, AC-17702-3): skips the impacted FBS and hands out the next unimpacted FBS (exit 0)', async () => {
   const tmp = await scaffold();
-  // Add a second FBS that reuses the seeded AC id (acIds minItems=1).
-  // Both FBS are actionable; stable buildOrder puts FBS-001 first.
+  // Two independent FBS, each bound to its own AC id so the forward
+  // impact fan-out from FBS-001's change does NOT reach FBS-002. We
+  // build FBS-002 against a second AC and extend US-001 with that
+  // AC so the walker's schema accepts it.
+  const usPath = join(tmp, 'rcf/user-stories/us-101.json');
+  const rawUs = await readFile(usPath, 'utf8');
+  const us = JSON.parse(rawUs);
+  us.acceptanceCriteria.push({
+    id: 'AC-101-2',
+    description: 'A second AC bound only to FBS-002 so the impact fan-out from FBS-001 does not reach FBS-002.',
+    testable: true,
+  });
+  await writeFile(usPath, JSON.stringify(us, null, 2) + '\n', 'utf8');
   const fbs2 = {
     fbsId: 'FBS-002',
     prdId: 'PRD-001',
@@ -121,27 +151,20 @@ test('bundle --next (PR 8, AC-17702-3): skips impacted FBS and hands out the nex
     buildOrder: 2,
     executionStatus: 'notStarted',
     title: 'Second FBS',
-    summary: 'Independent slice.',
-    acIds: ['AC-101-1'],
+    summary: 'Independent slice bound to AC-101-2.',
+    acIds: ['AC-101-2'],
     dependsOnFbsIds: [],
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
   };
   await writeFile(join(tmp, 'rcf/fbs/fbs-002.json'), JSON.stringify(fbs2, null, 2) + '\n', 'utf8');
-  // Compute the live docHashes once we have both FBS; then put FBS-001
-  // in the frozen record with a stale hash so FBS-001 reads as
-  // 'changed' and the impact fan-out walks forward through its AC
-  // bindings. We leave FBS-002 at its live hash so it is unchanged
-  // and (crucially) its own-AC fan-out does not route back through
-  // FBS-001. Note that AC-101-1 is bound to both FBS, so the forward
-  // trace from the changed FBS-001 reaches AC-101-1 and from there
-  // can cross-link to FBS-002 (D7 expandFbsDependents). The invariant
-  // this test pins is only the skipping-line emission and the exit
-  // code bookkeeping, not whether FBS-002 is ultimately handed out.
   const { walkTree } = await import('../../src/core/store/walker.js');
   const { computeDelta, computeTreeHash } = await import('../../src/query/delta.js');
   const { tree } = await walkTree({ projectRoot: tmp });
   const delta = computeDelta(tree, null);
+  // Flip FBS-001's hash so it reads as 'changed'; FBS-002 stays at
+  // its live hash and is unimpacted. The next-item compute must then
+  // skip FBS-001 and hand out FBS-002 (exit 0, single expected).
   const docHashes = { ...delta.currentDocHashes };
   docHashes['FBS-001'] = 'sha256:' + 'c'.repeat(64);
   const treeHash = computeTreeHash(docHashes);
@@ -153,26 +176,21 @@ test('bundle --next (PR 8, AC-17702-3): skips impacted FBS and hands out the nex
     override: null,
   });
   const r = await runBin(tmp, ['build', 'bundle', '--next']);
-  // Either exit 4 (every actionable FBS is impacted and no override)
-  // or exit 0 handing out the unimpacted FBS: in either case the skip
-  // line names FBS-001 as the impacted item.
+  assert.equal(r.code, 0, `expected exit 0, got ${r.code}. stderr=${r.stderr.slice(0, 500)}`);
   assert.match(r.stderr, /skipping FBS-001 \(impacted by the delta/);
-  if (r.code === 4) {
-    assert.match(r.stderr, /every actionable FBS is impacted/);
-  } else {
-    assert.equal(r.code, 0, `unexpected exit ${r.code}; stderr=${r.stderr.slice(0, 500)}`);
-  }
+  assert.match(r.stdout, /FBS-002/);
+  assert.doesNotMatch(r.stdout, /^.*FBS-001.*Spec bundle: FBS-001/m, 'FBS-001 bundle must not be emitted');
 });
 
-test('bundle --next (PR 8, AC-17702-4): refuses when every actionable FBS is impacted and no override', async () => {
+test('bundle --next (PR 9, AC-17702-4): refuses with exit 4 when every actionable FBS is impacted and no override', async () => {
   const tmp = await scaffold();
+  // Single actionable FBS (the seeded FBS-001) with its hash flipped.
+  // The forward fan-out marks it impacted; with no --override the
+  // all-impacted refusal fires with exit 4 as the single expected.
   const { walkTree } = await import('../../src/core/store/walker.js');
   const { computeDelta, computeTreeHash } = await import('../../src/query/delta.js');
   const { tree } = await walkTree({ projectRoot: tmp });
   const delta = computeDelta(tree, null);
-  // Flip every FBS id's hash so every FBS reads as 'changed' and is
-  // impacted; there is only FBS-001 in the init-seeded tree, so the
-  // all-impacted path fires.
   const docHashes = { ...delta.currentDocHashes };
   for (const key of Object.keys(docHashes)) {
     if (key.startsWith('FBS-')) docHashes[key] = 'sha256:' + 'd'.repeat(64);
@@ -186,16 +204,11 @@ test('bundle --next (PR 8, AC-17702-4): refuses when every actionable FBS is imp
     override: null,
   });
   const r = await runBin(tmp, ['build', 'bundle', '--next']);
-  // The impact fan-out ultimately decides whether FBS-001 is in the
-  // impacted set; the only invariant pinned here is "no override and
-  // no actionable FBS -> exit 4". We accept either the all-impacted
-  // refusal or the empty-queue exit path, whichever the compute
-  // emits, and pin that no bundle text landed on stdout.
-  if (r.code === 4) {
-    assert.match(r.stderr, /impacted/);
-  } else {
-    assert.equal(r.code, 0, `unexpected exit ${r.code}; stderr=${r.stderr}`);
-  }
+  assert.equal(r.code, 4, `expected exit 4, got ${r.code}. stderr=${r.stderr}`);
+  assert.match(r.stderr, /every actionable FBS is impacted/);
+  assert.match(r.stderr, /NV-DL-ADM-05/);
+  // Nothing lands on stdout under the all-impacted refusal.
+  assert.equal(r.stdout, '');
 });
 
 test('bundle --next (PR 8, AC-17702-4): with --override even when every actionable FBS is impacted the verb proceeds', async () => {
@@ -220,4 +233,125 @@ test('bundle --next (PR 8, AC-17702-4): with --override even when every actionab
   assert.equal(r.code, 0, `expected exit 0 with override, got ${r.code}. stderr=${r.stderr}`);
   const freeze = await readFreeze(tmp);
   assert.equal(freeze.override.reason, 'force-ship');
+});
+
+test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git config user.email first, then GITHUB_ACTOR, then USER/USERNAME, then operator', async () => {
+  const { resolveOverrideBy } = await import('../../src/cli/build.js');
+  const { mkdtemp, rm, writeFile, mkdir } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  // Guard against ambient env bleed-through: snapshot and restore
+  // $USER / $USERNAME / $GITHUB_ACTOR / GIT_CONFIG_SYSTEM /
+  // GIT_CONFIG_GLOBAL / HOME across every arm. The identity order is
+  // spec section 17 R11 (see TAC-4125). GIT_CONFIG_SYSTEM and
+  // GIT_CONFIG_GLOBAL point at /dev/null for arms 2..5 so an ambient
+  // ~/.gitconfig cannot leak user.email into the resolver.
+  // Snapshot every env knob that can inject a git identity (both the
+  // scoped overrides and the command-scope GIT_CONFIG_* trio flagged
+  // in the 2026-10-03 codex review P2). Any arm whose current value
+  // might feed `git config user.email` is cleared for arms 2..5 so
+  // the preference-order assertion is actually testing the order.
+  const GIT_INJECTION_KEYS = [
+    'USER', 'USERNAME', 'GITHUB_ACTOR',
+    'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_GLOBAL',
+    'GIT_CONFIG_COUNT', 'GIT_DIR', 'GIT_WORK_TREE',
+    'GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_EMAIL',
+  ];
+  const envSnapshot = {};
+  for (const key of GIT_INJECTION_KEYS) envSnapshot[key] = process.env[key];
+  for (const key of Object.keys(process.env)) {
+    if (/^GIT_CONFIG_(KEY|VALUE)_\d+$/.test(key)) envSnapshot[key] = process.env[key];
+  }
+  try {
+    // Clear the command-scope injection trio AND any inherited
+    // GIT_CONFIG_KEY_* / GIT_CONFIG_VALUE_* pairs. GIT_DIR is cleared
+    // so git does not confuse the test's cwd with the parent repo.
+    for (const key of Object.keys(process.env)) {
+      if (/^GIT_CONFIG_(KEY|VALUE)_\d+$/.test(key)) delete process.env[key];
+    }
+    delete process.env.GIT_CONFIG_COUNT;
+    delete process.env.GIT_DIR;
+    delete process.env.GIT_WORK_TREE;
+    delete process.env.GIT_AUTHOR_EMAIL;
+    delete process.env.GIT_COMMITTER_EMAIL;
+    process.env.GIT_CONFIG_SYSTEM = '/dev/null';
+    process.env.GIT_CONFIG_GLOBAL = '/dev/null';
+    // Arm 1: git config user.email wins when a git identity is set.
+    // Initialise a real local git repo (empty) and set the local
+    // user.email; the resolver reads layered config and the local
+    // scope wins over our /dev/null system/global.
+    const tmp1 = await mkdtemp(join(tmpdir(), 'pr9-by-gitconfig-'));
+    try {
+      await exec('git', ['init', '-q', tmp1], { encoding: 'utf8' });
+      await exec('git', ['-C', tmp1, 'config', 'user.email', 'canary@test.invalid'], { encoding: 'utf8' });
+      process.env.USER = 'should-not-win';
+      process.env.USERNAME = 'should-not-win';
+      process.env.GITHUB_ACTOR = 'should-not-win';
+      const by = await resolveOverrideBy({ projectRoot: tmp1 });
+      assert.equal(by, 'canary@test.invalid', 'git config user.email must win when present');
+    } finally {
+      await rm(tmp1, { recursive: true, force: true });
+    }
+    // Arm 2: no git identity -> GITHUB_ACTOR wins.
+    const tmp2 = await mkdtemp(join(tmpdir(), 'pr9-by-actor-'));
+    try {
+      delete process.env.USER;
+      delete process.env.USERNAME;
+      process.env.GITHUB_ACTOR = 'ci-actor-canary';
+      const by = await resolveOverrideBy({ projectRoot: tmp2 });
+      assert.equal(by, 'ci-actor-canary', 'GITHUB_ACTOR must win when git identity is absent');
+    } finally {
+      await rm(tmp2, { recursive: true, force: true });
+    }
+    // Arm 3: no git identity, no GITHUB_ACTOR -> USER wins.
+    const tmp3 = await mkdtemp(join(tmpdir(), 'pr9-by-user-'));
+    try {
+      delete process.env.GITHUB_ACTOR;
+      process.env.USER = 'local-user-canary';
+      delete process.env.USERNAME;
+      const by = await resolveOverrideBy({ projectRoot: tmp3 });
+      assert.equal(by, 'local-user-canary', 'USER must win when git identity and GITHUB_ACTOR are absent');
+    } finally {
+      await rm(tmp3, { recursive: true, force: true });
+    }
+    // Arm 4: no git identity, no GITHUB_ACTOR, no USER -> USERNAME wins.
+    const tmp4 = await mkdtemp(join(tmpdir(), 'pr9-by-username-'));
+    try {
+      delete process.env.USER;
+      process.env.USERNAME = 'win-user-canary';
+      const by = await resolveOverrideBy({ projectRoot: tmp4 });
+      assert.equal(by, 'win-user-canary', 'USERNAME must win when USER is unset');
+    } finally {
+      await rm(tmp4, { recursive: true, force: true });
+    }
+    // Arm 5: nothing available -> literal 'operator' fallback.
+    const tmp5 = await mkdtemp(join(tmpdir(), 'pr9-by-op-'));
+    try {
+      delete process.env.USER;
+      delete process.env.USERNAME;
+      delete process.env.GITHUB_ACTOR;
+      const by = await resolveOverrideBy({ projectRoot: tmp5 });
+      assert.equal(by, 'operator', 'operator is the never-null fallback');
+    } finally {
+      await rm(tmp5, { recursive: true, force: true });
+    }
+    // Arm 6 (PR 9 codex P2): whitespace-only env values do NOT win
+    // over the next arm. GITHUB_ACTOR = '   ' falls through to USER;
+    // USER = ' \t ' falls through to USERNAME; USERNAME = '\n' falls
+    // through to 'operator'.
+    const tmp6 = await mkdtemp(join(tmpdir(), 'pr9-by-ws-'));
+    try {
+      process.env.GITHUB_ACTOR = '   ';
+      process.env.USER = ' \t ';
+      process.env.USERNAME = '\n';
+      const by = await resolveOverrideBy({ projectRoot: tmp6 });
+      assert.equal(by, 'operator', 'whitespace-only env values must fall through to operator');
+    } finally {
+      await rm(tmp6, { recursive: true, force: true });
+    }
+  } finally {
+    for (const key of Object.keys(envSnapshot)) {
+      if (envSnapshot[key] === undefined) delete process.env[key];
+      else process.env[key] = envSnapshot[key];
+    }
+  }
 });

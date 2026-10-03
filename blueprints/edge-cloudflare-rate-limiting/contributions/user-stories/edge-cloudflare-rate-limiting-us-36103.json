@@ -34,7 +34,7 @@
       "disposition": "template",
       "ownerRef": {
         "adrId": "ADR-3701-edge-cloudflare-rate-limiting-throttle-contract",
-        "field": "decision.overThresholdBehaviour"
+        "field": "decision"
       }
     }
   ],

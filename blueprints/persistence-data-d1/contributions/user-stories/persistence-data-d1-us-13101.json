@@ -49,7 +49,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1401-persistence-data-d1-facade",
-        "field": "responsibilities.readBinding"
+        "field": "responsibilities"
       },
       "disposition": "template"
     },
@@ -63,7 +63,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1401-persistence-data-d1-facade",
-        "field": "responsibilities.queryFailedRateLimit"
+        "field": "responsibilities"
       },
       "disposition": "template"
     }

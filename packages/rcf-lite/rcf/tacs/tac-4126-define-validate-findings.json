@@ -1,10 +1,10 @@
 {
   "createdAt": "2026-10-03T18:30:00Z",
-  "updatedAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T20:30:00Z",
   "tacId": "TAC-4126-define-validate-findings",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "draft",
   "name": "rcf define validate findings for interface kind, AC class prefix, tacIds and ownerRef or deliveredBy",
   "purpose": "0.30.0 PR 8 (spec section 4 validate row, section 11.7 US-17802). `rcf define validate` reports a finding and exits non-zero for an interface kind outside the closed vocabulary (`INTERFACE_KINDS`), a bracketed AC prefix on an AC `description` outside the known classes (`AC_CLASS_RE`), a `tacIds` naming a non-TAC, and an unresolving `ownerRef` or `deliveredBy`. The absence of a class marker on an AC is NOT a validate finding (decision 10, kept): absence is D4's floor; a validate finding here would fail the dogfood tree and every legacy tree's CI.",
@@ -12,7 +12,7 @@
     "interface kind outside vocabulary: for every TAC in the tree, each `interfaces[].kind` that is not in `INTERFACE_KINDS` is reported as a finding `defineValidate:interfaceKind` naming the TAC id, interface name and the unknown kind.",
     "bracketed AC class prefix outside known classes: for every AC in the tree whose description's leading bracketed prefix is not one of {happy, edge, failure, must-not, non-functional}, report `defineValidate:acClassPrefix` with the US id, AC id and the unknown prefix. An AC description with NO leading bracketed prefix is NOT reported (decision 10).",
     "tacIds naming a non-TAC: for every US in the tree, each `tacIds[]` entry that does not resolve to a TAC in `tree.byId` is reported as `defineValidate:tacIdsResolves` with the US id and the unresolved id.",
-    "unresolving ownerRef or deliveredBy: for every AC with `ownerRef { tacId, field }` that does not resolve to `interfaces[<name>]` on that TAC (the D4 helper already lives in gates.js and is reused), and for every REQ with `deliveredBy` pointing at an id that does not exist in the tree, report `defineValidate:ownerRefResolves` or `defineValidate:deliveredByResolves` with the owning id and the dangling pointer.",
+    "unresolving ownerRef or deliveredBy (R11 grammar, spec section 17, PR 9): for every AC with ownerRef `{ tacId | adrId, field }` whose field does NOT resolve on the owning TAC/ADR under R11 (`interfaces[<name>]`, `responsibilities[<n>]`, `dependencies[<name>]`, `alternativesConsidered[<n>]`, or a bare schema field name), and for every REQ whose deliveredBy is the OBJECT form `{ tacId | adrId, field }` with a dotted or dead field, report `defineValidate:ownerRefResolves` or `defineValidate:deliveredByResolves` with the owning id and the dangling pointer. String-form deliveredBy (pre-DEFINE back-compat) still resolves against `tree.byId`. The object-form `deliveredBy` was silently skipped before PR 9 (review 2026-10-03).",
     "clean on the dogfood tree: every finding is scoped so the rcf-lite dogfood tree passes with exit 0; where the dogfood tree surfaces a real defect in a chain document, the fix is made in the chain document, not in the finding."
   ],
   "internalStructure": "A new module `src/define/validate-findings.js` exports `collectDefineValidateFindings(tree)` returning an array of walker-shaped error entries ({ kind, rule, documentId, filePath, field, message }). `src/cli/validate.js` runs the module after the Code Node resolution pass and the companions check, folds the findings into the `errors` array it already exits on (exit 3), and reports them in the same `--json` envelope. Each finding reuses the walker error shape so `formatErrors` prints them exactly as a schema or broken-reference error. Interface kinds reuse `INTERFACE_KINDS` from `src/query/gates.js`; AC class classification reuses `parseAcClass`; `ownerRef` resolution reuses the existing D4 helper (`AC_OWNER_REF_FIELD_RE`) so the two code paths cannot diverge.",

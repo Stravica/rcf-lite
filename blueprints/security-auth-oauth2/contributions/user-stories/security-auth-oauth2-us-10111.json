@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
-        "field": "responsibilities.validate"
+        "field": "responsibilities"
       }
     }
   ],

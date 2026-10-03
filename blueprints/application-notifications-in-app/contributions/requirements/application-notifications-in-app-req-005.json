@@ -5,7 +5,7 @@
   "description": "Every notification the shell surfaces (as a toast, in the notification centre, or both) appends one row to the delivery-attempt log through `TAC-2102.interfaces.writeDeliveryRow`; every row honours the shape owned by `TAC-2102.interfaces.deliveryRowShape`. The applied `logging` companion persists the rows; the centre reads them back through `TAC-2102.responsibilities.readDeliveryLog` for the current-session read model.",
   "deliveredBy": {
     "tacId": "TAC-2102-application-notifications-in-app-centre",
-    "field": "interfaces.writeDeliveryRow"
+    "field": "interfaces[writeDeliveryRow]"
   },
   "category": "functional",
   "domain": "application",

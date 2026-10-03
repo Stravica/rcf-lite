@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3403-platform-cloudflare-durable-objects-alarm-handler",
-        "field": "interfaces[alarm]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },

@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-603-persistence-data-sqlite-migration-catalog",
-    "field": "responsibilities.catalog"
+    "field": "responsibilities"
   }
 }

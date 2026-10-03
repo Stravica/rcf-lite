@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
-        "field": "responsibilities.tokenFieldPopulate"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/",
@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
-        "field": "responsibilities.tokenFieldPopulate"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",

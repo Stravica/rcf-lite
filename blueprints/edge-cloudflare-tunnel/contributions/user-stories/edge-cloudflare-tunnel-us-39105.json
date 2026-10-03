@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.originPortRefusal"
+        "field": "responsibilities"
       },
       "given": "the fixture manifest with one ingress rule service URL bound to 0.0.0.0 or a host public interface (SIMULATE_ORIGIN_PORT_OPEN=true)",
       "when": "manifest-schema-validate runs against the mutated fixture",
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4002-edge-cloudflare-tunnel-manifest-schema",
-        "field": "responsibilities.originPortRefusal"
+        "field": "responsibilities"
       }
     }
   ],

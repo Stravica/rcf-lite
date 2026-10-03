@@ -5,7 +5,7 @@
   "description": "The Resend send adapter exposes the send interface named by the magic-link blueprint's TAC-504-security-auth-magic-link-email-delivery-adapter, matching the signature owned on TAC-401-email-smtp-resend-send-adapter.interfaces.send, and resolves the fixed outcome shape declared on that same owner on every call. No other method is added to the auth-facing surface; provider status codes and provider message ids are normalised into the declared outcome fields inside the adapter. A project composing this blueprint alongside the magic-link blueprint wires the adapter reference into the auth routes at composition time and calls the adapter send method directly.",
   "deliveredBy": {
     "tacId": "TAC-401-email-smtp-resend-send-adapter",
-    "field": "interfaces.send"
+    "field": "interfaces[send]"
   },
   "category": "functional",
   "domain": "email",

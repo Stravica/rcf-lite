@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-30T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1101-security-auth-oauth2-flow-controller",
-    "field": "responsibilities.id_token"
+    "field": "responsibilities"
   }
 }

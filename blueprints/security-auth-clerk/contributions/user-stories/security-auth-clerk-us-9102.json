@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1001-security-auth-clerk-middleware",
-        "field": "responsibilities.signInStrategy"
+        "field": "responsibilities"
       }
     }
   ],

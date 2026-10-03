@@ -78,7 +78,7 @@
       "disposition": "template",
       "ownerRef": {
         "adrId": "ADR-402-email-smtp-resend-retry-and-backoff-posture",
-        "field": "decision.retryBackoff"
+        "field": "decision"
       }
     }
   ],

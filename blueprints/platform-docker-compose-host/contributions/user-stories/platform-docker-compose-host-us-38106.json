@@ -27,7 +27,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
-        "field": "responsibilities.restartClassification"
+        "field": "responsibilities"
       }
     },
     {
@@ -41,7 +41,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
-        "field": "responsibilities.restartClassification"
+        "field": "responsibilities"
       }
     },
     {
@@ -55,7 +55,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
-        "field": "responsibilities.restartClassification"
+        "field": "responsibilities"
       }
     }
   ],

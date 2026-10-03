@@ -5,7 +5,7 @@
   "description": "The logger factory reads a minimum level per environment (ADR-1604 recommended default vocabulary: trace, debug, info, warn, error, fatal; the minimum level per environment is elicited at apply). Emissions below the minimum are dropped before serialisation; emissions at or above the minimum land on stdout. The environment name is supplied at boot (REQ-005) and the level filter is applied per line, not batched. Changing the minimum level mid-run through a documented hook (SIGHUP re-read, admin endpoint, config reload) is out of scope for v1; the minimum is fixed for the process lifetime.",
   "deliveredBy": {
     "adrId": "ADR-1604-observability-logging-level-vocabulary",
-    "field": "decision.levelVocabulary"
+    "field": "decision"
   },
   "category": "functional",
   "domain": "observability",

@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T20:35:00.000Z",
   "deliveredBy": {
     "tacId": "TAC-3904-platform-docker-compose-host-reverse-proxy-artefact",
-    "field": "responsibilities.reload"
+    "field": "responsibilities"
   }
 }

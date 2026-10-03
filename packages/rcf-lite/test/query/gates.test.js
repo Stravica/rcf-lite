@@ -1789,3 +1789,79 @@ test('gates (PR 7): the four new D6 checks respect the section 2.4 shape (person
     assert.ok(typeof check.question === 'string' && check.question.length > 0);
   }
 });
+
+test('gates (PR 9, AC-17405-2 R11): ownerRefResolves accepts bracket-grammar paths beyond interfaces (responsibilities[<n>], purpose, decision)', () => {
+  const ctx = {
+    tree: {
+      requirements: [{ reqId: 'REQ-1' }],
+      userStories: [{
+        usId: 'US-1',
+        reqId: 'REQ-1',
+        tacIds: ['TAC-1'],
+        acceptanceCriteria: [
+          // interfaces[<name>] still resolves (effect preserved).
+          { id: 'AC-OK-IFACE', testable: true, description: '[happy] iface pointer', ownerRef: { tacId: 'TAC-1', field: 'interfaces[loan]' } },
+          // responsibilities[0] resolves to a non-empty string entry.
+          { id: 'AC-OK-RESP', testable: true, description: '[happy] respo pointer', ownerRef: { tacId: 'TAC-1', field: 'responsibilities[0]' } },
+          // bare `purpose` resolves because the TAC carries a non-empty purpose.
+          { id: 'AC-OK-PURP', testable: true, description: '[happy] bare purpose', ownerRef: { tacId: 'TAC-1', field: 'purpose' } },
+          // ADR-pointed ownerRef with bare `decision` resolves.
+          { id: 'AC-OK-DEC', testable: true, description: '[happy] adr decision', ownerRef: { adrId: 'ADR-1', field: 'decision' } },
+          // Dead bracket name: no interface called `missing`, no bare field match -> fails.
+          { id: 'AC-FAIL', testable: true, description: '[happy] dead name', ownerRef: { tacId: 'TAC-1', field: 'interfaces[missing]' } },
+          // Dotted form rejected -> fails (R11 is strict).
+          { id: 'AC-DOTTED', testable: true, description: '[happy] dotted', ownerRef: { tacId: 'TAC-1', field: 'responsibilities.audit' } },
+        ],
+      }],
+      tacs: [{
+        tacId: 'TAC-1',
+        purpose: 'owns the loan surface.',
+        responsibilities: ['Mint and store loan records.'],
+        interfaces: [{ name: 'loan', kind: 'recordShape', description: 'fields: id, amount' }],
+      }],
+      adrs: [{ adrId: 'ADR-1', decision: 'use postgres', context: 'durability', consequences: 'ok' }],
+      byId: new Map(),
+    },
+    scope: new Set(['REQ-1', 'US-1']),
+    freeze: null,
+    ledgers: {},
+    currentTreeHash: null,
+  };
+  const d4 = checkD4Stories(ctx);
+  const own = d4.checks.find((c) => c.name === 'stories:ownerRefResolves');
+  const failingIds = own.failing.map((f) => f.id).sort();
+  assert.deepEqual(failingIds, ['AC-DOTTED:responsibilities.audit', 'AC-FAIL:interfaces[missing]'], 'exactly the dead-bracket and dotted entries fail');
+  assert.equal(own.pass, 4, 'four R11-valid pointers pass');
+});
+
+test('gates (PR 9, AC-17405-2 R11): resolveOwnerRefField accepts the bracket forms the spec section 17 names', async () => {
+  const { resolveOwnerRefField } = await import('../../src/query/gates.js');
+  const tac = {
+    tacId: 'TAC-R11',
+    purpose: 'the owning tac',
+    internalStructure: 'one module',
+    responsibilities: ['do a thing', 'do another thing'],
+    interfaces: [{ name: 'loan', kind: 'other', description: 'x' }],
+    dependencies: [{ name: 'audit', kind: 'tac', tacId: 'TAC-X', description: 'y' }],
+  };
+  assert.ok(resolveOwnerRefField(tac, 'interfaces[loan]'));
+  assert.ok(!resolveOwnerRefField(tac, 'interfaces[missing]'));
+  assert.ok(resolveOwnerRefField(tac, 'responsibilities[0]'));
+  assert.ok(resolveOwnerRefField(tac, 'responsibilities[1]'));
+  assert.ok(!resolveOwnerRefField(tac, 'responsibilities[2]'));
+  assert.ok(resolveOwnerRefField(tac, 'dependencies[audit]'));
+  assert.ok(!resolveOwnerRefField(tac, 'dependencies[missing]'));
+  assert.ok(resolveOwnerRefField(tac, 'purpose'));
+  assert.ok(resolveOwnerRefField(tac, 'internalStructure'));
+  assert.ok(resolveOwnerRefField(tac, 'responsibilities'));
+  assert.ok(!resolveOwnerRefField(tac, 'notAField'));
+  // Dotted form rejected.
+  assert.ok(!resolveOwnerRefField(tac, 'interfaces.loan'));
+  assert.ok(!resolveOwnerRefField(tac, 'responsibilities.audit'));
+  // ADR bare field.
+  const adr = { adrId: 'ADR-R11', decision: 'use postgres', context: 'c', consequences: 'cs', alternativesConsidered: [{ name: 'sqlite' }] };
+  assert.ok(resolveOwnerRefField(adr, 'decision'));
+  assert.ok(resolveOwnerRefField(adr, 'context'));
+  assert.ok(resolveOwnerRefField(adr, 'alternativesConsidered[0]'));
+  assert.ok(!resolveOwnerRefField(adr, 'alternativesConsidered[9]'));
+});

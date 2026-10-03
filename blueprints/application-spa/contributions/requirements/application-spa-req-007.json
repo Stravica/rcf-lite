@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-19T09:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-205-application-spa-forms-engine",
-    "field": "responsibilities.submit-level"
+    "field": "responsibilities"
   }
 }

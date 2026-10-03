@@ -70,7 +70,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-202-application-spa-theme-system",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       }
     }
   ],

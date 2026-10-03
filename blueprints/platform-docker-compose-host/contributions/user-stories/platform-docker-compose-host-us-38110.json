@@ -44,7 +44,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.aptSources"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://docs.docker.com/engine/install/ubuntu/",
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.aptSources"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://docs.docker.com/engine/install/ubuntu/",
@@ -80,7 +80,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.aptSources"
+        "field": "responsibilities"
       }
     }
   ],

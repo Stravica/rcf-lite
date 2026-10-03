@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-30T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-    "field": "responsibilities.revocation"
+    "field": "responsibilities"
   }
 }

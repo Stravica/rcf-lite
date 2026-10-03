@@ -27,7 +27,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.ssmIntegration"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://docs.docker.com/compose/how-tos/use-secrets/",
@@ -45,7 +45,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.fallback"
+        "field": "responsibilities"
       }
     },
     {
@@ -59,7 +59,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.mountMode"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://docs.docker.com/compose/how-tos/use-secrets/",
@@ -77,7 +77,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3902-platform-docker-compose-host-secrets-mount",
-        "field": "responsibilities.serviceReference"
+        "field": "responsibilities"
       }
     }
   ],

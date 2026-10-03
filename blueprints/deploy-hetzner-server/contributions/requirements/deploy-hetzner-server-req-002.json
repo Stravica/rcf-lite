@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-3802-deploy-hetzner-server-manifest-schema",
-    "field": "responsibilities.hetzner-server"
+    "field": "responsibilities"
   }
 }

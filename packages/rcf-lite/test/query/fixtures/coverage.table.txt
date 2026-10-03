@@ -509,6 +509,8 @@ REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17405-4   yes         TC-231-crosscut-catalogue-missing-pair
                       AC-17405-5   yes         TC-231-standards-cited-and-waived
                       AC-17405-6   yes         TC-231-validate-no-missing-marker-finding
+                      AC-17405-7   yes         TC-231-ownerref-r11-widened
+                      AC-17405-8   yes         TC-231-ownerref-dotted-refused
                       AC-17406-1   yes         TC-232-contradictions-same-when-negated-then
                       AC-17406-2   yes         TC-232-unsatisfiable-undefined-field
                       AC-17406-3   yes         TC-232-unsatisfiable-draft-recordshape
@@ -556,6 +558,7 @@ REQ-177      yes      AC-17702-1   yes         TC-233-bundle-refuses-without-fre
                       AC-17702-3   yes         TC-233-bundle-skips-impacted-fbs
                       AC-17702-4   yes         TC-233-bundle-all-impacted-refuses
                       AC-17702-5   yes         TC-233-bundle-empty-delta-unchanged
+                      AC-17702-6   yes         TC-233-override-by-order
 REQ-178      yes      AC-17802-1   yes         TC-234-validate-interface-kind-finding, TC-234-validate-t...
                       AC-17802-2   yes         TC-234-validate-ac-class-prefix-finding
                       AC-17802-3   yes         TC-234-validate-dogfood-clean
@@ -564,6 +567,7 @@ REQ-179      yes      AC-17902-1   yes         TC-235-ruleset-nvdl-shape
                       AC-17902-2   yes         TC-235-admissibility-wrap-refuses-on-unfrozen-tree
                       AC-17902-3   yes         TC-235-admissibility-wrap-accepts-with-override
                       AC-17902-4   yes         TC-235-readiness-compute-unchanged-under-refusal
+                      AC-17902-5   yes         TC-235-wrap-cites-define-stages
 REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
                       AC-18001-2   yes         TC-223-verdict-pills-match-cli
                       AC-18001-3   yes         TC-223-po-blockers-as-findings-list

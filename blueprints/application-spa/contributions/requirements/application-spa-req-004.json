@@ -16,7 +16,6 @@
   "createdAt": "2026-08-19T09:00:00Z",
   "updatedAt": "2026-08-19T09:00:00Z",
   "deliveredBy": {
-    "tacId": "TAC-201-application-spa-app-shell",
-    "field": "purpose.every"
+    "tacId": "TAC-201-application-spa-app-shell"
   }
 }

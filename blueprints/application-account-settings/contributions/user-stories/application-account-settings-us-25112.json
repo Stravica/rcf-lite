@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2602-application-account-settings-capability-discovery",
-        "field": "responsibilities.runElicitationPhase"
+        "field": "responsibilities"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2602-application-account-settings-capability-discovery",
-        "field": "responsibilities.runElicitationPhase"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2602-application-account-settings-capability-discovery",
-        "field": "responsibilities.runElicitationPhase"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2602-application-account-settings-capability-discovery",
-        "field": "responsibilities.runElicitationPhase"
+        "field": "responsibilities"
       }
     }
   ],

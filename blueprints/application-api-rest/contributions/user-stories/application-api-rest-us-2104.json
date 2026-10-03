@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-303-application-api-rest-contract-surface",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-303-application-api-rest-contract-surface",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -67,7 +67,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-303-application-api-rest-contract-surface",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "template"
     },
@@ -81,7 +81,7 @@
       "scope": "deployed",
       "ownerRef": {
         "tacId": "TAC-303-application-api-rest-contract-surface",
-        "field": "interfaces[1].name"
+        "field": "interfaces"
       },
       "disposition": "template"
     }

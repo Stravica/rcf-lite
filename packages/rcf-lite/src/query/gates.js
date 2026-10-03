@@ -506,7 +506,11 @@ const INLINE_LIST_RE = /\[[^\]\n]*[,|\/][^\]\n]*\]/;
  */
 function acHasOwnerRef(ac) {
   const ref = ac && typeof ac === 'object' ? /** @type {any} */ (ac).ownerRef : null;
-  return !!(ref && typeof ref === 'object' && typeof ref.tacId === 'string');
+  if (!ref || typeof ref !== 'object') return false;
+  // R11 (spec section 17, 2026-10-03): an ownerRef may name a TAC
+  // (via tacId) OR an ADR (via adrId). Pre-R11 code only recognised
+  // tacId; the ADR branch was dropped silently.
+  return typeof ref.tacId === 'string' || typeof ref.adrId === 'string';
 }
 
 /**
@@ -557,6 +561,92 @@ function parseOwnerRefInterfaceField(field) {
   if (typeof field !== 'string') return null;
   const m = field.match(/^interfaces\[([^\]\n]+)\]$/);
   return m ? m[1] : null;
+}
+
+/**
+ * R11 field grammar (spec section 17, 2026-10-03). An `ownerRef` or
+ * object-form `deliveredBy` `{ tacId | adrId, field }` resolves when
+ * `field` names an existing field path on the owning document in
+ * bracket grammar:
+ *
+ *   - `interfaces[<name>]` resolves when `doc.interfaces[].name` matches.
+ *   - `responsibilities[<n>]` resolves when `doc.responsibilities[n]`
+ *     exists (non-negative integer index, zero-based).
+ *   - `dependencies[<name>]` resolves when `doc.dependencies[].name` matches.
+ *   - `alternativesConsidered[<n>]` resolves when the ADR has an
+ *     alternative at that index.
+ *   - A bare schema field name (`purpose`, `internalStructure`,
+ *     `decision`, `name`, `context`, `consequences`, `tradeoffs`,
+ *     `notes`, `description`, `responsibilities`, `dependencies`,
+ *     `interfaces`, `alternativesConsidered`) resolves when the
+ *     document carries a non-empty value under that key.
+ *
+ * Dotted grammar (`interfaces.name`, `responsibilities.foo`) is NOT
+ * accepted: callers of the R11 widening MUST rewrite to bracket
+ * grammar first. A path that does not match any arm returns false.
+ *
+ * `AC-17405-2` is unchanged in effect: `interfaces[loan]` on a TAC
+ * carrying an interface named `loan` resolves; `interfaces[missing]`
+ * fails.
+ *
+ * @param {unknown} doc - the owning TAC or ADR document.
+ * @param {unknown} field - the ownerRef/deliveredBy field string.
+ * @returns {boolean}
+ */
+export function resolveOwnerRefField(doc, field) {
+  if (!doc || typeof doc !== 'object') return false;
+  if (typeof field !== 'string' || field.length === 0) return false;
+  const d = /** @type {any} */ (doc);
+  // interfaces[<name>] -- preserved from the 0.29.0 helper.
+  const ifaceMatch = field.match(/^interfaces\[([^\]\n]+)\]$/);
+  if (ifaceMatch) {
+    const name = ifaceMatch[1];
+    return Array.isArray(d.interfaces)
+      && d.interfaces.some((iface) => iface && typeof iface === 'object' && iface.name === name);
+  }
+  // dependencies[<name>] (TAC.dependencies[].name).
+  const depMatch = field.match(/^dependencies\[([^\]\n]+)\]$/);
+  if (depMatch) {
+    const name = depMatch[1];
+    return Array.isArray(d.dependencies)
+      && d.dependencies.some((dep) => dep && typeof dep === 'object' && dep.name === name);
+  }
+  // responsibilities[<n>] (zero-based integer index on the strings array).
+  const respMatch = field.match(/^responsibilities\[(\d+)\]$/);
+  if (respMatch) {
+    const idx = Number(respMatch[1]);
+    return Array.isArray(d.responsibilities) && idx < d.responsibilities.length
+      && typeof d.responsibilities[idx] === 'string'
+      && d.responsibilities[idx].length > 0;
+  }
+  // alternativesConsidered[<n>] (ADR).
+  const altMatch = field.match(/^alternativesConsidered\[(\d+)\]$/);
+  if (altMatch) {
+    const idx = Number(altMatch[1]);
+    return Array.isArray(d.alternativesConsidered) && idx < d.alternativesConsidered.length
+      && d.alternativesConsidered[idx] && typeof d.alternativesConsidered[idx] === 'object';
+  }
+  // Bare schema field name. Must be in the TAC/ADR schema and present
+  // and non-empty on the document. The accepted set covers the schema
+  // fields the spec names and the extras TAC/ADR carry; a field name
+  // outside the set returns false.
+  const BARE_FIELDS = new Set([
+    // TAC fields.
+    'purpose', 'internalStructure', 'tradeoffs', 'notes', 'name',
+    'responsibilities', 'interfaces', 'dependencies',
+    // ADR fields.
+    'decision', 'context', 'consequences', 'title',
+    'alternativesConsidered',
+    // Common.
+    'description',
+  ]);
+  if (!BARE_FIELDS.has(field)) return false;
+  const v = d[field];
+  if (v == null) return false;
+  if (typeof v === 'string') return v.length > 0;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === 'object') return Object.keys(v).length > 0;
+  return true;
 }
 
 /**
@@ -1228,20 +1318,28 @@ export function checkD4Stories(ctx) {
   /** @type {Array<{ id: string, why: string }>} */
   const ownerRefFindings = [];
   let totalOwnerRefAcs = 0;
+  // R11 (spec section 17, 2026-10-03): the ownerRef field grammar
+  // widens beyond `interfaces[<name>]` to every bracket-grammar path
+  // that names an existing field on the owning TAC or ADR. The owner
+  // may now be a TAC (via tacId) or an ADR (via adrId); the resolver
+  // handles the bracket forms (`interfaces[<name>]`,
+  // `responsibilities[<n>]`, `dependencies[<name>]`,
+  // `alternativesConsidered[<n>]`) and bare schema fields (`purpose`,
+  // `internalStructure`, `decision`, etc.). A path that does not
+  // match any arm still fails. AC-17405-2 is unchanged in effect.
   for (const us of usInScope) {
     const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
     for (const ac of acs) {
       if (!acHasOwnerRef(ac)) continue;
       totalOwnerRefAcs += 1;
       const ref = /** @type {any} */ (ac).ownerRef;
-      const name = parseOwnerRefInterfaceField(ref.field);
-      const owner = (tree.tacs ?? []).find((t) => t?.tacId === ref.tacId);
-      const resolves = !!(
-        owner
-        && name
-        && Array.isArray(owner.interfaces)
-        && owner.interfaces.some((iface) => iface?.name === name)
-      );
+      let owner = null;
+      if (typeof ref.tacId === 'string') {
+        owner = (tree.tacs ?? []).find((t) => t?.tacId === ref.tacId) ?? null;
+      } else if (typeof ref.adrId === 'string') {
+        owner = (tree.adrs ?? []).find((a) => a?.adrId === ref.adrId) ?? null;
+      }
+      const resolves = !!(owner && resolveOwnerRefField(owner, ref.field));
       if (!resolves) {
         ownerRefFindings.push({
           id: `${ac.id ?? us.usId}:${ref.field ?? '(no field)'}`,

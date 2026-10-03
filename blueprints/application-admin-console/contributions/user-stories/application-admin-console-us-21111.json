@@ -27,11 +27,7 @@
       "then": "each users row carries the per-org membership attribute defined by `REQ-008.description`, the switcher enumerates every reachable org, and the invite POST records the invitee against exactly the switched org (verified in the audit stream)",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "reqId": "application-admin-console-REQ-008",
-        "field": "description"
-      }
+      "disposition": "fixed"
     },
     {
       "id": "AC-21111-3",
@@ -61,11 +57,7 @@
       "then": "the row is suppressed and data-error=SHAPE_MISMATCH is emitted",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "reqId": "application-admin-console-REQ-008",
-        "field": "description"
-      }
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

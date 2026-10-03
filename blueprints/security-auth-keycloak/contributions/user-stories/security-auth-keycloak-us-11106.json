@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1204-security-auth-keycloak-provider-router",
-        "field": "interfaces[routeFn.name]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1204-security-auth-keycloak-provider-router",
-        "field": "interfaces[routeFn.name]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -47,7 +47,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1204-security-auth-keycloak-provider-router",
-        "field": "interfaces[routeFn.name]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     }

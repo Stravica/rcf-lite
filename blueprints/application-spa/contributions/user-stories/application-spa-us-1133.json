@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-207-application-spa-token-adherence-probe",
-        "field": "interfaces[1].name"
+        "field": "interfaces"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-207-application-spa-token-adherence-probe",
-        "field": "interfaces[1].name"
+        "field": "interfaces"
       }
     },
     {
@@ -71,7 +71,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -86,7 +86,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-211-application-spa-core-flow-e2e-probe",
-        "field": "interfaces[3].name"
+        "field": "interfaces"
       }
     }
   ],

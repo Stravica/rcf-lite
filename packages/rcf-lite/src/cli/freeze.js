@@ -363,26 +363,31 @@ async function runFreeze({
     ? priorFreeze
     : mergeAckedGates(priorFreeze, ackedReasons, currentTreeHash);
 
+  // Compute readiness up front so the admissibility wrap can cite
+  // NV-DL-ADM-02/03/04 alongside the NV-BL rules (PR 9). The
+  // freezeableAfterAck check below is the real gate (freeze still
+  // exits 4 on an unfrozen tree); the wrap's refusal is informational
+  // here as it is on readiness.
+  /** @type {import('../query/readiness.js').ReadinessResult} */
+  const readiness = computeReadiness(tree, {
+    freeze: freezeForCompute,
+    ledgers,
+    profileText,
+    testPointers,
+    validateErrors,
+  });
   const gated = await runWithAdmissibilityGate({
     tree,
     chainRulesetVersion,
-    produce: () => computeReadiness(tree, {
-      freeze: freezeForCompute,
-      ledgers,
-      profileText,
-      testPointers,
-      validateErrors,
-    }),
+    defineStages: readiness.stages,
+    defineValidateErrors: validateErrors,
+    produce: () => readiness,
   });
   if (gated.status === 'refused-admissibility') {
     stderr.write(`[warn] freeze: chain admissibility refused (informational; the freeze still ran). ${gated.refusal}\n`);
+  } else if (Array.isArray(gated.defineRules) && gated.defineRules.length > 0) {
+    stderr.write(`[warn] freeze: DEFINE-stage admissibility rules bite (informational; the freezeableAfterAck gate is the enforcement path): [${gated.defineRules.join(', ')}].\n`);
   }
-  /** @type {import('../query/readiness.js').ReadinessResult} */
-  const readiness = gated.status === 'refused-admissibility'
-    ? computeReadiness(tree, {
-      freeze: freezeForCompute, ledgers, profileText, testPointers, validateErrors,
-    })
-    : gated.payload;
 
   // The stages array already carries acknowledged states for any acked
   // gate at the current tree hash. Stamp the ack reasons onto the

@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
-        "field": "interfaces[rate-limit-rule]"
+        "field": "interfaces"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3701-edge-cloudflare-rate-limiting-manifest-schema",
-        "field": "interfaces[rate-limit-rule]"
+        "field": "interfaces"
       }
     }
   ],

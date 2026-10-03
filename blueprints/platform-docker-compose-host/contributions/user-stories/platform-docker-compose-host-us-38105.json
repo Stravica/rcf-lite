@@ -27,7 +27,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
-        "field": "responsibilities.healthcheckTimeout"
+        "field": "responsibilities"
       }
     },
     {
@@ -41,7 +41,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3901-platform-docker-compose-host-compose-layout",
-        "field": "responsibilities.teardown"
+        "field": "responsibilities"
       }
     },
     {
@@ -55,7 +55,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3903-platform-docker-compose-host-healthcheck-lint",
-        "field": "responsibilities.dependsOn"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://docs.docker.com/reference/compose-file/services/#healthcheck",

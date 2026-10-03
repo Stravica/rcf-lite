@@ -30,7 +30,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1901-application-charts-render-shell",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       }
     },
     {

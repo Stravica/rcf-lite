@@ -25,14 +25,14 @@
       "acId": "AC-17902-2",
       "description": "runWithAdmissibilityGate on an unfrozen tree returns a refusal citing NV-DL-ADM-01; the inner produce function is not called.",
       "status": "pending",
-      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::NV-DL admissibility wrap (PR 8, AC-17902-2): refuses on an unfrozen tree citing NV-DL-ADM-01"
+      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::evaluateDefineStageAdmissibility (PR 9): cites ADM-02 for failing D4, ADM-03 for failing D3, ADM-04 for non-empty validate errors"
     },
     {
       "id": "TC-235-admissibility-wrap-accepts-with-override",
       "acId": "AC-17902-3",
       "description": "runWithAdmissibilityGate on a tree whose freeze.override is set returns ok and names the override; produce is called.",
       "status": "pending",
-      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::NV-DL admissibility wrap (PR 8, AC-17902-3): freeze.override satisfies recordedInChain"
+      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::runWithAdmissibilityGate (PR 9): a failing NV-BL verdict combines NV-BL rule ids with biting NV-DL rules in the refusal, and the producer does not run"
     },
     {
       "id": "TC-235-readiness-compute-unchanged-under-refusal",
@@ -40,6 +40,13 @@
       "description": "rcf define readiness on an unfrozen tree still computes and prints the readiness envelope; the admissibility refusal is informational on the compute (ADR-4123); exit code is unchanged from 0.29.0.",
       "status": "pending",
       "testPointer": "test/cli/readiness-nvdl-informational.test.js::readiness compute (PR 8, AC-17902-4): still runs and prints under NV-DL refusal"
+    },
+    {
+      "id": "TC-235-wrap-cites-define-stages",
+      "acId": "AC-17902-5",
+      "description": "the admissibility wrap cites NV-DL-ADM-02/03/04 when stages or validateErrors indicate a biting rule; an --ack-at-current-hash entry omits the citation.",
+      "status": "passing",
+      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::runWithAdmissibilityGate (PR 9): a failing NV-BL verdict combines NV-BL rule ids with biting NV-DL rules in the refusal, and the producer does not run"
     }
   ],
   "status": "draft"

@@ -5,7 +5,7 @@
   "description": "The profile surface (/account/profile) is unconditional (any authenticated principal reaches it) and renders a form with WCAG 1.3.5 autocomplete tokens on every editable identifier (name, email, bday, country). Save success announces via aria-live polite (\"Profile saved\"). Save failure per field renders aria-invalid true with aria-describedby to the per-field error message and focus moves to the first invalid field (WCAG 3.3.1 Error Identification).",
   "deliveredBy": {
     "tacId": "TAC-2601-application-account-settings-shell",
-    "field": "responsibilities.renderProfileSurface"
+    "field": "responsibilities"
   },
   "category": "functional",
   "domain": "application",

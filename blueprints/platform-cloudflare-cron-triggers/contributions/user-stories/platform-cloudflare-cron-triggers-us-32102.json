@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "interfaces[dispatch]"
+        "field": "interfaces"
       },
       "disposition": "template"
     },
@@ -44,7 +44,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "interfaces[dispatch]"
+        "field": "interfaces"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "interfaces[dispatch]"
+        "field": "interfaces"
       }
     },
     {

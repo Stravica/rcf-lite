@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-207-application-spa-token-adherence-probe",
-        "field": "interfaces[1].name"
+        "field": "interfaces"
       }
     },
     {

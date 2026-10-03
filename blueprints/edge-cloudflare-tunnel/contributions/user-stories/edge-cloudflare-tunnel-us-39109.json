@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
-        "field": "responsibilities.zoneResolve"
+        "field": "responsibilities"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
-        "field": "responsibilities.zoneResolve"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
-        "field": "responsibilities.zoneResolve"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4004-edge-cloudflare-tunnel-zone-and-hostname-apply",
-        "field": "responsibilities.audMandatoryWhenGated"
+        "field": "responsibilities"
       }
     }
   ],

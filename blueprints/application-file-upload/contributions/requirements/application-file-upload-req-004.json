@@ -5,7 +5,7 @@
   "description": "The upload transport is chunked-and-resumable: an interrupted upload resumes from the last acknowledged offset on retry, and the client retries on transient failures without re-sending acknowledged bytes. The recommended default is a multipart POST with the file split into fixed-size chunks the server assembles server-side. The tus.io resumable upload protocol 1.0.0 is the elicited alternative for projects with a tus server or the third-party SDK; when applied it exposes an Upload-Offset header per PATCH request and supports server-side pause and resume. A per-vendor SDK (S3 multipart, Cloudflare R2 client-direct) is the second elicited alternative when the project has committed to a vendor library.",
   "deliveredBy": {
     "tacId": "TAC-2402-application-file-upload-transport",
-    "field": "interfaces.uploadFile"
+    "field": "interfaces[uploadFile]"
   },
   "category": "functional",
   "domain": "application",

@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-201-application-spa-app-shell",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "template"
     },
@@ -53,7 +53,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-201-application-spa-app-shell",
-        "field": "interfaces[0].name"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },

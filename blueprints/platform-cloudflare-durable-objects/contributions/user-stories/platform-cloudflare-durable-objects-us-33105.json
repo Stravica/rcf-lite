@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
-        "field": "responsibilities.lastBroadcast"
+        "field": "responsibilities"
       }
     },
     {
@@ -58,7 +58,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
-        "field": "responsibilities.broadcast"
+        "field": "responsibilities"
       }
     },
     {
@@ -72,7 +72,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
-        "field": "responsibilities.broadcast"
+        "field": "responsibilities"
       }
     },
     {

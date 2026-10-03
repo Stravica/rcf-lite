@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
-    "field": "responsibilities.transactionAtomicity"
+    "field": "responsibilities"
   }
 }

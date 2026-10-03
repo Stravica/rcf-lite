@@ -1,10 +1,10 @@
 {
   "createdAt": "2026-10-03T18:30:00Z",
-  "updatedAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T20:30:00Z",
   "tacId": "TAC-4125-build-bundle-refuse-override-skip",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "draft",
   "name": "build bundle --next refusal, override and impacted-FBS skip",
   "purpose": "0.30.0 PR 8 (spec section 4 bundle row, section 11.7 US-17702). `rcf build bundle --next` is tightened against the detection-model freeze record: without a freeze record the verb refuses with exit 4 naming `rcf define readiness`; `--override \"<reason>\"` writes `freeze.override { reason, by, at }` through saveFreezeRecord and proceeds; on a non-empty delta against the current tree, the next-item compute skips re-execute FBS impacted by the delta with the reason text in a line and hands out the next unimpacted FBS; when every actionable FBS is impacted and no override is given the verb refuses with exit 4 with the same message. On a frozen tree with an empty delta the verb's 0.29.0 shape is unchanged (AC-17702-5).",
@@ -13,7 +13,8 @@
     "override: `--override \"<reason>\"` on `bundle --next` writes `freeze.override { reason, by, at }` through saveFreezeRecord before the next-item compute runs; `--override` without a non-empty reason is a usage refusal (exit 2); when a freeze record exists the override is still written and the override reason is named in the output.",
     "skip: on a non-empty delta against the current tree hash, next-item selection filters re-execute FBS impacted by the delta out of the actionable queue with a stderr line naming each skipped FBS and the reason; the next unimpacted actionable FBS is handed out.",
     "all-impacted refusal: when every actionable FBS is impacted by the delta and no override is given, the verb refuses with exit 4 and the same message pointing at `--override \"<reason>\"`.",
-    "unchanged on empty delta: on a frozen tree with an empty delta the verb's output and exit code are byte-for-byte unchanged from 0.29.0 (AC-17702-5)."
+    "unchanged on empty delta: on a frozen tree with an empty delta the verb's output and exit code are byte-for-byte unchanged from 0.29.0 (AC-17702-5).",
+    "override.by identity (PR 9, AC-17702-6): freeze.override.by is resolved by `resolveOverrideBy({projectRoot})` with the preference order `git config user.email` -> `GITHUB_ACTOR` -> `USER` -> `USERNAME` -> literal `operator`. Each failing arm falls through silently to the next; the write path cannot blow up on a stripped-down container."
   ],
   "internalStructure": "The next-item path in `src/cli/build.js` grows a pre-emit guard (`enforceBundleNextFreezeGate`) that loads the freeze record and the computed delta via loadFreezeRecord and computeDelta, applies the `--override` write (if given) before the next-item compute, and emits a refusal when the record is absent and no override is given. The impacted-FBS skip extends `selectNext` to accept an `impactedFbsIds` set and skip them with a stderr reason; the all-impacted case falls through to a refusal rather than an empty envelope. `freeze.override` records come through `saveFreezeRecord` so the existing schema and canonical-JSON contract are reused; a short writer `applyOverrideToFreezeRecord` writes `freeze.override` on the live freeze record (creating a minimal record stamped with `frozenAt=now`, `treeHash=currentTreeHash`, `docHashes=whole-tree`, `briefStatements=0` when none exists).",
   "interfaces": [
@@ -31,6 +32,11 @@
       "name": "selectNext",
       "kind": "other",
       "description": "`moduleApi` (`src/build/queue.js`). Extended to accept an optional `{ impactedFbsIds, io }` parameter: when supplied, re-execute FBS whose id is in `impactedFbsIds` are skipped with a stderr line naming the FBS and the reason, and the next unimpacted FBS is returned; when every actionable FBS is impacted, returns `null` and the caller treats that as the all-impacted refusal."
+    },
+    {
+      "name": "resolveOverrideBy",
+      "kind": "other",
+      "description": "`moduleApi` (`src/cli/build.js`). Signature: ({ projectRoot }) -> Promise<string>. Resolves the identity for `freeze.override.by` under the R11 preference order (git config user.email, GITHUB_ACTOR, USER, USERNAME, operator). Pure of side effects beyond one bounded `git config --get user.email`. authoredAt: D3."
     }
   ],
   "notes": "Spec amendment 2026-10-03 R9 does not alter this TAC: delta semantics are unchanged, the litmus hash is a readiness concern only. `freeze.override` writes do not shift `tree.currentTreeHash` or `tree.litmusHash` (the probes ledger is excluded from the litmus hash by R9; the override lives in the freeze record, not in a tree document). The brief named this TAC as `tac-4125*.json`; the file name follows the dash-prefixed naming convention of neighbouring TACs."

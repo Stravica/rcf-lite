@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     },
     {
@@ -76,7 +76,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     },
     {
@@ -90,7 +90,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "responsibilities.audit"
+        "field": "responsibilities"
       }
     }
   ],

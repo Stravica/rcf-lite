@@ -17,6 +17,6 @@
   "updatedAt": "2026-08-19T10:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-303-application-api-rest-contract-surface",
-    "field": "responsibilities.hand-written"
+    "field": "responsibilities"
   }
 }

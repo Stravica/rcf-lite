@@ -60,7 +60,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
-        "field": "interfaces[enrichPrincipal.name]"
+        "field": "interfaces"
       }
     },
     {

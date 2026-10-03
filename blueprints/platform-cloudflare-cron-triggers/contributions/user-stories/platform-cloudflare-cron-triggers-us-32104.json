@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "responsibilities.softBudget"
+        "field": "responsibilities"
       }
     },
     {
@@ -54,7 +54,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "responsibilities.softBudget"
+        "field": "responsibilities"
       }
     },
     {
@@ -68,7 +68,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "responsibilities.softBudget"
+        "field": "responsibilities"
       }
     },
     {
@@ -82,7 +82,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3302-platform-cloudflare-cron-triggers-expression-router",
-        "field": "responsibilities.softBudget"
+        "field": "responsibilities"
       }
     }
   ],

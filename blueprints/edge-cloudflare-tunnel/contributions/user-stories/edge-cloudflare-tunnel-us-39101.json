@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-        "field": "responsibilities.compose-service"
+        "field": "responsibilities"
       },
       "given": "the applied fixture at packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/ with the compose-service and systemd-unit variants both present",
       "when": "the anatomy test walks the fixture tree and reads each variant shape",
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-        "field": "interfaces[default]"
+        "field": "interfaces"
       }
     },
     {
@@ -45,7 +45,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-4001-edge-cloudflare-tunnel-connector-shape",
-        "field": "responsibilities.cloudflaredReady"
+        "field": "responsibilities"
       },
       "given": "the applied blueprint manifest at `blueprints/edge-cloudflare-tunnel/blueprint.json` and the applied connector variant on disk under the fixture at `packages/rcf-lite/test/fixtures/hetzner-throwaway-server/cloudflared/`",
       "when": "the anatomy test reads `blueprint.json` and walks the fixture tree for the two variants",

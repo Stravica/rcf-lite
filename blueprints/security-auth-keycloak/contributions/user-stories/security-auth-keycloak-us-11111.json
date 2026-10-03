@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "interfaces[retryScheduler.name]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1202-security-auth-keycloak-jwt-verifier",
-        "field": "interfaces[discoveryClient.name]"
+        "field": "interfaces"
       },
       "disposition": "fixed"
     }

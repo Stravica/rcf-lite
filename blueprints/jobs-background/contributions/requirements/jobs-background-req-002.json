@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-10T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-3101-jobs-background-job-definition",
-    "field": "interfaces.jobModule.default"
+    "field": "interfaces[jobModule.default]"
   }
 }

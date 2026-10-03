@@ -5,7 +5,7 @@
   "description": "Every log emission from the applying application passes through the logger factory contract TAC-1601 produces, writes one JSON object per line to standard output, and includes at minimum the fields message (string), level (one of the level vocabulary in ADR-1604), timestamp (ISO-8601 with millisecond precision), correlationId (string, may be null when no ambient context), environment (string), serviceName (string) and serviceVersion (string). This stream is the shelf provider of the `auditLog` capability: applied consumers (application-admin-console at AC-21105-1) read audit-relevant emissions from the same stream, so an audit-shaped payload with the caller-supplied actor, target, before and after fields folds onto the top level of the same JSON object. A log emission that fails to serialise (a function reference, a circular reference) is caught, dropped with a one-time stderr notice, and the calling code path continues; a BigInt value is folded to its decimal string form per ADR-1605 and the emission proceeds; a serialisation failure never crashes the service.",
   "deliveredBy": {
     "tacId": "TAC-1601-observability-logging-logger-factory",
-    "field": "interfaces.Logger"
+    "field": "interfaces[Logger]"
   },
   "category": "functional",
   "domain": "observability",

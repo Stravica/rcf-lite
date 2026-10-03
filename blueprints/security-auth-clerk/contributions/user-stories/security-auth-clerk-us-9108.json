@@ -24,7 +24,7 @@
       },
       "ownerRef": {
         "tacId": "TAC-1001-security-auth-clerk-middleware",
-        "field": "interfaces[config.signInStrategy]"
+        "field": "interfaces"
       }
     },
     {

@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
-        "field": "responsibilities.ttl"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
-        "field": "responsibilities.ttl"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/kv/concepts/how-kv-works/",
@@ -66,7 +66,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
-        "field": "responsibilities.ttl"
+        "field": "responsibilities"
       }
     },
     {
@@ -80,7 +80,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3202-platform-cloudflare-kv-cache-aside",
-        "field": "responsibilities.ttl"
+        "field": "responsibilities"
       }
     }
   ],

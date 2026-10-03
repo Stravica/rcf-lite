@@ -35,11 +35,7 @@
       "then": "the surface shows an inventory-read-failed banner, no data-session-id rows appear as terminated, and a retry control is keyboard-reachable",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     },
     {
       "id": "AC-25105-4",
@@ -49,11 +45,7 @@
       "then": "the row remains with data-terminate-outcome=failed, the polite live region announces the failure and no session-terminated-announce is emitted",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     },
     {
       "id": "AC-25105-5",
@@ -63,11 +55,7 @@
       "then": "the current row carries data-current-session=true and its terminate control is disabled with an aria-describedby explanation",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed",
-      "ownerRef": {
-        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
-        "field": "interfaces[sessionInventory]"
-      }
+      "disposition": "fixed"
     }
   ],
   "tacIds": [

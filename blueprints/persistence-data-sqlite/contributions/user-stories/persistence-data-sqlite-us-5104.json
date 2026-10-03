@@ -49,7 +49,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-602-persistence-data-sqlite-migration-runner",
-        "field": "responsibilities.applyInOrder"
+        "field": "responsibilities"
       },
       "disposition": "template"
     }

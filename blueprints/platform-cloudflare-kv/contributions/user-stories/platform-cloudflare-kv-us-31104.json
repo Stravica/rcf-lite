@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "responsibilities.list"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/kv/api/",
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "responsibilities.list"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "responsibilities.list"
+        "field": "responsibilities"
       }
     },
     {
@@ -76,7 +76,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3201-platform-cloudflare-kv-facade",
-        "field": "responsibilities.list"
+        "field": "responsibilities"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/kv/api/",

@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
-        "field": "responsibilities.allowList"
+        "field": "responsibilities"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
-        "field": "responsibilities.allowList"
+        "field": "responsibilities"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3405-platform-cloudflare-durable-objects-event-sink",
-        "field": "responsibilities.allowList"
+        "field": "responsibilities"
       }
     }
   ],

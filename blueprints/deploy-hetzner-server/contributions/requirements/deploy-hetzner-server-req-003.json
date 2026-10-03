@@ -17,6 +17,6 @@
   "updatedAt": "2026-09-09T00:00:00Z",
   "deliveredBy": {
     "tacId": "TAC-3803-deploy-hetzner-server-cloud-init-template",
-    "field": "responsibilities.hardeningBlocks"
+    "field": "responsibilities"
   }
 }
