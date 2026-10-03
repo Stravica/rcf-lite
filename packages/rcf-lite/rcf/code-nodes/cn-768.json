@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-768",
+  "path": "src/cli/validate.js",
+  "title": "DEFINE step 3 PR 8: rcf define validate folds in the PR 8 finding set",
+  "description": "src/cli/validate.js runs `collectDefineValidateFindings(tree)` after the Code Node resolution pass and the companions check, folds the returned entries into the `errors` array it already exits on (exit 3), and reports them in the same `--json` envelope. The clean-output notice is suppressed when any PR 8 finding fires. The HELP text and the OPTION_SPEC are unchanged (the findings are the shipped surface).",
+  "implementsAcIds": [
+    "AC-17802-1",
+    "AC-17802-2",
+    "AC-17802-3",
+    "AC-17802-4"
+  ],
+  "dependencies": [
+    "CN-767"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

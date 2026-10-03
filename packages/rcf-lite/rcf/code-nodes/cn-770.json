@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-770",
+  "path": "src/query/refuse-on-admissibility.js",
+  "title": "DEFINE step 3 PR 8: NV-DL admissibility wrap recognises freeze.override as recordedInChain",
+  "description": "src/query/refuse-on-admissibility.js grows a thin helper `evaluateDefineAdmissibility({ tree, projectRoot })` that checks the freeze record and the delta for the NV-DL rules: without a freeze record and without `freeze.override` it returns a refusal citing NV-DL-ADM-01; when `freeze.override` is set it returns ok and names the override on the result. The existing enforceAdmissibility path over NV-BL rows is unchanged. readiness and other query-tool callers that pass through runWithAdmissibilityGate see the NV-DL refusal; the compute still runs (ADR-4123) when the refusal is informational.",
+  "implementsAcIds": [
+    "AC-17902-2",
+    "AC-17902-3",
+    "AC-17902-4"
+  ],
+  "dependencies": [
+    "CN-769"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "purpose": "Cover US-17702 (bundle refuses and skips): the refusal on an unfrozen tree, the --override write of freeze.override, the delta-impacted skip and the all-impacted refusal; the empty-delta frozen-tree case is byte-for-byte unchanged from 0.29.0.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17702-1",
+    "AC-17702-2",
+    "AC-17702-3",
+    "AC-17702-4",
+    "AC-17702-5"
+  ],
+  "id": "TS-233",
+  "usId": "US-17702",
+  "title": "DEFINE step 3 PR 8: rcf build bundle --next refuses, overrides and skips",
+  "testCases": [
+    {
+      "id": "TC-233-bundle-refuses-without-freeze",
+      "acId": "AC-17702-1",
+      "description": "rcf build bundle --next on an unfrozen tree exits 4 and the stderr line names rcf define readiness.",
+      "status": "pending",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-1): refuses without a freeze record naming rcf define readiness"
+    },
+    {
+      "id": "TC-233-bundle-override-writes-freeze-override",
+      "acId": "AC-17702-2",
+      "description": "rcf build bundle --next --override \"hotfix\" on an unfrozen tree writes freeze.override { reason, by, at } through saveFreezeRecord and emits a bundle (exit 0).",
+      "status": "pending",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-2): --override writes freeze.override and proceeds"
+    },
+    {
+      "id": "TC-233-bundle-skips-impacted-fbs",
+      "acId": "AC-17702-3",
+      "description": "On a non-empty delta impacting FBS-018, bundle --next skips FBS-018 with the reason on stderr and hands out the next unimpacted actionable FBS.",
+      "status": "pending",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-3): skips impacted FBS and hands out the next unimpacted"
+    },
+    {
+      "id": "TC-233-bundle-all-impacted-refuses",
+      "acId": "AC-17702-4",
+      "description": "When every actionable FBS is impacted by the delta and no --override is given, bundle --next refuses with exit 4 and the same message pointing at --override.",
+      "status": "pending",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-4): refuses when every actionable FBS is impacted and no override"
+    },
+    {
+      "id": "TC-233-bundle-empty-delta-unchanged",
+      "acId": "AC-17702-5",
+      "description": "On a frozen tree with an empty delta the bundle --next output and exit code are byte-for-byte unchanged from 0.29.0 (compared against a captured fixture).",
+      "status": "pending",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-5): empty delta on a frozen tree is unchanged"
+    }
+  ],
+  "status": "draft"
+}

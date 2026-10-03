@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z",
+  "purpose": "Cover US-17902 (NV-DL enforced): the five ruleset rules land with refuseByDefault:true and overrideChannel:recordedInChain; the admissibility wrap on an unfrozen tree refuses citing NV-DL-ADM-01; freeze.override satisfies the override channel; readiness compute still runs and prints under refusal.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17902-1",
+    "AC-17902-2",
+    "AC-17902-3",
+    "AC-17902-4"
+  ],
+  "id": "TS-235",
+  "usId": "US-17902",
+  "title": "DEFINE step 3 PR 8: NV-DL-ADM-01..05 refuse by default with recordedInChain override channel",
+  "testCases": [
+    {
+      "id": "TC-235-ruleset-nvdl-shape",
+      "acId": "AC-17902-1",
+      "description": "The shipped ruleset JSON carries NV-DL-ADM-01, 02, 03, 04 and 05 under admissibilityRules; each row has refuseByDefault: true and overrideChannel: 'recordedInChain'; each has a non-empty title.",
+      "status": "pending",
+      "testPointer": "test/ruleset/ruleset-nvdl.test.js::ruleset NV-DL (PR 8, AC-17902-1): NV-DL-ADM-01..05 refuse by default with overrideChannel recordedInChain"
+    },
+    {
+      "id": "TC-235-admissibility-wrap-refuses-on-unfrozen-tree",
+      "acId": "AC-17902-2",
+      "description": "runWithAdmissibilityGate on an unfrozen tree returns a refusal citing NV-DL-ADM-01; the inner produce function is not called.",
+      "status": "pending",
+      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::NV-DL admissibility wrap (PR 8, AC-17902-2): refuses on an unfrozen tree citing NV-DL-ADM-01"
+    },
+    {
+      "id": "TC-235-admissibility-wrap-accepts-with-override",
+      "acId": "AC-17902-3",
+      "description": "runWithAdmissibilityGate on a tree whose freeze.override is set returns ok and names the override; produce is called.",
+      "status": "pending",
+      "testPointer": "test/query/refuse-on-admissibility-nvdl.test.js::NV-DL admissibility wrap (PR 8, AC-17902-3): freeze.override satisfies recordedInChain"
+    },
+    {
+      "id": "TC-235-readiness-compute-unchanged-under-refusal",
+      "acId": "AC-17902-4",
+      "description": "rcf define readiness on an unfrozen tree still computes and prints the readiness envelope; the admissibility refusal is informational on the compute (ADR-4123); exit code is unchanged from 0.29.0.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness-nvdl-informational.test.js::readiness compute (PR 8, AC-17902-4): still runs and prints under NV-DL refusal"
+    }
+  ],
+  "status": "draft"
+}

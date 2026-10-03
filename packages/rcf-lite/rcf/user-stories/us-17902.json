@@ -1,0 +1,41 @@
+{
+  "usId": "US-17902",
+  "prdId": "PRD-001",
+  "reqId": "REQ-179",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "NV-DL enforced",
+  "description": "User story under REQ-179 for DEFINE step 3 PR 8 (spec section 4 NV-DL row, section 11.7 US-17902). The rcf-lite ruleset carries NV-DL-ADM-01..05 with `refuseByDefault: true` and `overrideChannel: recordedInChain`. ADM-01 is the bundle refusal on an unfrozen tree; ADM-05 is the bundle skip of impacted FBS; ADM-02..04 are D4 and D3 findings surfaced through the admissibility wrap. `freeze.override` (bundle --override) and an `--ack` reason (readiness / freeze) satisfy `recordedInChain`. readiness compute still runs and prints under refusal; 0.29.0 informational posture on the compute is unchanged (ADR-4123).",
+  "asA": "an operator of the DEFINE stage gates",
+  "iWant": "the five NV-DL rules to refuse by default with a recorded-in-chain override channel so a build verb cannot proceed on an unfrozen tree without a documented reason",
+  "soThat": "the ruleset's intent (ruling-sheet item 1) is enforced in code and the readiness compute still prints its diagnostics under a refusal",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17902-1",
+      "description": "[happy] given ruleset.json, when read, then NV-DL-ADM-01 to 05 carry refuseByDefault true and overrideChannel recordedInChain.",
+      "testable": true
+    },
+    {
+      "id": "AC-17902-2",
+      "description": "[failure] given an unfrozen tree, when a build verb runs under the admissibility gate, then it refuses citing NV-DL-ADM-01.",
+      "testable": true
+    },
+    {
+      "id": "AC-17902-3",
+      "description": "[happy] given freeze.override present, when the same verb runs, then it proceeds and names the override.",
+      "testable": true
+    },
+    {
+      "id": "AC-17902-4",
+      "description": "[must-not] given readiness, when the gate refuses, then the compute still runs and prints (0.29.0 informational posture unchanged).",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4125-build-bundle-refuse-override-skip",
+    "TAC-4126-define-validate-findings"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

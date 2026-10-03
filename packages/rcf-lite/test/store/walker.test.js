@@ -164,7 +164,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
     // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) adds REQ-188 (draft shapes
   // for the engineer) and REQ-182 (DEFINE-stage guidance pack; see
   // PR 3 report.md shift note) (114 -> 116).
-  assert.equal(tree.requirements.length, 116);
+  // DEFINE step 3 PR 8 (w-2026-10-03-dave-012) added REQ-177 (bundle
+  // refuses and skips), REQ-178 (validate findings) and REQ-179 (NV-DL
+  // enforced) (116 -> 119).
+  assert.equal(tree.requirements.length, 119);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (3 more).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
@@ -267,7 +270,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // REQ-174 (D6 bites: consistency:contradictions / unsatisfiable /
   // duplicates / orphanInterfaces) and US-17504 under REQ-175 (probe
   // seam and --litmus) (203 -> 205).
-  assert.equal(tree.userStories.length, 205);
+  // DEFINE step 3 PR 8 (w-2026-10-03-dave-012) added US-17702 (bundle
+  // refuses and skips, 5 ACs), US-17802 (validate findings, 4 ACs) and
+  // US-17902 (NV-DL enforced, 4 ACs) under REQ-177/178/179
+  // (205 -> 208).
+  assert.equal(tree.userStories.length, 208);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -296,7 +303,11 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (53 -> 54).
   // Viewer UI refresh PR 9 added TAC-4134-wespa-host-fixture (test-host
   // fixture + three embedding lints) under REQ-002 (54 -> 55).
-  assert.equal(tree.tacs.length, 55);
+  // DEFINE step 3 PR 8 (w-2026-10-03-dave-012) added
+  // TAC-4125-build-bundle-refuse-override-skip and
+  // TAC-4126-define-validate-findings under REQ-177 and REQ-178
+  // (55 -> 57).
+  assert.equal(tree.tacs.length, 57);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -523,7 +534,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // test/define/concern-catalogue.test.js, test/cli/readiness.test.js,
   // test/cli/validate.test.js and test/query/questions-loop.test.js)
   // (171 -> 172).
-  assert.equal(tree.testSuites.length, 173);
+  // DEFINE step 3 PR 8 (w-2026-10-03-dave-012) added TS-233 (US-17702
+  // bundle refuse/override/skip), TS-234 (US-17802 validate findings)
+  // and TS-235 (US-17902 NV-DL enforced) (173 -> 176).
+  assert.equal(tree.testSuites.length, 176);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
