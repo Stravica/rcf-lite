@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z",
+  "tacId": "TAC-4129-define-questions",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "the questions compute and the questions verb",
+  "purpose": "compute and print the persona question set.",
+  "responsibilities": [
+    "src/query/questions.js exposes computeQuestions(readiness, { tree, ledgers, profileText, persona }). It reads levels.intentComplete.blockedBy for persona productOwner or personas.engineer.blockers for persona engineer, expands each blocker's failing items into one question each via a per-check template, orders them D1 then D2 then D4 then D7 then by source span, carries one writeBack entry per `when` case the template defines, groups by source span, and never creates or modifies a file under rcf/.",
+    "src/cli/questions.js registers `rcf define questions [--json] [--persona productOwner|engineer] [--stage <D|short>] [--limit <n>]`. Persona default comes from the profile register, else productOwner. Text mode prints groups and asks; --json emits the computeQuestions object. Exit 0 always; unknown persona exits 2 with usage naming productOwner and engineer. Writes nothing under rcf/.",
+    "src/mcp/tools.js adds `rcf_define_questions` (same object as the verb's --json), `rcf_define_readiness` (the readiness object), and `rcf_define_ledger` (thin wrapper over the ledger handler). All three share the envelope the existing query and write tools use."
+  ],
+  "internalStructure": "computeQuestions is a pure function: it folds the readiness blockers into questions through a per-check template table, deterministically ids each question from (stage, check, itemId), carries writeBack commands verbatim, and groups by source span (the trailing `(source: path:line-span)` marker on brief statements, else `tree`). The CLI verb runs the same walkTree + loadAllLedgers + loadFreezeRecord + readProfileText path readiness.js uses, calls computeReadiness, then computeQuestions. The MCP tools reuse the handler shape of the existing query tools (walkTree, okResult, usageErrorResult).",
+  "interfaces": [
+    {
+      "name": "computeQuestions",
+      "kind": "moduleApi",
+      "description": "Compute the persona question set from a readiness result, a tree, the four ledgers and the profile text. Returns an object with treeHash, persona, level, ok, remaining, groups[], questions[], optional[] and engineer (collapsed count on the PO return)."
+    },
+    {
+      "name": "rcf define questions",
+      "kind": "cliCommand",
+      "description": "Print or JSON-emit the persona question set. --persona defaults to the profile register. --stage narrows to one stage; --limit caps the questions array. Writes nothing under rcf/."
+    },
+    {
+      "name": "rcf_define_questions",
+      "kind": "other",
+      "description": "MCP tool: same structuredContent as the verb's --json output."
+    },
+    {
+      "name": "rcf_define_readiness",
+      "kind": "other",
+      "description": "MCP tool: the readiness object."
+    },
+    {
+      "name": "rcf_define_ledger",
+      "kind": "other",
+      "description": "MCP tool: thin wrapper over the ledger handler, taking { name, verb, ...flags }."
+    }
+  ],
+  "notes": "The viewer owns the Readiness tab PO-facing surface (viewer refresh PR 8); this TAC supplies only the data shape and the verb. Prompts and guidance land under TAC-4128."
+}

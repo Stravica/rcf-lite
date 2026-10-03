@@ -48,6 +48,7 @@ both.
 | `define-detection` | The DEFINE detection model - freeze record, tree/document hashes, delta compute, gates and readiness. Names the "detect the change, do not configure it" seam Baz ruled on 2026-09-22. |
 | `define-ledgers` | The four `rcf/define/` sidecar ledgers (brief, decisions, concern, probe) and the `rcf define ledger` verb that keeps them numbered per project life. |
 | `define-intake` | Document intake into the brief ledger: `brief add --from` parses `[kind]` and `(source: ...)` markers, mints statements, runs the mechanical scans against existing statements and appends one `openQuestion` per finding. |
+| `define-intent` | Guided product-owner elicitation: `rcf define questions` turns every failing product-owner check into one plain question with its write-back, so a harness can conduct the intent-complete loop without an engineer. |
 
 ## Adding a new capability
 
