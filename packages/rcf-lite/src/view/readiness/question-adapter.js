@@ -61,10 +61,65 @@ export function toQuestions(readiness) {
   if (!readiness || typeof readiness !== 'object') {
     return { groups: [], optional: null };
   }
-  if (preferReadinessQuestions(readiness)) {
-    return fromReadinessQuestions(readiness);
+  const base = preferReadinessQuestions(readiness)
+    ? fromReadinessQuestions(readiness)
+    : fromBlockers(readiness);
+  // Thread `readiness.questionOptional` (the raw `computeQuestions`
+  // open-decisions list, carried onto readiness in view/index.js) into
+  // the dashed optional group so DEFINE open decisions with a default
+  // reach the PO layer even when they are not among `questions[]`.
+  const extra = buildOptionalFromRaw(readiness);
+  if (!extra || extra.items.length === 0) return base;
+  if (!base.optional) {
+    return { groups: base.groups, optional: extra };
   }
-  return fromBlockers(readiness);
+  const seen = new Set(base.optional.items.map((it) => it.itemId ?? it.heading));
+  const merged = base.optional.items.slice();
+  for (const it of extra.items) {
+    const key = it.itemId ?? it.heading;
+    if (!seen.has(key)) {
+      merged.push(it);
+      seen.add(key);
+    }
+  }
+  return {
+    groups: base.groups,
+    optional: { label: base.optional.label, items: merged, optional: true },
+  };
+}
+
+/**
+ * Fold `readiness.questionOptional` (the raw `computeQuestions`
+ * `optional[]` list of `{ id, ask, blocks }`) into AdapterItem shape
+ * so the PO layer renders open decisions as dashed cards.
+ *
+ * @param {object} readiness
+ * @returns {AdapterGroup | null}
+ */
+function buildOptionalFromRaw(readiness) {
+  const raw = /** @type {{ questionOptional?: Array<unknown> }} */ (readiness).questionOptional;
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  /** @type {AdapterItem[]} */
+  const items = [];
+  for (const row of raw) {
+    if (!row || typeof row !== 'object') continue;
+    const r = /** @type {Record<string, unknown>} */ (row);
+    const id = typeof r.id === 'string' ? r.id : '';
+    const ask = typeof r.ask === 'string' && r.ask.length > 0 ? r.ask : 'Decision has a default; answer now or let it stand.';
+    const heading = 'An open decision has a default';
+    const hint = 'Answer with the option letter, or let the default stand.';
+    items.push({
+      heading,
+      ask,
+      hint,
+      detail: id ? `open decision ${id}` : 'open decision',
+      checkId: 'D7/open-decision',
+      itemId: id || undefined,
+      optional: true,
+    });
+  }
+  if (items.length === 0) return null;
+  return { label: 'Optional: decisions with a default (they do not hold up the hand-over)', items, optional: true };
 }
 
 // ---- source A: readiness.questions[] (DEFINE step 3 PR 2) --------------

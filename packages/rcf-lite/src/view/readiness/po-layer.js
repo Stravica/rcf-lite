@@ -96,13 +96,21 @@ function renderQuestionCards(readiness, q, source) {
 
   if (total === 0) {
     const verdictLines = formatVerdictLines(readiness);
-    const line = l.intentComplete.ok
-      ? verdictLines.intentComplete
-      : 'Nothing waiting on you right now.';
+    // AC-18002-2: when the question set is empty, the block renders
+    // the intent-complete verdict line (verbatim from the readiness
+    // compute). Honours the defensive !ok branch by still rendering
+    // the live verdict line so engineers and PO see the same words
+    // the CLI prints; a stub fallback would drift from `rcf define
+    // readiness --json`.
+    const line = verdictLines.intentComplete;
+    const optionalHtml = q.optional
+      ? renderOptionalGroup(q.optional)
+      : '';
     return `<section class="rcf-po-questions" data-rcf-source="${escapeHtml(source)}" data-rcf-empty="yes">
   <header class="rcf-po-questions__head"><h2>Questions for you</h2> <span class="rcf-badge rcf-badge--count">0</span></header>
   <p class="muted small">Nothing on this tree needs your answer right now; this page updates on its own as the tree changes.</p>
   <p class="rcf-po-questions__verdict"><code>${escapeHtml(line)}</code></p>
+  ${optionalHtml}
 </section>`;
   }
 

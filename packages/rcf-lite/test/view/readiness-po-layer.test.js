@@ -253,10 +253,23 @@ test('PO layer: AC-18002-1 given questions[] non-empty, the block lists each gro
   assert.ok(html.includes('Requirement REQ-012'), 'group label 2 missing');
   assert.ok(html.includes('Your document names a hold. Which part does it belong to?'), 'ask 1 missing');
   assert.ok(html.includes('Say it as: as a who, I want what, so that why.'), 'ask 2 missing');
-  // Every id in the JSON appears somewhere in the panel (via the engineer body for ids, or via question-detail).
-  const stringifiedResult = JSON.stringify(result);
+  // Every id in the JSON appears somewhere in the panel: the engineer
+  // body carries them via the engineer-blocker DOM AND the rendered
+  // HTML carries the per-question `data-rcf-check` tuple built from
+  // `stage/check` (so an id like `brief:7` surfaces through the
+  // question-card markup) and the inner `data-rcf-stage-ref` chip.
+  // Strengthened over the input-stringify tautology Codex flagged:
+  // these asserts are grounded in the output HTML, not the fixture.
   for (const q of result.questions) {
-    assert.ok(stringifiedResult.includes(q.id), `question id ${q.id} must appear in the JSON`);
+    const checkTuple = `${q.stage}/${q.checkId}`;
+    assert.ok(
+      html.includes(`data-rcf-check="${checkTuple}"`),
+      `data-rcf-check tuple ${checkTuple} missing in output HTML`,
+    );
+    assert.ok(
+      html.includes(`data-rcf-stage-ref="${q.stage}"`),
+      `data-rcf-stage-ref chip for stage ${q.stage} missing in output HTML`,
+    );
   }
   // Source attribute marks the questions path was taken.
   assert.match(html, /data-rcf-source="readiness\.questions"/);
@@ -446,4 +459,67 @@ test('question-adapter: AC-18002-1 real computeQuestions shape (itemId + context
   assert.equal(briefGroup.items[0].checkId, 'D1/brief:kinds');
   assert.equal(briefGroup.items[0].itemId, 'brief:7');
   assert.equal(briefGroup.items[0].ask, 'Statement 7 says a thing. Which kind?');
+});
+
+test('question-adapter: readiness.questionOptional (computeQuestions open decisions) is folded into the optional dashed group', () => {
+  const base = failingFixture();
+  const result = {
+    ...base,
+    questions: [],
+    questionOptional: [
+      { id: 'Q-D7-open-decision:D-001', ask: 'Decision D-001 answer with the letter?', blocks: 'build' },
+      { id: 'Q-D7-open-decision:D-002', ask: 'Decision D-002 answer with the letter?', blocks: 'build' },
+    ],
+  };
+  // preferReadinessQuestions is true because questions[] is an array.
+  const q = toQuestions(result);
+  assert.ok(q.optional, 'optional group must be present when questionOptional has rows');
+  assert.equal(q.optional.items.length, 2);
+  assert.ok(q.optional.items[0].ask.includes('D-001'));
+  assert.ok(q.optional.items[1].ask.includes('D-002'));
+  for (const it of q.optional.items) {
+    assert.equal(it.optional, true);
+    assert.equal(it.checkId, 'D7/open-decision');
+  }
+});
+
+test('PO layer: empty questions[] with intent-complete:false still renders the live CLI verdict line (no stub fallback)', () => {
+  const base = failingFixture();
+  // Keep intent-complete.ok === false but hand in questions:[] (edge
+  // path Codex flagged: the earlier draft substituted a stub string.)
+  const result = {
+    ...base,
+    questions: [],
+  };
+  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '' });
+  const verdictLines = formatVerdictLines(result);
+  assert.ok(html.includes(verdictLines.intentComplete), 'live intent-complete verdict line must render even when ok=false');
+  assert.ok(!html.includes('Nothing waiting on you right now.'), 'stub placeholder must not replace the CLI verdict');
+});
+
+test('PO layer: open decisions with no PO blockers still render in the empty-state block (optional cards surface)', () => {
+  // Construct a readiness object that would be "nothing waiting" today
+  // but carries a questionOptional[] from computeQuestions.
+  const result = {
+    tree: { currentTreeHash: null, previousTreeHash: null },
+    freeze: null,
+    delta: { changed: [], added: [], removed: [], briefSince: [], impacted: [], impactedFbs: [] },
+    stageOrder: [],
+    stages: [],
+    levels: {
+      intentComplete: { ok: true, blockedBy: [] },
+      readyToBuild: { ok: true, blockedBy: [] },
+    },
+    personas: {
+      productOwner: { blockers: [], nextAction: null },
+      engineer: { blockers: [], nextAction: null },
+    },
+    questions: [],
+    questionOptional: [
+      { id: 'Q-D7-open-decision:D-010', ask: 'Decision D-010 answer with the letter?', blocks: 'build' },
+    ],
+  };
+  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '' });
+  assert.ok(html.includes('Optional: decisions with a default'), 'optional dashed group must render even when total === 0');
+  assert.ok(html.includes('D-010'), 'open decision id must surface in the optional card');
 });
