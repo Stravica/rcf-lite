@@ -234,3 +234,50 @@ test('AC-18603-5: an engineer-only edit never changes the PO question set', () =
 
   assert.deepEqual(q1.questions.map((e) => e.id), q2.questions.map((e) => e.id));
 });
+
+// ---------------------------------------------------------------------------
+// PR 6 loop-convergence row (spec section 9): the four new engineer
+// checks (stories:closedSets, stories:ownerRefResolves,
+// crosscut:catalogue, skeleton:standardsCited) surface no product-owner
+// failures on the scripted fixture.
+// ---------------------------------------------------------------------------
+
+test('PR 6 engineer checks surface no product-owner failures on the scripted fixture', () => {
+  // Load the four new checks' names from the gates module and assert
+  // CHECK_PERSONA puts each one in the engineer register. computeQuestions
+  // filters by persona, so a check with persona='engineer' can never
+  // appear in the productOwner view regardless of state.
+  // Loading synchronously via dynamic import keeps the top-of-file imports
+  // untouched.
+  const names = [
+    'stories:closedSets',
+    'stories:ownerRefResolves',
+    'crosscut:catalogue',
+    'skeleton:standardsCited',
+  ];
+  // Build an engineer-only blocker list for every new check so the
+  // readinessFor() fixture folds them into the engineer bucket, not
+  // the PO bucket. computeQuestions with persona='productOwner' must
+  // return no questions for these blockers.
+  const engineerBlockers = names.map((name, i) => ({
+    stage: name.startsWith('stories:') ? 'D4' : name.startsWith('crosscut:') ? 'D5' : 'D2',
+    gate: name.startsWith('stories:') ? 'define.stories' : name.startsWith('crosscut:') ? 'define.crosscut' : 'define.skeleton',
+    check: name,
+    persona: 'engineer',
+    over: 'tree',
+    failingCount: 1,
+    ids: [`item-${i}`],
+    question: `engineer blocker ${name}`,
+  }));
+  const r = readinessFor([], engineerBlockers);
+  const q = computeQuestions(r, {
+    tree: makeTree(initialState()),
+    ledgers: { brief: { statements: [] } },
+    persona: 'productOwner',
+  });
+  assert.equal(q.ok, true, `PO view should be ok with engineer-only blockers; got ${JSON.stringify(q.questions)}`);
+  for (const name of names) {
+    const hit = q.questions.find((e) => e.check === name);
+    assert.equal(hit, undefined, `${name} must not surface in the PO question set`);
+  }
+});
