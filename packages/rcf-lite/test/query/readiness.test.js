@@ -100,6 +100,8 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   // tree summary shape.
   assert.equal(result.tree.frozen, false);
   assert.equal(typeof result.tree.currentTreeHash, 'string');
+  assert.equal(typeof result.tree.litmusHash, 'string');
+  assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
   assert.equal(typeof result.tree.fbsTotal, 'number');
   // Every stage in D1..D8 order.
   assert.deepEqual(result.stages.map((s) => s.stage), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
@@ -631,12 +633,56 @@ test('readiness (PR 7, AC-17504-5): --litmus triggers no process spawn and no ne
     const n = parseLitmusFlag('2');
     assert.equal(n, 2);
     const result = computeReadiness(tree, { ledgers: { probes: { probes: [] } } });
-    const readers = countLitmusReadersAtHash({ probes: { probes: [] } }, result.tree.currentTreeHash);
+    const readers = countLitmusReadersAtHash({ probes: { probes: [] } }, result.tree.litmusHash);
     assert.equal(readers.size, 0);
     assert.equal(fetchCalled, false);
+    // Sanity: the litmus hash is a sha256 and differs from the
+    // current tree hash because the current tree hash includes the
+    // probes ledger (ledger:probes docHash) and the litmus hash does
+    // not; even an empty probe ledger shifts the probes docHash from
+    // undefined to the hash of the empty-probes body.
+    assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
+    assert.notEqual(result.tree.litmusHash, result.tree.currentTreeHash);
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('readiness (PR 7 R9): litmusHash is stable under probes-ledger writes but shifts with brief/decisions/concerns writes', () => {
+  // ADR-4131 extended R9 (w-2026-10-03-dave-011): the litmus hash is
+  // the tree hash computed with the probes ledger excluded. Writing
+  // to the probes ledger must not shift it (otherwise a reader's own
+  // write would invalidate the hash the reader just pinned to);
+  // writing to the brief, decisions or concerns ledgers must shift
+  // it (those are the content under review).
+  const req = {
+    reqId: 'REQ-003',
+    title: 'req',
+    description: 'description',
+    domain: 'ops',
+    shapeClassification: { shapes: ['other'] },
+  };
+  const tree = makeTree({ requirements: [req] });
+
+  const noProbes = { probes: { probes: [] } };
+  const withProbe = {
+    probes: {
+      probes: [
+        { id: 1, reqId: 'REQ-003', finding: 'litmus:reader-01: observed', severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+  };
+  const withBrief = {
+    probes: { probes: [] },
+    brief: { statements: [{ id: 1, kind: 'capability', text: 'x', source: 'test:1' }] },
+  };
+
+  const base = computeReadiness(tree, { ledgers: noProbes }).tree.litmusHash;
+  const afterProbeWrite = computeReadiness(tree, { ledgers: withProbe }).tree.litmusHash;
+  const afterBriefWrite = computeReadiness(tree, { ledgers: withBrief }).tree.litmusHash;
+
+  assert.equal(afterProbeWrite, base, 'probes-ledger write must not shift litmusHash');
+  assert.notEqual(afterBriefWrite, base, 'brief-ledger write must shift litmusHash');
 });
 
 test('readiness (PR 7): countLitmusReadersAtHash reads distinct readers from probe entries', () => {

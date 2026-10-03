@@ -5,9 +5,9 @@
   "version": "0.1.0",
   "status": "draft",
   "title": "probe seam and litmus",
-  "description": "User story under REQ-175 for DEFINE step 3 PR 7 (spec section 4 row 'D6 scans and the injectable probe runner' and section 11.6). computeReadiness(tree, { probeRunner }) accepts an injectable runner where probeRunner = ({ reqId, tree }) => findings[], default null; injected findings land as probe-ledger entries in the result and count toward consistency:probeCount. src/define/probe-runner.js is added as the seam only; no shipped runner (no LLM in rcf-lite; the harness is the runner through ledger probes add). With no probeRunner the result equals the 0.29.0 result on the same fixture. --litmus <n> on readiness and freeze requires at least n distinct litmus readings at the current hash, read from probe-ledger entries with finding beginning litmus:<reader>: and a hash matching tree.currentTreeHash; one reader exits 4 naming the shortfall. --litmus-attested remains the default attestation path. No process is spawned and no network call is made at runtime; the harness is the runner.",
+  "description": "User story under REQ-175 for DEFINE step 3 PR 7 (spec section 4 row 'D6 scans and the injectable probe runner' and section 11.6). computeReadiness(tree, { probeRunner }) accepts an injectable runner where probeRunner = ({ reqId, tree }) => findings[], default null; injected findings land as probe-ledger entries in the result and count toward consistency:probeCount. src/define/probe-runner.js is added as the seam only; no shipped runner (no LLM in rcf-lite; the harness is the runner through ledger probes add). With no probeRunner the result equals the 0.29.0 result on the same fixture. --litmus <n> on readiness and freeze requires at least n distinct litmus readings at the current LITMUS HASH, read from probe-ledger entries with finding beginning litmus:<reader>: and a hash matching tree.litmusHash; one reader exits 4 naming the shortfall. The litmus hash is the tree hash computed with the probes ledger excluded (ADR-4131 extended R9, w-2026-10-03-dave-011): the probes ledger is inside tree.currentTreeHash by ADR-4120, so a reader writing a probe-ledger entry that referenced currentTreeHash would shift the hash it just attested to; the litmus hash is the content-stable hash readers pin to so n readers can land their entries at the same hash. Writes to the brief, decisions or concerns ledgers do shift the litmus hash the same way they shift currentTreeHash. Trade-off: litmus readings do not attest to probe findings written after them, which is acceptable because probe entries are themselves readings. --litmus-attested remains the default attestation path. No process is spawned and no network call is made at runtime; the harness is the runner.",
   "asA": "an engineer",
-  "iWant": "an injectable probeRunner seam on computeReadiness and a --litmus <n> flag on readiness and freeze that counts recorded litmus probe entries at the current tree hash",
+  "iWant": "an injectable probeRunner seam on computeReadiness and a --litmus <n> flag on readiness and freeze that counts recorded litmus probe entries at the current litmus hash (the tree hash excluding the probes ledger)",
   "soThat": "the harness can land fresh-context readings through the probe ledger and rcf-lite exits 4 until n distinct readers have attested at the current hash, without rcf-lite itself calling an LLM or spawning a process",
   "acceptanceCriteria": [
     {
@@ -22,12 +22,12 @@
     },
     {
       "id": "AC-17504-3",
-      "description": "[happy] given two probe entries litmus:<reader>: at the current hash from distinct readers, when readiness --litmus 2 runs, then it passes the litmus requirement.",
+      "description": "[happy] given two probe entries litmus:<reader>: at the current litmus hash (the tree hash excluding the probes ledger) from distinct readers, when readiness --litmus 2 runs, then it passes the litmus requirement.",
       "testable": true
     },
     {
       "id": "AC-17504-4",
-      "description": "[failure] given one reader, when readiness --litmus 2 runs, then it exits 4 naming the shortfall.",
+      "description": "[failure] given one reader at the current litmus hash (the tree hash excluding the probes ledger), when readiness --litmus 2 runs, then it exits 4 naming the shortfall.",
       "testable": true
     },
     {

@@ -448,59 +448,50 @@ test('readiness cli: AC-17405 --check crosscut exits 4 unacked and 0 acked at cu
 // PR 7: --litmus and D6 bite exit policy on --check consistency.
 // AC-17504-3 (two readers at hash passes), AC-17504-4 (one reader exits 4),
 // AC-17504-5 (no process spawn / network call).
+//
+// ADR-4131 extended R9 (w-2026-10-03-dave-011): the hash the readers
+// pin to is the LITMUS HASH (computeLitmusHash: the tree hash with
+// the probes ledger excluded), not currentTreeHash. The probes ledger
+// is inside currentTreeHash by ADR-4120, so a reader writing an entry
+// that references currentTreeHash would shift the hash it just
+// attested to. The litmus hash is stable under probes-ledger writes,
+// so n readers can land their entries at the same hash and the
+// --litmus check matches them deterministically.
 // ---------------------------------------------------------------------------
 
 /**
- * Hash-fixed-point write: iteratively compute the tree hash that
- * includes the probe-ledger body and rewrite the entries until the
- * referenced hash equals the hash hashDocument sees. The content
- * changes byte-for-byte between iterations so convergence is not
- * guaranteed; the loop caps at a small bound and the test skips its
- * happy-path assertion when the hash does not stabilise (the --litmus
- * exit-4 path is covered by the sibling test with zero readers).
+ * Read the current litmus hash from a scratch project. Reuses
+ * computeLitmusHash so the test stays in step with the production
+ * code's definition of "the hash a reader pins to". Pure read: writes
+ * nothing.
  */
-async function tryLitmusLedgerAtCurrentHash(cwd, readers, maxIter = 10) {
-  const { computeTreeHash, hashDocument } = await import('../../src/query/delta.js');
+async function readLitmusHash(cwd) {
+  const { computeLitmusHash } = await import('../../src/query/readiness.js');
   const { walkTree } = await import('#core/store');
   const { loadAllLedgers } = await import('../../src/define/ledgers.js');
-
   const { tree } = await walkTree({ projectRoot: cwd });
-  const otherLedgers = await loadAllLedgers({ projectRoot: cwd });
-  const standaloneHashes = {};
-  for (const id of tree.byId.keys()) standaloneHashes[id] = hashDocument(tree.byId.get(id));
+  const ledgers = await loadAllLedgers({ projectRoot: cwd });
+  return computeLitmusHash(tree, ledgers);
+}
 
-  const makeProbeBody = (hashValue) => ({
+/**
+ * Write a probe-ledger body with n litmus entries, one per reader,
+ * each referencing the given hash in its finding text. Overwrites
+ * any existing probe-ledger file at the scratch project.
+ */
+async function writeLitmusLedger(cwd, readers, hash) {
+  const body = {
     probes: readers.map((reader, i) => ({
       id: i + 1,
       reqId: 'REQ-001',
-      finding: `litmus:${reader}: observed at hash ${hashValue}`,
+      finding: `litmus:${reader}: observed at hash ${hash}`,
       severity: 'low',
       status: 'open',
       addedAt: '2026-10-03T10:00:00Z',
     })),
-  });
-
-  const computeTargetHash = (probeBody) => {
-    const currentHashes = { ...standaloneHashes };
-    for (const [name, body] of Object.entries({ ...otherLedgers, probes: probeBody })) {
-      if (body === undefined || body === null) continue;
-      currentHashes[`ledger:${name}`] = hashDocument(body);
-    }
-    return computeTreeHash(currentHashes);
   };
-
-  let hashGuess = 'sha256:0000000000000000000000000000000000000000000000000000000000000000';
-  for (let i = 0; i < maxIter; i += 1) {
-    const body = makeProbeBody(hashGuess);
-    const nextHash = computeTargetHash(body);
-    if (nextHash === hashGuess) {
-      await mkdir(join(cwd, 'rcf', 'define'), { recursive: true });
-      await writeFile(join(cwd, 'rcf', 'define', 'probe-ledger.json'), `${JSON.stringify(body, null, 2)}\n`, 'utf8');
-      return hashGuess;
-    }
-    hashGuess = nextHash;
-  }
-  return null;
+  await mkdir(join(cwd, 'rcf', 'define'), { recursive: true });
+  await writeFile(join(cwd, 'rcf', 'define', 'probe-ledger.json'), `${JSON.stringify(body, null, 2)}\n`, 'utf8');
 }
 
 test('readiness cli (PR 7, AC-17504-4): --litmus 2 with no readers exits 4 naming the shortfall', async () => {
@@ -511,37 +502,56 @@ test('readiness cli (PR 7, AC-17504-4): --litmus 2 with no readers exits 4 namin
   assert.match(r.stderr, /found 0/);
 });
 
-test('readiness cli (PR 7, AC-17504-4): --litmus 2 with one reader at the current hash exits 4', async () => {
-  // Author a probe-ledger with one litmus entry. Even if the hash in
-  // the finding text does not match the current tree hash (the ledger
-  // body affects the hash and we do not pin it to a fixed point here
-  // without the convergence trick), countLitmusReadersAtHash returns
-  // zero at the current hash and the verb exits 4 all the same.
+test('readiness cli (PR 7, AC-17504-4): --litmus 2 with one reader at the current litmus hash exits 4 naming the shortfall', async () => {
+  // ADR-4131 extended R9 (w-2026-10-03-dave-011): land exactly one
+  // litmus reading at the current litmus hash, re-read the hash, and
+  // confirm --litmus 2 exits 4 with the "found 1" shortfall line.
   const cwd = await scratchProject();
-  const probeLedger = {
-    probes: [
-      { id: 1, reqId: 'REQ-001', finding: 'litmus:reader-01: an observation at a prior hash', severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
-    ],
-  };
-  await mkdir(join(cwd, 'rcf', 'define'), { recursive: true });
-  await writeFile(join(cwd, 'rcf', 'define', 'probe-ledger.json'), `${JSON.stringify(probeLedger, null, 2)}\n`, 'utf8');
+  const hash = await readLitmusHash(cwd);
+  await writeLitmusLedger(cwd, ['reader-01'], hash);
   const r = await run(['--litmus', '2'], cwd);
   assert.equal(r.code, 4);
   assert.match(r.stderr, /--litmus 2 requires 2 distinct litmus reading/);
+  assert.match(r.stderr, /found 1/);
 });
 
-test('readiness cli (PR 7, AC-17504-3): --litmus 2 with two readers at the current hash exits 0 when the fixed point converges', async (t) => {
+test('readiness cli (PR 7, AC-17504-3): --litmus 2 with two readers at the current litmus hash exits 0', async () => {
+  // ADR-4131 extended R9 (w-2026-10-03-dave-011): read the current
+  // LITMUS HASH (tree hash excluding the probes ledger) and write two
+  // litmus entries at it. The litmus hash is stable under probes-
+  // ledger writes, so after the write the --litmus check sees two
+  // distinct readers at the current litmus hash and exits 0.
   const cwd = await scratchProject();
-  const hash = await tryLitmusLedgerAtCurrentHash(cwd, ['reader-01', 'reader-02']);
-  if (hash === null) {
-    // No convergence in a few iterations; the unit tests in
-    // test/query/readiness.test.js already cover the pure counting
-    // behaviour.
-    t.skip('hash-fixed-point did not converge; see unit tests for the pure count check');
-    return;
-  }
+  const hash = await readLitmusHash(cwd);
+  await writeLitmusLedger(cwd, ['reader-01', 'reader-02'], hash);
   const r = await run(['--litmus', '2'], cwd);
   assert.equal(r.code, 0, `stderr: ${r.stderr}`);
+});
+
+test('readiness cli (PR 7 R9 regression): a litmus entry recorded before a second probes-ledger write still counts', async () => {
+  // ADR-4131 extended R9 (w-2026-10-03-dave-011): the litmus hash is
+  // the tree hash with the probes ledger excluded. Writing more
+  // probe-ledger entries after the readers have landed theirs must
+  // not shift the litmus hash the readers pinned to, so the --litmus
+  // check keeps counting them. A regression here would mean the
+  // litmus-hash computation is leaking the probes ledger back in.
+  const cwd = await scratchProject();
+  const hash = await readLitmusHash(cwd);
+  await writeLitmusLedger(cwd, ['reader-01', 'reader-02'], hash);
+  const r1 = await run(['--litmus', '2'], cwd);
+  assert.equal(r1.code, 0, `first run stderr: ${r1.stderr}`);
+
+  // Append a non-litmus probe entry and re-run. The litmus hash the
+  // original two readers pinned to must still be the current litmus
+  // hash; both readers must still count.
+  const path = join(cwd, 'rcf', 'define', 'probe-ledger.json');
+  const body = JSON.parse(await readFileAsync(path, 'utf8'));
+  body.probes.push({ id: 99, reqId: 'REQ-001', finding: 'generic probe finding, not litmus', severity: 'low', status: 'open', addedAt: '2026-10-03T11:00:00Z' });
+  await writeFile(path, `${JSON.stringify(body, null, 2)}\n`, 'utf8');
+  const hashAfter = await readLitmusHash(cwd);
+  assert.equal(hashAfter, hash, 'litmus hash must be stable under probes-ledger writes');
+  const r2 = await run(['--litmus', '2'], cwd);
+  assert.equal(r2.code, 0, `second run stderr: ${r2.stderr}`);
 });
 
 test('readiness cli (PR 7): --litmus with a non-positive integer exits 2 with a usage line', async () => {

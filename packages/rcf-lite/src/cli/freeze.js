@@ -404,15 +404,19 @@ async function runFreeze({
     return 4;
   }
 
-  // --litmus check (ADR-4131 extended, 0.30.0 PR 7). Count distinct
-  // readers who have landed a probe-ledger entry at the current tree
-  // hash whose finding begins litmus:<reader>:; refuse (exit 4 and
-  // write nothing) when fewer than n have attested.
+  // --litmus check (ADR-4131 extended, 0.30.0 PR 7; R9 clarified
+  // 2026-10-03, w-2026-10-03-dave-011). Count distinct readers who
+  // have landed a probe-ledger entry at the current LITMUS HASH whose
+  // finding begins litmus:<reader>:; refuse (exit 4 and write nothing)
+  // when fewer than n have attested. The litmus hash is the tree hash
+  // computed with the probes ledger excluded (see computeLitmusHash in
+  // src/query/readiness.js) so a reader's own write does not shift the
+  // hash it is attesting to.
   if (typeof litmus === 'number' && litmus > 0) {
-    const hash = currentTreeHash;
+    const hash = readiness.tree.litmusHash;
     const readers = countLitmusReadersAtHash(ledgers, hash);
     if (readers.size < litmus) {
-      stderr.write(`[error] freeze: --litmus ${litmus} requires ${litmus} distinct litmus reading(s) at ${hash}; found ${readers.size}. Spawn ${litmus - readers.size} more fresh-context reader(s) and land their readings through \`rcf define ledger probes add --req <reqId> --finding "litmus:<reader>: ..." --severity low\` with the hash in the finding text.\n`);
+      stderr.write(`[error] freeze: --litmus ${litmus} requires ${litmus} distinct litmus reading(s) at litmus hash ${hash}; found ${readers.size}. Spawn ${litmus - readers.size} more fresh-context reader(s) and land their readings through \`rcf define ledger probes add --req <reqId> --finding "litmus:<reader>: ..." --severity low\` with the litmus hash in the finding text (read it from \`rcf define readiness --json\` under \`tree.litmusHash\`).\n`);
       return 4;
     }
   }

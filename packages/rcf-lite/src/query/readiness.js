@@ -15,7 +15,7 @@
 
 import { computeQueue } from '../build/queue.js';
 import { computeCoverage } from './coverage.js';
-import { computeDelta } from './delta.js';
+import { computeDelta, computeTreeHash, hashDocument } from './delta.js';
 import { computeImpact } from './impact.js';
 import { isProbeRunner } from '../define/probe-runner.js';
 import {
@@ -38,6 +38,23 @@ import {
  * @property {string | null} frozenAt
  * @property {string | null} treeHash
  * @property {string} currentTreeHash
+ * @property {string} litmusHash
+ *   The current tree hash computed with the probes ledger excluded
+ *   (ADR-4131 extended, 0.30.0 PR 7 R9, w-2026-10-03-dave-011). The
+ *   probes ledger is inside `currentTreeHash` (ADR-4120), so a litmus
+ *   reading referencing `currentTreeHash` can never match the hash
+ *   recomputed after the write that landed the reading. `litmusHash`
+ *   is the content-stable hash the harness pins litmus readings to:
+ *   writing to the probes ledger does not change it, so n readers can
+ *   land `litmus:<reader>:` entries at the same hash and the --litmus
+ *   check matches them deterministically. Writes to the brief,
+ *   decisions or concerns ledgers do change `litmusHash` the same way
+ *   they change `currentTreeHash`: those changes shift the content
+ *   the readers were attesting to and stale readings fall out of the
+ *   count. The trade-off is intentional: litmus readings do not
+ *   attest to probe findings written after them (probe entries are
+ *   themselves readings, so the attestation applies to the stable
+ *   content, not to its own body).
  * @property {string | null} buildAt   fbsId at the queue head, or null
  * @property {number} fbsTotal
  */
@@ -341,6 +358,13 @@ export function computeReadiness(tree, args = {}) {
       frozenAt: delta.frozenAt,
       treeHash: delta.treeHash,
       currentTreeHash: delta.currentTreeHash,
+      // ADR-4131 extended, 0.30.0 PR 7 R9 (w-2026-10-03-dave-011).
+      // The content-stable hash the harness pins litmus readings to:
+      // computed over the tree + brief / decisions / concerns ledgers,
+      // excluding the probes ledger so a reader write does not shift
+      // the hash it pins its own entry to. See computeLitmusHash
+      // JSDoc above for the full rationale and trade-off.
+      litmusHash: computeLitmusHash(tree, activeLedgers),
       buildAt: queue.nextActionable ?? null,
       fbsTotal,
     },
@@ -598,6 +622,46 @@ export function parseLitmusFlag(raw) {
  * @param {string | null | undefined} hash
  * @returns {Set<string>}
  */
+/**
+ * Compute the litmus hash of a tree + ledger bundle: the tree hash
+ * recomputed with the probes ledger excluded (ADR-4131 extended,
+ * 0.30.0 PR 7 R9, w-2026-10-03-dave-011). The returned string is a
+ * `sha256:<hex>` that is stable under writes to the probes ledger
+ * (so n readers can land `litmus:<reader>:` entries at the same
+ * hash) and that shifts the same way `currentTreeHash` shifts under
+ * writes to the brief, decisions or concerns ledgers (which do
+ * change what the readers were attesting to).
+ *
+ * The function reuses `hashDocument` and `computeTreeHash` from the
+ * delta module; it never touches the filesystem. The brief, decisions
+ * and concerns ledgers contribute their `ledger:<name>` docHash as
+ * they do in `currentTreeHash`; the probes ledger is omitted. The
+ * tree document ids and their hashes are unchanged from the delta
+ * computation.
+ *
+ * Pure.
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @param {import('./delta.js').LedgerBundle | null | undefined} [ledgers]
+ * @returns {string}
+ */
+export function computeLitmusHash(tree, ledgers) {
+  /** @type {Record<string, string>} */
+  const docHashes = {};
+  if (tree && tree.byId) {
+    for (const id of [...tree.byId.keys()].sort()) {
+      docHashes[id] = hashDocument(tree.byId.get(id));
+    }
+  }
+  const bundle = ledgers ?? {};
+  for (const [name, body] of Object.entries(bundle)) {
+    if (name === 'probes') continue;
+    if (body === undefined || body === null) continue;
+    docHashes[`ledger:${name}`] = hashDocument(body);
+  }
+  return computeTreeHash(docHashes);
+}
+
 export function countLitmusReadersAtHash(ledgers, hash) {
   const readers = new Set();
   if (typeof hash !== 'string' || hash.length === 0) return readers;
