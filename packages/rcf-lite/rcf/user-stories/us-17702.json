@@ -1,0 +1,46 @@
+{
+  "usId": "US-17702",
+  "prdId": "PRD-001",
+  "reqId": "REQ-177",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "bundle refuses and skips",
+  "description": "User story under REQ-177 for DEFINE step 3 PR 8 (spec section 4 bundle row, section 11.7 US-17702). `rcf build bundle --next` refuses on an unfrozen tree (exit 4, message naming `rcf define readiness`); `--override \"<reason>\"` writes `freeze.override { reason, by, at }` and proceeds; on a non-empty delta the next-item compute skips re-execute FBS impacted by the delta with the reason and hands out the next unimpacted FBS; when every actionable FBS is impacted and no override is given the verb refuses with exit 4.",
+  "asA": "an operator closing a change",
+  "iWant": "`rcf build bundle --next` to refuse without a freeze record, to accept a recorded override, to skip FBS impacted by a non-empty delta and hand out the next unimpacted one, and to refuse when every actionable item is impacted and no override is given",
+  "soThat": "I cannot bundle a stale next item against an unfrozen tree, a hotfix path exists with a recorded reason, and the 0.29.0 output on a frozen tree with an empty delta is unchanged",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17702-1",
+      "description": "[failure] given no freeze record, when rcf build bundle --next runs, then it exits 4 naming rcf define readiness.",
+      "testable": true
+    },
+    {
+      "id": "AC-17702-2",
+      "description": "[happy] given --override \"hotfix\", when bundle --next runs on an unfrozen tree, then freeze.override records reason, by and at and the bundle is produced.",
+      "testable": true
+    },
+    {
+      "id": "AC-17702-3",
+      "description": "[happy] given a delta impacting FBS-018, when bundle --next runs, then FBS-018 is skipped with the reason and the next unimpacted FBS is handed out.",
+      "testable": true
+    },
+    {
+      "id": "AC-17702-4",
+      "description": "[failure] given every actionable FBS impacted and no override, when bundle --next runs, then it exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-17702-5",
+      "description": "[must-not] given a frozen tree with an empty delta, when bundle --next runs, then its output is unchanged from 0.29.0.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4125-build-bundle-refuse-override-skip",
+    "TAC-4120-define-delta-and-freeze"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}

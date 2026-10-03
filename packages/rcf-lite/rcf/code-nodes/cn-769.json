@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-769",
+  "path": "src/ruleset/ruleset.json",
+  "title": "DEFINE step 3 PR 8: NV-DL-ADM-01..05 added with refuseByDefault:true and overrideChannel:recordedInChain",
+  "description": "packages/rcf-lite/src/ruleset/ruleset.json gains the NV-DL namespace: NV-DL-ADM-01 (bundle refuses without a freeze), NV-DL-ADM-02 (D4 stories floor is a finding), NV-DL-ADM-03 (D3 shapes bite is a finding), NV-DL-ADM-04 (validate finding set is a finding) and NV-DL-ADM-05 (bundle skips impacted FBS). Each carries refuseByDefault:true and overrideChannel:'recordedInChain'. The existing NV-BL rows and ruling-sheet item 1 pattern are untouched.",
+  "implementsAcIds": [
+    "AC-17902-1",
+    "AC-17902-2",
+    "AC-17902-3",
+    "AC-17902-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T18:30:00Z",
+  "updatedAt": "2026-10-03T18:30:00Z"
+}
