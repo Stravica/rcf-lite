@@ -63,9 +63,9 @@
     {
       "id": "TC-228-manifest-prompts",
       "acId": "AC-18202-2",
-      "description": "The manifest lists rcf_define_intent, rcf_define_intake, rcf_define_draft_shapes and rcf_discover_prototype as argument-free; rcf_define_litmus is recorded as pending PR 7.",
+      "description": "The manifest lists rcf_define_intent, rcf_define_intake, rcf_define_draft_shapes, rcf_discover_prototype and rcf_define_litmus (DEFINE step 3 PR 7) as argument-free DEFINE/DISCOVERY prompts.",
       "status": "pending",
-      "testPointer": "test/guidance/inventory.test.js::guidance (REQ-182, AC-18202-2): four argument-free DEFINE prompts present, litmus pending PR 7"
+      "testPointer": "test/guidance/inventory.test.js::guidance (REQ-182, AC-18202-2): the five argument-free DEFINE / DISCOVERY prompts are present"
     },
     {
       "id": "TC-228-register-scan-em-dash",

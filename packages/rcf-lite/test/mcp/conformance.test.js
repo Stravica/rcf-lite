@@ -152,12 +152,15 @@ test('conformance: SDK prompts - list and every playbook byte-faithful', async (
     // REQ-188 (DEFINE step 3 PR 3) added two more argument-free
     // prompts: rcf_define_draft_shapes and rcf_discover_prototype
     // (spec 2026-10-01 §3, §5).
+    // REQ-175 (DEFINE step 3 PR 7) added the argument-free prompt
+    // rcf_define_litmus (spec 2026-10-01 §6).
     assert.deepEqual(
       prompts.map((p) => p.name).sort(),
       [
         'rcf_define_draft_shapes',
         'rcf_define_intake',
         'rcf_define_intent',
+        'rcf_define_litmus',
         'rcf_discover_prototype',
         'rcf_elicit_requirements',
         'rcf_execute_build_cycle',
@@ -170,6 +173,7 @@ test('conformance: SDK prompts - list and every playbook byte-faithful', async (
       ['rcf_define_intake', 'define-intake.md'],
       ['rcf_define_draft_shapes', 'define-draft-shapes.md'],
       ['rcf_discover_prototype', 'discover-prototype.md'],
+      ['rcf_define_litmus', 'define-litmus.md'],
     ]) {
       const prompt = await client.getPrompt({ name });
       const expected = await readFile(resolve(repoRoot, 'guidance', file), 'utf8');

@@ -2345,6 +2345,30 @@ flowchart LR
   REQ-174 --> AC-17405-6
   TC-231-validate-no-missing-marker-finding["TC-231-validate-no-missing-marker-finding"]
   AC-17405-6 -.-> TC-231-validate-no-missing-marker-finding
+  AC-17406-1["AC-17406-1"]
+  REQ-174 --> AC-17406-1
+  TC-232-contradictions-same-when-negated-then["TC-232-contradictions-same-when-negated-then"]
+  AC-17406-1 -.-> TC-232-contradictions-same-when-negated-then
+  AC-17406-2["AC-17406-2"]
+  REQ-174 --> AC-17406-2
+  TC-232-unsatisfiable-undefined-field["TC-232-unsatisfiable-undefined-field"]
+  AC-17406-2 -.-> TC-232-unsatisfiable-undefined-field
+  AC-17406-3["AC-17406-3"]
+  REQ-174 --> AC-17406-3
+  TC-232-unsatisfiable-draft-recordshape["TC-232-unsatisfiable-draft-recordshape"]
+  AC-17406-3 -.-> TC-232-unsatisfiable-draft-recordshape
+  AC-17406-4["AC-17406-4"]
+  REQ-174 --> AC-17406-4
+  TC-232-duplicates-across-stories["TC-232-duplicates-across-stories"]
+  AC-17406-4 -.-> TC-232-duplicates-across-stories
+  AC-17406-5["AC-17406-5"]
+  REQ-174 --> AC-17406-5
+  TC-232-orphan-interfaces["TC-232-orphan-interfaces"]
+  AC-17406-5 -.-> TC-232-orphan-interfaces
+  AC-17406-6["AC-17406-6"]
+  REQ-174 --> AC-17406-6
+  TC-232-contradictions-quoted-negation-guard["TC-232-contradictions-quoted-negation-guard"]
+  AC-17406-6 -.-> TC-232-contradictions-quoted-negation-guard
   REQ-175["REQ-175"]
   AC-17501-1["AC-17501-1"]
   REQ-175 --> AC-17501-1
@@ -2442,6 +2466,28 @@ flowchart LR
   REQ-175 --> AC-17503-9
   TC-222-text-persona-grouping["TC-222-text-persona-grouping"]
   AC-17503-9 -.-> TC-222-text-persona-grouping
+  AC-17504-1["AC-17504-1"]
+  REQ-175 --> AC-17504-1
+  TC-232-probe-runner-injects-findings["TC-232-probe-runner-injects-findings"]
+  AC-17504-1 -.-> TC-232-probe-runner-injects-findings
+  AC-17504-2["AC-17504-2"]
+  REQ-175 --> AC-17504-2
+  TC-232-no-probe-runner-matches-pre-pr["TC-232-no-probe-runner-matches-pre-pr"]
+  AC-17504-2 -.-> TC-232-no-probe-runner-matches-pre-pr
+  AC-17504-3["AC-17504-3"]
+  REQ-175 --> AC-17504-3
+  TC-232-litmus-reader-count["TC-232-litmus-reader-count"]
+  AC-17504-3 -.-> TC-232-litmus-reader-count
+  AC-17504-4["AC-17504-4"]
+  REQ-175 --> AC-17504-4
+  TC-232-cli-litmus-shortfall-exits-4["TC-232-cli-litmus-shortfall-exits-4"]
+  AC-17504-4 -.-> TC-232-cli-litmus-shortfall-exits-4
+  TC-232-parse-litmus-flag["TC-232-parse-litmus-flag"]
+  AC-17504-4 -.-> TC-232-parse-litmus-flag
+  AC-17504-5["AC-17504-5"]
+  REQ-175 --> AC-17504-5
+  TC-232-cli-litmus-no-process-spawn["TC-232-cli-litmus-no-process-spawn"]
+  AC-17504-5 -.-> TC-232-cli-litmus-no-process-spawn
   REQ-176["REQ-176"]
   AC-17601-1["AC-17601-1"]
   REQ-176 --> AC-17601-1
@@ -3916,6 +3962,18 @@ flowchart LR
   class TC-231-standards-cited-and-waived tc;
   class AC-17405-6 ac;
   class TC-231-validate-no-missing-marker-finding tc;
+  class AC-17406-1 ac;
+  class TC-232-contradictions-same-when-negated-then tc;
+  class AC-17406-2 ac;
+  class TC-232-unsatisfiable-undefined-field tc;
+  class AC-17406-3 ac;
+  class TC-232-unsatisfiable-draft-recordshape tc;
+  class AC-17406-4 ac;
+  class TC-232-duplicates-across-stories tc;
+  class AC-17406-5 ac;
+  class TC-232-orphan-interfaces tc;
+  class AC-17406-6 ac;
+  class TC-232-contradictions-quoted-negation-guard tc;
   class REQ-175 req;
   class AC-17501-1 ac;
   class TC-217-shape tc;
@@ -3965,6 +4023,17 @@ flowchart LR
   class TC-222-json-meta-level tc;
   class AC-17503-9 ac;
   class TC-222-text-persona-grouping tc;
+  class AC-17504-1 ac;
+  class TC-232-probe-runner-injects-findings tc;
+  class AC-17504-2 ac;
+  class TC-232-no-probe-runner-matches-pre-pr tc;
+  class AC-17504-3 ac;
+  class TC-232-litmus-reader-count tc;
+  class AC-17504-4 ac;
+  class TC-232-cli-litmus-shortfall-exits-4 tc;
+  class TC-232-parse-litmus-flag tc;
+  class AC-17504-5 ac;
+  class TC-232-cli-litmus-no-process-spawn tc;
   class REQ-176 req;
   class AC-17601-1 ac;
   class TC-218-happy tc;
