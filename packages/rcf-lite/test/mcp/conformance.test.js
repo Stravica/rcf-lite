@@ -149,15 +149,27 @@ test('conformance: SDK prompts - list and every playbook byte-faithful', async (
     const { prompts } = await client.listPrompts();
     // REQ-186 (DEFINE step 3 PR 2) added two argument-free prompts:
     // rcf_define_intent and rcf_define_intake (spec 2026-10-01 §6).
+    // REQ-188 (DEFINE step 3 PR 3) added two more argument-free
+    // prompts: rcf_define_draft_shapes and rcf_discover_prototype
+    // (spec 2026-10-01 §3, §5).
     assert.deepEqual(
       prompts.map((p) => p.name).sort(),
-      ['rcf_define_intake', 'rcf_define_intent', 'rcf_elicit_requirements', 'rcf_execute_build_cycle'],
+      [
+        'rcf_define_draft_shapes',
+        'rcf_define_intake',
+        'rcf_define_intent',
+        'rcf_discover_prototype',
+        'rcf_elicit_requirements',
+        'rcf_execute_build_cycle',
+      ],
     );
     for (const [name, file] of [
       ['rcf_execute_build_cycle', 'build-cycle-playbook.md'],
       ['rcf_elicit_requirements', 'elicitation-playbook.md'],
       ['rcf_define_intent', 'define-intent.md'],
       ['rcf_define_intake', 'define-intake.md'],
+      ['rcf_define_draft_shapes', 'define-draft-shapes.md'],
+      ['rcf_discover_prototype', 'discover-prototype.md'],
     ]) {
       const prompt = await client.getPrompt({ name });
       const expected = await readFile(resolve(repoRoot, 'guidance', file), 'utf8');

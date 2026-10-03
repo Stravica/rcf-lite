@@ -16,7 +16,15 @@ test('prompts/list: every manifest-registered prompt, argument-free', async () =
   const { prompts } = await registry.list();
   assert.deepEqual(
     prompts.map((p) => p.name),
-    ['rcf_execute_build_cycle', 'rcf_elicit_requirements', 'rcf_define_intent', 'rcf_define_intake'],
+    [
+      'rcf_execute_build_cycle',
+      'rcf_elicit_requirements',
+      'rcf_define_intent',
+      'rcf_define_intake',
+      // REQ-188 (DEFINE step 3 PR 3): two new argument-free prompts.
+      'rcf_define_draft_shapes',
+      'rcf_discover_prototype',
+    ],
   );
   for (const p of prompts) {
     assert.equal(typeof p.description, 'string');
