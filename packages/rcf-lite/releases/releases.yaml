@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.29.0"
+latest: "0.30.0"
 releases:
+  - version: "0.30.0"
+    date: "2026-10-03"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.30.0 lands the DEFINE step 3 gates bite in one release. Readiness --check now exits 4 on a failing D3, D5 or D6 at the current tree hash and clears with --ack <gate>=<reason> on freeze.gates (D3/D5/D6 only; decision 9). rcf build bundle --next now refuses on an unfrozen tree with exit 4 and clears with --override \"<reason>\" writing freeze.override { reason, by, at }; freeze.override.by is resolved by the preference order git user.email -> GITHUB_ACTOR -> USER -> USERNAME -> operator. Impacted re-execute FBS are skipped with the reason on stderr; when every actionable FBS is impacted and no override is given the verb also exits 4."
+      - "rcf define validate now exits 3 on four new finding kinds: an interface kind outside the closed vocabulary, a bracketed AC class prefix outside the five known classes, a tacIds naming a non-TAC, and an unresolving ownerRef or object-form deliveredBy. R11 widens the ownerRef and object-form deliveredBy field grammar to every bracket path on the owning TAC or ADR (interfaces[<name>], responsibilities[<n>], dependencies[<name>], alternativesConsidered[<n>]) plus a bare schema field name; dotted grammar is refused and the finding names the dotted field. The pre-PR 9 validate silently skipped the object form of deliveredBy; it is now checked. Absence of an AC class marker is not a finding (D4 reports absence as the floor)."
+      - "NV-DL-ADM-01 through 05 flip to refuseByDefault with overrideChannel: recordedInChain. Per-rule enforcement locus and override channel: ADM-01 bundle refuses without a freeze (override: --override); ADM-02 D4 stories floor findings (override: freeze.override only; D4 is not ackable per decision 9; ruling R12 2026-10-03); ADM-03 D3 shapes bite findings (override: --ack on freeze.gates); ADM-04 validate finding set (override: a chain-document correction committed to git); ADM-05 bundle all-impacted refusal (override: --override). The admissibility wrap surfaces ADM-02, ADM-03 and ADM-04 alongside the NV-BL rules on readiness and freeze, which stay informational on the compute. The blueprint shelf is clean under R11 after the sweep (31 dotted-to-bracket rewrites, 493 dead-bracket collapses, 12 ownerRef / deliveredBy drops); the sweep script is re-runnable in dry-run mode on a consumer's own tree."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.29.0"
     date: "2026-10-03"
     breaking: true

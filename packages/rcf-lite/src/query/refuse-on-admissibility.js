@@ -27,10 +27,15 @@
 // (readiness stays informational; freeze still exits 4 on an unfrozen
 // tree via its own freezeableAfterAck check). A stage that is
 // 'passed', 'acknowledged' or 'notApplicable' at the current hash
-// never cites a rule; the `--ack <gate>=<reason>` channel on
-// readiness / freeze is the recordedInChain override channel for
-// ADM-02 and ADM-03. ADM-04 has no gate ack: the override is a chain
-// correction committed to git (NV-DL-ADM-04's recordedInChain shape).
+// never cites a rule. Override channels differ by rule (R12 ruling
+// 2026-10-03): ADM-03 (D3) is cleared by an `--ack <gate>=<reason>`
+// recorded on freeze.gates at the current tree hash (D3 is ackable
+// per decision 9); ADM-02 (D4) is NOT ackable (decision 9 keeps D4
+// blocking) and its only recordedInChain channel is `freeze.override`
+// written by `rcf build bundle --next --override "<reason>"` -- in
+// the normal case the author fixes the failing D4 findings. ADM-04
+// has no gate ack either: the override is a chain correction
+// committed to git (NV-DL-ADM-04's recordedInChain shape).
 
 import { enforceAdmissibility, getRulesetToolScope } from '#admissibility';
 // 0.30.0 PR 8 (REQ-179 / TAC-4125): NV-DL admissibility.
@@ -58,18 +63,23 @@ import { loadFreezeRecord } from '../define/freeze-record.js';
  * NV-BL admissibility verdict in `runWithAdmissibilityGate`.
  *
  * A stage counts as biting when:
- *   - ADM-02: the D4 `stage.state` is `'failing'` (not `'passed'` /
- *     `'acknowledged'` / `'notApplicable'`).
- *   - ADM-03: the D3 `stage.state` is `'failing'`.
- *   - ADM-04: `validateErrors.length > 0`.
+ *   - ADM-02: the D4 `stage.state` is `'failing'` (fix the failing
+ *     D4 findings; `freeze.override` written by
+ *     `rcf build bundle --next --override "<reason>"` is the only
+ *     recordedInChain override channel -- D4 is not ackable per
+ *     decision 9).
+ *   - ADM-03: the D3 `stage.state` is `'failing'` (D3 is ackable;
+ *     the override channel is `--ack <gate>=<reason>` on
+ *     `rcf define readiness` / `rcf define freeze`).
+ *   - ADM-04: `validateErrors.length > 0` (override is a chain
+ *     correction committed to git, not a gate ack).
  *
- * The ack channel for ADM-02 and ADM-03 is `--ack <gate>=<reason>` on
- * `rcf define readiness` / `rcf define freeze`, which the readiness
- * compose already folds into `state: 'acknowledged'` at the current
- * hash; `foldState` applies the ack only when the recorded hash
- * matches `currentTreeHash`, so a stale ack never masks a current
- * failure. ADM-04's override is a chain correction committed to git
- * (per the ruleset note), not a gate ack.
+ * For ADM-03 the readiness compose folds a current-hash
+ * `--ack <gate>=<reason>` into `state: 'acknowledged'` via
+ * `foldState`, and a stale ack never masks a current failure.
+ * D4 is not folded (decision 9 keeps `ackable` to D3/D5/D6 only), so
+ * an ADM-02 citation only clears when the author fixes the findings
+ * or records `freeze.override`.
  *
  * @param {object} args
  * @param {Array<{ stage: string, gate: string, state: string }>} [args.stages]
@@ -151,7 +161,7 @@ export async function runWithAdmissibilityGate({
       status: 'refused-admissibility',
       admissibility: verdict,
       defineRules: defineEval.bitingRules,
-      refusal: `traceability/query tool refused (NV-BL-SR-03 addendum): unresolved admissibility rules [${combinedRuleIds.join(', ')}]. Fix or record a NV-BL-ADM-05 override (or an --ack reason for NV-DL-ADM-02/03) before re-querying.`,
+      refusal: `traceability/query tool refused (NV-BL-SR-03 addendum): unresolved admissibility rules [${combinedRuleIds.join(', ')}]. Fix or record a NV-BL-ADM-05 override; for NV-DL-ADM-03 an --ack reason on freeze.gates clears the gate; for NV-DL-ADM-02 fix the D4 findings or record freeze.override via \`rcf build bundle --next --override "<reason>"\`; for NV-DL-ADM-04 correct the chain document.`,
     };
   }
   const payload = await Promise.resolve(produce());

@@ -59,6 +59,13 @@ test('runWithAdmissibilityGate (PR 9): a failing NV-BL verdict combines NV-BL ru
   if (result.status === 'refused-admissibility') {
     assert.ok(/NV-DL-ADM-02/.test(result.refusal));
     assert.ok(/NV-DL-ADM-04/.test(result.refusal));
+    // Ruling R12 (2026-10-03): the refusal names freeze.override as
+    // the ADM-02 channel (D4 is not ackable) and the chain-document
+    // correction as the ADM-04 channel. The --ack path is cited for
+    // ADM-03 only.
+    assert.ok(/freeze\.override/.test(result.refusal), 'ADM-02 override channel named');
+    assert.ok(/chain document/.test(result.refusal), 'ADM-04 override channel named');
+    assert.ok(!/--ack reason for NV-DL-ADM-02/.test(result.refusal), 'ADM-02 is not --ackable (R12)');
     assert.equal(producerRan, false, 'producer must not run on a refuse verdict');
     assert.deepEqual(result.defineRules, ['NV-DL-ADM-02', 'NV-DL-ADM-04']);
   } else {

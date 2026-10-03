@@ -66,7 +66,7 @@
       "title": "D4 stories floor failing items are findings (closed sets, ownerRef)",
       "refuseByDefault": true,
       "overrideChannel": "recordedInChain",
-      "notes": "0.30.0 PR 8 (REQ-179, spec section 4 NV-DL row). Surfaced through the admissibility wrap as a D4 finding; the override channel is the --ack reason recorded on freeze.gates for the owning stage."
+      "notes": "0.30.0 PR 8 (REQ-179, spec section 4 NV-DL row). Surfaced through the admissibility wrap as a D4 finding. D4 is not ackable (decision 9 keeps `ackable` to D3/D5/D6); the only recordedInChain override channel is `freeze.override` written by `rcf build bundle --next --override \"<reason>\"`. The normal path is to fix the failing D4 findings. Ruling R12 (2026-10-03) corrects an earlier description that named --ack as the ADM-02 override."
     },
     {
       "id": "NV-DL-ADM-03",
