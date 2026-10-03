@@ -33,21 +33,28 @@
       "acId": "AC-17702-3",
       "description": "On a non-empty delta impacting FBS-018, bundle --next skips FBS-018 with the reason on stderr and hands out the next unimpacted actionable FBS.",
       "status": "pending",
-      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-3): skips impacted FBS and hands out the next unimpacted"
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 9, AC-17702-3): skips the impacted FBS and hands out the next unimpacted FBS (exit 0)"
     },
     {
       "id": "TC-233-bundle-all-impacted-refuses",
       "acId": "AC-17702-4",
       "description": "When every actionable FBS is impacted by the delta and no --override is given, bundle --next refuses with exit 4 and the same message pointing at --override.",
       "status": "pending",
-      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-4): refuses when every actionable FBS is impacted and no override"
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 9, AC-17702-4): refuses with exit 4 when every actionable FBS is impacted and no override"
     },
     {
       "id": "TC-233-bundle-empty-delta-unchanged",
       "acId": "AC-17702-5",
       "description": "On a frozen tree with an empty delta the bundle --next output and exit code are byte-for-byte unchanged from 0.29.0 (compared against a captured fixture).",
       "status": "pending",
-      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 8, AC-17702-5): empty delta on a frozen tree is unchanged"
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the 0.29.0 golden bundle byte-for-byte"
+    },
+    {
+      "id": "TC-233-override-by-order",
+      "acId": "AC-17702-6",
+      "description": "freeze.override.by resolves via the git config -> GITHUB_ACTOR -> USER -> USERNAME -> operator preference order.",
+      "status": "passing",
+      "testPointer": "test/cli/build-bundle-next-freeze-gate.test.js::bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git config user.email first, then GITHUB_ACTOR, then USER/USERNAME, then operator"
     }
   ],
   "status": "draft"

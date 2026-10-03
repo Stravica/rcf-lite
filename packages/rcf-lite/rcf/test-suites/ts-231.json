@@ -84,6 +84,20 @@
       "description": "The engineer checks stories:closedSets, stories:ownerRefResolves, crosscut:catalogue and skeleton:standardsCited surface no product-owner failures on the loop fixture from PR 2.",
       "status": "pending",
       "testPointer": "test/query/questions-loop.test.js::PR 6 engineer checks surface no product-owner failures on the scripted fixture"
+    },
+    {
+      "id": "TC-231-ownerref-r11-widened",
+      "acId": "AC-17405-7",
+      "description": "R11 widens stories:ownerRefResolves beyond interfaces[<name>] to responsibilities[<n>] and bare schema fields (purpose, decision).",
+      "status": "passing",
+      "testPointer": "test/query/gates.test.js::gates (PR 9, AC-17405-2 R11): ownerRefResolves accepts bracket-grammar paths beyond interfaces (responsibilities[<n>], purpose, decision)"
+    },
+    {
+      "id": "TC-231-ownerref-dotted-refused",
+      "acId": "AC-17405-8",
+      "description": "R11 refuses dotted grammar; rcf define validate reports the finding naming the dotted field.",
+      "status": "passing",
+      "testPointer": "test/define/validate-findings.test.js::validate findings (PR 9, R11): ownerRef uses the widened grammar; deliveredBy object form is checked"
     }
   ],
   "status": "draft"

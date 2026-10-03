@@ -2,7 +2,7 @@
   "usId": "US-17902",
   "prdId": "PRD-001",
   "reqId": "REQ-179",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "status": "draft",
   "title": "NV-DL enforced",
   "description": "User story under REQ-179 for DEFINE step 3 PR 8 (spec section 4 NV-DL row, section 11.7 US-17902). The rcf-lite ruleset carries NV-DL-ADM-01..05 with `refuseByDefault: true` and `overrideChannel: recordedInChain`. ADM-01 is the bundle refusal on an unfrozen tree; ADM-05 is the bundle skip of impacted FBS; ADM-02..04 are D4 and D3 findings surfaced through the admissibility wrap. `freeze.override` (bundle --override) and an `--ack` reason (readiness / freeze) satisfy `recordedInChain`. readiness compute still runs and prints under refusal; 0.29.0 informational posture on the compute is unchanged (ADR-4123).",
@@ -29,6 +29,11 @@
       "id": "AC-17902-4",
       "description": "[must-not] given readiness, when the gate refuses, then the compute still runs and prints (0.29.0 informational posture unchanged).",
       "testable": true
+    },
+    {
+      "id": "AC-17902-5",
+      "description": "[happy] (PR 9, REQ-179 enforcement locus) given a readiness result with D4 state `failing` and a non-empty validateErrors array, when `runWithAdmissibilityGate` composes its envelope, then NV-DL-ADM-02 and NV-DL-ADM-04 appear in `defineRules` and in the refusal line alongside the NV-BL rules; a stage acknowledged at the current tree hash (freeze.gates with hash match) is not cited.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -37,5 +42,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-03T18:30:00Z",
-  "updatedAt": "2026-10-03T18:30:00Z"
+  "updatedAt": "2026-10-03T20:30:00Z"
 }
