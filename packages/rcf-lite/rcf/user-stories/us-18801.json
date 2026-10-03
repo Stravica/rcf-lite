@@ -1,0 +1,45 @@
+{
+  "usId": "US-18801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-188",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the draft homes",
+  "description": "User story under REQ-188. Every pre-populated shape across the three draft homes (`TAC.purpose`, `coreEntities[].description`, `TAC.interfaces[].description`) carries the `[draft]` marker; `shapes:draftSettled` reports all three id forms so nothing drafted reads as settled.",
+  "asA": "engineer picking up an intent-complete tree",
+  "iWant": "every pre-populated shape marked",
+  "soThat": "nothing drafted reads as settled",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18801-1",
+      "description": "[happy] given a coreEntities entry whose description starts with [draft], when D3 runs, then shapes:draftSettled fails TAD.entity:<name>.",
+      "testable": true
+    },
+    {
+      "id": "AC-18801-2",
+      "description": "[happy] given a TAC whose purpose starts with [draft], when D3 runs, then shapes:draftSettled fails <tacId> and shapes:tacHasInterface treats the TAC as present.",
+      "testable": true
+    },
+    {
+      "id": "AC-18801-3",
+      "description": "[happy] given the three marker homes cleared, when D3 runs, then shapes:draftSettled passes.",
+      "testable": true
+    },
+    {
+      "id": "AC-18801-4",
+      "description": "[failure] given a [draft] recordShape without fields:, when D3 runs, then shapes:templateMarkers fails it exactly as a settled one.",
+      "testable": true
+    },
+    {
+      "id": "AC-18801-5",
+      "description": "[must-not] given any [draft] content, when readiness runs, then no productOwner check reads it.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

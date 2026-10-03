@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "reqId": "REQ-188",
+  "prdId": "PRD-001",
+  "title": "draft shapes for the engineer",
+  "description": "After intent-complete the agent pre-populates `[draft]` entities, components and interfaces as engineer entry material; `shapes:draftSettled` lists every draft home.",
+  "category": "functional",
+  "domain": "define",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-03T00:00:00Z",
+    "signals": []
+  },
+  "rationale": "Spec 2026-10-01 (DEFINE step 3) section 3 and decision 8: once L1 is green, the agent populates one `[draft]` core entity per `entity` statement, one `[draft]` TAC stub per surface or external-system cluster, and `[draft]` interfaces with real kinds inside each stub, so the engineer walks into a tree whose shape is honest about what is still owed. `shapes:draftSettled` already fails `[draft]` on `TAC.interfaces[].description` in 0.29.0 (the current main; the 0.29.0 tag has not been cut). This REQ extends the marker to `TAC.purpose` and `coreEntities[].description` and extends the check to list all three id forms (`<tacId>:<name>`, `<tacId>`, `TAD.entity:<name>`). `tacHasInterface`, `kindVocabulary`, the new template-marker check and the entity join apply to drafts unchanged; nothing in the draft pass can fail a product-owner check, which is the property that keeps L1 and the draft pass independent.",
+  "tags": [
+    "capability:define-drafts"
+  ]
+}

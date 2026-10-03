@@ -49,6 +49,7 @@ both.
 | `define-ledgers` | The four `rcf/define/` sidecar ledgers (brief, decisions, concern, probe) and the `rcf define ledger` verb that keeps them numbered per project life. |
 | `define-intake` | Document intake into the brief ledger: `brief add --from` parses `[kind]` and `(source: ...)` markers, mints statements, runs the mechanical scans against existing statements and appends one `openQuestion` per finding. |
 | `define-intent` | Guided product-owner elicitation: `rcf define questions` turns every failing product-owner check into one plain question with its write-back, so a harness can conduct the intent-complete loop without an engineer. |
+| `define-drafts` | Draft shapes for the engineer: after L1 is green the agent pre-populates `[draft]` core entities, TAC stubs and interfaces as engineer entry material; `shapes:draftSettled` reports all three homes (`TAC.purpose`, `coreEntities[].description`, `TAC.interfaces[].description`) so nothing drafted reads as settled. |
 
 ## Adding a new capability
 
