@@ -759,7 +759,7 @@ const DEFINITIONS = [
   {
     name: 'rcf_define_questions',
     title: 'Persona question set for the intent-complete loop',
-    description: 'Returns one plain question per failing product-owner (or engineer) check with its exact write-back command. The compute is pure: no file under rcf/ is created or modified. Answers land through the write-back the question carries, then readiness recomputes; the loop ends when levels.intentComplete.ok is true. Method: a product-owner session starts with rcf_define_questions {persona: "productOwner"} and ends at the empty question set.',
+    description: 'Returns the product-owner question set: one plain question per failing product-owner check with the exact write-back command that answers it. The compute is pure: no file under rcf/ is created or modified. Answers land through the write-back the question carries, then readiness recomputes; the loop ends when levels.intentComplete.ok is true. Method: a product-owner session starts with rcf_define_questions {persona: "productOwner"} and ends at the empty question set. {persona: "engineer"} returns the same shape over engineer blockers, but per-check question templates and write-backs for the engineer register are not part of DEFINE step 3 PR 2 (spec section 1.1 defers them to step 4); engineer-persona entries today carry empty answerKinds and writeBack and the harness runs the engineer verb by hand off the raw blocker.',
     inputSchema: {
       type: 'object',
       properties: {
