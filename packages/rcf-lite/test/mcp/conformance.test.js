@@ -53,14 +53,22 @@ test('conformance: SDK client completes the 2025-11-25 handshake and sees all th
   }
 });
 
-test('conformance: SDK listTools sees eleven tools; every schema passes the SDK schema layer', async () => {
+test('conformance: SDK listTools sees fourteen tools; every schema passes the SDK schema layer', async () => {
   const { client } = await connectClient();
   try {
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 11);
+    // REQ-186 (DEFINE step 3 PR 2) added three tools:
+    // rcf_define_questions, rcf_define_readiness and
+    // rcf_define_ledger (spec 2026-10-01 §6). The previous eleven
+    // (validate / coverage / trace / impact / read / create / update
+    // / delete / link / unlink / build) are untouched.
+    assert.equal(tools.length, 14);
     const build = tools.find((t) => t.name === 'rcf_build');
     assert.equal('strict' in build.inputSchema.properties, false);
     assert.deepEqual(Object.keys(build.inputSchema.properties), ['fbsId']);
+    for (const name of ['rcf_define_questions', 'rcf_define_readiness', 'rcf_define_ledger']) {
+      assert.ok(tools.find((t) => t.name === name), `expected ${name} in the tool list`);
+    }
   } finally {
     await client.close();
   }
@@ -135,14 +143,21 @@ test('conformance: SDK resources - list, tree read, one methodology doc byte-fai
   }
 });
 
-test('conformance: SDK prompts - list and both playbooks byte-faithful', async () => {
+test('conformance: SDK prompts - list and every playbook byte-faithful', async () => {
   const { client } = await connectClient();
   try {
     const { prompts } = await client.listPrompts();
-    assert.deepEqual(prompts.map((p) => p.name).sort(), ['rcf_elicit_requirements', 'rcf_execute_build_cycle']);
+    // REQ-186 (DEFINE step 3 PR 2) added two argument-free prompts:
+    // rcf_define_intent and rcf_define_intake (spec 2026-10-01 §6).
+    assert.deepEqual(
+      prompts.map((p) => p.name).sort(),
+      ['rcf_define_intake', 'rcf_define_intent', 'rcf_elicit_requirements', 'rcf_execute_build_cycle'],
+    );
     for (const [name, file] of [
       ['rcf_execute_build_cycle', 'build-cycle-playbook.md'],
       ['rcf_elicit_requirements', 'elicitation-playbook.md'],
+      ['rcf_define_intent', 'define-intent.md'],
+      ['rcf_define_intake', 'define-intake.md'],
     ]) {
       const prompt = await client.getPrompt({ name });
       const expected = await readFile(resolve(repoRoot, 'guidance', file), 'utf8');

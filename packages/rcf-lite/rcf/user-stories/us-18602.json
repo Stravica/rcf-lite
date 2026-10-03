@@ -1,0 +1,50 @@
+{
+  "usId": "US-18602",
+  "prdId": "PRD-001",
+  "reqId": "REQ-186",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the verb and the tools",
+  "description": "User story under REQ-186. `rcf define questions` and `rcf_define_questions` return the same object, so the CLI loop and the MCP loop cannot disagree.",
+  "asA": "operator or harness",
+  "iWant": "the verb and the MCP tool to return the same object",
+  "soThat": "the two loops cannot disagree",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18602-1",
+      "description": "[happy] given a failing tree, when rcf define questions --json runs, then stdout is the computeQuestions object and the exit code is 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-18602-2",
+      "description": "[happy] given no --persona, when the verb runs on a profile whose register is engineer, then persona is engineer; with no profile it is productOwner.",
+      "testable": true
+    },
+    {
+      "id": "AC-18602-3",
+      "description": "[happy] given --stage skeleton and --limit 2, when the verb runs, then questions[] holds at most two D2 entries and remaining counts every D2 item.",
+      "testable": true
+    },
+    {
+      "id": "AC-18602-4",
+      "description": "[happy] given the MCP tool rcf_define_questions with the same arguments, when it is called, then structuredContent deep-equals the verb's --json output.",
+      "testable": true
+    },
+    {
+      "id": "AC-18602-5",
+      "description": "[failure] given --persona architect, when the verb runs, then it exits 2 with the usage line naming productOwner and engineer.",
+      "testable": true
+    },
+    {
+      "id": "AC-18602-6",
+      "description": "[must-not] given any invocation of rcf define questions, when it completes, then no file under rcf/ has been created or modified.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4129-define-questions"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}

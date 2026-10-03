@@ -14,9 +14,9 @@
     {
       "id": "TC-016-tools-list-structured-schemas",
       "acId": "AC-601-1",
-      "description": "an MCP client listing tools sees all eleven rcf tools with input and output schemas",
+      "description": "an MCP client listing tools sees all fourteen rcf tools with input and output schemas",
       "status": "pending",
-      "testPointer": "test/mcp/stdio.e2e.test.js::e2e: tools/list returns all eleven tools with schemas"
+      "testPointer": "test/mcp/stdio.e2e.test.js::e2e: tools/list returns all fourteen tools with schemas"
     },
     {
       "id": "TC-016-mcp-coverage-cli-parity",

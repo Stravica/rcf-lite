@@ -406,6 +406,27 @@ queue orchestration, PR authoring and bug triage. The
 for elicitation, AC coverage depth and conversation integrity. Run `rcf
 guidance` with no arguments to list every method document the installed
 package ships.
+
+### Product-owner intent sessions
+
+A product-owner session starts with `rcf define questions --persona
+productOwner` (or the `rcf_define_questions` MCP tool) and ends at
+`Intent-complete: yes`. Every answer lands through the write-back the
+question carries, then readiness recomputes; nothing about the owner's
+intent lives only in a chat. The full loop content is in `rcf guidance
+define-intent` and the `rcf_define_intent` prompt. Never improvise a
+PO loop; the questions and their write-backs are the method.
+
+### Prototype rule
+
+A prototype is engineer entry material, not a product-owner blocker.
+When the tree reaches `levels.intentComplete.ok`, the agent may
+pre-populate `[draft]` entities, TAC stubs and interfaces so the
+engineer has a starting point; those drafts never re-open the PO
+loop and never block a freeze. If the owner asks for a visible
+prototype before intent-complete, say so (the method is finished the
+intent first) and offer to continue the intent loop; never produce a
+prototype that bypasses the readiness verdict.
 ```
 
 ## Customisation points

@@ -1198,7 +1198,7 @@
       "fbsId": "FBS-202",
       "buildOrder": 202,
       "tier": 7,
-      "title": "DEFINE step 3 PR 1: document intake, statement-file markers, ledger update, resolvedBy grammar (REQ-187, REQ-173 amendment)",
+      "title": "DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2)",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [
         "FBS-195",

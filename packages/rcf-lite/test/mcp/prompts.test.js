@@ -11,10 +11,13 @@ import { createPromptRegistry } from '../../src/mcp/prompts.js';
 import { GUIDANCE_DIR, readGuidanceManifest } from '../../src/mcp/resources.js';
 import { INVALID_PARAMS } from '#core/mcp-shell';
 
-test('prompts/list: exactly the two D16-A prompts, argument-free', async () => {
+test('prompts/list: every manifest-registered prompt, argument-free', async () => {
   const registry = createPromptRegistry();
   const { prompts } = await registry.list();
-  assert.deepEqual(prompts.map((p) => p.name), ['rcf_execute_build_cycle', 'rcf_elicit_requirements']);
+  assert.deepEqual(
+    prompts.map((p) => p.name),
+    ['rcf_execute_build_cycle', 'rcf_elicit_requirements', 'rcf_define_intent', 'rcf_define_intake'],
+  );
   for (const p of prompts) {
     assert.equal(typeof p.description, 'string');
     assert.equal('arguments' in p, false, 'argument-free static prompts');

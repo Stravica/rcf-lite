@@ -42,8 +42,21 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
     'managed/agent-instructions-block',
     // Track C+D §10 shipped the persona-programme guidance file.
     'persona-programme',
+    // REQ-186 (DEFINE step 3 PR 2) shipped the define-intent and
+    // define-intake guidance files (spec 2026-10-01 §6).
+    'define-intent',
+    'define-intake',
   ]);
-  assert.deepEqual(m.prompts.map((p) => p.name), ['rcf_execute_build_cycle', 'rcf_elicit_requirements']);
+  assert.deepEqual(
+    m.prompts.map((p) => p.name),
+    [
+      'rcf_execute_build_cycle',
+      'rcf_elicit_requirements',
+      // REQ-186 (DEFINE step 3 PR 2): two new argument-free prompts.
+      'rcf_define_intent',
+      'rcf_define_intake',
+    ],
+  );
 });
 
 test('every file the manifest maps exists in guidance/', async () => {

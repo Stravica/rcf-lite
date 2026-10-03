@@ -1,0 +1,55 @@
+{
+  "usId": "US-18601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-186",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the question set",
+  "description": "User story under REQ-186. computeQuestions turns every failing product-owner item into one plain question with its write-back, so the harness can ask without reading gate internals.",
+  "asA": "harness serving a product owner",
+  "iWant": "computeQuestions to turn every failing product-owner item into one plain question with its write-back",
+  "soThat": "I can ask without reading gate internals",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18601-1",
+      "description": "[happy] given a tree where brief:openQuestions, skeleton:resolvedBy and stories:reqHasUs each fail at least one item, when computeQuestions runs with persona productOwner, then questions[] holds exactly one entry per failing item with id, stage, check, itemId, heading, ask, answerKinds, writeBack and blocks intent.",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-2",
+      "description": "[happy] given the same tree, when computeQuestions runs twice, then the two questions[] arrays are deep-equal and ordered D1, D2, D4, D7 then by source span.",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-3",
+      "description": "[happy] given an open decision with two options and a default, when computeQuestions runs, then it appears in optional[] with blocks build and not in questions[].",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-4",
+      "description": "[happy] given a tree where levels.intentComplete.ok is true, when computeQuestions runs with persona productOwner, then questions[] is empty and ok is true.",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-5",
+      "description": "[happy] given persona engineer, when computeQuestions runs, then questions[] holds one entry per failing engineer item in failing stages and blocks is build.",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-6",
+      "description": "[failure] given a persona value outside productOwner and engineer, when computeQuestions runs, then it throws a usage error naming the accepted values.",
+      "testable": true
+    },
+    {
+      "id": "AC-18601-7",
+      "description": "[must-not] given any tree, when computeQuestions runs, then no file under rcf/ is created or modified and no question carries a writeBack command whose verb is not registered in the CLI help.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4129-define-questions"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-02T18:00:00Z"
+}

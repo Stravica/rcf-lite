@@ -118,12 +118,14 @@ test('e2e: full handshake - initialize fields, version constant, ping, EOF exit 
   assert.match(server.stderr(), /rcf mcp: serving/);
 });
 
-test('e2e: tools/list returns all eleven tools with schemas', async () => {
+test('e2e: tools/list returns all fourteen tools with schemas', async () => {
   const tmp = await scaffold();
   const server = spawnServer(tmp);
   await server.initialize();
   const { result } = await server.request('tools/list', {});
-  assert.equal(result.tools.length, 11);
+  // REQ-186 (DEFINE step 3 PR 2) added rcf_define_questions,
+  // rcf_define_readiness and rcf_define_ledger (spec 2026-10-01 §6).
+  assert.equal(result.tools.length, 14);
   for (const tool of result.tools) {
     assert.match(tool.name, /^rcf_/);
     assert.equal(typeof tool.inputSchema, 'object');
@@ -177,7 +179,8 @@ test('e2e: resources and prompts served over real pipes', async () => {
   const tree = await server.request('resources/read', { uri: 'rcf://tree' });
   assert.equal(JSON.parse(tree.result.contents[0].text).project, 'McpE2eTest');
   const prompts = await server.request('prompts/list', {});
-  assert.equal(prompts.result.prompts.length, 2);
+  // REQ-186 added two more argument-free prompts (spec 2026-10-01 §6).
+  assert.equal(prompts.result.prompts.length, 4);
   const playbook = await server.request('prompts/get', { name: 'rcf_execute_build_cycle' });
   assert.equal(playbook.result.messages[0].role, 'user');
   assert.ok(playbook.result.messages[0].content.text.length > 100);
