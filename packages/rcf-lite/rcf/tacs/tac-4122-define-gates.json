@@ -63,14 +63,12 @@
     {
       "name": "parseInterfaceTemplate",
       "kind": "other",
-      "authoredAt": "D3",
-      "description": "[draft] moduleApi: parseInterfaceTemplate(iface) returns the per-kind marker presence for an interface: for a recordShape it reports whether `fields:` is present; for an httpRoute it reports whether each of method, path, request, response and errors is present; for fixture it reports `instances:`; for event, cliCommand, uiRoute, port, fileFormat and other it reports the per-kind markers from spec section 4 row 'D3 template parser'. Exported from src/query/gates.js for shapes:templateMarkers and for the validate step 6 notice (0.30.0 PR 5)."
+      "description": "[draft] moduleApi (authoredAt: D3): parseInterfaceTemplate(iface) returns the per-kind marker presence for an interface: for a recordShape it reports whether `fields:` is present; for an httpRoute it reports whether each of method, path, request, response and errors is present; for fixture it reports `instances:`; for event, cliCommand, uiRoute, port, fileFormat and other it reports the per-kind markers from spec section 4 row 'D3 template parser'. Exported from src/query/gates.js for shapes:templateMarkers and for the validate step 6 notice (0.30.0 PR 5)."
     },
     {
       "name": "ackable",
       "kind": "other",
-      "authoredAt": "D3",
-      "description": "[draft] moduleApi: ackable(stage) returns true for D3, D5 and D6 and false for every other stage. The CLI readiness and freeze verbs read it to gate --ack as the recorded override for just those three gates (ADR-4131)."
+      "description": "[draft] moduleApi (authoredAt: D3): ackable(stage) returns true for D3, D5 and D6 and false for every other stage. The CLI readiness and freeze verbs read it to gate --ack as the recorded override for just those three gates (ADR-4131)."
     }
   ],
   "notes": "Slice-3 hook (rcf define freeze): reads state to refuse on any 'failing'; --ack <gate> --reason <text> writes freeze.gates[<gate>] = { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text>, by: <id> } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end."

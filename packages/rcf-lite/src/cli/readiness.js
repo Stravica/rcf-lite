@@ -16,7 +16,7 @@
 // every other query verb has.
 
 import { parseArgs } from 'node:util';
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { resolveTestPointers, walkTree } from '#core/store';
@@ -29,6 +29,7 @@ import {
   STAGE_GATES,
   STAGE_ORDER,
   STAGE_SHORT_NAMES,
+  extractInterfacePathTokens,
   stagePolicy,
 } from '../query/gates.js';
 import {
@@ -73,11 +74,15 @@ Options:
                             brief | skeleton | shapes | stories |
                             crosscut | consistency | decisions |
                             freeze. Exits 4 on a blocking-stage
-                            failure (D1 / D2 / D4 / D7 / D8); exits 0
-                            with a visible '[warn]' line on an
+                            failure (D1 / D2 / D4 / D7 / D8) and on
+                            an unacknowledged D3 bite failure
+                            (ADR-4131, 0.30.0 PR 5); exits 0 when D3
+                            is acknowledged at the current tree hash;
+                            exits 0 with a visible '[warn]' line on an
                             unacknowledged warn-with-ack failure
-                            (D3 / D5 / D6). Use --check all to print
-                            every stage under this exit-code policy.
+                            (D5 / D6 until PRs 6 and 7 bite them). Use
+                            --check all to print every stage under
+                            this exit-code policy.
   --level <intent|build>    Pick which verdict the exit code follows.
                             --level intent exits 4 when
                             levels.intentComplete.ok is false
@@ -107,6 +112,42 @@ const STATE_LABEL = {
   acknowledged: 'acknowledged',
   notApplicable: 'notApplicable',
 };
+
+/**
+ * ADR-4131 (0.30.0 PR 5): walk the tree's TAC interfaces, extract the
+ * `path:` tokens the engineer named, resolve each one against
+ * `projectRoot` on disk, and return the set of tokens that resolve.
+ * `shapes:pathsResolve` reads the set from the stage context and
+ * decides the D3 bite without I/O. The compute is pure; this helper is
+ * the one place I/O happens for the check.
+ *
+ * @param {string} projectRoot
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @returns {Promise<Set<string>>}
+ */
+async function resolveInterfacePaths(projectRoot, tree) {
+  const resolved = new Set();
+  /** @type {Set<string>} */
+  const candidates = new Set();
+  for (const tac of tree.tacs ?? []) {
+    for (const iface of tac.interfaces ?? []) {
+      const desc = typeof iface?.description === 'string' ? iface.description : '';
+      for (const token of extractInterfacePathTokens(desc)) {
+        candidates.add(token);
+      }
+    }
+  }
+  await Promise.all([...candidates].map(async (token) => {
+    try {
+      await stat(join(projectRoot, token));
+      resolved.add(token);
+    } catch {
+      // Missing path stays out of the set; the gate decides whether
+      // `authoredAt: D3` lets it through.
+    }
+  }));
+  return resolved;
+}
 
 /**
  * Read `rcf/.identity/profile.md` when it exists; return null on
@@ -219,11 +260,12 @@ export async function main(argv, deps = {}) {
   const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
   const validateErrors = [...errors, ...staleErrors];
 
-  const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+  const [freeze, ledgers, testPointers, profileText, resolvedPaths] = await Promise.all([
     loadFreezeRecord({ projectRoot }),
     loadAllLedgers({ projectRoot }),
     resolveTestPointers({ projectRoot, tree }),
     readProfileText(projectRoot),
+    resolveInterfacePaths(projectRoot, tree),
   ]);
 
   const startedAt = Date.now();
@@ -246,13 +288,14 @@ export async function main(argv, deps = {}) {
       profileText,
       testPointers,
       validateErrors,
+      resolvedPaths,
     }),
   });
 
   /** @type {import('../query/readiness.js').ReadinessResult} */
   const result = gated.status === 'refused-admissibility'
     ? computeReadiness(tree, {
-      freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+      freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors, resolvedPaths,
     })
     : gated.payload;
   const wallMs = Date.now() - startedAt;
@@ -446,7 +489,13 @@ function formatChipLine(result) {
 function decideExitCode(result, checkStage, level, stderr) {
   let exitCode = 0;
 
-  // --check policy (unchanged from PR A).
+  // --check policy. ADR-4131 (0.30.0 PR 5): D3 bites, so a failing D3
+  // without an acknowledgement at the current tree hash exits 4. D5
+  // and D6 keep the 0.29.0 warn-with-ack posture until PRs 6 and 7
+  // bite them. The 'acknowledged' state is already folded by
+  // foldState() in gates.js when the freeze record acknowledges the
+  // gate at the current hash, so a failing-but-unacked bite stays
+  // failing here and exit 4 is the right answer.
   if (checkStage) {
     const stages = checkStage === 'all'
       ? result.stages
@@ -454,7 +503,8 @@ function decideExitCode(result, checkStage, level, stderr) {
     for (const s of stages) {
       if (s.state !== 'failing') continue;
       const policy = stagePolicy(s.stage);
-      if (policy === 'blocking') {
+      const bites = s.stage === 'D3';
+      if (policy === 'blocking' || bites) {
         exitCode = 4;
       } else {
         stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);

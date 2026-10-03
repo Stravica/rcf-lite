@@ -42,9 +42,9 @@
     {
       "id": "TC-228-draft-template-markers",
       "acId": "AC-18801-4",
-      "description": "A [draft] recordShape without fields: fails shapes:templateMarkers exactly as a settled one. (shapes:templateMarkers lands in PR 5; this TC is pending PR 5.)",
+      "description": "A [draft] recordShape without fields: fails shapes:templateMarkers exactly as a settled one (lifted from pending by DEFINE step 3 PR 5 under ADR-4131).",
       "status": "pending",
-      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-4 pending PR 5): draft recordShape without fields fails templateMarkers"
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-4): draft recordShape without fields fails templateMarkers (lifted by PR 5 ADR-4131)"
     },
     {
       "id": "TC-228-draft-no-po-read",

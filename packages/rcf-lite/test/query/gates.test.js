@@ -594,12 +594,13 @@ import {
   hasDraftMarker,
 } from '../../src/query/gates.js';
 
-/** The 24 ADR-4126 check names (0.29.0). */
+/** The 27 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites). */
 const EXPECTED_CHECK_NAMES = [
   'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
   'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
   'skeleton:tadPersistence', 'skeleton:deployAdr',
   'shapes:tacHasInterface', 'shapes:kindVocabulary', 'shapes:draftSettled',
+  'shapes:templateMarkers', 'shapes:entityJoin', 'shapes:pathsResolve',
   'stories:reqHasUs', 'stories:usFloors',
   'crosscut:securityArchitecture', 'crosscut:operationalConcerns', 'crosscut:concernsResolved',
   'consistency:validateClean', 'consistency:probeCount',
@@ -1028,15 +1029,13 @@ test('gates (REQ-188, AC-18801-3): three draft homes cleared, draftSettled passe
   assert.equal(draft.failing.length, 0);
 });
 
-test('gates (REQ-188, AC-18801-4 pending PR 5): draft recordShape without fields fails templateMarkers', () => {
-  // shapes:templateMarkers lands in PR 5. In 0.30.0 this PR, the test
-  // documents the posture (the AC is intentionally pending): a draft
-  // recordShape without the `fields:` template marker is to fail the
-  // same shapes:templateMarkers check as a settled one. The current
-  // D3 compute does not yet emit shapes:templateMarkers, so we assert
-  // that absence explicitly here so a reader of this file sees the
-  // seam. When PR 5 adds the check, this test is lifted and asserts
-  // the failing entry; the TC stays mapped to AC-18801-4.
+test('gates (REQ-188, AC-18801-4): draft recordShape without fields fails templateMarkers (lifted by PR 5 ADR-4131)', () => {
+  // shapes:templateMarkers lands in DEFINE step 3 PR 5. A [draft]
+  // recordShape without the `fields:` marker fails the same check as
+  // a settled one; the draft prefix is stripped before the marker
+  // scan so a drafted shape never passes just because the prefix
+  // marker exists. The TC stays mapped to AC-18801-4 and completes
+  // on this PR per spec section 9 "Drafts" row.
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const tac = {
     tacId: 'TAC-R',
@@ -1048,7 +1047,8 @@ test('gates (REQ-188, AC-18801-4 pending PR 5): draft recordShape without fields
     validateErrors: [], currentTreeHash: 'sha256:aaa',
   });
   const templateMarkers = stage.checks.find((c) => c.name === 'shapes:templateMarkers');
-  assert.equal(templateMarkers, undefined, 'shapes:templateMarkers lands in PR 5; this PR documents the seam');
+  assert.ok(templateMarkers, 'shapes:templateMarkers must be emitted by D3 (ADR-4131)');
+  assert.ok(templateMarkers.failing.some((f) => f.id === 'TAC-R:noteRecord' && /missing marker fields/.test(f.why)));
   // The draft marker itself is still reported.
   const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
   assert.ok(draft.failing.some((f) => f.id === 'TAC-R:noteRecord'));
@@ -1082,4 +1082,197 @@ test('gates (REQ-188, AC-18801-5): draft-only tree keeps every productOwner chec
       `draft-only tree should not fail a productOwner check; ${check.name} failed`,
     );
   }
+});
+
+// ---------------------------------------------------------------------------
+// ADR-4131 (US-17404, AC-17404-1..5): the three D3 bite checks and ackable.
+// ---------------------------------------------------------------------------
+
+import {
+  ackable,
+  parseInterfaceTemplate,
+  extractInterfacePathTokens,
+} from '../../src/query/gates.js';
+
+test('gates (ADR-4131): parseInterfaceTemplate reports per-kind missing markers; drafts included', () => {
+  // Happy: a recordShape with `fields:` has no missing markers.
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'recordShape', description: 'fields:\n  id: string' }), { kind: 'recordShape', missing: [] });
+  // A draft prefix is stripped before the scan: a [draft] recordShape with `fields:` passes.
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'recordShape', description: '[draft] fields:\n  id: string' }), { kind: 'recordShape', missing: [] });
+  // Failure: a [draft] recordShape with no `fields:` fails exactly as a settled one.
+  const draftMiss = parseInterfaceTemplate({ kind: 'recordShape', description: '[draft] a note record' });
+  assert.deepEqual(draftMiss, { kind: 'recordShape', missing: ['fields'] });
+  // httpRoute requires all five markers.
+  const good = parseInterfaceTemplate({ kind: 'httpRoute', description: 'method: POST\npath: /loans\nrequest: ...\nresponse: ...\nerrors: ...' });
+  assert.deepEqual(good, { kind: 'httpRoute', missing: [] });
+  const missErrors = parseInterfaceTemplate({ kind: 'httpRoute', description: 'method: POST\npath: /loans\nrequest: ...\nresponse: ...' });
+  assert.deepEqual(missErrors, { kind: 'httpRoute', missing: ['errors'] });
+  // Other needs a non-empty note.
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'other', description: '' }), { kind: 'other', missing: ['note'] });
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'other', description: '[draft]' }), { kind: 'other', missing: ['note'] });
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'other', description: 'A thing' }), { kind: 'other', missing: [] });
+  // A kind outside the vocabulary leaves missing empty (kindVocabulary owns that).
+  assert.deepEqual(parseInterfaceTemplate({ kind: 'bogus', description: 'anything' }), { kind: 'bogus', missing: [] });
+});
+
+test('gates (ADR-4131, AC-17404-1): recordShape+fields and httpRoute+5 markers each pass shapes:templateMarkers', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-HAPPY',
+    interfaces: [
+      { name: 'Loan', kind: 'recordShape', description: 'fields:\n  id: string\n  amount: number' },
+      { name: 'ship', kind: 'httpRoute', description: 'method: POST\npath: /loans\nrequest: {}\nresponse: {}\nerrors: [422]' },
+    ],
+  };
+  const tree = makeTree({ tacs: [tac] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-HAPPY']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const templateMarkers = stage.checks.find((c) => c.name === 'shapes:templateMarkers');
+  assert.ok(templateMarkers.ok, `expected pass, failing=${JSON.stringify(templateMarkers.failing)}`);
+  assert.equal(templateMarkers.failing.length, 0);
+  assert.equal(templateMarkers.total, 2);
+});
+
+test('gates (ADR-4131, AC-17404-2): httpRoute missing errors fails templateMarkers with <tacId>:<name> and "missing marker errors"', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-H',
+    interfaces: [
+      { name: 'noErrors', kind: 'httpRoute', description: 'method: POST\npath: /x\nrequest: {}\nresponse: {}' },
+    ],
+  };
+  const tree = makeTree({ tacs: [tac] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-H']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const templateMarkers = stage.checks.find((c) => c.name === 'shapes:templateMarkers');
+  assert.ok(!templateMarkers.ok);
+  const miss = templateMarkers.failing.find((f) => f.id === 'TAC-H:noErrors');
+  assert.ok(miss, `expected failing TAC-H:noErrors, got ${JSON.stringify(templateMarkers.failing)}`);
+  assert.equal(miss.why, 'missing marker errors');
+});
+
+test('gates (ADR-4131, AC-17404-3): entityJoin passes 1:1 and fails TAD.entity:<name> with "2 record shapes" when twice', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // Happy: one recordShape named Loan matching coreEntity Loan.
+  const tacHappy = {
+    tacId: 'TAC-J',
+    interfaces: [
+      { name: 'Loan', kind: 'recordShape', description: 'fields:\n  id: string' },
+    ],
+  };
+  const treeHappy = makeTree({
+    tacs: [tacHappy],
+    tad: { dataArchitecture: { coreEntities: [{ name: 'Loan' }] } },
+  });
+  const stageHappy = checkD3Shapes({
+    tree: treeHappy, ledgers: emptyLedgers, scope: new Set(['TAC-J']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const joinHappy = stageHappy.checks.find((c) => c.name === 'shapes:entityJoin');
+  assert.ok(joinHappy.ok, `expected pass, failing=${JSON.stringify(joinHappy.failing)}`);
+  // Twice: two recordShapes name Loan -> fails "2 record shapes".
+  const tacTwice = {
+    tacId: 'TAC-K',
+    interfaces: [
+      { name: 'Loan', kind: 'recordShape', description: 'fields:\n  id: string' },
+      { name: 'LoanV2', kind: 'recordShape', description: 'entity: Loan\nfields:\n  id: string' },
+    ],
+  };
+  const treeTwice = makeTree({
+    tacs: [tacTwice],
+    tad: { dataArchitecture: { coreEntities: [{ name: 'Loan' }] } },
+  });
+  const stageTwice = checkD3Shapes({
+    tree: treeTwice, ledgers: emptyLedgers, scope: new Set(['TAC-K']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const joinTwice = stageTwice.checks.find((c) => c.name === 'shapes:entityJoin');
+  assert.ok(!joinTwice.ok);
+  const dup = joinTwice.failing.find((f) => f.id === 'TAD.entity:Loan');
+  assert.ok(dup, `expected TAD.entity:Loan, got ${JSON.stringify(joinTwice.failing)}`);
+  assert.equal(dup.why, '2 record shapes');
+  // No record shape at all: fails "no record shape".
+  const treeNone = makeTree({
+    tacs: [{ tacId: 'TAC-N', interfaces: [{ name: 'ship', kind: 'httpRoute', description: 'method: POST\npath: /x\nrequest: {}\nresponse: {}\nerrors: []' }] }],
+    tad: { dataArchitecture: { coreEntities: [{ name: 'Loan' }] } },
+  });
+  const stageNone = checkD3Shapes({
+    tree: treeNone, ledgers: emptyLedgers, scope: new Set(['TAC-N']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const joinNone = stageNone.checks.find((c) => c.name === 'shapes:entityJoin');
+  assert.ok(!joinNone.ok);
+  const missing = joinNone.failing.find((f) => f.id === 'TAD.entity:Loan');
+  assert.ok(missing);
+  assert.equal(missing.why, 'no record shape');
+});
+
+test('gates (ADR-4131, AC-17404-4): pathsResolve passes a resolved path and passes a missing path when authoredAt D3 is in the description', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-P',
+    interfaces: [
+      { name: 'resolved', kind: 'uiRoute', description: 'path: src/view/index.js' },
+      { name: 'authored', kind: 'uiRoute', description: 'authoredAt: D3\npath: src/view/not-yet-landed.js' },
+      { name: 'missing', kind: 'uiRoute', description: 'path: src/view/missing.js' },
+    ],
+  };
+  const tree = makeTree({ tacs: [tac] });
+  const resolvedPaths = new Set(['src/view/index.js']);
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-P']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+    resolvedPaths,
+  });
+  const paths = stage.checks.find((c) => c.name === 'shapes:pathsResolve');
+  assert.ok(paths, 'shapes:pathsResolve must be emitted');
+  // The one failing entry is the missing one; the resolved and authoredAt ones pass.
+  assert.equal(paths.failing.length, 1);
+  assert.equal(paths.failing[0].id, 'TAC-P:missing');
+  assert.match(paths.failing[0].why, /path does not resolve: src\/view\/missing\.js/);
+});
+
+test('gates (ADR-4131): ackable(stage) is exactly D3, D5 and D6; stagePolicy keeps saying blocking', () => {
+  assert.equal(ackable('D1'), false);
+  assert.equal(ackable('D2'), false);
+  assert.equal(ackable('D3'), true);
+  assert.equal(ackable('D4'), false);
+  assert.equal(ackable('D5'), true);
+  assert.equal(ackable('D6'), true);
+  assert.equal(ackable('D7'), false);
+  assert.equal(ackable('D8'), false);
+  // stagePolicy is unchanged (ADR-4122): blocking for every stage.
+  for (const stage of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
+    const policy = stagePolicy(stage);
+    assert.ok(policy === 'blocking' || policy === 'warnWithAck', `${stage}: ${policy}`);
+  }
+});
+
+test('gates (ADR-4131): D3 notApplicable (no TAC, no shaped REQ, no draft entity) keeps the three bite checks out of the envelope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const stage = checkD3Shapes({
+    tree: makeTree(), ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  assert.equal(stage.state, 'notApplicable');
+  // The envelope carries only the stage:D3:scope placeholder; the
+  // three bite checks are not emitted because the stage short-circuits
+  // on an empty scope.
+  const names = stage.checks.map((c) => c.name);
+  assert.ok(!names.includes('shapes:templateMarkers'));
+  assert.ok(!names.includes('shapes:entityJoin'));
+  assert.ok(!names.includes('shapes:pathsResolve'));
+});
+
+test('gates (ADR-4131): extractInterfacePathTokens picks path: tokens and skips URLs, globs and placeholders', () => {
+  assert.deepEqual(extractInterfacePathTokens('path: src/view/index.js'), ['src/view/index.js']);
+  assert.deepEqual(extractInterfacePathTokens('a line\npath: src/view/index.js\npath: packages/x.json'), ['src/view/index.js', 'packages/x.json']);
+  assert.deepEqual(extractInterfacePathTokens('path: https://example.com/x'), []);
+  assert.deepEqual(extractInterfacePathTokens('path: {placeholder}'), []);
+  assert.deepEqual(extractInterfacePathTokens('path: src/**/*.js'), []);
+  assert.deepEqual(extractInterfacePathTokens('path: justAWord'), []);
 });
