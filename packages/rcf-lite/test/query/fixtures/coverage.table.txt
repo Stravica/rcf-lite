@@ -503,6 +503,12 @@ REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17404-4   yes         TC-230-pathsresolve-resolved-and-authored
                       AC-17404-5   yes         TC-230-ackable-exactly-d3-d5-d6, TC-230-cli-check-shapes-...
                       AC-17404-6   yes         TC-230-freeze-ack-blocking-stages-exit-2
+                      AC-17405-1   yes         TC-231-closedsets-cue-without-list, TC-231-closedsets-quo...
+                      AC-17405-2   yes         TC-231-ownerref-resolves-and-missing
+                      AC-17405-3   yes         TC-231-cli-check-crosscut-exit-matrix, TC-231-concern-cat...
+                      AC-17405-4   yes         TC-231-crosscut-catalogue-missing-pair
+                      AC-17405-5   yes         TC-231-standards-cited-and-waived
+                      AC-17405-6   yes         TC-231-validate-no-missing-marker-finding
 REQ-175      yes      AC-17501-1   yes         TC-217-shape
                       AC-17501-2   yes         TC-217-fanout
                       AC-17501-3   yes         TC-217-coverage

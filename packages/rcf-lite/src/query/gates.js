@@ -46,6 +46,7 @@
 import { computeQueue } from '../build/queue.js';
 import { isOptedOut } from '../req-baseline/opt-out.js';
 import { BRIEF_KINDS, parseResolvedBy } from '../define/ledgers.js';
+import { applicableConcernsForShapes } from '../define/concern-catalogue.js';
 
 /** Canonical stage order (proposal §3.2). */
 export const STAGE_ORDER = /** @type {const} */ (['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
@@ -113,12 +114,13 @@ export const CHECK_PERSONA = /** @type {const} */ ({
   'brief:kinds': 'productOwner',
   'brief:openQuestions': 'productOwner',
   'brief:profile': 'productOwner',
-  // D2 Skeleton: resolvedBy + reqIntent are PO; reqShape, tadPersistence, deployAdr are engineer.
+  // D2 Skeleton: resolvedBy + reqIntent are PO; reqShape, tadPersistence, deployAdr, standardsCited are engineer.
   'skeleton:resolvedBy': 'productOwner',
   'skeleton:reqIntent': 'productOwner',
   'skeleton:reqShape': 'engineer',
   'skeleton:tadPersistence': 'engineer',
   'skeleton:deployAdr': 'engineer',
+  'skeleton:standardsCited': 'engineer',
   // D3 Shapes: every check is engineer (shapes are the engineer's first act after hand-over).
   'shapes:tacHasInterface': 'engineer',
   'shapes:kindVocabulary': 'engineer',
@@ -126,13 +128,16 @@ export const CHECK_PERSONA = /** @type {const} */ ({
   'shapes:templateMarkers': 'engineer',
   'shapes:entityJoin': 'engineer',
   'shapes:pathsResolve': 'engineer',
-  // D4 Stories: reqHasUs is PO ("what does someone do with this?"); the floors are engineer.
+  // D4 Stories: reqHasUs is PO ("what does someone do with this?"); the floors, closed sets and ownerRef resolution are engineer.
   'stories:reqHasUs': 'productOwner',
   'stories:usFloors': 'engineer',
-  // D5 Crosscut: TAD + concern-ledger content is engineering.
+  'stories:closedSets': 'engineer',
+  'stories:ownerRefResolves': 'engineer',
+  // D5 Crosscut: TAD + concern-ledger content and the catalogue walk are engineering.
   'crosscut:securityArchitecture': 'engineer',
   'crosscut:operationalConcerns': 'engineer',
   'crosscut:concernsResolved': 'engineer',
+  'crosscut:catalogue': 'engineer',
   // D6 Consistency: schema validity and probes are engineer.
   'consistency:validateClean': 'engineer',
   'consistency:probeCount': 'engineer',
@@ -164,6 +169,7 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'skeleton:reqShape': 'Every requirement in scope carries a shape classification.',
   'skeleton:tadPersistence': 'TAD data architecture lists dataStores and coreEntities for persistence REQs.',
   'skeleton:deployAdr': 'Exactly one Deploy target or Deploy deferral ADR exists.',
+  'skeleton:standardsCited': 'Every registered standards pack is cited in a REQ rationale or an ADR, or waived by a concern-ledger entry.',
   'shapes:tacHasInterface': 'Every TAC in scope has at least one interface.',
   'shapes:kindVocabulary': 'Every interface kind is in the closed vocabulary.',
   'shapes:draftSettled': 'Every draft interface has been settled (the [draft] marker is removed).',
@@ -172,9 +178,12 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'shapes:pathsResolve': 'Every path: token in an interface description resolves on disk or the description is authoredAt D3.',
   'stories:reqHasUs': 'What does someone do with this requirement?',
   'stories:usFloors': 'Every story in scope meets the class, tacIds and testability floors.',
+  'stories:closedSets': 'Every acceptance criterion that invites a set of values names the set or points to an owner.',
+  'stories:ownerRefResolves': 'Every ownerRef on an acceptance criterion resolves to an interface on the owning TAC.',
   'crosscut:securityArchitecture': 'TAD.securityArchitecture is present when an auth or httpApi REQ exists.',
   'crosscut:operationalConcerns': 'TAD.operationalConcerns is present when a deployed-scope AC exists.',
   'crosscut:concernsResolved': 'Every concern-ledger entry on a REQ in scope is applied or waived.',
+  'crosscut:catalogue': 'Every applicable crosscut concern for a REQ in scope has a concern-ledger entry applied or waived.',
   'consistency:validateClean': 'Validate is clean tree-wide.',
   'consistency:probeCount': 'Zero open probe-ledger entries.',
   'decisions:wellFormed': 'Every decision is enumerated (question, two or more options, a default).',
@@ -445,6 +454,102 @@ const TODO_RE = /\bTODO:/;
 
 /** Bracketed AC-class prefix (Baz decision 6, proposal §3.2 D4). */
 const AC_CLASS_RE = /^\[(happy|edge|failure|must-not|non-functional)\]/;
+
+/**
+ * Enumeration cues for `stories:closedSets` (spec section 4 row 'D4
+ * closed-set and ownerRef as findings', 0.30.0 PR 6). An AC description
+ * that contains any of these cues outside a quoted string, with no
+ * inline bracketed list or ownerRef, invites an unlisted value and
+ * fails the check. The cues are matched case-insensitively against the
+ * raw description (minus any leading [class] marker and any
+ * double-quoted substrings).
+ */
+const CLOSED_SET_CUES = Object.freeze([
+  'one of',
+  'any of',
+  'the following',
+  'types of',
+  'status is',
+]);
+// Word-boundary matchers for each cue so a longer word that happens
+// to contain the cue as a substring (e.g. "status issue" containing
+// "status is") does not trip the gate.
+const CLOSED_SET_CUE_RES = Object.freeze(
+  CLOSED_SET_CUES.map((cue) => new RegExp(`\\b${cue.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\b`, 'i')),
+);
+
+/**
+ * Inline bracketed list regex for the closed-sets check: a square-
+ * bracketed group whose contents look like a list of two or more
+ * tokens separated by commas, slashes or pipes. A bare `[happy]`
+ * class marker is NOT a list (one token, no separator); `[a, b]`,
+ * `[a | b | c]` and `[a/b]` are.
+ */
+const INLINE_LIST_RE = /\[[^\]\n]*[,|\/][^\]\n]*\]/;
+
+/**
+ * ownerRef marker: a cheap presence check for the structured
+ * `{ tacId, field: "interfaces[<name>]" }` pointer. True when the AC
+ * carries an ownerRef object (consistency-lint and PR 6 both read the
+ * same field).
+ *
+ * @param {unknown} ac
+ * @returns {boolean}
+ */
+function acHasOwnerRef(ac) {
+  const ref = ac && typeof ac === 'object' ? /** @type {any} */ (ac).ownerRef : null;
+  return !!(ref && typeof ref === 'object' && typeof ref.tacId === 'string');
+}
+
+/**
+ * Strip double-quoted substrings so a quoted cue inside the AC text
+ * does not fire the closed-sets check (shared with D6's negation guard
+ * convention). Matches `"..."` with no embedded unescaped double
+ * quote; the regex is deliberately permissive. The strip is only for
+ * the cue scan; the inline-list scan reads the full description.
+ *
+ * @param {string} desc
+ * @returns {string}
+ */
+function stripQuotedSubstrings(desc) {
+  return desc.replace(/"[^"\n]*"/g, '');
+}
+
+/**
+ * True when the AC description carries an enumeration cue outside a
+ * quoted substring, with no inline bracketed list and no ownerRef
+ * pointer. Pure.
+ *
+ * @param {unknown} ac
+ * @returns {boolean}
+ */
+function failsClosedSets(ac) {
+  const descRaw = ac && typeof ac === 'object' ? /** @type {any} */ (ac).description : null;
+  if (typeof descRaw !== 'string' || descRaw.length === 0) return false;
+  if (acHasOwnerRef(ac)) return false;
+  const descNoClass = descRaw.replace(AC_CLASS_RE, '').trim();
+  if (INLINE_LIST_RE.test(descNoClass)) return false;
+  const descForCues = stripQuotedSubstrings(descNoClass);
+  for (const re of CLOSED_SET_CUE_RES) {
+    if (re.test(descForCues)) return true;
+  }
+  return false;
+}
+
+/**
+ * Parse an `interfaces[<name>]` field pointer into its interface
+ * name. Accepts any non-empty name between the brackets (interface
+ * names routinely carry dots, slashes and spaces); returns null for
+ * an unparseable pointer.
+ *
+ * @param {unknown} field
+ * @returns {string | null}
+ */
+function parseOwnerRefInterfaceField(field) {
+  if (typeof field !== 'string') return null;
+  const m = field.match(/^interfaces\[([^\]\n]+)\]$/);
+  return m ? m[1] : null;
+}
 
 /**
  * Parse the leading bracketed class marker on `ac.description`.
@@ -759,6 +864,50 @@ export function checkD2Skeleton(ctx) {
   else if (deployAdrs.length > 1) deployFail.push({ id: 'ADR:deploy', why: `${deployAdrs.length} Deploy ADRs found; expected exactly one` });
   checks.push(makeCheck('skeleton:deployAdr', 'tree', 1, deployFail));
 
+  // Check 5 (0.30.0 PR 6): skeleton:standardsCited (engineer, over
+  // tree). Every standards pack registered through `rcf define
+  // standards` (manifest.standards[].slug) is cited in a REQ
+  // `rationale` or an ADR, or waived by a concern-ledger entry keyed
+  // `standards:<pack>`. Fail ids `standards:<pack>` with 'uncited and
+  // unwaived'. Citation is a case-sensitive substring match of the
+  // slug against each REQ.rationale and each ADR document (the ADR
+  // may name a pack in its title, context, decision or consequences;
+  // the serialised document is scanned once per ADR to cover every
+  // field). A waiver entry on the concern ledger reads `concern:
+  // 'standards:<pack>'` with disposition 'applied' or 'waived'.
+  const standardsList = Array.isArray(tree.manifest?.standards)
+    ? /** @type {any[]} */ (tree.manifest.standards)
+    : [];
+  /** @type {Array<{ id: string, why: string }>} */
+  const standardsFail = [];
+  if (standardsList.length > 0) {
+    const reqRationales = (tree.requirements ?? [])
+      .map((r) => (typeof r?.rationale === 'string' ? r.rationale : ''))
+      .join('\n');
+    const adrDocs = (tree.adrs ?? []).map((a) => {
+      try { return JSON.stringify(a); } catch { return ''; }
+    }).join('\n');
+    const concernsBody = /** @type {any} */ (ctx.ledgers?.concerns);
+    const concernList = Array.isArray(concernsBody?.concerns) ? concernsBody.concerns : [];
+    const waiverSlugs = new Set();
+    for (const entry of concernList) {
+      if (!entry || typeof entry.concern !== 'string') continue;
+      const disposition = typeof entry.disposition === 'string' ? entry.disposition : null;
+      if (disposition !== 'applied' && disposition !== 'waived') continue;
+      const m = entry.concern.match(/^standards:(.+)$/);
+      if (m) waiverSlugs.add(m[1]);
+    }
+    for (const pack of standardsList) {
+      const slug = typeof pack?.slug === 'string' ? pack.slug : null;
+      if (!slug) continue;
+      if (waiverSlugs.has(slug)) continue;
+      if (reqRationales.includes(slug)) continue;
+      if (adrDocs.includes(slug)) continue;
+      standardsFail.push({ id: `standards:${slug}`, why: 'uncited and unwaived' });
+    }
+  }
+  checks.push(makeCheck('skeleton:standardsCited', 'tree', Math.max(standardsList.length, 1), standardsFail));
+
   return foldState('D2', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
     freezeGates: /** @type {any} */ (ctx.freeze?.gates),
@@ -1039,6 +1188,64 @@ export function checkD4Stories(ctx) {
   }
   checks.push(makeCheck('stories:usFloors', 'delta', usInScope.length, usFail));
 
+  // Check 3 (0.30.0 PR 6): stories:closedSets (engineer, over delta).
+  // Every AC on a US in scope whose description contains an enumeration
+  // cue (one of | any of | the following | types of | status is)
+  // without an inline bracketed list of two or more tokens AND without
+  // an ownerRef fails. The quoted-cue guard strips `"..."` substrings
+  // before the cue scan so prose that quotes a cue does not fire the
+  // check.
+  /** @type {Array<{ id: string, why: string }>} */
+  const closedSetFindings = [];
+  let totalClosedSetAcs = 0;
+  for (const us of usInScope) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    for (const ac of acs) {
+      if (typeof ac?.description !== 'string' || ac.description.length === 0) continue;
+      totalClosedSetAcs += 1;
+      if (failsClosedSets(ac)) {
+        closedSetFindings.push({
+          id: ac.id ?? us.usId,
+          why: 'enumeration cue without a closed set',
+        });
+      }
+    }
+  }
+  checks.push(makeCheck('stories:closedSets', 'delta', totalClosedSetAcs, closedSetFindings));
+
+  // Check 4 (0.30.0 PR 6): stories:ownerRefResolves (engineer, over
+  // delta plus tree for ownerRef targets). Every AC on a US in scope
+  // whose ownerRef is set must point to an interface by name on the
+  // named TAC. Ids `<acId>:<field>`; why 'ownerRef does not resolve'.
+  /** @type {Array<{ id: string, why: string }>} */
+  const ownerRefFindings = [];
+  let totalOwnerRefAcs = 0;
+  for (const us of usInScope) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    for (const ac of acs) {
+      if (!acHasOwnerRef(ac)) continue;
+      totalOwnerRefAcs += 1;
+      const ref = /** @type {any} */ (ac).ownerRef;
+      const name = parseOwnerRefInterfaceField(ref.field);
+      const owner = (tree.tacs ?? []).find((t) => t?.tacId === ref.tacId);
+      const resolves = !!(
+        owner
+        && name
+        && Array.isArray(owner.interfaces)
+        && owner.interfaces.some((iface) => iface?.name === name)
+      );
+      if (!resolves) {
+        ownerRefFindings.push({
+          id: `${ac.id ?? us.usId}:${ref.field ?? '(no field)'}`,
+          why: 'ownerRef does not resolve',
+        });
+      }
+    }
+  }
+  // Keep total >= 1 so the chip prints a sensible ratio when no AC in
+  // scope carries an ownerRef.
+  checks.push(makeCheck('stories:ownerRefResolves', 'delta', Math.max(totalOwnerRefAcs, 1), ownerRefFindings));
+
   return foldState('D4', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
     freezeGates: /** @type {any} */ (ctx.freeze?.gates),
@@ -1108,6 +1315,52 @@ export function checkD5Crosscut(ctx) {
     concernEntries.filter((c) => scope.has(c?.reqId)).length,
     openInScope.map((c) => ({ id: `concern:${c.id}`, why: `open concern on ${c.reqId}: ${c.concern}` })),
   ));
+
+  // Check 4 (0.30.0 PR 6): crosscut:catalogue (engineer, over tree).
+  // For every REQ in scope, enumerate applicable (reqShape, concern)
+  // pairs via src/define/concern-catalogue.js; each pair needs a
+  // concern-ledger entry keyed <REQ>:<concern> with disposition
+  // applied or waived (a waived entry carries a reason). Fail ids are
+  // `<REQ>:<concern>`; the why names the missing concern. A waived
+  // entry without a reason also fails. Keys shared with the baseline
+  // catalogue where names coincide (today only `auth`).
+  const entriesByKey = new Map();
+  for (const entry of concernEntries) {
+    if (!entry || typeof entry.reqId !== 'string' || typeof entry.concern !== 'string') continue;
+    entriesByKey.set(`${entry.reqId}:${entry.concern}`, entry);
+  }
+  /** @type {Array<{ id: string, why: string }>} */
+  const catalogueFindings = [];
+  let totalCataloguePairs = 0;
+  for (const req of reqInScope) {
+    const shapes = Array.isArray(req?.shapeClassification?.shapes)
+      ? req.shapeClassification.shapes.filter((s) => typeof s === 'string')
+      : [];
+    const applicable = applicableConcernsForShapes(shapes);
+    for (const concern of applicable) {
+      totalCataloguePairs += 1;
+      const key = `${req.reqId}:${concern}`;
+      const entry = entriesByKey.get(key);
+      if (!entry) {
+        catalogueFindings.push({ id: key, why: `missing concern-ledger entry for ${concern}` });
+        continue;
+      }
+      const disposition = typeof entry.disposition === 'string' ? entry.disposition : null;
+      if (disposition !== 'applied' && disposition !== 'waived') {
+        catalogueFindings.push({ id: key, why: `concern-ledger entry disposition is ${disposition ?? '(unset)'}` });
+        continue;
+      }
+      if (disposition === 'waived') {
+        const reason = typeof entry.reason === 'string' ? entry.reason.trim() : '';
+        if (reason.length === 0) {
+          catalogueFindings.push({ id: key, why: 'waived without a reason' });
+        }
+      }
+    }
+  }
+  // Keep total >= 1 so the chip prints a sensible ratio when no REQ in
+  // scope has applicable concerns (every REQ carries shape 'other').
+  checks.push(makeCheck('crosscut:catalogue', 'tree', Math.max(totalCataloguePairs, 1), catalogueFindings));
 
   return foldState('D5', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,

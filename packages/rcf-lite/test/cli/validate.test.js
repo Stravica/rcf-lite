@@ -206,3 +206,33 @@ test('rcf validate --json reports duplicateId with the globallyUniqueIds rule', 
   assert.equal(dups[0].filePath, 'rcf/user-stories/us-101.json');
   assert.equal(dups[0].field, 'acceptanceCriteria[0].id');
 });
+
+// ---------------------------------------------------------------------------
+// PR 6 (AC-17405-6, decision 10 kept): rcf define validate raises no
+// finding for a story whose ACs carry no class marker. The validate
+// finding rows land in PR 8; this PR adds no such finding.
+// ---------------------------------------------------------------------------
+
+test('validate cli (PR 6, AC-17405-6): no finding is raised for a missing AC class marker', async () => {
+  const tmp = await scaffold();
+  const usPath = join(tmp, 'rcf', 'user-stories', 'us-101.json');
+  const us = JSON.parse(await readFile(usPath, 'utf8'));
+  // Clear every bracketed [class] marker from every AC description.
+  for (const ac of us.acceptanceCriteria ?? []) {
+    if (typeof ac?.description !== 'string') continue;
+    ac.description = ac.description.replace(/^\[(happy|edge|failure|must-not|non-functional)\]\s*/, '');
+  }
+  await writeFile(usPath, JSON.stringify(us, null, 2), 'utf8');
+
+  const { code, stdout, stderr } = await runBin(tmp, ['define', 'validate', '--json']);
+  // The validate tree is still a clean tree -- a missing [class] marker
+  // on an AC is not a finding. Exit code can be 0 (clean) or 1
+  // (informational notices). A hard refusal (3) would mean validate had
+  // added a blocking finding, which decision 10 forbids.
+  assert.ok(code === 0 || code === 1, `expected exit 0 or 1, got ${code}; stderr=${stderr}`);
+  const body = JSON.parse(stdout);
+  const classFindings = (body.issues ?? []).filter((i) => (
+    typeof i.message === 'string' && /ac class marker/i.test(i.message)
+  ));
+  assert.equal(classFindings.length, 0, `no finding should name AC class marker; got ${JSON.stringify(classFindings)}`);
+});

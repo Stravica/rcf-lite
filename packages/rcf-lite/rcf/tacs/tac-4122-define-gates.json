@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z",
   "tacId": "TAC-4122-define-gates",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -26,7 +26,12 @@
     "`shapes:templateMarkers` (per-kind marker presence on `interfaces[].description`) (ADR-4131, 0.30.0 PR 5): engineer, over delta, id `<tacId>:<name>`, `why` names the missing marker; `recordShape` needs `fields:`; `httpRoute` needs `method`, `path`, `request`, `response`, `errors`; `fixture` needs `instances:`; `event` needs `payload:`; `cliCommand` needs `usage:`; `uiRoute` needs `path`; `port` needs `protocol`; `fileFormat` needs `format:`; `other` needs a note. Drafts are included (a `[draft]` recordShape without `fields:` fails exactly as a settled one).",
     "`shapes:entityJoin` (every `coreEntities[].name` named by exactly one `recordShape`) (ADR-4131, 0.30.0 PR 5): engineer, over tree; match on `name` or an `entity:` line in the template; fail ids `TAD.entity:<name>` with `no record shape` or `N record shapes`.",
     "`shapes:pathsResolve` (any `path:`-like token in an interface description that looks like a repo path resolves on disk or the description carries `authoredAt: D3`) (ADR-4131, 0.30.0 PR 5): engineer, over delta; gates stay pure, the readiness CLI resolves candidate paths and passes `resolvedPaths` in the stage context; ids `<tacId>:<name>` with the unresolved path in `why`.",
-    "`ackable(stage)` (ADR-4131, 0.30.0 PR 5): exported helper that returns `true` for D3, D5, D6 and `false` for every other stage. `stagePolicy(stage)` is unchanged; `ackable` is the companion that names the three gates that accept a recorded `--ack` override."
+    "`ackable(stage)` (ADR-4131, 0.30.0 PR 5): exported helper that returns `true` for D3, D5, D6 and `false` for every other stage. `stagePolicy(stage)` is unchanged; `ackable` is the companion that names the three gates that accept a recorded `--ack` override.",
+    "`stories:closedSets` (0.30.0 PR 6, spec section 4 row 'D4 closed-set and ownerRef as findings'): engineer, over delta. An AC whose description contains an enumeration cue (`one of`, `any of`, `the following`, `types of`, `status is`) without an inline bracketed list or an `ownerRef` fails. Honours the shared quoted-cue guard with D6: a cue inside a double-quoted substring does not fire.",
+    "`stories:ownerRefResolves` (0.30.0 PR 6): engineer, over delta plus tree for ownerRef targets. Every `ownerRef { tacId, field: \"interfaces[<name>]\" }` on an AC resolves to an interface on that TAC; failing ids name the AC and the unresolved pointer with the why string 'ownerRef does not resolve'. Validate re-uses this check (PR 8 adds the finding row).",
+    "`crosscut:catalogue` (0.30.0 PR 6, spec section 4 row 'D5 catalogue'): engineer, over tree. For every REQ in scope, enumerate applicable `(reqShape, concern)` pairs through `src/define/concern-catalogue.js` (eight concerns keyed by REQ shape); each pair needs a concern-ledger entry keyed `<REQ>:<concern>` with disposition `applied` or `waived` (with a reason for waived). Failing ids are `<REQ>:<concern>`. Keys shared with the baseline catalogue where names coincide. D5 is ackable: readiness --check crosscut rides the same --ack fold as D3.",
+    "`skeleton:standardsCited` (0.30.0 PR 6, spec section 4 row 'Standards-ingestion check'): engineer, over tree. Every standards pack registered through `rcf define standards` (manifest.standards[].slug) is cited in a REQ `rationale` or an ADR, or waived by a concern-ledger entry with key `standards:<pack>`. Fail ids `standards:<pack>` with 'uncited and unwaived'.",
+    "`src/define/concern-catalogue.js` (0.30.0 PR 6): the eight-concern applicability map keyed by REQ shape: `auth` to `auth`/`httpApi`; `errorEnvelope` to `httpApi`/`cliCommand`; `loggingAudit` to all shapes but `other`; `retention` to `persistence`; `performance` to `httpApi`/`batch`; `secrets` to `auth`/`externalIntegration`; `timeAndTimezone` to `persistence`/`batch`; `concurrencyIdempotency` to `httpApi`/`persistence`. Exports `applicableConcernsFor(reqShape)` returning the concern keys that apply, plus `CONCERN_KEYS` and `CONCERN_APPLICABILITY` for tests. Pure; no I/O."
   ],
   "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
   "interfaces": [
@@ -69,6 +74,11 @@
       "name": "ackable",
       "kind": "other",
       "description": "[draft] moduleApi (authoredAt: D3): ackable(stage) returns true for D3, D5 and D6 and false for every other stage. The CLI readiness and freeze verbs read it to gate --ack as the recorded override for just those three gates (ADR-4131)."
+    },
+    {
+      "name": "applicableConcernsFor",
+      "kind": "other",
+      "description": "[draft] moduleApi (authoredAt: D3): applicableConcernsFor(reqShape) returns the concern keys that apply to a REQ shape, per the eight-concern applicability map in src/define/concern-catalogue.js (0.30.0 PR 6). Pure. crosscut:catalogue reads this to decide which (reqShape, concern) pairs each REQ in scope must have a concern-ledger entry for."
     }
   ],
   "notes": "Slice-3 hook (rcf define freeze): reads state to refuse on any 'failing'; --ack <gate> --reason <text> writes freeze.gates[<gate>] = { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text>, by: <id> } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end."

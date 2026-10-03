@@ -4864,6 +4864,58 @@
             "TC-230-freeze-ack-blocking-stages-exit-2"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-1",
+          "covered": true,
+          "testCases": [
+            "TC-231-closedsets-cue-without-list",
+            "TC-231-closedsets-quoted-cue-guard",
+            "TC-231-loop-convergence-engineer-no-po"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-2",
+          "covered": true,
+          "testCases": [
+            "TC-231-ownerref-resolves-and-missing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-3",
+          "covered": true,
+          "testCases": [
+            "TC-231-cli-check-crosscut-exit-matrix",
+            "TC-231-concern-catalogue-table",
+            "TC-231-crosscut-catalogue-applied-and-waived"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-4",
+          "covered": true,
+          "testCases": [
+            "TC-231-crosscut-catalogue-missing-pair"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-5",
+          "covered": true,
+          "testCases": [
+            "TC-231-standards-cited-and-waived"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-6",
+          "covered": true,
+          "testCases": [
+            "TC-231-validate-no-missing-marker-finding"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

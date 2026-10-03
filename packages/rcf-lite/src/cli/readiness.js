@@ -29,6 +29,7 @@ import {
   STAGE_GATES,
   STAGE_ORDER,
   STAGE_SHORT_NAMES,
+  ackable,
   extractInterfacePathTokens,
   stagePolicy,
 } from '../query/gates.js';
@@ -75,12 +76,13 @@ Options:
                             crosscut | consistency | decisions |
                             freeze. Exits 4 on a blocking-stage
                             failure (D1 / D2 / D4 / D7 / D8) and on
-                            an unacknowledged D3 bite failure
-                            (ADR-4131, 0.30.0 PR 5); exits 0 when D3
-                            is acknowledged at the current tree hash;
-                            exits 0 with a visible '[warn]' line on an
-                            unacknowledged warn-with-ack failure
-                            (D5 / D6 until PRs 6 and 7 bite them). Use
+                            an unacknowledged D3 or D5 bite failure
+                            (ADR-4131, 0.30.0 PR 5 and PR 6); exits 0
+                            when D3 or D5 is acknowledged at the
+                            current tree hash; exits 0 with a visible
+                            '[warn]' line on an unacknowledged warn-
+                            with-ack failure (D6 until PR 7 bites it).
+                            Use
                             --check all to print every stage under
                             this exit-code policy.
   --level <intent|build>    Pick which verdict the exit code follows.
@@ -490,12 +492,17 @@ function decideExitCode(result, checkStage, level, stderr) {
   let exitCode = 0;
 
   // --check policy. ADR-4131 (0.30.0 PR 5): D3 bites, so a failing D3
-  // without an acknowledgement at the current tree hash exits 4. D5
-  // and D6 keep the 0.29.0 warn-with-ack posture until PRs 6 and 7
-  // bite them. The 'acknowledged' state is already folded by
-  // foldState() in gates.js when the freeze record acknowledges the
-  // gate at the current hash, so a failing-but-unacked bite stays
-  // failing here and exit 4 is the right answer.
+  // without an acknowledgement at the current tree hash exits 4.
+  // 0.30.0 PR 6 lifts the bite to D5 (crosscut:catalogue, the four new
+  // D4/D2 engineer checks ride D5's ack because the --ack channel is
+  // per gate). D6 keeps the 0.29.0 warn-with-ack posture until PR 7
+  // bites it. The 'acknowledged' state is already folded by foldState()
+  // in gates.js when the freeze record acknowledges the gate at the
+  // current hash, so a failing-but-unacked bite stays failing here and
+  // exit 4 is the right answer. `ackable(stage)` names the three gates
+  // that accept an --ack override; a failing ackable stage that is not
+  // acknowledged bites.
+  const BITING_STAGES = new Set(['D3', 'D5']);
   if (checkStage) {
     const stages = checkStage === 'all'
       ? result.stages
@@ -503,10 +510,10 @@ function decideExitCode(result, checkStage, level, stderr) {
     for (const s of stages) {
       if (s.state !== 'failing') continue;
       const policy = stagePolicy(s.stage);
-      const bites = s.stage === 'D3';
+      const bites = BITING_STAGES.has(s.stage);
       if (policy === 'blocking' || bites) {
         exitCode = 4;
-      } else {
+      } else if (ackable(s.stage)) {
         stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);
       }
     }

@@ -191,7 +191,19 @@ test('readiness: freezeable is true on a well-formed tree (every stage passed / 
         ],
       },
       decisions: { decisions: [] },
-      concerns: { concerns: [] },
+      // crosscut:catalogue (PR 6): REQ-1 carries shape httpApi, so the
+      // applicable concerns are auth, errorEnvelope, loggingAudit,
+      // performance and concurrencyIdempotency. Each needs a concern-
+      // ledger entry keyed <REQ>:<concern> with disposition applied or
+      // waived (waived carries a reason). Mark them all waived here so
+      // D5 passes on this well-formed fixture.
+      concerns: { concerns: [
+        { id: 1, reqId: 'REQ-1', concern: 'auth', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T10:00:00Z', resolvedAt: '2026-09-24T10:00:00Z' },
+        { id: 2, reqId: 'REQ-1', concern: 'errorEnvelope', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T10:00:00Z', resolvedAt: '2026-09-24T10:00:00Z' },
+        { id: 3, reqId: 'REQ-1', concern: 'loggingAudit', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T10:00:00Z', resolvedAt: '2026-09-24T10:00:00Z' },
+        { id: 4, reqId: 'REQ-1', concern: 'performance', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T10:00:00Z', resolvedAt: '2026-09-24T10:00:00Z' },
+        { id: 5, reqId: 'REQ-1', concern: 'concurrencyIdempotency', disposition: 'waived', reason: 'test fixture', status: 'resolved', addedAt: '2026-09-24T10:00:00Z', resolvedAt: '2026-09-24T10:00:00Z' },
+      ] },
       probes: { probes: [] },
     },
     // profile.md carries a review-surface marker (viewer) AND a

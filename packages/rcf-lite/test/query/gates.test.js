@@ -594,15 +594,16 @@ import {
   hasDraftMarker,
 } from '../../src/query/gates.js';
 
-/** The 27 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites). */
+/** The 32 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites + PR 6 D4/D5/standards). */
 const EXPECTED_CHECK_NAMES = [
   'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
   'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
-  'skeleton:tadPersistence', 'skeleton:deployAdr',
+  'skeleton:tadPersistence', 'skeleton:deployAdr', 'skeleton:standardsCited',
   'shapes:tacHasInterface', 'shapes:kindVocabulary', 'shapes:draftSettled',
   'shapes:templateMarkers', 'shapes:entityJoin', 'shapes:pathsResolve',
-  'stories:reqHasUs', 'stories:usFloors',
+  'stories:reqHasUs', 'stories:usFloors', 'stories:closedSets', 'stories:ownerRefResolves',
   'crosscut:securityArchitecture', 'crosscut:operationalConcerns', 'crosscut:concernsResolved',
+  'crosscut:catalogue',
   'consistency:validateClean', 'consistency:probeCount',
   'decisions:wellFormed', 'decisions:allAnswered',
   'freeze:priorGates', 'freeze:acFbsOwnership', 'freeze:queueHead', 'freeze:validateClean',
@@ -1275,4 +1276,337 @@ test('gates (ADR-4131): extractInterfacePathTokens picks path: tokens and skips 
   assert.deepEqual(extractInterfacePathTokens('path: {placeholder}'), []);
   assert.deepEqual(extractInterfacePathTokens('path: src/**/*.js'), []);
   assert.deepEqual(extractInterfacePathTokens('path: justAWord'), []);
+});
+
+// ---------------------------------------------------------------------------
+// PR 6 (US-17405, AC-17405-1..6): D4 closed-set and ownerRef findings;
+// D5 crosscut:catalogue; D2 skeleton:standardsCited.
+// ---------------------------------------------------------------------------
+
+test('gates (PR 6, AC-17405-1): closedSets fails an AC with an enumeration cue and no bracketed list or ownerRef', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['httpApi'] } };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-1', testable: true, description: '[happy] user does the thing' },
+      { id: 'AC-2', testable: true, description: '[failure] status is one of the following' },
+      { id: 'AC-3', testable: true, description: '[edge] status is one of [open, closed]' },
+    ],
+  };
+  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'x', kind: 'other', description: 'note' }] };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const closed = stage.checks.find((c) => c.name === 'stories:closedSets');
+  assert.ok(closed);
+  assert.equal(closed.ok, false);
+  const failing = closed.failing.find((f) => f.id === 'AC-2');
+  assert.ok(failing, `AC-2 should fail closedSets; got ${JSON.stringify(closed.failing)}`);
+  assert.match(failing.why, /enumeration cue without a closed set/);
+  // AC-3 has an inline bracketed list, so it does not fail.
+  assert.equal(closed.failing.some((f) => f.id === 'AC-3'), false);
+});
+
+test('gates (PR 6, AC-17405-1): closedSets honours the quoted-cue guard shared with D6', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-Q', testable: true, description: '[happy] the user types "status is" into the search box and nothing explodes' },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['httpApi'] } };
+  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'x', kind: 'other', description: 'note' }] };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const closed = stage.checks.find((c) => c.name === 'stories:closedSets');
+  assert.ok(closed);
+  assert.equal(closed.ok, true, `quoted cue should not fire; got ${JSON.stringify(closed.failing)}`);
+});
+
+test('gates (PR 6, AC-17405-1): closedSets uses word boundaries so substrings of cues do not trip', () => {
+  // Sabotage proof: a substring match of 'status is' on 'status issue'
+  // or of 'one of' on 'clone off' used to fire the gate; the
+  // word-boundary matchers added in the PR 6 landing fix should keep
+  // these ACs passing.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-SUB-1', testable: true, description: '[happy] a status issue is logged when the request fails' },
+      { id: 'AC-SUB-2', testable: true, description: '[happy] the clone offers no mutating writes' },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['httpApi'] } };
+  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'x', kind: 'other', description: 'note' }] };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const closed = stage.checks.find((c) => c.name === 'stories:closedSets');
+  assert.ok(closed);
+  assert.equal(closed.ok, true, `substring matches should not fire; got ${JSON.stringify(closed.failing)}`);
+});
+
+test('gates (PR 6, AC-17405-2): ownerRefResolves passes a resolving pointer and fails a missing one', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-1',
+    interfaces: [
+      { name: 'loan', kind: 'recordShape', description: 'fields: id, amount' },
+    ],
+  };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-OK', testable: true, description: '[happy] the loan is created', ownerRef: { tacId: 'TAC-1', field: 'interfaces[loan]' } },
+      { id: 'AC-FAIL', testable: true, description: '[happy] the loan is created', ownerRef: { tacId: 'TAC-1', field: 'interfaces[missing]' } },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['persistence'] } };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const check = stage.checks.find((c) => c.name === 'stories:ownerRefResolves');
+  assert.ok(check);
+  assert.equal(check.failing.length, 1, `got ${JSON.stringify(check.failing)}`);
+  assert.equal(check.failing[0].id, 'AC-FAIL:interfaces[missing]');
+  assert.equal(check.failing[0].why, 'ownerRef does not resolve');
+});
+
+test('gates (PR 6, AC-17405-2): ownerRefResolves accepts interface names with dots, slashes and spaces', () => {
+  // Sabotage proof: a tight [A-Za-z0-9_-] regex rejected real interface
+  // names such as 'rcf.read', 'GET /index.json' and 'Access policy
+  // shape' as unparseable, forcing a 'ownerRef does not resolve'
+  // finding even when the pointer did resolve. The PR 6 landing fix
+  // broadens the parser to accept any non-empty name between the
+  // brackets.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-1',
+    interfaces: [
+      { name: 'rcf.read', kind: 'cliCommand', description: 'rcf read sub-verb' },
+      { name: 'GET /index.json', kind: 'httpRoute', description: 'index JSON' },
+      { name: 'Access policy shape', kind: 'recordShape', description: 'fields: id, name' },
+    ],
+  };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [
+      { id: 'AC-DOT', testable: true, description: '[happy] the dotted name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[rcf.read]' } },
+      { id: 'AC-SLASH', testable: true, description: '[happy] the route name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[GET /index.json]' } },
+      { id: 'AC-SPACE', testable: true, description: '[happy] the spaced name is reachable', ownerRef: { tacId: 'TAC-1', field: 'interfaces[Access policy shape]' } },
+    ],
+  };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['persistence'] } };
+  const stage = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  const check = stage.checks.find((c) => c.name === 'stories:ownerRefResolves');
+  assert.ok(check);
+  assert.equal(check.failing.length, 0, `all three names should resolve; got ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (PR 6, AC-17405-3): crosscut:catalogue passes a persistence REQ with retention applied and timeAndTimezone waived', () => {
+  const req = {
+    reqId: 'REQ-1',
+    shapeClassification: { shapes: ['persistence'] },
+  };
+  const ledgers = {
+    brief: { statements: [] },
+    decisions: { decisions: [] },
+    concerns: {
+      concerns: [
+        { id: 1, reqId: 'REQ-1', concern: 'loggingAudit', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 2, reqId: 'REQ-1', concern: 'retention', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 3, reqId: 'REQ-1', concern: 'timeAndTimezone', disposition: 'waived', reason: 'single-timezone deployment', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 4, reqId: 'REQ-1', concern: 'concurrencyIdempotency', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+    probes: { probes: [] },
+  };
+  const stage = checkD5Crosscut({
+    tree: makeTree({ requirements: [req] }),
+    ledgers,
+    scope: new Set(['REQ-1']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'crosscut:catalogue');
+  assert.ok(check);
+  assert.equal(check.ok, true, `catalogue should pass; failing=${JSON.stringify(check.failing)}`);
+  // persistence's applicable concerns are loggingAudit, retention,
+  // timeAndTimezone, concurrencyIdempotency: four pairs.
+  assert.equal(check.total, 4);
+  assert.equal(check.pass, 4);
+});
+
+test('gates (PR 6, AC-17405-3): crosscut:catalogue fails a waived entry without a reason', () => {
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['persistence'] } };
+  const ledgers = {
+    brief: { statements: [] },
+    decisions: { decisions: [] },
+    concerns: {
+      concerns: [
+        { id: 1, reqId: 'REQ-1', concern: 'loggingAudit', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 2, reqId: 'REQ-1', concern: 'retention', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 3, reqId: 'REQ-1', concern: 'timeAndTimezone', disposition: 'waived', reason: '', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 4, reqId: 'REQ-1', concern: 'concurrencyIdempotency', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+    probes: { probes: [] },
+  };
+  const stage = checkD5Crosscut({
+    tree: makeTree({ requirements: [req] }),
+    ledgers,
+    scope: new Set(['REQ-1']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'crosscut:catalogue');
+  assert.ok(check);
+  const waivedMiss = check.failing.find((f) => f.id === 'REQ-1:timeAndTimezone');
+  assert.ok(waivedMiss, `expected REQ-1:timeAndTimezone to fail; got ${JSON.stringify(check.failing)}`);
+  assert.match(waivedMiss.why, /waived without a reason/);
+});
+
+test('gates (PR 6, AC-17405-4): crosscut:catalogue fails <REQ>:errorEnvelope when the httpApi REQ has no concern-ledger entry', () => {
+  const req = { reqId: 'REQ-7', shapeClassification: { shapes: ['httpApi'] } };
+  // Supply every other applicable concern so the only failure is errorEnvelope.
+  const ledgers = {
+    brief: { statements: [] },
+    decisions: { decisions: [] },
+    concerns: {
+      concerns: [
+        { id: 1, reqId: 'REQ-7', concern: 'auth', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 2, reqId: 'REQ-7', concern: 'loggingAudit', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 3, reqId: 'REQ-7', concern: 'performance', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+        { id: 4, reqId: 'REQ-7', concern: 'concurrencyIdempotency', disposition: 'applied', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+    probes: { probes: [] },
+  };
+  const stage = checkD5Crosscut({
+    tree: makeTree({ requirements: [req] }),
+    ledgers,
+    scope: new Set(['REQ-7']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'crosscut:catalogue');
+  assert.ok(check);
+  assert.equal(check.failing.length, 1);
+  assert.equal(check.failing[0].id, 'REQ-7:errorEnvelope');
+  assert.match(check.failing[0].why, /missing concern-ledger entry for errorEnvelope/);
+});
+
+test('gates (PR 6, AC-17405-5): standardsCited passes when cited or waived; fails when neither', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // One pack cited in a REQ rationale, one in an ADR, one uncited.
+  const manifest = { standards: [
+    { slug: 'company-ui', provenance: 'corporate' },
+    { slug: 'company-security', provenance: 'corporate' },
+    { slug: 'personal-styles', provenance: 'personal' },
+  ] };
+  const req = { reqId: 'REQ-1', description: 'ok', domain: 'ops', shapeClassification: { shapes: ['other'] }, rationale: 'follows company-ui standards' };
+  const adr = { adrId: 'ADR-1', title: 'Deploy target: Hetzner', decision: 'use company-security policy baseline' };
+  const tree = makeTree({ manifest, requirements: [req], adrs: [adr] });
+  const stage = checkD2Skeleton({
+    tree,
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.ok(check);
+  assert.equal(check.failing.length, 1, `only personal-styles should fail; got ${JSON.stringify(check.failing)}`);
+  assert.equal(check.failing[0].id, 'standards:personal-styles');
+  assert.equal(check.failing[0].why, 'uncited and unwaived');
+
+  // Add a waiver on the concern ledger -> passes.
+  const ledgersWithWaiver = {
+    brief: { statements: [] },
+    decisions: { decisions: [] },
+    concerns: { concerns: [
+      { id: 1, reqId: 'REQ-1', concern: 'standards:personal-styles', disposition: 'waived', reason: 'personal pack is advisory only', status: 'resolved', addedAt: '2026-10-03T10:00:00Z', resolvedAt: '2026-10-03T10:00:00Z' },
+    ] },
+    probes: { probes: [] },
+  };
+  const stage2 = checkD2Skeleton({
+    tree,
+    ledgers: ledgersWithWaiver,
+    scope: new Set(['REQ-1']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check2 = stage2.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.ok(check2);
+  assert.equal(check2.ok, true, `with the waiver, every pack should pass; failing=${JSON.stringify(check2.failing)}`);
+});
+
+test('gates (PR 6, AC-17405-5): standardsCited notApplicable envelope: zero registered packs returns a 0/1 passing check', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const manifest = { standards: [] };
+  const req = { reqId: 'REQ-1', description: 'ok', domain: 'ops', shapeClassification: { shapes: ['other'] } };
+  const stage = checkD2Skeleton({
+    tree: makeTree({ manifest, requirements: [req] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1']),
+    currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.ok(check);
+  assert.equal(check.ok, true);
+  assert.equal(check.failing.length, 0);
+});
+
+test('gates (PR 6): new D4/D5 checks respect the section 2.4 shape (persona, question, ok, over, pass, total, failing)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const req = { reqId: 'REQ-1', shapeClassification: { shapes: ['httpApi'] } };
+  const us = {
+    usId: 'US-1',
+    reqId: 'REQ-1',
+    tacIds: ['TAC-1'],
+    acceptanceCriteria: [{ id: 'AC-1', testable: true, description: '[happy] user does the thing' }],
+  };
+  const tac = { tacId: 'TAC-1', interfaces: [{ name: 'x', kind: 'other', description: 'note' }] };
+  const d4 = checkD4Stories({
+    tree: makeTree({ requirements: [req], userStories: [us], tacs: [tac] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1', 'US-1']),
+  });
+  assertCheckShape(d4);
+  for (const name of ['stories:closedSets', 'stories:ownerRefResolves']) {
+    const c = d4.checks.find((c) => c.name === name);
+    assert.ok(c, `${name} must be emitted`);
+    assert.equal(c.persona, 'engineer');
+    assert.ok(c.question && c.question.length > 0);
+  }
+  const d5 = checkD5Crosscut({
+    tree: makeTree({ requirements: [req] }),
+    ledgers: emptyLedgers,
+    scope: new Set(['REQ-1']),
+  });
+  assertCheckShape(d5);
+  const catalogue = d5.checks.find((c) => c.name === 'crosscut:catalogue');
+  assert.ok(catalogue);
+  assert.equal(catalogue.persona, 'engineer');
+  assert.equal(catalogue.over, 'tree');
 });
