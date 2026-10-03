@@ -594,7 +594,7 @@ import {
   hasDraftMarker,
 } from '../../src/query/gates.js';
 
-/** The 32 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites + PR 6 D4/D5/standards). */
+/** The 36 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites + PR 6 D4/D5/standards + PR 7 D6 scans). */
 const EXPECTED_CHECK_NAMES = [
   'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
   'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
@@ -605,6 +605,8 @@ const EXPECTED_CHECK_NAMES = [
   'crosscut:securityArchitecture', 'crosscut:operationalConcerns', 'crosscut:concernsResolved',
   'crosscut:catalogue',
   'consistency:validateClean', 'consistency:probeCount',
+  'consistency:contradictions', 'consistency:unsatisfiable',
+  'consistency:duplicates', 'consistency:orphanInterfaces',
   'decisions:wellFormed', 'decisions:allAnswered',
   'freeze:priorGates', 'freeze:acFbsOwnership', 'freeze:queueHead', 'freeze:validateClean',
 ];
@@ -1609,4 +1611,181 @@ test('gates (PR 6): new D4/D5 checks respect the section 2.4 shape (persona, que
   assert.ok(catalogue);
   assert.equal(catalogue.persona, 'engineer');
   assert.equal(catalogue.over, 'tree');
+});
+
+// ---------------------------------------------------------------------------
+// PR 7 (US-17406, AC-17406-1..6): D6 bites.
+//   consistency:contradictions, consistency:unsatisfiable,
+//   consistency:duplicates, consistency:orphanInterfaces.
+// ---------------------------------------------------------------------------
+
+test('gates (PR 7, AC-17406-1): contradictions fails a story with two ACs sharing a when and a negated then', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = {
+    usId: 'US-9',
+    reqId: 'REQ-9',
+    tacIds: ['TAC-9'],
+    acceptanceCriteria: [
+      { id: 'AC-9-1', testable: true, description: '[happy] given a user, when the user clicks save, then the record is written' },
+      { id: 'AC-9-2', testable: true, description: '[failure] given a user, when the user clicks save, then the record is not written' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-9']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:contradictions');
+  assert.ok(check, 'consistency:contradictions missing');
+  assert.equal(check.ok, false);
+  assert.ok(check.failing.some((f) => f.id === 'US-9' && /AC-9-1/.test(f.why) && /AC-9-2/.test(f.why)));
+});
+
+test('gates (PR 7, AC-17406-6): contradictions does not fire on a negation inside a quoted substring', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = {
+    usId: 'US-10',
+    reqId: 'REQ-10',
+    tacIds: ['TAC-10'],
+    acceptanceCriteria: [
+      { id: 'AC-10-1', testable: true, description: '[happy] given a message, when the server replies, then it says "not found"' },
+      { id: 'AC-10-2', testable: true, description: '[happy] given a message, when the server replies, then it says "ok"' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-10']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:contradictions');
+  assert.equal(check.ok, true, `unexpected contradictions: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (PR 7, AC-17406-2): unsatisfiable fails an AC naming a field no recordShape defines', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-U',
+    interfaces: [
+      { name: 'User', kind: 'recordShape', description: 'fields: id, email' },
+    ],
+  };
+  const us = {
+    usId: 'US-U',
+    reqId: 'REQ-U',
+    tacIds: ['TAC-U'],
+    acceptanceCriteria: [
+      { id: 'AC-U-1', testable: true, description: '[happy] given a user, when sign-up runs, then the `balance` field is set' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-U']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, false);
+  assert.ok(check.failing.some((f) => f.id === 'AC-U-1:balance' && /balance/.test(f.why)));
+});
+
+test('gates (PR 7, AC-17406-3): unsatisfiable passes when the field lives in a [draft] recordShape', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-U',
+    interfaces: [
+      { name: 'User', kind: 'recordShape', description: '[draft] fields: id, email, balance' },
+    ],
+  };
+  const us = {
+    usId: 'US-U',
+    reqId: 'REQ-U',
+    tacIds: ['TAC-U'],
+    acceptanceCriteria: [
+      { id: 'AC-U-1', testable: true, description: '[happy] given a user, when sign-up runs, then the `balance` field is set', ownerRef: { tacId: 'TAC-U', field: 'interfaces[User]' } },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-U']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (PR 7, AC-17406-4): duplicates fails identical AC descriptions across stories', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const usA = {
+    usId: 'US-A',
+    reqId: 'REQ-A',
+    tacIds: ['TAC-A'],
+    acceptanceCriteria: [
+      { id: 'AC-A-1', testable: true, description: '[happy] given a widget, when ship runs, then it posts to /widgets' },
+    ],
+  };
+  const usB = {
+    usId: 'US-B',
+    reqId: 'REQ-A',
+    tacIds: ['TAC-A'],
+    acceptanceCriteria: [
+      { id: 'AC-B-1', testable: true, description: '[happy] given a widget, when ship runs, then it posts to /widgets' },
+    ],
+  };
+  const tree = makeTree({ userStories: [usA, usB] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-A', 'US-B']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:duplicates');
+  assert.equal(check.ok, false);
+  const failingIds = check.failing.map((f) => f.id).sort();
+  assert.deepEqual(failingIds, ['AC-A-1', 'AC-B-1']);
+});
+
+test('gates (PR 7, AC-17406-5): orphanInterfaces fails an interface no ownerRef and no deliveredBy reaches', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-O',
+    interfaces: [
+      { name: 'orphan', kind: 'event', description: 'payload: { id }' },
+      { name: 'reached', kind: 'event', description: 'payload: { id }' },
+    ],
+  };
+  const us = {
+    usId: 'US-O',
+    reqId: 'REQ-O',
+    tacIds: ['TAC-O'],
+    acceptanceCriteria: [
+      { id: 'AC-O-1', testable: true, description: '[happy] given a message, when the server emits an event, then it includes an id', ownerRef: { tacId: 'TAC-O', field: 'interfaces[reached]' } },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-O']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:orphanInterfaces');
+  assert.equal(check.ok, false);
+  const failingIds = check.failing.map((f) => f.id);
+  assert.ok(failingIds.includes('TAC-O:orphan'));
+  assert.ok(!failingIds.includes('TAC-O:reached'));
+});
+
+test('gates (PR 7): the four new D6 checks respect the section 2.4 shape (persona, question, ok, over, pass, total, failing)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree();
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const names = ['consistency:contradictions', 'consistency:unsatisfiable', 'consistency:duplicates', 'consistency:orphanInterfaces'];
+  for (const name of names) {
+    const check = stage.checks.find((c) => c.name === name);
+    assert.ok(check, `check ${name} missing`);
+    assert.equal(check.persona, 'engineer');
+    assert.ok(check.over === 'delta' || check.over === 'tree');
+    assert.ok(Number.isInteger(check.pass));
+    assert.ok(Number.isInteger(check.total));
+    assert.ok(Array.isArray(check.failing));
+    assert.ok(typeof check.question === 'string' && check.question.length > 0);
+  }
 });

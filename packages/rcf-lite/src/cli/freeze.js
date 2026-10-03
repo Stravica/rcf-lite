@@ -43,7 +43,12 @@ import {
   parseAcClass,
 } from '../query/gates.js';
 import { computeDelta, hashDocument } from '../query/delta.js';
-import { computeReadiness, shortHash } from '../query/readiness.js';
+import {
+  computeReadiness,
+  countLitmusReadersAtHash,
+  parseLitmusFlag,
+  shortHash,
+} from '../query/readiness.js';
 import { runWithAdmissibilityGate } from '../query/index.js';
 
 const OPTION_SPEC = {
@@ -51,6 +56,7 @@ const OPTION_SPEC = {
   reason: { type: 'string', multiple: true },
   note: { type: 'string' },
   'litmus-attested': { type: 'string' },
+  litmus: { type: 'string' },
   status: { type: 'boolean' },
   json: { type: 'boolean' },
   help: { type: 'boolean' },
@@ -110,6 +116,17 @@ Options:
                             elicitation prompts in the current session
                             (proposal §9 decision 7). Recorded in
                             freeze.litmus.attestedAt.
+  --litmus <n>              Require n distinct litmus readings at the
+                            current tree hash before freezing (0.30.0
+                            PR 7, ADR-4131 extended). A litmus reading
+                            is a probe-ledger entry whose finding
+                            begins litmus:<reader>: and whose text
+                            includes the current tree hash. Fewer
+                            than n distinct readers exits 4 naming
+                            the shortfall and writes nothing. No
+                            process is spawned and no network call is
+                            made; the harness lands the readings
+                            through rcf define ledger probes add.
   --status                  Print the current freeze record and the
                             live delta summary; run no gates; write
                             nothing. Exits 0 even when unfrozen.
@@ -165,6 +182,16 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
+  // --litmus parsing (ADR-4131 extended, 0.30.0 PR 7).
+  /** @type {number | null} */
+  let litmus;
+  try {
+    litmus = parseLitmusFlag(flags.litmus);
+  } catch (err) {
+    stderr.write(`[error] usage freeze: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
@@ -178,7 +205,7 @@ export async function main(argv, deps = {}) {
 
   // Freeze branch.
   return runFreeze({
-    projectRoot, flags, ackPairs, now, stdout, stderr,
+    projectRoot, flags, ackPairs, litmus, now, stdout, stderr,
   });
 }
 
@@ -298,13 +325,14 @@ function formatStatusLine(record) {
  * @param {string} args.projectRoot
  * @param {Record<string, unknown>} args.flags
  * @param {Array<{ gate: string, reason: string }>} args.ackPairs
+ * @param {number | null} args.litmus
  * @param {() => Date} args.now
  * @param {NodeJS.WritableStream} args.stdout
  * @param {NodeJS.WritableStream} args.stderr
  * @returns {Promise<number>}
  */
 async function runFreeze({
-  projectRoot, flags, ackPairs, now, stdout, stderr,
+  projectRoot, flags, ackPairs, litmus, now, stdout, stderr,
 }) {
   const { tree, errors } = await walkTree({ projectRoot });
   const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
@@ -376,6 +404,19 @@ async function runFreeze({
     return 4;
   }
 
+  // --litmus check (ADR-4131 extended, 0.30.0 PR 7). Count distinct
+  // readers who have landed a probe-ledger entry at the current tree
+  // hash whose finding begins litmus:<reader>:; refuse (exit 4 and
+  // write nothing) when fewer than n have attested.
+  if (typeof litmus === 'number' && litmus > 0) {
+    const hash = currentTreeHash;
+    const readers = countLitmusReadersAtHash(ledgers, hash);
+    if (readers.size < litmus) {
+      stderr.write(`[error] freeze: --litmus ${litmus} requires ${litmus} distinct litmus reading(s) at ${hash}; found ${readers.size}. Spawn ${litmus - readers.size} more fresh-context reader(s) and land their readings through \`rcf define ledger probes add --req <reqId> --finding "litmus:<reader>: ..." --severity low\` with the hash in the finding text.\n`);
+      return 4;
+    }
+  }
+
   // Build the freeze record body.
   const frozenAt = now().toISOString();
   // Sanity: the tree hash the readiness compute reports must match the
@@ -391,7 +432,7 @@ async function runFreeze({
   const gates = buildGatesEntry(stagesAfterAck, currentTreeHash, frozenAt);
   const counts = deriveCounts(tree);
   const litmusAttested = parseLitmusAttested(flags['litmus-attested']);
-  const litmus = { attestedAt: litmusAttested, readers: 0 };
+  const litmusRecord = { attestedAt: litmusAttested, readers: 0 };
   const versions = await readVersions(projectRoot);
   const note = typeof flags.note === 'string' ? flags.note : null;
 
@@ -403,7 +444,7 @@ async function runFreeze({
     briefStatements,
     gates,
     counts,
-    litmus,
+    litmus: litmusRecord,
     versions,
     note,
     override: null,

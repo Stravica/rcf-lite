@@ -1,0 +1,109 @@
+{
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z",
+  "purpose": "Cover US-17406 (D6 bites) and US-17504 (probe seam and litmus): the four new consistency scans each have pass, fail and the named false-positive guards; countLitmusReadersAtHash reads distinct readers from probe-ledger entries at the current hash; parseLitmusFlag validates input; the readiness CLI --litmus flag exits 4 on a shortfall and documents the flag in --help; computeReadiness returns the pre-PR result when no probeRunner is passed and merges injected findings into open probe entries when one is.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17406-1",
+    "AC-17406-2",
+    "AC-17406-3",
+    "AC-17406-4",
+    "AC-17406-5",
+    "AC-17406-6",
+    "AC-17504-1",
+    "AC-17504-2",
+    "AC-17504-3",
+    "AC-17504-4",
+    "AC-17504-5"
+  ],
+  "id": "TS-232",
+  "usId": "US-17406",
+  "title": "DEFINE step 3 PR 7: D6 consistency scans, probe seam, --litmus and rcf_define_litmus",
+  "testCases": [
+    {
+      "id": "TC-232-contradictions-same-when-negated-then",
+      "acId": "AC-17406-1",
+      "description": "Two ACs on one story sharing a when clause and a negated then fail consistency:contradictions with the story id and both AC ids in the why.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-1): contradictions fails a story with two ACs sharing a when and a negated then"
+    },
+    {
+      "id": "TC-232-contradictions-quoted-negation-guard",
+      "acId": "AC-17406-6",
+      "description": "A negation inside a double-quoted substring in a then does not fire consistency:contradictions on the story.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-6): contradictions does not fire on a negation inside a quoted substring"
+    },
+    {
+      "id": "TC-232-unsatisfiable-undefined-field",
+      "acId": "AC-17406-2",
+      "description": "A then naming a field no recordShape defines fails consistency:unsatisfiable with id <acId>:<field>.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-2): unsatisfiable fails an AC naming a field no recordShape defines"
+    },
+    {
+      "id": "TC-232-unsatisfiable-draft-recordshape",
+      "acId": "AC-17406-3",
+      "description": "A field defined in a [draft] recordShape counts as defined; consistency:unsatisfiable passes the AC.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-3): unsatisfiable passes when the field lives in a [draft] recordShape"
+    },
+    {
+      "id": "TC-232-duplicates-across-stories",
+      "acId": "AC-17406-4",
+      "description": "Identical AC descriptions on two stories fail consistency:duplicates with both AC ids.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-4): duplicates fails identical AC descriptions across stories"
+    },
+    {
+      "id": "TC-232-orphan-interfaces",
+      "acId": "AC-17406-5",
+      "description": "An interface no ownerRef and no deliveredBy reaches fails consistency:orphanInterfaces with id <tacId>:<name>.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 7, AC-17406-5): orphanInterfaces fails an interface no ownerRef and no deliveredBy reaches"
+    },
+    {
+      "id": "TC-232-probe-runner-injects-findings",
+      "acId": "AC-17504-1",
+      "description": "A probeRunner returning two findings for REQ-003 causes consistency:probeCount to fail; the injected findings appear as open probe entries.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (PR 7, AC-17504-1): probeRunner findings land as open probe entries that fail consistency:probeCount"
+    },
+    {
+      "id": "TC-232-no-probe-runner-matches-pre-pr",
+      "acId": "AC-17504-2",
+      "description": "No probeRunner yields the pre-PR result on the same fixture; consistency:probeCount passes.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (PR 7, AC-17504-2): no probeRunner yields the pre-PR result"
+    },
+    {
+      "id": "TC-232-litmus-reader-count",
+      "acId": "AC-17504-3",
+      "description": "countLitmusReadersAtHash reads distinct readers from probe-ledger entries whose finding begins litmus:<reader>: and whose text includes the hash; readings from the same reader are counted once.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (PR 7): countLitmusReadersAtHash reads distinct readers from probe entries"
+    },
+    {
+      "id": "TC-232-parse-litmus-flag",
+      "acId": "AC-17504-4",
+      "description": "parseLitmusFlag parses a positive integer, returns null when absent, and throws a usage error on a non-positive or non-integer value.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (PR 7): parseLitmusFlag validates its input"
+    },
+    {
+      "id": "TC-232-cli-litmus-shortfall-exits-4",
+      "acId": "AC-17504-4",
+      "description": "rcf define readiness --litmus 2 with no readers exits 4 and prints the shortfall on stderr.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli (PR 7, AC-17504-4): --litmus 2 with no readers exits 4 naming the shortfall"
+    },
+    {
+      "id": "TC-232-cli-litmus-no-process-spawn",
+      "acId": "AC-17504-5",
+      "description": "The --litmus flag triggers no process spawn and no network call; globalThis.fetch is left untouched by the compute and the counter.",
+      "status": "pending",
+      "testPointer": "test/query/readiness.test.js::readiness (PR 7, AC-17504-5): --litmus triggers no process spawn and no network call"
+    }
+  ],
+  "status": "draft"
+}
