@@ -252,10 +252,12 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (./index.json, LookupModal, Cmd/Ctrl+F) chain amendments (196 -> 197).
   // Viewer UI refresh PR 8 added US-18002 under REQ-180 for the Readiness
   // PO layer question cards grouped by source span (197 -> 198).
-    // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added US-18801 under
+  // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added US-18801 under
   // REQ-188 (the draft homes) and US-18202 under REQ-182 (the
   // DEFINE-stage guidance pack) (198 -> 200).
-  assert.equal(tree.userStories.length, 200);
+  // Viewer UI refresh PR 9 added US-206 under REQ-002 for the wespa
+  // host fixture + three embedding lints chain amendments (200 -> 201).
+  assert.equal(tree.userStories.length, 201);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -282,7 +284,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (./index.json route + LookupModal + Cmd/Ctrl+F) (52 -> 53).
   // Viewer UI refresh PR 8 added TAC-4133 for the Readiness PO layer
   // (53 -> 54).
-  assert.equal(tree.tacs.length, 54);
+  // Viewer UI refresh PR 9 added TAC-4134-wespa-host-fixture (test-host
+  // fixture + three embedding lints) under REQ-002 (54 -> 55).
+  assert.equal(tree.tacs.length, 55);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -312,10 +316,12 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // once per rewalk; lazy fetch) (55 -> 56).
   // Viewer UI refresh PR 8 added ADR-4135 (readiness PO register and
   // adapter) (56 -> 57).
-    // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added ADR-4132
+  // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added ADR-4132
   // (prototypes in DISCOVERY as evidence; code is burned; salvage is
   // re-derivation) (57 -> 58).
-  assert.equal(tree.adrs.length, 58);
+  // Viewer UI refresh PR 9 added ADR-4136-embedding-host-fixture (CI
+  // host fixture + three lints; fixture does not persist theme) (58 -> 59).
+  assert.equal(tree.adrs.length, 59);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -490,10 +496,13 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // test/view/id-lookup.test.js) (166 -> 167).
   // Viewer UI refresh PR 8 added TS-227 (US-18002 Readiness PO question
   // cards, 3 TCs on test/view/readiness-po-layer.test.js) (167 -> 168).
-    // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added TS-228
+  // DEFINE step 3 PR 3 (w-2026-10-03-dave-001) added TS-228
   // (US-18801 + US-18202, 9 TCs; renumbered from the cloud build's
   // TS-227 after viewer PR 8 claimed TS-227 for US-18002) (168 -> 169).
-  assert.equal(tree.testSuites.length, 169);
+  // Viewer UI refresh PR 9 added TS-229 (US-206 wespa host fixture +
+  // three lints, 6 TCs on test/view/wespa-host-fixture.test.js and
+  // the Playwright evidence script in the lane return) (169 -> 170).
+  assert.equal(tree.testSuites.length, 170);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

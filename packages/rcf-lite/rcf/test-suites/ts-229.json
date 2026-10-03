@@ -1,0 +1,83 @@
+{
+  "createdAt": "2026-10-03T09:55:00Z",
+  "updatedAt": "2026-10-03T10:00:00Z",
+  "purpose": "Cover US-206 (wespa's embedding contract is proved by a CI host fixture): the fixture renders a 56px header + resizable sidebar around an iframe pointed at ./?embed=1&theme=light with no inline script (AC-206-1), theme flips via postMessage without a reload (AC-206-2, source invariants + Playwright live proof in the lane evidence), embed and theme survive a hash-only in-iframe navigation (AC-206-3, source invariants + Playwright live proof), cross-origin messages are ignored by the viewer listener (AC-206-4), the three lints keep framing headers, target=_top and localStorage namespace in place (AC-206-5), and no new outbound postMessage shape is introduced by the viewer or the fixture (AC-206-6). All TCs resolve to node tests under test/view/wespa-host-fixture.test.js.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-206-1",
+    "AC-206-2",
+    "AC-206-3",
+    "AC-206-4",
+    "AC-206-5",
+    "AC-206-6"
+  ],
+  "id": "TS-229",
+  "usId": "US-206",
+  "title": "Wespa host fixture: iframe shell, theme postMessage, hash-nav embed preservation, cross-origin refusal, three lints, no new outbound postMessage shape",
+  "testCases": [
+    {
+      "id": "TC-229-fixture-shell",
+      "acId": "AC-206-1",
+      "description": "renderTestHostPage returns an HTML5 document with a 56px wespa-header, data-rcf-host-sidebar + data-rcf-host-sidebar-drag markers, data-rcf-host-theme light/dark toggles, an iframe whose src is literally './?embed=1&theme=light' (HTML-entity encoded), a '<script src=./test-host.js defer>' line and zero inline <script> blocks.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::renderTestHostPage: HTML5 document, no inline script, iframe src is ./?embed=1&theme=light"
+    },
+    {
+      "id": "TC-229-test-host-http-roundtrip",
+      "acId": "AC-206-1",
+      "description": "The router serves /test-host.html with the fixture body (iframe src + script tag) and /test-host.js with application/javascript when testHost: true; both routes return 404 by default so wespa's reverse-proxy allow-list is unaffected.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::/test-host.html is served when testHost: true; iframe src and no inline script round-trip over HTTP"
+    },
+    {
+      "id": "TC-229-theme-postmessage-source",
+      "acId": "AC-206-2",
+      "description": "src/view/test-host/embed-client.js posts { type: 'rcf-view-theme', theme } to iframe.contentWindow targeting window.location.origin, and its code (comments stripped) contains no localStorage/sessionStorage write (ADR-4136 does-not-persist invariant). The live postMessage round-trip is captured in Playwright evidence (agents/dave/remote-lane/inbox/r-20261002-161325-e2a2/output/evidence/test-host-dark-iframe-flipped.png).",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::AC-206-2: embed-client posts { type: rcf-view-theme, theme } to the iframe targeting window.location.origin"
+    },
+    {
+      "id": "TC-229-hash-nav-embed-preserved",
+      "acId": "AC-206-3",
+      "description": "src/view/page-init.js exposes writeHash (reassigns location.hash only, preserving the search string by construction) and stamps data-embed + data-theme on load. Live hash-nav proof lives in Playwright evidence (hash-nav-proof.txt + test-host-iframe-hash-nav-embed-preserved.png).",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::AC-206-3: page-init preserves embed=1 and theme= across hash writes (urlWithHash + writeHash)"
+    },
+    {
+      "id": "TC-229-cross-origin-ignored",
+      "acId": "AC-206-4",
+      "description": "src/view/page-init.js registers an addEventListener('message', ...) whose first guard returns early when ev.origin !== window.location.origin; cross-origin messages never reach the applyTheme path and <html data-theme> is unchanged.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::AC-206-4: page-init theme message listener rejects messages whose origin differs from window.location.origin"
+    },
+    {
+      "id": "TC-229-lint-framing",
+      "acId": "AC-206-5",
+      "description": "assertFramingHeaders over GET / returns ok: true (no X-Frame-Options; no CSP frame-ancestors forbidding same-origin). Positive + negative unit cases also pass (refuses on X-Frame-Options present, refuses on frame-ancestors 'none', accepts frame-ancestors 'self').",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::lint 1 (framing): GET / carries no X-Frame-Options and no CSP frame-ancestors that forbids same-origin"
+    },
+    {
+      "id": "TC-229-lint-no-target-top",
+      "acId": "AC-206-5",
+      "description": "assertNoTargetTop returns count: 0 across every rendered page (renderPage shell, renderComponentsFixturePage, renderTestHostPage). Also lints the populated dogfood tree render (renderModelToPage) so per-document conditional output cannot smuggle a target=\"_top\" past the test. Positive + negative unit cases cover target=\"_top\" / target='_top' / target=_top.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::lint 2 (target=\"_top\"): zero occurrences across every rendered page (shell, components fixture, test-host fixture, populated dogfood tree)"
+    },
+    {
+      "id": "TC-229-lint-localstorage-namespace",
+      "acId": "AC-206-5",
+      "description": "assertLocalStorageNamespace over the src/view tree returns ok: true; every localStorage/sessionStorage call site resolves to a key starting with 'rcf-view:v1:'.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::lint 3 (localStorage namespace): every storage call site under src/view uses an rcf-view:v1: key"
+    },
+    {
+      "id": "TC-229-no-new-outbound-postmessage-shape",
+      "acId": "AC-206-6",
+      "description": "A grep over src/view/** (excluding test-host/embed-client.js, the sanctioned emitter) finds zero .postMessage( call sites; the embed-client itself posts exactly one shape, 'rcf-view-theme'.",
+      "status": "pending",
+      "testPointer": "test/view/wespa-host-fixture.test.js::AC-206-6: no outbound postMessage shape beyond rcf-view-theme is introduced by the viewer or the fixture"
+    }
+  ],
+  "status": "draft"
+}

@@ -14,7 +14,7 @@ import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { LIVE_CLIENT_PATH, PAGE_INIT_PATH, STYLE_CSS_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
+import { LIVE_CLIENT_PATH, PAGE_INIT_PATH, STYLE_CSS_PATH, TEST_HOST_CLIENT_PATH, VENDORED_MERMAID_PATH, renderModelToPage } from '../view/index.js';
 import { watch as defaultWatch } from '../watch/index.js';
 import { createRouter } from './routes.js';
 import { createScopeHandler } from './scope-endpoint.js';
@@ -29,6 +29,10 @@ import { createSseHub } from './sse.js';
  * @property {number} [debounceMs=50]
  * @property {(line: string) => void} [log] - stderr sink
  * @property {typeof defaultWatch} [watchImpl] - injectable watch primitive for tests
+ * @property {boolean} [testHost=false] - viewer UI refresh PR 9 (TAC-4134,
+ *   ADR-4136): when true, mount the wespa host fixture at /test-host.html
+ *   plus its embed-client script at /test-host.js. Off by default so
+ *   wespa's proxy allow-list is unaffected.
  */
 
 /**
@@ -70,6 +74,7 @@ export async function startServer(args) {
   const debounceMs = typeof args.debounceMs === 'number' ? args.debounceMs : 50;
   const log = typeof args.log === 'function' ? args.log : () => {};
   const watchImpl = typeof args.watchImpl === 'function' ? args.watchImpl : defaultWatch;
+  const testHost = args.testHost === true;
 
   /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('#core/errors').RcfError[] } | null} */
   let state = null;
@@ -127,11 +132,17 @@ export async function startServer(args) {
   // so a checkout branch switch during the server's lifetime cannot
   // change what gets served. The tree walker is the only path that
   // re-reads disk on rcf/ change; every other asset is fixed at boot.
-  const [styleAsset, mermaidAsset, liveClientAsset, pageInitAsset] = await Promise.all([
+  const [styleAsset, mermaidAsset, liveClientAsset, pageInitAsset, testHostClientAsset] = await Promise.all([
     loadStaticAsset(STYLE_CSS_PATH, 'text/css; charset=utf-8'),
     loadStaticAsset(VENDORED_MERMAID_PATH, 'application/javascript; charset=utf-8'),
     loadStaticAsset(LIVE_CLIENT_PATH, 'application/javascript; charset=utf-8'),
     loadStaticAsset(PAGE_INIT_PATH, 'application/javascript; charset=utf-8'),
+    // Viewer UI refresh PR 9 (TAC-4134): the wespa host fixture client
+    // only loads when testHost is on. Keeping the read behind the gate
+    // means a startup under default options never touches the file.
+    testHost
+      ? loadStaticAsset(TEST_HOST_CLIENT_PATH, 'application/javascript; charset=utf-8')
+      : Promise.resolve(null),
   ]);
 
   const scopeHandler = createScopeHandler({ projectRoot });
@@ -150,6 +161,9 @@ export async function startServer(args) {
     liveClientPath: LIVE_CLIENT_PATH,
     pageInitPath: PAGE_INIT_PATH,
     scope: scopeHandler,
+    testHost,
+    testHostClientAsset,
+    testHostClientPath: testHost ? TEST_HOST_CLIENT_PATH : undefined,
   });
 
   const server = createServer(router);

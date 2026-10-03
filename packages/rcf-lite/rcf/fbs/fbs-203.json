@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T19:00:00Z",
-  "updatedAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:55:00Z",
   "acIds": [
     "AC-204-1",
     "AC-204-2",
@@ -19,7 +19,13 @@
     "AC-205-8",
     "AC-18002-1",
     "AC-18002-2",
-    "AC-18002-3"
+    "AC-18002-3",
+    "AC-206-1",
+    "AC-206-2",
+    "AC-206-3",
+    "AC-206-4",
+    "AC-206-5",
+    "AC-206-6"
   ],
   "fbsId": "FBS-203",
   "prdId": "PRD-001",
@@ -33,11 +39,13 @@
   "contextRequirements": {
     "tacIds": [
       "TAC-4131-build-dag-view",
-      "TAC-4132-id-lookup"
+      "TAC-4132-id-lookup",
+      "TAC-4134-wespa-host-fixture"
     ],
     "adrIds": [
       "ADR-4133-dag-dependency-depth-layout",
-      "ADR-4134-index-json-route"
+      "ADR-4134-index-json-route",
+      "ADR-4136-embedding-host-fixture"
     ]
   },
   "deliverables": [
@@ -73,10 +81,20 @@
     "packages/rcf-lite/rcf/tacs/tac-4133-readiness-po-layer.json: TAC-4133 for the Readiness PO layer (PR 8)",
     "packages/rcf-lite/rcf/adrs/adr-4135-readiness-po-register-and-adapter.json: ADR-4135 for the two-audience split by register and the adapter seam (PR 8)",
     "packages/rcf-lite/rcf/test-suites/ts-227.json: TS-227 covering AC-18002-1..3 (PR 8)",
-    "packages/rcf-lite/rcf/code-nodes/cn-746..cn-749.json: CN entries mapping PR 8 code files to AC-18002-* (PR 8)"
+    "packages/rcf-lite/rcf/code-nodes/cn-746..cn-749.json: CN entries mapping PR 8 code files to AC-18002-* (PR 8)",
+    "packages/rcf-lite/src/view/test-host/fixture.js: renderTestHostPage (pure HTML string; 56px header, resizable sidebar, iframe mounted at ./?embed=1&theme=light; no inline <script>) (PR 9)",
+    "packages/rcf-lite/src/view/test-host/embed-client.js: /test-host.js wiring (theme toggle posts rcf-view-theme to iframe.contentWindow targeting window.location.origin; sidebar drag + collapse/expand; no localStorage persist) (PR 9)",
+    "packages/rcf-lite/src/view/test-host/lints.js: assertFramingHeaders, assertNoTargetTop, assertLocalStorageNamespace (three pure embedding lints) (PR 9)",
+    "packages/rcf-lite/src/cli/view.js, packages/rcf-lite/src/server/index.js, packages/rcf-lite/src/server/routes.js: --test-host CLI flag + RCF_VIEW_TEST_HOST=1 env guard, 404-by-default route surface for /test-host.html and /test-host.js (PR 9)",
+    "packages/rcf-lite/test/view/wespa-host-fixture.test.js: 11 unit tests covering the fixture shell, 404-by-default route surface, HTTP round-trip, and the three lints (positive + negative) (PR 9)",
+    "packages/rcf-lite/rcf/user-stories/us-206.json: US-206 with AC-206-1..6 (PR 9)",
+    "packages/rcf-lite/rcf/tacs/tac-4134-wespa-host-fixture.json: TAC-4134 (test-host fixture + three embedding lints) (PR 9)",
+    "packages/rcf-lite/rcf/adrs/adr-4136-embedding-host-fixture.json: ADR-4136 (CI host fixture + three lints; fixture does not persist theme) (PR 9)",
+    "packages/rcf-lite/rcf/test-suites/ts-229.json: TS-229 covering AC-206-1..6 (PR 9 landing)",
+    "packages/rcf-lite/rcf/code-nodes/cn-750..cn-752.json: CN entries mapping PR 9 code files to AC-206-* (PR 9 landing)"
   ],
   "riskLevel": "low",
   "domain": "reviewSurface",
   "estimatedSize": "large",
-  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extend the `acIds` list under this file as AC-205-*, AC-18002-* and AC-206-* arrive. Flip `executionStatus` to `verified` after PR 9 lands and the full suite is green."
+  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extended the acIds list under this file as AC-205-*, AC-18002-* and AC-206-* arrived. Status stays `inProgress` after PR 9 lands because every TC on this stream's TS docs is still `pending` (not yet flipped to `passing`); flip to `verified` is a separate housekeeping pass once each TC's status is advanced to `passing` against the green suite."
 }

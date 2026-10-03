@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-752",
+  "path": "src/view/test-host/lints.js",
+  "title": "Three embedding lints: framing headers, target=_top, localStorage namespace",
+  "description": "Three pure assertions callable by any test harness; test/view/wespa-host-fixture.test.js is the suite caller. (1) `assertFramingHeaders(response)` refuses on `X-Frame-Options` or on CSP `frame-ancestors` forbidding same-origin, and accepts `frame-ancestors 'self'`. (2) `assertNoTargetTop(renderedHtml)` greps for `target=\"_top\"` / `target='_top'` / `target=_top` and refuses on any match; returns `{ ok, count }`. (3) `assertLocalStorageNamespace(sourceTreeRoot)` walks every .js file under `src/view/**` (excluding vendored and .min.js) and asserts every `localStorage.*` / `sessionStorage.*` / shared `storage.*` call site uses a key literal starting with `rcf-view:v1:` or a constant resolving to that prefix. Together they pin AC-206-5 against regressions.",
+  "implementsAcIds": [
+    "AC-206-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:55:00Z",
+  "updatedAt": "2026-10-03T09:55:00Z"
+}

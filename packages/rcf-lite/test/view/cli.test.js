@@ -20,6 +20,7 @@ import {
   openerFor,
   parseArgs,
   resolvePort,
+  resolveTestHost,
 } from '../../src/cli/view.js';
 
 const exec = promisify(execFile);
@@ -446,6 +447,25 @@ test('parseArgs rejects a non-integer --port value', () => {
 test('parseArgs rejects --port with no following value', () => {
   const { errors } = parseArgs(['--port']);
   assert.ok(errors.some((e) => /--port requires/.test(e)));
+});
+
+test('parseArgs recognises --test-host (viewer UI refresh PR 9; TAC-4134)', () => {
+  const { opts, errors } = parseArgs(['--test-host']);
+  assert.equal(errors.length, 0);
+  assert.equal(opts.testHost, true);
+});
+
+test('parseArgs defaults --test-host to false', () => {
+  const { opts } = parseArgs([]);
+  assert.equal(opts.testHost, false);
+});
+
+test('resolveTestHost: flag beats env beats default (false)', () => {
+  assert.equal(resolveTestHost(true, {}), true);
+  assert.equal(resolveTestHost(true, { RCF_VIEW_TEST_HOST: '0' }), true);
+  assert.equal(resolveTestHost(false, { RCF_VIEW_TEST_HOST: '1' }), true);
+  assert.equal(resolveTestHost(false, { RCF_VIEW_TEST_HOST: '0' }), false);
+  assert.equal(resolveTestHost(false, {}), false);
 });
 
 test('resolvePort: --port beats env beats default', () => {

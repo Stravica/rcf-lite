@@ -121,6 +121,36 @@ flowchart LR
   REQ-002 --> AC-205-8
   TC-225-no-outbound-side-effects["TC-225-no-outbound-side-effects"]
   AC-205-8 -.-> TC-225-no-outbound-side-effects
+  AC-206-1["AC-206-1"]
+  REQ-002 --> AC-206-1
+  TC-229-fixture-shell["TC-229-fixture-shell"]
+  AC-206-1 -.-> TC-229-fixture-shell
+  TC-229-test-host-http-roundtrip["TC-229-test-host-http-roundtrip"]
+  AC-206-1 -.-> TC-229-test-host-http-roundtrip
+  AC-206-2["AC-206-2"]
+  REQ-002 --> AC-206-2
+  TC-229-theme-postmessage-source["TC-229-theme-postmessage-source"]
+  AC-206-2 -.-> TC-229-theme-postmessage-source
+  AC-206-3["AC-206-3"]
+  REQ-002 --> AC-206-3
+  TC-229-hash-nav-embed-preserved["TC-229-hash-nav-embed-preserved"]
+  AC-206-3 -.-> TC-229-hash-nav-embed-preserved
+  AC-206-4["AC-206-4"]
+  REQ-002 --> AC-206-4
+  TC-229-cross-origin-ignored["TC-229-cross-origin-ignored"]
+  AC-206-4 -.-> TC-229-cross-origin-ignored
+  AC-206-5["AC-206-5"]
+  REQ-002 --> AC-206-5
+  TC-229-lint-framing["TC-229-lint-framing"]
+  AC-206-5 -.-> TC-229-lint-framing
+  TC-229-lint-localstorage-namespace["TC-229-lint-localstorage-namespace"]
+  AC-206-5 -.-> TC-229-lint-localstorage-namespace
+  TC-229-lint-no-target-top["TC-229-lint-no-target-top"]
+  AC-206-5 -.-> TC-229-lint-no-target-top
+  AC-206-6["AC-206-6"]
+  REQ-002 --> AC-206-6
+  TC-229-no-new-outbound-postmessage-shape["TC-229-no-new-outbound-postmessage-shape"]
+  AC-206-6 -.-> TC-229-no-new-outbound-postmessage-shape
   REQ-003["REQ-003"]
   AC-301-1["AC-301-1"]
   REQ-003 --> AC-301-1
@@ -2661,6 +2691,21 @@ flowchart LR
   class TC-225-empty-state-on-fetch-failure tc;
   class AC-205-8 ac;
   class TC-225-no-outbound-side-effects tc;
+  class AC-206-1 ac;
+  class TC-229-fixture-shell tc;
+  class TC-229-test-host-http-roundtrip tc;
+  class AC-206-2 ac;
+  class TC-229-theme-postmessage-source tc;
+  class AC-206-3 ac;
+  class TC-229-hash-nav-embed-preserved tc;
+  class AC-206-4 ac;
+  class TC-229-cross-origin-ignored tc;
+  class AC-206-5 ac;
+  class TC-229-lint-framing tc;
+  class TC-229-lint-localstorage-namespace tc;
+  class TC-229-lint-no-target-top tc;
+  class AC-206-6 ac;
+  class TC-229-no-new-outbound-postmessage-shape tc;
   class REQ-003 req;
   class AC-301-1 ac;
   class TC-006-read-reports-valid tc;

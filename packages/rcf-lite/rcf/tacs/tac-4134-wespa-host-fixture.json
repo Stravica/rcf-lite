@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-02T20:00:00Z",
+  "updatedAt": "2026-10-02T20:00:00Z",
+  "tacId": "TAC-4134-wespa-host-fixture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Wespa host fixture: /test-host.html and the three embedding lints",
+  "purpose": "Serve a same-origin test-host fixture page that mimics the wespa shell (a 56px header, a resizable 64/200-400px sidebar, a content pane carrying `<iframe src=\"./?embed=1&theme=light\">`) and ship three CI lints (framing headers, `target=\"_top\"` grep, localStorage namespace grep) that keep wespa's embedding contract honest over time. The fixture is off the default route surface so wespa's reverse-proxy allow-list is unaffected; it is gated on a `--test-host` CLI flag or the `RCF_VIEW_TEST_HOST=1` env var and never served under production use.",
+  "responsibilities": [
+    "src/view/test-host/fixture.js: `renderTestHostPage()` returns the HTML for the fixture (56px header with Light/Dark/Auto theme toggle buttons, a resizable sidebar with a drag handle and a Collapse/Expand control, a content pane containing the single `<iframe id=\"rcf-test-host-iframe\" src=\"./?embed=1&theme=light\">` sized to 100% of its box). No inline script; the page references `./test-host.js` as a relative script.",
+    "src/view/test-host/embed-client.js: classic (non-module) browser script that wires the theme toggle buttons to `iframe.contentWindow.postMessage({ type: \"rcf-view-theme\", theme }, window.location.origin)`, the sidebar drag handle to a live width update (clamped to 64-400px) and the Collapse/Expand button to a 64px <-> 200px snap. The script posts nothing beyond `rcf-view-theme`, does not read event.origin itself (the viewer does), and writes nothing to localStorage so a passing run proves the iframe honours the message.",
+    "src/view/test-host/lints.js: `assertFramingHeaders(response)` scans a GET / response for `X-Frame-Options`, CSP `frame-ancestors` and `X-Content-Type-Options` oddities (any present or any `frame-ancestors` directive forbidding `self` fails); `assertNoTargetTop(renderedHtml)` scans the HTML for any `target=\"_top\"` or `target='_top'` occurrence and refuses on a non-zero count; `assertLocalStorageNamespace(sourceTree)` scans every `.js` file under `src/view/**` (not vendored, not `.min.js`) for `localStorage.(setItem|getItem|removeItem)(` and `storage.(setItem|getItem|removeItem)(` call sites and refuses on any key literal that does not start with `rcf-view:v1:`.",
+    "src/server/routes.js: when `deps.testHost === true`, register `GET /test-host.html` returning `renderTestHostPage()` with `content-type: text/html` and no framing-blocking header; register `GET /test-host.js` returning the embed-client script as `application/javascript` with no framing-blocking header. Off the default route surface: both routes 404 unless `testHost` is on.",
+    "src/server/index.js: plumb an optional `testHost: boolean` option through `startServer(args)` into the router; default false. Wire the embed-client asset at startup via `loadStaticAsset`, same discipline as `./live-client.js`.",
+    "src/cli/view.js: parse `--test-host` into `opts.testHost`; precedence is flag beats `RCF_VIEW_TEST_HOST=1` env beats default (false). Pass `testHost` through to `startServer`. Help text names the flag and marks it a test-suite fixture, not a shipped UI.",
+    "test/view/wespa-host-fixture.test.js: end-to-end node-level checks that boot the router with `testHost: true` over `http.createServer`, GET /, GET /test-host.html, GET /test-host.js, assert the three lints green, parse the iframe `src` from the fixture HTML and assert `./?embed=1&theme=light` exactly, assert the fixture carries no inline `<script>` block, assert the viewer's rendered HTML carries `<html data-embed=\"1\">` wiring (via page-init.js) and that the fixture page does not persist theme to localStorage."
+  ],
+  "internalStructure": "Three composition seams. (1) `renderTestHostPage()` is a pure function (no reads, no I/O) that emits the host HTML and references the relative embed-client script; swap the host markup in one place. (2) The embed-client script is served as a snapshotted asset at startup; it is the only client-side JS the fixture carries. (3) `src/view/test-host/lints.js` exports three pure assertions keyed on their inputs (response object, HTML string, source tree root) so each lint composes into any test that needs it and the test file is the sole caller.",
+  "interfaces": [
+    {
+      "name": "GET /test-host.html",
+      "kind": "httpRoute",
+      "description": "[draft] Returns the host fixture HTML (`renderTestHostPage()`). Served only when `startServer({ testHost: true })` is on (CLI `--test-host` or env `RCF_VIEW_TEST_HOST=1`); 404 otherwise. No `X-Frame-Options`, no CSP `frame-ancestors` directive. Relative script `./test-host.js` is the only client-side JS. Not under the production root; the viewer's `/` surface is untouched."
+    },
+    {
+      "name": "GET /test-host.js",
+      "kind": "httpRoute",
+      "description": "[draft] Returns the embed-client script that wires the theme toggle, sidebar drag and Collapse/Expand to postMessage and sidebar width updates. `application/javascript`; snapshotted at startup. Same `testHost` gate as the HTML route."
+    },
+    {
+      "name": "assertFramingHeaders",
+      "kind": "moduleApi",
+      "description": "[draft] `assertFramingHeaders(response)` on a `GET /` response. Refuses if `X-Frame-Options` is present, if a CSP `frame-ancestors` directive forbids `self`, or if `X-Content-Type-Options: nosniff` is set in a way that breaks the fixture (today it does not; the lint still records absence). Returns `{ ok: true }` or throws with the first failure."
+    },
+    {
+      "name": "assertNoTargetTop",
+      "kind": "moduleApi",
+      "description": "[draft] `assertNoTargetTop(renderedHtml)` greps the server-rendered HTML for `target=\"_top\"` and `target='_top'` and refuses on any match. Returns `{ ok: true, count: 0 }` or `{ ok: false, count: n, matches: [...] }`."
+    },
+    {
+      "name": "assertLocalStorageNamespace",
+      "kind": "moduleApi",
+      "description": "[draft] `assertLocalStorageNamespace(sourceTreeRoot)` walks every `.js` file under `src/view/**` (excluding vendored and `.min.js`), finds every `localStorage.(setItem|getItem|removeItem)(KEY)` and `storage.(setItem|getItem|removeItem)(KEY)` call site, and asserts that the key literal starts with `rcf-view:v1:` (or references `STORAGE_NS` which equals `rcf-view:v1:`). Returns `{ ok: true, scanned: n }` or `{ ok: false, violations: [...] }`."
+    },
+    {
+      "name": "renderTestHostPage",
+      "kind": "moduleApi",
+      "description": "[draft] Pure function that emits the fixture HTML (56px header, resizable 64/200-400px sidebar, iframe content pane). No inline script; references `./test-host.js` as the single client-side JS."
+    }
+  ],
+  "notes": "Depends on PR 1's `embed` and `theme` contract (page-init.js stamping `<html data-embed=\"1\">` and `<html data-theme>`, origin-checked `rcf-view-theme` listener, hash navigation preserving the host query string), on PR 1's relative-script policy (no inline script, no leading-slash references) and on live-client.js's existing `STORAGE_NS = 'rcf-view:v1:'` namespace. The test-host route surface is behind `--test-host` / `RCF_VIEW_TEST_HOST=1`; the release notes mark it as a test-suite fixture, not a shipped UI, so wespa's proxy allow-list is unaffected. The three lints are called from the viewer's test suite; wespa smoke on the live wespa shell is Dex's side."
+}

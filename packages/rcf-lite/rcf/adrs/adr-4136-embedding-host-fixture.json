@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-02T20:00:00Z",
+  "updatedAt": "2026-10-02T20:00:00Z",
+  "adrId": "ADR-4136-embedding-host-fixture",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The embedding contract is pinned by a CI host fixture; three lints keep framing, target='_top' and localStorage namespace in place; the fixture does not persist theme itself so a passing run proves the iframe reads the message",
+  "context": "Dex's wespa requirements (2026-10-02; `docs/2026-10-02_dex-wespa-embedding-requirements.md`) and the viewer UI refresh design section 9 pin the viewer's embedding contract: same-origin iframe behind wespa's reverse proxy under `/rcf-viewer/`, `embed=1` suppresses the title block and footer, `theme=light|dark|auto` on first paint, `{ type: \"rcf-view-theme\", theme }` postMessage with `event.origin` checked for live changes, viewer fills 100% viewport height and owns its scrolling, no framing-blocking headers, no `target=\"_top\"` links, localStorage namespaced under `rcf-view:v1:`, no outbound postMessage from the viewer. Wespa smoke on the live wespa shell is Dex's side; a regression there would reach wespa before the viewer saw it, so the viewer needs its own proof in CI. Unit-testing the message handler without an iframe does not prove framing works (a `X-Frame-Options` or wrong CSP would break the live embed and pass the unit test).",
+  "decision": "Ship a same-origin test-host fixture served by the viewer's own dev server at `/test-host.html` (plus `/test-host.js` for the client-side wiring) that mimics the wespa shell: a 56px header carrying a Light/Dark/Auto theme toggle, a resizable sidebar (64px collapsed, 200-400px expanded, user-resizable live via a drag handle), a content pane carrying a single `<iframe src=\"./?embed=1&theme=light\">`. The fixture is off the default route surface - gated on a `--test-host` CLI flag or the `RCF_VIEW_TEST_HOST=1` env var and 404s otherwise - so wespa's proxy allow-list is unaffected. Three lints run in the test suite: (1) framing lint on `GET /` (no `X-Frame-Options`, no CSP `frame-ancestors` that forbids same-origin); (2) `target=\"_top\"` grep over every rendered page (zero occurrences); (3) localStorage namespace grep over `src/view/**` (every key starts with `rcf-view:v1:`). The fixture does not persist its theme choice to localStorage so a passing run proves the iframe reads the postMessage (and not the host's own storage).",
+  "consequences": "The viewer's suite catches a framing regression (headers, `target=\"_top\"`, un-namespaced localStorage key) before it reaches wespa. The fixture is the first production use of the test-host surface, so a `--test-host` flag plus env guard is established as the pattern for every future embedding-shell fixture (adding a `/test-host/<other>.html` becomes a one-liner on the router). Keeping the fixture off the default route surface means the release notes do not need to extend wespa's proxy allow-list for every lint test; a later PR that wants to ship the host alongside the viewer can do so without re-platforming the fixture itself. The lints run on the dogfood tree today and fail on main if a future PR adds a framing-blocking header or writes to localStorage with a non-namespaced key, so the viewer PR that introduces the regression carries the fix in the same commit.",
+  "alternativesConsidered": [
+    {
+      "name": "Wespa-side-only smoke",
+      "summary": "Let wespa test the viewer's embedding against the live wespa shell; the viewer ships no proof of its own.",
+      "reasonNotChosen": "A regression lands on main before wespa sees it; wespa's smoke runs on a different repo on a different cadence, so a viewer refactor that drops `embed=1` or writes an un-namespaced localStorage key breaks every embedder and the viewer's own CI is clean. The lints run in the viewer's suite catch the regression at the PR that introduces it."
+    },
+    {
+      "name": "Unit-test the message handler without an iframe",
+      "summary": "Drive the viewer's `rcf-view-theme` postMessage handler through `node:vm` or a jsdom shim and assert the handler flips `data-theme`.",
+      "reasonNotChosen": "Does not prove framing. A later PR that adds `X-Frame-Options: DENY` to `GET /` would pass the unit test and break every embedder. The host fixture exercises the whole stack: HTTP headers, iframe mount, postMessage, data-theme stamp."
+    },
+    {
+      "name": "Ship the test host under the default route surface",
+      "summary": "Serve `/test-host.html` unconditionally; a developer can hit it directly to eyeball the embed.",
+      "reasonNotChosen": "Wespa's proxy allow-lists routes; a new default-on route needs an allow-list extension and a release-note version pin. The fixture is a test-suite proof, not a shipped UI; keeping it behind `--test-host` / `RCF_VIEW_TEST_HOST=1` means the production route surface stays `/`, `/events`, `/live-client.js`, `/page-init.js`, `/style.css`, `/mermaid.min.js`, `/product-map/*`, `/scope.json`, `/index.json`, `/_fixtures/components`."
+    },
+    {
+      "name": "Persist the theme in the host fixture itself",
+      "summary": "Store the Light/Dark choice in `localStorage` on the host so a reload keeps the toggle state.",
+      "reasonNotChosen": "A passing run would then not prove the iframe honours the postMessage: the host could set `data-theme` on the iframe URL and the iframe would never need to read the message. By refusing to persist, the fixture forces every theme flip through the postMessage path."
+    }
+  ]
+}

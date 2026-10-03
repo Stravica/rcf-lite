@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-751",
+  "path": "src/view/test-host/embed-client.js",
+  "title": "Wespa host fixture client: theme postMessage, sidebar drag + collapse/expand, same-origin message target",
+  "description": "Classic (non-module) browser script served at /test-host.js when the test-host route is on. Three fixture behaviours: (a) the theme toggle posts `{ type: 'rcf-view-theme', theme }` to `iframe.contentWindow`, targeting `window.location.origin` so a cross-origin receiver would refuse the message (underwrites AC-206-4 together with the viewer's own origin check in page-init.js); (b) the sidebar drag handle sets `--wespa-sidebar-width` on the <main> grid, clamped to 64..400 px live; (c) collapse/expand snaps the sidebar between 64 px and 200 px. Reads the iframe's `data-theme` attribute as evidence of the postMessage round-trip (AC-206-2). After the iframe's hash-only navigation, `data-embed` and the search string carry embed=1 and the theme, which the live-proof script captures (AC-206-3). The host does not read event.origin (the viewer does) and does not persist theme to localStorage (ADR-4136 invariant).",
+  "implementsAcIds": [
+    "AC-206-2",
+    "AC-206-3",
+    "AC-206-4"
+  ],
+  "dependencies": [
+    "CN-750"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:55:00Z",
+  "updatedAt": "2026-10-03T09:55:00Z"
+}

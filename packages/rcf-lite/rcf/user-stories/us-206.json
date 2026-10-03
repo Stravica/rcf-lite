@@ -1,0 +1,54 @@
+{
+  "usId": "US-206",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "wespa's embedding contract is proved by a CI host fixture",
+  "description": "A same-origin test-host fixture served by the viewer's dev server (route `/test-host.html` behind a `--test-host` flag or an env guard; off by default so wespa's proxy allow-list is unaffected) mimics the wespa shell: a 56px header, a resizable sidebar (64px collapsed, 200-400px expanded, user-resizable live via a drag handle), a content pane carrying an `<iframe src=\"./?embed=1&theme=light\">`. The host posts `{ type: \"rcf-view-theme\", theme: \"light\"|\"dark\" }` on a toggle control; it stores no theme itself so a passing run proves the iframe reads the message. The viewer sends no outbound postMessage. Three lints run in the test suite: (1) framing lint (`GET /` returns no `X-Frame-Options`, no CSP `frame-ancestors` that forbids same-origin, and the fixture loads the iframe without a browser error); (2) target lint (no `target=\"_top\"` string in the server-rendered HTML); (3) localStorage namespace lint (every `localStorage.{setItem,getItem,removeItem}` and shared `storage.*` call site in `src/view/**` uses a key starting with `rcf-view:v1:`). See viewer UI refresh design doc section 9 and Dex's wespa requirements of 2026-10-02.",
+  "asA": "Dex integrating the rcf-lite viewer behind wespa's reverse proxy",
+  "iWant": "a CI host fixture that proves the viewer honours the embedding contract and three lints that keep framing, target='_top' and localStorage namespace in place over time",
+  "soThat": "regressions in the embedding contract are caught in the viewer's own suite before they reach wespa",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-206-1",
+      "description": "[happy] Given the test-host fixture at `/test-host.html`, when the page loads with the viewer served from the same origin, then the iframe `src` is `./?embed=1&theme=light`, the title block and footer of the iframed viewer are hidden (`<html data-embed=\"1\">`), the tab nav is visible and the host's 56px header plus the resizable sidebar render around it.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-2",
+      "description": "[happy] Given the test-host fixture with the iframe loaded, when the host's theme toggle posts `{ type: \"rcf-view-theme\", theme: \"dark\" }` to the iframe's `contentWindow`, then the iframe's `<html data-theme>` flips to `dark` without a reload and the content repaints in the dark token set.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-3",
+      "description": "[happy] Given the test-host fixture with the iframe loaded at `./?embed=1&theme=dark`, when a hash-only navigation inside the iframe writes `#tab=requirements&entity=REQ-002`, then the iframe's query still carries `embed=1` and `theme=dark` and the viewer's inner `<html data-embed=\"1\" data-theme=\"dark\">` is preserved.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-4",
+      "description": "[failure] Given the viewer page listening for `rcf-view-theme` postMessages, when a message with `event.origin` different from `window.location.origin` is delivered, then the message is ignored and `<html data-theme>` is not changed.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-5",
+      "description": "[must-not] Given the viewer's `GET /` response, when the three lints run in the test suite, then (a) no `X-Frame-Options` header is set and no CSP `frame-ancestors` directive forbids same-origin framing, (b) `target=\"_top\"` appears zero times in the rendered HTML across every tab, (c) every `localStorage.{setItem,getItem,removeItem}` and shared `storage.*` call site under `src/view/**` uses a key starting with `rcf-view:v1:`.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-6",
+      "description": "[must-not] Given the test-host fixture and the viewer page, when either is loaded, then neither posts any outbound message beyond the host's `rcf-view-theme`; the viewer sends no `postMessage` of any shape, and the test-host adds no new postMessage shape.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4134-wespa-host-fixture"
+  ],
+  "tags": [
+    "view",
+    "embedding",
+    "lint"
+  ],
+  "createdAt": "2026-10-02T20:00:00Z",
+  "updatedAt": "2026-10-02T20:00:00Z"
+}

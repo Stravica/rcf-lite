@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-750",
+  "path": "src/view/test-host/fixture.js",
+  "title": "Wespa host fixture page: 56px header, resizable sidebar, iframe mounted at ./?embed=1&theme=light with no inline script",
+  "description": "`renderTestHostPage()` returns the host-fixture HTML as a pure string: HTML5 doctype, lang='en-GB', a 56px wespa-header carrying the Light/Dark toggle buttons, a resizable sidebar shell (data-rcf-host-sidebar + drag handle) and a content pane carrying `<iframe id=\"rcf-test-host-iframe\" src=\"./?embed=1&amp;theme=light\">`. The fixture ships no inline `<script>` body (CSP-friendly, consistent with the PR 1 contract); its client-side wiring lives at /test-host.js (served via /test-host.js when the test-host route is enabled). The fixture does not persist theme or sidebar width to localStorage (ADR-4136): a passing run has to flip the iframe through the postMessage path, which is the invariant the fixture pins. Proves AC-206-1 (shell + iframe src + no inline script) and underwrites AC-206-6 (no outbound postMessage shape beyond the embed-client's single rcf-view-theme post).",
+  "implementsAcIds": [
+    "AC-206-1",
+    "AC-206-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:55:00Z",
+  "updatedAt": "2026-10-03T09:55:00Z"
+}

@@ -253,6 +253,57 @@
             "TC-225-no-outbound-side-effects"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-1",
+          "covered": true,
+          "testCases": [
+            "TC-229-fixture-shell",
+            "TC-229-test-host-http-roundtrip"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-2",
+          "covered": true,
+          "testCases": [
+            "TC-229-theme-postmessage-source"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-3",
+          "covered": true,
+          "testCases": [
+            "TC-229-hash-nav-embed-preserved"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-4",
+          "covered": true,
+          "testCases": [
+            "TC-229-cross-origin-ignored"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-5",
+          "covered": true,
+          "testCases": [
+            "TC-229-lint-framing",
+            "TC-229-lint-localstorage-namespace",
+            "TC-229-lint-no-target-top"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-6",
+          "covered": true,
+          "testCases": [
+            "TC-229-no-new-outbound-postmessage-shape"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
