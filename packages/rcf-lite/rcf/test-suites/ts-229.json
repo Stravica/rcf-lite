@@ -60,9 +60,9 @@
     {
       "id": "TC-229-lint-no-target-top",
       "acId": "AC-206-5",
-      "description": "assertNoTargetTop returns count: 0 across every rendered page (renderPage shell, renderComponentsFixturePage, renderTestHostPage). Positive + negative unit cases cover target=\"_top\" / target='_top' / target=_top.",
+      "description": "assertNoTargetTop returns count: 0 across every rendered page (renderPage shell, renderComponentsFixturePage, renderTestHostPage). Also lints the populated dogfood tree render (renderModelToPage) so per-document conditional output cannot smuggle a target=\"_top\" past the test. Positive + negative unit cases cover target=\"_top\" / target='_top' / target=_top.",
       "status": "pending",
-      "testPointer": "test/view/wespa-host-fixture.test.js::lint 2 (target=\"_top\"): zero occurrences across every rendered page (shell, components fixture, test-host fixture)"
+      "testPointer": "test/view/wespa-host-fixture.test.js::lint 2 (target=\"_top\"): zero occurrences across every rendered page (shell, components fixture, test-host fixture, populated dogfood tree)"
     },
     {
       "id": "TC-229-lint-localstorage-namespace",

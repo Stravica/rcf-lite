@@ -152,11 +152,27 @@ test('lint 1 (framing): GET / carries no X-Frame-Options and no CSP frame-ancest
   }
 });
 
-test('lint 2 (target="_top"): zero occurrences across every rendered page (shell, components fixture, test-host fixture)', () => {
+test('lint 2 (target="_top"): zero occurrences across every rendered page (shell, components fixture, test-host fixture, populated dogfood tree)', async () => {
   const shell = renderPage(makeMinimalModel());
   const comp = renderComponentsFixturePage();
   const host = renderTestHostPage();
-  for (const [name, html] of [['renderPage', shell], ['renderComponentsFixturePage', comp], ['renderTestHostPage', host]]) {
+  // AC-206-5 fix (PR 9 landing): also lint the REAL populated dogfood
+  // tree render, not just the empty-model shell. Codex review flagged
+  // that per-document conditional output (requirements / US / TAC /
+  // ADR / product-map partials) would be absent from an empty model;
+  // adding target="_top" inside a USR renderer would not fail this
+  // test without the real tree. We import renderModelToPage lazily so
+  // the lint stays usable in environments where no tree exists.
+  const { renderModelToPage } = await import('../../src/view/index.js');
+  const populated = await renderModelToPage({ projectRoot: packageRoot });
+  const pages = [
+    ['renderPage', shell],
+    ['renderComponentsFixturePage', comp],
+    ['renderTestHostPage', host],
+    ['renderModelToPage(dogfood).fullPageHtml', populated.fullPageHtml],
+    ['renderModelToPage(dogfood).contentHtml', populated.contentHtml],
+  ];
+  for (const [name, html] of pages) {
     const result = assertNoTargetTop(html);
     assert.equal(result.ok, true, `${name}: target="_top" found: ${JSON.stringify(result)}`);
     assert.equal(result.count, 0);
