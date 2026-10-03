@@ -1,0 +1,76 @@
+{
+  "createdAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z",
+  "purpose": "Cover US-17404 (D3 bites): the three D3 bite checks shapes:templateMarkers, shapes:entityJoin and shapes:pathsResolve each have pass, fail, notApplicable, id and why strings; drafts are included in templateMarkers; the readiness CLI --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash; ackable() is exactly D3, D5, D6; --ack on D1, D2, D4, D7 or D8 exits 2 unchanged.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17404-1",
+    "AC-17404-2",
+    "AC-17404-3",
+    "AC-17404-4",
+    "AC-17404-5",
+    "AC-17404-6"
+  ],
+  "id": "TS-230",
+  "usId": "US-17404",
+  "title": "DEFINE step 3 PR 5: D3 bite checks, ackable, --check exit 4 policy",
+  "testCases": [
+    {
+      "id": "TC-230-templatemarkers-happy",
+      "acId": "AC-17404-1",
+      "description": "A recordShape with fields: and an httpRoute with method, path, request, response and errors each pass shapes:templateMarkers.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-174, AC-17404-1): recordShape with fields and httpRoute with all five markers pass templateMarkers"
+    },
+    {
+      "id": "TC-230-templatemarkers-missing",
+      "acId": "AC-17404-2",
+      "description": "An httpRoute description missing errors fails shapes:templateMarkers with id <tacId>:<name> and why 'missing marker errors'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-174, AC-17404-2): httpRoute missing errors fails templateMarkers with <tacId>:<name> and 'missing marker errors'"
+    },
+    {
+      "id": "TC-230-entityjoin-ok-and-twice",
+      "acId": "AC-17404-3",
+      "description": "Every coreEntity named by exactly one recordShape passes shapes:entityJoin; one named twice fails TAD.entity:<name> with '2 record shapes'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-174, AC-17404-3): entityJoin passes 1:1; two recordShapes naming the same entity fails TAD.entity:<name> with '2 record shapes'"
+    },
+    {
+      "id": "TC-230-pathsresolve-resolved-and-authored",
+      "acId": "AC-17404-4",
+      "description": "An interface description naming a path present in resolvedPaths passes shapes:pathsResolve; a missing path on an interface marked authoredAt: D3 also passes.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-174, AC-17404-4): pathsResolve passes a path in resolvedPaths and passes a missing path when authoredAt is D3"
+    },
+    {
+      "id": "TC-230-cli-check-shapes-exit-matrix",
+      "acId": "AC-17404-5",
+      "description": "rcf define readiness --check shapes exits 4 on an unacknowledged D3 failure and 0 when the freeze record acknowledges define.shapes at the current tree hash.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli (REQ-174, AC-17404-5): --check shapes exits 4 unacked and 0 acked at hash"
+    },
+    {
+      "id": "TC-230-freeze-ack-blocking-stages-exit-2",
+      "acId": "AC-17404-6",
+      "description": "rcf define freeze --ack <gate> --reason <text> on D1, D2, D4, D7 or D8 exits 2 unchanged from 0.29.0.",
+      "status": "pending",
+      "testPointer": "test/cli/freeze.test.js::freeze cli (REQ-174, AC-17404-6): --ack on D1/D2/D4/D7/D8 exits 2"
+    },
+    {
+      "id": "TC-230-ackable-exactly-d3-d5-d6",
+      "acId": "AC-17404-5",
+      "description": "ackable(stage) returns true for D3, D5 and D6 and false for D1, D2, D4, D7 and D8.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-174, AC-17404-5 helper): ackable() is exactly D3, D5, D6"
+    },
+    {
+      "id": "TC-230-templatemarkers-draft-recordshape",
+      "acId": "AC-17404-1",
+      "description": "A [draft] recordShape without fields: fails shapes:templateMarkers exactly as a settled one; this completes AC-18801-4 from PR 3.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-4): draft recordShape without fields fails templateMarkers"
+    }
+  ],
+  "status": "draft"
+}

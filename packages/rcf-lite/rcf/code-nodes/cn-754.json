@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-754",
+  "path": "src/cli/readiness.js",
+  "title": "DEFINE step 3 PR 5: --check shapes exit 4 policy and resolvedPaths resolve-on-disk",
+  "description": "src/cli/readiness.js grows a bite-aware --check policy: --check shapes exits 4 on an unacknowledged D3 failure and 0 when the freeze record acknowledges define.shapes at the current tree hash; the warn-with-ack branch is kept for D5 and D6 until PRs 6 and 7 bite them. Before invoking computeReadiness the CLI collects candidate path tokens from in-scope TAC interface descriptions and passes a resolvedPaths map (local resolve on disk) through the stage context so the pure gate function shapes:pathsResolve can decide path existence without I/O. The decideExitCode helper reads ackable(stage) and the freeze.gates[<gate>] record to pick between 0 (warn-with-ack unacked or acked bite) and 4 (bite unacked at the current hash).",
+  "implementsAcIds": [
+    "AC-17404-5"
+  ],
+  "dependencies": [
+    "CN-727",
+    "CN-753"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z"
+}

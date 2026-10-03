@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z",
   "tacId": "TAC-4122-define-gates",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -22,7 +22,11 @@
     "ADR-4126 (0.29.0): own the per-check persona and question map; export `CHECK_PERSONA`, `CHECK_QUESTION`, `STAGE_FALLBACK_PERSONA`, `checkPersona(name)`, `checkQuestion(name)` and `parseInterfaceDraft(iface)`. Every entry in `stages[].checks[]` carries `persona` (productOwner | engineer) and a non-empty `question`; the `stage:<D>:scope` placeholder uses `STAGE_FALLBACK_PERSONA`.",
     "ADR-4126 (0.29.0): split `skeleton:reqFields` into `skeleton:reqIntent` (productOwner: description without TODO and domain, evaluated per REQ independently) and `skeleton:reqShape` (engineer: shapeClassification.shapes). Split `decisions:allAnswered` into `decisions:wellFormed` (productOwner: non-empty question + two or more options + a default naming one of them) and `decisions:allAnswered` (engineer: zero open).",
     "ADR-4126 (0.29.0): new D3 check `shapes:draftSettled` fails any interface whose `description` starts with `[draft]` (whitespace tolerated), id `<tacId>:<name>`, over delta, total = interfaces on TACs in scope; `tacHasInterface` counts a draft as present; `kindVocabulary` applies to drafts.",
-    "`shapes:draftSettled` reports `[draft]` on `TAC.purpose`, `coreEntities[].description` and `TAC.interfaces[].description` with ids `<tacId>`, `TAD.entity:<name>` and `<tacId>:<name>` respectively (REQ-188, 0.30.0): `parseInterfaceDraft` reads the marker on all three homes with the same whitespace-tolerant rule; the draft pass enumerates across the three homes; nothing in the draft pass can fail a product-owner check."
+    "`shapes:draftSettled` reports `[draft]` on `TAC.purpose`, `coreEntities[].description` and `TAC.interfaces[].description` with ids `<tacId>`, `TAD.entity:<name>` and `<tacId>:<name>` respectively (REQ-188, 0.30.0): `parseInterfaceDraft` reads the marker on all three homes with the same whitespace-tolerant rule; the draft pass enumerates across the three homes; nothing in the draft pass can fail a product-owner check.",
+    "`shapes:templateMarkers` (per-kind marker presence on `interfaces[].description`) (ADR-4131, 0.30.0 PR 5): engineer, over delta, id `<tacId>:<name>`, `why` names the missing marker; `recordShape` needs `fields:`; `httpRoute` needs `method`, `path`, `request`, `response`, `errors`; `fixture` needs `instances:`; `event` needs `payload:`; `cliCommand` needs `usage:`; `uiRoute` needs `path`; `port` needs `protocol`; `fileFormat` needs `format:`; `other` needs a note. Drafts are included (a `[draft]` recordShape without `fields:` fails exactly as a settled one).",
+    "`shapes:entityJoin` (every `coreEntities[].name` named by exactly one `recordShape`) (ADR-4131, 0.30.0 PR 5): engineer, over tree; match on `name` or an `entity:` line in the template; fail ids `TAD.entity:<name>` with `no record shape` or `N record shapes`.",
+    "`shapes:pathsResolve` (any `path:`-like token in an interface description that looks like a repo path resolves on disk or the description carries `authoredAt: D3`) (ADR-4131, 0.30.0 PR 5): engineer, over delta; gates stay pure, the readiness CLI resolves candidate paths and passes `resolvedPaths` in the stage context; ids `<tacId>:<name>` with the unresolved path in `why`.",
+    "`ackable(stage)` (ADR-4131, 0.30.0 PR 5): exported helper that returns `true` for D3, D5, D6 and `false` for every other stage. `stagePolicy(stage)` is unchanged; `ackable` is the companion that names the three gates that accept a recorded `--ack` override."
   ],
   "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
   "interfaces": [
@@ -55,6 +59,18 @@
       "name": "parseInterfaceDraft",
       "kind": "other",
       "description": "[draft] True when an interface's `description` carries the leading `[draft]` marker (whitespace tolerated)."
+    },
+    {
+      "name": "parseInterfaceTemplate",
+      "kind": "other",
+      "authoredAt": "D3",
+      "description": "[draft] moduleApi: parseInterfaceTemplate(iface) returns the per-kind marker presence for an interface: for a recordShape it reports whether `fields:` is present; for an httpRoute it reports whether each of method, path, request, response and errors is present; for fixture it reports `instances:`; for event, cliCommand, uiRoute, port, fileFormat and other it reports the per-kind markers from spec section 4 row 'D3 template parser'. Exported from src/query/gates.js for shapes:templateMarkers and for the validate step 6 notice (0.30.0 PR 5)."
+    },
+    {
+      "name": "ackable",
+      "kind": "other",
+      "authoredAt": "D3",
+      "description": "[draft] moduleApi: ackable(stage) returns true for D3, D5 and D6 and false for every other stage. The CLI readiness and freeze verbs read it to gate --ack as the recorded override for just those three gates (ADR-4131)."
     }
   ],
   "notes": "Slice-3 hook (rcf define freeze): reads state to refuse on any 'failing'; --ack <gate> --reason <text> writes freeze.gates[<gate>] = { state: 'acknowledged', at: { hash: <currentTreeHash>, reason: <text>, by: <id> } } and re-runs computeReadiness to check freezeable. Slice-5 hook (viewer): reads the same object end-to-end."

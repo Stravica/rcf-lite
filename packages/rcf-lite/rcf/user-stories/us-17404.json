@@ -1,0 +1,51 @@
+{
+  "usId": "US-17404",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "D3 bites",
+  "description": "User story under REQ-174 for DEFINE step 3 PR 5 (ADR-4131). D3 gets the three bite checks the spec section 4 names (shapes:templateMarkers, shapes:entityJoin, shapes:pathsResolve), stagePolicy exposes an ackable(stage) that is true for D3, D5 and D6, and the readiness CLI --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash. D5 and D6 bites land in PRs 6 and 7.",
+  "asA": "an engineer",
+  "iWant": "D3 to run the substantive template, entity-join and path-resolution checks under --check with the same recorded-override channel D3, D5 and D6 share",
+  "soThat": "a draft shape that is missing its markers, an unjoined entity or a dangling path blocks the gate until I either fix the tree or acknowledge it at the current hash",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17404-1",
+      "description": "[happy] given a recordShape with fields: and an httpRoute with method, path, request, response and errors, when D3 runs, then shapes:templateMarkers passes both.",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-2",
+      "description": "[failure] given an httpRoute missing errors, when D3 runs, then shapes:templateMarkers fails <tacId>:<name> with \"missing marker errors\".",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-3",
+      "description": "[happy] given every coreEntity named by exactly one recordShape, when D3 runs, then shapes:entityJoin passes; given one named twice, then it fails TAD.entity:<name> with \"2 record shapes\".",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-4",
+      "description": "[happy] given an interface naming a path that exists in resolvedPaths, when D3 runs, then shapes:pathsResolve passes it; given a missing path marked authoredAt: D3, then it passes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-5",
+      "description": "[failure] given rcf define readiness --check shapes on an unacknowledged D3 failure, when it runs, then it exits 4; acknowledged at the current hash, it exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-6",
+      "description": "[must-not] given --ack on D1, D2, D4, D7 or D8, when freeze runs, then it exits 2 unchanged from 0.29.0.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates",
+    "TAC-4123-define-readiness"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-03T10:50:00Z"
+}
