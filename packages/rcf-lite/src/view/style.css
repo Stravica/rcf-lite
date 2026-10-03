@@ -2484,3 +2484,16 @@ html[data-theme="dark"] .rcf-lookup-kind-tad { background: rgba(80, 160, 220, 0.
 html[data-theme="dark"] .rcf-lookup-kind-bs { background: rgba(160, 160, 160, 0.3); color: #d9d9d9; }
 
 html[data-rcf-lookup-open] { overflow: hidden; }
+
+/* ID lookup landing highlight (design section 6: "scrolls and flashes
+   the target"). A short brand-cobalt wash fades out so the picked
+   entity reads unambiguously in a long tree. */
+@keyframes rcfLookupFlash {
+  0%   { background-color: var(--sv-cobalt, #1e40af); color: #ffffff; }
+  40%  { background-color: var(--sv-cobalt, #1e40af); color: #ffffff; }
+  100% { background-color: transparent; color: inherit; }
+}
+.is-rcf-lookup-flash {
+  animation: rcfLookupFlash 1200ms ease-out 1;
+  border-radius: 2px;
+}

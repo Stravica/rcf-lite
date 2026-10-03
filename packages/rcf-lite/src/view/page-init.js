@@ -90,6 +90,17 @@
 
   // ---- hash parsing + preservation --------------------------------------
 
+  function flashLookupTarget(el) {
+    if (!el || !el.classList) return;
+    try {
+      el.classList.remove('is-rcf-lookup-flash');
+      // Force reflow so the animation restarts on repeat picks.
+      void el.offsetWidth;
+      el.classList.add('is-rcf-lookup-flash');
+      setTimeout(function () { try { el.classList.remove('is-rcf-lookup-flash'); } catch (e) {} }, 1400);
+    } catch (e) {}
+  }
+
   function parseHashParams(raw) {
     var out = {};
     if (!raw) return out;
@@ -536,6 +547,7 @@
             openAncestorDetails(ent);
             if (ent.tagName && ent.tagName.toLowerCase() === 'details') ent.open = true;
             try { ent.scrollIntoView({ block: 'start' }); } catch (e) { ent.scrollIntoView(); }
+            flashLookupTarget(ent);
           }
         }
         return;
@@ -549,6 +561,7 @@
     openAncestorDetails(target);
     if (target.tagName && target.tagName.toLowerCase() === 'details') target.open = true;
     try { target.scrollIntoView({ block: 'start' }); } catch (e) { target.scrollIntoView(); }
+    flashLookupTarget(target);
   }
 
   function onTabClick(ev) {
@@ -1844,7 +1857,9 @@
       html += '<li class="rcf-lookup-row' + active + '" role="option"'
         + (i === lookupActiveIdx ? ' aria-selected="true"' : '')
         + ' data-rcf-lookup-row data-rcf-lookup-id="' + lookupEscapeHtml(r.id || '')
-        + '" data-rcf-lookup-tab="' + lookupEscapeHtml(r.tab || '') + '" data-rcf-lookup-idx="' + i + '">'
+        + '" data-rcf-lookup-tab="' + lookupEscapeHtml(r.tab || '')
+        + '" data-rcf-lookup-kind="' + lookupEscapeHtml(r.kind || '')
+        + '" data-rcf-lookup-parent="' + lookupEscapeHtml(r.parent || '') + '" data-rcf-lookup-idx="' + i + '">'
         + '<span class="rcf-lookup-kind rcf-lookup-kind-' + lookupEscapeHtml(r.kind || '') + '">' + lookupKindLabel(r.kind) + '</span>'
         + '<span class="rcf-lookup-id">' + markedId + '</span>'
         + (r.title ? '<span class="rcf-lookup-title">' + markedTitle + '</span>' : '')
@@ -1961,6 +1976,12 @@
     var id = row.getAttribute('data-rcf-lookup-id');
     var tab = row.getAttribute('data-rcf-lookup-tab');
     if (!id || !tab) return;
+    // Design decision 6: test suites render inside their owning US (not
+    // a Build sub-tab). A TS pick re-routes to the US id so the Router
+    // opens the US and the TS card inside it (viewer stream carry).
+    var kind = row.getAttribute('data-rcf-lookup-kind');
+    var parentId = row.getAttribute('data-rcf-lookup-parent');
+    if (kind === 'ts' && parentId) { id = parentId; tab = 'requirements'; }
     lookupClose();
     // writeHash preserves ?embed=/?theme=/... (Dex contract, PR 1); the
     // Router's hashchange listener then activates the tab and opens
@@ -2072,8 +2093,32 @@
   }
 
   var hashchangeWired = false;
+
+  // AC-205-5: a mount URL of `?tab=requirements&entity=US-304` lands on the
+  // same position at first paint. The hash-router owns tab + entity, so we
+  // promote the tab/sub/entity query params into the hash fragment at boot
+  // when no explicit hash is already set. embed/theme stay in the query so
+  // urlWithHash keeps the Dex contract.
+  function bootHashFromQuery() {
+    if (window.location.hash) return;
+    var q = parseQuery(window.location.search);
+    var parts = [];
+    if (q.tab) parts.push('tab=' + encodeURIComponent(q.tab));
+    if (q.sub) parts.push('sub=' + encodeURIComponent(q.sub));
+    if (q.entity) parts.push('entity=' + encodeURIComponent(q.entity));
+    if (parts.length === 0) return;
+    try {
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#' + parts.join('&'));
+      } else {
+        window.location.hash = parts.join('&');
+      }
+    } catch (err) { /* best effort; resolveHash will no-op on empty hash */ }
+  }
+
   function onReady() {
     initShellFromQuery();
+    bootHashFromQuery();
     wireThemeMessages();
     initMermaid();
     wireTabs();

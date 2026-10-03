@@ -364,3 +364,61 @@ test('renderLookupModal carries the empty-state + reload affordance markers (AC-
   assert.match(html, /data-rcf-lookup-empty/);
   assert.match(html, /data-rcf-lookup-reload/);
 });
+
+test('page-init.js bootHashFromQuery promotes ?tab=&entity= into the hash at mount (AC-205-5)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  assert.match(script, /function bootHashFromQuery/);
+  // Promotes tab + sub + entity from the query into the hash, so the
+  // existing hash-router honours a mount URL like ?tab=requirements&entity=US-304.
+  const start = script.indexOf('function bootHashFromQuery');
+  const end = script.indexOf('\n  }', start);
+  const body = script.slice(start, end);
+  assert.match(body, /q\.tab/);
+  assert.match(body, /q\.entity/);
+  assert.match(body, /q\.sub/);
+  assert.match(body, /if \(window\.location\.hash\) return/);
+  // onReady calls bootHashFromQuery after initShellFromQuery and
+  // before resolveHash so the first paint lands on the right position.
+  const ready = script.indexOf('function onReady');
+  const readyEnd = script.indexOf('\n  }', ready);
+  assert.match(script.slice(ready, readyEnd), /initShellFromQuery\(\);\s*\n\s*bootHashFromQuery\(\);/);
+});
+
+test('page-init.js lookupPick re-routes a TS pick to its owning US (design decision 6)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  const start = script.indexOf('function lookupPick');
+  const end = script.indexOf('\n  }', start);
+  const body = script.slice(start, end);
+  // A TS row carries parent=US-id; the pick swaps id to the parent US
+  // and tab to requirements so the Router opens the owning US where the
+  // TS card renders. Decision 6 moved TS out of the Build tab.
+  assert.match(body, /kind === 'ts'/);
+  assert.match(body, /tab = 'requirements'/);
+});
+
+test('page-init.js resolveHash flashes the target after scroll (AC-205-4, design section 6)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  assert.match(script, /function flashLookupTarget/);
+  // flashLookupTarget is called after scrollIntoView in both resolveHash
+  // branches (the #tab=&entity= branch and the bare #id branch).
+  assert.ok(
+    (script.match(/scrollIntoView\(.+\); \} catch \(e\) \{ ent\.scrollIntoView\(\); \}\n\s*flashLookupTarget\(ent\);/g) || []).length >= 1,
+    'flashLookupTarget called after the #tab=&entity= scroll'
+  );
+  assert.ok(
+    (script.match(/scrollIntoView\(.+\); \} catch \(e\) \{ target\.scrollIntoView\(\); \}\n\s*flashLookupTarget\(target\);/g) || []).length >= 1,
+    'flashLookupTarget called after the bare-hash scroll'
+  );
+});
+
+test('style.css adds the rcfLookupFlash keyframes + .is-rcf-lookup-flash class', () => {
+  const css = readFileSync(resolve(repoRoot, 'src/view/style.css'), 'utf8');
+  assert.match(css, /@keyframes rcfLookupFlash/);
+  assert.match(css, /\.is-rcf-lookup-flash\s*\{[^}]*rcfLookupFlash/);
+});
+
+test('wireLookup row markup carries data-rcf-lookup-kind + data-rcf-lookup-parent so TS re-routing works', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  assert.match(script, /data-rcf-lookup-kind="/);
+  assert.match(script, /data-rcf-lookup-parent="/);
+});
