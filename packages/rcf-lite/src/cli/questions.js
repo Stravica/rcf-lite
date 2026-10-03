@@ -216,7 +216,10 @@ export async function main(argv, deps = {}) {
  */
 function renderText(stdout, result) {
   const persona = result.persona;
-  if (result.ok || result.remaining === 0) {
+  // Termination is `result.ok` alone (spec §1.4): --stage filtering
+  // can leave remaining=0 for a stage while the whole tree is still
+  // failing, which must not print the complete verdict.
+  if (result.ok) {
     stdout.write(persona === 'productOwner'
       ? 'Intent-complete: yes. The question set is empty.\n'
       : 'Ready-to-build: no engineer blockers in this stage.\n');

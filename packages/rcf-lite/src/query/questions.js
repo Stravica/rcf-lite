@@ -78,7 +78,7 @@ export function computeQuestions(readiness, args = {}) {
   /** @type {ReturnType<typeof makeQuestion>[]} */
   const questions = [];
   for (const blocker of ordered) {
-    const items = extractItems(blocker, briefStatements, tree);
+    const items = extractItems(blocker, briefStatements, tree, readiness);
     for (const item of items) {
       const q = buildQuestionForItem(blocker, item, {
         briefStatements, tree, decisionEntries, blocks, persona,
@@ -87,10 +87,27 @@ export function computeQuestions(readiness, args = {}) {
     }
   }
 
+  // Spec §1.2: ordering is stage order first, then check order, then
+  // grouped by source span so one passage is asked about at a time.
+  // Stable-sort questions[] by (stageIndex, sourceSpan) to make the
+  // source-span secondary deterministic even when readiness delivers
+  // items in a different order per run.
+  const spanKey = (q) => q.context?.statement?.source ?? q.context?.sourceSpan ?? '~';
+  const stageKey = (q) => stageOrder.indexOf(q.stage);
+  const withIndex = questions.map((q, i) => ({ q, i }));
+  withIndex.sort((a, b) => {
+    const sa = stageKey(a.q); const sb = stageKey(b.q);
+    if (sa !== sb) return sa - sb;
+    const spa = spanKey(a.q); const spb = spanKey(b.q);
+    if (spa !== spb) return spa < spb ? -1 : 1;
+    return a.i - b.i;
+  });
+  const sortedQuestions = withIndex.map((x) => x.q);
+
   // Group by source span. Preserve stage order from the questions list.
   /** @type {Map<string, { key: string, label: string, questionIds: string[] }>} */
   const groupMap = new Map();
-  for (const q of questions) {
+  for (const q of sortedQuestions) {
     const key = q.context?.statement?.source ?? q.context?.sourceSpan ?? 'tree';
     const label = sourceLabel(key);
     const g = groupMap.get(key) ?? { key, label, questionIds: [] };
@@ -126,9 +143,9 @@ export function computeQuestions(readiness, args = {}) {
     persona,
     level,
     ok,
-    remaining: questions.length,
+    remaining: sortedQuestions.length,
     groups,
-    questions,
+    questions: sortedQuestions,
     optional,
     ...(persona === 'productOwner'
       ? { engineer: { blockers: engineerCount, nextAction: engineerNext } }
@@ -146,8 +163,18 @@ export function computeQuestions(readiness, args = {}) {
  * @param {Array<any>} briefStatements
  * @param {object} tree
  */
-function extractItems(blocker, briefStatements, tree) {
-  const ids = Array.isArray(blocker.ids) ? blocker.ids : [];
+function extractItems(blocker, briefStatements, tree, readiness) {
+  // Spec §1.2: one question per failing item. `blocker.ids` is the
+  // readiness summary and is capped at 20 (readiness.js:373/405), so a
+  // check with more than 20 failing items would silently lose
+  // questions. Look up the full `check.failing[]` on the stage first
+  // and only fall back to `blocker.ids` when the stage is missing.
+  let ids = Array.isArray(blocker.ids) ? blocker.ids : [];
+  const stages = Array.isArray(readiness?.stages) ? readiness.stages : [];
+  const stage = stages.find((st) => st?.stage === blocker.stage);
+  const check = stage?.checks?.find((c) => c?.name === blocker.check);
+  const failing = Array.isArray(check?.failing) ? check.failing : null;
+  if (failing) ids = [...new Set(failing.map((f) => f?.id).filter((id) => id != null))];
   /** @type {Array<{ id: string, why?: string, statement?: any, req?: any, decision?: any, profileField?: string }>} */
   const out = [];
   for (const id of ids) {
@@ -243,7 +270,7 @@ function buildQuestionForItem(blocker, item, {
       answerKinds: ['answer', 'promote'],
       writeBack: [
         { when: 'answer', command: `rcf define ledger brief resolve ${stmt.id} --answer "<text>"` },
-        { when: 'promote', command: `rcf define ledger decisions add --question "${(stmt.text ?? '').replace(/"/g, '\\"')} (brief ${stmt.id})" --option a:<optA> --option b:<optB> --default a --blocks "brief:${stmt.id}"` },
+        { when: 'promote', command: `rcf define ledger decisions add --question "${(stmt.text ?? '').replace(/"/g, '\\"')} (brief ${stmt.id})" --option a:<optA> --option b:<optB> --default a --blocks "brief:${stmt.id}"; rcf define ledger brief resolve ${stmt.id} --answer "decision <id>"` },
       ],
       blocks,
     });
@@ -298,7 +325,7 @@ function buildQuestionForItem(blocker, item, {
       answerKinds: ['existingReq', 'newReq', 'rekind', 'omit'],
       writeBack: [
         { when: 'existingReq', command: `rcf define ledger brief update ${stmt.id} --resolved-by <REQ-id>` },
-        { when: 'newReq', command: `rcf define create req ...; rcf define ledger brief update ${stmt.id} --resolved-by <REQ-id>` },
+        { when: 'newReq', command: `rcf define create req --parent PRD-001 --title "<title>"; rcf define update <REQ-id> --set description="<sentence>" --set domain="<area>"; rcf define ledger brief update ${stmt.id} --resolved-by <REQ-id>` },
         { when: 'rekind', command: `rcf define ledger brief update ${stmt.id} --kind <kind> --resolved-by <pointer>` },
         { when: 'omit', command: `rcf define ledger brief update ${stmt.id} --resolved-by "omitted:<reason>"` },
       ],
@@ -334,7 +361,7 @@ function buildQuestionForItem(blocker, item, {
       context: { reqId: req.reqId, title: req.title },
       answerKinds: ['story'],
       writeBack: [
-        { when: 'story', command: `rcf define create us --parent ${req.reqId} --title "<title>" --as-a "<who>" --i-want "<what>" --so-that "<why>"` },
+        { when: 'story', command: `rcf define create us --parent ${req.reqId} --title "as a <who>, I want <what>, so that <why>"; rcf define update <US-id> --json --set story='{"asA":"<who>","iWant":"<what>","soThat":"<why>"}'; rcf define create ac --parent <US-id> --description "[happy] <criterion>"` },
       ],
       blocks,
     });

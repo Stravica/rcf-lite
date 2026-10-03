@@ -810,6 +810,12 @@ const DEFINITIONS = [
         scan: { type: 'boolean' },
         findings: { type: 'string' },
         dryRun: { type: 'boolean' },
+        reason: { type: 'string', description: 'resolve/add reason (concerns, probes).' },
+        req: { type: 'string', description: 'REQ-id for concerns and probes.' },
+        concern: { type: 'string', description: 'Concern slug (auth, retention...).' },
+        disposition: { type: 'string', enum: ['applied', 'waived'], description: 'Concerns disposition.' },
+        finding: { type: 'string', description: 'Probe finding text.' },
+        severity: { type: 'string', enum: ['low', 'medium', 'high'], description: 'Probe finding severity.' },
       },
       required: ['name', 'verb'],
       additionalProperties: false,
@@ -1063,6 +1069,12 @@ function buildLedgerArgvFromMcp(args) {
   pushFlag('default', args.default);
   pushFlag('blocks', args.blocks);
   pushFlag('findings', args.findings);
+  pushFlag('reason', args.reason);
+  pushFlag('req', args.req);
+  pushFlag('concern', args.concern);
+  pushFlag('disposition', args.disposition);
+  pushFlag('finding', args.finding);
+  pushFlag('severity', args.severity);
   if (Array.isArray(args.option)) {
     for (const o of args.option) {
       argv.push('--option');
