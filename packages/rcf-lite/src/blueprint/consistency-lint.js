@@ -319,9 +319,16 @@ export function runPass2(input) {
         continue;
       }
       const carried = collectTacSurfaceText(target).toLowerCase();
-      const field = typeof delivery.field === 'string' ? delivery.field.toLowerCase() : '';
-      const fieldTail = field ? field.split('.').pop() : '';
-      if (fieldTail && !carried.includes(fieldTail)) {
+      const field = typeof delivery.field === 'string' ? delivery.field : '';
+      const fieldTail = extractDeliveryFieldTail(field);
+      // R11 (spec section 17, PR 9): a bare schema field name
+      // (`responsibilities`, `interfaces`, `purpose`, `decision`,
+      // etc.) resolves on the owner by presence; the lint treats
+      // these as covered by the surface text when the owner carries
+      // a non-empty value under that key. Bracket forms
+      // (`interfaces[<name>]`, `responsibilities[<n>]`) are parsed
+      // to their inner key for the carried-text match.
+      if (fieldTail && !carried.includes(fieldTail.toLowerCase())) {
         findings.push({
           id: `pass2-delivery-field-missing-${rid}-${delivery.tacId}`, pass: 'pass2', kind: 'reqDeliveryNotCarried',
           subject: rid, refs: [rid, delivery.tacId, fieldTail],
@@ -345,6 +352,68 @@ function collectTacSurfaceText(tac) {
     }
   }
   return parts.join(' ');
+}
+
+/**
+ * R11 (spec section 17, PR 9): parse `deliveredBy.field` into the
+ * tail the carried-text match should see.
+ *
+ *   - `interfaces[loan]`           -> `loan`           (bracket inner)
+ *   - `responsibilities[verify]`   -> `verify`         (bracket inner)
+ *   - `responsibilities[0]`        -> ``               (bare integer index
+ *                                                       resolves on the array;
+ *                                                       nothing to match)
+ *   - bare `responsibilities`,
+ *     `interfaces`, `purpose`,
+ *     `decision`, `internalStructure`, ...  -> ``       (bare schema field;
+ *                                                       covered by the
+ *                                                       owner's presence
+ *                                                       alone -- the
+ *                                                       pre-PR 9 `.pop()`
+ *                                                       on a dotted form
+ *                                                       is preserved for
+ *                                                       legacy dotted
+ *                                                       pointers that have
+ *                                                       not yet been
+ *                                                       swept)
+ *   - legacy dotted `interfaces.loan`
+ *     or `decision.retryBackoff`   -> `loan` / `retryBackoff`
+ *
+ * The returned tail is empty when nothing meaningful remains to
+ * match; callers skip the carried-text check in that case.
+ *
+ * @param {string} field
+ * @returns {string}
+ */
+function extractDeliveryFieldTail(field) {
+  if (typeof field !== 'string' || field.length === 0) return '';
+  // Bracket form: `<root>[<inner>]`.
+  const bracket = field.match(/^[A-Za-z0-9_]+\[([^\]]+)\]$/);
+  if (bracket) {
+    const inner = bracket[1];
+    // A bare integer index on responsibilities / alternativesConsidered
+    // resolves by position; there is nothing semantic to match on the
+    // surface text, so skip the check (the resolver has already
+    // confirmed the index exists).
+    if (/^\d+$/.test(inner)) return '';
+    return inner;
+  }
+  // Legacy dotted form (`interfaces.loan`, `decision.retryBackoff`,
+  // `responsibilities.verify`): the tail is the last dotted segment.
+  if (field.includes('.')) return field.split('.').pop();
+  // Bare schema field name: resolves on the owner by presence; no
+  // tail to match.
+  const KNOWN_BARE_FIELDS = new Set([
+    'purpose', 'internalStructure', 'tradeoffs', 'notes', 'name',
+    'responsibilities', 'interfaces', 'dependencies',
+    'decision', 'context', 'consequences', 'title',
+    'alternativesConsidered', 'description',
+  ]);
+  if (KNOWN_BARE_FIELDS.has(field)) return '';
+  // Anything else: fall through to the pre-PR 9 behaviour and match
+  // the whole thing against the carried text. This covers composite
+  // free-form tokens the sweep may not have reached.
+  return field;
 }
 
 /**

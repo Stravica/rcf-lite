@@ -79,9 +79,16 @@ export function rewriteField(field) {
   // `interfaces[2].name` -> `interfaces[2]`.
   const trailingDot = field.match(/^(interfaces\[[^\]]+\])\.[A-Za-z0-9_.-]+$/);
   if (trailingDot) return trailingDot[1];
-  // decision.<key> on an ADR: `decision` is a scalar string per the
-  // ADR schema, so collapse to the bare field.
-  if (/^decision\./.test(field)) return 'decision';
+  // Bare scalar field with a dotted tail (`purpose.content-type`,
+  // `internalStructure.foo`, `decision.key`, `name.X`, etc.): the
+  // scalar field is the whole value, so the tail is noise. Collapse
+  // to the bare field name.
+  const BARE_SCALAR_ROOTS = new Set([
+    'purpose', 'internalStructure', 'decision', 'name',
+    'context', 'consequences', 'tradeoffs', 'notes', 'title',
+  ]);
+  const scalarDotted = field.match(/^([A-Za-z0-9_]+)\./);
+  if (scalarDotted && BARE_SCALAR_ROOTS.has(scalarDotted[1])) return scalarDotted[1];
   // Dotted root `<fieldName>.<rest>` where `<fieldName>` is one of
   // the known array roots. The `<rest>` is reassembled inside
   // brackets so names carrying dots (`responsibilities[audit.redaction]`)
