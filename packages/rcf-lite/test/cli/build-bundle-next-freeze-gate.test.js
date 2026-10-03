@@ -245,14 +245,34 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
   // spec section 17 R11 (see TAC-4125). GIT_CONFIG_SYSTEM and
   // GIT_CONFIG_GLOBAL point at /dev/null for arms 2..5 so an ambient
   // ~/.gitconfig cannot leak user.email into the resolver.
-  const envSnapshot = {
-    USER: process.env.USER,
-    USERNAME: process.env.USERNAME,
-    GITHUB_ACTOR: process.env.GITHUB_ACTOR,
-    GIT_CONFIG_SYSTEM: process.env.GIT_CONFIG_SYSTEM,
-    GIT_CONFIG_GLOBAL: process.env.GIT_CONFIG_GLOBAL,
-  };
+  // Snapshot every env knob that can inject a git identity (both the
+  // scoped overrides and the command-scope GIT_CONFIG_* trio flagged
+  // in the 2026-10-03 codex review P2). Any arm whose current value
+  // might feed `git config user.email` is cleared for arms 2..5 so
+  // the preference-order assertion is actually testing the order.
+  const GIT_INJECTION_KEYS = [
+    'USER', 'USERNAME', 'GITHUB_ACTOR',
+    'GIT_CONFIG_SYSTEM', 'GIT_CONFIG_GLOBAL',
+    'GIT_CONFIG_COUNT', 'GIT_DIR', 'GIT_WORK_TREE',
+    'GIT_AUTHOR_EMAIL', 'GIT_COMMITTER_EMAIL',
+  ];
+  const envSnapshot = {};
+  for (const key of GIT_INJECTION_KEYS) envSnapshot[key] = process.env[key];
+  for (const key of Object.keys(process.env)) {
+    if (/^GIT_CONFIG_(KEY|VALUE)_\d+$/.test(key)) envSnapshot[key] = process.env[key];
+  }
   try {
+    // Clear the command-scope injection trio AND any inherited
+    // GIT_CONFIG_KEY_* / GIT_CONFIG_VALUE_* pairs. GIT_DIR is cleared
+    // so git does not confuse the test's cwd with the parent repo.
+    for (const key of Object.keys(process.env)) {
+      if (/^GIT_CONFIG_(KEY|VALUE)_\d+$/.test(key)) delete process.env[key];
+    }
+    delete process.env.GIT_CONFIG_COUNT;
+    delete process.env.GIT_DIR;
+    delete process.env.GIT_WORK_TREE;
+    delete process.env.GIT_AUTHOR_EMAIL;
+    delete process.env.GIT_COMMITTER_EMAIL;
     process.env.GIT_CONFIG_SYSTEM = '/dev/null';
     process.env.GIT_CONFIG_GLOBAL = '/dev/null';
     // Arm 1: git config user.email wins when a git identity is set.
@@ -313,6 +333,20 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
       assert.equal(by, 'operator', 'operator is the never-null fallback');
     } finally {
       await rm(tmp5, { recursive: true, force: true });
+    }
+    // Arm 6 (PR 9 codex P2): whitespace-only env values do NOT win
+    // over the next arm. GITHUB_ACTOR = '   ' falls through to USER;
+    // USER = ' \t ' falls through to USERNAME; USERNAME = '\n' falls
+    // through to 'operator'.
+    const tmp6 = await mkdtemp(join(tmpdir(), 'pr9-by-ws-'));
+    try {
+      process.env.GITHUB_ACTOR = '   ';
+      process.env.USER = ' \t ';
+      process.env.USERNAME = '\n';
+      const by = await resolveOverrideBy({ projectRoot: tmp6 });
+      assert.equal(by, 'operator', 'whitespace-only env values must fall through to operator');
+    } finally {
+      await rm(tmp6, { recursive: true, force: true });
     }
   } finally {
     for (const key of Object.keys(envSnapshot)) {

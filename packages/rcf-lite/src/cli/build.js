@@ -417,17 +417,22 @@ export async function resolveOverrideBy({ projectRoot }) {
   } catch {
     // Fall through to the environment arms.
   }
+  // Env arms are trimmed so a whitespace-only value does not win
+  // over the next arm (codex review 2026-10-03, P2).
+  const envArm = (key) => {
+    const v = process.env[key];
+    if (typeof v !== 'string') return null;
+    const t = v.trim();
+    return t.length > 0 ? t : null;
+  };
   // 2. GITHUB_ACTOR (GitHub Actions).
-  if (typeof process.env.GITHUB_ACTOR === 'string' && process.env.GITHUB_ACTOR.length > 0) {
-    return process.env.GITHUB_ACTOR;
-  }
+  const actor = envArm('GITHUB_ACTOR');
+  if (actor) return actor;
   // 3. USER or USERNAME.
-  if (typeof process.env.USER === 'string' && process.env.USER.length > 0) {
-    return process.env.USER;
-  }
-  if (typeof process.env.USERNAME === 'string' && process.env.USERNAME.length > 0) {
-    return process.env.USERNAME;
-  }
+  const user = envArm('USER');
+  if (user) return user;
+  const username = envArm('USERNAME');
+  if (username) return username;
   // 4. Never-null fallback.
   return 'operator';
 }
