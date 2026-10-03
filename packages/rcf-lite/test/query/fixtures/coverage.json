@@ -4916,6 +4916,54 @@
             "TC-231-validate-no-missing-marker-finding"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-1",
+          "covered": true,
+          "testCases": [
+            "TC-232-contradictions-same-when-negated-then"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-2",
+          "covered": true,
+          "testCases": [
+            "TC-232-unsatisfiable-undefined-field"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-3",
+          "covered": true,
+          "testCases": [
+            "TC-232-unsatisfiable-draft-recordshape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-4",
+          "covered": true,
+          "testCases": [
+            "TC-232-duplicates-across-stories"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-5",
+          "covered": true,
+          "testCases": [
+            "TC-232-orphan-interfaces"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17406-6",
+          "covered": true,
+          "testCases": [
+            "TC-232-contradictions-quoted-negation-guard"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -5107,6 +5155,47 @@
           "covered": true,
           "testCases": [
             "TC-222-text-persona-grouping"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17504-1",
+          "covered": true,
+          "testCases": [
+            "TC-232-probe-runner-injects-findings"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17504-2",
+          "covered": true,
+          "testCases": [
+            "TC-232-no-probe-runner-matches-pre-pr"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17504-3",
+          "covered": true,
+          "testCases": [
+            "TC-232-litmus-reader-count"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17504-4",
+          "covered": true,
+          "testCases": [
+            "TC-232-cli-litmus-shortfall-exits-4",
+            "TC-232-parse-litmus-flag"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17504-5",
+          "covered": true,
+          "testCases": [
+            "TC-232-cli-litmus-no-process-spawn"
           ],
           "unresolvedTestCases": []
         }

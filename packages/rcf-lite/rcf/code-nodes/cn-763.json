@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-763",
+  "path": "src/cli/freeze.js",
+  "title": "DEFINE step 3 PR 7: --litmus <n> on rcf define freeze",
+  "description": "src/cli/freeze.js adds the --litmus <n> flag with usage help, parses it via parseLitmusFlag, and after the gate check (and any --ack folding) refuses (exit 4) and writes nothing when fewer than n distinct litmus readings exist at the current tree hash. --litmus-attested remains the default attestation path and is unchanged.",
+  "implementsAcIds": [
+    "AC-17504-3",
+    "AC-17504-4",
+    "AC-17504-5"
+  ],
+  "dependencies": [
+    "CN-760"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}

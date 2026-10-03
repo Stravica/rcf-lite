@@ -509,6 +509,12 @@ REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17405-4   yes         TC-231-crosscut-catalogue-missing-pair
                       AC-17405-5   yes         TC-231-standards-cited-and-waived
                       AC-17405-6   yes         TC-231-validate-no-missing-marker-finding
+                      AC-17406-1   yes         TC-232-contradictions-same-when-negated-then
+                      AC-17406-2   yes         TC-232-unsatisfiable-undefined-field
+                      AC-17406-3   yes         TC-232-unsatisfiable-draft-recordshape
+                      AC-17406-4   yes         TC-232-duplicates-across-stories
+                      AC-17406-5   yes         TC-232-orphan-interfaces
+                      AC-17406-6   yes         TC-232-contradictions-quoted-negation-guard
 REQ-175      yes      AC-17501-1   yes         TC-217-shape
                       AC-17501-2   yes         TC-217-fanout
                       AC-17501-3   yes         TC-217-coverage
@@ -532,6 +538,11 @@ REQ-175      yes      AC-17501-1   yes         TC-217-shape
                       AC-17503-7   yes         TC-222-unknown-values-exit-2-level, TC-222-unknown-values...
                       AC-17503-8   yes         TC-222-json-meta-level
                       AC-17503-9   yes         TC-222-text-persona-grouping
+                      AC-17504-1   yes         TC-232-probe-runner-injects-findings
+                      AC-17504-2   yes         TC-232-no-probe-runner-matches-pre-pr
+                      AC-17504-3   yes         TC-232-litmus-reader-count
+                      AC-17504-4   yes         TC-232-cli-litmus-shortfall-exits-4, TC-232-parse-litmus-...
+                      AC-17504-5   yes         TC-232-cli-litmus-no-process-spawn
 REQ-176      yes      AC-17601-1   yes         TC-218-happy
                       AC-17601-2   yes         TC-218-refuse
                       AC-17601-3   yes         TC-218-ack

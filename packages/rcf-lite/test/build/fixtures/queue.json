@@ -1198,7 +1198,7 @@
       "fbsId": "FBS-202",
       "buildOrder": 202,
       "tier": 7,
-      "title": "DEFINE step 3 PRs 1-3, PR 5 and PR 6: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5); D4 closed-set and ownerRef findings, D5 concern catalogue, standards citation (PR 6)",
+      "title": "DEFINE step 3 PRs 1-3, PR 5, PR 6 and PR 7: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5); D4 closed-set and ownerRef findings, D5 concern catalogue, standards citation (PR 6); D6 consistency scans, probe seam, --litmus and rcf_define_litmus (PR 7)",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [
         "FBS-195",

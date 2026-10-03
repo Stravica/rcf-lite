@@ -16,7 +16,8 @@
     {"name": "rcf_define_intent", "file": "define-intent.md", "description": "Drive the product-owner intent-complete loop with rcf_define_questions, write-backs through existing verbs, and the readiness verdict. Argument-free; starts with --persona productOwner and ends at levels.intentComplete.ok."},
     {"name": "rcf_define_intake", "file": "define-intake.md", "description": "Walk a document folder brief-first, write one statement file per source with [kind] and (source: ...) markers, run brief add --from once per source, and report the scan findings as open questions. Argument-free."},
     {"name": "rcf_define_draft_shapes", "file": "define-draft-shapes.md", "description": "Run the draft pass after L1 is green: pre-populate [draft] core entities per entity statement, [draft] TAC stubs per surface or externalSystem cluster, [draft] interfaces with real kinds inside each stub, and rcf discover req-classify over every REQ created in the loop. Argument-free."},
-    {"name": "rcf_discover_prototype", "file": "discover-prototype.md", "description": "Record a prototype in DISCOVERY as evidence: classification, brief statements with prototype:<name>:<observation> source spans, the burn statement, and the salvage-by-re-derivation path. Argument-free."}
+    {"name": "rcf_discover_prototype", "file": "discover-prototype.md", "description": "Record a prototype in DISCOVERY as evidence: classification, brief statements with prototype:<name>:<observation> source spans, the burn statement, and the salvage-by-re-derivation path. Argument-free."},
+    {"name": "rcf_define_litmus", "file": "define-litmus.md", "description": "Spawn n fresh-context readers at the current tree hash and land their readings as probe-ledger entries whose finding begins litmus:<reader>:. Required by rcf define readiness --litmus and rcf define freeze --litmus. Argument-free."}
   ],
   "platformInvariants": [
     {

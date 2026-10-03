@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-759",
+  "path": "src/query/gates.js",
+  "title": "DEFINE step 3 PR 7: four D6 scans (consistency:contradictions/unsatisfiable/duplicates/orphanInterfaces)",
+  "description": "src/query/gates.js gains four new engineer checks on checkD6Consistency: contradictions (two ACs on one story sharing a when clause with a negated then, honouring the shared quoted-substring guard with D4), unsatisfiable (a then naming a field no recordShape defines; a field defined in a [draft] recordShape counts as defined), duplicates (identical AC descriptions across stories fail both ACs), and orphanInterfaces (an interface on any TAC that no AC ownerRef points at and that no REQ deliveredBy reaches fails). The four checks are registered in CHECK_PERSONA and CHECK_QUESTION; they ride the existing D6 ackable fold.",
+  "implementsAcIds": [
+    "AC-17406-1",
+    "AC-17406-2",
+    "AC-17406-3",
+    "AC-17406-4",
+    "AC-17406-5",
+    "AC-17406-6"
+  ],
+  "dependencies": [
+    "CN-757"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}

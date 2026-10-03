@@ -94,7 +94,9 @@ async function seedFreezeableTree(root) {
     soThat: 'downstream teams can use it',
     tacIds: ['TAC-001'],
     acceptanceCriteria: [
-      { id: 'AC-101-1', testable: true, description: '[happy] operator ships widget' },
+      // PR 7 D6: AC-101-1 ownerRef reaches TAC-001:ship so
+      // consistency:orphanInterfaces does not fire.
+      { id: 'AC-101-1', testable: true, description: '[happy] operator ships widget', ownerRef: { tacId: 'TAC-001', field: 'interfaces[ship]' } },
       { id: 'AC-101-2', testable: true, description: '[failure] server returns 500' },
       { id: 'AC-101-3', testable: true, description: '[must-not] endpoint accepts unauth' },
     ],
@@ -288,6 +290,15 @@ test('freeze cli: --ack only accepts D3/D5/D6 and persists as acknowledged at ha
     createdAt: '2026-09-24T16:00:00Z',
     updatedAt: '2026-09-24T16:00:00Z',
   });
+
+  // Removing the interface breaks AC-101-1's ownerRef too, which would
+  // trip D4 stories:ownerRefResolves (a blocking check, not ackable).
+  // Drop the ownerRef here so the test still fails only on D3's
+  // shapes:tacHasInterface.
+  const usPath = join(cwd, 'rcf', 'user-stories', 'us-101.json');
+  const usBody = JSON.parse(await readFile(usPath, 'utf8'));
+  for (const ac of usBody.acceptanceCriteria) delete ac.ownerRef;
+  await writeFile(usPath, `${JSON.stringify(usBody, null, 2)}\n`, 'utf8');
 
   // Ack on a blocking gate: usage refusal.
   const rBlocking = await run(['--ack', 'define.brief', '--reason', 'no'], cwd);

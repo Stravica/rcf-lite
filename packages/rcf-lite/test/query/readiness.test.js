@@ -100,6 +100,8 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   // tree summary shape.
   assert.equal(result.tree.frozen, false);
   assert.equal(typeof result.tree.currentTreeHash, 'string');
+  assert.equal(typeof result.tree.litmusHash, 'string');
+  assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
   assert.equal(typeof result.tree.fbsTotal, 'number');
   // Every stage in D1..D8 order.
   assert.deepEqual(result.stages.map((s) => s.stage), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
@@ -138,7 +140,9 @@ test('readiness: freezeable is true on a well-formed tree (every stage passed / 
     reqId: 'REQ-1',
     tacIds: ['TAC-1'],
     acceptanceCriteria: [
-      { id: 'AC-1', testable: true, description: '[happy] user does the thing' },
+      // AC-1 carries an ownerRef pointing at TAC-1's `ship` interface so
+      // PR 7's consistency:orphanInterfaces finds the interface reached.
+      { id: 'AC-1', testable: true, description: '[happy] user does the thing', ownerRef: { tacId: 'TAC-1', field: 'interfaces[ship]' } },
       { id: 'AC-2', testable: true, description: '[failure] server returns 500' },
       { id: 'AC-3', testable: true, description: '[must-not] endpoint accepts unauth' },
     ],
@@ -558,4 +562,155 @@ test('readiness (ADR-4126): formatVerdictLines returns the section 2.3 wording',
   const notOkLines = formatVerdictLines(notOkResult);
   assert.match(notOkLines.intentComplete, /Intent-complete: no; 1 question for the product owner \(D1\/brief:profile\)\./);
   assert.match(notOkLines.readyToBuild, /Ready-to-build: no; blocked on D1, D2 \(2 checks: 1 product owner, 1 engineer\)\./);
+});
+
+// ---------------------------------------------------------------------------
+// PR 7 (US-17504, AC-17504-1..5): probe seam + litmus flag.
+// ---------------------------------------------------------------------------
+
+import {
+  countLitmusReadersAtHash,
+  parseLitmusFlag,
+} from '../../src/query/readiness.js';
+
+test('readiness (PR 7, AC-17504-1): probeRunner findings land as open probe entries that fail consistency:probeCount', () => {
+  const req = {
+    reqId: 'REQ-003',
+    title: 'req',
+    description: 'description',
+    domain: 'ops',
+    shapeClassification: { shapes: ['other'] },
+  };
+  const tree = makeTree({ requirements: [req] });
+  const probeRunner = ({ reqId }) => (reqId === 'REQ-003'
+    ? [
+      { reqId, finding: 'two readings differ on expected error envelope' },
+      { reqId, finding: 'coverage over AC-003-1 is empty' },
+    ]
+    : []);
+  const result = computeReadiness(tree, { probeRunner, ledgers: { probes: { probes: [] } } });
+  const d6 = result.stages.find((s) => s.stage === 'D6');
+  const probeCount = d6.checks.find((c) => c.name === 'consistency:probeCount');
+  assert.equal(probeCount.ok, false, `expected probeCount to fail; got ${JSON.stringify(probeCount)}`);
+  assert.ok(probeCount.failing.length > 0);
+});
+
+test('readiness (PR 7, AC-17504-2): no probeRunner yields the pre-PR result', () => {
+  const req = {
+    reqId: 'REQ-003',
+    title: 'req',
+    description: 'description',
+    domain: 'ops',
+    shapeClassification: { shapes: ['other'] },
+  };
+  const tree = makeTree({ requirements: [req] });
+  const resultNoRunner = computeReadiness(tree, { ledgers: { probes: { probes: [] } } });
+  const resultNullRunner = computeReadiness(tree, { probeRunner: null, ledgers: { probes: { probes: [] } } });
+  assert.deepEqual(resultNoRunner, resultNullRunner);
+  // The D6 probe count should pass when no findings are injected.
+  const d6 = resultNoRunner.stages.find((s) => s.stage === 'D6');
+  const probeCount = d6.checks.find((c) => c.name === 'consistency:probeCount');
+  assert.equal(probeCount.ok, true);
+});
+
+test('readiness (PR 7, AC-17504-5): --litmus triggers no process spawn and no network call', () => {
+  // parseLitmusFlag and countLitmusReadersAtHash are pure: calling
+  // them inside this test must not require any I/O or network. We
+  // guard the global fetch and child_process.spawn seams so an
+  // accidental call would throw.
+  const req = {
+    reqId: 'REQ-003',
+    title: 'req',
+    description: 'description',
+    domain: 'ops',
+    shapeClassification: { shapes: ['other'] },
+  };
+  const tree = makeTree({ requirements: [req] });
+  const originalFetch = globalThis.fetch;
+  let fetchCalled = false;
+  globalThis.fetch = () => { fetchCalled = true; throw new Error('fetch forbidden under --litmus'); };
+  try {
+    const n = parseLitmusFlag('2');
+    assert.equal(n, 2);
+    const result = computeReadiness(tree, { ledgers: { probes: { probes: [] } } });
+    const readers = countLitmusReadersAtHash({ probes: { probes: [] } }, result.tree.litmusHash);
+    assert.equal(readers.size, 0);
+    assert.equal(fetchCalled, false);
+    // Sanity: the litmus hash is a sha256 and differs from the
+    // current tree hash because the current tree hash includes the
+    // probes ledger (ledger:probes docHash) and the litmus hash does
+    // not; even an empty probe ledger shifts the probes docHash from
+    // undefined to the hash of the empty-probes body.
+    assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
+    assert.notEqual(result.tree.litmusHash, result.tree.currentTreeHash);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('readiness (PR 7 R9): litmusHash is stable under probes-ledger writes but shifts with brief/decisions/concerns writes', () => {
+  // ADR-4131 extended R9 (w-2026-10-03-dave-011): the litmus hash is
+  // the tree hash computed with the probes ledger excluded. Writing
+  // to the probes ledger must not shift it (otherwise a reader's own
+  // write would invalidate the hash the reader just pinned to);
+  // writing to the brief, decisions or concerns ledgers must shift
+  // it (those are the content under review).
+  const req = {
+    reqId: 'REQ-003',
+    title: 'req',
+    description: 'description',
+    domain: 'ops',
+    shapeClassification: { shapes: ['other'] },
+  };
+  const tree = makeTree({ requirements: [req] });
+
+  const noProbes = { probes: { probes: [] } };
+  const withProbe = {
+    probes: {
+      probes: [
+        { id: 1, reqId: 'REQ-003', finding: 'litmus:reader-01: observed', severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+  };
+  const withBrief = {
+    probes: { probes: [] },
+    brief: { statements: [{ id: 1, kind: 'capability', text: 'x', source: 'test:1' }] },
+  };
+
+  const base = computeReadiness(tree, { ledgers: noProbes }).tree.litmusHash;
+  const afterProbeWrite = computeReadiness(tree, { ledgers: withProbe }).tree.litmusHash;
+  const afterBriefWrite = computeReadiness(tree, { ledgers: withBrief }).tree.litmusHash;
+
+  assert.equal(afterProbeWrite, base, 'probes-ledger write must not shift litmusHash');
+  assert.notEqual(afterBriefWrite, base, 'brief-ledger write must shift litmusHash');
+});
+
+test('readiness (PR 7): countLitmusReadersAtHash reads distinct readers from probe entries', () => {
+  const hash = 'sha256:abcdef0123456789';
+  const ledgers = {
+    probes: {
+      probes: [
+        { id: 1, reqId: 'REQ-003', finding: `litmus:reader-01: observed at hash ${hash}`, severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+        { id: 2, reqId: 'REQ-003', finding: `litmus:reader-02: observed at hash ${hash}`, severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+        { id: 3, reqId: 'REQ-004', finding: 'generic probe finding (not litmus)', severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+        // Same reader twice: count stays at 2.
+        { id: 4, reqId: 'REQ-005', finding: `litmus:reader-01: a second observation at hash ${hash}`, severity: 'low', status: 'open', addedAt: '2026-10-03T10:00:00Z' },
+      ],
+    },
+  };
+  const readers = countLitmusReadersAtHash(ledgers, hash);
+  assert.equal(readers.size, 2);
+  assert.ok(readers.has('reader-01'));
+  assert.ok(readers.has('reader-02'));
+});
+
+test('readiness (PR 7): parseLitmusFlag validates its input', () => {
+  assert.equal(parseLitmusFlag(undefined), null);
+  assert.equal(parseLitmusFlag(null), null);
+  assert.equal(parseLitmusFlag('1'), 1);
+  assert.equal(parseLitmusFlag('5'), 5);
+  assert.throws(() => parseLitmusFlag('0'), /positive integer/);
+  assert.throws(() => parseLitmusFlag('-1'), /positive integer/);
+  assert.throws(() => parseLitmusFlag('two'), /positive integer/);
+  assert.throws(() => parseLitmusFlag('1.5'), /positive integer/);
 });

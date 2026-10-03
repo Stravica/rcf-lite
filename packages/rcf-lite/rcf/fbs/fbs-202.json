@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-03T15:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z",
   "acIds": [
     "AC-17302-1",
     "AC-17302-2",
@@ -58,14 +58,25 @@
     "AC-17405-3",
     "AC-17405-4",
     "AC-17405-5",
-    "AC-17405-6"
+    "AC-17405-6",
+    "AC-17406-1",
+    "AC-17406-2",
+    "AC-17406-3",
+    "AC-17406-4",
+    "AC-17406-5",
+    "AC-17406-6",
+    "AC-17504-1",
+    "AC-17504-2",
+    "AC-17504-3",
+    "AC-17504-4",
+    "AC-17504-5"
   ],
   "fbsId": "FBS-202",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 202,
   "executionStatus": "notStarted",
-  "title": "DEFINE step 3 PRs 1-3, PR 5 and PR 6: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5); D4 closed-set and ownerRef findings, D5 concern catalogue, standards citation (PR 6)",
+  "title": "DEFINE step 3 PRs 1-3, PR 5, PR 6 and PR 7: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5); D4 closed-set and ownerRef findings, D5 concern catalogue, standards citation (PR 6); D6 consistency scans, probe seam, --litmus and rcf_define_litmus (PR 7)",
   "summary": "Carry the ACs for PRs 1, 2, 3, 5 and 6 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. PR 3: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description, shapes:draftSettled reports all three id forms (<tacId>:<name>, <tacId>, TAD.entity:<name>); the two new argument-free prompts rcf_define_draft_shapes and rcf_discover_prototype plus guidance/discovery-prototypes.md (REQ-188 + REQ-182 amended, ADR-4132). PR 5: the three D3 bite checks shapes:templateMarkers, shapes:entityJoin and shapes:pathsResolve on src/query/gates.js (parseInterfaceTemplate exported for validate); ackable(stage) companion to stagePolicy returning true for D3, D5, D6; readiness CLI --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash; cli-readiness.js resolves candidate paths on disk and passes resolvedPaths in the stage context so gates stay pure (REQ-174 amended, US-17404, TAC-4122 and TAC-4123 amended, ADR-4131). Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the ACs across the PRs. PR 1 tests ride TS-215; PR 2 tests ride TS-226; PR 3 tests ride TS-228 (renumbered from the cloud build's TS-227 after viewer PR 8 claimed TS-227 for US-18002); PR 5 tests ride TS-230 (next free when expecting the viewer PR 9 to land TS-229; brief predicted TS-230). PR 6 tests ride TS-231 and anchor CN-756, CN-757 and CN-758.",
   "dependsOnFbsIds": [
     "FBS-195",
@@ -78,7 +89,8 @@
       "TAC-4130-define-intake-brief",
       "TAC-4129-define-questions",
       "TAC-4128-define-guidance",
-      "TAC-4122-define-gates"
+      "TAC-4122-define-gates",
+      "TAC-4123-define-readiness"
     ],
     "adrIds": [
       "ADR-4129-questions-harness-driven-loop",
@@ -123,7 +135,15 @@
     "src/define/concern-catalogue.js: CONCERN_KEYS, CONCERN_APPLICABILITY and applicableConcernsFor exported (PR 6)",
     "src/query/gates.js: stories:closedSets, stories:ownerRefResolves, crosscut:catalogue, skeleton:standardsCited; CHECK_PERSONA / CHECK_QUESTION extended (PR 6)",
     "src/cli/readiness.js: --check crosscut and --check D5 ride the same --ack fold as D3 (PR 6)",
-    "test/query/gates.test.js, test/define/concern-catalogue.test.js, test/cli/readiness.test.js, test/cli/validate.test.js, test/query/questions-loop.test.js: PR 6 cases for AC-17405-1..6 and the loop-convergence row (PR 6)"
+    "test/query/gates.test.js, test/define/concern-catalogue.test.js, test/cli/readiness.test.js, test/cli/validate.test.js, test/query/questions-loop.test.js: PR 6 cases for AC-17405-1..6 and the loop-convergence row (PR 6)",
+    "rcf/requirements/req-175.json (amended with the probeRunner + --litmus paragraph), rcf/user-stories/us-17406.json (D6 bites), rcf/user-stories/us-17504.json (probe seam and litmus), rcf/tacs/tac-4122-define-gates.json (amended with the four D6 scan responsibilities), rcf/tacs/tac-4123-define-readiness.json (amended with the probeRunner, --litmus and D6 biting-stage responsibilities and four moduleApi interfaces), rcf/tacs/tac-4128-define-guidance.json (amended with the rcf_define_litmus responsibility and interface), rcf/test-suites/ts-232.json, rcf/code-nodes/cn-759.json..cn-764.json (PR 7 chain)",
+    "src/query/gates.js: consistency:contradictions, consistency:unsatisfiable, consistency:duplicates, consistency:orphanInterfaces added to checkD6Consistency; CHECK_PERSONA / CHECK_QUESTION extended (PR 7)",
+    "src/query/readiness.js: probeRunner seam merged into ledgers.probes.probes[]; parseLitmusFlag and countLitmusReadersAtHash exported (PR 7)",
+    "src/define/probe-runner.js: new seam-only module (ProbeRunner typedef, NO_PROBE_RUNNER, isProbeRunner); no shipped runner (PR 7)",
+    "src/cli/readiness.js: --litmus <n> flag with usage; D6 joins the BITING_STAGES set; --help carries the new flag (PR 7)",
+    "src/cli/freeze.js: --litmus <n> flag with usage; refuses (exit 4) and writes nothing on a shortfall (PR 7)",
+    "guidance/define-litmus.md and guidance/manifest.json entry for rcf_define_litmus (PR 7)",
+    "test/query/gates.test.js: AC-17406-1..6 D6 bite cases; test/query/readiness.test.js: AC-17504-1/2/5 probe-seam and litmus unit cases; test/cli/readiness.test.js: AC-17504-3/4 --litmus exit cases (PR 7)"
   ],
   "riskLevel": "low",
   "domain": "defineLedgers",

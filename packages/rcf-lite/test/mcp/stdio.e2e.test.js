@@ -182,7 +182,9 @@ test('e2e: resources and prompts served over real pipes', async () => {
   // REQ-186 added two more argument-free prompts (spec 2026-10-01 §6).
   // REQ-188 (DEFINE step 3 PR 3) added two more argument-free prompts:
   // rcf_define_draft_shapes and rcf_discover_prototype (spec §3, §5).
-  assert.equal(prompts.result.prompts.length, 6);
+  // REQ-175 extended (DEFINE step 3 PR 7, spec §6) added
+  // rcf_define_litmus.
+  assert.equal(prompts.result.prompts.length, 7);
   const playbook = await server.request('prompts/get', { name: 'rcf_execute_build_cycle' });
   assert.equal(playbook.result.messages[0].role, 'user');
   assert.ok(playbook.result.messages[0].content.text.length > 100);

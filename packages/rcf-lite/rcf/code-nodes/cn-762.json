@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-762",
+  "path": "src/cli/readiness.js",
+  "title": "DEFINE step 3 PR 7: --litmus <n> and D6 in the biting-stages set",
+  "description": "src/cli/readiness.js adds the --litmus <n> flag with usage help, parses it via parseLitmusFlag, counts distinct litmus readers at the current tree hash via countLitmusReadersAtHash, and exits 4 with a stderr warn line naming the shortfall when fewer than n have attested. D6 joins the BITING_STAGES set so --check consistency now exits 4 on an unacknowledged D6 failure and 0 when acked at the current hash. --help documents the new flag. No process is spawned and no network call is made.",
+  "implementsAcIds": [
+    "AC-17504-3",
+    "AC-17504-4",
+    "AC-17504-5"
+  ],
+  "dependencies": [
+    "CN-760"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}
